@@ -1,5 +1,4 @@
 from ClyphX_Pro.clyphx_pro.UserActionsBase import UserActionsBase
-from ClyphX_Pro.clyphx_pro.user_actions._utils import print_except
 
 # Your class must extend UserActionsBase.
 class ExampleActions(UserActionsBase):
@@ -18,11 +17,6 @@ class ExampleActions(UserActionsBase):
         (4) - ex_clip can be triggered via the name 'user_clip ex_clip', which will
               call the method named clip_action_example.
         """
-        self.add_global_action('test', self.global_action_test)
-        # self.add_global_action('loadsamplex', self.global_action_loadsamplex)
-        # self.add_track_action('record_ext', self.track_action_record_external_instrument)
-        # self.add_track_action('record_ext_audio', self.track_action_record_external_instrument_audio)
-
         # Examples
         self.add_global_action('ex_global', self.global_action_example)
         self.add_track_action('ex_track', self.track_action_example)
@@ -34,12 +28,6 @@ class ExampleActions(UserActionsBase):
         # r = Timer(5.0, self.global_action_test, (None, None))
         # r.start()
 
-    @print_except
-    def global_action_test(self, _, args):
-        self.canonical_parent.log_message('calling global_action_test')
-        self.canonical_parent.clyphx_pro_component.trigger_action_list("PUSH MODE SESSION")
-
-    # @print_except
     # def global_action_loadsamplex(self, _, args):
     #     """ loadsample like swap action """
     #     track = self.song().view.selected_track

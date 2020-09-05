@@ -6,6 +6,7 @@
 
 #### record_ext x
 - arg : x the number of bars to record
+- usage : [] sel/record_ext 1 on clyphx track (will record 1 bar clips)
 - xclips should be positioned on a special control track
 - expects one midi track at position clyphx_track + 1 and one audio track at position clyphx track + 2
 - arms both midi and audio track
@@ -17,6 +18,7 @@
 
 #### record_ext_audio
 - records fixed length clip on both midi and audio track
+- usage : [] sel/record_ext_audio on clyphx track
 - fixed length is the length of the current midi playing clip
 - if no midi clip is playing this action does nothing
 - Stop audio clip when recorded so that the (possibly quantized) midi keeps playing in the armed audio track
