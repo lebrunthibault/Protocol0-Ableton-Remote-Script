@@ -1,4 +1,5 @@
 from ClyphX_Pro.clyphx_pro.user_actions._Track import Track
+from ClyphX_Pro.clyphx_pro.user_actions._TrackType import TrackType
 
 
 class GroupTrack:
@@ -15,28 +16,28 @@ class GroupTrack:
         # type: () -> Track
         track_index = self.track_index_clyphx - 1
         track = list(self.song.tracks)[track_index - 1]
-        return Track(track, track_index)
+        return Track(self, track, track_index, TrackType.group)
 
     @property
     def clyphx(self):
         # type: () -> Track
         track_index = self.track_index_clyphx
         track = list(self.song.tracks)[track_index - 1]
-        return Track(track, track_index)
+        return Track(self, track, track_index, TrackType.clyphx)
 
     @property
     def midi(self):
         # type: () -> Track
         track_index = self.track_index_clyphx + 1
         track = list(self.song.tracks)[track_index - 1]
-        return Track(track, track_index)
+        return Track(self, track, track_index, TrackType.midi)
 
     @property
     def audio(self):
         # type: () -> Track
         track_index = self.track_index_clyphx + 2
         track = list(self.song.tracks)[track_index - 1]
-        return Track(track, track_index)
+        return Track(self, track, track_index, TrackType.audio)
 
     @property
     def is_armed(self):

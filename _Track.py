@@ -1,10 +1,14 @@
 from ClyphX_Pro.clyphx_pro.user_actions._Clip import Clip
+from ClyphX_Pro.clyphx_pro.user_actions._TrackType import TrackType
 
 
 class Track:
-    def __init__(self, track, index):
+    def __init__(self, g_track, track, index, track_type):
+        # type: (_, _, int, TrackType) -> None
+        self.g_track = g_track
         self.track = track
         self.index = index
+        self.type = track_type
 
         try:
             playing_clip_index_track = int(track.name)

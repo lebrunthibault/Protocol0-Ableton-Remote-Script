@@ -1,6 +1,7 @@
 import time
 
 from ClyphX_Pro.clyphx_pro.user_actions._Actions import Actions
+from ClyphX_Pro.clyphx_pro.user_actions._Colors import Colors
 from ClyphX_Pro.clyphx_pro.user_actions._utils import for_all_methods, print_except
 from ClyphX_Pro.clyphx_pro.user_actions._AbstractUserAction import AbstractUserAction
 
@@ -25,51 +26,50 @@ class RecordExternalInstrument(AbstractUserAction):
             return self.unarm_ext(g_track)
 
         action_list = "; setplay on" if g_track.is_playing else ""
-        action_list += Actions.restart_midi_track_on_group_press(g_track)
+        action_list += Actions.restart_track_on_group_press(g_track.midi, g_track.audio)
         # stop audio to have live synth parameter edition while midi is playing
-        action_list += "; {0}/stop".format(g_track.audio.index) + Actions.set_audio_playing_color(g_track, AbstractUserAction.COLOR_DISABLED)
+        action_list += Actions.stop_track(g_track.audio)
         # disable other clip colors
         for group_track in g_track.other_group_tracks:
-            action_list += "; {0}/clip(1) color {1}".format(group_track.clyphx.index, AbstractUserAction.COLOR_DISABLED)
-            action_list += "; {0}/fold on".format(group_track.group.index)
+            action_list += Actions.fold_track(group_track)
         action_list += Actions.arm_tracks(g_track)
-        action_list += "; push msg 'tracks armed'; {0}/clip(1) color 1; ".format(g_track.clyphx.index)
+        action_list += "; push msg 'tracks armed'; {0}/clip(1) color {1}; ".format(g_track.clyphx.index, Colors.ARM)
         action_list += "; {0}/fold off; {1}/sel".format(g_track.group.index, g_track.midi.index)
 
-        self.exec_action(action_list)
+        self.exec_action(action_list, "arm_ext")
 
     def unarm_ext(self, g_track):
         """ unarming group track """
         action_list = Actions.unarm_tracks(g_track)
         if g_track.audio.is_playing:
-            action_list += Actions.restart_midi_track_on_group_press(g_track)
-            action_list += Actions.restart_track_on_group_press(g_track.audio)
+            action_list += Actions.restart_grouped_track(g_track, g_track.audio)
         elif g_track.midi.is_playing:
-            action_list += Actions.restart_audio_track_on_group_press(g_track)
-            action_list += Actions.restart_track_on_group_press(g_track.midi)
+            action_list += Actions.restart_grouped_track(g_track, g_track.midi)
         else:
             action_list += Actions.restart_grouped_track(g_track)
 
         if g_track.audio.is_playing:
-            action_list += Actions.set_audio_playing_color(g_track, AbstractUserAction.COLOR_PLAYING)
+            action_list += Actions.set_audio_playing_color(g_track, Colors.PLAYING)
 
         action_list += "; push msg 'tracks unarmed'; {0}/clip(1) color {1}; {2}/fold off".format(
-            g_track.clyphx.index, AbstractUserAction.COLOR_DISABLED, g_track.group.index)
+            g_track.clyphx.index, Colors.DISABLED, g_track.group.index)
         action_list += "; wait 10; GQ {0}".format(int(self.song().clip_trigger_quantization) + 1)
 
-        self.exec_action(action_list)
+        self.exec_action(action_list, "unarm_ext")
 
     def sel_midi_ext(self, action_def, _):
         """ Sel midi track to open ext editor """
         g_track = self.get_group_track(action_def)
 
-        if self.song().view.selected_track == g_track.midi:
-            return
+        action_list = Actions.arm_tracks(g_track)
 
-        action_list = Actions.restart_grouped_track(g_track)
+        if self.song().view.selected_track == g_track.midi:
+            return self.exec_action(action_list)
+
+        action_list += Actions.restart_grouped_track(g_track)
         action_list += "; {0}/fold off; {1}/sel".format(g_track.group.index, g_track.midi.index)
         action_list += "; ".join(["; {0}/fold on".format(group_track.group.index) for group_track in g_track.other_group_tracks])
-        self.exec_action(action_list)
+        self.exec_action(action_list, "sel_midi_ext")
 
     def stop_audio_ext(self, action_def, _):
         """ arm both midi and audio track """
@@ -79,10 +79,9 @@ class RecordExternalInstrument(AbstractUserAction):
             return self.log_to_push("Tried to stop audio when track is not armed")
 
         action_list = Actions.restart_track_on_group_press(g_track.midi)
-        action_list += "; {0}/stop; {0}/name '0'".format(g_track.audio.index)
-        action_list += Actions.set_audio_playing_color(g_track, AbstractUserAction.COLOR_DISABLED)
+        action_list += Actions.stop_track(g_track.audio)
 
-        self.exec_action(action_list)
+        self.exec_action(action_list, "stop_audio_ext")
 
     def clear_ext(self, action_def, _):
         """ delete all clips on both midi and audio track """
@@ -97,7 +96,7 @@ class RecordExternalInstrument(AbstractUserAction):
         action_list = raw_action_list.format(g_track.midi.index, g_track.audio.index)
         action_list += "; metro off; waits 1; setstop; setjump 1.1.1"
 
-        self.exec_action(action_list)
+        self.exec_action(action_list, "clear_ext")
 
     def record_ext(self, action_def, bar_count):
         """ record both midi and audio on prophet grouped track """
@@ -118,7 +117,7 @@ class RecordExternalInstrument(AbstractUserAction):
         action_list += "; {0}/clip({1}) name {2}".format(g_track.midi.index, rec_clip_index, timestamp)
         action_list += "; {0}/clip({1}) name {2}".format(g_track.audio.index, rec_clip_index, timestamp)
 
-        self.exec_action(action_list)
+        self.exec_action(action_list, "record_ext")
 
     def record_ext_audio(self, action_def, _):
         """ record audio on prophet grouped track from playing midi clip """
@@ -137,5 +136,6 @@ class RecordExternalInstrument(AbstractUserAction):
         delay = int(round((600 / self.song().tempo) * (int(g_track.midi.playing_clip.length) + 6)))
         action_list += "; wait {0}; {1}/clip({2}) name '{3}'".format(
             delay, g_track.audio.index, g_track.audio.rec_clip_index, g_track.midi.playing_clip.name)
+        action_list += Actions.set_audio_playing_color(g_track, Colors.PLAYING)
 
-        self.exec_action(action_list + Actions.set_audio_playing_color(g_track, AbstractUserAction.COLOR_PLAYING))
+        self.exec_action(action_list, "record_ext_audio")

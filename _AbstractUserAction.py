@@ -4,10 +4,6 @@ from ClyphX_Pro.clyphx_pro.user_actions._GroupTrack import GroupTrack
 
 
 class AbstractUserAction(UserActionsBase):
-    COLOR_ARM = 1
-    COLOR_DISABLED = 14
-    COLOR_PLAYING = 70
-
     def get_group_track(self, action_def):
         # type: ([str]) -> GroupTrack
         return GroupTrack(self.song(), action_def['track'])
@@ -21,9 +17,9 @@ class AbstractUserAction(UserActionsBase):
         self.log(message)
         self.exec_action("push msg %s" % message)
 
-    def exec_action(self, action_list):
-        # type: (str) -> None
-        self.log('action_list %s' % action_list)
+    def exec_action(self, action_list, title):
+        # type: (str, str) -> None
+        self.log("{0}: {1}".format(title, action_list))
         self.canonical_parent.clyphx_pro_component.trigger_action_list(action_list)
 
     def get_playing_clips_count(self, g_track, include_group):
