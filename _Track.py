@@ -7,9 +7,13 @@ class Track:
         self.index = index
 
         try:
-            self.playing_clip_index = int(track.name)
+            playing_clip_index_track = int(track.name)
         except ValueError:
-            self.playing_clip_index = 0
+            playing_clip_index_track = 0
+
+        self.playing_clip_index = next(
+            iter([i + 1 for (i, clip_slot) in enumerate(list(track.clip_slots)) if clip_slot.has_clip and clip_slot.clip.is_playing]),
+            playing_clip_index_track)
 
     @property
     def name(self):

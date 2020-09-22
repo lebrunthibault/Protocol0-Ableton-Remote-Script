@@ -21,36 +21,39 @@ class RecordExternalInstrument(AbstractUserAction):
         """ arm or unarm both midi and audio track """
         g_track = self.get_group_track(action_def)
 
-        unarming = g_track.midi.arm and g_track.audio.arm
-
-        if unarming:
+        if g_track.is_armed:
             return self.unarm_ext(g_track)
 
-        action_list = ""
-        if g_track.is_playing:
-            # sync all clips
-            action_list += "; setplay on"
-        action_list += Actions.restart_track_on_group_press(g_track.midi)
+        action_list = "; setplay on" if g_track.is_playing else ""
+        action_list += Actions.restart_midi_track_on_group_press(g_track)
         # stop audio to have live synth parameter edition while midi is playing
         action_list += "; {0}/stop".format(g_track.audio.index) + Actions.set_audio_playing_color(g_track, AbstractUserAction.COLOR_DISABLED)
         # disable other clip colors
         for group_track in g_track.other_group_tracks:
             action_list += "; {0}/clip(1) color {1}".format(group_track.clyphx.index, AbstractUserAction.COLOR_DISABLED)
             action_list += "; {0}/fold on".format(group_track.group.index)
-        # arm track
-        action_list += Actions.arm_tracks(g_track) + \
-            "; push msg 'tracks armed'; {0}/clip(1) color 1; ".format(g_track.clyphx.index)
+        action_list += Actions.arm_tracks(g_track)
+        action_list += "; push msg 'tracks armed'; {0}/clip(1) color 1; ".format(g_track.clyphx.index)
         action_list += "; {0}/fold off; {1}/sel".format(g_track.group.index, g_track.midi.index)
 
         self.exec_action(action_list)
 
     def unarm_ext(self, g_track):
         """ unarming group track """
-        action_list = "; {0}/arm on; {1}/arm off; {2}/arm off".format(
-            g_track.clyphx.index, g_track.midi.index, g_track.audio.index)
-        # restart audio to keep audio playback when unarming
-        action_list += Actions.restart_audio_track_on_group_press(g_track)
-        action_list += "; push msg 'tracks unarmed'; {0}/clip(1) color {1}; {2}/fold on".format(
+        action_list = Actions.unarm_tracks(g_track)
+        if g_track.audio.is_playing:
+            action_list += Actions.restart_midi_track_on_group_press(g_track)
+            action_list += Actions.restart_track_on_group_press(g_track.audio)
+        elif g_track.midi.is_playing:
+            action_list += Actions.restart_audio_track_on_group_press(g_track)
+            action_list += Actions.restart_track_on_group_press(g_track.midi)
+        else:
+            action_list += Actions.restart_grouped_track(g_track)
+
+        if g_track.audio.is_playing:
+            action_list += Actions.set_audio_playing_color(g_track, AbstractUserAction.COLOR_PLAYING)
+
+        action_list += "; push msg 'tracks unarmed'; {0}/clip(1) color {1}; {2}/fold off".format(
             g_track.clyphx.index, AbstractUserAction.COLOR_DISABLED, g_track.group.index)
         action_list += "; wait 10; GQ {0}".format(int(self.song().clip_trigger_quantization) + 1)
 
@@ -72,11 +75,12 @@ class RecordExternalInstrument(AbstractUserAction):
         """ arm both midi and audio track """
         g_track = self.get_group_track(action_def)
 
-        action_list = "{0}/play {1}".format(g_track.midi.index, g_track.midi.playing_clip.index) if g_track.midi.is_playing else \
-            "{0}/stop".format(g_track.midi.index)
-        action_list += "; {0}/stop".format(g_track.audio.index)
+        if not g_track.is_armed:
+            return self.log_to_push("Tried to stop audio when track is not armed")
+
+        action_list = Actions.restart_track_on_group_press(g_track.midi)
+        action_list += "; {0}/stop; {0}/name '0'".format(g_track.audio.index)
         action_list += Actions.set_audio_playing_color(g_track, AbstractUserAction.COLOR_DISABLED)
-        action_list += "; {0}/name '0'".format(g_track.audio.index)
 
         self.exec_action(action_list)
 
@@ -121,10 +125,10 @@ class RecordExternalInstrument(AbstractUserAction):
         g_track = self.get_group_track(action_def)
 
         if not g_track.midi.is_playing:
-            return self.log_push("midi not playing, cannot record audio")
+            return self.log_to_push("midi not playing, cannot record audio")
 
         action_list = Actions.arm_tracks(g_track) + Actions.add_scene_if_needed(g_track.audio)
-        action_list += "; {0}/play {1}".format(g_track.midi.index, g_track.midi.playing_clip.index)
+        action_list += Actions.restart_track_on_group_press(g_track.midi)
         action_list_rec = "; {0}/recfix {1} {2}; {0}/name '{2}'".format(
             g_track.audio.index, int(round((g_track.midi.playing_clip.length + 1) / 4)), g_track.audio.rec_clip_index
         )

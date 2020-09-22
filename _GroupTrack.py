@@ -39,6 +39,11 @@ class GroupTrack:
         return Track(track, track_index)
 
     @property
+    def is_armed(self):
+        # type: () -> bool
+        return self.midi.arm and self.audio.arm
+
+    @property
     def is_playing(self):
         # type: () -> bool
         return self.midi.is_playing or self.audio.is_playing

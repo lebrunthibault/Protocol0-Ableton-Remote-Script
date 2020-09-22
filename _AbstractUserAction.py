@@ -16,7 +16,7 @@ class AbstractUserAction(UserActionsBase):
         # type: (str) -> None
         self.canonical_parent.log_message(message)
 
-    def log_push(self, message):
+    def log_to_push(self, message):
         # type: (str) -> None
         self.log(message)
         self.exec_action("push msg %s" % message)
