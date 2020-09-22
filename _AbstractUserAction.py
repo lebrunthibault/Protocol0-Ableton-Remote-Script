@@ -1,60 +1,67 @@
+# noinspection PyUnresolvedReferences
 from ClyphX_Pro.clyphx_pro.UserActionsBase import UserActionsBase
-import collections
+from ClyphX_Pro.clyphx_pro.user_actions._GroupTrack import GroupTrack
+
 
 class AbstractUserAction(UserActionsBase):
-    def exec_action(self, action_list):
-        self.canonical_parent.log_message('action_list %s' % action_list)
-        self.canonical_parent.clyphx_pro_component.trigger_action_list(action_list)
+    COLOR_ARM = 1
+    COLOR_DISABLED = 14
+    COLOR_PLAYING = 70
 
     def get_group_track(self, action_def):
-        track_index_clyphx = list(self.song().tracks).index(action_def['track']) + 1
+        # type: ([str]) -> GroupTrack
+        return GroupTrack(self.song(), action_def['track'])
 
-        # check if we clicked on group track instead of clyphx track
-        if list(self.song().tracks)[track_index_clyphx - 1].is_foldable:
-            track_index_clyphx += 1
-        track_index_midi = track_index_clyphx + 1
-        track_index_audio = track_index_clyphx + 2
+    def log(self, message):
+        # type: (str) -> None
+        self.canonical_parent.log_message(message)
 
-        midi_track = list(self.song().tracks)[track_index_midi - 1]
-        audio_track = list(self.song().tracks)[track_index_audio - 1]
+    def log_push(self, message):
+        # type: (str) -> None
+        self.log(message)
+        self.exec_action("push msg %s" % message)
 
-        GroupTrack = collections.namedtuple("Collection", [
-            "index_clyphx", "index_midi", "index_audio", "midi", "audio"
-        ])
+    def exec_action(self, action_list):
+        # type: (str) -> None
+        self.log('action_list %s' % action_list)
+        self.canonical_parent.clyphx_pro_component.trigger_action_list(action_list)
 
-        return GroupTrack(track_index_clyphx, track_index_midi, track_index_audio, midi_track, audio_track)
-
-    def get_action_arm_tracks(self, action_def):
-        g_track = self.get_group_track(action_def)
-
-        return "{0}/arm off ; {1}/arm on ; {2}/arm on".format(
-            g_track.index_clyphx, g_track.index_midi, g_track.index_audio
-        )
-
-    def add_scene_if_needed(self, audio_track):
-        first_empty_clip_index = next(
-            iter([i for i, clip_slot in enumerate(list(audio_track.clip_slots)) if clip_slot.clip is None]), None)
-
-        return " ; addscene -1 ; wait 2" if first_empty_clip_index is None else ""
-
-    def get_empty_scene_index(self, audio_track):
-        first_empty_clip_index = next(
-            iter([i for i, clip_slot in enumerate(list(audio_track.clip_slots)) if clip_slot.clip is None]), None)
-
-        first_empty_clip_index + 1 if first_empty_clip_index is not None else len(
-            list(audio_track.clip_slots)) + 1
-
-        self.canonical_parent.log_message('clip free %s' % first_empty_clip_index)
-
-        return first_empty_clip_index
-
-    def get_playing_clips_count(self, action_def):
-        g_track = self.get_group_track(action_def)
-
+    def get_playing_clips_count(self, g_track, include_group):
+        # type: (GroupTrack, bool) -> int
+        """ number of playing clip count in the live set excluding the group track """
         playing_clips_count = len([clip_slot for index, track in enumerate(self.song().tracks)
                                    for clip_slot in track.clip_slots
-                                   if index not in (g_track.index_midi - 1, g_track.index_audio - 1) and clip_slot.clip
+                                   if (include_group is True or index not in (
+                                       g_track.midi.index - 1, g_track.audio.index - 1))
+                                   and clip_slot.clip
                                    and not clip_slot.clip.name.startswith("[]")
                                    and clip_slot.clip.is_playing])
 
-        self.canonical_parent.log_message('playing_clips_count %s' % playing_clips_count)
+        # self.log('playing_clips_count %s' % playing_clips_count)
+
+        return playing_clips_count
+
+    def get_other_group_ex_tracks(self, base_track):
+        """ get duplicate clyphx index and track from a base ex track """
+        return [(i + 1, track) for (i, track) in enumerate(self.song().tracks) if
+                track.name == base_track.name and track != base_track.track]
+
+    def has_set_playing_clips(self, g_track, include_group=True):
+        # type: (GroupTrack, bool) -> bool
+        """ find if there is playing clips elsewhere
+            by default checks also in group track
+        """
+        return self.get_playing_clips_count(g_track, include_group) != 0
+
+    def restart_and_record(self, g_track, action_list_rec, metro=True):
+        # type: (GroupTrack, str, bool) -> str
+        """ restart audio to get a count in and recfix"""
+        action_list = "; setplay off"
+
+        if not self.has_set_playing_clips(g_track, False) and metro:
+            action_list += "; metro on"
+
+        action_list += action_list_rec
+        # action_list += "; GQ {0}".format(int(self.song().clip_trigger_quantization) + 1)
+
+        return action_list
