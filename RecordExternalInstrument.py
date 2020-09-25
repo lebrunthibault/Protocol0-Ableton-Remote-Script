@@ -34,7 +34,7 @@ class RecordExternalInstrument(AbstractUserAction):
             action_list += Actions.fold_track(group_track)
         action_list += Actions.arm_tracks(g_track)
         action_list += "; push msg 'tracks armed'; {0}/clip(1) color {1}; ".format(g_track.clyphx.index, Colors.ARM)
-        action_list += "; {0}/fold off; {1}/sel".format(g_track.group.index, g_track.midi.index)
+        action_list += "; {0}/fold on; {1}/sel".format(g_track.group.index, g_track.midi.index)
 
         self.exec_action(action_list, "arm_ext")
 
