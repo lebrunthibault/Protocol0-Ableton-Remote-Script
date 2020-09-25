@@ -1,5 +1,7 @@
 # noinspection PyUnresolvedReferences
 from ClyphX_Pro.clyphx_pro.UserActionsBase import UserActionsBase
+
+from ClyphX_Pro.clyphx_pro.user_actions._Actions import Actions
 from ClyphX_Pro.clyphx_pro.user_actions._GroupTrack import GroupTrack
 
 
@@ -12,12 +14,13 @@ class AbstractUserAction(UserActionsBase):
         # type: (str) -> None
         self.canonical_parent.log_message(message)
 
-    def log_to_push(self, message):
-        # type: (str) -> None
+    def log_to_push(self, g_track, message):
+        # type: (GroupTrack, str) -> None
         self.log(message)
-        self.exec_action("push msg %s" % message)
+        action_list = Actions.restart_track_on_group_press(g_track)
+        self.exec_action(action_list + "; push msg %s" % message)
 
-    def exec_action(self, action_list, title):
+    def exec_action(self, action_list, title="error"):
         # type: (str, str) -> None
         self.log("{0}: {1}".format(title, action_list))
         self.canonical_parent.clyphx_pro_component.trigger_action_list(action_list)

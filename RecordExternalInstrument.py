@@ -48,10 +48,12 @@ class RecordExternalInstrument(AbstractUserAction):
         else:
             action_list += Actions.restart_grouped_track(g_track)
 
+        action_list += Actions.stop_track(g_track.midi)
+
         if g_track.audio.is_playing:
             action_list += Actions.set_audio_playing_color(g_track, Colors.PLAYING)
 
-        action_list += "; push msg 'tracks unarmed'; {0}/clip(1) color {1}; {2}/fold off".format(
+        action_list += "; push msg 'tracks unarmed'; {0}/clip(1) color {1}; {2}/fold on".format(
             g_track.clyphx.index, Colors.DISABLED, g_track.group.index)
         action_list += "; wait 10; GQ {0}".format(int(self.song().clip_trigger_quantization) + 1)
 
@@ -76,7 +78,7 @@ class RecordExternalInstrument(AbstractUserAction):
         g_track = self.get_group_track(action_def)
 
         if not g_track.is_armed:
-            return self.log_to_push("Tried to stop audio when track is not armed")
+            return self.log_to_push(g_track, "Tried to stop audio when track is not armed")
 
         action_list = Actions.restart_track_on_group_press(g_track.midi)
         action_list += Actions.stop_track(g_track.audio)
@@ -124,7 +126,7 @@ class RecordExternalInstrument(AbstractUserAction):
         g_track = self.get_group_track(action_def)
 
         if not g_track.midi.is_playing:
-            return self.log_to_push("midi not playing, cannot record audio")
+            return self.log_to_push(g_track, "midi not playing, cannot record audio")
 
         action_list = Actions.arm_tracks(g_track) + Actions.add_scene_if_needed(g_track.audio)
         action_list += Actions.restart_track_on_group_press(g_track.midi)
