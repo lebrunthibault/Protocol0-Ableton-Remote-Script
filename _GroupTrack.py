@@ -1,3 +1,4 @@
+from ClyphX_Pro.clyphx_pro.user_actions._Colors import Colors
 from ClyphX_Pro.clyphx_pro.user_actions._Track import Track
 from ClyphX_Pro.clyphx_pro.user_actions._TrackType import TrackType
 
@@ -12,6 +13,14 @@ class GroupTrack:
         # check if we clicked on group track instead of clyphx track
         if list(song.tracks)[self.track_index_clyphx - 1].is_foldable:
             self.track_index_clyphx += 1
+
+    @property
+    def color(self):
+        if "Prophet" in self.group.name:
+            return Colors.PROPHET
+        elif "BS" in self.group.name:
+            return Colors.BASS_STATION
+        return Colors.DISABLED
 
     @property
     def group(self):

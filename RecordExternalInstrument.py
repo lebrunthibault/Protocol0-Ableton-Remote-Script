@@ -41,8 +41,6 @@ class RecordExternalInstrument(AbstractUserAction):
     def unarm_ext(self, action_def, arm_group=True):
         g_track = self.get_group_track(action_def)
 
-        self.log(str(arm_group))
-
         """ unarming group track """
         action_list = Actions.unarm_tracks(g_track, arm_group)
         if g_track.audio.is_playing:
@@ -58,7 +56,7 @@ class RecordExternalInstrument(AbstractUserAction):
             action_list += Actions.set_audio_playing_color(g_track, Colors.PLAYING)
 
         action_list += "; {0}/clip(1) color {1}; {2}/fold on".format(
-            g_track.clyphx.index, Colors.DISABLED, g_track.group.index)
+            g_track.clyphx.index, g_track.color, g_track.group.index)
         action_list += "; wait 10; GQ {0}".format(int(self.song().clip_trigger_quantization) + 1)
         action_list += "; push msg 'tracks unarmed'"
 
