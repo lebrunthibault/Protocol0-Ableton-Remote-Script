@@ -20,7 +20,7 @@ class Actions:
     @staticmethod
     def unarm_tracks(g_track):
         # type: (GroupTrack) -> str
-        return "; all/arm off; {0}/arm on".format(g_track.clyphx.index)
+        return "; {0}, {1}/arm off; {0}/arm on".format(g_track.clyphx.index)
 
     @staticmethod
     def add_scene_if_needed(track):

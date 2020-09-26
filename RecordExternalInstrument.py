@@ -37,11 +37,11 @@ class RecordExternalInstrument(AbstractUserAction):
 
         self.exec_action(action_list, g_track, "arm_ext")
 
-    def unarm_ext(self, action_def, _):
+    def unarm_ext(self, action_def, unarm_all=False):
         g_track = self.get_group_track(action_def)
 
         """ unarming group track """
-        action_list = Actions.unarm_tracks(g_track)
+        action_list = Actions.unarm_tracks(g_track, unarm_all)
         if g_track.audio.is_playing:
             action_list += Actions.restart_grouped_track(g_track, g_track.audio)
         elif g_track.midi.is_playing:

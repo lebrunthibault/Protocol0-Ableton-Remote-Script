@@ -3,6 +3,8 @@ from ClyphX_Pro.clyphx_pro.user_actions._TrackType import TrackType
 
 
 class GroupTrack:
+    GROUP_EXT_NAMES = ("Prophet Group", "BS Group")
+
     def __init__(self, song, base_track):
         self.song = song
         self.track_index_clyphx = list(self.song.tracks).index(base_track) + 1
@@ -50,9 +52,12 @@ class GroupTrack:
         return self.midi.is_playing or self.audio.is_playing
 
     @property
+    def other_group_tracks(self):
+        # type: (GroupTrack) -> list[GroupTrack]
+        return [GroupTrack(self.song, track) for track in self.song.tracks if
+                              track.name in self.GROUP_EXT_NAMES and track != self.group.track]
+
+    @property
     def other_armed_group_track(self):
         # type: (GroupTrack) -> GroupTrack
-        other_group_tracks = [GroupTrack(self.song, track) for track in self.song.tracks if
-                              track.name == self.group.name and track != self.group.track]
-
-        return next(iter([g_track for g_track in other_group_tracks if g_track.is_armed]), None)
+        return next(iter([g_track for g_track in self.other_group_tracks if g_track.is_armed]), None)
