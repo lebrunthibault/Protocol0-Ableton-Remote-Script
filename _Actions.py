@@ -18,9 +18,12 @@ class Actions:
         return "; all/arm off; {0}, {1}/arm on".format(g_track.midi.index, g_track.audio.index)
 
     @staticmethod
-    def unarm_tracks(g_track):
-        # type: (GroupTrack) -> str
-        return "; {0}, {1}/arm off; {0}/arm on".format(g_track.clyphx.index)
+    def unarm_tracks(g_track, arm_group):
+        # type: (GroupTrack, bool) -> str
+        action_list = "; {0}, {1}/arm off".format(g_track.midi.index, g_track.audio.index)
+        if arm_group:
+            action_list += "; {0}/arm on".format(g_track.clyphx.index)
+        return action_list
 
     @staticmethod
     def add_scene_if_needed(track):
