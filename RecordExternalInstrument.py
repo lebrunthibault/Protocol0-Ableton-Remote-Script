@@ -31,14 +31,13 @@ class RecordExternalInstrument(AbstractUserAction):
         # stop audio to have live synth parameter edition while midi is playing
         action_list += Actions.stop_track(g_track.audio)
         # disable other clip colors
-        action_list += Actions.fold_track(group_track.other)
         action_list += Actions.arm_tracks(g_track)
         action_list += "; push msg 'tracks armed'; {0}/clip(1) color {1}; ".format(g_track.clyphx.index, Colors.ARM)
-        action_list += "; {0}/fold on; {1}/sel".format(g_track.group.index, g_track.midi.index)
+        action_list += "; {0}/fold off; {1}/sel".format(g_track.group.index, g_track.midi.index)
 
-        self.exec_action(action_list, "arm_ext")
+        self.exec_action(action_list, g_track, "arm_ext")
 
-    def unarm_ext(self, action_def):
+    def unarm_ext(self, action_def, _):
         g_track = self.get_group_track(action_def)
 
         """ unarming group track """
@@ -59,7 +58,7 @@ class RecordExternalInstrument(AbstractUserAction):
             g_track.clyphx.index, Colors.DISABLED, g_track.group.index)
         action_list += "; wait 10; GQ {0}".format(int(self.song().clip_trigger_quantization) + 1)
 
-        self.exec_action(action_list, "unarm_ext")
+        self.exec_action(action_list, g_track, "unarm_ext")
 
     def sel_midi_ext(self, action_def, _):
         """ Sel midi track to open ext editor """
@@ -72,8 +71,7 @@ class RecordExternalInstrument(AbstractUserAction):
 
         action_list += Actions.restart_grouped_track(g_track)
         action_list += "; {0}/fold off; {1}/sel".format(g_track.group.index, g_track.midi.index)
-        action_list += "; ".join(["; {0}/fold on".format(group_track.group.index) for group_track in g_track.other_group_tracks])
-        self.exec_action(action_list, "sel_midi_ext")
+        self.exec_action(action_list, g_track, "sel_midi_ext")
 
     def stop_audio_ext(self, action_def, _):
         """ arm both midi and audio track """
@@ -85,7 +83,7 @@ class RecordExternalInstrument(AbstractUserAction):
         action_list = Actions.restart_track_on_group_press(g_track.midi)
         action_list += Actions.stop_track(g_track.audio)
 
-        self.exec_action(action_list, "stop_audio_ext")
+        self.exec_action(action_list, g_track, "stop_audio_ext")
 
     def clear_ext(self, action_def, _):
         """ delete all clips on both midi and audio track """
@@ -100,7 +98,7 @@ class RecordExternalInstrument(AbstractUserAction):
         action_list = raw_action_list.format(g_track.midi.index, g_track.audio.index)
         action_list += "; metro off; waits 1; setstop; setjump 1.1.1"
 
-        self.exec_action(action_list, "clear_ext")
+        self.exec_action(action_list, g_track, "clear_ext")
 
     def record_ext(self, action_def, bar_count):
         """ record both midi and audio on prophet grouped track """
@@ -121,7 +119,7 @@ class RecordExternalInstrument(AbstractUserAction):
         action_list += "; {0}/clip({1}) name {2}".format(g_track.midi.index, rec_clip_index, timestamp)
         action_list += "; {0}/clip({1}) name {2}".format(g_track.audio.index, rec_clip_index, timestamp)
 
-        self.exec_action(action_list, "record_ext")
+        self.exec_action(action_list, g_track, "record_ext")
 
     def record_ext_audio(self, action_def, _):
         """ record audio on prophet grouped track from playing midi clip """
@@ -142,4 +140,4 @@ class RecordExternalInstrument(AbstractUserAction):
             delay, g_track.audio.index, g_track.audio.rec_clip_index, g_track.midi.playing_clip.name)
         action_list += Actions.set_audio_playing_color(g_track, Colors.PLAYING)
 
-        self.exec_action(action_list, "record_ext_audio")
+        self.exec_action(action_list, g_track, "record_ext_audio")

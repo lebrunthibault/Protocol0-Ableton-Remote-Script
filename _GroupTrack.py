@@ -50,9 +50,9 @@ class GroupTrack:
         return self.midi.is_playing or self.audio.is_playing
 
     @property
-    def other_group_tracks(self):
-        # type: (GroupTrack) -> list[GroupTrack]
-        group_tracks = [GroupTrack(self.song, track) for track in self.song.tracks if
-                track.name == self.group.name and track != self.group.track]
+    def other_armed_group_track(self):
+        # type: (GroupTrack) -> GroupTrack
+        other_group_tracks = [GroupTrack(self.song, track) for track in self.song.tracks if
+                              track.name == self.group.name and track != self.group.track]
 
-        
+        return next(iter([g_track for g_track in other_group_tracks if g_track.is_armed]), None)
