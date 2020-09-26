@@ -26,19 +26,22 @@ class RecordExternalInstrument(AbstractUserAction):
         if g_track.is_armed:
             return self.unarm_ext(action_def)
 
-        action_list = "; setplay on" if g_track.is_playing else ""
+        action_list = Actions.arm_tracks(g_track)
+        action_list += "; setplay on" if g_track.is_playing else ""
         action_list += Actions.restart_track_on_group_press(g_track.midi, g_track.audio)
         # stop audio to have live synth parameter edition while midi is playing
         action_list += Actions.stop_track(g_track.audio)
         # disable other clip colors
-        action_list += Actions.arm_tracks(g_track)
-        action_list += "; push msg 'tracks armed'; {0}/clip(1) color {1}; ".format(g_track.clyphx.index, Colors.ARM)
+        action_list += "; {0}/clip(1) color {1}".format(g_track.clyphx.index, Colors.ARM)
         action_list += "; {0}/fold off; {1}/sel".format(g_track.group.index, g_track.midi.index)
+        action_list += "; push msg 'tracks armed'"
 
         self.exec_action(action_list, g_track, "arm_ext")
 
     def unarm_ext(self, action_def, arm_group=True):
         g_track = self.get_group_track(action_def)
+
+        self.log(str(arm_group))
 
         """ unarming group track """
         action_list = Actions.unarm_tracks(g_track, arm_group)
@@ -54,11 +57,12 @@ class RecordExternalInstrument(AbstractUserAction):
         if g_track.audio.is_playing:
             action_list += Actions.set_audio_playing_color(g_track, Colors.PLAYING)
 
-        action_list += "; push msg 'tracks unarmed'; {0}/clip(1) color {1}; {2}/fold on".format(
+        action_list += "; {0}/clip(1) color {1}; {2}/fold on".format(
             g_track.clyphx.index, Colors.DISABLED, g_track.group.index)
         action_list += "; wait 10; GQ {0}".format(int(self.song().clip_trigger_quantization) + 1)
+        action_list += "; push msg 'tracks unarmed'"
 
-        self.exec_action(action_list, g_track, "unarm_ext")
+        self.exec_action(action_list, None, "unarm_ext")
 
     def sel_midi_ext(self, action_def, _):
         """ Sel midi track to open ext editor """
