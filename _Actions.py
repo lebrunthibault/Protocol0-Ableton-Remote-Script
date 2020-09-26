@@ -25,6 +25,7 @@ class Actions:
             action_list += "; {0}/arm on".format(g_track.clyphx.index)
         return action_list
 
+
     @staticmethod
     def add_scene_if_needed(track):
         # type: (Track) -> str

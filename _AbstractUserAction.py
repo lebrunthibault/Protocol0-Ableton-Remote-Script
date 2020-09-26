@@ -27,7 +27,7 @@ class AbstractUserAction(UserActionsBase):
         if g_track and g_track.other_armed_group_track:
             action_list += "; {0}/unarm_ext false".format(g_track.other_armed_group_track.group.index)
 
-        # self.log("{0}: {1}".format(title, action_list))
+        self.log("{0}: {1}".format(title, action_list))
         self.canonical_parent.clyphx_pro_component.trigger_action_list(action_list)
 
     def get_playing_clips_count(self, g_track, include_group):
