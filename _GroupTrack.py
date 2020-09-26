@@ -52,5 +52,7 @@ class GroupTrack:
     @property
     def other_group_tracks(self):
         # type: (GroupTrack) -> list[GroupTrack]
-        return [GroupTrack(self.song, track) for track in self.song.tracks if
+        group_tracks = [GroupTrack(self.song, track) for track in self.song.tracks if
                 track.name == self.group.name and track != self.group.track]
+
+        

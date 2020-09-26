@@ -12,6 +12,7 @@ class RecordExternalInstrument(AbstractUserAction):
 
     def create_actions(self):
         self.add_track_action('arm_ext', self.arm_ext)
+        self.add_track_action('unarm_ext', self.unarm_ext)
         self.add_track_action('sel_midi_ext', self.sel_midi_ext)
         self.add_track_action('stop_audio_ext', self.stop_audio_ext)
         self.add_track_action('clear_ext', self.clear_ext)
@@ -23,22 +24,23 @@ class RecordExternalInstrument(AbstractUserAction):
         g_track = self.get_group_track(action_def)
 
         if g_track.is_armed:
-            return self.unarm_ext(g_track)
+            return self.unarm_ext(action_def)
 
         action_list = "; setplay on" if g_track.is_playing else ""
         action_list += Actions.restart_track_on_group_press(g_track.midi, g_track.audio)
         # stop audio to have live synth parameter edition while midi is playing
         action_list += Actions.stop_track(g_track.audio)
         # disable other clip colors
-        for group_track in g_track.other_group_tracks:
-            action_list += Actions.fold_track(group_track)
+        action_list += Actions.fold_track(group_track.other)
         action_list += Actions.arm_tracks(g_track)
         action_list += "; push msg 'tracks armed'; {0}/clip(1) color {1}; ".format(g_track.clyphx.index, Colors.ARM)
         action_list += "; {0}/fold on; {1}/sel".format(g_track.group.index, g_track.midi.index)
 
         self.exec_action(action_list, "arm_ext")
 
-    def unarm_ext(self, g_track):
+    def unarm_ext(self, action_def):
+        g_track = self.get_group_track(action_def)
+
         """ unarming group track """
         action_list = Actions.unarm_tracks(g_track)
         if g_track.audio.is_playing:

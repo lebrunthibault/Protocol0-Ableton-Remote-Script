@@ -17,12 +17,13 @@ class AbstractUserAction(UserActionsBase):
     def log_to_push(self, g_track, message):
         # type: (GroupTrack, str) -> None
         self.log(message)
-        action_list = Actions.restart_track_on_group_press(g_track)
+        action_list = Actions.restart_grouped_track(g_track)
         self.exec_action(action_list + "; push msg %s" % message)
 
-    def exec_action(self, action_list, title="error"):
-        # type: (str, str) -> None
+    def exec_action(self, action_list, g_track=None, title="error"):
+        # type: (str, GroupTrack, str) -> None
         self.log("{0}: {1}".format(title, action_list))
+        action_list += "; unarm_ext"
         self.canonical_parent.clyphx_pro_component.trigger_action_list(action_list)
 
     def get_playing_clips_count(self, g_track, include_group):
