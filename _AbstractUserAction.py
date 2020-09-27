@@ -29,7 +29,7 @@ class AbstractUserAction(UserActionsBase):
         # type: (str, GroupTrack, str) -> None
         # self.log("g_track.other_group_tracks: %s" % len(g_track.other_group_tracks))
         # self.log("g_track.other_armed_group_track: %s" % g_track.other_armed_group_track)
-        if g_track and g_track.other_armed_group_track:
+        if g_track and g_track.other_armed_group_track and title != "stop_audio_ext":
             action_list += "; {0}/unarm_ext".format(g_track.other_armed_group_track.group.index)
 
         self.log("{0}: {1}".format(title, action_list))

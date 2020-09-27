@@ -81,9 +81,6 @@ class RecordExternalInstrument(AbstractUserAction):
         """ arm both midi and audio track """
         g_track = self.get_group_track(action_def)
 
-        if not g_track.is_armed:
-            return self.log_to_push(g_track, "Tried to stop audio when track is not armed")
-
         action_list = Actions.restart_track_on_group_press(g_track.midi)
         action_list += Actions.stop_track(g_track.audio)
 
