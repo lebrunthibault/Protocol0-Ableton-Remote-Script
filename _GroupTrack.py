@@ -15,14 +15,6 @@ class GroupTrack:
             self.track_index_clyphx += 1
 
     @property
-    def color(self):
-        if "Prophet" in self.group.name:
-            return Colors.PROPHET
-        elif "BS" in self.group.name:
-            return Colors.BASS_STATION
-        return Colors.DISABLED
-
-    @property
     def group(self):
         # type: () -> Track
         track_index = self.track_index_clyphx - 1
@@ -51,6 +43,11 @@ class GroupTrack:
         return Track(self, track, track_index, TrackType.audio)
 
     @property
+    def name(self):
+        # type: () -> str
+        return self.group.name
+
+    @property
     def is_armed(self):
         # type: () -> bool
         return self.midi.arm and self.audio.arm
@@ -59,6 +56,14 @@ class GroupTrack:
     def is_playing(self):
         # type: () -> bool
         return self.midi.is_playing or self.audio.is_playing
+
+    @property
+    def color(self):
+        if "Prophet" in self.group.name:
+            return Colors.PROPHET
+        elif "BS" in self.group.name:
+            return Colors.BASS_STATION
+        return Colors.DISABLED
 
     @property
     def other_group_tracks(self):

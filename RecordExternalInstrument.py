@@ -35,7 +35,7 @@ class RecordExternalInstrument(AbstractUserAction):
         # disable other clip colors
         action_list += "; {0}/clip(1) color {1}".format(g_track.clyphx.index, Colors.ARM)
         action_list += "; {0}/fold off; {1}/sel".format(g_track.group.index, g_track.midi.index)
-        action_list += "; push msg 'tracks armed'"
+        action_list += "; push msg 'tracks {0} armed'".format(g_track.name)
 
         self.exec_action(action_list, g_track, "arm_ext")
 
@@ -59,7 +59,8 @@ class RecordExternalInstrument(AbstractUserAction):
         action_list += "; {0}/clip(1) color {1}; {2}/fold on".format(
             g_track.clyphx.index, g_track.color, g_track.group.index)
         action_list += "; wait 10; GQ {0}".format(int(self.song().clip_trigger_quantization) + 1)
-        action_list += "; push msg 'tracks unarmed'"
+        if arm_group:
+            action_list += "; push msg 'tracks {0} unarmed'".format(g_track.name)
 
         self.exec_action(action_list, None, "unarm_ext")
 

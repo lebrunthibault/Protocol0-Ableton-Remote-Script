@@ -12,6 +12,9 @@ class Track:
 
         try:
             playing_clip_index_track = int(track.name)
+            # handle wrong track name
+            if not self.track.clip_slots[playing_clip_index_track - 1].has_clip:
+                playing_clip_index_track = 0
         except ValueError:
             playing_clip_index_track = 0
 
