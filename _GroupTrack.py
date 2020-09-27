@@ -14,6 +14,11 @@ class GroupTrack:
         if list(song.tracks)[self.track_index_clyphx - 1].is_foldable:
             self.track_index_clyphx += 1
 
+        if self.track_index_clyphx < 2:
+            raise Exception(
+                "tried to instantiate group track with base_track {0} and found track index {1}".format(base_track,
+                                                                                                        self.track_index_clyphx))
+
     @property
     def group(self):
         # type: () -> Track
@@ -69,7 +74,7 @@ class GroupTrack:
     def other_group_tracks(self):
         # type: (GroupTrack) -> list[GroupTrack]
         return [GroupTrack(self.song, track) for track in self.song.tracks if
-                              track.name in self.GROUP_EXT_NAMES and track != self.group.track]
+                track.name in self.GROUP_EXT_NAMES and track != self.group.track]
 
     @property
     def other_armed_group_track(self):
