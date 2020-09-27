@@ -18,6 +18,7 @@ class RecordExternalInstrument(AbstractUserAction):
         self.add_track_action('clear_ext', self.clear_ext)
         self.add_track_action('record_ext', self.record_ext)
         self.add_track_action('record_ext_audio', self.record_ext_audio)
+        self.add_track_action('restart_ext', self.restart_ext)
 
     def arm_ext(self, action_def, _):
         """ arm or unarm both midi and audio track """
@@ -103,7 +104,7 @@ class RecordExternalInstrument(AbstractUserAction):
         self.exec_action(action_list, g_track, "clear_ext")
 
     def record_ext(self, action_def, bar_count):
-        """ record both midi and audio on prophet grouped track """
+        """ record both midi and audio on group track """
         g_track = self.get_group_track(action_def)
         rec_clip_index = g_track.audio.rec_clip_index
         action_list = Actions.arm_tracks(g_track) + Actions.add_scene_if_needed(g_track.audio)
@@ -124,7 +125,7 @@ class RecordExternalInstrument(AbstractUserAction):
         self.exec_action(action_list, g_track, "record_ext")
 
     def record_ext_audio(self, action_def, _):
-        """ record audio on prophet grouped track from playing midi clip """
+        """ record audio on group track from playing midi clip """
         g_track = self.get_group_track(action_def)
 
         if not g_track.midi.is_playing:
@@ -143,3 +144,9 @@ class RecordExternalInstrument(AbstractUserAction):
         action_list += Actions.set_audio_playing_color(g_track, Colors.PLAYING)
 
         self.exec_action(action_list, g_track, "record_ext_audio")
+
+    def restart_ext(self, action_def, _):
+        """" restart a live set from group tracks track names """
+        action_list = "; ".join([Actions.restart_grouped_track(g_track) for g_track in self.get_all_group_tracks()])
+
+        self.exec_action(action_list)

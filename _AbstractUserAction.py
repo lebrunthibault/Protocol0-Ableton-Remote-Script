@@ -10,6 +10,10 @@ class AbstractUserAction(UserActionsBase):
         # type: ([str]) -> GroupTrack
         return GroupTrack(self.song(), action_def['track'])
 
+    def get_all_group_tracks(self):
+        # type: () -> list[GroupTrack]
+        return [GroupTrack(self.song(), track) for track in self.song().tracks if track.name in GroupTrack.GROUP_EXT_NAMES]
+
     def log(self, message):
         # type: (str) -> None
         self.canonical_parent.log_message(message)
