@@ -34,7 +34,7 @@ class RecordExternalInstrument(AbstractUserAction):
         action_list += Actions.stop_track(g_track.audio)
         # disable other clip colors
         action_list += "; {0}/clip(1) color {1}".format(g_track.clyphx.index, Colors.ARM)
-        action_list += "; {0}/fold off; {1}/sel".format(g_track.group.index, g_track.midi.index)
+        action_list += "; {0}/fold off;".format(g_track.group.index)
         action_list += "; push msg 'tracks {0} armed'".format(g_track.name)
 
         self.exec_action(action_list, g_track, "arm_ext")
@@ -66,11 +66,15 @@ class RecordExternalInstrument(AbstractUserAction):
 
     def sel_midi_ext(self, action_def, _):
         """ Sel midi track to open ext editor """
-        g_track = self.get_group_track(action_def)
+        g_track = self.get_group_track(action_def, "sel_midi_ext")
 
         action_list = Actions.arm_tracks(g_track)
 
+        self.log(self.song().view.selected_track.name)
+        self.log(g_track.midi.name)
         if self.song().view.selected_track == g_track.midi:
+            self.log("midi selected")
+            action_list += "; {0}/sel".format(g_track.group.index)
             return self.exec_action(action_list)
 
         action_list += Actions.restart_grouped_track(g_track)

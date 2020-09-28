@@ -20,6 +20,11 @@ class GroupTrack:
                                                                                                         self.track_index_clyphx))
 
     @property
+    def is_group_track(self):
+        # type: () -> bool
+        return self.clyphx.track.name == "Clyphx"
+
+    @property
     def group(self):
         # type: () -> Track
         track_index = self.track_index_clyphx - 1

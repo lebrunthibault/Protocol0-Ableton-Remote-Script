@@ -8,7 +8,7 @@ def print_except(func):
         except Exception as e:
             err = "ScriptError: " + str(e)
             args[0].canonical_parent.log_message(traceback.format_exc())
-            args[0].canonical_parent.clyphx_pro_component.trigger_action_list("push msg %s" % err)
+            args[0].canonical_parent.clyphx_pro_component.trigger_action_list('push msg "%s"' % err)
 
     return inner
 

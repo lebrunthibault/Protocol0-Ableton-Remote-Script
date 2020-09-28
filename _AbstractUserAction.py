@@ -6,9 +6,20 @@ from ClyphX_Pro.clyphx_pro.user_actions._GroupTrack import GroupTrack
 
 
 class AbstractUserAction(UserActionsBase):
-    def get_group_track(self, action_def):
-        # type: ([str]) -> GroupTrack
-        return GroupTrack(self.song(), action_def['track'])
+    def get_group_track(self, action_def, action=None):
+        # type: ([str], str) -> GroupTrack
+        g_track = GroupTrack(self.song(), action_def['track'])
+        # when actioning sel/sel_midi_ext from midi track to unselect midi track
+        if action == "sel_midi_ext" and not g_track.is_group_track:
+            midi_track_index = list(self.song().tracks).index(g_track.group.track)
+            g_track = GroupTrack(self.song(), self.song().tracks[midi_track_index - 1])
+
+        if not g_track.is_group_track and not action == "sel_midi_ext":
+            raise Exception("executed ex command on wrong track")
+
+        self.log(g_track.group.index)
+
+        return g_track
 
     def get_all_group_tracks(self):
         # type: () -> list[GroupTrack]
@@ -21,8 +32,13 @@ class AbstractUserAction(UserActionsBase):
     def log_to_push(self, g_track, message):
         # type: (GroupTrack, str) -> None
         self.log(message)
-        action_list = "setplay on"
-        action_list += Actions.restart_grouped_track(g_track)
+
+        action_list = ""
+
+        if g_track and g_track.is_group_track:
+            action_list += "setplay on"
+            action_list += Actions.restart_grouped_track(g_track)
+
         self.exec_action(action_list + "; push msg %s" % message)
 
     def exec_action(self, action_list, g_track=None, title="error"):
