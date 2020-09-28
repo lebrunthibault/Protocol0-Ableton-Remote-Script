@@ -70,12 +70,10 @@ class RecordExternalInstrument(AbstractUserAction):
 
         action_list = Actions.arm_tracks(g_track)
 
-        self.log(self.song().view.selected_track.name)
-        self.log(g_track.midi.name)
-        if self.song().view.selected_track == g_track.midi:
-            self.log("midi selected")
-            action_list += "; {0}/sel".format(g_track.group.index)
-            return self.exec_action(action_list)
+        # todo : find a way to compare track other than by their name
+        if self.song().view.selected_track.name == g_track.midi.name:
+            action_list += "; {0}/fold on; {0}/sel".format(g_track.group.index)
+            return self.exec_action(action_list, g_track, "sel_midi_ext")
 
         action_list += Actions.restart_grouped_track(g_track)
         action_list += "; {0}/fold off; {1}/sel".format(g_track.group.index, g_track.midi.index)
