@@ -11,6 +11,7 @@ class RecordExternalInstrument(AbstractUserAction):
     """ Utility commands to record fixed length midi and audio on separate tracks """
 
     def create_actions(self):
+        self.add_global_action('next_ext', self.next_ext)
         self.add_track_action('arm_ext', self.arm_ext)
         self.add_track_action('unarm_ext', self.unarm_ext)
         self.add_track_action('sel_midi_ext', self.sel_midi_ext)
@@ -19,6 +20,16 @@ class RecordExternalInstrument(AbstractUserAction):
         self.add_track_action('record_ext', self.record_ext)
         self.add_track_action('record_ext_audio', self.record_ext_audio)
         self.add_track_action('restart_ext', self.restart_ext)
+
+    def next_ext(self, action_def, go_next="1"):
+        """ arm or unarm both midi and audio track """
+        go_next = bool(int(go_next))
+        if self.song().view.selected_track:
+            index = self.get_group_track({"track": self.song().view.selected_track}).group.index
+        else:
+            index = 0
+        action_list = "{0}/sel".format(self.get_next_group_tracks_by_index(index, go_next).group.index)
+        self.exec_action(action_list, None, "next_ext")
 
     def arm_ext(self, action_def, _):
         """ arm or unarm both midi and audio track """
@@ -149,4 +160,4 @@ class RecordExternalInstrument(AbstractUserAction):
         """" restart a live set from group tracks track names """
         action_list = "; ".join([Actions.restart_grouped_track(g_track) for g_track in self.get_all_group_tracks()])
 
-        self.exec_action(action_list)
+        self.exec_action(action_list, None, "restart_ext")

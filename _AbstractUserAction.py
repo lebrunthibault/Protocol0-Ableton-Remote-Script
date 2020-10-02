@@ -14,7 +14,7 @@ class AbstractUserAction(UserActionsBase):
             midi_track_index = list(self.song().tracks).index(g_track.group.track)
             g_track = GroupTrack(self.song(), self.song().tracks[midi_track_index - 1])
 
-        if not g_track.is_group_track and not action == "sel_midi_ext":
+        if not g_track.is_group_track and action not in ("sel_midi_ext", "next_ext", "prev_ext"):
             raise Exception("executed ex command on wrong track")
 
         self.log(g_track.group.index)
@@ -24,6 +24,21 @@ class AbstractUserAction(UserActionsBase):
     def get_all_group_tracks(self):
         # type: () -> list[GroupTrack]
         return [GroupTrack(self.song(), track) for track in self.song().tracks if track.name in GroupTrack.GROUP_EXT_NAMES]
+
+    def get_next_group_tracks_by_index(self, index, go_next):
+        # type: (int, bool) -> GroupTrack
+        group_tracks = self.get_all_group_tracks() if go_next else self.get_all_group_tracks().reverse()
+
+        if len(group_tracks) == 0:
+            raise Exception("No group tracks in this set")
+
+        for group_track in group_tracks:
+            if go_next and group_track.group.index > index:
+                return group_track
+            elif not go_next and group_track.group.index < index:
+                return group_track
+
+        return group_tracks[0]
 
     def log(self, message):
         # type: (str) -> None
@@ -39,9 +54,9 @@ class AbstractUserAction(UserActionsBase):
             action_list += "setplay on"
             action_list += Actions.restart_grouped_track(g_track)
 
-        self.exec_action(action_list + "; push msg %s" % message)
+        self.exec_action(action_list + "; push msg %s" % message, None, "error")
 
-    def exec_action(self, action_list, g_track=None, title="error"):
+    def exec_action(self, action_list, g_track=None, title="title missing"):
         # type: (str, GroupTrack, str) -> None
         # self.log("g_track.other_group_tracks: %s" % len(g_track.other_group_tracks))
         # self.log("g_track.other_armed_group_track: %s" % g_track.other_armed_group_track)
