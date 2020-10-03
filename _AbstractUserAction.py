@@ -27,7 +27,7 @@ class AbstractUserAction(UserActionsBase):
 
     def get_next_group_tracks_by_index(self, index, go_next):
         # type: (int, bool) -> GroupTrack
-        group_tracks = self.get_all_group_tracks() if go_next else reversed(self.get_all_group_tracks())
+        group_tracks = self.get_all_group_tracks() if go_next else list(reversed(self.get_all_group_tracks()))
 
         if len(group_tracks) == 0:
             raise Exception("No group tracks in this set")
