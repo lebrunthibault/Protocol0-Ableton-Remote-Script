@@ -15,7 +15,7 @@ class RecordExternalInstrument(AbstractUserAction):
         self.add_global_action('next_ext', self.next_ext)
         self.add_track_action('arm_ext', self.arm_ext)
         self.add_track_action('unarm_ext', self.unarm_ext)
-        self.add_track_action('sel_midi_ext', self.sel_midi_ext)
+        self.add_track_action('sel_ext', self.sel_ext)
         self.add_track_action('stop_audio_ext', self.stop_audio_ext)
         self.add_track_action('clear_ext', self.clear_ext)
         self.add_track_action('record_ext', self.record_ext)
@@ -77,20 +77,20 @@ class RecordExternalInstrument(AbstractUserAction):
 
         self.exec_action(action_list, None, "unarm_ext")
 
-    def sel_midi_ext(self, action_def, _):
+    def sel_ext(self, action_def, _):
         """ Sel midi track to open ext editor """
-        g_track = self.get_group_track(action_def, "sel_midi_ext")
+        g_track = self.get_group_track(action_def, "sel_ext")
 
         action_list = Actions.arm_tracks(g_track)
 
         # todo : find a way to compare track other than by their name
-        if self.song().view.selected_track.name == g_track.midi.name:
+        if self.song().view.selected_track.name == g_track.selectable_track.name:
             action_list += "; {0}/fold on; {0}/sel".format(g_track.group.index)
-            return self.exec_action(action_list, g_track, "sel_midi_ext")
+            return self.exec_action(action_list, g_track, "sel_ext")
 
         action_list += Actions.restart_grouped_track(g_track)
-        action_list += "; {0}/fold off; {1}/sel".format(g_track.group.index, g_track.midi.index)
-        self.exec_action(action_list, g_track, "sel_midi_ext")
+        action_list += "; {0}/fold off; {1}/sel".format(g_track.group.index, g_track.selectable_track.index)
+        self.exec_action(action_list, g_track, "sel_ext")
 
     def stop_audio_ext(self, action_def, _):
         """ arm both midi and audio track """

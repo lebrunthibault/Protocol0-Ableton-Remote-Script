@@ -29,6 +29,11 @@ class GroupTrack:
         return self.clyphx.track.name == "Clyphx"
 
     @property
+    def selectable_track(self):
+        # type: () -> Track
+        return self.midi if self.name == "Prophet Group" else self.audio
+
+    @property
     def group(self):
         # type: () -> Track
         track_index = self.track_index_clyphx - 1
