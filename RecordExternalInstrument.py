@@ -2,6 +2,7 @@ import time
 
 from ClyphX_Pro.clyphx_pro.user_actions._Actions import Actions
 from ClyphX_Pro.clyphx_pro.user_actions._Colors import Colors
+from ClyphX_Pro.clyphx_pro.user_actions._GroupTrack import GroupTrack
 from ClyphX_Pro.clyphx_pro.user_actions._utils import for_all_methods, print_except
 from ClyphX_Pro.clyphx_pro.user_actions._AbstractUserAction import AbstractUserAction
 
@@ -24,8 +25,9 @@ class RecordExternalInstrument(AbstractUserAction):
     def next_ext(self, action_def, go_next="1"):
         """ arm or unarm both midi and audio track """
         go_next = bool(int(go_next))
-        if self.song().view.selected_track:
-            index = self.get_group_track({"track": self.song().view.selected_track}).group.index
+        selected_track = self.song().view.selected_track
+        if selected_track and GroupTrack.is_groupable(selected_track):
+            index = self.get_group_track({"track": selected_track}).group.index
         else:
             index = 0
         action_list = "{0}/sel".format(self.get_next_group_tracks_by_index(index, go_next).group.index)

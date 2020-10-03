@@ -19,6 +19,10 @@ class GroupTrack:
                 "tried to instantiate group track with base_track {0} and found track index {1}".format(base_track,
                                                                                                         self.track_index_clyphx))
 
+    @staticmethod
+    def is_groupable(track):
+        return track and (track.name == "Clyphx" or track.name in GroupTrack.GROUP_EXT_NAMES)
+
     @property
     def is_group_track(self):
         # type: () -> bool
