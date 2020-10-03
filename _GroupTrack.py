@@ -4,7 +4,7 @@ from ClyphX_Pro.clyphx_pro.user_actions._TrackType import TrackType
 
 
 class GroupTrack:
-    GROUP_EXT_NAMES = ("Prophet Group", "BS Group")
+    GROUP_EXT_NAMES = ("Prophet Group", "Minitaur Group")
 
     def __init__(self, song, base_track):
         self.song = song
