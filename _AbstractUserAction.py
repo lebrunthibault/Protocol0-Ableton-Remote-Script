@@ -18,8 +18,6 @@ class AbstractUserAction(UserActionsBase):
         if not g_track.is_group_track and action not in ("sel_midi_ext", "next_ext", "prev_ext"):
             raise Exception("executed ex command on wrong track")
 
-        self.log(g_track.group.index)
-
         return g_track
 
     def get_all_group_tracks(self):
@@ -45,6 +43,10 @@ class AbstractUserAction(UserActionsBase):
     def get_all_visible_tracks(self):
         # type: () -> list[Track]
         return [Track(track, i + 1) for i, track in enumerate(list(self.song().tracks)) if track.is_visible]
+
+    def get_all_armed_tracks(self):
+        # type: () -> list[Track]
+        return [Track(track, i + 1) for i, track in enumerate(list(self.song().tracks)) if track.can_be_armed and track.arm]
 
     def log(self, message):
         # type: (str) -> None
@@ -83,8 +85,6 @@ class AbstractUserAction(UserActionsBase):
                                    and not clip_slot.clip.name.startswith("[]")
                                    and clip_slot.clip.is_playing])
 
-        # self.log('playing_clips_count %s' % playing_clips_count)
-
         return playing_clips_count
 
     def get_other_group_ex_tracks(self, base_track):
@@ -108,6 +108,5 @@ class AbstractUserAction(UserActionsBase):
             action_list += "; metro on"
 
         action_list += action_list_rec
-        # action_list += "; GQ {0}".format(int(self.song().clip_trigger_quantization) + 1)
 
         return action_list

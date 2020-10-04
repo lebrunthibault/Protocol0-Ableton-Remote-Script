@@ -18,9 +18,22 @@ class Actions:
         return "; all/arm off; {0}, {1}/arm on".format(g_track.midi.index, g_track.audio.index)
 
     @staticmethod
-    def unarm_tracks(g_track, arm_group):
+    def unarm_g_track(g_track, arm_group):
         # type: (GroupTrack, bool) -> str
-        action_list = "; {0}, {1}/arm off".format(g_track.midi.index, g_track.audio.index)
+        action_list = "; waits 1B; {0}, {1}/arm off".format(g_track.midi.index, g_track.audio.index)
+        if arm_group:
+            action_list += "; {0}/arm on".format(g_track.clyphx.index)
+        return action_list
+
+    @staticmethod
+    def unarm_tracks(tracks):
+        # type: (list[Track]) -> str
+        return "; waits 1B; {0}/arm off".format("; ".join([str(track.index) for track in tracks]))
+
+    @staticmethod
+    def unarm_g_track(g_track, arm_group):
+        # type: (GroupTrack, bool) -> str
+        action_list = "; waits 1B; {0}, {1}/arm off".format(g_track.midi.index, g_track.audio.index)
         if arm_group:
             action_list += "; {0}/arm on".format(g_track.clyphx.index)
         return action_list
@@ -46,7 +59,7 @@ class Actions:
                 g_track.audio)
 
     @staticmethod
-    def restart_track_on_group_press(track, base_track=None):
+    def restart_track_on_group_press(track, base_track=None, no_restart=False):
         # type: (Track, Track) -> str
         audio_clip_index = None
         if base_track and base_track.is_playing:
@@ -58,7 +71,7 @@ class Actions:
         if audio_clip_index:
             track.playing_clip_index = audio_clip_index
             return "; {0}/play {1}; wait 1; {0}/play {1}; {0}/name '{1}'".format(track.index, audio_clip_index)
-        else:
+        elif not no_restart:
             return Actions.stop_track(track)
 
     @staticmethod

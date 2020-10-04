@@ -23,36 +23,6 @@ class ExampleActions(UserActionsBase):
         self.add_device_action('ex_device', self.device_action_example)
         self.add_clip_action('ex_clip', self.clip_action_example)
 
-        # self.canonical_parent.clyphx_pro_component.trigger_action_list("PUSH MODE SESSION")
-        # self.global_action_test(None, None)
-        # r = Timer(5.0, self.global_action_test, (None, None))
-        # r.start()
-
-    # def global_action_loadsamplex(self, _, args):
-    #     """ loadsample like swap action """
-    #     track = self.song().view.selected_track
-    #     self.canonical_parent.log_message('track_name : %s' % track.name)
-    #     sample_path = "C:/Users/thiba/Google Drive/music/software presets/Ableton User Library/Samples/Imported/"
-
-    #     if "kick" in track.name.lower():
-    #         self.canonical_parent.log_message('kick track')
-    #         sample_path += "Kicks/"
-
-    #     samples = [f for f in listdir(sample_path) if isfile(join(sample_path, f)) and f.endswith(".wav")]
-
-    #     device = track.devices[0]
-    #     self.canonical_parent.log_message("device %s" % device)
-    #     for parameter in device.parameters:
-    #         self.canonical_parent.log_message("parameter %s ; %s" % (parameter.name, parameter.value))
-
-    #     r = random.randint(0, 9)
-
-    #     file = samples[r]
-
-    #     action_list = 'LOADSAMPLE "%s"' % file
-    #     self.canonical_parent.log_message('action_list : %s' % action_list)
-    #     self.canonical_parent.clyphx_pro_component.trigger_action_list(action_list)
-
     # Examples
 
     def global_action_example(self, action_def, args):

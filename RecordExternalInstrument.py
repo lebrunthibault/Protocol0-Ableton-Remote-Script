@@ -24,21 +24,22 @@ class RecordExternalInstrument(AbstractUserAction):
 
     def next_ext(self, action_def, go_next="1"):
         """ arm or unarm both midi and audio track """
-        go_next = bool(int(go_next if go_next else "1"))
+        go_next = bool(int(go_next if go_next else 0))
         selected_track = self.song().view.selected_track
         index = list(self.song().tracks).index(selected_track) + 1 if selected_track else 0
         action_list = "{0}/sel".format(self.get_next_track_by_index(index, go_next).index)
         self.exec_action(action_list, None, "next_ext")
 
-    def arm_ext(self, action_def, _):
+    def arm_ext(self, action_def, no_restart=""):
         """ arm or unarm both midi and audio track """
+        no_restart = bool(int(no_restart if no_restart else 0))
         g_track = self.get_group_track(action_def)
 
         if g_track.is_armed:
             return self.unarm_ext(action_def)
 
         action_list = Actions.arm_tracks(g_track)
-        action_list += "; setplay on" if g_track.is_playing else ""
+        action_list += "; setplay on" if g_track.is_playing and not no_restart else ""
         action_list += Actions.restart_track_on_group_press(g_track.midi, g_track.audio)
         # stop audio to have live synth parameter edition while midi is playing
         action_list += Actions.stop_track(g_track.audio)
@@ -46,20 +47,21 @@ class RecordExternalInstrument(AbstractUserAction):
         action_list += "; {0}/clip(1) color {1}".format(g_track.clyphx.index, Colors.ARM)
         action_list += "; {0}/fold off;".format(g_track.group.index)
         action_list += "; push msg 'tracks {0} armed'".format(g_track.name)
+        action_list += Actions.unarm_tracks(self.get_all_armed_tracks())
 
         self.exec_action(action_list, g_track, "arm_ext")
 
-    def unarm_ext(self, action_def, arm_group=True):
+    def unarm_ext(self, action_def, arm_group="1"):
+        arm_group = bool(int(arm_group if arm_group else 0))
         g_track = self.get_group_track(action_def)
 
         """ unarming group track """
-        action_list = Actions.unarm_tracks(g_track, arm_group)
         if g_track.audio.is_playing:
-            action_list += Actions.restart_grouped_track(g_track, g_track.audio)
+            action_list = Actions.restart_grouped_track(g_track, g_track.audio)
         elif g_track.midi.is_playing:
-            action_list += Actions.restart_grouped_track(g_track, g_track.midi)
+            action_list = Actions.restart_grouped_track(g_track, g_track.midi)
         else:
-            action_list += Actions.restart_grouped_track(g_track)
+            action_list = Actions.restart_grouped_track(g_track)
 
         action_list += Actions.stop_track(g_track.midi)
 
@@ -68,7 +70,7 @@ class RecordExternalInstrument(AbstractUserAction):
 
         action_list += "; {0}/clip(1) color {1}; {2}/fold on".format(
             g_track.clyphx.index, g_track.color, g_track.group.index)
-        action_list += "; wait 10; GQ {0}".format(int(self.song().clip_trigger_quantization) + 1)
+        action_list += Actions.unarm_g_track(g_track, arm_group)
         if arm_group:
             action_list += "; push msg 'tracks {0} unarmed'".format(g_track.name)
 
