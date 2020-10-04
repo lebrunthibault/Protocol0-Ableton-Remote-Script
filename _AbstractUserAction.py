@@ -3,6 +3,7 @@ from ClyphX_Pro.clyphx_pro.UserActionsBase import UserActionsBase
 
 from ClyphX_Pro.clyphx_pro.user_actions._Actions import Actions
 from ClyphX_Pro.clyphx_pro.user_actions._GroupTrack import GroupTrack
+from ClyphX_Pro.clyphx_pro.user_actions._Track import Track
 
 
 class AbstractUserAction(UserActionsBase):
@@ -39,6 +40,10 @@ class AbstractUserAction(UserActionsBase):
                 return group_track
 
         return group_tracks[0]
+
+    def get_all_visible_tracks(self):
+        # type: () -> list[Track]
+        return [Track(track, i + 1) for i, track in enumerate(list(self.song().tracks)) if track.is_visible]
 
     def log(self, message):
         # type: (str) -> None
