@@ -3,8 +3,8 @@ from ClyphX_Pro.clyphx_pro.user_actions._TrackType import TrackType
 
 
 class Track:
-    def __init__(self, g_track, track, index, track_type):
-        # type: (_, _, int, TrackType) -> None
+    def __init__(self, track, index, g_track=None, track_type=TrackType.any):
+        # type: (_, int, _, TrackType) -> None
         self.g_track = g_track
         self.track = track
         self.index = index

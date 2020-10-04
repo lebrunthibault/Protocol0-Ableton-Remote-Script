@@ -26,11 +26,8 @@ class RecordExternalInstrument(AbstractUserAction):
         """ arm or unarm both midi and audio track """
         go_next = bool(int(go_next if go_next else "1"))
         selected_track = self.song().view.selected_track
-        if selected_track and GroupTrack.is_groupable(selected_track):
-            index = self.get_group_track({"track": selected_track}).group.index
-        else:
-            index = 0
-        action_list = "{0}/sel".format(self.get_next_group_tracks_by_index(index, go_next).group.index)
+        index = list(self.song().tracks).index(selected_track) + 1 if selected_track else 0
+        action_list = "{0}/sel".format(self.get_next_track_by_index(index, go_next).index)
         self.exec_action(action_list, None, "next_ext")
 
     def arm_ext(self, action_def, _):

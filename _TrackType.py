@@ -3,3 +3,4 @@ class TrackType:
     clyphx = 2
     midi = 3
     audio = 4
+    any = 5

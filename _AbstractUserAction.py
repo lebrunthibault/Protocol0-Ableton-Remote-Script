@@ -26,20 +26,21 @@ class AbstractUserAction(UserActionsBase):
         # type: () -> list[GroupTrack]
         return [GroupTrack(self.song(), track) for track in self.song().tracks if track.name in GroupTrack.GROUP_EXT_NAMES]
 
-    def get_next_group_tracks_by_index(self, index, go_next):
+    def get_next_track_by_index(self, index, go_next, group=False):
         # type: (int, bool) -> GroupTrack
-        group_tracks = self.get_all_group_tracks() if go_next else list(reversed(self.get_all_group_tracks()))
+        tracks = self.get_all_group_tracks() if group else self.get_all_visible_tracks()
+        tracks = tracks if go_next else list(reversed(tracks))
 
-        if len(group_tracks) == 0:
-            raise Exception("No group tracks in this set")
+        if len(tracks) == 0:
+            raise Exception("No tracks in this set")
 
-        for group_track in group_tracks:
-            if go_next and group_track.group.index > index:
-                return group_track
-            elif not go_next and group_track.group.index < index:
-                return group_track
+        for track in tracks:
+            if go_next and track.index > index:
+                return track
+            elif not go_next and track.index < index:
+                return track
 
-        return group_tracks[0]
+        return tracks[0]
 
     def get_all_visible_tracks(self):
         # type: () -> list[Track]

@@ -34,32 +34,37 @@ class GroupTrack:
         return self.midi if self.name == "Prophet Group" else self.audio
 
     @property
+    def index(self):
+        # type: () -> int
+        return self.group.index
+
+    @property
     def group(self):
         # type: () -> Track
         track_index = self.track_index_clyphx - 1
         track = list(self.song.tracks)[track_index - 1]
-        return Track(self, track, track_index, TrackType.group)
+        return Track(track, track_index, self, TrackType.group)
 
     @property
     def clyphx(self):
         # type: () -> Track
         track_index = self.track_index_clyphx
         track = list(self.song.tracks)[track_index - 1]
-        return Track(self, track, track_index, TrackType.clyphx)
+        return Track(track, track_index, self, TrackType.clyphx)
 
     @property
     def midi(self):
         # type: () -> Track
         track_index = self.track_index_clyphx + 1
         track = list(self.song.tracks)[track_index - 1]
-        return Track(self, track, track_index, TrackType.midi)
+        return Track(track, track_index, self, TrackType.midi)
 
     @property
     def audio(self):
         # type: () -> Track
         track_index = self.track_index_clyphx + 2
         track = list(self.song.tracks)[track_index - 1]
-        return Track(self, track, track_index, TrackType.audio)
+        return Track(track, track_index, self, TrackType.audio)
 
     @property
     def name(self):
