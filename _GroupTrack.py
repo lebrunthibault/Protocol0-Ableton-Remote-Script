@@ -4,8 +4,6 @@ from ClyphX_Pro.clyphx_pro.user_actions._TrackType import TrackType
 
 
 class GroupTrack:
-    GROUP_EXT_NAMES = ("Prophet Group", "Minitaur Group")
-
     def __init__(self, song, base_track):
         self.song = song
         self.track_index_clyphx = list(self.song.tracks).index(base_track) + 1
@@ -21,12 +19,12 @@ class GroupTrack:
 
     @staticmethod
     def is_groupable(track):
-        return track and (track.name == "Clyphx" or track.name in GroupTrack.GROUP_EXT_NAMES)
+        return track and (track.name == GroupTrack.GROUP_CLYPHX_NAME or track.name in GroupTrack.GROUP_EXT_NAMES)
 
     @property
     def is_group_track(self):
         # type: () -> bool
-        return self.clyphx.track.name == "Clyphx"
+        return self.clyphx.track.name == GroupTrack.GROUP_CLYPHX_NAME
 
     @property
     def selectable_track(self):

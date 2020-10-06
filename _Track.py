@@ -33,6 +33,11 @@ class Track:
         return self.playing_clip_index != 0
 
     @property
+    def is_top_visible(self):
+        # type: () -> bool
+        return self.track.is_visible and self.track.name != "clyphx"
+
+    @property
     def playing_clip(self):
         # type: () -> Clip
         """ return clip and clip clyphx index """

@@ -4,6 +4,7 @@ from ClyphX_Pro.clyphx_pro.UserActionsBase import UserActionsBase
 from ClyphX_Pro.clyphx_pro.user_actions._Actions import Actions
 from ClyphX_Pro.clyphx_pro.user_actions._GroupTrack import GroupTrack
 from ClyphX_Pro.clyphx_pro.user_actions._Track import Track
+from ClyphX_Pro.clyphx_pro.user_actions._TrackName import TrackName
 
 
 class AbstractUserAction(UserActionsBase):
@@ -22,7 +23,7 @@ class AbstractUserAction(UserActionsBase):
 
     def get_all_group_tracks(self):
         # type: () -> list[GroupTrack]
-        return [GroupTrack(self.song(), track) for track in self.song().tracks if track.name in GroupTrack.GROUP_EXT_NAMES]
+        return [GroupTrack(self.song(), track) for track in self.song().tracks if track.name in TrackName.GROUP_EXT_NAMES]
 
     def get_next_track_by_index(self, index, go_next, group=False):
         # type: (int, bool) -> GroupTrack
