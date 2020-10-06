@@ -1,5 +1,7 @@
 from ClyphX_Pro.clyphx_pro.user_actions._Clip import Clip
+from ClyphX_Pro.clyphx_pro.user_actions._TrackName import TrackName
 from ClyphX_Pro.clyphx_pro.user_actions._TrackType import TrackType
+from ClyphX_Pro.clyphx_pro.user_actions._log import log_ableton
 
 
 class Track:
@@ -7,6 +9,7 @@ class Track:
         # type: (_, int, _, TrackType) -> None
         self.g_track = g_track
         self.track = track
+        log_ableton(track.name)
         self.index = index
         self.type = track_type
 
@@ -33,9 +36,14 @@ class Track:
         return self.playing_clip_index != 0
 
     @property
+    def is_visible(self):
+        # type: () -> bool
+        return self.track.is_visible
+
+    @property
     def is_top_visible(self):
         # type: () -> bool
-        return self.track.is_visible and self.track.name != "clyphx"
+        return self.is_visible and self.name != TrackName.GROUP_CLYPHX_NAME and not self.name.isnumeric()
 
     @property
     def playing_clip(self):

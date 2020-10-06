@@ -1,5 +1,6 @@
 from ClyphX_Pro.clyphx_pro.user_actions._Colors import Colors
 from ClyphX_Pro.clyphx_pro.user_actions._Track import Track
+from ClyphX_Pro.clyphx_pro.user_actions._TrackName import TrackName
 from ClyphX_Pro.clyphx_pro.user_actions._TrackType import TrackType
 
 
@@ -19,12 +20,12 @@ class GroupTrack:
 
     @staticmethod
     def is_groupable(track):
-        return track and (track.name == GroupTrack.GROUP_CLYPHX_NAME or track.name in GroupTrack.GROUP_EXT_NAMES)
+        return track and (track.name == TrackName.GROUP_CLYPHX_NAME or track.name in TrackName.GROUP_EXT_NAMES)
 
     @property
     def is_group_track(self):
         # type: () -> bool
-        return self.clyphx.track.name == GroupTrack.GROUP_CLYPHX_NAME
+        return self.clyphx.track.name == TrackName.GROUP_CLYPHX_NAME
 
     @property
     def selectable_track(self):
@@ -91,7 +92,7 @@ class GroupTrack:
     def other_group_tracks(self):
         # type: (GroupTrack) -> list[GroupTrack]
         return [GroupTrack(self.song, track) for track in self.song.tracks if
-                track.name in self.GROUP_EXT_NAMES and track != self.group.track]
+                track.name in TrackName.GROUP_EXT_NAMES and track != self.group.track]
 
     @property
     def other_armed_group_track(self):

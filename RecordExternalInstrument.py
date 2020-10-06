@@ -2,12 +2,11 @@ import time
 
 from ClyphX_Pro.clyphx_pro.user_actions._Actions import Actions
 from ClyphX_Pro.clyphx_pro.user_actions._Colors import Colors
-from ClyphX_Pro.clyphx_pro.user_actions._GroupTrack import GroupTrack
-from ClyphX_Pro.clyphx_pro.user_actions._utils import for_all_methods, print_except
+from ClyphX_Pro.clyphx_pro.user_actions._utils import for_all_methods, init_song
 from ClyphX_Pro.clyphx_pro.user_actions._AbstractUserAction import AbstractUserAction
 
 
-@for_all_methods(print_except)
+@for_all_methods(init_song)
 class RecordExternalInstrument(AbstractUserAction):
     """ Utility commands to record fixed length midi and audio on separate tracks """
 
@@ -32,8 +31,11 @@ class RecordExternalInstrument(AbstractUserAction):
 
     def arm_ext(self, action_def, no_restart=""):
         """ arm or unarm both midi and audio track """
+        self.log("begin arm ext")
+        # self.log(self._song)
         no_restart = bool(int(no_restart if no_restart else 0))
         g_track = self.get_group_track(action_def)
+        self.log("got g_track")
 
         if g_track.is_armed:
             return self.unarm_ext(action_def)
@@ -48,6 +50,8 @@ class RecordExternalInstrument(AbstractUserAction):
         action_list += "; {0}/fold off;".format(g_track.group.index)
         action_list += "; push msg 'tracks {0} armed'".format(g_track.name)
         action_list += Actions.unarm_tracks(self.get_all_armed_tracks())
+
+        self.log("got action_list")
 
         self.exec_action(action_list, g_track, "arm_ext")
 

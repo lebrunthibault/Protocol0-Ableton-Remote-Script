@@ -3,11 +3,16 @@ from ClyphX_Pro.clyphx_pro.UserActionsBase import UserActionsBase
 
 from ClyphX_Pro.clyphx_pro.user_actions._Actions import Actions
 from ClyphX_Pro.clyphx_pro.user_actions._GroupTrack import GroupTrack
+from ClyphX_Pro.clyphx_pro.user_actions._Song import Song
 from ClyphX_Pro.clyphx_pro.user_actions._Track import Track
 from ClyphX_Pro.clyphx_pro.user_actions._TrackName import TrackName
 
 
 class AbstractUserAction(UserActionsBase):
+    # def __init__(self, *args, **kwargs):
+    #     super(AbstractUserAction, self).__init__(*args, **kwargs)
+    #     self._song = Song(self.song())
+
     def get_group_track(self, action_def, action=None):
         # type: ([str], str) -> GroupTrack
         g_track = GroupTrack(self.song(), action_def['track'])
