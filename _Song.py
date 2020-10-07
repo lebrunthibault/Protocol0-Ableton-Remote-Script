@@ -1,11 +1,13 @@
 from ClyphX_Pro.clyphx_pro.user_actions._GroupTrack import GroupTrack
 from ClyphX_Pro.clyphx_pro.user_actions._Track import Track
 from ClyphX_Pro.clyphx_pro.user_actions._TrackName import TrackName
+from ClyphX_Pro.clyphx_pro.user_actions._log import log_ableton
 
 
 class MySong:
     def __init__(self, song):
         # type: (_) -> None
+        log_ableton("MySong init")
         self.song = song
         self.tracks = [Track(track, i + 1) for i, track in enumerate(list(song.tracks))]
 
@@ -35,7 +37,7 @@ class MySong:
     def selected_track(self):
         # type: () -> Track
         if self.view.selected_track:
-            return Track(self.view.selected_track, self.song.tracks.index(self.view.selected_track + 1))
+            return Track(self.view.selected_track, list(self.song.tracks).index(self.view.selected_track) + 1)
         else:
             return None
 
@@ -60,8 +62,10 @@ class MySong:
 
     def get_track(self, track):
         # type: (_) -> Track
+        self.tracks = [Track(t, i + 1) for i, t in enumerate(list(self.song.tracks))]
+        log_ableton("get_track {0}".format(track.name))
         for t in self.tracks:
-            if t.track == track:
+            if t.name == track.name:
                 return t
 
         raise Exception("this track cannot be matched")

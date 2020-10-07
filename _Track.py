@@ -5,11 +5,10 @@ from ClyphX_Pro.clyphx_pro.user_actions._log import log_ableton
 
 
 class Track:
-    def __init__(self, track, index, g_track=None, track_type=TrackType.any):
-        # type: (_, int, _, TrackType) -> None
-        self.g_track = g_track
+    def __init__(self, track, index):
+        # type: (_, int) -> None
+        self.g_track = None
         self.track = track
-        log_ableton(track.name)
         self.index = index
 
         try:

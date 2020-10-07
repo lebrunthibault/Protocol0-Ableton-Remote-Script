@@ -19,7 +19,9 @@ def print_except(func):
 def init_song(func):
     def decorate(self, *args, **kwargs):
         try:
-            self.__song = MySong(self._song)
+            if func.__name__ != "create_actions":
+                log_ableton("decorating %s " % func)
+                self._my_song = MySong(self._song)
             func(self, *args, **kwargs)
         except Exception as e:
             err = "ScriptError: " + str(e)

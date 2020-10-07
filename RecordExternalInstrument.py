@@ -33,8 +33,8 @@ class RecordExternalInstrument(AbstractUserAction):
         self.log("begin arm ext")
         # self.log(self._song)
         no_restart = bool(int(no_restart if no_restart else 0))
+        self.exec_action("wait 30; push mode session")
         g_track = self.get_group_track(action_def)
-        self.log("got g_track")
 
         if g_track.is_armed:
             return self.unarm_ext(action_def)
