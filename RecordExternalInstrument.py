@@ -121,7 +121,7 @@ class RecordExternalInstrument(AbstractUserAction):
         action_list_rec = "; {0}/recfix {2} {3}; {1}/recfix {2} {3}; {0}/name '{3}'; {1}/name '{3}'".format(
             g_track.midi.index, g_track.audio.index, bar_count, rec_clip_index
         )
-        action_list += self.restart_and_record(g_track, action_list_rec)
+        action_list += Actions.restart_and_record(g_track, action_list_rec)
         # when done, stop audio clip and metronome
         delay = int(round((600 / self.mySong().tempo) * (4 * (int(bar_count) + 1) - 0.5)))
         action_list += "; wait {0}; {1}/stop; metro off; wait 5".format(delay, g_track.audio.index)
@@ -145,7 +145,7 @@ class RecordExternalInstrument(AbstractUserAction):
         action_list_rec = "; {0}/recfix {1} {2}; {0}/name '{2}'".format(
             g_track.audio.index, int(round((g_track.midi.playing_clip.length + 1) / 4)), g_track.audio.rec_clip_index
         )
-        action_list += self.restart_and_record(g_track, action_list_rec, False)
+        action_list += Actions.restart_and_record(g_track, action_list_rec, False)
         # when done, stop audio clip
         delay = int(round((600 / self.mySong().tempo) * (int(g_track.midi.playing_clip.length) + 6)))
         action_list += "; wait {0}; {1}/clip({2}) name '{3}'".format(

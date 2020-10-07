@@ -1,7 +1,6 @@
 from ClyphX_Pro.clyphx_pro.user_actions._Clip import Clip
 from ClyphX_Pro.clyphx_pro.user_actions._TrackName import TrackName
 from ClyphX_Pro.clyphx_pro.user_actions._TrackType import TrackType
-from ClyphX_Pro.clyphx_pro.user_actions._log import log_ableton
 
 
 class Track:
@@ -24,10 +23,10 @@ class Track:
                   clip_slot.has_clip and clip_slot.clip.is_playing]),
             playing_clip_index_track)
 
-        self.type = (TrackType.group if track.name in TrackName.GROUP_EXT_NAMES
-                     else TrackType.clyphx if track.name == TrackName.GROUP_CLYPHX_NAME
-        else TrackType.audio if track.has_audio_input
-        else TrackType.midi if track.has_midi_input
+        self.type = (TrackType.group if self.is_group
+                     else TrackType.clyphx if self.is_clyphx
+        else TrackType.audio if self.is_audio
+        else TrackType.midi if self.is_midi
         else TrackType.any
                      )
 
@@ -37,9 +36,34 @@ class Track:
         return self.track.name
 
     @property
+    def current_output_routing(self):
+        # type: () -> str
+        return self.track.current_output_routing
+
+    @property
     def is_foldable(self):
         # type: () -> str
         return self.track.is_foldable
+
+    @property
+    def is_group(self):
+        # type: (_) -> bool
+        return self.name in TrackName.GROUP_EXT_NAMES
+
+    @property
+    def is_clyphx(self):
+        # type: () -> bool
+        return self.name == TrackName.GROUP_CLYPHX_NAME
+
+    @property
+    def is_audio(self):
+        # type: () -> bool
+        return self.track.has_audio_input
+
+    @property
+    def is_midi(self):
+        # type: () -> bool
+        return self.track.has_midi_input
 
     @property
     def is_playing(self):

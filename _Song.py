@@ -1,10 +1,8 @@
 from ClyphX_Pro.clyphx_pro.user_actions._GroupTrack import GroupTrack
 from ClyphX_Pro.clyphx_pro.user_actions._Track import Track
 from ClyphX_Pro.clyphx_pro.user_actions._TrackName import TrackName
-from ClyphX_Pro.clyphx_pro.user_actions._log import log_ableton
 
-
-class MySong:
+class Song:
     def __init__(self, song):
         # type: (_) -> None
         self.song = song
@@ -12,18 +10,27 @@ class MySong:
 
     @property
     def tempo(self):
+        # type: () -> float
         return self.song.tempo
 
     @property
     def view(self):
+        # type: () -> _
         return self.song.view
 
     @property
     def visible_tracks(self):
+        # type: () -> list[Track]
         return [track for track in self.tracks if track.is_visible]
 
     @property
+    def top_tracks(self):
+        # type: () -> list[Track]
+        return [track for track in self.visible_tracks if track.current_output_routing == "Master"]
+
+    @property
     def armed_tracks(self):
+        # type: () -> list[Track]
         return [track for track in self.tracks if track.can_be_armed and track.arm]
 
     @property

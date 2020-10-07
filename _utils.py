@@ -1,7 +1,6 @@
 import traceback
 
-from ClyphX_Pro.clyphx_pro.user_actions._Song import MySong
-from ClyphX_Pro.clyphx_pro.user_actions._log import log_ableton
+from ClyphX_Pro.clyphx_pro.user_actions._Song import Song
 
 
 def print_except(func):
@@ -20,7 +19,7 @@ def init_song(func):
     def decorate(self, *args, **kwargs):
         try:
             if func.__name__ != "create_actions":
-                self._my_song = MySong(self._song)
+                self._my_song = Song(self._song)
             func(self, *args, **kwargs)
         except Exception as e:
             err = "ScriptError: " + str(e)

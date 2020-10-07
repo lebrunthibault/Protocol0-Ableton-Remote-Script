@@ -96,3 +96,16 @@ class Actions:
             action_list += Actions.set_audio_playing_color(track.g_track, Colors.DISABLED)
 
         return action_list
+
+    @staticmethod
+    def restart_and_record(g_track, action_list_rec, metro=True):
+        # type: (GroupTrack, str, bool) -> str
+        """ restart audio to get a count in and recfix"""
+        action_list = "; setplay off"
+
+        if not g_track.song.has_set_playing_clips(g_track, False) and metro:
+            action_list += "; metro on"
+
+        action_list += action_list_rec
+
+        return action_list

@@ -1,30 +1,29 @@
 from ClyphX_Pro.clyphx_pro.user_actions._Colors import Colors
 from ClyphX_Pro.clyphx_pro.user_actions._Track import Track
 from ClyphX_Pro.clyphx_pro.user_actions._TrackName import TrackName
-from ClyphX_Pro.clyphx_pro.user_actions._log import log_ableton
 
 
 class GroupTrack:
     def __init__(self, song, base_track):
+        # type: ("Song", _) -> None
         self.song = song
         # getting our track object
         track = self.song.get_track(base_track)
         self.track_index_group = track.index - 1
 
         # check if we clicked on group track instead of clyphx track
-        if not track.is_foldable:
+        if track.is_clyphx:
             self.track_index_group -= 1
 
-        if self.track_index_group < 0:
+        if self.track_index_group < 0 or self.track_index_group > len(self.song.tracks) - 2:
             raise Exception(
                 "tried to instantiate group track with base_track {0} and found track index {1}".format(base_track,
                                                                                                         self.track_index_group))
-        log_ableton("track_index_group %s " % self.track_index_group)
-
         self.clyphx.g_track = self.midi.g_track = self.audio.g_track = self
 
     @staticmethod
     def is_groupable(track):
+        # type: (Track) -> bool
         return track and (track.name == TrackName.GROUP_CLYPHX_NAME or track.name in TrackName.GROUP_EXT_NAMES)
 
     @property
@@ -45,7 +44,7 @@ class GroupTrack:
     @property
     def group(self):
         # type: () -> Track
-        return self.song.tracks[self.track_index_group - 1]
+        return self.song.tracks[self.track_index_group]
 
     @property
     def clyphx(self):
@@ -79,6 +78,7 @@ class GroupTrack:
 
     @property
     def color(self):
+        # type: () -> str
         if "Prophet" in self.group.name:
             return Colors.PROPHET
         elif "BS" in self.group.name:
