@@ -8,21 +8,19 @@ class GroupTrack:
     def __init__(self, song, base_track):
         self.song = song
         # getting our track object
-        log_ableton("GroupTrack init 1 %s" % base_track.name)
         track = self.song.get_track(base_track)
-        log_ableton("GroupTrack init 2 %s" % track.name)
-        self.track_index_clyphx = track.index - 1
+        self.track_index_group = track.index - 1
 
         # check if we clicked on group track instead of clyphx track
-        if track.is_foldable:
-            self.track_index_clyphx += 1
+        if not track.is_foldable:
+            self.track_index_group -= 1
 
-        log_ableton("GroupTrack track_index_clyphx %s" % self.track_index_clyphx)
-
-        if self.track_index_clyphx < 1:
+        if self.track_index_group < 0:
             raise Exception(
                 "tried to instantiate group track with base_track {0} and found track index {1}".format(base_track,
-                                                                                                        self.track_index_clyphx))
+                                                                                                        self.track_index_group))
+        log_ableton("track_index_group %s " % self.track_index_group)
+
         self.clyphx.g_track = self.midi.g_track = self.audio.g_track = self
 
     @staticmethod
@@ -32,7 +30,6 @@ class GroupTrack:
     @property
     def is_group_track(self):
         # type: () -> bool
-        log_ableton("is_group_track nclypx name %s " % self.clyphx.track.name)
         return self.clyphx.track.name == TrackName.GROUP_CLYPHX_NAME
 
     @property
@@ -48,22 +45,22 @@ class GroupTrack:
     @property
     def group(self):
         # type: () -> Track
-        return self.song.tracks[self.track_index_clyphx - 1]
+        return self.song.tracks[self.track_index_group - 1]
 
     @property
     def clyphx(self):
         # type: () -> Track
-        return self.song.tracks[self.track_index_clyphx]
+        return self.song.tracks[self.track_index_group + 1]
 
     @property
     def midi(self):
         # type: () -> Track
-        return self.song.tracks[self.track_index_clyphx + 1]
+        return self.song.tracks[self.track_index_group + 2]
 
     @property
     def audio(self):
         # type: () -> Track
-        return self.song.tracks[self.track_index_clyphx + 2]
+        return self.song.tracks[self.track_index_group + 3]
 
     @property
     def name(self):

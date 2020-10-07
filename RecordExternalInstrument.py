@@ -30,10 +30,8 @@ class RecordExternalInstrument(AbstractUserAction):
 
     def arm_ext(self, action_def, no_restart=""):
         """ arm or unarm both midi and audio track """
-        self.log("begin arm ext")
-        # self.log(self._song)
         no_restart = bool(int(no_restart if no_restart else 0))
-        self.exec_action("wait 30; push mode session")
+        # self.exec_action("wait 30; push mode session")
         g_track = self.get_group_track(action_def)
 
         if g_track.is_armed:
@@ -50,8 +48,6 @@ class RecordExternalInstrument(AbstractUserAction):
         action_list += "; push msg 'tracks {0} armed'".format(g_track.name)
         action_list += Actions.unarm_tracks(self.mySong().armed_tracks)
 
-        self.log("got action_list")
-
         self.exec_action(action_list, g_track, "arm_ext")
 
     def unarm_ext(self, action_def, arm_group="1"):
@@ -65,8 +61,6 @@ class RecordExternalInstrument(AbstractUserAction):
             action_list = Actions.restart_grouped_track(g_track, g_track.midi)
         else:
             action_list = Actions.restart_grouped_track(g_track)
-
-        action_list += Actions.stop_track(g_track.midi)
 
         if g_track.audio.is_playing:
             action_list += Actions.set_audio_playing_color(g_track, Colors.PLAYING)

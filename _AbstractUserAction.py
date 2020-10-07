@@ -11,20 +11,17 @@ class AbstractUserAction(UserActionsBase):
     def __init__(self, *args, **kwargs):
         super(AbstractUserAction, self).__init__(*args, **kwargs)
         self._my_song = None
-        log_ableton("AbstractUserAction init")
 
     def mySong(self):
         # type: () -> MySong
-        log_ableton("_my_song %s" % self._my_song)
         return self._my_song if self._my_song else self._song
 
     def get_group_track(self, action_def, action=None):
         # type: ([str], str) -> GroupTrack
-        self.log("get_group_track %s " % action_def['track'].name)
         g_track = GroupTrack(self.mySong(), action_def['track'])
         # when actioning sel/sel_midi_ext from midi track to unselect midi track
-        if action == "sel_midi_ext" and not g_track.is_group_track:
-            g_track = GroupTrack(self.mySong(), self.mySong().tracks[g_track.group.index - 3])
+        if action == "sel_ext" and not g_track.is_group_track:
+            g_track = GroupTrack(self.mySong(), self.mySong().tracks[g_track.group.index - 3].track)
 
         if not g_track.is_group_track and action not in ("sel_ext", "next_ext", "prev_ext"):
             raise Exception("executed ex command on wrong track")

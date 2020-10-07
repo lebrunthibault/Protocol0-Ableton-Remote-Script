@@ -7,7 +7,6 @@ from ClyphX_Pro.clyphx_pro.user_actions._log import log_ableton
 class MySong:
     def __init__(self, song):
         # type: (_) -> None
-        log_ableton("MySong init")
         self.song = song
         self.tracks = [Track(track, i + 1) for i, track in enumerate(list(song.tracks))]
 
@@ -30,7 +29,7 @@ class MySong:
     @property
     def group_ex_tracks(self):
         # type: () -> list[GroupTrack]
-        return [GroupTrack(self, track) for track in self.tracks if
+        return [GroupTrack(self, track.track) for track in self.tracks if
                 track.name in TrackName.GROUP_EXT_NAMES]
 
     @property
@@ -62,10 +61,8 @@ class MySong:
 
     def get_track(self, track):
         # type: (_) -> Track
-        self.tracks = [Track(t, i + 1) for i, t in enumerate(list(self.song.tracks))]
-        log_ableton("get_track {0}".format(track.name))
         for t in self.tracks:
-            if t.name == track.name:
+            if t.track == track:
                 return t
 
         raise Exception("this track cannot be matched")
