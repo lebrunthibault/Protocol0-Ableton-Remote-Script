@@ -11,7 +11,6 @@ class Track:
         self.track = track
         log_ableton(track.name)
         self.index = index
-        self.type = track_type
 
         try:
             playing_clip_index_track = int(track.name)
@@ -22,13 +21,26 @@ class Track:
             playing_clip_index_track = 0
 
         self.playing_clip_index = next(
-            iter([i + 1 for (i, clip_slot) in enumerate(list(track.clip_slots)) if clip_slot.has_clip and clip_slot.clip.is_playing]),
+            iter([i + 1 for (i, clip_slot) in enumerate(list(track.clip_slots)) if
+                  clip_slot.has_clip and clip_slot.clip.is_playing]),
             playing_clip_index_track)
+
+        self.type = (TrackType.group if track.name in TrackName.GROUP_EXT_NAMES
+                     else TrackType.clyphx if track.name == TrackName.GROUP_CLYPHX_NAME
+        else TrackType.audio if track.has_audio_input
+        else TrackType.midi if track.has_midi_input
+        else TrackType.any
+                     )
 
     @property
     def name(self):
         # type: () -> str
         return self.track.name
+
+    @property
+    def is_foldable(self):
+        # type: () -> str
+        return self.track.is_foldable
 
     @property
     def is_playing(self):
@@ -60,9 +72,19 @@ class Track:
         return self.track.arm
 
     @property
+    def can_be_armed(self):
+        # type: () -> bool
+        return self.track.can_be_armed
+
+    @property
+    def clip_slots(self):
+        # type: () -> list
+        return list(self.track.clip_slots)
+
+    @property
     def scene_count(self):
         # type: () -> int
-        return len(list(self.track.clip_slots))
+        return len(self.clip_slots)
 
     @property
     def first_empty_slot_index(self):

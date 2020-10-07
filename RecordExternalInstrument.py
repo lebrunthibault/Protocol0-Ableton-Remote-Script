@@ -24,9 +24,8 @@ class RecordExternalInstrument(AbstractUserAction):
     def next_ext(self, action_def, go_next="1"):
         """ arm or unarm both midi and audio track """
         go_next = bool(int(go_next if go_next else 0))
-        selected_track = self.song().view.selected_track
-        index = list(self.song().tracks).index(selected_track) + 1 if selected_track else 0
-        action_list = "{0}/sel".format(self.get_next_track_by_index(index, go_next).index)
+        selected_track_index = self.mySong().selected_track.index if self.mySong().selected_track else 0
+        action_list = "{0}/sel".format(self.get_next_track_by_index(selected_track_index, go_next).index)
         self.exec_action(action_list, None, "next_ext")
 
     def arm_ext(self, action_def, no_restart=""):
@@ -49,7 +48,7 @@ class RecordExternalInstrument(AbstractUserAction):
         action_list += "; {0}/clip(1) color {1}".format(g_track.clyphx.index, Colors.ARM)
         action_list += "; {0}/fold off;".format(g_track.group.index)
         action_list += "; push msg 'tracks {0} armed'".format(g_track.name)
-        action_list += Actions.unarm_tracks(self.get_all_armed_tracks())
+        action_list += Actions.unarm_tracks(self.mySong().armed_tracks)
 
         self.log("got action_list")
 
@@ -87,7 +86,7 @@ class RecordExternalInstrument(AbstractUserAction):
         action_list = Actions.arm_tracks(g_track)
 
         # todo : find a way to compare track other than by their name
-        if self.song().view.selected_track.name == g_track.selectable_track.name:
+        if self.mySong().selected_track.name == g_track.selectable_track.name:
             action_list += "; {0}/fold on; {0}/sel".format(g_track.group.index)
             return self.exec_action(action_list, g_track, "sel_ext")
 
@@ -130,7 +129,7 @@ class RecordExternalInstrument(AbstractUserAction):
         )
         action_list += self.restart_and_record(g_track, action_list_rec)
         # when done, stop audio clip and metronome
-        delay = int(round((600 / self.song().tempo) * (4 * (int(bar_count) + 1) - 0.5)))
+        delay = int(round((600 / self.mySong().tempo) * (4 * (int(bar_count) + 1) - 0.5)))
         action_list += "; wait {0}; {1}/stop; metro off; wait 5".format(delay, g_track.audio.index)
 
         # rename timestamp clip to link clips
@@ -154,7 +153,7 @@ class RecordExternalInstrument(AbstractUserAction):
         )
         action_list += self.restart_and_record(g_track, action_list_rec, False)
         # when done, stop audio clip
-        delay = int(round((600 / self.song().tempo) * (int(g_track.midi.playing_clip.length) + 6)))
+        delay = int(round((600 / self.mySong().tempo) * (int(g_track.midi.playing_clip.length) + 6)))
         action_list += "; wait {0}; {1}/clip({2}) name '{3}'".format(
             delay, g_track.audio.index, g_track.audio.rec_clip_index, g_track.midi.playing_clip.name)
         action_list += Actions.set_audio_playing_color(g_track, Colors.PLAYING)
@@ -163,6 +162,6 @@ class RecordExternalInstrument(AbstractUserAction):
 
     def restart_ext(self, action_def, _):
         """" restart a live set from group tracks track names """
-        action_list = "; ".join([Actions.restart_grouped_track(g_track) for g_track in self.get_all_group_tracks()])
+        action_list = "; ".join([Actions.restart_grouped_track(g_track) for g_track in self.mySong().group_ex_tracks])
 
         self.exec_action(action_list, None, "restart_ext")

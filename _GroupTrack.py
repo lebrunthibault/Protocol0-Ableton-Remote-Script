@@ -1,16 +1,17 @@
 from ClyphX_Pro.clyphx_pro.user_actions._Colors import Colors
 from ClyphX_Pro.clyphx_pro.user_actions._Track import Track
 from ClyphX_Pro.clyphx_pro.user_actions._TrackName import TrackName
-from ClyphX_Pro.clyphx_pro.user_actions._TrackType import TrackType
 
 
 class GroupTrack:
     def __init__(self, song, base_track):
         self.song = song
-        self.track_index_clyphx = list(self.song.tracks).index(base_track) + 1
+        # getting our track object
+        track = self.song.get_track(base_track)
+        self.track_index_clyphx = track.index
 
         # check if we clicked on group track instead of clyphx track
-        if list(song.tracks)[self.track_index_clyphx - 1].is_foldable:
+        if track.is_foldable:
             self.track_index_clyphx += 1
 
         if self.track_index_clyphx < 2:
@@ -40,30 +41,22 @@ class GroupTrack:
     @property
     def group(self):
         # type: () -> Track
-        track_index = self.track_index_clyphx - 1
-        track = list(self.song.tracks)[track_index - 1]
-        return Track(track, track_index, self, TrackType.group)
+        return self.song.tracks[self.track_index_clyphx - 1]
 
     @property
     def clyphx(self):
         # type: () -> Track
-        track_index = self.track_index_clyphx
-        track = list(self.song.tracks)[track_index - 1]
-        return Track(track, track_index, self, TrackType.clyphx)
+        return self.song.tracks[self.track_index_clyphx]
 
     @property
     def midi(self):
         # type: () -> Track
-        track_index = self.track_index_clyphx + 1
-        track = list(self.song.tracks)[track_index - 1]
-        return Track(track, track_index, self, TrackType.midi)
+        return self.song.tracks[self.track_index_clyphx + 1]
 
     @property
     def audio(self):
         # type: () -> Track
-        track_index = self.track_index_clyphx + 2
-        track = list(self.song.tracks)[track_index - 1]
-        return Track(track, track_index, self, TrackType.audio)
+        return self.song.tracks[self.track_index_clyphx + 2]
 
     @property
     def name(self):
@@ -91,8 +84,7 @@ class GroupTrack:
     @property
     def other_group_tracks(self):
         # type: (GroupTrack) -> list[GroupTrack]
-        return [GroupTrack(self.song, track) for track in self.song.tracks if
-                track.name in TrackName.GROUP_EXT_NAMES and track != self.group.track]
+        return [g_track for g_track in self.song.group_ex_tracks if g_track.group.track != self.group.track]
 
     @property
     def other_armed_group_track(self):

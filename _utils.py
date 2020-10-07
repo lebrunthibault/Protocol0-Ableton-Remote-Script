@@ -1,6 +1,7 @@
 import traceback
 
-from ClyphX_Pro.clyphx_pro.user_actions._Song import Song
+from ClyphX_Pro.clyphx_pro.user_actions._Song import MySong
+from ClyphX_Pro.clyphx_pro.user_actions._log import log_ableton
 
 
 def print_except(func):
@@ -18,9 +19,7 @@ def print_except(func):
 def init_song(func):
     def decorate(self, *args, **kwargs):
         try:
-            # tracks = [track for track in self.song().tracks if track != self.song().master_track and track not in self.song().return_tracks]
-            # self.log(len(tracks))
-            self._song = Song(self.song())
+            self.__song = MySong(self._song)
             func(self, *args, **kwargs)
         except Exception as e:
             err = "ScriptError: " + str(e)
