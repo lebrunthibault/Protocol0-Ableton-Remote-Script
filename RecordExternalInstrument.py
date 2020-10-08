@@ -1,6 +1,7 @@
 import time
 
 from ClyphX_Pro.clyphx_pro.user_actions._Actions import Actions
+from ClyphX_Pro.clyphx_pro.user_actions._BomeCommands import BomeCommands
 from ClyphX_Pro.clyphx_pro.user_actions._Colors import Colors
 from ClyphX_Pro.clyphx_pro.user_actions._utils import for_all_methods, init_song
 from ClyphX_Pro.clyphx_pro.user_actions._AbstractUserAction import AbstractUserAction
@@ -54,7 +55,7 @@ class RecordExternalInstrument(AbstractUserAction):
         direct_unarm = len(args) > 1 and bool(args[1])
         g_track = self.get_group_track(action_def)
 
-        action_list = "{0}/clip(1) color {1}; {2}/fold off".format(
+        action_list = "{0}/clip(1) color {1}; {2}/fold on".format(
             g_track.clyphx.index, g_track.color, g_track.group.index)
 
         if direct_unarm:
@@ -96,7 +97,8 @@ class RecordExternalInstrument(AbstractUserAction):
             return self.exec_action(action_list, g_track, "sel_ext")
 
         action_list += Actions.restart_grouped_track(g_track)
-        action_list += "; {0}/fold off; {1}/sel".format(g_track.group.index, g_track.selectable_track.index)
+        action_list += "; {0}/fold off; {1}/sel; {2}".format(
+            g_track.group.index, g_track.selectable_track.index, BomeCommands.SELECT_FIRST_VST)
         action_list += Actions.arm_g_track(g_track)
 
         self.exec_action(action_list, g_track, "sel_ext")
@@ -129,7 +131,7 @@ class RecordExternalInstrument(AbstractUserAction):
         # rename timestamp clip to link clips
         timestamp = time.time()
         action_list += "; {0}/clip({1}) name {2}".format(g_track.midi.index, rec_clip_index, timestamp)
-        action_list += "; {0}/clip({1}) name {2}".format(g_track.audio.index, rec_clip_index, timestamp)
+        action_list += "; {0}/clip({1}) name {2}; {0}/clip({1}) warpmode complex".format(g_track.audio.index, rec_clip_index, timestamp)
 
         self.exec_action(action_list, g_track, "record_ext")
 
@@ -149,7 +151,7 @@ class RecordExternalInstrument(AbstractUserAction):
         action_list += Actions.restart_and_record(g_track, action_list_rec, False)
         # when done, stop audio clip
         delay = int(round((600 / self.mySong().tempo) * (int(g_track.midi.playing_clip.length) + 6)))
-        action_list += "; wait {0}; {1}/clip({2}) name '{3}'".format(
+        action_list += "; wait {0}; {1}/clip({2}) name '{3}'; {1}/clip({2}) warpmode complex".format(
             delay, g_track.audio.index, g_track.audio.rec_clip_index, g_track.midi.playing_clip.name)
         action_list += Actions.set_audio_playing_color(g_track, Colors.PLAYING)
 
