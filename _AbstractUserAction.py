@@ -19,7 +19,7 @@ class AbstractUserAction(UserActionsBase):
     def get_group_track(self, action_def, action=None):
         # type: ([str], str) -> GroupTrack
         track = self.mySong().get_track(action_def['track'])
-        if track.is_group or track.is_clyphx:
+        if track.is_groupable:
             g_track = GroupTrack(self.mySong(), track.track)
         elif action == "sel_ext":
             # when actioning sel/sel_midi_ext from midi track to unselect midi track
@@ -55,7 +55,6 @@ class AbstractUserAction(UserActionsBase):
         self.log(message)
 
         action_list = ""
-
         if g_track and g_track.is_group_track:
             action_list += "setplay on"
             action_list += Actions.restart_grouped_track(g_track)
@@ -68,6 +67,7 @@ class AbstractUserAction(UserActionsBase):
         if g_track:
             self.log("g_track.other_armed_group_track %s" % g_track.other_armed_group_track)
         if g_track and g_track.other_armed_group_track and title != "stop_audio_ext":
+            self.log("calling unarm ext from exec_action on %s" % g_track.other_armed_group_track.index)
             action_list += "; {0}/unarm_ext {1}".format(g_track.other_armed_group_track.group.index,
                                                         "1" if g_track.song.restart_clips else "")
 

@@ -15,16 +15,16 @@ class GroupTrack:
         if track.is_clyphx:
             self.track_index_group -= 1
 
+        if track.index >= 3 and self.song.tracks[track.index - 2].name == TrackName.GROUP_CLYPHX_NAME:
+            self.track_index_group -= 2
+        if track.index >= 4 and self.song.tracks[track.index - 3].name == TrackName.GROUP_CLYPHX_NAME:
+            self.track_index_group -= 3
+
         if self.track_index_group < 0 or self.track_index_group > len(self.song.tracks) - 2:
             raise Exception(
                 "tried to instantiate group track with base_track {0} and found track index {1}".format(base_track,
                                                                                                         self.track_index_group))
         self.clyphx.g_track = self.midi.g_track = self.audio.g_track = self
-
-    @staticmethod
-    def is_groupable(track):
-        # type: (Track) -> bool
-        return track and (track.name == TrackName.GROUP_CLYPHX_NAME or track.name in TrackName.GROUP_EXT_NAMES)
 
     @property
     def is_group_track(self):
@@ -99,3 +99,11 @@ class GroupTrack:
     def other_armed_group_track(self):
         # type: (GroupTrack) -> GroupTrack
         return next(iter([g_track for g_track in self.other_group_tracks if g_track.any_armed]), None)
+
+    @property
+    def beat_count_before_clip_restart(self):
+        # type: () -> int
+        if self.audio.beat_count_before_clip_restart:
+            return self.audio.beat_count_before_clip_restart
+        else:
+            return self.midi.beat_count_before_clip_restart

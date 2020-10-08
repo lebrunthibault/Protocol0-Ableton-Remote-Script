@@ -16,22 +16,8 @@ class Actions:
     @staticmethod
     def arm_g_track(g_track):
         # type: (GroupTrack) -> str
-        action_list = "; {0}/arm off; {1}, {2}/arm on".format(g_track.clyphx.index, g_track.midi.index,
+        return "; {0}/arm off; {1}/arm on; {2}/arm on".format(g_track.clyphx.index, g_track.midi.index,
                                                               g_track.audio.index)
-        if g_track.other_armed_group_track:
-            log_ableton("g_track.other_armed_group_track.index : %s" % g_track.other_armed_group_track.index)
-            action_list += Actions.unarm_g_track(g_track.other_armed_group_track, False)
-        return action_list
-
-    @staticmethod
-    def unarm_g_track(g_track, arm_group):
-        # type: (GroupTrack, bool) -> str
-        log_ableton("beat_count_before_clip_restart %s" % g_track.audio.beat_count_before_clip_restart)
-        action_list = "; {0}, {1}/arm off; waits {3}; {2}/arm off".format(
-            g_track.clyphx.index, g_track.midi.index, g_track.audio.index, g_track.audio.beat_count_before_clip_restart)
-        if arm_group:
-            action_list += "; {0}/arm on".format(g_track.clyphx.index)
-        return action_list
 
     @staticmethod
     def add_scene_if_needed(track):
@@ -40,7 +26,7 @@ class Actions:
 
     @staticmethod
     def restart_grouped_track(g_track, base_track=None):
-        # type: (GroupTrack, Track, bool) -> str
+        # type: (GroupTrack, Track) -> str
         """ restart grouped track state and synchronize audio and midi if necessary """
         if base_track and base_track.type == TrackType.audio:
             return Actions.restart_track_on_group_press(g_track.midi, base_track) + \

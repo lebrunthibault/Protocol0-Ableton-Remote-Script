@@ -51,31 +51,42 @@ class RecordExternalInstrument(AbstractUserAction):
         """ unarming group track """
         args = args.split(" ")
         self.mySong().restart_clips = bool(args[0])
-        arm_group = len(args) > 1 and bool(args[1])
+        direct_unarm = len(args) > 1 and bool(args[1])
         g_track = self.get_group_track(action_def)
 
-        # self.log("restart_clips %s" % self.mySong().restart_clips)
-        # self.log("arm_group %s" % arm_group)
-        if g_track.audio.is_playing:
-            action_list = Actions.restart_grouped_track(g_track, g_track.audio)
-        elif g_track.midi.is_playing:
-            action_list = Actions.restart_grouped_track(g_track, g_track.midi)
-        else:
-            action_list = Actions.restart_grouped_track(g_track, None)
+        action_list = "{0}/clip(1) color {1}; {2}/fold off".format(
+            g_track.clyphx.index, g_track.color, g_track.group.index)
 
+        if direct_unarm:
+            action_list += "; {0}/arm on".format(g_track.clyphx.index)
         if g_track.audio.is_playing:
             action_list += Actions.set_audio_playing_color(g_track, Colors.PLAYING)
 
-        action_list += "; {0}/clip(1) color {1}; {2}/fold off".format(
-            g_track.clyphx.index, g_track.color, g_track.group.index)
-        action_list += Actions.unarm_g_track(g_track, arm_group)
-        if arm_group:
+        action_list += "; {0}, {1}/arm off".format(
+            g_track.clyphx.index, g_track.midi.index, )
+
+        # we delay the arming off of the audio track to have the audio playing until the end of the clip
+        # keeps sync on for long clips
+        if not g_track.midi.is_playing or not g_track.audio.is_playing:
+            action_list += "; waits {0}".format(g_track.beat_count_before_clip_restart - 1)
+
+        if g_track.audio.is_playing:
+            action_list += Actions.restart_grouped_track(g_track, g_track.audio)
+        elif g_track.midi.is_playing:
+            action_list += Actions.restart_grouped_track(g_track, g_track.midi)
+        else:
+            action_list += Actions.restart_grouped_track(g_track, None)
+
+        action_list += "; waits 2; {0}/arm off".format(g_track.audio.index)
+
+        if direct_unarm:
             action_list += "; push msg 'tracks {0} unarmed'".format(g_track.name)
 
         self.exec_action(action_list, None, "unarm_ext")
 
-    def sel_ext(self, action_def, _):
+    def sel_ext(self, action_def, restart_clips=""):
         """ Sel midi track to open ext editor """
+        self.mySong().restart_clips = bool(restart_clips)
         g_track = self.get_group_track(action_def, "sel_ext")
 
         action_list = ""

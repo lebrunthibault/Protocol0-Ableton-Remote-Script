@@ -48,8 +48,16 @@ class Track:
         return self.track.is_foldable
 
     @property
+    def is_groupable(self):
+        # type: () -> bool
+        return self.is_group or \
+               self.is_clyphx or \
+               (self.index >= 3 and self.song.tracks[self.index - 2].name == TrackName.GROUP_CLYPHX_NAME) or \
+               (self.index >= 4 and self.song.tracks[self.index - 3].name == TrackName.GROUP_CLYPHX_NAME)
+
+    @property
     def is_group(self):
-        # type: (_) -> bool
+        # type: () -> bool
         return self.name in TrackName.GROUP_EXT_NAMES
 
     @property
@@ -95,12 +103,10 @@ class Track:
     def beat_count_before_clip_restart(self):
         # type: () -> int
         """ return clip and clip clyphx index """
-        log_ableton("playing_clip : %s" % self.playing_clip)
         if not self.playing_clip:
             return 0
-        log_ableton("playing_clip.length : %s" % self.playing_clip.length)
-        log_ableton("playing_clip.playing_position : %s" % self.playing_clip.playing_position)
-        return round(self.playing_clip.length - self.playing_clip.playing_position)
+        log_ableton("playing_clip.playing_position : %f" % self.playing_clip.playing_position)
+        return int(round(self.playing_clip.length - self.playing_clip.playing_position))
 
     @property
     def arm(self):
