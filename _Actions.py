@@ -33,7 +33,7 @@ class Actions:
     @staticmethod
     def unarm_g_track(g_track, arm_group):
         # type: (GroupTrack, bool) -> str
-        action_list = "; waits 1B; {0}, {1}/arm off".format(g_track.midi.index, g_track.audio.index)
+        action_list = "; {0}/arm off; waits 1B; {1}/arm off".format(g_track.midi.index, g_track.audio.index)
         if arm_group:
             action_list += "; {0}/arm on".format(g_track.clyphx.index)
         return action_list
