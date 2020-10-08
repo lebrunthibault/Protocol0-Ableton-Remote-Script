@@ -16,7 +16,6 @@ class RecordExternalInstrument(AbstractUserAction):
         self.add_track_action('unarm_ext', self.unarm_ext)
         self.add_track_action('sel_ext', self.sel_ext)
         self.add_track_action('stop_audio_ext', self.stop_audio_ext)
-        self.add_track_action('clear_ext', self.clear_ext)
         self.add_track_action('record_ext', self.record_ext)
         self.add_track_action('record_ext_audio', self.record_ext_audio)
         self.add_track_action('restart_ext', self.restart_ext)
@@ -28,44 +27,46 @@ class RecordExternalInstrument(AbstractUserAction):
         action_list = "{0}/sel".format(self.get_next_track_by_index(selected_track_index, go_next).index)
         self.exec_action(action_list, None, "next_ext")
 
-    def arm_ext(self, action_def, no_restart=""):
+    def arm_ext(self, action_def, restart_clips=""):
         """ arm or unarm both midi and audio track """
-        no_restart = bool(int(no_restart if no_restart else 0))
-        # self.exec_action("wait 30; push mode session")
+        self.mySong().restart_clips = bool(restart_clips)
         g_track = self.get_group_track(action_def)
 
         if g_track.is_armed:
-            return self.unarm_ext(action_def)
+            return self.unarm_ext(action_def, "{0} {1}".format(restart_clips, "1"))
 
-        action_list = Actions.arm_tracks(g_track)
-        action_list += "; setplay on" if g_track.is_playing and not no_restart else ""
+        action_list = "; setplay on" if g_track.is_playing and self.mySong().restart_clips else ""
         action_list += Actions.restart_track_on_group_press(g_track.midi, g_track.audio)
         # stop audio to have live synth parameter edition while midi is playing
-        action_list += Actions.stop_track(g_track.audio)
+        action_list += Actions.stop_track(g_track.audio, True)
         # disable other clip colors
         action_list += "; {0}/clip(1) color {1}".format(g_track.clyphx.index, Colors.ARM)
-        action_list += "; {0}/fold off;".format(g_track.group.index)
+        action_list += "; {0}/fold off".format(g_track.group.index)
+        action_list += Actions.arm_g_track(g_track)
         action_list += "; push msg 'tracks {0} armed'".format(g_track.name)
-        action_list += Actions.unarm_tracks(self.mySong().armed_tracks)
 
         self.exec_action(action_list, g_track, "arm_ext")
 
-    def unarm_ext(self, action_def, arm_group="1"):
-        arm_group = bool(int(arm_group if arm_group else 0))
+    def unarm_ext(self, action_def, args=""):
+        """ unarming group track """
+        args = args.split(" ")
+        self.mySong().restart_clips = bool(args[0])
+        arm_group = len(args) > 1 and bool(args[1])
         g_track = self.get_group_track(action_def)
 
-        """ unarming group track """
+        # self.log("restart_clips %s" % self.mySong().restart_clips)
+        # self.log("arm_group %s" % arm_group)
         if g_track.audio.is_playing:
             action_list = Actions.restart_grouped_track(g_track, g_track.audio)
         elif g_track.midi.is_playing:
             action_list = Actions.restart_grouped_track(g_track, g_track.midi)
         else:
-            action_list = Actions.restart_grouped_track(g_track)
+            action_list = Actions.restart_grouped_track(g_track, None)
 
         if g_track.audio.is_playing:
             action_list += Actions.set_audio_playing_color(g_track, Colors.PLAYING)
 
-        action_list += "; {0}/clip(1) color {1}; {2}/fold on".format(
+        action_list += "; {0}/clip(1) color {1}; {2}/fold off".format(
             g_track.clyphx.index, g_track.color, g_track.group.index)
         action_list += Actions.unarm_g_track(g_track, arm_group)
         if arm_group:
@@ -77,8 +78,7 @@ class RecordExternalInstrument(AbstractUserAction):
         """ Sel midi track to open ext editor """
         g_track = self.get_group_track(action_def, "sel_ext")
 
-        action_list = Actions.arm_tracks(g_track)
-
+        action_list = ""
         # todo : find a way to compare track other than by their name
         if self.mySong().selected_track.name == g_track.selectable_track.name:
             action_list += "; {0}/fold on; {0}/sel".format(g_track.group.index)
@@ -86,37 +86,26 @@ class RecordExternalInstrument(AbstractUserAction):
 
         action_list += Actions.restart_grouped_track(g_track)
         action_list += "; {0}/fold off; {1}/sel".format(g_track.group.index, g_track.selectable_track.index)
+        action_list += Actions.arm_g_track(g_track)
+
         self.exec_action(action_list, g_track, "sel_ext")
 
-    def stop_audio_ext(self, action_def, _):
+    def stop_audio_ext(self, action_def, restart_clips=""):
         """ arm both midi and audio track """
+        self.mySong().restart_clips = bool(restart_clips)
         g_track = self.get_group_track(action_def)
 
-        action_list = Actions.restart_track_on_group_press(g_track.midi)
+        action_list = Actions.restart_track_on_group_press(g_track.midi, None)
         action_list += Actions.stop_track(g_track.audio)
 
         self.exec_action(action_list, g_track, "stop_audio_ext")
-
-    def clear_ext(self, action_def, _):
-        """ delete all clips on both midi and audio track """
-        g_track = self.get_group_track(action_def)
-
-        action_clear_midi = ["{0}/clip(" + str(index + 1) + ") del" for index, clip_slot in
-                             enumerate(g_track.midi.track.clip_slots) if clip_slot.has_clip]
-        action_clear_audio = ["{1}/clip(" + str(index + 1) + ") del" for index, clip_slot in
-                              enumerate(g_track.audio.track.clip_slots) if clip_slot.has_clip]
-
-        raw_action_list = "; ".join(action_clear_midi) + "; " + "; ".join(action_clear_audio)
-        action_list = raw_action_list.format(g_track.midi.index, g_track.audio.index)
-        action_list += "; metro off; waits 1; setstop; setjump 1.1.1"
-
-        self.exec_action(action_list, g_track, "clear_ext")
 
     def record_ext(self, action_def, bar_count):
         """ record both midi and audio on group track """
         g_track = self.get_group_track(action_def)
         rec_clip_index = g_track.audio.rec_clip_index
-        action_list = Actions.arm_tracks(g_track) + Actions.add_scene_if_needed(g_track.audio)
+        action_list = Actions.arm_g_track(g_track)
+        action_list += Actions.add_scene_if_needed(g_track.audio)
 
         action_list_rec = "; {0}/recfix {2} {3}; {1}/recfix {2} {3}; {0}/name '{3}'; {1}/name '{3}'".format(
             g_track.midi.index, g_track.audio.index, bar_count, rec_clip_index
@@ -140,7 +129,8 @@ class RecordExternalInstrument(AbstractUserAction):
         if not g_track.midi.is_playing:
             return self.log_to_push(g_track, "midi not playing, cannot record audio")
 
-        action_list = Actions.arm_tracks(g_track) + Actions.add_scene_if_needed(g_track.audio)
+        action_list = Actions.arm_g_track(g_track)
+        action_list += Actions.add_scene_if_needed(g_track.audio)
         action_list += Actions.restart_track_on_group_press(g_track.midi)
         action_list_rec = "; {0}/recfix {1} {2}; {0}/name '{2}'".format(
             g_track.audio.index, int(round((g_track.midi.playing_clip.length + 1) / 4)), g_track.audio.rec_clip_index

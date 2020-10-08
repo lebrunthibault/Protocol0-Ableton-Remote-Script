@@ -64,8 +64,12 @@ class AbstractUserAction(UserActionsBase):
 
     def exec_action(self, action_list, g_track=None, title="title missing"):
         # type: (str, GroupTrack, str) -> None
+        # e.g. when we call rec_ext without doing arm_ext first
+        if g_track:
+            self.log("g_track.other_armed_group_track %s" % g_track.other_armed_group_track)
         if g_track and g_track.other_armed_group_track and title != "stop_audio_ext":
-            action_list += "; {0}/unarm_ext".format(g_track.other_armed_group_track.group.index)
+            action_list += "; {0}/unarm_ext {1}".format(g_track.other_armed_group_track.group.index,
+                                                        "1" if g_track.song.restart_clips else "")
 
         self.log("{0}: {1}".format(title, action_list))
         self.canonical_parent.clyphx_pro_component.trigger_action_list(action_list)

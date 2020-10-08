@@ -72,6 +72,11 @@ class GroupTrack:
         return self.midi.arm and self.audio.arm
 
     @property
+    def any_armed(self):
+        # type: () -> bool
+        return self.clyphx.arm or self.midi.arm or self.audio.arm
+
+    @property
     def is_playing(self):
         # type: () -> bool
         return self.midi.is_playing or self.audio.is_playing
@@ -88,9 +93,9 @@ class GroupTrack:
     @property
     def other_group_tracks(self):
         # type: (GroupTrack) -> list[GroupTrack]
-        return [g_track for g_track in self.song.group_ex_tracks if g_track.group.track != self.group.track]
+        return [g_track for g_track in self.song.group_ex_tracks if g_track.index != self.index]
 
     @property
     def other_armed_group_track(self):
         # type: (GroupTrack) -> GroupTrack
-        return next(iter([g_track for g_track in self.other_group_tracks if g_track.is_armed]), None)
+        return next(iter([g_track for g_track in self.other_group_tracks if g_track.any_armed]), None)

@@ -6,7 +6,10 @@ class Song:
     def __init__(self, song):
         # type: (_) -> None
         self.song = song
+        self.restart_clips = True
         self.tracks = [Track(track, i + 1) for i, track in enumerate(list(song.tracks))]
+        for track in self.tracks:
+            track.song = self
 
     @property
     def tempo(self):

@@ -1,6 +1,7 @@
 from ClyphX_Pro.clyphx_pro.user_actions._Clip import Clip
 from ClyphX_Pro.clyphx_pro.user_actions._TrackName import TrackName
 from ClyphX_Pro.clyphx_pro.user_actions._TrackType import TrackType
+from ClyphX_Pro.clyphx_pro.user_actions._log import log_ableton
 
 
 class Track:
@@ -9,6 +10,7 @@ class Track:
         self.g_track = None
         self.track = track
         self.index = index
+        self.song = None
 
         try:
             playing_clip_index_track = int(track.name)
@@ -88,6 +90,17 @@ class Track:
             return Clip(self.track.clip_slots[self.playing_clip_index - 1].clip, self.playing_clip_index)
         else:
             return None
+
+    @property
+    def beat_count_before_clip_restart(self):
+        # type: () -> int
+        """ return clip and clip clyphx index """
+        log_ableton("playing_clip : %s" % self.playing_clip)
+        if not self.playing_clip:
+            return 0
+        log_ableton("playing_clip.length : %s" % self.playing_clip.length)
+        log_ableton("playing_clip.playing_position : %s" % self.playing_clip.playing_position)
+        return round(self.playing_clip.length - self.playing_clip.playing_position)
 
     @property
     def arm(self):

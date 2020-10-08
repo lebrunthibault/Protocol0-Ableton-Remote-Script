@@ -2,6 +2,7 @@ from ClyphX_Pro.clyphx_pro.user_actions._Colors import Colors
 from ClyphX_Pro.clyphx_pro.user_actions._GroupTrack import GroupTrack
 from ClyphX_Pro.clyphx_pro.user_actions._Track import Track
 from ClyphX_Pro.clyphx_pro.user_actions._TrackType import TrackType
+from ClyphX_Pro.clyphx_pro.user_actions._log import log_ableton
 
 
 def get_last_clip_index_by_name(track, name):
@@ -13,27 +14,21 @@ def get_last_clip_index_by_name(track, name):
 
 class Actions:
     @staticmethod
-    def arm_tracks(g_track):
+    def arm_g_track(g_track):
         # type: (GroupTrack) -> str
-        return "; all/arm off; {0}, {1}/arm on".format(g_track.midi.index, g_track.audio.index)
-
-    @staticmethod
-    def unarm_g_track(g_track, arm_group):
-        # type: (GroupTrack, bool) -> str
-        action_list = "; waits 1B; {0}, {1}/arm off".format(g_track.midi.index, g_track.audio.index)
-        if arm_group:
-            action_list += "; {0}/arm on".format(g_track.clyphx.index)
+        action_list = "; {0}/arm off; {1}, {2}/arm on".format(g_track.clyphx.index, g_track.midi.index,
+                                                              g_track.audio.index)
+        if g_track.other_armed_group_track:
+            log_ableton("g_track.other_armed_group_track.index : %s" % g_track.other_armed_group_track.index)
+            action_list += Actions.unarm_g_track(g_track.other_armed_group_track, False)
         return action_list
 
     @staticmethod
-    def unarm_tracks(tracks):
-        # type: (list[Track]) -> str
-        return "; waits 1B; {0}/arm off".format("; ".join([str(track.index) for track in tracks]))
-
-    @staticmethod
     def unarm_g_track(g_track, arm_group):
         # type: (GroupTrack, bool) -> str
-        action_list = "; {0}/arm off; waits 1B; {1}/arm off".format(g_track.midi.index, g_track.audio.index)
+        log_ableton("beat_count_before_clip_restart %s" % g_track.audio.beat_count_before_clip_restart)
+        action_list = "; {0}, {1}/arm off; waits {3}; {2}/arm off".format(
+            g_track.clyphx.index, g_track.midi.index, g_track.audio.index, g_track.audio.beat_count_before_clip_restart)
         if arm_group:
             action_list += "; {0}/arm on".format(g_track.clyphx.index)
         return action_list
@@ -45,34 +40,35 @@ class Actions:
 
     @staticmethod
     def restart_grouped_track(g_track, base_track=None):
-        # type: (GroupTrack, Track) -> str
+        # type: (GroupTrack, Track, bool) -> str
         """ restart grouped track state and synchronize audio and midi if necessary """
         if base_track and base_track.type == TrackType.audio:
-            return Actions.restart_track_on_group_press(g_track.midi,
-                                                        base_track) + Actions.restart_track_on_group_press(
-                g_track.audio)
+            return Actions.restart_track_on_group_press(g_track.midi, base_track) + \
+                   Actions.restart_track_on_group_press(g_track.audio, None)
         elif base_track and base_track.type == TrackType.midi:
-            return Actions.restart_track_on_group_press(g_track.midi) + Actions.restart_track_on_group_press(
-                g_track.audio, base_track)
+            return Actions.restart_track_on_group_press(g_track.midi, None) + \
+                   Actions.restart_track_on_group_press(g_track.audio, base_track)
         else:
-            return Actions.restart_track_on_group_press(g_track.midi) + Actions.restart_track_on_group_press(
-                g_track.audio)
+            return Actions.restart_track_on_group_press(g_track.midi, None) + \
+                   Actions.restart_track_on_group_press(g_track.audio, None)
 
     @staticmethod
-    def restart_track_on_group_press(track, base_track=None, no_restart=False):
+    def restart_track_on_group_press(track, base_track=None):
         # type: (Track, Track) -> str
         audio_clip_index = None
-        if base_track and base_track.is_playing:
+        if track.is_playing:
+            if not track.song.restart_clips:
+                return ""
+            else:
+                audio_clip_index = track.playing_clip_index
+        elif base_track and base_track.is_playing:
             audio_clip_index = get_last_clip_index_by_name(track.track, base_track.playing_clip.name)
-        elif track.is_playing:
-            audio_clip_index = track.playing_clip_index
         """ restart playing clips on grouped track """
         # some logic to handle press on group track buttons which launches clips
         if audio_clip_index:
             track.playing_clip_index = audio_clip_index
             return "; {0}/play {1}; wait 1; {0}/play {1}; {0}/name '{1}'".format(track.index, audio_clip_index)
-        elif not no_restart:
-            return Actions.stop_track(track)
+        return Actions.stop_track(track)
 
     @staticmethod
     def set_audio_playing_color(g_track, color):
@@ -88,9 +84,12 @@ class Actions:
         return action_list
 
     @staticmethod
-    def stop_track(track):
-        # type: (Track) -> str
-        action_list = "; {0}/stop; {0}/name '0'".format(track.index, track.playing_clip_index)
+    def stop_track(track, enforce_stop=False):
+        # type: (Track, bool) -> str
+        action_list = ""
+        if track.song.restart_clips or enforce_stop:
+            action_list += "; {0}/stop".format(track.index)
+        action_list += "; {0}/name '0'".format(track.index)
 
         if track.type == TrackType.audio:
             action_list += Actions.set_audio_playing_color(track.g_track, Colors.DISABLED)
