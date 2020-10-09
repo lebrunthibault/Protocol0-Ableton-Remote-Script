@@ -35,4 +35,4 @@ class LoadSample(AbstractUserAction):
         next_sample = samples[next_sample_index % len(samples)]
 
         action_list = 'LOADSAMPLE "%s"' % next_sample
-        self.exec_action(action_list)
+        self.exec_action(action_list, "next_sample")
