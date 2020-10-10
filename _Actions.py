@@ -94,3 +94,15 @@ class Actions:
         action_list += action_list_rec
 
         return action_list
+
+    @staticmethod
+    def delete_playing_clips(g_track):
+        # type: (GroupTrack) -> str
+        """ restart audio to get a count in and recfix"""
+        action_list = ""
+        if g_track.midi.playing_clip:
+            action_list += "{0}/clip({1}) del".format(g_track.midi.index, g_track.midi.playing_clip.index)
+        if g_track.audio.playing_clip:
+            action_list += "; {0}/clip({1}) del".format(g_track.audio.index, g_track.audio.playing_clip.index)
+
+        return action_list

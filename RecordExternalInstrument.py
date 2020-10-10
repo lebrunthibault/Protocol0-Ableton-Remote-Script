@@ -19,6 +19,7 @@ class RecordExternalInstrument(AbstractUserAction):
         self.add_track_action('stop_audio_ext', self.stop_audio_ext)
         self.add_track_action('record_ext', self.record_ext)
         self.add_track_action('record_ext_audio', self.record_ext_audio)
+        self.add_track_action('undo_ext', self.undo_ext)
         self.add_track_action('restart_ext', self.restart_ext)
 
     def next_ext(self, action_def, go_next="1"):
@@ -157,8 +158,16 @@ class RecordExternalInstrument(AbstractUserAction):
 
         self.exec_action(action_list, g_track, "record_ext_audio")
 
+    def undo_ext(self, action_def, _):
+        """" undo last recording """
+        g_track = self.get_group_track(action_def)
+
+        action_list = Actions.delete_playing_clips(g_track)
+        self.exec_action(action_list, g_track, "undo_ext")
+
     def restart_ext(self, action_def, _):
         """" restart a live set from group tracks track names """
         action_list = "; ".join([Actions.restart_grouped_track(g_track) for g_track in self.mySong().group_ex_tracks])
 
         self.exec_action(action_list, None, "restart_ext")
+
