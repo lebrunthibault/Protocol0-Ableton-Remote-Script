@@ -17,7 +17,11 @@ class BrowsePresetsAndSample(AbstractUserAction):
     def next_sample_or_preset(self, _, go_next=""):
         go_next = bool(go_next)
 
-        self.next_sample(go_next)
+        track = self.song().view.selected_track
+        if track.devices[0].class_name == "OriginalSimpler":
+            self.next_sample(go_next)
+        else:
+            self.log("next_sample_or_preset : no action")
 
     def next_sample(self, go_next):
         """ load sample like swap action """
