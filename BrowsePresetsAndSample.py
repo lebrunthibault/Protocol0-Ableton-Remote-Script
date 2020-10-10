@@ -7,9 +7,8 @@ from ClyphX_Pro.clyphx_pro.user_actions._AbstractUserAction import AbstractUserA
 
 @for_all_methods(print_except)
 class BrowsePresetsAndSample(AbstractUserAction):
+    """ Utility commands to scroll through samples or vst presets """
     SAMPLE_PATH = "C:/Users/thiba/Google Drive/music/samples/drums"
-
-    """ Utility commands to record fixed length midi and audio on separate tracks """
 
     def create_actions(self):
         self.add_global_action('next_sample_or_preset', self.next_sample_or_preset)
@@ -18,6 +17,8 @@ class BrowsePresetsAndSample(AbstractUserAction):
         go_next = bool(go_next)
 
         track = self.song().view.selected_track
+        self.log(track.devices[0])
+        self.log(track.devices[0].class_name)
         if track.devices[0].class_name == "OriginalSimpler":
             self.next_sample(go_next)
         else:
@@ -28,8 +29,6 @@ class BrowsePresetsAndSample(AbstractUserAction):
         track = self.song().view.selected_track
 
         sample_path = join(self.SAMPLE_PATH, track.name)
-        self.log(track.devices[0])
-        self.log(track.devices[0].class_name)
         if not isdir(sample_path):
             self.log(sample_path)
             raise Exception("the track name does not correspond with a sample directory")
