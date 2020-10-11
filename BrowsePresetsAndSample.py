@@ -8,7 +8,7 @@ from ClyphX_Pro.clyphx_pro.user_actions._AbstractUserAction import AbstractUserA
 @for_all_methods(print_except)
 class BrowsePresetsAndSample(AbstractUserAction):
     """ Utility commands to scroll through samples or vst presets """
-    SAMPLE_PATH = "C:/Users/thiba/Google Drive/music/samples/drums"
+    SAMPLE_PATH = "C:/Users/thiba/Google Drive/music/software presets/Ableton User Library/Samples/Imported"
 
     def create_actions(self):
         self.add_global_action('next_sample_or_preset', self.next_sample_or_preset)
