@@ -32,9 +32,19 @@ class GroupTrack:
         return self.clyphx.track.name == TrackName.GROUP_CLYPHX_NAME
 
     @property
+    def is_prophet(self):
+        # type: () -> bool
+        return self.name == TrackName.GROUP_PROPHET_NAME
+
+    @property
+    def is_minitaur(self):
+        # type: () -> bool
+        return self.name == TrackName.GROUP_MINITAUR_NAME
+
+    @property
     def selectable_track(self):
         # type: () -> Track
-        return self.midi if self.name == "Prophet Group" else self.audio
+        return self.midi if self.is_prophet else self.audio
 
     @property
     def index(self):

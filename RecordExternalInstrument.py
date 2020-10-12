@@ -47,6 +47,10 @@ class RecordExternalInstrument(AbstractUserAction):
         action_list += Actions.arm_g_track(g_track)
         action_list += "; push msg 'tracks {0} armed'".format(g_track.name)
 
+        # activate the rev2 editor for this group track
+        if g_track.is_prophet:
+            action_list += "; {0}/sel_ext; wait 10; {0}/sel".format(g_track.index)
+
         self.exec_action(action_list, g_track, "arm_ext")
 
     def unarm_ext(self, action_def, args=""):
@@ -56,7 +60,7 @@ class RecordExternalInstrument(AbstractUserAction):
         direct_unarm = len(args) > 1 and bool(args[1])
         g_track = self.get_group_track(action_def)
 
-        action_list = "{0}/clip(1) color {1}; {2}/fold on".format(
+        action_list = "{0}/clip(1) color {1}; {2}/fold off".format(
             g_track.clyphx.index, g_track.color, g_track.group.index)
 
         if direct_unarm:
@@ -92,14 +96,16 @@ class RecordExternalInstrument(AbstractUserAction):
         g_track = self.get_group_track(action_def, "sel_ext")
 
         action_list = ""
-        # todo : find a way to compare track other than by their name
-        if self.mySong().selected_track.name == g_track.selectable_track.name:
+        if self.mySong().selected_track.track == g_track.selectable_track.track:
             action_list += "; {0}/fold on; {0}/sel".format(g_track.group.index)
             return self.exec_action(action_list, g_track, "sel_ext")
 
         action_list += Actions.restart_grouped_track(g_track)
-        action_list += "; {0}/fold off; {1}/sel; {2}".format(
-            g_track.group.index, g_track.selectable_track.index, BomeCommands.SELECT_FIRST_VST)
+        action_list += "; {0}/fold off; {1}/sel".format(g_track.group.index, g_track.selectable_track.index)
+        if g_track.is_prophet:
+            action_list += BomeCommands.SHOW_AND_ACTIVATE_REV2_EDITOR
+        else:
+            action_list += BomeCommands.SELECT_FIRST_VST
         action_list += Actions.arm_g_track(g_track)
 
         self.exec_action(action_list, g_track, "sel_ext")

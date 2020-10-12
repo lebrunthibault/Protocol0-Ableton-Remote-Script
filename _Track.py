@@ -105,7 +105,6 @@ class Track:
         """ return clip and clip clyphx index """
         if not self.playing_clip:
             return 0
-        log_ableton("playing_clip.playing_position : %f" % self.playing_clip.playing_position)
         return int(round(self.playing_clip.length - self.playing_clip.playing_position))
 
     @property
