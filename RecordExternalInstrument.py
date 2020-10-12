@@ -68,8 +68,7 @@ class RecordExternalInstrument(AbstractUserAction):
         if g_track.audio.is_playing:
             action_list += Actions.set_audio_playing_color(g_track, Colors.PLAYING)
 
-        action_list += "; {0}, {1}/arm off".format(
-            g_track.clyphx.index, g_track.midi.index, )
+        action_list += "; {0}, {1}/arm off".format(g_track.midi.index, g_track.audio.index)
 
         # we delay the arming off of the audio track to have the audio playing until the end of the clip
         # keeps sync on for long clips
