@@ -48,7 +48,8 @@ class Actions:
             else:
                 audio_clip_index = track.playing_clip_index
         elif base_track and base_track.is_playing:
-            audio_clip_index = get_last_clip_index_by_name(track.track, base_track.playing_clip.name)
+            audio_clip = track.get_last_clip_index_by_name(base_track.playing_clip.name)
+            audio_clip_index = audio_clip.index if audio_clip else None
         """ restart playing clips on grouped track """
         # some logic to handle press on group track buttons which launches clips
         if audio_clip_index:

@@ -72,13 +72,14 @@ class RecordExternalInstrument(AbstractUserAction):
 
         # we delay the arming off of the audio track to have the audio playing until the end of the clip
         # keeps sync on for long clips
-        if not g_track.midi.is_playing or not g_track.audio.is_playing:
-            action_list += "; waits {0}".format(g_track.beat_count_before_clip_restart - 1)
+        # if not g_track.midi.is_playing or not g_track.audio.is_playing:
+        #     action_list += "; waits {0}".format(g_track.beat_count_before_clip_restart - 1)
 
         if g_track.audio.is_playing:
             action_list += Actions.restart_grouped_track(g_track, g_track.audio)
         elif g_track.midi.is_playing:
             action_list += Actions.restart_grouped_track(g_track, g_track.midi)
+            action_list += "{0}}"
         else:
             action_list += Actions.restart_grouped_track(g_track, None)
 

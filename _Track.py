@@ -95,9 +95,22 @@ class Track:
         # type: () -> Clip
         """ return clip and clip clyphx index """
         if self.playing_clip_index != 0:
+            return Clip(self.clip_slots[self.playing_clip_index - 1].clip, self.playing_clip_index)
+        else:
+            return None
+
+
+    @property
+    def clips(self):
+        # type: () -> list[Clip]
+        """ return clip and clip clyphx index """
+        return [Clip(clip, index + 1) for clip
+                ]
+        if self.playing_clip_index != 0:
             return Clip(self.track.clip_slots[self.playing_clip_index - 1].clip, self.playing_clip_index)
         else:
             return None
+
 
     @property
     def beat_count_before_clip_restart(self):
@@ -146,3 +159,18 @@ class Track:
         index = self.first_empty_slot_index
 
         return index if index else self.scene_count + 1
+
+    def get_last_clip_index_by_name(self, name):
+        # type: (Track, str) -> Clip
+        """ get last clip with name on track """
+        clips = [Clip(cs.clip, i + 1) for i, cs in enumerate(list(self.clip_slots)) if cs.has_clip and cs.clip.name == name]
+        return clips.pop() + 1 if len(clips) else None
+
+    @property
+    def linked_audio_playing_clip(self):
+        # type: () -> Clip
+        """ return clip and clip clyphx index """
+        if not self.g_track.midi.playing:
+            return None
+        else:
+            return list(self.clip_slots[]
