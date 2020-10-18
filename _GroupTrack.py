@@ -1,3 +1,5 @@
+from typing import Any
+
 from ClyphX_Pro.clyphx_pro.user_actions._Colors import Colors
 from ClyphX_Pro.clyphx_pro.user_actions._Track import Track
 from ClyphX_Pro.clyphx_pro.user_actions._TrackName import TrackName
@@ -5,7 +7,7 @@ from ClyphX_Pro.clyphx_pro.user_actions._TrackName import TrackName
 
 class GroupTrack:
     def __init__(self, song, base_track):
-        # type: ("Song", _) -> None
+        # type: ("Song", Any) -> None
         self.song = song
         # getting our track object
         track = self.song.get_track(base_track)
@@ -79,12 +81,12 @@ class GroupTrack:
     @property
     def is_armed(self):
         # type: () -> bool
-        return self.midi.arm and self.audio.arm
+        return self.midi.is_armed and self.audio.is_armed
 
     @property
     def any_armed(self):
         # type: () -> bool
-        return self.clyphx.arm or self.midi.arm or self.audio.arm
+        return self.clyphx.is_armed or self.midi.is_armed or self.audio.is_armed
 
     @property
     def is_playing(self):

@@ -1,13 +1,9 @@
 import time
-import sys
-
-sys.path.insert(0, "C:\Python27\Lib\site-packages")
-sys.path.insert(0, "C:\Python27")
-sys.path.insert(0, "C:\Python27\Lib")
 
 from ClyphX_Pro.clyphx_pro.user_actions._Actions import Actions
 from ClyphX_Pro.clyphx_pro.user_actions._BomeCommands import BomeCommands
 from ClyphX_Pro.clyphx_pro.user_actions._Colors import Colors
+from ClyphX_Pro.clyphx_pro.user_actions._Track import Track
 from ClyphX_Pro.clyphx_pro.user_actions._utils import for_all_methods, init_song
 from ClyphX_Pro.clyphx_pro.user_actions._AbstractUserAction import AbstractUserAction
 
@@ -27,7 +23,7 @@ class RecordExternalInstrument(AbstractUserAction):
         self.add_track_action('undo_ext', self.undo_ext)
         self.add_track_action('restart_ext', self.restart_ext)
 
-    def next_ext(self, action_def, go_next="1"):
+    def next_ext(self, _, go_next="1"):
         """ arm or unarm both midi and audio track """
         go_next = bool(go_next)
         selected_track_index = self.mySong().selected_track.index if self.mySong().selected_track else 0
@@ -41,6 +37,9 @@ class RecordExternalInstrument(AbstractUserAction):
 
         if g_track.is_armed:
             return self.unarm_ext(action_def, "{0} {1}".format(restart_clips, "1"))
+
+        if isinstance(g_track, Track):
+            return self.exec_action("{0}/arm on".format(g_track.index), None, "arm_ext")
 
         action_list = "; setplay on" if g_track.is_playing and self.mySong().restart_clips else ""
         action_list += Actions.restart_track_on_group_press(g_track.midi, g_track.audio)
@@ -64,6 +63,9 @@ class RecordExternalInstrument(AbstractUserAction):
         self.mySong().restart_clips = bool(args[0])
         direct_unarm = len(args) > 1 and bool(args[1])
         g_track = self.get_group_track(action_def)
+
+        if isinstance(g_track, Track):
+            return self.exec_action("{0}/arm off".format(g_track.index), None, "arm_ext")
 
         action_list = "{0}/clip(1) color {1}; {2}/fold off".format(
             g_track.clyphx.index, g_track.color, g_track.group.index)
@@ -99,6 +101,9 @@ class RecordExternalInstrument(AbstractUserAction):
         """ Sel midi track to open ext editor """
         self.mySong().restart_clips = bool(restart_clips)
         g_track = self.get_group_track(action_def, "sel_ext")
+
+        if isinstance(g_track, Track) and g_track.is_foldable:
+            return self.exec_action("{0}/fold {1}".format(g_track.index, "off" if g_track.is_folded else "on"), None, "sel_ext")
 
         action_list = ""
         if self.mySong().selected_track.track == g_track.selectable_track.track:
@@ -169,14 +174,14 @@ class RecordExternalInstrument(AbstractUserAction):
 
         self.exec_action(action_list, g_track, "record_ext_audio")
 
-    def undo_ext(self, action_def, _):
+    def undo_ext(self, action_def):
         """" undo last recording """
         g_track = self.get_group_track(action_def)
 
         action_list = Actions.delete_playing_clips(g_track)
         self.exec_action(action_list, g_track, "undo_ext")
 
-    def restart_ext(self, action_def, _):
+    def restart_ext(self, _):
         """" restart a live set from group tracks track names """
         action_list = "; ".join([Actions.restart_grouped_track(g_track) for g_track in self.mySong().group_ex_tracks])
 

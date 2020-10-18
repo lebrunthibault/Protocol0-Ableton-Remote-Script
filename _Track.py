@@ -1,11 +1,11 @@
-# from typing import Any,
+from typing import Any, Optional
 from ClyphX_Pro.clyphx_pro.user_actions._Clip import Clip
 from ClyphX_Pro.clyphx_pro.user_actions._TrackName import TrackName
 from ClyphX_Pro.clyphx_pro.user_actions._TrackType import TrackType
 
 class Track:
     def __init__(self, track, index):
-        # type: (_, int) -> None
+        # type: (Any, int) -> None
         self.g_track = None
         self.track = track
         self.index = index
@@ -37,8 +37,13 @@ class Track:
 
     @property
     def is_foldable(self):
-        # type: () -> str
+        # type: () -> bool
         return self.track.is_foldable
+
+    @property
+    def is_folded(self):
+        # type: () -> bool
+        return self.track.fold_state
 
     @property
     def is_groupable(self):
@@ -85,7 +90,7 @@ class Track:
 
     @property
     def playing_clip(self):
-        # type: () -> Clip
+        # type: () -> Optional[Clip]
         """ return clip and clip clyphx index """
         if self.playing_clip_index != 0:
             return self.clips[self.playing_clip_index]
@@ -96,7 +101,7 @@ class Track:
     def clips(self):
         # type: () -> dict[int, Clip]
         """ return clip and clip clyphx index """
-        return { index: Clip(clip_slot.clip, index + 1) for (index, clip_slot) in self.clip_slots if clip_slot.has_clip}
+        return { index: Clip(clip_slot.clip, index + 1) for (index, clip_slot) in enumerate(self.clip_slots) if clip_slot.has_clip}
 
     @property
     def playing_clips(self):
@@ -113,7 +118,7 @@ class Track:
         return int(round(self.playing_clip.length - self.playing_clip.playing_position))
 
     @property
-    def arm(self):
+    def is_armed(self):
         # type: () -> bool
         return self.track.arm
 
@@ -148,16 +153,13 @@ class Track:
     @property
     def rec_clip_index(self):
         # type: () -> int
-        index = self.first_empty_slot_index
+        return self.first_empty_slot_index if self.has_empty_slot else self.scene_count + 1
 
-        return index if index else self.scene_count + 1
-
-    # noinspection PyTypeChecker,PyTypeChecker
     def get_last_clip_index_by_name(self, name):
-        # type: (Track, str) -> Clip
+        # type: (Track, str) -> Optional[Clip]
         """ get last clip with name on track """
-        clips = [Clip(cs.clip, i + 1) for i, cs in enumerate(list(self.clip_slots)) if cs.has_clip and cs.clip.name == name]
-        return clips.pop() + 1 if len(clips) else None
+        clips_matching_name = [clip for clip in self.clips.values() if clip.name == name]
+        return clips_matching_name.pop().index if len(clips_matching_name) else None
 
     # @property
     # def linked_audio_playing_clip(self):

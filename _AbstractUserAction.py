@@ -1,4 +1,7 @@
 # noinspection PyUnresolvedReferences
+from typing import Optional, Union
+
+# noinspection PyUnresolvedReferences
 from ClyphX_Pro.clyphx_pro.UserActionsBase import UserActionsBase
 
 from ClyphX_Pro.clyphx_pro.user_actions._Actions import Actions
@@ -17,7 +20,7 @@ class AbstractUserAction(UserActionsBase):
         return self._my_song if self._my_song else self._song
 
     def get_group_track(self, action_def, action=None):
-        # type: ([str], str) -> GroupTrack
+        # type: ([str], str) -> Union[GroupTrack, Track]
         track = self.mySong().get_track(action_def['track'])
         if track.is_groupable:
             g_track = GroupTrack(self.mySong(), track.track)
@@ -26,7 +29,7 @@ class AbstractUserAction(UserActionsBase):
             index = track.index - 4 if track.is_audio else track.index - 3
             g_track = GroupTrack(self.mySong(), self.mySong().tracks[index].track)
         else:
-            raise Exception("executed ex command on wrong track")
+            return track
 
         return g_track
 
@@ -62,7 +65,7 @@ class AbstractUserAction(UserActionsBase):
         self.exec_action(action_list + "; push msg %s" % message, None, "error")
 
     def exec_action(self, action_list, g_track=None, title="title missing"):
-        # type: (str, GroupTrack, str) -> None
+        # type: (str, Optional[GroupTrack], str) -> None
         # e.g. when we call rec_ext without doing arm_ext first
         if g_track:
             self.log("g_track.other_armed_group_track %s" % g_track.other_armed_group_track)

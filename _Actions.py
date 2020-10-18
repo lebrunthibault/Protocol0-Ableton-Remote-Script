@@ -1,16 +1,9 @@
+from typing import Optional
+
 from ClyphX_Pro.clyphx_pro.user_actions._Colors import Colors
 from ClyphX_Pro.clyphx_pro.user_actions._GroupTrack import GroupTrack
 from ClyphX_Pro.clyphx_pro.user_actions._Track import Track
 from ClyphX_Pro.clyphx_pro.user_actions._TrackType import TrackType
-from ClyphX_Pro.clyphx_pro.user_actions._log import log_ableton
-
-
-def get_last_clip_index_by_name(track, name):
-    # type: (_, str) -> int
-    """ get last clip with name on track """
-    clip_indexes = [i for i, cs in enumerate(list(track.clip_slots)) if cs.has_clip and cs.clip.name == name]
-    return clip_indexes.pop() + 1 if len(clip_indexes) else None
-
 
 class Actions:
     @staticmethod
@@ -26,7 +19,7 @@ class Actions:
 
     @staticmethod
     def restart_grouped_track(g_track, base_track=None):
-        # type: (GroupTrack, Track) -> str
+        # type: (GroupTrack, Optional[Track]) -> str
         """ restart grouped track state and synchronize audio and midi if necessary """
         if base_track and base_track.type == TrackType.audio:
             return Actions.restart_track_on_group_press(g_track.midi, base_track) + \
@@ -40,7 +33,7 @@ class Actions:
 
     @staticmethod
     def restart_track_on_group_press(track, base_track=None):
-        # type: (Track, Track) -> str
+        # type: (Track, Optional[Track]) -> str
         audio_clip_index = None
         if track.is_playing:
             if not track.song.restart_clips:

@@ -1,15 +1,12 @@
-import sys
+from typing import Any, Optional
 
 from ClyphX_Pro.clyphx_pro.user_actions._GroupTrack import GroupTrack
 from ClyphX_Pro.clyphx_pro.user_actions._Track import Track
 from ClyphX_Pro.clyphx_pro.user_actions._TrackName import TrackName
-from ClyphX_Pro.clyphx_pro.user_actions._log import log_ableton
-
 
 class Song:
     def __init__(self, song):
-        # type: (_) -> None
-        log_ableton(sys.path)
+        # type: (Any) -> None
         self.song = song
         self.restart_clips = True
         self.tracks = [Track(track, i + 1) for i, track in enumerate(list(song.tracks))]
@@ -23,7 +20,7 @@ class Song:
 
     @property
     def view(self):
-        # type: () -> _
+        # type: () -> Any
         return self.song.view
 
     @property
@@ -34,12 +31,12 @@ class Song:
     @property
     def top_tracks(self):
         # type: () -> list[Track]
-        return [track for track in self.visible_tracks if track.current_output_routing == "Master"]
+        return [track for track in self.visible_tracks if track.current_output_routing not in TrackName.GROUP_EXT_NAMES]
 
     @property
     def armed_tracks(self):
         # type: () -> list[Track]
-        return [track for track in self.tracks if track.can_be_armed and track.arm]
+        return [track for track in self.tracks if track.can_be_armed and track.is_armed]
 
     @property
     def group_ex_tracks(self):
@@ -49,11 +46,11 @@ class Song:
 
     @property
     def selected_track(self):
-        # type: () -> Track
-        if self.view.selected_track:
-            return Track(self.view.selected_track, list(self.song.tracks).index(self.view.selected_track) + 1)
-        else:
+        # type: () -> Optional[Track]
+        if not self.view.selected_track:
             return None
+
+        return Track(self.view.selected_track, list(self.song.tracks).index(self.view.selected_track) + 1)
 
     def playing_clips_count(self, g_track, include_group):
         # type: (GroupTrack, bool) -> int
@@ -75,7 +72,7 @@ class Song:
         return self.playing_clips_count(g_track, include_group) != 0
 
     def get_track(self, track):
-        # type: (_) -> Track
+        # type: (Any) -> Track
         for t in self.tracks:
             if t.track == track:
                 return t
