@@ -2,7 +2,7 @@ from typing import Optional
 
 from ClyphX_Pro.clyphx_pro.user_actions._Colors import Colors
 from ClyphX_Pro.clyphx_pro.user_actions._GroupTrack import GroupTrack
-from ClyphX_Pro.clyphx_pro.user_actions._Track import Track
+from ClyphX_Pro.clyphx_pro.user_actions._AbstractTrack import Track
 from ClyphX_Pro.clyphx_pro.user_actions._TrackType import TrackType
 
 class Actions:

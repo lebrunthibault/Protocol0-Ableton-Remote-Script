@@ -1,14 +1,13 @@
 from typing import Any
 
 from ClyphX_Pro.clyphx_pro.user_actions._Colors import Colors
-from ClyphX_Pro.clyphx_pro.user_actions._Track import Track
+from ClyphX_Pro.clyphx_pro.user_actions._AbstractTrack import AbstractTrack
 from ClyphX_Pro.clyphx_pro.user_actions._TrackName import TrackName
 
 
-class GroupTrack:
+class GroupTrack(AbstractTrack):
     def __init__(self, song, base_track):
         # type: ("Song", Any) -> None
-        self.song = song
         # getting our track object
         track = self.song.get_track(base_track)
         self.track_index_group = track.index - 1
@@ -27,6 +26,24 @@ class GroupTrack:
                 "tried to instantiate group track with base_track {0} and found track index {1}".format(base_track,
                                                                                                         self.track_index_group))
         self.clyphx.g_track = self.midi.g_track = self.audio.g_track = self
+
+        super().__init__(song, track,1)
+        self.song = song
+
+    @property
+    def name(self):
+        # type: () -> str
+        return self.group.name
+
+    @property
+    def is_foldable(self):
+        # type: () -> bool
+        return True
+
+    @property
+    def is_folded(self):
+        # type: () -> bool
+        return self.group.track.is_folded
 
     @property
     def is_group_track(self):
@@ -83,10 +100,7 @@ class GroupTrack:
         # type: () -> Track
         return self.song.tracks[self.track_index_group + 3]
 
-    @property
-    def name(self):
-        # type: () -> str
-        return self.group.name
+
 
     @property
     def is_armed(self):
@@ -111,11 +125,6 @@ class GroupTrack:
         elif "BS" in self.group.name:
             return Colors.BASS_STATION
         return Colors.DISABLED
-
-    @property
-    def other_armed_group_track(self):
-        # type: (GroupTrack) -> GroupTrack
-        return next(iter([g_track for g_track in self.song.group_ex_tracks if g_track.index != self.index and g_track.any_armed]), None)
 
     @property
     def beat_count_before_clip_restart(self):

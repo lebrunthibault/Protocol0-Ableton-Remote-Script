@@ -1,9 +1,10 @@
 from typing import Any, Optional
 from ClyphX_Pro.clyphx_pro.user_actions._Clip import Clip
+from ClyphX_Pro.clyphx_pro.user_actions._AbstractTrack import Track
 from ClyphX_Pro.clyphx_pro.user_actions._TrackName import TrackName
 from ClyphX_Pro.clyphx_pro.user_actions._TrackType import TrackType
 
-class Track:
+class SimpleTrack:
     def __init__(self, track, index):
         # type: (Any, int) -> None
         self.g_track = None
@@ -24,16 +25,6 @@ class Track:
         else TrackType.midi if self.is_midi
         else TrackType.any
                      )
-
-    @property
-    def name(self):
-        # type: () -> str
-        return self.track.name
-
-    @property
-    def current_output_routing(self):
-        # type: () -> str
-        return self.track.current_output_routing
 
     @property
     def is_foldable(self):
@@ -59,6 +50,11 @@ class Track:
         return self.name in TrackName.GROUP_EXT_NAMES
 
     @property
+    def is_nested_group_ex_track(self):
+        # type: () -> bool
+        return self.name != TrackName.GROUP_CLYPHX_NAME and not self.name.isnumeric()
+
+    @property
     def is_clyphx(self):
         # type: () -> bool
         return self.name == TrackName.GROUP_CLYPHX_NAME
@@ -74,6 +70,11 @@ class Track:
         return self.track.has_midi_input
 
     @property
+    def is_simpler(self):
+        # type: () -> bool
+        return self.devices[0].class_name == "OriginalSimpler"
+
+    @property
     def is_playing(self):
         # type: () -> bool
         return bool(self.playing_clip)
@@ -84,9 +85,14 @@ class Track:
         return self.track.is_visible
 
     @property
+    def devices(self):
+        # type: () -> list[Any]
+        return self.track.devices
+
+    @property
     def is_top_visible(self):
         # type: () -> bool
-        return self.is_visible and self.name != TrackName.GROUP_CLYPHX_NAME and not self.name.isnumeric()
+        return self.is_visible and not self.is_nested_group_ex_track
 
     @property
     def playing_clip(self):
@@ -120,7 +126,7 @@ class Track:
     @property
     def is_armed(self):
         # type: () -> bool
-        return self.track.arm
+        return self.can_be_armed and self.track.arm
 
     @property
     def can_be_armed(self):

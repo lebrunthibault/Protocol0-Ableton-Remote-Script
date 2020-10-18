@@ -3,7 +3,7 @@ import time
 from ClyphX_Pro.clyphx_pro.user_actions._Actions import Actions
 from ClyphX_Pro.clyphx_pro.user_actions._BomeCommands import BomeCommands
 from ClyphX_Pro.clyphx_pro.user_actions._Colors import Colors
-from ClyphX_Pro.clyphx_pro.user_actions._Track import Track
+from ClyphX_Pro.clyphx_pro.user_actions._AbstractTrack import Track
 from ClyphX_Pro.clyphx_pro.user_actions._utils import for_all_methods, init_song
 from ClyphX_Pro.clyphx_pro.user_actions._AbstractUserAction import AbstractUserAction
 
@@ -26,13 +26,13 @@ class RecordExternalInstrument(AbstractUserAction):
     def next_ext(self, _, go_next="1"):
         """ arm or unarm both midi and audio track """
         go_next = bool(go_next)
-        selected_track_index = self.mySong().selected_track.index if self.mySong().selected_track else 0
+        selected_track_index = self.song().selected_track.index if self.song().selected_track else 0
         action_list = "{0}/sel".format(self.get_next_track_by_index(selected_track_index, go_next).index)
         self.exec_action(action_list, None, "next_ext")
 
     def arm_ext(self, action_def, restart_clips=""):
         """ arm or unarm both midi and audio track """
-        self.mySong().restart_clips = bool(restart_clips)
+        self.song().restart_clips = bool(restart_clips)
         g_track = self.get_group_track(action_def)
 
         if g_track.is_armed:
@@ -41,7 +41,7 @@ class RecordExternalInstrument(AbstractUserAction):
         if isinstance(g_track, Track):
             return self.exec_action("{0}/arm on".format(g_track.index), None, "arm_ext")
 
-        action_list = "; setplay on" if g_track.is_playing and self.mySong().restart_clips else ""
+        action_list = "; setplay on" if g_track.is_playing and self.song().restart_clips else ""
         action_list += Actions.restart_track_on_group_press(g_track.midi, g_track.audio)
         # stop audio to have live synth parameter edition while midi is playing
         action_list += Actions.stop_track(g_track.audio, True)
@@ -60,7 +60,7 @@ class RecordExternalInstrument(AbstractUserAction):
     def unarm_ext(self, action_def, args=""):
         """ unarming group track """
         args = args.split(" ")
-        self.mySong().restart_clips = bool(args[0])
+        self.song().restart_clips = bool(args[0])
         direct_unarm = len(args) > 1 and bool(args[1])
         g_track = self.get_group_track(action_def)
 
@@ -99,16 +99,16 @@ class RecordExternalInstrument(AbstractUserAction):
 
     def sel_ext(self, action_def, restart_clips=""):
         """ Sel midi track to open ext editor """
-        self.mySong().restart_clips = bool(restart_clips)
+        self.song().restart_clips = bool(restart_clips)
         g_track = self.get_group_track(action_def, "sel_ext")
 
         if isinstance(g_track, Track) and g_track.is_foldable:
             return self.exec_action("{0}/fold {1}".format(g_track.index, "off" if g_track.is_folded else "on"), None, "sel_ext")
 
         action_list = ""
-        if self.mySong().selected_track.track == g_track.selectable_track.track:
+        if self.song().selected_track.track == g_track.selectable_track.track:
             action_list += "; {0}/fold on; {0}/sel".format(g_track.group.index)
-            return self.exec_action(action_list, g_track, "sel_ext")
+            return self.exec_action(action_list, None, "sel_ext")
 
         action_list += Actions.restart_grouped_track(g_track)
         action_list += "; {0}/fold off; {1}/sel".format(g_track.group.index, g_track.selectable_track.index)
@@ -118,17 +118,17 @@ class RecordExternalInstrument(AbstractUserAction):
             action_list += BomeCommands.SELECT_FIRST_VST
         action_list += Actions.arm_g_track(g_track)
 
-        self.exec_action(action_list, g_track, "sel_ext")
+        self.exec_action(action_list, None, "sel_ext")
 
     def stop_audio_ext(self, action_def, restart_clips=""):
         """ arm both midi and audio track """
-        self.mySong().restart_clips = bool(restart_clips)
+        self.song().restart_clips = bool(restart_clips)
         g_track = self.get_group_track(action_def)
 
         action_list = Actions.restart_track_on_group_press(g_track.midi, None)
         action_list += Actions.stop_track(g_track.audio)
 
-        self.exec_action(action_list, g_track, "stop_audio_ext")
+        self.exec_action(action_list, None, "stop_audio_ext")
 
     def record_ext(self, action_def, bar_count):
         """ record both midi and audio on group track """
@@ -142,7 +142,7 @@ class RecordExternalInstrument(AbstractUserAction):
         )
         action_list += Actions.restart_and_record(g_track, action_list_rec)
         # when done, stop audio clip and metronome
-        delay = int(round((600 / self.mySong().tempo) * (4 * (int(bar_count) + 1) - 0.5)))
+        delay = int(round((600 / self.song().tempo) * (4 * (int(bar_count) + 1) - 0.5)))
         action_list += "; wait {0}; {1}/stop; metro off; wait 5".format(delay, g_track.audio.index)
 
         # rename timestamp clip to link clips
@@ -167,7 +167,7 @@ class RecordExternalInstrument(AbstractUserAction):
         )
         action_list += Actions.restart_and_record(g_track, action_list_rec, False)
         # when done, stop audio clip
-        delay = int(round((600 / self.mySong().tempo) * (int(g_track.midi.playing_clip.length) + 6)))
+        delay = int(round((600 / self.song().tempo) * (int(g_track.midi.playing_clip.length) + 6)))
         action_list += "; wait {0}; {1}/clip({2}) name '{3}'; {1}/clip({2}) warpmode complex".format(
             delay, g_track.audio.index, g_track.rec_clip_index, g_track.midi.playing_clip.name)
         action_list += Actions.set_audio_playing_color(g_track, Colors.PLAYING)
@@ -179,11 +179,11 @@ class RecordExternalInstrument(AbstractUserAction):
         g_track = self.get_group_track(action_def)
 
         action_list = Actions.delete_playing_clips(g_track)
-        self.exec_action(action_list, g_track, "undo_ext")
+        self.exec_action(action_list, None, "undo_ext")
 
     def restart_ext(self, _):
         """" restart a live set from group tracks track names """
-        action_list = "; ".join([Actions.restart_grouped_track(g_track) for g_track in self.mySong().group_ex_tracks])
+        action_list = "; ".join([Actions.restart_grouped_track(g_track) for g_track in self.song().group_ex_tracks])
 
         self.exec_action(action_list, None, "restart_ext")
 
