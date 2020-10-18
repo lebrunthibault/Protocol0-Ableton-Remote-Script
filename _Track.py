@@ -1,29 +1,21 @@
 from ClyphX_Pro.clyphx_pro.user_actions._Clip import Clip
 from ClyphX_Pro.clyphx_pro.user_actions._TrackName import TrackName
 from ClyphX_Pro.clyphx_pro.user_actions._TrackType import TrackType
-from ClyphX_Pro.clyphx_pro.user_actions._log import log_ableton
-
 
 class Track:
     def __init__(self, track, index):
-        # type: (_, int) -> None
+        # type: (Any, int) -> None
         self.g_track = None
         self.track = track
         self.index = index
         self.song = None
 
         try:
-            playing_clip_index_track = int(track.name)
-            # handle wrong track name
-            if not self.track.clip_slots[playing_clip_index_track - 1].has_clip:
-                playing_clip_index_track = 0
-        except ValueError:
+            playing_clip_index_track = self.clips[int(self.name)]
+        except (ValueError, KeyError):
             playing_clip_index_track = 0
 
-        self.playing_clip_index = next(
-            iter([i + 1 for (i, clip_slot) in enumerate(list(track.clip_slots)) if
-                  clip_slot.has_clip and clip_slot.clip.is_playing]),
-            playing_clip_index_track)
+        self.playing_clip_index = next(iter(self.playing_clips), playing_clip_index_track)
 
         self.type = (TrackType.group if self.is_group
                      else TrackType.clyphx if self.is_clyphx
@@ -78,7 +70,7 @@ class Track:
     @property
     def is_playing(self):
         # type: () -> bool
-        return self.playing_clip_index != 0
+        return bool(self.playing_clip)
 
     @property
     def is_visible(self):
@@ -92,25 +84,24 @@ class Track:
 
     @property
     def playing_clip(self):
-        # type: () -> Clip
+        # type: () -> None
         """ return clip and clip clyphx index """
         if self.playing_clip_index != 0:
-            return Clip(self.clip_slots[self.playing_clip_index - 1].clip, self.playing_clip_index)
+            return self.clips[self.playing_clip_index]
         else:
             return None
-
 
     @property
     def clips(self):
+        # type: () -> dict[int, Clip]
+        """ return clip and clip clyphx index """
+        return { index: Clip(clip_slot.clip, index + 1) for (index, clip_slot) in self.clip_slots if clip_slot.has_clip}
+
+    @property
+    def playing_clips(self):
         # type: () -> list[Clip]
         """ return clip and clip clyphx index """
-        return [Clip(clip, index + 1) for clip
-                ]
-        if self.playing_clip_index != 0:
-            return Clip(self.track.clip_slots[self.playing_clip_index - 1].clip, self.playing_clip_index)
-        else:
-            return None
-
+        return [clip for clip in self.clips.values() if clip.is_playing]
 
     @property
     def beat_count_before_clip_restart(self):
@@ -160,12 +151,14 @@ class Track:
 
         return index if index else self.scene_count + 1
 
+    # noinspection PyTypeChecker,PyTypeChecker
     def get_last_clip_index_by_name(self, name):
         # type: (Track, str) -> Clip
         """ get last clip with name on track """
         clips = [Clip(cs.clip, i + 1) for i, cs in enumerate(list(self.clip_slots)) if cs.has_clip and cs.clip.name == name]
         return clips.pop() + 1 if len(clips) else None
 
+    # noinspection PyTypeChecker,PyTypeChecker
     @property
     def linked_audio_playing_clip(self):
         # type: () -> Clip

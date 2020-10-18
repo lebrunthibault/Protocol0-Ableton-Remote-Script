@@ -10,6 +10,12 @@ class Clip:
         return self.clip.length
 
     @property
+    def is_playing(self):
+        # type: () -> bool
+        """ For looped clips: loop length in beats """
+        return self.clip.is_playing
+
+    @property
     def name(self):
         # type: () -> str
         return self.clip.name

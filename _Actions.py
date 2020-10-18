@@ -46,7 +46,7 @@ class Actions:
             if not track.song.restart_clips:
                 return ""
             else:
-                audio_clip_index = track.playing_clip_index
+                audio_clip_index = track.playing_clip.index
         elif base_track and base_track.is_playing:
             audio_clip = track.get_last_clip_index_by_name(base_track.playing_clip.name)
             audio_clip_index = audio_clip.index if audio_clip else None
