@@ -1,3 +1,5 @@
+from typing import Any, Optional
+
 from ClyphX_Pro.clyphx_pro.user_actions._Clip import Clip
 from ClyphX_Pro.clyphx_pro.user_actions._TrackName import TrackName
 from ClyphX_Pro.clyphx_pro.user_actions._TrackType import TrackType
@@ -84,7 +86,7 @@ class Track:
 
     @property
     def playing_clip(self):
-        # type: () -> None
+        # type: () -> Optional[Clip]
         """ return clip and clip clyphx index """
         if self.playing_clip_index != 0:
             return self.clips[self.playing_clip_index]
@@ -158,12 +160,11 @@ class Track:
         clips = [Clip(cs.clip, i + 1) for i, cs in enumerate(list(self.clip_slots)) if cs.has_clip and cs.clip.name == name]
         return clips.pop() + 1 if len(clips) else None
 
-    # noinspection PyTypeChecker,PyTypeChecker
-    @property
-    def linked_audio_playing_clip(self):
-        # type: () -> Clip
-        """ return clip and clip clyphx index """
-        if not self.g_track.midi.playing:
-            return None
-        else:
-            return list(self.clip_slots[]
+    # @property
+    # def linked_audio_playing_clip(self):
+    #     # type: () -> Clip
+    #     """ return clip and clip clyphx index """
+    #     if not self.g_track.midi.playing:
+    #         return None
+    #     else:
+    #         return list(self.clip_slots[]
