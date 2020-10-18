@@ -54,6 +54,16 @@ class GroupTrack:
         return self.group.index
 
     @property
+    def rec_clip_index(self):
+        # type: () -> int
+        return self.audio.rec_clip_index
+
+    @property
+    def has_empty_slot(self):
+        # type: () -> int
+        return self.audio.has_empty_slot
+
+    @property
     def group(self):
         # type: () -> Track
         return self.song.tracks[self.track_index_group]
@@ -103,14 +113,9 @@ class GroupTrack:
         return Colors.DISABLED
 
     @property
-    def other_group_tracks(self):
-        # type: (GroupTrack) -> list[GroupTrack]
-        return [g_track for g_track in self.song.group_ex_tracks if g_track.index != self.index]
-
-    @property
     def other_armed_group_track(self):
         # type: (GroupTrack) -> GroupTrack
-        return next(iter([g_track for g_track in self.other_group_tracks if g_track.any_armed]), None)
+        return next(iter([g_track for g_track in self.song.group_ex_tracks if g_track.index != self.index and g_track.any_armed]), None)
 
     @property
     def beat_count_before_clip_restart(self):

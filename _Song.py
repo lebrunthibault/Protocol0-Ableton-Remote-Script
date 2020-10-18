@@ -4,6 +4,7 @@ from ClyphX_Pro.clyphx_pro.user_actions._GroupTrack import GroupTrack
 from ClyphX_Pro.clyphx_pro.user_actions._Track import Track
 from ClyphX_Pro.clyphx_pro.user_actions._TrackName import TrackName
 
+
 class Song:
     def __init__(self, song):
         # type: (Any) -> None
@@ -31,7 +32,7 @@ class Song:
     @property
     def top_tracks(self):
         # type: () -> list[Track]
-        return [track for track in self.visible_tracks if track.current_output_routing not in TrackName.GROUP_EXT_NAMES]
+        return [track for track in self.visible_tracks if track.name != TrackName.GROUP_CLYPHX_NAME and not track.name.isnumeric()]
 
     @property
     def armed_tracks(self):
@@ -78,3 +79,8 @@ class Song:
                 return t
 
         raise Exception("this track cannot be matched")
+
+    @property
+    def other_armed_group_track(self, g_track=None):
+        # type: (Optional[GroupTrack]) -> Optional[GroupTrack]
+        return next(iter([track for track in self.song.group_ex_tracks if (g_track and g_track.index != track.index) and track.any_armed]), None)

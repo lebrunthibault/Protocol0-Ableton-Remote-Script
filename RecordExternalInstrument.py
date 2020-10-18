@@ -133,7 +133,7 @@ class RecordExternalInstrument(AbstractUserAction):
     def record_ext(self, action_def, bar_count):
         """ record both midi and audio on group track """
         g_track = self.get_group_track(action_def)
-        rec_clip_index = g_track.audio.rec_clip_index
+        rec_clip_index = g_track.rec_clip_index
         action_list = Actions.arm_g_track(g_track)
         action_list += Actions.add_scene_if_needed(g_track.audio)
 
@@ -154,7 +154,7 @@ class RecordExternalInstrument(AbstractUserAction):
 
     def record_ext_audio(self, action_def, _):
         """ record audio on group track from playing midi clip """
-        g_track = self.get_group_track(action_def)
+        g_track = self.get_group_track(action_def, "", True)
 
         if not g_track.midi.is_playing:
             return self.log_to_push(g_track, "midi not playing, cannot record audio")
@@ -163,13 +163,13 @@ class RecordExternalInstrument(AbstractUserAction):
         action_list += Actions.add_scene_if_needed(g_track.audio)
         action_list += Actions.restart_track_on_group_press(g_track.midi)
         action_list_rec = "; {0}/recfix {1} {2}; {0}/name '{2}'".format(
-            g_track.audio.index, int(round((g_track.midi.playing_clip.length + 1) / 4)), g_track.audio.rec_clip_index
+            g_track.audio.index, int(round((g_track.midi.playing_clip.length + 1) / 4)), g_track.rec_clip_index
         )
         action_list += Actions.restart_and_record(g_track, action_list_rec, False)
         # when done, stop audio clip
         delay = int(round((600 / self.mySong().tempo) * (int(g_track.midi.playing_clip.length) + 6)))
         action_list += "; wait {0}; {1}/clip({2}) name '{3}'; {1}/clip({2}) warpmode complex".format(
-            delay, g_track.audio.index, g_track.audio.rec_clip_index, g_track.midi.playing_clip.name)
+            delay, g_track.audio.index, g_track.rec_clip_index, g_track.midi.playing_clip.name)
         action_list += Actions.set_audio_playing_color(g_track, Colors.PLAYING)
 
         self.exec_action(action_list, g_track, "record_ext_audio")

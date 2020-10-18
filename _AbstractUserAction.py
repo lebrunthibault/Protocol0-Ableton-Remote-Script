@@ -19,8 +19,8 @@ class AbstractUserAction(UserActionsBase):
         # type: () -> Song
         return self._my_song if self._my_song else self._song
 
-    def get_group_track(self, action_def, action=None):
-        # type: ([str], str) -> Union[GroupTrack, Track]
+    def get_group_track(self, action_def, action=None, strict_ext_check=False):
+        # type: ([str], str, bool) -> Union[GroupTrack, Track]
         track = self.mySong().get_track(action_def['track'])
         if track.is_groupable:
             g_track = GroupTrack(self.mySong(), track.track)
@@ -28,6 +28,8 @@ class AbstractUserAction(UserActionsBase):
             # when actioning sel/sel_midi_ext from midi track to unselect midi track
             index = track.index - 4 if track.is_audio else track.index - 3
             g_track = GroupTrack(self.mySong(), self.mySong().tracks[index].track)
+        elif strict_ext_check:
+            raise Exception("executed ex command on wrong track")
         else:
             return track
 
@@ -68,10 +70,10 @@ class AbstractUserAction(UserActionsBase):
         # type: (str, Optional[GroupTrack], str) -> None
         # e.g. when we call rec_ext without doing arm_ext first
         if g_track:
-            self.log("g_track.other_armed_group_track %s" % g_track.other_armed_group_track)
-        if g_track and g_track.other_armed_group_track and title != "stop_audio_ext":
-            self.log("calling unarm ext from exec_action on %s" % g_track.other_armed_group_track.index)
-            action_list += "; {0}/unarm_ext {1}".format(g_track.other_armed_group_track.group.index,
+            self.log("g_track.other_armed_group_track %s" % self._my_song.other_armed_group_track)
+        if self._my_song.other_armed_group_track and title != "stop_audio_ext":
+            self.log("calling unarm ext from exec_action on %s" % self._my_song.other_armed_group_track.index)
+            action_list += "; {0}/unarm_ext {1}".format(self._my_song.other_armed_group_track.group.index,
                                                         "1" if g_track.song.restart_clips else "")
 
         self.log("{0}: {1}".format(title, action_list))
