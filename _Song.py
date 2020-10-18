@@ -1,10 +1,15 @@
+import sys
+
 from ClyphX_Pro.clyphx_pro.user_actions._GroupTrack import GroupTrack
 from ClyphX_Pro.clyphx_pro.user_actions._Track import Track
 from ClyphX_Pro.clyphx_pro.user_actions._TrackName import TrackName
+from ClyphX_Pro.clyphx_pro.user_actions._log import log_ableton
+
 
 class Song:
     def __init__(self, song):
         # type: (_) -> None
+        log_ableton(sys.path)
         self.song = song
         self.restart_clips = True
         self.tracks = [Track(track, i + 1) for i, track in enumerate(list(song.tracks))]

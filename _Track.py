@@ -1,12 +1,11 @@
-from typing import Any, Optional
-
+# from typing import Any,
 from ClyphX_Pro.clyphx_pro.user_actions._Clip import Clip
 from ClyphX_Pro.clyphx_pro.user_actions._TrackName import TrackName
 from ClyphX_Pro.clyphx_pro.user_actions._TrackType import TrackType
 
 class Track:
     def __init__(self, track, index):
-        # type: (Any, int) -> None
+        # type: (_, int) -> None
         self.g_track = None
         self.track = track
         self.index = index
@@ -86,7 +85,7 @@ class Track:
 
     @property
     def playing_clip(self):
-        # type: () -> Optional[Clip]
+        # type: () -> Clip
         """ return clip and clip clyphx index """
         if self.playing_clip_index != 0:
             return self.clips[self.playing_clip_index]
