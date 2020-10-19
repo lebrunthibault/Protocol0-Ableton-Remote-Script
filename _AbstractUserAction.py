@@ -4,10 +4,10 @@ from typing import Optional, Union
 # noinspection PyUnresolvedReferences
 from ClyphX_Pro.clyphx_pro.UserActionsBase import UserActionsBase
 
-from ClyphX_Pro.clyphx_pro.user_actions._Actions import Actions
 from ClyphX_Pro.clyphx_pro.user_actions._GroupTrack import GroupTrack
+from ClyphX_Pro.clyphx_pro.user_actions._SimpleTrack import SimpleTrack
 from ClyphX_Pro.clyphx_pro.user_actions._Song import Song
-from ClyphX_Pro.clyphx_pro.user_actions._AbstractTrack import Track
+from ClyphX_Pro.clyphx_pro.user_actions._AbstractTrack import AbstractTrack
 
 
 class AbstractUserAction(UserActionsBase):
@@ -20,7 +20,7 @@ class AbstractUserAction(UserActionsBase):
         return self._my_song if self._my_song else self._song
 
     def get_group_track(self, action_def, action=None, strict_ext_check=False):
-        # type: ([str], str, bool) -> Union[GroupTrack, Track]
+        # type: ([str], str, bool) -> AbstractTrack
         track = self.song().get_track(action_def['track'])
         if track.is_groupable:
             g_track = GroupTrack(self.song(), track.track)
@@ -36,7 +36,7 @@ class AbstractUserAction(UserActionsBase):
         return g_track
 
     def get_next_track_by_index(self, index, go_next):
-        # type: (int, bool) -> Track
+        # type: (int, bool) -> SimpleTrack
         tracks = self.song().top_tracks
         tracks = tracks if go_next else list(reversed(tracks))
 
@@ -58,21 +58,15 @@ class AbstractUserAction(UserActionsBase):
     def log_to_push(self, g_track, message):
         # type: (GroupTrack, str) -> None
         self.log(message)
+        self.exec_action("; push msg %s" % message, None, "error")
 
-        action_list = ""
-        if g_track and g_track.is_group_track:
-            action_list += "setplay on"
-            action_list += Actions.restart_grouped_track(g_track)
-
-        self.exec_action(action_list + "; push msg %s" % message, None, "error")
-
-    def exec_action(self, action_list, g_track=None, title="title missing"):
-        # type: (str, Optional[Union[GroupTrack]], str) -> None
+    def exec_action(self, action_list, track=None, title="title missing"):
+        # type: (str, Optional[AbstractTrack], str) -> None
         # e.g. when we call rec_ext without doing arm_ext first
-        if title in ("arm_ext", "record_ext", "record_ext_audio") and self.song().other_armed_group_track(g_track):
-            action_list += "; {0}/unarm_ext {1}".format(self.song().other_armed_group_track(g_track).group.index,
+        if title in ("arm_ext", "record_ext", "record_ext_audio") and self.song().other_armed_group_track(track):
+            action_list += "; {0}/unarm_ext {1}".format(self.song().other_armed_group_track(track).group.index,
                                                         "1" if self.song().restart_clips else "")
-            action_list =  ["; {0}/arm off".format(track.index) for track in self.song().simple_armed_tracks(g_track)]
+            action_list =  ["; {0}/arm off".format(track.index) for track in self.song().simple_armed_tracks(track)]
 
         self.log("{0}: {1}".format(title, action_list))
         self.canonical_parent.clyphx_pro_component.trigger_action_list(action_list)

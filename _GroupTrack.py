@@ -2,6 +2,7 @@ from typing import Any
 
 from ClyphX_Pro.clyphx_pro.user_actions._Colors import Colors
 from ClyphX_Pro.clyphx_pro.user_actions._AbstractTrack import AbstractTrack
+from ClyphX_Pro.clyphx_pro.user_actions._SimpleTrack import SimpleTrack
 from ClyphX_Pro.clyphx_pro.user_actions._TrackName import TrackName
 
 
@@ -27,8 +28,15 @@ class GroupTrack(AbstractTrack):
                                                                                                         self.track_index_group))
         self.clyphx.g_track = self.midi.g_track = self.audio.g_track = self
 
-        super().__init__(song, track,1)
-        self.song = song
+        super().__init__(song, track, self.track_index_group)
+
+    @property
+    def scene_count(self):
+        return self.audio.scene_count
+
+    @property
+    def first_empty_slot_index(self):
+        return self.audio.first_empty_slot_index
 
     @property
     def name(self):
@@ -46,9 +54,9 @@ class GroupTrack(AbstractTrack):
         return self.group.track.is_folded
 
     @property
-    def is_group_track(self):
+    def is_group(self):
         # type: () -> bool
-        return self.clyphx.track.name == TrackName.GROUP_CLYPHX_NAME
+        return True
 
     @property
     def is_prophet(self):
@@ -62,13 +70,23 @@ class GroupTrack(AbstractTrack):
 
     @property
     def selectable_track(self):
-        # type: () -> Track
+        # type: () -> SimpleTrack
         return self.midi if self.is_prophet else self.audio
 
     @property
     def index(self):
         # type: () -> int
         return self.group.index
+
+    @property
+    def is_visible(self):
+        # type: () -> bool
+        return True
+
+    @property
+    def is_top_visible(self):
+        # type: () -> bool
+        return True
 
     @property
     def rec_clip_index(self):
@@ -82,25 +100,23 @@ class GroupTrack(AbstractTrack):
 
     @property
     def group(self):
-        # type: () -> Track
+        # type: () -> SimpleTrack
         return self.song.tracks[self.track_index_group]
 
     @property
     def clyphx(self):
-        # type: () -> Track
+        # type: () -> SimpleTrack
         return self.song.tracks[self.track_index_group + 1]
 
     @property
     def midi(self):
-        # type: () -> Track
+        # type: () -> SimpleTrack
         return self.song.tracks[self.track_index_group + 2]
 
     @property
     def audio(self):
-        # type: () -> Track
+        # type: () -> SimpleTrack
         return self.song.tracks[self.track_index_group + 3]
-
-
 
     @property
     def is_armed(self):

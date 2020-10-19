@@ -1,7 +1,8 @@
 from typing import Any, Optional
 
 from ClyphX_Pro.clyphx_pro.user_actions._GroupTrack import GroupTrack
-from ClyphX_Pro.clyphx_pro.user_actions._AbstractTrack import Track
+from ClyphX_Pro.clyphx_pro.user_actions._AbstractTrack import AbstractTrack
+from ClyphX_Pro.clyphx_pro.user_actions._SimpleTrack import SimpleTrack
 from ClyphX_Pro.clyphx_pro.user_actions._TrackName import TrackName
 
 
@@ -10,7 +11,7 @@ class Song:
         # type: (Any) -> None
         self.song = song
         self.restart_clips = True
-        self.tracks = [Track(track, i + 1) for i, track in enumerate(list(song.tracks))]
+        self.tracks = [SimpleTrack(track, i + 1) for i, track in enumerate(list(song.tracks))]
         for track in self.tracks:
             track.song = self
 
@@ -26,11 +27,11 @@ class Song:
 
     @property
     def top_tracks(self):
-        # type: () -> list[Track]
+        # type: () -> list[SimpleTrack]
         return [track for track in self.tracks if track.is_top_visible]
 
     def simple_armed_tracks(self, track):
-        # type: (Track) -> list[Track]
+        # type: (SimpleTrack) -> list[SimpleTrack]
         return [t for t in self.tracks if t.is_armed and not t.is_groupable and t != track]
 
     @property
@@ -74,6 +75,6 @@ class Song:
 
         raise Exception("this track cannot be matched")
 
-    def other_armed_group_track(self, g_track=None):
-        # type: (Optional[GroupTrack]) -> Optional[GroupTrack]
-        return next(iter([track for track in self.group_ex_tracks if (not g_track or g_track.index != track.index) and track.any_armed]), None)
+    def other_armed_group_track(self, abstract_track=None):
+        # type: (Optional[AbstractTrack]) -> Optional[GroupTrack]
+        return next(iter([track for track in self.group_ex_tracks if (not abstract_track.is_group or abstract_track.index != track.index) and track.any_armed]), None)

@@ -1,16 +1,15 @@
 from typing import Any, Optional
 from ClyphX_Pro.clyphx_pro.user_actions._Clip import Clip
-from ClyphX_Pro.clyphx_pro.user_actions._AbstractTrack import Track
+from ClyphX_Pro.clyphx_pro.user_actions._AbstractTrack import AbstractTrack
 from ClyphX_Pro.clyphx_pro.user_actions._TrackName import TrackName
 from ClyphX_Pro.clyphx_pro.user_actions._TrackType import TrackType
 
-class SimpleTrack:
-    def __init__(self, track, index):
-        # type: (Any, int) -> None
+class SimpleTrack(AbstractTrack):
+    def __init__(self, song, track, index):
+        # type: (Any, Any, int) -> None
         self.g_track = None
-        self.track = track
-        self.index = index
-        self.song = None
+
+        super().__init__(song, track, index)
 
         try:
             playing_clip_index_track = self.clips[int(self.name)]
@@ -25,6 +24,10 @@ class SimpleTrack:
         else TrackType.midi if self.is_midi
         else TrackType.any
                      )
+
+    @property
+    def name(self):
+        return self.track.name
 
     @property
     def is_foldable(self):
@@ -162,7 +165,7 @@ class SimpleTrack:
         return self.first_empty_slot_index if self.has_empty_slot else self.scene_count + 1
 
     def get_last_clip_index_by_name(self, name):
-        # type: (Track, str) -> Optional[Clip]
+        # type: (str) -> Optional[Clip]
         """ get last clip with name on track """
         clips_matching_name = [clip for clip in self.clips.values() if clip.name == name]
         return clips_matching_name.pop().index if len(clips_matching_name) else None
