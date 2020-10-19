@@ -31,6 +31,7 @@ class Song:
         return [track for track in self.tracks if track.is_top_visible]
 
     def simple_armed_tracks(self, track):
+        
         # type: (SimpleTrack) -> list[SimpleTrack]
         return [t for t in self.tracks if t.is_armed and not t.is_groupable and t != track]
 
