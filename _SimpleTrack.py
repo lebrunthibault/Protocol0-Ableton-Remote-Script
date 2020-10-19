@@ -4,6 +4,7 @@ from ClyphX_Pro.clyphx_pro.user_actions._AbstractTrack import AbstractTrack
 from ClyphX_Pro.clyphx_pro.user_actions._TrackName import TrackName
 from ClyphX_Pro.clyphx_pro.user_actions._TrackType import TrackType
 
+
 class SimpleTrack(AbstractTrack):
     def __init__(self, song, track, index):
         # type: (Any, Any, int) -> None
@@ -11,19 +12,22 @@ class SimpleTrack(AbstractTrack):
 
         super().__init__(song, track, index)
 
-        try:
-            playing_clip_index_track = self.clips[int(self.name)]
-        except (ValueError, KeyError):
-            playing_clip_index_track = 0
+    @property
+    def index(self):
+        return self._index
 
-        self.playing_clip_index = next(iter(self.playing_clips), playing_clip_index_track)
+    @property
+    def track(self):
+        return self._track
 
-        self.type = (TrackType.group if self.is_group
-                     else TrackType.clyphx if self.is_clyphx
+    @property
+    def type(self):
+        return (TrackType.group if self.is_group
+                else TrackType.clyphx if self.is_clyphx
         else TrackType.audio if self.is_audio
         else TrackType.midi if self.is_midi
         else TrackType.any
-                     )
+                )
 
     @property
     def name(self):
@@ -46,6 +50,11 @@ class SimpleTrack(AbstractTrack):
                self.is_clyphx or \
                (self.index >= 3 and self.song.tracks[self.index - 2].name == TrackName.GROUP_CLYPHX_NAME) or \
                (self.index >= 4 and self.song.tracks[self.index - 3].name == TrackName.GROUP_CLYPHX_NAME)
+
+    @property
+    def is_simple(self):
+        # type: () -> bool
+        return not self.is_groupable
 
     @property
     def is_group(self):
@@ -101,16 +110,20 @@ class SimpleTrack(AbstractTrack):
     def playing_clip(self):
         # type: () -> Optional[Clip]
         """ return clip and clip clyphx index """
-        if self.playing_clip_index != 0:
-            return self.clips[self.playing_clip_index]
-        else:
-            return None
+        try:
+            playing_clip_index_track = self.clips[int(self.name)]
+        except (ValueError, KeyError):
+            playing_clip_index_track = 0
+
+        playing_clip_index = next(iter([clip.index for clip in self.playing_clips]), playing_clip_index_track)
+        return self.clips[playing_clip_index] if playing_clip_index != 0 else None
 
     @property
     def clips(self):
         # type: () -> dict[int, Clip]
         """ return clip and clip clyphx index """
-        return { index: Clip(clip_slot.clip, index + 1) for (index, clip_slot) in enumerate(self.clip_slots) if clip_slot.has_clip}
+        return {index: Clip(clip_slot.clip, index + 1) for (index, clip_slot) in enumerate(self.clip_slots) if
+                clip_slot.has_clip}
 
     @property
     def playing_clips(self):

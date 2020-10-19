@@ -2,7 +2,7 @@ from typing import Optional
 
 from ClyphX_Pro.clyphx_pro.user_actions._Colors import Colors
 from ClyphX_Pro.clyphx_pro.user_actions._GroupTrack import GroupTrack
-from ClyphX_Pro.clyphx_pro.user_actions._AbstractTrack import Track
+from ClyphX_Pro.clyphx_pro.user_actions._AbstractTrack import AbstractTrack
 from ClyphX_Pro.clyphx_pro.user_actions._TrackType import TrackType
 
 class Actions:
@@ -11,11 +11,10 @@ class Actions:
         # type: (GroupTrack) -> str
         return "; {0}/arm off; {1}/arm on; {2}/arm on".format(g_track.clyphx.index, g_track.midi.index,
                                                               g_track.audio.index)
-
     @staticmethod
-    def add_scene_if_needed(track):
-        # type: (Track) -> str
-        return "" if track.has_empty_slot else "; addscene -1; wait 2"
+    def add_scene_if_needed(abstract_track):
+        # type: (AbstractTrack) -> str
+        return "" if abstract_track.has_empty_slot else "; addscene -1; wait 2"
 
     @staticmethod
     def restart_grouped_track(g_track, base_track=None):
@@ -46,7 +45,6 @@ class Actions:
         """ restart playing clips on grouped track """
         # some logic to handle press on group track buttons which launches clips
         if audio_clip_index:
-            track.playing_clip_index = audio_clip_index
             return "; {0}/play {1}; wait 1; {0}/play {1}; {0}/name '{1}'".format(track.index, audio_clip_index)
         return Actions.stop_track(track)
 

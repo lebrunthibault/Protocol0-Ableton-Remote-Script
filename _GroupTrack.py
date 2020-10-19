@@ -28,7 +28,17 @@ class GroupTrack(AbstractTrack):
                                                                                                         self.track_index_group))
         self.clyphx.g_track = self.midi.g_track = self.audio.g_track = self
 
-        super().__init__(song, track, self.track_index_group)
+        super().__init__(song, self.group.track, self.track_index_group)
+
+    @property
+    def index(self):
+        # type: () -> int
+        return self.group.index
+
+    @property
+    def track(self):
+        # type: () -> int
+        return self.group.track
 
     @property
     def scene_count(self):
@@ -72,11 +82,6 @@ class GroupTrack(AbstractTrack):
     def selectable_track(self):
         # type: () -> SimpleTrack
         return self.midi if self.is_prophet else self.audio
-
-    @property
-    def index(self):
-        # type: () -> int
-        return self.group.index
 
     @property
     def is_visible(self):

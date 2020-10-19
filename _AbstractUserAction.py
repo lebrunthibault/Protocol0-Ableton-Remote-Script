@@ -55,18 +55,18 @@ class AbstractUserAction(UserActionsBase):
         # type: (str) -> None
         self.canonical_parent.log_message(message)
 
-    def log_to_push(self, g_track, message):
-        # type: (GroupTrack, str) -> None
+    def log_to_push(self, message):
+        # type: (str) -> None
         self.log(message)
         self.exec_action("; push msg %s" % message, None, "error")
 
-    def exec_action(self, action_list, track=None, title="title missing"):
+    def exec_action(self, action_list, abstract_track=None, title="title missing"):
         # type: (str, Optional[AbstractTrack], str) -> None
         # e.g. when we call rec_ext without doing arm_ext first
-        if title in ("arm_ext", "record_ext", "record_ext_audio") and self.song().other_armed_group_track(track):
-            action_list += "; {0}/unarm_ext {1}".format(self.song().other_armed_group_track(track).group.index,
+        if title in ("arm_ext", "record_ext", "record_ext_audio") and self.song().other_armed_group_track(abstract_track):
+            action_list += "; {0}/unarm_ext {1}".format(self.song().other_armed_group_track(abstract_track).group.index,
                                                         "1" if self.song().restart_clips else "")
-            action_list =  ["; {0}/arm off".format(track.index) for track in self.song().simple_armed_tracks(track)]
+            action_list =  ["; {0}/arm off".format(track.index) for track in self.song().simple_armed_tracks(abstract_track)]
 
         self.log("{0}: {1}".format(title, action_list))
         self.canonical_parent.clyphx_pro_component.trigger_action_list(action_list)

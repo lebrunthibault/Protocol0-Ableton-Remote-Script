@@ -9,9 +9,8 @@ class AbstractTrack:
     def __init__(self, song, track, index):
         # type: (Any, Any, int) -> None
         self.song = song
-        self.track = track
-        self.index = index
-        self.g_track = None
+        self._track = track
+        self._index = index
 
     def __eq__(self, other):
         if isinstance(other, AbstractTrack):
@@ -19,10 +18,14 @@ class AbstractTrack:
         return False
 
     @abstractproperty
+    def track(self):
+        # type: () -> Any
+        pass
+
+    @abstractproperty
     def name(self):
         # type: () -> str
         pass
-        # return self.track.name
 
     @abstractproperty
     def is_group(self):
@@ -56,6 +59,11 @@ class AbstractTrack:
 
     @abstractproperty
     def is_armed(self):
+        # type: () -> bool
+        pass
+
+    @abstractproperty
+    def has_empty_slot(self):
         # type: () -> bool
         pass
 

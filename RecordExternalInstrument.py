@@ -157,7 +157,7 @@ class RecordExternalInstrument(AbstractUserAction):
         g_track = self.get_group_track(action_def, "", True)
 
         if not g_track.midi.is_playing:
-            return self.log_to_push(g_track, "midi not playing, cannot record audio")
+            return self.log_to_push("midi not playing, cannot record audio")
 
         action_list = Actions.arm_g_track(g_track)
         action_list += Actions.add_scene_if_needed(g_track.audio)

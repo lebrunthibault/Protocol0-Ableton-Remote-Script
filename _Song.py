@@ -11,7 +11,7 @@ class Song:
         # type: (Any) -> None
         self.song = song
         self.restart_clips = True
-        self.tracks = [SimpleTrack(track, i + 1) for i, track in enumerate(list(song.tracks))]
+        self.tracks = [SimpleTrack(self, track, i + 1) for i, track in enumerate(list(song.tracks))]
         for track in self.tracks:
             track.song = self
 
@@ -30,10 +30,14 @@ class Song:
         # type: () -> list[SimpleTrack]
         return [track for track in self.tracks if track.is_top_visible]
 
+    @property
+    def simple_tracks(self):
+        # type: () -> list[SimpleTrack]
+        return [track for track in self.tracks if track.is_simple]
+
     def simple_armed_tracks(self, track):
-        
-        # type: (SimpleTrack) -> list[SimpleTrack]
-        return [t for t in self.tracks if t.is_armed and not t.is_groupable and t != track]
+        # type: (AbstractTrack) -> list[SimpleTrack]
+        return [t for t in self.simple_tracks if t.is_armed and t != track]
 
     @property
     def group_ex_tracks(self):
@@ -43,11 +47,11 @@ class Song:
 
     @property
     def selected_track(self):
-        # type: () -> Optional[Track]
+        # type: () -> Optional[SimpleTrack]
         if not self.view.selected_track:
             return None
 
-        return Track(self.view.selected_track, list(self.song.tracks).index(self.view.selected_track) + 1)
+        return self.get_track(self.view.selected_track)
 
     def playing_clips_count(self, g_track, include_group):
         # type: (GroupTrack, bool) -> int
@@ -69,7 +73,7 @@ class Song:
         return self.playing_clips_count(g_track, include_group) != 0
 
     def get_track(self, track):
-        # type: (Any) -> Track
+        # type: (Any) -> SimpleTrack
         for t in self.tracks:
             if t.track == track:
                 return t
