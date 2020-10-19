@@ -1,4 +1,7 @@
 class TrackType:
+    def __init__(self):
+        pass
+
     group = 1
     clyphx = 2
     midi = 3

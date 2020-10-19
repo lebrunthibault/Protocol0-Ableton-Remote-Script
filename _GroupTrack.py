@@ -10,25 +10,25 @@ class GroupTrack(AbstractTrack):
     def __init__(self, song, base_track):
         # type: ("Song", Any) -> None
         # getting our track object
-        track = self.song.get_track(base_track)
+        track = song.get_track(base_track)
         self.track_index_group = track.index - 1
 
         # check if we clicked on group track instead of clyphx track
         if track.is_clyphx:
             self.track_index_group -= 1
 
-        if track.index >= 3 and self.song.tracks[track.index - 2].name == TrackName.GROUP_CLYPHX_NAME:
+        if track.index >= 3 and song.tracks[track.index - 2].name == TrackName.GROUP_CLYPHX_NAME:
             self.track_index_group -= 2
-        if track.index >= 4 and self.song.tracks[track.index - 3].name == TrackName.GROUP_CLYPHX_NAME:
+        if track.index >= 4 and song.tracks[track.index - 3].name == TrackName.GROUP_CLYPHX_NAME:
             self.track_index_group -= 3
 
-        if self.track_index_group < 0 or self.track_index_group > len(self.song.tracks) - 2:
+        if self.track_index_group < 0 or self.track_index_group > len(song.tracks) - 2:
             raise Exception(
                 "tried to instantiate group track with base_track {0} and found track index {1}".format(base_track,
                                                                                                         self.track_index_group))
         self.clyphx.g_track = self.midi.g_track = self.audio.g_track = self
 
-        super(AbstractTrack, self).__init__(song, self.group.track, self.track_index_group)
+        super(GroupTrack, self).__init__(song, self.group.track, self.track_index_group)
 
     @property
     def index(self):
