@@ -23,6 +23,11 @@ class AbstractTrack:
         pass
 
     @abstractproperty
+    def index(self):
+        # type: () -> int
+        pass
+
+    @abstractproperty
     def name(self):
         # type: () -> str
         pass

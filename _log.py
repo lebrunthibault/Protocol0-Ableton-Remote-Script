@@ -6,5 +6,6 @@ logging.basicConfig(filename="C:/Users/thiba/AppData/Roaming/Ableton/Live 10.1.1
                     datefmt='%H:%M:%S',
                     level=logging.DEBUG)
 
+
 def log_ableton(message):
     logging.info(message)

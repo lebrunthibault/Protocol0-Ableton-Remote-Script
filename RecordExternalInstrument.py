@@ -3,7 +3,7 @@ import time
 from ClyphX_Pro.clyphx_pro.user_actions._Actions import Actions
 from ClyphX_Pro.clyphx_pro.user_actions._BomeCommands import BomeCommands
 from ClyphX_Pro.clyphx_pro.user_actions._Colors import Colors
-from ClyphX_Pro.clyphx_pro.user_actions._AbstractTrack import Track
+from ClyphX_Pro.clyphx_pro.user_actions._SimpleTrack import SimpleTrack
 from ClyphX_Pro.clyphx_pro.user_actions._utils import for_all_methods, init_song
 from ClyphX_Pro.clyphx_pro.user_actions._AbstractUserAction import AbstractUserAction
 
@@ -33,12 +33,12 @@ class RecordExternalInstrument(AbstractUserAction):
     def arm_ext(self, action_def, restart_clips=""):
         """ arm or unarm both midi and audio track """
         self.song().restart_clips = bool(restart_clips)
-        g_track = self.get_group_track(action_def)
+        g_track = self.get_abstract_track(action_def)
 
         if g_track.is_armed:
             return self.unarm_ext(action_def, "{0} {1}".format(restart_clips, "1"))
 
-        if isinstance(g_track, Track):
+        if isinstance(g_track, SimpleTrack):
             return self.exec_action("{0}/arm on".format(g_track.index), None, "arm_ext")
 
         action_list = "; setplay on" if g_track.is_playing and self.song().restart_clips else ""
@@ -62,9 +62,9 @@ class RecordExternalInstrument(AbstractUserAction):
         args = args.split(" ")
         self.song().restart_clips = bool(args[0])
         direct_unarm = len(args) > 1 and bool(args[1])
-        g_track = self.get_group_track(action_def)
+        g_track = self.get_abstract_track(action_def)
 
-        if isinstance(g_track, Track):
+        if isinstance(g_track, SimpleTrack):
             return self.exec_action("{0}/arm off".format(g_track.index), None, "arm_ext")
 
         action_list = "{0}/clip(1) color {1}; {2}/fold off".format(
@@ -100,9 +100,9 @@ class RecordExternalInstrument(AbstractUserAction):
     def sel_ext(self, action_def, restart_clips=""):
         """ Sel midi track to open ext editor """
         self.song().restart_clips = bool(restart_clips)
-        g_track = self.get_group_track(action_def, "sel_ext")
+        g_track = self.get_abstract_track(action_def, "sel_ext")
 
-        if isinstance(g_track, Track) and g_track.is_foldable:
+        if isinstance(g_track, SimpleTrack) and g_track.is_foldable:
             return self.exec_action("{0}/fold {1}".format(g_track.index, "off" if g_track.is_folded else "on"), None, "sel_ext")
 
         action_list = ""
@@ -123,7 +123,7 @@ class RecordExternalInstrument(AbstractUserAction):
     def stop_audio_ext(self, action_def, restart_clips=""):
         """ arm both midi and audio track """
         self.song().restart_clips = bool(restart_clips)
-        g_track = self.get_group_track(action_def)
+        g_track = self.get_abstract_track(action_def)
 
         action_list = Actions.restart_track_on_group_press(g_track.midi, None)
         action_list += Actions.stop_track(g_track.audio)
@@ -132,7 +132,7 @@ class RecordExternalInstrument(AbstractUserAction):
 
     def record_ext(self, action_def, bar_count):
         """ record both midi and audio on group track """
-        g_track = self.get_group_track(action_def)
+        g_track = self.get_abstract_track(action_def)
         rec_clip_index = g_track.rec_clip_index
         action_list = Actions.arm_g_track(g_track)
         action_list += Actions.add_scene_if_needed(g_track.audio)
@@ -154,7 +154,7 @@ class RecordExternalInstrument(AbstractUserAction):
 
     def record_ext_audio(self, action_def, _):
         """ record audio on group track from playing midi clip """
-        g_track = self.get_group_track(action_def, "", True)
+        g_track = self.get_abstract_track(action_def, "", True)
 
         if not g_track.midi.is_playing:
             return self.log_to_push("midi not playing, cannot record audio")
@@ -176,7 +176,7 @@ class RecordExternalInstrument(AbstractUserAction):
 
     def undo_ext(self, action_def):
         """" undo last recording """
-        g_track = self.get_group_track(action_def)
+        g_track = self.get_abstract_track(action_def)
 
         action_list = Actions.delete_playing_clips(g_track)
         self.exec_action(action_list, None, "undo_ext")

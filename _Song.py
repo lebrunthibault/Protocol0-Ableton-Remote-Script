@@ -82,4 +82,4 @@ class Song:
 
     def other_armed_group_track(self, abstract_track=None):
         # type: (Optional[AbstractTrack]) -> Optional[GroupTrack]
-        return next(iter([track for track in self.group_ex_tracks if (not abstract_track.is_group or abstract_track.index != track.index) and track.any_armed]), None)
+        return next(iter([track for track in self.group_ex_tracks if (not abstract_track or not abstract_track.is_group or abstract_track.index != track.index) and track.any_armed]), None)

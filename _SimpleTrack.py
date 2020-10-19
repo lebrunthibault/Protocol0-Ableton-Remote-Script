@@ -10,7 +10,7 @@ class SimpleTrack(AbstractTrack):
         # type: (Any, Any, int) -> None
         self.g_track = None
 
-        super().__init__(song, track, index)
+        super(AbstractTrack, self).__init__(song, track, index)
 
     @property
     def index(self):

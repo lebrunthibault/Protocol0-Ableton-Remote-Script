@@ -3,14 +3,20 @@ from typing import Optional
 from ClyphX_Pro.clyphx_pro.user_actions._Colors import Colors
 from ClyphX_Pro.clyphx_pro.user_actions._GroupTrack import GroupTrack
 from ClyphX_Pro.clyphx_pro.user_actions._AbstractTrack import AbstractTrack
+from ClyphX_Pro.clyphx_pro.user_actions._SimpleTrack import SimpleTrack
 from ClyphX_Pro.clyphx_pro.user_actions._TrackType import TrackType
 
+
 class Actions:
+    def __init__(self):
+        pass
+
     @staticmethod
     def arm_g_track(g_track):
         # type: (GroupTrack) -> str
         return "; {0}/arm off; {1}/arm on; {2}/arm on".format(g_track.clyphx.index, g_track.midi.index,
                                                               g_track.audio.index)
+
     @staticmethod
     def add_scene_if_needed(abstract_track):
         # type: (AbstractTrack) -> str
@@ -18,7 +24,7 @@ class Actions:
 
     @staticmethod
     def restart_grouped_track(g_track, base_track=None):
-        # type: (GroupTrack, Optional[Track]) -> str
+        # type: (GroupTrack, Optional[SimpleTrack]) -> str
         """ restart grouped track state and synchronize audio and midi if necessary """
         if base_track and base_track.type == TrackType.audio:
             return Actions.restart_track_on_group_press(g_track.midi, base_track) + \
@@ -32,7 +38,7 @@ class Actions:
 
     @staticmethod
     def restart_track_on_group_press(track, base_track=None):
-        # type: (Track, Optional[Track]) -> str
+        # type: (SimpleTrack, Optional[SimpleTrack]) -> str
         audio_clip_index = None
         if track.is_playing:
             if not track.song.restart_clips:
@@ -63,7 +69,7 @@ class Actions:
 
     @staticmethod
     def stop_track(track, enforce_stop=False):
-        # type: (Track, bool) -> str
+        # type: (SimpleTrack, bool) -> str
         action_list = ""
         if track.song.restart_clips or enforce_stop:
             action_list += "; {0}/stop".format(track.index)

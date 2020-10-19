@@ -28,7 +28,7 @@ class GroupTrack(AbstractTrack):
                                                                                                         self.track_index_group))
         self.clyphx.g_track = self.midi.g_track = self.audio.g_track = self
 
-        super().__init__(song, self.group.track, self.track_index_group)
+        super(AbstractTrack, self).__init__(song, self.group.track, self.track_index_group)
 
     @property
     def index(self):
