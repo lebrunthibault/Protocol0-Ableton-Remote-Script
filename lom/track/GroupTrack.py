@@ -1,15 +1,17 @@
 from typing import Any
 
-from ClyphX_Pro.clyphx_pro.user_actions._Colors import Colors
-from ClyphX_Pro.clyphx_pro.user_actions._AbstractTrack import AbstractTrack
-from ClyphX_Pro.clyphx_pro.user_actions._SimpleTrack import SimpleTrack
-from ClyphX_Pro.clyphx_pro.user_actions._TrackName import TrackName
+from ClyphX_Pro.clyphx_pro.user_actions.lom.Colors import Colors
+from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
+from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
+from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
+from ClyphX_Pro.clyphx_pro.user_actions.actions.Actions import Actions
 
 
 class GroupTrack(AbstractTrack):
     def __init__(self, song, base_track):
         # type: ("Song", Any) -> None
         # getting our track object
+        self.song = song
         track = song.get_track(base_track)
         self.track_index_group = track.index - 1
 
@@ -29,6 +31,57 @@ class GroupTrack(AbstractTrack):
         self.clyphx.g_track = self.midi.g_track = self.audio.g_track = self
 
         super(GroupTrack, self).__init__(song, self.group.track, self.track_index_group)
+
+    def action_arm(self):
+        # type: () -> str
+        action_list = "; setplay on" if self.is_playing and self.song.restart_clips else ""
+        action_list += Actions.restart_track_on_group_press(self.midi, self.audio)
+        # stop audio to have live synth parameter edition while midi is playing
+        action_list += Actions.stop_track(self.audio, True)
+        # disable other clip colors
+        action_list += "; {0}/clip(1) color {1}".format(self.clyphx.index, Colors.ARM)
+        action_list += "; {0}/fold off".format(self.group.index)
+        action_list += Actions.arm_g_track(self)
+        action_list += "; push msg 'tracks {0} armed'".format(self.name)
+
+        # activate the rev2 editor for this group track
+        if self.is_prophet:
+            action_list += "; {0}/sel_ext; wait 10; {0}/sel".format(self.index)
+
+        return action_list
+
+    def action_unarm(self, direct_unarm=False):
+        # type: (bool) -> str
+        action_list = "{0}/clip(1) color {1}; {2}/fold off".format(
+            self.clyphx.index, self.color, self.group.index)
+
+        if direct_unarm:
+            action_list += "; {0}/arm on".format(self.clyphx.index)
+        if self.audio.is_playing:
+            action_list += Actions.set_audio_playing_color(self, Colors.PLAYING)
+
+        action_list += "; {0}, {1}/arm off".format(self.midi.index, self.audio.index)
+
+        # we delay the arming off of the audio track to have the audio playing until the end of the clip
+        # keeps sync on for long clips
+        # if not self.midi.is_playing or not self.audio.is_playing:
+        #     action_list += "; waits {0}".format(self.beat_count_before_clip_restart - 1)
+
+        if self.audio.is_playing:
+            action_list += Actions.restart_grouped_track(self, self.audio)
+        elif self.midi.is_playing:
+            action_list += Actions.restart_grouped_track(self, self.midi)
+            action_list += "{0}}"
+        else:
+            action_list += Actions.restart_grouped_track(self, None)
+
+        action_list += "; waits 2; {0}/arm off".format(self.audio.index)
+
+        if direct_unarm:
+            action_list += "; push msg 'tracks {0} unarmed'".format(self.name)
+
+        return action_list
+
 
     @property
     def index(self):

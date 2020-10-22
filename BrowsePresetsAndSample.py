@@ -1,8 +1,8 @@
 from os import listdir
 from os.path import isfile, join, isdir
 
-from ClyphX_Pro.clyphx_pro.user_actions._utils import for_all_methods, init_song
-from ClyphX_Pro.clyphx_pro.user_actions._AbstractUserAction import AbstractUserAction
+from ClyphX_Pro.clyphx_pro.user_actions.utils.utils import for_all_methods, init_song
+from ClyphX_Pro.clyphx_pro.user_actions.actions.AbstractUserAction import AbstractUserAction
 
 
 @for_all_methods(init_song)

@@ -1,5 +1,5 @@
 from typing import Any
-from abc import ABCMeta, abstractproperty
+from abc import ABCMeta, abstractproperty, abstractmethod
 
 
 # noinspection PyDeprecation
@@ -8,7 +8,6 @@ class AbstractTrack:
 
     def __init__(self, song, track, index):
         # type: (Any, Any, int) -> None
-        self.song = song
         self._track = track
         self._index = index
 
@@ -16,6 +15,16 @@ class AbstractTrack:
         if isinstance(other, AbstractTrack):
             return self.track == other.track
         return False
+
+    @abstractmethod
+    def action_arm(self):
+        # type: () -> str
+        pass
+
+    @abstractmethod
+    def action_unarm(self):
+        # type: () -> str
+        pass
 
     @abstractproperty
     def track(self):

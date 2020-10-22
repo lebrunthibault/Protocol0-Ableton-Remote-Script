@@ -1,11 +1,11 @@
 import time
 
-from ClyphX_Pro.clyphx_pro.user_actions._Actions import Actions
-from ClyphX_Pro.clyphx_pro.user_actions._BomeCommands import BomeCommands
-from ClyphX_Pro.clyphx_pro.user_actions._Colors import Colors
-from ClyphX_Pro.clyphx_pro.user_actions._SimpleTrack import SimpleTrack
-from ClyphX_Pro.clyphx_pro.user_actions._utils import for_all_methods, init_song
-from ClyphX_Pro.clyphx_pro.user_actions._AbstractUserAction import AbstractUserAction
+from ClyphX_Pro.clyphx_pro.user_actions.actions.Actions import Actions
+from ClyphX_Pro.clyphx_pro.user_actions.actions.BomeCommands import BomeCommands
+from ClyphX_Pro.clyphx_pro.user_actions.lom.Colors import Colors
+from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
+from ClyphX_Pro.clyphx_pro.user_actions.utils.utils import for_all_methods, init_song
+from ClyphX_Pro.clyphx_pro.user_actions.actions.AbstractUserAction import AbstractUserAction
 
 
 @for_all_methods(init_song)
@@ -33,69 +33,19 @@ class RecordExternalInstrument(AbstractUserAction):
     def arm_ext(self, action_def, restart_clips=""):
         """ arm or unarm both midi and audio track """
         self.song().restart_clips = bool(restart_clips)
-        g_track = self.get_abstract_track(action_def)
 
-        if g_track.is_armed:
+        if self.current_track.is_armed:
             return self.unarm_ext(action_def, "{0} {1}".format(restart_clips, "1"))
 
-        if isinstance(g_track, SimpleTrack):
-            return self.exec_action("{0}/arm on".format(g_track.index), None, "arm_ext")
-
-        action_list = "; setplay on" if g_track.is_playing and self.song().restart_clips else ""
-        action_list += Actions.restart_track_on_group_press(g_track.midi, g_track.audio)
-        # stop audio to have live synth parameter edition while midi is playing
-        action_list += Actions.stop_track(g_track.audio, True)
-        # disable other clip colors
-        action_list += "; {0}/clip(1) color {1}".format(g_track.clyphx.index, Colors.ARM)
-        action_list += "; {0}/fold off".format(g_track.group.index)
-        action_list += Actions.arm_g_track(g_track)
-        action_list += "; push msg 'tracks {0} armed'".format(g_track.name)
-
-        # activate the rev2 editor for this group track
-        if g_track.is_prophet:
-            action_list += "; {0}/sel_ext; wait 10; {0}/sel".format(g_track.index)
-
-        self.exec_action(action_list, g_track, "arm_ext")
+        self.exec_action(self.current_track.action_arm(), g_track, "arm_ext")
 
     def unarm_ext(self, action_def, args=""):
         """ unarming group track """
         args = args.split(" ")
         self.song().restart_clips = bool(args[0])
         direct_unarm = len(args) > 1 and bool(args[1])
-        g_track = self.get_abstract_track(action_def)
 
-        if isinstance(g_track, SimpleTrack):
-            return self.exec_action("{0}/arm off".format(g_track.index), None, "arm_ext")
-
-        action_list = "{0}/clip(1) color {1}; {2}/fold off".format(
-            g_track.clyphx.index, g_track.color, g_track.group.index)
-
-        if direct_unarm:
-            action_list += "; {0}/arm on".format(g_track.clyphx.index)
-        if g_track.audio.is_playing:
-            action_list += Actions.set_audio_playing_color(g_track, Colors.PLAYING)
-
-        action_list += "; {0}, {1}/arm off".format(g_track.midi.index, g_track.audio.index)
-
-        # we delay the arming off of the audio track to have the audio playing until the end of the clip
-        # keeps sync on for long clips
-        # if not g_track.midi.is_playing or not g_track.audio.is_playing:
-        #     action_list += "; waits {0}".format(g_track.beat_count_before_clip_restart - 1)
-
-        if g_track.audio.is_playing:
-            action_list += Actions.restart_grouped_track(g_track, g_track.audio)
-        elif g_track.midi.is_playing:
-            action_list += Actions.restart_grouped_track(g_track, g_track.midi)
-            action_list += "{0}}"
-        else:
-            action_list += Actions.restart_grouped_track(g_track, None)
-
-        action_list += "; waits 2; {0}/arm off".format(g_track.audio.index)
-
-        if direct_unarm:
-            action_list += "; push msg 'tracks {0} unarmed'".format(g_track.name)
-
-        self.exec_action(action_list, None, "unarm_ext")
+        self.exec_action(self.current_track.action_unarm(direct_unarm), None, "unarm_ext")
 
     def sel_ext(self, action_def, restart_clips=""):
         """ Sel midi track to open ext editor """

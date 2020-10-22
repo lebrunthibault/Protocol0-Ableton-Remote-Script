@@ -4,16 +4,17 @@ from typing import Optional, Union
 # noinspection PyUnresolvedReferences
 from ClyphX_Pro.clyphx_pro.UserActionsBase import UserActionsBase
 
-from ClyphX_Pro.clyphx_pro.user_actions._GroupTrack import GroupTrack
-from ClyphX_Pro.clyphx_pro.user_actions._SimpleTrack import SimpleTrack
-from ClyphX_Pro.clyphx_pro.user_actions._Song import Song
-from ClyphX_Pro.clyphx_pro.user_actions._AbstractTrack import AbstractTrack
+from ClyphX_Pro.clyphx_pro.user_actions.lom.track.GroupTrack import GroupTrack
+from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
+from ClyphX_Pro.clyphx_pro.user_actions.lom.Song import Song
+from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
 
 
 class AbstractUserAction(UserActionsBase):
     def __init__(self, *args, **kwargs):
         super(AbstractUserAction, self).__init__(*args, **kwargs)
         self._my_song = None
+        self.current_track = None
 
     def song(self):
         # type: () -> Song

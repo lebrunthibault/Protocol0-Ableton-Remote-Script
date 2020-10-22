@@ -1,8 +1,8 @@
 from typing import Any, Optional
-from ClyphX_Pro.clyphx_pro.user_actions._Clip import Clip
-from ClyphX_Pro.clyphx_pro.user_actions._AbstractTrack import AbstractTrack
-from ClyphX_Pro.clyphx_pro.user_actions._TrackName import TrackName
-from ClyphX_Pro.clyphx_pro.user_actions._TrackType import TrackType
+from ClyphX_Pro.clyphx_pro.user_actions.lom.Clip import Clip
+from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
+from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
+from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackType import TrackType
 
 
 class SimpleTrack(AbstractTrack):
@@ -11,6 +11,14 @@ class SimpleTrack(AbstractTrack):
         self.g_track = None
 
         super(SimpleTrack, self).__init__(song, track, index)
+
+    def action_arm(self):
+        # type: () -> str
+        return "{0}/arm on".format(self.index) if self.can_be_armed else ""
+
+    def action_unarm(self):
+        # type: () -> str
+        return "{0}/arm off".format(self.index) if self.can_be_armed else ""
 
     @property
     def index(self):
@@ -64,7 +72,7 @@ class SimpleTrack(AbstractTrack):
     @property
     def is_nested_group_ex_track(self):
         # type: () -> bool
-        return self.name != TrackName.GROUP_CLYPHX_NAME and not self.name.isnumeric()
+        return self.name == TrackName.GROUP_CLYPHX_NAME or self.name.isnumeric()
 
     @property
     def is_clyphx(self):

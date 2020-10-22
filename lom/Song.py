@@ -1,9 +1,9 @@
 from typing import Any, Optional
 
-from ClyphX_Pro.clyphx_pro.user_actions._GroupTrack import GroupTrack
-from ClyphX_Pro.clyphx_pro.user_actions._AbstractTrack import AbstractTrack
-from ClyphX_Pro.clyphx_pro.user_actions._SimpleTrack import SimpleTrack
-from ClyphX_Pro.clyphx_pro.user_actions._TrackName import TrackName
+from ClyphX_Pro.clyphx_pro.user_actions.lom.track.GroupTrack import GroupTrack
+from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
+from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
+from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
 
 
 class Song:
