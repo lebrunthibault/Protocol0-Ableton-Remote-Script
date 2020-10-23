@@ -11,6 +11,8 @@ from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractT
 
 
 class AbstractUserAction(UserActionsBase):
+    xmode = 1
+
     def __init__(self, *args, **kwargs):
         super(AbstractUserAction, self).__init__(*args, **kwargs)
         self._my_song = None
@@ -58,7 +60,7 @@ class AbstractUserAction(UserActionsBase):
     def log_to_push(self, message):
         # type: (str) -> None
         self.log(message)
-        self.action_name = "error"
+        self.action_name = "push msg"
         self.exec_action("; push msg %s" % message)
 
     def exec_action(self, action_list):
