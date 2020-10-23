@@ -15,6 +15,7 @@ class GroupTrack(AbstractTrack):
         # type: ("Song", Any) -> None
         # getting our track object
         track = song.get_track(base_track)
+        self.song = song
         self.track_index_group = track.index - 1
 
         # check if we clicked on group track instead of clyphx track
@@ -116,7 +117,7 @@ class GroupTrack(AbstractTrack):
         )
         action_list = Actions.restart_and_record(self, action_list_rec)
         # when done, stop audio clip and metronome
-        delay = int(round((600 / self.song().tempo) * (4 * (int(bar_count) + 1) - 0.5)))
+        delay = int(round((600 / self.song.tempo) * (4 * (int(bar_count) + 1) - 0.5)))
         action_list += "; wait {0}; metro off; wait 5; {1}/stop".format(delay, self.audio.index)
 
         # rename timestamp clip to link clips
@@ -127,6 +128,27 @@ class GroupTrack(AbstractTrack):
 
         return action_list
 
+    def action_record_audio(self):
+        # type: () -> str
+        action_list = self.action_arm()
+        action_list += Actions.add_scene_if_needed(self.audio)
+
+        if not self.midi.is_playing:
+            return action_list + self.audio.action_record_audio()
+
+        action_list += Actions.restart_track(self.midi)
+        action_list_rec = "; {0}/recfix {1} {2}; {0}/name '{2}'".format(
+            self.audio.index, int(round((self.midi.playing_clip.length + 1) / 4)),
+            self.audio.get_track_name_for_playing_clip_index(self.rec_clip_index)
+        )
+        action_list += Actions.restart_and_record(self, action_list_rec, False)
+        # when done, stop audio clip
+        delay = int(round((600 / self.song().tempo) * (int(self.midi.playing_clip.length) + 6)))
+        action_list += "; wait {0}; {1}/clip({2}) name '{3}'; {1}/clip({2}) warpmode complex".format(
+            delay, self.audio.index, self.rec_clip_index, self.midi.playing_clip.name)
+        action_list += Actions.set_audio_playing_color(self, Colors.PLAYING)
+
+        return action_list
 
     def action_undo(self):
         # type: () -> str

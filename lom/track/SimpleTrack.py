@@ -36,13 +36,19 @@ class SimpleTrack(AbstractTrack):
 
     def action_record(self, bar_count):
         # type: (int) -> str
+        action_list = Actions.delete_current_clip(self) if self.is_recording else ""
         action_list_rec = "; {0}/recfix {1} {2}; {0}/name '{3}'".format(
             self.index, bar_count, self.rec_clip_index,
             self.get_track_name_for_playing_clip_index(self.rec_clip_index),
         )
-        action_list = Actions.restart_and_record(self, action_list_rec)
+        action_list += Actions.restart_and_record(self, action_list_rec)
 
         return action_list
+
+    def action_record_audio(self):
+        # type: () -> str
+        ### long recording ###
+        return Actions.record_track(self, 128)
 
     def action_undo(self):
         # type: () -> str
@@ -157,7 +163,10 @@ class SimpleTrack(AbstractTrack):
     def playing_clip(self):
         # type: () -> Optional[Clip]
         playing_clip_index = next(iter([clip.index for clip in self.playing_clips]), self.playing_clip_index_from_track_name)
-        return self.clips[playing_clip_index] if playing_clip_index != 0 else Clip(None, 0)
+        try:
+            return self.clips[playing_clip_index] if playing_clip_index != 0 else Clip(None, 0)
+        except KeyError:
+            return Clip(None, 0)
 
     @property
     def recording_clip(self):
@@ -166,7 +175,7 @@ class SimpleTrack(AbstractTrack):
 
     def get_track_name_for_playing_clip_index(self, playing_clip_index = None):
         # type: (Optional[int]) -> str
-        return "{0} - {1}".format(self.name.split(" - ")[0], playing_clip_index if playing_clip_index else self.playing_clip.index)
+        return "{0} - {1}".format(self.name.split(" - ")[0], playing_clip_index if playing_clip_index is not None else self.playing_clip.index)
 
     @property
     def playing_clip_index_from_track_name(self):
@@ -176,6 +185,16 @@ class SimpleTrack(AbstractTrack):
             return 0 if len(name) == 1 else int(name[1])
         except ValueError:
             return 0
+
+    @property
+    def previous_clip(self):
+        try:
+            clip_index = list(self.clips.values()).index(self.playing_clip)
+            if clip_index != 0:
+                return list(self.clips.values())[clip_index - 1]
+            return Clip(None, 0)
+        except ValueError:
+            return Clip(None, 0)
 
     @property
     def clips(self):
@@ -224,7 +243,7 @@ class SimpleTrack(AbstractTrack):
         """ counting in live index """
         return next(
             iter([i + 1 for i, clip_slot in enumerate(list(self.track.clip_slots)) if
-                  clip_slot.clip is None and i not in (0, 1, 2)]), None)
+                  clip_slot.clip is None]), None)
 
     @property
     def has_empty_slot(self):

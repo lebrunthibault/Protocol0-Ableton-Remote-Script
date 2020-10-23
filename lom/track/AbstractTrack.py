@@ -46,7 +46,12 @@ class AbstractTrack(object):
 
     @abstractmethod
     def action_record(self, bar_count):
-        # type: (int) -> str
+        # type: (Optional[int]) -> str
+        pass
+
+    @abstractmethod
+    def action_record_audio(self):
+        # type: () -> str
         pass
 
     @abstractmethod

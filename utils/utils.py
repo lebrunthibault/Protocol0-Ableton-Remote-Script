@@ -2,8 +2,6 @@ import traceback
 
 import sys
 
-from ClyphX_Pro.clyphx_pro.user_actions.utils.log import log_ableton
-
 sys.path.insert(0, "C:\Python27\Lib\site-packages")
 sys.path.insert(0, "C:\Python27")
 sys.path.insert(0, "C:\Python27\Lib")
@@ -29,6 +27,19 @@ def init_song(func):
                 self._my_song = Song(self._song)
                 self.action_name = func.__name__
                 self.current_track = self.get_abstract_track(args[0]["track"]) if "get_abstract_track" in dir(self) and "track" in args[0] else None
+            func(self, *args, **kwargs)
+        except Exception as e:
+            err = "ScriptError: " + str(e)
+            self.canonical_parent.log_message(traceback.format_exc())
+            self.canonical_parent.clyphx_pro_component.trigger_action_list('push msg "%s"' % err)
+
+    return decorate
+
+def unarm_other_tracks(func):
+    def decorate(self, *args, **kwargs):
+        try:
+            if func.__name__ != "create_actions":
+                self.unarm_other_tracks = True
             func(self, *args, **kwargs)
         except Exception as e:
             err = "ScriptError: " + str(e)

@@ -15,6 +15,7 @@ class AbstractUserAction(UserActionsBase):
         super(AbstractUserAction, self).__init__(*args, **kwargs)
         self._my_song = None
         self.current_track = None  # type: Optional[AbstractTrack]
+        self.unarm_other_tracks = False  # type: bool
         self.action_name = ""  # type: str
 
     def song(self):
@@ -63,7 +64,7 @@ class AbstractUserAction(UserActionsBase):
     def exec_action(self, action_list):
         # type: (str) -> None
         # e.g. when we call rec_ext without doing arm_ext first
-        if self.action_name in ("arm_ext", "sel_ext", "record_ext", "record_ext_audio"):
+        if self.unarm_other_tracks:
             if self.song().other_armed_group_track(self.current_track):
                 action_list += "; {0}/unarm_ext".format(self.song().other_armed_group_track(self.current_track).index)
             action_list += "; " + "; ".join(["{0}/arm off".format(track.index) for track in

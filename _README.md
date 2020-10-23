@@ -16,9 +16,9 @@
 - Sets Global Quantization to 1 bar to make recording easier
 - Stop audio clip when recorded so that the (possibly quantized) midi keeps playing in the armed audio track
 
-#### record_ext_audio
+#### record_audio_ext
 - records fixed length clip on both midi and audio track
-- usage : [] sel/record_ext_audio on clyphx track
+- usage : [] sel/record_audio_ext on clyphx track
 - fixed length is the length of the current midi playing clip
 - if no midi clip is playing this action does nothing
 - Stop audio clip when recorded so that the (possibly quantized) midi keeps playing in the armed audio track

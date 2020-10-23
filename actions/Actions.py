@@ -24,11 +24,11 @@ class Actions:
     @staticmethod
     def set_audio_playing_color(g_track, color):
         # type: ("GroupTrack", int) -> str
-        return "; {0}/clip(3) color {1}".format(g_track.clyphx.index, color)
+        return "; {0}/clip(2) color {1}".format(g_track.clyphx.index, color)
 
     @staticmethod
     def record_track(abstract_track, bar_count):
-        # type: (AbstractTrack, int) -> str
+        # type: (AbstractTrack, Optional[int]) -> str
         action_list = abstract_track.action_arm()
         action_list += Actions.add_scene_if_needed(abstract_track.record_track)
         action_list += abstract_track.action_record(bar_count)
@@ -81,6 +81,9 @@ class Actions:
 
         action_list = "; {0}/clip({1}) del; {0}/name '{2}'".format(track.index, track.playing_clip.index, track.get_track_name_for_playing_clip_index())
         if track.is_recording:
-            action_list = "; GQ 0; {0}/stop; wait 2; {1}; GQ {2}".format(track.index, action_list, track.song.clip_trigger_quantization)
+            action_list = "; GQ 1; {0}/stop; wait 2; {1}; GQ {2}".format(track.index, action_list, track.song.clip_trigger_quantization)
+
+        clip_index = track.previous_clip if track.previous_clip else 0
+        action_list += "; {0}/name '{1}'".format(track.index, track.get_track_name_for_playing_clip_index(clip_index))
 
         return action_list

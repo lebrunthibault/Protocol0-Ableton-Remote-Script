@@ -6,6 +6,10 @@ class Clip:
     def __nonzero__(self):
         return self.index != 0
 
+    def __eq__(self, other):
+        if isinstance(other, Clip):
+            return self.clip == other.clip
+        return False
 
     @property
     def length(self):
