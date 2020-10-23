@@ -6,7 +6,6 @@ from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractT
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
 from ClyphX_Pro.clyphx_pro.user_actions.actions.Actions import Actions
-from ClyphX_Pro.clyphx_pro.user_actions.utils.log import log_ableton
 
 
 class GroupTrack(AbstractTrack):
@@ -47,7 +46,7 @@ class GroupTrack(AbstractTrack):
         # action_list += "; push msg 'tracks {0} armed'".format(self.name)
 
         # activate the rev2 editor for this group track
-        if self.is_prophet:
+        if add_select_action and self.is_prophet:
             action_list += "; {0}/sel_ext; wait 10; {0}/sel".format(self.index)
 
         return action_list
@@ -83,20 +82,21 @@ class GroupTrack(AbstractTrack):
 
     def action_sel(self):
         # type: () -> str
-        action_list = ""
         if self.song.selected_track == self.selectable_track:
-            action_list += "; {0}/fold on; {0}/sel".format(self.group.index)
-            return action_list
+            return "; {0}/fold on; {0}/sel".format(self.group.index)
 
-        return self.action_arm(False)
-
+        action_list = self.action_arm(False)
         action_list += "; {0}/fold off; {1}/sel".format(self.group.index, self.selectable_track.index)
-        if self.is_prophet:
-            action_list += BomeCommands.SHOW_AND_ACTIVATE_REV2_EDITOR
-        else:
-            action_list += BomeCommands.SELECT_FIRST_VST
+        action_list += self.action_show()
 
         return action_list
+
+    def action_show(self):
+        # type: () -> str
+        if self.is_prophet:
+            return BomeCommands.SHOW_AND_ACTIVATE_REV2_EDITOR
+        else:
+            return BomeCommands.SELECT_FIRST_VST
 
     def action_start_or_stop(self):
         # type: () -> str
@@ -105,9 +105,13 @@ class GroupTrack(AbstractTrack):
         else:
             return Actions.restart_track(self.audio, self.midi)
 
+    def action_record(self):
+        # type: () -> str
+        return ""
+
     def action_undo(self):
         # type: () -> str
-        return Actions.delete_clip(self.audio) + Actions.delete_clip(self.midi)
+        return Actions.delete_current_clip(self.audio) + Actions.delete_current_clip(self.midi)
 
     def action_restart(self):
         # type: () -> str

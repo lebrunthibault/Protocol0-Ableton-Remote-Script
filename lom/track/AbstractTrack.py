@@ -1,6 +1,9 @@
 from typing import Any, Optional
 from abc import ABCMeta, abstractproperty, abstractmethod
 
+from ClyphX_Pro.clyphx_pro.user_actions.utils.log import log_ableton
+
+
 class AbstractTrack:
     __metaclass__ = ABCMeta
 
@@ -11,7 +14,9 @@ class AbstractTrack:
 
     def __eq__(self, other):
         if isinstance(other, AbstractTrack):
-            return self.track == other.track
+            log_ableton(self.index)
+            log_ableton(other.index)
+            return self.index == other.index
         return False
 
     @abstractmethod
@@ -29,8 +34,17 @@ class AbstractTrack:
         # type: () -> str
         pass
 
+    def action_show(self):
+        # type: () -> str
+        return ""
+
     @abstractmethod
     def action_start_or_stop(self):
+        # type: () -> str
+        pass
+
+    @abstractmethod
+    def action_record(self):
         # type: () -> str
         pass
 

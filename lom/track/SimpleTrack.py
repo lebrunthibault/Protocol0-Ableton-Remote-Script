@@ -5,7 +5,6 @@ from ClyphX_Pro.clyphx_pro.user_actions.lom.Clip import Clip
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackType import TrackType
-from ClyphX_Pro.clyphx_pro.user_actions.utils.log import log_ableton
 
 
 class SimpleTrack(AbstractTrack):
@@ -37,9 +36,13 @@ class SimpleTrack(AbstractTrack):
         else:
             return Actions.restart_track(self)
 
+    def action_record(self):
+        # type: () -> str
+        return ""
+
     def action_undo(self):
         # type: () -> str
-        return Actions.delete_clip(self)
+        return Actions.delete_current_clip(self)
 
     def action_restart(self):
         # type: () -> str
@@ -123,6 +126,11 @@ class SimpleTrack(AbstractTrack):
     def is_playing(self):
         # type: () -> bool
         return bool(self.playing_clip) and self.playing_clip.is_playing
+
+    @property
+    def is_recording(self):
+        # type: () -> bool
+        return bool(self.recording_clip)
 
     @property
     def is_visible(self):

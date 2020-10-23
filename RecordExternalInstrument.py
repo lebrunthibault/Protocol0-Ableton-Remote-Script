@@ -42,7 +42,7 @@ class RecordExternalInstrument(AbstractUserAction):
 
     def sel_ext(self, *args):
         """ Sel midi track to open ext editor """
-        self.exec_action(self.current_track.action_sel(), None, "sel_ext")
+        self.exec_action(self.current_track.action_sel(), self.current_track, "sel_ext")
 
     def stop_audio_ext(self, *args):
         """ arm both midi and audio track """
@@ -52,7 +52,7 @@ class RecordExternalInstrument(AbstractUserAction):
         """ record both midi and audio on group track """
         g_track = self.get_abstract_track(action_def['track'])
         rec_clip_index = g_track.rec_clip_index
-        action_list = Actions.arm_g_track(g_track)
+        action_list = g_track.action_arm()
         action_list += Actions.add_scene_if_needed(g_track.audio)
 
         action_list_rec = "; {0}/recfix {2} {3}; {1}/recfix {2} {3}; {0}/name '{3}'; {1}/name '{4}'".format(

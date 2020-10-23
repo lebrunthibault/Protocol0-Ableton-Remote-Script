@@ -9,7 +9,7 @@ from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
 class Song:
     def __init__(self, song):
         # type: (Any) -> None
-        self.song = song
+        self._song = song
         self.tracks = [SimpleTrack(self, track, i + 1) for i, track in enumerate(list(song.tracks))]
         for track in self.tracks:
             track.song = self
@@ -17,12 +17,12 @@ class Song:
     @property
     def tempo(self):
         # type: () -> float
-        return self.song.tempo
+        return self._song.tempo
 
     @property
     def view(self):
         # type: () -> Any
-        return self.song.view
+        return self._song.view
 
     @property
     def top_tracks(self):
@@ -51,6 +51,11 @@ class Song:
             return None
 
         return self.get_track(self.view.selected_track)
+
+    @property
+    def clip_trigger_quantization(self):
+        # type: () -> int
+        return self._song.clip_trigger_quantization + 1
 
     def playing_clips_count(self, g_track, include_group):
         # type: (GroupTrack, bool) -> int
@@ -81,4 +86,4 @@ class Song:
 
     def other_armed_group_track(self, abstract_track=None):
         # type: (Optional[AbstractTrack]) -> Optional[GroupTrack]
-        return next(iter([track for track in self.group_ex_tracks if (not abstract_track or not abstract_track.is_group_track or abstract_track != track) and track.any_armed]), None)
+        return next(iter([g_track for g_track in self.group_ex_tracks if (not abstract_track or not abstract_track.is_group_track or abstract_track.index != g_track.index) and g_track.any_armed]), None)

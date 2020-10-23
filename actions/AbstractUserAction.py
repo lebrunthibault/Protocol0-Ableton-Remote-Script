@@ -62,7 +62,10 @@ class AbstractUserAction(UserActionsBase):
     def exec_action(self, action_list, abstract_track=None, title="title missing"):
         # type: (str, Optional[AbstractTrack], str) -> None
         # e.g. when we call rec_ext without doing arm_ext first
-        if title in ("arm_ext", "record_ext", "record_ext_audio"):
+        if title in ("arm_ext", "sel_ext", "record_ext", "record_ext_audio"):
+            self.log(abstract_track)
+            self.log(abstract_track.name)
+            self.log(abstract_track.index)
             if self.song().other_armed_group_track(abstract_track):
                 action_list += "; {0}/unarm_ext".format(self.song().other_armed_group_track(abstract_track).index)
             action_list += "; " + "; ".join(["{0}/arm off".format(track.index) for track in
