@@ -1,9 +1,7 @@
 import time
 
 from ClyphX_Pro.clyphx_pro.user_actions.actions.Actions import Actions
-from ClyphX_Pro.clyphx_pro.user_actions.actions.BomeCommands import BomeCommands
 from ClyphX_Pro.clyphx_pro.user_actions.lom.Colors import Colors
-from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
 from ClyphX_Pro.clyphx_pro.user_actions.utils.utils import for_all_methods, init_song
 from ClyphX_Pro.clyphx_pro.user_actions.actions.AbstractUserAction import AbstractUserAction
 
@@ -37,9 +35,9 @@ class RecordExternalInstrument(AbstractUserAction):
         if self.current_track.is_armed:
             return self.unarm_ext(action_def, "{0} {1}".format(restart_clips, "1"))
 
-        self.exec_action(self.current_track.action_arm(), g_track, "arm_ext")
+        self.exec_action(self.current_track.action_arm(), self.current_track, "arm_ext")
 
-    def unarm_ext(self, action_def, args=""):
+    def unarm_ext(self, _, args=""):
         """ unarming group track """
         args = args.split(" ")
         self.song().restart_clips = bool(args[0])
@@ -47,38 +45,17 @@ class RecordExternalInstrument(AbstractUserAction):
 
         self.exec_action(self.current_track.action_unarm(direct_unarm), None, "unarm_ext")
 
-    def sel_ext(self, action_def, restart_clips=""):
+    def sel_ext(self, _, restart_clips=""):
         """ Sel midi track to open ext editor """
         self.song().restart_clips = bool(restart_clips)
-        g_track = self.get_abstract_track(action_def, "sel_ext")
 
-        if isinstance(g_track, SimpleTrack) and g_track.is_foldable:
-            return self.exec_action("{0}/fold {1}".format(g_track.index, "off" if g_track.is_folded else "on"), None, "sel_ext")
+        self.exec_action(self.current_track.action_sel(), None, "sel_ext")
 
-        action_list = ""
-        if self.song().selected_track.track == g_track.selectable_track.track:
-            action_list += "; {0}/fold on; {0}/sel".format(g_track.group.index)
-            return self.exec_action(action_list, None, "sel_ext")
-
-        action_list += Actions.restart_grouped_track(g_track)
-        action_list += "; {0}/fold off; {1}/sel".format(g_track.group.index, g_track.selectable_track.index)
-        if g_track.is_prophet:
-            action_list += BomeCommands.SHOW_AND_ACTIVATE_REV2_EDITOR
-        else:
-            action_list += BomeCommands.SELECT_FIRST_VST
-        action_list += Actions.arm_g_track(g_track)
-
-        self.exec_action(action_list, None, "sel_ext")
-
-    def stop_audio_ext(self, action_def, restart_clips=""):
+    def stop_audio_ext(self, _, restart_clips=""):
         """ arm both midi and audio track """
         self.song().restart_clips = bool(restart_clips)
-        g_track = self.get_abstract_track(action_def)
 
-        action_list = Actions.restart_track_on_group_press(g_track.midi, None)
-        action_list += Actions.stop_track(g_track.audio)
-
-        self.exec_action(action_list, None, "stop_audio_ext")
+        self.exec_action(self.current_track.action_stop(), None, "stop_audio_ext")
 
     def record_ext(self, action_def, bar_count):
         """ record both midi and audio on group track """

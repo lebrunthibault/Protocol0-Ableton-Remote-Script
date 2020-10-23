@@ -1,5 +1,6 @@
 from typing import Any
 
+from ClyphX_Pro.clyphx_pro.user_actions.actions.BomeCommands import BomeCommands
 from ClyphX_Pro.clyphx_pro.user_actions.lom.Colors import Colors
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
@@ -30,14 +31,14 @@ class GroupTrack(AbstractTrack):
                                                                                                         self.track_index_group))
         self.clyphx.g_track = self.midi.g_track = self.audio.g_track = self
 
-        super(GroupTrack, self).__init__(song, self.group.track, self.track_index_group)
+        super(GroupTrack, self).__init__(self.group.track, self.track_index_group)
 
     def action_arm(self):
         # type: () -> str
         action_list = "; setplay on" if self.is_playing and self.song.restart_clips else ""
         action_list += Actions.restart_track_on_group_press(self.midi, self.audio)
         # stop audio to have live synth parameter edition while midi is playing
-        action_list += Actions.stop_track(self.audio, True)
+        action_list += Actions.stop_track(self.audio)
         # disable other clip colors
         action_list += "; {0}/clip(1) color {1}".format(self.clyphx.index, Colors.ARM)
         action_list += "; {0}/fold off".format(self.group.index)
@@ -82,6 +83,29 @@ class GroupTrack(AbstractTrack):
 
         return action_list
 
+    def action_sel(self):
+        # type: () -> str
+        action_list = ""
+        if self.song().selected_track.track == self.selectable_track.track:
+            action_list += "; {0}/fold on; {0}/sel".format(self.group.index)
+            return action_list
+
+        action_list += Actions.restart_grouped_track(self)
+        action_list += "; {0}/fold off; {1}/sel".format(self.group.index, self.selectable_track.index)
+        if self.is_prophet:
+            action_list += BomeCommands.SHOW_AND_ACTIVATE_REV2_EDITOR
+        else:
+            action_list += BomeCommands.SELECT_FIRST_VST
+        action_list += Actions.arm_g_track(self)
+
+        return action_list
+
+    def action_stop(self):
+        # type: () -> str
+        action_list = Actions.restart_track_on_group_press(self.midi, None)
+        action_list += Actions.stop_track(self.audio)
+
+        return action_list
 
     @property
     def index(self):

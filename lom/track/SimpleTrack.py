@@ -1,24 +1,38 @@
 from typing import Any, Optional
+
+from ClyphX_Pro.clyphx_pro.user_actions.actions.Actions import Actions
 from ClyphX_Pro.clyphx_pro.user_actions.lom.Clip import Clip
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackType import TrackType
+from ClyphX_Pro.clyphx_pro.user_actions.utils.log import log_ableton
 
 
 class SimpleTrack(AbstractTrack):
     def __init__(self, song, track, index):
         # type: (Any, Any, int) -> None
         self.g_track = None
+        self.song = song
 
-        super(SimpleTrack, self).__init__(song, track, index)
+        super(SimpleTrack, self).__init__(track, index)
 
     def action_arm(self):
         # type: () -> str
         return "{0}/arm on".format(self.index) if self.can_be_armed else ""
 
-    def action_unarm(self):
-        # type: () -> str
+    def action_unarm(self, _):
+        # type: (Optional[bool]) -> str
         return "{0}/arm off".format(self.index) if self.can_be_armed else ""
+
+    def action_sel(self):
+        # type: () -> str
+        if not self.is_foldable:
+            return ""
+        return "{0}/fold {1}".format(self.index, "off" if self.is_folded else "on")
+
+    def action_stop(self):
+        # type: () -> str
+        return Actions.stop_track(self)
 
     @property
     def index(self):

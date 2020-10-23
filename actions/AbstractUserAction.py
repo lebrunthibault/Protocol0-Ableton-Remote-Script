@@ -1,5 +1,5 @@
 # noinspection PyUnresolvedReferences
-from typing import Optional, Union
+from typing import Optional, Union, Any
 
 # noinspection PyUnresolvedReferences
 from ClyphX_Pro.clyphx_pro.UserActionsBase import UserActionsBase
@@ -14,15 +14,15 @@ class AbstractUserAction(UserActionsBase):
     def __init__(self, *args, **kwargs):
         super(AbstractUserAction, self).__init__(*args, **kwargs)
         self._my_song = None
-        self.current_track = None
+        self.current_track = None # type: Optional[AbstractTrack]
 
     def song(self):
         # type: () -> Song
         return self._my_song if self._my_song else self._song
 
-    def get_abstract_track(self, action_def, action=None, strict_ext_check=False):
-        # type: ([str], str, bool) -> Union[SimpleTrack, GroupTrack]
-        track = self.song().get_track(action_def['track'])
+    def get_abstract_track(self, track, action=None, strict_ext_check=False):
+        # type: (Any, str, bool) -> Union[SimpleTrack, GroupTrack]
+        track = self.song().get_track(track)
         if track.is_groupable:
             return GroupTrack(self.song(), track.track)
         elif action == "sel_ext":
@@ -62,12 +62,13 @@ class AbstractUserAction(UserActionsBase):
     def exec_action(self, action_list, abstract_track=None, title="title missing"):
         # type: (str, Optional[AbstractTrack], str) -> None
         # e.g. when we call rec_ext without doing arm_ext first
-        if title in ("arm_ext", "record_ext", "record_ext_audio") and self.song().other_armed_group_track(
+        if title in ("arm_ext", "record_ext", "record_ext_audio"):
+            if self.song().other_armed_group_track(
                 abstract_track):
-            action_list += "; {0}/unarm_ext {1}".format(self.song().other_armed_group_track(abstract_track).group.index,
+                action_list += "; {0}/unarm_ext {1}".format(self.song().other_armed_group_track(abstract_track).group.index,
                                                         "1" if self.song().restart_clips else "")
-            action_list = ["; {0}/arm off".format(track.index) for track in
-                           self.song().simple_armed_tracks(abstract_track)]
+            action_list += "; " + "; ".join(["{0}/arm off".format(track.index) for track in
+                           self.song().simple_armed_tracks(abstract_track)])
 
         self.log("{0}: {1}".format(title, action_list))
         self.canonical_parent.clyphx_pro_component.trigger_action_list(action_list)

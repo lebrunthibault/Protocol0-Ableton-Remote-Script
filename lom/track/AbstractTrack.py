@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 from abc import ABCMeta, abstractproperty, abstractmethod
 
 
@@ -6,14 +6,14 @@ from abc import ABCMeta, abstractproperty, abstractmethod
 class AbstractTrack:
     __metaclass__ = ABCMeta
 
-    def __init__(self, song, track, index):
+    def __init__(self, track, index):
         # type: (Any, Any, int) -> None
         self._track = track
         self._index = index
 
     def __eq__(self, other):
         if isinstance(other, AbstractTrack):
-            return self.track == other.track
+            return self._track == other.track
         return False
 
     @abstractmethod
@@ -22,7 +22,17 @@ class AbstractTrack:
         pass
 
     @abstractmethod
-    def action_unarm(self):
+    def action_unarm(self, direct_unarm):
+        # type: (Optional[bool]) -> str
+        pass
+
+    @abstractmethod
+    def action_sel(self):
+        # type: () -> str
+        pass
+
+    @abstractmethod
+    def action_stop(self):
         # type: () -> str
         pass
 

@@ -39,7 +39,8 @@ class Actions:
                    Actions.restart_track_on_group_press(g_track.audio, None)
 
     @staticmethod
-    def restart_track_on_group_press(track, base_track=None):
+    def \
+            restart_track_on_group_press(track, base_track=None):
         # type: ("SimpleTrack", Optional["SimpleTrack"]) -> str
         audio_clip_index = None
         if track.is_playing:
@@ -70,15 +71,13 @@ class Actions:
         return action_list
 
     @staticmethod
-    def stop_track(track, enforce_stop=False):
-        # type: ("SimpleTrack", bool) -> str
-        action_list = ""
-        if track.song.restart_clips or enforce_stop:
-            action_list += "; {0}/stop".format(track.index)
-        action_list += "; {0}/name '0'".format(track.index)
-
-        if track.type == TrackType.audio:
-            action_list += Actions.set_audio_playing_color(track.g_track, Colors.DISABLED)
+    def stop_track(track):
+        # type: ("SimpleTrack") -> str
+        action_list = "; {0}/stop".format(track.index)
+        if track.is_nested_group_ex_track:
+            action_list += "; {0}/name '0'".format(track.index)
+            if track.type == TrackType.audio:
+                action_list += Actions.set_audio_playing_color(track.g_track, Colors.DISABLED)
 
         return action_list
 
