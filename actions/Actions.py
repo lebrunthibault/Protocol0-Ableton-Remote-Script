@@ -83,8 +83,16 @@ class Actions:
         """ restart audio to get a count in and recfix"""
         action_list = ""
         if g_track.midi.is_playing:
-            action_list += "{0}/clip({1}) del".format(g_track.midi.index, g_track.midi.playing_clip.index)
+            action_list += "; {0}/clip({1}) del".format(g_track.midi.index, g_track.midi.playing_clip.index)
         if g_track.audio.is_playing:
             action_list += "; {0}/clip({1}) del".format(g_track.audio.index, g_track.audio.playing_clip.index)
 
         return action_list
+
+    @staticmethod
+    def delete_clip(track):
+        # type: ("SimpleTrack") -> str
+        if not track.is_playing:
+            return ""
+
+        return "; {0}/clip({1}) del, {0}/name '{2}'".format(track.index, track.playing_clip.index, track.get_track_name_for_playing_clip_index())

@@ -2,6 +2,7 @@ import time
 
 from ClyphX_Pro.clyphx_pro.user_actions.actions.Actions import Actions
 from ClyphX_Pro.clyphx_pro.user_actions.lom.Colors import Colors
+from ClyphX_Pro.clyphx_pro.user_actions.lom.track.GroupTrack import GroupTrack
 from ClyphX_Pro.clyphx_pro.user_actions.utils.utils import for_all_methods, init_song
 from ClyphX_Pro.clyphx_pro.user_actions.actions.AbstractUserAction import AbstractUserAction
 
@@ -72,9 +73,9 @@ class RecordExternalInstrument(AbstractUserAction):
 
         self.exec_action(action_list, g_track, "record_ext")
 
-    def record_ext_audio(self, action_def, _):
+    def record_ext_audio(self, *args):
         """ record audio on group track from playing midi clip """
-        if not self.current_track.is_group_track:
+        if not isinstance(self.current_track, GroupTrack):
             return self.log_to_push("this action is for group tracks only")
 
         g_track = self.current_track
@@ -97,15 +98,12 @@ class RecordExternalInstrument(AbstractUserAction):
 
         self.exec_action(action_list, g_track, "record_ext_audio")
 
-    def undo_ext(self, action_def, _):
+    def undo_ext(self, *args):
         """" undo last recording """
-        g_track = self.get_abstract_track(action_def['track'])
-
-        action_list = Actions.delete_playing_clips(g_track)
-        self.exec_action(action_list, None, "undo_ext")
+        self.exec_action(self.current_track.action_undo(), None, "undo_ext")
 
     def restart_ext(self, *args):
         """" restart a live set from group tracks track names """
-        action_list = "; ".join([Actions.restart_grouped_track(g_track) for g_track in self.song().group_ex_tracks])
+        action_list = "; ".join([g_track.action_restart() for g_track in self.song().group_ex_tracks])
 
         self.exec_action(action_list, None, "restart_ext")

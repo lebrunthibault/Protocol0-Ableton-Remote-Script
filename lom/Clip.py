@@ -24,6 +24,11 @@ class Clip:
         return self.clip.is_playing if self.index != 0 else False
 
     @property
+    def is_recording(self):
+        # type: () -> bool
+        return self.clip.is_recording
+
+    @property
     def playing_position(self):
         # type: () -> float
         """

@@ -35,6 +35,11 @@ class AbstractTrack:
         pass
 
     @abstractmethod
+    def action_undo(self):
+        # type: () -> str
+        pass
+
+    @abstractmethod
     def action_restart(self):
         # type: () -> str
         pass

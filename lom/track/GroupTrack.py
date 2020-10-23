@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 
 from ClyphX_Pro.clyphx_pro.user_actions.actions.BomeCommands import BomeCommands
 from ClyphX_Pro.clyphx_pro.user_actions.lom.Colors import Colors
@@ -34,16 +34,17 @@ class GroupTrack(AbstractTrack):
 
         super(GroupTrack, self).__init__(self.group.track, self.track_index_group)
 
-    def action_arm(self):
-        # type: () -> str
+    def action_arm(self, add_select_action=True):
+        # type: (Optional[bool]) -> str
         action_list = Actions.restart_track(self.midi, self.audio)
         # stop audio to have live synth parameter edition while midi is playing
         action_list += Actions.stop_track(self.audio)
         # disable other clip colors
         action_list += "; {0}/clip(1) color {1}".format(self.clyphx.index, Colors.ARM)
         action_list += "; {0}/fold off".format(self.group.index)
-        action_list += Actions.arm_g_track(self)
-        action_list += "; push msg 'tracks {0} armed'".format(self.name)
+        action_list += "; {0}/arm off; {1}/arm on; {2}/arm on".format(self.clyphx.index, self.midi.index,
+                                                              self.audio.index)
+        # action_list += "; push msg 'tracks {0} armed'".format(self.name)
 
         # activate the rev2 editor for this group track
         if self.is_prophet:
@@ -87,12 +88,13 @@ class GroupTrack(AbstractTrack):
             action_list += "; {0}/fold on; {0}/sel".format(self.group.index)
             return action_list
 
+        return self.action_arm(False)
+
         action_list += "; {0}/fold off; {1}/sel".format(self.group.index, self.selectable_track.index)
         if self.is_prophet:
             action_list += BomeCommands.SHOW_AND_ACTIVATE_REV2_EDITOR
         else:
             action_list += BomeCommands.SELECT_FIRST_VST
-        action_list += Actions.arm_g_track(self)
 
         return action_list
 
@@ -102,6 +104,10 @@ class GroupTrack(AbstractTrack):
             return Actions.stop_track(self.audio)
         else:
             return Actions.restart_track(self.audio, self.midi)
+
+    def action_undo(self):
+        # type: () -> str
+        return Actions.delete_clip(self.audio) + Actions.delete_clip(self.midi)
 
     def action_restart(self):
         # type: () -> str

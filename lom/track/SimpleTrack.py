@@ -37,6 +37,10 @@ class SimpleTrack(AbstractTrack):
         else:
             return Actions.restart_track(self)
 
+    def action_undo(self):
+        # type: () -> str
+        return Actions.delete_clip(self)
+
     def action_restart(self):
         # type: () -> str
         return Actions.restart_track(self)
@@ -51,7 +55,7 @@ class SimpleTrack(AbstractTrack):
 
     @property
     def type(self):
-        return (TrackType.group if self.is_group_track
+        return (TrackType.group if self.is_group_track_group
                 else TrackType.clyphx if self.is_clyphx
         else TrackType.audio if self.is_audio
         else TrackType.midi if self.is_midi
@@ -75,7 +79,7 @@ class SimpleTrack(AbstractTrack):
     @property
     def is_groupable(self):
         # type: () -> bool
-        return self.is_group_track or \
+        return self.is_group_track_group or \
                self.is_clyphx or \
                (self.index >= 3 and self.song.tracks[self.index - 2].name == TrackName.GROUP_CLYPHX_NAME) or \
                (self.index >= 4 and self.song.tracks[self.index - 3].name == TrackName.GROUP_CLYPHX_NAME)
@@ -86,7 +90,7 @@ class SimpleTrack(AbstractTrack):
         return not self.is_groupable
 
     @property
-    def is_group_track(self):
+    def is_group_track_group(self):
         # type: () -> bool
         return self.name in TrackName.GROUP_EXT_NAMES
 
@@ -138,9 +142,13 @@ class SimpleTrack(AbstractTrack):
     @property
     def playing_clip(self):
         # type: () -> Optional[Clip]
-        """ return clip and clip clyphx index """
         playing_clip_index = next(iter([clip.index for clip in self.playing_clips]), self.playing_clip_index_from_track_name)
         return self.clips[playing_clip_index] if playing_clip_index != 0 else Clip(None, 0)
+
+    @property
+    def recording_clip(self):
+        # type: () -> Optional[Clip]
+        return next(iter([clip for clip in self.clips.values() if clip.is_recording]), None)
 
     def get_track_name_for_playing_clip_index(self, playing_clip_index = None):
         # type: (Optional[int]) -> str
