@@ -27,13 +27,6 @@ class SimpleTrack(AbstractTrack):
             return ""
         return "{0}/fold {1}".format(self.index, "off" if self.is_folded else "on")
 
-    def action_start_or_stop(self):
-        # type: () -> str
-        if self.is_playing:
-            return Actions.stop_track(self)
-        else:
-            return Actions.restart_track(self)
-
     def action_record(self, bar_count):
         # type: (int) -> str
         action_list = Actions.delete_current_clip(self) if self.is_recording else ""
@@ -210,14 +203,6 @@ class SimpleTrack(AbstractTrack):
         return [clip for clip in self.clips.values() if clip.is_playing]
 
     @property
-    def beat_count_before_clip_restart(self):
-        # type: () -> int
-        """ return clip and clip clyphx index """
-        if not self.is_playing:
-            return 0
-        return int(round(self.playing_clip.length - self.playing_clip.playing_position))
-
-    @property
     def is_armed(self):
         # type: () -> bool
         return self.can_be_armed and self.track.arm
@@ -226,6 +211,10 @@ class SimpleTrack(AbstractTrack):
     def can_be_armed(self):
         # type: () -> bool
         return self.track.can_be_armed
+
+    def set_monitor_in(self, monitor_in=True):
+        # type: (Optional[bool]) -> None
+        self.track.current_monitoring_state = 0 if monitor_in else 1
 
     @property
     def clip_slots(self):

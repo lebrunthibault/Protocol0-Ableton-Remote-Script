@@ -69,6 +69,7 @@ class AbstractUserAction(UserActionsBase):
                 action_list += "; {0}/unarm_ext".format(self.song().other_armed_group_track(self.current_track).index)
             action_list += "; " + "; ".join(["{0}/arm off".format(track.index) for track in
                                              self.song().simple_armed_tracks(self.current_track)])
+            self.unarm_other_tracks = False
 
         self.log("{0}: {1}".format(self.action_name, action_list))
         self.canonical_parent.clyphx_pro_component.trigger_action_list(action_list)

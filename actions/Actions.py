@@ -36,6 +36,11 @@ class Actions:
         return action_list
 
     @staticmethod
+    def set_monitor_in(track):
+        # type: ("SimpleTrack") -> None
+        track.set_monitor_in(True)
+
+    @staticmethod
     def stop_track(track):
         # type: ("SimpleTrack") -> str
         action_list = ""
@@ -48,17 +53,10 @@ class Actions:
         return action_list
 
     @staticmethod
-    def restart_track(track, base_track=None):
-        # type: ("SimpleTrack", Optional["SimpleTrack"]) -> str
-        if not track.is_playing:
-            audio_clip = None
-            if base_track and base_track.is_playing:
-                audio_clip = track.get_last_clip_index_by_name(base_track.playing_clip.name)
-            elif track.playing_clip.index:
-                audio_clip = track.playing_clip
-
-            if audio_clip:
-                return "; {0}/play {1}; wait 1; {0}/play {1}; {0}/name '{2}'".format(track.index, audio_clip.index, track.get_track_name_for_playing_clip_index(audio_clip.index))
+    def restart_track(track):
+        # type: ("SimpleTrack") -> str
+        if not track.is_playing and track.playing_clip.index:
+            return "; {0}/play {1}; wait 1; {0}/play {1}; {0}/name '{2}'".format(track.index, track.playing_clip.index, track.get_track_name_for_playing_clip_index(track.playing_clip.index))
 
         return ""
 

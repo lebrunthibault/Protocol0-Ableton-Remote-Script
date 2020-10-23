@@ -38,11 +38,10 @@ class GroupTrack(AbstractTrack):
 
     def action_arm(self, add_select_action=True):
         # type: (Optional[bool]) -> str
-        action_list = Actions.restart_track(self.midi, self.audio)
         # stop audio to have live synth parameter edition while midi is playing
-        action_list += Actions.stop_track(self.audio)
+        self.audio.set_monitor_in()
         # disable other clip colors
-        action_list += "; {0}/clip(1) color {1}".format(self.clyphx.index, Colors.ARM)
+        action_list = "; {0}/clip(1) color {1}".format(self.clyphx.index, Colors.ARM)
         action_list += "; {0}/fold off".format(self.group.index)
         action_list += "; {0}/arm off; {1}/arm on; {2}/arm on".format(self.clyphx.index, self.midi.index,
                                                               self.audio.index)
@@ -65,18 +64,7 @@ class GroupTrack(AbstractTrack):
             action_list += Actions.set_audio_playing_color(self, Colors.PLAYING)
 
         action_list += "; {0}, {1}/arm off".format(self.midi.index, self.audio.index)
-
-        # we delay the arming off of the audio track to have the audio playing until the end of the clip
-        # keeps sync on for long clips
-        # if not self.midi.is_playing or not self.audio.is_playing:
-        #     action_list += "; waits {0}".format(self.beat_count_before_clip_restart - 1)
-
-        if self.audio.is_playing:
-            action_list += Actions.restart_track(self.midi, self.audio)
-        elif self.midi.is_playing:
-            action_list += Actions.restart_track(self.audio, self.midi)
-
-        action_list += "; waits 2; {0}/arm off".format(self.audio.index)
+        self.audio.set_monitor_in(False)
 
         if direct_unarm:
             action_list += "; push msg 'tracks {0} unarmed'".format(self.name)
@@ -101,13 +89,6 @@ class GroupTrack(AbstractTrack):
         else:
             return BomeCommands.SELECT_FIRST_VST
 
-    def action_start_or_stop(self):
-        # type: () -> str
-        if self.audio.is_playing:
-            return Actions.stop_track(self.audio)
-        else:
-            return Actions.restart_track(self.audio, self.midi)
-
     def action_record(self, bar_count):
         # type: (int) -> str
         action_list_rec = "; {0}/recfix {2} {3}; {1}/recfix {2} {3}; {0}/name '{4}'; {1}/name '{5}'".format(
@@ -117,14 +98,15 @@ class GroupTrack(AbstractTrack):
         )
         action_list = Actions.restart_and_record(self, action_list_rec)
         # when done, stop audio clip and metronome
-        delay = int(round((600 / self.song.tempo) * (4 * (int(bar_count) + 1) - 0.5)))
-        action_list += "; wait {0}; metro off; wait 5; {1}/stop".format(delay, self.audio.index)
+        action_list += "; wait {0}; metro off;".format(self.song.delay_before_recording_end(bar_count))
 
         # rename timestamp clip to link clips
         timestamp = time.time()
         action_list += "; {0}/clip({1}) name {2}".format(self.midi.index, self, timestamp)
         action_list += "; {0}/clip({1}) name {2}; {0}/clip({1}) warpmode complex".format(self.audio.index,
                                                                                          self, timestamp)
+
+        self.audio.set_monitor_in()
 
         return action_list
 
@@ -263,14 +245,6 @@ class GroupTrack(AbstractTrack):
         elif "BS" in self.group.name:
             return Colors.BASS_STATION
         return Colors.DISABLED
-
-    @property
-    def beat_count_before_clip_restart(self):
-        # type: () -> int
-        if self.audio.beat_count_before_clip_restart:
-            return self.audio.beat_count_before_clip_restart
-        else:
-            return self.midi.beat_count_before_clip_restart
 
     @property
     def rec_clip_index(self):

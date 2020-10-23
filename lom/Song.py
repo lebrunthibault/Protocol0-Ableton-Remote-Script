@@ -75,6 +75,10 @@ class Song:
         """
         return self.playing_clips_count(abstract_track) != 0
 
+    def delay_before_recording_end(self, bar_count):
+        # type: (int) -> int
+        return int(round((600 / self._song.tempo) * (4 * (int(bar_count) + 1) - 0.5)))
+
     def get_track(self, track):
         # type: (Any) -> SimpleTrack
         for t in self.tracks:

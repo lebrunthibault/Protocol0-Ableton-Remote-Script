@@ -39,10 +39,10 @@ class AbstractTrack(object):
         # type: () -> str
         return ""
 
-    @abstractmethod
     def action_start_or_stop(self):
         # type: () -> str
-        pass
+        self.record_track.set_monitor_in(self.record_track.is_playing)
+        return ""
 
     @abstractmethod
     def action_record(self, bar_count):
