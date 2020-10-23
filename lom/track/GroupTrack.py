@@ -140,11 +140,6 @@ class GroupTrack(AbstractTrack):
         return self.group.track.is_folded
 
     @property
-    def is_group(self):
-        # type: () -> bool
-        return True
-
-    @property
     def is_prophet(self):
         # type: () -> bool
         return self.name == TrackName.GROUP_PROPHET_NAME

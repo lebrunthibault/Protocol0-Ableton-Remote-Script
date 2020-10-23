@@ -74,8 +74,10 @@ class RecordExternalInstrument(AbstractUserAction):
 
     def record_ext_audio(self, action_def, _):
         """ record audio on group track from playing midi clip """
-        g_track = self.get_abstract_track(action_def['track'], "", True)
+        if not self.current_track.is_group_track:
+            return self.log_to_push("this action is for group tracks only")
 
+        g_track = self.current_track
         if not g_track.midi.is_playing:
             return self.log_to_push("midi not playing, cannot record audio")
 

@@ -51,7 +51,7 @@ class SimpleTrack(AbstractTrack):
 
     @property
     def type(self):
-        return (TrackType.group if self.is_group
+        return (TrackType.group if self.is_group_track
                 else TrackType.clyphx if self.is_clyphx
         else TrackType.audio if self.is_audio
         else TrackType.midi if self.is_midi
@@ -75,7 +75,7 @@ class SimpleTrack(AbstractTrack):
     @property
     def is_groupable(self):
         # type: () -> bool
-        return self.is_group or \
+        return self.is_group_track or \
                self.is_clyphx or \
                (self.index >= 3 and self.song.tracks[self.index - 2].name == TrackName.GROUP_CLYPHX_NAME) or \
                (self.index >= 4 and self.song.tracks[self.index - 3].name == TrackName.GROUP_CLYPHX_NAME)
@@ -86,7 +86,7 @@ class SimpleTrack(AbstractTrack):
         return not self.is_groupable
 
     @property
-    def is_group(self):
+    def is_group_track(self):
         # type: () -> bool
         return self.name in TrackName.GROUP_EXT_NAMES
 

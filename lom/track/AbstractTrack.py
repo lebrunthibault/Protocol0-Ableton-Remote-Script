@@ -1,8 +1,6 @@
 from typing import Any, Optional
 from abc import ABCMeta, abstractproperty, abstractmethod
 
-
-# noinspection PyDeprecation
 class AbstractTrack:
     __metaclass__ = ABCMeta
 
@@ -56,10 +54,10 @@ class AbstractTrack:
         # type: () -> str
         pass
 
-    @abstractproperty
-    def is_group(self):
+    def is_group_track(self):
         # type: () -> bool
-        pass
+        from ClyphX_Pro.clyphx_pro.user_actions.lom.track.GroupTrack import GroupTrack
+        return isinstance(self, GroupTrack)
 
     @abstractproperty
     def is_foldable(self):
