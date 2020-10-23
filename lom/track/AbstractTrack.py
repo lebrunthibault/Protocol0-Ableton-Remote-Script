@@ -36,6 +36,11 @@ class AbstractTrack:
         # type: () -> str
         pass
 
+    @abstractmethod
+    def action_restart(self):
+        # type: () -> str
+        pass
+
     @abstractproperty
     def track(self):
         # type: () -> Any

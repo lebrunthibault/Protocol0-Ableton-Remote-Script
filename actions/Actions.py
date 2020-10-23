@@ -25,26 +25,17 @@ class Actions:
         return "" if abstract_track.has_empty_slot else "; addscene -1; wait 2"
 
     @staticmethod
-    def restart_grouped_track(g_track, base_track=None):
-        # type: ("GroupTrack", Optional["SimpleTrack"]) -> str
-        """ restart grouped track state and synchronize audio and midi if necessary """
-        if base_track and base_track.type == TrackType.audio:
-            return Actions.restart_track_on_group_press(g_track.midi, base_track) + \
-                   Actions.restart_track_on_group_press(g_track.audio, None)
-        elif base_track and base_track.type == TrackType.midi:
-            return Actions.restart_track_on_group_press(g_track.midi, None) + \
-                   Actions.restart_track_on_group_press(g_track.audio, base_track)
-        else:
-            return Actions.restart_track_on_group_press(g_track.midi, None) + \
-                   Actions.restart_track_on_group_press(g_track.audio, None)
-
-    @staticmethod
-    def restart_track_on_group_press(track, base_track=None):
+    def restart_track(track, base_track=None):
         # type: ("SimpleTrack", Optional["SimpleTrack"]) -> str
-        if not track.is_playing and base_track and base_track.is_playing:
-            audio_clip = track.get_last_clip_index_by_name(base_track.playing_clip.name)
+        if not track.is_playing:
+            audio_clip = None
+            if base_track and base_track.is_playing:
+                audio_clip = track.get_last_clip_index_by_name(base_track.playing_clip.name)
+            elif track.playing_clip.index:
+                audio_clip = track.playing_clip
+
             if audio_clip:
-                return "; {0}/play {1}; wait 1; {0}/play {1}; {0}/name '{1}'".format(track.index, audio_clip.index)
+                return "; {0}/play {1}; wait 1; {0}/play {1}; {0}/name '{2}'".format(track.index, audio_clip.index, track.get_track_name_for_playing_clip_index(audio_clip.index))
 
         return ""
 
@@ -67,9 +58,8 @@ class Actions:
         action_list = ""
         if track.is_playing:
             action_list += "; {0}/stop".format(track.index)
-        if track.is_nested_group_ex_track:
-            action_list += "; {0}/name '0'".format(track.index)
-            if track.type == TrackType.audio:
+            action_list += "; {0}/name '{1}'".format(track.index, track.get_track_name_for_playing_clip_index())
+        if track.is_nested_group_ex_track and track.type == TrackType.audio:
                 action_list += Actions.set_audio_playing_color(track.g_track, Colors.DISABLED)
 
         return action_list

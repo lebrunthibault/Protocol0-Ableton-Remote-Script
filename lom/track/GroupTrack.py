@@ -36,7 +36,7 @@ class GroupTrack(AbstractTrack):
 
     def action_arm(self):
         # type: () -> str
-        action_list = Actions.restart_track_on_group_press(self.midi, self.audio)
+        action_list = Actions.restart_track(self.midi, self.audio)
         # stop audio to have live synth parameter edition while midi is playing
         action_list += Actions.stop_track(self.audio)
         # disable other clip colors
@@ -69,11 +69,9 @@ class GroupTrack(AbstractTrack):
         #     action_list += "; waits {0}".format(self.beat_count_before_clip_restart - 1)
 
         if self.audio.is_playing:
-            action_list += Actions.restart_grouped_track(self, self.audio)
+            action_list += Actions.restart_track(self.midi, self.audio)
         elif self.midi.is_playing:
-            action_list += Actions.restart_grouped_track(self, self.midi)
-        else:
-            action_list += Actions.restart_grouped_track(self, None)
+            action_list += Actions.restart_track(self.audio, self.midi)
 
         action_list += "; waits 2; {0}/arm off".format(self.audio.index)
 
@@ -89,7 +87,6 @@ class GroupTrack(AbstractTrack):
             action_list += "; {0}/fold on; {0}/sel".format(self.group.index)
             return action_list
 
-        action_list += Actions.restart_grouped_track(self)
         action_list += "; {0}/fold off; {1}/sel".format(self.group.index, self.selectable_track.index)
         if self.is_prophet:
             action_list += BomeCommands.SHOW_AND_ACTIVATE_REV2_EDITOR
@@ -101,11 +98,14 @@ class GroupTrack(AbstractTrack):
 
     def action_start_or_stop(self):
         # type: () -> str
-        action_list = Actions.restart_track_on_group_press(self.midi, None)
-        action_list += Actions.stop_track(self.audio)
+        if self.audio.is_playing:
+            return Actions.stop_track(self.audio)
+        else:
+            return Actions.restart_track(self.audio, self.midi)
 
-        return action_list
-
+    def action_restart(self):
+        # type: () -> str
+        return Actions.restart_track(self.midi) + Actions.restart_track(self.audio)
     @property
     def index(self):
         # type: () -> int

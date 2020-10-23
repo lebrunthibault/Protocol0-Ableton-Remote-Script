@@ -32,7 +32,14 @@ class SimpleTrack(AbstractTrack):
 
     def action_start_or_stop(self):
         # type: () -> str
-        return Actions.stop_track(self)
+        if self.is_playing:
+            return Actions.stop_track(self)
+        else:
+            return Actions.restart_track(self)
+
+    def action_restart(self):
+        # type: () -> str
+        return Actions.restart_track(self)
 
     @property
     def index(self):
@@ -111,7 +118,7 @@ class SimpleTrack(AbstractTrack):
     @property
     def is_playing(self):
         # type: () -> bool
-        return bool(self.playing_clip) and self.playing_clip.index != 0
+        return bool(self.playing_clip) and self.playing_clip.is_playing
 
     @property
     def is_visible(self):
@@ -132,13 +139,21 @@ class SimpleTrack(AbstractTrack):
     def playing_clip(self):
         # type: () -> Optional[Clip]
         """ return clip and clip clyphx index """
-        try:
-            playing_clip_index_track = int(self.name)
-        except (ValueError):
-            playing_clip_index_track = 0
-
-        playing_clip_index = next(iter([clip.index for clip in self.playing_clips]), playing_clip_index_track)
+        playing_clip_index = next(iter([clip.index for clip in self.playing_clips]), self.playing_clip_index_from_track_name)
         return self.clips[playing_clip_index] if playing_clip_index != 0 else Clip(None, 0)
+
+    def get_track_name_for_playing_clip_index(self, playing_clip_index = None):
+        # type: (Optional[int]) -> str
+        return "{0} - {1}".format(self.name.split(" - ")[0], playing_clip_index if playing_clip_index else self.playing_clip.index)
+
+    @property
+    def playing_clip_index_from_track_name(self):
+        # type: () -> int
+        try:
+            name = self.name.split(" - ")
+            return 0 if len(name) == 1 else int(name[1])
+        except ValueError:
+            return 0
 
     @property
     def clips(self):

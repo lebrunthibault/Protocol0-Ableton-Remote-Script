@@ -28,7 +28,7 @@ class RecordExternalInstrument(AbstractUserAction):
         action_list = "{0}/sel".format(self.get_next_track_by_index(selected_track_index, go_next).index)
         self.exec_action(action_list, None, "next_ext")
 
-    def arm_ext(self, action_def):
+    def arm_ext(self, action_def, _):
         """ arm or unarm both midi and audio track """
         if self.current_track.is_armed:
             return self.unarm_ext(action_def, "1")
@@ -39,11 +39,11 @@ class RecordExternalInstrument(AbstractUserAction):
         """ unarming group track """
         self.exec_action(self.current_track.action_unarm(bool(direct_unarm)), None, "unarm_ext")
 
-    def sel_ext(self):
+    def sel_ext(self, *args):
         """ Sel midi track to open ext editor """
         self.exec_action(self.current_track.action_sel(), None, "sel_ext")
 
-    def stop_audio_ext(self):
+    def stop_audio_ext(self, *args):
         """ arm both midi and audio track """
         self.exec_action(self.current_track.action_start_or_stop(), None, "stop_audio_ext")
 
@@ -54,8 +54,10 @@ class RecordExternalInstrument(AbstractUserAction):
         action_list = Actions.arm_g_track(g_track)
         action_list += Actions.add_scene_if_needed(g_track.audio)
 
-        action_list_rec = "; {0}/recfix {2} {3}; {1}/recfix {2} {3}; {0}/name '{3}'; {1}/name '0'".format(
-            g_track.midi.index, g_track.audio.index, bar_count, rec_clip_index
+        action_list_rec = "; {0}/recfix {2} {3}; {1}/recfix {2} {3}; {0}/name '{3}'; {1}/name '{4}'".format(
+            g_track.midi.index, g_track.audio.index, bar_count,
+            g_track.midi.get_track_name_for_playing_clip_index(rec_clip_index),
+            g_track.audio.get_track_name_for_playing_clip_index(rec_clip_index),
         )
         action_list += Actions.restart_and_record(g_track, action_list_rec)
         # when done, stop audio clip and metronome
@@ -65,7 +67,8 @@ class RecordExternalInstrument(AbstractUserAction):
         # rename timestamp clip to link clips
         timestamp = time.time()
         action_list += "; {0}/clip({1}) name {2}".format(g_track.midi.index, rec_clip_index, timestamp)
-        action_list += "; {0}/clip({1}) name {2}; {0}/clip({1}) warpmode complex".format(g_track.audio.index, rec_clip_index, timestamp)
+        action_list += "; {0}/clip({1}) name {2}; {0}/clip({1}) warpmode complex".format(g_track.audio.index,
+                                                                                         rec_clip_index, timestamp)
 
         self.exec_action(action_list, g_track, "record_ext")
 
@@ -78,9 +81,10 @@ class RecordExternalInstrument(AbstractUserAction):
 
         action_list = Actions.arm_g_track(g_track)
         action_list += Actions.add_scene_if_needed(g_track.audio)
-        action_list += Actions.restart_track_on_group_press(g_track.midi)
+        action_list += Actions.restart_track(g_track.midi)
         action_list_rec = "; {0}/recfix {1} {2}; {0}/name '{2}'".format(
-            g_track.audio.index, int(round((g_track.midi.playing_clip.length + 1) / 4)), g_track.rec_clip_index
+            g_track.audio.index, int(round((g_track.midi.playing_clip.length + 1) / 4)),
+            g_track.audio.get_track_name_for_playing_clip_index(g_track.rec_clip_index)
         )
         action_list += Actions.restart_and_record(g_track, action_list_rec, False)
         # when done, stop audio clip
@@ -91,16 +95,15 @@ class RecordExternalInstrument(AbstractUserAction):
 
         self.exec_action(action_list, g_track, "record_ext_audio")
 
-    def undo_ext(self, action_def):
+    def undo_ext(self, action_def, _):
         """" undo last recording """
         g_track = self.get_abstract_track(action_def['track'])
 
         action_list = Actions.delete_playing_clips(g_track)
         self.exec_action(action_list, None, "undo_ext")
 
-    def restart_ext(self, _):
+    def restart_ext(self, *args):
         """" restart a live set from group tracks track names """
         action_list = "; ".join([Actions.restart_grouped_track(g_track) for g_track in self.song().group_ex_tracks])
 
         self.exec_action(action_list, None, "restart_ext")
-

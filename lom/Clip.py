@@ -3,6 +3,10 @@ class Clip:
         self.clip = clip
         self.index = index
 
+    def __nonzero__(self):
+        return self.index != 0
+
+
     @property
     def length(self):
         # type: () -> float
