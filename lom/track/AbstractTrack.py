@@ -41,6 +41,8 @@ class AbstractTrack(object):
 
     def action_start_or_stop(self):
         # type: () -> str
+        if self.record_track.is_foldable:
+            return ""
         self.record_track.set_monitor_in(not self.record_track.has_monitor_in)
         return ""
 
@@ -59,11 +61,6 @@ class AbstractTrack(object):
         # type: () -> str
         pass
 
-    @abstractmethod
-    def action_restart(self):
-        # type: () -> str
-        pass
-
     @abstractproperty
     def track(self):
         # type: () -> Any
@@ -79,6 +76,7 @@ class AbstractTrack(object):
         # type: () -> str
         pass
 
+    @property
     def is_group_track(self):
         # type: () -> bool
         from ClyphX_Pro.clyphx_pro.user_actions.lom.track.GroupTrack import GroupTrack
@@ -111,6 +109,11 @@ class AbstractTrack(object):
 
     @abstractproperty
     def is_top_visible(self):
+        # type: () -> bool
+        pass
+
+    @abstractproperty
+    def can_be_armed(self):
         # type: () -> bool
         pass
 

@@ -56,7 +56,8 @@ class Actions:
     def restart_track(track):
         # type: ("SimpleTrack") -> str
         if not track.is_playing and track.playing_clip.index:
-            return "; {0}/play {1}; wait 1; {0}/play {1}; {0}/name '{2}'".format(track.index, track.playing_clip.index, track.get_track_name_for_playing_clip_index())
+            # return "; {0}/play {1}; wait 1; {0}/play {1}; {0}/name '{2}'".format(track.index, track.playing_clip.index, track.get_track_name_for_playing_clip_index())
+            return "; {0}/play {1}; {0}/name '{2}'".format(track.index, track.playing_clip.index, track.get_track_name_for_playing_clip_index())
 
         return ""
 

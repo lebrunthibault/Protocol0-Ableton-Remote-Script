@@ -1,6 +1,7 @@
 from typing import Any, Optional
 
 from ClyphX_Pro.clyphx_pro.user_actions.actions.Actions import Actions
+from ClyphX_Pro.clyphx_pro.user_actions.actions.BomeCommands import BomeCommands
 from ClyphX_Pro.clyphx_pro.user_actions.lom.Clip import Clip
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
@@ -24,11 +25,13 @@ class SimpleTrack(AbstractTrack):
     def action_sel(self):
         # type: () -> str
         if not self.is_foldable:
-            return ""
+            return BomeCommands.SELECT_FIRST_VST
         return "{0}/fold {1}".format(self.index, "off" if self.is_folded else "on")
 
     def action_record(self, bar_count):
         # type: (int) -> str
+        if self.is_foldable:
+            return ""
         action_list = Actions.delete_current_clip(self) if self.is_recording else ""
         action_list_rec = "; {0}/recfix {1} {2}; {0}/name '{3}'".format(
             self.index, bar_count, self.rec_clip_index,
@@ -41,15 +44,11 @@ class SimpleTrack(AbstractTrack):
     def action_record_audio(self):
         # type: () -> str
         ### long recording ###
-        return Actions.record_track(self, 128)
+        return Actions.record_track(self, 128) if not self.is_foldable else ""
 
     def action_undo(self):
         # type: () -> str
-        return Actions.delete_current_clip(self)
-
-    def action_restart(self):
-        # type: () -> str
-        return Actions.restart_track(self)
+        return Actions.delete_current_clip(self) if not self.is_foldable else ""
 
     @property
     def index(self):

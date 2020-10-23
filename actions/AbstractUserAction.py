@@ -73,3 +73,4 @@ class AbstractUserAction(UserActionsBase):
 
         self.log("{0}: {1}".format(self.action_name, action_list))
         self.canonical_parent.clyphx_pro_component.trigger_action_list(action_list)
+        self.action_name = None

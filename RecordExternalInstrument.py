@@ -31,6 +31,9 @@ class RecordExternalInstrument(AbstractUserAction):
         if self.current_track.is_armed:
             return self.unarm_ext(action_def, "1")
 
+        if not self.current_track.can_be_armed:
+            return
+
         self.exec_action(self.current_track.action_arm())
 
     def unarm_ext(self, _, direct_unarm):
@@ -63,6 +66,7 @@ class RecordExternalInstrument(AbstractUserAction):
 
     def restart_ext(self, *args):
         """" restart a live set from group tracks track names """
-        action_list = "; ".join([g_track.action_restart() for g_track in self.song().group_ex_tracks])
+        action_list = "".join([g_track.action_restart() for g_track in self.song().group_ex_tracks])
+        action_list = "setplay on" + action_list if action_list else ""
 
         self.exec_action(action_list)

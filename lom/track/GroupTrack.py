@@ -117,16 +117,17 @@ class GroupTrack(AbstractTrack):
         if not self.midi.is_playing:
             return action_list + self.audio.action_record_audio()
 
-        action_list += Actions.restart_track(self.midi)
+
+        action_list += Actions.delete_current_clip(self.audio) if self.is_recording else ""
+
         action_list_rec = "; {0}/recfix {1} {2}; {0}/name '{2}'".format(
-            self.audio.index, int(round((self.midi.playing_clip.length + 1) / 4)),
+            self.audio.index, self.rec_length_from_midi, self.rec_clip_index,
             self.audio.get_track_name_for_playing_clip_index(self.rec_clip_index)
         )
         action_list += Actions.restart_and_record(self, action_list_rec, False)
         # when done, stop audio clip
-        delay = int(round((600 / self.song().tempo) * (int(self.midi.playing_clip.length) + 6)))
         action_list += "; wait {0}; {1}/clip({2}) name '{3}'; {1}/clip({2}) warpmode complex".format(
-            delay, self.audio.index, self.rec_clip_index, self.midi.playing_clip.name)
+            self.delay_before_recording_end, self.audio.index, self.rec_clip_index, self.midi.playing_clip.name)
         action_list += Actions.set_audio_playing_color(self, Colors.PLAYING)
 
         return action_list
@@ -138,6 +139,7 @@ class GroupTrack(AbstractTrack):
     def action_restart(self):
         # type: () -> str
         return Actions.restart_track(self.midi) + Actions.restart_track(self.audio)
+
     @property
     def index(self):
         # type: () -> int
@@ -232,6 +234,11 @@ class GroupTrack(AbstractTrack):
         return self.clyphx.is_armed or self.midi.is_armed or self.audio.is_armed
 
     @property
+    def can_be_armed(self):
+        # type: () -> bool
+        return True
+
+    @property
     def is_playing(self):
         # type: () -> bool
         return self.midi.is_playing or self.audio.is_playing
@@ -259,3 +266,13 @@ class GroupTrack(AbstractTrack):
     def record_track(self):
         # type: () -> SimpleTrack
         return self.audio
+
+    @property
+    def rec_length_from_midi(self):
+        # type: () -> int
+        return int(round((self.midi.playing_clip.length + 1) / 4))
+
+    @property
+    def delay_before_recording_end(self):
+        # type: () -> int
+        return int(round((600 / self.song.tempo) * (int(self.midi.playing_clip.length) + 6)))
