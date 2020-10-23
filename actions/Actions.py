@@ -39,23 +39,14 @@ class Actions:
                    Actions.restart_track_on_group_press(g_track.audio, None)
 
     @staticmethod
-    def \
-            restart_track_on_group_press(track, base_track=None):
+    def restart_track_on_group_press(track, base_track=None):
         # type: ("SimpleTrack", Optional["SimpleTrack"]) -> str
-        audio_clip_index = None
-        if track.is_playing:
-            if not track.song.restart_clips:
-                return ""
-            else:
-                audio_clip_index = track.playing_clip.index
-        elif base_track and base_track.is_playing:
+        if not track.is_playing and base_track and base_track.is_playing:
             audio_clip = track.get_last_clip_index_by_name(base_track.playing_clip.name)
-            audio_clip_index = audio_clip.index if audio_clip else None
-        """ restart playing clips on grouped track """
-        # some logic to handle press on group track buttons which launches clips
-        if audio_clip_index:
-            return "; {0}/play {1}; wait 1; {0}/play {1}; {0}/name '{1}'".format(track.index, audio_clip_index)
-        return Actions.stop_track(track)
+            if audio_clip:
+                return "; {0}/play {1}; wait 1; {0}/play {1}; {0}/name '{1}'".format(track.index, audio_clip.index)
+
+        return ""
 
     @staticmethod
     def set_audio_playing_color(g_track, color):
@@ -73,7 +64,9 @@ class Actions:
     @staticmethod
     def stop_track(track):
         # type: ("SimpleTrack") -> str
-        action_list = "; {0}/stop".format(track.index)
+        action_list = ""
+        if track.is_playing:
+            action_list += "; {0}/stop".format(track.index)
         if track.is_nested_group_ex_track:
             action_list += "; {0}/name '0'".format(track.index)
             if track.type == TrackType.audio:
@@ -99,9 +92,9 @@ class Actions:
         # type: ("GroupTrack") -> str
         """ restart audio to get a count in and recfix"""
         action_list = ""
-        if g_track.midi.playing_clip:
+        if g_track.midi.is_playing:
             action_list += "{0}/clip({1}) del".format(g_track.midi.index, g_track.midi.playing_clip.index)
-        if g_track.audio.playing_clip:
+        if g_track.audio.is_playing:
             action_list += "; {0}/clip({1}) del".format(g_track.audio.index, g_track.audio.playing_clip.index)
 
         return action_list

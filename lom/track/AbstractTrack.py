@@ -13,7 +13,7 @@ class AbstractTrack:
 
     def __eq__(self, other):
         if isinstance(other, AbstractTrack):
-            return self._track == other.track
+            return self.track == other.track
         return False
 
     @abstractmethod
@@ -32,7 +32,7 @@ class AbstractTrack:
         pass
 
     @abstractmethod
-    def action_stop(self):
+    def action_start_or_stop(self):
         # type: () -> str
         pass
 

@@ -28,49 +28,39 @@ class RecordExternalInstrument(AbstractUserAction):
         action_list = "{0}/sel".format(self.get_next_track_by_index(selected_track_index, go_next).index)
         self.exec_action(action_list, None, "next_ext")
 
-    def arm_ext(self, action_def, restart_clips=""):
+    def arm_ext(self, action_def):
         """ arm or unarm both midi and audio track """
-        self.song().restart_clips = bool(restart_clips)
-
         if self.current_track.is_armed:
-            return self.unarm_ext(action_def, "{0} {1}".format(restart_clips, "1"))
+            return self.unarm_ext(action_def, "1")
 
         self.exec_action(self.current_track.action_arm(), self.current_track, "arm_ext")
 
-    def unarm_ext(self, _, args=""):
+    def unarm_ext(self, _, direct_unarm):
         """ unarming group track """
-        args = args.split(" ")
-        self.song().restart_clips = bool(args[0])
-        direct_unarm = len(args) > 1 and bool(args[1])
+        self.exec_action(self.current_track.action_unarm(bool(direct_unarm)), None, "unarm_ext")
 
-        self.exec_action(self.current_track.action_unarm(direct_unarm), None, "unarm_ext")
-
-    def sel_ext(self, _, restart_clips=""):
+    def sel_ext(self):
         """ Sel midi track to open ext editor """
-        self.song().restart_clips = bool(restart_clips)
-
         self.exec_action(self.current_track.action_sel(), None, "sel_ext")
 
-    def stop_audio_ext(self, _, restart_clips=""):
+    def stop_audio_ext(self):
         """ arm both midi and audio track """
-        self.song().restart_clips = bool(restart_clips)
-
-        self.exec_action(self.current_track.action_stop(), None, "stop_audio_ext")
+        self.exec_action(self.current_track.action_start_or_stop(), None, "stop_audio_ext")
 
     def record_ext(self, action_def, bar_count):
         """ record both midi and audio on group track """
-        g_track = self.get_abstract_track(action_def)
+        g_track = self.get_abstract_track(action_def['track'])
         rec_clip_index = g_track.rec_clip_index
         action_list = Actions.arm_g_track(g_track)
         action_list += Actions.add_scene_if_needed(g_track.audio)
 
-        action_list_rec = "; {0}/recfix {2} {3}; {1}/recfix {2} {3}; {0}/name '{3}'; {1}/name '{3}'".format(
+        action_list_rec = "; {0}/recfix {2} {3}; {1}/recfix {2} {3}; {0}/name '{3}'; {1}/name '0'".format(
             g_track.midi.index, g_track.audio.index, bar_count, rec_clip_index
         )
         action_list += Actions.restart_and_record(g_track, action_list_rec)
         # when done, stop audio clip and metronome
         delay = int(round((600 / self.song().tempo) * (4 * (int(bar_count) + 1) - 0.5)))
-        action_list += "; wait {0}; {1}/stop; metro off; wait 5".format(delay, g_track.audio.index)
+        action_list += "; wait {0}; metro off; wait 5; {1}/stop".format(delay, g_track.audio.index)
 
         # rename timestamp clip to link clips
         timestamp = time.time()
@@ -81,7 +71,7 @@ class RecordExternalInstrument(AbstractUserAction):
 
     def record_ext_audio(self, action_def, _):
         """ record audio on group track from playing midi clip """
-        g_track = self.get_abstract_track(action_def, "", True)
+        g_track = self.get_abstract_track(action_def['track'], "", True)
 
         if not g_track.midi.is_playing:
             return self.log_to_push("midi not playing, cannot record audio")
@@ -103,7 +93,7 @@ class RecordExternalInstrument(AbstractUserAction):
 
     def undo_ext(self, action_def):
         """" undo last recording """
-        g_track = self.get_abstract_track(action_def)
+        g_track = self.get_abstract_track(action_def['track'])
 
         action_list = Actions.delete_playing_clips(g_track)
         self.exec_action(action_list, None, "undo_ext")

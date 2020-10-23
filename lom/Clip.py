@@ -17,7 +17,7 @@ class Clip:
     @property
     def is_playing(self):
         # type: () -> bool
-        return self.clip.is_playing
+        return self.clip.is_playing if self.index != 0 else False
 
     @property
     def playing_position(self):

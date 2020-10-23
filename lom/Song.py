@@ -10,7 +10,6 @@ class Song:
     def __init__(self, song):
         # type: (Any) -> None
         self.song = song
-        self.restart_clips = True
         self.tracks = [SimpleTrack(self, track, i + 1) for i, track in enumerate(list(song.tracks))]
         for track in self.tracks:
             track.song = self
@@ -82,4 +81,4 @@ class Song:
 
     def other_armed_group_track(self, abstract_track=None):
         # type: (Optional[AbstractTrack]) -> Optional[GroupTrack]
-        return next(iter([track for track in self.group_ex_tracks if (not abstract_track or not abstract_track.is_group or abstract_track.index != track.index) and track.any_armed]), None)
+        return next(iter([track for track in self.group_ex_tracks if (not abstract_track or not abstract_track.is_group or abstract_track != track) and track.any_armed]), None)

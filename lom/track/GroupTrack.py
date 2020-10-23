@@ -6,6 +6,7 @@ from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractT
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
 from ClyphX_Pro.clyphx_pro.user_actions.actions.Actions import Actions
+from ClyphX_Pro.clyphx_pro.user_actions.utils.log import log_ableton
 
 
 class GroupTrack(AbstractTrack):
@@ -35,8 +36,7 @@ class GroupTrack(AbstractTrack):
 
     def action_arm(self):
         # type: () -> str
-        action_list = "; setplay on" if self.is_playing and self.song.restart_clips else ""
-        action_list += Actions.restart_track_on_group_press(self.midi, self.audio)
+        action_list = Actions.restart_track_on_group_press(self.midi, self.audio)
         # stop audio to have live synth parameter edition while midi is playing
         action_list += Actions.stop_track(self.audio)
         # disable other clip colors
@@ -72,7 +72,6 @@ class GroupTrack(AbstractTrack):
             action_list += Actions.restart_grouped_track(self, self.audio)
         elif self.midi.is_playing:
             action_list += Actions.restart_grouped_track(self, self.midi)
-            action_list += "{0}}"
         else:
             action_list += Actions.restart_grouped_track(self, None)
 
@@ -86,7 +85,7 @@ class GroupTrack(AbstractTrack):
     def action_sel(self):
         # type: () -> str
         action_list = ""
-        if self.song().selected_track.track == self.selectable_track.track:
+        if self.song.selected_track == self.selectable_track:
             action_list += "; {0}/fold on; {0}/sel".format(self.group.index)
             return action_list
 
@@ -100,7 +99,7 @@ class GroupTrack(AbstractTrack):
 
         return action_list
 
-    def action_stop(self):
+    def action_start_or_stop(self):
         # type: () -> str
         action_list = Actions.restart_track_on_group_press(self.midi, None)
         action_list += Actions.stop_track(self.audio)

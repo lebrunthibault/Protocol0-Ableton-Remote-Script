@@ -30,7 +30,7 @@ class SimpleTrack(AbstractTrack):
             return ""
         return "{0}/fold {1}".format(self.index, "off" if self.is_folded else "on")
 
-    def action_stop(self):
+    def action_start_or_stop(self):
         # type: () -> str
         return Actions.stop_track(self)
 
@@ -111,7 +111,7 @@ class SimpleTrack(AbstractTrack):
     @property
     def is_playing(self):
         # type: () -> bool
-        return bool(self.playing_clip)
+        return bool(self.playing_clip) and self.playing_clip.index != 0
 
     @property
     def is_visible(self):
@@ -133,18 +133,18 @@ class SimpleTrack(AbstractTrack):
         # type: () -> Optional[Clip]
         """ return clip and clip clyphx index """
         try:
-            playing_clip_index_track = self.clips[int(self.name)]
-        except (ValueError, KeyError):
+            playing_clip_index_track = int(self.name)
+        except (ValueError):
             playing_clip_index_track = 0
 
         playing_clip_index = next(iter([clip.index for clip in self.playing_clips]), playing_clip_index_track)
-        return self.clips[playing_clip_index] if playing_clip_index != 0 else None
+        return self.clips[playing_clip_index] if playing_clip_index != 0 else Clip(None, 0)
 
     @property
     def clips(self):
         # type: () -> dict[int, Clip]
         """ return clip and clip clyphx index """
-        return {index: Clip(clip_slot.clip, index + 1) for (index, clip_slot) in enumerate(self.clip_slots) if
+        return {index + 1: Clip(clip_slot.clip, index + 1) for (index, clip_slot) in enumerate(self.clip_slots) if
                 clip_slot.has_clip}
 
     @property
@@ -157,7 +157,7 @@ class SimpleTrack(AbstractTrack):
     def beat_count_before_clip_restart(self):
         # type: () -> int
         """ return clip and clip clyphx index """
-        if not self.playing_clip:
+        if not self.is_playing:
             return 0
         return int(round(self.playing_clip.length - self.playing_clip.playing_position))
 
@@ -203,7 +203,7 @@ class SimpleTrack(AbstractTrack):
         # type: (str) -> Optional[Clip]
         """ get last clip with name on track """
         clips_matching_name = [clip for clip in self.clips.values() if clip.name == name]
-        return clips_matching_name.pop().index if len(clips_matching_name) else None
+        return clips_matching_name.pop() if len(clips_matching_name) else None
 
     # @property
     # def linked_audio_playing_clip(self):

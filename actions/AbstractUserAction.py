@@ -14,7 +14,7 @@ class AbstractUserAction(UserActionsBase):
     def __init__(self, *args, **kwargs):
         super(AbstractUserAction, self).__init__(*args, **kwargs)
         self._my_song = None
-        self.current_track = None # type: Optional[AbstractTrack]
+        self.current_track = None  # type: Optional[AbstractTrack]
 
     def song(self):
         # type: () -> Song
@@ -63,12 +63,10 @@ class AbstractUserAction(UserActionsBase):
         # type: (str, Optional[AbstractTrack], str) -> None
         # e.g. when we call rec_ext without doing arm_ext first
         if title in ("arm_ext", "record_ext", "record_ext_audio"):
-            if self.song().other_armed_group_track(
-                abstract_track):
-                action_list += "; {0}/unarm_ext {1}".format(self.song().other_armed_group_track(abstract_track).group.index,
-                                                        "1" if self.song().restart_clips else "")
+            if self.song().other_armed_group_track(abstract_track):
+                action_list += "; {0}/unarm_ext".format(self.song().other_armed_group_track(abstract_track).index)
             action_list += "; " + "; ".join(["{0}/arm off".format(track.index) for track in
-                           self.song().simple_armed_tracks(abstract_track)])
+                                             self.song().simple_armed_tracks(abstract_track)])
 
         self.log("{0}: {1}".format(title, action_list))
         self.canonical_parent.clyphx_pro_component.trigger_action_list(action_list)
