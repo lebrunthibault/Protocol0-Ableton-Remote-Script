@@ -57,24 +57,23 @@ class Song:
         # type: () -> int
         return self._song.clip_trigger_quantization + 1
 
-    def playing_clips_count(self, g_track, include_group):
-        # type: (GroupTrack, bool) -> int
+    def playing_clips_count(self, abstract_track):
+        # type: (AbstractTrack) -> int
         """ number of playing clip count in the live set excluding the group track """
         playing_clips_count = len([clip_slot for track in self.tracks for clip_slot in track.clip_slots
-                                   if (include_group is True or track.index not in (
-                                       g_track.midi.index, g_track.audio.index))
+                                   if track.index != abstract_track.index
                                    and clip_slot.clip
                                    and not clip_slot.clip.name.startswith("[]")
                                    and clip_slot.clip.is_playing])
 
         return playing_clips_count
 
-    def has_set_playing_clips(self, g_track, include_group=True):
-        # type: (GroupTrack, bool) -> bool
+    def has_set_playing_clips(self, abstract_track):
+        # type: (AbstractTrack) -> bool
         """ find if there is playing clips elsewhere
             by default checks also in group track
         """
-        return self.playing_clips_count(g_track, include_group) != 0
+        return self.playing_clips_count(abstract_track) != 0
 
     def get_track(self, track):
         # type: (Any) -> SimpleTrack

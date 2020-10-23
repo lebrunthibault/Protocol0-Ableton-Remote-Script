@@ -1,21 +1,22 @@
 from typing import Any, Optional
 from abc import ABCMeta, abstractproperty, abstractmethod
 
-from ClyphX_Pro.clyphx_pro.user_actions.utils.log import log_ableton
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
 
 
-class AbstractTrack:
+class AbstractTrack(object):
     __metaclass__ = ABCMeta
 
-    def __init__(self, track, index):
+    def __init__(self, song, track, index):
         # type: (Any, Any, int) -> None
         self._track = track
         self._index = index
+        self.song = song
 
     def __eq__(self, other):
         if isinstance(other, AbstractTrack):
-            log_ableton(self.index)
-            log_ableton(other.index)
             return self.index == other.index
         return False
 
@@ -44,8 +45,8 @@ class AbstractTrack:
         pass
 
     @abstractmethod
-    def action_record(self):
-        # type: () -> str
+    def action_record(self, bar_count):
+        # type: (int) -> str
         pass
 
     @abstractmethod
@@ -126,4 +127,9 @@ class AbstractTrack:
     @abstractproperty
     def rec_clip_index(self):
         # type: () -> int
+        pass
+
+    @abstractproperty
+    def record_track(self):
+        # type: () -> SimpleTrack
         pass

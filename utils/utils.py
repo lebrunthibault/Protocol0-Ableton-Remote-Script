@@ -27,6 +27,7 @@ def init_song(func):
         try:
             if func.__name__ != "create_actions":
                 self._my_song = Song(self._song)
+                self.action_name = func.__name__
                 self.current_track = self.get_abstract_track(args[0]["track"]) if "get_abstract_track" in dir(self) and "track" in args[0] else None
             func(self, *args, **kwargs)
         except Exception as e:

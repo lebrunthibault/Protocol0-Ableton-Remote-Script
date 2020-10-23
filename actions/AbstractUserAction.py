@@ -15,6 +15,7 @@ class AbstractUserAction(UserActionsBase):
         super(AbstractUserAction, self).__init__(*args, **kwargs)
         self._my_song = None
         self.current_track = None  # type: Optional[AbstractTrack]
+        self.action_name = ""  # type: str
 
     def song(self):
         # type: () -> Song
@@ -36,8 +37,7 @@ class AbstractUserAction(UserActionsBase):
 
     def get_next_track_by_index(self, index, go_next):
         # type: (int, bool) -> SimpleTrack
-        tracks = self.song().top_tracks
-        tracks = tracks if go_next else list(reversed(tracks))
+        tracks = self.song().top_tracks if go_next else list(reversed(self.song().top_tracks))
 
         if len(tracks) == 0:
             raise Exception("No tracks in this set")
@@ -57,19 +57,17 @@ class AbstractUserAction(UserActionsBase):
     def log_to_push(self, message):
         # type: (str) -> None
         self.log(message)
-        self.exec_action("; push msg %s" % message, None, "error")
+        self.action_name = "error"
+        self.exec_action("; push msg %s" % message)
 
-    def exec_action(self, action_list, abstract_track=None, title="title missing"):
-        # type: (str, Optional[AbstractTrack], str) -> None
+    def exec_action(self, action_list):
+        # type: (str) -> None
         # e.g. when we call rec_ext without doing arm_ext first
-        if title in ("arm_ext", "sel_ext", "record_ext", "record_ext_audio"):
-            self.log(abstract_track)
-            self.log(abstract_track.name)
-            self.log(abstract_track.index)
-            if self.song().other_armed_group_track(abstract_track):
-                action_list += "; {0}/unarm_ext".format(self.song().other_armed_group_track(abstract_track).index)
+        if self.action_name in ("arm_ext", "sel_ext", "record_ext", "record_ext_audio"):
+            if self.song().other_armed_group_track(self.current_track):
+                action_list += "; {0}/unarm_ext".format(self.song().other_armed_group_track(self.current_track).index)
             action_list += "; " + "; ".join(["{0}/arm off".format(track.index) for track in
-                                             self.song().simple_armed_tracks(abstract_track)])
+                                             self.song().simple_armed_tracks(self.current_track)])
 
-        self.log("{0}: {1}".format(title, action_list))
+        self.log("{0}: {1}".format(self.action_name, action_list))
         self.canonical_parent.clyphx_pro_component.trigger_action_list(action_list)

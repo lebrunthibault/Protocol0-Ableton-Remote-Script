@@ -37,4 +37,4 @@ class BrowsePresetsAndSample(AbstractUserAction):
         next_sample = samples[next_sample_index % len(samples)]
 
         action_list = 'LOADSAMPLE "%s"' % next_sample
-        self.exec_action(action_list, None, "next_sample")
+        self.exec_action(action_list)

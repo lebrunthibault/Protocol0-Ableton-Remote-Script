@@ -1,3 +1,5 @@
+import time
+
 from typing import Any, Optional
 
 from ClyphX_Pro.clyphx_pro.user_actions.actions.BomeCommands import BomeCommands
@@ -12,7 +14,6 @@ class GroupTrack(AbstractTrack):
     def __init__(self, song, base_track):
         # type: ("Song", Any) -> None
         # getting our track object
-        self.song = song
         track = song.get_track(base_track)
         self.track_index_group = track.index - 1
 
@@ -29,9 +30,10 @@ class GroupTrack(AbstractTrack):
             raise Exception(
                 "tried to instantiate group track with base_track {0} and found track index {1}".format(base_track,
                                                                                                         self.track_index_group))
+        super(GroupTrack, self).__init__(song, self.group.track, self.track_index_group)
+
         self.clyphx.g_track = self.midi.g_track = self.audio.g_track = self
 
-        super(GroupTrack, self).__init__(self.group.track, self.track_index_group)
 
     def action_arm(self, add_select_action=True):
         # type: (Optional[bool]) -> str
@@ -105,9 +107,26 @@ class GroupTrack(AbstractTrack):
         else:
             return Actions.restart_track(self.audio, self.midi)
 
-    def action_record(self):
-        # type: () -> str
-        return ""
+    def action_record(self, bar_count):
+        # type: (int) -> str
+        action_list_rec = "; {0}/recfix {2} {3}; {1}/recfix {2} {3}; {0}/name '{4}'; {1}/name '{5}'".format(
+            self.midi.index, self.audio.index, bar_count, self.rec_clip_index,
+            self.midi.get_track_name_for_playing_clip_index(self.rec_clip_index),
+            self.audio.get_track_name_for_playing_clip_index(self.rec_clip_index),
+        )
+        action_list = Actions.restart_and_record(self, action_list_rec)
+        # when done, stop audio clip and metronome
+        delay = int(round((600 / self.song().tempo) * (4 * (int(bar_count) + 1) - 0.5)))
+        action_list += "; wait {0}; metro off; wait 5; {1}/stop".format(delay, self.audio.index)
+
+        # rename timestamp clip to link clips
+        timestamp = time.time()
+        action_list += "; {0}/clip({1}) name {2}".format(self.midi.index, self, timestamp)
+        action_list += "; {0}/clip({1}) name {2}; {0}/clip({1}) warpmode complex".format(self.audio.index,
+                                                                                         self, timestamp)
+
+        return action_list
+
 
     def action_undo(self):
         # type: () -> str
@@ -175,11 +194,6 @@ class GroupTrack(AbstractTrack):
         return True
 
     @property
-    def rec_clip_index(self):
-        # type: () -> int
-        return self.audio.rec_clip_index
-
-    @property
     def has_empty_slot(self):
         # type: () -> int
         return self.audio.has_empty_slot
@@ -235,3 +249,13 @@ class GroupTrack(AbstractTrack):
             return self.audio.beat_count_before_clip_restart
         else:
             return self.midi.beat_count_before_clip_restart
+
+    @property
+    def rec_clip_index(self):
+        # type: () -> int
+        return self.audio.rec_clip_index
+
+    @property
+    def record_track(self):
+        # type: () -> SimpleTrack
+        return self.audio

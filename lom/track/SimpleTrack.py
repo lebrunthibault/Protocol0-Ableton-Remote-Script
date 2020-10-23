@@ -11,9 +11,7 @@ class SimpleTrack(AbstractTrack):
     def __init__(self, song, track, index):
         # type: (Any, Any, int) -> None
         self.g_track = None
-        self.song = song
-
-        super(SimpleTrack, self).__init__(track, index)
+        super(SimpleTrack, self).__init__(song, track, index)
 
     def action_arm(self):
         # type: () -> str
@@ -36,9 +34,15 @@ class SimpleTrack(AbstractTrack):
         else:
             return Actions.restart_track(self)
 
-    def action_record(self):
-        # type: () -> str
-        return ""
+    def action_record(self, bar_count):
+        # type: (int) -> str
+        action_list_rec = "; {0}/recfix {1} {2}; {0}/name '{3}'".format(
+            self.index, bar_count, self.rec_clip_index,
+            self.get_track_name_for_playing_clip_index(self.rec_clip_index),
+        )
+        action_list = Actions.restart_and_record(self, action_list_rec)
+
+        return action_list
 
     def action_undo(self):
         # type: () -> str
@@ -100,7 +104,9 @@ class SimpleTrack(AbstractTrack):
     @property
     def is_nested_group_ex_track(self):
         # type: () -> bool
-        return self.name == TrackName.GROUP_CLYPHX_NAME or self.name.isnumeric()
+        return self.name == TrackName.GROUP_CLYPHX_NAME or \
+               self.song.tracks[self.index - 2].name == TrackName.GROUP_CLYPHX_NAME or \
+               self.song.tracks[self.index - 3].name == TrackName.GROUP_CLYPHX_NAME
 
     @property
     def is_clyphx(self):
@@ -229,6 +235,11 @@ class SimpleTrack(AbstractTrack):
     def rec_clip_index(self):
         # type: () -> int
         return self.first_empty_slot_index if self.has_empty_slot else self.scene_count + 1
+
+    @property
+    def record_track(self):
+        # type: () -> SimpleTrack
+        return self
 
     def get_last_clip_index_by_name(self, name):
         # type: (str) -> Optional[Clip]
