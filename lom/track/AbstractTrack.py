@@ -41,7 +41,7 @@ class AbstractTrack(object):
 
     def action_start_or_stop(self):
         # type: () -> str
-        self.record_track.set_monitor_in(self.record_track.is_playing)
+        self.record_track.set_monitor_in(not self.record_track.has_monitor_in)
         return ""
 
     @abstractmethod
@@ -96,6 +96,11 @@ class AbstractTrack(object):
 
     @abstractproperty
     def is_playing(self):
+        # type: () -> bool
+        pass
+
+    @abstractproperty
+    def is_recording(self):
         # type: () -> bool
         pass
 

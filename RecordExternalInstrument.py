@@ -49,7 +49,8 @@ class RecordExternalInstrument(AbstractUserAction):
     @unarm_other_tracks
     def record_ext(self, _, bar_count):
         """ record both midi and audio on group track """
-        self.exec_action(Actions.record_track(self.current_track, bar_count))
+        action_list = self.current_track.action_undo() if self.current_track.is_recording else ""
+        self.exec_action(action_list + Actions.record_track(self.current_track, bar_count))
 
     @unarm_other_tracks
     def record_audio_ext(self, *args):

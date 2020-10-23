@@ -58,8 +58,7 @@ class GroupTrack(AbstractTrack):
         action_list = "{0}/clip(1) color {1}; {2}/fold off".format(
             self.clyphx.index, self.color, self.group.index)
 
-        if direct_unarm:
-            action_list += "; {0}/arm on".format(self.clyphx.index)
+        action_list += "; {0}/arm {1}".format(self.clyphx.index, "on" if direct_unarm else "off")
         if self.audio.is_playing:
             action_list += Actions.set_audio_playing_color(self, Colors.PLAYING)
 
@@ -102,9 +101,9 @@ class GroupTrack(AbstractTrack):
 
         # rename timestamp clip to link clips
         timestamp = time.time()
-        action_list += "; {0}/clip({1}) name {2}".format(self.midi.index, self, timestamp)
+        action_list += "; {0}/clip({1}) name {2}".format(self.midi.index, self.rec_clip_index, timestamp)
         action_list += "; {0}/clip({1}) name {2}; {0}/clip({1}) warpmode complex".format(self.audio.index,
-                                                                                         self, timestamp)
+                                                                                         self.rec_clip_index, timestamp)
 
         self.audio.set_monitor_in()
 
@@ -134,7 +133,7 @@ class GroupTrack(AbstractTrack):
 
     def action_undo(self):
         # type: () -> str
-        return Actions.delete_current_clip(self.audio) + Actions.delete_current_clip(self.midi)
+        return self.audio.action_undo() + self.midi.action_undo()
 
     def action_restart(self):
         # type: () -> str
@@ -236,6 +235,11 @@ class GroupTrack(AbstractTrack):
     def is_playing(self):
         # type: () -> bool
         return self.midi.is_playing or self.audio.is_playing
+
+    @property
+    def is_recording(self):
+        # type: () -> bool
+        return self.midi.is_recording or self.audio.is_recording
 
     @property
     def color(self):

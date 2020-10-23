@@ -14,10 +14,8 @@ class BrowsePresetsAndSample(AbstractUserAction):
         self.add_global_action('next_sample_or_preset', self.next_sample_or_preset)
 
     def next_sample_or_preset(self, _, go_next=""):
-        go_next = bool(go_next)
-
         if self.song().selected_track.is_simpler:
-            self.next_sample(self.song().selected_track, go_next)
+            self.next_sample(self.song().selected_track, bool(go_next))
         else:
             self.log("next_sample_or_preset : not a simpler track")
 

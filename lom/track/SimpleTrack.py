@@ -70,7 +70,7 @@ class SimpleTrack(AbstractTrack):
 
     @property
     def name(self):
-        return self.track.name
+        return self.track.name.split(" - ")[0]
 
     @property
     def is_foldable(self):
@@ -168,13 +168,13 @@ class SimpleTrack(AbstractTrack):
 
     def get_track_name_for_playing_clip_index(self, playing_clip_index = None):
         # type: (Optional[int]) -> str
-        return "{0} - {1}".format(self.name.split(" - ")[0], playing_clip_index if playing_clip_index is not None else self.playing_clip.index)
+        return "{0} - {1}".format(self.name, playing_clip_index if playing_clip_index is not None else self.playing_clip.index)
 
     @property
     def playing_clip_index_from_track_name(self):
         # type: () -> int
         try:
-            name = self.name.split(" - ")
+            name = self.track.name.split(" - ")
             return 0 if len(name) == 1 else int(name[1])
         except ValueError:
             return 0
@@ -215,6 +215,11 @@ class SimpleTrack(AbstractTrack):
     def set_monitor_in(self, monitor_in=True):
         # type: (Optional[bool]) -> None
         self.track.current_monitoring_state = 0 if monitor_in else 1
+
+    @property
+    def has_monitor_in(self):
+        # type: () -> bool
+        return self.track.current_monitoring_state == 0
 
     @property
     def clip_slots(self):
