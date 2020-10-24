@@ -72,6 +72,10 @@ class SimpleTrack(AbstractTrack):
         return self.track.name.split(" - ")[0]
 
     @property
+    def preset_number(self):
+        parts = self.track.name.split(" - ")[0]
+
+    @property
     def is_foldable(self):
         # type: () -> bool
         return self.track.is_foldable
