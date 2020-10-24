@@ -1,7 +1,7 @@
 from typing import Optional
+from typing import TYPE_CHECKING
 
 from ClyphX_Pro.clyphx_pro.user_actions.lom.Colors import Colors
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -9,7 +9,6 @@ if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
-from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackType import TrackType
 
 
 class Actions:
@@ -47,7 +46,7 @@ class Actions:
         if track.is_playing:
             action_list += "; {0}/stop".format(track.index)
             action_list += "; {0}/name '{1}'".format(track.index, track.get_track_name_for_playing_clip_index())
-        if track.is_nested_group_ex_track and track.type == TrackType.audio:
+        if track.is_nested_group_ex_track and track.is_audio:
             action_list += Actions.set_audio_playing_color(track.g_track, Colors.DISABLED)
 
         return action_list

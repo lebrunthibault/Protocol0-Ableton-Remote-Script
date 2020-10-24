@@ -1,4 +1,5 @@
 from abc import abstractmethod
+
 from typing import Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -43,9 +44,4 @@ class AbstractTrackActionMixin:
     @abstractmethod
     def action_undo(self):
         # type: ("AbstractTrack") -> str
-        pass
-
-    @abstractmethod
-    def action_scroll_preset_or_sample(self, go_next):
-        # type: ("AbstractTrack", bool) -> str
         pass

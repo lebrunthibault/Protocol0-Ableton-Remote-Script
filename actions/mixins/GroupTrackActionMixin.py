@@ -2,9 +2,8 @@ import time
 
 from typing import Optional, TYPE_CHECKING
 
-from ClyphX_Pro.clyphx_pro.user_actions.actions.BomeCommands import BomeCommands
-from ClyphX_Pro.clyphx_pro.user_actions.lom.Colors import Colors
 from ClyphX_Pro.clyphx_pro.user_actions.actions.Actions import Actions
+from ClyphX_Pro.clyphx_pro.user_actions.lom.Colors import Colors
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -108,8 +107,3 @@ class GroupTrackActionMixin(object):
     def action_restart(self):
         # type: ("GroupTrack") -> str
         return Actions.restart_track(self.midi) + Actions.restart_track(self.audio)
-
-    @staticmethod
-    def action_scroll_preset_or_sample(go_next):
-        # type: (bool) -> str
-        return str(go_next)

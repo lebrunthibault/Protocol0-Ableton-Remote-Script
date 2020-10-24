@@ -1,6 +1,6 @@
+from ClyphX_Pro.clyphx_pro.user_actions.actions.AbstractUserAction import AbstractUserAction
 from ClyphX_Pro.clyphx_pro.user_actions.actions.Actions import Actions
 from ClyphX_Pro.clyphx_pro.user_actions.utils.utils import for_all_methods, init_song, unarm_other_tracks
-from ClyphX_Pro.clyphx_pro.user_actions.actions.AbstractUserAction import AbstractUserAction
 
 
 # noinspection PyUnusedLocal

@@ -1,13 +1,12 @@
 # noinspection PyUnresolvedReferences
-from typing import Optional, Union, Any
-
 # noinspection PyUnresolvedReferences
 from ClyphX_Pro.clyphx_pro.UserActionsBase import UserActionsBase
+from typing import Optional, Union, Any
 
-from ClyphX_Pro.clyphx_pro.user_actions.lom.track.GroupTrack import GroupTrack
-from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.Song import Song
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
+from ClyphX_Pro.clyphx_pro.user_actions.lom.track.GroupTrack import GroupTrack
+from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
 
 
 class AbstractUserAction(UserActionsBase):

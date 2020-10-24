@@ -1,7 +1,7 @@
 from typing import Any, Optional
 
-from ClyphX_Pro.clyphx_pro.user_actions.lom.track.GroupTrack import GroupTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
+from ClyphX_Pro.clyphx_pro.user_actions.lom.track.GroupTrack import GroupTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
 
@@ -32,7 +32,7 @@ class Song:
     @property
     def simple_tracks(self):
         # type: () -> list[SimpleTrack]
-        return [track for track in self.tracks if track.is_simple]
+        return [track for track in self.tracks if not track.is_groupable]
 
     def simple_armed_tracks(self, track):
         # type: (AbstractTrack) -> list[SimpleTrack]

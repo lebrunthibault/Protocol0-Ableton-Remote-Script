@@ -1,6 +1,7 @@
 from typing import Any
 
 from ClyphX_Pro.clyphx_pro.user_actions.actions.mixins.GroupTrackActionMixin import GroupTrackActionMixin
+from ClyphX_Pro.clyphx_pro.user_actions.instruments.AbstractInstrument import AbstractInstrument
 from ClyphX_Pro.clyphx_pro.user_actions.lom.Colors import Colors
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
@@ -33,14 +34,18 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
         self.clyphx.g_track = self.midi.g_track = self.audio.g_track = self
 
     @property
-    def index(self):
-        # type: () -> int
-        return self.group.index
-
-    @property
     def track(self):
         # type: () -> int
         return self.group.track
+
+    def instrument(self):
+        # type: () -> AbstractInstrument
+        return self.selectable_track.instrument
+
+    @property
+    def index(self):
+        # type: () -> int
+        return self.group.index
 
     @property
     def scene_count(self):

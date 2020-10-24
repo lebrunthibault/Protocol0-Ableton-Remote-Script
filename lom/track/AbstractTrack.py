@@ -1,9 +1,10 @@
-from typing import Any
 from abc import ABCMeta, abstractproperty
 
+from typing import Any
 from typing import TYPE_CHECKING
 
 from ClyphX_Pro.clyphx_pro.user_actions.actions.mixins.AbstractTrackActionMixin import AbstractTrackActionMixin
+from ClyphX_Pro.clyphx_pro.user_actions.instruments.AbstractInstrument import AbstractInstrument
 
 if TYPE_CHECKING:
     from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
@@ -27,6 +28,11 @@ class AbstractTrack(AbstractTrackActionMixin, object):
     @abstractproperty
     def track(self):
         # type: () -> Any
+        pass
+
+    @abstractproperty
+    def instrument(self):
+        # type: () -> AbstractInstrument
         pass
 
     @abstractproperty

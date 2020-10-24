@@ -3,5 +3,10 @@ from ClyphX_Pro.clyphx_pro.user_actions.instruments.AbstractInstrument import Ab
 
 class InstrumentNull(AbstractInstrument):
     @property
-    def show_command(self):
+    def action_show(self):
+        # type: () -> str
         return ""
+
+    def action_scroll_preset_or_sample(self, go_next):
+        # type: (bool) -> str
+        pass
