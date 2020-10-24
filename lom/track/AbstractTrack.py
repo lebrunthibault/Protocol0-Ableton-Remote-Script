@@ -2,10 +2,12 @@ from typing import Any, Optional
 from abc import ABCMeta, abstractproperty, abstractmethod
 
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
 
 
+# noinspection PyDeprecation
 class AbstractTrack(object):
     __metaclass__ = ABCMeta
 
@@ -19,6 +21,8 @@ class AbstractTrack(object):
         if isinstance(other, AbstractTrack):
             return self.index == other.index
         return False
+
+    #### ACTIONS ####
 
     @abstractmethod
     def action_arm(self):
@@ -35,9 +39,10 @@ class AbstractTrack(object):
         # type: () -> str
         pass
 
+    @abstractmethod
     def action_show(self):
         # type: () -> str
-        return ""
+        pass
 
     def action_start_or_stop(self):
         # type: () -> str
@@ -60,7 +65,6 @@ class AbstractTrack(object):
     def action_undo(self):
         # type: () -> str
         pass
-
 
     @abstractmethod
     def action_scroll_preset_or_sample(self, go_next):

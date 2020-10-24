@@ -4,6 +4,7 @@ from ClyphX_Pro.clyphx_pro.user_actions.actions.AbstractUserAction import Abstra
 NUM_X_CONTROLS = 2
 
 
+# noinspection PyUnusedLocal
 class XModeAction(AbstractUserAction):
     """
     XModeAction creates an action named xmode that shifts macro assignments between
@@ -45,6 +46,7 @@ class XModeAction(AbstractUserAction):
 
         # trigger NUM_X_CONTROLS action lists
         for i in xrange(1, NUM_X_CONTROLS + 1):
-            self.canonical_parent.clyphx_pro_component.trigger_action_list("$b{0}$=$b{0}_mode_{1}$".format(i, self.xmode))
+            self.canonical_parent.clyphx_pro_component.trigger_action_list(
+                "$b{0}$=$b{0}_mode_{1}$".format(i, self.xmode))
 
         self.log_to_push("Activated mode {0}".format("tracks" if self.xmode == 1 else "presets"))

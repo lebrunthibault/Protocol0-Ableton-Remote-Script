@@ -1,80 +1,19 @@
-from os import listdir
-from os.path import join, isdir, isfile
-
 from typing import Any, Optional
 
-from ClyphX_Pro.clyphx_pro.user_actions.actions.Actions import Actions
-from ClyphX_Pro.clyphx_pro.user_actions.actions.BomeCommands import BomeCommands
+from ClyphX_Pro.clyphx_pro.user_actions.actions.mixins.SimpleTrackActionMixin import SimpleTrackActionMixin
 from ClyphX_Pro.clyphx_pro.user_actions.lom.Clip import Clip
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackType import TrackType
 
 
-class SimpleTrack(AbstractTrack):
+class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     SAMPLE_PATH = "C:/Users/thiba/Google Drive/music/software presets/Ableton User Library/Samples/Imported"
 
     def __init__(self, song, track, index):
         # type: (Any, Any, int) -> None
         self.g_track = None
         super(SimpleTrack, self).__init__(song, track, index)
-
-    def action_arm(self):
-        # type: () -> str
-        return "{0}/arm on".format(self.index) if self.can_be_armed else ""
-
-    def action_unarm(self, _):
-        # type: (Optional[bool]) -> str
-        return "{0}/arm off".format(self.index) if self.can_be_armed else ""
-
-    def action_sel(self):
-        # type: () -> str
-        if not self.is_foldable:
-            return BomeCommands.SELECT_FIRST_VST
-        return "{0}/fold {1}".format(self.index, "off" if self.is_folded else "on")
-
-    def action_record(self, bar_count):
-        # type: (int) -> str
-        if self.is_foldable:
-            return ""
-        action_list = Actions.delete_current_clip(self) if self.is_recording else ""
-        action_list_rec = "; {0}/recfix {1} {2}; {0}/name '{3}'".format(
-            self.index, bar_count, self.rec_clip_index,
-            self.get_track_name_for_playing_clip_index(self.rec_clip_index),
-        )
-        action_list += Actions.restart_and_record(self, action_list_rec)
-
-        return action_list
-
-    def action_record_audio(self):
-        # type: () -> str
-        ### long recording ###
-        return Actions.record_track(self, 128) if not self.is_foldable else ""
-
-    def action_undo(self):
-        # type: () -> str
-        return Actions.delete_current_clip(self) if not self.is_foldable else ""
-
-    def action_scroll_preset_or_sample(self, go_next):
-        # type: (bool) -> str
-        """ load sample like swap action """
-        if not self.is_simpler:
-            raise Exception("action_scroll_preset_or_sample : not a simpler track")
-
-        sample_path = join(self.SAMPLE_PATH, self.name)
-        if not isdir(sample_path):
-            raise Exception("the track name does not correspond with a sample directory")
-
-        samples = [f for f in listdir(sample_path) if isfile(join(sample_path, f)) and f.endswith(".wav")]
-        current_sample = self.devices[0].name + ".wav"
-
-        if current_sample in samples:
-            next_sample_index = samples.index(current_sample) + 1 if go_next else samples.index(current_sample) - 1
-        else:
-            next_sample_index = 0
-        next_sample = samples[next_sample_index % len(samples)]
-
-        return "LOADSAMPLE '{0}'".format(next_sample)
 
     @property
     def index(self):
@@ -184,7 +123,8 @@ class SimpleTrack(AbstractTrack):
     @property
     def playing_clip(self):
         # type: () -> Optional[Clip]
-        playing_clip_index = next(iter([clip.index for clip in self.playing_clips]), self.playing_clip_index_from_track_name)
+        playing_clip_index = next(iter([clip.index for clip in self.playing_clips]),
+                                  self.playing_clip_index_from_track_name)
         try:
             return self.clips[playing_clip_index] if playing_clip_index != 0 else Clip(None, 0)
         except KeyError:
@@ -195,9 +135,10 @@ class SimpleTrack(AbstractTrack):
         # type: () -> Optional[Clip]
         return next(iter([clip for clip in self.clips.values() if clip.is_recording]), None)
 
-    def get_track_name_for_playing_clip_index(self, playing_clip_index = None):
+    def get_track_name_for_playing_clip_index(self, playing_clip_index=None):
         # type: (Optional[int]) -> str
-        return "{0} - {1}".format(self.name, playing_clip_index if playing_clip_index is not None else self.playing_clip.index)
+        return "{0} - {1}".format(self.name,
+                                  playing_clip_index if playing_clip_index is not None else self.playing_clip.index)
 
     @property
     def playing_clip_index_from_track_name(self):
@@ -288,12 +229,3 @@ class SimpleTrack(AbstractTrack):
         """ get last clip with name on track """
         clips_matching_name = [clip for clip in self.clips.values() if clip.name == name]
         return clips_matching_name.pop() if len(clips_matching_name) else None
-
-    # @property
-    # def linked_audio_playing_clip(self):
-    #     # type: () -> Clip
-    #     """ return clip and clip clyphx index """
-    #     if not self.g_track.midi.playing:
-    #         return None
-    #     else:
-    #         return list(self.clip_slots[]

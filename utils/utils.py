@@ -27,7 +27,8 @@ def init_song(func):
                 self._my_song = Song(self._song)
                 if not self.action_name:
                     self.action_name = func.__name__
-                self.current_track = self.get_abstract_track(args[0]["track"]) if "get_abstract_track" in dir(self) and isinstance(args[0], dict) and "track" in args[0] else None
+                self.current_track = self.get_abstract_track(args[0]["track"]) if "get_abstract_track" in dir(
+                    self) and isinstance(args[0], dict) and "track" in args[0] else None
             func(self, *args, **kwargs)
         except Exception as e:
             err = "ScriptError: " + str(e)
@@ -35,6 +36,7 @@ def init_song(func):
             self.canonical_parent.clyphx_pro_component.trigger_action_list('push msg "%s"' % err)
 
     return decorate
+
 
 def unarm_other_tracks(func):
     def decorate(self, *args, **kwargs):

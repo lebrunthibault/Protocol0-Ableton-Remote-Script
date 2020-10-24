@@ -1,1 +1,2 @@
-class SynthMinitaur()
+class SynthMinitaur:
+    pass
