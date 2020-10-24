@@ -32,9 +32,9 @@ def init_song(func):
                 self.current_track = self.get_abstract_track(args[0]["track"]) if "get_abstract_track" in dir(
                     self) and isinstance(args[0], dict) and "track" in args[0] else None
 
-                if self.current_track is None:
-                    log_ableton("current track not found")
-                    log_ableton(args)
+                # if self.current_track is None:
+                #     log_ableton("current track not found")
+                #     log_ableton(args)
             func(self, *args, **kwargs)
         except Exception as e:
             err = "ScriptError: " + str(e)

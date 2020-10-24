@@ -61,8 +61,8 @@ class GroupTrackActionMixin(object):
         # type: ("GroupTrack", int) -> str
         action_list_rec = "; {0}/recfix {2} {3}; {1}/recfix {2} {3}; {0}/name '{4}'; {1}/name '{5}'".format(
             self.midi.index, self.audio.index, bar_count, self.rec_clip_index,
-            self.midi.get_track_name_for_playing_clip_index(self.rec_clip_index),
-            self.audio.get_track_name_for_playing_clip_index(self.rec_clip_index),
+            self.midi.name.get_track_name_for_playing_clip_index(self.rec_clip_index),
+            self.audio.name.get_track_name_for_playing_clip_index(self.rec_clip_index),
         )
         action_list = Actions.restart_and_record(self, action_list_rec)
         # when done, stop audio clip and metronome
@@ -90,7 +90,7 @@ class GroupTrackActionMixin(object):
 
         action_list_rec = "; {0}/recfix {1} {2}; {0}/name '{2}'".format(
             self.audio.index, self.rec_length_from_midi, self.rec_clip_index,
-            self.audio.get_track_name_for_playing_clip_index(self.rec_clip_index)
+            self.audio.name.get_track_name_for_playing_clip_index(self.rec_clip_index)
         )
         action_list += Actions.restart_and_record(self, action_list_rec, False)
         # when done, stop audio clip

@@ -32,7 +32,7 @@ class SimpleTrackActionMixin(object):
         action_list = Actions.delete_current_clip(self) if self.is_recording else ""
         action_list_rec = "; {0}/recfix {1} {2}; {0}/name '{3}'".format(
             self.index, bar_count, self.rec_clip_index,
-            self.get_track_name_for_playing_clip_index(self.rec_clip_index),
+            self.name.get_track_name_for_playing_clip_index(self.rec_clip_index),
         )
         action_list += Actions.restart_and_record(self, action_list_rec)
 

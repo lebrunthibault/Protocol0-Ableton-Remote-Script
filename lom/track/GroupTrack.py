@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from ClyphX_Pro.clyphx_pro.user_actions.actions.mixins.GroupTrackActionMixin import GroupTrackActionMixin
 from ClyphX_Pro.clyphx_pro.user_actions.instruments.AbstractInstrument import AbstractInstrument
@@ -7,14 +7,16 @@ from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractT
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
 
+if TYPE_CHECKING:
+    from ClyphX_Pro.clyphx_pro.user_actions.lom.Song import Song
 
 class GroupTrack(GroupTrackActionMixin, AbstractTrack):
     def __init__(self, song, base_track):
         # type: ("Song", Any) -> None
         # getting our track object
         track = song.get_track(base_track)
-        self.song = song
-        self.track_index_group = track.index - 1
+        self.song = song # type: Song
+        self.track_index_group = track.index - 1 # type: int
 
         # check if we clicked on group track instead of clyphx track
         if track.is_clyphx:

@@ -5,9 +5,11 @@ from typing import TYPE_CHECKING
 
 from ClyphX_Pro.clyphx_pro.user_actions.actions.mixins.AbstractTrackActionMixin import AbstractTrackActionMixin
 from ClyphX_Pro.clyphx_pro.user_actions.instruments.AbstractInstrument import AbstractInstrument
+from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
 
 if TYPE_CHECKING:
     from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
+    from ClyphX_Pro.clyphx_pro.user_actions.lom.Song import Song
 
 
 # noinspection PyDeprecation
@@ -16,9 +18,10 @@ class AbstractTrack(AbstractTrackActionMixin, object):
 
     def __init__(self, song, track, index):
         # type: (Any, Any, int) -> None
-        self._track = track
-        self._index = index
-        self.song = song
+        self._track = track # type: Any
+        self._index = index # type: int
+        self.song = song # type: Song
+        self.name = TrackName(self) # type: TrackName
 
     def __eq__(self, other):
         if isinstance(other, AbstractTrack):
@@ -38,11 +41,6 @@ class AbstractTrack(AbstractTrackActionMixin, object):
     @abstractproperty
     def index(self):
         # type: () -> int
-        pass
-
-    @abstractproperty
-    def name(self):
-        # type: () -> str
         pass
 
     @property

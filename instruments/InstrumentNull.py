@@ -2,6 +2,11 @@ from ClyphX_Pro.clyphx_pro.user_actions.instruments.AbstractInstrument import Ab
 
 
 class InstrumentNull(AbstractInstrument):
+    def __init__(self, simple_track):
+        # type: ("SimpleTrack") -> None
+        super(InstrumentNull, self).__init__(simple_track)
+        self.is_null = False
+
     @property
     def action_show(self):
         # type: () -> str

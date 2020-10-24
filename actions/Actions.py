@@ -45,7 +45,7 @@ class Actions:
         action_list = ""
         if track.is_playing:
             action_list += "; {0}/stop".format(track.index)
-            action_list += "; {0}/name '{1}'".format(track.index, track.get_track_name_for_playing_clip_index())
+            action_list += "; {0}/name '{1}'".format(track.index, track.name.get_track_name_for_playing_clip_index())
         if track.is_nested_group_ex_track and track.is_audio:
             action_list += Actions.set_audio_playing_color(track.g_track, Colors.DISABLED)
 
@@ -57,7 +57,7 @@ class Actions:
         if not track.is_playing and track.playing_clip.index:
             # return "; {0}/play {1}; wait 1; {0}/play {1}; {0}/name '{2}'".format(track.index, track.playing_clip.index, track.get_track_name_for_playing_clip_index())
             return "; {0}/play {1}; {0}/name '{2}'".format(track.index, track.playing_clip.index,
-                                                           track.get_track_name_for_playing_clip_index())
+                                                           track.name.get_track_name_for_playing_clip_index())
 
         return ""
 
@@ -85,6 +85,6 @@ class Actions:
 
         previous_clip_index = track.previous_clip.index if track.previous_clip else 0
         action_list += "; {0}/name '{1}'".format(track.index,
-                                                 track.get_track_name_for_playing_clip_index(previous_clip_index))
+                                                 track.name.get_track_name_for_playing_clip_index(previous_clip_index))
 
         return action_list

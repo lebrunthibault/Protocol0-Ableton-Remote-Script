@@ -5,7 +5,6 @@ from ClyphX_Pro.clyphx_pro.user_actions.instruments.AbstractInstrument import Ab
 from ClyphX_Pro.clyphx_pro.user_actions.instruments.AbstractInstrumentFactory import AbstractInstrumentFactory
 from ClyphX_Pro.clyphx_pro.user_actions.lom.Clip import Clip
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
-from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -33,28 +32,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         return AbstractInstrumentFactory.create_from_simple_track(self)
 
     @property
-    def name(self):
-        return self.track.name.split(" - ")[0]
-
-    @property
-    def playing_clip_index_from_track_name(self):
-        # type: () -> int
-        try:
-            name = self.track.name.split(" - ")
-            return 0 if len(name) == 1 else int(name[1])
-        except ValueError:
-            return 0
-
-    @property
-    def preset_value_from_track_name(self):
-        # type: () -> int
-        try:
-            name = self.track.name.split(" - ")
-            return -1 if len(name) < 3 else int(name[2])
-        except ValueError:
-            return -1
-
-    @property
     def is_foldable(self):
         # type: () -> bool
         return self.track.is_foldable
@@ -67,22 +44,22 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def is_groupable(self):
         # type: () -> bool
-        return self.name in TrackName.GROUP_EXT_NAMES or \
+        return self.name.is_group_track or \
                self.is_clyphx or \
-               (self.index >= 3 and self.song.tracks[self.index - 2].name == TrackName.GROUP_CLYPHX_NAME) or \
-               (self.index >= 4 and self.song.tracks[self.index - 3].name == TrackName.GROUP_CLYPHX_NAME)
+               (self.index >= 3 and self.song.tracks[self.index - 2].name.is_clyphx) or \
+               (self.index >= 4 and self.song.tracks[self.index - 3].name.is_clyphx)
 
     @property
     def is_nested_group_ex_track(self):
         # type: () -> bool
-        return self.name == TrackName.GROUP_CLYPHX_NAME or \
-               self.song.tracks[self.index - 2].name == TrackName.GROUP_CLYPHX_NAME or \
-               self.song.tracks[self.index - 3].name == TrackName.GROUP_CLYPHX_NAME
+        return self.name.is_clyphx or \
+               self.song.tracks[self.index - 2].name.is_clyphx or \
+               self.song.tracks[self.index - 3].name.is_clyphx
 
     @property
     def is_clyphx(self):
         # type: () -> bool
-        return self.name == TrackName.GROUP_CLYPHX_NAME
+        return self.name.is_clyphx
 
     @property
     def is_audio(self):
@@ -128,7 +105,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def playing_clip(self):
         # type: () -> Optional[Clip]
         playing_clip_index = next(iter([clip.index for clip in self.clips.values() if clip.is_playing]),
-                                  self.playing_clip_index_from_track_name)
+                                  self.name.clip_index)
         try:
             return self.clips[playing_clip_index] if playing_clip_index != 0 else Clip(None, 0)
         except KeyError:
@@ -138,13 +115,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def recording_clip(self):
         # type: () -> Optional[Clip]
         return next(iter([clip for clip in self.clips.values() if clip.is_recording]), None)
-
-    def get_track_name_for_playing_clip_index(self, playing_clip_index=None):
-        # type: (Optional[int]) -> str
-        name = "{0} - {1}".format(self.name,
-                                  playing_clip_index if playing_clip_index is not None else self.playing_clip.index)
-
-        if ( )
 
     @property
     def previous_clip(self):

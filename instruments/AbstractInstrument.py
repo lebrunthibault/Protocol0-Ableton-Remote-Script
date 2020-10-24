@@ -13,6 +13,10 @@ class AbstractInstrument(object):
     def __init__(self, simple_track):
         # type: ("SimpleTrack") -> None
         self.track = simple_track
+        self.is_null = False
+
+    def __nonzero__(self):
+        return not self.is_null
 
     @abstractproperty
     def action_show(self):
