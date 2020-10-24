@@ -22,7 +22,7 @@ class RecordExternalInstrument(AbstractUserAction):
     def next_ext(self, _, go_next="1"):
         """ arm or unarm both midi and audio track """
         selected_track_index = self.song().selected_track.index if self.song().selected_track else 0
-        action_list = "{0}/sel".format(self.get_next_track_by_index(selected_track_index, bool(go_next)).index)
+        action_list = "; {0}/sel".format(self.get_next_track_by_index(selected_track_index, bool(go_next)).index)
         self.exec_action(action_list)
 
     @unarm_other_tracks

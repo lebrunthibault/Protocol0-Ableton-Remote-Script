@@ -32,7 +32,7 @@ class GroupTrackActionMixin(object):
 
     def action_unarm(self, direct_unarm=False):
         # type: ("GroupTrack", bool) -> str
-        action_list = "{0}/clip(1) color {1}; {2}/fold off".format(
+        action_list = "; {0}/clip(1) color {1}; {2}/fold off".format(
             self.clyphx.index, self.color, self.group.index)
 
         action_list += "; {0}/arm {1}".format(self.clyphx.index, "on" if direct_unarm else "off")
@@ -53,18 +53,10 @@ class GroupTrackActionMixin(object):
             return "; {0}/fold on; {0}/sel".format(self.group.index)
 
         action_list = self.action_arm(False)
-        action_list += "; {0}/fold off; {1}/sel".format(self.group.index, self.selectable_track.index)
-        action_list += self.action_show()
+        action_list += "; {0}/fold off".format(self.group.index)
+        action_list += self.selectable_track.action_sel()
 
         return action_list
-
-    def action_show(self):
-        # type: ("GroupTrack") -> str
-        self.selectable_track.action_show()
-        if self.is_prophet_group_track:
-            return BomeCommands.SHOW_AND_ACTIVATE_REV2_EDITOR
-        else:
-            return BomeCommands.SELECT_FIRST_VST
 
     def action_record(self, bar_count):
         # type: ("GroupTrack", int) -> str

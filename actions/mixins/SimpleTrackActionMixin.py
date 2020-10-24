@@ -17,22 +17,23 @@ class SimpleTrackActionMixin(object):
 
     def action_arm(self):
         # type: ("SimpleTrack") -> str
-        return "{0}/arm on".format(self.index) if self.can_be_armed else ""
+        return "; {0}/arm on".format(self.index) if self.can_be_armed else ""
 
     def action_unarm(self, _):
         # type: ("SimpleTrack", Optional[bool]) -> str
-        return "{0}/arm off".format(self.index) if self.can_be_armed else ""
+        return "; {0}/arm off".format(self.index) if self.can_be_armed else ""
 
     def action_sel(self):
         # type: ("SimpleTrack") -> str
-        if not self.is_foldable:
-            return BomeCommands.SELECT_FIRST_VST
-        return "{0}/fold {1}".format(self.index, "off" if self.is_folded else "on")
+        if self.is_foldable:
+            return "; {0}/fold {1}".format(self.index, "off" if self.is_folded else "on")
 
-    @staticmethod
-    def action_show():
-        # type: ("SimpleTrack") -> str
-        return ""
+        action_list = "; {0}/sel".format(self.index)
+        if self.is_prophet_group_track:
+            return BomeCommands.SHOW_AND_ACTIVATE_REV2_EDITOR
+        else:
+            return BomeCommands.SELECT_FIRST_VST
+        return BomeCommands.SELECT_FIRST_VST
 
     def action_record(self, bar_count):
         # type: ("SimpleTrack", int) -> str

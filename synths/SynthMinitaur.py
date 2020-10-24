@@ -1,2 +1,0 @@
-class SynthMinitaur:
-    pass

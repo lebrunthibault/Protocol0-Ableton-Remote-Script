@@ -1,18 +1,22 @@
-from typing import Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
 
 from ClyphX_Pro.clyphx_pro.user_actions.actions.mixins.SimpleTrackActionMixin import SimpleTrackActionMixin
+from ClyphX_Pro.clyphx_pro.user_actions.instruments.AbstractInstrumentFactory import AbstractInstrumentFactory
 from ClyphX_Pro.clyphx_pro.user_actions.lom.Clip import Clip
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackType import TrackType
-
+if TYPE_CHECKING:
+    # noinspection PyUnresolvedReferences
+    from ClyphX_Pro.clyphx_pro.user_actions.lom.track.GroupTrack import GroupTrack
 
 class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     SAMPLE_PATH = "C:/Users/thiba/Google Drive/music/software presets/Ableton User Library/Samples/Imported"
 
     def __init__(self, song, track, index):
         # type: (Any, Any, int) -> None
-        self.g_track = None
+        self.g_track = None  # type: Optional["GroupTrack"]
+        self.instrument = AbstractInstrumentFactory
         super(SimpleTrack, self).__init__(song, track, index)
 
     @property

@@ -1,14 +1,16 @@
-from typing import Any, Optional
-from abc import ABCMeta, abstractproperty, abstractmethod
+from typing import Any
+from abc import ABCMeta, abstractproperty
 
 from typing import TYPE_CHECKING
+
+from ClyphX_Pro.clyphx_pro.user_actions.actions.mixins.AbstractTrackActionMixin import AbstractTrackActionMixin
 
 if TYPE_CHECKING:
     from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
 
 
 # noinspection PyDeprecation
-class AbstractTrack(object):
+class AbstractTrack(AbstractTrackActionMixin, object):
     __metaclass__ = ABCMeta
 
     def __init__(self, song, track, index):
@@ -21,55 +23,6 @@ class AbstractTrack(object):
         if isinstance(other, AbstractTrack):
             return self.index == other.index
         return False
-
-    #### ACTIONS ####
-
-    @abstractmethod
-    def action_arm(self):
-        # type: () -> str
-        pass
-
-    @abstractmethod
-    def action_unarm(self, direct_unarm):
-        # type: (Optional[bool]) -> str
-        pass
-
-    @abstractmethod
-    def action_sel(self):
-        # type: () -> str
-        pass
-
-    @abstractmethod
-    def action_show(self):
-        # type: () -> str
-        pass
-
-    def action_start_or_stop(self):
-        # type: () -> str
-        if self.record_track.is_foldable:
-            return ""
-        self.record_track.set_monitor_in(not self.record_track.has_monitor_in)
-        return ""
-
-    @abstractmethod
-    def action_record(self, bar_count):
-        # type: (Optional[int]) -> str
-        pass
-
-    @abstractmethod
-    def action_record_audio(self):
-        # type: () -> str
-        pass
-
-    @abstractmethod
-    def action_undo(self):
-        # type: () -> str
-        pass
-
-    @abstractmethod
-    def action_scroll_preset_or_sample(self, go_next):
-        # type: (bool) -> str
-        pass
 
     @abstractproperty
     def track(self):
