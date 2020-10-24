@@ -190,3 +190,8 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         """ get last clip with name on track """
         clips_matching_name = [clip for clip in self.clips.values() if clip.name == name]
         return clips_matching_name.pop() if len(clips_matching_name) else None
+
+    @property
+    def preset_index(self):
+        # type: () -> int
+        return self.name.preset_index

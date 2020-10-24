@@ -41,6 +41,14 @@ class TrackName:
         return self.name in TrackName.GROUP_EXT_NAMES
 
     @property
+    def is_prophet_group_track(self):
+        return self.name == TrackName.GROUP_PROPHET_NAME
+
+    @property
+    def is_minitaur_group_track(self):
+        return self.name == TrackName.GROUP_MINITAUR_NAME
+
+    @property
     def is_clyphx(self):
         return self.name == TrackName.GROUP_CLYPHX_NAME
 

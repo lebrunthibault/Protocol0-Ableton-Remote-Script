@@ -22,9 +22,9 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
         if track.is_clyphx:
             self.track_index_group -= 1
 
-        if track.index >= 3 and song.tracks[track.index - 2].name == TrackName.GROUP_CLYPHX_NAME:
+        if track.index >= 3 and song.tracks[track.index - 2].name.is_clyphx:
             self.track_index_group -= 2
-        if track.index >= 4 and song.tracks[track.index - 3].name == TrackName.GROUP_CLYPHX_NAME:
+        if track.index >= 4 and song.tracks[track.index - 3].name.is_clyphx:
             self.track_index_group -= 3
 
         if self.track_index_group < 0 or self.track_index_group > len(song.tracks) - 2:
@@ -34,12 +34,14 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
         super(GroupTrack, self).__init__(song, self.group.track, self.track_index_group)
 
         self.clyphx.g_track = self.midi.g_track = self.audio.g_track = self
+        self.name = TrackName(self.group) # type: TrackName
 
     @property
     def track(self):
         # type: () -> int
         return self.group.track
 
+    @property
     def instrument(self):
         # type: () -> AbstractInstrument
         return self.selectable_track.instrument
@@ -58,11 +60,6 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
         return self.audio.first_empty_slot_index
 
     @property
-    def name(self):
-        # type: () -> str
-        return self.group.name
-
-    @property
     def is_foldable(self):
         # type: () -> bool
         return True
@@ -75,12 +72,12 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
     @property
     def is_prophet_group_track(self):
         # type: () -> bool
-        return self.name == TrackName.GROUP_PROPHET_NAME
+        return self.name.is_prophet_group_track
 
     @property
     def is_minitaur_group_track(self):
         # type: () -> bool
-        return self.name == TrackName.GROUP_MINITAUR_NAME
+        return self.name.is_minitaur_group_track
 
     @property
     def selectable_track(self):
@@ -150,10 +147,10 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
     @property
     def color(self):
         # type: () -> str
-        if "Prophet" in self.group.name:
+        if self.is_prophet_group_track:
             return Colors.PROPHET
-        elif "BS" in self.group.name:
-            return Colors.BASS_STATION
+        elif self.is_minitaur_group_track:
+            return Colors.MINITAUR
         return Colors.DISABLED
 
     @property

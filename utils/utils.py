@@ -2,8 +2,6 @@ import sys
 
 import traceback
 
-from ClyphX_Pro.clyphx_pro.user_actions.utils.log import log_ableton
-
 sys.path.insert(0, "C:\Python27\Lib\site-packages")
 sys.path.insert(0, "C:\Python27")
 sys.path.insert(0, "C:\Python27\Lib")

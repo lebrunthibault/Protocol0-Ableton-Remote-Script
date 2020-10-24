@@ -3,7 +3,6 @@ from typing import Any, Optional
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.GroupTrack import GroupTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
-from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
 
 
 class Song:
@@ -42,7 +41,7 @@ class Song:
     def group_ex_tracks(self):
         # type: () -> list[GroupTrack]
         return [GroupTrack(self, track.track) for track in self.tracks if
-                track.name in TrackName.GROUP_EXT_NAMES]
+                track.name.is_group_track]
 
     @property
     def selected_track(self):
