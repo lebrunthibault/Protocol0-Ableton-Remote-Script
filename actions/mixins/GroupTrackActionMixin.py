@@ -1,6 +1,5 @@
 from typing import Optional, TYPE_CHECKING
 
-from ClyphX_Pro.clyphx_pro.user_actions.actions.Actions import Actions
 from ClyphX_Pro.clyphx_pro.user_actions.lom.Colors import Colors
 
 if TYPE_CHECKING:
@@ -10,19 +9,18 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class GroupTrackActionMixin(object):
-    def action_arm(self, add_select_action=True):
+    @property
+    def action_arm(self):
         # type: ("GroupTrack", Optional[bool]) -> str
         # stop audio to have live synth parameter edition while midi is playing
         self.audio.set_monitor_in()
-        # disable other clip colors
         action_list = "; {0}/clip(1) color {1}".format(self.clyphx.index, Colors.ARM)
         action_list += "; {0}/fold off".format(self.group.index)
         action_list += "; {0}/arm off; {1}/arm on; {2}/arm on".format(self.clyphx.index, self.midi.index,
                                                                       self.audio.index)
-        # action_list += "; push msg 'tracks {0} armed'".format(self.name)
 
         # activate the rev2 editor for this group track
-        if add_select_action and self.is_prophet_group_track:
+        if self.is_prophet_group_track:
             action_list += "; {0}/sel_ext; wait 10; {0}/sel".format(self.index)
 
         return action_list
@@ -34,13 +32,10 @@ class GroupTrackActionMixin(object):
 
         action_list += "; {0}/arm {1}".format(self.clyphx.index, "on" if direct_unarm else "off")
         if self.audio.is_playing:
-            action_list += Actions.set_audio_playing_color(self, Colors.PLAYING)
+            action_list += self.action_set_audio_playing_color(Colors.PLAYING)
 
         action_list += "; {0}, {1}/arm off".format(self.midi.index, self.audio.index)
         self.audio.set_monitor_in(False)
-
-        if direct_unarm:
-            action_list += "; push msg 'tracks {0} unarmed'".format(self.name)
 
         return action_list
 
@@ -56,44 +51,25 @@ class GroupTrackActionMixin(object):
 
         return action_list
 
-    def action_record(self, bar_count):
+    def action_record_all(self, bar_count):
         # type: ("GroupTrack", int) -> str
-        action_list_rec = "; {0}/recfix {2} {3}; {1}/recfix {2} {3}; {0}/name '{4}'; {1}/name '{5}'".format(
-            self.midi.index, self.audio.index, bar_count, self.rec_clip_index,
-            self.midi.name.get_track_name_for_playing_clip_index(self.rec_clip_index),
-            self.audio.name.get_track_name_for_playing_clip_index(self.rec_clip_index),
-        )
-        action_list = Actions.restart_and_record(self, action_list_rec, bar_count)
-        action_list += "; wait {0}; metro off;".format(self.song.delay_before_recording_end(bar_count))
-        action_list += "; {0}/clip({1}) warpmode complex".format(self.audio.index, self.rec_clip_index)
-
         self.audio.set_monitor_in()
 
-        return action_list
+        return self.audio.action_record_all(bar_count) + self.midi.action_record_all(bar_count)
 
     @property
-    def action_record_audio(self):
+    def action_record_audio_only(self):
         # type: ("GroupTrack") -> str
         if not self.midi.is_playing:
-            return self.audio.action_record_track()
-        action_list = self.action_arm
-        action_list += self.audio.action_add_scene_if_needed
-
-        action_list += self.audio.action_delete_current_clip if self.is_recording else ""
-
-        action_list_rec = "; {0}/recfix {1} {2}; {0}/name '{2}'".format(
-            self.audio.index, self.rec_length_from_midi, self.rec_clip_index,
-            self.audio.name.get_track_name_for_playing_clip_index(self.rec_clip_index)
-        )
-        action_list += Actions.restart_and_record(self, action_list_rec, self.rec_length_from_midi, False)
-        # when done, stop audio clip
-        action_list += "; wait {0}; {1}/clip({2}) warpmode complex".format(
-            self.delay_before_recording_end, self.audio.index, self.rec_clip_index)
-        action_list += Actions.set_audio_playing_color(self, Colors.PLAYING)
-
-        return action_list
+            return self.audio.action_restart_and_record()
+        else:
+            return self.audio.action_restart_and_record(self.rec_length_from_midi)
 
     @property
     def action_undo(self):
         # type: ("GroupTrack") -> str
         return self.audio.action_undo + self.midi.action_undo
+
+    def action_set_audio_playing_color(self, color):
+        # type: ("GroupTrack", int) -> str
+        return "; {0}/clip(2) color {1}".format(self.clyphx.index, color)

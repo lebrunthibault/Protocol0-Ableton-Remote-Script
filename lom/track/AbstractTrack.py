@@ -113,3 +113,7 @@ class AbstractTrack(AbstractTrackActionMixin, object):
     def record_track(self):
         # type: () -> SimpleTrack
         pass
+
+    @property
+    def activate_metro(self):
+        return self.record_track.is_audio

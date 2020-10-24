@@ -1,7 +1,5 @@
 from typing import TYPE_CHECKING
 
-from ClyphX_Pro.clyphx_pro.user_actions.actions.Actions import Actions
-
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
@@ -27,21 +25,19 @@ class SimpleTrackActionMixin(object):
         action_list = "; {0}/sel".format(self.index)
         return self.instrument.action_show + action_list
 
-    def action_record(self, bar_count):
+    def action_record_all(self, bar_count):
         # type: ("SimpleTrack", int) -> str
         if self.is_foldable:
             return ""
-        action_list_rec = self.action_stop
-        action_list_rec += "; {0}/recfix {1} {2}; {0}/name '{3}'".format(
+        return self.action_stop + "; {0}/recfix {1} {2}; {0}/name '{3}'".format(
             self.index, bar_count, self.rec_clip_index,
             self.name.get_track_name_for_playing_clip_index(self.rec_clip_index),
         )
-        return Actions.restart_and_record(self, action_list_rec, bar_count, self.is_audio)
 
     @property
-    def action_record_audio(self):
+    def action_record_audio_only(self):
         # type: ("SimpleTrack") -> str
-        return self.action_record_track() if not self.is_foldable else ""
+        return self.action_restart_and_record() if not self.is_foldable else ""
 
     @property
     def action_stop(self):
