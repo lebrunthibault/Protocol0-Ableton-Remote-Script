@@ -45,4 +45,8 @@ class SimpleTrackActionMixin(object):
 
     def action_undo(self):
         # type: ("SimpleTrack") -> str
+        if self.is_foldable:
+            return ""
+        if self.is_foldable:
+            return "; undo"
         return Actions.delete_current_clip(self) if not self.is_foldable else ""
