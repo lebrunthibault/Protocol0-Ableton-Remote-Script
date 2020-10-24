@@ -24,17 +24,11 @@ class AbstractUserAction(UserActionsBase):
         # type: () -> Song
         return self._my_song if self._my_song else self._song
 
-    def get_abstract_track(self, track, action=None, strict_ext_check=False):
-        # type: (Any, str, bool) -> Union[SimpleTrack, GroupTrack]
+    def get_abstract_track(self, track):
+        # type: (Any) -> Union[SimpleTrack, GroupTrack]
         track = self.song().get_track(track)
         if track.is_groupable:
             return GroupTrack(self.song(), track.track)
-        elif action == "sel_ext":
-            # when actioning sel/sel_midi_ext from midi track to unselect midi track
-            index = track.index - 4 if track.is_audio else track.index - 3
-            return GroupTrack(self.song(), self.song().tracks[index].track)
-        elif strict_ext_check:
-            raise Exception("executed ex command on wrong track")
         else:
             return track
 

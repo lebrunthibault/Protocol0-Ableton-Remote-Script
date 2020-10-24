@@ -1,3 +1,6 @@
+from os import listdir
+from os.path import join, isdir, isfile
+
 from typing import Any, Optional
 
 from ClyphX_Pro.clyphx_pro.user_actions.actions.Actions import Actions
@@ -9,6 +12,8 @@ from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackType import TrackType
 
 
 class SimpleTrack(AbstractTrack):
+    SAMPLE_PATH = "C:/Users/thiba/Google Drive/music/software presets/Ableton User Library/Samples/Imported"
+
     def __init__(self, song, track, index):
         # type: (Any, Any, int) -> None
         self.g_track = None
@@ -50,6 +55,27 @@ class SimpleTrack(AbstractTrack):
         # type: () -> str
         return Actions.delete_current_clip(self) if not self.is_foldable else ""
 
+    def action_scroll_preset_or_sample(self, go_next):
+        # type: (bool) -> str
+        """ load sample like swap action """
+        if not self.is_simpler:
+            raise Exception("action_scroll_preset_or_sample : not a simpler track")
+
+        sample_path = join(self.SAMPLE_PATH, self.name)
+        if not isdir(sample_path):
+            raise Exception("the track name does not correspond with a sample directory")
+
+        samples = [f for f in listdir(sample_path) if isfile(join(sample_path, f)) and f.endswith(".wav")]
+        current_sample = self.devices[0].name + ".wav"
+
+        if current_sample in samples:
+            next_sample_index = samples.index(current_sample) + 1 if go_next else samples.index(current_sample) - 1
+        else:
+            next_sample_index = 0
+        next_sample = samples[next_sample_index % len(samples)]
+
+        return "LOADSAMPLE '{0}'".format(next_sample)
+
     @property
     def index(self):
         return self._index
@@ -71,9 +97,9 @@ class SimpleTrack(AbstractTrack):
     def name(self):
         return self.track.name.split(" - ")[0]
 
-    @property
-    def preset_number(self):
-        parts = self.track.name.split(" - ")[0]
+    # @property
+    # def preset_number(self):
+    #     parts = self.track.name.split(" - ")[0]
 
     @property
     def is_foldable(self):

@@ -48,7 +48,7 @@ class GroupTrack(AbstractTrack):
         # action_list += "; push msg 'tracks {0} armed'".format(self.name)
 
         # activate the rev2 editor for this group track
-        if add_select_action and self.is_prophet:
+        if add_select_action and self.is_prophet_group_track:
             action_list += "; {0}/sel_ext; wait 10; {0}/sel".format(self.index)
 
         return action_list
@@ -83,7 +83,7 @@ class GroupTrack(AbstractTrack):
 
     def action_show(self):
         # type: () -> str
-        if self.is_prophet:
+        if self.is_prophet_group_track:
             return BomeCommands.SHOW_AND_ACTIVATE_REV2_EDITOR
         else:
             return BomeCommands.SELECT_FIRST_VST
@@ -174,19 +174,19 @@ class GroupTrack(AbstractTrack):
         return self.group.track.is_folded
 
     @property
-    def is_prophet(self):
+    def is_prophet_group_track(self):
         # type: () -> bool
         return self.name == TrackName.GROUP_PROPHET_NAME
 
     @property
-    def is_minitaur(self):
+    def is_minitaur_group_track(self):
         # type: () -> bool
         return self.name == TrackName.GROUP_MINITAUR_NAME
 
     @property
     def selectable_track(self):
         # type: () -> SimpleTrack
-        return self.midi if self.is_prophet else self.audio
+        return self.midi if self.is_prophet_group_track else self.audio
 
     @property
     def is_visible(self):

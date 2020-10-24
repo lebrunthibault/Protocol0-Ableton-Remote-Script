@@ -61,6 +61,12 @@ class AbstractTrack(object):
         # type: () -> str
         pass
 
+
+    @abstractmethod
+    def action_scroll_preset_or_sample(self, go_next):
+        # type: (bool) -> str
+        pass
+
     @abstractproperty
     def track(self):
         # type: () -> Any
