@@ -1,5 +1,4 @@
 from ClyphX_Pro.clyphx_pro.user_actions.actions.AbstractUserAction import AbstractUserAction
-from ClyphX_Pro.clyphx_pro.user_actions.actions.Actions import Actions
 from ClyphX_Pro.clyphx_pro.user_actions.utils.utils import for_all_methods, init_song, unarm_other_tracks
 
 
@@ -34,7 +33,7 @@ class RecordExternalInstrument(AbstractUserAction):
         if not self.current_track.can_be_armed:
             return
 
-        self.exec_action(self.current_track.action_arm())
+        self.exec_action(self.current_track.action_arm)
 
     def unarm_ext(self, _, direct_unarm):
         """ unarming group track """
@@ -43,7 +42,7 @@ class RecordExternalInstrument(AbstractUserAction):
     @unarm_other_tracks
     def sel_ext(self, *args):
         """ Sel midi track to open ext editor """
-        self.exec_action(self.current_track.action_sel())
+        self.exec_action(self.current_track.action_sel)
 
     def stop_audio_ext(self, *args):
         """ arm both midi and audio track """
@@ -52,21 +51,21 @@ class RecordExternalInstrument(AbstractUserAction):
     @unarm_other_tracks
     def record_ext(self, _, bar_count):
         """ record both midi and audio on group track """
-        action_list = self.current_track.action_undo() if self.current_track.is_recording else ""
-        self.exec_action(action_list + Actions.record_track(self.current_track, bar_count))
+        action_list = self.current_track.action_undo if self.current_track.is_recording else ""
+        self.exec_action(action_list + self.current_track.action_record_track(bar_count))
 
     @unarm_other_tracks
     def record_audio_ext(self, *args):
         """ record audio on group track from playing midi clip """
-        self.exec_action(self.current_track.action_record_audio())
+        self.exec_action(self.current_track.action_record_audio)
 
     def undo_ext(self, *args):
         """" undo last recording """
-        self.exec_action(self.current_track.action_undo())
+        self.exec_action(self.current_track.action_undo)
 
     def restart_ext(self, *args):
         """" restart a live set from group tracks track names """
-        action_list = "".join([g_track.action_restart() for g_track in self.song().group_ex_tracks])
+        action_list = "".join([g_track.action_restart for g_track in self.song().group_ex_tracks])
         action_list = "setplay on" + action_list if action_list else ""
 
         self.exec_action(action_list)

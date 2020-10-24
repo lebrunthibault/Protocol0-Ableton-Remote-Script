@@ -5,7 +5,6 @@ from ClyphX_Pro.clyphx_pro.user_actions.instruments.InstrumentMinitaur import In
 from ClyphX_Pro.clyphx_pro.user_actions.instruments.InstrumentNull import InstrumentNull
 from ClyphX_Pro.clyphx_pro.user_actions.instruments.InstrumentProphet import InstrumentProphet
 from ClyphX_Pro.clyphx_pro.user_actions.instruments.InstrumentSimpler import InstrumentSimpler
-from ClyphX_Pro.clyphx_pro.user_actions.utils.log import log_ableton
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -19,7 +18,6 @@ class AbstractInstrumentFactory:
             if simple_track.g_track.is_prophet_group_track:
                 return InstrumentProphet(simple_track)
             elif simple_track.g_track.is_minitaur_group_track:
-                log_ableton("instantiate instrumentminitaur ")
                 return InstrumentMinitaur(simple_track)
             else:
                 return InstrumentNull(simple_track)
