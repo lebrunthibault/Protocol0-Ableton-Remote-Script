@@ -10,13 +10,14 @@ from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
 if TYPE_CHECKING:
     from ClyphX_Pro.clyphx_pro.user_actions.lom.Song import Song
 
+
 class GroupTrack(GroupTrackActionMixin, AbstractTrack):
     def __init__(self, song, base_track):
         # type: ("Song", Any) -> None
         # getting our track object
         track = song.get_track(base_track)
-        self.song = song # type: Song
-        self.track_index_group = track.index - 1 # type: int
+        self.song = song  # type: Song
+        self.track_index_group = track.index - 1  # type: int
 
         # check if we clicked on group track instead of clyphx track
         if track.is_clyphx:
@@ -34,7 +35,7 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
         super(GroupTrack, self).__init__(song, self.group.track, self.track_index_group)
 
         self.clyphx.g_track = self.midi.g_track = self.audio.g_track = self
-        self.name = TrackName(self.group) # type: TrackName
+        self.name = TrackName(self.group)  # type: TrackName
 
     @property
     def track(self):

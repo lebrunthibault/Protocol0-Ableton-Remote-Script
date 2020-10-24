@@ -39,4 +39,3 @@ class Actions:
         action_list += "; wait {0}; metro off;".format(abstract_track.song.delay_before_recording_end(bar_count))
 
         return action_list + action_list_rec
-

@@ -65,7 +65,7 @@ class RecordExternalInstrument(AbstractUserAction):
 
     def restart_ext(self, *args):
         """" restart a live set from group tracks track names """
-        action_list = "".join([g_track.action_restart for g_track in self.song().group_ex_tracks])
+        action_list = "".join([track.action_restart for track in self.song().tracks])
         action_list = "setplay on" + action_list if action_list else ""
 
         self.exec_action(action_list)

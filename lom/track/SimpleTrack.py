@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from ClyphX_Pro.clyphx_pro.user_actions.lom.track.GroupTrack import GroupTrack
 
+
 class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     SAMPLE_PATH = "C:/Users/thiba/Google Drive/music/software presets/Ableton User Library/Samples/Imported"
 

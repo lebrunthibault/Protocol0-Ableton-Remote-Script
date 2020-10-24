@@ -31,11 +31,6 @@ class AbstractTrackActionMixin:
         self.record_track.set_monitor_in(not self.record_track.has_monitor_in)
         return ""
 
-    @abstractproperty
-    def action_restart(self):
-        # type: ("AbstractTrack") -> str
-        pass
-
     def action_record_track(self, bar_count=128):
         # type: ("AbstractTrack", Optional[int]) -> str
         action_list = self.action_arm

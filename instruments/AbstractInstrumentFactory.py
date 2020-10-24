@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
 
+
 class AbstractInstrumentFactory:
     @staticmethod
     def create_from_simple_track(simple_track):
@@ -26,5 +27,3 @@ class AbstractInstrumentFactory:
             return InstrumentSimpler(simple_track)
 
         return InstrumentNull(simple_track)
-
-

@@ -9,7 +9,8 @@ class Song:
     def __init__(self, song):
         # type: (Any) -> None
         self._song = song
-        self.tracks = [SimpleTrack(self, track, i + 1) for i, track in enumerate(list(song.tracks))] # type: list[SimpleTrack]
+        self.tracks = [SimpleTrack(self, track, i + 1) for i, track in
+                       enumerate(list(song.tracks))]  # type: list[SimpleTrack]
         for track in self.tracks:
             track.song = self
 

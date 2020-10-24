@@ -39,6 +39,7 @@ class AbstractInstrument(object):
         new_preset_index = new_preset_index % self.NUMBER_OF_PRESETS
 
         action_list = "; midi pc 1 {0}".format(new_preset_index)
-        action_list += "; {0}/name '{1}'".format(self.track.index, self.track.name.get_track_name_for_preset_index(new_preset_index))
+        action_list += "; {0}/name '{1}'".format(self.track.index,
+                                                 self.track.name.get_track_name_for_preset_index(new_preset_index))
 
         return action_list

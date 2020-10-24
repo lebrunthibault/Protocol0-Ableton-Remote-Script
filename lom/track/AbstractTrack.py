@@ -18,10 +18,10 @@ class AbstractTrack(AbstractTrackActionMixin, object):
 
     def __init__(self, song, track, index):
         # type: (Any, Any, int) -> None
-        self._track = track # type: Any
-        self._index = index # type: int
-        self.song = song # type: Song
-        self.name = TrackName(self) # type: TrackName
+        self._track = track  # type: Any
+        self._index = index  # type: int
+        self.song = song  # type: Song
+        self.name = TrackName(self)  # type: TrackName
 
     def __eq__(self, other):
         if isinstance(other, AbstractTrack):

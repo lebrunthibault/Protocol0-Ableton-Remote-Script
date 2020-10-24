@@ -97,8 +97,3 @@ class GroupTrackActionMixin(object):
     def action_undo(self):
         # type: ("GroupTrack") -> str
         return self.audio.action_undo + self.midi.action_undo
-
-    @property
-    def action_restart(self):
-        # type: ("GroupTrack") -> str
-        return Actions.restart_track(self.midi) + Actions.restart_track(self.audio)

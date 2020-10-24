@@ -73,7 +73,3 @@ class TrackName:
     def get_track_name_for_preset_index(self, preset_index):
         # type: (int) -> str
         return "{0} - {1} - {2}".format(self.name, self.clip_index, preset_index)
-
-
-
-

@@ -1,4 +1,4 @@
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from ClyphX_Pro.clyphx_pro.user_actions.actions.Actions import Actions
 
@@ -48,11 +48,12 @@ class SimpleTrackActionMixin(object):
         # type: ("SimpleTrack") -> str
         return "; {0}/stop; wait 1".format(self.index)
 
+    @property
     def action_restart(self):
         # type: ("SimpleTrack") -> str
-        if not track.is_playing and track.playing_clip.index:
-            return "; {0}/play {1}; {0}/name '{2}'".format(track.index, track.playing_clip.index,
-                                                           track.name.get_track_name_for_playing_clip_index())
+        if not self.is_playing and self.playing_clip.index:
+            return "; {0}/play {1}; {0}/name '{2}'".format(self.index, self.playing_clip.index,
+                                                           self.name.get_track_name_for_playing_clip_index())
         return ""
 
     @property
