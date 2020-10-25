@@ -1,4 +1,8 @@
-# noinspection PyUnresolvedReferences
+import sys
+
+sys.path.insert(0, "C:\Python27\Lib\site-packages")
+sys.path.insert(0, "C:\Python27")
+sys.path.insert(0, "C:\Python27\Lib")
 # noinspection PyUnresolvedReferences
 from ClyphX_Pro.clyphx_pro.UserActionsBase import UserActionsBase
 from typing import Optional, Union, Any
@@ -17,7 +21,6 @@ class AbstractUserAction(UserActionsBase):
         self._my_song = None
         self.current_track = None  # type: Optional[AbstractTrack]
         self.unarm_other_tracks = False  # type: bool
-        self.action_name = ""  # type: str
 
     def song(self):
         # type: () -> Song
@@ -53,11 +56,10 @@ class AbstractUserAction(UserActionsBase):
     def log_to_push(self, message):
         # type: (str) -> None
         self.log(message)
-        self.action_name = "push msg"
-        self.exec_action("; push msg %s" % message)
+        self.exec_action("; push msg %s" % message, "push msg")
 
-    def exec_action(self, action_list):
-        # type: (str) -> None
+    def exec_action(self, action_list, title=None):
+        # type: (str, Optional[str]) -> None
         # e.g. when we call rec_ext without doing arm_ext first
         if self.unarm_other_tracks:
             if self.song().other_armed_group_track(self.current_track):
@@ -66,6 +68,6 @@ class AbstractUserAction(UserActionsBase):
                                              self.song().simple_armed_tracks(self.current_track)])
             self.unarm_other_tracks = False
 
-        self.log("{0}: {1}".format(self.action_name, action_list))
+        self.log("{0}: {1}".format(title if title else self.song().current_action_name, action_list))
         self.canonical_parent.clyphx_pro_component.trigger_action_list(action_list)
-        self.action_name = None
+        self.song().current_action_name = None

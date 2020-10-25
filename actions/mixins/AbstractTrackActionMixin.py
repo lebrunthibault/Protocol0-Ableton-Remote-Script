@@ -30,8 +30,7 @@ class AbstractTrackActionMixin:
         # type: ("AbstractTrack") -> str
         if self.record_track.is_foldable:
             return ""
-        self.record_track.set_monitor_in(not self.record_track.has_monitor_in)
-        return ""
+        return self.record_track.action_set_monitor_in(not self.record_track.has_monitor_in)
 
     def action_restart_and_record(self, action_record_func):
         # type: ("AbstractTrack", Callable, Optional[int]) -> str
@@ -41,7 +40,7 @@ class AbstractTrackActionMixin:
         action_list += self.record_track.action_add_scene_if_needed
         action_list += self.action_stop
 
-        if not self.song.has_set_playing_clips(self) and self.activate_metro:
+        if not self.song.has_set_playing_clips(self):
             action_list += "; metro on"
 
         action_list += action_record_func()

@@ -13,7 +13,7 @@ class GroupTrackActionMixin(object):
     def action_arm(self):
         # type: ("GroupTrack", Optional[bool]) -> str
         # stop audio to have live synth parameter edition while midi is playing
-        self.audio.set_monitor_in()
+        # action_list = self.audio.action_set_monitor_in()
         action_list = "; {0}/clip(1) color {1}".format(self.clyphx.index, Colors.ARM)
         action_list += "; {0}/fold off".format(self.group.index)
         action_list += "; {0}/arm off; {1}/arm on; {2}/arm on".format(self.clyphx.index, self.midi.index,
@@ -35,7 +35,7 @@ class GroupTrackActionMixin(object):
             action_list += self.action_set_audio_playing_color(Colors.PLAYING)
 
         action_list += "; {0}, {1}/arm off".format(self.midi.index, self.audio.index)
-        self.audio.set_monitor_in(False)
+        action_list += self.audio.action_set_monitor_in(False)
 
         return action_list
 
@@ -53,25 +53,23 @@ class GroupTrackActionMixin(object):
 
     def action_record_all(self):
         # type: ("GroupTrack", int) -> str
-        self.audio.set_monitor_in()
-
         return self.audio.action_record_all() + self.midi.action_record_all()
+        # return self.audio.action_record_all() + self.midi.action_record_all() + self.audio.action_set_monitor_in()
 
     def action_record_audio_only(self):
         # type: ("GroupTrack", int) -> str
-        if not self.midi.is_playing:
-            return self.audio.action_record_all()
-        else:
+        if self.midi.is_playing:
             self.song.bar_count = self.rec_length_from_midi
 
-            return self.audio.action_record_all()
+        return self.audio.action_record_all()
+
     @property
     def action_rename_recording_clip(self):
         # type: ("GroupTrack") -> str
         action_list = self.midi.action_rename_recording_clip
         action_list += self.audio.action_rename_recording_clip
         # handle group track rename
-        action_list += "; {0}/name {1}".format(self.group.index, self.group.name)
+        action_list += '; {0}/name "{1}"'.format(self.group.index, self.group.name)
 
         return action_list
 

@@ -144,9 +144,9 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # type: () -> bool
         return self.track.can_be_armed
 
-    def set_monitor_in(self, monitor_in=True):
-        # type: (Optional[bool]) -> None
-        self.track.current_monitoring_state = 0 if monitor_in else 1
+    def action_set_monitor_in(self, monitor_in=True):
+        # type: (Optional[bool]) -> str
+        return "; {0}/mon {1}".format(self.index, "in" if monitor_in else "auto")
 
     @property
     def has_monitor_in(self):

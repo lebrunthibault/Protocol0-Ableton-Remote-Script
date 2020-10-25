@@ -15,6 +15,7 @@ class Song:
             track.song = self
 
         self.bar_count = 128 # type: int
+        self.current_action_name = "" # type: str
 
     @property
     def tempo(self):
@@ -65,7 +66,6 @@ class Song:
         playing_clips_count = len([clip_slot for track in self.tracks for clip_slot in track.clip_slots
                                    if track.index != abstract_track.index
                                    and clip_slot.clip
-                                   and not clip_slot.clip.name.startswith("[]")
                                    and clip_slot.clip.is_playing])
 
         return playing_clips_count

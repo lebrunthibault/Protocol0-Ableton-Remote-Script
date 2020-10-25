@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 from ClyphX_Pro.clyphx_pro.user_actions.actions.mixins.AbstractTrackActionMixin import AbstractTrackActionMixin
 from ClyphX_Pro.clyphx_pro.user_actions.instruments.AbstractInstrument import AbstractInstrument
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
-from ClyphX_Pro.clyphx_pro.user_actions.utils.log import log_ableton
 
 if TYPE_CHECKING:
     from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
@@ -119,7 +118,3 @@ class AbstractTrack(AbstractTrackActionMixin, object):
     def record_track(self):
         # type: () -> SimpleTrack
         pass
-
-    @property
-    def activate_metro(self):
-        return self.record_track.is_audio

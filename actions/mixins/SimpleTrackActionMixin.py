@@ -29,7 +29,7 @@ class SimpleTrackActionMixin(object):
         # type: ("SimpleTrack", int) -> str
         if self.is_foldable:
             return ""
-        return "; {0}/recfix {1} {2}; {0}/name '{3}'".format(
+        return '; {0}/recfix {1} {2}; {0}/name "{3}"'.format(
             self.index, self.bar_count, self.rec_clip_index,
             self.name.get_track_name_for_playing_clip_index(self.rec_clip_index),
         )
