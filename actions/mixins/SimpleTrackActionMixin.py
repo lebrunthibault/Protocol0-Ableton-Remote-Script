@@ -25,19 +25,24 @@ class SimpleTrackActionMixin(object):
         action_list = "; {0}/sel".format(self.index)
         return self.instrument.action_show + action_list
 
-    def action_record_all(self, bar_count):
+    def action_record_all(self):
         # type: ("SimpleTrack", int) -> str
         if self.is_foldable:
             return ""
-        return self.action_stop + "; {0}/recfix {1} {2}; {0}/name '{3}'".format(
-            self.index, bar_count, self.rec_clip_index,
+        return "; {0}/recfix {1} {2}; {0}/name '{3}'".format(
+            self.index, self.bar_count, self.rec_clip_index,
             self.name.get_track_name_for_playing_clip_index(self.rec_clip_index),
         )
 
-    @property
     def action_record_audio_only(self):
+        # type: ("SimpleTrack", int) -> str
+        return self.action_record_all() if not self.is_foldable else ""
+
+    @property
+    def action_rename_recording_clip(self):
         # type: ("SimpleTrack") -> str
-        return self.action_restart_and_record() if not self.is_foldable else ""
+        track_name = self.name.get_track_name_for_playing_clip_index(self.rec_clip_index)
+        return "; {0}/clip({1}) name '{2}'".format(self.index, self.rec_clip_index, '[] {0}/name "{1}"'.format(self.index, track_name))
 
     @property
     def action_stop(self):

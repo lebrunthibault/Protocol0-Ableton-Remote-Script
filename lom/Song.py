@@ -14,6 +14,8 @@ class Song:
         for track in self.tracks:
             track.song = self
 
+        self.bar_count = 128 # type: int
+
     @property
     def tempo(self):
         # type: () -> float

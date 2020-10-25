@@ -51,19 +51,29 @@ class GroupTrackActionMixin(object):
 
         return action_list
 
-    def action_record_all(self, bar_count):
+    def action_record_all(self):
         # type: ("GroupTrack", int) -> str
         self.audio.set_monitor_in()
 
-        return self.audio.action_record_all(bar_count) + self.midi.action_record_all(bar_count)
+        return self.audio.action_record_all() + self.midi.action_record_all()
+
+    def action_record_audio_only(self):
+        # type: ("GroupTrack", int) -> str
+        if not self.midi.is_playing:
+            return self.audio.action_record_all()
+        else:
+            self.song.bar_count = self.rec_length_from_midi
+
+            return self.audio.action_record_all()
+    @property
+    def action_rename_recording_clip(self):
+        # type: ("GroupTrack") -> str
+        return self.midi.action_rename_recording_clip + self.audio.action_rename_recording_clip
 
     @property
-    def action_record_audio_only(self):
+    def action_stop(self):
         # type: ("GroupTrack") -> str
-        if not self.midi.is_playing:
-            return self.audio.action_restart_and_record()
-        else:
-            return self.audio.action_restart_and_record(self.rec_length_from_midi)
+        return self.midi.action_stop + self.audio.action_stop
 
     @property
     def action_undo(self):

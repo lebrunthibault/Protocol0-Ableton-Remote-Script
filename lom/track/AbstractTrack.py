@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from ClyphX_Pro.clyphx_pro.user_actions.actions.mixins.AbstractTrackActionMixin import AbstractTrackActionMixin
 from ClyphX_Pro.clyphx_pro.user_actions.instruments.AbstractInstrument import AbstractInstrument
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
+from ClyphX_Pro.clyphx_pro.user_actions.utils.log import log_ableton
 
 if TYPE_CHECKING:
     from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
@@ -42,6 +43,11 @@ class AbstractTrack(AbstractTrackActionMixin, object):
     def index(self):
         # type: () -> int
         pass
+
+    @property
+    def bar_count(self):
+        # type: () -> int
+        return self.song.bar_count
 
     @property
     def is_group_track(self):
