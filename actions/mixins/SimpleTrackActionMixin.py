@@ -42,7 +42,7 @@ class SimpleTrackActionMixin(object):
     def action_rename_recording_clip(self):
         # type: ("SimpleTrack") -> str
         track_name = self.name.get_track_name_for_playing_clip_index(self.rec_clip_index)
-        return "; {0}/clip({1}) name '{2}'".format(self.index, self.rec_clip_index, '[] {0}/name "{1}"'.format(self.index, track_name))
+        return "; {0}/clip({1}) name \"{2}\"".format(self.index, self.rec_clip_index, "[] sel/name '{0}'".format(track_name))
 
     @property
     def action_stop(self):

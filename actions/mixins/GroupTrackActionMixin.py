@@ -68,7 +68,12 @@ class GroupTrackActionMixin(object):
     @property
     def action_rename_recording_clip(self):
         # type: ("GroupTrack") -> str
-        return self.midi.action_rename_recording_clip + self.audio.action_rename_recording_clip
+        action_list = self.midi.action_rename_recording_clip
+        action_list += self.audio.action_rename_recording_clip
+        # handle group track rename
+        action_list += "; {0}/name {1}".format(self.group.index, self.group.name)
+
+        return action_list
 
     @property
     def action_stop(self):
