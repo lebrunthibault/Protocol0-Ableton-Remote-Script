@@ -26,11 +26,10 @@ class AbstractTrackActionMixin:
         # type: ("AbstractTrack") -> str
         pass
 
-    def action_start_or_stop(self):
+    @abstractproperty
+    def action_switch_monitoring(self):
         # type: ("AbstractTrack") -> str
-        if self.record_track.is_foldable:
-            return ""
-        return self.record_track.action_set_monitor_in(not self.record_track.has_monitor_in)
+        pass
 
     def action_restart_and_record(self, action_record_func):
         # type: ("AbstractTrack", Callable, Optional[int]) -> str

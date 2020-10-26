@@ -12,7 +12,7 @@ class RecordExternalInstrument(AbstractUserAction):
         self.add_track_action('arm_ext', self.arm_ext)
         self.add_track_action('unarm_ext', self.unarm_ext)
         self.add_track_action('sel_ext', self.sel_ext)
-        self.add_track_action('stop_audio_ext', self.stop_audio_ext)
+        self.add_track_action('switch_monitoring_ext', self.switch_monitoring_ext)
         self.add_track_action('record_ext', self.record_ext)
         self.add_track_action('record_audio_ext', self.record_audio_ext)
         self.add_track_action('undo_ext', self.undo_ext)
@@ -44,9 +44,9 @@ class RecordExternalInstrument(AbstractUserAction):
         """ Sel midi track to open ext editor """
         self.exec_action(self.current_track.action_sel)
 
-    def stop_audio_ext(self, *args):
+    def switch_monitoring_ext(self, *args):
         """ arm both midi and audio track """
-        self.exec_action(self.current_track.action_start_or_stop())
+        self.exec_action(self.current_track.action_switch_monitoring())
 
     @unarm_other_tracks
     def record_ext(self, _, bar_count):

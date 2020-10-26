@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -24,6 +24,18 @@ class SimpleTrackActionMixin(object):
 
         action_list = "; {0}/sel".format(self.index)
         return self.instrument.action_show + action_list
+
+    @property
+    def action_switch_monitoring(self):
+        # type: ("SimpleTrack") -> str
+        pass
+        if self.is_foldable:
+            return ""
+        return self.action_set_monitor_in(not self.record_track.has_monitor_in)
+
+    def action_set_monitor_in(self, monitor_in=True):
+        # type: ("SimpleTrack", Optional[bool]) -> str
+        return "; {0}/mon {1}".format(self.index, "in" if monitor_in else "auto")
 
     def action_record_all(self):
         # type: ("SimpleTrack", int) -> str

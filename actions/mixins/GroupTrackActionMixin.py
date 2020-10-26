@@ -54,6 +54,15 @@ class GroupTrackActionMixin(object):
 
         return action_list
 
+    @property
+    def action_switch_monitoring(self):
+        # type: ("GroupTrack") -> str
+        if self.midi.has_monitor_in and self.audio.has_monitor_in:
+            return self.midi.action_set_monitor_in(False) + self.audio.action_set_monitor_in(False)
+        elif:
+        return self.action_set_monitor_in(not self.record_track.has_monitor_in)
+
+
     def action_record_all(self):
         # type: ("GroupTrack", int) -> str
         return self.audio.action_record_all() + self.midi.action_record_all()
