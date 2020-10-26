@@ -44,12 +44,14 @@ class AbstractTrackActionMixin:
             action_list += "; metro on"
 
         action_list += action_record_func()
-        action_list += "; wait {0}; metro off;".format(self.song.delay_before_recording_end(self.bar_count))
+        action_list += "; wait {0}; metro off; wait 2".format(self.song.delay_before_recording_end(self.bar_count))
 
         if self.record_track.is_audio:
             action_list += "; {0}/clip({1}) warpmode complex".format(self.record_track.index, self.rec_clip_index)
         if self.is_group_track:
             action_list += self.action_set_audio_playing_color(Colors.PLAYING)
+            if self.song.current_action_name == "record_ext":
+                action_list += self.record_track.action_set_monitor_in()
 
         action_list += self.action_rename_recording_clip
 

@@ -13,11 +13,14 @@ class GroupTrackActionMixin(object):
     def action_arm(self):
         # type: ("GroupTrack", Optional[bool]) -> str
         # stop audio to have live synth parameter edition while midi is playing
-        # action_list = self.audio.action_set_monitor_in()
+
         action_list = "; {0}/clip(1) color {1}".format(self.clyphx.index, Colors.ARM)
         action_list += "; {0}/fold off".format(self.group.index)
         action_list += "; {0}/arm off; {1}/arm on; {2}/arm on".format(self.clyphx.index, self.midi.index,
                                                                       self.audio.index)
+
+        if self.song.current_action_name in ("sel_ext", "arm_ext"):
+            action_list += self.audio.action_set_monitor_in()
 
         # activate the rev2 editor for this group track
         if self.is_prophet_group_track:
@@ -54,7 +57,6 @@ class GroupTrackActionMixin(object):
     def action_record_all(self):
         # type: ("GroupTrack", int) -> str
         return self.audio.action_record_all() + self.midi.action_record_all()
-        # return self.audio.action_record_all() + self.midi.action_record_all() + self.audio.action_set_monitor_in()
 
     def action_record_audio_only(self):
         # type: ("GroupTrack", int) -> str
@@ -69,7 +71,7 @@ class GroupTrackActionMixin(object):
         action_list = self.midi.action_rename_recording_clip
         action_list += self.audio.action_rename_recording_clip
         # handle group track rename
-        action_list += '; {0}/name "{1}"'.format(self.group.index, self.group.name)
+        action_list += '; wait 1; {0}/name "{1}"'.format(self.group.index, self.group.name)
 
         return action_list
 
