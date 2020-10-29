@@ -28,10 +28,9 @@ class SimpleTrackActionMixin(object):
     @property
     def action_switch_monitoring(self):
         # type: ("SimpleTrack") -> str
-        pass
         if self.is_foldable:
             return ""
-        return self.action_set_monitor_in(not self.record_track.has_monitor_in)
+        return self.action_set_monitor_in(not self.has_monitor_in)
 
     def action_set_monitor_in(self, monitor_in=True):
         # type: ("SimpleTrack", Optional[bool]) -> str

@@ -46,7 +46,7 @@ class RecordExternalInstrument(AbstractUserAction):
 
     def switch_monitoring_ext(self, *args):
         """ arm both midi and audio track """
-        self.exec_action(self.current_track.action_switch_monitoring())
+        self.exec_action(self.current_track.action_switch_monitoring)
 
     @unarm_other_tracks
     def record_ext(self, _, bar_count):

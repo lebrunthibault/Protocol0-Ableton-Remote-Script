@@ -59,8 +59,10 @@ class GroupTrackActionMixin(object):
         # type: ("GroupTrack") -> str
         if self.midi.has_monitor_in and self.audio.has_monitor_in:
             return self.midi.action_set_monitor_in(False) + self.audio.action_set_monitor_in(False)
-        elif:
-        return self.action_set_monitor_in(not self.record_track.has_monitor_in)
+        elif self.midi.has_monitor_in:
+            return self.midi.action_set_monitor_in()
+        else:
+            return self.audio.action_set_monitor_in()
 
 
     def action_record_all(self):
