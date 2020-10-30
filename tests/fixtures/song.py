@@ -11,3 +11,7 @@ class AbletonSong:
 @pytest.fixture
 def song_empty(ableton_song_view, tracks = None, selected_track = None):
     return Song(AbletonSong(tracks, ableton_song_view))
+
+@pytest.fixture
+def song_simple_track(ableton_song_view, tracks = None, selected_track = None):
+    return Song(AbletonSong(tracks, ableton_song_view))

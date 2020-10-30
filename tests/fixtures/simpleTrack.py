@@ -7,5 +7,5 @@ class AbletonTrack:
         self.name = "kicks - 0"
 
 @pytest.fixture
-def simple_track(song_empty):
+def simple_track():
     return SimpleTrack(AbletonTrack())
