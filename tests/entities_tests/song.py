@@ -1,12 +1,20 @@
-from ClyphX_Pro.clyphx_pro.user_actions.lom.Song import Song
+from ClyphX_Pro.clyphx_pro.user_actions.tests.fixtures.song import make_song
 
 
-def test_song_empty(song_empty):
-    # type: (Song) -> None
-    assert len(song_empty.tracks) == 0
-    assert song_empty.selected_track is None
+def test_song_empty():
+    # type: () -> None
+    song = make_song()
+    assert len(song.tracks) == 0
+    assert song.selected_track is None
 
-def test_song_simpler_track(song_simpler_track):
-    # type: (Song) -> None
-    assert len(song_simpler_track.tracks) == 1
-    assert song_simpler_track.selected_track.is_simpler
+def test_song_simpler_track():
+    # type: () -> None
+    song = make_song(count_simple_tracks=1)
+    assert len(song.tracks) == 1
+    assert song.selected_track.is_simpler
+    assert song.selected_track.index == 1
+
+    song = make_song(count_simple_tracks=3)
+    assert len(song.tracks) == 3
+    assert song.selected_track.is_simpler
+    assert song.selected_track.index == 1

@@ -54,8 +54,8 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def is_nested_group_ex_track(self):
         # type: () -> bool
         return self.name.is_clyphx or \
-               self.song.tracks[self.index - 2].name.is_clyphx or \
-               self.song.tracks[self.index - 3].name.is_clyphx
+               (self.index >= 3 and self.song.tracks[self.index - 2].name.is_clyphx) or \
+                (self.index >= 4 and self.song.tracks[self.index - 3].name.is_clyphx)
 
     @property
     def is_clyphx(self):
