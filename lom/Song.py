@@ -1,11 +1,12 @@
 from typing import Any, Optional
 
+from ClyphX_Pro.clyphx_pro.user_actions.actions.mixins.SongActionMixin import SongActionMixin
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.GroupTrack import GroupTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
 
 
-class Song:
+class Song(SongActionMixin):
     def __init__(self, song):
         # type: (Any) -> None
         self._song = song

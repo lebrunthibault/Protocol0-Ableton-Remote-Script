@@ -10,6 +10,8 @@ class SimpleTrackActionMixin(object):
     @property
     def action_arm(self):
         # type: ("SimpleTrack") -> str
+        if not self.can_be_armed:
+            return ""
         return "; {0}/arm on".format(self.index) if self.can_be_armed else ""
 
     def action_unarm(self, _):

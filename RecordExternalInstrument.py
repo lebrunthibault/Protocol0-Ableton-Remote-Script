@@ -20,18 +20,13 @@ class RecordExternalInstrument(AbstractUserAction):
 
     def next_ext(self, _, go_next="1"):
         """ arm or unarm both midi and audio track """
-        selected_track_index = self.song().selected_track.index if self.song().selected_track else 0
-        action_list = "; {0}/sel".format(self.get_next_track_by_index(selected_track_index, bool(go_next)).index)
-        self.exec_action(action_list)
+        self.exec_action(self.song().action_next(bool(go_next)))
 
     @unarm_other_tracks
     def arm_ext(self, action_def, _):
         """ arm or unarm both midi and audio track """
         if self.current_track.is_armed:
-            return self.unarm_ext(action_def, "1")
-
-        if not self.current_track.can_be_armed:
-            return
+            return self.exec_action(self.current_track.action_unarm(True))
 
         self.exec_action(self.current_track.action_arm)
 
@@ -66,7 +61,4 @@ class RecordExternalInstrument(AbstractUserAction):
 
     def restart_ext(self, *args):
         """" restart a live set from group tracks track names """
-        action_list = "".join([track.action_restart for track in self.song().tracks])
-        action_list = "setplay on" + action_list if action_list else ""
-
-        self.exec_action(action_list)
+        self.exec_action(self.song().action_restart)
