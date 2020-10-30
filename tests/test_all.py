@@ -8,7 +8,8 @@ init_file = "C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\
 with open(init_file, "a"):
     from .fixtures import *
 
-from .actions import *
+from .actions_tests import *
+from .entities_tests import *
 
 os.remove(init_file)
 from shutil import copyfile

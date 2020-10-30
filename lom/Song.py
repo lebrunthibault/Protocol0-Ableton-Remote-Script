@@ -10,6 +10,7 @@ class Song(SongActionMixin):
     def __init__(self, song):
         # type: (Any) -> None
         self._song = song
+        self.view = self._song.view # type -> Any
         self.tracks = [SimpleTrack(self, track, i + 1) for i, track in
                        enumerate(list(song.tracks))]  # type: list[SimpleTrack]
         for track in self.tracks:
@@ -22,11 +23,6 @@ class Song(SongActionMixin):
     def tempo(self):
         # type: () -> float
         return self._song.tempo
-
-    @property
-    def view(self):
-        # type: () -> Any
-        return self._song.view
 
     @property
     def top_tracks(self):
