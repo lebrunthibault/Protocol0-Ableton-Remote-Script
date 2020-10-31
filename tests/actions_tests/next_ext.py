@@ -1,6 +1,6 @@
 import pytest
 
-from ..fixtures.song import make_song, select_song_track
+from ClyphX_Pro.clyphx_pro.user_actions.tests.fixtures.song import make_song, select_song_track
 
 
 def test_song_empty_next_ext():
