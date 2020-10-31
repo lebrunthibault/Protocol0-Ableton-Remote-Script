@@ -1,4 +1,5 @@
 from ClyphX_Pro.clyphx_pro.user_actions.lom.Song import Song
+from ClyphX_Pro.clyphx_pro.user_actions.tests.fixtures.groupTrack import make_group_ex_track
 from ClyphX_Pro.clyphx_pro.user_actions.tests.fixtures.songView import AbletonSongView
 from ClyphX_Pro.clyphx_pro.user_actions.tests.fixtures.simpleTrack import make_simpler_track
 
@@ -8,15 +9,15 @@ class AbletonSong:
         self.tracks = tracks if tracks else []
         self.view = view
 
-def make_song(count_simple_tracks = 0):
-    # type: (int) -> Song
+
+def make_song(count_group_tracks=0, count_simple_tracks=0):
+    # type: (int, int) -> Song
     song = Song(AbletonSong([], AbletonSongView()))
-    simpler_tracks = [make_simpler_track(song, i + 1) for i in range(count_simple_tracks)]
-    tracks = simpler_tracks
-    song.tracks = tracks
+    [make_group_ex_track(song) for _ in range(count_group_tracks)]
+    [make_simpler_track(song) for _ in range(count_simple_tracks)]
 
     if len(song.tracks):
-        song.view.selected_track = tracks[0].track
+        song.view.selected_track = song.tracks[0].track
 
     return song
 

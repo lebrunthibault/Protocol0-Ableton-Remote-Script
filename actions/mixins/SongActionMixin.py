@@ -12,7 +12,6 @@ class SongActionMixin(object):
     def action_next(self, go_next):
         # type: ("Song", bool) -> str
         selected_track_index = self.selected_track.index if self.selected_track else 0
-        print(selected_track_index)
         return "; {0}/sel".format(self.get_next_track_by_index(selected_track_index, bool(go_next)).index)
 
     @property
