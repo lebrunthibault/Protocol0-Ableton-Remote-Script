@@ -25,4 +25,4 @@ def select_song_track(song, index):
     # type: (Song, int) -> None
     if index < 1 or index > len(song.tracks):
         raise Exception("invalid index for select_song_track")
-    song.view.selected_track = song.tracks[index - 1]
+    song.view.selected_track = song.tracks[index - 1].track
