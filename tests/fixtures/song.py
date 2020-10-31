@@ -1,6 +1,6 @@
-from ClyphX_Pro.clyphx_pro.user_actions.lom.Song import Song
-from ClyphX_Pro.clyphx_pro.user_actions.tests.fixtures.songView import AbletonSongView
-from ClyphX_Pro.clyphx_pro.user_actions.tests.fixtures.simpleTrack import make_simpler_track
+from ...lom.Song import Song
+from .songView import AbletonSongView
+from .simpleTrack import make_simpler_track
 
 
 class AbletonSong:
