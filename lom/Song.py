@@ -8,7 +8,7 @@ from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
 
 class Song(SongActionMixin):
     def __init__(self, song):
-        # type: (Any) -> None
+        # type: (Song) -> None
         self._song = song
         self.view = self._song.view # type -> Any
         self.tracks = [SimpleTrack(self, track, i + 1) for i, track in
