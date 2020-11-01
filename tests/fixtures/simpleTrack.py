@@ -1,5 +1,3 @@
-from random import random
-
 from ClyphX_Pro.clyphx_pro.user_actions.lom.Song import Song
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName

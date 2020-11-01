@@ -12,7 +12,10 @@ class SongActionMixin(object):
     def action_next(self, go_next):
         # type: ("Song", bool) -> str
         selected_track_index = self.selected_track.index if self.selected_track else 0
-        return "; {0}/sel".format(self.get_next_track_by_index(selected_track_index, bool(go_next)).index)
+        next_track = self.get_next_track_by_index(selected_track_index, bool(go_next))
+        action_list = "; {0}/sel".format(next_track.index)
+        self.view.selected_track = next_track.track  # mostly to ease testing
+        return action_list
 
     @property
     def action_restart(self):

@@ -22,15 +22,10 @@ def test_song_simpler_tracks_next_ext():
     # type: () -> None
     song = make_song(count_simple_tracks=3)
     assert song.action_next(True) == "; 2/sel"
-    select_song_track(song, 2)
     assert song.action_next(True) == "; 3/sel"
-    select_song_track(song, 3)
     assert song.action_next(True) == "; 1/sel"
-    select_song_track(song, 1)
     assert song.action_next(False) == "; 3/sel"
-    select_song_track(song, 3)
     assert song.action_next(False) == "; 2/sel"
-    select_song_track(song, 2)
     assert song.action_next(False) == "; 1/sel"
 
 

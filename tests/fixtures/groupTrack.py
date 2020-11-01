@@ -8,7 +8,7 @@ from ClyphX_Pro.clyphx_pro.user_actions.tests.fixtures.simpleTrack import \
 def make_group_ex_track(song, name=TrackName.GROUP_PROPHET_NAME):
     # type: (Song, str) -> GroupTrack
     track_group = make_group_track(song, name)
-    track_clyphx = make_clyphx_track(song)
-    track_midi = make_midi_track(song)
-    track_audio = make_audio_track(song)
+    make_clyphx_track(song)
+    make_midi_track(song)
+    make_audio_track(song)
     return GroupTrack(song, track_group.track)
