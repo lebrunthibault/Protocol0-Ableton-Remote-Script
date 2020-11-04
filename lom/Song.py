@@ -8,16 +8,16 @@ from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
 
 class Song(SongActionMixin):
     def __init__(self, song):
-        # type: (Song) -> None
+        # type: (Any) -> None
         self._song = song
-        self.view = self._song.view # type -> Any
+        self.view = self._song.view  # type -> Any
         self.tracks = [SimpleTrack(self, track, i + 1) for i, track in
                        enumerate(list(song.tracks))]  # type: list[SimpleTrack]
         for track in self.tracks:
             track.song = self
 
-        self.bar_count = 128 # type: int
-        self.current_action_name = "" # type: str
+        self.bar_count = 128  # type: int
+        self.current_action_name = ""  # type: str
 
     @property
     def tempo(self):

@@ -55,7 +55,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # type: () -> bool
         return self.name.is_clyphx or \
                (self.index >= 3 and self.song.tracks[self.index - 2].name.is_clyphx) or \
-                (self.index >= 4 and self.song.tracks[self.index - 3].name.is_clyphx)
+               (self.index >= 4 and self.song.tracks[self.index - 3].name.is_clyphx)
 
     @property
     def is_clyphx(self):

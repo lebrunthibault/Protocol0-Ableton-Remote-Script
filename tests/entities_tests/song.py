@@ -7,6 +7,7 @@ def test_song_empty():
     assert len(song.tracks) == 0
     assert song.selected_track is None
 
+
 def test_song_simpler_track():
     # type: () -> None
     song = make_song(count_simple_tracks=1)

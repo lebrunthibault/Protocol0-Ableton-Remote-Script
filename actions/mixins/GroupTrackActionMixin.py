@@ -64,7 +64,6 @@ class GroupTrackActionMixin(object):
         else:
             return self.audio.action_set_monitor_in()
 
-
     def action_record_all(self):
         # type: ("GroupTrack", int) -> str
         return self.audio.action_record_all() + self.midi.action_record_all()

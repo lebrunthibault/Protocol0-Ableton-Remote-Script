@@ -3,11 +3,13 @@ from ClyphX_Pro.clyphx_pro.user_actions.lom.Song import Song
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
 from ClyphX_Pro.clyphx_pro.user_actions.tests.fixtures.groupTrack import make_group_ex_track
 from ClyphX_Pro.clyphx_pro.user_actions.tests.fixtures.songView import AbletonSongView
-from ClyphX_Pro.clyphx_pro.user_actions.tests.fixtures.simpleTrack import make_simpler_track, make_group_track
+from ClyphX_Pro.clyphx_pro.user_actions.tests.fixtures.simpleTrack import make_simpler_track, make_group_track, \
+    AbletonTrack
 
 
 class AbletonSong:
     def __init__(self, tracks, view):
+        # type: (list[AbletonTrack], AbletonSongView) -> None
         self.tracks = tracks if tracks else []
         self.view = view
 
