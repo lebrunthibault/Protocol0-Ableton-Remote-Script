@@ -1,6 +1,7 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
+from ClyphX_Pro.clyphx_pro.user_actions.utils.log import log_ableton
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -10,18 +11,15 @@ if TYPE_CHECKING:
 # noinspection PyTypeHints
 class SongActionMixin(object):
     def action_next(self, go_next):
-        # type: ("Song", bool) -> str
+        # type: ("Song", bool) -> None
         selected_track_index = self.selected_track.index if self.selected_track else 0
         next_track = self.get_next_track_by_index(selected_track_index, bool(go_next))
-        action_list = "; {0}/sel".format(next_track.index)
-        self.view.selected_track = next_track.track  # mostly to ease testing
-        return action_list
+        next_track.is_selected = True
 
-    @property
     def action_restart(self):
-        # type: ("Song") -> str
-        action_list = "".join([track.action_restart for track in self.tracks])
-        return "setplay on" + action_list if action_list else ""
+        # type: ("Song") -> None
+        [track.action_restart() for track in self.tracks]
+        self.is_playing = True
 
     def get_next_track_by_index(self, index, go_next):
         # type: ("Song", int, bool) -> SimpleTrack
@@ -37,3 +35,11 @@ class SongActionMixin(object):
                 return track
 
         return tracks[0]
+
+    def undo(self):
+        # type: ("Song") -> None
+        self._song.undo()
+
+    def create_scene(self, scene_index=None):
+        # type: ("Song", Optional[int]) -> None
+        self._song.view.selected_scene = self._song.create_scene(scene_index or self.scene_count)

@@ -1,55 +1,42 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
+
+from ClyphX_Pro.clyphx_pro.user_actions.utils.log import log_ableton
+from ClyphX_Pro.clyphx_pro.MiscUtils import get_beat_time
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
 
-
 # noinspection PyTypeHints
 class SimpleTrackActionMixin(object):
-    @property
     def action_arm(self):
-        # type: ("SimpleTrack") -> str
-        if not self.can_be_armed:
-            return ""
-        return "; {0}/arm on".format(self.index) if self.can_be_armed else ""
+        # type: ("SimpleTrack") -> None
+        self.arm = True
 
-    def action_unarm(self, _):
-        # type: ("SimpleTrack", bool) -> str
-        return "; {0}/arm off".format(self.index) if self.can_be_armed else ""
+    def action_unarm(self, *args):
+        # type: ("SimpleTrack", bool) -> None
+        self.arm = False
 
-    @property
     def action_sel(self):
         # type: ("SimpleTrack") -> str
-        if self.is_foldable:
-            return "; {0}/fold {1}".format(self.index, "off" if self.is_folded else "on")
+        self.is_folded = not self.is_folded
+        self.is_selected = True
+        return self.instrument.action_show
 
-        action_list = "; {0}/sel".format(self.index)
-        return self.instrument.action_show + action_list
-
-    @property
     def action_switch_monitoring(self):
-        # type: ("SimpleTrack") -> str
-        if self.is_foldable:
-            return ""
-        return self.action_set_monitor_in(not self.has_monitor_in)
-
-    def action_set_monitor_in(self, monitor_in=True):
-        # type: ("SimpleTrack", Optional[bool]) -> str
-        return "; {0}/mon {1}".format(self.index, "in" if monitor_in else "auto")
+        # type: ("SimpleTrack") -> None
+        # noinspection PyAttributeOutsideInit
+        self.has_monitor_in = not self.has_monitor_in
 
     def action_record_all(self):
-        # type: ("SimpleTrack", int) -> str
-        if self.is_foldable:
-            return ""
-        return '; {0}/recfix {1} {2}; {0}/name "{3}"'.format(
-            self.index, self.bar_count, self.rec_clip_index,
-            self.name.get_track_name_for_playing_clip_index(self.rec_clip_index),
-        )
+        # type: ("SimpleTrack") -> None
+        if self.can_be_armed and self.song._song.session_record_status == Live.Song.SessionRecordStatus.off:
+            length = get_beat_time('%sb' % self.bar_count, self.song, is_legacy_bar=True)
+            self.clip_slots[self.rec_clip_index].fire(record_length=length)
 
     def action_record_audio_only(self):
-        # type: ("SimpleTrack", int) -> str
-        return self.action_record_all() if not self.is_foldable else ""
+        # type: ("SimpleTrack") -> None
+        self.action_record_all()
 
     @property
     def action_rename_recording_clip(self):
@@ -57,34 +44,28 @@ class SimpleTrackActionMixin(object):
         track_name = self.name.get_track_name_for_playing_clip_index(self.rec_clip_index)
         return "; {0}/clip({1}) name \"{2}\"".format(self.index, self.rec_clip_index, "[] sel/name '{0}'".format(track_name))
 
-    @property
-    def action_stop(self):
-        # type: ("SimpleTrack") -> str
-        return "; {0}/stop; wait 1".format(self.index)
+    def stop_all_clips(self):
+        # type: ("SimpleTrack") -> None
+        self.track.stop_all_clips()
 
-    @property
     def action_restart(self):
-        # type: ("SimpleTrack") -> str
-        if not self.is_playing and self.playing_clip.index:
-            return "; {0}/play {1}; {0}/name '{2}'".format(self.index, self.playing_clip.index,
-                                                           self.name.get_track_name_for_playing_clip_index())
-        return ""
+        # type: ("SimpleTrack") -> None
+        log_ableton(self.playing_clip.index)
+        self.playing_clip.is_playing = True
 
     @property
     def action_undo(self):
         # type: ("SimpleTrack") -> str
-        if self.is_foldable:
-            return ""
         if not self.is_playing:
-            return "; undo" + self.action_stop
+            self.song.undo()
         if self.is_recording:
             return self.action_delete_current_clip
         return ""
 
-    @property
     def action_add_scene_if_needed(self):
-        # type: ("SimpleTrack") -> str
-        return "" if self.has_empty_slot else "; addscene -1; wait 2"
+        # type: ("SimpleTrack") -> None
+        if not self.has_empty_slot:
+            self.song.create_scene()
 
     @property
     def action_delete_current_clip(self):
@@ -92,7 +73,8 @@ class SimpleTrackActionMixin(object):
         if not self.is_playing:
             return ""
 
-        action_list = "; metro off; {0}/clip({1}) del".format(self.index, self.playing_clip.index)
+        self.song.metronome = False
+        action_list = ";{0}/clip({1}) del".format(self.index, self.playing_clip.index)
         if self.is_recording:
             action_list = "; GQ 1; {0}/stop; wait 2; {1}; GQ {2}".format(self.index, action_list,
                                                                          self.song.clip_trigger_quantization)

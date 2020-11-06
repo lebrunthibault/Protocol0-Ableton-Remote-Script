@@ -53,10 +53,6 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
         return self.group.index
 
     @property
-    def scene_count(self):
-        return self.audio.scene_count
-
-    @property
     def first_empty_slot_index(self):
         return self.audio.first_empty_slot_index
 
@@ -121,14 +117,14 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
         return self.song.tracks[self.track_index_group + 3]
 
     @property
-    def is_armed(self):
+    def arm(self):
         # type: () -> bool
-        return self.midi.is_armed and self.audio.is_armed
+        return self.midi.arm and self.audio.arm
 
     @property
     def any_armed(self):
         # type: () -> bool
-        return self.clyphx.is_armed or self.midi.is_armed or self.audio.is_armed
+        return self.clyphx.arm or self.midi.arm or self.audio.arm
 
     @property
     def can_be_armed(self):
@@ -153,6 +149,11 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
         elif self.is_minitaur_group_track:
             return Colors.MINITAUR
         return Colors.DISABLED
+
+    @color.setter
+    def color(self, color):
+        # type: (int) -> None
+        list(self.clyphx.clips.values())[0].color = color
 
     @property
     def rec_clip_index(self):

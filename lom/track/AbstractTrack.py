@@ -90,18 +90,13 @@ class AbstractTrack(AbstractTrackActionMixin, object):
         pass
 
     @abstractproperty
-    def is_armed(self):
+    def arm(self):
         # type: () -> bool
         pass
 
     @abstractproperty
     def has_empty_slot(self):
         # type: () -> bool
-        pass
-
-    @abstractproperty
-    def scene_count(self):
-        # type: () -> int
         pass
 
     @abstractproperty

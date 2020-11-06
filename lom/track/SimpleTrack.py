@@ -40,7 +40,13 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def is_folded(self):
         # type: () -> bool
-        return self.track.fold_state
+        return self.track.fold_state if self.is_foldable else False
+
+    @is_folded.setter
+    def is_folded(self, is_folded):
+        # type: (bool) -> None
+        if self.is_foldable:
+            self.track.fold_state = int(is_folded)
 
     @property
     def is_groupable(self):
@@ -75,7 +81,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def is_simpler(self):
         # type: () -> bool
-        return self.devices[0].class_name == "OriginalSimpler"
+        return len(self.devices) and self.devices[0].class_name == "OriginalSimpler"
 
     @property
     def is_playing(self):
@@ -135,9 +141,26 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
                 clip_slot.has_clip}
 
     @property
-    def is_armed(self):
+    def arm(self):
         # type: () -> bool
         return self.can_be_armed and self.track.arm
+
+    @arm.setter
+    def arm(self, arm):
+        # type: (bool) -> None
+        if self.can_be_armed:
+            self.track.arm = arm
+
+    @property
+    def is_selected(self):
+        # type: () -> bool
+        return self.song.selected_track == self
+
+    @is_selected.setter
+    def is_selected(self, is_selected):
+        # type: (bool) -> None
+        if is_selected:
+            self.song.selected_track = self
 
     @property
     def can_be_armed(self):
@@ -149,15 +172,15 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # type: () -> bool
         return self.track.current_monitoring_state == 0
 
+    @has_monitor_in.setter
+    def has_monitor_in(self, has_monitor_in):
+        # type: (bool) -> None
+        self.track.current_monitoring_state = int(not has_monitor_in)
+
     @property
     def clip_slots(self):
         # type: () -> list
         return list(self.track.clip_slots)
-
-    @property
-    def scene_count(self):
-        # type: () -> int
-        return len(self.clip_slots)
 
     @property
     def first_empty_slot_index(self):
@@ -175,7 +198,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def rec_clip_index(self):
         # type: () -> int
-        return self.first_empty_slot_index if self.has_empty_slot else self.scene_count + 1
+        return self.first_empty_slot_index if self.has_empty_slot else self.song.scene_count + 1
 
     @property
     def record_track(self):

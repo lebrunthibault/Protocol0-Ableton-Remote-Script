@@ -25,6 +25,26 @@ class Song(SongActionMixin):
         return self._song.tempo
 
     @property
+    def metronome(self):
+        # type: () -> float
+        return self._song.metronome
+
+    @metronome.setter
+    def metronome(self, metronome):
+        # type: (bool) -> None
+        self._song.metronome = metronome
+
+    @property
+    def is_playing(self):
+        # type: () -> float
+        return self._song.is_playing
+
+    @is_playing.setter
+    def is_playing(self, is_playing):
+        # type: (bool) -> None
+        self._song.is_playing = is_playing
+
+    @property
     def top_tracks(self):
         # type: () -> list[SimpleTrack]
         return [track for track in self.tracks if track.is_top_visible]
@@ -36,7 +56,7 @@ class Song(SongActionMixin):
 
     def simple_armed_tracks(self, track):
         # type: (AbstractTrack) -> list[SimpleTrack]
-        return [t for t in self.simple_tracks if t.is_armed and t != track]
+        return [t for t in self.simple_tracks if t.arm and t != track]
 
     @property
     def group_ex_tracks(self):
@@ -52,10 +72,20 @@ class Song(SongActionMixin):
 
         return self.get_track(self.view.selected_track)
 
+    @selected_track.setter
+    def selected_track(self, selected_track):
+        # type: (SimpleTrack) -> None
+        self.view.selected_track = selected_track.track
+
     @property
     def clip_trigger_quantization(self):
         # type: () -> int
         return self._song.clip_trigger_quantization + 1
+
+    @property
+    def scene_count(self):
+        # type: () -> int
+        return len(self._song.scenes)
 
     def playing_clips_count(self, abstract_track):
         # type: (AbstractTrack) -> int

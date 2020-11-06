@@ -23,9 +23,25 @@ class Clip:
         return self.clip.name
 
     @property
+    def color(self):
+        # type: () -> int
+        return self.clip.color
+
+    @color.setter
+    def color(self, color):
+        # type: (int) -> None
+        self.clip.color = color
+
+    @property
     def is_playing(self):
         # type: () -> bool
         return self.clip.is_playing if self.index != 0 else False
+
+    @is_playing.setter
+    def is_playing(self, is_playing):
+        # type: (bool) -> None
+        if self.index != 0:
+            self.clip.is_playing = is_playing
 
     @property
     def is_recording(self):

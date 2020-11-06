@@ -25,10 +25,10 @@ class RecordExternalInstrument(AbstractUserAction):
     @unarm_other_tracks
     def arm_ext(self, action_def, _):
         """ arm or unarm both midi and audio track """
-        if self.current_track.is_armed:
+        if self.current_track.arm:
             return self.exec_action(self.current_track.action_unarm(True))
 
-        self.exec_action(self.current_track.action_arm)
+        self.exec_action(self.current_track.action_arm())
 
     def unarm_ext(self, _, direct_unarm):
         """ unarming group track """
@@ -37,11 +37,11 @@ class RecordExternalInstrument(AbstractUserAction):
     @unarm_other_tracks
     def sel_ext(self, *args):
         """ Sel midi track to open ext editor """
-        self.exec_action(self.current_track.action_sel)
+        self.exec_action(self.current_track.action_sel())
 
     def switch_monitoring_ext(self, *args):
         """ arm both midi and audio track """
-        self.exec_action(self.current_track.action_switch_monitoring)
+        self.exec_action(self.current_track.action_switch_monitoring())
 
     @unarm_other_tracks
     def record_ext(self, _, bar_count):
@@ -61,4 +61,4 @@ class RecordExternalInstrument(AbstractUserAction):
 
     def restart_ext(self, *args):
         """" restart a live set from group tracks track names """
-        self.exec_action(self.song().action_restart)
+        self.exec_action(self.song().action_restart())

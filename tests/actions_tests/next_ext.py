@@ -13,20 +13,30 @@ def test_song_empty_next_ext():
 def test_song_simpler_track_next_ext():
     # type: () -> None
     song = make_song(count_simple_tracks=1)
-    assert song.action_next(True) == "; 1/sel"
-    assert song.action_next(True) == "; 1/sel"
-    assert song.action_next(False) == "; 1/sel"
+    assert song.selected_track.index == 1
+    song.action_next(True)
+    assert song.selected_track.index == 1
+    song.action_next(True)
+    assert song.selected_track.index == 1
+    song.action_next(False)
+    assert song.selected_track.index == 1
 
 
 def test_song_simpler_tracks_next_ext():
     # type: () -> None
     song = make_song(count_simple_tracks=3)
-    assert song.action_next(True) == "; 2/sel"
-    assert song.action_next(True) == "; 3/sel"
-    assert song.action_next(True) == "; 1/sel"
-    assert song.action_next(False) == "; 3/sel"
-    assert song.action_next(False) == "; 2/sel"
-    assert song.action_next(False) == "; 1/sel"
+    song.action_next(True)
+    assert song.selected_track.index == 2
+    song.action_next(True)
+    assert song.selected_track.index == 3
+    song.action_next(True)
+    assert song.selected_track.index == 1
+    song.action_next(False)
+    assert song.selected_track.index == 3
+    song.action_next(False)
+    assert song.selected_track.index == 2
+    song.action_next(False)
+    assert song.selected_track.index == 1
 
 
 def test_song_group_track_next_ext():

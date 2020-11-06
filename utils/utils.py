@@ -1,6 +1,7 @@
 import traceback
 
 from ClyphX_Pro.clyphx_pro.user_actions.lom.Song import Song
+from ClyphX_Pro.clyphx_pro.user_actions.utils.log import log_ableton
 
 
 def print_except(func):
@@ -24,10 +25,6 @@ def init_song(func):
                     self._my_song.current_action_name = func.__name__
                 self.current_track = self.get_abstract_track(args[0]["track"]) if "get_abstract_track" in dir(
                     self) and isinstance(args[0], dict) and "track" in args[0] else None
-
-                # if self.current_track is None:
-                #     log_ableton("current track not found")
-                #     log_ableton(args)
             func(self, *args, **kwargs)
         except Exception as e:
             err = "ScriptError: " + str(e)

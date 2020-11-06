@@ -1,5 +1,7 @@
 import sys
 
+from ClyphX_Pro.clyphx_pro.user_actions.utils.log import log_ableton
+
 sys.path.insert(0, "C:\Python27\Lib\site-packages")
 sys.path.insert(0, "C:\Python27")
 sys.path.insert(0, "C:\Python27\Lib")
@@ -59,15 +61,18 @@ class AbstractUserAction(UserActionsBase):
         self.exec_action("; push msg %s" % message, "push msg")
 
     def exec_action(self, action_list, title=None):
-        # type: (str, Optional[str]) -> None
-        # e.g. when we call rec_ext without doing arm_ext first
+        # type: (Optional[str], Optional[str]) -> None
         if self.unarm_other_tracks:
             if self.song().other_armed_group_track(self.current_track):
-                action_list += "; {0}/unarm_ext".format(self.song().other_armed_group_track(self.current_track).index)
-            action_list += "; " + "; ".join(["{0}/arm off".format(track.index) for track in
-                                             self.song().simple_armed_tracks(self.current_track)])
+                self.song().other_armed_group_track(self.current_track).action_unarm()
+            for simple_track in self.song().simple_armed_tracks(self.current_track):
+                simple_track.action_unarm()
             self.unarm_other_tracks = False
 
-        self.log("{0}: {1}".format(title if title else self.song().current_action_name, action_list))
-        self.canonical_parent.clyphx_pro_component.trigger_action_list(action_list)
+        if action_list:
+            self.log("{0}: {1}".format(title if title else self.song().current_action_name, action_list))
+            self.canonical_parent.clyphx_pro_component.trigger_action_list(action_list)
+        else:
+            log_ableton(self.song().current_action_name)
+
         self.song().current_action_name = None
