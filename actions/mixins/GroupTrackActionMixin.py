@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 class GroupTrackActionMixin(object):
     def action_arm(self):
         # type: ("GroupTrack", Optional[bool]) -> None
-        list(self.clyphx.clips.values())[0].color = Colors.ARM
+        self.clyphx.clips[0].color = Colors.ARM
         self.group.is_folded = False
         self.clyphx.arm = False
         self.midi.arm = self.audio.arm = True
@@ -30,7 +30,7 @@ class GroupTrackActionMixin(object):
         self.clyphx.arm = direct_unarm
         self.audio.arm = self.midi.arm = False
         if self.audio.is_playing:
-            list(self.clyphx.clips.values())[1].color = Colors.PLAYING
+            self.clyphx.clips[1].color = Colors.PLAYING
         self.audio.has_monitor_in = False
 
     def action_sel(self):
@@ -60,26 +60,28 @@ class GroupTrackActionMixin(object):
     def action_record_audio_only(self):
         # type: ("GroupTrack") -> None
         if self.midi.is_playing:
-            self.song.bar_count = self.rec_length_from_midi
+            self.song.bar_count = int(round((self.midi.playing_clip.length + 1) / 4))
 
         self.audio.action_record_all()
 
-    @property
-    def action_rename_recording_clip(self):
-        # type: ("GroupTrack") -> str
-        action_list = self.midi.action_rename_recording_clip
-        action_list += self.audio.action_rename_recording_clip
-        # handle group track rename
-        action_list += '; wait 1; {0}/name "{1}"'.format(self.group.index, self.group.name)
-
-        return action_list
-
-    def stop_all_clips(self):
+    def action_post_record(self):
         # type: ("GroupTrack") -> None
-        self.midi.stop_all_clips()
-        self.audio.stop_all_clips()
+        self.song.metronome = False
+        self.clyphx.clips[1].color = Colors.PLAYING
+        if self.song.current_action_name == "record_ext":
+            self.audio.has_monitor_in = True
 
-    @property
+        self.song.await_track_rename = True
+        self.midi.action_post_record()
+        self.audio.action_post_record()
+
+    def stop(self):
+        # type: ("GroupTrack") -> None
+        self.midi.stop()
+        self.audio.stop()
+
     def action_undo(self):
-        # type: ("GroupTrack") -> str
-        return self.audio.action_undo + self.midi.action_undo
+        # type: ("GroupTrack") -> None
+        self.audio.action_undo()
+        self.midi.action_undo()
+

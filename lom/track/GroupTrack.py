@@ -2,6 +2,7 @@ from typing import Any, TYPE_CHECKING
 
 from ClyphX_Pro.clyphx_pro.user_actions.actions.mixins.GroupTrackActionMixin import GroupTrackActionMixin
 from ClyphX_Pro.clyphx_pro.user_actions.instruments.AbstractInstrument import AbstractInstrument
+from ClyphX_Pro.clyphx_pro.user_actions.lom.ClipSlot import ClipSlot
 from ClyphX_Pro.clyphx_pro.user_actions.lom.Colors import Colors
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
@@ -17,25 +18,27 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
         # getting our track object
         track = song.get_track(base_track)
         self.song = song  # type: Song
-        self.track_index_group = track.index - 1  # type: int
+        self.track_index_group = track.index  # type: int
 
         # check if we clicked on group track instead of clyphx track
         if track.is_clyphx:
             self.track_index_group -= 1
-
-        if track.index >= 3 and song.tracks[track.index - 2].name.is_clyphx:
+        elif track.index >= 2 and song.tracks[track.index - 1].is_clyphx:
             self.track_index_group -= 2
-        if track.index >= 4 and song.tracks[track.index - 3].name.is_clyphx:
+        elif track.index >= 3 and song.tracks[track.index - 2].is_clyphx:
             self.track_index_group -= 3
 
-        if self.track_index_group < 0 or self.track_index_group > len(song.tracks) - 2:
+        if song.tracks[self.track_index_group].is_group_ext:
             raise Exception(
                 "tried to instantiate group track with base_track {0} and found track index {1}".format(base_track,
                                                                                                         self.track_index_group))
         super(GroupTrack, self).__init__(song, self.group.track, self.track_index_group)
 
         self.clyphx.g_track = self.midi.g_track = self.audio.g_track = self
-        self.name = TrackName(self.group)  # type: TrackName
+
+        # we need the group track name to be immutable as it's used to identify group tracks
+        if not self.group._track.name_has_listener(self.group.name_listener):
+            self.group._track.add_name_listener(self.group.name_listener)
 
     @property
     def track(self):
@@ -53,8 +56,9 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
         return self.group.index
 
     @property
-    def first_empty_slot_index(self):
-        return self.audio.first_empty_slot_index
+    def next_empty_clip_slot(self):
+        # type: () -> ClipSlot
+        return self.audio.next_empty_clip_slot
 
     @property
     def is_foldable(self):
@@ -69,12 +73,12 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
     @property
     def is_prophet_group_track(self):
         # type: () -> bool
-        return self.name.is_prophet_group_track
+        return self.name == TrackName.GROUP_PROPHET_NAME
 
     @property
     def is_minitaur_group_track(self):
         # type: () -> bool
-        return self.name.is_minitaur_group_track
+        return self.name == TrackName.GROUP_MINITAUR_NAME
 
     @property
     def selectable_track(self):
@@ -90,11 +94,6 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
     def is_top_visible(self):
         # type: () -> bool
         return True
-
-    @property
-    def has_empty_slot(self):
-        # type: () -> int
-        return self.audio.has_empty_slot
 
     @property
     def group(self):
@@ -153,24 +152,5 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
     @color.setter
     def color(self, color):
         # type: (int) -> None
-        list(self.clyphx.clips.values())[0].color = color
+        self.clyphx.clips[0].color = color
 
-    @property
-    def rec_clip_index(self):
-        # type: () -> int
-        return self.audio.rec_clip_index
-
-    @property
-    def record_track(self):
-        # type: () -> SimpleTrack
-        return self.audio
-
-    @property
-    def rec_length_from_midi(self):
-        # type: () -> int
-        return int(round((self.midi.playing_clip.length + 1) / 4))
-
-    @property
-    def delay_before_recording_end(self):
-        # type: () -> int
-        return int(round((600 / self.song.tempo) * (int(self.midi.playing_clip.length) + 6)))

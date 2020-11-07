@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
 
 
-class TrackName:
+class TrackName(object):
     GROUP_PROPHET_NAME = "Prophet"
     GROUP_MINITAUR_NAME = "Minitaur"
     GROUP_EXT_NAMES = (GROUP_PROPHET_NAME, GROUP_MINITAUR_NAME)
@@ -37,18 +37,6 @@ class TrackName:
         return False
 
     @property
-    def is_group_track(self):
-        return self.name in TrackName.GROUP_EXT_NAMES
-
-    @property
-    def is_prophet_group_track(self):
-        return self.name == TrackName.GROUP_PROPHET_NAME
-
-    @property
-    def is_minitaur_group_track(self):
-        return self.name == TrackName.GROUP_MINITAUR_NAME
-
-    @property
     def is_clyphx(self):
         return self.name == TrackName.GROUP_CLYPHX_NAME
 
@@ -56,14 +44,19 @@ class TrackName:
     def has_instrument_preset(self):
         return len(self.parts) >= 3
 
-    def get_track_name_for_playing_clip_index(self, playing_clip_index=None):
+    def get_track_name_for_clip_index(self, clip_index=None):
         # type: (Optional[int]) -> str
         from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
         if not isinstance(self.track, SimpleTrack):
             return self.name
 
+        clip_index = clip_index or self.track.playing_clip.index
+
+        if clip_index < 0 or clip_index > self.track.song.scene_count - 1:
+            return self.name
+
         name = "{0} - {1}".format(self.name,
-                                  playing_clip_index if playing_clip_index is not None else self.track.playing_clip.index)
+                                  clip_index if clip_index is not None else self.track.playing_clip.index)
 
         if self.has_instrument_preset:
             name += " - {0}".format(self.preset_index)

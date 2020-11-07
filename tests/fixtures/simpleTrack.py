@@ -10,7 +10,7 @@ class TrackType(object):
     AUDIO = 3
 
 
-class AbletonTrack:
+class AbletonTrack(object):
     def __init__(self, name="track", device=None, track_type=TrackType.MIDI):
         # type: (str, AbletonDevice, int) -> None
         self.name = name

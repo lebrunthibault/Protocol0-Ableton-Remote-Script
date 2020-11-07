@@ -1,4 +1,4 @@
-class BomeCommands:
+class BomeCommands(object):
     def __init__(self):
         pass
 

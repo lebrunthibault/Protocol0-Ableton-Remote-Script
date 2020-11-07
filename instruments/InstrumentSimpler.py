@@ -14,7 +14,7 @@ class InstrumentSimpler(AbstractInstrument):
 
     def action_scroll_preset_or_sample(self, go_next):
         # type: (bool) -> str
-        sample_path = join(self.SAMPLE_PATH, str(self.track.name))
+        sample_path = join(self.SAMPLE_PATH, self.track.name)
         if not isdir(sample_path):
             raise Exception("the track name does not correspond with a sample directory")
 

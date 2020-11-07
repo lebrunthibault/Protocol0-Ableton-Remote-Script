@@ -1,9 +1,9 @@
-class Colors:
+class Colors(object):
     def __init__(self):
         pass
 
-    ARM = 1
-    DISABLED = 14
-    PLAYING = 70
-    PROPHET = 24
-    MINITAUR = 70
+    ARM = 0
+    DISABLED = 13
+    PLAYING = 69
+    PROPHET = 23
+    MINITAUR = 69

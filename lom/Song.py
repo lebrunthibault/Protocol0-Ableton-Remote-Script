@@ -1,23 +1,34 @@
-from typing import Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
 
 from ClyphX_Pro.clyphx_pro.user_actions.actions.mixins.SongActionMixin import SongActionMixin
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.GroupTrack import GroupTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
 
+if TYPE_CHECKING:
+    # noinspection PyUnresolvedReferences
+    from ClyphX_Pro.clyphx_pro.user_actions.actions.AbstractUserAction import AbstractUserAction
+
 
 class Song(SongActionMixin):
-    def __init__(self, song):
-        # type: (Any) -> None
+
+    def __init__(self, song, parent=None):
+        # type: (Any, "AbstractUserAction") -> None
         self._song = song
+        self.parent = parent
         self.view = self._song.view  # type -> Any
-        self.tracks = [SimpleTrack(self, track, i + 1) for i, track in
+        self.tracks = [SimpleTrack(self, track, i) for i, track in
                        enumerate(list(song.tracks))]  # type: list[SimpleTrack]
         for track in self.tracks:
             track.song = self
 
         self.bar_count = 128  # type: int
         self.current_action_name = ""  # type: str
+        self.await_track_rename = False
+
+    @property
+    def song(self):
+        return self._song
 
     @property
     def tempo(self):
@@ -34,6 +45,10 @@ class Song(SongActionMixin):
         # type: (bool) -> None
         self._song.metronome = metronome
 
+    def set_metronome(self, metronome):
+        # type: (bool) -> None
+        self._song.metronome = metronome
+
     @property
     def is_playing(self):
         # type: () -> float
@@ -43,6 +58,11 @@ class Song(SongActionMixin):
     def is_playing(self, is_playing):
         # type: (bool) -> None
         self._song.is_playing = is_playing
+
+    @property
+    def session_record_status(self):
+        # type: () -> float
+        return self._song.session_record_status
 
     @property
     def top_tracks(self):
@@ -62,7 +82,7 @@ class Song(SongActionMixin):
     def group_ex_tracks(self):
         # type: () -> list[GroupTrack]
         return [GroupTrack(self, track.track) for track in self.tracks if
-                track.name.is_group_track]
+                track.is_group_ext]
 
     @property
     def selected_track(self):
@@ -80,29 +100,22 @@ class Song(SongActionMixin):
     @property
     def clip_trigger_quantization(self):
         # type: () -> int
-        return self._song.clip_trigger_quantization + 1
+        return self._song.clip_trigger_quantization
+
+    @clip_trigger_quantization.setter
+    def clip_trigger_quantization(self, clip_trigger_quantization):
+        # type: (int) -> None
+        self._song.clip_trigger_quantization = clip_trigger_quantization
 
     @property
     def scene_count(self):
         # type: () -> int
         return len(self._song.scenes)
 
-    def playing_clips_count(self, abstract_track):
-        # type: (AbstractTrack) -> int
-        """ number of playing clip count in the live set excluding the group track """
-        playing_clips_count = len([clip_slot for track in self.tracks for clip_slot in track.clip_slots
-                                   if track.index != abstract_track.index
-                                   and clip_slot.clip
-                                   and clip_slot.clip.is_playing])
-
-        return playing_clips_count
-
-    def has_set_playing_clips(self, abstract_track):
-        # type: (AbstractTrack) -> bool
-        """ find if there is playing clips elsewhere
-            by default checks also in group track
-        """
-        return self.playing_clips_count(abstract_track) != 0
+    @property
+    def playing_tracks(self):
+        # type: () -> list[AbstractTrack]
+        return [track for track in self.tracks if track.is_playing]
 
     def delay_before_recording_end(self, bar_count):
         # type: (int) -> int
@@ -119,5 +132,6 @@ class Song(SongActionMixin):
     def other_armed_group_track(self, abstract_track=None):
         # type: (Optional[AbstractTrack]) -> Optional[GroupTrack]
         return next(iter([g_track for g_track in self.group_ex_tracks if (
-                not abstract_track or not abstract_track.is_group_track or abstract_track.index != g_track.index) and g_track.any_armed]),
+                not abstract_track or not isinstance(abstract_track,
+                                                     GroupTrack) or abstract_track.index != g_track.index) and g_track.any_armed]),
                     None)

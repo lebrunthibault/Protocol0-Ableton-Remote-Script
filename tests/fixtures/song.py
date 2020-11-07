@@ -7,7 +7,7 @@ from ClyphX_Pro.clyphx_pro.user_actions.tests.fixtures.simpleTrack import make_s
     AbletonTrack
 
 
-class AbletonSong:
+class AbletonSong(object):
     def __init__(self, tracks, view):
         # type: (list[AbletonTrack], AbletonSongView) -> None
         self.tracks = tracks if tracks else []

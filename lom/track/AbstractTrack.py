@@ -5,33 +5,49 @@ from typing import TYPE_CHECKING
 
 from ClyphX_Pro.clyphx_pro.user_actions.actions.mixins.AbstractTrackActionMixin import AbstractTrackActionMixin
 from ClyphX_Pro.clyphx_pro.user_actions.instruments.AbstractInstrument import AbstractInstrument
-from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
+from ClyphX_Pro.clyphx_pro.user_actions.lom.ClipSlot import ClipSlot
 
 if TYPE_CHECKING:
     from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
     from ClyphX_Pro.clyphx_pro.user_actions.lom.Song import Song
+    from ClyphX_Pro.clyphx_pro.user_actions.actions.AbstractUserAction import AbstractUserAction
 
 
 # noinspection PyDeprecation
-class AbstractTrack(AbstractTrackActionMixin, object):
+class AbstractTrack(AbstractTrackActionMixin):
     __metaclass__ = ABCMeta
 
     def __init__(self, song, track, index):
-        # type: (Any, Any, int) -> None
+        # type: ("Song", Any, int) -> None
         self._track = track  # type: Any
         self._index = index  # type: int
         self.song = song  # type: Song
-        self.name = TrackName(self)  # type: TrackName
+        self.base_name = self.name
 
     def __eq__(self, other):
         if isinstance(other, AbstractTrack):
             return self.index == other.index
         return False
 
+    @property
+    def parent(self):
+        # type: () -> AbstractUserAction
+        return self.song.parent
+
     @abstractproperty
     def track(self):
         # type: () -> Any
         pass
+
+    @property
+    def name(self):
+        # type: () -> str
+        return self.track.name
+
+    @name.setter
+    def name(self, name):
+        # type: (str) -> None
+        self.track.name = name
 
     @abstractproperty
     def instrument(self):
@@ -47,12 +63,6 @@ class AbstractTrack(AbstractTrackActionMixin, object):
     def bar_count(self):
         # type: () -> int
         return self.song.bar_count
-
-    @property
-    def is_group_track(self):
-        # type: () -> bool
-        from ClyphX_Pro.clyphx_pro.user_actions.lom.track.GroupTrack import GroupTrack
-        return isinstance(self, GroupTrack)
 
     @abstractproperty
     def is_foldable(self):
@@ -95,21 +105,7 @@ class AbstractTrack(AbstractTrackActionMixin, object):
         pass
 
     @abstractproperty
-    def has_empty_slot(self):
-        # type: () -> bool
+    def next_empty_clip_slot(self):
+        # type: () -> ClipSlot
         pass
 
-    @abstractproperty
-    def first_empty_slot_index(self):
-        # type: () -> int
-        pass
-
-    @abstractproperty
-    def rec_clip_index(self):
-        # type: () -> int
-        pass
-
-    @abstractproperty
-    def record_track(self):
-        # type: () -> SimpleTrack
-        pass

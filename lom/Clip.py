@@ -1,15 +1,32 @@
-class Clip:
-    def __init__(self, clip, index):
-        self.clip = clip
+from typing import Any, Optional, TYPE_CHECKING
+
+from ClyphX_Pro.clyphx_pro.user_actions.actions.mixins.ClipActionMixin import ClipActionMixin
+
+if TYPE_CHECKING:
+    # noinspection PyUnresolvedReferences
+    from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
+
+
+class Clip(ClipActionMixin):
+    def __init__(self, clip_slot, index, track):
+        # type: (Optional[Any], int, Optional["SimpleTrack"]) -> None
+        self.clip_slot = clip_slot
+        self.clip = clip_slot.clip if clip_slot else None
         self.index = index
+        self.track = track
 
     def __nonzero__(self):
-        return self.index != 0
+        return self.clip is not None
 
     def __eq__(self, other):
         if isinstance(other, Clip):
             return self.clip == other.clip
         return False
+
+    @classmethod
+    def empty_clip(cls):
+        # type: () -> Clip
+        return Clip(None, -1, None)
 
     @property
     def length(self):
@@ -22,31 +39,36 @@ class Clip:
         # type: () -> str
         return self.clip.name
 
+    @name.setter
+    def name(self, name):
+        # type: (str) -> None
+        self.clip.name = name
+
     @property
     def color(self):
         # type: () -> int
-        return self.clip.color
+        return self.clip.color_index
 
     @color.setter
-    def color(self, color):
+    def color(self, color_index):
         # type: (int) -> None
-        self.clip.color = color
+        self.clip.color_index = color_index
 
     @property
     def is_playing(self):
         # type: () -> bool
-        return self.clip.is_playing if self.index != 0 else False
+        return self.index >= 0 and self.clip.is_playing
 
     @is_playing.setter
     def is_playing(self, is_playing):
         # type: (bool) -> None
-        if self.index != 0:
+        if self.index >= 0:
             self.clip.is_playing = is_playing
 
     @property
     def is_recording(self):
         # type: () -> bool
-        return self.clip.is_recording
+        return self.clip and self.clip.is_recording
 
     @property
     def playing_position(self):

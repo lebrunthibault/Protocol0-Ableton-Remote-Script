@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
 
 
-class AbstractInstrumentFactory:
+class AbstractInstrumentFactory(object):
     @staticmethod
     def create_from_simple_track(simple_track):
         # type: ("SimpleTrack") -> AbstractInstrument

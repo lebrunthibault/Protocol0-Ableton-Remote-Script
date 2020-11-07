@@ -1,23 +1,30 @@
 from typing import Any, Optional, TYPE_CHECKING
 
 from ClyphX_Pro.clyphx_pro.user_actions.actions.mixins.SimpleTrackActionMixin import SimpleTrackActionMixin
+from ClyphX_Pro.clyphx_pro.user_actions.actions.mixins.SimpleTrackListenersMixin import SimpleTrackListenersMixin
 from ClyphX_Pro.clyphx_pro.user_actions.instruments.AbstractInstrument import AbstractInstrument
 from ClyphX_Pro.clyphx_pro.user_actions.instruments.AbstractInstrumentFactory import AbstractInstrumentFactory
 from ClyphX_Pro.clyphx_pro.user_actions.lom.Clip import Clip
+from ClyphX_Pro.clyphx_pro.user_actions.lom.ClipSlot import ClipSlot
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
+from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from ClyphX_Pro.clyphx_pro.user_actions.lom.track.GroupTrack import GroupTrack
 
 
-class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
+class SimpleTrack(SimpleTrackActionMixin, SimpleTrackListenersMixin, AbstractTrack):
     SAMPLE_PATH = "C:/Users/thiba/Google Drive/music/software presets/Ableton User Library/Samples/Imported"
 
     def __init__(self, song, track, index):
         # type: (Any, Any, int) -> None
         self.g_track = None  # type: Optional["GroupTrack"]
         super(SimpleTrack, self).__init__(song, track, index)
+
+        for clip_slot in self.track.clip_slots:
+            if not clip_slot.has_clip_has_listener:
+                clip_slot.add_has_clip_listener()
 
     @property
     def index(self):
@@ -51,22 +58,27 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def is_groupable(self):
         # type: () -> bool
-        return self.name.is_group_track or \
+        return self.is_group_ext or \
                self.is_clyphx or \
-               (self.index >= 3 and self.song.tracks[self.index - 2].name.is_clyphx) or \
-               (self.index >= 4 and self.song.tracks[self.index - 3].name.is_clyphx)
+               (self.index >= 2 and self.song.tracks[self.index - 2].is_clyphx) or \
+               (self.index >= 3 and self.song.tracks[self.index - 3].is_clyphx)
+
+    @property
+    def is_group_ext(self):
+        # type: () -> bool
+        return self.name in TrackName.GROUP_EXT_NAMES
 
     @property
     def is_nested_group_ex_track(self):
         # type: () -> bool
-        return self.name.is_clyphx or \
-               (self.index >= 3 and self.song.tracks[self.index - 2].name.is_clyphx) or \
-               (self.index >= 4 and self.song.tracks[self.index - 3].name.is_clyphx)
+        return self.is_clyphx or \
+               (self.index >= 2 and self.song.tracks[self.index - 1].is_clyphx) or \
+               (self.index >= 3 and self.song.tracks[self.index - 2].is_clyphx)
 
     @property
     def is_clyphx(self):
         # type: () -> bool
-        return self.name.is_clyphx
+        return TrackName(self).is_clyphx
 
     @property
     def is_audio(self):
@@ -91,7 +103,12 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def is_recording(self):
         # type: () -> bool
-        return bool(self.recording_clip)
+        return any([clip for clip in self.clips if clip.is_recording])
+
+    @property
+    def is_triggered(self):
+        # type: () -> bool
+        return any([clip_slot.is_triggered for clip_slot in self.clip_slots])
 
     @property
     def is_visible(self):
@@ -111,34 +128,30 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def playing_clip(self):
         # type: () -> Optional[Clip]
-        playing_clip_index = next(iter([clip.index for clip in self.clips.values() if clip.is_playing]),
-                                  self.name.clip_index)
+        playing_clip_index = next(iter([clip.index for clip in self.clips if clip.is_playing]),
+                                  TrackName(self).clip_index)
         try:
-            return self.clips[playing_clip_index] if playing_clip_index != 0 else Clip(None, 0)
-        except KeyError:
-            return Clip(None, 0)
-
-    @property
-    def recording_clip(self):
-        # type: () -> Optional[Clip]
-        return next(iter([clip for clip in self.clips.values() if clip.is_recording]), None)
+            return self.clip_slots[playing_clip_index].clip or Clip.empty_clip()
+        except (KeyError, IndexError):
+            return Clip.empty_clip()
 
     @property
     def previous_clip(self):
+        # type: () -> Clip
         try:
-            clip_index = list(self.clips.values()).index(self.playing_clip)
-            if clip_index != 0:
-                return list(self.clips.values())[clip_index - 1]
-            return Clip(None, 0)
-        except ValueError:
-            return Clip(None, 0)
+            return self.clips[self.clips.index(self.playing_clip) - 1]
+        except (ValueError, KeyError):
+            return Clip.empty_clip()
+
+    @property
+    def clip_slots(self):
+        # type: () -> list[ClipSlot]
+        return [ClipSlot(clip_slot, index, self) for (index, clip_slot) in enumerate(list(self.track.clip_slots))]
 
     @property
     def clips(self):
-        # type: () -> dict[int, Clip]
-        """ return clip and clip clyphx index """
-        return {index + 1: Clip(clip_slot.clip, index + 1) for (index, clip_slot) in enumerate(self.clip_slots) if
-                clip_slot.has_clip}
+        # type: () -> list[Clip]
+        return [clip_slot.clip for clip_slot in self.clip_slots if clip_slot.has_clip]
 
     @property
     def arm(self):
@@ -150,6 +163,16 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # type: (bool) -> None
         if self.can_be_armed:
             self.track.arm = arm
+
+    @property
+    def color(self):
+        # type: () -> int
+        return self.track.color_index
+
+    @color.setter
+    def color(self, color_index):
+        # type: (int) -> None
+        self.track.color_index = color_index
 
     @property
     def is_selected(self):
@@ -178,34 +201,18 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self.track.current_monitoring_state = int(not has_monitor_in)
 
     @property
-    def clip_slots(self):
-        # type: () -> list
-        return list(self.track.clip_slots)
-
-    @property
-    def first_empty_slot_index(self):
-        # type: () -> int
+    def next_empty_clip_slot(self):
+        # type: () -> ClipSlot
         """ counting in live index """
-        return next(
-            iter([i + 1 for i, clip_slot in enumerate(list(self.track.clip_slots)) if
-                  clip_slot.clip is None]), None)
+        empty_clip_slot = next(
+            iter([clip_slot for clip_slot in self.clip_slots if not clip_slot.has_clip]), None)
+        if empty_clip_slot is None:
+            self.song.create_scene()
+            return self.next_empty_clip_slot
 
-    @property
-    def has_empty_slot(self):
-        # type: () -> bool
-        return self.first_empty_slot_index is not None
-
-    @property
-    def rec_clip_index(self):
-        # type: () -> int
-        return self.first_empty_slot_index if self.has_empty_slot else self.song.scene_count + 1
-
-    @property
-    def record_track(self):
-        # type: () -> SimpleTrack
-        return self
+        return empty_clip_slot
 
     @property
     def preset_index(self):
         # type: () -> int
-        return self.name.preset_index
+        return TrackName(self).preset_index

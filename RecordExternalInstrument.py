@@ -46,9 +46,8 @@ class RecordExternalInstrument(AbstractUserAction):
     @unarm_other_tracks
     def record_ext(self, _, bar_count):
         """ record both midi and audio on group track """
-        action_list = self.current_track.action_undo if self.current_track.is_recording else ""
         self.song().bar_count = int(bar_count)
-        self.exec_action(action_list + self.current_track.action_restart_and_record(self.current_track.action_record_all))
+        self.exec_action(self.current_track.action_restart_and_record(self.current_track.action_record_all))
 
     @unarm_other_tracks
     def record_audio_ext(self, *args):
@@ -57,7 +56,7 @@ class RecordExternalInstrument(AbstractUserAction):
 
     def undo_ext(self, *args):
         """" undo last recording """
-        self.exec_action(self.current_track.action_undo)
+        self.exec_action(self.current_track.action_undo())
 
     def restart_ext(self, *args):
         """" restart a live set from group tracks track names """

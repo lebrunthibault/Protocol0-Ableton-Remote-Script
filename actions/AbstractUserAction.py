@@ -5,9 +5,8 @@ from ClyphX_Pro.clyphx_pro.user_actions.utils.log import log_ableton
 sys.path.insert(0, "C:\Python27\Lib\site-packages")
 sys.path.insert(0, "C:\Python27")
 sys.path.insert(0, "C:\Python27\Lib")
-# noinspection PyUnresolvedReferences
 from ClyphX_Pro.clyphx_pro.UserActionsBase import UserActionsBase
-from typing import Optional, Union, Any
+from typing import Optional, Union, Any, Callable
 
 from ClyphX_Pro.clyphx_pro.user_actions.lom.Song import Song
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
@@ -15,6 +14,7 @@ from ClyphX_Pro.clyphx_pro.user_actions.lom.track.GroupTrack import GroupTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
 
 
+# noinspection PyAbstractClass
 class AbstractUserAction(UserActionsBase):
     xmode = 1
 
@@ -55,6 +55,18 @@ class AbstractUserAction(UserActionsBase):
         # type: (str) -> None
         self.canonical_parent.log_message(message)
 
+    def schedule_message(self, wait_time, message):
+        # type: (int, Callable) -> None
+        self.canonical_parent.schedule_message(wait_time, message)
+
+    def wait_bars(self, bar_count, message):
+        # type: (int, Callable) -> None
+        self.canonical_parent.schedule_message(self.song().delay_before_recording_end(bar_count), message)
+
+    def wait(self, ticks_count, message):
+        # type: (int, Callable) -> None
+        self.canonical_parent.schedule_message(ticks_count, message)
+
     def log_to_push(self, message):
         # type: (str) -> None
         self.log(message)
@@ -75,4 +87,4 @@ class AbstractUserAction(UserActionsBase):
         else:
             log_ableton(self.song().current_action_name)
 
-        self.song().current_action_name = None
+        # self.song().current_action_name = None

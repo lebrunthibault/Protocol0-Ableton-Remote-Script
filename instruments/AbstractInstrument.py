@@ -2,6 +2,8 @@ from abc import ABCMeta, abstractproperty, abstractmethod
 
 from typing import TYPE_CHECKING
 
+from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
+
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
@@ -40,6 +42,6 @@ class AbstractInstrument(object):
 
         action_list = "; midi pc 1 {0}".format(new_preset_index)
         action_list += "; {0}/name '{1}'".format(self.track.index,
-                                                 self.track.name.get_track_name_for_preset_index(new_preset_index))
+                                                 TrackName(self.track).get_track_name_for_preset_index(new_preset_index))
 
         return action_list

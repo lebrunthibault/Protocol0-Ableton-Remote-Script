@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING, Optional
 
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
-from ClyphX_Pro.clyphx_pro.user_actions.utils.log import log_ableton
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
