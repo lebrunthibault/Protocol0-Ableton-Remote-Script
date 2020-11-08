@@ -1,6 +1,11 @@
 import logging
 
-logging.basicConfig(filename="C:/Users/thiba/AppData/Roaming/Ableton/Live 10.1.25/Preferences/Log.txt",
+from ClyphX_Pro.clyphx_pro.user_actions.utils.config import Config
+
+print(Config.DEBUG)
+exit()
+if Config.DEBUG:
+    logging.basicConfig(filename="C:/Users/thiba/AppData/Roaming/Ableton/Live 10.1.25/Preferences/Log.txt",
                     filemode='a',
                     format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
                     datefmt='%H:%M:%S',
@@ -8,4 +13,5 @@ logging.basicConfig(filename="C:/Users/thiba/AppData/Roaming/Ableton/Live 10.1.2
 
 
 def log_ableton(message):
-    logging.info(message)
+    if Config.DEBUG:
+        logging.info(message)
