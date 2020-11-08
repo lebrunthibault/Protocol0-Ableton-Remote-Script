@@ -60,8 +60,8 @@ class SimpleTrack(SimpleTrackActionMixin, SimpleTrackListenersMixin, AbstractTra
         # type: () -> bool
         return self.is_group_ext or \
                self.is_clyphx or \
-               (self.index >= 2 and self.song.tracks[self.index - 2].is_clyphx) or \
-               (self.index >= 3 and self.song.tracks[self.index - 3].is_clyphx)
+               (self.index >= 2 and self.song.tracks[self.index - 1].is_clyphx) or \
+               (self.index >= 3 and self.song.tracks[self.index - 2].is_clyphx)
 
     @property
     def is_group_ext(self):
@@ -211,6 +211,12 @@ class SimpleTrack(SimpleTrackActionMixin, SimpleTrackListenersMixin, AbstractTra
             return self.next_empty_clip_slot
 
         return empty_clip_slot
+
+    @property
+    def base_name(self):
+        # type: () -> str
+        base_name = TrackName(self).name
+        return base_name[0].upper() + base_name[1:]
 
     @property
     def preset_index(self):

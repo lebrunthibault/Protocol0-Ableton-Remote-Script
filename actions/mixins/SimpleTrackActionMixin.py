@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from ClyphX_Pro.clyphx_pro.MiscUtils import get_beat_time
 import Live
@@ -16,18 +16,19 @@ class SimpleTrackActionMixin(object):
         # type: ("SimpleTrack") -> None
         self.arm = True
 
-    # noinspection PyUnusedLocal
-    def action_unarm(self, *args):
+    def action_unarm(self, _=False):
         # type: ("SimpleTrack", bool) -> None
         self.arm = False
 
     def action_sel(self):
-        # type: ("SimpleTrack") -> str
-        self.is_folded = not self.is_folded
+        # type: ("SimpleTrack") -> Optional[str]
         self.is_selected = True
-        return self.instrument.action_show
+        if self.is_foldable:
+            self.is_folded = not self.is_folded
+        else:
+            return self.instrument.action_show
 
-    def action_switch_monitoring(self):
+    def switch_monitoring(self):
         # type: ("SimpleTrack") -> None
         self.has_monitor_in = not self.has_monitor_in
 
@@ -53,21 +54,21 @@ class SimpleTrackActionMixin(object):
         # type: ("SimpleTrack") -> None
         self.track.stop_all_clips()
 
-    def action_restart(self):
+    def restart(self):
         # type: ("SimpleTrack") -> None
         self.playing_clip.is_playing = True
 
     def action_undo(self):
         # type: ("SimpleTrack") -> None
         if self.is_recording:
-            self.action_delete_current_clip()
+            self.delete_current_clip()
         elif self.is_triggered:
             self.stop()
         else:
             self.song.undo()
 
-    def action_delete_current_clip(self):
+    def delete_current_clip(self):
         # type: ("SimpleTrack") -> None
         self.song.metronome = False
-        self.playing_clip.action_delete()
+        self.playing_clip.delete()
         self.name = TrackName(self).get_track_name_for_clip_index(self.previous_clip.index)

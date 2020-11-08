@@ -1,4 +1,4 @@
-from typing import Any, Optional, TYPE_CHECKING
+from typing import Any, Optional, TYPE_CHECKING, Union
 
 from ClyphX_Pro.clyphx_pro.user_actions.actions.mixins.SongActionMixin import SongActionMixin
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
@@ -120,6 +120,14 @@ class Song(SongActionMixin):
     def delay_before_recording_end(self, bar_count):
         # type: (int) -> int
         return int(round((600 / self._song.tempo) * (4 * (int(bar_count) + 1) - 0.5)))
+
+    def get_abstract_track(self, track):
+        # type: (Any) -> Union[SimpleTrack, GroupTrack]
+        track = self.get_track(track)
+        if track.is_groupable:
+            return GroupTrack(self, track.track)
+        else:
+            return track
 
     def get_track(self, track):
         # type: (Any) -> SimpleTrack

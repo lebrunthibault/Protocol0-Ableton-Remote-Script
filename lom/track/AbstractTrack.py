@@ -8,7 +8,6 @@ from ClyphX_Pro.clyphx_pro.user_actions.instruments.AbstractInstrument import Ab
 from ClyphX_Pro.clyphx_pro.user_actions.lom.ClipSlot import ClipSlot
 
 if TYPE_CHECKING:
-    from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
     from ClyphX_Pro.clyphx_pro.user_actions.lom.Song import Song
     from ClyphX_Pro.clyphx_pro.user_actions.actions.AbstractUserAction import AbstractUserAction
 
@@ -22,7 +21,7 @@ class AbstractTrack(AbstractTrackActionMixin):
         self._track = track  # type: Any
         self._index = index  # type: int
         self.song = song  # type: Song
-        self.base_name = self.name
+        self.original_name = self.name
 
     def __eq__(self, other):
         if isinstance(other, AbstractTrack):

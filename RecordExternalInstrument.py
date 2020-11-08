@@ -8,7 +8,7 @@ class RecordExternalInstrument(AbstractUserAction):
     """ Utility commands to record fixed length midi and audio on separate tracks """
 
     def create_actions(self):
-        self.add_global_action('next_ext', self.next_ext)
+        self.add_global_action('scroll_tracks', self.scroll_tracks)
         self.add_track_action('arm_ext', self.arm_ext)
         self.add_track_action('unarm_ext', self.unarm_ext)
         self.add_track_action('sel_ext', self.sel_ext)
@@ -16,23 +16,24 @@ class RecordExternalInstrument(AbstractUserAction):
         self.add_track_action('record_ext', self.record_ext)
         self.add_track_action('record_audio_ext', self.record_audio_ext)
         self.add_track_action('undo_ext', self.undo_ext)
-        self.add_track_action('restart_ext', self.restart_ext)
+        self.add_track_action('restart_set', self.restart_set)
+        self.add_track_action('rename_all_clips', self.rename_all_clips)
 
-    def next_ext(self, _, go_next="1"):
+    def scroll_tracks(self, _, go_next="1"):
         """ arm or unarm both midi and audio track """
-        self.exec_action(self.song().action_next(bool(go_next)))
+        self.exec_action(self.song().scroll_tracks(bool(go_next)))
 
     @unarm_other_tracks
     def arm_ext(self, action_def, _):
         """ arm or unarm both midi and audio track """
         if self.current_track.arm:
-            return self.exec_action(self.current_track.action_unarm(True))
-
-        self.exec_action(self.current_track.action_arm())
+            self.current_track.action_unarm(True)
+        else:
+            self.current_track.action_arm()
 
     def unarm_ext(self, _, direct_unarm):
         """ unarming group track """
-        self.exec_action(self.current_track.action_unarm(bool(direct_unarm)))
+        self.current_track.action_unarm(bool(direct_unarm))
 
     @unarm_other_tracks
     def sel_ext(self, *args):
@@ -41,23 +42,27 @@ class RecordExternalInstrument(AbstractUserAction):
 
     def switch_monitoring_ext(self, *args):
         """ arm both midi and audio track """
-        self.exec_action(self.current_track.action_switch_monitoring())
+        self.current_track.switch_monitoring()
 
     @unarm_other_tracks
     def record_ext(self, _, bar_count):
         """ record both midi and audio on group track """
         self.song().bar_count = int(bar_count)
-        self.exec_action(self.current_track.action_restart_and_record(self.current_track.action_record_all))
+        self.current_track.action_restart_and_record(self.current_track.action_record_all)
 
     @unarm_other_tracks
     def record_audio_ext(self, *args):
         """ record audio on group track from playing midi clip """
-        self.exec_action(self.current_track.action_restart_and_record(self.current_track.action_record_audio_only))
+        self.current_track.action_restart_and_record(self.current_track.action_record_audio_only)
 
     def undo_ext(self, *args):
         """" undo last recording """
-        self.exec_action(self.current_track.action_undo())
+        self.current_track.action_undo()
 
-    def restart_ext(self, *args):
+    def restart_set(self, *args):
         """" restart a live set from group tracks track names """
-        self.exec_action(self.song().action_restart())
+        self.song().restart_set()
+
+    def rename_all_clips(self, *args):
+        """" restart a live set from group tracks track names """
+        self.exec_action(self.song().rename_all_clips())

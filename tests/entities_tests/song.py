@@ -13,9 +13,9 @@ def test_song_simpler_track():
     song = make_song(count_simple_tracks=1)
     assert len(song.tracks) == 1
     assert song.selected_track.is_simpler
-    assert song.selected_track.index == 1
+    assert song.selected_track.index == 0
 
     song = make_song(count_simple_tracks=3)
     assert len(song.tracks) == 3
     assert song.selected_track.is_simpler
-    assert song.selected_track.index == 1
+    assert song.selected_track.index == 0

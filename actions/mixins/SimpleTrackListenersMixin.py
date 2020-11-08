@@ -12,8 +12,8 @@ if TYPE_CHECKING:
 class SimpleTrackListenersMixin(object):
     def name_listener(self):
         # type: ("SimpleTrack") -> None
-        if self.song.await_track_rename and self.name != self.base_name:
+        if self.song.await_track_rename and self.name != self.original_name:
             log_ableton("deferring track set name call")
             self.song.await_track_rename = False
-            self.song.parent.wait(1, partial(setattr, self, "name", self.base_name))
+            self.song.parent.wait(1, partial(setattr, self, "name", self.original_name))
 

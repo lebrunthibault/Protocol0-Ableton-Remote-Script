@@ -25,7 +25,7 @@ class AbstractTrackActionMixin(object):
         # type: ("AbstractTrack") -> Optional[str]
         pass
 
-    def action_switch_monitoring(self):
+    def switch_monitoring(self):
         # type: ("AbstractTrack") -> None
         pass
 

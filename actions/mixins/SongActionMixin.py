@@ -9,16 +9,15 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class SongActionMixin(object):
-    def action_next(self, go_next):
+    def scroll_tracks(self, go_next):
         # type: ("Song", bool) -> None
         selected_track_index = self.selected_track.index if self.selected_track else 0
         next_track = self.get_next_track_by_index(selected_track_index, bool(go_next))
         next_track.is_selected = True
 
-    def action_restart(self):
+    def restart_set(self):
         # type: ("Song") -> None
-        [track.action_restart() for track in self.tracks]
-        self.is_playing = True
+        [track.restart() for track in self.tracks]
 
     def get_next_track_by_index(self, index, go_next):
         # type: ("Song", int, bool) -> SimpleTrack
@@ -42,3 +41,8 @@ class SongActionMixin(object):
     def create_scene(self, scene_index=None):
         # type: ("Song", Optional[int]) -> None
         self._song.view.selected_scene = self._song.create_scene(scene_index or self.scene_count)
+
+    def rename_all_clips(self):
+        # type: ("Song") -> None
+        [track.restart() for track in self.tracks]
+

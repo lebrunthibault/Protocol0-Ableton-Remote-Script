@@ -7,6 +7,7 @@ from ClyphX_Pro.clyphx_pro.user_actions.lom.Colors import Colors
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
+from ClyphX_Pro.clyphx_pro.user_actions.utils.log import log_ableton
 
 if TYPE_CHECKING:
     from ClyphX_Pro.clyphx_pro.user_actions.lom.Song import Song
@@ -20,18 +21,18 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
         self.song = song  # type: Song
         self.track_index_group = track.index  # type: int
 
+        if not track.is_groupable:
+            raise Exception(
+                "tried to instantiate non group track with base_track {0} and found track index {1}".format(base_track,
+                                                                                                        self.track_index_group))
         # check if we clicked on group track instead of clyphx track
         if track.is_clyphx:
             self.track_index_group -= 1
-        elif track.index >= 2 and song.tracks[track.index - 1].is_clyphx:
+        elif song.tracks[track.index - 1].is_clyphx:
             self.track_index_group -= 2
-        elif track.index >= 3 and song.tracks[track.index - 2].is_clyphx:
+        elif song.tracks[track.index - 2].is_clyphx:
             self.track_index_group -= 3
 
-        if song.tracks[self.track_index_group].is_group_ext:
-            raise Exception(
-                "tried to instantiate group track with base_track {0} and found track index {1}".format(base_track,
-                                                                                                        self.track_index_group))
         super(GroupTrack, self).__init__(song, self.group.track, self.track_index_group)
 
         self.clyphx.g_track = self.midi.g_track = self.audio.g_track = self

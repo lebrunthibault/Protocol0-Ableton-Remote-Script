@@ -12,6 +12,6 @@ class InstrumentNull(AbstractInstrument):
         # type: () -> str
         return ""
 
-    def action_scroll_preset_or_sample(self, go_next):
+    def action_browse_presets_or_samples(self, go_next):
         # type: (bool) -> str
         pass

@@ -42,7 +42,8 @@ class Clip(ClipActionMixin):
     @name.setter
     def name(self, name):
         # type: (str) -> None
-        self.clip.name = name
+        if self.clip:
+            self.clip.name = name
 
     @property
     def color(self):

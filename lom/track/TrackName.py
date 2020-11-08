@@ -16,7 +16,7 @@ class TrackName(object):
         # type: (AbstractTrack) -> None
         self.parts = abstract_track.track.name.split(" - ")
         self.track = abstract_track
-        self.name = self.parts[0]
+        self.name = self.parts[0]  # type: str
         try:
             self.clip_index = int(self.parts[1])
         except (ValueError, IndexError):

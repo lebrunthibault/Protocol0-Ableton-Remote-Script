@@ -20,6 +20,7 @@ class AbletonTrack(object):
         self.fold_state = False
         self.is_visible = True
         self.has_midi_input = self.has_audio_output = self.is_foldable = self.fold_state = False
+        self.clip_slots = []
 
         if track_type == TrackType.GROUP:
             self.is_foldable = True
@@ -29,37 +30,44 @@ class AbletonTrack(object):
         if track_type == TrackType.AUDIO:
             self.has_audio_output = True
 
+    @staticmethod
+    def name_has_listener(_):
+        return True
+
+    def add_name_listener(self, func):
+        pass
+
 
 def make_group_track(song, name=TrackName.GROUP_PROPHET_NAME):
     # type: (Song, str) -> SimpleTrack
-    simple_track = SimpleTrack(song, AbletonTrack(name=name, track_type=TrackType.GROUP), len(song.tracks) + 1)
+    simple_track = SimpleTrack(song, AbletonTrack(name=name, track_type=TrackType.GROUP), len(song.tracks))
     song.tracks.append(simple_track)
     return simple_track
 
 
 def make_clyphx_track(song):
     # type: (Song) -> SimpleTrack
-    simple_track = SimpleTrack(song, AbletonTrack(name=TrackName.GROUP_CLYPHX_NAME, track_type=TrackType.MIDI), len(song.tracks) + 1)
+    simple_track = SimpleTrack(song, AbletonTrack(name=TrackName.GROUP_CLYPHX_NAME, track_type=TrackType.MIDI), len(song.tracks))
     song.tracks.append(simple_track)
     return simple_track
 
 
 def make_midi_track(song, name="midi"):
     # type: (Song, str) -> SimpleTrack
-    simple_track = SimpleTrack(song, AbletonTrack(name=name, track_type=TrackType.MIDI), len(song.tracks) + 1)
+    simple_track = SimpleTrack(song, AbletonTrack(name=name, track_type=TrackType.MIDI), len(song.tracks))
     song.tracks.append(simple_track)
     return simple_track
 
 
 def make_audio_track(song, name="audio"):
     # type: (Song, str) -> SimpleTrack
-    simple_track = SimpleTrack(song, AbletonTrack(name=name, track_type=TrackType.AUDIO), len(song.tracks) + 1)
+    simple_track = SimpleTrack(song, AbletonTrack(name=name, track_type=TrackType.AUDIO), len(song.tracks))
     song.tracks.append(simple_track)
     return simple_track
 
 
 def make_simpler_track(song, name="simpler"):
     # type: (Song, str) -> SimpleTrack
-    simple_track = SimpleTrack(song, AbletonTrack(name=name, device=make_device_simpler()), len(song.tracks) + 1)
+    simple_track = SimpleTrack(song, AbletonTrack(name=name, device=make_device_simpler()), len(song.tracks))
     song.tracks.append(simple_track)
     return simple_track

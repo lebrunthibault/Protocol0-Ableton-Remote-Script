@@ -10,6 +10,6 @@ class InstrumentProphet(AbstractInstrument):
         # type: () -> str
         return BomeCommands.SHOW_AND_ACTIVATE_REV2_EDITOR
 
-    def action_scroll_preset_or_sample(self, go_next):
+    def action_browse_presets_or_samples(self, go_next):
         # type: (bool) -> str
         return self.action_scroll_via_program_change(go_next)

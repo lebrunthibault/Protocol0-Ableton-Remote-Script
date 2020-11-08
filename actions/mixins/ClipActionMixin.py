@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class ClipActionMixin(object):
-    def action_delete(self):
+    def delete(self):
         # type: ("Clip") -> None
         self.clip_slot.delete_clip()
         if self.is_recording:
@@ -16,7 +16,7 @@ class ClipActionMixin(object):
             self.track.stop()
 
             def delete_recording_clip():
-                self.action_delete()
+                self.delete()
                 self.track.song.clip_trigger_quantization = qz
 
             self.track.parent.wait(2, delete_recording_clip)

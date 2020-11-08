@@ -2,6 +2,7 @@ from os import listdir
 from os.path import isfile, join, isdir
 
 from ClyphX_Pro.clyphx_pro.user_actions.instruments.AbstractInstrument import AbstractInstrument
+from ClyphX_Pro.clyphx_pro.user_actions.utils.log import log_ableton
 
 
 class InstrumentSimpler(AbstractInstrument):
@@ -12,9 +13,10 @@ class InstrumentSimpler(AbstractInstrument):
         # type: () -> str
         return ""
 
-    def action_scroll_preset_or_sample(self, go_next):
+    def action_browse_presets_or_samples(self, go_next):
         # type: (bool) -> str
-        sample_path = join(self.SAMPLE_PATH, self.track.name)
+        sample_path = join(self.SAMPLE_PATH, self.track.base_name)
+        log_ableton(sample_path)
         if not isdir(sample_path):
             raise Exception("the track name does not correspond with a sample directory")
 

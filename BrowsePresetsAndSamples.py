@@ -8,7 +8,7 @@ class BrowsePresetsAndSamples(AbstractUserAction):
     SAMPLE_PATH = "C:/Users/thiba/Google Drive/music/software presets/Ableton User Library/Samples/Imported"
 
     def create_actions(self):
-        self.add_track_action('next_sample_or_preset', self.next_sample_or_preset)
+        self.add_track_action('browse_presets', self.browse_presets)
 
-    def next_sample_or_preset(self, _, go_next=""):
-        self.exec_action(self.current_track.instrument.action_scroll_preset_or_sample(bool(go_next)))
+    def browse_presets(self, _, go_next=""):
+        self.exec_action(self.current_track.instrument.action_browse_presets_or_samples(bool(go_next)))

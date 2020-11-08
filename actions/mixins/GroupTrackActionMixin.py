@@ -25,10 +25,10 @@ class GroupTrackActionMixin(object):
 
     def action_unarm(self, direct_unarm=False):
         # type: ("GroupTrack", bool) -> None
-        self.color = self.color
         self.group.is_folded = True
         self.clyphx.arm = direct_unarm
         self.audio.arm = self.midi.arm = False
+        self.clyphx.clips[0].color = self.color
         if self.audio.is_playing:
             self.clyphx.clips[1].color = Colors.PLAYING
         self.audio.has_monitor_in = False
@@ -43,7 +43,7 @@ class GroupTrackActionMixin(object):
         self.group.is_folded = False
         return self.selectable_track.action_sel()
 
-    def action_switch_monitoring(self):
+    def switch_monitoring(self):
         # type: ("GroupTrack") -> None
         if self.midi.has_monitor_in and self.audio.has_monitor_in:
             self.midi.has_monitor_in = self.audio.has_monitor_in = False
