@@ -1,9 +1,9 @@
 import logging
 
 from ClyphX_Pro.clyphx_pro.user_actions.utils.config import Config
-
-print(Config.DEBUG)
-exit()
+#
+# print(Config.DEBUG)
+# exit()
 if Config.DEBUG:
     logging.basicConfig(filename="C:/Users/thiba/AppData/Roaming/Ableton/Live 10.1.25/Preferences/Log.txt",
                     filemode='a',
