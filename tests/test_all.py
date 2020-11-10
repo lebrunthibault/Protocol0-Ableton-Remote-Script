@@ -1,10 +1,6 @@
 import sys
 import os
 
-from ..utils.config import Config
-
-Config.DEBUG = False
-
 from .mocks.LiveMock import LiveMock
 
 # noinspection PyTypeChecker
@@ -14,6 +10,8 @@ sys.path.insert(0, "C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote S
 init_file = "C:\\ProgramData\\Ableton\\Live 10 Suite\\Resources\\MIDI Remote Scripts\\ClyphX_Pro\\__init__.py"
 try:
     with open(init_file, "a"):
+        from ClyphX_Pro.clyphx_pro.user_actions.utils.config import Config
+        Config.DEBUG = False
         from .fixtures import base_song
 
         from .actions_tests import *
