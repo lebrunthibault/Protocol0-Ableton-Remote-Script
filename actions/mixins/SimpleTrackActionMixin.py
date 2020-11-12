@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from ClyphX_Pro.clyphx_pro.MiscUtils import get_beat_time
 import Live
