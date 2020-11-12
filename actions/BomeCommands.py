@@ -8,4 +8,4 @@ class BomeCommands(object):
 
     @classmethod
     def show_and_activate_rev2_editor(cls):
-        return "; midi note 15 17 127"
+        return "; midi note 15 17 127 "
