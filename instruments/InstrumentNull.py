@@ -7,10 +7,9 @@ class InstrumentNull(AbstractInstrument):
         super(InstrumentNull, self).__init__(simple_track)
         self.is_null = False
 
-    @property
     def action_show(self):
-        # type: () -> str
-        return ""
+        # type: () -> None
+        return
 
     def action_browse_presets_or_samples(self, go_next):
         # type: (bool) -> str

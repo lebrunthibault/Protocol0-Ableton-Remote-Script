@@ -22,7 +22,7 @@ class AbstractTrackActionMixin(object):
 
     @abstractmethod
     def action_sel(self):
-        # type: ("AbstractTrack") -> Optional[str]
+        # type: ("AbstractTrack") -> None
         pass
 
     def switch_monitoring(self):

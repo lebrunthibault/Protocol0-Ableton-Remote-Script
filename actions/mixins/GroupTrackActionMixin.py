@@ -34,14 +34,14 @@ class GroupTrackActionMixin(object):
         self.audio.has_monitor_in = False
 
     def action_sel(self):
-        # type: ("GroupTrack") -> Optional[str]
+        # type: ("GroupTrack") -> None
         if self.song.selected_track == self.selectable_track:
             self.group.is_folded = self.group.is_selected = True
             return
 
         self.action_arm()
         self.group.is_folded = False
-        return self.selectable_track.action_sel()
+        self.selectable_track.action_sel()
 
     def switch_monitoring(self):
         # type: ("GroupTrack") -> None

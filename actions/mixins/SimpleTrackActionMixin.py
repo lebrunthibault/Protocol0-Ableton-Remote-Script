@@ -21,12 +21,12 @@ class SimpleTrackActionMixin(object):
         self.arm = False
 
     def action_sel(self):
-        # type: ("SimpleTrack") -> Optional[str]
+        # type: ("SimpleTrack") -> None
         self.is_selected = True
         if self.is_foldable:
             self.is_folded = not self.is_folded
         else:
-            return self.instrument.action_show
+            self.instrument.action_show()
 
     def switch_monitoring(self):
         # type: ("SimpleTrack") -> None

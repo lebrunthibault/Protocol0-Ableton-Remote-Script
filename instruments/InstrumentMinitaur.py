@@ -1,14 +1,13 @@
-from ClyphX_Pro.clyphx_pro.user_actions.actions.BomeCommands import BomeCommands
+from ClyphX_Pro.clyphx_pro.user_actions.actions.AhkCommands import AhkCommands
 from ClyphX_Pro.clyphx_pro.user_actions.instruments.AbstractInstrument import AbstractInstrument
 
 
 class InstrumentMinitaur(AbstractInstrument):
     NUMBER_OF_PRESETS = 9
 
-    @property
     def action_show(self):
-        # type: () -> str
-        return BomeCommands.SELECT_FIRST_VST
+        # type: () -> None
+        AhkCommands.select_first_vst()
 
     def action_browse_presets_or_samples(self, go_next):
         # type: (bool) -> str

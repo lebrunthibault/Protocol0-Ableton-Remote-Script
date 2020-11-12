@@ -8,10 +8,9 @@ from ClyphX_Pro.clyphx_pro.user_actions.utils.log import log_ableton
 class InstrumentSimpler(AbstractInstrument):
     SAMPLE_PATH = "C:/Users/thiba/Google Drive/music/software presets/Ableton User Library/Samples/Imported"
 
-    @property
     def action_show(self):
-        # type: () -> str
-        return ""
+        # type: () -> None
+        return
 
     def action_browse_presets_or_samples(self, go_next):
         # type: (bool) -> str

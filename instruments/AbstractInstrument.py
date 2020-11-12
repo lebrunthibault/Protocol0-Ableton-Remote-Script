@@ -27,9 +27,9 @@ class AbstractInstrument(object):
         # type: () -> str
         return type(self).__name__
 
-    @abstractproperty
+    @abstractmethod
     def action_show(self):
-        # type: () -> str
+        # type: () -> None
         pass
 
     @abstractmethod
