@@ -3,13 +3,11 @@ import sys
 sys.path.insert(0, "C:\Python27\Lib\site-packages")
 sys.path.insert(0, "C:\Python27")
 sys.path.insert(0, "C:\Python27\Lib")
-import win32com.client
 from ClyphX_Pro.clyphx_pro.UserActionsBase import UserActionsBase
 from typing import Optional, Callable
 
 from ClyphX_Pro.clyphx_pro.user_actions.lom.Song import Song
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
-from ClyphX_Pro.clyphx_pro.user_actions.lom.track.GroupTrack import GroupTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
 
 
