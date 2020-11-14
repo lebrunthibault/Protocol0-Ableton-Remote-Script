@@ -1,6 +1,11 @@
+class BrowserMock(object):
+    def load_item(self, item):
+        pass
+
 class ApplicationMock(object):
     def __init__(self):
         self.major_version = 10
+        self.browser = BrowserMock
 
     def get_major_version(self):
         return self.major_version
