@@ -10,7 +10,6 @@ class TrackName(object):
     GROUP_PROPHET_NAME = "Prophet"
     GROUP_MINITAUR_NAME = "Minitaur"
     GROUP_EXT_NAMES = (GROUP_PROPHET_NAME, GROUP_MINITAUR_NAME)
-    GROUP_CLYPHX_NAME = "Clyphx"
 
     def __init__(self, abstract_track):
         # type: (AbstractTrack) -> None
@@ -35,10 +34,6 @@ class TrackName(object):
         elif isinstance(other, str):
             return self.name == str
         return False
-
-    @property
-    def is_clyphx(self):
-        return self.name == TrackName.GROUP_CLYPHX_NAME
 
     @property
     def has_instrument_preset(self):

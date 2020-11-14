@@ -1,4 +1,6 @@
 from ClyphX_Pro.clyphx_pro.user_actions.actions.AbstractUserAction import AbstractUserAction
+from ClyphX_Pro.clyphx_pro.user_actions.lom.Song import Song
+from ClyphX_Pro.clyphx_pro.user_actions.utils.log import log
 from ClyphX_Pro.clyphx_pro.user_actions.utils.utils import for_all_methods, init_song, unarm_other_tracks
 
 
@@ -8,7 +10,9 @@ class RecordExternalInstrument(AbstractUserAction):
     """ Utility commands to record fixed length midi and audio on separate tracks """
 
     def create_actions(self):
+        self.add_global_action('scroll_selected_mode', self.scroll_selected_mode)
         self.add_global_action('scroll_tracks', self.scroll_tracks)
+        self.add_track_action('scroll_presets', self.scroll_presets)
         self.add_track_action('arm_ext', self.arm_ext)
         self.add_track_action('unarm_ext', self.unarm_ext)
         self.add_track_action('sel_ext', self.sel_ext)
@@ -19,9 +23,24 @@ class RecordExternalInstrument(AbstractUserAction):
         self.add_track_action('restart_set', self.restart_set)
         self.add_track_action('rename_all_clips', self.rename_all_clips)
 
+    def scroll_selected_mode(self, _, go_next="1"):
+        """ scroll selected scroll mode """
+        log(Song.SCROLL_MODE)
+        log("toto")
+        if Song.SCROLL_MODE == "tracks":
+            self.song().scroll_tracks(bool(go_next))
+        else:
+            self.current_track.instrument.action_scroll_presets_or_samples(bool(go_next))
+
     def scroll_tracks(self, _, go_next="1"):
-        """ arm or unarm both midi and audio track """
-        self.exec_action(self.song().scroll_tracks(bool(go_next)))
+        """ scroll top tracks """
+        Song.SCROLL_MODE = "tracks"
+        self.song().scroll_tracks(bool(go_next))
+
+    def scroll_presets(self, _, go_next=""):
+        """ scroll track device presets or samples """
+        Song.SCROLL_MODE = "presets"
+        self.current_track.instrument.action_scroll_presets_or_samples(bool(go_next))
 
     @unarm_other_tracks
     def arm_ext(self, action_def, _):
@@ -38,7 +57,7 @@ class RecordExternalInstrument(AbstractUserAction):
     @unarm_other_tracks
     def sel_ext(self, *args):
         """ Sel midi track to open ext editor """
-        self.exec_action(self.current_track.action_sel())
+        self.current_track.action_sel()
 
     def switch_monitoring_ext(self, *args):
         """ arm both midi and audio track """
@@ -65,4 +84,4 @@ class RecordExternalInstrument(AbstractUserAction):
 
     def rename_all_clips(self, *args):
         """" restart a live set from group tracks track names """
-        self.exec_action(self.song().rename_all_clips())
+        self.song().rename_all_clips()

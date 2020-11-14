@@ -49,4 +49,5 @@ class XModeAction(AbstractUserAction):
             self.canonical_parent.clyphx_pro_component.trigger_action_list(
                 "$b{0}$=$b{0}_mode_{1}$".format(i, self.xmode))
 
+        self.show_message("Activated mode {0}".format("tracks" if self.xmode == 1 else "presets"))
         self.log_to_push("Activated mode {0}".format("tracks" if self.xmode == 1 else "presets"))

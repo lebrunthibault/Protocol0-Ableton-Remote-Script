@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 
 
 class Song(SongActionMixin):
+    SCROLL_MODE = "tracks"
 
     def __init__(self, song, parent=None):
         # type: (Any, "AbstractUserAction") -> None

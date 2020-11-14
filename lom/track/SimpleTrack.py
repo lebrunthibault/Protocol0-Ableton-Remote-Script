@@ -59,9 +59,8 @@ class SimpleTrack(SimpleTrackActionMixin, SimpleTrackListenersMixin, AbstractTra
     def is_groupable(self):
         # type: () -> bool
         return self.is_group_ext or \
-               self.is_clyphx or \
-               (self.index >= 2 and self.song.tracks[self.index - 1].is_clyphx) or \
-               (self.index >= 3 and self.song.tracks[self.index - 2].is_clyphx)
+               (self.index >= 1 and self.song.tracks[self.index - 1].is_group_ext) or \
+               (self.index >= 2 and self.song.tracks[self.index - 2].is_group_ext)
 
     @property
     def is_group_ext(self):
@@ -71,14 +70,8 @@ class SimpleTrack(SimpleTrackActionMixin, SimpleTrackListenersMixin, AbstractTra
     @property
     def is_nested_group_ex_track(self):
         # type: () -> bool
-        return self.is_clyphx or \
-               (self.index >= 2 and self.song.tracks[self.index - 1].is_clyphx) or \
-               (self.index >= 3 and self.song.tracks[self.index - 2].is_clyphx)
-
-    @property
-    def is_clyphx(self):
-        # type: () -> bool
-        return TrackName(self).is_clyphx
+        return (self.index >= 1 and self.song.tracks[self.index - 1].is_group_ext) or \
+               (self.index >= 2 and self.song.tracks[self.index - 2].is_group_ext)
 
     @property
     def is_audio(self):

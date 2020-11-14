@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from functools import partial
 
-from typing import Optional, TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Callable
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences

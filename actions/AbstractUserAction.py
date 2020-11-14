@@ -40,9 +40,19 @@ class AbstractUserAction(UserActionsBase):
 
         return tracks[0]
 
+    def show_message(self, message):
+        # type: (str) -> None
+        self.log(message)
+        self.canonical_parent.show_message(message)
+
     def log(self, message):
         # type: (str) -> None
         self.canonical_parent.log_message(message)
+
+    def log_to_push(self, message):
+        # type: (str) -> None
+        self.log(message)
+        self.exec_action("push msg %s" % message, "push msg")
 
     def schedule_message(self, wait_time, message):
         # type: (int, Callable) -> None
@@ -56,11 +66,6 @@ class AbstractUserAction(UserActionsBase):
         # type: (int, Callable) -> None
         self.canonical_parent.schedule_message(ticks_count, message)
 
-    def log_to_push(self, message):
-        # type: (str) -> None
-        self.log(message)
-        self.exec_action("push msg %s" % message, "push msg")
-
     def exec_action(self, action_list, title=None):
         # type: (Optional[str], Optional[str]) -> None
         if self.unarm_other_tracks:
@@ -73,7 +78,3 @@ class AbstractUserAction(UserActionsBase):
         if action_list:
             self.log("{0}: {1}".format(title if title else self.song().current_action_name, action_list))
             self.canonical_parent.clyphx_pro_component.trigger_action_list(action_list)
-        # else:
-            # log_ableton(self.song().current_action_name)
-
-        # self.song().current_action_name = None

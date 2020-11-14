@@ -1,4 +1,4 @@
-from ClyphX_Pro.clyphx_pro.user_actions.actions.BomeCommands import BomeCommands
+from ClyphX_Pro.clyphx_pro.user_actions.actions.AhkCommands import AhkCommands
 from ClyphX_Pro.clyphx_pro.user_actions.instruments.AbstractInstrument import AbstractInstrument
 
 
@@ -7,8 +7,8 @@ class InstrumentMinitaur(AbstractInstrument):
 
     def action_show(self):
         # type: () -> None
-        BomeCommands.select_first_vst()
+        AhkCommands.select_first_vst()
 
-    def action_browse_presets_or_samples(self, go_next):
+    def action_scroll_presets_or_samples(self, go_next):
         # type: (bool) -> str
         return self.action_scroll_via_program_change(go_next)

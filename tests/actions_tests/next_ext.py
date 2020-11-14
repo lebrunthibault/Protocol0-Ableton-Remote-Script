@@ -1,6 +1,6 @@
 import pytest
 
-from ClyphX_Pro.clyphx_pro.user_actions.tests.fixtures.song import make_song, select_song_track
+from ClyphX_Pro.clyphx_pro.user_actions.tests.fixtures.song import make_song
 
 
 def test_song_empty_next_ext():
@@ -52,9 +52,9 @@ def test_song_group_tracks_next_ext():
     # type: () -> None
     song = make_song(count_group_tracks=3)
     song.scroll_tracks(True)
-    assert song.selected_track.index == 4
+    assert song.selected_track.index == 3
     song.scroll_tracks(True)
-    assert song.selected_track.index == 8
+    assert song.selected_track.index == 6
     song.scroll_tracks(True)
     assert song.selected_track.index == 0
 
@@ -63,12 +63,12 @@ def test_song_group_tracks_simpler_tracks_next_ext():
     # type: () -> None
     song = make_song(count_group_tracks=3, count_simple_tracks=2)
     song.scroll_tracks(True)
-    assert song.selected_track.index == 4
+    assert song.selected_track.index == 3
     song.scroll_tracks(True)
-    assert song.selected_track.index == 8
+    assert song.selected_track.index == 6
     song.scroll_tracks(True)
-    assert song.selected_track.index == 12
+    assert song.selected_track.index == 9
     song.scroll_tracks(True)
-    assert song.selected_track.index == 13
+    assert song.selected_track.index == 10
     song.scroll_tracks(True)
     assert song.selected_track.index == 0

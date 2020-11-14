@@ -1,7 +1,7 @@
 import traceback
 
 from ClyphX_Pro.clyphx_pro.user_actions.lom.Song import Song
-from ClyphX_Pro.clyphx_pro.user_actions.utils.log import log_ableton
+from ClyphX_Pro.clyphx_pro.user_actions.utils.log import log
 
 
 def print_except(func):
@@ -24,6 +24,7 @@ def init_song(func):
                 self._my_song = Song(self._song, self)
                 if not self._my_song.current_action_name:
                     self._my_song.current_action_name = func.__name__
+                log(args)
                 self.current_track = self._my_song.get_abstract_track(args[0]["track"]) if isinstance(args[0], dict) and "track" in args[0] else None
             func(self, *args, **kwargs)
         except Exception as e:
@@ -31,6 +32,7 @@ def init_song(func):
             self.canonical_parent.log_message(traceback.format_exc())
             self.canonical_parent.clyphx_pro_component.trigger_action_list('push msg "%s"' % err)
 
+        # unarm previous tracks if necessary
         if func.__name__ != "create_actions":
             if self.unarm_other_tracks:
                 if self.song().other_armed_group_track(self.current_track):
@@ -38,7 +40,7 @@ def init_song(func):
                 for simple_track in self.song().simple_armed_tracks(self.current_track):
                     simple_track.action_unarm()
                 self.unarm_other_tracks = False
-            log_ableton(self.song().current_action_name)
+            log(self.song().current_action_name)
 
     return decorate
 

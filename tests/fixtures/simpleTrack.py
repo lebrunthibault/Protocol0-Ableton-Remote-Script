@@ -1,5 +1,6 @@
 from ClyphX_Pro.clyphx_pro.user_actions.lom.Song import Song
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
+from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
 from ClyphX_Pro.clyphx_pro.user_actions.tests.fixtures.device import AbletonDevice, make_device_simpler
 
@@ -45,13 +46,6 @@ def make_group_track(song, name=TrackName.GROUP_PROPHET_NAME):
     return simple_track
 
 
-def make_clyphx_track(song):
-    # type: (Song) -> SimpleTrack
-    simple_track = SimpleTrack(song, AbletonTrack(name=TrackName.GROUP_CLYPHX_NAME, track_type=TrackType.MIDI), len(song.tracks))
-    song.tracks.append(simple_track)
-    return simple_track
-
-
 def make_midi_track(song, name="midi"):
     # type: (Song, str) -> SimpleTrack
     simple_track = SimpleTrack(song, AbletonTrack(name=name, track_type=TrackType.MIDI), len(song.tracks))
@@ -71,3 +65,9 @@ def make_simpler_track(song, name="simpler"):
     simple_track = SimpleTrack(song, AbletonTrack(name=name, device=make_device_simpler()), len(song.tracks))
     song.tracks.append(simple_track)
     return simple_track
+
+
+def get_track(track):
+    # type: (SimpleTrack) -> AbstractTrack
+    return track.song.get_abstract_track(track.track)
+

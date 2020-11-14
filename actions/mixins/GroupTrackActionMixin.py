@@ -11,9 +11,8 @@ if TYPE_CHECKING:
 class GroupTrackActionMixin(object):
     def action_arm(self):
         # type: ("GroupTrack", Optional[bool]) -> None
-        self.clyphx.clips[0].color = Colors.ARM
+        self.color = Colors.ARM
         self.group.is_folded = False
-        self.clyphx.arm = False
         self.midi.arm = self.audio.arm = True
 
         if self.song.current_action_name in ("sel_ext", "arm_ext"):
@@ -21,16 +20,15 @@ class GroupTrackActionMixin(object):
 
         # activate the rev2 editor for this group track
         if self.is_prophet_group_track:
-            self.action_sel()
+            self.selectable_track.action_sel()
 
-    def action_unarm(self, direct_unarm=False):
+    def action_unarm(self):
         # type: ("GroupTrack", bool) -> None
         self.group.is_folded = True
-        self.clyphx.arm = direct_unarm
         self.audio.arm = self.midi.arm = False
-        self.clyphx.clips[0].color = self.color
+        self.color = self.color
         if self.audio.is_playing:
-            self.clyphx.clips[1].color = Colors.PLAYING
+            self.color = Colors.PLAYING
         self.audio.has_monitor_in = False
 
     def action_sel(self):
@@ -67,7 +65,6 @@ class GroupTrackActionMixin(object):
     def action_post_record(self):
         # type: ("GroupTrack") -> None
         self.song.metronome = False
-        self.clyphx.clips[1].color = Colors.PLAYING
         if self.song.current_action_name == "record_ext":
             self.audio.has_monitor_in = True
 

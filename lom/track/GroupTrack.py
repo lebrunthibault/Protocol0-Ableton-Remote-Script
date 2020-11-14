@@ -7,7 +7,6 @@ from ClyphX_Pro.clyphx_pro.user_actions.lom.Colors import Colors
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
 from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
-from ClyphX_Pro.clyphx_pro.user_actions.utils.log import log_ableton
 
 if TYPE_CHECKING:
     from ClyphX_Pro.clyphx_pro.user_actions.lom.Song import Song
@@ -25,17 +24,15 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
             raise Exception(
                 "tried to instantiate non group track with base_track {0} and found track index {1}".format(base_track,
                                                                                                         self.track_index_group))
-        # check if we clicked on group track instead of clyphx track
-        if track.is_clyphx:
+        # check if selectable track is part of group
+        if song.tracks[track.index - 1].is_group_ext:
             self.track_index_group -= 1
-        elif song.tracks[track.index - 1].is_clyphx:
+        elif song.tracks[track.index - 2].is_group_ext:
             self.track_index_group -= 2
-        elif song.tracks[track.index - 2].is_clyphx:
-            self.track_index_group -= 3
 
         super(GroupTrack, self).__init__(song, self.group.track, self.track_index_group)
 
-        self.clyphx.g_track = self.midi.g_track = self.audio.g_track = self
+        self.midi.g_track = self.audio.g_track = self
 
         # we need the group track name to be immutable as it's used to identify group tracks
         if not self.group._track.name_has_listener(self.group.name_listener):
@@ -102,19 +99,14 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
         return self.song.tracks[self.track_index_group]
 
     @property
-    def clyphx(self):
+    def midi(self):
         # type: () -> SimpleTrack
         return self.song.tracks[self.track_index_group + 1]
 
     @property
-    def midi(self):
-        # type: () -> SimpleTrack
-        return self.song.tracks[self.track_index_group + 2]
-
-    @property
     def audio(self):
         # type: () -> SimpleTrack
-        return self.song.tracks[self.track_index_group + 3]
+        return self.song.tracks[self.track_index_group + 2]
 
     @property
     def arm(self):
@@ -124,7 +116,7 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
     @property
     def any_armed(self):
         # type: () -> bool
-        return self.clyphx.arm or self.midi.arm or self.audio.arm
+        return self.midi.arm or self.audio.arm
 
     @property
     def can_be_armed(self):
@@ -153,5 +145,7 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
     @color.setter
     def color(self, color):
         # type: (int) -> None
-        self.clyphx.clips[0].color = color
+        self.group.color = color
+        self.midi.color = color
+        self.audio.color = color
 
