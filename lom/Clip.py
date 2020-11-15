@@ -1,10 +1,10 @@
 from typing import Any, Optional, TYPE_CHECKING
 
-from ClyphX_Pro.clyphx_pro.user_actions.actions.mixins.ClipActionMixin import ClipActionMixin
+from a_protocol_0.actions.mixins.ClipActionMixin import ClipActionMixin
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
-    from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
+    from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 
 
 class Clip(ClipActionMixin):

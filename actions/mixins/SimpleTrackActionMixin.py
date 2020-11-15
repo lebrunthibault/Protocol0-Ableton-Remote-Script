@@ -3,11 +3,11 @@ from typing import TYPE_CHECKING
 from ClyphX_Pro.clyphx_pro.MiscUtils import get_beat_time
 import Live
 
-from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
+from a_protocol_0.lom.track.TrackName import TrackName
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
-    from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
+    from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 
 
 # noinspection PyTypeHints
@@ -16,7 +16,7 @@ class SimpleTrackActionMixin(object):
         # type: ("SimpleTrack") -> None
         self.arm = True
 
-    def action_unarm(self, _=False):
+    def action_unarm(self):
         # type: ("SimpleTrack", bool) -> None
         self.arm = False
 

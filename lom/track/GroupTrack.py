@@ -1,33 +1,32 @@
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
-from ClyphX_Pro.clyphx_pro.user_actions.actions.mixins.GroupTrackActionMixin import GroupTrackActionMixin
-from ClyphX_Pro.clyphx_pro.user_actions.instruments.AbstractInstrument import AbstractInstrument
-from ClyphX_Pro.clyphx_pro.user_actions.lom.ClipSlot import ClipSlot
-from ClyphX_Pro.clyphx_pro.user_actions.lom.Colors import Colors
-from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
-from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
-from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
+from a_protocol_0.actions.mixins.GroupTrackActionMixin import GroupTrackActionMixin
+from a_protocol_0.instruments.AbstractInstrument import AbstractInstrument
+from a_protocol_0.lom.ClipSlot import ClipSlot
+from a_protocol_0.lom.Colors import Colors
+from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
+from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
+from a_protocol_0.lom.track.TrackName import TrackName
 
 if TYPE_CHECKING:
-    from ClyphX_Pro.clyphx_pro.user_actions.lom.Song import Song
+    from a_protocol_0.lom.Song import Song
 
 
 class GroupTrack(GroupTrackActionMixin, AbstractTrack):
     def __init__(self, song, base_track):
-        # type: ("Song", Any) -> None
+        # type: ("Song", SimpleTrack) -> None
         # getting our track object
-        track = song.get_track(base_track)
         self.song = song  # type: Song
-        self.track_index_group = track.index  # type: int
+        self.track_index_group = base_track.index  # type: int
 
-        if not track.is_groupable:
+        if not base_track.is_groupable:
             raise Exception(
                 "tried to instantiate non group track with base_track {0} and found track index {1}".format(base_track,
                                                                                                         self.track_index_group))
         # check if selectable track is part of group
-        if song.tracks[track.index - 1].is_group_ext:
+        if song.tracks[base_track.index - 1].is_group_ext:
             self.track_index_group -= 1
-        elif song.tracks[track.index - 2].is_group_ext:
+        elif song.tracks[base_track.index - 2].is_group_ext:
             self.track_index_group -= 2
 
         super(GroupTrack, self).__init__(song, self.group.track, self.track_index_group)

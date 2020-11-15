@@ -1,10 +1,10 @@
 from typing import Optional, TYPE_CHECKING
 
-from ClyphX_Pro.clyphx_pro.user_actions.lom.Colors import Colors
+from a_protocol_0.lom.Colors import Colors
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
-    from ClyphX_Pro.clyphx_pro.user_actions.lom.track.GroupTrack import GroupTrack
+    from a_protocol_0.lom.track.GroupTrack import GroupTrack
 
 
 # noinspection PyTypeHints
@@ -23,7 +23,7 @@ class GroupTrackActionMixin(object):
             self.selectable_track.action_sel()
 
     def action_unarm(self):
-        # type: ("GroupTrack", bool) -> None
+        # type: ("GroupTrack") -> None
         self.group.is_folded = True
         self.audio.arm = self.midi.arm = False
         self.color = self.color

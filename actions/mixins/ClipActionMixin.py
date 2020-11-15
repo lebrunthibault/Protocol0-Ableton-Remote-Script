@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
-    from ClyphX_Pro.clyphx_pro.user_actions.lom.Clip import Clip
+    from a_protocol_0.lom.Clip import Clip
 
 
 # noinspection PyTypeHints

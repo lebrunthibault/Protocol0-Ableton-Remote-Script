@@ -2,7 +2,7 @@ import logging
 import os
 from os.path import expanduser
 
-from ClyphX_Pro.clyphx_pro.user_actions.utils.config import Config
+from a_protocol_0.utils.config import Config
 
 if Config.DEBUG:
     home = expanduser("~")

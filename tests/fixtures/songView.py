@@ -1,6 +1,6 @@
 from typing import Optional
 
-from ClyphX_Pro.clyphx_pro.user_actions.tests.fixtures.simpleTrack import AbletonTrack
+from a_protocol_0.tests.fixtures.simpleTrack import AbletonTrack
 
 
 class AbletonSongView(object):

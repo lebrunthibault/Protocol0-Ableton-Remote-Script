@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING, Optional
 
-from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
+from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
-    from ClyphX_Pro.clyphx_pro.user_actions.lom.Song import Song
+    from a_protocol_0.lom.Song import Song
 
 
 # noinspection PyTypeHints

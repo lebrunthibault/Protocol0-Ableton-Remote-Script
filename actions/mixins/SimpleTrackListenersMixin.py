@@ -1,11 +1,11 @@
 from functools import partial
 from typing import TYPE_CHECKING
 
-from ClyphX_Pro.clyphx_pro.user_actions.utils.log import log
+from a_protocol_0.utils.log import log
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
-    from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
+    from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 
 
 # noinspection PyTypeHints

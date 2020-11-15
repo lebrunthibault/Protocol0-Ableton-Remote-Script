@@ -3,15 +3,15 @@ from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING
 import Live
 
-from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
+from a_protocol_0.lom.track.TrackName import TrackName
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
-    from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
+    from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
     # noinspection PyUnresolvedReferences
-    from ClyphX_Pro.clyphx_pro.user_actions.lom.Song import Song
+    from a_protocol_0.lom.Song import Song
     # noinspection PyUnresolvedReferences
-    from ClyphX_Pro.clyphx_pro.user_actions.actions.AbstractUserAction import AbstractUserAction
+    from a_protocol_0.actions.AbstractUserAction import AbstractUserAction
 
 
 class AbstractInstrument(object):

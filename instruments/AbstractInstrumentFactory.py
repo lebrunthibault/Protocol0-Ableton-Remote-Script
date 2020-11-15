@@ -1,14 +1,14 @@
 from typing import TYPE_CHECKING
 
-from ClyphX_Pro.clyphx_pro.user_actions.instruments.AbstractInstrument import AbstractInstrument
-from ClyphX_Pro.clyphx_pro.user_actions.instruments.InstrumentMinitaur import InstrumentMinitaur
-from ClyphX_Pro.clyphx_pro.user_actions.instruments.InstrumentNull import InstrumentNull
-from ClyphX_Pro.clyphx_pro.user_actions.instruments.InstrumentProphet import InstrumentProphet
-from ClyphX_Pro.clyphx_pro.user_actions.instruments.InstrumentSimpler import InstrumentSimpler
+from a_protocol_0.instruments.AbstractInstrument import AbstractInstrument
+from a_protocol_0.instruments.InstrumentMinitaur import InstrumentMinitaur
+from a_protocol_0.instruments.InstrumentNull import InstrumentNull
+from a_protocol_0.instruments.InstrumentProphet import InstrumentProphet
+from a_protocol_0.instruments.InstrumentSimpler import InstrumentSimpler
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
-    from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
+    from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 
 
 class AbstractInstrumentFactory(object):

@@ -1,13 +1,13 @@
 from typing import Any, Optional, TYPE_CHECKING, Union
 
-from ClyphX_Pro.clyphx_pro.user_actions.actions.mixins.SongActionMixin import SongActionMixin
-from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
-from ClyphX_Pro.clyphx_pro.user_actions.lom.track.GroupTrack import GroupTrack
-from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
+from a_protocol_0.actions.mixins.SongActionMixin import SongActionMixin
+from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
+from a_protocol_0.lom.track.GroupTrack import GroupTrack
+from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
-    from ClyphX_Pro.clyphx_pro.user_actions.actions.AbstractUserAction import AbstractUserAction
+    from a_protocol_0.actions.AbstractUserAction import AbstractUserAction
 
 
 class Song(SongActionMixin):
@@ -30,6 +30,29 @@ class Song(SongActionMixin):
     @property
     def song(self):
         return self._song
+
+    @property
+    def selected_track(self):
+        # type: () -> Optional[SimpleTrack]
+        if not self.view.selected_track:
+            return None
+
+        return self.get_track(self.view.selected_track)
+
+    @selected_track.setter
+    def selected_track(self, selected_track):
+        # type: (SimpleTrack) -> None
+        self.view.selected_track = selected_track.track
+
+    @property
+    def current_track(self):
+        # type: () -> Optional[AbstractTrack]
+        if self.selected_track is None:
+            return None
+        elif self.selected_track.is_groupable:
+            return GroupTrack(self, self.selected_track)
+        else:
+            return self.selected_track
 
     @property
     def tempo(self):
@@ -82,21 +105,8 @@ class Song(SongActionMixin):
     @property
     def group_ex_tracks(self):
         # type: () -> list[GroupTrack]
-        return [GroupTrack(self, track.track) for track in self.tracks if
+        return [GroupTrack(self, track) for track in self.tracks if
                 track.is_group_ext]
-
-    @property
-    def selected_track(self):
-        # type: () -> Optional[SimpleTrack]
-        if not self.view.selected_track:
-            return None
-
-        return self.get_track(self.view.selected_track)
-
-    @selected_track.setter
-    def selected_track(self, selected_track):
-        # type: (SimpleTrack) -> None
-        self.view.selected_track = selected_track.track
 
     @property
     def clip_trigger_quantization(self):
@@ -122,16 +132,11 @@ class Song(SongActionMixin):
         # type: (int) -> int
         return int(round((600 / self._song.tempo) * (4 * (int(bar_count) + 1) - 0.5)))
 
-    def get_abstract_track(self, track):
-        # type: (Any) -> Union[SimpleTrack, GroupTrack]
-        track = self.get_track(track)
-        if track.is_groupable:
-            return GroupTrack(self, track.track)
-        else:
-            return track
-
     def get_track(self, track):
         # type: (Any) -> SimpleTrack
+        if isinstance(track, AbstractTrack):
+            raise Exception("Expected Live track, got AbstractTrack instead")
+
         for t in self.tracks:
             if t.track == track:
                 return t

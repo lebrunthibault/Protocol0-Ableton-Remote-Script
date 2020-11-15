@@ -1,5 +1,5 @@
-from ClyphX_Pro.clyphx_pro.user_actions.actions.AhkCommands import AhkCommands
-from ClyphX_Pro.clyphx_pro.user_actions.instruments.AbstractInstrument import AbstractInstrument
+from a_protocol_0.actions.AhkCommands import AhkCommands
+from a_protocol_0.instruments.AbstractInstrument import AbstractInstrument
 
 
 class InstrumentProphet(AbstractInstrument):

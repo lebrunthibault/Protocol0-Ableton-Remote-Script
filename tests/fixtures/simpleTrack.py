@@ -1,8 +1,8 @@
-from ClyphX_Pro.clyphx_pro.user_actions.lom.Song import Song
-from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
-from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
-from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
-from ClyphX_Pro.clyphx_pro.user_actions.tests.fixtures.device import AbletonDevice, make_device_simpler
+from a_protocol_0.lom.Song import Song
+from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
+from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
+from a_protocol_0.lom.track.TrackName import TrackName
+from a_protocol_0.tests.fixtures.device import AbletonDevice, make_device_simpler
 
 
 class TrackType(object):
@@ -65,9 +65,4 @@ def make_simpler_track(song, name="simpler"):
     simple_track = SimpleTrack(song, AbletonTrack(name=name, device=make_device_simpler()), len(song.tracks))
     song.tracks.append(simple_track)
     return simple_track
-
-
-def get_track(track):
-    # type: (SimpleTrack) -> AbstractTrack
-    return track.song.get_abstract_track(track.track)
 

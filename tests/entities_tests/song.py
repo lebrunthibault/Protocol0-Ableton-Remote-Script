@@ -1,4 +1,4 @@
-from ClyphX_Pro.clyphx_pro.user_actions.tests.fixtures.song import make_song
+from a_protocol_0.tests.fixtures.song import make_song
 
 
 def test_song_empty():

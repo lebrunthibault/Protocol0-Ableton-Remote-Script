@@ -1,9 +1,9 @@
 import pytest
-from ClyphX_Pro.clyphx_pro.user_actions.lom.Song import Song
-from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
-from ClyphX_Pro.clyphx_pro.user_actions.tests.fixtures.groupTrack import make_group_ex_track
-from ClyphX_Pro.clyphx_pro.user_actions.tests.fixtures.songView import AbletonSongView
-from ClyphX_Pro.clyphx_pro.user_actions.tests.fixtures.simpleTrack import make_simpler_track, make_group_track, \
+from a_protocol_0.lom.Song import Song
+from a_protocol_0.lom.track.TrackName import TrackName
+from a_protocol_0.tests.fixtures.groupTrack import make_group_ex_track
+from a_protocol_0.tests.fixtures.songView import AbletonSongView
+from a_protocol_0.tests.fixtures.simpleTrack import make_simpler_track, make_group_track, \
     AbletonTrack
 
 

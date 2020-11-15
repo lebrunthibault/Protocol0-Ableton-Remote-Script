@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Callable
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
-    from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
+    from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 
 
 # noinspection PyTypeHints
@@ -16,8 +16,8 @@ class AbstractTrackActionMixin(object):
         pass
 
     @abstractmethod
-    def action_unarm(self, direct_unarm):
-        # type: ("AbstractTrack", bool) -> None
+    def action_unarm(self):
+        # type: ("AbstractTrack") -> None
         pass
 
     @abstractmethod

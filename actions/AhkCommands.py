@@ -1,7 +1,7 @@
 from os.path import expanduser
 import subprocess
 
-from ClyphX_Pro.clyphx_pro.user_actions.utils.log import log
+from a_protocol_0.utils.log import log
 
 home = expanduser("~")
 

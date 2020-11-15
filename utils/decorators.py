@@ -1,7 +1,7 @@
 import traceback
 
-from ClyphX_Pro.clyphx_pro.user_actions.lom.Song import Song
-from ClyphX_Pro.clyphx_pro.user_actions.utils.log import log
+from a_protocol_0.lom.Song import Song
+from a_protocol_0.utils.log import log
 
 
 def print_except(func):
@@ -10,8 +10,7 @@ def print_except(func):
             func(*args, **kwargs)
         except Exception as e:
             err = "ScriptError: " + str(e)
-            args[0].canonical_parent.log_message(traceback.format_exc())
-            args[0].canonical_parent.clyphx_pro_component.trigger_action_list('push msg "%s"' % err)
+            args[0].log_message(traceback.format_exc())
 
     return decorate
 
@@ -22,9 +21,7 @@ def init_song(func):
         try:
             if func.__name__ != "create_actions":
                 self._my_song = Song(self._song, self)
-                if not self._my_song.current_action_name:
-                    self._my_song.current_action_name = func.__name__
-                self.current_track = self._my_song.get_abstract_track(args[0]["track"]) if isinstance(args[0], dict) and "track" in args[0] else None
+                self._my_song.current_action_name = self._my_song.current_action_name or func.__name__
             func(self, *args, **kwargs)
         except Exception as e:
             err = "ScriptError: " + str(e)
@@ -34,12 +31,12 @@ def init_song(func):
         # unarm previous tracks if necessary
         if func.__name__ != "create_actions":
             if self.unarm_other_tracks:
-                if self.song().other_armed_group_track(self.current_track):
-                    self.song().other_armed_group_track(self.current_track).action_unarm()
-                for simple_track in self.song().simple_armed_tracks(self.current_track):
+                if self.mySong().other_armed_group_track(self.current_track):
+                    self.mySong().other_armed_group_track(self.current_track).action_unarm()
+                for simple_track in self.mySong().simple_armed_tracks(self.current_track):
                     simple_track.action_unarm()
                 self.unarm_other_tracks = False
-            log(self.song().current_action_name)
+            log(self.mySong().current_action_name)
 
     return decorate
 

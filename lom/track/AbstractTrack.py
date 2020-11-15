@@ -3,13 +3,13 @@ from abc import ABCMeta, abstractproperty
 from typing import Any
 from typing import TYPE_CHECKING
 
-from ClyphX_Pro.clyphx_pro.user_actions.actions.mixins.AbstractTrackActionMixin import AbstractTrackActionMixin
-from ClyphX_Pro.clyphx_pro.user_actions.instruments.AbstractInstrument import AbstractInstrument
-from ClyphX_Pro.clyphx_pro.user_actions.lom.ClipSlot import ClipSlot
+from a_protocol_0.actions.mixins.AbstractTrackActionMixin import AbstractTrackActionMixin
+from a_protocol_0.instruments.AbstractInstrument import AbstractInstrument
+from a_protocol_0.lom.ClipSlot import ClipSlot
 
 if TYPE_CHECKING:
-    from ClyphX_Pro.clyphx_pro.user_actions.lom.Song import Song
-    from ClyphX_Pro.clyphx_pro.user_actions.actions.AbstractUserAction import AbstractUserAction
+    from a_protocol_0.lom.Song import Song
+    from a_protocol_0.Protocol0Component import Protocol0Component
 
 
 # noinspection PyDeprecation
@@ -30,7 +30,7 @@ class AbstractTrack(AbstractTrackActionMixin):
 
     @property
     def parent(self):
-        # type: () -> AbstractUserAction
+        # type: () -> Protocol0Component
         return self.song.parent
 
     @abstractproperty

@@ -1,4 +1,4 @@
-from ClyphX_Pro.clyphx_pro.user_actions.instruments.AbstractInstrument import AbstractInstrument
+from a_protocol_0.instruments.AbstractInstrument import AbstractInstrument
 
 
 class InstrumentNull(AbstractInstrument):

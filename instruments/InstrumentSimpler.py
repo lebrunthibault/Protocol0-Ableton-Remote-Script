@@ -2,7 +2,7 @@ from os import listdir
 from os.path import isfile, join, isdir
 
 import Live
-from ClyphX_Pro.clyphx_pro.user_actions.instruments.AbstractInstrument import AbstractInstrument
+from a_protocol_0.instruments.AbstractInstrument import AbstractInstrument
 
 
 class InstrumentSimpler(AbstractInstrument):

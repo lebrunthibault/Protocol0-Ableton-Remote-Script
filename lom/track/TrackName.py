@@ -2,8 +2,8 @@ from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
-    from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
-    from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
+    from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
+    from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 
 
 class TrackName(object):
@@ -41,7 +41,7 @@ class TrackName(object):
 
     def get_track_name_for_clip_index(self, clip_index=None):
         # type: (Optional[int]) -> str
-        from ClyphX_Pro.clyphx_pro.user_actions.lom.track.SimpleTrack import SimpleTrack
+        from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
         if not isinstance(self.track, SimpleTrack):
             return self.name
 

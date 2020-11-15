@@ -1,17 +1,17 @@
 from typing import Any, Optional, TYPE_CHECKING
 
-from ClyphX_Pro.clyphx_pro.user_actions.actions.mixins.SimpleTrackActionMixin import SimpleTrackActionMixin
-from ClyphX_Pro.clyphx_pro.user_actions.actions.mixins.SimpleTrackListenersMixin import SimpleTrackListenersMixin
-from ClyphX_Pro.clyphx_pro.user_actions.instruments.AbstractInstrument import AbstractInstrument
-from ClyphX_Pro.clyphx_pro.user_actions.instruments.AbstractInstrumentFactory import AbstractInstrumentFactory
-from ClyphX_Pro.clyphx_pro.user_actions.lom.Clip import Clip
-from ClyphX_Pro.clyphx_pro.user_actions.lom.ClipSlot import ClipSlot
-from ClyphX_Pro.clyphx_pro.user_actions.lom.track.AbstractTrack import AbstractTrack
-from ClyphX_Pro.clyphx_pro.user_actions.lom.track.TrackName import TrackName
+from a_protocol_0.actions.mixins.SimpleTrackActionMixin import SimpleTrackActionMixin
+from a_protocol_0.actions.mixins.SimpleTrackListenersMixin import SimpleTrackListenersMixin
+from a_protocol_0.instruments.AbstractInstrument import AbstractInstrument
+from a_protocol_0.instruments.AbstractInstrumentFactory import AbstractInstrumentFactory
+from a_protocol_0.lom.Clip import Clip
+from a_protocol_0.lom.ClipSlot import ClipSlot
+from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
+from a_protocol_0.lom.track.TrackName import TrackName
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
-    from ClyphX_Pro.clyphx_pro.user_actions.lom.track.GroupTrack import GroupTrack
+    from a_protocol_0.lom.track.GroupTrack import GroupTrack
 
 
 class SimpleTrack(SimpleTrackActionMixin, SimpleTrackListenersMixin, AbstractTrack):
