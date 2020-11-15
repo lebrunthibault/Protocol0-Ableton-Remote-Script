@@ -7,7 +7,7 @@ class ArmToggler(ControlSurfaceComponent):
     def __init__(self, *a, **k):
         super(ArmToggler, self).__init__(*a, **k)
         self.last_gq_value = 4
-        self._button = None # type: ButtonElements
+        self._button = None # type: ButtonElement
 
     def disconnect(self):
         super(ArmToggler, self).disconnect()
