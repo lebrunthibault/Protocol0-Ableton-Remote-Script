@@ -24,7 +24,6 @@ def init_song(func):
                 self._my_song = Song(self._song, self)
                 if not self._my_song.current_action_name:
                     self._my_song.current_action_name = func.__name__
-                log(args)
                 self.current_track = self._my_song.get_abstract_track(args[0]["track"]) if isinstance(args[0], dict) and "track" in args[0] else None
             func(self, *args, **kwargs)
         except Exception as e:
