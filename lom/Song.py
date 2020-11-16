@@ -7,25 +7,27 @@ from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
-    from a_protocol_0.actions.AbstractUserAction import AbstractUserAction
+    from a_protocol_0.actions.Protocol0Component import Protocol0Component
 
 
 class Song(SongActionMixin):
     SCROLL_MODE = "tracks"
 
     def __init__(self, song, parent=None):
-        # type: (Any, "AbstractUserAction") -> None
+        # type: (Any, "Protocol0Component") -> None
         self._song = song
         self.parent = parent
         self.view = self._song.view  # type -> Any
-        self.tracks = [SimpleTrack(self, track, i) for i, track in
-                       enumerate(list(song.tracks))]  # type: list[SimpleTrack]
-        for track in self.tracks:
-            track.song = self
-
         self.bar_count = 128  # type: int
         self.current_action_name = ""  # type: str
         self.await_track_rename = False
+        self.refresh()
+
+    def refresh(self):
+        self.tracks = [SimpleTrack(self, track, i) for i, track in
+                       enumerate(list(self._song.tracks))]  # type: list[SimpleTrack]
+        for track in self.tracks:
+            track.song = self
 
     @property
     def song(self):
@@ -47,12 +49,7 @@ class Song(SongActionMixin):
     @property
     def current_track(self):
         # type: () -> Optional[AbstractTrack]
-        if self.selected_track is None:
-            return None
-        elif self.selected_track.is_groupable:
-            return GroupTrack(self, self.selected_track)
-        else:
-            return self.selected_track
+        return self.get_abstract_track(self.selected_track) if self.selected_track else None
 
     @property
     def tempo(self):

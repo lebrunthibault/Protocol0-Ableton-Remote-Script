@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, Optional
 
+from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
+from a_protocol_0.lom.track.GroupTrack import GroupTrack
 from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 
 if TYPE_CHECKING:
@@ -9,6 +11,10 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class SongActionMixin(object):
+    def get_abstract_track(self, track):
+        # type: ("Song", SimpleTrack) -> AbstractTrack
+        return GroupTrack(self, track) if track.is_groupable else track
+
     def scroll_tracks(self, go_next):
         # type: ("Song", bool) -> None
         selected_track_index = self.selected_track.index if self.selected_track else 0

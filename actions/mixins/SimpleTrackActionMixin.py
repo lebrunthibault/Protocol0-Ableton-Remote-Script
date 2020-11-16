@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 class SimpleTrackActionMixin(object):
     def action_arm(self):
         # type: ("SimpleTrack") -> None
+        self.parent.log_message("action_arm simple")
         self.arm = True
 
     def action_unarm(self):

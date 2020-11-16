@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 class GroupTrackActionMixin(object):
     def action_arm(self):
         # type: ("GroupTrack", Optional[bool]) -> None
+        self.parent.log_message("action_arm group")
         self.color = Colors.ARM
         self.group.is_folded = False
         self.midi.arm = self.audio.arm = True

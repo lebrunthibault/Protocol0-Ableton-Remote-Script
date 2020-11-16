@@ -3,6 +3,8 @@ from functools import partial
 
 from typing import TYPE_CHECKING, Callable
 
+from a_protocol_0.utils.decorators import debounce
+
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
@@ -14,6 +16,13 @@ class AbstractTrackActionMixin(object):
     def action_arm(self):
         # type: ("AbstractTrack") -> None
         pass
+
+    @debounce(1)
+    def action_arm_debounced(self):
+        # type: ("AbstractTrack") -> None
+        self.parent.log_message("action_arm_debounced")
+        self.song.refresh()
+        self.song.get_abstract_track(self.song.get_track(self.track)).action_arm()
 
     @abstractmethod
     def action_unarm(self):
