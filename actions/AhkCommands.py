@@ -28,4 +28,3 @@ class AhkCommands(object):
     def show_and_activate_rev2_editor(cls):
         # type: () -> None
         AhkCommands.sendKeys("^{F3}")
-

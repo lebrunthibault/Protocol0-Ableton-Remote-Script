@@ -2,6 +2,7 @@ class BrowserMock(object):
     def load_item(self, item):
         pass
 
+
 class ApplicationMock(object):
     def __init__(self):
         self.major_version = 10

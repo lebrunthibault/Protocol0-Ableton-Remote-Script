@@ -60,7 +60,7 @@ class AbstractInstrument(object):
             new_preset_index = 0
         else:
             new_preset_index = self.track.preset_index + 1 if go_next else self.track.preset_index - 1
-        new_preset_index = new_preset_index % self.NUMBER_OF_PRESETS
+        new_preset_index %= self.NUMBER_OF_PRESETS
 
         self.track.name = TrackName(self.track).get_track_name_for_preset_index(new_preset_index)
 

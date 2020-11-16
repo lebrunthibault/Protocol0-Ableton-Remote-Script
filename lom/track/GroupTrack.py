@@ -22,7 +22,7 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
         if not base_track.is_groupable:
             raise Exception(
                 "tried to instantiate non group track with base_track {0} and found track index {1}".format(base_track,
-                                                                                                        self.track_index_group))
+                                                                                                            self.track_index_group))
         # check if selectable track is part of group
         if song.tracks[base_track.index - 1].is_group_ext:
             self.track_index_group -= 1
@@ -147,4 +147,3 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
         self.group.color = color
         self.midi.color = color
         self.audio.color = color
-

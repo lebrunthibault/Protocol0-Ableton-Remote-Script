@@ -15,6 +15,13 @@ class SongActionMixin(object):
         next_track = self.get_next_track_by_index(selected_track_index, bool(go_next))
         next_track.is_selected = True
 
+    def unarm_other_tracks(self):
+        # type: ("Song") -> None
+        if self.other_armed_group_track(self.current_track):
+            self.other_armed_group_track(self.current_track).action_unarm()
+        for simple_track in self.simple_armed_tracks(self.current_track):
+            simple_track.action_unarm()
+
     def restart_set(self):
         # type: ("Song") -> None
         [track.restart() for track in self.tracks]
@@ -41,8 +48,4 @@ class SongActionMixin(object):
     def create_scene(self, scene_index=None):
         # type: ("Song", Optional[int]) -> None
         self._song.view.selected_scene = self._song.create_scene(scene_index or self.scene_count)
-
-    def rename_all_clips(self):
-        # type: ("Song") -> None
-        [track.restart() for track in self.tracks]
 

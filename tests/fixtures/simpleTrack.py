@@ -1,6 +1,5 @@
 from a_protocol_0.lom.Song import Song
 from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
-from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.TrackName import TrackName
 from a_protocol_0.tests.fixtures.device import AbletonDevice, make_device_simpler
 
@@ -65,4 +64,3 @@ def make_simpler_track(song, name="simpler"):
     simple_track = SimpleTrack(song, AbletonTrack(name=name, device=make_device_simpler()), len(song.tracks))
     song.tracks.append(simple_track)
     return simple_track
-

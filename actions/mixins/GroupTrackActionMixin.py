@@ -81,4 +81,3 @@ class GroupTrackActionMixin(object):
         # type: ("GroupTrack") -> None
         self.audio.action_undo()
         self.midi.action_undo()
-

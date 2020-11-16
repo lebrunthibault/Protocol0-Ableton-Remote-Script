@@ -11,6 +11,7 @@ init_file = "C:\\ProgramData\\Ableton\\Live 10 Suite\\Resources\\MIDI Remote Scr
 try:
     with open(init_file, "a"):
         from a_protocol_0.utils.config import Config
+
         Config.DEBUG = False
         from .fixtures import base_song
 
@@ -21,4 +22,7 @@ finally:
     if os.path.exists(init_file):
         os.remove(init_file)
     from shutil import copyfile
-    copyfile("C:\\Users\\thiba\\Google Drive\\music\\software presets\\clyphx pro\\Manual Setup\\MIDI Remote Scripts\\ClyphX_Pro\\__init__.pyc", "C:\\ProgramData\\Ableton\\Live 10 Suite\\Resources\\MIDI Remote Scripts\\ClyphX_Pro\\__init__.pyc")
+
+    copyfile(
+        "C:\\Users\\thiba\\Google Drive\\music\\software presets\\clyphx pro\\Manual Setup\\MIDI Remote Scripts\\ClyphX_Pro\\__init__.pyc",
+        "C:\\ProgramData\\Ableton\\Live 10 Suite\\Resources\\MIDI Remote Scripts\\ClyphX_Pro\\__init__.pyc")

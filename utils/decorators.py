@@ -1,61 +1,44 @@
 import traceback
+from typing import TYPE_CHECKING, Any
 
-from a_protocol_0.lom.Song import Song
 from a_protocol_0.utils.log import log
 
-
-def print_except(func):
-    def decorate(*args, **kwargs):
-        try:
-            func(*args, **kwargs)
-        except Exception as e:
-            err = "ScriptError: " + str(e)
-            args[0].log_message(traceback.format_exc())
-
-    return decorate
+if TYPE_CHECKING:
+    # noinspection PyUnresolvedReferences
+    from a_protocol_0.Protocol0Component import Protocol0Component
 
 
-def init_song(func):
-    """ first decorator called (outer) """
-    def decorate(self, *args, **kwargs):
-        try:
-            if func.__name__ != "create_actions":
-                self._my_song = Song(self._song, self)
-                self._my_song.current_action_name = self._my_song.current_action_name or func.__name__
-            func(self, *args, **kwargs)
-        except Exception as e:
-            err = "ScriptError: " + str(e)
-            self.canonical_parent.log_message(traceback.format_exc())
-            self.canonical_parent.clyphx_pro_component.trigger_action_list('push msg "%s"' % err)
+def action_decorator(unarm_other_tracks=False):
+    def wrap(func):
+        def decorate(self, *args, **kwargs):
+            # type: ("Protocol0Component", Any, Any) -> None
+            if not args[0]:
+                return
+            try:
+                self.log_message("Executing " + func.__name__)
+                func(self, *args, **kwargs)
+            except Exception:
+                self.log_message(traceback.format_exc())
+                return
 
-        # unarm previous tracks if necessary
-        if func.__name__ != "create_actions":
-            if self.unarm_other_tracks:
-                if self.mySong().other_armed_group_track(self.current_track):
-                    self.mySong().other_armed_group_track(self.current_track).action_unarm()
-                for simple_track in self.mySong().simple_armed_tracks(self.current_track):
-                    simple_track.action_unarm()
-                self.unarm_other_tracks = False
-            log(self.mySong().current_action_name)
+            if unarm_other_tracks:
+                self.mySong().unarm_other_tracks()
 
-    return decorate
+        return decorate
+    return wrap
 
 
 def unarm_other_tracks(func):
     """ second decorator called (inner) """
+
     def decorate(self, *args, **kwargs):
+        # type: ("Protocol0Component", Any, Any) -> None
         try:
-            if func.__name__ != "create_actions":
-                self.unarm_other_tracks = True
-                self._my_song.current_action_name = func.__name__
             func(self, *args, **kwargs)
-        except Exception as e:
-            err = "ScriptError: " + str(e)
-            self.canonical_parent.log_message(traceback.format_exc())
-            self.canonical_parent.clyphx_pro_component.trigger_action_list('push msg "%s"' % err)
+            self.mySong().unarm_other_tracks()
+        except Exception as e: raise
 
     return decorate
-
 
 def for_all_methods(decorator):
     def decorate(cls):

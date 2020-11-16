@@ -16,4 +16,3 @@ class SimpleTrackListenersMixin(object):
             log("deferring track set name call")
             self.song.await_track_rename = False
             self.song.parent.wait(1, partial(setattr, self, "name", self.original_name))
-

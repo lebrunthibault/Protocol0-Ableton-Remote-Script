@@ -1,6 +1,5 @@
 from typing import Optional, Callable
 
-from a_protocol_0.lom.track.GroupTrack import GroupTrack
 from _Framework.ControlSurface import ControlSurface
 
 from a_protocol_0.lom.Song import Song
@@ -12,7 +11,6 @@ class Protocol0Component(ControlSurface):
     def __init__(self, *a, **k):
         super(Protocol0Component, self).__init__(*a, **k)
         self._my_song = Song(self.song(), self)
-        self.unarm_other_tracks = False  # type: bool
         self.log("Protocol0Component initialized")
 
     def mySong(self):

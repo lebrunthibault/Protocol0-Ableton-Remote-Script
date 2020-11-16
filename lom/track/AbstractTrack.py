@@ -107,4 +107,3 @@ class AbstractTrack(AbstractTrackActionMixin):
     def next_empty_clip_slot(self):
         # type: () -> ClipSlot
         pass
-
