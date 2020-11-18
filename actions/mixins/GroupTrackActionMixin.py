@@ -1,6 +1,7 @@
 from typing import Optional, TYPE_CHECKING
 
 from a_protocol_0.lom.Colors import Colors
+from a_protocol_0.utils.decorators import arm_exclusive
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -9,9 +10,8 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class GroupTrackActionMixin(object):
-    def action_arm(self):
-        # type: ("GroupTrack", Optional[bool]) -> None
-        self.parent.log_message("action_arm group")
+    def action_arm_track(self):
+        # type: ("GroupTrack") -> None
         self.color = Colors.ARM
         self.group.is_folded = False
         self.midi.arm = self.audio.arm = True
@@ -32,7 +32,7 @@ class GroupTrackActionMixin(object):
             self.color = Colors.PLAYING
         self.audio.has_monitor_in = False
 
-    def action_sel(self):
+    def action_sel_track(self):
         # type: ("GroupTrack") -> None
         if self.song.selected_track == self.selectable_track:
             self.group.is_folded = self.group.is_selected = True

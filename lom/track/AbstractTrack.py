@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 from a_protocol_0.actions.mixins.AbstractTrackActionMixin import AbstractTrackActionMixin
 from a_protocol_0.instruments.AbstractInstrument import AbstractInstrument
+from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.ClipSlot import ClipSlot
 
 if TYPE_CHECKING:
@@ -13,7 +14,7 @@ if TYPE_CHECKING:
 
 
 # noinspection PyDeprecation
-class AbstractTrack(AbstractTrackActionMixin):
+class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     __metaclass__ = ABCMeta
 
     def __init__(self, song, track, index):

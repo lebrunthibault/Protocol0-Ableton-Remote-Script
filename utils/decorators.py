@@ -1,19 +1,42 @@
+import time
 import traceback
 from threading import Timer
 from typing import TYPE_CHECKING, Any
 
 from _Framework.SubjectSlot import subject_slot
-from a_protocol_0.utils.log import log
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from a_protocol_0.Protocol0Component import Protocol0Component
+    # noinspection PyUnresolvedReferences
+    from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
+
+
+def arm_exclusive(func):
+    def decorate(self, *args, **kwargs):
+        # type: ("AbstractTrack", Any, Any) -> None
+        func(self, *args, **kwargs)
+        if self.arm:
+            self.song.unarm_other_tracks()
+
+    return decorate
+
+
+def only_if_current(func):
+    def decorate(self, *args, **kwargs):
+        # type: ("AbstractTrack", Any, Any) -> None
+        if self.song.current_track != self:
+            return
+        func(self, *args, **kwargs)
+
+    return decorate
 
 
 def button_action(unarm_other_tracks=False, is_scrollable=False):
     """ Decorator that will postpone a functions
         execution until after wait seconds
         have elapsed since the last time it was invoked. """
+
     def wrap(func):
         @subject_slot("value")
         def decorate(self, *args, **kwargs):
@@ -34,24 +57,5 @@ def button_action(unarm_other_tracks=False, is_scrollable=False):
                 self.mySong().unarm_other_tracks()
 
         return decorate
+
     return wrap
-
-
-def debounce(wait):
-    """ Decorator that will postpone a functions
-        execution until after wait seconds
-        have elapsed since the last time it was invoked. """
-    def decorator(fn):
-        def debounced(*args, **kwargs):
-            def call_it():
-                fn(*args, **kwargs)
-            try:
-                log("cancelling timer")
-                debounced.t.cancel()
-            except AttributeError:
-                pass
-            log("setting timer")
-            debounced.t = Timer(wait, call_it)
-            debounced.t.start()
-        return debounced
-    return decorator

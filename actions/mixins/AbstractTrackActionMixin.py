@@ -3,7 +3,7 @@ from functools import partial
 
 from typing import TYPE_CHECKING, Callable
 
-from a_protocol_0.utils.decorators import debounce
+from a_protocol_0.utils.decorators import arm_exclusive, only_if_current
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -12,25 +12,30 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class AbstractTrackActionMixin(object):
-    @abstractmethod
+    @arm_exclusive
+    @only_if_current
     def action_arm(self):
         # type: ("AbstractTrack") -> None
-        pass
+        self.action_arm_track()
 
-    @debounce(1)
-    def action_arm_debounced(self):
+    @abstractmethod
+    def action_arm_track(self):
         # type: ("AbstractTrack") -> None
-        self.parent.log_message("action_arm_debounced")
-        self.song.refresh()
-        self.song.get_abstract_track(self.song.get_track(self.track)).action_arm()
+        pass
 
     @abstractmethod
     def action_unarm(self):
         # type: ("AbstractTrack") -> None
         pass
 
-    @abstractmethod
+    @arm_exclusive
+    @only_if_current
     def action_sel(self):
+        # type: ("AbstractTrack") -> None
+        return self.action_sel_track()
+
+    @abstractmethod
+    def action_sel_track(self):
         # type: ("AbstractTrack") -> None
         pass
 
@@ -38,6 +43,7 @@ class AbstractTrackActionMixin(object):
         # type: ("AbstractTrack") -> None
         pass
 
+    @arm_exclusive
     def action_restart_and_record(self, action_record_func):
         # type: ("AbstractTrack", Callable) -> None
         """ restart audio to get a count in and recfix"""

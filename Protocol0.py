@@ -1,4 +1,7 @@
 from __future__ import with_statement
+
+from functools import partial
+
 from _Framework.ButtonElement import ButtonElement
 from _Framework.InputControlElement import *
 
@@ -25,7 +28,7 @@ class Protocol0(Protocol0Component):
             self.scroll_presets.subject = ButtonElement(True, MIDI_CC_TYPE, 15, 15)
             self.undo_ext.subject = ButtonElement(True, MIDI_NOTE_TYPE, 15, 16)
 
-    @button_action(unarm_other_tracks=True)
+    @button_action()
     def arm_ext(self):
         """ arm or unarm both midi and audio track """
         if self.current_track.arm:
@@ -33,7 +36,7 @@ class Protocol0(Protocol0Component):
         else:
             self.current_track.action_arm()
 
-    @button_action(unarm_other_tracks=True)
+    @button_action()
     def sel_ext(self):
         """ Sel midi track to open ext editor """
         self.current_track.action_sel()
@@ -43,13 +46,13 @@ class Protocol0(Protocol0Component):
         """ arm both midi and audio track """
         self.current_track.switch_monitoring()
 
-    @button_action(unarm_other_tracks=True)
+    @button_action()
     def record_ext(self, bar_count=1):
         """ record both midi and audio on group track """
         self.mySong().bar_count = int(bar_count)
         self.current_track.action_restart_and_record(self.current_track.action_record_all)
 
-    @button_action(unarm_other_tracks=True)
+    @button_action()
     def record_audio_ext(self):
         """ record audio on group track from playing midi clip """
         self.current_track.action_restart_and_record(self.current_track.action_record_audio_only)
@@ -68,7 +71,7 @@ class Protocol0(Protocol0Component):
     def scroll_tracks(self, go_next):
         """ scroll top tracks """
         self.mySong().scroll_tracks(go_next)
-        self.current_track.action_arm_debounced()
+        self.schedule_message(7, self.current_track.action_arm)
 
     @button_action(is_scrollable=True)
     def scroll_presets(self, go_next):

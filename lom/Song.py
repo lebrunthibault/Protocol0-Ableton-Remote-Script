@@ -18,16 +18,14 @@ class Song(SongActionMixin):
         self._song = song
         self.parent = parent
         self.view = self._song.view  # type -> Any
+        self.tracks = [SimpleTrack(self, track, i) for i, track in
+                       enumerate(list(song.tracks))]  # type: list[SimpleTrack]
+        for track in self.tracks:
+            track.song = self
+
         self.bar_count = 128  # type: int
         self.current_action_name = ""  # type: str
         self.await_track_rename = False
-        self.refresh()
-
-    def refresh(self):
-        self.tracks = [SimpleTrack(self, track, i) for i, track in
-                       enumerate(list(self._song.tracks))]  # type: list[SimpleTrack]
-        for track in self.tracks:
-            track.song = self
 
     @property
     def song(self):

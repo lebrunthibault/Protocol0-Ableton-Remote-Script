@@ -1,13 +1,14 @@
 from typing import Any, Optional, TYPE_CHECKING
 
 from a_protocol_0.actions.mixins.ClipActionMixin import ClipActionMixin
+from a_protocol_0.lom.AbstractObject import AbstractObject
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 
 
-class Clip(ClipActionMixin):
+class Clip(ClipActionMixin, AbstractObject):
     def __init__(self, clip_slot, index, track):
         # type: (Optional[Any], int, Optional["SimpleTrack"]) -> None
         self.clip_slot = clip_slot

@@ -1,5 +1,6 @@
 from typing import Any, Optional, TYPE_CHECKING
 
+from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.Clip import Clip
 
 if TYPE_CHECKING:
@@ -7,7 +8,7 @@ if TYPE_CHECKING:
     from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 
 
-class ClipSlot(object):
+class ClipSlot(AbstractObject):
     def __init__(self, clip_slot, index, track=None):
         # type: (Any, int, Optional["SimpleTrack"]) -> None
         self.clip_slot = clip_slot

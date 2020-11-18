@@ -6,7 +6,11 @@ if TYPE_CHECKING:
     from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 
 
-class TrackName(object):
+class AbstractObject(object):
+    pass
+
+
+class TrackName(AbstractObject):
     GROUP_PROPHET_NAME = "Prophet"
     GROUP_MINITAUR_NAME = "Minitaur"
     GROUP_EXT_NAMES = (GROUP_PROPHET_NAME, GROUP_MINITAUR_NAME)

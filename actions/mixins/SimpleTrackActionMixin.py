@@ -4,6 +4,7 @@ from ClyphX_Pro.clyphx_pro.MiscUtils import get_beat_time
 import Live
 
 from a_protocol_0.lom.track.TrackName import TrackName
+from a_protocol_0.utils.decorators import arm_exclusive
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -12,16 +13,15 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class SimpleTrackActionMixin(object):
-    def action_arm(self):
+    def action_arm_track(self):
         # type: ("SimpleTrack") -> None
-        self.parent.log_message("action_arm simple")
         self.arm = True
 
     def action_unarm(self):
         # type: ("SimpleTrack", bool) -> None
         self.arm = False
 
-    def action_sel(self):
+    def action_sel_track(self):
         # type: ("SimpleTrack") -> None
         self.is_selected = True
         if self.is_foldable:
