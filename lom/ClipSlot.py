@@ -1,5 +1,6 @@
 from typing import Any, Optional, TYPE_CHECKING
 
+import Live
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.Clip import Clip
 from a_protocol_0.lom.track.TrackName import TrackName
@@ -34,11 +35,13 @@ class ClipSlot(AbstractObject):
         return False
 
     def is_triggered_listener(self):
+        return
         self.parent.wait(1, lambda: setattr(self.track, "name", TrackName(self.track).get_track_name_for_clip_index(self.index)))
 
     def has_clip_listener(self):
         if self.has_clip and self.track.is_audio:
-            self.parent.wait(10, lambda: setattr(self.clip, "warp_mode", Live.Clip.WarpMode.complex))
+            self.parent.wait(10, lambda: log("delayed has clip listener"))
+            # self.parent.wait(10, lambda: setattr(self.clip.clip, "warp_mode", Live.Clip.WarpMode.complex))
 
     @property
     def is_triggered(self):

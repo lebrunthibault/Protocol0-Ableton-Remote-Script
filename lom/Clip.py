@@ -47,6 +47,17 @@ class Clip(ClipActionMixin, AbstractObject):
             self.clip.name = name
 
     @property
+    def warp_mode(self):
+        # type: () -> str
+        return self.clip.warp_mode
+
+    @warp_mode.setter
+    def warp_mode(self, warp_mode):
+        # type: (Any) -> None
+        if self.clip:
+            self.clip.warp_mode = warp_mode
+
+    @property
     def color(self):
         # type: () -> int
         return self.clip.color_index
