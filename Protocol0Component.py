@@ -13,14 +13,14 @@ class Protocol0Component(ControlSurface):
         self._my_song = Song(self.song(), self)
         self.log("Protocol0Component initialized")
 
-    def mySong(self):
+    def my_song(self):
         # type: () -> Song
         return self._my_song
 
     @property
     def current_track(self):
         # type: () -> Optional[AbstractTrack]
-        return self.mySong().current_track
+        return self.my_song().current_track
 
     def log(self, message):
         # type: (str) -> None
@@ -28,8 +28,15 @@ class Protocol0Component(ControlSurface):
 
     def wait_bars(self, bar_count, message):
         # type: (int, Callable) -> None
-        self.schedule_message(self.mySong().delay_before_recording_end(bar_count), message)
+        self.schedule_message(self.my_song().delay_before_recording_end(bar_count), message)
 
     def wait(self, ticks_count, message):
         # type: (int, Callable) -> None
         self.schedule_message(ticks_count, message)
+
+    def clear_tasks(self):
+        del self._remaining_scheduled_messages[:]
+        self._task_group.clear()
+
+    def disconnect(self):
+        ControlSurface.disconnect(self)

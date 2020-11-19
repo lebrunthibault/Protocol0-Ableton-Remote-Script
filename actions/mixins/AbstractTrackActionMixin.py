@@ -12,11 +12,11 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class AbstractTrackActionMixin(object):
-    @arm_exclusive
+    @arm_exclusive()
     @only_if_current
     def action_arm(self):
         # type: ("AbstractTrack") -> None
-        self.action_arm_track()
+        self.action_arm_track() if self.can_be_armed and not self.arm else None
 
     @abstractmethod
     def action_arm_track(self):
@@ -28,10 +28,11 @@ class AbstractTrackActionMixin(object):
         # type: ("AbstractTrack") -> None
         pass
 
-    @arm_exclusive
+    @arm_exclusive(auto_arm=True)
     @only_if_current
     def action_sel(self):
         # type: ("AbstractTrack") -> None
+        self.parent.application().view.show_view(u'Detail/DeviceChain')
         return self.action_sel_track()
 
     @abstractmethod
@@ -43,21 +44,20 @@ class AbstractTrackActionMixin(object):
         # type: ("AbstractTrack") -> None
         pass
 
-    @arm_exclusive
+    @arm_exclusive(auto_arm=True)
     def action_restart_and_record(self, action_record_func):
         # type: ("AbstractTrack", Callable) -> None
         """ restart audio to get a count in and recfix"""
-        self.song.is_playing = False
-        self.stop()
-        self.action_arm()
-
         if self.is_recording:
-            self.action_undo()
+            return self.action_undo()
 
-        self.song.metronome = len(self.song.playing_tracks) > 1
-
+        self.song.is_playing = False
+        self.song.metronome = True
         action_record_func()
-        self.parent.wait_bars(self.bar_count, partial(self.action_post_record))
+
+        if len(self.song.playing_tracks) > 1:
+            self.parent.wait_bars(1, lambda: setattr(self.song, "metronome", False))
+        self.parent.wait_bars(self.bar_count + 1, partial(self.action_post_record))
 
     @abstractmethod
     def action_record_all(self):
@@ -84,7 +84,12 @@ class AbstractTrackActionMixin(object):
         # type: ("AbstractTrack") -> None
         pass
 
-    @abstractmethod
     def action_undo(self):
+        # type: ("AbstractTrack") -> None
+        self.parent.clear_tasks()
+        self.action_undo_track()
+
+    @abstractmethod
+    def action_undo_track(self):
         # type: ("AbstractTrack") -> None
         pass

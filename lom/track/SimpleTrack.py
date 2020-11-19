@@ -19,12 +19,13 @@ class SimpleTrack(SimpleTrackActionMixin, SimpleTrackListenersMixin, AbstractTra
 
     def __init__(self, song, track, index):
         # type: (Any, Any, int) -> None
-        self.g_track = None  # type: Optional["GroupTrack"]
         super(SimpleTrack, self).__init__(song, track, index)
 
-        for clip_slot in self.track.clip_slots:
-            if not clip_slot.has_clip_has_listener:
-                clip_slot.add_has_clip_listener()
+        self.clip_slots = self.build_clip_slots()
+
+    def build_clip_slots(self):
+        # type: () -> list[ClipSlot]
+        return [ClipSlot(clip_slot, index, self) for (index, clip_slot) in enumerate(list(self.track.clip_slots))]
 
     @property
     def index(self):
@@ -54,6 +55,11 @@ class SimpleTrack(SimpleTrackActionMixin, SimpleTrackListenersMixin, AbstractTra
         # type: (bool) -> None
         if self.is_foldable:
             self.track.fold_state = int(is_folded)
+
+    @property
+    def is_simple_group(self):
+        # type: () -> bool
+        return self.is_foldable
 
     @property
     def is_groupable(self):
@@ -135,11 +141,6 @@ class SimpleTrack(SimpleTrackActionMixin, SimpleTrackListenersMixin, AbstractTra
             return self.clips[self.clips.index(self.playing_clip) - 1]
         except (ValueError, KeyError):
             return Clip.empty_clip()
-
-    @property
-    def clip_slots(self):
-        # type: () -> list[ClipSlot]
-        return [ClipSlot(clip_slot, index, self) for (index, clip_slot) in enumerate(list(self.track.clip_slots))]
 
     @property
     def clips(self):

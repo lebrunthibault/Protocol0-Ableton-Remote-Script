@@ -16,20 +16,25 @@ class Song(SongActionMixin):
     def __init__(self, song, parent=None):
         # type: (Any, "Protocol0Component") -> None
         self._song = song
-        self.parent = parent
-        self.view = self._song.view  # type -> Any
-        self.tracks = [SimpleTrack(self, track, i) for i, track in
-                       enumerate(list(song.tracks))]  # type: list[SimpleTrack]
-        for track in self.tracks:
-            track.song = self
-
+        self.parent = parent  # type: "Protocol0Component"
+        self.view = self._song.view  # type: Any
         self.bar_count = 128  # type: int
         self.current_action_name = ""  # type: str
         self.await_track_rename = False
+        self.tracks = []
+        self.build_tracks()
+        self._song.add_tracks_listener(self.build_tracks)
 
     @property
     def song(self):
         return self._song
+
+    def build_tracks(self):
+        self.parent.log_message("build song tracks")
+        self.tracks = [SimpleTrack(self, track, i) for i, track in
+                       enumerate(list(self._song.tracks))]  # type: list[SimpleTrack]
+        for track in self.tracks:
+            track.song = self
 
     @property
     def selected_track(self):
@@ -125,7 +130,7 @@ class Song(SongActionMixin):
 
     def delay_before_recording_end(self, bar_count):
         # type: (int) -> int
-        return int(round((600 / self._song.tempo) * (4 * (int(bar_count) + 1) - 0.5)))
+        return round((600 / self._song.tempo) * (4 * int(bar_count) - 0.5))
 
     def get_track(self, track):
         # type: (Any) -> SimpleTrack

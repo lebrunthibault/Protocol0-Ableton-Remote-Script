@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.Song import Song
     # noinspection PyUnresolvedReferences
-    from a_protocol_0.actions.AbstractUserAction import AbstractUserAction
+    from a_protocol_0.Protocol0Component import Protocol0Component
 
 
 class AbstractInstrument(object):
@@ -36,7 +36,7 @@ class AbstractInstrument(object):
 
     @property
     def parent(self):
-        # type: () -> AbstractUserAction
+        # type: () -> "Protocol0Component"
         return self.song.parent
 
     @property

@@ -58,6 +58,11 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
         return self.audio.next_empty_clip_slot
 
     @property
+    def is_simple_group(self):
+        # type: () -> bool
+        return False
+
+    @property
     def is_foldable(self):
         # type: () -> bool
         return True

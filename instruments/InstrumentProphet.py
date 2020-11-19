@@ -7,6 +7,7 @@ class InstrumentProphet(AbstractInstrument):
 
     def action_show(self):
         # type: () -> None
+        self.parent.log_message("show_and_activate_rev2_editor")
         AhkCommands.show_and_activate_rev2_editor()
 
     def action_scroll_presets_or_samples(self, go_next):

@@ -1,25 +1,28 @@
-import time
 import traceback
-from threading import Timer
 from typing import TYPE_CHECKING, Any
 
 from _Framework.SubjectSlot import subject_slot
+from a_protocol_0.utils.log import log
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
-    from a_protocol_0.Protocol0Component import Protocol0Component
+    from a_protocol_0.Pro import Protocol0Component
     # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 
 
-def arm_exclusive(func):
-    def decorate(self, *args, **kwargs):
-        # type: ("AbstractTrack", Any, Any) -> None
-        func(self, *args, **kwargs)
-        if self.arm:
-            self.song.unarm_other_tracks()
+def arm_exclusive(auto_arm=False):
+    def wrap(func):
+        def decorate(self, *args, **kwargs):
+            # type: ("AbstractTrack", Any, Any) -> None
+            if auto_arm and self.can_be_armed and not self.arm:
+                self.action_arm()
+            func(self, *args, **kwargs)
+            if self.arm:
+                self.song.unarm_other_tracks()
 
-    return decorate
+        return decorate
+    return wrap
 
 
 def only_if_current(func):
@@ -33,14 +36,10 @@ def only_if_current(func):
 
 
 def button_action(unarm_other_tracks=False, is_scrollable=False):
-    """ Decorator that will postpone a functions
-        execution until after wait seconds
-        have elapsed since the last time it was invoked. """
-
     def wrap(func):
         @subject_slot("value")
         def decorate(self, *args, **kwargs):
-            # type: ("Protocol0Component", Any, Any) -> None
+            # type: ("Protocol0ComponentMixin", Any, Any) -> None
             value = args[0]
             if not value:
                 return
@@ -54,7 +53,7 @@ def button_action(unarm_other_tracks=False, is_scrollable=False):
                 return
 
             if unarm_other_tracks:
-                self.mySong().unarm_other_tracks()
+                self.my_song().unarm_other_tracks()
 
         return decorate
 

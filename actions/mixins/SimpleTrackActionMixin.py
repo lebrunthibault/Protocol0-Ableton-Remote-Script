@@ -4,7 +4,6 @@ from ClyphX_Pro.clyphx_pro.MiscUtils import get_beat_time
 import Live
 
 from a_protocol_0.lom.track.TrackName import TrackName
-from a_protocol_0.utils.decorators import arm_exclusive
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -46,10 +45,8 @@ class SimpleTrackActionMixin(object):
     def action_post_record(self):
         # type: ("SimpleTrack") -> None
         self.song.metronome = False
-        if self.is_audio:
-            self.playing_clip.clip.warp_mode = Live.Clip.WarpMode.complex
-
-        self.playing_clip.name = "[] sel/name '{0}'".format(TrackName(self).get_track_name_for_clip_index())
+        # if self.is_audio:
+        #     self.playing_clip.clip.warp_mode = Live.Clip.WarpMode.complex
 
     def stop(self):
         # type: ("SimpleTrack") -> None
@@ -59,7 +56,7 @@ class SimpleTrackActionMixin(object):
         # type: ("SimpleTrack") -> None
         self.playing_clip.is_playing = True
 
-    def action_undo(self):
+    def action_undo_track(self):
         # type: ("SimpleTrack") -> None
         if self.is_recording:
             self.delete_current_clip()

@@ -26,7 +26,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
 
     def __eq__(self, other):
         if isinstance(other, AbstractTrack):
-            return self.index == other.index
+            return self.track == other.track
         return False
 
     @property
@@ -63,6 +63,11 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def bar_count(self):
         # type: () -> int
         return self.song.bar_count
+
+    @abstractproperty
+    def is_simple_group(self):
+        # type: () -> bool
+        pass
 
     @abstractproperty
     def is_foldable(self):

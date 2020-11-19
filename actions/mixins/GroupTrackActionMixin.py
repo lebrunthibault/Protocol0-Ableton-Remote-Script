@@ -1,7 +1,6 @@
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from a_protocol_0.lom.Colors import Colors
-from a_protocol_0.utils.decorators import arm_exclusive
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -21,7 +20,7 @@ class GroupTrackActionMixin(object):
 
         # activate the rev2 editor for this group track
         if self.is_prophet_group_track:
-            self.selectable_track.action_sel()
+            self.selectable_track.action_sel_track()
 
     def action_unarm(self):
         # type: ("GroupTrack") -> None
@@ -38,9 +37,8 @@ class GroupTrackActionMixin(object):
             self.group.is_folded = self.group.is_selected = True
             return
 
-        self.action_arm()
         self.group.is_folded = False
-        self.selectable_track.action_sel()
+        self.selectable_track.action_sel_track()
 
     def switch_monitoring(self):
         # type: ("GroupTrack") -> None
@@ -78,7 +76,7 @@ class GroupTrackActionMixin(object):
         self.midi.stop()
         self.audio.stop()
 
-    def action_undo(self):
+    def action_undo_track(self):
         # type: ("GroupTrack") -> None
-        self.audio.action_undo()
-        self.midi.action_undo()
+        self.audio.action_undo_track()
+        self.midi.action_undo_track()
