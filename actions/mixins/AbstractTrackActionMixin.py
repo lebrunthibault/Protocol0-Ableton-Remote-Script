@@ -1,5 +1,4 @@
 from abc import abstractmethod
-from functools import partial
 
 from typing import TYPE_CHECKING, Callable
 
@@ -40,34 +39,38 @@ class AbstractTrackActionMixin(object):
         # type: ("AbstractTrack") -> None
         pass
 
+    @abstractmethod
     def switch_monitoring(self):
         # type: ("AbstractTrack") -> None
         pass
 
+    @abstractmethod
+    def action_scroll_devices(self):
+        # type: ("AbstractTrack") -> None
+        pass
+
     @arm_exclusive(auto_arm=True)
-    def action_restart_and_record(self, action_record_func):
-        # type: ("AbstractTrack", Callable) -> None
+    def action_restart_and_record(self, action_record_func, only_audio=False):
+        # type: ("AbstractTrack", Callable, bool) -> None
         """ restart audio to get a count in and recfix"""
         if self.is_recording:
             return self.action_undo()
 
         self.song.is_playing = False
-        self.song.metronome = True
         action_record_func()
 
-        if len(self.song.playing_tracks) > 1:
-            self.parent.wait_bars(1, lambda: setattr(self.song, "metronome", False))
-        self.parent.wait_bars(self.bar_count + 1, partial(self.action_post_record))
+        if len(self.song.playing_tracks) <= 1 and not only_audio:
+            self.song.metronome = True
+            self.parent.wait_bars(self.bar_count + 1, self.action_post_record)
+
+    def action_post_record(self):
+        # type: ("AbstractTrack") -> None
+        self.song.metronome = False
 
     @abstractmethod
     def action_record_all(self):
         # type: () -> None
         """ this records normally on a simple track and both midi and audio on a group track """
-        pass
-
-    @abstractmethod
-    def action_post_record(self):
-        # type: ("AbstractTrack") -> None
         pass
 
     @abstractmethod

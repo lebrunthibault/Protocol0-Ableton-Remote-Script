@@ -22,6 +22,7 @@ def arm_exclusive(auto_arm=False):
                 self.song.unarm_other_tracks()
 
         return decorate
+
     return wrap
 
 
@@ -43,9 +44,9 @@ def button_action(unarm_other_tracks=False, is_scrollable=False):
             value = args[0]
             if not value:
                 return
+            if is_scrollable:
+                kwargs = dict(kwargs, go_next=value == 1)
             try:
-                if is_scrollable:
-                    kwargs = dict(kwargs, go_next=value == 1)
                 self.log_message("Executing " + func.__name__)
                 func(self, **kwargs)
             except Exception:
@@ -58,3 +59,14 @@ def button_action(unarm_other_tracks=False, is_scrollable=False):
         return decorate
 
     return wrap
+
+
+def print_except_decorator(func):
+    def decorator(*args, **kwargs):
+        try:
+            func(*args, **kwargs)
+        except Exception:
+            log(traceback.format_exc())
+            return
+
+    return decorator

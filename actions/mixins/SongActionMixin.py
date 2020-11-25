@@ -18,7 +18,7 @@ class SongActionMixin(object):
     def scroll_tracks(self, go_next):
         # type: ("Song", bool) -> None
         selected_track_index = self.selected_track.index if self.selected_track else 0
-        next_track = self.get_next_track_by_index(selected_track_index, bool(go_next))
+        next_track = self.get_next_track_by_index(selected_track_index, go_next)
         next_track.is_selected = True
 
     def unarm_other_tracks(self):

@@ -8,6 +8,7 @@ from _Framework.InputControlElement import *
 from a_protocol_0.controls.MultiEncoder import MultiEncoder
 
 from a_protocol_0.Protocol0ComponentMixin import Protocol0ComponentMixin
+from a_protocol_0.lom.track.GroupTrack import GroupTrack
 from a_protocol_0.utils.decorators import button_action
 
 if TYPE_CHECKING:
@@ -18,17 +19,20 @@ if TYPE_CHECKING:
 class ActionManager(ControlSurfaceComponent, Protocol0ComponentMixin):
     def __init__(self, *a, **k):
         super(ActionManager, self).__init__(*a, **k)
+        record_encoder = MultiEncoder(15, 9)
+        record_encoder.on_scroll = self.scroll_recording_times
+        record_encoder.on_press = self.record_ext
+
         track_encoder = MultiEncoder(15, 13)
         track_encoder.on_scroll = self.scroll_tracks
         track_encoder.on_press = self.arm_ext
         track_encoder.on_long_press = self.sel_ext
-        self.switch_monitoring_ext.subject = ButtonElement(True, MIDI_NOTE_TYPE, 15, 3)
-        self.record_audio_ext.subject = ButtonElement(True, MIDI_NOTE_TYPE, 15, 4)
-        self.record_ext.subject = ButtonElement(True, MIDI_NOTE_TYPE, 15, 5)
-        # add rec2, 4, 8
 
+        device_encoder = MultiEncoder(15, 14)
+        device_encoder.on_scroll = self.scroll_presets
+
+        self.switch_monitoring_ext.subject = ButtonElement(True, MIDI_NOTE_TYPE, 15, 3)
         self.restart_set.subject = ButtonElement(True, MIDI_NOTE_TYPE, 15, 12)
-        self.scroll_presets.subject = ButtonElement(True, MIDI_CC_TYPE, 15, 15)
         self.undo_ext.subject = ButtonElement(True, MIDI_NOTE_TYPE, 15, 16)
 
     @button_action()
@@ -51,16 +55,27 @@ class ActionManager(ControlSurfaceComponent, Protocol0ComponentMixin):
         """ arm both midi and audio track """
         self.current_track.switch_monitoring()
 
-    @button_action()
-    def record_ext(self, bar_count=1):
+    @button_action(is_scrollable=True)
+    def scroll_recording_times(self, go_next):
         """ record both midi and audio on group track """
-        self.my_song().bar_count = int(bar_count)
-        self.current_track.action_restart_and_record(self.current_track.action_record_all)
+        increment = 1 if go_next else - 1
+        if self.current_track.recording_time is not None:
+            index = self.current_track.recording_times.index(self.current_track.recording_time) + increment
+        else:
+            index = 0
+
+        value = self.current_track.recording_times[index % len(self.current_track.recording_times)]
+        self.current_track.recording_time = value
+        self.show_message("Recording %s" % str(value))
 
     @button_action()
-    def record_audio_ext(self):
-        """ record audio on group track from playing midi clip """
-        self.current_track.action_restart_and_record(self.current_track.action_record_audio_only)
+    def record_ext(self):
+        """ record both midi and audio on group track """
+        if self.current_track.recording_time == GroupTrack.RECORDING_TIME_ONLY_AUDIO:
+            return self.current_track.action_restart_and_record(self.current_track.action_record_audio_only, only_audio=True)
+        else:
+            self.current_track.bar_count = int(self.current_track.recording_time)
+            self.current_track.action_restart_and_record(self.current_track.action_record_all)
 
     @button_action()
     def restart_set(self):
@@ -76,9 +91,15 @@ class ActionManager(ControlSurfaceComponent, Protocol0ComponentMixin):
     def scroll_tracks(self, go_next):
         """ scroll top tracks """
         self.my_song().scroll_tracks(go_next)
-        # self.schedule_message(7, self.current_track.action_arm)
+
+    @button_action(is_scrollable=True)
+    def scroll_devices(self, go_next):
+        """ scroll track device presets or samples """
+        self.current_track.action_scroll_devices(go_next)
 
     @button_action(is_scrollable=True)
     def scroll_presets(self, go_next):
         """ scroll track device presets or samples """
         self.current_track.instrument.action_scroll_presets_or_samples(go_next)
+
+

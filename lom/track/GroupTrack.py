@@ -13,6 +13,8 @@ if TYPE_CHECKING:
 
 
 class GroupTrack(GroupTrackActionMixin, AbstractTrack):
+    RECORDING_TIME_ONLY_AUDIO = "only_audio"
+
     def __init__(self, song, base_track):
         # type: ("Song", SimpleTrack) -> None
         # getting our track object
@@ -32,10 +34,7 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
         super(GroupTrack, self).__init__(song, self.group.track, self.track_index_group)
 
         self.midi.g_track = self.audio.g_track = self
-
-        # we need the group track name to be immutable as it's used to identify group tracks
-        if not self.group._track.name_has_listener(self.group.name_listener):
-            self.group._track.add_name_listener(self.group.name_listener)
+        self.recording_times.append(self.RECORDING_TIME_ONLY_AUDIO)
 
     @property
     def track(self):

@@ -7,20 +7,15 @@ from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
-    from a_protocol_0.actions.Protocol0Component import Protocol0Component
+    from a_protocol_0.Protocol0Component import Protocol0Component
 
 
 class Song(SongActionMixin):
-    SCROLL_MODE = "tracks"
-
     def __init__(self, song, parent=None):
         # type: (Any, "Protocol0Component") -> None
         self._song = song
         self.parent = parent  # type: "Protocol0Component"
         self.view = self._song.view  # type: Any
-        self.bar_count = 128  # type: int
-        self.current_action_name = ""  # type: str
-        self.await_track_rename = False
         self.tracks = []
         self.build_tracks()
         self._song.add_tracks_listener(self.build_tracks)
@@ -30,6 +25,7 @@ class Song(SongActionMixin):
         return self._song
 
     def build_tracks(self):
+        self.current_track_cache = {}
         self.parent.log_message("build song tracks")
         self.tracks = [SimpleTrack(self, track, i) for i, track in
                        enumerate(list(self._song.tracks))]  # type: list[SimpleTrack]
@@ -52,7 +48,14 @@ class Song(SongActionMixin):
     @property
     def current_track(self):
         # type: () -> Optional[AbstractTrack]
-        return self.get_abstract_track(self.selected_track) if self.selected_track else None
+        if self.selected_track in self.current_track_cache:
+            return self.current_track_cache[self.selected_track]
+
+        abstract_track = self.get_abstract_track(self.selected_track) if self.selected_track else None
+        if abstract_track:
+            self.current_track_cache[self.selected_track] = abstract_track
+
+        return abstract_track
 
     @property
     def tempo(self):

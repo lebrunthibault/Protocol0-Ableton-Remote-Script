@@ -21,9 +21,9 @@ class TrackName(AbstractObject):
         self.track = abstract_track
         self.name = self.parts[0]  # type: str
         try:
-            self.clip_index = int(self.parts[1])
+            self.clip_slot_index = int(self.parts[1])
         except (ValueError, IndexError):
-            self.clip_index = 0
+            self.clip_slot_index = 0
         try:
             self.preset_index = int(self.parts[2])
         except (ValueError, IndexError):
@@ -49,13 +49,13 @@ class TrackName(AbstractObject):
         if not isinstance(self.track, SimpleTrack):
             return self.name
 
-        clip_index = clip_index or self.track.playing_clip.index
+        clip_index = clip_index or self.track.playable_clip.index
 
         if clip_index < 0 or clip_index > self.track.song.scene_count - 1:
             return self.name
 
         name = "{0} - {1}".format(self.name,
-                                  clip_index if clip_index is not None else self.track.playing_clip.index)
+                                  clip_index if clip_index is not None else self.track.playable_clip.index)
 
         if self.has_instrument_preset:
             name += " - {0}".format(self.preset_index)
@@ -64,4 +64,4 @@ class TrackName(AbstractObject):
 
     def get_track_name_for_preset_index(self, preset_index):
         # type: (int) -> str
-        return "{0} - {1} - {2}".format(self.name, self.clip_index, preset_index)
+        return "{0} - {1} - {2}".format(self.name, self.clip_slot_index, preset_index)

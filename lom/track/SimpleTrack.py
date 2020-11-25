@@ -1,7 +1,7 @@
+from functools import partial
 from typing import Any, Optional, TYPE_CHECKING
 
 from a_protocol_0.actions.mixins.SimpleTrackActionMixin import SimpleTrackActionMixin
-from a_protocol_0.actions.mixins.SimpleTrackListenersMixin import SimpleTrackListenersMixin
 from a_protocol_0.instruments.AbstractInstrument import AbstractInstrument
 from a_protocol_0.instruments.AbstractInstrumentFactory import AbstractInstrumentFactory
 from a_protocol_0.lom.Clip import Clip
@@ -12,20 +12,51 @@ from a_protocol_0.lom.track.TrackName import TrackName
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.GroupTrack import GroupTrack
+from a_protocol_0.utils.log import log
 
 
-class SimpleTrack(SimpleTrackActionMixin, SimpleTrackListenersMixin, AbstractTrack):
+class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     SAMPLE_PATH = "C:/Users/thiba/Google Drive/music/software presets/Ableton User Library/Samples/Imported"
 
     def __init__(self, song, track, index):
         # type: (Any, Any, int) -> None
         super(SimpleTrack, self).__init__(song, track, index)
+        self.g_track = None  # type: Optional[GroupTrack]
 
         self.clip_slots = self.build_clip_slots()
+
+        if self.track.playing_slot_index_has_listener(self.playing_slot_index_listener):
+            self.track.remove_playing_slot_index_listener(self.playing_slot_index_listener)
+        self.track.add_playing_slot_index_listener(self.playing_slot_index_listener)
+        self._last_playing_clip = None
+
+    def __hash__(self):
+        return self.index
+
+    # @property
+    # def last_clip_playing(self):
+    #     # type: () -> Clip
+    #     return self._last_playing_clip
+    #
+    # def set_last_clip_playing(self):
+    #     # type: () -> None
+    #     self._last_playing_clip = self.playable_clip
+
+    def playing_slot_index_listener(self, execute_later=True):
+        if execute_later:
+            return self.parent.wait(1, partial(self.playing_slot_index_listener, execute_later=False))
+
+        self.build_clip_slots()
+        self.refresh_name()
 
     def build_clip_slots(self):
         # type: () -> list[ClipSlot]
         return [ClipSlot(clip_slot, index, self) for (index, clip_slot) in enumerate(list(self.track.clip_slots))]
+
+    def refresh_name(self):
+        # type: () -> None
+        if self.playing_slot_index >= 0:
+            self.name = TrackName(self).get_track_name_for_clip_index(self.playing_slot_index)
 
     @property
     def index(self):
@@ -97,12 +128,12 @@ class SimpleTrack(SimpleTrackActionMixin, SimpleTrackListenersMixin, AbstractTra
     @property
     def is_playing(self):
         # type: () -> bool
-        return bool(self.playing_clip) and self.playing_clip.is_playing
+        return bool(self.playable_clip) and self.playable_clip.is_playing
 
     @property
     def is_recording(self):
         # type: () -> bool
-        return any([clip for clip in self.clips if clip.is_recording])
+        return any([clip_slot for clip_slot in self.clip_slots if clip_slot.has_clip and clip_slot.clip.is_recording])
 
     @property
     def is_triggered(self):
@@ -125,27 +156,32 @@ class SimpleTrack(SimpleTrackActionMixin, SimpleTrackListenersMixin, AbstractTra
         return self.track.devices
 
     @property
-    def playing_clip(self):
-        # type: () -> Optional[Clip]
-        playing_clip_index = next(iter([clip.index for clip in self.clips if clip.is_playing]),
-                                  TrackName(self).clip_index)
-        try:
-            return self.clip_slots[playing_clip_index].clip or Clip.empty_clip()
-        except (KeyError, IndexError):
-            return Clip.empty_clip()
+    def playing_slot_index(self):
+        # type: () -> int
+        if self.track.playing_slot_index >= 0:
+            return self.track.playing_slot_index
+        elif TrackName(self).clip_slot_index and TrackName(self).clip_slot_index in self.clip_slots:
+            return TrackName(self).clip_slot_index
+        return self.track.playing_slot_index
 
     @property
-    def previous_clip(self):
+    def playing_clip_slot(self):
+        # type: () -> Optional[ClipSlot]
+        return self.clip_slots[self.playing_slot_index] if self.playing_slot_index >= 0 else None
+
+    @property
+    def playable_clip(self):
         # type: () -> Clip
-        try:
-            return self.clips[self.clips.index(self.playing_clip) - 1]
-        except (ValueError, KeyError):
-            return Clip.empty_clip()
+        if self.playing_clip_slot:
+            return self.playing_clip_slot.clip
+        elif TrackName(self).clip_slot_index >= 0 and self.clip_slots[TrackName(self).clip_slot_index].has_clip:
+            return self.clip_slots[TrackName(self).clip_slot_index].clip
+        return Clip.empty_clip()
 
     @property
     def clips(self):
         # type: () -> list[Clip]
-        return [clip_slot.clip for clip_slot in self.clip_slots if clip_slot.has_clip]
+        return [clip_slot.clip for clip_slot in self.clip_slots]
 
     @property
     def arm(self):

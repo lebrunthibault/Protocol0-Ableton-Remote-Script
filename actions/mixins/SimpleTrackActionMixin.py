@@ -32,6 +32,10 @@ class SimpleTrackActionMixin(object):
         # type: ("SimpleTrack") -> None
         self.has_monitor_in = not self.has_monitor_in
 
+    def action_scroll_devices(self):
+        # type: ("AbstractTrack") -> None
+        pass
+
     def action_record_all(self):
         # type: ("SimpleTrack") -> None
         if self.can_be_armed and self.song.session_record_status == Live.Song.SessionRecordStatus.off:
@@ -42,19 +46,14 @@ class SimpleTrackActionMixin(object):
         # type: ("SimpleTrack") -> None
         self.action_record_all()
 
-    def action_post_record(self):
-        # type: ("SimpleTrack") -> None
-        self.song.metronome = False
-        # if self.is_audio:
-        #     self.playing_clip.clip.warp_mode = Live.Clip.WarpMode.complex
-
     def stop(self):
         # type: ("SimpleTrack") -> None
         self.track.stop_all_clips()
 
     def restart(self):
         # type: ("SimpleTrack") -> None
-        self.playing_clip.is_playing = True
+        if self.playable_clip:
+            self.playable_clip.is_playing = True
 
     def action_undo_track(self):
         # type: ("SimpleTrack") -> None
@@ -68,5 +67,4 @@ class SimpleTrackActionMixin(object):
     def delete_current_clip(self):
         # type: ("SimpleTrack") -> None
         self.song.metronome = False
-        self.playing_clip.delete()
-        self.name = TrackName(self).get_track_name_for_clip_index(self.previous_clip.index)
+        self.playable_clip.delete()

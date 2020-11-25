@@ -1,6 +1,6 @@
 from __future__ import with_statement
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from a_protocol_0.lom.Song import Song
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
@@ -26,3 +26,7 @@ class Protocol0ComponentMixin(object):
     def log_message(self, message):
         # type: (str) -> None
         return self.parent.log_message(message)
+
+    def show_message(self, message):
+        # type: (str) -> None
+        return self.parent.show_message(message)

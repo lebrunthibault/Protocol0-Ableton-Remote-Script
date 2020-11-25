@@ -23,6 +23,9 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self._index = index  # type: int
         self.song = song  # type: Song
         self.original_name = self.name
+        self.recording_time = "1"
+        self.bar_count = 1
+        self.recording_times = ["1", "2", "4", "8", "16"]
 
     def __eq__(self, other):
         if isinstance(other, AbstractTrack):
@@ -58,11 +61,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def index(self):
         # type: () -> int
         pass
-
-    @property
-    def bar_count(self):
-        # type: () -> int
-        return self.song.bar_count
 
     @abstractproperty
     def is_simple_group(self):

@@ -14,9 +14,7 @@ class GroupTrackActionMixin(object):
         self.color = Colors.ARM
         self.group.is_folded = False
         self.midi.arm = self.audio.arm = True
-
-        if self.song.current_action_name in ("sel_ext", "arm_ext"):
-            self.audio.has_monitor_in = True
+        self.audio.has_monitor_in = True
 
         # activate the rev2 editor for this group track
         if self.is_prophet_group_track:
@@ -57,19 +55,9 @@ class GroupTrackActionMixin(object):
     def action_record_audio_only(self):
         # type: ("GroupTrack") -> None
         if self.midi.is_playing:
-            self.song.bar_count = int(round((self.midi.playing_clip.length + 1) / 4))
+            self.audio.bar_count = int(round((self.midi.playable_clip.length + 1) / 4))
 
         self.audio.action_record_all()
-
-    def action_post_record(self):
-        # type: ("GroupTrack") -> None
-        self.song.metronome = False
-        if self.song.current_action_name == "record_ext":
-            self.audio.has_monitor_in = True
-
-        self.song.await_track_rename = True
-        self.midi.action_post_record()
-        self.audio.action_post_record()
 
     def stop(self):
         # type: ("GroupTrack") -> None

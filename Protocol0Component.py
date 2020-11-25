@@ -1,7 +1,6 @@
 from typing import Optional, Callable
 
 from _Framework.ControlSurface import ControlSurface
-
 from a_protocol_0.lom.Song import Song
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 
@@ -28,11 +27,11 @@ class Protocol0Component(ControlSurface):
 
     def wait_bars(self, bar_count, message):
         # type: (int, Callable) -> None
-        self.schedule_message(self.my_song().delay_before_recording_end(bar_count), message)
+        self.wait(self.my_song().delay_before_recording_end(bar_count), message)
 
-    def wait(self, ticks_count, message):
+    def wait(self, ticks_count, callback):
         # type: (int, Callable) -> None
-        self.schedule_message(ticks_count, message)
+        self.schedule_message(ticks_count, callback)
 
     def clear_tasks(self):
         del self._remaining_scheduled_messages[:]
