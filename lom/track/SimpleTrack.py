@@ -1,8 +1,7 @@
 from functools import partial
 from typing import Any, Optional, TYPE_CHECKING
 
-from a_protocol_0.actions.mixins.SimpleTrackActionMixin import SimpleTrackActionMixin
-from a_protocol_0.instruments.AbstractInstrument import AbstractInstrument
+from a_protocol_0.lom.track.SimpleTrackActionMixin import SimpleTrackActionMixin
 from a_protocol_0.instruments.AbstractInstrumentFactory import AbstractInstrumentFactory
 from a_protocol_0.lom.Clip import Clip
 from a_protocol_0.lom.ClipSlot import ClipSlot
@@ -12,40 +11,29 @@ from a_protocol_0.lom.track.TrackName import TrackName
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.GroupTrack import GroupTrack
-from a_protocol_0.utils.log import log
 
 
 class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
-    SAMPLE_PATH = "C:/Users/thiba/Google Drive/music/software presets/Ableton User Library/Samples/Imported"
-
     def __init__(self, song, track, index):
         # type: (Any, Any, int) -> None
         super(SimpleTrack, self).__init__(song, track, index)
-        self.g_track = None  # type: Optional[GroupTrack]
-
         self.clip_slots = self.build_clip_slots()
 
         if self.track.playing_slot_index_has_listener(self.playing_slot_index_listener):
             self.track.remove_playing_slot_index_listener(self.playing_slot_index_listener)
         self.track.add_playing_slot_index_listener(self.playing_slot_index_listener)
         self._last_playing_clip = None
+        if not self.instrument:
+            self.instrument = AbstractInstrumentFactory.create_from_abstract_track(self)
 
     def __hash__(self):
         return self.index
-
-    # @property
-    # def last_clip_playing(self):
-    #     # type: () -> Clip
-    #     return self._last_playing_clip
-    #
-    # def set_last_clip_playing(self):
-    #     # type: () -> None
-    #     self._last_playing_clip = self.playable_clip
 
     def playing_slot_index_listener(self, execute_later=True):
         if execute_later:
             return self.parent.wait(1, partial(self.playing_slot_index_listener, execute_later=False))
 
+        self.parent.log_message("playing_slot_index_listener")
         self.build_clip_slots()
         self.refresh_name()
 
@@ -65,11 +53,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def track(self):
         return self._track
-
-    @property
-    def instrument(self):
-        # type: () -> AbstractInstrument
-        return AbstractInstrumentFactory.create_from_simple_track(self)
 
     @property
     def is_foldable(self):
@@ -139,6 +122,11 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def is_triggered(self):
         # type: () -> bool
         return any([clip_slot.is_triggered for clip_slot in self.clip_slots])
+
+    @property
+    def selectable_track(self):
+        # type: () -> SimpleTrack
+        return self
 
     @property
     def is_visible(self):

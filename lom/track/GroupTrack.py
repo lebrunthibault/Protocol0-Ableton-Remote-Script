@@ -1,7 +1,8 @@
 from typing import TYPE_CHECKING
 
-from a_protocol_0.actions.mixins.GroupTrackActionMixin import GroupTrackActionMixin
-from a_protocol_0.instruments.AbstractInstrument import AbstractInstrument
+from a_protocol_0.lom.track.GroupTrackActionMixin import GroupTrackActionMixin
+from a_protocol_0.consts import RECORDING_TIME_ONLY_AUDIO
+from a_protocol_0.instruments.AbstractInstrumentFactory import AbstractInstrumentFactory
 from a_protocol_0.lom.ClipSlot import ClipSlot
 from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
@@ -9,17 +10,15 @@ from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 from a_protocol_0.lom.track.TrackName import TrackName
 
 if TYPE_CHECKING:
+    # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.Song import Song
 
 
 class GroupTrack(GroupTrackActionMixin, AbstractTrack):
-    RECORDING_TIME_ONLY_AUDIO = "only_audio"
-
     def __init__(self, song, base_track):
         # type: ("Song", SimpleTrack) -> None
-        # getting our track object
-        self.song = song  # type: Song
-        self.track_index_group = base_track.index  # type: int
+        self.song = song
+        self.track_index_group = base_track.index
 
         if not base_track.is_groupable:
             raise Exception(
@@ -32,19 +31,13 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
             self.track_index_group -= 2
 
         super(GroupTrack, self).__init__(song, self.group.track, self.track_index_group)
-
-        self.midi.g_track = self.audio.g_track = self
-        self.recording_times.append(self.RECORDING_TIME_ONLY_AUDIO)
+        self.instrument = AbstractInstrumentFactory.create_from_abstract_track(self)
+        self.recording_times.append(RECORDING_TIME_ONLY_AUDIO)
 
     @property
     def track(self):
         # type: () -> int
         return self.group.track
-
-    @property
-    def instrument(self):
-        # type: () -> AbstractInstrument
-        return self.selectable_track.instrument
 
     @property
     def index(self):
@@ -72,19 +65,9 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
         return self.group.track.is_folded
 
     @property
-    def is_prophet_group_track(self):
-        # type: () -> bool
-        return self.name == TrackName.GROUP_PROPHET_NAME
-
-    @property
-    def is_minitaur_group_track(self):
-        # type: () -> bool
-        return self.name == TrackName.GROUP_MINITAUR_NAME
-
-    @property
     def selectable_track(self):
         # type: () -> SimpleTrack
-        return self.midi if self.is_prophet_group_track else self.audio
+        return self.midi if self.instrument.editor_track == "midi" else self.audio
 
     @property
     def is_visible(self):
@@ -139,9 +122,9 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
     @property
     def color(self):
         # type: () -> str
-        if self.is_prophet_group_track:
+        if self.name == TrackName.GROUP_PROPHET_NAME:
             return Colors.PROPHET
-        elif self.is_minitaur_group_track:
+        elif self.name == TrackName.GROUP_MINITAUR_NAME:
             return Colors.MINITAUR
         return Colors.DISABLED
 

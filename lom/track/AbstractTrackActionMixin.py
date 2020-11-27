@@ -44,11 +44,6 @@ class AbstractTrackActionMixin(object):
         # type: ("AbstractTrack") -> None
         pass
 
-    @abstractmethod
-    def action_scroll_devices(self):
-        # type: ("AbstractTrack") -> None
-        pass
-
     @arm_exclusive(auto_arm=True)
     def action_restart_and_record(self, action_record_func, only_audio=False):
         # type: ("AbstractTrack", Callable, bool) -> None

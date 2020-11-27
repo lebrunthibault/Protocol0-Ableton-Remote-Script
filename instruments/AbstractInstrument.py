@@ -1,8 +1,9 @@
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 import Live
 
+from a_protocol_0.actions.AhkCommands import AhkCommands
 from a_protocol_0.lom.track.TrackName import TrackName
 
 if TYPE_CHECKING:
@@ -16,15 +17,17 @@ if TYPE_CHECKING:
 
 class AbstractInstrument(object):
     __metaclass__ = ABCMeta
-
     NUMBER_OF_PRESETS = 128
 
     def __init__(self, simple_track):
-        # type: ("SimpleTrack") -> None
+        # type: (Optional["SimpleTrack"]) -> None
         self.track = simple_track
+        self.track.instrument = self
         self.is_null = False
         self.browser = Live.Application.get_application().browser
         self._cached_browser_items = {}
+        self.needs_activation = False
+        self.editor_track = "midi"
 
     def __nonzero__(self):
         return not self.is_null
@@ -44,18 +47,12 @@ class AbstractInstrument(object):
         # type: () -> str
         return type(self).__name__
 
-    @abstractmethod
     def action_show(self):
         # type: () -> None
-        pass
+        AhkCommands.select_first_vst()
 
-    @abstractmethod
     def action_scroll_presets_or_samples(self, go_next):
-        # type: (bool) -> str
-        pass
-
-    def action_scroll_via_program_change(self, go_next):
-        # type: (bool) -> str
+        # type: (bool) -> None
         if self.track.preset_index == -1:
             new_preset_index = 0
         else:
@@ -64,5 +61,9 @@ class AbstractInstrument(object):
 
         self.track.name = TrackName(self.track).get_track_name_for_preset_index(new_preset_index)
 
-        Live.Browser.Browser.load_item()
-        return "; midi pc 1 {0}".format(new_preset_index)
+        self.set_preset(new_preset_index)
+
+    def set_preset(self, preset_index):
+        # type: (int) -> None
+        """ default is send program change """
+        self.parent.midi.send_program_change(preset_index)

@@ -1,16 +1,21 @@
 from abc import ABCMeta, abstractproperty
 
-from typing import Any
+from typing import Any, Optional
 from typing import TYPE_CHECKING
 
-from a_protocol_0.actions.mixins.AbstractTrackActionMixin import AbstractTrackActionMixin
+from a_protocol_0.lom.track.AbstractTrackActionMixin import AbstractTrackActionMixin
+from a_protocol_0.consts import RECORDING_TIMES
 from a_protocol_0.instruments.AbstractInstrument import AbstractInstrument
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.ClipSlot import ClipSlot
 
 if TYPE_CHECKING:
+    # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.Song import Song
+    # noinspection PyUnresolvedReferences
     from a_protocol_0.Protocol0Component import Protocol0Component
+    # noinspection PyUnresolvedReferences
+    from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 
 
 # noinspection PyDeprecation
@@ -23,9 +28,10 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self._index = index  # type: int
         self.song = song  # type: Song
         self.original_name = self.name
-        self.recording_time = "1"
+        self.recording_time = "1 bar"
         self.bar_count = 1
-        self.recording_times = ["1", "2", "4", "8", "16"]
+        self.recording_times = RECORDING_TIMES
+        self.instrument = None  # type: Optional[AbstractInstrument]
 
     def __eq__(self, other):
         if isinstance(other, AbstractTrack):
@@ -51,11 +57,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def name(self, name):
         # type: (str) -> None
         self.track.name = name
-
-    @abstractproperty
-    def instrument(self):
-        # type: () -> AbstractInstrument
-        pass
 
     @abstractproperty
     def index(self):
@@ -85,6 +86,11 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @abstractproperty
     def is_recording(self):
         # type: () -> bool
+        pass
+
+    @abstractproperty
+    def selectable_track(self):
+        # type: () -> "SimpleTrack"
         pass
 
     @abstractproperty

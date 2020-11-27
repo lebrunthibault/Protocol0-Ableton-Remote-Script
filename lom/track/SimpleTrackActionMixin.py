@@ -1,9 +1,8 @@
 from typing import TYPE_CHECKING
 
-from ClyphX_Pro.clyphx_pro.MiscUtils import get_beat_time
 import Live
 
-from a_protocol_0.lom.track.TrackName import TrackName
+from a_protocol_0.utils.utils import get_beat_time
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -31,10 +30,6 @@ class SimpleTrackActionMixin(object):
     def switch_monitoring(self):
         # type: ("SimpleTrack") -> None
         self.has_monitor_in = not self.has_monitor_in
-
-    def action_scroll_devices(self):
-        # type: ("AbstractTrack") -> None
-        pass
 
     def action_record_all(self):
         # type: ("SimpleTrack") -> None

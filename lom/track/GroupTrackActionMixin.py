@@ -17,7 +17,7 @@ class GroupTrackActionMixin(object):
         self.audio.has_monitor_in = True
 
         # activate the rev2 editor for this group track
-        if self.is_prophet_group_track:
+        if self.instrument.needs_activation:
             self.selectable_track.action_sel_track()
 
     def action_unarm(self):
@@ -49,6 +49,7 @@ class GroupTrackActionMixin(object):
 
     def action_record_all(self):
         # type: ("GroupTrack") -> None
+        self.midi.bar_count = self.audio.bar_count = self.bar_count
         self.midi.action_record_all()
         self.audio.action_record_all()
 

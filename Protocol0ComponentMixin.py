@@ -25,8 +25,8 @@ class Protocol0ComponentMixin(object):
 
     def log_message(self, message):
         # type: (str) -> None
-        return self.parent.log_message(message)
+        return self.parent.canonical_parent.log_message(message)
 
     def show_message(self, message):
         # type: (str) -> None
-        return self.parent.show_message(message)
+        return self.parent.canonical_parent.show_message(message)

@@ -1,6 +1,6 @@
 from typing import Any, Optional, TYPE_CHECKING
 
-from a_protocol_0.actions.mixins.ClipActionMixin import ClipActionMixin
+from a_protocol_0.lom.ClipActionMixin import ClipActionMixin
 from a_protocol_0.lom.AbstractObject import AbstractObject
 
 if TYPE_CHECKING:

@@ -1,6 +1,6 @@
 from typing import Any, Optional, TYPE_CHECKING
 
-from a_protocol_0.actions.mixins.SongActionMixin import SongActionMixin
+from a_protocol_0.lom.SongActionMixin import SongActionMixin
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.GroupTrack import GroupTrack
 from a_protocol_0.lom.track.SimpleTrack import SimpleTrack

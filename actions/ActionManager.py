@@ -5,10 +5,10 @@ from typing import TYPE_CHECKING
 from _Framework.ButtonElement import ButtonElement
 from _Framework.ControlSurfaceComponent import ControlSurfaceComponent
 from _Framework.InputControlElement import *
+from a_protocol_0.consts import RECORDING_TIME_ONLY_AUDIO
 from a_protocol_0.controls.MultiEncoder import MultiEncoder
 
 from a_protocol_0.Protocol0ComponentMixin import Protocol0ComponentMixin
-from a_protocol_0.lom.track.GroupTrack import GroupTrack
 from a_protocol_0.utils.decorators import button_action
 
 if TYPE_CHECKING:
@@ -52,7 +52,6 @@ class ActionManager(ControlSurfaceComponent, Protocol0ComponentMixin):
 
     @button_action()
     def switch_monitoring_ext(self):
-        """ arm both midi and audio track """
         self.current_track.switch_monitoring()
 
     @button_action(is_scrollable=True)
@@ -71,10 +70,10 @@ class ActionManager(ControlSurfaceComponent, Protocol0ComponentMixin):
     @button_action()
     def record_ext(self):
         """ record both midi and audio on group track """
-        if self.current_track.recording_time == GroupTrack.RECORDING_TIME_ONLY_AUDIO:
+        if self.current_track.recording_time == RECORDING_TIME_ONLY_AUDIO:
             return self.current_track.action_restart_and_record(self.current_track.action_record_audio_only, only_audio=True)
         else:
-            self.current_track.bar_count = int(self.current_track.recording_time)
+            self.current_track.bar_count = int(self.current_track.recording_time.split()[0])
             self.current_track.action_restart_and_record(self.current_track.action_record_all)
 
     @button_action()
@@ -93,13 +92,8 @@ class ActionManager(ControlSurfaceComponent, Protocol0ComponentMixin):
         self.my_song().scroll_tracks(go_next)
 
     @button_action(is_scrollable=True)
-    def scroll_devices(self, go_next):
-        """ scroll track device presets or samples """
-        self.current_track.action_scroll_devices(go_next)
-
-    @button_action(is_scrollable=True)
     def scroll_presets(self, go_next):
         """ scroll track device presets or samples """
+        if not self.current_track.selectable_track.is_selected:
+            self.current_track.action_sel()
         self.current_track.instrument.action_scroll_presets_or_samples(go_next)
-
-

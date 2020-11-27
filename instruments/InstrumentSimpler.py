@@ -2,15 +2,15 @@ from os import listdir
 from os.path import isfile, join, isdir
 
 import Live
+
+from a_protocol_0.consts import SAMPLE_PATH
 from a_protocol_0.instruments.AbstractInstrument import AbstractInstrument
 
 
 class InstrumentSimpler(AbstractInstrument):
-    SAMPLE_PATH = "C:/Users/thiba/Google Drive/music/software presets/Ableton User Library/Samples/Imported"
-
     def action_show(self):
         # type: () -> None
-        return
+        pass
 
     def _do_load_item(self, item, header='Device'):
         """ Handles loading an item and displaying load info in status bar. """
@@ -48,7 +48,7 @@ class InstrumentSimpler(AbstractInstrument):
 
     def action_scroll_presets_or_samples(self, go_next):
         # type: (bool) -> None
-        sample_path = join(self.SAMPLE_PATH, self.track.base_name)
+        sample_path = join(SAMPLE_PATH, self.track.base_name)
         if not isdir(sample_path):
             raise Exception("the track name does not correspond with a sample directory")
 

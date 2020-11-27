@@ -5,25 +5,29 @@ from a_protocol_0.instruments.InstrumentMinitaur import InstrumentMinitaur
 from a_protocol_0.instruments.InstrumentNull import InstrumentNull
 from a_protocol_0.instruments.InstrumentProphet import InstrumentProphet
 from a_protocol_0.instruments.InstrumentSimpler import InstrumentSimpler
+from a_protocol_0.lom.track.TrackName import TrackName
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
-    from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
+    from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 
 
 class AbstractInstrumentFactory(object):
     @staticmethod
-    def create_from_simple_track(simple_track):
-        # type: ("SimpleTrack") -> AbstractInstrument
-        if simple_track.g_track:
-            if simple_track.g_track.is_prophet_group_track:
-                return InstrumentProphet(simple_track)
-            elif simple_track.g_track.is_minitaur_group_track:
-                return InstrumentMinitaur(simple_track)
+    def create_from_abstract_track(track):
+        # type: ("AbstractTrack") -> AbstractInstrument
+        from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
+        if isinstance(track, SimpleTrack):
+            if track.is_simpler:
+                return InstrumentSimpler(track)
             else:
-                return InstrumentNull(simple_track)
+                return InstrumentNull(track)
 
-        if simple_track.is_simpler:
-            return InstrumentSimpler(simple_track)
-
-        return InstrumentNull(simple_track)
+        from a_protocol_0.lom.track.GroupTrack import GroupTrack
+        if isinstance(track, GroupTrack):
+            if track.name == TrackName.GROUP_PROPHET_NAME:
+                return InstrumentProphet(track.midi)
+            if track.name == TrackName.GROUP_MINITAUR_NAME:
+                return InstrumentMinitaur(track.midi)
+            else:
+                raise Exception("Invalid GroupTrack name")
