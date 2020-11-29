@@ -3,10 +3,12 @@ from abc import ABCMeta
 from typing import TYPE_CHECKING, Optional
 import Live
 
-from a_protocol_0.actions.AhkCommands import AhkCommands
+from a_protocol_0.consts import GROUP_PROPHET_NAME, GROUP_MINITAUR_NAME
 from a_protocol_0.lom.track.TrackName import TrackName
 
 if TYPE_CHECKING:
+    # noinspection PyUnresolvedReferences
+    from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
     # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
     # noinspection PyUnresolvedReferences
@@ -27,10 +29,36 @@ class AbstractInstrument(object):
         self.browser = Live.Application.get_application().browser
         self._cached_browser_items = {}
         self.needs_activation = False
-        self.editor_track = "midi"
 
     def __nonzero__(self):
         return not self.is_null
+
+    @staticmethod
+    def create_from_abstract_track(track):
+        # type: ("AbstractTrack") -> AbstractInstrument
+        from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
+        from a_protocol_0.lom.track.GroupTrack import GroupTrack
+        from a_protocol_0.instruments.InstrumentMinitaur import InstrumentMinitaur
+        from a_protocol_0.instruments.InstrumentNull import InstrumentNull
+        from a_protocol_0.instruments.InstrumentProphet import InstrumentProphet
+        from a_protocol_0.instruments.InstrumentSerum import InstrumentSerum
+        from a_protocol_0.instruments.InstrumentSimpler import InstrumentSimpler
+
+        if isinstance(track, SimpleTrack):
+            if track.is_simpler:
+                return InstrumentSimpler(track)
+            if len(track.devices) and "serum" in track.devices[0].name.lower():
+                return InstrumentSerum(track)
+            else:
+                return InstrumentNull(track)
+
+        if isinstance(track, GroupTrack):
+            if track.name == GROUP_PROPHET_NAME:
+                return InstrumentProphet(track.selectable_track)
+            if track.name == GROUP_MINITAUR_NAME:
+                return InstrumentMinitaur(track.selectable_track)
+            else:
+                raise Exception("Invalid GroupTrack name")
 
     @property
     def song(self):
@@ -47,9 +75,10 @@ class AbstractInstrument(object):
         # type: () -> str
         return type(self).__name__
 
-    def action_show(self):
+    def activate(self):
         # type: () -> None
-        AhkCommands.select_first_vst()
+        """ for instruments needing gui click activation """
+        pass
 
     def action_scroll_presets_or_samples(self, go_next):
         # type: (bool) -> None
@@ -61,9 +90,9 @@ class AbstractInstrument(object):
 
         self.track.name = TrackName(self.track).get_track_name_for_preset_index(new_preset_index)
 
-        self.set_preset(new_preset_index)
+        self.set_preset(new_preset_index, go_next)
 
-    def set_preset(self, preset_index):
-        # type: (int) -> None
+    def set_preset(self, preset_index, _):
+        # type: (int, bool) -> None
         """ default is send program change """
         self.parent.midi.send_program_change(preset_index)

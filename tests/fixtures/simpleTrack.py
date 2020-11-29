@@ -1,6 +1,6 @@
+from a_protocol_0.consts import GROUP_PROPHET_NAME
 from a_protocol_0.lom.Song import Song
 from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
-from a_protocol_0.lom.track.TrackName import TrackName
 from a_protocol_0.tests.fixtures.device import AbletonDevice, make_device_simpler
 
 
@@ -38,7 +38,7 @@ class AbletonTrack(object):
         pass
 
 
-def make_group_track(song, name=TrackName.GROUP_PROPHET_NAME):
+def make_group_track(song, name=GROUP_PROPHET_NAME):
     # type: (Song, str) -> SimpleTrack
     simple_track = SimpleTrack(song, AbletonTrack(name=name, track_type=TrackType.GROUP), len(song.tracks))
     song.tracks.append(simple_track)

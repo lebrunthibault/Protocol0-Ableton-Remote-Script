@@ -1,30 +1,29 @@
 from os.path import expanduser
 import subprocess
 
-from a_protocol_0.utils.log import log
+from _Framework.Dependency import depends
 
 home = expanduser("~")
 
 
 class AhkCommands(object):
-    def __init__(self):
-        pass
+    @depends(parent=None)
+    def __init__(self, parent=None, *a, **k):
+        super(AhkCommands, self).__init__(*a, **k)
+        self.parent = parent
 
-    @classmethod
-    def sendKeys(cls, keys):
+    def _sendKeys(self, keys):
         # type: (str) -> None
-        log("Sending keys to ahk : " + keys)
+        self.parent.log("Sending keys to ahk : " + keys)
         subprocess.Popen(["pythonw.exe",
                           home + "\\Google Drive\\music\\dev\\scripts\\python\\sendKeys.py",
                           keys]
                          ).communicate()
 
-    @classmethod
-    def select_first_vst(cls):
+    def toggle_first_vst(self):
         # type: () -> None
-        AhkCommands.sendKeys("^{F1}")
+        self._sendKeys("^{F1}")
 
-    @classmethod
-    def show_and_activate_rev2_editor(cls):
+    def show_and_activate_rev2_editor(self):
         # type: () -> None
-        AhkCommands.sendKeys("^{F3}")
+        self._sendKeys("^{F2}")

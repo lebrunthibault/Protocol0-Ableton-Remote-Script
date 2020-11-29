@@ -16,6 +16,8 @@ if TYPE_CHECKING:
     from a_protocol_0.Protocol0Component import Protocol0Component
     # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
+    # noinspection PyUnresolvedReferences
+    from a_protocol_0.lom.track.GroupTrack import GroupTrack
 
 
 # noinspection PyDeprecation
@@ -26,12 +28,14 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # type: ("Song", Any, int) -> None
         self._track = track  # type: Any
         self._index = index  # type: int
+        self.g_track = None  # type: Optional["GroupTrack"]
         self.song = song  # type: Song
         self.original_name = self.name
         self.recording_time = "1 bar"
         self.bar_count = 1
         self.recording_times = RECORDING_TIMES
-        self.instrument = None  # type: Optional[AbstractInstrument]
+        self.instrument = AbstractInstrument.create_from_abstract_track(self)
+        super(AbstractTrack, self).__init__()
 
     def __eq__(self, other):
         if isinstance(other, AbstractTrack):
@@ -73,10 +77,16 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # type: () -> bool
         pass
 
-    @abstractproperty
+    @property
     def is_folded(self):
         # type: () -> bool
-        pass
+        return self.track.fold_state if self.is_foldable else False
+
+    @is_folded.setter
+    def is_folded(self, is_folded):
+        # type: (bool) -> None
+        if self.is_foldable:
+            self.track.fold_state = int(is_folded)
 
     @abstractproperty
     def is_playing(self):

@@ -14,6 +14,6 @@ if Config.DEBUG:
                         level=logging.DEBUG)
 
 
-def log(message):
+def log_to_ableton(message):
     if Config.DEBUG:
         logging.info(message)

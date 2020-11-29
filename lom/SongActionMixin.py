@@ -11,10 +11,6 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class SongActionMixin(object):
-    def get_abstract_track(self, track):
-        # type: ("Song", SimpleTrack) -> AbstractTrack
-        return GroupTrack(self, track) if track.is_groupable else track
-
     def scroll_tracks(self, go_next):
         # type: ("Song", bool) -> None
         selected_track_index = self.selected_track.index if self.selected_track else 0

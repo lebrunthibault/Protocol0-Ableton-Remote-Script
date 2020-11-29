@@ -5,8 +5,14 @@ if TYPE_CHECKING:
 
 
 class AbstractObject(object):
+    def __init__(self, *a, **k):
+        self.init_listeners()
+
     def __ne__(self, other):
         return not self == other
+
+    def init_listeners(self):
+        pass
 
     @property
     def parent(self):

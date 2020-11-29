@@ -5,6 +5,7 @@ from _Framework.CompoundComponent import CompoundComponent
 from _Framework.Dependency import inject, depends
 from _Framework.Util import const
 from a_protocol_0.actions.ActionManager import ActionManager
+from a_protocol_0.actions.AhkCommands import AhkCommands
 from a_protocol_0.actions.MidiActions import MidiActions
 from a_protocol_0.lom.Song import Song
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
@@ -18,11 +19,12 @@ class Protocol0Component(CompoundComponent):
         # noinspection PyProtectedMember
         self.canonical_parent._c_instance.log_message = types.MethodType(lambda s, message: None, self.canonical_parent._c_instance)
         self._my_song = Song(self.song(), self)
-        ActionManager(parent=self)
-        with inject(send_midi=const(send_midi)).everywhere():
+        with inject(send_midi=const(send_midi), parent=const(self)).everywhere():
+            ActionManager()
+            self.ahk_commands = AhkCommands()
             self.midi = MidiActions()
             self.register_component(self.midi)
-        self.log_message("Protocol0Component initialized")
+        self.log("Protocol0Component initialized")
 
     def my_song(self):
         # type: () -> Song
@@ -33,7 +35,7 @@ class Protocol0Component(CompoundComponent):
         # type: () -> Optional[AbstractTrack]
         return self.my_song().current_track
 
-    def log_message(self, message):
+    def log(self, message):
         # type: (str) -> None
         self.canonical_parent.log_message(message)
 

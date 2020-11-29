@@ -27,17 +27,14 @@ class AbstractTrackActionMixin(object):
         # type: ("AbstractTrack") -> None
         pass
 
-    @arm_exclusive(auto_arm=True)
     @only_if_current
     def action_sel(self):
         # type: ("AbstractTrack") -> None
+        if self.is_simple_group:
+            return
         self.parent.application().view.show_view(u'Detail/DeviceChain')
-        return self.action_sel_track()
-
-    @abstractmethod
-    def action_sel_track(self):
-        # type: ("AbstractTrack") -> None
-        pass
+        self.selectable_track.is_selected = True
+        self.parent.ahk_commands.toggle_first_vst()
 
     @abstractmethod
     def switch_monitoring(self):

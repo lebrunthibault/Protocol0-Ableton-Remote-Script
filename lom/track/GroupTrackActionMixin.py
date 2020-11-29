@@ -18,7 +18,7 @@ class GroupTrackActionMixin(object):
 
         # activate the rev2 editor for this group track
         if self.instrument.needs_activation:
-            self.selectable_track.action_sel_track()
+            self.instrument.activate()
 
     def action_unarm(self):
         # type: ("GroupTrack") -> None
@@ -28,15 +28,6 @@ class GroupTrackActionMixin(object):
         if self.audio.is_playing:
             self.color = Colors.PLAYING
         self.audio.has_monitor_in = False
-
-    def action_sel_track(self):
-        # type: ("GroupTrack") -> None
-        if self.song.selected_track == self.selectable_track:
-            self.group.is_folded = self.group.is_selected = True
-            return
-
-        self.group.is_folded = False
-        self.selectable_track.action_sel_track()
 
     def switch_monitoring(self):
         # type: ("GroupTrack") -> None

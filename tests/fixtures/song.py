@@ -1,6 +1,7 @@
 import pytest
+
+from a_protocol_0.consts import GROUP_PROPHET_NAME, GROUP_MINITAUR_NAME
 from a_protocol_0.lom.Song import Song
-from a_protocol_0.lom.track.TrackName import TrackName
 from a_protocol_0.tests.fixtures.groupTrack import make_group_ex_track
 from a_protocol_0.tests.fixtures.songView import AbletonSongView
 from a_protocol_0.tests.fixtures.simpleTrack import make_simpler_track, make_group_track, \
@@ -39,8 +40,8 @@ def make_song(count_group_tracks=0, count_simple_tracks=0):
 def base_song():
     # type: () -> Song
     song = Song(AbletonSong([], AbletonSongView()))
-    make_group_ex_track(song, TrackName.GROUP_PROPHET_NAME)
-    make_group_ex_track(song, TrackName.GROUP_MINITAUR_NAME)
+    make_group_ex_track(song, GROUP_PROPHET_NAME)
+    make_group_ex_track(song, GROUP_MINITAUR_NAME)
     make_group_track(song, "drums")
     make_simpler_track(song, "kicks - 0")
     make_simpler_track(song, "snares - 0")

@@ -1,9 +1,11 @@
 from typing import Any, Optional, TYPE_CHECKING
 
+from a_protocol_0.consts import GROUP_EXT_NAMES
 from a_protocol_0.lom.SongActionMixin import SongActionMixin
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.GroupTrack import GroupTrack
 from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
+from a_protocol_0.lom.track.TrackName import TrackName
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -26,11 +28,10 @@ class Song(SongActionMixin):
 
     def build_tracks(self):
         self.current_track_cache = {}
-        self.parent.log_message("build song tracks")
         self.tracks = [SimpleTrack(self, track, i) for i, track in
                        enumerate(list(self._song.tracks))]  # type: list[SimpleTrack]
-        for track in self.tracks:
-            track.song = self
+        self.g_tracks = [GroupTrack(self, track) for track in self.tracks if track.name in GROUP_EXT_NAMES]
+        self.parent.log("Song : built tracks")
 
     @property
     def selected_track(self):
@@ -48,14 +49,7 @@ class Song(SongActionMixin):
     @property
     def current_track(self):
         # type: () -> Optional[AbstractTrack]
-        if self.selected_track in self.current_track_cache:
-            return self.current_track_cache[self.selected_track]
-
-        abstract_track = self.get_abstract_track(self.selected_track) if self.selected_track else None
-        if abstract_track:
-            self.current_track_cache[self.selected_track] = abstract_track
-
-        return abstract_track
+        return self.selected_track.abstract_track
 
     @property
     def tempo(self):
@@ -106,12 +100,6 @@ class Song(SongActionMixin):
         return [t for t in self.simple_tracks if t.arm and t != track]
 
     @property
-    def group_ex_tracks(self):
-        # type: () -> list[GroupTrack]
-        return [GroupTrack(self, track) for track in self.tracks if
-                track.is_group_ext]
-
-    @property
     def clip_trigger_quantization(self):
         # type: () -> int
         return self._song.clip_trigger_quantization
@@ -148,7 +136,7 @@ class Song(SongActionMixin):
 
     def other_armed_group_track(self, abstract_track=None):
         # type: (Optional[AbstractTrack]) -> Optional[GroupTrack]
-        return next(iter([g_track for g_track in self.group_ex_tracks if (
+        return next(iter([g_track for g_track in self.g_tracks if (
                 not abstract_track or not isinstance(abstract_track,
                                                      GroupTrack) or abstract_track.index != g_track.index) and g_track.any_armed]),
                     None)

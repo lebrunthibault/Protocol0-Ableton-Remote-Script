@@ -2,7 +2,6 @@ import traceback
 from typing import TYPE_CHECKING, Any
 
 from _Framework.SubjectSlot import subject_slot
-from a_protocol_0.utils.log import log
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -15,7 +14,7 @@ def arm_exclusive(auto_arm=False):
     def wrap(func):
         def decorate(self, *args, **kwargs):
             # type: ("AbstractTrack", Any, Any) -> None
-            if auto_arm and self.can_be_armed and not self.arm:
+            if auto_arm and self.can_be_armed and not self.arm and (not self.is_foldable or self.is_folded):
                 self.action_arm()
             func(self, *args, **kwargs)
             if self.arm:
@@ -40,17 +39,17 @@ def button_action(unarm_other_tracks=False, is_scrollable=False):
     def wrap(func):
         @subject_slot("value")
         def decorate(self, *args, **kwargs):
-            # type: ("Protocol0ComponentMixin", Any, Any) -> None
+            # type: (Any, Any, Any) -> None
             value = args[0]
             if not value:
                 return
             if is_scrollable:
                 kwargs = dict(kwargs, go_next=value == 1)
             try:
-                self.log_message("Executing " + func.__name__)
+                self.parent.log("Executing " + func.__name__)
                 func(self, **kwargs)
             except Exception:
-                self.log_message(traceback.format_exc())
+                self.parent.log(traceback.format_exc())
                 return
 
             if unarm_other_tracks:
@@ -59,14 +58,3 @@ def button_action(unarm_other_tracks=False, is_scrollable=False):
         return decorate
 
     return wrap
-
-
-def print_except_decorator(func):
-    def decorator(*args, **kwargs):
-        try:
-            func(*args, **kwargs)
-        except Exception:
-            log(traceback.format_exc())
-            return
-
-    return decorator

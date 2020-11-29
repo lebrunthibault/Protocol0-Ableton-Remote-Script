@@ -11,10 +11,6 @@ class AbstractObject(object):
 
 
 class TrackName(AbstractObject):
-    GROUP_PROPHET_NAME = "Prophet"
-    GROUP_MINITAUR_NAME = "Minitaur"
-    GROUP_EXT_NAMES = (GROUP_PROPHET_NAME, GROUP_MINITAUR_NAME)
-
     def __init__(self, abstract_track):
         # type: (AbstractTrack) -> None
         self.parts = abstract_track.track.name.split(" - ")

@@ -1,13 +1,11 @@
 from typing import TYPE_CHECKING
 
 from a_protocol_0.lom.track.GroupTrackActionMixin import GroupTrackActionMixin
-from a_protocol_0.consts import RECORDING_TIME_ONLY_AUDIO
-from a_protocol_0.instruments.AbstractInstrumentFactory import AbstractInstrumentFactory
+from a_protocol_0.consts import RECORDING_TIME_ONLY_AUDIO, GROUP_MINITAUR_NAME, GROUP_PROPHET_NAME
 from a_protocol_0.lom.ClipSlot import ClipSlot
 from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
-from a_protocol_0.lom.track.TrackName import TrackName
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -24,14 +22,13 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
             raise Exception(
                 "tried to instantiate non group track with base_track {0} and found track index {1}".format(base_track,
                                                                                                             self.track_index_group))
-        # check if selectable track is part of group
-        if song.tracks[base_track.index - 1].is_group_ext:
-            self.track_index_group -= 1
-        elif song.tracks[base_track.index - 2].is_group_ext:
-            self.track_index_group -= 2
+        # allow actions to be executed on nested group tracks
+        if base_track.is_nested_group_ex_track:
+            self.track_index_group -= 1 if base_track.is_midi else 2
 
         super(GroupTrack, self).__init__(song, self.group.track, self.track_index_group)
-        self.instrument = AbstractInstrumentFactory.create_from_abstract_track(self)
+        self.group.g_track = self.midi.g_track = self.audio.g_track = self
+        self.color = self.color
         self.recording_times.append(RECORDING_TIME_ONLY_AUDIO)
 
     @property
@@ -60,14 +57,9 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
         return True
 
     @property
-    def is_folded(self):
-        # type: () -> bool
-        return self.group.track.is_folded
-
-    @property
     def selectable_track(self):
         # type: () -> SimpleTrack
-        return self.midi if self.instrument.editor_track == "midi" else self.audio
+        return self.midi
 
     @property
     def is_visible(self):
@@ -122,9 +114,9 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
     @property
     def color(self):
         # type: () -> str
-        if self.name == TrackName.GROUP_PROPHET_NAME:
+        if self.name == GROUP_PROPHET_NAME:
             return Colors.PROPHET
-        elif self.name == TrackName.GROUP_MINITAUR_NAME:
+        elif self.name == GROUP_MINITAUR_NAME:
             return Colors.MINITAUR
         return Colors.DISABLED
 
