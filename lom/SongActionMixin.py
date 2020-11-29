@@ -1,7 +1,5 @@
 from typing import TYPE_CHECKING, Optional
 
-from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
-from a_protocol_0.lom.track.GroupTrack import GroupTrack
 from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 
 if TYPE_CHECKING:
@@ -14,8 +12,7 @@ class SongActionMixin(object):
     def scroll_tracks(self, go_next):
         # type: ("Song", bool) -> None
         selected_track_index = self.selected_track.index if self.selected_track else 0
-        next_track = self.get_next_track_by_index(selected_track_index, go_next)
-        next_track.is_selected = True
+        self.get_next_track_by_index(selected_track_index, go_next).is_selected = True
 
     def unarm_other_tracks(self):
         # type: ("Song") -> None

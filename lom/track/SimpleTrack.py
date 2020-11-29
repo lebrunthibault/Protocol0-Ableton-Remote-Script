@@ -1,10 +1,11 @@
+from functools import partial
 from typing import Any, Optional, TYPE_CHECKING
 
 from a_protocol_0.consts import GROUP_EXT_NAMES
-from a_protocol_0.lom.track.SimpleTrackActionMixin import SimpleTrackActionMixin
 from a_protocol_0.lom.Clip import Clip
 from a_protocol_0.lom.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
+from a_protocol_0.lom.track.SimpleTrackActionMixin import SimpleTrackActionMixin
 from a_protocol_0.lom.track.SimpleTrackListenerMixin import SimpleTrackListenerMixin
 from a_protocol_0.lom.track.TrackName import TrackName
 
@@ -14,17 +15,30 @@ if TYPE_CHECKING:
 
 
 class SimpleTrack(SimpleTrackActionMixin, SimpleTrackListenerMixin, AbstractTrack):
-    def __init__(self, song, track, index):
-        # type: (Any, Any, int) -> None
-        super(SimpleTrack, self).__init__(song, track, index)
+    def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
+        super(SimpleTrack, self).__init__(*a, **k)
         self.clip_slots = self.build_clip_slots()
 
     def __hash__(self):
         return self.index
 
+    def init_listeners(self):
+        # type: ("SimpleTrack") -> None
+        if self.track.playing_slot_index_has_listener(self.playing_slot_index_listener):
+            self.track.remove_playing_slot_index_listener(self.playing_slot_index_listener)
+        self.track.add_playing_slot_index_listener(self.playing_slot_index_listener)
+
+    def playing_slot_index_listener(self, execute_later=True):
+        # type: ("SimpleTrack", bool) -> None
+        if execute_later:
+            return self.parent.wait(1, partial(self.playing_slot_index_listener, execute_later=False))
+        self.build_clip_slots()
+        self.refresh_name()
+
     def build_clip_slots(self):
         # type: () -> list[ClipSlot]
-        return [ClipSlot(clip_slot, index, self) for (index, clip_slot) in enumerate(list(self.track.clip_slots))]
+        return [ClipSlot(clip_slot=clip_slot, index=index, track=self) for (index, clip_slot) in enumerate(list(self.track.clip_slots))]
 
     def refresh_name(self):
         # type: () -> None
@@ -152,6 +166,16 @@ class SimpleTrack(SimpleTrackActionMixin, SimpleTrackListenerMixin, AbstractTrac
         # type: (bool) -> None
         if self.can_be_armed:
             self.track.arm = arm
+
+    @property
+    def mute(self):
+        # type: () -> bool
+        return self.track.mute
+
+    @mute.setter
+    def mute(self, mute):
+        # type: (bool) -> None
+        self.track.mute = mute
 
     @property
     def color(self):

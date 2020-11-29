@@ -8,6 +8,10 @@ from a_protocol_0.instruments.AbstractInstrument import AbstractInstrument
 
 
 class InstrumentSimpler(AbstractInstrument):
+    def __init__(self, *a, **k):
+        super(InstrumentSimpler, self).__init__(*a, **k)
+        self.can_be_shown = False
+
     def action_scroll_presets_or_samples(self, go_next):
         # type: (bool) -> None
         sample_path = join(SAMPLE_PATH, self.track.base_name)

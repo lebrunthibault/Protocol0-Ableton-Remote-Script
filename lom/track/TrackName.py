@@ -1,4 +1,6 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Any
+
+from a_protocol_0.lom.AbstractObject import AbstractObject
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -6,13 +8,10 @@ if TYPE_CHECKING:
     from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 
 
-class AbstractObject(object):
-    pass
-
-
 class TrackName(AbstractObject):
-    def __init__(self, abstract_track):
-        # type: (AbstractTrack) -> None
+    def __init__(self, abstract_track, *a, **k):
+        # type: (AbstractTrack, Any, Any) -> None
+        super(TrackName, self).__init__(*a, **k)
         self.parts = abstract_track.track.name.split(" - ")
         self.track = abstract_track
         self.name = self.parts[0]  # type: str

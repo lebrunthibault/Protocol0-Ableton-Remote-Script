@@ -3,9 +3,9 @@ import pytest
 from a_protocol_0.consts import GROUP_PROPHET_NAME, GROUP_MINITAUR_NAME
 from a_protocol_0.lom.Song import Song
 from a_protocol_0.tests.fixtures.groupTrack import make_group_ex_track
-from a_protocol_0.tests.fixtures.songView import AbletonSongView
 from a_protocol_0.tests.fixtures.simpleTrack import make_simpler_track, make_group_track, \
     AbletonTrack
+from a_protocol_0.tests.fixtures.songView import AbletonSongView
 
 
 class AbletonSong(object):
@@ -24,6 +24,7 @@ def select_song_track(song, index):
 
 def make_song(count_group_tracks=0, count_simple_tracks=0):
     # type: (int, int) -> Song
+    # noinspection PyTypeChecker
     song = Song(AbletonSong([], AbletonSongView()))
     [make_group_ex_track(song) for _ in range(count_group_tracks)]
     [make_simpler_track(song) for _ in range(count_simple_tracks)]
@@ -39,6 +40,7 @@ def make_song(count_group_tracks=0, count_simple_tracks=0):
 @pytest.fixture()
 def base_song():
     # type: () -> Song
+    # noinspection PyTypeChecker
     song = Song(AbletonSong([], AbletonSongView()))
     make_group_ex_track(song, GROUP_PROPHET_NAME)
     make_group_ex_track(song, GROUP_MINITAUR_NAME)

@@ -1,10 +1,10 @@
 from abc import ABCMeta
+from typing import TYPE_CHECKING, Any
 
-from typing import TYPE_CHECKING, Optional
 import Live
 
 from a_protocol_0.consts import GROUP_PROPHET_NAME, GROUP_MINITAUR_NAME
-from a_protocol_0.lom.track.TrackName import TrackName
+from a_protocol_0.lom.track.TrackName import TrackName, AbstractObject
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -17,18 +17,21 @@ if TYPE_CHECKING:
     from a_protocol_0.Protocol0Component import Protocol0Component
 
 
-class AbstractInstrument(object):
+class AbstractInstrument(AbstractObject):
     __metaclass__ = ABCMeta
     NUMBER_OF_PRESETS = 128
 
-    def __init__(self, simple_track):
-        # type: (Optional["SimpleTrack"]) -> None
+    def __init__(self, simple_track, *a, **k):
+        # type: ("SimpleTrack", Any, Any) -> None
+        super(AbstractInstrument, self).__init__(*a, **k)
         self.track = simple_track
         self.track.instrument = self
         self.is_null = False
         self.browser = Live.Application.get_application().browser
         self._cached_browser_items = {}
         self.needs_activation = False
+        self.can_be_shown = True
+        self.has_rack = False
 
     def __nonzero__(self):
         return not self.is_null
@@ -66,11 +69,6 @@ class AbstractInstrument(object):
         return self.track.song
 
     @property
-    def parent(self):
-        # type: () -> "Protocol0Component"
-        return self.song.parent
-
-    @property
     def name(self):
         # type: () -> str
         return type(self).__name__
@@ -79,6 +77,13 @@ class AbstractInstrument(object):
         # type: () -> None
         """ for instruments needing gui click activation """
         pass
+
+    def show(self):
+        # type: () -> None
+        if self.has_rack:
+            self.parent.ahk_commands.toggle_first_vst_with_rack()
+        else:
+            self.parent.ahk_commands.toggle_first_vst()
 
     def action_scroll_presets_or_samples(self, go_next):
         # type: (bool) -> None

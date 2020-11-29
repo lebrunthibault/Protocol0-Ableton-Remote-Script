@@ -12,14 +12,16 @@ from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 
 
 class Protocol0Component(CompoundComponent):
+    SELF = None
 
     @depends(send_midi=None)
     def __init__(self, send_midi=None, *a, **k):
         super(Protocol0Component, self).__init__(*a, **k)
+        Protocol0Component.SELF = self
         # noinspection PyProtectedMember
         self.canonical_parent._c_instance.log_message = types.MethodType(lambda s, message: None, self.canonical_parent._c_instance)
-        self._my_song = Song(self.song(), self)
         with inject(send_midi=const(send_midi), parent=const(self)).everywhere():
+            self._my_song = Song()
             ActionManager()
             self.ahk_commands = AhkCommands()
             self.midi = MidiActions()

@@ -13,10 +13,10 @@ class GroupTrackActionMixin(object):
         # type: ("GroupTrack") -> None
         self.color = Colors.ARM
         self.group.is_folded = False
-        self.midi.arm = self.audio.arm = True
+        self.midi.action_arm_track()
+        self.audio.action_arm_track()
         self.audio.has_monitor_in = True
 
-        # activate the rev2 editor for this group track
         if self.instrument.needs_activation:
             self.instrument.activate()
 

@@ -1,17 +1,14 @@
 from abc import ABCMeta, abstractproperty
-
 from typing import Any, Optional
 from typing import TYPE_CHECKING
 
-from a_protocol_0.lom.track.AbstractTrackActionMixin import AbstractTrackActionMixin
 from a_protocol_0.consts import RECORDING_TIMES
 from a_protocol_0.instruments.AbstractInstrument import AbstractInstrument
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.ClipSlot import ClipSlot
+from a_protocol_0.lom.track.AbstractTrackActionMixin import AbstractTrackActionMixin
 
 if TYPE_CHECKING:
-    # noinspection PyUnresolvedReferences
-    from a_protocol_0.lom.Song import Song
     # noinspection PyUnresolvedReferences
     from a_protocol_0.Protocol0Component import Protocol0Component
     # noinspection PyUnresolvedReferences
@@ -24,28 +21,21 @@ if TYPE_CHECKING:
 class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     __metaclass__ = ABCMeta
 
-    def __init__(self, song, track, index):
-        # type: ("Song", Any, int) -> None
+    def __init__(self, track, index, *a, **k):
+        # type: (Any, int, Any, Any) -> None
+        super(AbstractTrack, self).__init__(*a, **k)
         self._track = track  # type: Any
         self._index = index  # type: int
         self.g_track = None  # type: Optional["GroupTrack"]
-        self.song = song  # type: Song
-        self.original_name = self.name
+        self.recording_times = RECORDING_TIMES
         self.recording_time = "1 bar"
         self.bar_count = 1
-        self.recording_times = RECORDING_TIMES
         self.instrument = AbstractInstrument.create_from_abstract_track(self)
-        super(AbstractTrack, self).__init__()
 
     def __eq__(self, other):
         if isinstance(other, AbstractTrack):
             return self.track == other.track
         return False
-
-    @property
-    def parent(self):
-        # type: () -> Protocol0Component
-        return self.song.parent
 
     @abstractproperty
     def track(self):

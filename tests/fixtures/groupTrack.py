@@ -10,4 +10,5 @@ def make_group_ex_track(song, name=GROUP_PROPHET_NAME):
     track_group = make_group_track(song, name)
     make_midi_track(song)
     make_audio_track(song)
+    # noinspection PyTypeChecker
     return GroupTrack(song, track_group)

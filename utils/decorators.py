@@ -35,7 +35,7 @@ def only_if_current(func):
     return decorate
 
 
-def button_action(unarm_other_tracks=False, is_scrollable=False):
+def button_action(unarm_other_tracks=False, is_scrollable=False, log_action=True):
     def wrap(func):
         @subject_slot("value")
         def decorate(self, *args, **kwargs):
@@ -46,7 +46,8 @@ def button_action(unarm_other_tracks=False, is_scrollable=False):
             if is_scrollable:
                 kwargs = dict(kwargs, go_next=value == 1)
             try:
-                self.parent.log("Executing " + func.__name__)
+                if log_action:
+                    self.parent.log("Executing " + func.__name__)
                 func(self, **kwargs)
             except Exception:
                 self.parent.log(traceback.format_exc())

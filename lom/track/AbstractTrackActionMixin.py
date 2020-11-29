@@ -1,5 +1,4 @@
 from abc import abstractmethod
-
 from typing import TYPE_CHECKING, Callable
 
 from a_protocol_0.utils.decorators import arm_exclusive, only_if_current
@@ -15,7 +14,7 @@ class AbstractTrackActionMixin(object):
     @only_if_current
     def action_arm(self):
         # type: ("AbstractTrack") -> None
-        self.action_arm_track() if self.can_be_armed and not self.arm else None
+        self.action_arm_track() if not self.arm and self.can_be_armed else None
 
     @abstractmethod
     def action_arm_track(self):
@@ -34,7 +33,8 @@ class AbstractTrackActionMixin(object):
             return
         self.parent.application().view.show_view(u'Detail/DeviceChain')
         self.selectable_track.is_selected = True
-        self.parent.ahk_commands.toggle_first_vst()
+        if self.instrument.can_be_shown:
+            self.instrument.show()
 
     @abstractmethod
     def switch_monitoring(self):

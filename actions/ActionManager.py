@@ -7,7 +7,6 @@ from _Framework.ControlSurfaceComponent import ControlSurfaceComponent
 from _Framework.InputControlElement import *
 from a_protocol_0.consts import RECORDING_TIME_ONLY_AUDIO
 from a_protocol_0.controls.MultiEncoder import MultiEncoder
-
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.utils.decorators import button_action
 
@@ -95,7 +94,7 @@ class ActionManager(ControlSurfaceComponent):
         """" undo last recording """
         self.current_track.action_undo()
 
-    @button_action(is_scrollable=True)
+    @button_action(is_scrollable=True, log_action=False)
     def scroll_tracks(self, go_next):
         """ scroll top tracks """
         self.parent.my_song().scroll_tracks(go_next)

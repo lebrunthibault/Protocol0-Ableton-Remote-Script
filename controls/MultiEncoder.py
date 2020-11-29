@@ -1,8 +1,7 @@
 import time
 
-from _Framework.Control import SlotManager
-
 from _Framework.ButtonElement import ButtonElement
+from _Framework.Control import SlotManager
 from _Framework.InputControlElement import *
 from _Framework.SubjectSlot import subject_slot
 

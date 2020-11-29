@@ -1,36 +1,36 @@
 from typing import Any, Optional, TYPE_CHECKING
 
 from a_protocol_0.consts import GROUP_EXT_NAMES
+from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.SongActionMixin import SongActionMixin
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.GroupTrack import GroupTrack
 from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
-from a_protocol_0.lom.track.TrackName import TrackName
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from a_protocol_0.Protocol0Component import Protocol0Component
 
 
-class Song(SongActionMixin):
-    def __init__(self, song, parent=None):
-        # type: (Any, "Protocol0Component") -> None
-        self._song = song
-        self.parent = parent  # type: "Protocol0Component"
+class Song(SongActionMixin, AbstractObject):
+    def __init__(self, *a, **k):
+        super(Song, self).__init__(*a, **k)
+        self.parent._my_song = self  # because we need access to the song object before instantiation step is over
+        self._song = self.parent.song()
         self.view = self._song.view  # type: Any
         self.tracks = []
         self.build_tracks()
+        for g_track in self.g_tracks:
+            g_track.color = g_track.color  # when booting live, a track could be red without being armed
+
+    def init_listeners(self):
+        # type: () -> None
         self._song.add_tracks_listener(self.build_tracks)
 
-    @property
-    def song(self):
-        return self._song
-
     def build_tracks(self):
-        self.current_track_cache = {}
-        self.tracks = [SimpleTrack(self, track, i) for i, track in
+        self.tracks = [SimpleTrack(track=track, index=i) for i, track in
                        enumerate(list(self._song.tracks))]  # type: list[SimpleTrack]
-        self.g_tracks = [GroupTrack(self, track) for track in self.tracks if track.name in GROUP_EXT_NAMES]
+        self.g_tracks = [GroupTrack(base_track=track) for track in self.tracks if track.name in GROUP_EXT_NAMES]
         self.parent.log("Song : built tracks")
 
     @property

@@ -1,7 +1,7 @@
 from typing import Any, Optional, TYPE_CHECKING
 
-from a_protocol_0.lom.ClipActionMixin import ClipActionMixin
 from a_protocol_0.lom.AbstractObject import AbstractObject
+from a_protocol_0.lom.ClipActionMixin import ClipActionMixin
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -9,8 +9,9 @@ if TYPE_CHECKING:
 
 
 class Clip(ClipActionMixin, AbstractObject):
-    def __init__(self, clip_slot, index, track):
-        # type: (Optional[Any], int, Optional["SimpleTrack"]) -> None
+    def __init__(self, clip_slot, index, track, *a, **k):
+        # type: (Optional[Any], int, Optional["SimpleTrack"], Any, Any) -> None
+        super(Clip, self).__init__(*a, **k)
         self.clip_slot = clip_slot
         self.clip = clip_slot.clip if clip_slot else None
         self.index = index
@@ -27,7 +28,7 @@ class Clip(ClipActionMixin, AbstractObject):
     @classmethod
     def empty_clip(cls):
         # type: () -> Clip
-        return Clip(None, -1, None)
+        return Clip(clip_slot=None, index=-1, track=None)
 
     @property
     def length(self):

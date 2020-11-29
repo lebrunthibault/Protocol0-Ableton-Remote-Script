@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 class SimpleTrackActionMixin(object):
     def action_arm_track(self):
         # type: ("SimpleTrack") -> None
+        self.mute = False
         self.arm = True
 
     def action_unarm(self):
