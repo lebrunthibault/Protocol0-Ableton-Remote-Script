@@ -18,8 +18,8 @@ class SongActionMixin(object):
         # type: ("Song") -> None
         if self.other_armed_group_track(self.current_track):
             self.other_armed_group_track(self.current_track).action_unarm()
-        for simple_track in self.simple_armed_tracks(self.current_track):
-            simple_track.action_unarm()
+        [t.action_unarm() for t in self.simple_tracks if t.arm and t != self.current_track]
+        [setattr(g_track, "is_folded", True) for g_track in self.g_tracks if g_track != self.current_track]
 
     def restart_set(self):
         # type: ("Song") -> None
@@ -46,5 +46,5 @@ class SongActionMixin(object):
 
     def create_scene(self, scene_index=None):
         # type: ("Song", Optional[int]) -> None
-        self._song.view.selected_scene = self._song.create_scene(scene_index or self.scene_count)
+        self._song.view.selected_scene = self._song.create_scene(scene_index or len(self.song.scenes))
 

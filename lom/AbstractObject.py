@@ -8,18 +8,11 @@ if TYPE_CHECKING:
 
 
 class AbstractObject(object):
-    def __init__(self, *a, **k):
+    def __init__(self, song=None, *a, **k):
         from a_protocol_0 import Protocol0Component
-        self.parent = Protocol0Component.SELF
+        self.parent = Protocol0Component.SELF  # type: "Protocol0Component"
+        self.song = song if song else self.parent.song  # short-circuiting parent.song for Song instantiation
         self.parent.wait(1, self.init_listeners)
-
-    def __ne__(self, other):
-        return not self == other
-
-    @property
-    def song(self):
-        # type: () -> "Song"
-        return self.parent.my_song()
 
     def init_listeners(self):
         # type: () -> None

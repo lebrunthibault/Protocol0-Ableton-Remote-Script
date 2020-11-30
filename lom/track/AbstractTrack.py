@@ -26,57 +26,80 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         super(AbstractTrack, self).__init__(*a, **k)
         self._track = track  # type: Any
         self._index = index  # type: int
-        self.g_track = None  # type: Optional["GroupTrack"]
+        self.g_track = None  # type: Optional[GroupTrack]
         self.recording_times = RECORDING_TIMES
+        self.children = []  # type: list[AbstractTrack]
         self.recording_time = "1 bar"
         self.bar_count = 1
         self.instrument = AbstractInstrument.create_from_abstract_track(self)
 
     def __eq__(self, other):
         if isinstance(other, AbstractTrack):
-            return self.track == other.track
+            return self._track == other._track
         return False
 
-    @abstractproperty
-    def track(self):
-        # type: () -> Any
-        pass
+    @property
+    def index(self):
+        # type: () -> int
+        return self.base_track._index
+
+    @property
+    def base_track(self):
+        # type: () -> SimpleTrack
+        from a_protocol_0.lom.track.GroupTrack import GroupTrack
+        return self.group if isinstance(self, GroupTrack) else self
+
+    @property
+    def selectable_track(self):
+        # type: () -> SimpleTrack
+        from a_protocol_0.lom.track.GroupTrack import GroupTrack
+        return self.midi if isinstance(self, GroupTrack) else self
+
+    @property
+    def is_simple_group(self):
+        # type: () -> bool
+        return self.is_foldable and not self.is_group_ex_track
+
+    @property
+    def is_group_ex_track(self):
+        # type: () -> bool
+        from a_protocol_0.lom.track.GroupTrack import GroupTrack
+        return isinstance(self, GroupTrack)
+
+    @property
+    def all_nested_children(self):
+        # type: () -> list["SimpleTrack"]
+        nested_children = []
+        for child in self.children:
+            nested_children.append(child)
+            nested_children += child.all_nested_children
+        return nested_children
 
     @property
     def name(self):
         # type: () -> str
-        return self.track.name
+        return self._track.name
 
     @name.setter
     def name(self, name):
         # type: (str) -> None
-        self.track.name = name
+        self._track.name = name
 
-    @abstractproperty
-    def index(self):
-        # type: () -> int
-        pass
-
-    @abstractproperty
-    def is_simple_group(self):
-        # type: () -> bool
-        pass
-
-    @abstractproperty
+    @property
     def is_foldable(self):
         # type: () -> bool
-        pass
+        return self.base_track._track.is_foldable
 
     @property
     def is_folded(self):
         # type: () -> bool
-        return self.track.fold_state if self.is_foldable else False
+        return self._track.fold_state if self.is_foldable else False
 
     @is_folded.setter
     def is_folded(self, is_folded):
         # type: (bool) -> None
         if self.is_foldable:
-            self.track.fold_state = int(is_folded)
+            self._track.fold_state = int(is_folded)
 
     @abstractproperty
     def is_playing(self):
@@ -88,25 +111,10 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # type: () -> bool
         pass
 
-    @abstractproperty
-    def selectable_track(self):
-        # type: () -> "SimpleTrack"
-        pass
-
-    @abstractproperty
-    def is_visible(self):
-        # type: () -> bool
-        pass
-
-    @abstractproperty
-    def is_top_visible(self):
-        # type: () -> bool
-        pass
-
-    @abstractproperty
+    @property
     def can_be_armed(self):
         # type: () -> bool
-        pass
+        return self.selectable_track._track.can_be_armed
 
     @abstractproperty
     def arm(self):

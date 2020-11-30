@@ -12,7 +12,7 @@ class TrackName(AbstractObject):
     def __init__(self, abstract_track, *a, **k):
         # type: (AbstractTrack, Any, Any) -> None
         super(TrackName, self).__init__(*a, **k)
-        self.parts = abstract_track.track.name.split(" - ")
+        self.parts = abstract_track.base_track.name.split(" - ")
         self.track = abstract_track
         self.name = self.parts[0]  # type: str
         try:
@@ -46,7 +46,7 @@ class TrackName(AbstractObject):
 
         clip_index = clip_index or self.track.playable_clip.index
 
-        if clip_index < 0 or clip_index > self.track.song.scene_count - 1:
+        if clip_index < 0 or clip_index > len(self.track.song.scenes) - 1:
             return self.name
 
         name = "{0} - {1}".format(self.name,

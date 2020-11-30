@@ -1,22 +1,12 @@
 import subprocess
 from os.path import expanduser
-from typing import TYPE_CHECKING
 
-from _Framework.Dependency import depends
-
-if TYPE_CHECKING:
-    # noinspection PyUnresolvedReferences
-    from a_protocol_0 import Protocol0Component
+from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 
 home = expanduser("~")
 
 
-class AhkCommands(object):
-    @depends(parent=None)
-    def __init__(self, parent=None):
-        # type: ("Protocol0Component") -> None
-        self.parent = parent
-
+class AhkCommands(AbstractControlSurfaceComponent):
     def _sendKeys(self, keys):
         # type: (str) -> None
         self.parent.log("Sending keys to ahk : " + keys)

@@ -19,7 +19,7 @@ def select_song_track(song, index):
     # type: (Song, int) -> None
     if index < 1 or index > len(song.tracks):
         raise Exception("invalid index for select_song_track")
-    song.view.selected_track = song.tracks[index - 1].track
+    song.view.selected_track = song.tracks[index - 1]._track
 
 
 def make_song(count_group_tracks=0, count_simple_tracks=0):
@@ -30,7 +30,7 @@ def make_song(count_group_tracks=0, count_simple_tracks=0):
     [make_simpler_track(song) for _ in range(count_simple_tracks)]
 
     if len(song.tracks):
-        song.view.selected_track = song.tracks[0].track
+        song.view.selected_track = song.tracks[0]._track
 
     song.set_selected_track = select_song_track
 
@@ -48,6 +48,6 @@ def base_song():
     make_simpler_track(song, "kicks - 0")
     make_simpler_track(song, "snares - 0")
 
-    song.view.selected_track = song.tracks[0].track
+    song.view.selected_track = song.tracks[0]._track
 
     return song

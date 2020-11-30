@@ -1,41 +1,35 @@
 import types
-from typing import Optional, Callable
+from typing import Callable, Any
 
 from _Framework.CompoundComponent import CompoundComponent
 from _Framework.Dependency import inject, depends
 from _Framework.Util import const
-from a_protocol_0.actions.ActionManager import ActionManager
-from a_protocol_0.actions.AhkCommands import AhkCommands
-from a_protocol_0.actions.MidiActions import MidiActions
+from a_protocol_0 import Protocol0
+from a_protocol_0.components.ActionManager import ActionManager
+from a_protocol_0.components.AhkCommands import AhkCommands
+from a_protocol_0.components.MidiActions import MidiActions
+from a_protocol_0.components.SessionManager import SessionManager
 from a_protocol_0.lom.Song import Song
-from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 
 
 class Protocol0Component(CompoundComponent):
     SELF = None
 
     @depends(send_midi=None)
-    def __init__(self, send_midi=None, *a, **k):
+    def __init__(self, control_surface, send_midi=None, *a, **k):
+        # type: (Protocol0, callable, Any, Any) -> None
         super(Protocol0Component, self).__init__(*a, **k)
         Protocol0Component.SELF = self
+        self.control_surface = control_surface
         # noinspection PyProtectedMember
         self.canonical_parent._c_instance.log_message = types.MethodType(lambda s, message: None, self.canonical_parent._c_instance)
-        with inject(send_midi=const(send_midi), parent=const(self)).everywhere():
-            self._my_song = Song()
-            ActionManager()
+        self.song = Song()
+        with inject(send_midi=const(send_midi), parent=const(self), my_song=const(self.song)).everywhere():
+            self.actionManager = ActionManager()
+            self.sessionManager = SessionManager()
             self.ahk_commands = AhkCommands()
             self.midi = MidiActions()
-            self.register_component(self.midi)
         self.log("Protocol0Component initialized")
-
-    def my_song(self):
-        # type: () -> Song
-        return self._my_song
-
-    @property
-    def current_track(self):
-        # type: () -> Optional[AbstractTrack]
-        return self.my_song().current_track
 
     def log(self, message):
         # type: (str) -> None
@@ -47,7 +41,7 @@ class Protocol0Component(CompoundComponent):
 
     def wait_bars(self, bar_count, message):
         # type: (int, Callable) -> None
-        self.wait(self.my_song().delay_before_recording_end(bar_count), message)
+        self.wait(self.song.delay_before_recording_end(bar_count), message)
 
     def wait(self, ticks_count, callback):
         # type: (int, Callable) -> None

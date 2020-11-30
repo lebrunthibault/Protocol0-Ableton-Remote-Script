@@ -24,9 +24,7 @@ class GroupTrackActionMixin(object):
         # type: ("GroupTrack") -> None
         self.group.is_folded = True
         self.audio.arm = self.midi.arm = False
-        self.color = self.color
-        if self.audio.is_playing:
-            self.color = Colors.PLAYING
+        self.color = self.base_color
         self.audio.has_monitor_in = False
 
     def switch_monitoring(self):

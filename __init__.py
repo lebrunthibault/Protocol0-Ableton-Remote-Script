@@ -11,5 +11,5 @@ from .Protocol0 import Protocol0
 def create_instance(*a):
     ins = Protocol0(*a)
     with ins.component_guard():
-        ins.protocol0_component = Protocol0Component()
+        ins.protocol0_component = Protocol0Component(control_surface=ins)
     return ins

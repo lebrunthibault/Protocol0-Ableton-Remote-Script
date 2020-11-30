@@ -27,7 +27,7 @@ class SimpleTrackActionMixin(object):
     def action_record_all(self):
         # type: ("SimpleTrack") -> None
         if self.can_be_armed and self.song.session_record_status == Live.Song.SessionRecordStatus.off:
-            length = get_beat_time('%sb' % self.bar_count, self.song.song)
+            length = get_beat_time('%sb' % self.bar_count, self.song._song)
             self.clip_slots[self.next_empty_clip_slot.index].fire(record_length=length)
 
     def action_record_audio_only(self):
@@ -36,7 +36,7 @@ class SimpleTrackActionMixin(object):
 
     def stop(self):
         # type: ("SimpleTrack") -> None
-        self.track.stop_all_clips()
+        self._track.stop_all_clips()
 
     def restart(self):
         # type: ("SimpleTrack") -> None

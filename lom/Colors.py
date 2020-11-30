@@ -4,6 +4,5 @@ class Colors(object):
 
     ARM = 14
     DISABLED = 13
-    PLAYING = 69
     PROPHET = 23
     MINITAUR = 69

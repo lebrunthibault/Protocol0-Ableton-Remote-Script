@@ -1,20 +1,18 @@
 from functools import partial
 from typing import Optional
 
-from _Framework.ControlSurfaceComponent import ControlSurfaceComponent
 from _Framework.Dependency import depends
+from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import MIDI_STATUS_BYTES
 from a_protocol_0.utils.utils import parse_midi_channel, parse_midi_value
 
 
-class MidiActions(ControlSurfaceComponent):
+class MidiActions(AbstractControlSurfaceComponent):
     """ MidiActions provides MIDI-related methods. """
-
-    @depends(send_midi=None, parent=None)
-    def __init__(self, send_midi=None, parent=None, *a, **k):
+    @depends(send_midi=None)
+    def __init__(self, send_midi=None, *a, **k):
         super(MidiActions, self).__init__(*a, **k)
         self._send_midi = send_midi
-        self.parent = parent
 
     def disconnect(self):
         super(MidiActions, self).disconnect()

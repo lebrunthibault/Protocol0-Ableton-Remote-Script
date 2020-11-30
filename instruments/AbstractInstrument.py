@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any
 import Live
 
 from a_protocol_0.consts import GROUP_PROPHET_NAME, GROUP_MINITAUR_NAME
+from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.lom.track.TrackName import TrackName, AbstractObject
 
 if TYPE_CHECKING:
@@ -20,6 +21,7 @@ if TYPE_CHECKING:
 class AbstractInstrument(AbstractObject):
     __metaclass__ = ABCMeta
     NUMBER_OF_PRESETS = 128
+    COLOR = Colors.DISABLED
 
     def __init__(self, simple_track, *a, **k):
         # type: ("SimpleTrack", Any, Any) -> None
@@ -62,11 +64,6 @@ class AbstractInstrument(AbstractObject):
                 return InstrumentMinitaur(track.selectable_track)
             else:
                 raise Exception("Invalid GroupTrack name")
-
-    @property
-    def song(self):
-        # type: () -> Song
-        return self.track.song
 
     @property
     def name(self):

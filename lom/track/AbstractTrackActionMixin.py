@@ -33,6 +33,7 @@ class AbstractTrackActionMixin(object):
             return
         self.parent.application().view.show_view(u'Detail/DeviceChain')
         self.selectable_track.is_selected = True
+        self.is_folded = False
         if self.instrument.can_be_shown:
             self.instrument.show()
 

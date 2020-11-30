@@ -5,8 +5,6 @@ from _Framework.SubjectSlot import subject_slot
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
-    from a_protocol_0.Pro import Protocol0Component
-    # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 
 
@@ -54,7 +52,7 @@ def button_action(unarm_other_tracks=False, is_scrollable=False, log_action=True
                 return
 
             if unarm_other_tracks:
-                self.my_song().unarm_other_tracks()
+                self.song.unarm_other_tracks()
 
         return decorate
 
