@@ -1,7 +1,7 @@
 from functools import partial
 from typing import Any, Optional, TYPE_CHECKING
 
-from a_protocol_0.consts import GROUP_EXT_NAMES
+from a_protocol_0.consts import GROUP_EXT_NAMES, TRACK_CATEGORIES, TRACK_CATEGORY_OTHER
 from a_protocol_0.lom.Clip import Clip
 from a_protocol_0.lom.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
@@ -18,7 +18,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         super(SimpleTrack, self).__init__(*a, **k)
         self.clip_slots = self.build_clip_slots()
         self._base_color = self.color
-        self.group_track = None
         self.attach_to_group()
 
     def __hash__(self):
@@ -51,12 +50,21 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def attach_to_group(self):
         for group_track in list(reversed(self.song.group_tracks)):
             if self.group_output_routing == group_track.name:
-                self.group_track = group_track
-                self.group_track.children.append(self)
+                self.parent_track = group_track
+                self.parent_track.children.append(self)
                 break
-        if self.is_nested_track and not self.group_track:  # handles ableton auto track renaming
-            self.group_track = self.song.group_tracks[-1]
-            self.group_track.children.append(self)
+        if self.is_nested_track and not self.parent_track:  # handles ableton auto track renaming
+            self.parent_track = self.song.group_tracks[-1]
+            self.parent_track.children.append(self)
+
+    @property
+    def category(self):
+        # type: () -> str
+        for track_category in TRACK_CATEGORIES:
+            if any([t for t in self.parent_tracks if t.name.lower() == track_category.lower()]):
+                return track_category
+
+        return TRACK_CATEGORY_OTHER
 
     def set_clip_color(self):
         # type: () -> None
@@ -135,7 +143,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def playable_clip(self):
         # type: () -> Clip
-        clip = self.clips[self.playing_slot_index] if self.playing_slot_index >= 0 else None
+        clip = self.clip_slots[self.playing_slot_index].clip if self.playing_slot_index >= 0 else None
         if clip:
             return clip
         elif len(self.clips):
@@ -146,7 +154,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def clips(self):
         # type: () -> list[Clip]
-        return [clip_slot.clip for clip_slot in self.clip_slots]
+        return [clip_slot.clip for clip_slot in self.clip_slots if clip_slot.has_clip]
 
     @property
     def arm(self):
@@ -156,7 +164,8 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @arm.setter
     def arm(self, arm):
         # type: (bool) -> None
-        self._track.arm = arm if self.can_be_armed else None
+        if self.can_be_armed:
+            self._track.arm = arm
 
     @property
     def mute(self):
@@ -201,7 +210,8 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @is_selected.setter
     def is_selected(self, is_selected):
         # type: (bool) -> None
-        self.song.selected_track = self if is_selected else None
+        if is_selected:
+            self.song.selected_track = self
 
     @property
     def current_output_routing(self):

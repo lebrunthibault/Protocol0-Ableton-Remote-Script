@@ -26,15 +26,14 @@ class SimpleTrackActionMixin(object):
         # type: (SimpleTrack, int) -> None
         clip_slot_index = clip_slot_index if clip_slot_index else self.next_empty_clip_slot_index
         length = get_beat_time('%sb' % self.bar_count, self.song._song)
+        self.parent.show_message("Starting recording of %d bars" % self.bar_count)
         self.clip_slots[clip_slot_index].fire(record_length=length)
-
-    def stop(self):
-        # type: (SimpleTrack) -> None
-        self._track.stop_all_clips()
 
     def restart(self):
         # type: (SimpleTrack) -> None
-        if self.playable_clip:
+        if self.is_foldable:
+            [child.restart() for child in self.all_nested_children]
+        elif self.playable_clip:
             self.playable_clip.is_playing = True
 
     def action_undo_track(self):

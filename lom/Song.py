@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from a_protocol_0.consts import GROUP_EXT_NAMES
+from a_protocol_0.consts import GROUP_EXT_NAMES, TRACK_CATEGORIES, TRACK_CATEGORY_ALL
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.SongActionMixin import SongActionMixin
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
@@ -18,6 +18,7 @@ class Song(SongActionMixin, AbstractObject):
         self.g_tracks = []  # type: list[GroupTrack]
         self.parent.defer(self.build_tracks)
         self.tracks_added = False
+        self.selected_track_category = TRACK_CATEGORIES[0]
 
     def init_listeners(self):
         # type: () -> None
@@ -83,6 +84,13 @@ class Song(SongActionMixin, AbstractObject):
         return [track for track in self.tracks if track.solo]
 
     @property
+    def selected_category_tracks(self):
+        # type: () -> list[SimpleTrack]
+        if self.selected_track_category == TRACK_CATEGORY_ALL:
+            return self.tracks
+        return [track for track in self.tracks if track.category.lower() == self.selected_track_category.lower()]
+
+    @property
     def group_tracks_names(self):
         # type: () -> list[str]
         return [track.name for track in self.tracks if track.is_simple_group]
@@ -102,6 +110,11 @@ class Song(SongActionMixin, AbstractObject):
                 return t
 
         raise Exception("this track cannot be matched")
+
+    @property
+    def session_track_offset(self):
+        # type: () -> int
+        return self.song.visible_tracks.index(self.current_track.base_track)
 
     @property
     def tempo(self):

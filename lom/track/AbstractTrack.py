@@ -26,9 +26,10 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self._track = track  # type: Any
         self._index = index  # type: int
         self.g_track = None  # type: Optional[GroupTrack]
+        self.parent_track = None  # type: Optional[SimpleTrack]
         self.recording_times = RECORDING_TIMES
         self._children = []  # type: list[AbstractTrack]
-        self.recording_time = "1 bar"
+        self.selected_recording_time = "1 bar"
         self.bar_count = 1
         self.instrument = AbstractInstrument.create_from_abstract_track(self)
 
@@ -41,6 +42,13 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def index(self):
         # type: () -> int
         return self.base_track._index
+
+    @property
+    def parent_tracks(self):
+        # type: () -> list[SimpleTrack]
+        if self.parent_track:
+            return [self.parent_track] + self.parent_track.parent_tracks
+        return [self]
 
     @property
     def base_track(self):

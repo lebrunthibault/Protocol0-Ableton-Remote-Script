@@ -4,6 +4,8 @@ from typing import Callable, Any
 from _Framework.CompoundComponent import CompoundComponent
 from _Framework.Dependency import inject, depends
 from _Framework.Util import const
+
+from Push2.push2 import Push2
 from a_protocol_0 import Protocol0
 from a_protocol_0.components.ActionManager import ActionManager
 from a_protocol_0.components.AhkCommands import AhkCommands
@@ -25,6 +27,7 @@ class Protocol0Component(CompoundComponent):
         # noinspection PyProtectedMember
         self.canonical_parent._c_instance.log_message = types.MethodType(lambda s, message: None, self.canonical_parent._c_instance)
         self.song = Song()
+        Push2.protocol0_song = self.song
         with inject(send_midi=const(send_midi), parent=const(self), my_song=const(self.song)).everywhere():
             ArmManager()
             ActionManager()

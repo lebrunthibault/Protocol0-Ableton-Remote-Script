@@ -11,9 +11,7 @@ if TYPE_CHECKING:
 
 class ArmManager(AbstractControlSurfaceComponent):
     def on_selected_track_changed(self):
-        self.parent.log("on_selected_track_changed")
         if self.song.tracks_added:
-            self.parent.log("auto arm new track")
             self.parent.defer(self.current_track.action_arm)
             self.song.tracks_added = False
 

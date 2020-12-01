@@ -51,16 +51,6 @@ class GroupTrackActionMixin(object):
 
         self.audio.action_record_all()
 
-    def stop(self):
-        # type: (GroupTrack) -> None
-        self.midi.stop()
-        self.audio.stop()
-
-    def restart(self):
-        # type: (GroupTrack) -> None
-        self.midi.restart()
-        self.audio.restart()
-
     def action_undo_track(self):
         # type: (GroupTrack) -> None
         self.audio.action_undo_track()

@@ -49,6 +49,8 @@ class AbstractTrackActionMixin(object):
             return self.action_undo()
         if self.song.session_record_status != Live.Song.SessionRecordStatus.off:
             return
+        if self.is_simple_group:
+            return
 
         self.song.is_playing = False
         action_record_func()
@@ -77,15 +79,9 @@ class AbstractTrackActionMixin(object):
         """
         self.action_record_all()
 
-    @abstractmethod
     def stop(self):
         # type: (AbstractTrack) -> None
-        pass
-
-    @abstractmethod
-    def restart(self):
-        # type: (AbstractTrack) -> None
-        pass
+        self.base_track._track.stop_all_clips()
 
     def action_undo(self):
         # type: (AbstractTrack) -> None

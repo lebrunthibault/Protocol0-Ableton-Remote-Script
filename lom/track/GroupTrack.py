@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING, Any
 
-from a_protocol_0.consts import RECORDING_TIME_ONLY_AUDIO
 from a_protocol_0.lom.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.GroupTrackActionMixin import GroupTrackActionMixin
@@ -31,7 +30,6 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
 
         super(GroupTrack, self).__init__(self.parent.song._song.tracks[self.track_index_group], self.track_index_group, *a, **k)
         self.group.g_track = self.midi.g_track = self.audio.g_track = self
-        self.recording_times.append(RECORDING_TIME_ONLY_AUDIO)
 
         if not self.arm:
             self.is_folded = True

@@ -1,3 +1,6 @@
+from typing import Optional
+
+
 def parse_number(num_as_string, default_value=None, min_value=None, max_value=None, is_float=False):
     """ Parses the given string containing a number and returns the parsed number.
     If a parse error occurs, the default_value will be returned. If a min_value or
@@ -38,3 +41,14 @@ def get_beat_time(text, obj):
     if is_bar:
         return beat * obj.signature_numerator * num
     return beat * num
+
+
+def scroll_values(values, selected_value, go_next):
+    # type: (list[str], Optional[str], bool) -> str
+    increment = 1 if go_next else - 1
+    if selected_value is not None:
+        index = (values.index(selected_value) + increment) % len(values)
+    else:
+        index = 1
+
+    return values[index]
