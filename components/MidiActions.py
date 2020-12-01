@@ -26,7 +26,7 @@ class MidiActions(AbstractControlSurfaceComponent):
         # type: (int, Optional[int]) -> None
         """ Sends formatted note/cc/pc message or raw MIDI message. """
         self.send_control_change(cc_number, 0, channel)
-        self.parent.wait(1, lambda: self.parent.midi.send_control_change(cc_number, 127, channel))
+        self.parent.defer(lambda: self.parent.midi.send_control_change(cc_number, 127, channel))
 
     def send_control_change(self, cc_number, value=127, channel=0):
         # type: (int, Optional[int], Optional[int]) -> None

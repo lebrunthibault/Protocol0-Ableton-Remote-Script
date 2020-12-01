@@ -32,7 +32,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def playing_slot_index_listener(self, execute_later=True):
         # type: (bool) -> None
         if execute_later:
-            return self.parent.wait(1, partial(self.playing_slot_index_listener, execute_later=False))
+            return self.parent.defer(partial(self.playing_slot_index_listener, execute_later=False))
         self.build_clip_slots()
         if self.playing_slot_index >= 0:
             self.name = TrackName(self).get_track_name_for_clip_index(self.playing_slot_index)
@@ -49,7 +49,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self.name = TrackName(self).get_track_name_for_clip_index(self.playing_slot_index)
 
     def attach_to_group(self):
-        self.parent.log(", ".join(self.output_routings))
         for group_track in list(reversed(self.song.group_tracks)):
             if self.group_output_routing == group_track.name:
                 self.group_track = group_track
@@ -127,21 +126,22 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def playing_slot_index(self):
         # type: () -> int
+        """ returns Live playing_slot_index or """
         if self._track.playing_slot_index >= 0:
             return self._track.playing_slot_index
-        elif TrackName(self).clip_slot_index and TrackName(self).clip_slot_index in self.clip_slots:
+        else:
             return TrackName(self).clip_slot_index
-        return self._track.playing_slot_index
 
     @property
     def playable_clip(self):
         # type: () -> Clip
-        playing_clip_slot = self.clip_slots[self.playing_slot_index] if self.playing_slot_index >= 0 else None
-        if playing_clip_slot:
-            return playing_clip_slot.clip
-        elif TrackName(self).clip_slot_index >= 0 and self.clip_slots[TrackName(self).clip_slot_index].has_clip:
-            return self.clip_slots[TrackName(self).clip_slot_index].clip
-        return Clip.empty_clip()
+        clip = self.clips[self.playing_slot_index] if self.playing_slot_index >= 0 else None
+        if clip:
+            return clip
+        elif len(self.clips):
+            return self.clips[0]
+        else:
+            return Clip.empty_clip()
 
     @property
     def clips(self):

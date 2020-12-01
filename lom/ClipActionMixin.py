@@ -19,4 +19,4 @@ class ClipActionMixin(object):
                 self.delete()
                 self.track.song.clip_trigger_quantization = qz
 
-            self.track.parent.wait(2, delete_recording_clip)
+            self.track.parent.defer(delete_recording_clip)

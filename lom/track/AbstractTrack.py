@@ -27,7 +27,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self._index = index  # type: int
         self.g_track = None  # type: Optional[GroupTrack]
         self.recording_times = RECORDING_TIMES
-        self.children = []  # type: list[AbstractTrack]
+        self._children = []  # type: list[AbstractTrack]
         self.recording_time = "1 bar"
         self.bar_count = 1
         self.instrument = AbstractInstrument.create_from_abstract_track(self)
@@ -64,6 +64,11 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # type: () -> bool
         from a_protocol_0.lom.track.GroupTrack import GroupTrack
         return isinstance(self, GroupTrack)
+
+    @property
+    def children(self):
+        # type: () -> list["SimpleTrack"]
+        return self.base_track._children
 
     @property
     def all_nested_children(self):

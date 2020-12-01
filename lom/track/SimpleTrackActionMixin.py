@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class SimpleTrackActionMixin(object):
-    def action_arm(self):
+    def action_arm_track(self):
         # type: (SimpleTrack) -> None
         self.mute = False
         self.arm = True

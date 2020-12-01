@@ -14,12 +14,16 @@ class SongActionMixin(object):
         selected_track_index = self.selected_track.index if self.selected_track else 0
         self.get_next_track_by_index(selected_track_index, go_next).is_selected = True
 
-    def unarm_other_tracks(self):
+    def unfocus_other_tracks(self):
+        self._unarm_other_tracks()
+        self._unsolo_other_tracks()
+
+    def _unarm_other_tracks(self):
         # type: (Song) -> None
         [t.action_unarm() for t in self.simple_tracks if t.arm and t != self.current_track]
         [g_track.action_unarm() for g_track in self.g_tracks if g_track.arm and g_track != self.current_track]
 
-    def unsolo_other_tracks(self):
+    def _unsolo_other_tracks(self):
         # type: (Song) -> None
         [setattr(t, "solo", False) for t in self.song.solo_tracks if t.solo and t != self.current_track.base_track]
 

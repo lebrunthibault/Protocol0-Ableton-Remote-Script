@@ -16,7 +16,8 @@ class Song(SongActionMixin, AbstractObject):
         self.view = self._song.view  # type: Any
         self.tracks = []  # type: list[SimpleTrack]
         self.g_tracks = []  # type: list[GroupTrack]
-        self.parent.wait(1, self.build_tracks)
+        self.parent.defer(self.build_tracks)
+        self.tracks_added = False
 
     def init_listeners(self):
         # type: () -> None
@@ -24,6 +25,8 @@ class Song(SongActionMixin, AbstractObject):
 
     def build_tracks(self):
         """ do it one at at a time to be able to access tracks during instantiation"""
+        if len(self._song.tracks) > len(self.tracks):
+            self.tracks_added = True
         self.tracks = []
         self.g_tracks = []
         [self.tracks.append(SimpleTrack(track=track, index=i)) for i, track in enumerate(list(self._song.tracks))]

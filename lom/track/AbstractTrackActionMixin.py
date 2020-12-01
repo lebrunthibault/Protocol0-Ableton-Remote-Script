@@ -10,8 +10,13 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class AbstractTrackActionMixin(object):
-    @abstractmethod
     def action_arm(self):
+        # type: (AbstractTrack) -> None
+        self.song.unfocus_other_tracks()
+        self.action_arm_track()
+
+    @abstractmethod
+    def action_arm_track(self):
         # type: (AbstractTrack) -> None
         pass
 

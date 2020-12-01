@@ -7,6 +7,7 @@ from _Framework.Util import const
 from a_protocol_0 import Protocol0
 from a_protocol_0.components.ActionManager import ActionManager
 from a_protocol_0.components.AhkCommands import AhkCommands
+from a_protocol_0.components.ArmManager import ArmManager
 from a_protocol_0.components.MidiActions import MidiActions
 from a_protocol_0.components.SessionManager import SessionManager
 from a_protocol_0.lom.Song import Song
@@ -25,7 +26,8 @@ class Protocol0Component(CompoundComponent):
         self.canonical_parent._c_instance.log_message = types.MethodType(lambda s, message: None, self.canonical_parent._c_instance)
         self.song = Song()
         with inject(send_midi=const(send_midi), parent=const(self), my_song=const(self.song)).everywhere():
-            self.actionManager = ActionManager()
+            ArmManager()
+            ActionManager()
             self.sessionManager = SessionManager()
             self.ahk_commands = AhkCommands()
             self.midi = MidiActions()
@@ -39,11 +41,15 @@ class Protocol0Component(CompoundComponent):
         # type: (str) -> None
         self.canonical_parent.show_message(message)
 
+    def defer(self, callback):
+        # type: (Callable) -> None
+        self._wait(1, callback)
+
     def wait_bars(self, bar_count, message):
         # type: (int, Callable) -> None
-        self.wait(self.song.bar_count_length(bar_count), message)
+        self._wait(self.song.bar_count_length(bar_count), message)
 
-    def wait(self, ticks_count, callback):
+    def _wait(self, ticks_count, callback):
         # type: (int, Callable) -> None
         self.canonical_parent.schedule_message(ticks_count, callback)
 

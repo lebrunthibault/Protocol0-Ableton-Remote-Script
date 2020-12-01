@@ -45,7 +45,6 @@ class ActionManager(AbstractControlSurfaceComponent):
         if self.current_track.arm:
             self.current_track.action_unarm()
         else:
-            self.song.unarm_other_tracks()
             self.current_track.action_arm()
 
     @button_action()

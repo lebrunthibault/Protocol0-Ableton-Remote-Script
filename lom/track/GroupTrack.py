@@ -31,20 +31,10 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
 
         super(GroupTrack, self).__init__(self.parent.song._song.tracks[self.track_index_group], self.track_index_group, *a, **k)
         self.group.g_track = self.midi.g_track = self.audio.g_track = self
-        self.children = self.group.children
         self.recording_times.append(RECORDING_TIME_ONLY_AUDIO)
 
         if not self.arm:
             self.is_folded = True
-
-    @property
-    def next_empty_clip_slot_index(self):
-        # type: () -> ClipSlot
-        for i in range(len(self.song.scenes)):
-            if not self.midi.clip_slots[i].has_clip and not self.audio.clip_slots[i].has_clip:
-                return i
-        self.song.create_scene()
-        return len(self.song.scenes) - 1
 
     @property
     def group(self):
@@ -97,3 +87,12 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
         self.group.color = color
         self.midi.color = color
         self.audio.color = color
+
+    @property
+    def next_empty_clip_slot_index(self):
+        # type: () -> ClipSlot
+        for i in range(len(self.song.scenes)):
+            if not self.midi.clip_slots[i].has_clip and not self.audio.clip_slots[i].has_clip:
+                return i
+        self.song.create_scene()
+        return len(self.song.scenes) - 1

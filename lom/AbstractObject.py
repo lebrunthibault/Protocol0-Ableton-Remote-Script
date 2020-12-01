@@ -12,7 +12,7 @@ class AbstractObject(object):
         from a_protocol_0 import Protocol0Component
         self.parent = Protocol0Component.SELF  # type: "Protocol0Component"
         self.song = song if song else self.parent.song  # short-circuiting parent.song for Song instantiation
-        self.parent.wait(1, self.init_listeners)
+        self.parent.defer(self.init_listeners)
 
     def init_listeners(self):
         # type: () -> None

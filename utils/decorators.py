@@ -24,8 +24,7 @@ def button_action(is_scrollable=False, auto_arm=False, log_action=True):
                 self.parent.log("Executing " + func.__name__)
             try:
                 if auto_arm:
-                    self.song.unarm_other_tracks()
-                    self.song.unsolo_other_tracks()
+                    self.song.unfocus_other_tracks()
                     if not self.current_track.arm:
                         self.current_track.action_arm()
                 func(self, **k)

@@ -9,12 +9,13 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class GroupTrackActionMixin(object):
-    def action_arm(self):
+    def action_arm_track(self):
         # type: (GroupTrack) -> None
         self.color = Colors.ARM
         self.group.is_folded = False
         self.midi.action_arm()
         self.audio.action_arm()
+        self.midi.has_monitor_in = False
         self.audio.has_monitor_in = True
 
         if self.instrument.needs_activation:
@@ -22,9 +23,10 @@ class GroupTrackActionMixin(object):
 
     def action_unarm(self):
         # type: (GroupTrack) -> None
+        self.color = self.base_color
         self.group.is_folded = True
         self.audio.arm = self.midi.arm = False
-        self.color = self.base_color
+        self.midi.has_monitor_in = True
         self.audio.has_monitor_in = False
 
     def action_switch_monitoring(self):
