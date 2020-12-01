@@ -8,7 +8,6 @@ from a_protocol_0.utils.utils import parse_midi_channel, parse_midi_value
 
 
 class MidiActions(AbstractControlSurfaceComponent):
-    """ MidiActions provides MIDI-related methods. """
     @depends(send_midi=None)
     def __init__(self, send_midi=None, *a, **k):
         super(MidiActions, self).__init__(*a, **k)

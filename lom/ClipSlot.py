@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 class ClipSlot(AbstractObject):
     def __init__(self, clip_slot, index, track, *a, **k):
-        # type: (Any, int, "SimpleTrack", Any, Any) -> None
+        # type: (Any, int, SimpleTrack, Any, Any) -> None
         super(ClipSlot, self).__init__(*a, **k)
         self.clip_slot = clip_slot
         self.track = track

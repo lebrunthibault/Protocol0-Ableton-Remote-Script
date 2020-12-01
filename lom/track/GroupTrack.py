@@ -29,15 +29,22 @@ class GroupTrack(GroupTrackActionMixin, AbstractTrack):
         if base_track.is_nested_group_ex_track:
             self.track_index_group -= 1 if base_track.is_midi else 2
 
-        super(GroupTrack, self).__init__(self.parent.song.tracks[self.track_index_group], self.track_index_group, *a, **k)
+        super(GroupTrack, self).__init__(self.parent.song._song.tracks[self.track_index_group], self.track_index_group, *a, **k)
         self.group.g_track = self.midi.g_track = self.audio.g_track = self
         self.children = self.group.children
         self.recording_times.append(RECORDING_TIME_ONLY_AUDIO)
 
+        if not self.arm:
+            self.is_folded = True
+
     @property
-    def next_empty_clip_slot(self):
+    def next_empty_clip_slot_index(self):
         # type: () -> ClipSlot
-        return self.audio.next_empty_clip_slot
+        for i in range(len(self.song.scenes)):
+            if not self.midi.clip_slots[i].has_clip and not self.audio.clip_slots[i].has_clip:
+                return i
+        self.song.create_scene()
+        return len(self.song.scenes) - 1
 
     @property
     def group(self):

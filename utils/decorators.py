@@ -6,53 +6,32 @@ from _Framework.SubjectSlot import subject_slot
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
+    # noinspection PyUnresolvedReferences
+    from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 
 
-def arm_exclusive(auto_arm=False):
-    def wrap(func):
-        def decorate(self, *args, **kwargs):
-            # type: ("AbstractTrack", Any, Any) -> None
-            if auto_arm and self.can_be_armed and not self.arm and (not self.is_foldable or self.is_folded):
-                self.action_arm()
-            func(self, *args, **kwargs)
-            if self.arm:
-                self.song.unarm_other_tracks()
-
-        return decorate
-
-    return wrap
-
-
-def only_if_current(func):
-    def decorate(self, *args, **kwargs):
-        # type: ("AbstractTrack", Any, Any) -> None
-        if self.song.current_track != self:
-            return
-        func(self, *args, **kwargs)
-
-    return decorate
-
-
-def button_action(unarm_other_tracks=False, is_scrollable=False, log_action=True):
+def button_action(is_scrollable=False, auto_arm=False, log_action=True):
     def wrap(func):
         @subject_slot("value")
-        def decorate(self, *args, **kwargs):
-            # type: (Any, Any, Any) -> None
-            value = args[0]
+        def decorate(self, *a, **k):
+            # type: (AbstractControlSurfaceComponent, Any, Any) -> None
+            value = a[0]
             if not value:
                 return
             if is_scrollable:
-                kwargs = dict(kwargs, go_next=value == 1)
+                k = dict(k, go_next=value == 1)
+            if log_action:
+                self.parent.log("Executing " + func.__name__)
             try:
-                if log_action:
-                    self.parent.log("Executing " + func.__name__)
-                func(self, **kwargs)
+                if auto_arm:
+                    self.song.unarm_other_tracks()
+                    self.song.unsolo_other_tracks()
+                    if not self.current_track.arm:
+                        self.current_track.action_arm()
+                func(self, **k)
             except Exception:
                 self.parent.log(traceback.format_exc())
                 return
-
-            if unarm_other_tracks:
-                self.song.unarm_other_tracks()
 
         return decorate
 

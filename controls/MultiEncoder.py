@@ -34,7 +34,7 @@ class MultiEncoder(SlotManager):
             return
         press_time = time.time() - self.pressed_at
 
-        if press_time <= MultiEncoder.PRESS_MAX_TIME and self.on_press:
-            self.on_press(127)
-        elif self.on_long_press:
+        if press_time > MultiEncoder.PRESS_MAX_TIME and self.on_long_press:
             self.on_long_press(127)
+        elif self.on_press:
+            self.on_press(127)

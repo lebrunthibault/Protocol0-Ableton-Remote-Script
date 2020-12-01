@@ -15,7 +15,6 @@ if TYPE_CHECKING:
 
 class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def __init__(self, *a, **k):
-        # type: (Any, Any) -> None
         super(SimpleTrack, self).__init__(*a, **k)
         self.clip_slots = self.build_clip_slots()
         self._base_color = self.color
@@ -26,13 +25,12 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         return self.index
 
     def init_listeners(self):
-        # type: ("SimpleTrack") -> None
         if self._track.playing_slot_index_has_listener(self.playing_slot_index_listener):
             self._track.remove_playing_slot_index_listener(self.playing_slot_index_listener)
         self._track.add_playing_slot_index_listener(self.playing_slot_index_listener)
 
     def playing_slot_index_listener(self, execute_later=True):
-        # type: ("SimpleTrack", bool) -> None
+        # type: (bool) -> None
         if execute_later:
             return self.parent.wait(1, partial(self.playing_slot_index_listener, execute_later=False))
         self.build_clip_slots()
@@ -51,7 +49,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self.name = TrackName(self).get_track_name_for_clip_index(self.playing_slot_index)
 
     def attach_to_group(self):
-        self.parent.log("%s -> %s (%s) (%s)" % (self.name, self.group_output_routing, self.current_output_routing, ", ".join(self.output_routings)))
+        self.parent.log(", ".join(self.output_routings))
         for group_track in list(reversed(self.song.group_tracks)):
             if self.group_output_routing == group_track.name:
                 self.group_track = group_track
@@ -158,8 +156,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @arm.setter
     def arm(self, arm):
         # type: (bool) -> None
-        if self.can_be_armed:
-            self._track.arm = arm
+        self._track.arm = arm if self.can_be_armed else None
 
     @property
     def mute(self):
@@ -170,6 +167,16 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def mute(self, mute):
         # type: (bool) -> None
         self._track.mute = mute
+
+    @property
+    def solo(self):
+        # type: () -> bool
+        return self._track.solo
+
+    @solo.setter
+    def solo(self, solo):
+        # type: (bool) -> None
+        self._track.solo = solo
 
     @property
     def base_color(self):
@@ -194,8 +201,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @is_selected.setter
     def is_selected(self, is_selected):
         # type: (bool) -> None
-        if is_selected:
-            self.song.selected_track = self
+        self.song.selected_track = self if is_selected else None
 
     @property
     def current_output_routing(self):
@@ -210,6 +216,8 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def group_output_routing(self):
         # type: () -> Optional[str]
+        if len(self.output_routings) < 3:
+            return "Master"
         group_output_routing = str(self.output_routings[2])
         return group_output_routing if group_output_routing in self.song.group_tracks_names else "Master"
 
@@ -224,16 +232,18 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self._track.current_monitoring_state = int(not has_monitor_in)
 
     @property
-    def next_empty_clip_slot(self):
-        # type: () -> ClipSlot
-        """ counting in live index """
-        empty_clip_slot = next(
-            iter([clip_slot for clip_slot in self.clip_slots if not clip_slot.has_clip]), None)
-        if empty_clip_slot is None:
-            self.song.create_scene()
-            return self.next_empty_clip_slot
+    def empty_clip_slots(self):
+        # type: () -> list[ClipSlot]
+        return [clip_slot for clip_slot in self.clip_slots if not clip_slot.has_clip]
 
-        return empty_clip_slot
+    @property
+    def next_empty_clip_slot_index(self):
+        # type: () -> int
+        if len(self.empty_clip_slots):
+            return self.empty_clip_slots[0].index
+        else:
+            self.song.create_scene()
+            return len(self.song.scenes) - 1
 
     @property
     def base_name(self):

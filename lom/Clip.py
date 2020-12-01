@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 class Clip(ClipActionMixin, AbstractObject):
     def __init__(self, clip_slot, index, track, *a, **k):
-        # type: (Optional[Any], int, Optional["SimpleTrack"], Any, Any) -> None
+        # type: (Optional[Any], int, Optional[SimpleTrack], Any, Any) -> None
         super(Clip, self).__init__(*a, **k)
         self.clip_slot = clip_slot
         self.clip = clip_slot.clip if clip_slot else None
@@ -87,7 +87,5 @@ class Clip(ClipActionMixin, AbstractObject):
     @property
     def playing_position(self):
         # type: () -> float
-        """
-        For MIDI and warped audio clips the value is given in beats of absolute clip time. Zero beat time of the clip is where 1 is shown in the bar/beat/16th time scale at the top of the clip view.
-        """
+        """ For MIDI and warped audio clips the value is given in beats of absolute clip time. Zero beat time of the clip is where 1 is shown in the bar/beat/16th time scale at the top of the clip view. """
         return self.clip.playing_position

@@ -41,7 +41,7 @@ class Protocol0Component(CompoundComponent):
 
     def wait_bars(self, bar_count, message):
         # type: (int, Callable) -> None
-        self.wait(self.song.delay_before_recording_end(bar_count), message)
+        self.wait(self.song.bar_count_length(bar_count), message)
 
     def wait(self, ticks_count, callback):
         # type: (int, Callable) -> None

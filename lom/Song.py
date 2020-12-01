@@ -1,4 +1,3 @@
-from functools import partial
 from typing import Any, Optional
 
 from a_protocol_0.consts import GROUP_EXT_NAMES
@@ -17,20 +16,14 @@ class Song(SongActionMixin, AbstractObject):
         self.view = self._song.view  # type: Any
         self.tracks = []  # type: list[SimpleTrack]
         self.g_tracks = []  # type: list[GroupTrack]
-        self.build_tracks(execute_later=True)
-        # for g_track in self.g_tracks:
-        #     g_track.color = g_track.base_color  # when booting live, a track could be red without being armed
+        self.parent.wait(1, self.build_tracks)
 
     def init_listeners(self):
         # type: () -> None
         self._song.add_tracks_listener(self.build_tracks)
 
-    def build_tracks(self, execute_later=False):
+    def build_tracks(self):
         """ do it one at at a time to be able to access tracks during instantiation"""
-        if execute_later:
-            self.parent.wait(1, partial(self.build_tracks, execute_later=False))
-            return
-        self.parent.log("Song : building tracks")
         self.tracks = []
         self.g_tracks = []
         [self.tracks.append(SimpleTrack(track=track, index=i)) for i, track in enumerate(list(self._song.tracks))]
@@ -82,6 +75,11 @@ class Song(SongActionMixin, AbstractObject):
         return [track for track in self.tracks if track.is_simple_group]
 
     @property
+    def solo_tracks(self):
+        # type: () -> list[SimpleTrack]
+        return [track for track in self.tracks if track.solo]
+
+    @property
     def group_tracks_names(self):
         # type: () -> list[str]
         return [track.name for track in self.tracks if track.is_simple_group]
@@ -101,13 +99,6 @@ class Song(SongActionMixin, AbstractObject):
                 return t
 
         raise Exception("this track cannot be matched")
-
-    def other_armed_group_track(self, abstract_track):
-        # type: (AbstractTrack) -> Optional[GroupTrack]
-        return next(iter([g_track for g_track in self.g_tracks if (
-                not abstract_track or not isinstance(abstract_track,
-                                                     GroupTrack) or abstract_track.index != g_track.index) and g_track.any_armed]),
-                    None)
 
     @property
     def tempo(self):
@@ -149,6 +140,6 @@ class Song(SongActionMixin, AbstractObject):
         # type: (int) -> None
         self._song.clip_trigger_quantization = clip_trigger_quantization
 
-    def delay_before_recording_end(self, bar_count):
+    def bar_count_length(self, bar_count):
         # type: (int) -> int
-        return round((600 / self._song.tempo) * (4 * int(bar_count) - 0.5))
+        return round((600 / self.tempo) * (4 * int(bar_count) - 0.5))

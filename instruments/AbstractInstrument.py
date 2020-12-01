@@ -24,7 +24,7 @@ class AbstractInstrument(AbstractObject):
     COLOR = Colors.DISABLED
 
     def __init__(self, simple_track, *a, **k):
-        # type: ("SimpleTrack", Any, Any) -> None
+        # type: (SimpleTrack, Any, Any) -> None
         super(AbstractInstrument, self).__init__(*a, **k)
         self.track = simple_track
         self.track.instrument = self
@@ -40,7 +40,7 @@ class AbstractInstrument(AbstractObject):
 
     @staticmethod
     def create_from_abstract_track(track):
-        # type: ("AbstractTrack") -> AbstractInstrument
+        # type: (AbstractTrack) -> AbstractInstrument
         from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
         from a_protocol_0.lom.track.GroupTrack import GroupTrack
         from a_protocol_0.instruments.InstrumentMinitaur import InstrumentMinitaur
@@ -92,6 +92,7 @@ class AbstractInstrument(AbstractObject):
 
         self.track.name = TrackName(self.track).get_track_name_for_preset_index(new_preset_index)
 
+        self.parent.show_message("preset change : %d" % new_preset_index)
         self.set_preset(new_preset_index, go_next)
 
     def set_preset(self, preset_index, _):

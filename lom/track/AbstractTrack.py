@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING
 from a_protocol_0.consts import RECORDING_TIMES
 from a_protocol_0.instruments.AbstractInstrument import AbstractInstrument
 from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.lom.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.AbstractTrackActionMixin import AbstractTrackActionMixin
 
 if TYPE_CHECKING:
@@ -88,7 +87,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def is_foldable(self):
         # type: () -> bool
-        return self.base_track._track.is_foldable
+        return self._track.is_foldable
 
     @property
     def is_folded(self):
@@ -114,14 +113,9 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def can_be_armed(self):
         # type: () -> bool
-        return self.selectable_track._track.can_be_armed
+        return self.selectable_track._track.can_be_armed and not self.is_simple_group
 
     @abstractproperty
     def arm(self):
         # type: () -> bool
-        pass
-
-    @abstractproperty
-    def next_empty_clip_slot(self):
-        # type: () -> ClipSlot
         pass

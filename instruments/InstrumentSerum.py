@@ -8,7 +8,3 @@ class InstrumentSerum(AbstractInstrument):
         super(InstrumentSerum, self).__init__(*a, **k)
         self.NUMBER_OF_PRESETS = len(open(self.PRESETS_FILE).readlines())
         self.has_rack = True
-
-    # def set_preset(self, _, go_next):
-    #     # type: (bool, bool) -> None
-    #     self.parent.midi.send_control_change_absolute(55 if go_next else 54)
