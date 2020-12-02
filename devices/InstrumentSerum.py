@@ -1,4 +1,4 @@
-from a_protocol_0.instruments.AbstractInstrument import AbstractInstrument
+from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 
 
 class InstrumentSerum(AbstractInstrument):

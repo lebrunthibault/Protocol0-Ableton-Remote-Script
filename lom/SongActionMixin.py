@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Any
 
 from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 
@@ -45,6 +45,10 @@ class SongActionMixin(object):
     def stop_all_clips(self):
         # type: (Song) -> None
         self._song.stop_all_clips()
+
+    def select_device(self, device):
+        # type: (Song, Any) -> None
+        self.view.select_device(device)
 
     def undo(self):
         # type: (Song) -> None

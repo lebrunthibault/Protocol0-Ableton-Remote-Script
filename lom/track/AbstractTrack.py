@@ -3,7 +3,7 @@ from typing import Any, Optional
 from typing import TYPE_CHECKING
 
 from a_protocol_0.consts import RECORDING_TIMES
-from a_protocol_0.instruments.AbstractInstrument import AbstractInstrument
+from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.track.AbstractTrackActionMixin import AbstractTrackActionMixin
 
@@ -86,6 +86,24 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
             nested_children.append(child)
             nested_children += child.all_nested_children
         return nested_children
+
+    @property
+    def selected_device(self):
+        # type: () -> Any
+        return self._track.view.selected_device
+
+    @property
+    def all_devices(self):
+        # type: () -> list["SimpleTrack"]
+        def get_all_devices(devices):
+            all_devices = []
+            for device in devices:
+                all_devices.append(device)
+                if hasattr(device, "chains"):
+                    all_devices += get_all_devices(device.chains[0].devices)
+            return all_devices
+
+        return get_all_devices(self.base_track.devices)
 
     @property
     def name(self):

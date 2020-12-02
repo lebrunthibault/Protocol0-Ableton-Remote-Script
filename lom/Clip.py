@@ -9,83 +9,54 @@ if TYPE_CHECKING:
 
 
 class Clip(ClipActionMixin, AbstractObject):
-    def __init__(self, clip_slot, index, track, *a, **k):
-        # type: (Optional[Any], int, Optional[SimpleTrack], Any, Any) -> None
+    def __init__(self, clip, index, track, *a, **k):
+        # type: (Any, int, Optional[SimpleTrack], Any, Any) -> None
         super(Clip, self).__init__(*a, **k)
-        self.clip_slot = clip_slot
-        self.clip = clip_slot.clip if clip_slot else None
+        self._clip = clip
         self.index = index
         self.track = track
 
     def __nonzero__(self):
-        return self.clip is not None
+        return self._clip is not None
 
     def __eq__(self, other):
         if isinstance(other, Clip):
-            return self.clip == other.clip
+            return self._clip == other._clip
         return False
 
     @classmethod
     def empty_clip(cls):
         # type: () -> Clip
-        return Clip(clip_slot=None, index=-1, track=None)
+        return Clip(clip=None, index=-1, track=None)
 
     @property
     def length(self):
         # type: () -> float
         """ For looped clips: loop length in beats """
-        return self.clip.length
-
-    @property
-    def name(self):
-        # type: () -> str
-        return self.clip.name
-
-    @name.setter
-    def name(self, name):
-        # type: (str) -> None
-        if self.clip:
-            self.clip.name = name
-
-    @property
-    def warp_mode(self):
-        # type: () -> str
-        return self.clip.warp_mode
-
-    @warp_mode.setter
-    def warp_mode(self, warp_mode):
-        # type: (Any) -> None
-        if self.clip:
-            self.clip.warp_mode = warp_mode
+        return self._clip.length
 
     @property
     def color(self):
         # type: () -> int
-        return self.clip.color_index
+        return self._clip.color_index
 
     @color.setter
     def color(self, color_index):
         # type: (int) -> None
-        self.clip.color_index = color_index
+        self._clip.color_index = color_index
 
     @property
     def is_playing(self):
         # type: () -> bool
-        return self.index >= 0 and self.clip.is_playing
+        return self.index >= 0 and self._clip.is_playing
 
     @is_playing.setter
     def is_playing(self, is_playing):
         # type: (bool) -> None
         if self.index >= 0:
-            self.clip.is_playing = is_playing
+            self._clip.is_playing = is_playing
 
     @property
     def is_recording(self):
         # type: () -> bool
-        return self.clip and self.clip.is_recording
-
-    @property
-    def playing_position(self):
-        # type: () -> float
-        """ For MIDI and warped audio clips the value is given in beats of absolute clip time. Zero beat time of the clip is where 1 is shown in the bar/beat/16th time scale at the top of the clip view. """
-        return self.clip.playing_position
+        return self._clip and self._clip.is_recording

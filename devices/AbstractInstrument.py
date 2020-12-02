@@ -1,11 +1,10 @@
 from abc import ABCMeta
 from typing import TYPE_CHECKING, Any
 
-import Live
-
 from a_protocol_0.consts import GROUP_PROPHET_NAME, GROUP_MINITAUR_NAME
+from a_protocol_0.devices.Device import Device
 from a_protocol_0.lom.Colors import Colors
-from a_protocol_0.lom.track.TrackName import TrackName, AbstractObject
+from a_protocol_0.lom.track.TrackName import TrackName
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -18,7 +17,7 @@ if TYPE_CHECKING:
     from a_protocol_0.Protocol0Component import Protocol0Component
 
 
-class AbstractInstrument(AbstractObject):
+class AbstractInstrument(Device):
     __metaclass__ = ABCMeta
     NUMBER_OF_PRESETS = 128
     COLOR = Colors.DISABLED
@@ -29,8 +28,6 @@ class AbstractInstrument(AbstractObject):
         self.track = simple_track
         self.track.instrument = self
         self.is_null = False
-        self.browser = Live.Application.get_application().browser
-        self._cached_browser_items = {}
         self.needs_activation = False
         self.can_be_shown = True
         self.has_rack = False
@@ -43,11 +40,11 @@ class AbstractInstrument(AbstractObject):
         # type: (AbstractTrack) -> AbstractInstrument
         from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
         from a_protocol_0.lom.track.GroupTrack import GroupTrack
-        from a_protocol_0.instruments.InstrumentMinitaur import InstrumentMinitaur
-        from a_protocol_0.instruments.InstrumentNull import InstrumentNull
-        from a_protocol_0.instruments.InstrumentProphet import InstrumentProphet
-        from a_protocol_0.instruments.InstrumentSerum import InstrumentSerum
-        from a_protocol_0.instruments.InstrumentSimpler import InstrumentSimpler
+        from a_protocol_0.devices.InstrumentMinitaur import InstrumentMinitaur
+        from a_protocol_0.devices.InstrumentNull import InstrumentNull
+        from a_protocol_0.devices.InstrumentProphet import InstrumentProphet
+        from a_protocol_0.devices.InstrumentSerum import InstrumentSerum
+        from a_protocol_0.devices.InstrumentSimpler import InstrumentSimpler
 
         if isinstance(track, SimpleTrack):
             if track.is_simpler:

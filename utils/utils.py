@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Any
 
 
 def parse_number(num_as_string, default_value=None, min_value=None, max_value=None, is_float=False):
@@ -44,7 +44,9 @@ def get_beat_time(text, obj):
 
 
 def scroll_values(values, selected_value, go_next):
-    # type: (list[str], Optional[str], bool) -> str
+    # type: (list[Any], Optional[Any], bool) -> Optional[Any]
+    if len(values) == 0:
+        return None
     increment = 1 if go_next else - 1
     if selected_value is not None:
         index = (values.index(selected_value) + increment) % len(values)

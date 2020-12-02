@@ -25,7 +25,7 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         pass
 
-    def action_sel(self):
+    def action_show_instrument(self):
         # type: (AbstractTrack) -> None
         self.parent.application().view.show_view(u'Detail/DeviceChain')
         self.selectable_track.is_selected = True
