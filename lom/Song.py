@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Optional, List
 
 from a_protocol_0.consts import GROUP_EXT_NAMES, TRACK_CATEGORIES, TRACK_CATEGORY_ALL
 from a_protocol_0.lom.AbstractObject import AbstractObject
@@ -14,8 +14,8 @@ class Song(SongActionMixin, AbstractObject):
         self._song = self.parent.song()
         self.parent.song = self
         self.view = self._song.view  # type: Any
-        self.tracks = []  # type: list[SimpleTrack]
-        self.g_tracks = []  # type: list[GroupTrack]
+        self.tracks = []  # type: List[SimpleTrack]
+        self.g_tracks = []  # type: List[GroupTrack]
         self.parent.defer(self.build_tracks)
         self.tracks_added = False
         self.selected_track_category = TRACK_CATEGORIES[0]
@@ -37,7 +37,7 @@ class Song(SongActionMixin, AbstractObject):
 
     @property
     def scenes(self):
-        # type: () -> list[Any]
+        # type: () -> List[Any]
         return self._song.scenes
 
     @property
@@ -60,44 +60,44 @@ class Song(SongActionMixin, AbstractObject):
 
     @property
     def visible_tracks(self):
-        # type: () -> list[SimpleTrack]
+        # type: () -> List[SimpleTrack]
         return [track for track in self.tracks if track.is_visible]
 
     @property
     def top_tracks(self):
-        # type: () -> list[SimpleTrack]
+        # type: () -> List[SimpleTrack]
         return [track for track in self.tracks if track.is_top_visible]
 
     @property
     def simple_tracks(self):
-        # type: () -> list[SimpleTrack]
+        # type: () -> List[SimpleTrack]
         return [track for track in self.tracks if not track.is_groupable]
 
     @property
     def group_tracks(self):
-        # type: () -> list[SimpleTrack]
+        # type: () -> List[SimpleTrack]
         return [track for track in self.tracks if track.is_simple_group]
 
     @property
     def solo_tracks(self):
-        # type: () -> list[SimpleTrack]
+        # type: () -> List[SimpleTrack]
         return [track for track in self.tracks if track.solo]
 
     @property
     def selected_category_tracks(self):
-        # type: () -> list[SimpleTrack]
+        # type: () -> List[SimpleTrack]
         if self.selected_track_category == TRACK_CATEGORY_ALL:
             return self.tracks
         return [track for track in self.tracks if track.category.lower() == self.selected_track_category.lower()]
 
     @property
     def group_tracks_names(self):
-        # type: () -> list[str]
+        # type: () -> List[str]
         return [track.name for track in self.tracks if track.is_simple_group]
 
     @property
     def playing_tracks(self):
-        # type: () -> list[AbstractTrack]
+        # type: () -> List[AbstractTrack]
         return [track for track in self.tracks if track.is_playing]
 
     def _get_track(self, track):

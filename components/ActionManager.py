@@ -79,7 +79,8 @@ class ActionManager(AbstractControlSurfaceComponent):
         selected_device = scroll_values(self.current_track.all_devices, self.current_track.selected_device, go_next)
         if selected_device:
             self.song.select_device(selected_device)
-            self.parent.log(selected_device.parameters)
+            self.parent.log(selected_device.type)
+            self.parent.log(list(selected_device.parameters))
 
     @button_action(is_scrollable=True)
     def action_scroll_track_recording_times(self, go_next):

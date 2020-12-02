@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Any, Optional, TYPE_CHECKING
+from typing import Any, Optional, TYPE_CHECKING, List
 
 from a_protocol_0.consts import GROUP_EXT_NAMES, TRACK_CATEGORIES, TRACK_CATEGORY_OTHER
 from a_protocol_0.lom.Clip import Clip
@@ -40,7 +40,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
                 clip.color = self.base_color
 
     def build_clip_slots(self):
-        # type: () -> list[ClipSlot]
+        # type: () -> List[ClipSlot]
         return [ClipSlot(clip_slot=clip_slot, index=index, track=self) for (index, clip_slot) in enumerate(list(self._track.clip_slots))]
 
     def refresh_name(self):
@@ -127,11 +127,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         return self.is_visible and not self.is_nested_group_ex_track
 
     @property
-    def devices(self):
-        # type: () -> list[Any]
-        return self._track.devices
-
-    @property
     def playing_slot_index(self):
         # type: () -> int
         """ returns Live playing_slot_index or """
@@ -153,7 +148,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
 
     @property
     def clips(self):
-        # type: () -> list[Clip]
+        # type: () -> List[Clip]
         return [clip_slot.clip for clip_slot in self.clip_slots if clip_slot.has_clip]
 
     @property
@@ -243,7 +238,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
 
     @property
     def empty_clip_slots(self):
-        # type: () -> list[ClipSlot]
+        # type: () -> List[ClipSlot]
         return [clip_slot for clip_slot in self.clip_slots if not clip_slot.has_clip]
 
     @property

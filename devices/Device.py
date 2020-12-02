@@ -6,7 +6,7 @@ from a_protocol_0.lom.AbstractObject import AbstractObject
 class Device(AbstractObject):
     def __init__(self, *a, **k):
         super(Device, self).__init__(*a, **k)
-        self.browser = Live.Application.get_application().browser
+        self._browser = Live.Application.get_application().browser
         self._cached_browser_items = {}
 
     def _do_load_item(self, item, header='Device'):
@@ -14,7 +14,7 @@ class Device(AbstractObject):
         if item and item.is_loadable:
             self.song.view.selected_track.view.device_insert_mode = Live.Track.DeviceInsertMode.default
             self.parent.show_message('Loading %s: %s' % (header, item.name))
-            self.browser.load_item(item)
+            self._browser.load_item(item)
 
     def _get_item_for_category(self, category, item):
         """ Returns the cached item for the category. """
@@ -28,7 +28,7 @@ class Device(AbstractObject):
             self._cached_browser_items[category] = {}
         if not self._cached_browser_items.get(category, None):
             self._cached_browser_items[category] = {}
-            self._get_children_for_item(getattr(self.browser, category), self._cached_browser_items[category])
+            self._get_children_for_item(getattr(self._browser, category), self._cached_browser_items[category])
         return
 
     def _get_children_for_item(self, item, i_dict, is_drum_rack=False):

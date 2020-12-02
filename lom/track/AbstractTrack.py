@@ -1,11 +1,14 @@
 from abc import ABCMeta, abstractproperty
-from typing import Any, Optional
+from typing import Any, Optional, List
 from typing import TYPE_CHECKING
+
+import Live
 
 from a_protocol_0.consts import RECORDING_TIMES
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.track.AbstractTrackActionMixin import AbstractTrackActionMixin
+from a_protocol_0.utils.utils import find_if
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -28,10 +31,15 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self.g_track = None  # type: Optional[GroupTrack]
         self.parent_track = None  # type: Optional[SimpleTrack]
         self.recording_times = RECORDING_TIMES
-        self._children = []  # type: list[AbstractTrack]
+        self._children = []  # type: List[AbstractTrack]
         self.selected_recording_time = "1 bar"
         self.bar_count = 1
+        instrument = find_if(lambda d: d.type == Live.Device.DeviceType.instrument, self.devices)
+        if instrument:
+            self.parent.log(self.name)
+            self.parent.log(instrument)
         self.instrument = AbstractInstrument.create_from_abstract_track(self)
+        # self.instrument = AbstractInstrument.create_from_abstract_track(self, instrument)
 
     def __eq__(self, other):
         if isinstance(other, AbstractTrack):
@@ -45,7 +53,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
 
     @property
     def parent_tracks(self):
-        # type: () -> list[SimpleTrack]
+        # type: () -> List[SimpleTrack]
         if self.parent_track:
             return [self.parent_track] + self.parent_track.parent_tracks
         return [self]
@@ -75,17 +83,22 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
 
     @property
     def children(self):
-        # type: () -> list["SimpleTrack"]
+        # type: () -> List["SimpleTrack"]
         return self.base_track._children
 
     @property
     def all_nested_children(self):
-        # type: () -> list["SimpleTrack"]
+        # type: () -> List["SimpleTrack"]
         nested_children = []
         for child in self.children:
             nested_children.append(child)
             nested_children += child.all_nested_children
         return nested_children
+
+    @property
+    def devices(self):
+        # type: () -> List[Any]
+        return self._track.devices
 
     @property
     def selected_device(self):
@@ -94,7 +107,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
 
     @property
     def all_devices(self):
-        # type: () -> list["SimpleTrack"]
+        # type: () -> List["SimpleTrack"]
         def get_all_devices(devices):
             all_devices = []
             for device in devices:
@@ -103,7 +116,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
                     all_devices += get_all_devices(device.chains[0].devices)
             return all_devices
 
-        return get_all_devices(self.base_track.devices)
+        return get_all_devices(self.devices)
 
     @property
     def name(self):

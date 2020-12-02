@@ -1,3 +1,4 @@
+import inspect
 import types
 from typing import Callable, Any
 
@@ -12,7 +13,9 @@ from a_protocol_0.components.AhkCommands import AhkCommands
 from a_protocol_0.components.ArmManager import ArmManager
 from a_protocol_0.components.MidiActions import MidiActions
 from a_protocol_0.components.SessionManager import SessionManager
+from a_protocol_0.consts import REMOTE_SCRIPTS_FOLDER
 from a_protocol_0.lom.Song import Song
+from a_protocol_0.utils.config import Config
 
 
 class Protocol0Component(CompoundComponent):
@@ -23,21 +26,26 @@ class Protocol0Component(CompoundComponent):
         # type: (Protocol0, callable, Any, Any) -> None
         super(Protocol0Component, self).__init__(*a, **k)
         Protocol0Component.SELF = self
+        Push2.protocol0 = self
         self.control_surface = control_surface
         # noinspection PyProtectedMember
         self.canonical_parent._c_instance.log_message = types.MethodType(lambda s, message: None, self.canonical_parent._c_instance)
         self.song = Song()
-        Push2.protocol0_song = self.song
         with inject(send_midi=const(send_midi), parent=const(self), my_song=const(self.song)).everywhere():
             ArmManager()
             ActionManager()
             self.sessionManager = SessionManager()
             self.ahk_commands = AhkCommands()
             self.midi = MidiActions()
-        self.log("Protocol0Component initialized")
+        self.log("Protocol0 script loaded")
 
     def log(self, message):
         # type: (str) -> None
+        cur_frame = inspect.currentframe()
+        call_frame = inspect.getouterframes(cur_frame, 2)
+        (_, filename, line, method, _, _) = call_frame[1]
+        if Config.DEBUG:
+            message = "%s (%s:%s in %s)" % (message, filename.replace(REMOTE_SCRIPTS_FOLDER + "\\", ""), line, method)
         self.canonical_parent.log_message(message)
 
     def show_message(self, message):

@@ -1,4 +1,4 @@
-from typing import Optional, Any
+from typing import Optional, Any, List
 
 
 def parse_number(num_as_string, default_value=None, min_value=None, max_value=None, is_float=False):
@@ -44,7 +44,7 @@ def get_beat_time(text, obj):
 
 
 def scroll_values(values, selected_value, go_next):
-    # type: (list[Any], Optional[Any], bool) -> Optional[Any]
+    # type: (List[Any], Optional[Any], bool) -> Optional[Any]
     if len(values) == 0:
         return None
     increment = 1 if go_next else - 1
@@ -54,3 +54,13 @@ def scroll_values(values, selected_value, go_next):
         index = 1
 
     return values[index]
+
+
+def find_if(predicate, seq):
+    u"""
+    Returns the first element in sequence 'seq' satisfying 'predicate'
+    or 'None' if no such element exists.
+    """
+    for x in seq:
+        if predicate(x):
+            return x
