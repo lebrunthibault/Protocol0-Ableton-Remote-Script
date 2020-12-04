@@ -1,5 +1,5 @@
+from itertools import chain, imap
 from typing import Optional, Any, List
-
 
 def parse_number(num_as_string, default_value=None, min_value=None, max_value=None, is_float=False):
     """ Parses the given string containing a number and returns the parsed number.
@@ -56,11 +56,18 @@ def scroll_values(values, selected_value, go_next):
     return values[index]
 
 
-def find_if(predicate, seq):
+def find_all_devices(track_or_chain):
+    # type: (Any) -> List[Any]
     u"""
-    Returns the first element in sequence 'seq' satisfying 'predicate'
-    or 'None' if no such element exists.
+    Returns a list with all devices from a track or chain.
     """
-    for x in seq:
-        if predicate(x):
-            return x
+    if track_or_chain:
+        devices = []
+        for device in track_or_chain.devices:
+            if device:
+                if not device.can_have_drum_pads and device.can_have_chains:
+                    devices += chain([device], *imap(find_all_devices, device.chains))
+                else:
+                    devices += [device]
+        return devices
+    return []

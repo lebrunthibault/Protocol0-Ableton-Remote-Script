@@ -1,25 +1,20 @@
 from typing import Any, TYPE_CHECKING
 
 from _Framework.ControlSurfaceComponent import ControlSurfaceComponent
-from _Framework.Dependency import depends
-
-from a_protocol_0.lom.Song import Song
-from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
-from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
+from a_protocol_0.lom.AbstractObject import AbstractObject
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
-    from a_protocol_0 import Protocol0Component
+    from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
+    # noinspection PyUnresolvedReferences
+    from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 
 
-class AbstractControlSurfaceComponent(ControlSurfaceComponent):
-    @depends(parent=None, my_song=None)
-    def __init__(self, parent=None, my_song=None, *a, **k):
-        # type: (Protocol0Component, Song, Any, Any) -> None
-        super(AbstractControlSurfaceComponent, self).__init__(*a, **k)
-        self.parent = parent
-        self.control_surface = parent.control_surface
-        self.song = my_song
+class AbstractControlSurfaceComponent(AbstractObject, ControlSurfaceComponent):
+    def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
+        AbstractObject.__init__(self, *a, **k)
+        ControlSurfaceComponent.__init__(self, song=self.parent.protocol0_song, *a, **k)
 
     @property
     def selected_track(self):

@@ -9,10 +9,11 @@ if TYPE_CHECKING:
 
 
 class Clip(ClipActionMixin, AbstractObject):
-    def __init__(self, clip, index, track, *a, **k):
-        # type: (Any, int, Optional[SimpleTrack], Any, Any) -> None
+    def __init__(self, clip_slot, index, track, *a, **k):
+        # type: (Optional[Live.ClipSlot.ClipSlot], int, Optional[SimpleTrack], Any, Any) -> None
         super(Clip, self).__init__(*a, **k)
-        self._clip = clip
+        self._clip_slot = clip_slot
+        self._clip = clip_slot.clip if clip_slot and clip_slot.has_clip else None
         self.index = index
         self.track = track
 
@@ -27,7 +28,7 @@ class Clip(ClipActionMixin, AbstractObject):
     @classmethod
     def empty_clip(cls):
         # type: () -> Clip
-        return Clip(clip=None, index=-1, track=None)
+        return Clip(clip_slot=None, index=-1, track=None)
 
     @property
     def length(self):

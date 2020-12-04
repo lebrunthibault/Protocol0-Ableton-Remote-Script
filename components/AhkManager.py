@@ -6,10 +6,10 @@ from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceC
 home = expanduser("~")
 
 
-class AhkCommands(AbstractControlSurfaceComponent):
+class AhkManager(AbstractControlSurfaceComponent):
     def _sendKeys(self, keys):
         # type: (str) -> None
-        self.parent.log("Sending keys to ahk : " + keys)
+        self.parent.log("Sending keys to ahk : " + keys, debug=False)
         subprocess.Popen(["pythonw.exe",
                           home + "\\Google Drive\\music\\dev\\scripts\\python\\sendKeys.py",
                           keys]

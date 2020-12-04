@@ -4,15 +4,17 @@ from a_protocol_0.lom.AbstractObject import AbstractObject
 
 
 class Device(AbstractObject):
-    def __init__(self, *a, **k):
+    def __init__(self, device, *a, **k):
         super(Device, self).__init__(*a, **k)
+        self._device = device
+        self.name = device.name
         self._browser = Live.Application.get_application().browser
         self._cached_browser_items = {}
 
     def _do_load_item(self, item, header='Device'):
         """ Handles loading an item and displaying load info in status bar. """
         if item and item.is_loadable:
-            self.song.view.selected_track.view.device_insert_mode = Live.Track.DeviceInsertMode.default
+            self.song._view.selected_track.view.device_insert_mode = Live.Track.DeviceInsertMode.default
             self.parent.show_message('Loading %s: %s' % (header, item.name))
             self._browser.load_item(item)
 

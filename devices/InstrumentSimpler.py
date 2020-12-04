@@ -12,12 +12,13 @@ class InstrumentSimpler(AbstractInstrument):
 
     def action_scroll_presets_or_samples(self, go_next):
         # type: (bool) -> None
-        sample_path = join(SAMPLE_PATH, self.track.base_name)
+        track_base_name = self.name[0].upper() + self.name[1:]
+        sample_path = join(SAMPLE_PATH, track_base_name)
         if not isdir(sample_path):
             raise Exception("the track name does not correspond with a sample directory")
 
         samples = [f for f in listdir(sample_path) if isfile(join(sample_path, f)) and f.endswith(".wav")]
-        current_sample = self.track.devices[0].name + ".wav"
+        current_sample = self._device.name + ".wav"
 
         if current_sample in samples:
             next_sample_index = samples.index(current_sample) + 1 if go_next else samples.index(current_sample) - 1

@@ -12,19 +12,20 @@ class GroupTrackActionMixin(object):
     def action_arm_track(self):
         # type: (GroupTrack) -> None
         self.color = Colors.ARM
-        self.group.is_folded = False
-        self.midi.action_arm()
-        self.audio.action_arm()
+        self.base_track.is_folded = False
+        self.midi.action_arm_track()
+        self.audio.action_arm_track()
         self.midi.has_monitor_in = False
         self.audio.has_monitor_in = True
 
         if self.instrument.needs_activation:
+            self.selectable_track.is_selected = True
             self.instrument.activate()
 
     def action_unarm(self):
         # type: (GroupTrack) -> None
         self.color = self.base_color
-        self.group.is_folded = True
+        self.base_track.is_folded = True
         self.audio.arm = self.midi.arm = False
         self.midi.has_monitor_in = True
         self.audio.has_monitor_in = False
@@ -53,5 +54,4 @@ class GroupTrackActionMixin(object):
 
     def action_undo_track(self):
         # type: (GroupTrack) -> None
-        self.audio.action_undo_track()
-        self.midi.action_undo_track()
+        [sub_track.action_undo_track() for sub_track in self.sub_tracks]

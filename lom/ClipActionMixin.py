@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 class ClipActionMixin(object):
     def delete(self):
         # type: (Clip) -> None
-        self.clip_slot.delete_clip()
+        self._clip_slot.delete_clip()
         if self.is_recording:
             qz = self.track.song.clip_trigger_quantization
             self.track.song.clip_trigger_quantization = 0

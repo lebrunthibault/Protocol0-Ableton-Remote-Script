@@ -1,122 +1,58 @@
-from abc import ABCMeta, abstractproperty
+from abc import abstractproperty
 from typing import Any, Optional, List
 from typing import TYPE_CHECKING
-
 import Live
 
-from a_protocol_0.consts import RECORDING_TIMES
+from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from a_protocol_0.consts import TRACK_CATEGORIES, TRACK_CATEGORY_OTHER
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
-from a_protocol_0.lom.AbstractObject import AbstractObject
+from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.lom.track.AbstractTrackActionMixin import AbstractTrackActionMixin
-from a_protocol_0.utils.utils import find_if
+from a_protocol_0.utils.utils import find_all_devices
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
-    from a_protocol_0.Protocol0Component import Protocol0Component
-    # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
-    # noinspection PyUnresolvedReferences
-    from a_protocol_0.lom.track.GroupTrack import GroupTrack
 
 
 # noinspection PyDeprecation
-class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
-    __metaclass__ = ABCMeta
-
+class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
     def __init__(self, track, index, *a, **k):
-        # type: (Any, int, Any, Any) -> None
-        super(AbstractTrack, self).__init__(*a, **k)
-        self._track = track  # type: Any
-        self._index = index  # type: int
-        self.g_track = None  # type: Optional[GroupTrack]
-        self.parent_track = None  # type: Optional[SimpleTrack]
-        self.recording_times = RECORDING_TIMES
-        self._children = []  # type: List[AbstractTrack]
+        # type: (Live.Track.Track, int, Any, Any) -> None
+        self._track = track  # type: Live.Track.Track
+        self._view = track.view  # type: Live.Track.Track.View
+        super(AbstractTrack, self).__init__(name=self.name, *a, **k)
+        self.index = index
+        self.base_track = self  # type: SimpleTrack
+        self.selectable_track = self
+        self.group_track = None  # type: Optional[SimpleTrack]
+        self.group_tracks = []  # type: List[SimpleTrack]
+        self.sub_tracks = []  # type: List[SimpleTrack]
+        self.top_devices = self._track.devices  # type: List[Live.Device.Device]
+        self.all_devices = find_all_devices(self._track)  # type: List[Live.Device.Device]
+        self.instrument = None  # type: Optional[AbstractInstrument]
+        self.is_foldable = self._track.is_foldable
+        self.can_be_armed = self._track.can_be_armed
         self.selected_recording_time = "1 bar"
         self.bar_count = 1
-        instrument = find_if(lambda d: d.type == Live.Device.DeviceType.instrument, self.devices)
-        if instrument:
-            self.parent.log(self.name)
-            self.parent.log(instrument)
-        self.instrument = AbstractInstrument.create_from_abstract_track(self)
-        # self.instrument = AbstractInstrument.create_from_abstract_track(self, instrument)
-
-    def __eq__(self, other):
-        if isinstance(other, AbstractTrack):
-            return self._track == other._track
-        return False
+        self.base_color = getattr(Colors, self.name) if Colors.has(self.name) else self._track.color_index  # type: int
 
     @property
-    def index(self):
-        # type: () -> int
-        return self.base_track._index
-
-    @property
-    def parent_tracks(self):
+    def all_tracks(self):
         # type: () -> List[SimpleTrack]
-        if self.parent_track:
-            return [self.parent_track] + self.parent_track.parent_tracks
-        return [self]
-
-    @property
-    def base_track(self):
-        # type: () -> SimpleTrack
-        from a_protocol_0.lom.track.GroupTrack import GroupTrack
-        return self.group if isinstance(self, GroupTrack) else self
-
-    @property
-    def selectable_track(self):
-        # type: () -> SimpleTrack
-        from a_protocol_0.lom.track.GroupTrack import GroupTrack
-        return self.midi if isinstance(self, GroupTrack) else self
-
-    @property
-    def is_simple_group(self):
-        # type: () -> bool
-        return self.is_foldable and not self.is_group_ex_track
-
-    @property
-    def is_group_ex_track(self):
-        # type: () -> bool
-        from a_protocol_0.lom.track.GroupTrack import GroupTrack
-        return isinstance(self, GroupTrack)
-
-    @property
-    def children(self):
-        # type: () -> List["SimpleTrack"]
-        return self.base_track._children
-
-    @property
-    def all_nested_children(self):
-        # type: () -> List["SimpleTrack"]
-        nested_children = []
-        for child in self.children:
-            nested_children.append(child)
-            nested_children += child.all_nested_children
-        return nested_children
-
-    @property
-    def devices(self):
-        # type: () -> List[Any]
-        return self._track.devices
+        all_tracks = [self]
+        [all_tracks.extend(sub_track.all_tracks) for sub_track in self.sub_tracks]
+        return all_tracks
 
     @property
     def selected_device(self):
-        # type: () -> Any
+        # type: () -> Live.Device.Device
         return self._track.view.selected_device
 
     @property
-    def all_devices(self):
-        # type: () -> List["SimpleTrack"]
-        def get_all_devices(devices):
-            all_devices = []
-            for device in devices:
-                all_devices.append(device)
-                if hasattr(device, "chains"):
-                    all_devices += get_all_devices(device.chains[0].devices)
-            return all_devices
-
-        return get_all_devices(self.devices)
+    def is_visible(self):
+        # type: () -> bool
+        return self._track.is_visible
 
     @property
     def name(self):
@@ -129,9 +65,24 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self._track.name = name
 
     @property
-    def is_foldable(self):
-        # type: () -> bool
-        return self._track.is_foldable
+    def category(self):
+        # type: () -> str
+        for track_category in TRACK_CATEGORIES:
+            if any([t for t in [self] + self.group_tracks if t.name.lower() == track_category.lower()]):
+                return track_category
+
+        return TRACK_CATEGORY_OTHER
+
+    @property
+    def color(self):
+        # type: () -> int
+        return self._track.color_index
+
+    @color.setter
+    def color(self, color_index):
+        # type: (int) -> None
+        for track in self.all_tracks:
+            track._track.color_index = color_index
 
     @property
     def is_folded(self):
@@ -153,11 +104,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def is_recording(self):
         # type: () -> bool
         pass
-
-    @property
-    def can_be_armed(self):
-        # type: () -> bool
-        return self.selectable_track._track.can_be_armed and not self.is_simple_group
 
     @abstractproperty
     def arm(self):

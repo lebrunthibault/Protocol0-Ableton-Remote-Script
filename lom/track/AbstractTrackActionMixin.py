@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 class AbstractTrackActionMixin(object):
     def action_arm(self):
         # type: (AbstractTrack) -> None
-        self.song.unfocus_other_tracks()
+        self.song.unfocus_all_tracks()
         self.action_arm_track()
 
     @abstractmethod
@@ -30,7 +30,7 @@ class AbstractTrackActionMixin(object):
         self.parent.application().view.show_view(u'Detail/DeviceChain')
         self.selectable_track.is_selected = True
         self.is_folded = False
-        if self.instrument.can_be_shown:
+        if self.instrument and self.instrument.can_be_shown:
             self.instrument.show()
 
     def action_solo(self):
@@ -45,14 +45,14 @@ class AbstractTrackActionMixin(object):
     def action_restart_and_record(self, action_record_func, only_audio=False):
         # type: (AbstractTrack, Callable, bool) -> None
         """ restart audio to get a count in and recfix"""
+        if not self.can_be_armed:
+            return
         if self.is_recording:
             return self.action_undo()
         if self.song.session_record_status != Live.Song.SessionRecordStatus.off:
             return
-        if self.is_simple_group:
-            return
 
-        self.song.is_playing = False
+        self.song.stop_playing()
         action_record_func()
 
         if len(self.song.playing_tracks) <= 1 and not only_audio:

@@ -5,15 +5,14 @@ from a_protocol_0.lom.AbstractObject import AbstractObject
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
-    from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 
 
 class TrackName(AbstractObject):
-    def __init__(self, abstract_track, *a, **k):
-        # type: (AbstractTrack, Any, Any) -> None
+    def __init__(self, track, *a, **k):
+        # type: (SimpleTrack, Any, Any) -> None
         super(TrackName, self).__init__(*a, **k)
-        self.parts = abstract_track.base_track.name.split(" - ")
-        self.track = abstract_track
+        self.track = track
+        self.parts = track.base_track.name.split(" - ")
         self.name = self.parts[0]  # type: str
         try:
             self.clip_slot_index = int(self.parts[1])
@@ -24,26 +23,12 @@ class TrackName(AbstractObject):
         except (ValueError, IndexError):
             self.preset_index = -1
 
-    def __str__(self):
-        return self.name
-
-    def __eq__(self, other):
-        if isinstance(other, TrackName):
-            return self.name == other.name
-        elif isinstance(other, str):
-            return self.name == str
-        return False
-
     @property
     def has_instrument_preset(self):
         return len(self.parts) >= 3
 
     def get_track_name_for_clip_index(self, clip_index=None):
         # type: (Optional[int]) -> str
-        from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
-        if not isinstance(self.track, SimpleTrack):
-            return self.name
-
         clip_index = clip_index or self.track.playable_clip.index
 
         if clip_index < 0 or clip_index > len(self.track.song.scenes) - 1:

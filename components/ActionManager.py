@@ -2,9 +2,11 @@ from __future__ import with_statement
 
 from _Framework.ButtonElement import ButtonElement
 from _Framework.InputControlElement import *
+
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import RECORDING_TIMES, TRACK_CATEGORIES, TRACK_CATEGORY_ALL
 from a_protocol_0.controls.MultiEncoder import MultiEncoder
+from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 from a_protocol_0.utils.decorators import button_action
 from a_protocol_0.utils.utils import scroll_values
 
@@ -45,12 +47,15 @@ class ActionManager(AbstractControlSurfaceComponent):
     @button_action(is_scrollable=True, log_action=False)
     def action_scroll_tracks(self, go_next):
         """ scroll top tracks """
-        self.song.scroll_tracks(go_next)
+        track_to_select = scroll_values(self.song.top_tracks, self.current_track.base_track, go_next)  # type: SimpleTrack
+        track_to_select.is_selected = True
+        if track_to_select.playable_clip:
+            self.song._view.highlighted_clip_slot = track_to_select.playable_clip._clip_slot
 
     @button_action()
     def action_arm_track(self):
         """ arm or unarm both midi and audio track """
-        if self.current_track.is_simple_group:
+        if not self.current_track.can_be_armed and self.current_track.is_foldable:
             self.current_track.is_folded = not self.current_track.is_folded
             return
 
@@ -66,7 +71,8 @@ class ActionManager(AbstractControlSurfaceComponent):
     @button_action(is_scrollable=True, auto_arm=True)
     def action_scroll_track_instrument_presets(self, go_next):
         """ scroll track device presets or samples """
-        self.current_track.instrument.action_scroll_presets_or_samples(go_next)
+        if self.current_track.instrument:
+            self.current_track.instrument.action_scroll_presets_or_samples(go_next)
 
     @button_action()
     def action_show_track_instrument(self):
@@ -79,8 +85,6 @@ class ActionManager(AbstractControlSurfaceComponent):
         selected_device = scroll_values(self.current_track.all_devices, self.current_track.selected_device, go_next)
         if selected_device:
             self.song.select_device(selected_device)
-            self.parent.log(selected_device.type)
-            self.parent.log(list(selected_device.parameters))
 
     @button_action(is_scrollable=True)
     def action_scroll_track_recording_times(self, go_next):

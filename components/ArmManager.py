@@ -1,12 +1,6 @@
 from __future__ import with_statement
 
-from typing import TYPE_CHECKING
-
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-
-if TYPE_CHECKING:
-    # noinspection PyUnresolvedReferences
-    from a_protocol_0.Protocol0Component import Protocol0Component
 
 
 class ArmManager(AbstractControlSurfaceComponent):

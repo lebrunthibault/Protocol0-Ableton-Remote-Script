@@ -11,3 +11,10 @@ SAMPLE_PATH = ABLETON_USER_LIBRARY_PATH + "\\Samples\\Imported"
 GROUP_PROPHET_NAME = "Prophet"
 GROUP_MINITAUR_NAME = "Minitaur"
 GROUP_EXT_NAMES = (GROUP_PROPHET_NAME, GROUP_MINITAUR_NAME)
+
+INSTRUMENT_NAME_MAPPINGS = {
+    "Serum_x64": "InstrumentSerum",
+    "Minitaur Editor-VI(x64)": "InstrumentMinitaur",
+    "REV2Editor": "InstrumentProphet",
+}
+

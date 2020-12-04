@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 class ClipSlot(AbstractObject):
     def __init__(self, clip_slot, index, track, *a, **k):
-        # type: (Any, int, SimpleTrack, Any, Any) -> None
+        # type: (Live.ClipSlot.ClipSlot, int, SimpleTrack, Any, Any) -> None
         super(ClipSlot, self).__init__(*a, **k)
         self._clip_slot = clip_slot
         self.track = track
@@ -37,7 +37,7 @@ class ClipSlot(AbstractObject):
     @property
     def clip(self):
         # type: () -> Optional[Clip]
-        return Clip(clip=self._clip_slot.clip, index=self.index, track=self.track) if self.has_clip else None
+        return Clip(clip_slot=self._clip_slot, index=self.index, track=self.track) if self.has_clip else None
 
     def fire(self, record_length):
         # type: (int) -> None
