@@ -1,7 +1,6 @@
 from __future__ import with_statement
 
 from _Framework.SessionComponent import SessionComponent
-
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 
 

@@ -4,6 +4,7 @@ from a_protocol_0.consts import TRACK_CATEGORIES, TRACK_CATEGORY_ALL
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.SongActionMixin import SongActionMixin
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
+from a_protocol_0.lom.track.GroupTrack import GroupTrack
 from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 
 
@@ -14,6 +15,7 @@ class Song(SongActionMixin, AbstractObject):
         self._view = self._song.view  # type: Any
         self.tracks = []  # type: List[SimpleTrack]
         self.group_tracks = []  # type: List[SimpleTrack]
+        self.external_synth_tracks = []  # type: List[GroupTrack]
         self.selected_track = None  # type: Optional[SimpleTrack]
         self.current_track = None  # type: Optional[AbstractTrack]
         self.tracks_added = False

@@ -9,7 +9,7 @@ home = expanduser("~")
 class AhkManager(AbstractControlSurfaceComponent):
     def _sendKeys(self, keys):
         # type: (str) -> None
-        self.parent.log("Sending keys to ahk : " + keys, debug=False)
+        self.parent.log_info("Sending keys to ahk : " + keys)
         subprocess.Popen(["pythonw.exe",
                           home + "\\Google Drive\\music\\dev\\scripts\\python\\sendKeys.py",
                           keys]

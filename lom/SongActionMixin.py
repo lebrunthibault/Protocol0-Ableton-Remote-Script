@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, Any
+from typing import TYPE_CHECKING, Optional
 
 from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 
@@ -15,11 +15,13 @@ class SongActionMixin(object):
 
     def unfocus_all_tracks(self):
         # type: (Song) -> None
+        self.parent.log_debug("unfocus all tracks")
         self._unarm_all_tracks()
         self._unsolo_all_tracks()
 
     def _unarm_all_tracks(self):
         # type: (Song) -> None
+        [t.action_unarm() for t in self.external_synth_tracks if t.arm]
         [t.action_unarm() for t in self.tracks if t.arm]
 
     def _unsolo_all_tracks(self):
@@ -39,10 +41,6 @@ class SongActionMixin(object):
     def stop_all_clips(self, quantized=1):
         # type: (Song, int) -> None
         self._song.stop_all_clips(quantized)
-
-    def select_device(self, device):
-        # type: (Song, Any) -> None
-        self._view.select_device(device)
 
     def undo(self):
         # type: (Song) -> None

@@ -1,11 +1,11 @@
 from abc import abstractproperty
 from typing import Any, Optional, List
 from typing import TYPE_CHECKING
+
 import Live
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import TRACK_CATEGORIES, TRACK_CATEGORY_OTHER
-from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.lom.track.AbstractTrackActionMixin import AbstractTrackActionMixin
 from a_protocol_0.utils.utils import find_all_devices
@@ -30,7 +30,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
         self.sub_tracks = []  # type: List[SimpleTrack]
         self.top_devices = self._track.devices  # type: List[Live.Device.Device]
         self.all_devices = find_all_devices(self._track)  # type: List[Live.Device.Device]
-        self.instrument = None  # type: Optional[AbstractInstrument]
+        self.instrument = self.parent.deviceManager.create_instrument_from_simple_track(track=self)
         self.is_foldable = self._track.is_foldable
         self.can_be_armed = self._track.can_be_armed
         self.selected_recording_time = "1 bar"

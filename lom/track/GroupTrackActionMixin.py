@@ -17,10 +17,7 @@ class GroupTrackActionMixin(object):
         self.audio.action_arm_track()
         self.midi.has_monitor_in = False
         self.audio.has_monitor_in = True
-
-        if self.instrument.needs_activation:
-            self.selectable_track.is_selected = True
-            self.instrument.activate()
+        self.instrument.check_activated()
 
     def action_unarm(self):
         # type: (GroupTrack) -> None

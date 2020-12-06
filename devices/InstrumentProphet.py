@@ -5,6 +5,7 @@ class InstrumentProphet(AbstractInstrument):
     def __init__(self, *a, **k):
         super(InstrumentProphet, self).__init__(*a, **k)
         self.needs_activation = True
+        self.activated = False
 
     def activate(self):
         # type: () -> None

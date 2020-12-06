@@ -24,7 +24,7 @@ class SongManager(AbstractControlSurfaceComponent):
     @subject_slot("tracks")
     def _map_tracks(self):
         # type: () -> Optional[SimpleTrack]
-        self.parent.log("SongManager : mapping tracks")
+        self.parent.log_info("SongManager : mapping tracks")
         if len(self.song.tracks) and len(self.song._song.tracks) > len(self.song.tracks):
             self.song.tracks_added = True
         for i, track in enumerate(list(self.song._song.tracks)):
@@ -39,14 +39,14 @@ class SongManager(AbstractControlSurfaceComponent):
                 track.group_track.sub_tracks.append(track)
                 track.group_tracks = [track.group_track] + track.group_track.group_tracks
         # generate externalSynth tracks
-        external_synth_tracks = [GroupTrack(track=track, index=track.index) for track in self.song.tracks if
+        self.song.external_synth_tracks = [GroupTrack(track=track, index=track.index) for track in self.song.tracks if
                                  track.name in GROUP_EXT_NAMES]
         self._simple_track_to_external_synth_track = {}
-        for es_track in external_synth_tracks:
+        for es_track in self.song.external_synth_tracks:
             self._simple_track_to_external_synth_track.update(
                 {es_track.base_track: es_track, es_track.midi: es_track, es_track.audio: es_track})
 
-        self.parent.log("SongManager : mapped tracks")
+        self.parent.log_info("SongManager : mapped tracks")
 
     def _get_simple_track(self, track, default=None):
         # type: (Any, Optional[SimpleTrack]) -> Optional[SimpleTrack]

@@ -16,7 +16,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self.clip_slots = []  # type: List[ClipSlot]
         self.clips = []  # type: List[Clip]
         self.build_clip_slots()
-        self.instrument = self.parent.instrumentManager.create_from_simple_track(track=self)
         # defer till Live is stopped because it boots playing
         self.parent._wait(10, lambda: setattr(self.playing_slot_index_listener, "subject", self._track))
 
@@ -37,7 +36,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
 
     @property
     def is_external_synth_sub_track(self):
-        return self.group_track and self.group_track.name in self.name in GROUP_EXT_NAMES
+        return self.group_track and self.group_track.name in GROUP_EXT_NAMES
 
     @property
     def is_playing(self):

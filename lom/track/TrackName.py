@@ -12,7 +12,7 @@ class TrackName(AbstractObject):
         # type: (SimpleTrack, Any, Any) -> None
         super(TrackName, self).__init__(*a, **k)
         self.track = track
-        self.parts = track.base_track.name.split(" - ")
+        self.parts = track.name.split(" - ")
         self.name = self.parts[0]  # type: str
         try:
             self.clip_slot_index = int(self.parts[1])

@@ -2,7 +2,7 @@ import os
 from os.path import isfile, isdir
 from typing import TYPE_CHECKING, Any, List
 
-from a_protocol_0.devices.Device import Device
+from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.track.TrackName import TrackName
 
 if TYPE_CHECKING:
@@ -10,21 +10,28 @@ if TYPE_CHECKING:
     from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 
 
-class AbstractInstrument(Device):
+class AbstractInstrument(AbstractObject):
     NUMBER_OF_PRESETS = 128
     PRESETS_PATH = None
 
-    def __init__(self, track, has_rack, *a, **k):
+    def __init__(self, track, has_rack, device, *a, **k):
         # type: (SimpleTrack, Any, Any) -> None
         super(AbstractInstrument, self).__init__(*a, **k)
         self.track = track
+        self._device = device
+        self.name = device.name
         self.needs_activation = False
+        self.activated = True
         self.can_be_shown = True
         self.has_rack = has_rack
         self.preset_names = []  # type: List[str]
         self.get_presets()
-        self.parent.log(self.name)
-        self.parent.log(self.has_rack)
+
+    def check_activated(self):
+        if self.needs_activation and not self.activated:
+            self.track.is_selected = True
+            self.activate()
+            self.activated = True
 
     def get_presets(self):
         if self.PRESETS_PATH:
@@ -53,16 +60,17 @@ class AbstractInstrument(Device):
 
     def action_scroll_presets_or_samples(self, go_next):
         # type: (bool) -> None
-        if TrackName(self).preset_index == -1:
+        if TrackName(self.track).preset_index == -1:
             new_preset_index = 0
         else:
-            new_preset_index = TrackName(self).preset_index + 1 if go_next else TrackName(self).preset_index - 1
+            new_preset_index = TrackName(self.track).preset_index + 1 if go_next else TrackName(self.track).preset_index - 1
         new_preset_index %= self.NUMBER_OF_PRESETS
 
         self.track.name = TrackName(self.track).get_track_name_for_preset_index(new_preset_index)
 
         display_preset = self.preset_names[new_preset_index] if len(self.preset_names) else str(new_preset_index)
-        self.parent.show_message("preset change : %s" % display_preset)
+        display_preset = os.path.splitext(self.get_display_name(display_preset))[0]
+        self.parent.show_message("preset change : %s" % self.get_display_name(display_preset))
         self.set_preset(new_preset_index, go_next)
 
     def set_preset(self, preset_index, _):

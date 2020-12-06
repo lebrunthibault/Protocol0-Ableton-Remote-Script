@@ -1,10 +1,13 @@
 import inspect
 import logging
 import types
-from typing import Callable, Any
+from typing import Callable
+
+# noinspection PyUnresolvedReferences
+from ClyphX_Pro.clyphx_pro.actions.BrowserActions import BrowserActions
 
 from _Framework.ControlSurface import ControlSurface
-from a_protocol_0.devices.InstrumentManager import InstrumentManager
+from a_protocol_0.components.DeviceManager import DeviceManager
 
 logger = logging.getLogger(__name__)
 
@@ -15,9 +18,8 @@ from a_protocol_0.components.ArmManager import ArmManager
 from a_protocol_0.components.MidiManager import MidiManager
 from a_protocol_0.components.SessionManager import SessionManager
 from a_protocol_0.components.SongManager import SongManager
-from a_protocol_0.consts import REMOTE_SCRIPTS_FOLDER
+from a_protocol_0.consts import REMOTE_SCRIPTS_FOLDER, LogLevel, ACTIVE_LOG_LEVEL
 from a_protocol_0.lom.Song import Song
-from a_protocol_0.utils.config import Config
 
 
 class Protocol0(ControlSurface):
@@ -30,28 +32,39 @@ class Protocol0(ControlSurface):
         self._c_instance.log_message = types.MethodType(lambda s, message: None, self._c_instance)
         with self.component_guard():
             self.protocol0_song = Song(song=self.song())
-            self.instrumentManager = InstrumentManager()
+            self.deviceManager = DeviceManager()
             ArmManager()
             ActionManager()
             self.songManager = SongManager()
             self.sessionManager = SessionManager()
             self.ahkManager = AhkManager()
             self.midiManager = MidiManager()
+            self.browserManager = BrowserActions()
 
         self._wait(9, self.protocol0_song.stop)
         Push2.protocol0 = self
-        self.log("Protocol0 script loaded")
+        self.log_info("Protocol0 script loaded")
 
-    def log(self, message, debug=True):
+    def log_debug(self, message):
         # type: (str) -> None
-        try:
-            cur_frame = inspect.currentframe()
-            call_frame = inspect.getouterframes(cur_frame, 2)
-            (_, filename, line, method, _, _) = call_frame[1]
-        except Exception:
-            filename = None
-        if Config.DEBUG and debug and filename:
-            message = "%s (%s:%s in %s)" % (message, filename.replace(REMOTE_SCRIPTS_FOLDER + "\\", ""), line, method)
+        self._log(message, LogLevel.DEBUG)
+
+    def log_info(self, message):
+        # type: (str) -> None
+        self._log(message, LogLevel.INFO, debug=False)
+
+    def _log(self, message, level=LogLevel.INFO, debug=True):
+        # type: (str) -> None
+        if level < ACTIVE_LOG_LEVEL:
+            return
+        if debug:
+            try:
+                cur_frame = inspect.currentframe()
+                call_frame = inspect.getouterframes(cur_frame, 2)
+                (_, filename, line, method, _, _) = call_frame[1]
+                message = "%s (%s:%s in %s)" % (message, filename.replace(REMOTE_SCRIPTS_FOLDER + "\\", ""), line, method)
+            except Exception:
+                pass
         logger.info(message)
 
     def defer(self, callback):
