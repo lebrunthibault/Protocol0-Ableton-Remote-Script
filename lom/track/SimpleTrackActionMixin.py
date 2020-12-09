@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from a_protocol_0.lom.ClipSlot import ClipSlot
-from a_protocol_0.utils.utils import get_beat_time
+from a_protocol_0.utils.utils import get_beat_time, scroll_values
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -10,11 +10,6 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class SimpleTrackActionMixin(object):
-    def build_clip_slots(self):
-        # type: (SimpleTrack) -> None
-        self.clip_slots = [ClipSlot(clip_slot=clip_slot, index=index, track=self) for (index, clip_slot) in enumerate(list(self._track.clip_slots))]
-        self.clips = [clip_slot.clip for clip_slot in self.clip_slots if clip_slot.has_clip]
-
     def action_arm_track(self):
         # type: (SimpleTrack) -> None
         self.mute = False
@@ -55,3 +50,14 @@ class SimpleTrackActionMixin(object):
         # type: (SimpleTrack) -> None
         self.song.metronome = False
         self.playable_clip.delete()
+
+    def scroll_clips(self, go_next):
+        # type: (SimpleTrack, bool) -> None
+        if not len(self.clips):
+            return
+
+        self.parent.log_debug("before self.playable_clip.index %d " % self.playable_clip.index)
+        clip = scroll_values(self.clips, self.playable_clip, go_next)
+        self.parent.log_debug("clip.index %d" % clip.index)
+        self.playable_clip = clip
+        self.parent.log_debug("after: self.playable_clip.index %d" % self.playable_clip.index)

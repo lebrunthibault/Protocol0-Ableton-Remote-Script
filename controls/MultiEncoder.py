@@ -7,7 +7,7 @@ from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.lom.AbstractObject import AbstractObject
 
 
-class MultiEncoder(SlotManager, AbstractObject):
+class MultiEncoder(AbstractObject):
     PRESS_MAX_TIME = 0.25  # maximum time in seconds we consider a simple press
 
     def __init__(self, channel, identifier, on_press=None, on_long_press=None, on_scroll=None):

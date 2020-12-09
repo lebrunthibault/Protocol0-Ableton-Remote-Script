@@ -1,6 +1,9 @@
 from itertools import chain, imap
 from typing import Optional, Any, List
 
+from a_protocol_0.utils.log import log_ableton
+
+
 def parse_number(num_as_string, default_value=None, min_value=None, max_value=None, is_float=False):
     """ Parses the given string containing a number and returns the parsed number.
     If a parse error occurs, the default_value will be returned. If a min_value or
@@ -48,10 +51,10 @@ def scroll_values(values, selected_value, go_next):
     if len(values) == 0:
         return None
     increment = 1 if go_next else - 1
-    if selected_value is not None:
-        index = (values.index(selected_value) + increment) % len(values)
-    else:
+    if not selected_value:
         index = 1
+    else:
+        index = (values.index(selected_value) + increment) % len(values)
 
     return values[index]
 

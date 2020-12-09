@@ -5,9 +5,10 @@ from typing import TYPE_CHECKING
 import Live
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.consts import TRACK_CATEGORIES, TRACK_CATEGORY_OTHER
+from a_protocol_0.consts import TRACK_CATEGORIES, TRACK_CATEGORY_OTHER, EXTERNAL_SYNTH_NAMES
 from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.lom.track.AbstractTrackActionMixin import AbstractTrackActionMixin
+from a_protocol_0.utils.decorators import defer
 from a_protocol_0.utils.utils import find_all_devices
 
 if TYPE_CHECKING:
@@ -24,6 +25,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
         super(AbstractTrack, self).__init__(name=self.name, *a, **k)
         self.index = index
         self.base_track = self  # type: SimpleTrack
+        self.is_external_synth_track = self.name in EXTERNAL_SYNTH_NAMES
         self.selectable_track = self
         self.group_track = None  # type: Optional[SimpleTrack]
         self.group_tracks = []  # type: List[SimpleTrack]
@@ -35,7 +37,9 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
         self.can_be_armed = self._track.can_be_armed
         self.selected_recording_time = "1 bar"
         self.bar_count = 1
-        self.base_color = getattr(Colors, self.name) if Colors.has(self.name) else self._track.color_index  # type: int
+        self.is_midi = self._track.has_midi_input
+        self.is_audio = self._track.has_audio_input
+        self.base_color = Colors.get(self.name, default=self._track.color_index)
 
     @property
     def all_tracks(self):
@@ -60,6 +64,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
         return self._track.name
 
     @name.setter
+    @defer
     def name(self, name):
         # type: (str) -> None
         self._track.name = name

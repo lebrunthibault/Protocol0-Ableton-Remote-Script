@@ -1,13 +1,14 @@
-from functools import partial
 from typing import List
 
 from _Framework.SubjectSlot import subject_slot
-from a_protocol_0.consts import GROUP_EXT_NAMES
+from a_protocol_0.consts import EXTERNAL_SYNTH_NAMES
 from a_protocol_0.lom.Clip import Clip
 from a_protocol_0.lom.ClipSlot import ClipSlot
+from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.SimpleTrackActionMixin import SimpleTrackActionMixin
 from a_protocol_0.lom.track.TrackName import TrackName
+from a_protocol_0.utils.decorators import defer
 
 
 class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
@@ -15,6 +16,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         super(SimpleTrack, self).__init__(*a, **k)
         self.clip_slots = []  # type: List[ClipSlot]
         self.clips = []  # type: List[Clip]
+        self.build_clip_slots.subject = self._track
         self.build_clip_slots()
         # defer till Live is stopped because it boots playing
         self.parent._wait(10, lambda: setattr(self.playing_slot_index_listener, "subject", self._track))
@@ -22,21 +24,27 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def __hash__(self):
         return self.index
 
+    @subject_slot("clip_slots")
+    def build_clip_slots(self):
+        # type: (SimpleTrack) -> None
+        self.clip_slots = [ClipSlot(clip_slot=clip_slot, index=index, track=self) for (index, clip_slot) in
+                           enumerate(list(self._track.clip_slots))]
+        self.clips = [clip_slot.clip for clip_slot in self.clip_slots if clip_slot.has_clip]
+
     @subject_slot("playing_slot_index")
-    def playing_slot_index_listener(self, execute_later=True):
-        # type: (bool) -> None
-        if execute_later:
-            return self.parent.defer(partial(self.playing_slot_index_listener, execute_later=False))
+    @defer
+    def playing_slot_index_listener(self):
+        # type: () -> None
         if self.playing_slot_index >= 0:
             clip = self.clip_slots[self.playing_slot_index].clip
             if clip:
                 clip.color = self.base_color
                 if clip.is_playing:
-                    self.name = TrackName(self).get_track_name_for_clip_index(self.playing_slot_index)
+                    self.name = TrackName(self).get_track_name_for_clip_slot_index(clip_index=self.playing_slot_index)
 
     @property
     def is_external_synth_sub_track(self):
-        return self.group_track and self.group_track.name in GROUP_EXT_NAMES
+        return self.group_track and self.group_track.name in EXTERNAL_SYNTH_NAMES
 
     @property
     def is_playing(self):
@@ -72,6 +80,14 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             return self.clips[0]
         else:
             return Clip.empty_clip()
+
+    @playable_clip.setter
+    def playable_clip(self, clip):
+        # type: (Clip) -> None
+        [setattr(clip, "color", self.base_color) for clip in self.clips]
+        clip.color = Colors.SELECTED
+        self.parent.log_debug(TrackName(self).get_track_name_for_clip_slot_index(clip_index=clip.index))
+        self.name = TrackName(self).get_track_name_for_clip_slot_index(clip_index=clip.index)
 
     @property
     def arm(self):

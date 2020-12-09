@@ -1,5 +1,6 @@
-from typing import Any, Optional, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
+from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.Clip import Clip
 
@@ -15,29 +16,23 @@ class ClipSlot(AbstractObject):
         self._clip_slot = clip_slot
         self.track = track
         self.index = index
+        self.has_clip = False
+        self.clip = None
+        self.update_clip.subject = self._clip_slot
+        self.update_clip()
 
     def __nonzero__(self):
         return self._clip_slot is not None
 
-    def __eq__(self, other):
-        if isinstance(other, ClipSlot):
-            return self._clip_slot == other._clip_slot
-        return False
+    @subject_slot("has_clip")
+    def update_clip(self):
+        self.has_clip = self._clip_slot.has_clip
+        self.clip = Clip(clip_slot=self) if self.has_clip else None
 
     @property
     def is_triggered(self):
         # type: () -> bool
         return self._clip_slot.is_triggered
-
-    @property
-    def has_clip(self):
-        # type: () -> bool
-        return self._clip_slot.has_clip
-
-    @property
-    def clip(self):
-        # type: () -> Optional[Clip]
-        return Clip(clip_slot=self._clip_slot, index=self.index, track=self.track) if self.has_clip else None
 
     def fire(self, record_length):
         # type: (int) -> None

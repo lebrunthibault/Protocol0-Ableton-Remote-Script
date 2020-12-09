@@ -37,11 +37,11 @@ class ActionManager(AbstractControlSurfaceComponent):
                      on_long_press=self.stop_category,
                      on_scroll=self.action_scroll_track_categories)
 
-        # RESTart encoder
+        # PLAY encoder
         MultiEncoder(channel=15, identifier=12,
                      on_press=self.restart_track,
                      on_long_press=self.restart_category,
-                     on_scroll=self.action_scroll_track_categories_2)
+                     on_scroll=self.action_scroll_track_clips)
 
         # MONitor encoder
         MultiEncoder(channel=15, identifier=3,
@@ -59,6 +59,8 @@ class ActionManager(AbstractControlSurfaceComponent):
         track_to_select.is_selected = True
         if track_to_select.playable_clip:
             self.song._view.highlighted_clip_slot = track_to_select.playable_clip._clip_slot
+        self.parent.push2Manager.update_session_ring()
+        self.parent.push2Manager.update_mode_for_current_track()
 
     @button_action()
     def action_arm_track(self):
@@ -138,11 +140,16 @@ class ActionManager(AbstractControlSurfaceComponent):
             [track.stop() for track in self.song.selected_category_tracks]
         self.parent.show_message("Stopping %s" % self.song.selected_track_category)
 
+    # @button_action(log_action=False)
+    # def action_scroll_track_categories_2(self, go_next):
+    #     """" stop a live set from group tracks track names """
+    #     self.song.selected_track_category = scroll_values(TRACK_CATEGORIES, self.song.selected_track_category, go_next)
+    #     self.parent.show_message("Selected %s" % self.song.selected_track_category)
+
     @button_action(log_action=False)
-    def action_scroll_track_categories_2(self, go_next):
+    def action_scroll_track_clips(self, go_next):
         """" stop a live set from group tracks track names """
-        self.song.selected_track_category = scroll_values(TRACK_CATEGORIES, self.song.selected_track_category, go_next)
-        self.parent.show_message("Selected %s" % self.song.selected_track_category)
+        self.song.selected_track.scroll_clips(go_next=go_next)
 
     @button_action()
     def restart_track(self):

@@ -5,30 +5,32 @@ from a_protocol_0.lom.ClipActionMixin import ClipActionMixin
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
+    from a_protocol_0.lom.ClipSlot import ClipSlot
+    # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 
 
 class Clip(ClipActionMixin, AbstractObject):
-    def __init__(self, clip_slot, index, track, *a, **k):
-        # type: (Optional[Live.ClipSlot.ClipSlot], int, Optional[SimpleTrack], Any, Any) -> None
+    def __init__(self, clip_slot, *a, **k):
+        # type: (Optional[ClipSlot], Any, Any) -> None
         super(Clip, self).__init__(*a, **k)
-        self._clip_slot = clip_slot
-        self._clip = clip_slot.clip if clip_slot and clip_slot.has_clip else None
-        self.index = index
-        self.track = track
+        self._clip_slot = clip_slot._clip_slot if clip_slot else None
+        self._clip = self._clip_slot.clip if self._clip_slot and self._clip_slot.has_clip else None
+        self.index = clip_slot.index if clip_slot else -1
+        self.track = clip_slot.track if clip_slot else None
 
     def __nonzero__(self):
         return self._clip is not None
 
-    def __eq__(self, other):
-        if isinstance(other, Clip):
-            return self._clip == other._clip
-        return False
-
     @classmethod
     def empty_clip(cls):
         # type: () -> Clip
-        return Clip(clip_slot=None, index=-1, track=None)
+        return Clip(clip_slot=None)
+
+    @property
+    def name(self):
+        # type: () -> str
+        return self._clip.name
 
     @property
     def length(self):

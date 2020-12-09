@@ -1,6 +1,7 @@
 from os import listdir
 from os.path import isfile, join, isdir
 
+from _Framework.Util import find_if
 from a_protocol_0.consts import SAMPLE_PATH
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.lom.track.TrackName import TrackName
@@ -15,10 +16,11 @@ class InstrumentSimpler(AbstractInstrument):
     def action_scroll_presets_or_samples(self, go_next):
         # type: (bool) -> None
         track_name = TrackName(self.track).name
-        sample_path = join(SAMPLE_PATH, track_name[0].upper() + track_name[1:])
-        if not isdir(sample_path):
+        dir_name = find_if(lambda f: track_name.lower() in f.lower(), listdir(SAMPLE_PATH))
+        if not dir_name:
             raise Exception("the track name does not correspond with a sample directory")
 
+        sample_path = join(SAMPLE_PATH, dir_name)
         samples = [f for f in listdir(sample_path) if isfile(join(sample_path, f)) and f.endswith(".wav")]
         # instead of self._device because simpler gets new device each time
         current_sample = self.track.selected_device.name + ".wav"

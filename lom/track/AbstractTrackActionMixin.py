@@ -31,7 +31,11 @@ class AbstractTrackActionMixin(object):
         self.selectable_track.is_selected = True
         self.is_folded = False
         if self.instrument and self.instrument.can_be_shown:
-            self.instrument.show()
+            if not self.instrument.activated:
+                self.instrument.activate()
+                self.instrument.activated = True
+            else:
+                self.song.show_hide_plugins()
 
     def action_solo(self):
         # type: (AbstractTrack) -> None

@@ -26,3 +26,7 @@ class AhkManager(AbstractControlSurfaceComponent):
     def show_and_activate_rev2_editor(self):
         # type: () -> None
         self._sendKeys("^{F3}")
+
+    def toggle_minitaur_editor(self):
+        # type: () -> None
+        self._sendKeys("^{F4}")

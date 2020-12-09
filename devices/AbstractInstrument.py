@@ -20,15 +20,14 @@ class AbstractInstrument(AbstractObject):
         self.track = track
         self._device = device
         self.name = device.name
-        self.needs_activation = False
-        self.activated = True
+        self.activated = False
         self.can_be_shown = True
         self.has_rack = has_rack
         self.preset_names = []  # type: List[str]
         self.get_presets()
 
     def check_activated(self):
-        if self.needs_activation and not self.activated:
+        if self.can_be_shown and not self.activated:
             self.track.is_selected = True
             self.activate()
             self.activated = True
@@ -49,10 +48,6 @@ class AbstractInstrument(AbstractObject):
     def activate(self):
         # type: () -> None
         """ for instruments needing gui click activation """
-        pass
-
-    def show(self):
-        # type: () -> None
         if self.has_rack:
             self.parent.ahkManager.toggle_first_vst_with_rack()
         else:

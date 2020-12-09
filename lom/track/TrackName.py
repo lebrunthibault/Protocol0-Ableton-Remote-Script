@@ -27,9 +27,11 @@ class TrackName(AbstractObject):
     def has_instrument_preset(self):
         return len(self.parts) >= 3
 
-    def get_track_name_for_clip_index(self, clip_index=None):
+    def get_track_name_for_clip_slot_index(self, clip_index=None):
         # type: (Optional[int]) -> str
-        clip_index = clip_index or self.track.playable_clip.index
+        self.parent.log_debug("get_track_name_for_clip_slot_index : clip index is %d" % clip_index)
+        if clip_index is None:
+            clip_index = self.track.playable_clip.index
 
         if clip_index < 0 or clip_index > len(self.track.song.scenes) - 1:
             return self.name

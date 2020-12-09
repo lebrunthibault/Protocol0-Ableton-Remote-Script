@@ -9,10 +9,10 @@ if TYPE_CHECKING:
     from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 
 
-class GroupTrack(GroupTrackActionMixin, AbstractTrack):
+class ExternalSynthTrack(GroupTrackActionMixin, AbstractTrack):
     def __init__(self, track, *a, **k):
         # type: (SimpleTrack, Any, Any) -> None
-        super(GroupTrack, self).__init__(track=track._track, *a, **k)
+        super(ExternalSynthTrack, self).__init__(track=track._track, *a, **k)
         self.base_track = track
         self.group_track = self.base_track.group_track
         self.group_tracks = self.base_track.group_track

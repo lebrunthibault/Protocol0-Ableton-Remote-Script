@@ -15,18 +15,17 @@ class SongActionMixin(object):
 
     def unfocus_all_tracks(self):
         # type: (Song) -> None
-        self.parent.log_debug("unfocus all tracks")
         self._unarm_all_tracks()
         self._unsolo_all_tracks()
 
     def _unarm_all_tracks(self):
         # type: (Song) -> None
-        [t.action_unarm() for t in self.external_synth_tracks if t.arm]
-        [t.action_unarm() for t in self.tracks if t.arm]
+        [t.action_unarm() for t in self.external_synth_tracks if t.arm if t != self.current_track]
+        [t.action_unarm() for t in self.tracks if t.arm if t != self.selected_track]
 
     def _unsolo_all_tracks(self):
         # type: (Song) -> None
-        [setattr(t, "solo", False) for t in self.song.solo_tracks if t.solo]
+        [setattr(t, "solo", False) for t in self.song.solo_tracks if t.solo if t != self.selected_track]
 
     def stop(self):
         # type: (Song) -> None
@@ -49,4 +48,8 @@ class SongActionMixin(object):
     def create_scene(self, scene_index=None):
         # type: (Song, Optional[int]) -> None
         self.song._view.selected_scene = self._song.create_scene(scene_index or len(self.song.scenes))
+
+    def show_hide_plugins(self):
+        # type: (Song) -> None
+        self.parent.ahkManager._sendKeys("^%p")
 
