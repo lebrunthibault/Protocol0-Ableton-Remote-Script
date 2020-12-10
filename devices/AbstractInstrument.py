@@ -61,7 +61,7 @@ class AbstractInstrument(AbstractObject):
             new_preset_index = TrackName(self.track).preset_index + 1 if go_next else TrackName(self.track).preset_index - 1
         new_preset_index %= self.NUMBER_OF_PRESETS
 
-        self.track.name = TrackName(self.track).get_track_name_for_preset_index(new_preset_index)
+        TrackName(self.track).set(preset_index=new_preset_index)
 
         display_preset = self.preset_names[new_preset_index] if len(self.preset_names) else str(new_preset_index)
         display_preset = os.path.splitext(self.get_display_name(display_preset))[0]

@@ -1,5 +1,5 @@
 from os import listdir
-from os.path import isfile, join, isdir
+from os.path import isfile, join
 
 from _Framework.Util import find_if
 from a_protocol_0.consts import SAMPLE_PATH

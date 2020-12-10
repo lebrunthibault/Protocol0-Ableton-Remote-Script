@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 
 # noinspection PyTypeHints
-class GroupTrackActionMixin(object):
+class ExternalSynthTrackActionMixin(object):
     def action_arm_track(self):
         # type: (ExternalSynthTrack) -> None
         self.color = Colors.ARM
@@ -19,11 +19,8 @@ class GroupTrackActionMixin(object):
         self.audio.has_monitor_in = True
         self.instrument.check_activated()
 
-    def action_unarm(self):
+    def action_unarm_track(self):
         # type: (ExternalSynthTrack) -> None
-        self.color = self.base_color
-        self.base_track.is_folded = True
-        self.audio.arm = self.midi.arm = False
         self.midi.has_monitor_in = True
         self.audio.has_monitor_in = False
 

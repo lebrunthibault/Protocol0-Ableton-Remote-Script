@@ -6,6 +6,7 @@ import Live
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import TRACK_CATEGORIES, TRACK_CATEGORY_OTHER, EXTERNAL_SYNTH_NAMES
+from a_protocol_0.lom.Clip import Clip
 from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.lom.track.AbstractTrackActionMixin import AbstractTrackActionMixin
 from a_protocol_0.utils.decorators import defer
@@ -30,7 +31,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
         self.group_track = None  # type: Optional[SimpleTrack]
         self.group_tracks = []  # type: List[SimpleTrack]
         self.sub_tracks = []  # type: List[SimpleTrack]
-        self.top_devices = self._track.devices  # type: List[Live.Device.Device]
         self.all_devices = find_all_devices(self._track)  # type: List[Live.Device.Device]
         self.instrument = self.parent.deviceManager.create_instrument_from_simple_track(track=self)
         self.is_foldable = self._track.is_foldable
@@ -44,9 +44,15 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
     @property
     def all_tracks(self):
         # type: () -> List[SimpleTrack]
-        all_tracks = [self]
+        all_tracks = [self.base_track]
         [all_tracks.extend(sub_track.all_tracks) for sub_track in self.sub_tracks]
         return all_tracks
+
+    @property
+    def clips(self):
+        # type: () -> List[Clip]
+        clip_slots = [clip_slot for track in self.all_tracks for clip_slot in track.clip_slots]
+        return [clip_slot.clip for clip_slot in clip_slots if clip_slot.has_clip]
 
     @property
     def selected_device(self):

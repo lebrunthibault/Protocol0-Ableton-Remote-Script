@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING
 
 from _Framework.ControlSurface import get_control_surfaces
 from _Framework.SubjectSlot import SlotManager
-
 from _Framework.Util import find_if
 
 if TYPE_CHECKING:

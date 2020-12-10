@@ -54,7 +54,7 @@ class ActionManager(AbstractControlSurfaceComponent):
     @button_action(log_action=False)
     def action_scroll_tracks(self, go_next):
         """ scroll top tracks """
-        track_to_select = scroll_values(self.song.top_tracks, self.current_track.base_track,
+        track_to_select = scroll_values(self.song.top_tracks, self.song.current_track.base_track,
                                         go_next)  # type: SimpleTrack
         track_to_select.is_selected = True
         if track_to_select.playable_clip:
@@ -65,59 +65,59 @@ class ActionManager(AbstractControlSurfaceComponent):
     @button_action()
     def action_arm_track(self):
         """ arm or unarm both midi and audio track """
-        if not self.current_track.can_be_armed and self.current_track.is_foldable:
-            self.current_track.is_folded = not self.current_track.is_folded
+        if not self.song.current_track.can_be_armed and self.song.current_track.is_foldable:
+            self.song.current_track.is_folded = not self.song.current_track.is_folded
             return
 
-        if self.current_track.arm:
-            self.current_track.action_unarm()
+        if self.song.current_track.arm:
+            self.song.current_track.action_unarm()
         else:
-            self.current_track.action_arm()
+            self.song.current_track.action_arm()
 
     @button_action(auto_arm=True)
     def action_solo_track(self):
-        self.current_track.action_solo()
+        self.song.current_track.action_solo()
 
     @button_action(log_action=False)
     def action_scroll_track_selected_device_presets(self, go_next):
         """ scroll track device presets or samples """
-        self.parent.deviceManager.scroll_current_track_selected_device_presets(track=self.current_track, go_next=go_next)
+        self.parent.deviceManager.scroll_current_track_selected_device_presets(track=self.song.selected_track, go_next=go_next)
 
     @button_action()
     def action_show_track_instrument(self):
         """ Sel instrument track and open instrument window """
-        self.current_track.action_show_instrument()
+        self.song.current_track.action_show_instrument()
 
     @button_action(log_action=False)
     def action_scroll_track_devices(self, go_next):
         """ record both midi and audio on group track """
         self.parent.application().view.focus_view(u'Detail/DeviceChain')
-        selected_device = scroll_values(self.current_track.all_devices, self.current_track.selected_device, go_next)
+        selected_device = scroll_values(self.song.current_track.all_devices, self.song.current_track.selected_device, go_next)
         if selected_device:
-            self.song._view.select_device(selected_device)
+            self.song.select_device(selected_device)
 
     @button_action(log_action=False)
     def action_track_collapse_selected_device(self):
         """ record both midi and audio on group track """
-        self.current_track.selected_device.view.is_collapsed = not self.current_track.selected_device.view.is_collapsed
+        self.song.current_track.selected_device.view.is_collapsed = not self.song.current_track.selected_device.view.is_collapsed
 
     @button_action(log_action=False)
     def action_scroll_track_recording_times(self, go_next):
         """ record both midi and audio on group track """
-        self.current_track.selected_recording_time = scroll_values(RECORDING_TIMES,
-                                                                   self.current_track.selected_recording_time, go_next)
-        self.current_track.bar_count = int(self.current_track.selected_recording_time.split()[0])
-        self.parent.show_message("Selected %s" % self.current_track.selected_recording_time)
+        self.song.current_track.selected_recording_time = scroll_values(RECORDING_TIMES,
+                                                                   self.song.current_track.selected_recording_time, go_next)
+        self.song.current_track.bar_count = int(self.song.current_track.selected_recording_time.split()[0])
+        self.parent.show_message("Selected %s" % self.song.current_track.selected_recording_time)
 
     @button_action(auto_arm=True)
     def action_track_record_fixed(self):
         """ record both midi and audio on group track """
-        self.current_track.action_restart_and_record(self.current_track.action_record_all)
+        self.song.current_track.action_restart_and_record(self.song.current_track.action_record_all)
 
     @button_action(auto_arm=True)
     def action_track_record_audio(self):
         """ record only audio on group track """
-        return self.current_track.action_restart_and_record(self.current_track.action_record_audio_only,
+        return self.song.current_track.action_restart_and_record(self.song.current_track.action_record_audio_only,
                                                             only_audio=True)
 
     @button_action(log_action=False)
@@ -129,7 +129,7 @@ class ActionManager(AbstractControlSurfaceComponent):
     @button_action()
     def stop_track(self):
         """" stop a live set from group tracks track names """
-        self.current_track.stop()
+        self.song.current_track.stop()
 
     @button_action()
     def stop_category(self):
@@ -154,7 +154,7 @@ class ActionManager(AbstractControlSurfaceComponent):
     @button_action()
     def restart_track(self):
         """" restart a live set from group tracks track names """
-        self.current_track.base_track.restart()
+        self.song.current_track.base_track.restart()
 
     @button_action()
     def restart_category(self):
@@ -164,9 +164,9 @@ class ActionManager(AbstractControlSurfaceComponent):
 
     @button_action()
     def action_switch_track_monitoring(self):
-        self.current_track.action_switch_monitoring()
+        self.song.current_track.action_switch_monitoring()
 
     @button_action()
     def action_undo(self):
         """" undo last recording """
-        self.current_track.action_undo()
+        self.song.current_track.action_undo()

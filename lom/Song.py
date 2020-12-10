@@ -1,4 +1,4 @@
-from typing import Any, Optional, List
+from typing import Any, List
 
 from a_protocol_0.consts import TRACK_CATEGORIES, TRACK_CATEGORY_ALL
 from a_protocol_0.lom.AbstractObject import AbstractObject
@@ -26,24 +26,9 @@ class Song(SongActionMixin, AbstractObject):
         return self._song.scenes
 
     @property
-    def visible_tracks(self):
-        # type: () -> List[SimpleTrack]
-        return [track for track in self.tracks if track.is_visible]
-
-    @property
     def top_tracks(self):
         # type: () -> List[SimpleTrack]
         return [track for track in self.tracks if track.is_visible and not track.is_external_synth_sub_track]
-
-    @property
-    def solo_tracks(self):
-        # type: () -> List[SimpleTrack]
-        return [track for track in self.tracks if track.solo]
-
-    @property
-    def playing_tracks(self):
-        # type: () -> List[AbstractTrack]
-        return [track for track in self.tracks if track.is_playing]
 
     @property
     def selected_category_tracks(self):
@@ -51,16 +36,6 @@ class Song(SongActionMixin, AbstractObject):
         if self.selected_track_category == TRACK_CATEGORY_ALL:
             return self.tracks
         return [track for track in self.tracks if track.category.lower() == self.selected_track_category.lower()]
-
-    @property
-    def is_playing(self):
-        # type: () -> float
-        return self._song.is_playing
-
-    @is_playing.setter
-    def is_playing(self, is_playing):
-        # type: (bool) -> None
-        self._song.is_playing = is_playing
 
     @property
     def tempo(self):

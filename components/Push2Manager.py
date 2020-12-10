@@ -34,9 +34,9 @@ class Push2Manager(AbstractControlSurfaceComponent):
         # type: () -> None
         self.push2._matrix_modes.selected_mode = 'session'
         self.push2._main_modes.selected_mode = 'device'
-        if self.current_track.is_foldable and not self.current_track.is_external_synth_track:
+        if self.song.current_track.is_foldable and not self.song.current_track.is_external_synth_track:
             self.push2._main_modes.selected_mode = 'mix'
-        elif self.current_track.is_midi:
+        elif self.song.current_track.is_midi:
             self.push2._matrix_modes.selected_mode = 'note'
             self.push2._instrument.selected_mode = 'split_melodic_sequencer'
 

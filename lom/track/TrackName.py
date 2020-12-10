@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, Any
+from typing import TYPE_CHECKING, Any
 
 from a_protocol_0.lom.AbstractObject import AbstractObject
 
@@ -23,27 +23,22 @@ class TrackName(AbstractObject):
         except (ValueError, IndexError):
             self.preset_index = -1
 
-    @property
-    def has_instrument_preset(self):
-        return len(self.parts) >= 3
+    def set(self, clip_slot_index=None, preset_index=None):
+        # type: (int) -> None
+        if self.track.is_foldable:
+            return
 
-    def get_track_name_for_clip_slot_index(self, clip_index=None):
-        # type: (Optional[int]) -> str
-        self.parent.log_debug("get_track_name_for_clip_slot_index : clip index is %d" % clip_index)
-        if clip_index is None:
-            clip_index = self.track.playable_clip.index
+        clip_slot_index = clip_slot_index if clip_slot_index is not None else self.clip_slot_index
+        if clip_slot_index < 0 or clip_slot_index > len(self.track.song.scenes) - 1:
+            raise "invalid clip_slot_index for track %s" % self.name
 
-        if clip_index < 0 or clip_index > len(self.track.song.scenes) - 1:
-            return self.name
+        name = "{0} - {1}".format(self.name, clip_slot_index)
 
-        name = "{0} - {1}".format(self.name,
-                                  clip_index if clip_index is not None else self.track.playable_clip.index)
+        if self.track.instrument:
+            preset_index = preset_index if preset_index is not None else self.preset_index
+            name += " - {0}".format(preset_index)
 
-        if self.has_instrument_preset:
-            name += " - {0}".format(self.preset_index)
+        self.track.name = name
 
-        return name
-
-    def get_track_name_for_preset_index(self, preset_index):
-        # type: (int) -> str
-        return "{0} - {1} - {2}".format(self.name, self.clip_slot_index, preset_index)
+    def get_track_name(cls, clip_slot_index, preset_index):
+        pass

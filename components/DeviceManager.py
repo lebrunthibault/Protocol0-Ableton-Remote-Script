@@ -1,3 +1,5 @@
+import time
+from functools import partial
 from typing import TYPE_CHECKING, Optional
 
 import Live
@@ -74,3 +76,19 @@ class DeviceManager(AbstractControlSurfaceComponent):
 
         class_ = getattr(mod, class_name)
         return class_(track=track, device=plugin_device, has_rack=track.all_devices.index(plugin_device) != 0)
+
+    def update_rack(self, rack_device):
+        # type: (Live.RackDevice.RackDevice) -> None
+        """ update rack with the version stored in browser, keeping old values for identical parameters """
+        parameters = {param.name: param.value for param in rack_device.parameters if "macro" not in param.name.lower()}
+        self.song.select_device(rack_device)
+        self.parent.browserManager.swap(None, '"%s.adg"' % rack_device.name)
+        # restore values : this means we cannot dispatch values, only mappings
+        # here 100ms is not enough
+        self.parent._wait(10, partial(self.update_device_params, rack_device, parameters))
+
+    def update_device_params(self, device, parameters):
+        for name, value in parameters.items():
+            param = find_if(lambda p: p.name.lower() == name.lower(), device.parameters)
+            if param and param.is_enabled:
+                param.value = value

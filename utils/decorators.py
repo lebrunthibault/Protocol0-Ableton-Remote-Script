@@ -67,8 +67,8 @@ def button_action(auto_arm=False, log_action=True):
             try:
                 if auto_arm:
                     self.song.unfocus_all_tracks()
-                    if not self.current_track.arm:
-                        self.current_track.action_arm()
+                    if not self.song.current_track.arm:
+                        self.song.current_track.action_arm()
                 func(self, **k)
             except Exception:
                 self.parent.log_info(traceback.format_exc())

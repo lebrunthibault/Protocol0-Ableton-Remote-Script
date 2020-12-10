@@ -15,23 +15,18 @@ class SongActionMixin(object):
 
     def unfocus_all_tracks(self):
         # type: (Song) -> None
-        self._unarm_all_tracks()
-        self._unsolo_all_tracks()
-
-    def _unarm_all_tracks(self):
-        # type: (Song) -> None
         [t.action_unarm() for t in self.external_synth_tracks if t.arm if t != self.current_track]
         [t.action_unarm() for t in self.tracks if t.arm if t != self.selected_track]
+        [setattr(t, "solo", False) for t in self.song.tracks if t.solo if t != self.selected_track]
 
-    def _unsolo_all_tracks(self):
-        # type: (Song) -> None
-        [setattr(t, "solo", False) for t in self.song.solo_tracks if t.solo if t != self.selected_track]
-
-    def stop(self):
+    def reset(self):
         # type: (Song) -> None
         self.stop_all_clips(0)
         self.stop_playing()
         self._song.current_song_time = 0
+        [track.reset_track() for track in self.tracks]
+        if len(self.tracks):
+            self.tracks[0].is_selected = True
 
     def stop_playing(self):
         # type: (Song) -> None
@@ -52,4 +47,8 @@ class SongActionMixin(object):
     def show_hide_plugins(self):
         # type: (Song) -> None
         self.parent.ahkManager._sendKeys("^%p")
+
+    def select_device(self, device):
+        # type: (Song, Live.Device.Device) -> None
+        self._view.select_device(device)
 

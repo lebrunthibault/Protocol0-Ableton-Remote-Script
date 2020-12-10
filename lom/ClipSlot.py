@@ -29,6 +29,10 @@ class ClipSlot(AbstractObject):
         self.has_clip = self._clip_slot.has_clip
         self.clip = Clip(clip_slot=self) if self.has_clip else None
 
+    def delete_clip(self):
+        if self._clip_slot.has_clip:
+            return self._clip_slot.delete_clip()
+
     @property
     def is_triggered(self):
         # type: () -> bool

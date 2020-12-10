@@ -1,10 +1,10 @@
 from typing import List
 
 from _Framework.SubjectSlot import subject_slot
+from _Framework.Util import find_if
 from a_protocol_0.consts import EXTERNAL_SYNTH_NAMES
 from a_protocol_0.lom.Clip import Clip
 from a_protocol_0.lom.ClipSlot import ClipSlot
-from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.SimpleTrackActionMixin import SimpleTrackActionMixin
 from a_protocol_0.lom.track.TrackName import TrackName
@@ -15,7 +15,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def __init__(self, *a, **k):
         super(SimpleTrack, self).__init__(*a, **k)
         self.clip_slots = []  # type: List[ClipSlot]
-        self.clips = []  # type: List[Clip]
         self.build_clip_slots.subject = self._track
         self.build_clip_slots()
         # defer till Live is stopped because it boots playing
@@ -29,18 +28,20 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # type: (SimpleTrack) -> None
         self.clip_slots = [ClipSlot(clip_slot=clip_slot, index=index, track=self) for (index, clip_slot) in
                            enumerate(list(self._track.clip_slots))]
-        self.clips = [clip_slot.clip for clip_slot in self.clip_slots if clip_slot.has_clip]
 
     @subject_slot("playing_slot_index")
     @defer
     def playing_slot_index_listener(self):
         # type: () -> None
-        if self.playing_slot_index >= 0:
-            clip = self.clip_slots[self.playing_slot_index].clip
-            if clip:
-                clip.color = self.base_color
-                if clip.is_playing:
-                    self.name = TrackName(self).get_track_name_for_clip_slot_index(clip_index=self.playing_slot_index)
+        if self.playing_slot_index < 0:
+            return
+        clip = self.clip_slots[self.playing_slot_index].clip
+        if not clip:
+            return
+        clip.color = self.base_color
+        if clip.is_playing:
+            TrackName(self).set(clip_slot_index=self.playing_slot_index)
+            [setattr(clip, "is_selected", False) for clip in self.clips]
 
     @property
     def is_external_synth_sub_track(self):
@@ -73,21 +74,16 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def playable_clip(self):
         # type: () -> Clip
-        clip = self.clip_slots[self.playing_slot_index].clip if self.playing_slot_index >= 0 else None
+        selected_clip = find_if(lambda clip: clip.is_selected, self.clips)
+        if selected_clip:
+            return selected_clip
+        clip = self.clip_slots[self.playing_slot_index].clip
         if clip:
             return clip
         elif len(self.clips):
             return self.clips[0]
         else:
             return Clip.empty_clip()
-
-    @playable_clip.setter
-    def playable_clip(self, clip):
-        # type: (Clip) -> None
-        [setattr(clip, "color", self.base_color) for clip in self.clips]
-        clip.color = Colors.SELECTED
-        self.parent.log_debug(TrackName(self).get_track_name_for_clip_slot_index(clip_index=clip.index))
-        self.name = TrackName(self).get_track_name_for_clip_slot_index(clip_index=clip.index)
 
     @property
     def arm(self):

@@ -14,6 +14,7 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         self.song.unfocus_all_tracks()
         self.action_arm_track()
+        self.base_track.reset_track()
 
     @abstractmethod
     def action_arm_track(self):
@@ -23,7 +24,16 @@ class AbstractTrackActionMixin(object):
     @abstractmethod
     def action_unarm(self):
         # type: (AbstractTrack) -> None
-        pass
+        self.color = self.base_color
+        if self.is_foldable:
+            self.base_track.is_folded = True
+        [setattr(track, "arm", False) for track in self.all_tracks]
+        [setattr(clip, "color", self.base_color) for clip in self.clips]
+        self.action_unarm_track()
+
+    def action_unarm_track(self):
+        # type: (AbstractTrack) -> None
+        return
 
     def action_show_instrument(self):
         # type: (AbstractTrack) -> None
@@ -59,7 +69,7 @@ class AbstractTrackActionMixin(object):
         self.song.stop_playing()
         action_record_func()
 
-        if len(self.song.playing_tracks) <= 1 and not only_audio:
+        if len([t.is_playing for t in self.song.tracks]) <= 1 and not only_audio:
             self.song.metronome = True
 
         self.parent.wait_bars(self.bar_count + 1, self._post_record)
@@ -96,3 +106,15 @@ class AbstractTrackActionMixin(object):
     def action_undo_track(self):
         # type: (AbstractTrack) -> None
         pass
+
+    def reset_track(self):
+        # type: (AbstractTrack) -> None
+        self.solo = False
+        self.arm = False
+        if self.is_foldable:
+            self.is_folded = True
+        if len(self.all_devices):
+            self.song.select_device(self.all_devices[0])
+        for device in self.all_devices:
+            device.view.is_collapsed = not isinstance(device, Live.RackDevice.RackDevice)
+

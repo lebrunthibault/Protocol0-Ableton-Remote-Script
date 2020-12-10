@@ -18,6 +18,7 @@ class Clip(ClipActionMixin, AbstractObject):
         self._clip = self._clip_slot.clip if self._clip_slot and self._clip_slot.has_clip else None
         self.index = clip_slot.index if clip_slot else -1
         self.track = clip_slot.track if clip_slot else None
+        self.is_selected = False
 
     def __nonzero__(self):
         return self._clip is not None

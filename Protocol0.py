@@ -1,4 +1,3 @@
-import inspect
 import logging
 import types
 from typing import Callable
@@ -6,18 +5,18 @@ from typing import Callable
 from ClyphX_Pro.clyphx_pro.actions.BrowserActions import BrowserActions
 
 from _Framework.ControlSurface import ControlSurface
+from a_protocol_0.components.ActionSetManager import ActionSetManager
 from a_protocol_0.components.DeviceManager import DeviceManager
 from a_protocol_0.components.Push2Manager import Push2Manager
-
-logger = logging.getLogger(__name__)
+from a_protocol_0.utils.log import log_ableton
 
 from a_protocol_0.components.ActionManager import ActionManager
 from a_protocol_0.components.AhkManager import AhkManager
-from a_protocol_0.components.ArmManager import ArmManager
+from a_protocol_0.components.TrackManager import ArmManager
 from a_protocol_0.components.MidiManager import MidiManager
 from a_protocol_0.components.SessionManager import SessionManager
 from a_protocol_0.components.SongManager import SongManager
-from a_protocol_0.consts import REMOTE_SCRIPTS_FOLDER, LogLevel, ACTIVE_LOG_LEVEL
+from a_protocol_0.consts import LogLevel, ACTIVE_LOG_LEVEL
 from a_protocol_0.lom.Song import Song
 
 
@@ -33,11 +32,12 @@ class Protocol0(ControlSurface):
             self.push2Manager = Push2Manager()
             ArmManager()
             ActionManager()
+            ActionSetManager()
             self.sessionManager = SessionManager()
             self.ahkManager = AhkManager()
             self.midiManager = MidiManager()
             self.browserManager = BrowserActions()
-        self._wait(9, self.protocol0_song.stop)
+        self._wait(9, self.protocol0_song.reset)
         self.log_info("Protocol0 script loaded")
 
     def log_debug(self, message):
@@ -52,15 +52,7 @@ class Protocol0(ControlSurface):
         # type: (str) -> None
         if level < ACTIVE_LOG_LEVEL:
             return
-        if debug:
-            try:
-                cur_frame = inspect.currentframe()
-                call_frame = inspect.getouterframes(cur_frame, 2)
-                (_, filename, line, method, _, _) = call_frame[1]
-                message = "%s (%s:%s in %s)" % (message, filename.replace(REMOTE_SCRIPTS_FOLDER + "\\", ""), line, method)
-            except Exception:
-                pass
-        logger.info(message)
+        log_ableton(debug=debug, message=message, direct_call=False)
 
     def defer(self, callback):
         # type: (Callable) -> None

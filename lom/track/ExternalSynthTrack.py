@@ -2,14 +2,14 @@ from typing import TYPE_CHECKING, Any
 
 from a_protocol_0.lom.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
-from a_protocol_0.lom.track.GroupTrackActionMixin import GroupTrackActionMixin
+from a_protocol_0.lom.track.ExternalSynthTrackActionMixin import ExternalSynthTrackActionMixin
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 
 
-class ExternalSynthTrack(GroupTrackActionMixin, AbstractTrack):
+class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractTrack):
     def __init__(self, track, *a, **k):
         # type: (SimpleTrack, Any, Any) -> None
         super(ExternalSynthTrack, self).__init__(track=track._track, *a, **k)
@@ -17,6 +17,7 @@ class ExternalSynthTrack(GroupTrackActionMixin, AbstractTrack):
         self.group_track = self.base_track.group_track
         self.group_tracks = self.base_track.group_track
         self.sub_tracks = self.base_track.sub_tracks
+        self.all_devices = [device for track in self.all_tracks for device in track.all_devices]
         self.midi = self.sub_tracks[0]
         self.audio = self.sub_tracks[1]
         self.selectable_track = self.midi
