@@ -14,7 +14,7 @@ class AbstractInstrument(AbstractObject):
     NUMBER_OF_PRESETS = 128
     PRESETS_PATH = None
 
-    def __init__(self, track, has_rack, device, *a, **k):
+    def __init__(self, track, device, *a, **k):
         # type: (SimpleTrack, Any, Any) -> None
         super(AbstractInstrument, self).__init__(*a, **k)
         self.track = track
@@ -22,13 +22,13 @@ class AbstractInstrument(AbstractObject):
         self.name = device.name
         self.activated = False
         self.can_be_shown = True
-        self.has_rack = has_rack
+        self.has_rack = track.all_devices.index(device) != 0
         self.preset_names = []  # type: List[str]
         self.get_presets()
 
     def check_activated(self):
         if self.can_be_shown and not self.activated:
-            self.track.is_selected = True
+            self.song.select_track(self.track)
             self.activate()
             self.activated = True
 

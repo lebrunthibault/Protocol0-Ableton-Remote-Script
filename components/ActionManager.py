@@ -56,19 +56,12 @@ class ActionManager(AbstractControlSurfaceComponent):
         """ scroll top tracks """
         track_to_select = scroll_values(self.song.top_tracks, self.song.current_track.base_track,
                                         go_next)  # type: SimpleTrack
-        track_to_select.is_selected = True
-        if track_to_select.playable_clip:
-            self.song._view.highlighted_clip_slot = track_to_select.playable_clip._clip_slot
-        self.parent.push2Manager.update_session_ring()
-        self.parent.push2Manager.update_mode_for_current_track()
+        if track_to_select:
+            self.song.select_track(track_to_select)
 
     @button_action()
     def action_arm_track(self):
         """ arm or unarm both midi and audio track """
-        if not self.song.current_track.can_be_armed and self.song.current_track.is_foldable:
-            self.song.current_track.is_folded = not self.song.current_track.is_folded
-            return
-
         if self.song.current_track.arm:
             self.song.current_track.action_unarm()
         else:

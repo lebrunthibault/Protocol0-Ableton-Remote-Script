@@ -35,7 +35,7 @@ def push2_method(defer=True):
             if defer:
                 self.parent.defer(execute)
             else:
-                execute
+                execute()
 
         return decorate
 

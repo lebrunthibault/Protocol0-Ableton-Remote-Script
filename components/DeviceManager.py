@@ -21,7 +21,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
         device = self._get_device_to_scroll(track)
         if device is None:
             return
-        if self._is_instrument(track, device):
+        if self.is_track_instrument(track, device):
             track.instrument.check_activated()
             track.instrument.action_scroll_presets_or_samples(go_next)
         elif not isinstance(device, Live.PluginDevice.PluginDevice):
@@ -30,10 +30,10 @@ class DeviceManager(AbstractControlSurfaceComponent):
             self.parent.log_debug("is plugin")
             self.parent.log_debug(list(device.presets))
 
-    def _is_instrument(self, track, device):
+    def is_track_instrument(self, track, device):
         # type: (AbstractTrack, Live.Device.Device) -> bool
         # checks for simpler as device object is changing
-        return track.instrument and device == track.instrument._device or isinstance(device,
+        return (track.instrument and device == track.instrument._device) or isinstance(device,
                                                                                      Live.SimplerDevice.SimplerDevice)
 
     def _get_device_to_scroll(self, track):
@@ -57,8 +57,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
 
         simpler_device = find_if(lambda d: isinstance(d, Live.SimplerDevice.SimplerDevice), track.all_devices)
         if simpler_device:
-            return InstrumentSimpler(track=track, device=simpler_device,
-                                     has_rack=track.all_devices.index(simpler_device) != 0)
+            return InstrumentSimpler(track=track, device=simpler_device)
 
         plugin_device = find_if(lambda d: isinstance(d, Live.PluginDevice.PluginDevice), track.all_devices)
         if not plugin_device:
@@ -75,7 +74,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
             return None
 
         class_ = getattr(mod, class_name)
-        return class_(track=track, device=plugin_device, has_rack=track.all_devices.index(plugin_device) != 0)
+        return class_(track=track, device=plugin_device)
 
     def update_rack(self, rack_device):
         # type: (Live.RackDevice.RackDevice) -> None

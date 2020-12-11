@@ -18,6 +18,15 @@ class AbstractObject(SlotManager):
         self._registered_disconnectables = []
         self._parent = find_if(lambda cs: isinstance(cs, Protocol0), get_control_surfaces())
 
+    def __repr__(self):
+        repr = "P0 %s" % self.__class__.__name__
+        if hasattr(self, 'name'):
+            repr = "%s: %s" % (repr, self.name)
+        if hasattr(self, 'index'):
+            repr = "%s (%s)" % (repr, self.index)
+
+        return repr
+
     @property
     def parent(self):
         # type: () -> Protocol0

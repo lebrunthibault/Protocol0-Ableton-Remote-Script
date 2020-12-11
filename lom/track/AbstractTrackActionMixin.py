@@ -14,31 +14,30 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         self.song.unfocus_all_tracks()
         self.action_arm_track()
-        self.base_track.reset_track()
+        self.base_track.reset_track(arm=True)
 
     @abstractmethod
     def action_arm_track(self):
         # type: (AbstractTrack) -> None
         pass
 
-    @abstractmethod
     def action_unarm(self):
         # type: (AbstractTrack) -> None
         self.color = self.base_color
         if self.is_foldable:
             self.base_track.is_folded = True
         [setattr(track, "arm", False) for track in self.all_tracks]
-        [setattr(clip, "color", self.base_color) for clip in self.clips]
+        [setattr(clip, "color", self.base_color) for clip in self.all_clips]
         self.action_unarm_track()
 
     def action_unarm_track(self):
         # type: (AbstractTrack) -> None
-        return
+        pass
 
     def action_show_instrument(self):
         # type: (AbstractTrack) -> None
         self.parent.application().view.show_view(u'Detail/DeviceChain')
-        self.selectable_track.is_selected = True
+        self.song.select_track(self.selectable_track)
         self.is_folded = False
         if self.instrument and self.instrument.can_be_shown:
             if not self.instrument.activated:
@@ -107,14 +106,13 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         pass
 
-    def reset_track(self):
-        # type: (AbstractTrack) -> None
+    def reset_track(self, arm=False):
+        # type: (AbstractTrack, bool) -> None
         self.solo = False
-        self.arm = False
-        if self.is_foldable:
-            self.is_folded = True
-        if len(self.all_devices):
-            self.song.select_device(self.all_devices[0])
+        if not arm:
+            self.arm = False
         for device in self.all_devices:
-            device.view.is_collapsed = not isinstance(device, Live.RackDevice.RackDevice)
+            device.view.is_collapsed = not (isinstance(device, Live.RackDevice.RackDevice) or self.parent.deviceManager.is_track_instrument(self, device))
+        if not arm and self.is_foldable:
+            self.is_folded = True
 

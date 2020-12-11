@@ -56,10 +56,12 @@ class SongManager(AbstractControlSurfaceComponent):
         if isinstance(track, AbstractTrack):
             raise Exception("Expected Live track, got AbstractTrack instead")
 
+        if track == self.song._song.master_track or track in self.song._song.return_tracks:
+            return default
         if track not in self._live_track_to_simple_track.keys():
             if default:
                 return default
-            raise Exception("this track cannot be matched")
+            raise Exception("_get_simple_track mismatch on %s" % track.name)
 
         return self._live_track_to_simple_track[track]
 

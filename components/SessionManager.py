@@ -6,9 +6,8 @@ from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceC
 
 class SessionManager(AbstractControlSurfaceComponent):
     def __init__(self, *a, **k):
-        super(SessionManager, self).__init__(*a, **k)
+        super(SessionManager, self).__init__(is_enabled=False, *a, **k)
         self.session = None
-        self._setup_session_control()
 
     @property
     def session_track_offset(self):
@@ -16,6 +15,8 @@ class SessionManager(AbstractControlSurfaceComponent):
         return [t for t in self.song.tracks if t.is_visible].index(self.song.current_track.base_track)
 
     def _setup_session_control(self):
+        if not self.is_enabled():
+            return
         if self.session:
             self.session.disconnect()
         num_tracks = len([track for track in self.song.current_track.all_tracks if track.is_visible])

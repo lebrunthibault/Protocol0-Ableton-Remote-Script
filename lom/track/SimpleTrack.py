@@ -117,17 +117,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self._track.solo = solo
 
     @property
-    def is_selected(self):
-        # type: () -> bool
-        return self.song.selected_track == self
-
-    @is_selected.setter
-    def is_selected(self, is_selected):
-        # type: (bool) -> None
-        if is_selected:
-            self.song.select_track(self)
-
-    @property
     def has_monitor_in(self):
         # type: () -> bool
         return self._track.current_monitoring_state == 0

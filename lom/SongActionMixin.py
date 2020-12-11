@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, Optional
 
 from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
+from a_protocol_0.utils.decorators import defer
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -15,18 +16,21 @@ class SongActionMixin(object):
 
     def unfocus_all_tracks(self):
         # type: (Song) -> None
-        [t.action_unarm() for t in self.external_synth_tracks if t.arm if t != self.current_track]
         [t.action_unarm() for t in self.tracks if t.arm if t != self.selected_track]
+        [t.action_unarm() for t in self.external_synth_tracks if t.arm if t != self.current_track]
         [setattr(t, "solo", False) for t in self.song.tracks if t.solo if t != self.selected_track]
 
+    @defer
     def reset(self):
         # type: (Song) -> None
+        if self._song.current_song_time == 0 and not self._song.is_playing:
+            return
         self.stop_all_clips(0)
         self.stop_playing()
         self._song.current_song_time = 0
         [track.reset_track() for track in self.tracks]
         if len(self.tracks):
-            self.tracks[0].is_selected = True
+            self.song.select_track(self.tracks[0])
 
     def stop_playing(self):
         # type: (Song) -> None

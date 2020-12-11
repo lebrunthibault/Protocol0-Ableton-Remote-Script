@@ -49,10 +49,15 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
         return all_tracks
 
     @property
-    def clips(self):
+    def all_clips(self):
         # type: () -> List[Clip]
         clip_slots = [clip_slot for track in self.all_tracks for clip_slot in track.clip_slots]
         return [clip_slot.clip for clip_slot in clip_slots if clip_slot.has_clip]
+
+    @property
+    def clips(self):
+        # type: () -> List[Clip]
+        return [clip_slot.clip for clip_slot in self.base_track.clip_slots if clip_slot.has_clip]
 
     @property
     def selected_device(self):

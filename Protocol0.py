@@ -12,7 +12,7 @@ from a_protocol_0.utils.log import log_ableton
 
 from a_protocol_0.components.ActionManager import ActionManager
 from a_protocol_0.components.AhkManager import AhkManager
-from a_protocol_0.components.TrackManager import ArmManager
+from a_protocol_0.components.TrackManager import TrackManager
 from a_protocol_0.components.MidiManager import MidiManager
 from a_protocol_0.components.SessionManager import SessionManager
 from a_protocol_0.components.SongManager import SongManager
@@ -27,17 +27,17 @@ class Protocol0(ControlSurface):
         self._c_instance.log_message = types.MethodType(lambda s, message: None, self._c_instance)
         with self.component_guard():
             self.protocol0_song = Song(song=self.song())
-            self.deviceManager = DeviceManager()
+            self.deviceManager = DeviceManager()  # needs to be here first
             self.songManager = SongManager()
             self.push2Manager = Push2Manager()
-            ArmManager()
+            TrackManager()
             ActionManager()
             ActionSetManager()
             self.sessionManager = SessionManager()
             self.ahkManager = AhkManager()
             self.midiManager = MidiManager()
             self.browserManager = BrowserActions()
-        self._wait(9, self.protocol0_song.reset)
+        self.protocol0_song.reset()
         self.log_info("Protocol0 script loaded")
 
     def log_debug(self, message):

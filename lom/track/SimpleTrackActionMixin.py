@@ -13,8 +13,14 @@ if TYPE_CHECKING:
 class SimpleTrackActionMixin(object):
     def action_arm_track(self):
         # type: (SimpleTrack) -> None
-        self.mute = False
-        self.arm = True
+        if self.is_foldable:
+            self.is_folded = not self.is_folded
+        else:
+            self.mute = False
+            self.arm = True
+
+        if len(self.all_devices):
+            self.song.select_device(self.all_devices[0])
 
     def action_switch_monitoring(self):
         # type: (SimpleTrack) -> None
@@ -59,4 +65,5 @@ class SimpleTrackActionMixin(object):
             clip.color = self.base_color
             clip.is_selected = False
         selected_clip.is_selected = True
+        self.song._view.highlighted_clip_slot = selected_clip._clip_slot
         selected_clip.color = Colors.SELECTED
