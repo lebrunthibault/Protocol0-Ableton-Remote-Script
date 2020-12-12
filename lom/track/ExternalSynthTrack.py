@@ -17,7 +17,6 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractTrack):
         self.group_track = self.base_track.group_track
         self.group_tracks = self.base_track.group_track
         self.sub_tracks = self.base_track.sub_tracks
-        self.all_devices = [device for track in self.all_tracks for device in track.all_devices]
         self.midi = self.sub_tracks[0]
         self.audio = self.sub_tracks[1]
         self.selectable_track = self.midi

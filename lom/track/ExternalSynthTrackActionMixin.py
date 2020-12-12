@@ -17,7 +17,8 @@ class ExternalSynthTrackActionMixin(object):
         self.audio.action_arm_track()
         self.midi.has_monitor_in = False
         self.audio.has_monitor_in = True
-        self.instrument.check_activated()
+        if self.instrument:
+            self.instrument.check_activated()
 
     def action_unarm_track(self):
         # type: (ExternalSynthTrack) -> None

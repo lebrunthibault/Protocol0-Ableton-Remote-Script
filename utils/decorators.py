@@ -77,3 +77,16 @@ def button_action(auto_arm=False, log_action=True):
         return decorate
 
     return wrap
+
+
+def catch_and_log(func):
+    def decorate(self, *a, **k):
+        # type: (AbstractControlSurfaceComponent, Any, Any) -> None
+        try:
+            func(self, **k)
+        except Exception:
+            self.parent.log_info(traceback.format_exc())
+            return
+
+    return decorate
+

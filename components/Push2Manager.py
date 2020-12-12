@@ -25,6 +25,7 @@ class Push2Manager(AbstractControlSurfaceComponent):
         # this needs to be delayed after push instantiation
         self.song.select_track(self.song.tracks[0])
         self.parent.sessionManager.set_enabled(True)
+        self.parent.log_info("Push2 connected to Protocol0")
 
     @subject_slot("value")
     def _on_session_pad_press(self, value, *a, **k):

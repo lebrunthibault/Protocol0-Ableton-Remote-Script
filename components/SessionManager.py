@@ -2,6 +2,7 @@ from __future__ import with_statement
 
 from _Framework.SessionComponent import SessionComponent
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from a_protocol_0.utils.decorators import catch_and_log
 
 
 class SessionManager(AbstractControlSurfaceComponent):
@@ -14,6 +15,7 @@ class SessionManager(AbstractControlSurfaceComponent):
         # type: () -> int
         return [t for t in self.song.tracks if t.is_visible].index(self.song.current_track.base_track)
 
+    @catch_and_log
     def _setup_session_control(self):
         if not self.is_enabled():
             return

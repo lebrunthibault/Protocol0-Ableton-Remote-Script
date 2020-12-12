@@ -31,7 +31,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
         self.group_track = None  # type: Optional[SimpleTrack]
         self.group_tracks = []  # type: List[SimpleTrack]
         self.sub_tracks = []  # type: List[SimpleTrack]
-        self.all_devices = find_all_devices(self._track)  # type: List[Live.Device.Device]
         self.instrument = self.parent.deviceManager.create_instrument_from_simple_track(track=self)
         self.is_foldable = self._track.is_foldable
         self.can_be_armed = self._track.can_be_armed
@@ -53,6 +52,11 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
         # type: () -> List[Clip]
         clip_slots = [clip_slot for track in self.all_tracks for clip_slot in track.clip_slots]
         return [clip_slot.clip for clip_slot in clip_slots if clip_slot.has_clip]
+
+    @property
+    def all_devices(self):
+        # type: () -> List[Live.Device.Device]
+        return [device for track in self.all_tracks for device in find_all_devices(track._track)]
 
     @property
     def clips(self):
