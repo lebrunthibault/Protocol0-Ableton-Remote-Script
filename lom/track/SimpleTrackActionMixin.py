@@ -65,5 +65,5 @@ class SimpleTrackActionMixin(object):
             clip.color = self.base_color
             clip.is_selected = False
         selected_clip.is_selected = True
-        self.song._view.highlighted_clip_slot = selected_clip._clip_slot
+        self.song.highlighted_clip_slot = selected_clip._clip_slot
         selected_clip.color = Colors.SELECTED

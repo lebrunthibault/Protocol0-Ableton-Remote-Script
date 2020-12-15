@@ -34,7 +34,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
         self.instrument = self.parent.deviceManager.create_instrument_from_simple_track(track=self)
         self.is_foldable = self._track.is_foldable
         self.can_be_armed = self._track.can_be_armed
-        self.selected_recording_time = "1 bar"
+        self.selected_recording_time = "4 bars"
         self.bar_count = 1
         self.is_midi = self._track.has_midi_input
         self.is_audio = self._track.has_audio_input
@@ -83,6 +83,11 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
     def name(self, name):
         # type: (str) -> None
         self._track.name = name
+
+    @property
+    def is_automation(self):
+        # type: () -> bool
+        return "automation" in self.name.lower()
 
     @property
     def category(self):

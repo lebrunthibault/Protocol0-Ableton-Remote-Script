@@ -1,8 +1,11 @@
 from __future__ import with_statement
 
+import Live
 from _Framework.Util import find_if
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
+from a_protocol_0.lom.track.AutomationTrack import AutomationTrack
+from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 from a_protocol_0.lom.track.TrackName import TrackName
 from a_protocol_0.utils.decorators import defer
 
@@ -24,6 +27,14 @@ class TrackManager(AbstractControlSurfaceComponent):
             chain_selector_param = find_if(lambda d: d.name.lower() == "chain selector", arp.parameters)
             if chain_selector_param and chain_selector_param.is_enabled:
                 chain_selector_param.value = 0
+
+    @staticmethod
+    def create_simple_track(track, index):
+        # type: (Live.Track.Track, int) -> SimpleTrack
+        if "automation" in track.name.lower() and track.has_midi_input:
+            return AutomationTrack(track=track, index=index)
+        else:
+            return SimpleTrack(track=track, index=index)
 
 
 

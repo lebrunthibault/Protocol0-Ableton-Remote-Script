@@ -17,7 +17,7 @@ class SessionManager(AbstractControlSurfaceComponent):
 
     @catch_and_log
     def _setup_session_control(self):
-        if not self.is_enabled():
+        if not self.is_enabled() or self.song.current_track is None:
             return
         if self.session:
             self.session.disconnect()

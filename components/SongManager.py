@@ -5,8 +5,11 @@ from plistlib import Dict
 from typing import Optional, Any
 
 from _Framework.SubjectSlot import subject_slot
+from _Framework.Util import find_if
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from a_protocol_0.components.TrackManager import TrackManager
 from a_protocol_0.consts import EXTERNAL_SYNTH_NAMES
+from a_protocol_0.lom.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.ExternalSynthTrack import ExternalSynthTrack
 from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
@@ -19,6 +22,8 @@ class SongManager(AbstractControlSurfaceComponent):
         self._simple_track_to_external_synth_track = collections.OrderedDict()  # type: Dict[SimpleTrack, ExternalSynthTrack]
         self._map_tracks.subject = self.song._song
         self._map_tracks()
+        self._highlighted_clip_slot = self.song.highlighted_clip_slot
+        self.highlighted_clip_slot_poller()
 
     @subject_slot("tracks")
     def _map_tracks(self):
@@ -28,7 +33,7 @@ class SongManager(AbstractControlSurfaceComponent):
             self.song.tracks_added = True
         self.song.tracks = []
         for i, track in enumerate(list(self.song._song.tracks)):
-            simple_track = SimpleTrack(track=track, index=i)
+            simple_track = TrackManager.create_simple_track(track=track, index=i)
             self._live_track_to_simple_track[track] = simple_track
             self.song.tracks.append(simple_track)
         # link sub_tracks
@@ -47,6 +52,16 @@ class SongManager(AbstractControlSurfaceComponent):
 
         self._set_current_track()
         self.parent.log_info("SongManager : mapped tracks")
+        self.song.clip_slots = [cs for track in self.song.tracks for cs in track.clip_slots]
+
+    def highlighted_clip_slot_poller(self):
+        # type: () -> None
+        if (self.song.highlighted_clip_slot != self._highlighted_clip_slot):
+            self._highlighted_clip_slot = self.song.highlighted_clip_slot
+            clip_slot = find_if(lambda cs: cs._clip_slot == self.song.highlighted_clip_slot, self.song.clip_slots)  # type: ClipSlot
+            if clip_slot.has_clip:
+                clip_slot.track.observe_clip_notes.subject = clip_slot.clip._clip
+        self.parent._wait(5, self.highlighted_clip_slot_poller)
 
     def _get_simple_track(self, track, default=None):
         # type: (Any, Optional[SimpleTrack]) -> Optional[SimpleTrack]

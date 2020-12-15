@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, Optional
 
+from a_protocol_0.consts import LogLevel
 from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 from a_protocol_0.utils.decorators import defer
 
@@ -28,9 +29,10 @@ class SongActionMixin(object):
         self.stop_all_clips(0)
         self.stop_playing()
         self._song.current_song_time = 0
-        [track.reset_track() for track in self.tracks]
-        if len(self.tracks):
-            self.song.select_track(self.tracks[0])
+        if LogLevel.INFO:
+            [track.reset_track() for track in self.tracks]
+            if len(self.tracks):
+                self.song.select_track(self.tracks[0])
 
     def stop_playing(self):
         # type: (Song) -> None

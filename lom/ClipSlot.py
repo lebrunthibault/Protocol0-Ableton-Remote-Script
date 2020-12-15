@@ -17,7 +17,7 @@ class ClipSlot(AbstractObject):
         self.track = track
         self.index = index
         self.has_clip = False
-        self.clip = None
+        self.clip = None  # type: Clip
         self.update_clip.subject = self._clip_slot
         self.update_clip()
 

@@ -12,9 +12,12 @@ if TYPE_CHECKING:
 class AbstractTrackActionMixin(object):
     def action_arm(self):
         # type: (AbstractTrack) -> None
-        self.song.unfocus_all_tracks()
-        self.action_arm_track()
-        self.base_track.reset_track(arm=True)
+        self.base_track.reorder_devices()
+        if self.can_be_armed:
+            self.song.unfocus_all_tracks()
+            self.action_arm_track()
+        elif self.is_foldable:
+            self.is_folded = not self.is_folded
 
     @abstractmethod
     def action_arm_track(self):
@@ -106,13 +109,16 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         pass
 
-    def reset_track(self, arm=False):
-        # type: (AbstractTrack, bool) -> None
+    def reset_track(self):
+        # type: (AbstractTrack) -> None
         self.solo = False
-        if not arm:
-            self.arm = False
+        self.arm = False
+        self.reorder_devices()
+        if self.is_foldable:
+            self.is_folded = True
+
+    def reorder_devices(self):
+        # type: (AbstractTrack) -> None
         for device in self.all_devices:
             device.view.is_collapsed = not (isinstance(device, Live.RackDevice.RackDevice) or self.parent.deviceManager.is_track_instrument(self, device))
-        if not arm and self.is_foldable:
-            self.is_folded = True
 

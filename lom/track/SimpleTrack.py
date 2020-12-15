@@ -23,6 +23,11 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def __hash__(self):
         return self.index
 
+    @subject_slot("notes")
+    def observe_clip_notes(self):
+        # type: (SimpleTrack) -> None
+        pass
+
     @subject_slot("clip_slots")
     def build_clip_slots(self):
         # type: (SimpleTrack) -> None

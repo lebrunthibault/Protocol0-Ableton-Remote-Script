@@ -31,6 +31,8 @@ class Push2Manager(AbstractControlSurfaceComponent):
     def _on_session_pad_press(self, value, *a, **k):
         if value:
             self.update_session_ring = self.update_selected_modes = self.update_highlighted_clip = False
+        if self.song.selected_track.is_automation:
+            pass
 
     @subject_slot("value")
     def _on_track_select_button_press(self, value, *a, **k):
@@ -66,10 +68,20 @@ class Push2Manager(AbstractControlSurfaceComponent):
     @push2_method()
     def _update_selected_modes(self):
         # type: () -> None
-        self.push2._matrix_modes.selected_mode = 'session'
-        self.push2._main_modes.selected_mode = 'device'
+        selected_main_mode = 'device'
+        selected_matrix_mode = 'session'
+        selected_instrument_mode = self.push2._instrument.selected_mode
+
         if self.song.current_track.is_foldable and not self.song.current_track.is_external_synth_track:
-            self.push2._main_modes.selected_mode = 'mix'
+            selected_main_mode = 'mix'
+        elif self.song.current_track.is_automation:
+            selected_main_mode = 'clip'
+            selected_matrix_mode = 'note'
+            selected_instrument_mode = 'split_melodic_sequencer'
         elif self.song.current_track.is_midi:
-            self.push2._matrix_modes.selected_mode = 'note'
-            self.push2._instrument.selected_mode = 'split_melodic_sequencer'
+            selected_matrix_mode = 'note'
+            selected_instrument_mode = 'split_melodic_sequencer'
+
+        self.push2._main_modes.selected_mode = selected_main_mode
+        self.push2._matrix_modes.selected_mode = selected_matrix_mode
+        self.push2._instrument.selected_mode = selected_instrument_mode
