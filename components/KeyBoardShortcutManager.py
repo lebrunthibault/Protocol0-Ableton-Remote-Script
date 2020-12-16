@@ -6,27 +6,29 @@ from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceC
 home = expanduser("~")
 
 
-class AhkManager(AbstractControlSurfaceComponent):
-    def _sendKeys(self, keys):
+class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
+    def sendKeys(self, keys):
         # type: (str) -> None
-        self.parent.log_info("Sending keys to ahk : " + keys)
+        self.parent.log_info("Sending keys : " + keys)
         subprocess.Popen(["pythonw.exe",
                           home + "\\Google Drive\\music\\dev\\scripts\\python\\sendKeys.py",
                           keys]
                          ).communicate()
 
+    def show_hide_plugins(self):
+        self.sendKeys("^%p")
+
     def toggle_first_vst(self):
-        # type: () -> None
-        self._sendKeys("^{F1}")
+        self.sendKeys("^{F1}")
 
     def toggle_first_vst_with_rack(self):
-        # type: () -> None
-        self._sendKeys("^{F2}")
+        self.sendKeys("^{F2}")
 
     def show_and_activate_rev2_editor(self):
-        # type: () -> None
-        self._sendKeys("^{F3}")
+        self.sendKeys("^{F3}")
 
     def toggle_minitaur_editor(self):
-        # type: () -> None
-        self._sendKeys("^{F4}")
+        self.sendKeys("^{F4}")
+
+    def group_adjacent_track(self):
+        self.sendKeys("^{F5}")

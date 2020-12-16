@@ -49,9 +49,9 @@ class AbstractInstrument(AbstractObject):
         # type: () -> None
         """ for instruments needing gui click activation """
         if self.has_rack:
-            self.parent.ahkManager.toggle_first_vst_with_rack()
+            self.parent.keyboardShortcutManager.toggle_first_vst_with_rack()
         else:
-            self.parent.ahkManager.toggle_first_vst()
+            self.parent.keyboardShortcutManager.toggle_first_vst()
 
     def action_scroll_presets_or_samples(self, go_next):
         # type: (bool) -> None

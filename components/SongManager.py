@@ -8,7 +8,7 @@ from _Framework.SubjectSlot import subject_slot
 from _Framework.Util import find_if
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.components.TrackManager import TrackManager
-from a_protocol_0.consts import EXTERNAL_SYNTH_NAMES
+from a_protocol_0.consts import EXTERNAL_SYNTH_NAMES, push2_beat_quantization_steps
 from a_protocol_0.lom.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.ExternalSynthTrack import ExternalSynthTrack
@@ -28,9 +28,8 @@ class SongManager(AbstractControlSurfaceComponent):
     @subject_slot("tracks")
     def _map_tracks(self):
         # type: () -> Optional[SimpleTrack]
-        self.parent.log_info("SongManager : mapping tracks")
         if len(self.song.tracks) and len(self.song._song.tracks) > len(self.song.tracks):
-            self.song.tracks_added = True
+            self.parent.trackManager.tracks_added = True
         self.song.tracks = []
         for i, track in enumerate(list(self.song._song.tracks)):
             simple_track = TrackManager.create_simple_track(track=track, index=i)
@@ -59,9 +58,11 @@ class SongManager(AbstractControlSurfaceComponent):
         if (self.song.highlighted_clip_slot != self._highlighted_clip_slot):
             self._highlighted_clip_slot = self.song.highlighted_clip_slot
             clip_slot = find_if(lambda cs: cs._clip_slot == self.song.highlighted_clip_slot, self.song.clip_slots)  # type: ClipSlot
-            if clip_slot.has_clip:
+            if clip_slot and clip_slot.has_clip:
+                self.parent.log_debug("highlighted_clip_slot_poller track : %s" % clip_slot.track)
                 clip_slot.track.observe_clip_notes.subject = clip_slot.clip._clip
-        self.parent._wait(5, self.highlighted_clip_slot_poller)
+                self.parent.push2Manager.update_clip_grid_quantization(clip_slot.clip)
+        self.parent.defer(self.highlighted_clip_slot_poller)
 
     def _get_simple_track(self, track, default=None):
         # type: (Any, Optional[SimpleTrack]) -> Optional[SimpleTrack]
@@ -81,7 +82,7 @@ class SongManager(AbstractControlSurfaceComponent):
         return self._live_track_to_simple_track[track]
 
     def _set_current_track(self):
-        self.song.selected_track = self._get_simple_track(self.song._view.selected_track)
+        self.song.selected_track = self._get_simple_track(self.song._view.selected_track) or self.song.tracks[0]
         if self.song.selected_track in self._simple_track_to_external_synth_track:
             self.song.current_track = self._simple_track_to_external_synth_track[self.song.selected_track]
         else:

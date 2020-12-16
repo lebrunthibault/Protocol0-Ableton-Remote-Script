@@ -4,7 +4,7 @@ from a_protocol_0.lom.AbstractObject import AbstractObject
 class Note(AbstractObject):
     MIN_DURATION = 1 / 128
 
-    def __init__(self, pitch, start, duration, velocity, muted, *a, **k):
+    def __init__(self, pitch, start, duration, velocity=127, muted=False, *a, **k):
         super(Note, self).__init__(*a, **k)
         self._pitch = pitch
         self._start = start

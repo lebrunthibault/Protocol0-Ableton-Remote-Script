@@ -47,7 +47,7 @@ class AbstractTrackActionMixin(object):
                 self.instrument.activate()
                 self.instrument.activated = True
             else:
-                self.song.show_hide_plugins()
+                self.parent.keyboardShortcutManager.show_hide_plugins()
 
     def action_solo(self):
         # type: (AbstractTrack) -> None
@@ -91,9 +91,13 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         """
             this records normally on a simple track and only audio on a group track
-            is is available on simple tracks just for ease of use
+            is is available on other tracks just for ease of use
         """
         self.action_record_all()
+
+    def create_clip(self, slot_number=0, bar_count=1):
+        # type: (AbstractTrack, int, int, int) -> None
+        self.base_track.clip_slots[slot_number]._clip_slot.create_clip(self.parent.utils.get_beat_time(bar_count))
 
     def stop(self):
         # type: (AbstractTrack) -> None
@@ -120,5 +124,6 @@ class AbstractTrackActionMixin(object):
     def reorder_devices(self):
         # type: (AbstractTrack) -> None
         for device in self.all_devices:
-            device.view.is_collapsed = not (isinstance(device, Live.RackDevice.RackDevice) or self.parent.deviceManager.is_track_instrument(self, device))
-
+            device.view.is_collapsed = not (
+                    isinstance(device, Live.RackDevice.RackDevice) or self.parent.deviceManager.is_track_instrument(
+                self, device))

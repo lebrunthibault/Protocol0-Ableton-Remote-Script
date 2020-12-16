@@ -14,6 +14,7 @@ class Clip(ClipActionMixin, AbstractObject):
     def __init__(self, clip_slot, *a, **k):
         # type: (Optional[ClipSlot], Any, Any) -> None
         super(Clip, self).__init__(*a, **k)
+        self.clip_slot = clip_slot
         self._clip_slot = clip_slot._clip_slot if clip_slot else None
         self._clip = self._clip_slot.clip if self._clip_slot and self._clip_slot.has_clip else None
         self.index = clip_slot.index if clip_slot else -1

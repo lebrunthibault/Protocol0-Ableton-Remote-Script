@@ -31,4 +31,4 @@ class InstrumentSimpler(AbstractInstrument):
             next_sample_index = 0
         next_sample = samples[next_sample_index % len(samples)]
 
-        self.parent.browserManager.load_sample(None, "'%s'" % next_sample)
+        self.parent.clyphxBrowserManager.load_sample(None, "'%s'" % next_sample)

@@ -1,7 +1,6 @@
 from typing import Any, List
 
-from _Framework.SubjectSlot import subject_slot
-from a_protocol_0.consts import TRACK_CATEGORIES, TRACK_CATEGORY_ALL
+from a_protocol_0.consts import TRACK_CATEGORY_ALL
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.ClipSlot import ClipSlot
 from a_protocol_0.lom.SongActionMixin import SongActionMixin
@@ -17,7 +16,6 @@ class Song(SongActionMixin, AbstractObject):
         self._view = self._song.view  # type: Any
         self.tracks = []  # type: List[SimpleTrack]
         self.external_synth_tracks = []  # type: List[ExternalSynthTrack]
-        self.tracks_added = False
         self.selected_track = None  # type: SimpleTrack
         self.current_track = None  # type: AbstractTrack
         self.clip_slots = []  # type: List[ClipSlot]
@@ -27,6 +25,10 @@ class Song(SongActionMixin, AbstractObject):
     def scenes(self):
         # type: () -> List[Any]
         return self._song.scenes
+
+    def next_track(self, track, increment=1):
+        # type: (SimpleTrack, int) -> SimpleTrack
+        return self.tracks[(track.index + increment) % len(self.tracks)]
 
     @property
     def top_tracks(self):
@@ -46,9 +48,9 @@ class Song(SongActionMixin, AbstractObject):
         return self.song._view.highlighted_clip_slot
 
     @highlighted_clip_slot.setter
-    def highlighted_clip_slot(self, highlighted_clip_slot):
-        # type: (Live.ClipSlot.ClipSlot) -> None
-        self.song._view.highlighted_clip_slot = highlighted_clip_slot
+    def highlighted_clip_slot(self, clip_slot):
+        # type: (ClipSlot) -> None
+        self.song._view.highlighted_clip_slot = clip_slot._clip_slot
 
     @property
     def tempo(self):

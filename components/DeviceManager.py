@@ -1,4 +1,3 @@
-import time
 from functools import partial
 from typing import TYPE_CHECKING, Optional
 
@@ -25,7 +24,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
             track.instrument.check_activated()
             track.instrument.action_scroll_presets_or_samples(go_next)
         elif not isinstance(device, Live.PluginDevice.PluginDevice):
-            self.parent.browserManager.swap(None, ">" if go_next else "<")
+            self.parent.clyphxBrowserManager.swap(None, ">" if go_next else "<")
         else:
             self.parent.log_debug("is plugin")
             self.parent.log_debug(list(device.presets))
@@ -81,7 +80,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
         """ update rack with the version stored in browser, keeping old values for identical parameters """
         parameters = {param.name: param.value for param in rack_device.parameters if "macro" not in param.name.lower()}
         self.song.select_device(rack_device)
-        self.parent.browserManager.swap(None, '"%s.adg"' % rack_device.name)
+        self.parent.clyphxBrowserManager.swap(None, '"%s.adg"' % rack_device.name)
         # restore values : this means we cannot dispatch values, only mappings
         # here 100ms is not enough
         self.parent._wait(10, partial(self.update_device_params, rack_device, parameters))

@@ -6,4 +6,4 @@ class InstrumentMinitaur(AbstractInstrument):
 
     def activate(self):
         # type: () -> None
-        self.parent.ahkManager.toggle_minitaur_editor()
+        self.parent.keyboardShortcutManager.toggle_minitaur_editor()

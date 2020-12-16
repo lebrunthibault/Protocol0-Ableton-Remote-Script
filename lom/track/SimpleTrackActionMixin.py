@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from a_protocol_0.lom.Clip import Clip
 from a_protocol_0.lom.Colors import Colors
-from a_protocol_0.utils.utils import get_beat_time, scroll_values
+from a_protocol_0.utils.utils import scroll_values
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -29,9 +29,8 @@ class SimpleTrackActionMixin(object):
     def action_record_all(self, clip_slot_index=None):
         # type: (SimpleTrack, int) -> None
         clip_slot_index = clip_slot_index if clip_slot_index else self._next_empty_clip_slot_index
-        length = get_beat_time('%sb' % self.bar_count, self.song._song)
         self.parent.show_message("Starting recording of %d bars" % self.bar_count)
-        self.clip_slots[clip_slot_index].fire(record_length=length)
+        self.clip_slots[clip_slot_index].fire(record_length=self.parent.utils.get_beat_time(self.bar_count))
 
     def restart(self):
         # type: (SimpleTrack) -> None
@@ -60,10 +59,9 @@ class SimpleTrackActionMixin(object):
             return
 
         selected_clip = scroll_values(self.clips, self.playable_clip, go_next)  # type: Clip
-        self.parent.log_debug("clip.index %d" % selected_clip.index)
         for clip in self.clips:
             clip.color = self.base_color
             clip.is_selected = False
         selected_clip.is_selected = True
-        self.song.highlighted_clip_slot = selected_clip._clip_slot
+        self.song.highlighted_clip_slot = selected_clip.clip_slot
         selected_clip.color = Colors.SELECTED

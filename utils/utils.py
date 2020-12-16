@@ -1,6 +1,8 @@
 from itertools import chain, imap
 from typing import Optional, Any, List
 
+from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+
 
 def parse_number(num_as_string, default_value=None, min_value=None, max_value=None, is_float=False):
     """ Parses the given string containing a number and returns the parsed number.
@@ -31,17 +33,14 @@ def parse_midi_channel(num_as_string):
     return parse_number(num_as_string, default_value=1, min_value=1, max_value=16) - 1
 
 
-def get_beat_time(text, obj):
-    """ Returns the absolute beat time to use based on the given text arg and current time
-    signature of the object.  The arg can either be in beats x or in bars xB. The
-    is_legacy_bar arg is only used if ALLOW_BAR_AND_BEAT_SPECS is false. """
-    text = text.replace('<', '').replace('>', '')
-    beat = 4.0 / obj.signature_denominator
-    is_bar = 'b' in text
-    num = parse_number(text.replace('b', ''), min_value=0, default_value=1, is_float=True)
-    if is_bar:
-        return beat * obj.signature_numerator * num
-    return beat * num
+class Utils(AbstractControlSurfaceComponent):
+
+    def get_beat_time(self, bar_count=1):
+        """ Returns the absolute beat time to use based on the given bar_count arg and current time
+        signature of the song """
+        beat = 4.0 / self.song._song.signature_denominator
+        num = parse_number(bar_count, min_value=0, default_value=1, is_float=True)
+        return beat * self.song._song.signature_numerator * num
 
 
 def scroll_values(items, selected_item, go_next):
@@ -59,6 +58,11 @@ def scroll_values(items, selected_item, go_next):
 
 def find_where(predicate, seq):
     return [x for x in seq if predicate(x)]
+
+
+def find_last(predicate, seq):
+    items = find_where(predicate, seq)
+    return items[-1] if len(items) else None
 
 
 def find_all_devices(track_or_chain):

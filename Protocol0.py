@@ -1,8 +1,9 @@
-import logging
 import types
 from typing import Callable
 
 from ClyphX_Pro.clyphx_pro.actions.BrowserActions import BrowserActions
+from ClyphX_Pro.clyphx_pro.actions.GlobalActions import GlobalActions
+from ClyphX_Pro.clyphx_pro.actions.NavAndViewActions import NavAndViewActions
 
 from _Framework.ControlSurface import ControlSurface
 from a_protocol_0.components.ActionSetManager import ActionSetManager
@@ -11,13 +12,14 @@ from a_protocol_0.components.Push2Manager import Push2Manager
 from a_protocol_0.utils.log import log_ableton
 
 from a_protocol_0.components.ActionManager import ActionManager
-from a_protocol_0.components.AhkManager import AhkManager
+from a_protocol_0.components.KeyBoardShortcutManager import KeyBoardShortcutManager
 from a_protocol_0.components.TrackManager import TrackManager
 from a_protocol_0.components.MidiManager import MidiManager
 from a_protocol_0.components.SessionManager import SessionManager
 from a_protocol_0.components.SongManager import SongManager
 from a_protocol_0.consts import LogLevel, ACTIVE_LOG_LEVEL
 from a_protocol_0.lom.Song import Song
+from a_protocol_0.utils.utils import Utils
 
 
 class Protocol0(ControlSurface):
@@ -29,16 +31,24 @@ class Protocol0(ControlSurface):
             self.protocol0_song = Song(song=self.song())
             self.deviceManager = DeviceManager()  # needs to be here first
             self.songManager = SongManager()
+            self.sessionManager = SessionManager()
             self.push2Manager = Push2Manager()
-            TrackManager()
+            self.trackManager = TrackManager()
             ActionManager()
             ActionSetManager()
-            self.sessionManager = SessionManager()
-            self.ahkManager = AhkManager()
+            self.keyboardShortcutManager = KeyBoardShortcutManager()
             self.midiManager = MidiManager()
-            self.browserManager = BrowserActions()
+            self.clyphxBrowserManager = BrowserActions()
+            self.clyphxNavigationManager = NavAndViewActions()
+            self.clyphxGlobalManager = GlobalActions()
+            self.utils = Utils()
         self.protocol0_song.reset()
         self.log_info("Protocol0 script loaded")
+
+    def post_init(self):
+        self.protocol0_song.reset()
+        if ACTIVE_LOG_LEVEL == LogLevel.DEBUG:
+            self.dev_boot()
 
     def log_debug(self, message):
         # type: (str) -> None
@@ -71,3 +81,8 @@ class Protocol0(ControlSurface):
     def clear_tasks(self):
         del self._remaining_scheduled_messages[:]
         self._task_group.clear()
+
+    def dev_boot(self):
+        self.protocol0_song.select_track(self.protocol0_song.tracks[10])
+        # self._wait(5, lambda: self.trackManager.set_up_lfo_tool_automation(self.protocol0_song.current_track.base_track))
+

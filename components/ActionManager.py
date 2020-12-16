@@ -47,6 +47,10 @@ class ActionManager(AbstractControlSurfaceComponent):
         MultiEncoder(channel=15, identifier=3,
                      on_press=self.action_switch_track_monitoring)
 
+        # LFO encoder (add group track with lfo tool binding)
+        MultiEncoder(channel=15, identifier=1,
+                     on_press=self.action_set_up_lfo_tool_automation)
+
         # UNDO encoder
         MultiEncoder(channel=15, identifier=4,
                      on_press=self.action_undo)
@@ -142,6 +146,9 @@ class ActionManager(AbstractControlSurfaceComponent):
     @button_action(log_action=False)
     def action_scroll_track_clips(self, go_next):
         """" stop a live set from group tracks track names """
+        if self.song.selected_track.is_foldable and len(self.song.selected_track.sub_tracks):
+            self.song.selected_track.is_folded = False
+            self.song.select_track(self.song.selected_track.sub_tracks[0])
         self.song.selected_track.scroll_clips(go_next=go_next)
 
     @button_action()
@@ -158,6 +165,10 @@ class ActionManager(AbstractControlSurfaceComponent):
     @button_action()
     def action_switch_track_monitoring(self):
         self.song.current_track.action_switch_monitoring()
+
+    @button_action()
+    def action_set_up_lfo_tool_automation(self):
+        self.parent.trackManager.set_up_lfo_tool_automation(self.song.current_track.base_track)
 
     @button_action()
     def action_undo(self):

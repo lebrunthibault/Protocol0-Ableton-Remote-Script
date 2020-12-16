@@ -3,6 +3,8 @@ from typing import Optional
 from _Framework.SubjectSlot import subject_slot
 from a_Push2.push2 import Push2
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from a_protocol_0.consts import push2_beat_quantization_steps
+from a_protocol_0.lom.Clip import Clip
 from a_protocol_0.utils.decorators import push2_method
 
 
@@ -26,6 +28,7 @@ class Push2Manager(AbstractControlSurfaceComponent):
         self.song.select_track(self.song.tracks[0])
         self.parent.sessionManager.set_enabled(True)
         self.parent.log_info("Push2 connected to Protocol0")
+        self.parent.post_init()
 
     @subject_slot("value")
     def _on_session_pad_press(self, value, *a, **k):
@@ -56,14 +59,19 @@ class Push2Manager(AbstractControlSurfaceComponent):
 
     @push2_method()
     def _update_session_ring(self):
-        self.push2._session_ring.set_offsets(self.parent.sessionManager.session_track_offset,
+        self.push2._session_ring.set_offsets(self.parent.sessionManager.session.track_offset(),
                                              self.push2._session_ring.scene_offset)
 
     @push2_method()
     def _update_highlighted_clip(self):
         track = self.song.selected_track
         if track and track.is_visible and track.playable_clip:
-            self.song._view.highlighted_clip_slot = track.playable_clip._clip_slot
+            self.song.highlighted_clip_slot = track.playable_clip.clip_slot
+
+    def update_clip_grid_quantization(self, clip):
+        # type: () -> Clip
+        index = push2_beat_quantization_steps.index(clip.min_note_quantization_start)
+        self.push2._grid_resolution.quantization_buttons[index].is_checked = True
 
     @push2_method()
     def _update_selected_modes(self):
@@ -72,7 +80,7 @@ class Push2Manager(AbstractControlSurfaceComponent):
         selected_matrix_mode = 'session'
         selected_instrument_mode = self.push2._instrument.selected_mode
 
-        if self.song.current_track.is_foldable and not self.song.current_track.is_external_synth_track:
+        if self.song.current_track.is_simple_group:
             selected_main_mode = 'mix'
         elif self.song.current_track.is_automation:
             selected_main_mode = 'clip'

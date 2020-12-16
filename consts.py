@@ -1,4 +1,5 @@
 from os.path import dirname
+from fractions import Fraction
 
 MIDI_STATUS_BYTES = {'note': 144, 'cc': 176, 'pc': 192}
 RECORDING_TIMES = ["1 bar", "2 bars", "4 bars", "8 bars", "16 bars", "32 bars"]
@@ -19,6 +20,16 @@ INSTRUMENT_NAME_MAPPINGS = {
     "Minitaur Editor-VI(x64)": "InstrumentMinitaur",
     "REV2Editor": "InstrumentProphet",
 }
+
+push2_beat_quantization_steps = [v * 4 for v in [
+    Fraction(1, 48),
+    Fraction(1, 32),
+    Fraction(1, 24),
+    Fraction(1, 16),
+    Fraction(1, 12),
+    Fraction(1, 8),
+    Fraction(1, 6),
+    Fraction(1, 4)]]
 
 
 class LogLevel:
