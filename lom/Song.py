@@ -1,5 +1,6 @@
-from typing import Any, List
+from typing import Any, List, Optional
 
+from _Framework.Util import find_if
 from a_protocol_0.consts import TRACK_CATEGORY_ALL
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.ClipSlot import ClipSlot
@@ -44,8 +45,11 @@ class Song(SongActionMixin, AbstractObject):
 
     @property
     def highlighted_clip_slot(self):
-        # type: () -> Live.ClipSlot.ClipSlot
-        return self.song._view.highlighted_clip_slot
+        # type: () -> Optional[ClipSlot]
+        """ first look in track then in song """
+        return find_if(lambda cs: cs._clip_slot == self.song._view.highlighted_clip_slot,
+                       self.selected_track.clip_slots) or find_if(
+            lambda cs: cs._clip_slot == self.song._view.highlighted_clip_slot, self.song.clip_slots)
 
     @highlighted_clip_slot.setter
     def highlighted_clip_slot(self, clip_slot):

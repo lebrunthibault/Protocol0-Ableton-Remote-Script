@@ -49,7 +49,7 @@ def scroll_values(items, selected_item, go_next):
         return None
     increment = 1 if go_next else - 1
     if not selected_item:
-        index = 1
+        index = 0
     else:
         index = (items.index(selected_item) + increment) % len(items)
 

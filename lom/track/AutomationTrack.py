@@ -11,22 +11,21 @@ class AutomationTrack(SimpleTrack):
 
     @subject_slot("has_clip")
     def fill_notes(self):
-        self.parent.log_debug("fill_notes")
         clip_slot = self.get_clip_slot(self.fill_notes.subject)
         if not clip_slot or not clip_slot.has_clip:
             return
         clip = clip_slot.clip
         note_duration = clip.length / self._fill_note_count
-        notes = [Note(pitch=127, start=step * note_duration, duration=note_duration) for step in range(self._fill_note_count)]
+        notes = [Note(pitch=127, start=step * note_duration, duration=note_duration) for step in
+                 range(self._fill_note_count)]
         clip.replace_all_notes(notes)
 
     @subject_slot("notes")
     def observe_clip_notes(self):
         # type: () -> None
-        clip_slot = self.get_clip_slot(self.song.highlighted_clip_slot)
-        if not clip_slot or not clip_slot.has_clip or clip_slot.clip._is_updating_notes:
+        clip = self.get_clip(self.observe_clip_notes.subject)
+        if clip._is_updating_notes:
             return
-        clip = clip_slot.clip
 
         self._map_notes(clip)
 
@@ -36,6 +35,7 @@ class AutomationTrack(SimpleTrack):
                 self._map_notes(clip);
 
             clip._scheduled_note_operation_count -= 1
+
         self.parent._wait(2, debounce_map_note)
         clip._scheduled_note_operation_count += 1
 

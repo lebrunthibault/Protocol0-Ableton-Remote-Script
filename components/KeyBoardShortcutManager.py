@@ -32,3 +32,7 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
 
     def group_adjacent_track(self):
         self.sendKeys("^{F5}")
+
+    def up(self):
+        self.sendKeys("^{F6}")
+

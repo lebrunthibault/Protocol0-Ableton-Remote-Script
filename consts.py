@@ -1,5 +1,5 @@
-from os.path import dirname
 from fractions import Fraction
+from os.path import dirname
 
 MIDI_STATUS_BYTES = {'note': 144, 'cc': 176, 'pc': 192}
 RECORDING_TIMES = ["1 bar", "2 bars", "4 bars", "8 bars", "16 bars", "32 bars"]

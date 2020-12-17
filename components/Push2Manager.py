@@ -68,6 +68,7 @@ class Push2Manager(AbstractControlSurfaceComponent):
         if track and track.is_visible and track.playable_clip:
             self.song.highlighted_clip_slot = track.playable_clip.clip_slot
 
+    @push2_method()
     def update_clip_grid_quantization(self, clip):
         # type: () -> Clip
         index = push2_beat_quantization_steps.index(clip.min_note_quantization_start)

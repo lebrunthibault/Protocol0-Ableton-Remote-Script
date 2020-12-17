@@ -27,6 +27,10 @@ class AbstractObject(SlotManager):
 
         return repr
 
+    def __ne__(self, obj):
+        # type: (AbstractObject) -> bool
+        return not self == obj
+
     @property
     def parent(self):
         # type: () -> Protocol0

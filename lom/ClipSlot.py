@@ -24,6 +24,10 @@ class ClipSlot(AbstractObject):
     def __nonzero__(self):
         return self._clip_slot is not None
 
+    def __eq__(self, clip_slot):
+        # type: (ClipSlot) -> bool
+        return self._clip_slot == clip_slot._clip_slot
+
     @subject_slot("has_clip")
     def update_clip(self):
         self.has_clip = self._clip_slot.has_clip

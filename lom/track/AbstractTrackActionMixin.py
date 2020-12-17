@@ -116,10 +116,8 @@ class AbstractTrackActionMixin(object):
     def reset_track(self):
         # type: (AbstractTrack) -> None
         self.solo = False
-        self.arm = False
+        self.action_unarm()
         self.reorder_devices()
-        if self.is_foldable:
-            self.is_folded = True
 
     def reorder_devices(self):
         # type: (AbstractTrack) -> None

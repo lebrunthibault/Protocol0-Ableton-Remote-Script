@@ -74,6 +74,10 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
         # type: (Live.ClipSlot.ClipSlot) -> Optional[ClipSlot]
         return find_if(lambda cs: cs._clip_slot == clip_slot, self.base_track.clip_slots)
 
+    def get_clip(self, clip):
+        # type: (Live.Clip.Clip) -> Optional[Clip]
+        return find_if(lambda c: c._clip == clip, self.base_track.clips)
+
     @property
     def selected_device(self):
         # type: () -> Live.Device.Device

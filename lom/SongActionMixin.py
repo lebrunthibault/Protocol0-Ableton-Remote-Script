@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Optional
 
 import Live
-from a_protocol_0.consts import LogLevel, ACTIVE_LOG_LEVEL
+
 from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 from a_protocol_0.utils.decorators import defer
 
@@ -19,9 +19,10 @@ class SongActionMixin(object):
 
     def unfocus_all_tracks(self):
         # type: (Song) -> None
+        self.parent.log_debug("unfocus")
+        [t.action_unarm() for t in self.external_synth_tracks if t.arm and t != self.current_track]
         [t.action_unarm() for t in self.tracks if t.arm if t != self.selected_track]
-        [t.action_unarm() for t in self.external_synth_tracks if t.arm if t != self.current_track]
-        [setattr(t, "solo", False) for t in self.song.tracks if t.solo if t != self.selected_track]
+        [setattr(t, "solo", False) for t in self.song.tracks if t.solo and t != self.selected_track]
 
     @defer
     def reset(self):
@@ -31,10 +32,10 @@ class SongActionMixin(object):
         self.stop_all_clips(0)
         self.stop_playing()
         self._song.current_song_time = 0
-        if ACTIVE_LOG_LEVEL == LogLevel.INFO:
-            [track.reset_track() for track in self.tracks]
-            if len(self.tracks):
-                self.song.select_track(self.tracks[0])
+        [track.reset_track() for track in self.tracks]
+        [track.reset_track() for track in self.external_synth_tracks]
+        if len(self.tracks):
+            self.song.select_track(self.tracks[0])
 
     def stop_playing(self):
         # type: (Song) -> None

@@ -15,8 +15,8 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def __init__(self, *a, **k):
         super(SimpleTrack, self).__init__(*a, **k)
         self.clip_slots = []  # type: List[ClipSlot]
-        self.build_clip_slots.subject = self._track
-        self.build_clip_slots()
+        self._map_clip_slots.subject = self._track
+        self._map_clip_slots()
         # defer till Live is stopped because it boots playing
         self.parent._wait(10, lambda: setattr(self.playing_slot_index_listener, "subject", self._track))
 
@@ -29,7 +29,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         pass
 
     @subject_slot("clip_slots")
-    def build_clip_slots(self):
+    def _map_clip_slots(self):
         # type: (SimpleTrack) -> None
         self.clip_slots = [ClipSlot(clip_slot=clip_slot, index=index, track=self) for (index, clip_slot) in
                            enumerate(list(self._track.clip_slots))]

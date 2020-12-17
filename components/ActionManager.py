@@ -18,12 +18,17 @@ class ActionManager(AbstractControlSurfaceComponent):
         # PRESet encoder
         MultiEncoder(channel=15, identifier=14,
                      on_press=self.action_show_track_instrument,
-                     on_scroll=self.action_scroll_track_selected_device_presets)
+                     on_scroll=self.action_scroll_track_instrument_presets)
 
         # DEVice encoder
         MultiEncoder(channel=15, identifier=15,
                      on_press=self.action_track_collapse_selected_device,
                      on_scroll=self.action_scroll_track_devices)
+
+        # CLIP encoder
+        MultiEncoder(channel=15, identifier=16,
+                     on_press=self.action_play_track_playable_clip,
+                     on_scroll=self.action_scroll_track_clips)
 
         # RECord encoder
         MultiEncoder(channel=15, identifier=9,
@@ -41,7 +46,7 @@ class ActionManager(AbstractControlSurfaceComponent):
         MultiEncoder(channel=15, identifier=12,
                      on_press=self.restart_track,
                      on_long_press=self.restart_category,
-                     on_scroll=self.action_scroll_track_clips)
+                     on_scroll=self.action_scroll_track_categories_2)
 
         # MONitor encoder
         MultiEncoder(channel=15, identifier=3,
@@ -75,15 +80,18 @@ class ActionManager(AbstractControlSurfaceComponent):
     def action_solo_track(self):
         self.song.current_track.action_solo()
 
-    @button_action(log_action=False)
-    def action_scroll_track_selected_device_presets(self, go_next):
-        """ scroll track device presets or samples """
-        self.parent.deviceManager.scroll_current_track_selected_device_presets(track=self.song.selected_track, go_next=go_next)
-
     @button_action()
     def action_show_track_instrument(self):
         """ Sel instrument track and open instrument window """
         self.song.current_track.action_show_instrument()
+
+    @button_action(log_action=False)
+    def action_scroll_track_instrument_presets(self, go_next):
+        """ scroll track device presets or samples """
+        self.parent.clyphxNavigationManager.show_track_view()
+        if self.song.selected_track.instrument:
+            self.song.selected_track.instrument.check_activated()
+            self.song.selected_track.instrument.action_scroll_presets_or_samples(go_next)
 
     @button_action(log_action=False)
     def action_scroll_track_devices(self, go_next):
@@ -117,11 +125,14 @@ class ActionManager(AbstractControlSurfaceComponent):
         return self.song.current_track.action_restart_and_record(self.song.current_track.action_record_audio_only,
                                                             only_audio=True)
 
-    @button_action(log_action=False)
-    def action_scroll_track_categories(self, go_next):
+    def _action_scroll_track_categories(self, go_next):
         """" stop a live set from group tracks track names """
         self.song.selected_track_category = scroll_values(TRACK_CATEGORIES, self.song.selected_track_category, go_next)
         self.parent.show_message("Selected %s" % self.song.selected_track_category)
+
+    @button_action(log_action=False)
+    def action_scroll_track_categories(self, go_next):
+        self._action_scroll_track_categories(go_next)
 
     @button_action()
     def stop_track(self):
@@ -137,11 +148,9 @@ class ActionManager(AbstractControlSurfaceComponent):
             [track.stop() for track in self.song.selected_category_tracks]
         self.parent.show_message("Stopping %s" % self.song.selected_track_category)
 
-    # @button_action(log_action=False)
-    # def action_scroll_track_categories_2(self, go_next):
-    #     """" stop a live set from group tracks track names """
-    #     self.song.selected_track_category = scroll_values(TRACK_CATEGORIES, self.song.selected_track_category, go_next)
-    #     self.parent.show_message("Selected %s" % self.song.selected_track_category)
+    @button_action(log_action=False)
+    def action_scroll_track_categories_2(self, go_next):
+        self._action_scroll_track_categories(go_next)
 
     @button_action(log_action=False)
     def action_scroll_track_clips(self, go_next):
@@ -150,6 +159,11 @@ class ActionManager(AbstractControlSurfaceComponent):
             self.song.selected_track.is_folded = False
             self.song.select_track(self.song.selected_track.sub_tracks[0])
         self.song.selected_track.scroll_clips(go_next=go_next)
+
+    @button_action()
+    def action_play_track_playable_clip(self):
+        """" restart a live set from group tracks track names """
+        self.song.current_track.base_track.restart()
 
     @button_action()
     def restart_track(self):

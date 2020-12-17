@@ -5,11 +5,9 @@ from plistlib import Dict
 from typing import Optional, Any
 
 from _Framework.SubjectSlot import subject_slot
-from _Framework.Util import find_if
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.components.TrackManager import TrackManager
-from a_protocol_0.consts import EXTERNAL_SYNTH_NAMES, push2_beat_quantization_steps
-from a_protocol_0.lom.ClipSlot import ClipSlot
+from a_protocol_0.consts import EXTERNAL_SYNTH_NAMES
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.ExternalSynthTrack import ExternalSynthTrack
 from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
@@ -55,13 +53,12 @@ class SongManager(AbstractControlSurfaceComponent):
 
     def highlighted_clip_slot_poller(self):
         # type: () -> None
+        return
         if (self.song.highlighted_clip_slot != self._highlighted_clip_slot):
             self._highlighted_clip_slot = self.song.highlighted_clip_slot
-            clip_slot = find_if(lambda cs: cs._clip_slot == self.song.highlighted_clip_slot, self.song.clip_slots)  # type: ClipSlot
-            if clip_slot and clip_slot.has_clip:
-                self.parent.log_debug("highlighted_clip_slot_poller track : %s" % clip_slot.track)
-                clip_slot.track.observe_clip_notes.subject = clip_slot.clip._clip
-                self.parent.push2Manager.update_clip_grid_quantization(clip_slot.clip)
+            if self.song.highlighted_clip_slot and self.song.highlighted_clip_slot.has_clip:
+                self.song.highlighted_clip_slot.track.observe_clip_notes.subject = self.song.highlighted_clip_slot.clip._clip
+                self.parent.push2Manager.update_clip_grid_quantization(self.song.highlighted_clip_slot.clip)
         self.parent.defer(self.highlighted_clip_slot_poller)
 
     def _get_simple_track(self, track, default=None):
