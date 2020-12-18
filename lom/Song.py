@@ -21,6 +21,7 @@ class Song(SongActionMixin, AbstractObject):
         self.current_track = None  # type: AbstractTrack
         self.clip_slots = []  # type: List[ClipSlot]
         self.selected_track_category = TRACK_CATEGORY_ALL
+        self.selected_recording_time = "4 bars"
 
     @property
     def scenes(self):

@@ -36,7 +36,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
         self.group_tracks = []  # type: List[SimpleTrack]
         self.sub_tracks = []  # type: List[SimpleTrack]
         self.instrument = self.parent.deviceManager.create_instrument_from_simple_track(track=self)
-        self.selected_recording_time = "4 bars"
         self.bar_count = 1
         self.is_midi = self._track.has_midi_input
         self.is_audio = self._track.has_audio_input
@@ -63,7 +62,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
     @property
     def all_devices(self):
         # type: () -> List[Live.Device.Device]
-        return [device for track in self.all_tracks for device in find_all_devices(track._track)]
+        return [device for track in self.all_tracks for device in find_all_devices(track)]
 
     @property
     def clips(self):
@@ -101,7 +100,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
     def name(self, name):
         # type: (str) -> None
         if self.name != name:
-            self.parent.log_debug(name)
             self.parent.defer(lambda: setattr(self._track, "name", name))
 
     @property

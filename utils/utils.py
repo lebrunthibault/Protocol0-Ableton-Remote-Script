@@ -1,7 +1,14 @@
+from functools import partial
 from itertools import chain, imap
-from typing import Optional, Any, List
+from typing import Optional, Any, List, Union, TYPE_CHECKING
 
+import Live
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from a_protocol_0.utils.log import log_ableton
+
+if TYPE_CHECKING:
+    # noinspection PyUnresolvedReferences
+    from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 
 
 def parse_number(num_as_string, default_value=None, min_value=None, max_value=None, is_float=False):
@@ -48,10 +55,12 @@ def scroll_values(items, selected_item, go_next):
     if len(items) == 0:
         return None
     increment = 1 if go_next else - 1
-    if not selected_item:
-        index = 0
-    else:
-        index = (items.index(selected_item) + increment) % len(items)
+    index = 0
+    if selected_item:
+        try:
+            index = (items.index(selected_item) + increment) % len(items)
+        except ValueError:
+            pass
 
     return items[index]
 
@@ -65,18 +74,24 @@ def find_last(predicate, seq):
     return items[-1] if len(items) else None
 
 
-def find_all_devices(track_or_chain):
-    # type: (Any) -> List[Any]
-    u"""
-    Returns a list with all devices from a track or chain.
-    """
-    if track_or_chain:
-        devices = []
-        for device in track_or_chain.devices:
-            if device:
-                if not device.can_have_drum_pads and device.can_have_chains:
-                    devices += chain([device], *imap(find_all_devices, device.chains))
-                else:
-                    devices += [device]
-        return devices
-    return []
+def find_all_devices(track, only_visible=False):
+    # type: (AbstractTrack, bool) -> List[Live.Device.Device]
+    return _find_all_devices(track_or_chain=track._track, only_visible=only_visible)
+
+
+def _find_all_devices(track_or_chain, only_visible=False):
+    # type: (Union[Live.Track.Track, Live.Chain.Chain], bool) -> List[Live.Device.Device]
+    u""" Returns a list with all devices from a track or chain """
+    devices = []
+    for device in filter(None, track_or_chain.devices):
+        if only_visible and device.view.is_collapsed:
+            devices += [device]
+            continue
+        if only_visible and (not device.can_have_drum_pads and device.can_have_chains and device.view.is_showing_chain_devices):
+            devices += chain([device], _find_all_devices(device.view.selected_chain, only_visible=only_visible))
+        elif not device.can_have_drum_pads and device.can_have_chains:
+            devices += chain([device],
+                             *imap(partial(_find_all_devices, only_visible=only_visible), filter(None, device.chains)))
+        else:
+            devices += [device]
+    return devices

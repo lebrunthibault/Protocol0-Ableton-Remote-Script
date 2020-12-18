@@ -57,7 +57,6 @@ class SimpleTrackActionMixin(object):
     def scroll_clips(self, go_next):
         # type: (SimpleTrack, bool) -> None
         selected_clip_slot = None  # type: ClipSlot
-        self.parent.clyphxNavigationManager.focus_main()
         if not len(self.clips):  # scroll clip_slots when track is empty
             if self.song.highlighted_clip_slot and self.song.highlighted_clip_slot.index == 0 and not go_next:
                 return self.parent.keyboardShortcutManager.up()
@@ -74,3 +73,5 @@ class SimpleTrackActionMixin(object):
             selected_clip_slot = selected_clip.clip_slot
 
         self.song.highlighted_clip_slot = selected_clip_slot
+        self.parent.clyphxNavigationManager._app_view.show_view('Session')
+        self.parent.clyphxNavigationManager.focus_main()

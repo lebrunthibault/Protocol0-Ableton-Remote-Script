@@ -48,13 +48,13 @@ class Protocol0(ControlSurface):
         if ACTIVE_LOG_LEVEL == LogLevel.DEBUG:
             self.dev_boot()
 
-    def log_debug(self, message):
+    def log_debug(self, message, debug=True):
         # type: (str) -> None
-        self._log(message, LogLevel.DEBUG)
+        self._log(message=message, level=LogLevel.DEBUG, debug=debug)
 
     def log_info(self, message):
         # type: (str) -> None
-        self._log(message, LogLevel.INFO, debug=False)
+        self._log(message=message, level=LogLevel.INFO, debug=False)
 
     def _log(self, message, level=LogLevel.INFO, debug=True):
         # type: (str) -> None
@@ -81,5 +81,5 @@ class Protocol0(ControlSurface):
         self._task_group.clear()
 
     def dev_boot(self):
-        self.protocol0_song.select_track(self.protocol0_song.tracks[9])
+        self.protocol0_song.select_track(self.protocol0_song.tracks[10])
 

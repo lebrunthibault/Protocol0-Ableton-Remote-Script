@@ -3,7 +3,7 @@ from a_protocol_0.consts import RECORDING_TIMES, TRACK_CATEGORIES, TRACK_CATEGOR
 from a_protocol_0.controls.MultiEncoder import MultiEncoder
 from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 from a_protocol_0.utils.decorators import button_action
-from a_protocol_0.utils.utils import scroll_values
+from a_protocol_0.utils.utils import scroll_values, find_all_devices
 
 
 class ActionManager(AbstractControlSurfaceComponent):
@@ -90,14 +90,17 @@ class ActionManager(AbstractControlSurfaceComponent):
         """ scroll track device presets or samples """
         self.parent.clyphxNavigationManager.show_track_view()
         if self.song.selected_track.instrument:
-            self.song.selected_track.instrument.check_activated()
+            self.song.select_device(self.song.selected_track.instrument._device)
+            self.song.selected_track.instrument._device.view.is_collapsed = False
+            # self.song.selected_track.instrument.check_activated()
             self.song.selected_track.instrument.action_scroll_presets_or_samples(go_next)
 
     @button_action(log_action=False)
     def action_scroll_track_devices(self, go_next):
         """ record both midi and audio on group track """
         self.parent.application().view.focus_view(u'Detail/DeviceChain')
-        selected_device = scroll_values(self.song.current_track.all_devices, self.song.current_track.selected_device, go_next)
+        selected_device = scroll_values(find_all_devices(self.song.current_track, only_visible=True),
+                                        self.song.current_track.selected_device, go_next)
         if selected_device:
             self.song.select_device(selected_device)
 
@@ -109,10 +112,9 @@ class ActionManager(AbstractControlSurfaceComponent):
     @button_action(log_action=False)
     def action_scroll_track_recording_times(self, go_next):
         """ record both midi and audio on group track """
-        self.song.current_track.selected_recording_time = scroll_values(RECORDING_TIMES,
-                                                                   self.song.current_track.selected_recording_time, go_next)
-        self.song.current_track.bar_count = int(self.song.current_track.selected_recording_time.split()[0])
-        self.parent.show_message("Selected %s" % self.song.current_track.selected_recording_time)
+        self.song.selected_recording_time = scroll_values(RECORDING_TIMES, self.song.selected_recording_time, go_next)
+        self.song.current_track.bar_count = int(self.song.selected_recording_time.split()[0])
+        self.parent.show_message("Selected %s" % self.song.selected_recording_time)
 
     @button_action(auto_arm=True)
     def action_track_record_fixed(self):
@@ -123,7 +125,7 @@ class ActionManager(AbstractControlSurfaceComponent):
     def action_track_record_audio(self):
         """ record only audio on group track """
         return self.song.current_track.action_restart_and_record(self.song.current_track.action_record_audio_only,
-                                                            only_audio=True)
+                                                                 only_audio=True)
 
     def _action_scroll_track_categories(self, go_next):
         """" stop a live set from group tracks track names """
@@ -155,9 +157,6 @@ class ActionManager(AbstractControlSurfaceComponent):
     @button_action(log_action=False)
     def action_scroll_track_clips(self, go_next):
         """" stop a live set from group tracks track names """
-        if self.song.selected_track.is_foldable and len(self.song.selected_track.sub_tracks):
-            self.song.selected_track.is_folded = False
-            self.song.select_track(self.song.selected_track.sub_tracks[0])
         self.song.selected_track.scroll_clips(go_next=go_next)
 
     @button_action()
