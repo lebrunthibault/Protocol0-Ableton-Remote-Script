@@ -6,8 +6,6 @@ from typing import Optional, Any
 
 from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.components.TrackManager import TrackManager
-from a_protocol_0.consts import EXTERNAL_SYNTH_NAMES
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.ExternalSynthTrack import ExternalSynthTrack
 from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
@@ -18,48 +16,65 @@ class SongManager(AbstractControlSurfaceComponent):
         super(SongManager, self).__init__(*a, **k)
         self._live_track_to_simple_track = collections.OrderedDict()  # type: Dict[Any, SimpleTrack]
         self._simple_track_to_external_synth_track = collections.OrderedDict()  # type: Dict[SimpleTrack, ExternalSynthTrack]
-        self._map_tracks.subject = self.song._song
-        self._map_tracks()
+        self._tracks_listener.subject = self.song._song
+        self.update_highlighted_clip_slot = True
+
+    def init_song(self):
+        self._tracks_listener()
         self._highlighted_clip_slot = self.song.highlighted_clip_slot
-        self.highlighted_clip_slot_poller()
+        self._highlighted_clip_slot_poller()
+        self.song.reset()
 
     @subject_slot("tracks")
-    def _map_tracks(self):
+    def _tracks_listener(self):
         # type: () -> Optional[SimpleTrack]
         if len(self.song.tracks) and len(self.song._song.tracks) > len(self.song.tracks):
-            self.parent.trackManager.tracks_added = True
+            self.parent.trackManager.on_selected_track_changed_callbacks.append(self.parent.trackManager._configure_added_track)
+
         self.song.tracks = []
+        self.song.external_synth_tracks = []
+
         for i, track in enumerate(list(self.song._song.tracks)):
-            simple_track = TrackManager.create_simple_track(track=track, index=i)
+            simple_track = self.parent.trackManager.create_simple_track(track=track, index=i)
             self._live_track_to_simple_track[track] = simple_track
             self.song.tracks.append(simple_track)
+
         # link sub_tracks
-        for track in self.song.tracks:
+        for track in self.song.tracks:  # type: SimpleTrack
             if track._track.group_track:
                 track.group_track = self._get_simple_track(track._track.group_track)
                 track.group_track.sub_tracks.append(track)
                 track.group_tracks = [track.group_track] + track.group_track.group_tracks
+
         # generate externalSynth tracks
-        self.song.external_synth_tracks = [ExternalSynthTrack(track=track, index=track.index) for track in self.song.tracks if
-                                           track.name in EXTERNAL_SYNTH_NAMES]
+        for track in self.song.tracks:  # type: SimpleTrack
+            if track.is_external_synth_track:
+                self.song.external_synth_tracks.append(ExternalSynthTrack(track=track, index=track.index))
         self._simple_track_to_external_synth_track = {}
         for es_track in self.song.external_synth_tracks:
             self._simple_track_to_external_synth_track.update(
                 {es_track.base_track: es_track, es_track.midi: es_track, es_track.audio: es_track})
 
         self._set_current_track()
-        self.parent.log_info("SongManager : mapped tracks")
         self.song.clip_slots = [cs for track in self.song.tracks for cs in track.clip_slots]
+        self.parent.log_info("SongManager : mapped tracks")
 
-    def highlighted_clip_slot_poller(self):
+    def _highlighted_clip_slot_poller(self):
         # type: () -> None
-        return
-        if (self.song.highlighted_clip_slot != self._highlighted_clip_slot):
+        if self.song.highlighted_clip_slot != self._highlighted_clip_slot:
             self._highlighted_clip_slot = self.song.highlighted_clip_slot
             if self.song.highlighted_clip_slot and self.song.highlighted_clip_slot.has_clip:
-                self.song.highlighted_clip_slot.track.observe_clip_notes.subject = self.song.highlighted_clip_slot.clip._clip
-                self.parent.push2Manager.update_clip_grid_quantization(self.song.highlighted_clip_slot.clip)
-        self.parent.defer(self.highlighted_clip_slot_poller)
+                self.song.highlighted_clip_slot.track._clip_notes_listener.subject = self.song.highlighted_clip_slot.clip._clip
+                self.parent.push2Manager.update_clip_grid_quantization()
+        self.parent.defer(self._highlighted_clip_slot_poller)
+
+    def _update_highlighted_clip_slot(self):
+        """ auto_update highlighted clip slot to match the playable clip """
+        if self.update_highlighted_clip_slot:
+            track = self.song.selected_track
+            if track and track.is_visible and track.playable_clip and self.song.highlighted_clip_slot == track.clip_slots[0]:
+                self.song.highlighted_clip_slot = track.playable_clip.clip_slot
+        self.update_highlighted_clip_slot = True
 
     def _get_simple_track(self, track, default=None):
         # type: (Any, Optional[SimpleTrack]) -> Optional[SimpleTrack]
@@ -87,3 +102,5 @@ class SongManager(AbstractControlSurfaceComponent):
 
     def on_selected_track_changed(self):
         self._set_current_track()
+        self._update_highlighted_clip_slot()
+        self.parent.clyphxNavigationManager.show_track_view()

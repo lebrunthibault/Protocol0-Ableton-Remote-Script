@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, Any
 
+from _Framework.Util import find_if
+from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.lom.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.ExternalSynthTrackActionMixin import ExternalSynthTrackActionMixin
@@ -24,7 +26,9 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractTrack):
         if not self.arm:
             self.is_folded = True
 
-        self.instrument = self.selectable_track.instrument
+        # no error handling here, this is a critical
+        self.instrument = find_if(lambda t: t.instrument, [self.base_track] + self.sub_tracks).instrument  # type: AbstractInstrument
+        self.instrument.track = self
 
     @property
     def arm(self):

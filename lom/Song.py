@@ -1,5 +1,6 @@
 from typing import Any, List, Optional
 
+import Live
 from _Framework.Util import find_if
 from a_protocol_0.consts import TRACK_CATEGORY_ALL
 from a_protocol_0.lom.AbstractObject import AbstractObject
@@ -11,7 +12,8 @@ from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 
 
 class Song(SongActionMixin, AbstractObject):
-    def __init__(self, song=None, *a, **k):
+    def __init__(self, song, *a, **k):
+        # type: (Live.Song.Song) -> None
         super(Song, self).__init__(*a, **k)
         self._song = song
         self._view = self._song.view  # type: Any
@@ -28,9 +30,9 @@ class Song(SongActionMixin, AbstractObject):
         # type: () -> List[Any]
         return self._song.scenes
 
-    def next_track(self, track, increment=1):
-        # type: (SimpleTrack, int) -> SimpleTrack
-        return self.tracks[(track.index + increment) % len(self.tracks)]
+    def next_track(self, increment=1):
+        # type: (int) -> SimpleTrack
+        return self.tracks[(self.selected_track.index + increment) % len(self.tracks)]
 
     @property
     def top_tracks(self):

@@ -29,7 +29,7 @@ class AbstractObject(SlotManager):
 
     def __ne__(self, obj):
         # type: (AbstractObject) -> bool
-        return not self == obj
+        return not obj or not self == obj
 
     @property
     def parent(self):

@@ -4,19 +4,17 @@ from os.path import isfile, join
 from _Framework.Util import find_if
 from a_protocol_0.consts import SAMPLE_PATH
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
-from a_protocol_0.lom.track.TrackName import TrackName
 
 
 class InstrumentSimpler(AbstractInstrument):
     def __init__(self, *a, **k):
         super(InstrumentSimpler, self).__init__(*a, **k)
         self.can_be_shown = False
-        self._device = None
+        self.activated = True
 
     def action_scroll_presets_or_samples(self, go_next):
         # type: (bool) -> None
-        track_name = TrackName(self.track).name
-        dir_name = find_if(lambda f: track_name.lower() in f.lower(), listdir(SAMPLE_PATH))
+        dir_name = find_if(lambda f: self.track.name in f.lower(), listdir(SAMPLE_PATH))
         if not dir_name:
             raise Exception("the track name does not correspond with a sample directory")
 

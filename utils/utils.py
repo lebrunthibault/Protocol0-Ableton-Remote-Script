@@ -1,10 +1,9 @@
-from functools import partial
+from functools import partial as _partial, update_wrapper
 from itertools import chain, imap
 from typing import Optional, Any, List, Union, TYPE_CHECKING
 
 import Live
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.utils.log import log_ableton
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -87,11 +86,18 @@ def _find_all_devices(track_or_chain, only_visible=False):
         if only_visible and device.view.is_collapsed:
             devices += [device]
             continue
-        if only_visible and (not device.can_have_drum_pads and device.can_have_chains and device.view.is_showing_chain_devices):
+        if only_visible and (
+                not device.can_have_drum_pads and device.can_have_chains and device.view.is_showing_chain_devices):
             devices += chain([device], _find_all_devices(device.view.selected_chain, only_visible=only_visible))
         elif not device.can_have_drum_pads and device.can_have_chains:
             devices += chain([device],
-                             *imap(partial(_find_all_devices, only_visible=only_visible), filter(None, device.chains)))
+                             *imap(_partial(_find_all_devices, only_visible=only_visible), filter(None, device.chains)))
         else:
             devices += [device]
     return devices
+
+
+def partial(func, *args, **kwargs):
+    partial_func = _partial(func, *args, **kwargs)
+    update_wrapper(partial_func, func)
+    return partial_func

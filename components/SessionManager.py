@@ -7,7 +7,7 @@ from a_protocol_0.utils.decorators import catch_and_log
 
 class SessionManager(AbstractControlSurfaceComponent):
     def __init__(self, *a, **k):
-        super(SessionManager, self).__init__(is_enabled=False, *a, **k)
+        super(SessionManager, self).__init__(*a, **k)
         self.session = None  # type: SessionComponent
 
     @property

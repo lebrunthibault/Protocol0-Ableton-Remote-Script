@@ -33,10 +33,10 @@ class SimpleTrackActionMixin(object):
         self.parent.show_message("Starting recording of %d bars" % self.bar_count)
         self.clip_slots[clip_slot_index].fire(record_length=self.parent.utils.get_beat_time(self.bar_count))
 
-    def restart(self):
+    def play(self):
         # type: (SimpleTrack) -> None
         if self.is_foldable:
-            [sub_track.restart() for sub_track in self.sub_tracks]
+            [sub_track.play() for sub_track in self.sub_tracks]
         elif self.playable_clip:
             self.playable_clip.is_playing = True
 

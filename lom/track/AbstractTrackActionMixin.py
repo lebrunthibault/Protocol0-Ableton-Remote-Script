@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 class AbstractTrackActionMixin(object):
     def action_arm(self):
         # type: (AbstractTrack) -> None
-        self.base_track.reorder_devices()
+        self.base_track.collapse_devices()
         if self.can_be_armed:
             self.song.unfocus_all_tracks()
             self.action_arm_track()
@@ -39,15 +39,12 @@ class AbstractTrackActionMixin(object):
 
     def action_show_instrument(self):
         # type: (AbstractTrack) -> None
+        if not self.instrument or not self.instrument.can_be_shown:
+            return
         self.parent.application().view.show_view(u'Detail/DeviceChain')
         self.song.select_track(self.selectable_track)
         self.is_folded = False
-        if self.instrument and self.instrument.can_be_shown:
-            if not self.instrument.activated:
-                self.instrument.activate()
-                self.instrument.activated = True
-            else:
-                self.parent.keyboardShortcutManager.show_hide_plugins()
+        self.instrument.show()
 
     def action_solo(self):
         # type: (AbstractTrack) -> None
@@ -117,9 +114,9 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         self.solo = False
         self.action_unarm()
-        self.reorder_devices()
+        self.collapse_devices()
 
-    def reorder_devices(self):
+    def collapse_devices(self):
         # type: (AbstractTrack) -> None
         for device in self.all_devices:
             device.view.is_collapsed = not (

@@ -17,13 +17,13 @@ class MultiEncoder(AbstractObject):
         self.on_press = on_press
         self.on_long_press = on_long_press
         self.on_scroll = on_scroll
-        self._on_multi_press_listener.subject = ButtonElement(True, MIDI_NOTE_TYPE, self.channel, self.identifier)
-        self._on_multi_scroll_listener.subject = ButtonElement(True, MIDI_CC_TYPE, self.channel, self.identifier)
+        self._press_listener.subject = ButtonElement(True, MIDI_NOTE_TYPE, self.channel, self.identifier)
+        self._scroll_listener.subject = ButtonElement(True, MIDI_CC_TYPE, self.channel, self.identifier)
         self.pressed_at = 0  # type: float
         self.is_pressed = False
 
     @subject_slot("value")
-    def _on_multi_press_listener(self, value):
+    def _press_listener(self, value):
         if value:
             self.pressed_at = time.time()
             self.is_pressed = True
@@ -37,6 +37,6 @@ class MultiEncoder(AbstractObject):
             self.on_press(127)
 
     @subject_slot("value")
-    def _on_multi_scroll_listener(self, value):
+    def _scroll_listener(self, value):
         if self.on_scroll:
             self.on_scroll(go_next=value == 1)

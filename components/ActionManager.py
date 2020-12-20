@@ -27,7 +27,7 @@ class ActionManager(AbstractControlSurfaceComponent):
 
         # CLIP encoder
         MultiEncoder(channel=15, identifier=16,
-                     on_press=self.action_play_track_playable_clip,
+                     on_press=self.action_play_track,
                      on_scroll=self.action_scroll_track_clips)
 
         # RECord encoder
@@ -38,15 +38,15 @@ class ActionManager(AbstractControlSurfaceComponent):
 
         # STOP encoder
         MultiEncoder(channel=15, identifier=11,
-                     on_press=self.stop_track,
-                     on_long_press=self.stop_category,
+                     on_press=self.action_stop_track,
+                     on_long_press=self.action_stop_category,
                      on_scroll=self.action_scroll_track_categories)
 
         # PLAY encoder
         MultiEncoder(channel=15, identifier=12,
-                     on_press=self.restart_track,
+                     on_press=self.action_play_track,
                      on_long_press=self.restart_category,
-                     on_scroll=self.action_scroll_track_categories_2)
+                     on_scroll=self.action_scroll_track_categories)
 
         # MONitor encoder
         MultiEncoder(channel=15, identifier=3,
@@ -66,7 +66,10 @@ class ActionManager(AbstractControlSurfaceComponent):
         track_to_select = scroll_values(self.song.top_tracks, self.song.current_track.base_track,
                                         go_next)  # type: SimpleTrack
         if track_to_select:
-            self.song.select_track(track_to_select)
+            if track_to_select.playable_clip:
+                self.song.highlighted_clip_slot = track_to_select.playable_clip.clip_slot
+            else:
+                self.song.select_track(track_to_select)
 
     @button_action()
     def action_arm_track(self):
@@ -89,11 +92,8 @@ class ActionManager(AbstractControlSurfaceComponent):
     def action_scroll_track_instrument_presets(self, go_next):
         """ scroll track device presets or samples """
         self.parent.clyphxNavigationManager.show_track_view()
-        if self.song.selected_track.instrument:
-            self.song.select_device(self.song.selected_track.instrument._device)
-            self.song.selected_track.instrument._device.view.is_collapsed = False
-            # self.song.selected_track.instrument.check_activated()
-            self.song.selected_track.instrument.action_scroll_presets_or_samples(go_next)
+        if self.song.current_track.instrument:
+            self.song.current_track.instrument.action_scroll_presets_or_samples(go_next)
 
     @button_action(log_action=False)
     def action_scroll_track_devices(self, go_next):
@@ -127,22 +127,19 @@ class ActionManager(AbstractControlSurfaceComponent):
         return self.song.current_track.action_restart_and_record(self.song.current_track.action_record_audio_only,
                                                                  only_audio=True)
 
-    def _action_scroll_track_categories(self, go_next):
+    @button_action(log_action=False)
+    def action_scroll_track_categories(self, go_next):
         """" stop a live set from group tracks track names """
         self.song.selected_track_category = scroll_values(TRACK_CATEGORIES, self.song.selected_track_category, go_next)
         self.parent.show_message("Selected %s" % self.song.selected_track_category)
 
-    @button_action(log_action=False)
-    def action_scroll_track_categories(self, go_next):
-        self._action_scroll_track_categories(go_next)
-
     @button_action()
-    def stop_track(self):
+    def action_stop_track(self):
         """" stop a live set from group tracks track names """
         self.song.current_track.stop()
 
     @button_action()
-    def stop_category(self):
+    def action_stop_category(self):
         """" stop a live set from group tracks track names """
         if self.song.selected_track_category == TRACK_CATEGORY_ALL:
             self.song.stop_all_clips()
@@ -151,28 +148,18 @@ class ActionManager(AbstractControlSurfaceComponent):
         self.parent.show_message("Stopping %s" % self.song.selected_track_category)
 
     @button_action(log_action=False)
-    def action_scroll_track_categories_2(self, go_next):
-        self._action_scroll_track_categories(go_next)
-
-    @button_action(log_action=False)
     def action_scroll_track_clips(self, go_next):
         """" stop a live set from group tracks track names """
         self.song.selected_track.scroll_clips(go_next=go_next)
 
     @button_action()
-    def action_play_track_playable_clip(self):
-        """" restart a live set from group tracks track names """
-        self.song.current_track.base_track.restart()
-
-    @button_action()
-    def restart_track(self):
-        """" restart a live set from group tracks track names """
-        self.song.current_track.base_track.restart()
+    def action_play_track(self):
+        self.song.current_track.base_track.play()
 
     @button_action()
     def restart_category(self):
         """" restart a live set from group tracks track names """
-        [track.restart() for track in self.song.selected_category_tracks]
+        [track.play() for track in self.song.selected_category_tracks]
         self.parent.show_message("Starting %s" % self.song.selected_track_category)
 
     @button_action()
@@ -181,7 +168,7 @@ class ActionManager(AbstractControlSurfaceComponent):
 
     @button_action()
     def action_set_up_lfo_tool_automation(self):
-        self.parent.trackManager.set_up_lfo_tool_automation(self.song.current_track.base_track)
+        self.parent.trackManager.create_automation_group(self.song.current_track.base_track)
 
     @button_action()
     def action_undo(self):

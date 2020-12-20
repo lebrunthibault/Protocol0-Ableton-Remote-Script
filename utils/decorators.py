@@ -1,10 +1,8 @@
 import traceback
-from functools import partial
-from typing import TYPE_CHECKING, Any
+from functools import partial, wraps
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    # noinspection PyUnresolvedReferences
-    from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
     # noinspection PyUnresolvedReferences
     from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
     # noinspection PyUnresolvedReferences
@@ -23,9 +21,11 @@ def for_all_methods(decorator):
 
 def push2_method(defer=True):
     def wrap(func):
+        @wraps(func)
         def decorate(self, *a, **k):
-            # type: (Push2Manager, Any, Any) -> None
-            if not self.push2 or not self.push2._initialized:
+            # type: (Push2Manager) -> None
+            # check hasattr in case the push2 is turned off during a set
+            if not self.push2 or not hasattr(self.push2, "_initialized") or not self.push2._initialized:
                 return
 
             def execute():
@@ -42,17 +42,10 @@ def push2_method(defer=True):
     return wrap
 
 
-def augment(func, func2):
-    def decorate(*a, **k):
-        func(*a, **k)
-        func2()
-
-    return decorate
-
-
 def defer(func):
+    @wraps(func)
     def decorate(self, *a, **k):
-        # type: (AbstractControlSurfaceComponent, Any, Any) -> None
+        # type: (AbstractControlSurfaceComponent) -> None
         self.parent.defer(partial(func, self, *a, **k))
 
     return decorate
@@ -60,8 +53,9 @@ def defer(func):
 
 def button_action(auto_arm=False, log_action=True):
     def wrap(func):
+        @wraps(func)
         def decorate(self, *a, **k):
-            # type: (AbstractControlSurfaceComponent, Any, Any) -> None
+            # type: (AbstractControlSurfaceComponent) -> None
             if log_action:
                 self.parent.log_info("Executing " + func.__name__)
             try:
@@ -80,13 +74,26 @@ def button_action(auto_arm=False, log_action=True):
 
 
 def catch_and_log(func):
+    @wraps(func)
     def decorate(self, *a, **k):
-        # type: (AbstractControlSurfaceComponent, Any, Any) -> None
+        # type: (AbstractControlSurfaceComponent) -> None
         try:
-            func(self, **k)
+            func(self, *a, **k)
         except Exception:
             self.parent.log_info(traceback.format_exc())
             return
 
     return decorate
 
+
+def disablable(func):
+    """ allows one time disabling of a method """
+
+    @wraps(func)
+    def decorate(*a, **k):
+        if not func.enabled:
+            func.enabled = True
+        else:
+            func(*a, **k)
+
+    return decorate

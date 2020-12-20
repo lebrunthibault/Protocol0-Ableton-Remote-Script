@@ -10,20 +10,21 @@ class AutomationTrack(SimpleTrack):
         self._fill_note_count = 8
 
     @subject_slot("has_clip")
-    def fill_notes(self):
-        clip_slot = self.get_clip_slot(self.fill_notes.subject)
-        if not clip_slot or not clip_slot.has_clip:
+    def _on_clip_creation(self, clip):
+        # type: (Clip) -> None
+        if len(clip.get_notes()):
             return
-        clip = clip_slot.clip
         note_duration = clip.length / self._fill_note_count
         notes = [Note(pitch=127, start=step * note_duration, duration=note_duration) for step in
                  range(self._fill_note_count)]
         clip.replace_all_notes(notes)
+        self._clip_notes_listener.subject = clip._clip
+        self.parent.push2Manager.update_clip_grid_quantization()
 
     @subject_slot("notes")
-    def observe_clip_notes(self):
+    def _clip_notes_listener(self):
         # type: () -> None
-        clip = self.get_clip(self.observe_clip_notes.subject)
+        clip = self.get_clip(self._clip_notes_listener.subject)
         if clip._is_updating_notes:
             return
 

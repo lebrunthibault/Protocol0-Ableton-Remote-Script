@@ -12,7 +12,7 @@ class TrackName(AbstractObject):
         # type: (SimpleTrack, Any, Any) -> None
         super(TrackName, self).__init__(*a, **k)
         self.track = track
-        self.parts = track.name.split(" - ")
+        self.parts = track._track.name.split(" - ")
         self.name = self.parts[0]  # type: str
         try:
             self.clip_slot_index = int(self.parts[1])
@@ -25,9 +25,6 @@ class TrackName(AbstractObject):
 
     def set(self, clip_slot_index=None, preset_index=None):
         # type: (int) -> None
-        if self.track.is_foldable:
-            return
-
         clip_slot_index = clip_slot_index if clip_slot_index is not None else self.clip_slot_index
         if clip_slot_index < 0 or clip_slot_index > len(self.track.song.scenes) - 1:
             raise "invalid clip_slot_index for track %s" % self.name

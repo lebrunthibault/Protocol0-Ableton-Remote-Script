@@ -27,10 +27,7 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
     def show_and_activate_rev2_editor(self):
         self.sendKeys("^{F3}")
 
-    def toggle_minitaur_editor(self):
-        self.sendKeys("^{F4}")
-
-    def group_adjacent_track(self):
+    def group_track(self):
         self.sendKeys("^{F5}")
 
     def up(self):

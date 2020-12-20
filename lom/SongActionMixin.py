@@ -19,7 +19,6 @@ class SongActionMixin(object):
 
     def unfocus_all_tracks(self):
         # type: (Song) -> None
-        self.parent.log_debug("unfocus")
         [t.action_unarm() for t in self.external_synth_tracks if t.arm and t != self.current_track]
         [t.action_unarm() for t in self.tracks if t.arm if t != self.selected_track]
         [setattr(t, "solo", False) for t in self.song.tracks if t.solo and t != self.selected_track]
@@ -55,5 +54,6 @@ class SongActionMixin(object):
 
     def select_device(self, device):
         # type: (Song, Live.Device.Device) -> None
-        self._view.select_device(device)
+        if device:
+            self._view.select_device(device)
 

@@ -11,8 +11,9 @@ ABLETON_USER_LIBRARY_PATH = "C:\\Users\\thiba\\Google Drive\\music\\software pre
 PROTOCOL0_FOLDER = dirname(__file__)
 REMOTE_SCRIPTS_FOLDER = dirname(PROTOCOL0_FOLDER)
 SAMPLE_PATH = ABLETON_USER_LIBRARY_PATH + "\\Samples\\Imported"
-EXTERNAL_SYNTH_PROPHET_NAME = "Prophet"
-EXTERNAL_SYNTH_MINITAUR_NAME = "Minitaur"
+EXTERNAL_SYNTH_PROPHET_NAME = "prophet"
+EXTERNAL_SYNTH_MINITAUR_NAME = "minitaur"
+AUTOMATION_TRACK_NAME = "automation"
 EXTERNAL_SYNTH_NAMES = (EXTERNAL_SYNTH_PROPHET_NAME, EXTERNAL_SYNTH_MINITAUR_NAME)
 
 INSTRUMENT_NAME_MAPPINGS = {
@@ -35,6 +36,7 @@ push2_beat_quantization_steps = [v * 4 for v in [
 class LogLevel:
     DEBUG = 1
     INFO = 2
+    ERROR = 2
 
 
 ACTIVE_LOG_LEVEL = LogLevel.DEBUG
