@@ -1,5 +1,5 @@
 from functools import partial
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, List
 
 import Live
 
@@ -16,11 +16,17 @@ if TYPE_CHECKING:
 
 
 class DeviceManager(AbstractControlSurfaceComponent):
+    SHOW_HIDE_MACRO_BUTTON_PIXEL_HEIGHT = 824
+    SHOW_HIDE_PLUGIN_BUTTON_PIXEL_HEIGHT = 992
+    COLLAPSED_DEVICE_PIXEL_WIDTH = 38
+    COLLAPSED_RACK_DEVICE_PIXEL_WIDTH = 28
+    WIDTH_PIXEL_OFFSET = 4
+
     def is_track_instrument(self, track, device):
         # type: (AbstractTrack, Live.Device.Device) -> bool
         # checks for simpler as device object is changing
         return (track.instrument and device == track.instrument._device) or isinstance(device,
-                                                                                     Live.SimplerDevice.SimplerDevice)
+                                                                                       Live.SimplerDevice.SimplerDevice)
 
     def create_instrument_from_simple_track(self, track):
         # type: (SimpleTrack) -> AbstractInstrument
@@ -35,7 +41,9 @@ class DeviceManager(AbstractControlSurfaceComponent):
         if simpler_device:
             return InstrumentSimpler(track=track, device=simpler_device)
 
-        instrument_device = find_if(lambda d: isinstance(d, Live.PluginDevice.PluginDevice) and d.name in INSTRUMENT_NAME_MAPPINGS, track.all_devices)
+        instrument_device = find_if(
+            lambda d: isinstance(d, Live.PluginDevice.PluginDevice) and d.name in INSTRUMENT_NAME_MAPPINGS,
+            track.all_devices)
         if not instrument_device:
             if EXTERNAL_SYNTH_MINITAUR_NAME in track.name:
                 return InstrumentMinitaur(track=track, device=None)
@@ -93,3 +101,43 @@ class DeviceManager(AbstractControlSurfaceComponent):
             return None
 
         return track.selected_device
+
+    def _get_device_click_x_position(self, device_position):
+        return self.WIDTH_PIXEL_OFFSET + device_position * self.COLLAPSED_DEVICE_PIXEL_WIDTH
+
+    def show_device(self, device, track):
+        # type: (Live.Device.Device, SimpleTrack) -> None
+        parent_rack = self._find_device_parent(device, track.top_devices)
+        if not parent_rack:
+            [setattr(d.view, "is_collapsed", True) for d in track.top_devices]
+            device_position = track.top_devices.index(device) + 1
+            x = self._get_device_click_x_position(device_position)
+            y = self.SHOW_HIDE_PLUGIN_BUTTON_PIXEL_HEIGHT
+            self.parent.keyboardShortcutManager.sendClick(x=x, y=y)
+            self.parent.defer(lambda: setattr(device.view, "is_collapsed", False))
+        else:
+            [setattr(d.view, "is_collapsed", True) for d in track.top_devices if d != parent_rack]
+            parent_rack_position = track.top_devices.index(parent_rack) + 1
+            x_rack = self._get_device_click_x_position(parent_rack_position)
+            y_rack = self.SHOW_HIDE_MACRO_BUTTON_PIXEL_HEIGHT
+            self.parent.keyboardShortcutManager.sendClick(x=x_rack, y=y_rack)
+            [setattr(d.view, "is_collapsed", True) for d in parent_rack.chains[0].devices]
+            device_position = list(parent_rack.chains[0].devices).index(device) + 1
+            self.parent.log_debug(device_position)
+            x = x_rack + device_position * self.COLLAPSED_RACK_DEVICE_PIXEL_WIDTH
+            y = self.SHOW_HIDE_PLUGIN_BUTTON_PIXEL_HEIGHT
+            self.parent.keyboardShortcutManager.sendClick(x=x, y=y)
+            self.parent.defer(lambda: self.parent.keyboardShortcutManager.sendClick(x=x_rack, y=y_rack))
+            self.parent.defer(lambda: [setattr(d.view, "is_collapsed", False) for d in parent_rack.chains[0].devices])
+
+    def _find_device_parent(self, device, devices):
+        # type: (Live.Device.Device, List[Live.Device.Device]) -> Live.RackDevice.RackDevice
+        if device in devices:
+            return None
+
+        for rack_device in devices:
+            if isinstance(rack_device, Live.RackDevice.RackDevice) and device in rack_device.chains[0].devices:
+                return rack_device
+
+        return None
+

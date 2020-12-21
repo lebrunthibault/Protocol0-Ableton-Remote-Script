@@ -54,11 +54,7 @@ class AbstractInstrument(AbstractObject):
 
     def _activate(self):
         # type: () -> None
-        """ for instruments needing gui click activation, redefined in some subclasses """
-        if self.has_rack:
-            self.parent.keyboardShortcutManager.toggle_first_vst_with_rack()
-        else:
-            self.parent.keyboardShortcutManager.toggle_first_vst()
+        self.parent.deviceManager.show_device(device=self._device, track=self.device_track)
 
     def get_presets(self):
         if self.PRESETS_PATH:

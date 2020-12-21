@@ -15,6 +15,10 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
                           keys]
                          ).communicate()
 
+    def sendClick(self, x, y):
+        # type: (int, int) -> None
+        self.sendKeys("%d,%d" % (x, y))
+
     def show_hide_plugins(self):
         self.sendKeys("^%p")
 
