@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from a_protocol_0.lom.AbstractObject import AbstractObject
 
@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 class TrackName(AbstractObject):
     def __init__(self, track, *a, **k):
-        # type: (SimpleTrack, Any, Any) -> None
+        # type: (SimpleTrack) -> None
         super(TrackName, self).__init__(*a, **k)
         self.track = track
         self.parts = track._track.name.split(" - ")
@@ -21,7 +21,7 @@ class TrackName(AbstractObject):
         try:
             self.preset_index = int(self.parts[2])
         except (ValueError, IndexError):
-            self.preset_index = -1
+            self.preset_index = 0
 
     def set(self, clip_slot_index=None, preset_index=None):
         # type: (int) -> None

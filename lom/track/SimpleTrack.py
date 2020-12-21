@@ -14,6 +14,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def __init__(self, *a, **k):
         super(SimpleTrack, self).__init__(*a, **k)
         self.clip_slots = []  # type: List[ClipSlot]
+        self._name_listener = self._track
         self._clip_slots_listener.subject = self._track
         self._clip_slots_listener()
         self.instrument = self.parent.deviceManager.create_instrument_from_simple_track(track=self)
@@ -22,6 +23,10 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
 
     def __hash__(self):
         return self.index
+
+    @subject_slot("name")
+    def _name_listener(self):
+        self.parent.log_debug("name listener !!!")
 
     @subject_slot("notes")
     def _clip_notes_listener(self):
@@ -135,6 +140,17 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def _empty_clip_slots(self):
         # type: () -> List[ClipSlot]
         return [clip_slot for clip_slot in self.clip_slots if not clip_slot.has_clip]
+
+    @property
+    def volume(self):
+        # type: () -> float
+        return self._track.mixer_device.volume.value
+
+    @volume.setter
+    @defer
+    def volume(self, volume):
+        # type: (float) -> None
+        self._track.mixer_device.volume.value = volume
 
     @property
     def _next_empty_clip_slot_index(self):

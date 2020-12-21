@@ -1,5 +1,3 @@
-from __future__ import with_statement
-
 from _Framework.SessionComponent import SessionComponent
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.utils.decorators import catch_and_log

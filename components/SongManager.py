@@ -1,5 +1,3 @@
-from __future__ import with_statement
-
 import collections
 from plistlib import Dict
 from typing import Optional, Any

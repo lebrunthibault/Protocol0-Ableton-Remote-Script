@@ -9,6 +9,7 @@ from a_protocol_0.components.ActionSetManager import ActionSetManager
 from a_protocol_0.components.DeviceManager import DeviceManager
 from a_protocol_0.components.KeyBoardShortcutManager import KeyBoardShortcutManager
 from a_protocol_0.components.MidiManager import MidiManager
+from a_protocol_0.components.MixingManager import MixingManager
 from a_protocol_0.components.Push2Manager import Push2Manager
 from a_protocol_0.components.SessionManager import SessionManager
 from a_protocol_0.components.SongManager import SongManager
@@ -30,6 +31,7 @@ class Protocol0(ControlSurface):
             self.deviceManager = DeviceManager()  # needs to be here first
             self.songManager = SongManager()
             self.sessionManager = SessionManager()
+            self.mixingManager = MixingManager()
             self.push2Manager = Push2Manager()
             self.trackManager = TrackManager()
             self.trackAutomationManager = TrackAutomationManager()

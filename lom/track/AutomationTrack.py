@@ -33,7 +33,7 @@ class AutomationTrack(SimpleTrack):
         def debounce_map_note():
             if clip._scheduled_note_operation_count == 1:
                 self.parent.log_debug("executing mapNotes")
-                self._map_notes(clip);
+                self._map_notes(clip)
 
             clip._scheduled_note_operation_count -= 1
 

@@ -1,5 +1,3 @@
-from __future__ import with_statement
-
 from typing import List
 
 import Live
@@ -27,6 +25,7 @@ class TrackManager(AbstractControlSurfaceComponent):
         if self.song.current_track.is_simple_group:
             return
         self.song.current_track.action_arm()
+        self.parent.log_debug(self.song.current_track.all_clips)
         [clip.delete() for clip in self.song.current_track.all_clips]
         [TrackName(track).set(clip_slot_index=0) for track in self.song.current_track.all_tracks]
         arp = find_if(lambda d: d.name.lower() == "arpeggiator rack", self.song.current_track.all_devices)

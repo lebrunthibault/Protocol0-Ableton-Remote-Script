@@ -1,8 +1,10 @@
 import os
-from os.path import isfile, isdir
+from os import listdir
+from os.path import isfile, isdir, join
 from typing import TYPE_CHECKING, List
 
 import Live
+
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.track.TrackName import TrackName
 
@@ -14,6 +16,7 @@ if TYPE_CHECKING:
 class AbstractInstrument(AbstractObject):
     NUMBER_OF_PRESETS = 128
     PRESETS_PATH = None
+    PRESET_EXTENSION = ""
 
     def __init__(self, track, device, *a, **k):
         # type: (SimpleTrack, Live.Device.Device) -> None
@@ -31,7 +34,7 @@ class AbstractInstrument(AbstractObject):
             self.activated = True
             self.name = self.__class__.__name__
         self.preset_names = []  # type: List[str]
-        self.get_presets()
+        self.parent.defer(self.get_presets)
 
     def check_activated(self):
         self.parent.log_debug(self.activated)
@@ -62,7 +65,7 @@ class AbstractInstrument(AbstractObject):
             if isfile(self.PRESETS_PATH):
                 self.preset_names = open(self.PRESETS_PATH).readlines()
             elif isdir(self.PRESETS_PATH):
-                self.preset_names = os.listdir(self.PRESETS_PATH)
+                self.preset_names = [f for f in listdir(self.PRESETS_PATH) if isfile(join(self.PRESETS_PATH, f)) and f.endswith(self.PRESET_EXTENSION)]
 
         self.NUMBER_OF_PRESETS = len(self.preset_names) or self.NUMBER_OF_PRESETS
 
@@ -76,11 +79,11 @@ class AbstractInstrument(AbstractObject):
             self.song.select_device(self._device)
             self._device.view.is_collapsed = False
         self.check_activated()
+        self._scroll_presets_or_sample(go_next)
 
-        if self.track.preset_index == -1:
-            new_preset_index = 0
-        else:
-            new_preset_index = self.track.preset_index + 1 if go_next else self.track.preset_index - 1
+    def _scroll_presets_or_sample(self, go_next):
+        # type: (bool) -> None
+        new_preset_index = self.track.preset_index + 1 if go_next else self.track.preset_index - 1
         new_preset_index %= self.NUMBER_OF_PRESETS
 
         TrackName(self.track).set(preset_index=new_preset_index)
@@ -93,4 +96,5 @@ class AbstractInstrument(AbstractObject):
     def _set_preset(self, preset_index, _):
         # type: (int, bool) -> None
         """ default is send program change """
+        self.track.action_arm()
         self.parent.midiManager.send_program_change(preset_index)

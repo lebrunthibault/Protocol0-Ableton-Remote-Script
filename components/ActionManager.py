@@ -79,7 +79,7 @@ class ActionManager(AbstractControlSurfaceComponent):
         else:
             self.song.current_track.action_arm()
 
-    @button_action(auto_arm=True)
+    @button_action()
     def action_solo_track(self):
         self.song.current_track.action_solo()
 
@@ -168,7 +168,7 @@ class ActionManager(AbstractControlSurfaceComponent):
 
     @button_action()
     def action_set_up_lfo_tool_automation(self):
-        self.parent.trackManager.create_automation_group(self.song.current_track.base_track)
+        self.parent.trackAutomationManager.create_automation_group(self.song.current_track.base_track)
 
     @button_action()
     def action_undo(self):

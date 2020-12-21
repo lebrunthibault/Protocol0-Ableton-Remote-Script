@@ -44,7 +44,7 @@ class Push2Manager(AbstractControlSurfaceComponent):
 
     @subject_slot_group("value")
     def _nav_button_press_listener(self, value, *a, **k):
-        self.parent.log_debug(value)
+        pass
 
     @push2_method(defer=False)
     def on_selected_track_changed(self):

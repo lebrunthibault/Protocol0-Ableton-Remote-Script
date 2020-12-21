@@ -29,6 +29,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractTrack):
         # no error handling here, this is a critical
         self.instrument = find_if(lambda t: t.instrument, [self.base_track] + self.sub_tracks).instrument  # type: AbstractInstrument
         self.instrument.track = self
+        [setattr(sub_track, "base_color", self.base_color) for sub_track in self.sub_tracks]
 
     @property
     def arm(self):

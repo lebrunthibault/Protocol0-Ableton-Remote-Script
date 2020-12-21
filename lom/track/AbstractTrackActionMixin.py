@@ -12,6 +12,8 @@ if TYPE_CHECKING:
 class AbstractTrackActionMixin(object):
     def action_arm(self):
         # type: (AbstractTrack) -> None
+        if self.arm:
+            return
         self.base_track.collapse_devices()
         if self.can_be_armed:
             self.song.unfocus_all_tracks()

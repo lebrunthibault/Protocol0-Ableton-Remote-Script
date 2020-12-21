@@ -51,6 +51,24 @@ def defer(func):
     return decorate
 
 
+def debounce(func):
+    @wraps(func)
+    def decorate(self, *a, **k):
+        # type: (AbstractControlSurfaceComponent) -> None
+        decorate.count += 1
+        self.parent.log_debug(decorate.count)
+        self.parent._wait(3, partial(execute, func, self, *a, **k))
+
+    decorate.count = 0
+
+    def execute(func, *a, **k):
+        decorate.count -= 1
+        if decorate.count == 0:
+            func(*a, **k)
+
+    return decorate
+
+
 def button_action(auto_arm=False, log_action=True):
     def wrap(func):
         @wraps(func)

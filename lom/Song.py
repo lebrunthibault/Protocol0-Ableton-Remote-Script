@@ -21,6 +21,7 @@ class Song(SongActionMixin, AbstractObject):
         self.external_synth_tracks = []  # type: List[ExternalSynthTrack]
         self.selected_track = None  # type: SimpleTrack
         self.current_track = None  # type: AbstractTrack
+        self.master_track = self._song.master_track  # type: Live.Track.Track
         self.clip_slots = []  # type: List[ClipSlot]
         self.selected_track_category = TRACK_CATEGORY_ALL
         self.selected_recording_time = "4 bars"
@@ -38,6 +39,11 @@ class Song(SongActionMixin, AbstractObject):
     def top_tracks(self):
         # type: () -> List[SimpleTrack]
         return [track for track in self.tracks if track.is_visible and not track.is_external_synth_sub_track]
+
+    @property
+    def root_tracks(self):
+        # type: () -> List[SimpleTrack]
+        return [track for track in self.tracks if not track.group_track]
 
     @property
     def selected_category_tracks(self):
