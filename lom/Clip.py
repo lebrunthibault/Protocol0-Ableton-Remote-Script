@@ -52,6 +52,17 @@ class Clip(ClipActionMixin, AbstractObject):
         self._clip.is_playing = is_playing
 
     @property
+    def playing_position(self):
+        # type: () -> float
+        """ For MIDI and warped audio clips the value is given in beats of absolute clip time """
+        return self._clip.playing_position
+
+    @playing_position.setter
+    def playing_position(self, playing_position):
+        # type: (float) -> None
+        self._clip.playing_position = playing_position
+
+    @property
     def is_recording(self):
         # type: () -> bool
         return self._clip.is_recording

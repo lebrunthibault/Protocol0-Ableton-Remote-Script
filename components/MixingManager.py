@@ -10,6 +10,5 @@ class MixingManager(AbstractControlSurfaceComponent):
     @subject_slot("output_meter_level")
     def _master_track_output_meter_level_listener(self):
         if self.song.master_track.output_meter_level >= 0.87:
-            self.parent.log_debug(str(self.song.master_track.mixer_device.volume))
             for track in self.song.root_tracks:
                 track.volume *= 0.95

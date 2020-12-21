@@ -77,7 +77,7 @@ class Protocol0(ControlSurface):
 
     def wait_bars(self, bar_count, message):
         # type: (int, Callable) -> None
-        ticks = round((600 / self.protocol0_song.tempo) * (4 * int(bar_count) - 0.5))
+        ticks = round((600 / self.protocol0_song._song.tempo) * (4 * int(bar_count) - 0.5))
         self._wait(ticks, message)
 
     def _wait(self, ticks_count, callback):

@@ -4,6 +4,7 @@ import Live
 from _Framework.Util import find_if
 from a_protocol_0.consts import TRACK_CATEGORY_ALL
 from a_protocol_0.lom.AbstractObject import AbstractObject
+from a_protocol_0.lom.Clip import Clip
 from a_protocol_0.lom.ClipSlot import ClipSlot
 from a_protocol_0.lom.SongActionMixin import SongActionMixin
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
@@ -46,6 +47,11 @@ class Song(SongActionMixin, AbstractObject):
         return [track for track in self.tracks if not track.group_track]
 
     @property
+    def selected_tracks(self):
+        # type: () -> List[AbstractTrack]
+        return [self.parent.songManager.get_current_track(track) for track in self.tracks if track._track.is_part_of_selection]
+
+    @property
     def selected_category_tracks(self):
         # type: () -> List[SimpleTrack]
         if self.selected_track_category == TRACK_CATEGORY_ALL:
@@ -66,11 +72,6 @@ class Song(SongActionMixin, AbstractObject):
         self.song._view.highlighted_clip_slot = clip_slot._clip_slot
 
     @property
-    def tempo(self):
-        # type: () -> float
-        return self._song.tempo
-
-    @property
     def metronome(self):
         # type: () -> float
         return self._song.metronome
@@ -81,11 +82,6 @@ class Song(SongActionMixin, AbstractObject):
         self._song.metronome = metronome
 
     @property
-    def session_record_status(self):
-        # type: () -> float
-        return self._song.session_record_status
-
-    @property
     def clip_trigger_quantization(self):
         # type: () -> int
         return self._song.clip_trigger_quantization
@@ -94,3 +90,8 @@ class Song(SongActionMixin, AbstractObject):
     def clip_trigger_quantization(self, clip_trigger_quantization):
         # type: (int) -> None
         self._song.clip_trigger_quantization = clip_trigger_quantization
+
+    @property
+    def playing_clips(self):
+        # type: () -> List[Clip]
+        return [t.playable_clip for t in self.tracks if t.is_playing and t.playable_clip.is_playing]

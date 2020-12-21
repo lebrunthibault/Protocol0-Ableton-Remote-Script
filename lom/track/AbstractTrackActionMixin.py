@@ -64,10 +64,12 @@ class AbstractTrackActionMixin(object):
             return
         if self.is_recording:
             return self.action_undo()
-        if self.song.session_record_status != Live.Song.SessionRecordStatus.off:
+        if self.song._song.session_record_status != Live.Song.SessionRecordStatus.off:
             return
+        self.song._song.session_automation_record = True
 
-        self.song.stop_playing()
+        if not only_audio:
+            self.song.stop_playing()
         action_record_func()
 
         if len([t.is_playing for t in self.song.tracks]) <= 1 and not only_audio:

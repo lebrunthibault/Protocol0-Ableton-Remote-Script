@@ -93,10 +93,15 @@ class SongManager(AbstractControlSurfaceComponent):
 
     def _set_current_track(self):
         self.song.selected_track = self._get_simple_track(self.song._view.selected_track) or self.song.tracks[0]
-        if self.song.selected_track in self._simple_track_to_external_synth_track:
-            self.song.current_track = self._simple_track_to_external_synth_track[self.song.selected_track]
+        self.song.current_track = self.get_current_track(self.song.selected_track)
+
+    def get_current_track(self, track):
+        # type: (SimpleTrack) -> AbstractTrack
+        if track in self._simple_track_to_external_synth_track:
+            return self._simple_track_to_external_synth_track[track]
         else:
-            self.song.current_track = self.song.selected_track
+            return track
+
 
     def on_selected_track_changed(self):
         self._set_current_track()

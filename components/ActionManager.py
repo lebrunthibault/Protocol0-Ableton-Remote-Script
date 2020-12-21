@@ -81,7 +81,7 @@ class ActionManager(AbstractControlSurfaceComponent):
 
     @button_action()
     def action_solo_track(self):
-        self.song.current_track.action_solo()
+        [t.action_solo() for t in self.song.selected_tracks]
 
     @button_action()
     def action_show_track_instrument(self):
@@ -136,7 +136,7 @@ class ActionManager(AbstractControlSurfaceComponent):
     @button_action()
     def action_stop_track(self):
         """" stop a live set from group tracks track names """
-        self.song.current_track.stop()
+        [t.stop() for t in self.song.selected_tracks]
 
     @button_action()
     def action_stop_category(self):
@@ -154,7 +154,7 @@ class ActionManager(AbstractControlSurfaceComponent):
 
     @button_action()
     def action_play_track(self):
-        self.song.current_track.base_track.play()
+        [t.base_track.play() for t in self.song.selected_tracks]
 
     @button_action()
     def restart_category(self):
