@@ -11,22 +11,29 @@ from a_protocol_0.utils.decorators import defer
 
 
 class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
+    __subject_events__ = ('base_name',)
+
     def __init__(self, *a, **k):
         super(SimpleTrack, self).__init__(*a, **k)
         self.clip_slots = []  # type: List[ClipSlot]
-        self._name_listener = self._track
         self._clip_slots_listener.subject = self._track
         self._clip_slots_listener()
-        self.instrument = self.parent.deviceManager.create_instrument_from_simple_track(track=self)
+        self._playing_slot_index_listener.subject = self._track
+        self.base_name = self.name
+        self._name_listener.subject = self._track
+        self.instrument = self.parent.deviceManager.create_instrument_from_simple_track(track=self)  # AbstractInstrument
         # defer till Live is stopped because it boots playing
-        self.parent._wait(10, lambda: setattr(self._playing_slot_index_listener, "subject", self._track))
+        # self.parent._wait(10, lambda: setattr(self._playing_slot_index_listener, "subject", self._track))
 
     def __hash__(self):
         return self.index
 
     @subject_slot("name")
     def _name_listener(self):
-        self.parent.log_debug("name listener !!!")
+        if self.name != self.base_name:
+            self.base_name = self.name
+            # noinspection PyUnresolvedReferences
+            self.notify_base_name()
 
     @subject_slot("notes")
     def _clip_notes_listener(self):
@@ -155,8 +162,13 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def _next_empty_clip_slot_index(self):
         # type: () -> int
-        if len(self._empty_clip_slots):
-            return self._empty_clip_slots[0].index
-        else:
+        index = None
+        if len(self.clips):
+            index = next(iter([cs.index for cs in self._empty_clip_slots if cs.index > self.clips[-1].index]), None)
+        elif len(self._empty_clip_slots):
+            index = self._empty_clip_slots[0].index
+        if index is None:
             self.song.create_scene()
-            return len(self.song.scenes) - 1
+            index = len(self.song.scenes) - 1
+
+        return index

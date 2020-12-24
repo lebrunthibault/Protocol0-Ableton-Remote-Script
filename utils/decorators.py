@@ -56,7 +56,6 @@ def debounce(func):
     def decorate(self, *a, **k):
         # type: (AbstractControlSurfaceComponent) -> None
         decorate.count += 1
-        self.parent.log_debug(decorate.count)
         self.parent._wait(3, partial(execute, func, self, *a, **k))
 
     decorate.count = 0

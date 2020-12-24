@@ -2,6 +2,7 @@ from typing import List
 
 import Live
 
+from _Framework.SubjectSlot import subject_slot
 from _Framework.Util import find_if
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import AUTOMATION_TRACK_NAME
@@ -16,8 +17,10 @@ class TrackManager(AbstractControlSurfaceComponent):
         self.tracks_added = False
         self.automation_track_color = None
         self.on_selected_track_changed_callbacks = []  # type: List[callable]
+        self._selected_track_listener.subject = self.parent.songManager
 
-    def on_selected_track_changed(self):
+    @subject_slot("selected_track")
+    def _selected_track_listener(self):
         [self.parent.defer(callback) for callback in self.on_selected_track_changed_callbacks]
         self.on_selected_track_changed_callbacks = []
 
@@ -25,7 +28,6 @@ class TrackManager(AbstractControlSurfaceComponent):
         if self.song.current_track.is_simple_group:
             return
         self.song.current_track.action_arm()
-        self.parent.log_debug(self.song.current_track.all_clips)
         [clip.delete() for clip in self.song.current_track.all_clips]
         [TrackName(track).set(clip_slot_index=0) for track in self.song.current_track.all_tracks]
         arp = find_if(lambda d: d.name.lower() == "arpeggiator rack", self.song.current_track.all_devices)

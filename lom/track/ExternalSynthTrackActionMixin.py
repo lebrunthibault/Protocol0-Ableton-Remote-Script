@@ -44,8 +44,8 @@ class ExternalSynthTrackActionMixin(object):
         # type: (ExternalSynthTrack) -> None
         if self.midi.is_playing:
             self.audio.bar_count = int(round((self.midi.playable_clip.length + 1) / 4))
-
-        self.audio.action_record_all()
+        clip_slot_index = self.midi.playable_clip.index if not self.audio.clip_slots[self.midi.playable_clip.index].has_clip else None
+        self.audio.action_record_all(clip_slot_index=clip_slot_index)
 
     def action_undo_track(self):
         # type: (ExternalSynthTrack) -> None

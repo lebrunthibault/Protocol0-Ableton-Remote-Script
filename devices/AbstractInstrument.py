@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, List
 
 import Live
 
+from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.track.TrackName import TrackName
 
@@ -28,16 +29,20 @@ class AbstractInstrument(AbstractObject):
             self.can_be_shown = True
             self.activated = False
             self.name = device.name
-            self.has_rack = track.all_devices.index(device) != 0
         else:
             self.can_be_shown = False
             self.activated = True
             self.name = self.__class__.__name__
         self.preset_names = []  # type: List[str]
         self.parent.defer(self.get_presets)
+        self._base_name_listener.subject = track
+
+    @subject_slot("base_name")
+    def _base_name_listener(self):
+        self.parent.log_debug("base_name changed !!! -> %s" % self.name)
+        self.get_presets(set_preset=True)
 
     def check_activated(self):
-        self.parent.log_debug(self.activated)
         if self.can_be_shown and not self.activated:
             self.song.select_track(self.device_track)
             self._activate()
@@ -56,14 +61,20 @@ class AbstractInstrument(AbstractObject):
         # type: () -> None
         self.parent.deviceManager.show_device(device=self._device, track=self.device_track)
 
-    def get_presets(self):
-        if self.PRESETS_PATH:
-            if isfile(self.PRESETS_PATH):
-                self.preset_names = open(self.PRESETS_PATH).readlines()
-            elif isdir(self.PRESETS_PATH):
-                self.preset_names = [f for f in listdir(self.PRESETS_PATH) if isfile(join(self.PRESETS_PATH, f)) and f.endswith(self.PRESET_EXTENSION)]
+    def _get_presets_path(self):
+        return self.PRESETS_PATH
+
+    def get_presets(self, set_preset=False):
+        presets_path = self._get_presets_path()
+        if presets_path:
+            if isfile(presets_path):
+                self.preset_names = open(presets_path).readlines()
+            elif isdir(presets_path):
+                self.preset_names = [f for f in listdir(presets_path) if isfile(join(presets_path, f)) and f.endswith(self.PRESET_EXTENSION)]
 
         self.NUMBER_OF_PRESETS = len(self.preset_names) or self.NUMBER_OF_PRESETS
+        if set_preset:
+            self.set_preset(self.track.preset_index)
 
     def get_display_name(self, preset_name):
         # type: (str) -> str
@@ -87,10 +98,10 @@ class AbstractInstrument(AbstractObject):
         display_preset = self.preset_names[new_preset_index] if len(self.preset_names) else str(new_preset_index)
         display_preset = os.path.splitext(self.get_display_name(display_preset))[0]
         self.parent.show_message("preset change : %s" % self.get_display_name(display_preset))
-        self._set_preset(new_preset_index, go_next)
+        self.set_preset(new_preset_index)
 
-    def _set_preset(self, preset_index, _):
-        # type: (int, bool) -> None
+    def set_preset(self, preset_index):
+        # type: (int) -> None
         """ default is send program change """
         self.track.action_arm()
         self.parent.midiManager.send_program_change(preset_index)

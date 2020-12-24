@@ -14,6 +14,7 @@ class Push2Manager(AbstractControlSurfaceComponent):
         self.push2 = None  # type: Optional[Push2]
         self.update_session_ring = True
         self.update_selected_modes = True
+        self._selected_track_listener.subject = self.parent.songManager
 
     def connect_push2(self, push2):
         # type: (Push2) -> None
@@ -46,8 +47,8 @@ class Push2Manager(AbstractControlSurfaceComponent):
     def _nav_button_press_listener(self, value, *a, **k):
         pass
 
-    @push2_method(defer=False)
-    def on_selected_track_changed(self):
+    @subject_slot("selected_track")
+    def _selected_track_listener(self):
         self._update_session_ring()
         self._update_selected_modes()
 
@@ -61,7 +62,7 @@ class Push2Manager(AbstractControlSurfaceComponent):
     @push2_method()
     def update_clip_grid_quantization(self):
         # type: () -> Clip
-        if not self.song.highlighted_clip_slot.has_clip:
+        if not self.song.highlighted_clip_slot.has_clip or not self.song.selected_track.is_midi:
             return
         index = push2_beat_quantization_steps.index(self.song.highlighted_clip_slot.clip.min_note_quantization_start)
         self.push2._grid_resolution.index = index

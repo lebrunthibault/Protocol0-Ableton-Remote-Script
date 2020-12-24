@@ -10,6 +10,8 @@ from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 
 
 class SongManager(AbstractControlSurfaceComponent):
+    __subject_events__ = ('selected_track', 'scene_list')
+
     def __init__(self, *a, **k):
         super(SongManager, self).__init__(*a, **k)
         self._live_track_to_simple_track = collections.OrderedDict()  # type: Dict[Any, SimpleTrack]
@@ -23,11 +25,22 @@ class SongManager(AbstractControlSurfaceComponent):
         self._highlighted_clip_slot_poller()
         self.song.reset()
 
+    def on_selected_track_changed(self):
+        self._set_current_track()
+        self.parent.clyphxNavigationManager.show_track_view()
+        # noinspection PyUnresolvedReferences
+        self.notify_selected_track()
+
+    def on_scene_list_changed(self):
+        # noinspection PyUnresolvedReferences
+        self.notify_scene_list()
+
     @subject_slot("tracks")
     def _tracks_listener(self):
         # type: () -> Optional[SimpleTrack]
         if len(self.song.tracks) and len(self.song._song.tracks) > len(self.song.tracks):
-            self.parent.trackManager.on_selected_track_changed_callbacks.append(self.parent.trackManager._configure_added_track)
+            self.parent.trackManager.on_selected_track_changed_callbacks.append(
+                self.parent.trackManager._configure_added_track)
 
         self.song.tracks = []
         self.song.external_synth_tracks = []
@@ -70,7 +83,8 @@ class SongManager(AbstractControlSurfaceComponent):
         """ auto_update highlighted clip slot to match the playable clip """
         if self.update_highlighted_clip_slot:
             track = self.song.selected_track
-            if track and track.is_visible and track.playable_clip and self.song.highlighted_clip_slot == track.clip_slots[0]:
+            if track and track.is_visible and track.playable_clip and self.song.highlighted_clip_slot == \
+                    track.clip_slots[0]:
                 self.song.highlighted_clip_slot = track.playable_clip.clip_slot
         self.update_highlighted_clip_slot = True
 
@@ -101,9 +115,3 @@ class SongManager(AbstractControlSurfaceComponent):
             return self._simple_track_to_external_synth_track[track]
         else:
             return track
-
-
-    def on_selected_track_changed(self):
-        self._set_current_track()
-        self._update_highlighted_clip_slot()
-        self.parent.clyphxNavigationManager.show_track_view()

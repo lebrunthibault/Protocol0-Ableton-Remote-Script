@@ -88,7 +88,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
             self.parent.clyphxBrowserManager.swap(None, ">" if go_next else "<")
         elif isinstance(device, Live.PluginDevice.PluginDevice):
             self.parent.log_debug("is plugin")
-            self.parent.log_debug(list(device.presets))
+            # self.parent.log_debug(list(device.presets))
 
     def _get_device_to_scroll(self, track):
         # type: (AbstractTrack) -> Optional[Live.Device.Device]
@@ -123,7 +123,6 @@ class DeviceManager(AbstractControlSurfaceComponent):
             self.parent.keyboardShortcutManager.sendClick(x=x_rack, y=y_rack)
             [setattr(d.view, "is_collapsed", True) for d in parent_rack.chains[0].devices]
             device_position = list(parent_rack.chains[0].devices).index(device) + 1
-            self.parent.log_debug(device_position)
             x = x_rack + device_position * self.COLLAPSED_RACK_DEVICE_PIXEL_WIDTH
             y = self.SHOW_HIDE_PLUGIN_BUTTON_PIXEL_HEIGHT
             self.parent.keyboardShortcutManager.sendClick(x=x, y=y)

@@ -84,7 +84,6 @@ class Protocol0(ControlSurface):
         # type: (int, Callable) -> None
         self.schedule_message(ticks_count, callback)
 
-    # noinspection PyProtectedMember
     def clear_tasks(self):
         del self._remaining_scheduled_messages[:]
         self._task_group.clear()
@@ -92,5 +91,3 @@ class Protocol0(ControlSurface):
     def dev_boot(self):
         self.protocol0_song.select_track(self.protocol0_song.tracks[10])
         self.protocol0_song.selected_track.play()
-        self.trackAutomationManager.create_automation_group(self.protocol0_song.current_track.base_track)
-

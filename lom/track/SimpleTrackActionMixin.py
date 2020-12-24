@@ -1,3 +1,4 @@
+from math import ceil
 from typing import TYPE_CHECKING
 
 from a_protocol_0.lom.Clip import Clip
@@ -31,17 +32,19 @@ class SimpleTrackActionMixin(object):
         # type: (SimpleTrack, int) -> None
         clip_slot_index = clip_slot_index if clip_slot_index else self._next_empty_clip_slot_index
         self.parent.show_message("Starting recording of %d bars" % self.bar_count)
-        self.clip_slots[clip_slot_index].fire(record_length=self.parent.utils.get_beat_time(self.bar_count))
+        self.parent.defer(lambda: self.clip_slots[clip_slot_index].fire(record_length=self.parent.utils.get_beat_time(self.bar_count)))
 
     def play(self):
         # type: (SimpleTrack) -> None
         if self.is_foldable:
             [sub_track.play() for sub_track in self.sub_tracks]
+        elif self.is_playing:
+            return
         elif self.playable_clip:
             self.playable_clip.is_playing = True
             if self.song.playing_clips:
                 max_clip = max(self.song.playing_clips, key=lambda c: c.length)
-                self.playable_clip._clip.start_marker = max_clip.playing_position % self.playable_clip.length
+                self.playable_clip._clip.start_marker = self.parent.utils.get_next_quantized_position(max_clip.playing_position, self.playable_clip.length)
 
     def action_undo_track(self):
         # type: (SimpleTrack) -> None

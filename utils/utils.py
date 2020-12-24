@@ -1,5 +1,6 @@
 from functools import partial as _partial, update_wrapper
 from itertools import chain, imap
+from math import ceil
 from typing import Optional, Any, List, Union, TYPE_CHECKING
 
 import Live
@@ -47,6 +48,11 @@ class Utils(AbstractControlSurfaceComponent):
         beat = 4.0 / self.song._song.signature_denominator
         num = parse_number(bar_count, min_value=0, default_value=1, is_float=True)
         return beat * self.song._song.signature_numerator * num
+
+    def get_next_quantized_position(self, position, length):
+        # type: (float, float) -> float
+        """ Use clip_trigger_quantization if the quantization is variable """
+        return (ceil((position % length) / 4) * 4) % length
 
 
 def scroll_values(items, selected_item, go_next):
