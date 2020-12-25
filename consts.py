@@ -34,9 +34,11 @@ push2_beat_quantization_steps = [v * 4 for v in [
 
 
 class LogLevel:
+    ACTIVE_LOG_LEVEL = None
     DEBUG = 1
     INFO = 2
-    ERROR = 2
+    ERROR = 3
+    EXCLUSIVE_LOG = 4
 
 
-ACTIVE_LOG_LEVEL = LogLevel.DEBUG
+LogLevel.ACTIVE_LOG_LEVEL = LogLevel.DEBUG

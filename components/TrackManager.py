@@ -1,14 +1,12 @@
-from typing import List
-
 import Live
 
-from _Framework.SubjectSlot import subject_slot
 from _Framework.Util import find_if
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import AUTOMATION_TRACK_NAME
 from a_protocol_0.lom.track.AutomationTrack import AutomationTrack
 from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
 from a_protocol_0.lom.track.TrackName import TrackName
+from a_protocol_0.utils.decorators import defer, subject_slot
 
 
 class TrackManager(AbstractControlSurfaceComponent):
@@ -16,20 +14,17 @@ class TrackManager(AbstractControlSurfaceComponent):
         super(TrackManager, self).__init__(*a, **k)
         self.tracks_added = False
         self.automation_track_color = None
-        self.on_selected_track_changed_callbacks = []  # type: List[callable]
-        self._selected_track_listener.subject = self.parent.songManager
+        self._added_track_listener.subject = self.parent.songManager
 
-    @subject_slot("selected_track")
-    def _selected_track_listener(self):
-        [self.parent.defer(callback) for callback in self.on_selected_track_changed_callbacks]
-        self.on_selected_track_changed_callbacks = []
-
-    def _configure_added_track(self):
+    @subject_slot("added_track")
+    @defer
+    def _added_track_listener(self):
         if self.song.current_track.is_simple_group:
+            self.parent.browserManager.load_rack_device("Mix Base Rack")
             return
         self.song.current_track.action_arm()
         [clip.delete() for clip in self.song.current_track.all_clips]
-        [TrackName(track).set(clip_slot_index=0) for track in self.song.current_track.all_tracks]
+        [setattr(TrackName(track), "clip_slot_index", 0) for track in self.song.current_track.all_tracks]
         arp = find_if(lambda d: d.name.lower() == "arpeggiator rack", self.song.current_track.all_devices)
         if arp:
             chain_selector_param = find_if(lambda d: d.name.lower() == "chain selector", arp.parameters)

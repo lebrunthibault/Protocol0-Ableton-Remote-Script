@@ -1,6 +1,5 @@
 import os
-from os import listdir
-from os.path import isfile, isdir, join
+from os.path import isfile, isdir
 from typing import TYPE_CHECKING, List
 
 import Live
@@ -8,6 +7,7 @@ import Live
 from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.track.TrackName import TrackName
+from a_protocol_0.utils.decorators import debounce
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -39,7 +39,7 @@ class AbstractInstrument(AbstractObject):
 
     @subject_slot("base_name")
     def _base_name_listener(self):
-        self.parent.log_debug("base_name changed !!! -> %s" % self.name)
+        TrackName(self.track).preset_index = 0
         self.get_presets(set_preset=True)
 
     def check_activated(self):
@@ -64,13 +64,20 @@ class AbstractInstrument(AbstractObject):
     def _get_presets_path(self):
         return self.PRESETS_PATH
 
+    @debounce
     def get_presets(self, set_preset=False):
+        self.preset_names = []  # type: List[str]
         presets_path = self._get_presets_path()
-        if presets_path:
-            if isfile(presets_path):
-                self.preset_names = open(presets_path).readlines()
-            elif isdir(presets_path):
-                self.preset_names = [f for f in listdir(presets_path) if isfile(join(presets_path, f)) and f.endswith(self.PRESET_EXTENSION)]
+        if not presets_path:
+            return
+
+        if isfile(presets_path):
+            self.preset_names = open(presets_path).readlines()
+        elif isdir(presets_path):
+            for root, sub_dirs, files in os.walk(presets_path):
+                for file in files:
+                    if file.endswith(self.PRESET_EXTENSION):
+                        self.preset_names.append(file)
 
         self.NUMBER_OF_PRESETS = len(self.preset_names) or self.NUMBER_OF_PRESETS
         if set_preset:
@@ -93,7 +100,7 @@ class AbstractInstrument(AbstractObject):
         new_preset_index = self.track.preset_index + 1 if go_next else self.track.preset_index - 1
         new_preset_index %= self.NUMBER_OF_PRESETS
 
-        TrackName(self.track).set(preset_index=new_preset_index)
+        TrackName(self.track).preset_index = new_preset_index
 
         display_preset = self.preset_names[new_preset_index] if len(self.preset_names) else str(new_preset_index)
         display_preset = os.path.splitext(self.get_display_name(display_preset))[0]
@@ -105,3 +112,7 @@ class AbstractInstrument(AbstractObject):
         """ default is send program change """
         self.track.action_arm()
         self.parent.midiManager.send_program_change(preset_index)
+
+    def action_scroll_categories(self, go_next):
+        # type: (bool) -> None
+        self.parent.log_error("this instrument does not have scrollable categories")

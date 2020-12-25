@@ -3,7 +3,7 @@ import logging
 import os
 from os.path import expanduser
 
-from a_protocol_0.consts import PROTOCOL0_FOLDER, REMOTE_SCRIPTS_FOLDER
+from a_protocol_0.consts import PROTOCOL0_FOLDER, REMOTE_SCRIPTS_FOLDER, LogLevel
 
 home = expanduser("~")
 abletonVersion = os.getenv("abletonVersion")
@@ -16,7 +16,7 @@ logging.basicConfig(filename=home + "/AppData/Roaming/Ableton/Live " + abletonVe
 logger = logging.getLogger(__name__)
 
 
-def log_ableton(message, debug=True, direct_call=True):
+def log_ableton(message, debug=True, direct_call=True, exclusive_log=False):
     # type: (str, bool) -> None
     if debug:
         try:
@@ -26,4 +26,17 @@ def log_ableton(message, debug=True, direct_call=True):
             message = "%s (%s:%s in %s)" % (message, filename, line, method)
         except Exception:
             pass
+    if exclusive_log and LogLevel.ACTIVE_LOG_LEVEL != LogLevel.EXCLUSIVE_LOG:
+        return
     logging.info(message)
+
+
+class ExclusiveLogContextManager(object):
+    current_log_level = None
+
+    def __enter__(self):
+        self.current_log_level = LogLevel.ACTIVE_LOG_LEVEL
+        LogLevel.ACTIVE_LOG_LEVEL = LogLevel.EXCLUSIVE_LOG
+
+    def __exit__(self, type, value, traceback):
+        LogLevel.ACTIVE_LOG_LEVEL = self.current_log_level

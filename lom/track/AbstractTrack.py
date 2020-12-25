@@ -32,7 +32,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
         self.index = index
         self.base_track = self  # type: SimpleTrack
         self.is_simple_group = self.is_foldable and not self.is_external_synth_track
-        self.selectable_track = self
         self.group_track = None  # type: Optional[SimpleTrack]
         self.group_tracks = []  # type: List[SimpleTrack]
         self.sub_tracks = []  # type: List[SimpleTrack]
@@ -101,12 +100,20 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
     def name(self, name):
         # type: (str) -> None
         if self._track.name != name:
-            self.parent.defer(lambda: setattr(self._track, "name", name))
+            try:
+                self._track.name = name
+            except RuntimeError:
+                self.parent.defer(lambda: setattr(self._track, "name", name))
 
     @property
     def is_automation(self):
         # type: () -> bool
         return AUTOMATION_TRACK_NAME in self.name
+
+    @property
+    def is_automation_group(self):
+        # type: () -> bool
+        return any([track.is_automation for track in self.sub_tracks])
 
     @property
     def is_external_synth_track(self):

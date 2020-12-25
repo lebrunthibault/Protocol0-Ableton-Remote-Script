@@ -1,9 +1,12 @@
-from functools import partial as _partial, update_wrapper
+import inspect
+import types
+from functools import partial as _partial
 from itertools import chain, imap
 from math import ceil
 from typing import Optional, Any, List, Union, TYPE_CHECKING
 
 import Live
+
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 
 if TYPE_CHECKING:
@@ -103,7 +106,7 @@ def _find_all_devices(track_or_chain, only_visible=False):
     return devices
 
 
-def partial(func, *args, **kwargs):
-    partial_func = _partial(func, *args, **kwargs)
-    update_wrapper(partial_func, func)
-    return partial_func
+def _arg_count(func):
+    # type: (callable) -> int
+    arg_len = len(inspect.getargspec(func).args)
+    return arg_len if isinstance(func, types.FunctionType) else arg_len - 1

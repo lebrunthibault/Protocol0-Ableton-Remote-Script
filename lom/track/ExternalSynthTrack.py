@@ -21,7 +21,6 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractTrack):
         self.sub_tracks = self.base_track.sub_tracks
         self.midi = self.sub_tracks[0]
         self.audio = self.sub_tracks[1]
-        self.selectable_track = self.midi
         self.can_be_armed = True
         if not self.arm:
             self.is_folded = True

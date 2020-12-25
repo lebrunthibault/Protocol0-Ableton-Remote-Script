@@ -25,6 +25,11 @@ class Clip(ClipActionMixin, AbstractObject):
         # type: () -> str
         return self._clip.name
 
+    @name.setter
+    def name(self, name):
+        # type: (str) -> None
+        self._clip.name = name
+
     @property
     def length(self):
         # type: () -> float

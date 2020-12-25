@@ -64,6 +64,8 @@ class ClipActionMixin(object):
 
     def delete(self):
         # type: (Clip) -> None
+        if not self._clip:
+            return
         if self.is_recording:
             qz = self.track.song.clip_trigger_quantization
             self.track.song.clip_trigger_quantization = 0

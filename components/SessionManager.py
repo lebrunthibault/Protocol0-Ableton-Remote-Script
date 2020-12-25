@@ -1,5 +1,4 @@
 from _Framework.SessionComponent import SessionComponent
-from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.utils.decorators import catch_and_log
 

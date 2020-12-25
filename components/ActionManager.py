@@ -9,6 +9,12 @@ from a_protocol_0.utils.utils import scroll_values, find_all_devices
 class ActionManager(AbstractControlSurfaceComponent):
     def __init__(self, *a, **k):
         super(ActionManager, self).__init__(*a, **k)
+        # SHiFT encoder
+        MultiEncoder(channel=15, identifier=1,
+                     on_press=lambda: setattr(MultiEncoder, "SHIFT_PRESSED", True),
+                     on_release=lambda: setattr(MultiEncoder, "SHIFT_PRESSED", False)
+                     )
+
         # TRacK encoder
         MultiEncoder(channel=15, identifier=13,
                      on_press=self.action_arm_track,
@@ -18,7 +24,9 @@ class ActionManager(AbstractControlSurfaceComponent):
         # PRESet encoder
         MultiEncoder(channel=15, identifier=14,
                      on_press=self.action_show_track_instrument,
-                     on_scroll=self.action_scroll_track_instrument_presets)
+                     on_scroll=self.action_scroll_track_instrument_presets,
+                     on_shift_scroll=self.action_scroll_simpler_drum_categories
+                     )
 
         # DEVice encoder
         MultiEncoder(channel=15, identifier=15,
@@ -53,7 +61,7 @@ class ActionManager(AbstractControlSurfaceComponent):
                      on_press=self.action_switch_track_monitoring)
 
         # LFO encoder (add group track with lfo tool binding)
-        MultiEncoder(channel=15, identifier=1,
+        MultiEncoder(channel=15, identifier=5,
                      on_press=self.action_set_up_lfo_tool_automation)
 
         # UNDO encoder
@@ -94,6 +102,13 @@ class ActionManager(AbstractControlSurfaceComponent):
         self.parent.clyphxNavigationManager.show_track_view()
         if self.song.current_track.instrument:
             self.song.current_track.instrument.action_scroll_presets_or_samples(go_next)
+
+    @button_action(log_action=False)
+    def action_scroll_simpler_drum_categories(self, go_next):
+        """ scroll track device presets or samples """
+        self.parent.clyphxNavigationManager.show_track_view()
+        if self.song.current_track.instrument:
+            self.song.current_track.instrument.action_scroll_categories(go_next=go_next)
 
     @button_action(log_action=False)
     def action_scroll_track_devices(self, go_next):

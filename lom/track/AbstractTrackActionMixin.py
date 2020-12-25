@@ -44,7 +44,7 @@ class AbstractTrackActionMixin(object):
         if not self.instrument or not self.instrument.can_be_shown:
             return
         self.parent.application().view.show_view(u'Detail/DeviceChain')
-        self.song.select_track(self.selectable_track)
+        self.song.select_track(self.instrument.device_track)
         self.is_folded = False
         self.instrument.show()
 
@@ -80,7 +80,8 @@ class AbstractTrackActionMixin(object):
     def _post_record(self):
         # type: (AbstractTrack) -> None
         self.song.metronome = False
-        self.selectable_track.has_monitor_in = False
+        track = self.midi if hasattr(self, "midi") else self
+        track.has_monitor_in = False
 
     @abstractmethod
     def action_record_all(self):
@@ -95,10 +96,6 @@ class AbstractTrackActionMixin(object):
             is is available on other tracks just for ease of use
         """
         self.action_record_all()
-
-    def create_clip(self, slot_number=0, bar_count=1):
-        # type: (AbstractTrack, int, int, int) -> None
-        self.base_track.clip_slots[slot_number]._clip_slot.create_clip(self.parent.utils.get_beat_time(bar_count))
 
     def stop(self):
         # type: (AbstractTrack) -> None

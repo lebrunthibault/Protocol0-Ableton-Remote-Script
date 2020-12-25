@@ -1,6 +1,6 @@
-from math import ceil
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, Any
 
+import Live
 from a_protocol_0.lom.Clip import Clip
 from a_protocol_0.lom.ClipSlot import ClipSlot
 from a_protocol_0.lom.Colors import Colors
@@ -54,6 +54,20 @@ class SimpleTrackActionMixin(object):
             self.stop()
         else:
             self.song.undo()
+
+    def create_clip(self, slot_number=0, name=None, bar_count=1, notes_callback=None, note_count=0, *a, **k):
+        # type: (SimpleTrack, int, str, int, callable, int, Any, Any) -> None
+        self.clip_slots[slot_number]._clip_slot.create_clip(self.parent.utils.get_beat_time(bar_count))
+        if name:
+            self.clip_slots[slot_number]._has_clip_listener._callbacks.append(lambda clip_slot: setattr(self.get_clip_slot(clip_slot).clip, "name", name))
+        if notes_callback:
+            def notes_callback_wrapper(clip_slot):
+                # type: (Live.ClipSlot.ClipSlot) -> None
+                clip = self.get_clip_slot(clip_slot).clip
+                note_duration = clip.length / note_count
+                notes = notes_callback(clip=clip, note_duration=note_duration, note_count=note_count, *a, **k)
+                clip.replace_all_notes(notes)
+            self.clip_slots[slot_number]._has_clip_listener._callbacks.append(notes_callback_wrapper)
 
     def delete_current_clip(self):
         # type: (SimpleTrack) -> None

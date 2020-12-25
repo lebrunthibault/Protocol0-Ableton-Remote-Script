@@ -19,13 +19,18 @@ class Song(SongActionMixin, AbstractObject):
         self._song = song
         self._view = self._song.view  # type: Any
         self.tracks = []  # type: List[SimpleTrack]
-        self.external_synth_tracks = []  # type: List[ExternalSynthTrack]
+        self.abstract_group_tracks = []  # type: List[ExternalSynthTrack]
         self.selected_track = None  # type: SimpleTrack
         self.current_track = None  # type: AbstractTrack
         self.master_track = self._song.master_track  # type: Live.Track.Track
         self.clip_slots = []  # type: List[ClipSlot]
         self.selected_track_category = TRACK_CATEGORY_ALL
         self.selected_recording_time = "4 bars"
+
+    def __call__(self):
+        # type: () -> Live.Song.Song
+        """ allows for self.song() behavior to extend other surface script classes """
+        return self.parent.song()
 
     @property
     def scenes(self):

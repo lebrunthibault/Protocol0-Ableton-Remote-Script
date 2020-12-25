@@ -64,6 +64,7 @@ class Push2Manager(AbstractControlSurfaceComponent):
         # type: () -> Clip
         if not self.song.highlighted_clip_slot.has_clip or not self.song.selected_track.is_midi:
             return
+        self._update_selected_modes()
         index = push2_beat_quantization_steps.index(self.song.highlighted_clip_slot.clip.min_note_quantization_start)
         self.push2._grid_resolution.index = index
         self.push2._grid_resolution.quantization_buttons[index].is_checked = True

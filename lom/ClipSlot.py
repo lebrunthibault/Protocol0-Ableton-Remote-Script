@@ -1,9 +1,10 @@
 from typing import Any, TYPE_CHECKING
 
 import Live
-from _Framework.SubjectSlot import subject_slot
+
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.Clip import Clip
+from a_protocol_0.utils.decorators import subject_slot
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -20,7 +21,7 @@ class ClipSlot(AbstractObject):
         self.has_clip = clip_slot.has_clip
         self.clip = None  # type: Clip
         self._has_clip_listener.subject = self._clip_slot
-        self._has_clip_listener()
+        self._map_clip()
 
     def __nonzero__(self):
         return self._clip_slot is not None
@@ -29,12 +30,16 @@ class ClipSlot(AbstractObject):
         # type: (ClipSlot) -> bool
         return clip_slot and self._clip_slot == clip_slot._clip_slot
 
-    @subject_slot("has_clip")
-    def _has_clip_listener(self):
+    def _map_clip(self):
         self.has_clip = self._clip_slot.has_clip
         self.clip = Clip(clip_slot=self) if self.has_clip else None
-        if self.clip and hasattr(self.track, "_on_clip_creation"):
-            self.track._on_clip_creation(self.clip)
+        self.track._clip_notes_listener.replace_subjects([clip._clip for clip in self.track.clips])
+
+    @subject_slot("has_clip")
+    def _has_clip_listener(self):
+        self._map_clip()
+        if self.song.highlighted_clip_slot == self and self.has_clip:
+            self.parent._wait(2, self.parent.push2Manager.update_clip_grid_quantization)
 
     def delete_clip(self):
         if self._clip_slot.has_clip:

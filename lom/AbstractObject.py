@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from _Framework.ControlSurface import get_control_surfaces
 from _Framework.SubjectSlot import SlotManager
@@ -30,6 +30,10 @@ class AbstractObject(SlotManager):
     def __ne__(self, obj):
         # type: (AbstractObject) -> bool
         return not obj or not self == obj
+
+    def set_method_property(self, method, property, value):
+        # type: (callable, str, Any) -> None
+        method.__dict__[property][self] = value
 
     @property
     def parent(self):

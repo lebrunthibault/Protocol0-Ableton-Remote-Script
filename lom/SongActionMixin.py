@@ -19,7 +19,7 @@ class SongActionMixin(object):
 
     def unfocus_all_tracks(self):
         # type: (Song) -> None
-        [t.action_unarm() for t in self.external_synth_tracks if t.arm and t != self.current_track]
+        [t.action_unarm() for t in self.abstract_group_tracks if t.arm and t != self.current_track]
         [t.action_unarm() for t in self.tracks if t.arm if t != self.selected_track]
         [setattr(t, "solo", False) for t in self.song.tracks if t.solo and t != self.selected_track]
 
@@ -32,7 +32,7 @@ class SongActionMixin(object):
         self.stop_playing()
         self._song.current_song_time = 0
         [track.reset_track() for track in self.tracks]
-        [track.reset_track() for track in self.external_synth_tracks]
+        [track.reset_track() for track in self.abstract_group_tracks]
         if len(self.tracks):
             self.song.select_track(self.tracks[0])
 
