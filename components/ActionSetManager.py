@@ -23,4 +23,4 @@ class ActionSetManager(AbstractControlSurfaceComponent):
     @button_action()
     def action_delete_all_devices(self):
         for track in self.song.current_track.all_tracks:
-            [track.delete_device(device) for device in reversed(track.top_devices)]
+            [track.delete_device(device) for device in reversed(track.devices)]

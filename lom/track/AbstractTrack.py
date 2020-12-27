@@ -72,7 +72,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
         return [clip_slot.clip for clip_slot in clip_slots if clip_slot.has_clip]
 
     @property
-    def top_devices(self):
+    def devices(self):
         # type: () -> List[Live.Device.Device]
         return list(self.base_track._track.devices)
 
@@ -101,7 +101,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
 
     def delete_device(self, device):
         # type: (Live.Device.Device) -> None
-        self.base_track._track.delete_device(self.base_track.top_devices.index(device))
+        self.base_track._track.delete_device(self.base_track.devices.index(device))
 
     @property
     def is_visible(self):

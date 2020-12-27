@@ -2,12 +2,11 @@ import collections
 from plistlib import Dict
 from typing import Optional, Any
 
-# from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
-from a_protocol_0.utils.decorators import subject_slot, has_callback_queue
+from a_protocol_0.utils.decorators import subject_slot, has_callback_queue, retry
 
 
 class SongManager(AbstractControlSurfaceComponent):
@@ -96,6 +95,7 @@ class SongManager(AbstractControlSurfaceComponent):
 
         return self._live_track_to_simple_track[track]
 
+    @retry(2)
     def _set_current_track(self):
         self.song.selected_track = self._get_simple_track(self.song._view.selected_track) or self.song.tracks[0]
         self.song.current_track = self.get_current_track(self.song.selected_track)

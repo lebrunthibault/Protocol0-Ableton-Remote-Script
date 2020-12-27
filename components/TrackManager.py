@@ -11,6 +11,7 @@ from a_protocol_0.lom.track.simple_track.AutomationTrack import AutomationTrack
 from a_protocol_0.lom.track.simple_track.SimpleGroupTrack import SimpleGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.lom.track.TrackName import TrackName
+from a_protocol_0.utils.Sequence import Sequence
 from a_protocol_0.utils.decorators import defer, subject_slot
 from a_protocol_0.utils.utils import find_last
 
@@ -27,15 +28,15 @@ class TrackManager(AbstractControlSurfaceComponent):
     def _added_track_listener(self):
         self.song.current_track._added_track_init()
 
-    def group_track(self, callback=None):
-        # type: (callable) -> None
+    def group_track(self, seq=None):
+        # type: (Sequence) -> None
         self.parent.keyboardShortcutManager.group_track()
-        if callback:
-            self._added_track_listener._callbacks.append(callback)
+        if seq:
+            seq.add(notify_after=self._added_track_listener)
 
     @defer
-    def create_midi_track(self, index, name=None):
-        # type: (int, str) -> None
+    def create_midi_track(self, index, name=None, seq=None):
+        # type: (int, str, Sequence) -> None
         self.song._song.create_midi_track(index)
 
         @defer
@@ -44,10 +45,15 @@ class TrackManager(AbstractControlSurfaceComponent):
             track_index = self.song.selected_track.index
             self.parent.songManager._tracks_listener()  # rebuild tracks
             # the underlying track object should have changed
-            self.song.tracks[track_index]._added_track_init()  # manual call is needed
+            track = self.song.tracks[track_index]
+            track._added_track_init()  # manual call is needed
+            if track.group_track:
+                track.group_track._added_track_init()  # the group track could change type as well
 
         if name is not None:
             self.parent.trackManager._added_track_listener._callbacks.append(set_name)
+        if seq:
+            seq.add(notify_after=self.parent.trackManager._added_track_listener)
 
     def instantiate_simple_track(self, track, index):
         # type: (Live.Track.Track, int) -> SimpleTrack

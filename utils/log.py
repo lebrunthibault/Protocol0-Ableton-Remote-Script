@@ -1,10 +1,10 @@
-import inspect
 import logging
 import os
 from contextlib import contextmanager
 from os.path import expanduser
 
-from a_protocol_0.consts import PROTOCOL0_FOLDER, REMOTE_SCRIPTS_FOLDER, LogLevel
+from a_protocol_0.consts import LogLevel
+from a_protocol_0.utils.utils import get_frame_info
 
 home = expanduser("~")
 abletonVersion = os.getenv("abletonVersion")
@@ -19,15 +19,14 @@ logger = logging.getLogger(__name__)
 
 def log_ableton(message, debug=True, direct_call=True, exclusive_log=False):
     # type: (str, bool) -> None
-
     if not isinstance(debug, bool):
         raise "log_ableton: parameter mismatch"
     if debug:
         try:
-            call_frame = inspect.currentframe().f_back if direct_call else inspect.currentframe().f_back.f_back.f_back
-            (filename, line, method, _, _) = inspect.getframeinfo(call_frame)
-            filename = filename.replace(PROTOCOL0_FOLDER + "\\", "").replace(REMOTE_SCRIPTS_FOLDER + "\\", "")
-            message = "%s (%s:%s in %s)" % (message, filename, line, method)
+            func_info = get_frame_info(1 if direct_call else 3)
+            if func_info:
+                (filename, line, method) = func_info
+                message = "%s (%s:%s in %s)" % (message, filename, line, method)
         except Exception:
             pass
     if exclusive_log and LogLevel.ACTIVE_LOG_LEVEL != LogLevel.EXCLUSIVE_LOG:

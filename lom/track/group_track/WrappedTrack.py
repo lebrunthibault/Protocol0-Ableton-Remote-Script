@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from _Framework.Util import forward_property
+from _Framework.Util import forward_property, find_if
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 
 if TYPE_CHECKING:
@@ -14,6 +14,13 @@ class WrappedTrack(AbstractGroupTrack):
         self.wrapped_track = wrapped_track
         group_track.name = wrapped_track.name
         super(WrappedTrack, self).__init__(group_track=group_track, *a, **k)
+
+    def _added_track_init(self):
+        self.base_track.output_routing_type = find_if(
+            lambda r: r.attached_object == self.wrapped_track.output_routing_type.attached_object,
+            self.base_track.available_output_routing_types)
+        self.wrapped_track.output_routing_type = find_if(lambda r: r.display_name == self.base_track._track.name,
+                                                    self.wrapped_track.available_output_routing_types)
 
     @property
     def name(self):

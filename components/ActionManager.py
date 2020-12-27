@@ -12,8 +12,11 @@ class ActionManager(AbstractControlSurfaceComponent):
         # SHiFT encoder
         MultiEncoder(channel=15, identifier=1,
                      on_press=lambda: setattr(MultiEncoder, "SHIFT_PRESSED", True),
-                     on_release=lambda: setattr(MultiEncoder, "SHIFT_PRESSED", False)
-                     )
+                     on_release=lambda: setattr(MultiEncoder, "SHIFT_PRESSED", False))
+
+        # DUPlicate encoder
+        MultiEncoder(channel=15, identifier=2,
+                     on_press=self.action_duplicate_track)
 
         # TRacK encoder
         MultiEncoder(channel=15, identifier=13,
@@ -25,8 +28,7 @@ class ActionManager(AbstractControlSurfaceComponent):
         MultiEncoder(channel=15, identifier=14,
                      on_press=self.action_show_track_instrument,
                      on_scroll=self.action_scroll_track_instrument_presets,
-                     on_shift_scroll=self.action_scroll_simpler_drum_categories
-                     )
+                     on_shift_scroll=self.action_scroll_simpler_drum_categories)
 
         # DEVice encoder
         MultiEncoder(channel=15, identifier=15,
@@ -184,6 +186,11 @@ class ActionManager(AbstractControlSurfaceComponent):
     @button_action()
     def action_set_up_lfo_tool_automation(self):
         self.parent.trackAutomationManager.create_automation_group(self.song.current_track.base_track)
+
+    @button_action()
+    def action_duplicate_track(self):
+        """" undo last recording """
+        self.song._song.duplicate_track(self.song.current_track.index)
 
     @button_action()
     def action_undo(self):

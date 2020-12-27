@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Optional
 import Live
 
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
-from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
+from a_protocol_0.utils.Sequence import Sequence
 from a_protocol_0.utils.decorators import defer
 
 if TYPE_CHECKING:
@@ -14,9 +14,14 @@ if TYPE_CHECKING:
 # noinspection PyTypeHints
 class SongActionMixin(object):
     def select_track(self, selected_track):
-        # type: (Song, AbstractTrack) -> None
+        # type: (Song, AbstractTrack) -> Optional[Sequence]
+        seq = Sequence(name="select_track")
+        if self.selected_track == selected_track.base_track:
+            return
         self._view.selected_track = selected_track.base_track._track
         self.parent.songManager._set_current_track()
+
+        return Sequence(name="select_track").add(interval=1)
 
     def unfocus_all_tracks(self):
         # type: (Song) -> None

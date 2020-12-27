@@ -7,5 +7,5 @@ class SimpleGroupTrack(SimpleTrack):
         self.push2_selected_main_mode = 'mix'
 
     def _added_track_init(self):
-        if len(self.top_devices) == 0:
+        if len(self.devices) == 0:
             self.parent.browserManager.load_rack_device("Mix Base Rack")

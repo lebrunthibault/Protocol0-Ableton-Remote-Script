@@ -8,7 +8,6 @@ from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceC
 from a_protocol_0.consts import EXTERNAL_SYNTH_MINITAUR_NAME
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.utils.Sequence import Sequence
-from a_protocol_0.utils.decorators import defer
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -110,48 +109,50 @@ class DeviceManager(AbstractControlSurfaceComponent):
     def is_plugin_window_visible(self, device):
         return self.parent.keyboardShortcutManager.is_plugin_window_visible(device.name)
 
-    def check_plugin_window_showable(self, device, track, seq):
-        # type: (Live.Device.Device, SimpleTrack, Sequence) -> None
+    def check_plugin_window_showable(self, device, track):
+        # type: (Live.Device.Device, SimpleTrack) -> Optional[Sequence]
         if self.is_plugin_window_visible(device):
             return
 
         self.parent.keyboardShortcutManager.show_plugins()
+        return Sequence(name="check_plugin_window_showable") \
+            .add(lambda: self._make_device_showable(device, track), interval=1, name="make_device_showable")
 
-        def make_device_showable_deferred():
-            if not self.is_plugin_window_visible(device):
-                self._make_device_showable(device, track, seq=seq)
-        seq.add(make_device_showable_deferred, interval=1)
-
-    def _make_device_showable(self, device, track, seq):
-        # type: (Live.Device.Device, SimpleTrack, Sequence) -> None
+    def _make_device_showable(self, device, track):
+        # type: (Live.Device.Device, SimpleTrack) -> Sequence
         """ handles only one level of grouping in racks. Should be enough for now """
-        parent_rack = self._find_device_parent(device, track.top_devices)
+        seq = Sequence(name="_make_device_showable")
+
+        if self.is_plugin_window_visible(device):
+            return seq
+
+        parent_rack = self._find_device_parent(device, track.devices)
 
         if not parent_rack:
-            [setattr(d.view, "is_collapsed", True) for d in track.top_devices]
+            [setattr(d.view, "is_collapsed", True) for d in track.devices]
             (x_device, y_device) = self._get_device_show_button_click_coordinates(track, device)
-            seq.add(lambda: self.parent.keyboardShortcutManager.send_click(x=x_device, y=y_device), interval=1)
-            seq.add(lambda: setattr(device.view, "is_collapsed", False), interval=1)
+            seq.add(lambda: self.parent.keyboardShortcutManager.send_click(x=x_device, y=y_device), interval=1, name="click on device show button")
+            seq.add(lambda: setattr(device.view, "is_collapsed", False), interval=1, name="uncollapse all devices")
         else:
-            [setattr(d.view, "is_collapsed", True) for d in track.top_devices if d != parent_rack]
+            [setattr(d.view, "is_collapsed", True) for d in track.devices if d != parent_rack]
             [setattr(d.view, "is_collapsed", True) for d in parent_rack.chains[0].devices]
 
             (x_rack, y_rack) = self._get_rack_show_macros_button_click_coordinates(track, parent_rack)
             (x_device, y_device) = self._get_device_show_button_click_coordinates(track, device, parent_rack)
 
-            seq.add(lambda: self.parent.keyboardShortcutManager.toggle_device_button(x=x_rack, y=y_rack, activate=False), interval=1)  # hide / show rack macro controls
-            seq.add(lambda: self.parent.keyboardShortcutManager.send_click(x=x_device, y=y_device), interval=1)  # open the plugin
-            seq.add(lambda: self.parent.keyboardShortcutManager.toggle_device_button(x=x_rack, y=y_rack, activate=True), interval=1)  # hide / show rack macro controls
-            seq.add(lambda: [setattr(d.view, "is_collapsed", False) for d in parent_rack.chains[0].devices], interval=0)
+            seq.add(lambda: self.parent.keyboardShortcutManager.toggle_device_button(x=x_rack, y=y_rack, activate=False), interval=1, name="hide rack macro controls")
+            seq.add(lambda: self.parent.keyboardShortcutManager.send_click(x=x_device, y=y_device), interval=1, name="click on device show button")
+            seq.add(lambda: self.parent.keyboardShortcutManager.toggle_device_button(x=x_rack, y=y_rack, activate=True), interval=1, name="show rack macro controls")
+            seq.add(lambda: [setattr(d.view, "is_collapsed", False) for d in parent_rack.chains[0].devices], interval=0, name="uncollapse all rack devices")
             # at this point the rack macro controls could still be hidden if the plugin window masks the button
 
-        seq()
+        return seq
 
     def _get_device_show_button_click_coordinates(self, track, device, rack_device=None):
         # type: (SimpleTrack, Live.Device.Device, Live.RackDevice.RackDevice) -> Tuple[int]
         """ one grouping level only : expects all devices to be folded and macro controls hidden """
         if not rack_device:
-            device_position = track.top_devices.index(device) + 1
+            device_position = track.devices.index(device) + 1
             x = self._get_device_click_x_position(device_position)
             y = self.SHOW_HIDE_PLUGIN_BUTTON_PIXEL_HEIGHT
         else:
@@ -165,7 +166,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
     def _get_rack_show_macros_button_click_coordinates(self, track, rack_device):
         # type: (SimpleTrack, Live.RackDevice.RackDevice) -> Tuple[int]
         """ top racks only : expects all devices to be folded """
-        parent_rack_position = track.top_devices.index(rack_device) + 1
+        parent_rack_position = track.devices.index(rack_device) + 1
         x = self._get_device_click_x_position(parent_rack_position)
         y = self.SHOW_HIDE_MACRO_BUTTON_PIXEL_HEIGHT
 

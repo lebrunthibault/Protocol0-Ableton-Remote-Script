@@ -1,6 +1,6 @@
 import os
 from os.path import isfile, isdir
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 
 import Live
 
@@ -54,8 +54,8 @@ class AbstractInstrument(AbstractObject):
         self.get_presets(set_preset=True)
 
     def exclusive_activate(self):
-        # type: () -> Sequence
-        pass
+        # type: () -> Optional[Sequence]
+        return
 
     def is_visible(self):
         return self.parent.deviceManager.is_plugin_window_visible(self._device)
@@ -65,30 +65,30 @@ class AbstractInstrument(AbstractObject):
         return not self.activated or self.NEEDS_EXCLUSIVE_ACTIVATION and self.active_instance != self
 
     def check_activated(self, focus_device_track=True):
-        # type: () -> Sequence
-        seq = Sequence([], interval=0, on_finish=Sequence(name="on_finish sequence"), name="activation sequence")
-
+        # type: (bool) -> Optional[Sequence]
         if not self.can_be_shown:
-            return seq
+            return
 
+        seq = Sequence(name="check_activated")
         if (focus_device_track or self.needs_activation) and self.song.selected_track != self.device_track:
-            seq.add(lambda: self.song.select_track(self.device_track), interval=1)
+            seq.add(lambda: self.song.select_track(self.device_track), interval=1, name="select_device_track")
         if not self.activated:
-            self.parent.deviceManager.check_plugin_window_showable(self._device, self.device_track, seq=seq)
-            seq.add_on_finish(lambda: setattr(self, "activated", True), interval=0)
+            seq.add(self.parent.deviceManager.check_plugin_window_showable(self._device, self.device_track), name="check_plugin_window_showable")
+            seq.add(lambda: setattr(self, "activated", True), interval=0, name="mark instrument as activated")
 
         if self.NEEDS_EXCLUSIVE_ACTIVATION and self.active_instance != self:
-            seq.add_on_finish(self.exclusive_activate())
+            seq.add(self.exclusive_activate(), name="exclusive activation sequence")
 
         return seq
 
     def show_hide(self, force_show=False):
         # here we are on the device track
-        seq = self.check_activated()
+        seq = Sequence(name="show_hide")
+        seq.add(self.check_activated())
         if force_show:
-            seq.add(self.parent.keyboardShortcutManager.show_plugins, interval=1)
+            seq.add(self.parent.keyboardShortcutManager.show_plugins, interval=1, name="show_plugins")
         else:
-            seq.add(self.parent.keyboardShortcutManager.show_hide_plugins, interval=1)
+            seq.add(self.parent.keyboardShortcutManager.show_hide_plugins, interval=1, name="show_hide_plugins")
 
         seq()
         return

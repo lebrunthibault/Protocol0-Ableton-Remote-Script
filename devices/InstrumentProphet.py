@@ -9,7 +9,8 @@ class InstrumentProphet(AbstractInstrument):
         # type: () -> Sequence
         self.active_instance = self
 
-        return Sequence([
-            lambda: self.song.select_track(self.device_track),
-            self.parent.keyboardShortcutManager.show_and_activate_rev2_editor,
-        ], interval=1, name="prophet exclusive activation")
+        seq = Sequence(interval=1, name="exclusive prophet activation")
+        seq.add(self.song.select_track(self.device_track))
+        seq.add(self.parent.keyboardShortcutManager.show_and_activate_rev2_editor, name="show_and_activate_rev2_editor")
+
+        return seq

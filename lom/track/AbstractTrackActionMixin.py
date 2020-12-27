@@ -71,7 +71,6 @@ class AbstractTrackActionMixin(object):
             self.song.stop_playing()
         action_record_func()
 
-        self.parent.log_debug([t.is_hearable for t in self.song.tracks])
         if len(filter(None, [t.is_hearable for t in self.song.tracks])) <= 1 and not only_audio:
             self.song.metronome = True
 
@@ -79,7 +78,6 @@ class AbstractTrackActionMixin(object):
 
     def _post_record(self):
         # type: (AbstractTrack) -> None
-        self.parent.log_debug("post rec")
         self.song.metronome = False
         track = self.midi if hasattr(self, "midi") else self
         track.has_monitor_in = False

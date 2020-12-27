@@ -11,7 +11,6 @@ from a_protocol_0.lom.SongActionMixin import SongActionMixin
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
-from a_protocol_0.lom.track.simple_track.AutomationTrack import AutomationTrack
 
 
 class Song(SongActionMixin, AbstractObject):

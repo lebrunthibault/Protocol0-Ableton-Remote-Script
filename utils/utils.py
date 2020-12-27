@@ -8,6 +8,7 @@ from typing import Optional, Any, List, Union, TYPE_CHECKING
 import Live
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from a_protocol_0.consts import PROTOCOL0_FOLDER, REMOTE_SCRIPTS_FOLDER
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -125,6 +126,19 @@ def _find_all_devices(track_or_chain, only_visible=False):
     return devices
 
 
+def get_frame_info(frame_count=1):
+    try:
+        call_frame = inspect.currentframe()
+        for _ in range(frame_count):
+            call_frame = call_frame.f_back
+        (filename, line, method, _, _) = inspect.getframeinfo(call_frame)
+    except Exception:
+        return None
+
+    filename = filename.replace(PROTOCOL0_FOLDER + "\\", "").replace(REMOTE_SCRIPTS_FOLDER + "\\", "")
+    return (filename, line, method)
+
+
 def is_method(func):
     spec = inspect.getargspec(func)
     return spec.args and spec.args[0] == 'self'
@@ -150,3 +164,7 @@ def _arg_count(func):
     arg_len -= len(spec.defaults) if spec.defaults else 0
     arg_count = arg_len if (isinstance(func, types.FunctionType) or is_partial(func)) else arg_len - 1
     return max(arg_count, 0)
+
+
+def nop():
+    pass

@@ -2,7 +2,7 @@ import subprocess
 from os.path import expanduser
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.utils.decorators import defer, log
+from a_protocol_0.utils.decorators import defer
 
 home = expanduser("~")
 
@@ -21,16 +21,7 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
         self.send_keys("%d,%d" % (x, y))
 
     def show_hide_plugins(self):
-        # visible = self.is_plugin_window_visible()
         self.send_keys("^%p")
-
-        # def alternate_method():
-        #     if self.is_plugin_window_visible() == visible:
-        #         if visible:
-        #             self.hide_plugins()
-        #         else:
-        #             self.show_plugins()
-        # self.parent.defer(alternate_method)
 
     def show_plugins(self):
         self.send_keys("^{F1}")
@@ -61,3 +52,6 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
 
     def up(self):
         self.send_keys("^{F5}")
+
+    def duplicate(self):
+        self.send_keys("^d")

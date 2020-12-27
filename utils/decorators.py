@@ -58,6 +58,45 @@ def wait(wait_time):
     return wrap
 
 
+def timeout_limit(func, timeout_limit):
+    from a_protocol_0 import Protocol0
+
+    @wraps(func)
+    def decorate(timeout_execution=False, *a, **k):
+        if decorate.executed:
+            return
+        if timeout_execution:
+            Protocol0.SELF.log_error("Timeout reached for function %s, executing" % func)
+        func(*a, **k)
+        decorate.executed = True
+
+    decorate.executed = False
+    Protocol0.SELF._wait(timeout_limit, partial(decorate, timeout_execution=True))
+
+    return decorate
+
+
+def retry(retry_count=2, interval=1):
+    def wrap(func):
+        @wraps(func)
+        def decorate(*a, **k):
+            from a_protocol_0 import Protocol0
+            try:
+                func(*a, **k)
+            except Exception:
+                if decorate.count == decorate.retry_count:
+                    raise "Retry error on %s" % decorate
+                Protocol0.SELF._wait(pow(2, decorate.count) * interval, partial(func, *a, **k))
+                decorate.count += 1
+
+        decorate.count = 0
+        decorate.retry_count = retry_count
+
+        return decorate
+
+    return wrap
+
+
 def debounce(wait_time=2):
     def wrap(func):
         @wraps(func)
@@ -77,6 +116,7 @@ def debounce(wait_time=2):
                 func(*a, **k)
 
         return decorate
+
     return wrap
 
 
@@ -120,52 +160,56 @@ def subject_slot(event):
             func(*a, **k)
 
         return decorate
+
     return wrap
 
 
+class CallbackDescriptor(object):
+    """ Inspired from _Framework @instance_method, adds the callback queue """
+
+    def __init__(self, func):
+        self.__name__ = func.__name__
+        self.__doc__ = func.__doc__
+        self._func = func
+        self._data_name = u'%s_%d_decorated_instance' % (func.__name__, id(self))
+
+    def __get__(self, obj, cls=None):
+
+        if obj is None:
+            return
+        try:
+            return obj.__dict__[self._data_name]
+        except KeyError:
+            # checking if we are on top of a subject_slot decorator
+            if bool(getattr(self._func, "_data_name", None)):
+                decorated = self._func.__get__(obj)  # calling inner descriptor. decorated is a SubjectSlot
+                decorated.listener = self.callback_wrapper(decorated)
+            else:
+                decorated = self.callback_wrapper(partial(self._func, obj))
+                # here we set _callbacks directly on callback_caller
+            decorated._callbacks = []
+            decorated._has_callback_queue = True
+            obj.__dict__[self._data_name] = decorated  # setting decorated on outer descriptor
+            return decorated  # decorated is the outer most function replacing the decorated method
+
+    def callback_wrapper(self, decorated):
+        def callback_caller(*a, **k):
+            from a_protocol_0.Protocol0 import Protocol0
+            decorated(*a, **k)
+
+            callback_provider = decorated if hasattr(decorated, "_callbacks") else callback_caller
+            # callbacks deduplication (useful to mitigate e.g. double encoder click)
+            for callback in set(callback_provider._callbacks):
+                Protocol0.SELF.defer(
+                    partial(callback, getattr(decorated, "subject", "toto")) if _arg_count(callback) == 1 else callback)
+                # Protocol0.SELF.defer(partial(callback, decorated.subject) if hasattr(decorated, "subject") and _arg_count(callback) == 1 else callback)
+            callback_provider._callbacks = []
+
+        return callback_caller
+
+
 def has_callback_queue(func):
-    """ for now, should decorate subject_slot decorated methods """
-    class CallbackDescriptor(object):
-        """ Inspired from _Framework @instance_method, adds the callback queue """
-        def __init__(self):
-            self.__name__ = func.__name__
-            self.__doc__ = func.__doc__
-            self._data_name = u'%s_%d_decorated_instance' % (func.__name__, id(self))
-
-        def __get__(self, obj, cls=None):
-
-            if obj is None:
-                return
-            try:
-                return obj.__dict__[self._data_name]
-            except KeyError:
-                # checking if we are on top of a subject_slot decorator
-                if bool(getattr(func, "_data_name", None)):
-                    decorated = func.__get__(obj)  # calling inner descriptor. decorated is a SubjectSlot
-                    decorated.listener = self.callback_wrapper(decorated)
-                else:
-                    decorated = self.callback_wrapper(partial(func, obj))
-                    # here we set _callbacks directly on callback_caller
-                decorated._callbacks = []
-                obj.__dict__[self._data_name] = decorated  # setting decorated on outer descriptor
-                return decorated  # decorated is the outer most function replacing the decorated method
-
-        def callback_wrapper(self, decorated):
-            def callback_caller(*a, **k):
-                from a_protocol_0.Protocol0 import Protocol0
-                decorated(*a, **k)
-
-                callback_provider = decorated if hasattr(decorated, "_callbacks") else callback_caller
-                # callbacks deduplication (useful to mitigate e.g. double encoder click)
-                for callback in set(callback_provider._callbacks):
-                    Protocol0.SELF.defer(partial(callback, getattr(decorated, "subject", "toto")) if _arg_count(callback) == 1 else callback)
-                    # Protocol0.SELF.defer(partial(callback, decorated.subject) if hasattr(decorated, "subject") and _arg_count(callback) == 1 else callback)
-                callback_provider._callbacks = []
-
-            return callback_caller
-
-    return CallbackDescriptor()
-
+    return CallbackDescriptor(func)
 
 def catch_and_log(func):
     @wraps(func)

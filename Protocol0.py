@@ -1,3 +1,4 @@
+import time
 import types
 from typing import Callable
 
@@ -19,6 +20,7 @@ from a_protocol_0.components.TrackAutomationManager import TrackAutomationManage
 from a_protocol_0.components.TrackManager import TrackManager
 from a_protocol_0.consts import LogLevel
 from a_protocol_0.lom.Song import Song
+from a_protocol_0.utils.Sequence import Sequence
 from a_protocol_0.utils.log import log_ableton
 from a_protocol_0.utils.utils import Utils
 
@@ -31,6 +33,7 @@ class Protocol0(ControlSurface):
         # noinspection PyProtectedMember
         Protocol0.SELF = self
         self._c_instance.log_message = types.MethodType(lambda s, message: None, self._c_instance)
+        self._is_dev_booted = False
         with self.component_guard():
             self.protocol0_song = Song(song=self.song())
             self.deviceManager = DeviceManager()  # needs to be here first
@@ -51,6 +54,7 @@ class Protocol0(ControlSurface):
             ActionTestManager()
 
             self.songManager.init_song()
+            self.dev_boot()
 
         self.log_info("Protocol0 script loaded")
 
@@ -88,7 +92,7 @@ class Protocol0(ControlSurface):
 
     def _wait(self, ticks_count, callback):
         # type: (int, Callable) -> None
-        if not ticks_count:
+        if ticks_count == 0:
             callback()
         else:
             self.schedule_message(ticks_count, callback)
@@ -98,6 +102,9 @@ class Protocol0(ControlSurface):
         self._task_group.clear()
 
     def dev_boot(self):
+        if self._is_dev_booted:
+            return
         self.protocol0_song.select_track(self.protocol0_song.tracks[12])
         # self.protocol0_song.selected_track.play()
         # self.trackAutomationManager.create_automation_group(self.protocol0_song.selected_track)
+        self._is_dev_booted = True
