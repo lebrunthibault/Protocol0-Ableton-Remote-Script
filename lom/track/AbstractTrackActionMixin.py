@@ -44,9 +44,8 @@ class AbstractTrackActionMixin(object):
         if not self.instrument or not self.instrument.can_be_shown:
             return
         self.parent.application().view.show_view(u'Detail/DeviceChain')
-        self.song.select_track(self.instrument.device_track)
         self.is_folded = False
-        self.instrument.show_hide()
+        self.instrument.show_hide(force_show=self.song.selected_track != self.instrument.device_track)
 
     def action_solo(self):
         # type: (AbstractTrack) -> None

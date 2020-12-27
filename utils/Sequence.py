@@ -1,17 +1,16 @@
-from collections import deque
-from typing import List
+from collections import deque, Iterable
+from typing import List, Any
 
 from a_protocol_0.utils.log import log_ableton
 
 
 class SequenceStep(object):
-    def __init__(self, func, sequence, interval=1, notify=True, do_while=False, *a, **k):
+    def __init__(self, func, sequence, interval=1, do_while=False, *a, **k):
         # type: (callable, Sequence, float, bool) -> None
         super(SequenceStep, self).__init__(*a, **k)
         self._seq = sequence
         self._callable = func
         self._interval = interval if interval is not None else sequence._interval
-        self._notify = notify
         self._do_while = do_while
         self._timeout = 4
         self._count = 0
@@ -29,8 +28,7 @@ class SequenceStep(object):
 
             if self._do_while and self._do_while():
                 Protocol0.SELF._wait(pow(2, self._count), execute_callback)
-            if self._notify:
-                self._seq.notify_step_done()
+            self._seq.notify_step_done()
             self._count += 1
 
         from a_protocol_0 import Protocol0
@@ -40,19 +38,27 @@ class SequenceStep(object):
 class Sequence(object):
     """ run a simple sequence of asynchronous actions """
 
-    def __init__(self, steps=[], interval=1, offset=0, on_finish=None, timeout=None, name="anon seq", outer_seq=None, *a, **k):
-        # type: (List[callable], float, float, callable, float, str, Sequence) -> None
+    def __init__(self, steps=[], interval=1, offset=0, on_finish=[], timeout=None, name="anon seq", outer_seq=None, debug=False, *a, **k):
+        # type: (List[callable], float, float, Any, float, str, Sequence) -> None
         super(Sequence, self).__init__(*a, **k)
         self._steps = deque()  # type: [SequenceStep]
-        if offset:
-            self._steps.append(SequenceStep(lambda: None, sequence=self, interval=offset))
-        [self._steps.append(SequenceStep(step, sequence=self, interval=interval)) for step in steps]
         self._interval = interval
-        self._on_finish = SequenceStep(on_finish, sequence=self, interval=0, notify=False) if on_finish else None
         self._is_running = False
         self._is_completed = False
         self._name = name
         self._outer_seq = outer_seq  # type: Sequence
+        self._debug = debug
+
+        if offset:
+            self.add(lambda: None, interval=offset)
+        self.add(steps)
+        if on_finish:
+            if isinstance(on_finish, Sequence):
+                self._on_finish = on_finish
+            elif callable(on_finish):
+                self._on_finish = Sequence(on_finish, interval=0)
+        else:
+            self._on_finish = None
 
         if timeout:
             from a_protocol_0 import Protocol0
@@ -73,7 +79,29 @@ class Sequence(object):
     def notify_step_done(self):
         self._exec_next()
 
+    def add_on_finish(self, callback, interval=None):
+        self._on_finish = self._on_finish or Sequence()
+        self._on_finish.add(callback, interval=interval)
+
     def add(self, callback, interval=None, do_while=None):
+        # type: (callable, float, callable) -> Sequence
+        if isinstance(callback, Sequence):
+            if do_while:
+                raise "do_while is not available for Sequence"
+            callback._outer_seq = self
+            self._steps.append(callback)
+        else:
+            callback = [callback] if not isinstance(callback, Iterable) else callback
+            [self._steps.append(SequenceStep(step, sequence=self, interval=interval, do_while=do_while)) for step in callback]
+
+        if self._is_completed:
+            self._is_completed = False
+            self._is_running = False
+            self()
+
+        return self
+
+    def add_finish(self, callback, interval=None, do_while=None):
         # type: (callable, float, callable) -> Sequence
         if isinstance(callback, Sequence):
             if do_while:
@@ -94,11 +122,13 @@ class Sequence(object):
         if self._is_completed:
             return
         if len(self._steps):
-            log_ableton("%s : %s (%s)" % (self._name, self._steps[0], len(self.steps)))
+            if self._debug:
+                log_ableton("%s : %s (%s)" % (self._name, self._steps[0], len(self._steps)))
             self._steps.popleft()()
             return
 
-        log_ableton("%s is finished" % self._name)
+        if self._debug:
+            log_ableton("%s is finished" % self._name)
 
         self._execute_on_finish()
         if self._outer_seq:

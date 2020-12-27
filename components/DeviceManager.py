@@ -107,20 +107,23 @@ class DeviceManager(AbstractControlSurfaceComponent):
     def _get_device_click_x_position(self, device_position):
         return self.WIDTH_PIXEL_OFFSET + device_position * self.COLLAPSED_DEVICE_PIXEL_WIDTH
 
-    def check_plugin_window_showable(self, device, track, seq, auto_hide=True):
-        # type: (Live.Device.Device, SimpleTrack, Sequence, bool) -> None
-        if self.parent.keyboardShortcutManager.is_plugin_window_visible(self.name):
+    def is_plugin_window_visible(self, device):
+        return self.parent.keyboardShortcutManager.is_plugin_window_visible(device.name)
+
+    def check_plugin_window_showable(self, device, track, seq):
+        # type: (Live.Device.Device, SimpleTrack, Sequence) -> None
+        if self.is_plugin_window_visible(device):
             return
 
         self.parent.keyboardShortcutManager.show_plugins()
 
         def make_device_showable_deferred():
-            if not self.parent.keyboardShortcutManager.is_plugin_window_visible(self.name):
-                self._make_device_showable(device, track, seq=seq, auto_hide=auto_hide)
+            if not self.is_plugin_window_visible(device):
+                self._make_device_showable(device, track, seq=seq)
         seq.add(make_device_showable_deferred, interval=1)
 
-    def _make_device_showable(self, device, track, seq, auto_hide=True):
-        # type: (Live.Device.Device, SimpleTrack, Sequence, bool) -> None
+    def _make_device_showable(self, device, track, seq):
+        # type: (Live.Device.Device, SimpleTrack, Sequence) -> None
         """ handles only one level of grouping in racks. Should be enough for now """
         parent_rack = self._find_device_parent(device, track.top_devices)
 
@@ -140,10 +143,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
             seq.add(lambda: self.parent.keyboardShortcutManager.send_click(x=x_device, y=y_device), interval=1)  # open the plugin
             seq.add(lambda: self.parent.keyboardShortcutManager.toggle_device_button(x=x_rack, y=y_rack, activate=True), interval=1)  # hide / show rack macro controls
             seq.add(lambda: [setattr(d.view, "is_collapsed", False) for d in parent_rack.chains[0].devices], interval=0)
-            # at this point the rack macro controls are shown
-
-        if auto_hide:
-            seq.add(lambda: self.parent.keyboardShortcutManager.hide_plugins(), interval=0, do_while=lambda: self.parent.keyboardShortcutManager.is_plugin_window_visible(self.name))
+            # at this point the rack macro controls could still be hidden if the plugin window masks the button
 
         seq()
 

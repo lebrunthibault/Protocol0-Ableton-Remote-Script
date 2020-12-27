@@ -86,6 +86,11 @@ def button_action(auto_arm=False, log_action=True, auto_undo=True):
         def decorate(self, *a, **k):
             # type: (AbstractControlSurfaceComponent) -> None
             if log_action:
+                self.parent.log_info("---------------- " + func.__name__)
+                self.parent.log_info("---------------- " + func.__name__)
+                self.parent.log_info("---------------- " + func.__name__)
+                self.parent.log_info("---------------- " + func.__name__)
+                self.parent.log_info("---------------- " + func.__name__)
                 self.parent.log_info("Executing " + func.__name__)
 
             self.song.begin_undo_step()

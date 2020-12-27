@@ -9,7 +9,6 @@ from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.track.TrackName import TrackName
 from a_protocol_0.utils.Sequence import Sequence
 from a_protocol_0.utils.decorators import debounce
-from a_protocol_0.utils.log import log_ableton
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -58,31 +57,41 @@ class AbstractInstrument(AbstractObject):
         # type: () -> Sequence
         pass
 
-    def check_activated(self, auto_hide=True):
-        # type: (bool) -> None
+    def is_visible(self):
+        return self.parent.deviceManager.is_plugin_window_visible(self._device)
+
+    @property
+    def needs_activation(self):
+        return not self.activated or self.NEEDS_EXCLUSIVE_ACTIVATION and self.active_instance != self
+
+    def check_activated(self, focus_device_track=True):
+        # type: () -> Sequence
+        seq = Sequence([], interval=0, on_finish=Sequence(name="on_finish sequence"), name="activation sequence")
+
         if not self.can_be_shown:
-            return
+            return seq
 
-        on_finish_seq = Sequence(name="on_finish")
-
-        self.parent.log_debug((self.active_instance, self, self.NEEDS_EXCLUSIVE_ACTIVATION and self.active_instance != self))
-        if self.NEEDS_EXCLUSIVE_ACTIVATION and self.active_instance != self:
-            on_finish_seq.add(self.exclusive_activate())
-
-        seq = Sequence([], interval=0, on_finish=on_finish_seq, name="click sequence")
+        if (focus_device_track or self.needs_activation) and self.song.selected_track != self.device_track:
+            seq.add(lambda: self.song.select_track(self.device_track), interval=1)
         if not self.activated:
-            self.song.select_track(self.device_track)
-            on_finish_seq.add(lambda: setattr(self, "activated", True), interval=0)
-            self.parent.deviceManager.check_plugin_window_showable(self._device, self.device_track, seq=seq, auto_hide=auto_hide)
-        elif not auto_hide:
-            on_finish_seq.add(self.parent.keyboardShortcutManager.show_hide_plugins)
+            self.parent.deviceManager.check_plugin_window_showable(self._device, self.device_track, seq=seq)
+            seq.add_on_finish(lambda: setattr(self, "activated", True), interval=0)
+
+        if self.NEEDS_EXCLUSIVE_ACTIVATION and self.active_instance != self:
+            seq.add_on_finish(self.exclusive_activate())
+
+        return seq
+
+    def show_hide(self, force_show=False):
+        # here we are on the device track
+        seq = self.check_activated()
+        if force_show:
+            seq.add(self.parent.keyboardShortcutManager.show_plugins, interval=1)
         else:
-            on_finish_seq.add(lambda: self.song.select_track(self.track), interval=1)
+            seq.add(self.parent.keyboardShortcutManager.show_hide_plugins, interval=1)
 
         seq()
-
-    def show_hide(self):
-        self.check_activated(auto_hide=False)
+        return
 
     def _get_presets_path(self):
         return self.PRESETS_PATH

@@ -21,11 +21,11 @@ class SimpleTrackActionMixin(object):
             self.mute = False
             self.arm = True
 
+        selected_track = self.song.selected_track
         if self.instrument and self.instrument.NEEDS_EXCLUSIVE_ACTIVATION:
-            self.instrument.check_activated()
-
-        if len(self.all_devices):
-            self.song.select_device(self.all_devices[0])
+            seq = self.instrument.check_activated(focus_device_track=False)
+            seq.add_on_finish(lambda: self.song.select_track(selected_track), interval=4)
+            seq()
 
     def action_switch_monitoring(self):
         # type: (SimpleTrack) -> None
