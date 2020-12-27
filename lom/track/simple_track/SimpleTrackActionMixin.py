@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, Any
+from typing import TYPE_CHECKING, Any
 
 import Live
 from a_protocol_0.lom.Clip import Clip
@@ -8,7 +8,7 @@ from a_protocol_0.utils.utils import scroll_values
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
-    from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
+    from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
 # noinspection PyTypeHints
@@ -20,6 +20,9 @@ class SimpleTrackActionMixin(object):
         else:
             self.mute = False
             self.arm = True
+
+        if self.instrument and self.instrument.NEEDS_EXCLUSIVE_ACTIVATION:
+            self.instrument.check_activated()
 
         if len(self.all_devices):
             self.song.select_device(self.all_devices[0])
@@ -57,7 +60,14 @@ class SimpleTrackActionMixin(object):
 
     def create_clip(self, slot_number=0, name=None, bar_count=1, notes_callback=None, note_count=0, *a, **k):
         # type: (SimpleTrack, int, str, int, callable, int, Any, Any) -> None
-        self.clip_slots[slot_number]._clip_slot.create_clip(self.parent.utils.get_beat_time(bar_count))
+        if self.clip_slots[slot_number].has_clip:
+            return
+        try:
+            self.clip_slots[slot_number]._clip_slot.create_clip(self.parent.utils.get_beat_time(bar_count))
+        except RuntimeError:
+            self.parent.log_error("Tried to create clip on existing clip: %s", self.clip_slots[slot_number])
+            return
+
         if name:
             self.clip_slots[slot_number]._has_clip_listener._callbacks.append(lambda clip_slot: setattr(self.get_clip_slot(clip_slot).clip, "name", name))
         if notes_callback:

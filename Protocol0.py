@@ -75,7 +75,7 @@ class Protocol0(ControlSurface):
         # type: (str) -> None
         if level < LogLevel.ACTIVE_LOG_LEVEL:
             return
-        log_ableton(debug=debug, message=message, direct_call=False)
+        log_ableton(debug=debug, message="P0 - %s" % str(message), direct_call=False)
 
     def defer(self, callback):
         # type: (Callable) -> None
@@ -98,6 +98,6 @@ class Protocol0(ControlSurface):
         self._task_group.clear()
 
     def dev_boot(self):
-        self.protocol0_song.select_track(self.protocol0_song.tracks[11])
+        self.protocol0_song.select_track(self.protocol0_song.tracks[12])
         # self.protocol0_song.selected_track.play()
-        self.trackAutomationManager.create_automation_group(self.protocol0_song.selected_track)
+        # self.trackAutomationManager.create_automation_group(self.protocol0_song.selected_track)

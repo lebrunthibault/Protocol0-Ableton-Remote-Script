@@ -4,7 +4,7 @@ from a_protocol_0.lom.AbstractObject import AbstractObject
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
-    from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
+    from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
 class TrackName(AbstractObject):

@@ -8,7 +8,7 @@ from a_protocol_0.utils.decorators import subject_slot
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
-    from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
+    from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
 class ClipSlot(AbstractObject):

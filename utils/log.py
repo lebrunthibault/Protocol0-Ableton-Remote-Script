@@ -1,6 +1,7 @@
 import inspect
 import logging
 import os
+from contextlib import contextmanager
 from os.path import expanduser
 
 from a_protocol_0.consts import PROTOCOL0_FOLDER, REMOTE_SCRIPTS_FOLDER, LogLevel
@@ -18,6 +19,9 @@ logger = logging.getLogger(__name__)
 
 def log_ableton(message, debug=True, direct_call=True, exclusive_log=False):
     # type: (str, bool) -> None
+
+    if not isinstance(debug, bool):
+        raise "log_ableton: parameter mismatch"
     if debug:
         try:
             call_frame = inspect.currentframe().f_back if direct_call else inspect.currentframe().f_back.f_back.f_back
@@ -31,12 +35,11 @@ def log_ableton(message, debug=True, direct_call=True, exclusive_log=False):
     logging.info(message)
 
 
-class ExclusiveLogContextManager(object):
-    current_log_level = None
-
-    def __enter__(self):
-        self.current_log_level = LogLevel.ACTIVE_LOG_LEVEL
-        LogLevel.ACTIVE_LOG_LEVEL = LogLevel.EXCLUSIVE_LOG
-
-    def __exit__(self, type, value, traceback):
-        LogLevel.ACTIVE_LOG_LEVEL = self.current_log_level
+@contextmanager
+def set_object_attr(obj, attr, value):
+    if not hasattr(obj, attr):
+        raise "object %s has not specified attr : %s" % (obj, attr)
+    previous_value = getattr(obj, attr)
+    setattr(obj, attr, value)
+    yield
+    setattr(obj, attr, previous_value)

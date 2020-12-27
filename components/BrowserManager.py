@@ -3,9 +3,11 @@ from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceC
 
 
 class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
-    def load_rack_device(self, rack_name):
+    def load_rack_device(self, rack_name, hide=False):
         # type: (str) -> None
         self.load_from_user_library(None, "'%s.adg'" % rack_name)
+        if hide:
+            self.parent.defer(self.parent.keyboardShortcutManager.hide_plugins)
 
     def load_sample(self, preset_name):
         # type: (str) -> None

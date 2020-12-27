@@ -1,7 +1,7 @@
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import RECORDING_TIMES, TRACK_CATEGORIES, TRACK_CATEGORY_ALL
 from a_protocol_0.controls.MultiEncoder import MultiEncoder
-from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
+from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.utils.decorators import button_action
 from a_protocol_0.utils.utils import scroll_values, find_all_devices
 
@@ -71,7 +71,7 @@ class ActionManager(AbstractControlSurfaceComponent):
     @button_action(log_action=False)
     def action_scroll_tracks(self, go_next):
         """ scroll top tracks """
-        track_to_select = scroll_values(self.song.top_tracks, self.song.current_track.base_track,
+        track_to_select = scroll_values(self.song.scrollable_tracks, self.song.current_track.base_track,
                                         go_next)  # type: SimpleTrack
         if track_to_select:
             if track_to_select.playable_clip:

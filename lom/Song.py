@@ -1,6 +1,7 @@
 from typing import Any, List, Optional
 
 import Live
+
 from _Framework.Util import find_if
 from a_protocol_0.consts import TRACK_CATEGORY_ALL
 from a_protocol_0.lom.AbstractObject import AbstractObject
@@ -8,8 +9,9 @@ from a_protocol_0.lom.Clip import Clip
 from a_protocol_0.lom.ClipSlot import ClipSlot
 from a_protocol_0.lom.SongActionMixin import SongActionMixin
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
-from a_protocol_0.lom.track.ExternalSynthTrack import ExternalSynthTrack
-from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
+from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
+from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
+from a_protocol_0.lom.track.simple_track.AutomationTrack import AutomationTrack
 
 
 class Song(SongActionMixin, AbstractObject):
@@ -19,7 +21,7 @@ class Song(SongActionMixin, AbstractObject):
         self._song = song
         self._view = self._song.view  # type: Any
         self.tracks = []  # type: List[SimpleTrack]
-        self.abstract_group_tracks = []  # type: List[ExternalSynthTrack]
+        self.abstract_group_tracks = []  # type: List[AbstractGroupTrack]
         self.selected_track = None  # type: SimpleTrack
         self.current_track = None  # type: AbstractTrack
         self.master_track = self._song.master_track  # type: Live.Track.Track
@@ -42,9 +44,9 @@ class Song(SongActionMixin, AbstractObject):
         return self.tracks[(self.selected_track.index + increment) % len(self.tracks)]
 
     @property
-    def top_tracks(self):
+    def scrollable_tracks(self):
         # type: () -> List[SimpleTrack]
-        return [track for track in self.tracks if track.is_visible and not track.is_external_synth_sub_track]
+        return [track for track in self.tracks if track.is_visible and track.is_scrollable]
 
     @property
     def root_tracks(self):
@@ -69,7 +71,7 @@ class Song(SongActionMixin, AbstractObject):
         """ first look in track then in song """
         return find_if(lambda cs: cs._clip_slot == self.song._view.highlighted_clip_slot,
                        self.selected_track.clip_slots) or find_if(
-            lambda cs: cs._clip_slot == self.song._view.highlighted_clip_slot, self.song.clip_slots)
+            lambda cs: cs._clip_slot == self.song._view.highlighted_clip_slot, [cs for track in self.song.tracks for cs in track.clip_slots])
 
     @highlighted_clip_slot.setter
     def highlighted_clip_slot(self, clip_slot):

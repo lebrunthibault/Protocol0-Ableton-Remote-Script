@@ -58,8 +58,8 @@ class Utils(AbstractControlSurfaceComponent):
         return (ceil((position % length) / 4) * 4) % length
 
 
-def scroll_values(items, selected_item, go_next):
-    # type: (List[Any], Optional[Any], bool) -> Optional[Any]
+def scroll_values(items, selected_item, go_next, default=None):
+    # type: (List[Any], Optional[Any], bool, Any) -> Optional[Any]
     if len(items) == 0:
         return None
     increment = 1 if go_next else - 1
@@ -68,7 +68,10 @@ def scroll_values(items, selected_item, go_next):
         try:
             index = (items.index(selected_item) + increment) % len(items)
         except ValueError:
-            pass
+            try:
+                index = (items.index(default) + increment) % len(items)
+            except ValueError:
+                pass
 
     return items[index]
 
@@ -80,6 +83,22 @@ def find_where(predicate, seq):
 def find_last(predicate, seq):
     items = find_where(predicate, seq)
     return items[-1] if len(items) else None
+
+
+def is_equal(val1, val2):
+    if isinstance(val1, (int, long, float)) and isinstance(val2, (int, long, float)):
+        return abs(val1 - val2) < 0.00001
+    else:
+        return val1 == val2
+
+
+def compare_properties(obj1, obj2, properties):
+    for property in properties:
+        if not hasattr(obj1, property) or not hasattr(obj2, property) or not is_equal(getattr(obj1, property),
+                                                                                      getattr(obj2,
+                                                                                              property)):
+            return False
+    return True
 
 
 def find_all_devices(track, only_visible=False):
@@ -106,7 +125,28 @@ def _find_all_devices(track_or_chain, only_visible=False):
     return devices
 
 
+def is_method(func):
+    spec = inspect.getargspec(func)
+    return spec.args and spec.args[0] == 'self'
+
+
+def is_partial(func):
+    return str(type(func)) == "<type 'functools.partial'>"
+
+
 def _arg_count(func):
     # type: (callable) -> int
-    arg_len = len(inspect.getargspec(func).args)
-    return arg_len if isinstance(func, types.FunctionType) else arg_len - 1
+    """ Note : this is not ideal because we cannot know if the defaults are already set by e.g a partial function
+        Thus we could be subtracting twice a parameter, but that's better than to have an outer function setting a mismatched parameter
+    """
+    if is_partial(func):
+        spec = inspect.getargspec(func.func)
+        arg_len = len(spec.args) - len(func.args) - len(func.keywords)
+        if "self" in spec.args:
+            arg_len -= 1
+    else:
+        spec = inspect.getargspec(func)
+        arg_len = len(spec.args)
+    arg_len -= len(spec.defaults) if spec.defaults else 0
+    arg_count = arg_len if (isinstance(func, types.FunctionType) or is_partial(func)) else arg_len - 1
+    return max(arg_count, 0)

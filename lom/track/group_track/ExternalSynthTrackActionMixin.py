@@ -4,7 +4,7 @@ from a_protocol_0.lom.Colors import Colors
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
-    from a_protocol_0.lom.track.ExternalSynthTrack import ExternalSynthTrack
+    from a_protocol_0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 
 
 # noinspection PyTypeHints
@@ -17,13 +17,10 @@ class ExternalSynthTrackActionMixin(object):
         self.audio.action_arm_track()
         self.midi.has_monitor_in = False
         self.audio.has_monitor_in = True
-        if self.instrument:
-            self.instrument.check_activated()
 
     def action_unarm_track(self):
         # type: (ExternalSynthTrack) -> None
-        self.midi.has_monitor_in = True
-        self.audio.has_monitor_in = False
+        self.midi.has_monitor_in = self.audio.has_monitor_in = False
 
     def action_switch_monitoring(self):
         # type: (ExternalSynthTrack) -> None

@@ -73,25 +73,11 @@ class Push2Manager(AbstractControlSurfaceComponent):
     def _update_selected_modes(self, reselect=False):
         # type: (bool) -> None
         if self.update_selected_modes:
-            selected_main_mode = 'device'
-            selected_matrix_mode = 'session'
-            selected_instrument_mode = self.push2._instrument.selected_mode
+            self.push2._main_modes.selected_mode = self.song.current_track.push2_selected_main_mode
+            self.push2._matrix_modes.selected_mode = self.song.current_track.push2_selected_matrix_mode
+            self.push2._instrument.selected_mode = self.song.current_track.push2_selected_instrument_mode or self.push2._instrument.selected_mode
 
-            if self.song.current_track.is_simple_group:
-                selected_main_mode = 'mix'
-            elif self.song.current_track.is_automation:
-                selected_main_mode = 'clip'
-                selected_matrix_mode = 'note'
-                selected_instrument_mode = 'split_melodic_sequencer'
-            elif self.song.current_track.is_midi:
-                selected_matrix_mode = 'note'
-                selected_instrument_mode = 'split_melodic_sequencer'
-
-            self.push2._main_modes.selected_mode = selected_main_mode
-            self.push2._matrix_modes.selected_mode = selected_matrix_mode
-            self.push2._instrument.selected_mode = selected_instrument_mode
-
-            # See https://trello.com/c/0PUwHZOs/102-push2-bug-setting-selected-matrix-mode-after-clicking-on-session-ring-arrow-messes-selected-track
+            # https://trello.com/c/0PUwHZOs/102-push2-bug-setting-selected-matrix-mode-after-clicking-on-session-ring-arrow-messes-selected-track
             if reselect:
                 self.update_selected_modes = False
                 self.song.select_track(self.song.current_track)

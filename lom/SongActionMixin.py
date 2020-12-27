@@ -2,7 +2,8 @@ from typing import TYPE_CHECKING, Optional
 
 import Live
 
-from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
+from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
+from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.utils.decorators import defer
 
 if TYPE_CHECKING:
@@ -13,8 +14,8 @@ if TYPE_CHECKING:
 # noinspection PyTypeHints
 class SongActionMixin(object):
     def select_track(self, selected_track):
-        # type: (Song, SimpleTrack) -> None
-        self._view.selected_track = selected_track._track
+        # type: (Song, AbstractTrack) -> None
+        self._view.selected_track = selected_track.base_track._track
         self.parent.songManager._set_current_track()
 
     def unfocus_all_tracks(self):
@@ -43,6 +44,14 @@ class SongActionMixin(object):
     def stop_all_clips(self, quantized=1):
         # type: (Song, int) -> None
         self._song.stop_all_clips(quantized)
+
+    def begin_undo_step(self):
+        # type: (Song) -> None
+        self._song.begin_undo_step()
+
+    def end_undo_step(self):
+        # type: (Song) -> None
+        self._song.end_undo_step()
 
     def undo(self):
         # type: (Song) -> None

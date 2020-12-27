@@ -35,7 +35,7 @@ class InstrumentSimpler(AbstractInstrument):
 
         return join(SAMPLE_PATH, self.selected_category)
 
-    @debounce
+    @debounce(2)
     def set_preset(self, preset_index):
         # type: (int) -> None
         self.parent.browserManager.load_sample(self.preset_names[preset_index])

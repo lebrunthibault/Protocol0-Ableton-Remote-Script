@@ -2,12 +2,13 @@ import subprocess
 from os.path import expanduser
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from a_protocol_0.utils.decorators import defer, log
 
 home = expanduser("~")
 
 
 class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
-    def sendKeys(self, keys):
+    def send_keys(self, keys):
         # type: (str) -> None
         self.parent.log_info("Sending keys : " + keys)
         subprocess.Popen(["pythonw.exe",
@@ -15,25 +16,48 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
                           keys]
                          ).communicate()
 
-    def sendClick(self, x, y):
+    def send_click(self, x, y):
         # type: (int, int) -> None
-        self.sendKeys("%d,%d" % (x, y))
+        self.send_keys("%d,%d" % (x, y))
 
     def show_hide_plugins(self):
-        self.sendKeys("^%p")
+        # visible = self.is_plugin_window_visible()
+        self.send_keys("^%p")
 
-    def toggle_first_vst(self):
-        self.sendKeys("^{F1}")
+        # def alternate_method():
+        #     if self.is_plugin_window_visible() == visible:
+        #         if visible:
+        #             self.hide_plugins()
+        #         else:
+        #             self.show_plugins()
+        # self.parent.defer(alternate_method)
 
-    def toggle_first_vst_with_rack(self):
-        self.sendKeys("^{F2}")
+    def show_plugins(self):
+        self.send_keys("^{F1}")
+
+    def hide_plugins(self):
+        self.send_keys("^{F2}")
+
+    def toggle_device_button(self, x, y, activate=True):
+        # type: (int, int) -> None
+        subprocess.Popen(["C:\\Program Files\\AutoHotkey\\AutoHotkey.exe",
+                          home + "\\Google Drive\\music\\dev\\scripts\\ahk\\deactivate_ableton_button.ahk",
+                          str(x), str(y), "1" if activate else "0"]).communicate()
+
+    def is_plugin_window_visible(self, plugin_name=""):
+        # type: (str) -> bool
+        child = subprocess.Popen(["C:\\Program Files\\AutoHotkey\\AutoHotkey.exe",
+                                  home + "\\Google Drive\\music\\dev\\scripts\\ahk\\show_plugins_and_check.ahk",
+                                  str(plugin_name)])
+        child.communicate()
+        return bool(child.returncode)
 
     def show_and_activate_rev2_editor(self):
-        self.sendKeys("^{F3}")
+        self.send_keys("^{F3}")
 
+    @defer
     def group_track(self):
-        self.sendKeys("^{F5}")
+        self.send_keys("^{F4}")
 
     def up(self):
-        self.sendKeys("^{F6}")
-
+        self.send_keys("^{F5}")

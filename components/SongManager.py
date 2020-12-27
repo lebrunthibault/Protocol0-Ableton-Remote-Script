@@ -2,11 +2,12 @@ import collections
 from plistlib import Dict
 from typing import Optional, Any
 
-from _Framework.SubjectSlot import subject_slot
+# from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
-from a_protocol_0.lom.track.ExternalSynthTrack import ExternalSynthTrack
-from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
+from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
+from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
+from a_protocol_0.utils.decorators import subject_slot, has_callback_queue
 
 
 class SongManager(AbstractControlSurfaceComponent):
@@ -15,7 +16,7 @@ class SongManager(AbstractControlSurfaceComponent):
     def __init__(self, *a, **k):
         super(SongManager, self).__init__(*a, **k)
         self._live_track_to_simple_track = collections.OrderedDict()  # type: Dict[Any, SimpleTrack]
-        self._simple_track_to_external_synth_track = collections.OrderedDict()  # type: Dict[SimpleTrack, ExternalSynthTrack]
+        self._simple_track_to_abstract_group_track = collections.OrderedDict()  # type: Dict[SimpleTrack, AbstractGroupTrack]
         self._tracks_listener.subject = self.song._song
         self.update_highlighted_clip_slot = True
 
@@ -25,6 +26,7 @@ class SongManager(AbstractControlSurfaceComponent):
         self._highlighted_clip_slot_poller()
         self.song.reset()
 
+    @has_callback_queue
     def on_selected_track_changed(self):
         self._set_current_track()
         self.parent.clyphxNavigationManager.show_track_view()
@@ -42,34 +44,21 @@ class SongManager(AbstractControlSurfaceComponent):
             # noinspection PyUnresolvedReferences
             self.notify_added_track()
 
+        # generate simple tracks
         self.song.tracks = []
-        self.song.abstract_group_tracks = []
-
         for i, track in enumerate(list(self.song._song.tracks)):
-            simple_track = self.parent.trackManager.create_simple_track(track=track, index=i)
+            simple_track = self.parent.trackManager.instantiate_simple_track(track=track, index=i)
             self._live_track_to_simple_track[track] = simple_track
             self.song.tracks.append(simple_track)
 
-        # link sub_tracks
-        for track in self.song.tracks:  # type: SimpleTrack
-            if track._track.group_track:
-                track.group_track = self._get_simple_track(track._track.group_track)
-                track.group_track.sub_tracks.append(track)
-                track.group_tracks = [track.group_track] + track.group_track.group_tracks
-
         # generate group tracks
-        for track in self.song.tracks:  # type: SimpleTrack
-            if track.is_external_synth_track:
-                self.song.abstract_group_tracks.append(ExternalSynthTrack(track=track, index=track.index))
-            if track.is_automation_group:
-
-        self._simple_track_to_external_synth_track = {}
-        for es_track in self.song.abstract_group_tracks:
-            self._simple_track_to_external_synth_track.update(
-                {es_track.base_track: es_track, es_track.midi: es_track, es_track.audio: es_track})
+        self.song.abstract_group_tracks = list(filter(None, [self.parent.trackManager.instantiate_abstract_group_track(track) for track in self.song.tracks]))
+        self._simple_track_to_abstract_group_track = {}
+        for abstract_group_track in self.song.abstract_group_tracks:  # type: AbstractGroupTrack
+            for abstract_group_sub_track in abstract_group_track.all_tracks:
+                self._simple_track_to_abstract_group_track.update({abstract_group_sub_track: abstract_group_track})
 
         self._set_current_track()
-        self.song.clip_slots = [cs for track in self.song.tracks for cs in track.clip_slots]
         self.parent.log_info("SongManager : mapped tracks")
 
     def _highlighted_clip_slot_poller(self):
@@ -113,9 +102,9 @@ class SongManager(AbstractControlSurfaceComponent):
 
     def get_current_track(self, track):
         # type: (SimpleTrack) -> AbstractTrack
-        if track in self._simple_track_to_external_synth_track:
-            return self._simple_track_to_external_synth_track[track]
-        elif track in self._wrapped_group_tracks:
-            return self._wrapped_group_tracks[track]
-        else:
-            return track
+        if track in self._simple_track_to_abstract_group_track:
+            if not track.is_scrollable or self._simple_track_to_abstract_group_track[track].base_track == track:
+                # click either on a sub_track forwarding to group or the group_track base track yields the group track
+                return self._simple_track_to_abstract_group_track[track]
+
+        return track

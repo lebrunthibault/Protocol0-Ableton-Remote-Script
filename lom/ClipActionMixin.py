@@ -4,6 +4,7 @@ from _Framework.Util import find_if
 from a_protocol_0.consts import push2_beat_quantization_steps
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.utils.decorators import defer
+from a_protocol_0.utils.utils import compare_properties
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -12,25 +13,21 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class ClipActionMixin(object):
-    def __init__(self):
-        super(ClipActionMixin, self).__init__()
-        self._is_updating_notes = False
-        self._scheduled_note_operation_count = 0
-
     def get_notes(self, startTime=0, timeRange=0, startPitch=0, pitchRange=128):
         # type: (Clip, int, float, float, int) -> List[Note]
-        notes = [Note(*note) for note in self._clip.get_notes(startTime, startPitch, timeRange or self.length, pitchRange)]
+        notes = [Note(*note, clip=self) for note in self._clip.get_notes(startTime, startPitch, timeRange or self.length, pitchRange)]
         notes.sort(key=lambda x: x.start)
         return notes
 
     def get_selected_notes(self):
         # type: (Clip) -> None
-        return [Note(*note) for note in self._clip.get_selected_notes()]
+        return [Note(*note, clip=self) for note in self._clip.get_selected_notes()]
 
     @defer
     def replace_selected_notes(self, notes):
         # type: (Clip, List[Note]) -> None
         self._is_updating_notes = True
+        self._notes = notes
         self._clip.replace_selected_notes(tuple(note.to_data() for note in notes))
         self.parent.defer(lambda: setattr(self, "_is_updating_notes", False))
 
@@ -45,10 +42,21 @@ class ClipActionMixin(object):
         # type: (Clip) -> None
         self._clip.select_all_notes()
 
-    def replace_all_notes(self, notes):
+    def deselect_all_notes(self):
         # type: (Clip) -> None
+        self._clip.deselect_all_notes()
+
+    def replace_all_notes(self, notes):
+        # type: (Clip, List[Note]) -> None
         self.select_all_notes()
         self.replace_selected_notes(notes)
+        self.parent.defer(self.deselect_all_notes)
+
+    def notes_changed(self, notes, properties):
+        # type: (Clip, List[Note], List[str]) -> List[Note]
+        if len(self._notes) != len(notes):
+            return notes
+        return list(filter(None, map(lambda x, y: None if compare_properties(x, y, properties) else (x, y), self._notes, notes)))
 
     @property
     def min_note_quantization_start(self):

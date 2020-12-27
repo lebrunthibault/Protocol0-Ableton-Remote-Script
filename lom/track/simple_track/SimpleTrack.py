@@ -1,11 +1,12 @@
 from typing import List, Optional
 
+import Live
 from _Framework.SubjectSlot import subject_slot, subject_slot_group
 from _Framework.Util import find_if
 from a_protocol_0.lom.Clip import Clip
 from a_protocol_0.lom.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
-from a_protocol_0.lom.track.SimpleTrackActionMixin import SimpleTrackActionMixin
+from a_protocol_0.lom.track.simple_track.SimpleTrackActionMixin import SimpleTrackActionMixin
 from a_protocol_0.lom.track.TrackName import TrackName
 from a_protocol_0.utils.decorators import defer
 
@@ -13,15 +14,24 @@ from a_protocol_0.utils.decorators import defer
 class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     __subject_events__ = ('base_name',)
 
-    def __init__(self, *a, **k):
-        super(SimpleTrack, self).__init__(*a, **k)
+    def __init__(self, track, index, *a, **k):
+        # type: (Live.Track.Track, int) -> None
+        self._track = track
+        self.index = index
+        super(SimpleTrack, self).__init__(track=self, *a, **k)
+        if self.group_track:
+            self.group_track.sub_tracks.append(self)
         self.clip_slots = []  # type: List[ClipSlot]
         self._clip_slots_listener.subject = self._track
         self._clip_slots_listener()
+        self._clip_notes_listener.replace_subjects([clip._clip for clip in self.clips])
         self._playing_slot_index_listener.subject = self._track
         self.base_name = self.name
         self._name_listener.subject = self._track
-        self.instrument = self.parent.deviceManager.create_instrument_from_simple_track(track=self)  # AbstractInstrument
+        self.instrument = self.parent.deviceManager.create_instrument_from_simple_track(track=self)
+        if self.is_midi:  # could later create a SimpleMidiTrack class if necessary
+            self.push2_selected_matrix_mode = 'note'
+            self.push2_selected_instrument_mode = 'split_melodic_sequencer'
 
     def __hash__(self):
         return self.index
@@ -53,15 +63,9 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         clip = self.clip_slots[self.playing_slot_index].clip
         if not clip:
             return
-        clip.color = self.base_color
         if clip.is_playing:
-            return
             TrackName(self).clip_slot_index = self.playing_slot_index
             [setattr(clip, "is_selected", False) for clip in self.clips]
-
-    @property
-    def is_external_synth_sub_track(self):
-        return self.group_track and self.group_track.is_external_synth_track
 
     @property
     def is_playing(self):
@@ -112,50 +116,9 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             self._track.arm = arm
 
     @property
-    def mute(self):
-        # type: () -> bool
-        return self._track.mute
-
-    @mute.setter
-    def mute(self, mute):
-        # type: (bool) -> None
-        self._track.mute = mute
-
-    @property
-    def solo(self):
-        # type: () -> bool
-        return self._track.solo
-
-    @solo.setter
-    def solo(self, solo):
-        # type: (bool) -> None
-        self._track.solo = solo
-
-    @property
-    def has_monitor_in(self):
-        # type: () -> bool
-        return self._track.current_monitoring_state == 0
-
-    @has_monitor_in.setter
-    def has_monitor_in(self, has_monitor_in):
-        # type: (bool) -> None
-        self._track.current_monitoring_state = int(not has_monitor_in)
-
-    @property
     def _empty_clip_slots(self):
         # type: () -> List[ClipSlot]
         return [clip_slot for clip_slot in self.clip_slots if not clip_slot.has_clip]
-
-    @property
-    def volume(self):
-        # type: () -> float
-        return self._track.mixer_device.volume.value
-
-    @volume.setter
-    @defer
-    def volume(self, volume):
-        # type: (float) -> None
-        self._track.mixer_device.volume.value = volume
 
     @property
     def _next_empty_clip_slot_index(self):

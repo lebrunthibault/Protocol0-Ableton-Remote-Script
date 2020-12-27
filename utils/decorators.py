@@ -4,23 +4,14 @@ from functools import partial, wraps
 from typing import TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
-from a_protocol_0.utils.utils import _arg_count
+from a_protocol_0.utils.log import log_ableton
+from a_protocol_0.utils.utils import _arg_count, is_method
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
     # noinspection PyUnresolvedReferences
     from a_protocol_0.components.Push2Manager import Push2Manager
-
-
-def for_all_methods(decorator):
-    def decorate(cls):
-        for attr in cls.__dict__:
-            if callable(getattr(cls, attr)):
-                setattr(cls, attr, decorator(getattr(cls, attr)))
-        return cls
-
-    return decorate
 
 
 def push2_method(defer=True):
@@ -48,9 +39,9 @@ def push2_method(defer=True):
 
 def defer(func):
     @wraps(func)
-    def decorate(self, *a, **k):
-        # type: (AbstractControlSurfaceComponent) -> None
-        self.parent.defer(partial(func, self, *a, **k))
+    def decorate(*a, **k):
+        from a_protocol_0 import Protocol0
+        Protocol0.SELF.defer(partial(func, *a, **k))
 
     return decorate
 
@@ -67,31 +58,37 @@ def wait(wait_time):
     return wrap
 
 
-def debounce(func):
-    @wraps(func)
-    def decorate(self, *a, **k):
-        # type: (AbstractControlSurfaceComponent) -> None
-        decorate.count[self] += 1
-        self.parent._wait(decorate.wait_time[self], partial(execute, func, self, *a, **k))
+def debounce(wait_time=2):
+    def wrap(func):
+        @wraps(func)
+        def decorate(*a, **k):
+            index = a[0] if is_method(func) else decorate
+            decorate.count[index] += 1
+            from a_protocol_0 import Protocol0
+            Protocol0.SELF._wait(decorate.wait_time[index], partial(execute, func, *a, **k))
 
-    decorate.count = defaultdict(int)
-    decorate.wait_time = defaultdict(lambda: 3)
+        decorate.count = defaultdict(int)
+        decorate.wait_time = defaultdict(lambda: wait_time)
 
-    def execute(func, self, *a, **k):
-        decorate.count[self] -= 1
-        if decorate.count[self] == 0:
-            func(self, *a, **k)
+        def execute(func, *a, **k):
+            index = a[0] if is_method(func) else decorate
+            decorate.count[index] -= 1
+            if decorate.count[index] == 0:
+                func(*a, **k)
 
-    return decorate
+        return decorate
+    return wrap
 
 
-def button_action(auto_arm=False, log_action=True):
+def button_action(auto_arm=False, log_action=True, auto_undo=True):
     def wrap(func):
         @wraps(func)
         def decorate(self, *a, **k):
             # type: (AbstractControlSurfaceComponent) -> None
             if log_action:
                 self.parent.log_info("Executing " + func.__name__)
+
+            self.song.begin_undo_step()
             try:
                 if auto_arm:
                     self.song.unfocus_all_tracks()
@@ -101,6 +98,8 @@ def button_action(auto_arm=False, log_action=True):
             except Exception:
                 self.parent.log_info(traceback.format_exc())
                 return
+            if auto_undo:
+                self.parent.defer(self.song.end_undo_step)
 
         return decorate
 
@@ -126,47 +125,59 @@ def has_callback_queue(func):
         def __init__(self):
             self.__name__ = func.__name__
             self.__doc__ = func.__doc__
-            self.parent = None
             self._data_name = u'%s_%d_decorated_instance' % (func.__name__, id(self))
 
-        def setup_decorated_function(self, decorated, obj):
-            """ initialisation code on first object lookup """
-            decorated.listener = self.listener(decorated)
-            decorated._callbacks = []
-
         def __get__(self, obj, cls=None):
+
             if obj is None:
                 return
             try:
                 return obj.__dict__[self._data_name]
             except KeyError:
-                decorated = func.__get__(obj)  # calling inner descriptor. creating decorated which is is a SubjectSlot
-                obj.__dict__[self._data_name] = decorated  # setting decorated on outer descriptor
-                self.setup_decorated_function(decorated, obj)
-                return decorated
-
-        def listener(self, decorated):
-            def decorate(*a, **k):
-                from a_protocol_0.Protocol0 import Protocol0
-                self.parent = self.parent or Protocol0.SELF
-                decorated(*a, **k)
-                for callback in decorated._callbacks:
-                    self.parent.defer(callback if _arg_count(callback) == 0 else partial(callback, decorated.subject))
+                # checking if we are on top of a subject_slot decorator
+                if bool(getattr(func, "_data_name", None)):
+                    decorated = func.__get__(obj)  # calling inner descriptor. decorated is a SubjectSlot
+                    decorated.listener = self.callback_wrapper(decorated)
+                else:
+                    decorated = self.callback_wrapper(partial(func, obj))
+                    # here we set _callbacks directly on callback_caller
                 decorated._callbacks = []
+                obj.__dict__[self._data_name] = decorated  # setting decorated on outer descriptor
+                return decorated  # decorated is the outer most function replacing the decorated method
 
-            return decorate
+        def callback_wrapper(self, decorated):
+            def callback_caller(*a, **k):
+                from a_protocol_0.Protocol0 import Protocol0
+                decorated(*a, **k)
+
+                callback_provider = decorated if hasattr(decorated, "_callbacks") else callback_caller
+                # callbacks deduplication (useful to mitigate e.g. double encoder click)
+                for callback in set(callback_provider._callbacks):
+                    Protocol0.SELF.defer(partial(callback, getattr(decorated, "subject", "toto")) if _arg_count(callback) == 1 else callback)
+                    # Protocol0.SELF.defer(partial(callback, decorated.subject) if hasattr(decorated, "subject") and _arg_count(callback) == 1 else callback)
+                callback_provider._callbacks = []
+
+            return callback_caller
 
     return CallbackDescriptor()
 
 
 def catch_and_log(func):
     @wraps(func)
-    def decorate(self, *a, **k):
-        # type: (AbstractControlSurfaceComponent) -> None
+    def decorate(*a, **k):
         try:
-            func(self, *a, **k)
+            func(*a, **k)
         except Exception:
-            self.parent.log_info(traceback.format_exc())
+            log_ableton(traceback.format_exc())
             return
+
+    return decorate
+
+
+def log(func):
+    @wraps(func)
+    def decorate(*a, **k):
+        log_ableton((func, a, k))
+        func(*a, **k)
 
     return decorate
