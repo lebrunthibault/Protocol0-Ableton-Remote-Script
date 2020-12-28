@@ -4,6 +4,7 @@ import Live
 from a_protocol_0.lom.Clip import Clip
 from a_protocol_0.lom.ClipSlot import ClipSlot
 from a_protocol_0.lom.Colors import Colors
+from a_protocol_0.utils.Sequence import Sequence
 from a_protocol_0.utils.utils import scroll_values
 
 if TYPE_CHECKING:
@@ -23,8 +24,9 @@ class SimpleTrackActionMixin(object):
 
         selected_track = self.song.selected_track
         if self.instrument and self.instrument.NEEDS_EXCLUSIVE_ACTIVATION:
-            seq = self.instrument.check_activated(focus_device_track=False)
-            seq.add(lambda: self.song.select_track(selected_track), interval=10, name="reselect base track")
+            seq = Sequence(name="action arm track")
+            seq.add(self.instrument.check_activated(focus_device_track=False))
+            seq.add(self.song.select_track(selected_track), interval=3, name="reselect base track")
             seq()
 
     def action_switch_monitoring(self):
@@ -35,7 +37,7 @@ class SimpleTrackActionMixin(object):
         # type: (SimpleTrack, int) -> None
         clip_slot_index = clip_slot_index if clip_slot_index else self._next_empty_clip_slot_index
         self.parent.show_message("Starting recording of %d bars" % self.bar_count)
-        self.parent.defer(lambda: self.clip_slots[clip_slot_index].fire(record_length=self.parent.utils.get_beat_time(self.bar_count)))
+        self.parent.defer(lambda: self.clip_slots[clip_slot_index].fire(record_length=self.parent.utilsManager.get_beat_time(self.bar_count)))
 
     def play(self):
         # type: (SimpleTrack) -> None
@@ -47,7 +49,7 @@ class SimpleTrackActionMixin(object):
             self.playable_clip.is_playing = True
             if self.song.playing_clips:
                 max_clip = max(self.song.playing_clips, key=lambda c: c.length)
-                self.playable_clip._clip.start_marker = self.parent.utils.get_next_quantized_position(max_clip.playing_position, self.playable_clip.length)
+                self.playable_clip._clip.start_marker = self.parent.utilsManager.get_next_quantized_position(max_clip.playing_position, self.playable_clip.length)
 
     def action_undo_track(self):
         # type: (SimpleTrack) -> None
@@ -63,7 +65,7 @@ class SimpleTrackActionMixin(object):
         if self.clip_slots[slot_number].has_clip:
             return
         try:
-            self.clip_slots[slot_number]._clip_slot.create_clip(self.parent.utils.get_beat_time(bar_count))
+            self.clip_slots[slot_number]._clip_slot.create_clip(self.parent.utilsManager.get_beat_time(bar_count))
         except RuntimeError:
             self.parent.log_error("Tried to create clip on existing clip: %s", self.clip_slots[slot_number])
             return

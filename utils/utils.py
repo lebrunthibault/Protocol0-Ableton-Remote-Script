@@ -2,12 +2,10 @@ import inspect
 import types
 from functools import partial as _partial
 from itertools import chain, imap
-from math import ceil
 from typing import Optional, Any, List, Union, TYPE_CHECKING
 
 import Live
 
-from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import PROTOCOL0_FOLDER, REMOTE_SCRIPTS_FOLDER
 
 if TYPE_CHECKING:
@@ -42,21 +40,6 @@ def parse_midi_value(num_as_string, default_value=0):
 def parse_midi_channel(num_as_string):
     """ Returns a MIDI channel number (0 - 15) or 0 if parse error. """
     return parse_number(num_as_string, default_value=1, min_value=1, max_value=16) - 1
-
-
-class Utils(AbstractControlSurfaceComponent):
-
-    def get_beat_time(self, bar_count=1):
-        """ Returns the absolute beat time to use based on the given bar_count arg and current time
-        signature of the song """
-        beat = 4.0 / self.song._song.signature_denominator
-        num = parse_number(bar_count, min_value=0, default_value=1, is_float=True)
-        return beat * self.song._song.signature_numerator * num
-
-    def get_next_quantized_position(self, position, length):
-        # type: (float, float) -> float
-        """ Use clip_trigger_quantization if the quantization is variable """
-        return (ceil((position % length) / 4) * 4) % length
 
 
 def scroll_values(items, selected_item, go_next, default=None):

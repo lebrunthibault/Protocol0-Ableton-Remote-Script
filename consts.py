@@ -1,3 +1,4 @@
+import os
 from fractions import Fraction
 from os.path import dirname
 
@@ -8,7 +9,7 @@ TRACK_CATEGORY_OTHER = "Other"
 TRACK_CATEGORY_ALL = "All"
 TRACK_CATEGORIES = [TRACK_CATEGORY_DRUMS, TRACK_CATEGORY_OTHER, TRACK_CATEGORY_ALL]
 ABLETON_USER_LIBRARY_PATH = "C:\\Users\\thiba\\Google Drive\\music\\software presets\\Ableton User Library"
-PROTOCOL0_FOLDER = dirname(__file__)
+PROTOCOL0_FOLDER = dirname(os.path.realpath(__file__))
 REMOTE_SCRIPTS_FOLDER = dirname(PROTOCOL0_FOLDER)
 SAMPLE_PATH = ABLETON_USER_LIBRARY_PATH + "\\Samples\\Imported"
 EXTERNAL_SYNTH_PROPHET_NAME = "prophet"

@@ -35,9 +35,10 @@ class TrackManager(AbstractControlSurfaceComponent):
             seq.add(notify_after=self._added_track_listener)
 
     @defer
-    def create_midi_track(self, index, name=None, seq=None):
-        # type: (int, str, Sequence) -> None
-        self.song._song.create_midi_track(index)
+    def create_midi_track(self, index, name=None):
+        # type: (int, str) -> None
+        seq = Sequence(name="create midi track")
+        seq.add(lambda: self.song._song.create_midi_track(index), notify_after=self.parent.trackManager._added_track_listener)
 
         @defer
         def set_name():
@@ -51,9 +52,9 @@ class TrackManager(AbstractControlSurfaceComponent):
                 track.group_track._added_track_init()  # the group track could change type as well
 
         if name is not None:
-            self.parent.trackManager._added_track_listener._callbacks.append(set_name)
-        if seq:
-            seq.add(notify_after=self.parent.trackManager._added_track_listener)
+            seq.add(set_name)
+
+        return seq
 
     def instantiate_simple_track(self, track, index):
         # type: (Live.Track.Track, int) -> SimpleTrack

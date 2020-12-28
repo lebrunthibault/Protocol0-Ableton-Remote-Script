@@ -12,15 +12,16 @@ class TrackAutomationManager(AbstractControlSurfaceComponent):
     def create_automation_group(self, base_track):
         # type: (SimpleTrack) -> None
         """ first step, instrument track is selected """
-        seq = Sequence()
+        seq = Sequence(name="create automation group")
 
         if self.song.current_track.is_foldable:
             self.song.current_track.is_folded = False
-            seq.add(self.song.select_track(self.song.current_track))
+            if self.song.selected_track != self.song.current_track.base_track:
+                seq.add(self.song.select_track(self.song.current_track))
         else:
             self.parent.trackManager.group_track(seq=seq)
-        seq.add(lambda: self.parent.browserManager.load_rack_device("LFOTool_filter_automation", seq=seq))
-        seq.add(lambda: self.parent.trackManager.create_midi_track(self.song.selected_track.index + 1, name=AUTOMATION_TRACK_NAME, seq=seq))
+        seq.add(self.parent.browserManager.load_rack_device("LFOTool_filter_automation", sync=False))
+        seq.add(self.parent.trackManager.create_midi_track(self.song.selected_track.index + 1, name=AUTOMATION_TRACK_NAME))
 
         seq()
 

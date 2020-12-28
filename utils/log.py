@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 from contextlib import contextmanager
 from os.path import expanduser
 
@@ -8,7 +9,8 @@ from a_protocol_0.utils.utils import get_frame_info
 
 home = expanduser("~")
 abletonVersion = os.getenv("abletonVersion")
-logging.basicConfig(filename=home + "/AppData/Roaming/Ableton/Live " + abletonVersion + "/Preferences/Log.txt",
+log_file = "Log.txt" if sys.modules["Live"] else "Log-external.txt"
+logging.basicConfig(filename=home + "/AppData/Roaming/Ableton/Live " + abletonVersion + "/Preferences/" + log_file,
                     filemode='a',
                     format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
                     datefmt='%H:%M:%S',
@@ -20,7 +22,7 @@ logger = logging.getLogger(__name__)
 def log_ableton(message, debug=True, direct_call=True, exclusive_log=False):
     # type: (str, bool) -> None
     if not isinstance(debug, bool):
-        raise "log_ableton: parameter mismatch"
+        raise RuntimeError("log_ableton: parameter mismatch")
     if debug:
         try:
             func_info = get_frame_info(1 if direct_call else 3)
@@ -37,7 +39,7 @@ def log_ableton(message, debug=True, direct_call=True, exclusive_log=False):
 @contextmanager
 def set_object_attr(obj, attr, value):
     if not hasattr(obj, attr):
-        raise "object %s has not specified attr : %s" % (obj, attr)
+        raise RuntimeError("object %s has not specified attr : %s" % (obj, attr))
     previous_value = getattr(obj, attr)
     setattr(obj, attr, value)
     yield

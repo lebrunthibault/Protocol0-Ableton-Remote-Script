@@ -116,12 +116,12 @@ class DeviceManager(AbstractControlSurfaceComponent):
 
         self.parent.keyboardShortcutManager.show_plugins()
         return Sequence(name="check_plugin_window_showable") \
-            .add(lambda: self._make_device_showable(device, track), interval=1, name="make_device_showable")
+            .add(self._make_device_showable(device, track), interval=1, name="make device showable")
 
     def _make_device_showable(self, device, track):
         # type: (Live.Device.Device, SimpleTrack) -> Sequence
         """ handles only one level of grouping in racks. Should be enough for now """
-        seq = Sequence(name="_make_device_showable")
+        seq = Sequence(name="make device showable")
 
         if self.is_plugin_window_visible(device):
             return seq

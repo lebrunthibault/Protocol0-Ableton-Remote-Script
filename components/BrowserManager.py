@@ -5,14 +5,13 @@ from a_protocol_0.utils.Sequence import Sequence
 
 
 class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
-    def load_rack_device(self, rack_name, hide=False, seq=None):
+    def load_rack_device(self, rack_name, hide=False, sync=True):
         # type: (str, bool, Sequence) -> None
-        self.load_from_user_library(None, "'%s.adg'" % rack_name)
+        seq = Sequence(name="load rack device", sync=sync)
+        seq.add(lambda: self.load_from_user_library(None, "'%s.adg'" % rack_name), notify_after=lambda: find_if(lambda d: d.name == rack_name, self.song.selected_track.devices))
         if hide:
-            self.parent.defer(self.parent.keyboardShortcutManager.hide_plugins)
-        if seq:
-            track = self.song.selected_track
-            seq.add(notify_after=lambda: find_if(lambda d: d.name == rack_name, track.devices))
+            seq.add(self.parent.keyboardShortcutManager.hide_plugins, interval=1)
+        return seq
 
     def load_sample(self, preset_name):
         # type: (str) -> None

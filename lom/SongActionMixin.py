@@ -13,15 +13,9 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class SongActionMixin(object):
-    def select_track(self, selected_track):
-        # type: (Song, AbstractTrack) -> Optional[Sequence]
-        seq = Sequence(name="select_track")
-        if self.selected_track == selected_track.base_track:
-            return
-        self._view.selected_track = selected_track.base_track._track
-        self.parent.songManager._set_current_track()
-
-        return Sequence(name="select_track").add(interval=1)
+    def select_track(self, selected_track, sync=False):
+        # type: (Song, AbstractTrack, bool) -> Optional[Sequence]
+        return Sequence(name="select_track", sync=sync).add(lambda: setattr(self._view, "selected_track", selected_track.base_track._track)).add(interval=1)
 
     def unfocus_all_tracks(self):
         # type: (Song) -> None
@@ -39,8 +33,6 @@ class SongActionMixin(object):
         self._song.current_song_time = 0
         [track.reset_track() for track in self.tracks]
         [track.reset_track() for track in self.abstract_group_tracks]
-        if len(self.tracks):
-            self.song.select_track(self.tracks[0])
 
     def stop_playing(self):
         # type: (Song) -> None

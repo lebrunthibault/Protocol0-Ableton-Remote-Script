@@ -35,3 +35,4 @@ class LiveMock(object):
     def __init__(self):
         self.Song = SongMock()
         self.Application = LiveApplicationMock()
+

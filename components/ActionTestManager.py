@@ -1,6 +1,5 @@
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.controls.MultiEncoder import MultiEncoder
-from a_protocol_0.lom.track.TrackName import TrackName
 from a_protocol_0.utils.decorators import button_action
 
 
@@ -13,4 +12,4 @@ class ActionTestManager(AbstractControlSurfaceComponent):
 
     @button_action()
     def action_test(self):
-        TrackName(self.song.selected_track).name = "test"
+        self.parent.keyboardShortcutManager.send_click(98, 992)

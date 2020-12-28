@@ -28,7 +28,6 @@ class Push2Manager(AbstractControlSurfaceComponent):
             self.push2.elements.nav_left_button,
             self.push2.elements.nav_right_button
         ])
-        self.song.select_track(self.song.tracks[0])
         self.parent.log_info("Push2 connected to Protocol0")
         self.parent.post_init()
 
@@ -80,6 +79,6 @@ class Push2Manager(AbstractControlSurfaceComponent):
             # https://trello.com/c/0PUwHZOs/102-push2-bug-setting-selected-matrix-mode-after-clicking-on-session-ring-arrow-messes-selected-track
             if reselect:
                 self.update_selected_modes = False
-                self.song.select_track(self.song.current_track)
+                self.song.select_track(self.song.current_track, sync=True)
 
         self.update_selected_modes = True

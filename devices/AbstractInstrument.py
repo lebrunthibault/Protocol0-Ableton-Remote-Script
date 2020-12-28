@@ -62,7 +62,7 @@ class AbstractInstrument(AbstractObject):
 
     @property
     def needs_activation(self):
-        return not self.activated or self.NEEDS_EXCLUSIVE_ACTIVATION and self.active_instance != self
+        return not self.activated or (self.NEEDS_EXCLUSIVE_ACTIVATION and self.active_instance != self)
 
     def check_activated(self, focus_device_track=True):
         # type: (bool) -> Optional[Sequence]
@@ -71,7 +71,7 @@ class AbstractInstrument(AbstractObject):
 
         seq = Sequence(name="check_activated")
         if (focus_device_track or self.needs_activation) and self.song.selected_track != self.device_track:
-            seq.add(lambda: self.song.select_track(self.device_track), interval=1, name="select_device_track")
+            seq.add(self.song.select_track(self.device_track), name="select device track")
         if not self.activated:
             seq.add(self.parent.deviceManager.check_plugin_window_showable(self._device, self.device_track), name="check_plugin_window_showable")
             seq.add(lambda: setattr(self, "activated", True), interval=0, name="mark instrument as activated")
@@ -83,6 +83,7 @@ class AbstractInstrument(AbstractObject):
 
     def show_hide(self, force_show=False):
         # here we are on the device track
+        force_show = force_show or not self.activated
         seq = Sequence(name="show_hide")
         seq.add(self.check_activated())
         if force_show:

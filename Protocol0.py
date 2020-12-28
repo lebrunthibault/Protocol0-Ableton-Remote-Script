@@ -1,4 +1,3 @@
-import time
 import types
 from typing import Callable
 
@@ -18,11 +17,10 @@ from a_protocol_0.components.SessionManager import SessionManager
 from a_protocol_0.components.SongManager import SongManager
 from a_protocol_0.components.TrackAutomationManager import TrackAutomationManager
 from a_protocol_0.components.TrackManager import TrackManager
+from a_protocol_0.components.UtilsManager import UtilsManager
 from a_protocol_0.consts import LogLevel
 from a_protocol_0.lom.Song import Song
-from a_protocol_0.utils.Sequence import Sequence
 from a_protocol_0.utils.log import log_ableton
-from a_protocol_0.utils.utils import Utils
 
 
 class Protocol0(ControlSurface):
@@ -48,7 +46,7 @@ class Protocol0(ControlSurface):
             self.browserManager = BrowserManager()
             self.clyphxNavigationManager = NavAndViewActions()
             self.clyphxGlobalManager = GlobalActions()
-            self.utils = Utils()
+            self.utilsManager = UtilsManager()
             ActionManager()
             ActionSetManager()
             ActionTestManager()
@@ -104,7 +102,8 @@ class Protocol0(ControlSurface):
     def dev_boot(self):
         if self._is_dev_booted:
             return
-        self.protocol0_song.select_track(self.protocol0_song.tracks[12])
+        # self.protocol0_song.abstract_group_tracks[0].action_arm()
+        # self.protocol0_song.select_track(self.protocol0_song.tracks[12])
         # self.protocol0_song.selected_track.play()
         # self.trackAutomationManager.create_automation_group(self.protocol0_song.selected_track)
         self._is_dev_booted = True
