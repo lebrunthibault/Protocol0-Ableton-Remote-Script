@@ -1,3 +1,5 @@
+from functools import partial
+
 from typing import Optional
 
 import Live
@@ -24,21 +26,19 @@ class TrackManager(AbstractControlSurfaceComponent):
         self._added_track_listener.subject = self.parent.songManager
 
     @subject_slot("added_track")
-    @defer
     def _added_track_listener(self):
-        self.song.current_track._added_track_init()
+        self.parent.defer(self.song.current_track._added_track_init)
 
     def group_track(self, seq=None):
         # type: (Sequence) -> None
         self.parent.keyboardShortcutManager.group_track()
         if seq:
-            seq.add(notify_after=self._added_track_listener)
+            seq.add(complete_on=self._added_track_listener)
 
-    @defer
     def create_midi_track(self, index, name=None):
         # type: (int, str) -> None
-        seq = Sequence(name="create midi track")
-        seq.add(lambda: self.song._song.create_midi_track(index), notify_after=self.parent.trackManager._added_track_listener)
+        seq = Sequence()
+        seq.add(partial(self.song._song.create_midi_track, index), complete_on=self.parent.trackManager._added_track_listener)
 
         @defer
         def set_name():

@@ -69,27 +69,27 @@ class AbstractInstrument(AbstractObject):
         if not self.can_be_shown:
             return
 
-        seq = Sequence(name="check_activated")
+        seq = Sequence()
         if (focus_device_track or self.needs_activation) and self.song.selected_track != self.device_track:
             seq.add(self.song.select_track(self.device_track), name="select device track")
         if not self.activated:
-            seq.add(self.parent.deviceManager.check_plugin_window_showable(self._device, self.device_track), name="check_plugin_window_showable")
-            seq.add(lambda: setattr(self, "activated", True), interval=0, name="mark instrument as activated")
+            seq.add(self.parent.deviceManager.check_plugin_window_showable(self._device, self.device_track))
+            seq.add(lambda: setattr(self, "activated", True), name="mark instrument as activated")
 
         if self.NEEDS_EXCLUSIVE_ACTIVATION and self.active_instance != self:
-            seq.add(self.exclusive_activate(), name="exclusive activation sequence")
+            seq.add(self.exclusive_activate())
 
         return seq
 
     def show_hide(self, force_show=False):
         # here we are on the device track
         force_show = force_show or not self.activated
-        seq = Sequence(name="show_hide")
+        seq = Sequence()
         seq.add(self.check_activated())
         if force_show:
-            seq.add(self.parent.keyboardShortcutManager.show_plugins, interval=1, name="show_plugins")
+            seq.add(self.parent.keyboardShortcutManager.show_plugins)
         else:
-            seq.add(self.parent.keyboardShortcutManager.show_hide_plugins, interval=1, name="show_hide_plugins")
+            seq.add(self.parent.keyboardShortcutManager.show_hide_plugins)
 
         seq()
         return

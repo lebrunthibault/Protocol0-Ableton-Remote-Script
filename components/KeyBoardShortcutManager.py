@@ -62,8 +62,8 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
 
     def is_plugin_window_visible(self, plugin_name=""):
         # type: (str) -> bool
-        return_code = self._execute_ahk("show_plugins_and_check.ahk", str(plugin_name))
-        return bool(return_code)
+        """ we cannot do this inside of ahk because the sleeping prevents the window to show """
+        return bool(self._execute_ahk("show_plugins_and_check.ahk", str(plugin_name)))
 
     def show_and_activate_rev2_editor(self):
         self.send_keys("^{F3}")

@@ -65,19 +65,19 @@ class Protocol0(ControlSurface):
         # type: (str) -> None
         self._log(message=message, level=LogLevel.DEBUG, debug=debug)
 
-    def log_info(self, message):
+    def log_info(self, message, debug=False):
         # type: (str) -> None
-        self._log(message=message, level=LogLevel.INFO, debug=False)
+        self._log(message=message, level=LogLevel.INFO, debug=debug)
 
-    def log_error(self, message):
+    def log_error(self, message, debug=True):
         # type: (str) -> None
-        self._log(message=message, level=LogLevel.ERROR)
+        self._log(message=message, level=LogLevel.ERROR, debug=debug)
 
     def _log(self, message, level=LogLevel.INFO, debug=True):
         # type: (str) -> None
         if level < LogLevel.ACTIVE_LOG_LEVEL:
             return
-        log_ableton(debug=debug, message="P0 - %s" % str(message), direct_call=False)
+        log_ableton(debug=debug, message="%s: %s" % (LogLevel.value_to_name(level).lower(), str(message)), direct_call=False)
 
     def defer(self, callback):
         # type: (Callable) -> None

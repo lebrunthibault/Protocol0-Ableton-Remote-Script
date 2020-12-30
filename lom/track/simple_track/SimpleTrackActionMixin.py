@@ -24,9 +24,9 @@ class SimpleTrackActionMixin(object):
 
         selected_track = self.song.selected_track
         if self.instrument and self.instrument.NEEDS_EXCLUSIVE_ACTIVATION:
-            seq = Sequence(name="action arm track")
+            seq = Sequence()
             seq.add(self.instrument.check_activated(focus_device_track=False))
-            seq.add(self.song.select_track(selected_track), interval=3, name="reselect base track")
+            seq.add(self.song.select_track(selected_track))
             seq()
 
     def action_switch_monitoring(self):

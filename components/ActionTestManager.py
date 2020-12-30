@@ -12,4 +12,4 @@ class ActionTestManager(AbstractControlSurfaceComponent):
 
     @button_action()
     def action_test(self):
-        self.parent.keyboardShortcutManager.send_click(98, 992)
+        self.parent.deviceManager.is_plugin_window_visible(try_show=True)()

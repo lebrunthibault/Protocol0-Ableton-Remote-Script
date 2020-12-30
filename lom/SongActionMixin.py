@@ -15,7 +15,11 @@ if TYPE_CHECKING:
 class SongActionMixin(object):
     def select_track(self, selected_track, sync=False):
         # type: (Song, AbstractTrack, bool) -> Optional[Sequence]
-        return Sequence(name="select_track", sync=sync).add(lambda: setattr(self._view, "selected_track", selected_track.base_track._track)).add(interval=1)
+        seq = Sequence(sync=sync)
+        seq.add(lambda: selected_track == self.song.selected_track, by_pass=True)
+        seq.add(lambda: setattr(self._view, "selected_track", selected_track.base_track._track), complete_on=self.parent.songManager.on_selected_track_changed)
+        seq.add(interval=1)
+        return seq
 
     def unfocus_all_tracks(self):
         # type: (Song) -> None

@@ -1,10 +1,10 @@
 import traceback
 from collections import defaultdict
-from functools import partial, wraps
+from functools import partial, wraps, update_wrapper
+
 from typing import TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
-from a_protocol_0.utils.log import log_ableton
 from a_protocol_0.utils.utils import _arg_count, is_method
 
 if TYPE_CHECKING:
@@ -58,7 +58,8 @@ def wait(wait_time):
     return wrap
 
 
-def timeout_limit(func, timeout_limit):
+def timeout_limit(func, timeout_limit, on_timeout=None):
+    # type: (callable, float, callable) -> callable
     from a_protocol_0 import Protocol0
 
     @wraps(func)
@@ -67,6 +68,9 @@ def timeout_limit(func, timeout_limit):
             return
         if timeout_execution:
             Protocol0.SELF.log_error("Timeout reached for function %s, executing" % func)
+            if on_timeout:
+                on_timeout()
+                return
         func(*a, **k)
         decorate.executed = True
 
@@ -127,13 +131,7 @@ def button_action(auto_arm=False, log_action=True, auto_undo=True):
         def decorate(self, *a, **k):
             # type: (AbstractControlSurfaceComponent) -> None
             if log_action:
-                self.parent.log_info("---------------- " + func.__name__)
-                self.parent.log_info("---------------- " + func.__name__)
-                self.parent.log_info("---------------- " + func.__name__)
-                self.parent.log_info("---------------- " + func.__name__)
-                self.parent.log_info("---------------- " + func.__name__)
                 self.parent.log_info("Executing " + func.__name__)
-
             self.song.begin_undo_step()
             try:
                 if auto_arm:
@@ -141,8 +139,8 @@ def button_action(auto_arm=False, log_action=True, auto_undo=True):
                     if not self.song.current_track.arm:
                         self.song.current_track.action_arm()
                 func(self, **k)
-            except Exception:
-                self.parent.log_info(traceback.format_exc())
+            except (Exception, RuntimeError):
+                self.parent.log_error(traceback.format_exc())
                 return
             if auto_undo:
                 self.parent.defer(self.song.end_undo_step)
@@ -157,6 +155,7 @@ def subject_slot(event):
         @wraps(func)
         @has_callback_queue
         @_framework_subject_slot(event)
+        @wraps(func)
         def decorate(*a, **k):
             func(*a, **k)
 
@@ -212,22 +211,40 @@ class CallbackDescriptor(object):
 def has_callback_queue(func):
     return CallbackDescriptor(func)
 
+
 def catch_and_log(func):
     @wraps(func)
     def decorate(*a, **k):
         try:
             func(*a, **k)
         except Exception:
-            log_ableton(traceback.format_exc())
+            from a_protocol_0 import Protocol0
+            Protocol0.SELF.log_error(traceback.format_exc())
             return
 
     return decorate
 
 
+def _arg_to_string(arg):
+    if isinstance(arg, str):
+        return '"%s"' % arg
+    else:
+        return arg
+
+
 def log(func):
     @wraps(func)
     def decorate(*a, **k):
-        log_ableton((func, a, k))
+        func_name = func.__name__
+        args = [_arg_to_string(arg) for arg in a] + ["%s=%s" % (key, _arg_to_string(value)) for (key, value) in
+                                                     k.items()]
+        if is_method(func):
+            func_name = "%s.%s" % (a[0].__class__.__name__, func_name)
+            args = args[1:]
+        message = func_name + "(%s)" % (", ".join(args))
+
+        from a_protocol_0 import Protocol0
+        Protocol0.SELF.log_debug(message, debug=False)
         func(*a, **k)
 
     return decorate

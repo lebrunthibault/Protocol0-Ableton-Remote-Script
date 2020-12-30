@@ -138,7 +138,7 @@ ShowAndActivateRev2Editor()
 
 reloadAbleton()
 {
-    Run reloadAbleton.py, C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\a_protocol_0\scripts\python, hide
+    Run reloadAbleton.py, %A_ScriptDir%\..\python, hide
 }
 
 relaunchAbleton()

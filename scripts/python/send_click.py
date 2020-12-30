@@ -14,5 +14,4 @@ def click(x, y):
 shell = win32com.client.Dispatch("WScript.Shell")
 
 if __name__ == "__main__":
-    x, y = sys.argv[1].split(",")
-    click(int(x), int(y))
+    click(int(sys.argv[1]), int(sys.argv[2]))

@@ -41,5 +41,15 @@ class LogLevel:
     ERROR = 3
     EXCLUSIVE_LOG = 4
 
+    _values_dict = {}
 
+    @staticmethod
+    def value_to_name(value):
+        # type: (int) -> str
+        if value not in LogLevel._values_dict:
+            raise RuntimeError("You gave an inexistent value for class LogLevel")
+        return LogLevel._values_dict[value]
+
+
+LogLevel._values_dict = {v: k for k, v in [item for item in vars(LogLevel).items() if isinstance(item[1], int)]}
 LogLevel.ACTIVE_LOG_LEVEL = LogLevel.DEBUG

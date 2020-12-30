@@ -1,173 +1,138 @@
+import time
 from collections import deque, Iterable
-from functools import partial
 from typing import List, Any
 
-from a_protocol_0.utils.decorators import timeout_limit
-from a_protocol_0.utils.log import log_ableton
+from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from a_protocol_0.utils.SequenceStep import SequenceStep
 from a_protocol_0.utils.utils import get_frame_info, nop
 
 UN_STARTED = 0
 STARTED = 1
-TERMINATED = 3
+TERMINATED = 2
 
 
-class SequenceStep(object):
-    def __init__(self, func, sequence, interval=None, name=None, do_when=None, notify_after=None, *a, **k):
-        # type: (callable, Sequence, float, str, callable, callable) -> None
-        """ the tick is 100 ms """
-        super(SequenceStep, self).__init__(*a, **k)
-        self._seq = sequence
-        self._debug = sequence._debug
-        self._callable = func
-        self.name = name or (func.name if isinstance(func, Sequence) else func.__name__)
-        self._interval = interval if interval is not None else sequence.interval
-        self._interval = 4
-        self._state = UN_STARTED
-        self._do_when = do_when
-        self._notify_after = notify_after
-        self._check_timeout = 5  # around 3.1 s
-        self._count = 0
+class Sequence(AbstractControlSurfaceComponent):
+    __subject_events__ = ('terminated',)
 
-    def __repr__(self):
-        output = self.name
-        if self._interval:
-            output += " (%s)" % self._interval
-        if self._do_when:
-            output += " (has_do_when)"
-        if self._notify_after:
-            output += " (has_notify_after)"
-
-        return output
-
-    def _has_callback_queue(self, func):
-        return hasattr(func, "_has_callback_queue") and hasattr(func, "_callbacks")
-
-    def __call__(self):
-        if self._state != UN_STARTED:
-            return
-
-        self._state = STARTED
-
-        def execute_check(check, success_callback):
-            if not check:
-                success_callback()
-                return
-
-            if self._count == self._check_timeout:
-                log_ableton("timeout error on sequence step waiting for check %s" % self._do_when, debug=False)
-                return
-
-            if self._has_callback_queue(check):
-                # listener activation
-                if self._debug:
-                    log_ableton("%s - step %s : listener activated -> %s" % (self._seq, self, check), debug=False)
-                check._callbacks.append(timeout_limit(success_callback, pow(2, self._check_timeout)))
-                return
-            elif not check():
-                # polling
-                if self._debug:
-                    log_ableton("%s - step %s : polling activated -> %s" % (self._seq, self, check), debug=False)
-                Protocol0.SELF._wait(pow(2, self._count), partial(execute_check, check, success_callback))
-                self._count += 1
-                return
-            elif check:
-                "yeayea !!!!!!!!!!!!!!!!!"
-
-            success_callback()
-
-        def execute_step():
-            res = self._callable()
-            if isinstance(res, Sequence):
-                raise RuntimeError("Wrong usage of sequence, sequence should be generated synchronously (%s) on %s" % (
-                    self, self._seq))
-            if isinstance(self._callable, Sequence):
-                return  # the sequence will notify the outer seq by itself
-
-            self._count = 0
-            execute_check(self._notify_after, terminate)
-
-        def terminate():
-            self._state == TERMINATED
-            self._seq._exec_next()
-
-        from a_protocol_0 import Protocol0
-        Protocol0.SELF._wait(self._interval, lambda: execute_check(self._do_when, execute_step))
-
-
-class Sequence(object):
     """
-        replacement of the _Framework Task as it does not seem to allow conditional steps like triggers from listeners
-        and also I didn't check it before doing that.
-        Defines 2 separate slots of execution (which are both a Sequence object) :
-            - The main loop
-            - The finish loop
-        Slot order of execute will always be respected unless the main loop is restarted by calling add()
-        Sequence notify their wrapping sequence if it exists allowing sequence nesting
+        Replacement of the _Framework Task as it does not seem to allow variable timeouts like triggers from listeners.
+            Nothing but some pale asyncio imitation. Can't wait for python3
+        A Sequence represents a function and a SequenceStep represents one or multiple statement
+        A Sequence step can very often be a function call and is thus a Sequence as well.
+        Sequences can be nested allowing deep asynchronous function calls.
+        A Sequence should never be passed to the called code but instead the called code should return it's own sequence to be appended to the calling one.
+            Attention : this means that the called code is gonna be called synchronously, any data lookup (e.g. on Live API)
+                is gonna be computed at sequence instantiation time and not at sequence runtime !
+                If you don't want this behavior to happen, wrap your lookup calls in a step
+                Ideally, an asynchronous method should wrap all it's statements in a sequence and do lookups in lambda functions
+        The code can declare asynchronous behavior in 2 ways:
+            - via interval which leverages Live 100ms tick for short and hard to check tasks like click on the interface
+            - via the on_complete argument that defers the completion of the step until a condition is satisfied
         This condition can be either
-            - a callable : in this case an exponential polling is setup
-            - a CallbackDescriptor : the step executes when the callback added to the CallbackDescriptor is executed
-                This allows for listener reactive chaining
-        The condition supports 2 check callbacks :
-            _ do_when : wait for a condition to be True before executing
-            _ notify_after : wait for a condition to be True before continuing sequence
-        sync allows handles methods called both synchronously and asynchronously.
-            - In the first case the caller expects immediate action and sync is True
-            - In the second case the caller is going to add the sequence to it's own sequence and will call it later
+            - a simple callable returning a bool : in this case an exponential polling is setup with a timeout
+            - a CallbackDescriptor decorated function : the step executes when the function is called next.
+            This is the best part because it allows us to react to the execution of Live listeners (e.g. on_selected_track_changed)
+            or even our own listeners. Thus being a shortcut to define yet another listener on an already listened to subject.
+        A sequence step should always define it's completion step and not expect the next step to handle any timeout or checks
+            Example : A step song.create_midi_track should define it's completion check to be the next call to the _added_track_listener.
+            Like this any step can always be assured that it executes after the previous one has succeeded or failed (thus ending the sequence).
+        sync allows the async methods to be called both synchronously and asynchronously.
+            - In the first case the caller expects immediate action or is not even aware of the sequence pattern and sync is True
+            - In the second case the caller is going to nest the sequence to it's own and will call it later
+        The bypass parameter is like an if for a sequence and finishes the sequence early.
+            It's an implementation of the basic
+            if a:
+                return
+            where a is the step and the enclosing function the sequence.
     """
 
-    def __init__(self, steps=[], interval=0, debug=True, name=None, sync=False):
+    def __init__(self, steps=[], interval=0, debug=True, name=None, sync=False, *a, **k):
         # type: (List[callable], float, str, bool) -> None
+        super(Sequence, self).__init__(*a, **k)
         self._steps = deque()  # type: [SequenceStep]
+        self._current_step = None  # type: SequenceStep
         self.interval = interval
         self._state = UN_STARTED
+        self._res = None
         self._sync = sync
+        self._is_inner_seq = False
+        self._by_passed = False
+        self._start_at = None  # type: float
+        self._end_at = None  # type: float
+        self._duration = None  # type: float
+        # self._debug = debug
         self._debug = debug and not sync
         if not name:
-            func_info = get_frame_info(2)
-            if func_info:
-                (filename, line, method) = func_info
-                name = method
+            frame_info = get_frame_info(2)
+            if frame_info:
+                name = "%s.%s" % (frame_info.class_name, frame_info.method_name)
         self.name = name
-        self._outer_seq = None  # type: Sequence
-        self.add(steps, interval=interval)
+        if len(steps):
+            self.add(steps, interval=interval)
 
     def __repr__(self):
         return "seq (%s)" % self.name
+
+    def __len__(self):
+        return len(self._steps)
 
     @property
     def steps(self):
         return list(self._steps)
 
-    def _make_step(self, callback, interval=None, name=None, do_when=None, notify_after=None):
-        return SequenceStep(callback, sequence=self, interval=interval, name=name, do_when=do_when,
-                            notify_after=notify_after)
+    def _make_step(self, callback, interval=None, name=None, complete_on=None, by_pass=False):
+        return SequenceStep(callback, sequence=self, interval=interval, name=name,
+                            complete_on=complete_on, by_pass=by_pass)
+
+    def has_started_check(self):
+        if self._state == UN_STARTED and not self._is_inner_seq:
+            raise RuntimeError("%s has not been called, check sync parameter" % self)
 
     def __call__(self):
         if self._state == UN_STARTED:
+            self._start_at = time.time()
             self._state = STARTED
             self._exec_next()
 
     def _exec_next(self):
         if self._state == TERMINATED:
             return
+        if self._current_step and self._current_step._res and self._current_step._by_pass:
+            self._by_passed = True
+            self._sync = False  # prevents sync sequences that use by pass to continue on add
+            self._terminate_seq()
+            return
         if len(self._steps):
             if self._debug:
-                log_ableton("%s : exec %s (remaining %s)" % (self, self._steps[0], len(self._steps) - 1), debug=False)
-            self._steps.popleft()()
-            return
-        self._terminate_seq()
+                self.parent.log_debug("%s : exec %s" % (self, self._steps[0]),
+                                      debug=False)
+            self._current_step = self._steps.popleft()
+            self._current_step()
+        else:
+            self._terminate_seq()
 
     def _terminate_seq(self):
         if self._state == TERMINATED:
             return
         self._state = TERMINATED
-        if self._debug:
-            log_ableton("%s is terminated" % self, debug=False)
-        if self._outer_seq:
-            self._outer_seq._exec_next()
+        self._end_at = time.time()
+        self._duration = self._end_at - self._start_at
 
-    def add(self, callback=nop, interval=None, name=None, do_when=None, notify_after=None):
-        # type: (Any, float, callable, callable) -> Sequence
+        # is None on a sync instantiation
+        if self._current_step:
+            self._res = self._current_step._res
+        if self._debug:
+            message = "%s terminated in %.3fs" % (self, self._duration)
+            if self._res:
+                message += " (res %s)" % self._res
+            if self._by_passed:
+                message += " - by_passed"
+            self.parent.log_debug(message, debug=False)
+        # noinspection PyUnresolvedReferences
+        self.notify_terminated()
+
+    def add(self, callback=nop, interval=None, name=None, complete_on=None, by_pass=False):
+        # type: (Any, float, callable, callable, bool) -> Sequence
         """
             callback can be :
             - None: can be used to just wait on a condition
@@ -178,16 +143,20 @@ class Sequence(object):
         if callback is None:
             return self
 
+        if len(self._steps) == 0 and self._sync is False:
+            self.parent.defer(self.has_started_check)
+
         if callback == nop:
             interval = interval or 0
             name = "wait %s" % interval if interval else "pass"
 
         if isinstance(callback, Sequence):
-            if callback._state == TERMINATED:
+            if callback._state == TERMINATED or len(callback) == 0:
+                self.parent.log_debug("%s by_passed (no steps)" % callback, debug=False)
                 return self
-            callback._outer_seq = self
+            callback._is_inner_seq = True
             self._steps.append(
-                self._make_step(callback, interval=interval, name=name, do_when=do_when, notify_after=notify_after))
+                self._make_step(callback, interval=interval, name=name, complete_on=complete_on, by_pass=by_pass))
         elif isinstance(callback, SequenceStep):
             if callback._state == TERMINATED:
                 return self
@@ -195,12 +164,15 @@ class Sequence(object):
         else:
             callback = [callback] if not isinstance(callback, Iterable) else callback
             [self._steps.append(
-                self._make_step(step, interval=interval, name=name, do_when=do_when, notify_after=notify_after))
+                self._make_step(step, interval=interval, name=name, complete_on=complete_on, by_pass=by_pass))
                 for step in callback]
 
         # allows restarting sequence on add()
-        if self._state == TERMINATED or (self._state == UN_STARTED and self._sync):
+        if self._state == TERMINATED:
             self._state = UN_STARTED
+            self()
+        # allows sync execution
+        elif self._state == UN_STARTED and self._sync:
             self()
 
         return self

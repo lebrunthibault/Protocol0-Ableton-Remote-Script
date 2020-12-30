@@ -21,19 +21,25 @@ logger = logging.getLogger(__name__)
 
 def log_ableton(message, debug=True, direct_call=True, exclusive_log=False):
     # type: (str, bool) -> None
-    if not isinstance(debug, bool):
-        raise RuntimeError("log_ableton: parameter mismatch")
+    if any([not isinstance(param, bool) for param in [debug, direct_call, exclusive_log]]):
+        log_ableton("log_ableton: parameter mismatch, logging anyway")
+        debug = True
+        direct_call = True
+        exclusive_log = False
+        message = locals().values()
     if debug:
         try:
-            func_info = get_frame_info(1 if direct_call else 3)
-            if func_info:
-                (filename, line, method) = func_info
-                message = "%s (%s:%s in %s)" % (message, filename, line, method)
+            frame_info = get_frame_info(2 if direct_call else 4)
+            if frame_info:
+                message = "%s (%s:%s in %s)" % (message, frame_info.filename, frame_info.line, frame_info.method_name)
         except Exception:
             pass
     if exclusive_log and LogLevel.ACTIVE_LOG_LEVEL != LogLevel.EXCLUSIVE_LOG:
         return
-    logging.info(message)
+    for line in message.splitlines():
+        line = "P0 - %s" % str(line)
+        logging.info(line)
+        print(line)
 
 
 @contextmanager

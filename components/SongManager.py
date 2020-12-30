@@ -39,9 +39,9 @@ class SongManager(AbstractControlSurfaceComponent):
     @subject_slot("tracks")
     def _tracks_listener(self):
         # type: () -> Optional[SimpleTrack]
+        track_added = False
         if len(self.song.tracks) and len(self.song._song.tracks) > len(self.song.tracks):
-            # noinspection PyUnresolvedReferences
-            self.notify_added_track()
+            track_added = True
 
         # generate simple tracks
         self.song.tracks = []
@@ -58,6 +58,9 @@ class SongManager(AbstractControlSurfaceComponent):
                 self._simple_track_to_abstract_group_track.update({abstract_group_sub_track: abstract_group_track})
 
         self._set_current_track()
+        if track_added:
+            # noinspection PyUnresolvedReferences
+            self.notify_added_track()
         self.parent.log_info("SongManager : mapped tracks")
 
     def _highlighted_clip_slot_poller(self):

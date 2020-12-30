@@ -1,5 +1,6 @@
 import inspect
 import types
+from collections import namedtuple
 from functools import partial as _partial
 from itertools import chain, imap
 from typing import Optional, Any, List, Union, TYPE_CHECKING
@@ -110,16 +111,24 @@ def _find_all_devices(track_or_chain, only_visible=False):
 
 
 def get_frame_info(frame_count=1):
+    # type: (int) -> namedtuple
     try:
         call_frame = inspect.currentframe()
         for _ in range(frame_count):
             call_frame = call_frame.f_back
-        (filename, line, method, _, _) = inspect.getframeinfo(call_frame)
+        (filename, line, method_name, _, _) = inspect.getframeinfo(call_frame)
     except Exception:
         return None
 
     filename = filename.replace(PROTOCOL0_FOLDER + "\\", "").replace(REMOTE_SCRIPTS_FOLDER + "\\", "")
-    return (filename, line, method)
+    class_name = filename.replace(".py", "").split("\\")[-1]
+
+    FrameInfo = namedtuple('FrameInfo', ['filename', 'class_name', 'line', 'method_name'])
+    return FrameInfo(filename=filename, class_name=class_name, line=line, method_name=method_name)
+
+
+def _has_callback_queue(func):
+    return hasattr(func, "_has_callback_queue") and hasattr(func, "_callbacks")
 
 
 def is_method(func):
@@ -129,6 +138,45 @@ def is_method(func):
 
 def is_partial(func):
     return str(type(func)) == "<type 'functools.partial'>"
+
+
+def is_lambda(func):
+    return isinstance(func, types.LambdaType) and func.__name__ == "<lambda>"
+
+
+def get_callable_decorated_func(func):
+    if hasattr(func, "function"):
+        return get_callable_decorated_func(func.function)
+    if hasattr(func, "func"):  # partial
+        return get_callable_decorated_func(func.func)
+
+    return func
+
+
+def get_class_name_from_method(func):
+    if hasattr(func, "__self__"):
+        return func.__self__.__class__.__name__
+
+    return None
+
+
+def get_callable_name(func):
+    if func is None:
+        return "None"
+    from a_protocol_0.utils.Sequence import Sequence
+    if isinstance(func, Sequence):
+        return str(func.name)
+
+    decorated_func = get_callable_decorated_func(func)
+    class_name = get_class_name_from_method(func)
+
+    if not hasattr(decorated_func, "__name__"):
+        return "unknown"
+
+    if class_name:
+        return "%s.%s" % (class_name, decorated_func.__name__)
+    else:
+        return decorated_func.__name__
 
 
 def _arg_count(func):

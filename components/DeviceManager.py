@@ -106,26 +106,29 @@ class DeviceManager(AbstractControlSurfaceComponent):
     def _get_device_click_x_position(self, device_position):
         return self.WIDTH_PIXEL_OFFSET + device_position * self.COLLAPSED_DEVICE_PIXEL_WIDTH
 
-    def is_plugin_window_visible(self, device):
-        return self.parent.keyboardShortcutManager.is_plugin_window_visible(device.name)
+    def is_plugin_window_visible(self, device=None, try_show=False, sync=False):
+        # type: (Live.Device.Device, bool, bool) -> Sequence
+        seq = Sequence(sync=sync)
+        seq.add(self.parent.keyboardShortcutManager.is_plugin_window_visible, by_pass=True)
+
+        if try_show:
+            seq.add(self.parent.keyboardShortcutManager.show_plugins, interval=1)
+            seq.add(self.parent.keyboardShortcutManager.is_plugin_window_visible)
+
+        return seq
 
     def check_plugin_window_showable(self, device, track):
         # type: (Live.Device.Device, SimpleTrack) -> Optional[Sequence]
-        if self.is_plugin_window_visible(device):
-            return
+        seq = Sequence()
+        seq.add(self.is_plugin_window_visible(device, try_show=True), by_pass=True)
+        seq.add(self._make_device_showable(device, track))
 
-        self.parent.keyboardShortcutManager.show_plugins()
-        return Sequence(name="check_plugin_window_showable") \
-            .add(self._make_device_showable(device, track), interval=1, name="make device showable")
+        return seq
 
     def _make_device_showable(self, device, track):
         # type: (Live.Device.Device, SimpleTrack) -> Sequence
         """ handles only one level of grouping in racks. Should be enough for now """
-        seq = Sequence(name="make device showable")
-
-        if self.is_plugin_window_visible(device):
-            return seq
-
+        seq = Sequence()
         parent_rack = self._find_device_parent(device, track.devices)
 
         if not parent_rack:
