@@ -29,11 +29,11 @@ class TrackManager(AbstractControlSurfaceComponent):
     def _added_track_listener(self):
         self.parent.defer(self.song.current_track._added_track_init)
 
-    def group_track(self, seq=None):
-        # type: (Sequence) -> None
-        self.parent.keyboardShortcutManager.group_track()
-        if seq:
-            seq.add(complete_on=self._added_track_listener)
+    def group_track(self):
+        # type: () -> Sequence
+        seq = Sequence()
+        seq.add(self.parent.keyboardShortcutManager.group_track, complete_on=self._added_track_listener)
+        return seq
 
     def create_midi_track(self, index, name=None):
         # type: (int, str) -> None
@@ -72,7 +72,7 @@ class TrackManager(AbstractControlSurfaceComponent):
         if any([isinstance(sub_track, AutomationTrack) for sub_track in track.sub_tracks]) and len(track.sub_tracks) == 2:
             wrapped_track = find_last(lambda t: t._track.has_audio_output, track.sub_tracks)
             if wrapped_track is None:
-                raise "Tried to instantiate a WrappedTrack on a group with no audio output track"
+                raise RuntimeError("Tried to instantiate a WrappedTrack on a group with no audio output track")
             return WrappedTrack(group_track=track, wrapped_track=wrapped_track)
 
         return None

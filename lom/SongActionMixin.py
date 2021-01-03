@@ -1,3 +1,5 @@
+from functools import partial
+
 from typing import TYPE_CHECKING, Optional
 
 import Live
@@ -14,11 +16,18 @@ if TYPE_CHECKING:
 # noinspection PyTypeHints
 class SongActionMixin(object):
     def select_track(self, selected_track, sync=False):
-        # type: (Song, AbstractTrack, bool) -> Optional[Sequence]
+        # type: (Song, AbstractTrack, bool) -> Sequence
         seq = Sequence(sync=sync)
-        seq.add(lambda: selected_track == self.song.selected_track, by_pass=True)
+        seq.add(lambda: setattr(self._view, "selected_track", selected_track.base_track._track), complete_on=self.parent.songManager.on_selected_track_changed, do_if=lambda: selected_track != self.song.selected_track)
+        seq.add(wait=1)
+        return seq
+
+    def focus_track(self, selected_track):
+        # type: (Song, AbstractTrack) -> Sequence
+        seq = Sequence()
+        seq.add(partial(self.song.select_track, selected_track))
         seq.add(lambda: setattr(self._view, "selected_track", selected_track.base_track._track), complete_on=self.parent.songManager.on_selected_track_changed)
-        seq.add(interval=1)
+        seq.add(wait=1)
         return seq
 
     def unfocus_all_tracks(self):
@@ -66,4 +75,3 @@ class SongActionMixin(object):
         # type: (Song, Live.Device.Device) -> None
         if device:
             self._view.select_device(device)
-

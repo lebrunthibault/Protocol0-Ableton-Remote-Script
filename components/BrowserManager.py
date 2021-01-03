@@ -12,7 +12,7 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
         seq = Sequence(sync=sync)
         seq.add(partial(self.load_from_user_library, None, "'%s.adg'" % rack_name), complete_on=lambda: find_if(lambda d: d.name == rack_name, self.song.selected_track.devices))
         if hide:
-            seq.add(self.parent.keyboardShortcutManager.hide_plugins, interval=1)
+            seq.add(self.parent.keyboardShortcutManager.hide_plugins, wait=1)
         return seq
 
     def load_sample(self, preset_name):

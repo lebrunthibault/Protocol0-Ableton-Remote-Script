@@ -19,7 +19,7 @@ class TrackAutomationManager(AbstractControlSurfaceComponent):
             if self.song.selected_track != self.song.current_track.base_track:
                 seq.add(self.song.select_track(self.song.current_track))
         else:
-            self.parent.trackManager.group_track(seq=seq)
+            seq.add(self.parent.trackManager.group_track())
         seq.add(self.parent.browserManager.load_rack_device("LFOTool_filter_automation", sync=False))
         seq.add(lambda: self.parent.trackManager.create_midi_track(self.song.selected_track.index + 1, name=AUTOMATION_TRACK_NAME), name="trackManager.create_midi_track")
 

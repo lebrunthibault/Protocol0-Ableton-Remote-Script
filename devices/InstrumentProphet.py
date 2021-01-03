@@ -11,6 +11,6 @@ class InstrumentProphet(AbstractInstrument):
 
         seq = Sequence()
         seq.add(self.song.select_track(self.device_track))
-        seq.add(self.parent.keyboardShortcutManager.show_and_activate_rev2_editor, interval=3)
+        seq.add(self.parent.keyboardShortcutManager.show_and_activate_rev2_editor, wait=3)
 
         return seq

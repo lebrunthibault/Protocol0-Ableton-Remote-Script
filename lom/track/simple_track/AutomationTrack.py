@@ -21,7 +21,7 @@ class AutomationTrack(SimpleTrack):
     def _added_track_init(self):
         """ this can be called once, when the Live track is created """
         if self.group_track is None:
-            raise "An automation track should always be grouped"
+            raise RuntimeError("An automation track should always be grouped")
         [self.delete_device(d) for d in self.devices]
         self.output_routing_type = find_if(lambda r: r.attached_object == self.group_track._track,
                                             self.available_output_routing_types)

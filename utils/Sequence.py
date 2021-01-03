@@ -9,6 +9,7 @@ from a_protocol_0.utils.utils import get_frame_info, nop
 UN_STARTED = 0
 STARTED = 1
 TERMINATED = 2
+ERRORED = 3
 
 
 class Sequence(AbstractControlSurfaceComponent):
@@ -26,7 +27,7 @@ class Sequence(AbstractControlSurfaceComponent):
                 If you don't want this behavior to happen, wrap your lookup calls in a step
                 Ideally, an asynchronous method should wrap all it's statements in a sequence and do lookups in lambda functions
         The code can declare asynchronous behavior in 2 ways:
-            - via interval which leverages Live 100ms tick for short and hard to check tasks like click on the interface
+            - via wait which leverages Live 100ms tick for short and hard to check tasks like click on the interface
             - via the on_complete argument that defers the completion of the step until a condition is satisfied
         This condition can be either
             - a simple callable returning a bool : in this case an exponential polling is setup with a timeout
@@ -39,19 +40,19 @@ class Sequence(AbstractControlSurfaceComponent):
         sync allows the async methods to be called both synchronously and asynchronously.
             - In the first case the caller expects immediate action or is not even aware of the sequence pattern and sync is True
             - In the second case the caller is going to nest the sequence to it's own and will call it later
-        The bypass parameter is like an if for a sequence and finishes the sequence early.
-            It's an implementation of the basic
-            if a:
-                return
-            where a is the step and the enclosing function the sequence.
+        Conditional execution of steps is available via do_if and do_if_not which can be any argument to Sequence.add
+            - The condition is executed *before* the main callable and can bypass the step depending on the result
+        return_if and return_if_not are similar but will end the enclosing sequence early instead.
+            These 2 callables are going to be executed *before* the main callable which can therefore not be called
+            These should better be execute in a step if only return_if so that it's clearer
     """
 
-    def __init__(self, steps=[], interval=0, debug=True, name=None, sync=False, *a, **k):
+    def __init__(self, steps=[], wait=0, debug=True, name=None, sync=False, *a, **k):
         # type: (List[callable], float, str, bool) -> None
         super(Sequence, self).__init__(*a, **k)
         self._steps = deque()  # type: [SequenceStep]
         self._current_step = None  # type: SequenceStep
-        self.interval = interval
+        self._wait = wait
         self._state = UN_STARTED
         self._res = None
         self._sync = sync
@@ -68,7 +69,7 @@ class Sequence(AbstractControlSurfaceComponent):
                 name = "%s.%s" % (frame_info.class_name, frame_info.method_name)
         self.name = name
         if len(steps):
-            self.add(steps, interval=interval)
+            self.add(steps, wait=wait)
 
     def __repr__(self):
         return "seq (%s)" % self.name
@@ -80,9 +81,8 @@ class Sequence(AbstractControlSurfaceComponent):
     def steps(self):
         return list(self._steps)
 
-    def _make_step(self, callback, interval=None, name=None, complete_on=None, by_pass=False):
-        return SequenceStep(callback, sequence=self, interval=interval, name=name,
-                            complete_on=complete_on, by_pass=by_pass)
+    def _make_step(self, callback, *a, **k):
+        return SequenceStep(callback, sequence=self, *a, **k)
 
     def has_started_check(self):
         if self._state == UN_STARTED and not self._is_inner_seq:
@@ -97,11 +97,7 @@ class Sequence(AbstractControlSurfaceComponent):
     def _exec_next(self):
         if self._state == TERMINATED:
             return
-        if self._current_step and self._current_step._res and self._current_step._by_pass:
-            self._by_passed = True
-            self._sync = False  # prevents sync sequences that use by pass to continue on add
-            self._terminate_seq()
-            return
+
         if len(self._steps):
             if self._debug:
                 self.parent.log_debug("%s : exec %s" % (self, self._steps[0]),
@@ -109,12 +105,19 @@ class Sequence(AbstractControlSurfaceComponent):
             self._current_step = self._steps.popleft()
             self._current_step()
         else:
-            self._terminate_seq()
+            self._terminate()
 
-    def _terminate_seq(self):
+    def _terminate(self):
         if self._state == TERMINATED:
             return
         self._state = TERMINATED
+
+        if self._current_step and self._current_step._res and self._current_step._by_passed_seq:
+            self._by_passed = True
+            self._sync = False  # prevents sync sequences that use by pass to continue on add
+        elif self._current_step and self._current_step._state == ERRORED:
+            self._state = ERRORED
+
         self._end_at = time.time()
         self._duration = self._end_at - self._start_at
 
@@ -122,17 +125,22 @@ class Sequence(AbstractControlSurfaceComponent):
         if self._current_step:
             self._res = self._current_step._res
         if self._debug:
-            message = "%s terminated in %.3fs" % (self, self._duration)
+            verb = "errored" if self._state == ERRORED else "terminated"
+            message = "%s %s in %.3fs" % (self, verb, self._duration)
             if self._res:
                 message += " (res %s)" % self._res
             if self._by_passed:
-                message += " - by_passed"
-            self.parent.log_debug(message, debug=False)
+                message += " - early return"
+
+            if self._state == ERRORED:
+                self.parent.log_error(message, debug=False)
+            else:
+                self.parent.log_debug(message, debug=False)
         # noinspection PyUnresolvedReferences
         self.notify_terminated()
 
-    def add(self, callback=nop, interval=None, name=None, complete_on=None, by_pass=False):
-        # type: (Any, float, callable, callable, bool) -> Sequence
+    def add(self, callback=nop, wait=None, name=None, complete_on=None, do_if=None, do_if_not=None, return_if=None, return_if_not=None):
+        # type: (Any, float, str, callable, callable, callable, callable, callable) -> Sequence
         """
             callback can be :
             - None: can be used to just wait on a condition
@@ -147,16 +155,15 @@ class Sequence(AbstractControlSurfaceComponent):
             self.parent.defer(self.has_started_check)
 
         if callback == nop:
-            interval = interval or 0
-            name = "wait %s" % interval if interval else "pass"
+            wait = wait or 0
+            name = "wait %s" % wait if wait else "pass"
 
         if isinstance(callback, Sequence):
             if callback._state == TERMINATED or len(callback) == 0:
-                self.parent.log_debug("%s by_passed (no steps)" % callback, debug=False)
                 return self
             callback._is_inner_seq = True
             self._steps.append(
-                self._make_step(callback, interval=interval, name=name, complete_on=complete_on, by_pass=by_pass))
+                self._make_step(callback, wait=wait, name=name, complete_on=complete_on, do_if=do_if, do_if_not=do_if_not, return_if=return_if, return_if_not=return_if_not))
         elif isinstance(callback, SequenceStep):
             if callback._state == TERMINATED:
                 return self
@@ -164,7 +171,7 @@ class Sequence(AbstractControlSurfaceComponent):
         else:
             callback = [callback] if not isinstance(callback, Iterable) else callback
             [self._steps.append(
-                self._make_step(step, interval=interval, name=name, complete_on=complete_on, by_pass=by_pass))
+                self._make_step(step, wait=wait, name=name, complete_on=complete_on, do_if=do_if, do_if_not=do_if_not, return_if=return_if, return_if_not=return_if_not))
                 for step in callback]
 
         # allows restarting sequence on add()

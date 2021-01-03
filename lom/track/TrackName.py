@@ -52,7 +52,7 @@ class TrackName(AbstractObject):
         # type: (Optional[str], Optional[int], Optional[int]) -> None
         clip_slot_index = clip_slot_index if clip_slot_index is not None else self.clip_slot_index
         if clip_slot_index < 0 or clip_slot_index > len(self.track.song.scenes) - 1:
-            raise "invalid clip_slot_index for track %s" % self.name
+            raise RuntimeError("invalid clip_slot_index for track %s" % self.name)
 
         name = "{0} - {1}".format(name if name else self.name, clip_slot_index)
 
