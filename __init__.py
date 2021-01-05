@@ -6,9 +6,12 @@ sys.path.insert(0, "C:\Python27\Lib")
 
 
 class EmptyModule():
+    def __init__(self, is_false=True):
+        self.is_false = is_false
+
     def __nonzero__(self):
         # allows Live environment check
-        return False
+        return not self.is_false
 
     def __call__(self, *args, **kwargs):
         return self

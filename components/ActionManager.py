@@ -73,13 +73,12 @@ class ActionManager(AbstractControlSurfaceComponent):
     @button_action(log_action=False)
     def action_scroll_tracks(self, go_next):
         """ scroll top tracks """
-        self.parent.log_debug(self.song.current_track.is_foldable)
         track_to_select = scroll_values(self.song.scrollable_tracks, self.song.current_track.base_track,
                                         go_next)  # type: SimpleTrack
         if track_to_select:
-            if track_to_select.playable_clip:
-                self.song.highlighted_clip_slot = track_to_select.playable_clip.clip_slot
-            else:
+            # if track_to_select.playable_clip:
+            #     self.song.highlighted_clip_slot = track_to_select.playable_clip.clip_slot
+            # else:
                 self.song.select_track(track_to_select, sync=True)
 
     @button_action()

@@ -1,5 +1,7 @@
+from functools import partial
+
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
-from a_protocol_0.utils.Sequence import Sequence
+from a_protocol_0.sequence.Sequence import Sequence
 
 
 class InstrumentProphet(AbstractInstrument):
@@ -10,7 +12,7 @@ class InstrumentProphet(AbstractInstrument):
         self.active_instance = self
 
         seq = Sequence()
-        seq.add(self.song.select_track(self.device_track))
+        seq.add(partial(self.song.select_track, self.device_track))
         seq.add(self.parent.keyboardShortcutManager.show_and_activate_rev2_editor, wait=3)
 
-        return seq
+        return seq.done()

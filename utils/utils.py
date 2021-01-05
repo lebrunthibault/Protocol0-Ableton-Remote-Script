@@ -157,13 +157,16 @@ def get_class_name_from_method(func):
     if hasattr(func, "__self__"):
         return func.__self__.__class__.__name__
 
+    if hasattr(func, "__class__"):
+        return func.__class__.__name__
+
     return None
 
 
 def get_callable_name(func):
     if func is None:
         return "None"
-    from a_protocol_0.utils.Sequence import Sequence
+    from a_protocol_0.sequence.Sequence import Sequence
     if isinstance(func, Sequence):
         return str(func.name)
 
@@ -171,7 +174,7 @@ def get_callable_name(func):
     class_name = get_class_name_from_method(func)
 
     if not hasattr(decorated_func, "__name__"):
-        return "unknown"
+        return class_name or "unknown"
 
     if class_name:
         return "%s.%s" % (class_name, decorated_func.__name__)
@@ -199,3 +202,4 @@ def _arg_count(func):
 
 def nop():
     pass
+

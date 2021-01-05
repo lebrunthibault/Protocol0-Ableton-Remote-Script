@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Optional
 import Live
 
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
-from a_protocol_0.utils.Sequence import Sequence
+from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import defer
 
 if TYPE_CHECKING:
@@ -17,18 +17,10 @@ if TYPE_CHECKING:
 class SongActionMixin(object):
     def select_track(self, selected_track, sync=False):
         # type: (Song, AbstractTrack, bool) -> Sequence
-        seq = Sequence(sync=sync)
-        seq.add(lambda: setattr(self._view, "selected_track", selected_track.base_track._track), complete_on=self.parent.songManager.on_selected_track_changed, do_if=lambda: selected_track != self.song.selected_track)
+        seq = Sequence(auto_start=sync)
+        seq.add(partial(setattr, self._view, "selected_track", selected_track.base_track._track), complete_on=self.parent.songManager.on_selected_track_changed, do_if=lambda: selected_track != self.song.selected_track)
         seq.add(wait=1)
-        return seq
-
-    def focus_track(self, selected_track):
-        # type: (Song, AbstractTrack) -> Sequence
-        seq = Sequence()
-        seq.add(partial(self.song.select_track, selected_track))
-        seq.add(lambda: setattr(self._view, "selected_track", selected_track.base_track._track), complete_on=self.parent.songManager.on_selected_track_changed)
-        seq.add(wait=1)
-        return seq
+        return seq.done()
 
     def unfocus_all_tracks(self):
         # type: (Song) -> None

@@ -4,7 +4,7 @@ import Live
 from a_protocol_0.lom.Clip import Clip
 from a_protocol_0.lom.ClipSlot import ClipSlot
 from a_protocol_0.lom.Colors import Colors
-from a_protocol_0.utils.Sequence import Sequence
+from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.utils import scroll_values
 
 if TYPE_CHECKING:
@@ -25,9 +25,9 @@ class SimpleTrackActionMixin(object):
         selected_track = self.song.selected_track
         if self.instrument and self.instrument.NEEDS_EXCLUSIVE_ACTIVATION:
             seq = Sequence()
-            seq.add(self.instrument.check_activated(focus_device_track=False))
-            seq.add(self.song.select_track(selected_track))
-            seq()
+            seq.add(partial(self.instrument.check_activated, focus_device_track=False))
+            seq.add(partial(self.song.select_track, selected_track))
+            seq.done()()
 
     def action_switch_monitoring(self):
         # type: (SimpleTrack) -> None

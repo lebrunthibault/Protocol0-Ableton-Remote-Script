@@ -3,13 +3,10 @@ from collections import deque, Iterable
 from typing import List, Any
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.utils.SequenceStep import SequenceStep
+from a_protocol_0.sequence.SequenceError import SequenceError
+from a_protocol_0.sequence.SequenceState import SequenceState
+from a_protocol_0.sequence.SequenceStep import SequenceStep
 from a_protocol_0.utils.utils import get_frame_info, nop
-
-UN_STARTED = 0
-STARTED = 1
-TERMINATED = 2
-ERRORED = 3
 
 
 class Sequence(AbstractControlSurfaceComponent):
@@ -47,22 +44,25 @@ class Sequence(AbstractControlSurfaceComponent):
             These should better be execute in a step if only return_if so that it's clearer
     """
 
-    def __init__(self, steps=[], wait=0, debug=True, name=None, sync=False, *a, **k):
-        # type: (List[callable], float, str, bool) -> None
+    def __init__(self, steps=[], wait=0, debug=True, name=None, auto_start=False, is_condition_seq=False, parent_seq=None, *a, **k):
+        # type: (List[callable], float, str, bool, bool, Sequence) -> None
         super(Sequence, self).__init__(*a, **k)
         self._steps = deque()  # type: [SequenceStep]
         self._current_step = None  # type: SequenceStep
         self._wait = wait
-        self._state = UN_STARTED
+        self._state = SequenceState.UN_STARTED
         self._res = None
-        self._sync = sync
-        self._is_inner_seq = False
-        self._by_passed = False
+        self._auto_start = auto_start
         self._start_at = None  # type: float
         self._end_at = None  # type: float
         self._duration = None  # type: float
-        # self._debug = debug
-        self._debug = debug and not sync
+        self._debug = debug
+        self._early_returned = False
+        self._errored = False
+        self._parent_seq = parent_seq  # type: Sequence
+        # self._debug = debug and not sync
+        self._is_condition_seq = is_condition_seq
+        self._done_called = False
         if not name:
             frame_info = get_frame_info(2)
             if frame_info:
@@ -78,108 +78,130 @@ class Sequence(AbstractControlSurfaceComponent):
         return len(self._steps)
 
     @property
-    def steps(self):
-        return list(self._steps)
+    def _parent_seqs(self):
+        if self._parent_seq is not None:
+            return [self._parent_seq] + self._parent_seq._parent_seqs
+        else:
+            return []
 
-    def _make_step(self, callback, *a, **k):
-        return SequenceStep(callback, sequence=self, *a, **k)
+    def _add_step(self, callback, *a, **k):
+        return self._steps.append(SequenceStep(callback, sequence=self, *a, **k))
 
     def has_started_check(self):
-        if self._state == UN_STARTED and not self._is_inner_seq:
-            raise RuntimeError("%s has not been called, check sync parameter" % self)
+        if self._state == SequenceState.UN_STARTED and not self._errored and all([not seq._errored for seq in self._parent_seqs]):
+            raise SequenceError(sequence=self, message="has not been called, check auto_start parameter")
 
     def __call__(self):
-        if self._state == UN_STARTED:
+        if self._state == SequenceState.UN_STARTED:
             self._start_at = time.time()
-            self._state = STARTED
+            self._state = SequenceState.STARTED
+            self._exec_next()
+        elif self._auto_start:
             self._exec_next()
 
     def _exec_next(self):
-        if self._state == TERMINATED:
+        if self._state == SequenceState.TERMINATED:
             return
+
+        if not len(self._steps) and not self._current_step:
+            raise SequenceError(sequence=self, message="You tried to execute an empty sequence")
 
         if len(self._steps):
             if self._debug:
-                self.parent.log_debug("%s : exec %s" % (self, self._steps[0]),
-                                      debug=False)
+                self.parent.log_info("%s : exec %s" % (self, self._steps[0]),
+                                     debug=False)
             self._current_step = self._steps.popleft()
             self._current_step()
-        else:
+        elif self._current_step._is_terminal_step:
             self._terminate()
 
-    def _terminate(self):
-        if self._state == TERMINATED:
-            return
-        self._state = TERMINATED
+        # else sync sequence execution
 
-        if self._current_step and self._current_step._res and self._current_step._by_passed_seq:
-            self._by_passed = True
-            self._sync = False  # prevents sync sequences that use by pass to continue on add
-        elif self._current_step and self._current_step._state == ERRORED:
-            self._state = ERRORED
+    def _terminate(self):
+        if not self._current_step._is_terminal_step and not self._early_returned:
+            raise SequenceError(sequence=self, message="You called _terminate but the last step is not the terminal one")
+
+        if self._state == SequenceState.TERMINATED:
+            raise SequenceError(sequence=self, message="You called _terminate twice on %s" % self)
+
+        self._state = SequenceState.TERMINATED
+
+        if self._current_step._errored and not self._is_condition_seq:
+            self._errored = True
 
         self._end_at = time.time()
         self._duration = self._end_at - self._start_at
+        self._res = self._current_step._res
 
-        # is None on a sync instantiation
-        if self._current_step:
-            self._res = self._current_step._res
-        if self._debug:
-            verb = "errored" if self._state == ERRORED else "terminated"
-            message = "%s %s in %.3fs" % (self, verb, self._duration)
+        if self._debug and not self._is_condition_seq:
+            self.parent.log_debug("%s _is_condition_seq : %s" % (self, self._is_condition_seq))
+            self.parent.log_debug(self._parent_seq)
+            self.parent.log_debug(self._parent_seqs)
+            verb = "errored" if self._errored else "terminated successfully"
+            message = "%s %s" % (self, verb)
+            # message = "%s %s in %.3fs" % (self, verb, self._duration)
             if self._res:
                 message += " (res %s)" % self._res
-            if self._by_passed:
+            if self._state == self._early_returned:
                 message += " - early return"
 
-            if self._state == ERRORED:
+            if self._errored:
                 self.parent.log_error(message, debug=False)
             else:
-                self.parent.log_debug(message, debug=False)
+                self.parent.log_info(message, debug=False)
         # noinspection PyUnresolvedReferences
         self.notify_terminated()
 
-    def add(self, callback=nop, wait=None, name=None, complete_on=None, do_if=None, do_if_not=None, return_if=None, return_if_not=None):
+    def add(self, callback=nop, wait=None, name=None, complete_on=None, do_if=None, do_if_not=None, return_if=None,
+            return_if_not=None):
         # type: (Any, float, str, callable, callable, callable, callable, callable) -> Sequence
         """
             callback can be :
             - None: can be used to just wait on a condition
-            - a Sequence : it is wrapped in a SequenceStep and notifies on terminationg
             - a SequenceStep
             - a callable or a list of callable which are added as SequenceStep
         """
         if callback is None:
             return self
 
-        if len(self._steps) == 0 and self._sync is False:
+        if not callable(callback):
+            raise SequenceError(sequence=self,
+                                message="You passed a non callable to a sequence : %s to %s, type: %s" % (
+                                    callback, self, type(callback)))
+
+        if len(self._steps) == 0 and not self._is_condition_seq and self._auto_start is False:
             self.parent.defer(self.has_started_check)
 
         if callback == nop:
-            wait = wait or 0
             name = "wait %s" % wait if wait else "pass"
 
         if isinstance(callback, Sequence):
-            if callback._state == TERMINATED or len(callback) == 0:
-                return self
-            callback._is_inner_seq = True
-            self._steps.append(
-                self._make_step(callback, wait=wait, name=name, complete_on=complete_on, do_if=do_if, do_if_not=do_if_not, return_if=return_if, return_if_not=return_if_not))
-        elif isinstance(callback, SequenceStep):
-            if callback._state == TERMINATED:
-                return self
+            callback._errored = True
+            raise SequenceError(sequence=self,
+                                message="You passed a Sequence object instead of a function returning a Sequence to add")
+        elif isinstance(callback, SequenceStep) and callback._state != SequenceState.TERMINATED:
             self._steps.append(callback)
         else:
-            callback = [callback] if not isinstance(callback, Iterable) else callback
-            [self._steps.append(
-                self._make_step(step, wait=wait, name=name, complete_on=complete_on, do_if=do_if, do_if_not=do_if_not, return_if=return_if, return_if_not=return_if_not))
-                for step in callback]
+            callbacks = [callback] if not isinstance(callback, Iterable) else callback
+            [self._add_step(func, wait=wait, name=name, complete_on=complete_on, do_if=do_if, do_if_not=do_if_not,
+                            return_if=return_if, return_if_not=return_if_not) for func in callbacks]
 
-        # allows restarting sequence on add()
-        if self._state == TERMINATED:
-            self._state = UN_STARTED
+        if self._auto_start and not self._early_returned:
+            # this is the only way to ensure the sequence steps are going to be executed in a sync sequence with sync sequence steps
             self()
-        # allows sync execution
-        elif self._state == UN_STARTED and self._sync:
-            self()
+
+        return self
+
+    def done(self):
+        if self._done_called:
+            raise SequenceError(sequence=self, message="You cannot call done on a sequence multiple times")
+
+        self._done_called = True
+        # e.g. : a totally sync sequence is over (last step is already executed)
+        if len(self._steps) == 0:
+            self._current_step._is_terminal_step = True
+            self._terminate()
+        else:
+            self._steps[-1]._is_terminal_step = True
 
         return self

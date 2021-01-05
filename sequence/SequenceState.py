@@ -1,0 +1,5 @@
+class SequenceState:
+    UN_STARTED = "UN_STARTED"
+    STARTED = "STARTED"
+    TERMINATED = "TERMINATED"
+    ERRORED = "ERRORED"

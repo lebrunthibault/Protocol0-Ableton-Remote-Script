@@ -7,7 +7,7 @@ from _Framework.Util import find_if
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import EXTERNAL_SYNTH_MINITAUR_NAME
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
-from a_protocol_0.utils.Sequence import Sequence
+from a_protocol_0.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -108,20 +108,19 @@ class DeviceManager(AbstractControlSurfaceComponent):
 
     def is_plugin_window_visible(self, device=None, try_show=False, sync=False):
         # type: (Live.Device.Device, bool, bool) -> Sequence
-        seq = Sequence(sync=sync)
+        seq = Sequence(auto_start=sync)
         if try_show:
             seq.add(self.parent.keyboardShortcutManager.show_plugins, do_if_not=self.parent.keyboardShortcutManager.is_plugin_window_visible, wait=1)
 
         seq.add(self.parent.keyboardShortcutManager.is_plugin_window_visible)
 
-        return seq
+        return seq.done()
 
     def check_plugin_window_showable(self, device, track):
         # type: (Live.Device.Device, SimpleTrack) -> Optional[Sequence]
         seq = Sequence()
-        seq.add(self._make_device_showable(device, track), do_if_not=self.is_plugin_window_visible(device, try_show=True))
-
-        return seq
+        seq.add(partial(self._make_device_showable, device, track), do_if_not=partial(self.is_plugin_window_visible, device, try_show=True))
+        return seq.done()
 
     def _make_device_showable(self, device, track):
         # type: (Live.Device.Device, SimpleTrack) -> Sequence
@@ -147,7 +146,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
             seq.add(lambda: [setattr(d.view, "is_collapsed", False) for d in parent_rack.chains[0].devices], wait=0, name="uncollapse all rack devices")
             # at this point the rack macro controls could still be hidden if the plugin window masks the button
 
-        return seq
+        return seq.done()
 
     def _get_device_show_button_click_coordinates(self, track, device, rack_device=None):
         # type: (SimpleTrack, Live.Device.Device, Live.RackDevice.RackDevice) -> Tuple[int]

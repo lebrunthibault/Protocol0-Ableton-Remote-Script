@@ -1,13 +1,14 @@
 import os
 from os.path import isfile, isdir
 from typing import TYPE_CHECKING, List, Optional
+from functools import partial
 
 import Live
 
 from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.track.TrackName import TrackName
-from a_protocol_0.utils.Sequence import Sequence
+from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import debounce
 
 if TYPE_CHECKING:
@@ -73,26 +74,25 @@ class AbstractInstrument(AbstractObject):
         if (focus_device_track or self.needs_activation) and self.song.selected_track != self.device_track:
             seq.add(self.song.select_track(self.device_track), name="select device track")
         if not self.activated:
-            seq.add(self.parent.deviceManager.check_plugin_window_showable(self._device, self.device_track))
+            seq.add(partial(self.parent.deviceManager.check_plugin_window_showable, self._device, self.device_track))
             seq.add(lambda: setattr(self, "activated", True), name="mark instrument as activated")
 
         if self.NEEDS_EXCLUSIVE_ACTIVATION and self.active_instance != self:
-            seq.add(self.exclusive_activate())
+            seq.add(self.exclusive_activate)
 
-        return seq
+        return seq.done()
 
     def show_hide(self, force_show=False):
         # here we are on the device track
         force_show = force_show or not self.activated
         seq = Sequence()
-        seq.add(self.check_activated())
+        seq.add(self.check_activated)
         if force_show:
             seq.add(self.parent.keyboardShortcutManager.show_plugins)
         else:
             seq.add(self.parent.keyboardShortcutManager.show_hide_plugins)
 
-        seq()
-        return
+        seq.done()()
 
     def _get_presets_path(self):
         return self.PRESETS_PATH

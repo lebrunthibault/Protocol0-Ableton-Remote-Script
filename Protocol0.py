@@ -26,7 +26,7 @@ from a_protocol_0.utils.log import log_ableton
 class Protocol0(ControlSurface):
     SELF = None  # type: Protocol0
 
-    def __init__(self, c_instance=None):
+    def __init__(self, c_instance=None, init_song=True):
         super(Protocol0, self).__init__(c_instance=c_instance)
         # noinspection PyProtectedMember
         Protocol0.SELF = self
@@ -51,8 +51,9 @@ class Protocol0(ControlSurface):
             ActionSetManager()
             ActionTestManager()
 
-            self.songManager.init_song()
-            self.dev_boot()
+            if init_song:
+                self.songManager.init_song()
+                self.dev_boot()
 
         self.log_info("Protocol0 script loaded")
 
@@ -77,7 +78,8 @@ class Protocol0(ControlSurface):
         # type: (str) -> None
         if level < LogLevel.ACTIVE_LOG_LEVEL:
             return
-        log_ableton(debug=debug, message="%s: %s" % (LogLevel.value_to_name(level).lower(), str(message)), direct_call=False)
+        log_ableton(debug=debug, message="%s: %s" % (LogLevel.value_to_name(level).lower(), str(message)),
+                    direct_call=False)
 
     def defer(self, callback):
         # type: (Callable) -> None

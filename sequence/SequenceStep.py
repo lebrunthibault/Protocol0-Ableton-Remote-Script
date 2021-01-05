@@ -2,61 +2,49 @@ from typing import TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from a_protocol_0.sequence.SequenceError import SequenceError
+from a_protocol_0.sequence.SequenceState import SequenceState
 from a_protocol_0.utils.decorators import timeout_limit
 from a_protocol_0.utils.utils import _has_callback_queue, is_lambda, get_callable_name
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
-    from a_protocol_0.utils.Sequence import Sequence
-
-UN_STARTED = 0
-STARTED = 1
-TERMINATED = 2
-ERRORED = 3
+    from a_protocol_0.sequence.Sequence import Sequence
 
 
 class SequenceStep(AbstractControlSurfaceComponent):
-    def __init__(self, func, sequence, wait=None, name=None, complete_on=None, do_if=None, do_if_not=None, return_if=None, return_if_not=None, *a, **k):
+    def __init__(self, func, sequence, wait=None, name=None, complete_on=None,
+                 do_if=None, do_if_not=None, return_if=None, return_if_not=None, *a, **k):
         # type: (callable, Sequence, float, str, callable, bool) -> None
         """ the tick is 100 ms """
         super(SequenceStep, self).__init__(*a, **k)
         self._seq = sequence
         self._debug = sequence._debug
         self._callable = func
-        self.name = name or get_callable_name(func)
+        self.name = "step %s" % (name or get_callable_name(func))
         self._wait = wait if wait is not None else sequence._wait
-        self._state = UN_STARTED
+        self._state = SequenceState.UN_STARTED
         self._complete_on = complete_on
         self._check_timeout = 5  # around 3.1 s
         self._check_count = 0
         self._res = None
-        self._if_condition = None
-        self._return_condition = None
-
-        # conditional execution
-        from a_protocol_0.utils.Sequence import Sequence
+        self._errored = False
+        self._by_passed_seq = False
+        self._is_terminal_step = False
         self._do_if = do_if
         self._do_if_not = do_if_not
-        if do_if and do_if_not:
-            raise RuntimeError("You cannot specify both do_if and do_if_not in SequenceStep")
-        if do_if or do_if_not:
-            self._if_condition = Sequence("if_condition").add(do_if or do_if_not)
-            self._handle_if_condition.subject = self._if_condition
-
-        # conditional sequence return
+        self._if_condition = None
         self._return_if = return_if
         self._return_if_not = return_if_not
-        if return_if and return_if_not:
-            raise RuntimeError("You cannot specify both return_if and return_if_not in SequenceStep")
-        if return_if or return_if_not:
-            self._return_condition = Sequence("return_condition").add(return_if or return_if_not)
-            self._handle_return_condition.subject = self._return_condition
+        self._return_condition = None
 
-        if self._if_condition and self._return_condition:
-            raise RuntimeError("You cannot specify both an if condition and a return condition in a SequenceStep")
-
-        if not callable(func):
-            raise RuntimeError("You passed a non callable to a sequence : %s to %s" % (func, self))
+        conditions = [do_if, do_if_not, return_if, return_if_not]
+        if len(filter(None, conditions)) > 1:
+            raise SequenceError(sequence=self._seq, message="You cannot specify multiple conditions in a step")
+        from a_protocol_0.sequence.Sequence import Sequence
+        if any([isinstance(condition, Sequence) for condition in conditions]):
+            raise SequenceError(sequence=self._seq,
+                                message="You passed a Sequence object instead of a function returning a Sequence for a condition")
 
     def __repr__(self):
         output = self.name
@@ -77,22 +65,35 @@ class SequenceStep(AbstractControlSurfaceComponent):
         return output
 
     def __call__(self):
-        if self._state != UN_STARTED:
-            return
+        if self._state != SequenceState.UN_STARTED:
+            raise SequenceError(sequence=self._seq, message="You cannot start a step twice")
 
-        self._state = STARTED
+        self._state = SequenceState.STARTED
 
-        if self._if_condition:
-            self._if_condition()
-        elif self._return_condition:
-            self._return_condition()
+        from a_protocol_0.sequence.Sequence import Sequence
+        if self._do_if or self._do_if_not:
+            if_res = self._if_condition()
+            if isinstance(if_res, Sequence):
+                if_res._is_condition_seq = True
+                if self._if_condition._state == SequenceState.TERMINATED:
+                    self._terminate_if_condition()
+                else:
+                    self._terminate_if_condition.subject = self._if_condition
+        elif self._return_if or self._return_if_not:
+            return_res = self._return_condition()
+            if isinstance(return_res, Sequence):
+                return_res._is_condition_seq = True
+                if self._if_condition._state == SequenceState.TERMINATED:
+                    self._terminate_return_condition()
+                else:
+                    self._terminate_return_condition.subject = self._return_condition
         else:
             self._execute()
 
     @subject_slot("terminated")
-    def _handle_if_condition(self):
-        if_res = self._if_condition._res
-        self.parent.log_debug("_if_condition returned %s" % if_res)
+    def _terminate_if_condition(self, res=None):
+        if_res = res or self._if_condition._res
+        self.parent.log_debug("%s returned %s" % (self, if_res))
 
         if (if_res and self._do_if) or (not if_res and self._do_if_not):
             self._execute()
@@ -101,12 +102,12 @@ class SequenceStep(AbstractControlSurfaceComponent):
             self._terminate()
 
     @subject_slot("terminated")
-    def _handle_return_condition(self):
+    def _terminate_return_condition(self):
         return_res = self._return_condition._res
-        self.parent.log_debug("_return_condition returned %s" % return_res)
+        self.parent.log_debug("%s returned %s" % (self, return_res))
 
         if (return_res and self._return_if) or (not return_res and self._return_if_not):
-            self._terminate(stop_seq=True)
+            self._terminate(early_return_seq=True)
         else:
             self._execute()
 
@@ -134,34 +135,18 @@ class SequenceStep(AbstractControlSurfaceComponent):
 
         self._terminate()
 
-    def _handle_sequence_step(self, seq, call=False):
-        # type: (Sequence) -> None
-        if call:
-            seq()
-        if seq._state == TERMINATED:
-            self._res = seq._res
-            self._check_for_step_completion()
-        else:
-            self._step_sequence_terminated_listener.subject = seq
-        return
-
     def _execute(self):
         res = self._callable()
-        from a_protocol_0.utils.Sequence import Sequence
-        if isinstance(self._callable, Sequence):
-            return self._handle_sequence_step(seq=self._callable)
-
+        from a_protocol_0.sequence.Sequence import Sequence
         if isinstance(res, Sequence):
-            if not is_lambda(self._callable):
-                # this must be an error
-                raise RuntimeError("Wrong usage of sequence, sequence should be generated synchronously (%s) on %s" % (
-                    self, self._seq))
-            else:
-                return self._handle_sequence_step(seq=res, call=True)
-
-        self._res = res
-
-        self._check_for_step_completion()
+            res._parent_seq = self._seq
+            if res._state == SequenceState.TERMINATED:
+                raise SequenceError(sequence=self._seq, message="The inner sequence %s was terminated before execution" % res)
+            self._step_sequence_terminated_listener.subject = res
+            res()
+        else:
+            self._res = res
+            self._check_for_step_completion()
 
     def _step_timed_out(self):
         self.parent.log_error("timeout error on sequence step waiting for completion %s" % self._complete_on,
@@ -174,16 +159,16 @@ class SequenceStep(AbstractControlSurfaceComponent):
         self._res = self._step_sequence_terminated_listener.subject._res
         self._check_for_step_completion()
 
-    def _terminate(self, stop_seq=False):
-        self._state = TERMINATED
+    def _terminate(self, early_return_seq=False):
+        self._state = SequenceState.TERMINATED
 
         if self._res is False:
-            self._state = ERRORED
+            self._errored = True
 
-        if stop_seq:
-            self._by_passed_seq = True
+        if early_return_seq:
+            self._seq._early_returned = True
 
-        if stop_seq or self._state == ERRORED:
+        if early_return_seq or self._errored:
             self._seq._terminate()
         else:
             self._seq._exec_next()

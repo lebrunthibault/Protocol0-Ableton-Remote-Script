@@ -13,7 +13,7 @@ from a_protocol_0.lom.track.simple_track.AutomationTrack import AutomationTrack
 from a_protocol_0.lom.track.simple_track.SimpleGroupTrack import SimpleGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.lom.track.TrackName import TrackName
-from a_protocol_0.utils.Sequence import Sequence
+from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import defer, subject_slot
 from a_protocol_0.utils.utils import find_last
 
@@ -33,7 +33,7 @@ class TrackManager(AbstractControlSurfaceComponent):
         # type: () -> Sequence
         seq = Sequence()
         seq.add(self.parent.keyboardShortcutManager.group_track, complete_on=self._added_track_listener)
-        return seq
+        return seq.done()
 
     def create_midi_track(self, index, name=None):
         # type: (int, str) -> None
@@ -54,7 +54,7 @@ class TrackManager(AbstractControlSurfaceComponent):
         if name is not None:
             seq.add(set_name)
 
-        return seq
+        return seq.done()
 
     def instantiate_simple_track(self, track, index):
         # type: (Live.Track.Track, int) -> SimpleTrack
