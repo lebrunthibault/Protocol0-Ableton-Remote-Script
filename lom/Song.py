@@ -28,6 +28,7 @@ class Song(SongActionMixin, AbstractObject):
         self.clip_slots = []  # type: List[ClipSlot]
         self.selected_track_category = TRACK_CATEGORY_ALL
         self.selected_recording_time = "4 bars"
+        # todo
 
     def __call__(self):
         # type: () -> Live.Song.Song
