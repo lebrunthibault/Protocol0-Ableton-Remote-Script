@@ -22,6 +22,7 @@ class ActionManager(AbstractControlSurfaceComponent):
         MultiEncoder(channel=15, identifier=13,
                      on_press=self.action_arm_track,
                      on_long_press=self.action_solo_track,
+                     on_shift_long_press=self.action_un_solo_all_tracks,
                      on_scroll=self.action_scroll_tracks)
 
         # PRESet encoder
@@ -37,7 +38,7 @@ class ActionManager(AbstractControlSurfaceComponent):
 
         # CLIP encoder
         MultiEncoder(channel=15, identifier=16,
-                     on_press=self.action_play_track,
+                     on_press=self.action_play_selected_tracks,
                      on_scroll=self.action_scroll_track_clips)
 
         # RECord encoder
@@ -54,7 +55,8 @@ class ActionManager(AbstractControlSurfaceComponent):
 
         # PLAY encoder
         MultiEncoder(channel=15, identifier=12,
-                     on_press=self.action_play_track,
+                     on_press=self.action_play_selected_tracks,
+                     on_shift_press=self.action_solo_play_selected_tracks,
                      on_long_press=self.restart_category,
                      on_scroll=self.action_scroll_track_categories)
 
@@ -79,7 +81,7 @@ class ActionManager(AbstractControlSurfaceComponent):
             # if track_to_select.playable_clip:
             #     self.song.highlighted_clip_slot = track_to_select.playable_clip.clip_slot
             # else:
-                self.song.select_track(track_to_select, sync=True)
+            self.song.select_track(track_to_select, sync=True)
 
     @button_action()
     def action_arm_track(self):
@@ -92,6 +94,11 @@ class ActionManager(AbstractControlSurfaceComponent):
     @button_action()
     def action_solo_track(self):
         [t.action_solo() for t in self.song.selected_tracks]
+
+    @button_action()
+    def action_un_solo_all_tracks(self):
+        self.song.unsolo_all_tracks()
+        self.song.selected_track.solo = False
 
     @button_action()
     def action_show_track_instrument(self):
@@ -170,8 +177,15 @@ class ActionManager(AbstractControlSurfaceComponent):
         self.song.selected_track.scroll_clips(go_next=go_next)
 
     @button_action()
-    def action_play_track(self):
+    def action_play_selected_tracks(self):
         [t.base_track.play() for t in self.song.selected_tracks]
+        if not self.song.is_playing:
+            self.song.is_playing = True
+
+    @button_action()
+    def action_solo_play_selected_tracks(self):
+        [t.stop() for t in self.song.abstract_tracks if t not in self.song.selected_tracks]
+        self.action_play_selected_tracks()
 
     @button_action()
     def restart_category(self):

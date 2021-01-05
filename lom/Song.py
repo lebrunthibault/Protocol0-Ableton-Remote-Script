@@ -20,6 +20,7 @@ class Song(SongActionMixin, AbstractObject):
         self._song = song
         self._view = self._song.view  # type: Any
         self.tracks = []  # type: List[SimpleTrack]
+        self.abstract_tracks = []  # type: List[AbstractTrack]
         self.abstract_group_tracks = []  # type: List[AbstractGroupTrack]
         self.selected_track = None  # type: SimpleTrack
         self.current_track = None  # type: AbstractTrack
@@ -76,6 +77,14 @@ class Song(SongActionMixin, AbstractObject):
     def highlighted_clip_slot(self, clip_slot):
         # type: (ClipSlot) -> None
         self.song._view.highlighted_clip_slot = clip_slot._clip_slot
+
+    @property
+    def is_playing(self):
+        return self._song.is_playing
+
+    @is_playing.setter
+    def is_playing(self, is_playing):
+        self._song.is_playing = is_playing
 
     @property
     def metronome(self):

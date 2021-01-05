@@ -57,6 +57,7 @@ class SongManager(AbstractControlSurfaceComponent):
             for abstract_group_sub_track in abstract_group_track.all_tracks:
                 self._simple_track_to_abstract_group_track.update({abstract_group_sub_track: abstract_group_track})
 
+        self.song.abstract_tracks = list(set([self.get_current_track(track) for track in self.song.tracks]))
         self._set_current_track()
         if track_added:
             # noinspection PyUnresolvedReferences

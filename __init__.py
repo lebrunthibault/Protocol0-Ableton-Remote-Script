@@ -5,6 +5,12 @@ class EmptyModule():
     def __init__(self, is_false=True):
         self.is_false = is_false
 
+    def __ne__(self, other):
+        return False
+
+    def __eq__(self):
+        return False
+
     def __nonzero__(self):
         # allows Live environment check
         return not self.is_false

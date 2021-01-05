@@ -1,3 +1,5 @@
+from functools import partial
+
 from typing import TYPE_CHECKING, Any
 
 import Live

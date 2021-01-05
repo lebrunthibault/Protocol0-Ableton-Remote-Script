@@ -1,6 +1,6 @@
 import traceback
 from collections import defaultdict
-from functools import partial, wraps, update_wrapper
+from functools import partial, wraps
 
 from typing import TYPE_CHECKING
 

@@ -44,7 +44,7 @@ class Sequence(AbstractControlSurfaceComponent):
             These should better be execute in a step if only return_if so that it's clearer
     """
 
-    def __init__(self, steps=[], wait=0, debug=True, name=None, auto_start=False, is_condition_seq=False, parent_seq=None, *a, **k):
+    def __init__(self, wait=0, debug=True, name=None, auto_start=False, parent_seq=None, *a, **k):
         # type: (List[callable], float, str, bool, bool, Sequence) -> None
         super(Sequence, self).__init__(*a, **k)
         self._steps = deque()  # type: [SequenceStep]
@@ -61,18 +61,18 @@ class Sequence(AbstractControlSurfaceComponent):
         self._errored = False
         self._parent_seq = parent_seq  # type: Sequence
         # self._debug = debug and not sync
-        self._is_condition_seq = is_condition_seq
+        self._is_condition_seq = False
         self._done_called = False
         if not name:
             frame_info = get_frame_info(2)
             if frame_info:
                 name = "%s.%s" % (frame_info.class_name, frame_info.method_name)
         self.name = name
-        if len(steps):
-            self.add(steps, wait=wait)
+
+        self.parent.defer(self.has_started_check)
 
     def __repr__(self):
-        return "seq (%s)" % self.name
+        return "[seq %s]" % self.name
 
     def __len__(self):
         return len(self._steps)
@@ -88,8 +88,10 @@ class Sequence(AbstractControlSurfaceComponent):
         return self._steps.append(SequenceStep(callback, sequence=self, *a, **k))
 
     def has_started_check(self):
-        if self._state == SequenceState.UN_STARTED and not self._errored and all([not seq._errored for seq in self._parent_seqs]):
-            raise SequenceError(sequence=self, message="has not been called, check auto_start parameter")
+        if self._state != SequenceState.UN_STARTED or self._is_condition_seq or self._parent_seq:
+            return
+        if not self._errored and all([not seq._errored for seq in self._parent_seqs]):
+            raise SequenceError(sequence=self, message="seq has not been called or added to a parent sequence")
 
     def __call__(self):
         if self._state == SequenceState.UN_STARTED:
@@ -103,22 +105,22 @@ class Sequence(AbstractControlSurfaceComponent):
         if self._state == SequenceState.TERMINATED:
             return
 
-        if not len(self._steps) and not self._current_step:
-            raise SequenceError(sequence=self, message="You tried to execute an empty sequence")
-
         if len(self._steps):
             if self._debug:
                 self.parent.log_info("%s : exec %s" % (self, self._steps[0]),
                                      debug=False)
             self._current_step = self._steps.popleft()
             self._current_step()
-        elif self._current_step._is_terminal_step:
+        elif not self._current_step or self._current_step._is_terminal_step:
             self._terminate()
 
         # else sync sequence execution
 
     def _terminate(self):
-        if not self._current_step._is_terminal_step and not self._early_returned:
+        if self._current_step and self._current_step._errored and not self._is_condition_seq:
+            self._errored = True
+
+        if self._current_step and not self._current_step._is_terminal_step and not self._early_returned and not self._errored:
             raise SequenceError(sequence=self, message="You called _terminate but the last step is not the terminal one")
 
         if self._state == SequenceState.TERMINATED:
@@ -126,19 +128,16 @@ class Sequence(AbstractControlSurfaceComponent):
 
         self._state = SequenceState.TERMINATED
 
-        if self._current_step._errored and not self._is_condition_seq:
-            self._errored = True
-
         self._end_at = time.time()
         self._duration = self._end_at - self._start_at
-        self._res = self._current_step._res
+        self._res = self._current_step._res if self._current_step else None
 
-        if self._debug and not self._is_condition_seq:
-            self.parent.log_debug("%s _is_condition_seq : %s" % (self, self._is_condition_seq))
-            self.parent.log_debug(self._parent_seq)
-            self.parent.log_debug(self._parent_seqs)
+        if self._debug:
             verb = "errored" if self._errored else "terminated successfully"
+
             message = "%s %s" % (self, verb)
+            if not self._current_step:
+                message += " (empty seq)"
             # message = "%s %s in %.3fs" % (self, verb, self._duration)
             if self._res:
                 message += " (res %s)" % self._res
@@ -169,9 +168,6 @@ class Sequence(AbstractControlSurfaceComponent):
                                 message="You passed a non callable to a sequence : %s to %s, type: %s" % (
                                     callback, self, type(callback)))
 
-        if len(self._steps) == 0 and not self._is_condition_seq and self._auto_start is False:
-            self.parent.defer(self.has_started_check)
-
         if callback == nop:
             name = "wait %s" % wait if wait else "pass"
 
@@ -199,8 +195,10 @@ class Sequence(AbstractControlSurfaceComponent):
         self._done_called = True
         # e.g. : a totally sync sequence is over (last step is already executed)
         if len(self._steps) == 0:
-            self._current_step._is_terminal_step = True
-            self._terminate()
+            if self._current_step:
+                self._current_step._is_terminal_step = True
+            if self._auto_start:
+                self._terminate()
         else:
             self._steps[-1]._is_terminal_step = True
 

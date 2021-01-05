@@ -24,8 +24,16 @@ class SongActionMixin(object):
 
     def unfocus_all_tracks(self):
         # type: (Song) -> None
+        self.unarm_all_tracks()
+        self.unsolo_all_tracks()
+
+    def unarm_all_tracks(self):
+        # type: (Song) -> None
         [t.action_unarm() for t in self.abstract_group_tracks if t.arm and t != self.current_track]
         [t.action_unarm() for t in self.tracks if t.arm if t != self.selected_track]
+
+    def unsolo_all_tracks(self):
+        # type: (Song) -> None
         [setattr(t, "solo", False) for t in self.song.tracks if t.solo and t != self.selected_track]
 
     @defer

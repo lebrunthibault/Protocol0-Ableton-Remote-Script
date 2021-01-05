@@ -72,7 +72,7 @@ class AbstractInstrument(AbstractObject):
 
         seq = Sequence()
         if (focus_device_track or self.needs_activation) and self.song.selected_track != self.device_track:
-            seq.add(self.song.select_track(self.device_track), name="select device track")
+            seq.add(partial(self.song.select_track, self.device_track))
         if not self.activated:
             seq.add(partial(self.parent.deviceManager.check_plugin_window_showable, self._device, self.device_track))
             seq.add(lambda: setattr(self, "activated", True), name="mark instrument as activated")

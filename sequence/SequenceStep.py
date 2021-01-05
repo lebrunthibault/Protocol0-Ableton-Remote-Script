@@ -39,6 +39,8 @@ class SequenceStep(AbstractControlSurfaceComponent):
         self._return_condition = None
 
         conditions = [do_if, do_if_not, return_if, return_if_not]
+        self._condition = next((c for c in conditions), None)
+
         if len(filter(None, conditions)) > 1:
             raise SequenceError(sequence=self._seq, message="You cannot specify multiple conditions in a step")
         from a_protocol_0.sequence.Sequence import Sequence
@@ -57,12 +59,16 @@ class SequenceStep(AbstractControlSurfaceComponent):
                 output += " (and poll for lambda condition)"
             else:
                 output += " (and poll for %s)" % get_callable_name(self._complete_on)
-        if self._do_if or self._do_if_not:
-            output += " (has if condition)"
-        if self._return_if or self._return_if_not:
-            output += " (has return condition)"
+        if self._do_if:
+            output += " (has_if)"
+        elif self._do_if_not:
+            output += " (has_if_not)"
+        elif self._return_if:
+            output += " (has_return_if)"
+        elif self._return_if_not:
+            output += " (has_return_if_not)"
 
-        return output
+        return "[%s]" % output
 
     def __call__(self):
         if self._state != SequenceState.UN_STARTED:
@@ -70,33 +76,27 @@ class SequenceStep(AbstractControlSurfaceComponent):
 
         self._state = SequenceState.STARTED
 
-        conditions = {
-            self._terminate_if_condition: self._do_if or self._do_if_not,
-            self._terminate_return_condition: self._return_if or self._return_if_not
-        }
-
-        from a_protocol_0.sequence.Sequence import Sequence
-        for terminate, condition in conditions.items():
-            if not condition:
-                continue
-
-            condition_res = condition()
-            if isinstance(condition_res, Sequence):
-                condition_res._is_condition_seq = True
-                if condition_res._state == SequenceState.TERMINATED:
-                    terminate(condition_res._res)
-                else:
-                    terminate.subject = condition_res
-            else:
-                terminate(res=condition_res)
-
-        if not any(conditions.values()):
+        if self._condition:
+            self._create_condition_check()
+        else:
             self._execute()
+
+    def _create_condition_check(self):
+        terminate = self._terminate_if_condition if self._condition in [self._do_if, self._do_if_not] else self._terminate_return_condition
+
+        condition_res = self._condition()
+        from a_protocol_0.sequence.Sequence import Sequence
+        if isinstance(condition_res, Sequence):
+            condition_res._is_condition_seq = True
+            terminate.subject = condition_res
+            condition_res()
+        else:
+            terminate(res=condition_res)
 
     @subject_slot("terminated")
     def _terminate_if_condition(self, res=None):
-        if_res = res or self._terminate_if_condition.subject._res
-        self.parent.log_debug("%s returned %s" % (self, if_res))
+        if_res = res if res is not None else self._terminate_if_condition.subject._res
+        self.parent.log_debug("%s condition returned %s" % (self, if_res))
 
         if (if_res and self._do_if) or (not if_res and self._do_if_not):
             self._execute()
@@ -106,8 +106,8 @@ class SequenceStep(AbstractControlSurfaceComponent):
 
     @subject_slot("terminated")
     def _terminate_return_condition(self, res=None):
-        return_res = res or self._terminate_return_condition.subject._res
-        self.parent.log_debug("%s returned %s" % (self, return_res))
+        return_res = res if res is not None else self._terminate_return_condition.subject._res
+        self.parent.log_debug("%s condition returned %s" % (self, return_res))
 
         if (return_res and self._return_if) or (not return_res and self._return_if_not):
             self._terminate(early_return_seq=True)

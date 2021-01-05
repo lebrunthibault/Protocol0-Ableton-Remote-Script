@@ -47,9 +47,9 @@ class Protocol0(ControlSurface):
             self.clyphxNavigationManager = NavAndViewActions()
             self.clyphxGlobalManager = GlobalActions()
             self.utilsManager = UtilsManager()
-            ActionManager()
-            ActionSetManager()
-            ActionTestManager()
+            self.actionManager = ActionManager()
+            self.actionSetManager = ActionSetManager()
+            self.actionTestManager = ActionTestManager()
 
             if init_song:
                 self.songManager.init_song()
