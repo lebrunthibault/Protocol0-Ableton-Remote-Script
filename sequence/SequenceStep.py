@@ -70,40 +70,43 @@ class SequenceStep(AbstractControlSurfaceComponent):
 
         self._state = SequenceState.STARTED
 
+        conditions = {
+            self._terminate_if_condition: self._do_if or self._do_if_not,
+            self._terminate_return_condition: self._return_if or self._return_if_not
+        }
+
         from a_protocol_0.sequence.Sequence import Sequence
-        if self._do_if or self._do_if_not:
-            if_res = self._if_condition()
-            if isinstance(if_res, Sequence):
-                if_res._is_condition_seq = True
-                if self._if_condition._state == SequenceState.TERMINATED:
-                    self._terminate_if_condition()
+        for terminate, condition in conditions.items():
+            if not condition:
+                continue
+
+            condition_res = condition()
+            if isinstance(condition_res, Sequence):
+                condition_res._is_condition_seq = True
+                if condition_res._state == SequenceState.TERMINATED:
+                    terminate(condition_res._res)
                 else:
-                    self._terminate_if_condition.subject = self._if_condition
-        elif self._return_if or self._return_if_not:
-            return_res = self._return_condition()
-            if isinstance(return_res, Sequence):
-                return_res._is_condition_seq = True
-                if self._if_condition._state == SequenceState.TERMINATED:
-                    self._terminate_return_condition()
-                else:
-                    self._terminate_return_condition.subject = self._return_condition
-        else:
+                    terminate.subject = condition_res
+            else:
+                terminate(res=condition_res)
+
+        if not any(conditions.values()):
             self._execute()
 
     @subject_slot("terminated")
     def _terminate_if_condition(self, res=None):
-        if_res = res or self._if_condition._res
+        if_res = res or self._terminate_if_condition.subject._res
         self.parent.log_debug("%s returned %s" % (self, if_res))
 
         if (if_res and self._do_if) or (not if_res and self._do_if_not):
             self._execute()
         else:
-            self._res = True
+            self._res = True  # Sequence is not an error
             self._terminate()
 
     @subject_slot("terminated")
-    def _terminate_return_condition(self):
-        return_res = self._return_condition._res
+    def _terminate_return_condition(self, res=None):
+        return_res = res or self._terminate_return_condition.subject._res
         self.parent.log_debug("%s returned %s" % (self, return_res))
 
         if (return_res and self._return_if) or (not return_res and self._return_if_not):
