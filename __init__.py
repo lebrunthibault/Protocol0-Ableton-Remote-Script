@@ -1,9 +1,5 @@
 import sys
 
-sys.path.insert(0, "C:\Python27\Lib\site-packages")
-sys.path.insert(0, "C:\Python27")
-sys.path.insert(0, "C:\Python27\Lib")
-
 
 class EmptyModule():
     def __init__(self, is_false=True):
@@ -23,6 +19,7 @@ class EmptyModule():
         return 0
 
     def __iter__(self):
+        # that's for push2 checking scales
         return iter([(0, 0)])
 
 
@@ -31,7 +28,6 @@ if "Live" not in sys.modules:
     sys.modules["Live"] = EmptyModule()
     sys.modules["MidiRemoteScript"] = EmptyModule()
     sys.modules["multipledispatch"] = EmptyModule()
-    sys.path.insert(0, "C:\\Users\\thiba\\Google Drive\\music\\dev\\AbletonLive-API-Stub")
 
 from .Protocol0 import Protocol0
 
