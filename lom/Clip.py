@@ -23,6 +23,7 @@ class Clip(ClipActionMixin, AbstractObject):
         self.is_selected = False
         # memorizing notes for note change comparison
         self._notes = self.get_notes() if self._clip.is_midi_clip else []  # type: List[Note]
+        self._added_note = None  # type: Note
         self._is_updating_notes = False
         self.color = self.track.base_color
 
@@ -42,6 +43,12 @@ class Clip(ClipActionMixin, AbstractObject):
         # type: () -> float
         """ For looped clips: loop length in beats """
         return self._clip.length if self._clip else 0
+
+    @property
+    def loop_start(self):
+        # type: () -> float
+        """ For looped clips: loop length in beats """
+        return self._clip.loop_start if self._clip else 0
 
     @property
     def color(self):

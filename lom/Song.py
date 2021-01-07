@@ -28,7 +28,8 @@ class Song(SongActionMixin, AbstractObject):
         self.clip_slots = []  # type: List[ClipSlot]
         self.selected_track_category = TRACK_CATEGORY_ALL
         self.selected_recording_time = "4 bars"
-        # todo
+        self.solo_playing_tracks = []  # type: List[AbstractTrack]
+        self.solo_stopped_tracks = []  # type: List[AbstractTrack]
 
     def __call__(self):
         # type: () -> Live.Song.Song
@@ -57,14 +58,16 @@ class Song(SongActionMixin, AbstractObject):
     @property
     def selected_tracks(self):
         # type: () -> List[AbstractTrack]
-        return [self.parent.songManager.get_current_track(track) for track in self.tracks if track._track.is_part_of_selection]
+        return [self.parent.songManager.get_current_track(track) for track in self.tracks if
+                track._track.is_part_of_selection]
 
     @property
     def selected_category_tracks(self):
-        # type: () -> List[SimpleTrack]
+        # type: () -> List[AbstractTrack]
         if self.selected_track_category == TRACK_CATEGORY_ALL:
             return self.tracks
-        return [track for track in self.tracks if track.category.lower() == self.selected_track_category.lower()]
+        return [track for track in self.abstract_tracks if
+                track.category.lower() == self.selected_track_category.lower()]
 
     @property
     def highlighted_clip_slot(self):
@@ -72,7 +75,8 @@ class Song(SongActionMixin, AbstractObject):
         """ first look in track then in song """
         return find_if(lambda cs: cs._clip_slot == self.song._view.highlighted_clip_slot,
                        self.selected_track.clip_slots) or find_if(
-            lambda cs: cs._clip_slot == self.song._view.highlighted_clip_slot, [cs for track in self.song.tracks for cs in track.clip_slots])
+            lambda cs: cs._clip_slot == self.song._view.highlighted_clip_slot,
+            [cs for track in self.song.tracks for cs in track.clip_slots])
 
     @highlighted_clip_slot.setter
     def highlighted_clip_slot(self, clip_slot):
@@ -111,3 +115,7 @@ class Song(SongActionMixin, AbstractObject):
     def playing_clips(self):
         # type: () -> List[Clip]
         return [t.playable_clip for t in self.tracks if t.is_playing and t.playable_clip.is_playing]
+
+    @property
+    def has_solo_selection(self):
+        return len(self.solo_playing_tracks) != 0

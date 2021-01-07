@@ -18,23 +18,21 @@ class SongActionMixin(object):
     def select_track(self, selected_track, sync=False):
         # type: (Song, AbstractTrack, bool) -> Sequence
         seq = Sequence(auto_start=sync)
-        seq.add(partial(setattr, self._view, "selected_track", selected_track.base_track._track), complete_on=self.parent.songManager.on_selected_track_changed, do_if=lambda: selected_track != self.song.selected_track)
-        seq.add(wait=1)
+        seq.add(partial(setattr, self._view, "selected_track", selected_track.base_track._track), wait=1, do_if=lambda: selected_track != self.song.selected_track)
         return seq.done()
 
-    def unfocus_all_tracks(self):
-        # type: (Song) -> None
+    def unfocus_all_tracks(self, except_current=True):
+        # type: (Song, bool) -> None
         self.unarm_all_tracks()
         self.unsolo_all_tracks()
 
-    def unarm_all_tracks(self):
-        # type: (Song) -> None
-        [t.action_unarm() for t in self.abstract_group_tracks if t.arm and t != self.current_track]
-        [t.action_unarm() for t in self.tracks if t.arm if t != self.selected_track]
+    def unarm_all_tracks(self, except_current=True):
+        # type: (Song, bool) -> None
+        [t.action_unarm() for t in self.abstract_tracks if t.arm and t != (self.current_track if except_current else None)]
 
-    def unsolo_all_tracks(self):
-        # type: (Song) -> None
-        [setattr(t, "solo", False) for t in self.song.tracks if t.solo and t != self.selected_track]
+    def unsolo_all_tracks(self, except_current=True):
+        # type: (Song, bool) -> None
+        [setattr(t, "solo", False) for t in self.song.abstract_tracks if t.solo and t != (self.current_track if except_current else None)]
 
     @defer
     def reset(self):

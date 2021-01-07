@@ -12,6 +12,7 @@ from a_protocol_0.components.DeviceManager import DeviceManager
 from a_protocol_0.components.KeyBoardShortcutManager import KeyBoardShortcutManager
 from a_protocol_0.components.MidiManager import MidiManager
 from a_protocol_0.components.MixingManager import MixingManager
+from a_protocol_0.components.PlayTrackManager import PlayTrackManager
 from a_protocol_0.components.Push2Manager import Push2Manager
 from a_protocol_0.components.SessionManager import SessionManager
 from a_protocol_0.components.SongManager import SongManager
@@ -20,6 +21,7 @@ from a_protocol_0.components.TrackManager import TrackManager
 from a_protocol_0.components.UtilsManager import UtilsManager
 from a_protocol_0.consts import LogLevel
 from a_protocol_0.lom.Song import Song
+from a_protocol_0.utils.decorators import wait
 from a_protocol_0.utils.log import log_ableton
 
 
@@ -38,6 +40,7 @@ class Protocol0(ControlSurface):
             self.songManager = SongManager()
             self.sessionManager = SessionManager()
             self.mixingManager = MixingManager()
+            self.playTrackManager = PlayTrackManager()
             self.push2Manager = Push2Manager()
             self.trackManager = TrackManager()
             self.trackAutomationManager = TrackAutomationManager()
@@ -50,7 +53,7 @@ class Protocol0(ControlSurface):
             self.actionManager = ActionManager()
             self.actionSetManager = ActionSetManager()
             self.actionTestManager = ActionTestManager()
-
+            self.log_debug("hey")
             if init_song:
                 self.songManager.init_song()
                 self.dev_boot()
@@ -101,11 +104,14 @@ class Protocol0(ControlSurface):
         del self._remaining_scheduled_messages[:]
         self._task_group.clear()
 
+    @wait(1)
     def dev_boot(self):
         if self._is_dev_booted:
             return
-        # self.protocol0_song.abstract_group_tracks[0].action_arm()
-        # self.protocol0_song.select_track(self.protocol0_song.tracks[12])
+        self.protocol0_song.tracks[19].is_folded = False
+        self.protocol0_song.select_track(self.protocol0_song.tracks[20], sync=True)
+        # self.protocol0_song.highlighted_clip_slot = self.protocol0_song.selected_track.clips[0]
+        self.defer(self.clyphxNavigationManager.show_clip_view)
         # self.protocol0_song.selected_track.play()
         # self.trackAutomationManager.create_automation_group(self.protocol0_song.selected_track)
         self._is_dev_booted = True

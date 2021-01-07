@@ -58,6 +58,10 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
             if chain_selector_param and chain_selector_param.is_enabled:
                 chain_selector_param.value = 0
 
+    def is_parent(self, track):
+        # type: (AbstractTrack) -> bool
+        return track in self.all_tracks
+
     @property
     def all_tracks(self):
         # type: () -> List[SimpleTrack]

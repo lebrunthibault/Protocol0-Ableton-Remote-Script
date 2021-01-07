@@ -1,8 +1,10 @@
 from typing import TYPE_CHECKING
 
-from _Framework.Util import clamp
+from _Framework.Util import clamp, find_if
+from a_protocol_0.consts import push2_beat_quantization_steps
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.utils.decorators import debounce
+from a_protocol_0.utils.utils import is_equal
 from pushbase.note_editor_component import TimeStep
 
 if TYPE_CHECKING:
@@ -15,18 +17,29 @@ class Note(AbstractObject):
     notes_to_synchronize = set()  # type: [Note]
     auto_sync_enabled = True
 
-    def __init__(self, pitch, start, duration, velocity=127, muted=False, clip=None, *a, **k):
+    def __init__(self, pitch=127, start=0, duration=1, velocity=127, muted=False, clip=None, *a, **k):
         super(Note, self).__init__(*a, **k)
-        self._pitch = pitch
+        self._pitch = int(pitch)
         self._start = start
         self._duration = duration
-        self._velocity = velocity
+        self._velocity = int(velocity)
         self._muted = muted
         self.clip = clip  # type: Clip
 
+    def __eq__(self, other):
+        return isinstance(other, Note) and \
+               self.pitch == other.pitch and \
+               is_equal(self.start, other.start) and \
+               is_equal(self.duration, other.duration) and \
+               self.velocity == other.velocity and \
+               self.muted == other.muted
+
+    def __hash__(self):
+        return hash((self.pitch, self.start, self.duration, self.velocity, self.muted))
+
     def __repr__(self):
-        return "{pitch:%s, start:%s, duration:%s, velocity:%s, muted:%s}" % (
-            self.pitch, self.start, self.duration, self.velocity, self.muted)
+        return "{start:%s, duration:%s, pitch:%s, vel:%s}" % (
+            self.start, self.duration, self.pitch, self.velocity)
 
     def to_data(self):
         return (self.pitch, self.start, self.duration, self.velocity, self.muted)
@@ -38,11 +51,7 @@ class Note(AbstractObject):
 
     @property
     def pitch(self):
-        if self._pitch < 0:
-            return 0
-        if self._pitch > 127:
-            return 127
-        return int(self._pitch)
+        return int(clamp(self._pitch, 0, 127))
 
     @pitch.setter
     def pitch(self, pitch):
@@ -51,14 +60,16 @@ class Note(AbstractObject):
 
     @property
     def start(self):
-        if self._start <= 0:
-            return 0
-        return float(self._start)
+        return max(0, float(self._start))
 
     @start.setter
     def start(self, start):
         self._start = max(0, start)
         self.synchronize()
+
+    @property
+    def end(self):
+        return self.start + self.duration
 
     @property
     def duration(self):
@@ -93,6 +104,18 @@ class Note(AbstractObject):
         self._muted = bool(muted)
         self.synchronize()
 
+    @property
+    def quantization(self):
+        return find_if(lambda qtz: float(self.start / qtz).is_integer(), reversed(push2_beat_quantization_steps))
+
+    @property
+    def is_quantized(self):
+        return self.quantization is not None
+
+    def overlaps(self, note):
+        # type: (Note) -> bool
+        return note.start < self.end and note.end > self.start
+
     def synchronize(self):
         if not Note.auto_sync_enabled:
             return
@@ -113,4 +136,3 @@ class Note(AbstractObject):
 
         note.clip._is_updating_notes = False
         Note.notes_to_synchronize = set()
-

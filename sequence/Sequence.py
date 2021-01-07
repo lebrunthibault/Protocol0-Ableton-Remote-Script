@@ -9,6 +9,12 @@ from a_protocol_0.sequence.SequenceStep import SequenceStep
 from a_protocol_0.utils.utils import get_frame_info, nop
 
 
+class DebugLevel:
+    info = 0
+    debug = 1
+    dev = 2
+
+
 class Sequence(AbstractControlSurfaceComponent):
     __subject_events__ = ('terminated',)
 
@@ -44,7 +50,7 @@ class Sequence(AbstractControlSurfaceComponent):
             These should better be execute in a step if only return_if so that it's clearer
     """
 
-    def __init__(self, wait=0, debug=True, name=None, auto_start=False, parent_seq=None, *a, **k):
+    def __init__(self, wait=0, debug=DebugLevel.debug, name=None, auto_start=False, parent_seq=None, *a, **k):
         # type: (List[callable], float, str, bool, bool, Sequence) -> None
         super(Sequence, self).__init__(*a, **k)
         self._steps = deque()  # type: [SequenceStep]
@@ -56,7 +62,7 @@ class Sequence(AbstractControlSurfaceComponent):
         self._start_at = None  # type: float
         self._end_at = None  # type: float
         self._duration = None  # type: float
-        self._debug = debug
+        self._debug = (debug == DebugLevel.dev or auto_start is False)
         self._early_returned = False
         self._errored = False
         self._parent_seq = parent_seq  # type: Sequence
@@ -121,7 +127,8 @@ class Sequence(AbstractControlSurfaceComponent):
             self._errored = True
 
         if self._current_step and not self._current_step._is_terminal_step and not self._early_returned and not self._errored:
-            raise SequenceError(sequence=self, message="You called _terminate but the last step is not the terminal one")
+            raise SequenceError(sequence=self,
+                                message="You called _terminate but the last step is not the terminal one")
 
         if self._state == SequenceState.TERMINATED:
             raise SequenceError(sequence=self, message="You called _terminate twice on %s" % self)

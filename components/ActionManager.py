@@ -1,5 +1,5 @@
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.consts import RECORDING_TIMES, TRACK_CATEGORIES, TRACK_CATEGORY_ALL
+from a_protocol_0.consts import RECORDING_TIMES, TRACK_CATEGORIES, TRACK_CATEGORY_ALL, PLAY_MENU_OPTIONS
 from a_protocol_0.controls.MultiEncoder import MultiEncoder
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.utils.decorators import button_action
@@ -97,8 +97,7 @@ class ActionManager(AbstractControlSurfaceComponent):
 
     @button_action()
     def action_un_solo_all_tracks(self):
-        self.song.unsolo_all_tracks()
-        self.song.selected_track.solo = False
+        self.song.unsolo_all_tracks(except_current=False)
 
     @button_action()
     def action_show_track_instrument(self):
@@ -154,7 +153,8 @@ class ActionManager(AbstractControlSurfaceComponent):
     @button_action(log_action=False)
     def action_scroll_track_categories(self, go_next):
         """" stop a live set from group tracks track names """
-        self.song.selected_track_category = scroll_values(TRACK_CATEGORIES, self.song.selected_track_category, go_next)
+        options = TRACK_CATEGORIES + (PLAY_MENU_OPTIONS if self.song.has_solo_selection else [])
+        self.song.selected_track_category = scroll_values(options, self.song.selected_track_category, go_next)
         self.parent.show_message("Selected %s" % self.song.selected_track_category)
 
     @button_action()
@@ -179,19 +179,19 @@ class ActionManager(AbstractControlSurfaceComponent):
     @button_action()
     def action_play_selected_tracks(self):
         [t.base_track.play() for t in self.song.selected_tracks]
-        if not self.song.is_playing:
-            self.song.is_playing = True
 
     @button_action()
     def action_solo_play_selected_tracks(self):
-        [t.stop() for t in self.song.abstract_tracks if t not in self.song.selected_tracks]
-        self.action_play_selected_tracks()
+        self.parent.playTrackManager.action_solo_play_selected_tracks()
 
     @button_action()
     def restart_category(self):
         """" restart a live set from group tracks track names """
-        [track.play() for track in self.song.selected_category_tracks]
-        self.parent.show_message("Starting %s" % self.song.selected_track_category)
+        if self.song.has_solo_selection and self.song.selected_track_category in PLAY_MENU_OPTIONS:
+            self.parent.playTrackManager.handle_play_menu_click()
+        else:
+            [track.play() for track in self.song.selected_category_tracks]
+            self.parent.show_message("Starting %s" % self.song.selected_track_category)
 
     @button_action()
     def action_switch_track_monitoring(self):

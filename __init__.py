@@ -1,5 +1,7 @@
 import sys
 
+sys.path.insert(0, "C:\Python27\Lib\site-packages")
+
 
 class EmptyModule():
     def __init__(self, is_false=True):

@@ -70,9 +70,9 @@ def find_last(predicate, seq):
     return items[-1] if len(items) else None
 
 
-def is_equal(val1, val2):
+def is_equal(val1, val2, delta=0.00001):
     if isinstance(val1, (int, long, float)) and isinstance(val2, (int, long, float)):
-        return abs(val1 - val2) < 0.00001
+        return abs(val1 - val2) < delta
     else:
         return val1 == val2
 
@@ -203,3 +203,6 @@ def _arg_count(func):
 def nop():
     pass
 
+
+def flatten(t):
+    return [item for sublist in t for item in sublist]

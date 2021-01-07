@@ -96,7 +96,8 @@ class SequenceStep(AbstractControlSurfaceComponent):
     @subject_slot("terminated")
     def _terminate_if_condition(self, res=None):
         if_res = res if res is not None else self._terminate_if_condition.subject._res
-        self.parent.log_debug("%s condition returned %s" % (self, if_res))
+        if self._debug:
+            self.parent.log_debug("%s condition returned %s" % (self, if_res))
 
         if (if_res and self._do_if) or (not if_res and self._do_if_not):
             self._execute()
@@ -107,7 +108,8 @@ class SequenceStep(AbstractControlSurfaceComponent):
     @subject_slot("terminated")
     def _terminate_return_condition(self, res=None):
         return_res = res if res is not None else self._terminate_return_condition.subject._res
-        self.parent.log_debug("%s condition returned %s" % (self, return_res))
+        if self._debug:
+            self.parent.log_debug("%s condition returned %s" % (self, return_res))
 
         if (return_res and self._return_if) or (not return_res and self._return_if_not):
             self._terminate(early_return_seq=True)

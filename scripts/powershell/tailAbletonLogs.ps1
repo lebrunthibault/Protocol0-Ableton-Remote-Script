@@ -49,7 +49,7 @@ function Format-LogLine {
         $LogEntry = $LogEntry -replace "P0 - (\w+: )?"
 
         # remove unecessary remote script log info
-        $LogEntry = $LogEntry -replace "info: "   
+        $LogEntry = $LogEntry -replace "info: "
         $LogEntry = $LogEntry -replace "Python: INFO:root:\d* - "
 
         Return $LogEntry

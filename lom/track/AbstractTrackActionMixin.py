@@ -96,8 +96,24 @@ class AbstractTrackActionMixin(object):
         """
         self.action_record_all()
 
+    def play(self):
+        # type: (AbstractTrack) -> None
+        if not self.song.is_playing:
+            self.song.is_playing = True
+        if self.is_foldable:
+            [sub_track.play() for sub_track in self.sub_tracks]
+        elif self.is_playing:
+            return
+        elif hasattr(self, "playable_clip") and self.playable_clip:
+            self.parent.log_debug("playing %s" % self)
+            self.playable_clip.is_playing = True
+            if self.song.playing_clips:
+                max_clip = max(self.song.playing_clips, key=lambda c: c.length)
+                self.playable_clip._clip.start_marker = self.parent.utilsManager.get_next_quantized_position(max_clip.playing_position, self.playable_clip.length)
+
     def stop(self):
         # type: (AbstractTrack) -> None
+        self.parent.log_debug("stopping %s" % self)
         self.base_track._track.stop_all_clips()
 
     def action_undo(self):

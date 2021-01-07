@@ -48,6 +48,7 @@ class ClipActionMixin(object):
 
     def replace_all_notes(self, notes):
         # type: (Clip, List[Note]) -> None
+        self._notes = notes
         self.select_all_notes()
         self.replace_selected_notes(notes)
         self.parent.defer(self.deselect_all_notes)
