@@ -20,7 +20,7 @@ class WrappedTrack(AbstractGroupTrack):
             lambda r: r.attached_object == self.wrapped_track.output_routing_type.attached_object,
             self.base_track.available_output_routing_types)
         self.wrapped_track.output_routing_type = find_if(lambda r: r.display_name == self.base_track._track.name,
-                                                    self.wrapped_track.available_output_routing_types)
+                                                         self.wrapped_track.available_output_routing_types)
 
     @property
     def name(self):

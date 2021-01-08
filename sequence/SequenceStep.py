@@ -82,7 +82,8 @@ class SequenceStep(AbstractControlSurfaceComponent):
             self._execute()
 
     def _create_condition_check(self):
-        terminate = self._terminate_if_condition if self._condition in [self._do_if, self._do_if_not] else self._terminate_return_condition
+        terminate = self._terminate_if_condition if self._condition in [self._do_if,
+                                                                        self._do_if_not] else self._terminate_return_condition
 
         condition_res = self._condition()
         from a_protocol_0.sequence.Sequence import Sequence
@@ -138,7 +139,7 @@ class SequenceStep(AbstractControlSurfaceComponent):
             return
         else:
             check_res = self._complete_on()
-            if _has_callback_queue(check_res): # allows asynchronous access to objects (e.g. clip creation)
+            if _has_callback_queue(check_res):  # allows asynchronous access to objects (e.g. clip creation)
                 handle_callback_queue()
             elif check_res:
                 self._terminate()
@@ -152,7 +153,8 @@ class SequenceStep(AbstractControlSurfaceComponent):
         if isinstance(res, Sequence):
             res._parent_seq = self._seq
             if res._state == SequenceState.TERMINATED:
-                raise SequenceError(sequence=self._seq, message="The inner sequence %s was terminated before execution" % res)
+                raise SequenceError(sequence=self._seq,
+                                    message="The inner sequence %s was terminated before execution" % res)
             self._step_sequence_terminated_listener.subject = res
             res()
         else:

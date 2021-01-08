@@ -36,7 +36,8 @@ class ClipSlot(AbstractObject):
         self.clip = None
         if self.has_clip:
             from a_protocol_0.lom.track.simple_track.AutomationTrack import AutomationTrack
-            self.clip = AutomationClip(clip_slot=self) if isinstance(self.track, AutomationTrack) else Clip(clip_slot=self)
+            self.clip = AutomationClip(clip_slot=self) if isinstance(self.track, AutomationTrack) else Clip(
+                clip_slot=self)
 
     @subject_slot("has_clip")
     def _has_clip_listener(self):
@@ -56,3 +57,7 @@ class ClipSlot(AbstractObject):
     def fire(self, record_length):
         # type: (int) -> None
         self._clip_slot.fire(record_length=record_length)
+
+    def duplicate_clip_to(self, clip_slot):
+        # type: (ClipSlot) -> None
+        self._clip_slot.duplicate_clip_to(clip_slot._clip_slot)

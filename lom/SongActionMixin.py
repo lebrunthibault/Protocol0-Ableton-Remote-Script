@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Optional
 
 import Live
 
+from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import defer
@@ -18,7 +19,8 @@ class SongActionMixin(object):
     def select_track(self, selected_track, sync=False):
         # type: (Song, AbstractTrack, bool) -> Sequence
         seq = Sequence(auto_start=sync)
-        seq.add(partial(setattr, self._view, "selected_track", selected_track.base_track._track), wait=1, do_if=lambda: selected_track != self.song.selected_track)
+        seq.add(partial(setattr, self._view, "selected_track", selected_track.base_track._track), wait=1,
+                do_if=lambda: selected_track != self.song.selected_track)
         return seq.done()
 
     def unfocus_all_tracks(self, except_current=True):
@@ -28,11 +30,13 @@ class SongActionMixin(object):
 
     def unarm_all_tracks(self, except_current=True):
         # type: (Song, bool) -> None
-        [t.action_unarm() for t in self.abstract_tracks if t.arm and t != (self.current_track if except_current else None)]
+        [t.action_unarm() for t in self.abstract_tracks if
+         t.arm and t != (self.current_track if except_current else None)]
 
     def unsolo_all_tracks(self, except_current=True):
         # type: (Song, bool) -> None
-        [setattr(t, "solo", False) for t in self.song.abstract_tracks if t.solo and t != (self.current_track if except_current else None)]
+        [setattr(t, "solo", False) for t in self.song.abstract_tracks if
+         t.solo and t != (self.current_track if except_current else None)]
 
     @defer
     def reset(self):
@@ -70,6 +74,6 @@ class SongActionMixin(object):
         self.song._view.selected_scene = self._song.create_scene(scene_index or len(self.song.scenes))
 
     def select_device(self, device):
-        # type: (Song, Live.Device.Device) -> None
+        # type: (Song, Device) -> None
         if device:
-            self._view.select_device(device)
+            self._view.select_device(device._device)

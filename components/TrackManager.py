@@ -36,9 +36,16 @@ class TrackManager(AbstractControlSurfaceComponent):
         return seq.done()
 
     def create_midi_track(self, index, name=None):
-        # type: (int, str) -> None
+        return self._create_track(track_creator=partial(self.song._song.create_midi_track, index), name=name)
+
+    def create_audio_track(self, index, name=None):
+        return self._create_track(track_creator=partial(self.song._song.create_audio_track, index), name=name)
+
+    def _create_track(self, track_creator, name=None):
+        # type: (callable, str) -> None
         seq = Sequence()
-        seq.add(partial(self.song._song.create_midi_track, index), complete_on=self.parent.trackManager._added_track_listener)
+        seq.add(track_creator,
+                complete_on=self.parent.trackManager._added_track_listener)
 
         @defer
         def set_name():
@@ -69,11 +76,11 @@ class TrackManager(AbstractControlSurfaceComponent):
         # type: (SimpleTrack) -> Optional[AbstractGroupTrack]
         if any([track.name in name for name in EXTERNAL_SYNTH_NAMES]):
             return ExternalSynthTrack(group_track=track)
-        if any([isinstance(sub_track, AutomationTrack) for sub_track in track.sub_tracks]) and len(track.sub_tracks) == 2:
+        if any([isinstance(sub_track, AutomationTrack) for sub_track in track.sub_tracks]) and len(
+                track.sub_tracks) == 2:
             wrapped_track = find_last(lambda t: t._track.has_audio_output, track.sub_tracks)
             if wrapped_track is None:
                 raise RuntimeError("Tried to instantiate a WrappedTrack on a group with no audio output track")
             return WrappedTrack(group_track=track, wrapped_track=wrapped_track)
 
         return None
-

@@ -10,7 +10,8 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
     def load_rack_device(self, rack_name, hide=False, sync=True):
         # type: (str, bool, Sequence) -> None
         seq = Sequence(auto_start=sync)
-        seq.add(partial(self.load_from_user_library, None, "'%s.adg'" % rack_name), complete_on=lambda: find_if(lambda d: d.name == rack_name, self.song.selected_track.devices))
+        seq.add(partial(self.load_from_user_library, None, "'%s.adg'" % rack_name),
+                complete_on=lambda: find_if(lambda d: d.name == rack_name, self.song.selected_track.devices))
         if hide:
             seq.add(self.parent.keyboardShortcutManager.hide_plugins, wait=1)
         return seq.done()
@@ -25,4 +26,3 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
             super(BrowserManager, self).swap(None, value)
         else:
             super(BrowserManager, self).swap(None, '"%s.adg"' % value)
-

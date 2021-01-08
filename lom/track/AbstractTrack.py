@@ -11,6 +11,7 @@ from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.ClipSlot import ClipSlot
 from a_protocol_0.lom.Colors import Colors
+from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.track.AbstractTrackActionMixin import AbstractTrackActionMixin
 from a_protocol_0.lom.track.TrackName import TrackName
 from a_protocol_0.utils.decorators import defer
@@ -33,9 +34,11 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
         self.can_be_armed = self._track.can_be_armed
         self.index = track.index
         self.is_simple_group = self.is_foldable and self not in self.parent.songManager._simple_track_to_abstract_group_track
-        self.group_track = self.parent.songManager._get_simple_track(self._track.group_track) if self._track.group_track else None
+        self.group_track = self.parent.songManager._get_simple_track(
+            self._track.group_track) if self._track.group_track else None
         # here this works because group tracks are at left of inner tracks (but for all_tracks we need a property)
-        self.group_tracks = [self.group_track] + self.group_track.group_tracks if self.group_track else []  # type: List[SimpleTrack]
+        self.group_tracks = [
+                                self.group_track] + self.group_track.group_tracks if self.group_track else []  # type: List[SimpleTrack]
         self.sub_tracks = []  # type: List[SimpleTrack]
         self.bar_count = 1
         self.is_midi = self._track.has_midi_input
@@ -76,14 +79,22 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
         return [clip_slot.clip for clip_slot in clip_slots if clip_slot.has_clip]
 
     @property
-    def devices(self):
-        # type: () -> List[Live.Device.Device]
-        return list(self.base_track._track.devices)
+    def all_devices(self):
+        # type: () -> List[Device]
+        return [Device(device, track) for track in self.all_tracks for device in find_all_devices(track)]
+
+    def get_device(self, device):
+        # type: (Live.Device.Device) -> Optional[Device]
+        return find_if(lambda d: d._device == device, self.base_track.devices)
 
     @property
-    def all_devices(self):
-        # type: () -> List[Live.Device.Device]
-        return [device for track in self.all_tracks for device in find_all_devices(track)]
+    def selected_device(self):
+        # type: () -> Device
+        return self.get_device(self._track.view.selected_device)
+
+    def delete_device(self, device):
+        # type: (Device) -> None
+        self.base_track._track.delete_device(self.base_track.devices.index(device))
 
     @property
     def clips(self):
@@ -97,15 +108,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
     def get_clip(self, clip):
         # type: (Live.Clip.Clip) -> Optional[Clip]
         return find_if(lambda c: c._clip == clip, self.base_track.clips)
-
-    @property
-    def selected_device(self):
-        # type: () -> Live.Device.Device
-        return self._track.view.selected_device
-
-    def delete_device(self, device):
-        # type: (Live.Device.Device) -> None
-        self.base_track._track.delete_device(self.base_track.devices.index(device))
 
     @property
     def is_visible(self):
@@ -205,7 +207,8 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
     @property
     def is_hearable(self):
         # type: () -> bool
-        return self.is_playing and self.output_meter_level > 0.5 and not self.mute and all([not t.mute for t in self.group_tracks])
+        return self.is_playing and self.output_meter_level > 0.5 and not self.mute and all(
+            [not t.mute for t in self.group_tracks])
 
     @abstractproperty
     def is_recording(self):

@@ -10,7 +10,8 @@ class MultiEncoder(AbstractObject):
     PRESS_MAX_TIME = 0.25  # maximum time in seconds we consider a simple press
     SHIFT_PRESSED = False
 
-    def __init__(self, channel, identifier, on_press=None, on_release=None, on_long_press=None, on_shift_press=None, on_shift_long_press=None, on_scroll=None, on_shift_scroll=None):
+    def __init__(self, channel, identifier, on_press=None, on_release=None, on_long_press=None, on_shift_press=None,
+                 on_shift_long_press=None, on_scroll=None, on_shift_scroll=None):
         # type: (int, int) -> None
         """ on release combined with on_press allows for immediate action and release action. Used for shift functionality """
         super(MultiEncoder, self).__init__()

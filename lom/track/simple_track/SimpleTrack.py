@@ -1,13 +1,14 @@
+import Live
 from typing import List, Optional
 
-import Live
-from _Framework.SubjectSlot import subject_slot, subject_slot_group
+from _Framework.SubjectSlot import subject_slot
 from _Framework.Util import find_if
-from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.ClipSlot import ClipSlot
+from a_protocol_0.lom.clip.Clip import Clip
+from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
-from a_protocol_0.lom.track.simple_track.SimpleTrackActionMixin import SimpleTrackActionMixin
 from a_protocol_0.lom.track.TrackName import TrackName
+from a_protocol_0.lom.track.simple_track.SimpleTrackActionMixin import SimpleTrackActionMixin
 from a_protocol_0.utils.decorators import defer
 
 
@@ -24,8 +25,10 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self.clip_slots = []  # type: List[ClipSlot]
         self._clip_slots_listener.subject = self._track
         self._clip_slots_listener()
-        self._clip_notes_listener.replace_subjects([clip._clip for clip in self.clips])
         self._playing_slot_index_listener.subject = self._track
+        self.devices = []  # type: List[Device]
+        self._devices_listener.subject = self._track
+        self._devices_listener()
         self.base_name = self.name
         self._name_listener.subject = self._track
         self.instrument = self.parent.deviceManager.create_instrument_from_simple_track(track=self)
@@ -42,11 +45,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             self.base_name = self.name
             # noinspection PyUnresolvedReferences
             self.notify_base_name()
-
-    @subject_slot_group("notes")
-    def _clip_notes_listener(self, clip):
-        # type: (SimpleTrack) -> None
-        pass
 
     @subject_slot("clip_slots")
     def _clip_slots_listener(self):
@@ -66,6 +64,11 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         if clip.is_playing:
             TrackName(self).clip_slot_index = self.playing_slot_index
             [setattr(clip, "is_selected", False) for clip in self.clips]
+
+    @subject_slot("devices")
+    def _devices_listener(self):
+        # type: (SimpleTrack) -> None
+        self.devices = [Device(device, self.base_track) for device in self._track.devices]
 
     @property
     def is_playing(self):

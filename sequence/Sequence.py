@@ -188,7 +188,8 @@ class Sequence(AbstractControlSurfaceComponent):
             [self._add_step(func, wait=wait, name=name, complete_on=complete_on, do_if=do_if, do_if_not=do_if_not,
                             return_if=return_if, return_if_not=return_if_not) for func in callbacks]
 
-        if self._auto_start and not self._early_returned and self._state in (SequenceState.UN_STARTED, SequenceState.PAUSED):
+        if self._auto_start and not self._early_returned and self._state in (
+        SequenceState.UN_STARTED, SequenceState.PAUSED):
             # this is the only way to ensure the sequence steps are going to be executed in a sync sequence with sync sequence steps
             self()
 

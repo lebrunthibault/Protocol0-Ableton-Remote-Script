@@ -38,7 +38,8 @@ class SimpleTrackActionMixin(object):
         # type: (SimpleTrack, int) -> None
         clip_slot_index = clip_slot_index if clip_slot_index else self._next_empty_clip_slot_index
         self.parent.show_message("Starting recording of %d bars" % self.bar_count)
-        self.parent.defer(lambda: self.clip_slots[clip_slot_index].fire(record_length=self.parent.utilsManager.get_beat_time(self.bar_count)))
+        self.parent.defer(lambda: self.clip_slots[clip_slot_index].fire(
+            record_length=self.parent.utilsManager.get_beat_time(self.bar_count)))
 
     def action_undo_track(self):
         # type: (SimpleTrack) -> None
@@ -55,11 +56,14 @@ class SimpleTrackActionMixin(object):
             return
 
         seq = Sequence(auto_start=sync)
-        seq.add(partial(self.clip_slots[slot_number]._clip_slot.create_clip, self.parent.utilsManager.get_beat_time(bar_count)), complete_on=self.clip_slots[slot_number]._has_clip_listener)
+        seq.add(partial(self.clip_slots[slot_number]._clip_slot.create_clip,
+                        self.parent.utilsManager.get_beat_time(bar_count)),
+                complete_on=self.clip_slots[slot_number]._has_clip_listener)
         if name:
             seq.add(lambda: setattr(self.clip_slots[slot_number].clip, "name", name))
         if notes_callback:
-            seq.add(partial(lambda cs: cs.clip.replace_all_notes(notes_callback(clip=cs.clip), cache=False), self.clip_slots[slot_number]))
+            seq.add(partial(lambda cs: cs.clip.replace_all_notes(notes_callback(clip=cs.clip), cache=False),
+                            self.clip_slots[slot_number]))
 
         return seq.done()
 
@@ -76,7 +80,8 @@ class SimpleTrackActionMixin(object):
         if not len(self.clips):  # scroll clip_slots when track is empty
             if self.song.highlighted_clip_slot and self.song.highlighted_clip_slot.index == 0 and not go_next:
                 return self.parent.keyboardShortcutManager.up()
-            selected_clip_slot = scroll_values(self.clip_slots, self.song.highlighted_clip_slot, go_next)  # type: ClipSlot
+            selected_clip_slot = scroll_values(self.clip_slots, self.song.highlighted_clip_slot,
+                                               go_next)  # type: ClipSlot
         else:
             if self.playable_clip == self.clips[0] and not go_next:
                 return self.parent.keyboardShortcutManager.up()

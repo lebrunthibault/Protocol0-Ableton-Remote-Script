@@ -18,7 +18,7 @@ class ActionSetManager(AbstractControlSurfaceComponent):
     @button_action()
     def action_update_racks(self):
         for track in self.song.tracks:
-            [self.parent.deviceManager.update_rack(rack_device=device) for device in track.all_devices if isinstance(device, Live.RackDevice.RackDevice) and device]
+            [self.parent.deviceManager.update_rack(rack_device=device._device) for device in track.all_devices if device.is_rack]
 
     @button_action()
     def action_delete_all_devices(self):

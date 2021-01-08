@@ -66,7 +66,8 @@ class ActionManager(AbstractControlSurfaceComponent):
 
         # LFO encoder (add group track with lfo tool binding)
         MultiEncoder(channel=15, identifier=5,
-                     on_press=self.action_set_up_lfo_tool_automation)
+                     on_press=self.action_set_up_lfo_tool_automation,
+                     on_long_press=self.action_set_up_automation_envelope)
 
         # UNDO encoder
         MultiEncoder(channel=15, identifier=4,
@@ -200,6 +201,10 @@ class ActionManager(AbstractControlSurfaceComponent):
     @button_action()
     def action_set_up_lfo_tool_automation(self):
         self.parent.trackAutomationManager.create_automation_group(self.song.current_track.base_track)
+
+    @button_action()
+    def action_set_up_automation_envelope(self):
+        self.parent.trackAutomationManager.action_set_up_automation_envelope(self.song.current_track.base_track)
 
     @button_action()
     def action_duplicate_track(self):

@@ -15,7 +15,7 @@ from a_protocol_0.utils.log import set_object_attr
 class AutomationClip(Clip):
     def __init__(self, *a, **k):
         super(AutomationClip, self).__init__(*a, **k)
-        self.ramping_steps = 13
+        self.ramping_steps = 47
         self.ramping_duration = 0.25  # eighth note
         self._notes_listener.subject = self._clip
 

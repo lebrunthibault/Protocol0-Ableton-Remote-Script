@@ -1,4 +1,6 @@
 import types
+from functools import partial
+
 from typing import Callable
 
 from ClyphX_Pro.clyphx_pro.actions.GlobalActions import GlobalActions
@@ -107,10 +109,14 @@ class Protocol0(ControlSurface):
     def dev_boot(self):
         if self._is_dev_booted:
             return
-        self.protocol0_song.tracks[19].is_folded = False
-        self.protocol0_song.select_track(self.protocol0_song.tracks[20], sync=True)
+
+        return
+        self.protocol0_song.tracks[18].is_folded = False
+        self.protocol0_song.select_track(self.protocol0_song.tracks[19], sync=True)
+        self.defer(partial(self.protocol0_song.select_device, self.protocol0_song.tracks[19].devices[-1]))
+        self._wait(2, partial(self.trackAutomationManager.action_set_up_automation_envelope,
+                              self.protocol0_song.tracks[19]))
         # self.protocol0_song.highlighted_clip_slot = self.protocol0_song.selected_track.clips[0]
-        self.defer(self.clyphxNavigationManager.show_clip_view)
         # self.protocol0_song.selected_track.play()
         # self.trackAutomationManager.create_automation_group(self.protocol0_song.selected_track)
         self._is_dev_booted = True

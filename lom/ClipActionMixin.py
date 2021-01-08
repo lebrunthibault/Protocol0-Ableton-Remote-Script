@@ -1,8 +1,11 @@
 from typing import TYPE_CHECKING, List
 
+import Live
+
 from _Framework.Util import find_if
 from a_protocol_0.consts import push2_beat_quantization_steps
 from a_protocol_0.lom.Note import Note
+from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.utils.decorators import defer
 from a_protocol_0.utils.utils import compare_properties
 
@@ -15,7 +18,8 @@ if TYPE_CHECKING:
 class ClipActionMixin(object):
     def get_notes(self, startTime=0, timeRange=0, startPitch=0, pitchRange=128):
         # type: (Clip, int, float, float, int) -> List[Note]
-        notes = [Note(*note, clip=self) for note in self._clip.get_notes(startTime, startPitch, timeRange or self.length, pitchRange)]
+        notes = [Note(*note, clip=self) for note in
+                 self._clip.get_notes(startTime, startPitch, timeRange or self.length, pitchRange)]
         notes.sort(key=lambda x: x.start)
         return notes
 
@@ -57,7 +61,9 @@ class ClipActionMixin(object):
         # type: (Clip, List[Note], List[str]) -> List[Note]
         if len(self._prev_notes) != len(notes):
             return notes
-        return list(filter(None, map(lambda x, y: None if compare_properties(x, y, properties) else (x, y), self._prev_notes, notes)))
+        return list(filter(None,
+                           map(lambda x, y: None if compare_properties(x, y, properties) else (x, y), self._prev_notes,
+                               notes)))
 
     @property
     def min_note_quantization_start(self):
@@ -65,7 +71,9 @@ class ClipActionMixin(object):
         notes = self.get_notes()
         if not len(notes):
             return 1
-        notes_start_quantization = [find_if(lambda qtz: float(note.start / qtz).is_integer(), reversed(push2_beat_quantization_steps)) for note in notes]
+        notes_start_quantization = [
+            find_if(lambda qtz: float(note.start / qtz).is_integer(), reversed(push2_beat_quantization_steps)) for note
+            in notes]
         if None in notes_start_quantization:
             return push2_beat_quantization_steps[3]  # 1/16 by default
         else:
@@ -87,3 +95,6 @@ class ClipActionMixin(object):
             self.track.parent.defer(delete_recording_clip)
         self._clip_slot.delete_clip()
 
+    def create_automation_envelope(self, parameter):
+        # type: (Clip, DeviceParameter) -> Live.Clip.AutomationEnvelope
+        return self._clip.create_automation_envelope(parameter._device_parameter)

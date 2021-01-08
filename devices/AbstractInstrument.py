@@ -3,10 +3,9 @@ from os.path import isfile, isdir
 from typing import TYPE_CHECKING, List, Optional
 from functools import partial
 
-import Live
-
 from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.lom.AbstractObject import AbstractObject
+from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.track.TrackName import TrackName
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import debounce
@@ -24,11 +23,11 @@ class AbstractInstrument(AbstractObject):
     _active_instance = None  # type: AbstractInstrument
 
     def __init__(self, track, device, *a, **k):
-        # type: (SimpleTrack, Live.Device.Device) -> None
+        # type: (SimpleTrack, Device) -> None
         super(AbstractInstrument, self).__init__(*a, **k)
         self.track = track
         self.device_track = track
-        self._device = device
+        self.device = device
         if device:
             self.can_be_shown = True
             self.activated = False
@@ -59,7 +58,7 @@ class AbstractInstrument(AbstractObject):
         return
 
     def is_visible(self):
-        return self.parent.deviceManager.is_plugin_window_visible(self._device)
+        return self.parent.deviceManager.is_plugin_window_visible(self.device)
 
     @property
     def needs_activation(self):
@@ -74,7 +73,7 @@ class AbstractInstrument(AbstractObject):
         if (focus_device_track or self.needs_activation) and self.song.selected_track != self.device_track:
             seq.add(partial(self.song.select_track, self.device_track))
         if not self.activated:
-            seq.add(partial(self.parent.deviceManager.check_plugin_window_showable, self._device, self.device_track))
+            seq.add(partial(self.parent.deviceManager.check_plugin_window_showable, self.device, self.device_track))
             seq.add(lambda: setattr(self, "activated", True), name="mark instrument as activated")
 
         if self.NEEDS_EXCLUSIVE_ACTIVATION and self.active_instance != self:
@@ -122,9 +121,9 @@ class AbstractInstrument(AbstractObject):
 
     def action_scroll_presets_or_samples(self, go_next):
         # type: (bool) -> None
-        if self._device:
-            self.song.select_device(self._device)
-            self._device.view.is_collapsed = False
+        if self.device:
+            self.song.select_device(self.device)
+            self.device.view.is_collapsed = False
         self._scroll_presets_or_sample(go_next)
 
     def _scroll_presets_or_sample(self, go_next):
