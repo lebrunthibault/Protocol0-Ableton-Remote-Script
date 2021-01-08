@@ -3,7 +3,8 @@ from typing import Any, TYPE_CHECKING
 import Live
 
 from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.lom.Clip import Clip
+from a_protocol_0.lom.clip.AutomationClip import AutomationClip
+from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.utils.decorators import subject_slot
 
 if TYPE_CHECKING:
@@ -32,8 +33,10 @@ class ClipSlot(AbstractObject):
 
     def _map_clip(self):
         self.has_clip = self._clip_slot.has_clip
-        self.clip = Clip(clip_slot=self) if self.has_clip else None
-        self.track._clip_notes_listener.replace_subjects([clip._clip for clip in self.track.clips])
+        self.clip = None
+        if self.has_clip:
+            from a_protocol_0.lom.track.simple_track.AutomationTrack import AutomationTrack
+            self.clip = AutomationClip(clip_slot=self) if isinstance(self.track, AutomationTrack) else Clip(clip_slot=self)
 
     @subject_slot("has_clip")
     def _has_clip_listener(self):

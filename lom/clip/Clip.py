@@ -22,7 +22,8 @@ class Clip(ClipActionMixin, AbstractObject):
         self.track = clip_slot.track
         self.is_selected = False
         # memorizing notes for note change comparison
-        self._notes = self.get_notes() if self._clip.is_midi_clip else []  # type: List[Note]
+        self._prev_notes = []  # type: List[Note]
+        # self._prev_notes = self.get_notes() if self._clip.is_midi_clip else []  # type: List[Note]
         self._added_note = None  # type: Note
         self._is_updating_notes = False
         self.color = self.track.base_color

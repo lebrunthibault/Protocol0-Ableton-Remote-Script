@@ -10,6 +10,11 @@ if TYPE_CHECKING:
 class SequenceError(Exception):
     def __init__(self, sequence, message="a sequence error occurred"):
         # type: (Sequence, str) -> None
+
+        from a_protocol_0.sequence.Sequence import Sequence
+        if not isinstance(sequence, Sequence):
+            raise Exception("You didn't pass the sequence parameter to SequenceError")
+
         self.sequence = sequence
         self.message = message
 

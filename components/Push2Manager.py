@@ -4,7 +4,7 @@ from _Framework.SubjectSlot import subject_slot, subject_slot_group
 from a_Push2.push2 import Push2
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import push2_beat_quantization_steps
-from a_protocol_0.lom.Clip import Clip
+from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.utils.decorators import push2_method
 
 

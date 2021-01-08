@@ -4,15 +4,9 @@ from typing import List, Any
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.sequence.SequenceError import SequenceError
-from a_protocol_0.sequence.SequenceState import SequenceState
+from a_protocol_0.sequence.SequenceState import SequenceState, DebugLevel
 from a_protocol_0.sequence.SequenceStep import SequenceStep
 from a_protocol_0.utils.utils import get_frame_info, nop
-
-
-class DebugLevel:
-    info = 0
-    debug = 1
-    dev = 2
 
 
 class Sequence(AbstractControlSurfaceComponent):
@@ -104,8 +98,11 @@ class Sequence(AbstractControlSurfaceComponent):
             self._start_at = time.time()
             self._state = SequenceState.STARTED
             self._exec_next()
-        elif self._auto_start:
+        elif self._auto_start and self._state == SequenceState.PAUSED:
+            self._state = SequenceState.STARTED
             self._exec_next()
+        else:
+            raise SequenceError(sequence=self, message="You called an executing sequence")
 
     def _exec_next(self):
         if self._state == SequenceState.TERMINATED:
@@ -119,8 +116,10 @@ class Sequence(AbstractControlSurfaceComponent):
             self._current_step()
         elif not self._current_step or self._current_step._is_terminal_step:
             self._terminate()
-
-        # else sync sequence execution
+        elif self._auto_start:
+            self._state = SequenceState.PAUSED
+        else:
+            raise SequenceError("Unknown state reached in _exec_next")
 
     def _terminate(self):
         if self._current_step and self._current_step._errored and not self._is_condition_seq:
@@ -148,7 +147,7 @@ class Sequence(AbstractControlSurfaceComponent):
             # message = "%s %s in %.3fs" % (self, verb, self._duration)
             if self._res:
                 message += " (res %s)" % self._res
-            if self._state == self._early_returned:
+            if self._early_returned:
                 message += " - early return"
 
             if self._errored:
@@ -189,7 +188,7 @@ class Sequence(AbstractControlSurfaceComponent):
             [self._add_step(func, wait=wait, name=name, complete_on=complete_on, do_if=do_if, do_if_not=do_if_not,
                             return_if=return_if, return_if_not=return_if_not) for func in callbacks]
 
-        if self._auto_start and not self._early_returned:
+        if self._auto_start and not self._early_returned and self._state in (SequenceState.UN_STARTED, SequenceState.PAUSED):
             # this is the only way to ensure the sequence steps are going to be executed in a sync sequence with sync sequence steps
             self()
 

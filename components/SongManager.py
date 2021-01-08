@@ -62,7 +62,7 @@ class SongManager(AbstractControlSurfaceComponent):
         if track_added:
             # noinspection PyUnresolvedReferences
             self.notify_added_track()
-        self.parent.log_info("SongManager : mapped tracks")
+        # self.parent.log_info("SongManager : mapped tracks")
 
     def _highlighted_clip_slot_poller(self):
         # type: () -> None

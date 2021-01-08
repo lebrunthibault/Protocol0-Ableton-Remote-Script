@@ -8,7 +8,7 @@ from a_protocol_0.utils.utils import compare_properties
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
-    from a_protocol_0.lom.Clip import Clip
+    from a_protocol_0.lom.clip.Clip import Clip
 
 
 # noinspection PyTypeHints
@@ -24,10 +24,11 @@ class ClipActionMixin(object):
         return [Note(*note, clip=self) for note in self._clip.get_selected_notes()]
 
     @defer
-    def replace_selected_notes(self, notes):
-        # type: (Clip, List[Note]) -> None
+    def replace_selected_notes(self, notes, cache=True):
+        # type: (Clip, List[Note], bool) -> None
         self._is_updating_notes = True
-        self._notes = notes
+        if cache:
+            self._prev_notes = notes
         self._clip.replace_selected_notes(tuple(note.to_data() for note in notes))
         self.parent.defer(lambda: setattr(self, "_is_updating_notes", False))
 
@@ -46,18 +47,17 @@ class ClipActionMixin(object):
         # type: (Clip) -> None
         self._clip.deselect_all_notes()
 
-    def replace_all_notes(self, notes):
-        # type: (Clip, List[Note]) -> None
-        self._notes = notes
+    def replace_all_notes(self, notes, cache=True):
+        # type: (Clip, List[Note], bool) -> None
         self.select_all_notes()
-        self.replace_selected_notes(notes)
+        self.replace_selected_notes(notes, cache=cache)
         self.parent.defer(self.deselect_all_notes)
 
     def notes_changed(self, notes, properties):
         # type: (Clip, List[Note], List[str]) -> List[Note]
-        if len(self._notes) != len(notes):
+        if len(self._prev_notes) != len(notes):
             return notes
-        return list(filter(None, map(lambda x, y: None if compare_properties(x, y, properties) else (x, y), self._notes, notes)))
+        return list(filter(None, map(lambda x, y: None if compare_properties(x, y, properties) else (x, y), self._prev_notes, notes)))
 
     @property
     def min_note_quantization_start(self):

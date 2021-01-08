@@ -9,7 +9,7 @@ from pushbase.note_editor_component import TimeStep
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
-    from a_protocol_0.lom.Clip import Clip
+    from a_protocol_0.lom.clip.Clip import Clip
 
 
 class Note(AbstractObject):

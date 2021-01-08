@@ -53,7 +53,6 @@ class Protocol0(ControlSurface):
             self.actionManager = ActionManager()
             self.actionSetManager = ActionSetManager()
             self.actionTestManager = ActionTestManager()
-            self.log_debug("hey")
             if init_song:
                 self.songManager.init_song()
                 self.dev_boot()

@@ -2,8 +2,7 @@ from functools import partial
 
 from typing import TYPE_CHECKING, Any
 
-import Live
-from a_protocol_0.lom.Clip import Clip
+from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.ClipSlot import ClipSlot
 from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.sequence.Sequence import Sequence
@@ -50,26 +49,19 @@ class SimpleTrackActionMixin(object):
         else:
             self.song.undo()
 
-    def create_clip(self, slot_number=0, name=None, bar_count=1, notes_callback=None, note_count=0, *a, **k):
+    def create_clip(self, slot_number=0, name=None, bar_count=1, notes_callback=None, sync=True):
         # type: (SimpleTrack, int, str, int, callable, int, Any, Any) -> None
         if self.clip_slots[slot_number].has_clip:
             return
-        try:
-            self.clip_slots[slot_number]._clip_slot.create_clip(self.parent.utilsManager.get_beat_time(bar_count))
-        except RuntimeError:
-            self.parent.log_error("Tried to create clip on existing clip: %s", self.clip_slots[slot_number])
-            return
 
+        seq = Sequence(auto_start=sync)
+        seq.add(partial(self.clip_slots[slot_number]._clip_slot.create_clip, self.parent.utilsManager.get_beat_time(bar_count)), complete_on=self.clip_slots[slot_number]._has_clip_listener)
         if name:
-            self.clip_slots[slot_number]._has_clip_listener._callbacks.append(lambda clip_slot: setattr(self.get_clip_slot(clip_slot).clip, "name", name))
+            seq.add(lambda: setattr(self.clip_slots[slot_number].clip, "name", name))
         if notes_callback:
-            def notes_callback_wrapper(clip_slot):
-                # type: (Live.ClipSlot.ClipSlot) -> None
-                clip = self.get_clip_slot(clip_slot).clip
-                note_duration = clip.length / note_count
-                notes = notes_callback(clip=clip, note_duration=note_duration, note_count=note_count, *a, **k)
-                clip.replace_all_notes(notes)
-            self.clip_slots[slot_number]._has_clip_listener._callbacks.append(notes_callback_wrapper)
+            seq.add(partial(lambda cs: cs.clip.replace_all_notes(notes_callback(clip=cs.clip), cache=False), self.clip_slots[slot_number]))
+
+        return seq.done()
 
     def delete_current_clip(self):
         # type: (SimpleTrack) -> None

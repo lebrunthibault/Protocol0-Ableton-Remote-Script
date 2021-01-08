@@ -105,7 +105,6 @@ class AbstractTrackActionMixin(object):
         elif self.is_playing:
             return
         elif hasattr(self, "playable_clip") and self.playable_clip:
-            self.parent.log_debug("playing %s" % self)
             self.playable_clip.is_playing = True
             if self.song.playing_clips:
                 max_clip = max(self.song.playing_clips, key=lambda c: c.length)
@@ -113,7 +112,6 @@ class AbstractTrackActionMixin(object):
 
     def stop(self):
         # type: (AbstractTrack) -> None
-        self.parent.log_debug("stopping %s" % self)
         self.base_track._track.stop_all_clips()
 
     def action_undo(self):

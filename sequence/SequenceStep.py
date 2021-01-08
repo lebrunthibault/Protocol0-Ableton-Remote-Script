@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.sequence.SequenceError import SequenceError
-from a_protocol_0.sequence.SequenceState import SequenceState
+from a_protocol_0.sequence.SequenceState import SequenceState, DebugLevel
 from a_protocol_0.utils.decorators import timeout_limit
 from a_protocol_0.utils.utils import _has_callback_queue, is_lambda, get_callable_name
 
@@ -19,7 +19,7 @@ class SequenceStep(AbstractControlSurfaceComponent):
         """ the tick is 100 ms """
         super(SequenceStep, self).__init__(*a, **k)
         self._seq = sequence
-        self._debug = sequence._debug
+        self._debug = sequence._debug == DebugLevel.dev
         self._callable = func
         self.name = "step %s" % (name or get_callable_name(func))
         self._wait = wait if wait is not None else sequence._wait
@@ -97,7 +97,7 @@ class SequenceStep(AbstractControlSurfaceComponent):
     def _terminate_if_condition(self, res=None):
         if_res = res if res is not None else self._terminate_if_condition.subject._res
         if self._debug:
-            self.parent.log_debug("%s condition returned %s" % (self, if_res))
+            self.parent.log_info("%s condition returned %s" % (self, if_res))
 
         if (if_res and self._do_if) or (not if_res and self._do_if_not):
             self._execute()
@@ -109,7 +109,7 @@ class SequenceStep(AbstractControlSurfaceComponent):
     def _terminate_return_condition(self, res=None):
         return_res = res if res is not None else self._terminate_return_condition.subject._res
         if self._debug:
-            self.parent.log_debug("%s condition returned %s" % (self, return_res))
+            self.parent.log_info("%s condition returned %s" % (self, return_res))
 
         if (return_res and self._return_if) or (not return_res and self._return_if_not):
             self._terminate(early_return_seq=True)
@@ -128,17 +128,23 @@ class SequenceStep(AbstractControlSurfaceComponent):
             self._step_timed_out()
             return
 
-        elif _has_callback_queue(self._complete_on):
+        def handle_callback_queue():
             self._complete_on._callbacks.append(
                 timeout_limit(self._terminate, timeout_limit=pow(2, self._check_timeout),
                               on_timeout=self._step_timed_out))
-            return
-        elif not self._complete_on():
-            self.parent._wait(pow(2, self._check_count), self._check_for_step_completion)
-            self._check_count += 1
-            return
 
-        self._terminate()
+        if _has_callback_queue(self._complete_on):
+            handle_callback_queue()
+            return
+        else:
+            check_res = self._complete_on()
+            if _has_callback_queue(check_res): # allows asynchronous access to objects (e.g. clip creation)
+                handle_callback_queue()
+            elif check_res:
+                self._terminate()
+            else:
+                self.parent._wait(pow(2, self._check_count), self._check_for_step_completion)
+                self._check_count += 1
 
     def _execute(self):
         res = self._callable()
@@ -165,6 +171,9 @@ class SequenceStep(AbstractControlSurfaceComponent):
         self._check_for_step_completion()
 
     def _terminate(self, early_return_seq=False):
+        if self._state == SequenceState.TERMINATED:
+            raise SequenceError(sequence=self._seq, message="You called _terminate multiple times on %s" % self)
+
         self._state = SequenceState.TERMINATED
 
         if self._res is False:

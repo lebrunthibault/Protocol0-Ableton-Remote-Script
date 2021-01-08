@@ -8,7 +8,7 @@ from _Framework.Util import find_if
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import TRACK_CATEGORIES, TRACK_CATEGORY_OTHER
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
-from a_protocol_0.lom.Clip import Clip
+from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.ClipSlot import ClipSlot
 from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.lom.track.AbstractTrackActionMixin import AbstractTrackActionMixin

@@ -3,7 +3,7 @@ from typing import List, Optional
 import Live
 from _Framework.SubjectSlot import subject_slot, subject_slot_group
 from _Framework.Util import find_if
-from a_protocol_0.lom.Clip import Clip
+from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrackActionMixin import SimpleTrackActionMixin

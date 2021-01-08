@@ -244,7 +244,7 @@ def log(func):
         message = func_name + "(%s)" % (", ".join(args))
 
         from a_protocol_0 import Protocol0
-        Protocol0.SELF.log_debug(message, debug=False)
+        Protocol0.SELF.log_info(message, debug=False)
         func(*a, **k)
 
     return decorate
