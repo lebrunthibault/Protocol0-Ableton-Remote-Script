@@ -122,7 +122,7 @@ class ActionManager(AbstractControlSurfaceComponent):
     @button_action(log_action=False)
     def action_scroll_track_devices(self, go_next):
         """ record both midi and audio on group track """
-        self.parent.application()._view.focus_view(u'Detail/DeviceChain')
+        self.parent.clyphxNavigationManager.focus_detail()
         selected_device = scroll_values(self.song.current_track.base_track.all_visible_devices,
                                         self.song.current_track.selected_device, go_next)
         if selected_device:
@@ -131,7 +131,7 @@ class ActionManager(AbstractControlSurfaceComponent):
     @button_action(log_action=False)
     def action_track_collapse_selected_device(self):
         """ record both midi and audio on group track """
-        self.song.current_track.selected_device._view.is_collapsed = not self.song.current_track.selected_device._view.is_collapsed
+        self.song.current_track.selected_device.view.is_collapsed = not self.song.current_track.selected_device.view.is_collapsed
 
     @button_action(log_action=False)
     def action_scroll_track_recording_times(self, go_next):

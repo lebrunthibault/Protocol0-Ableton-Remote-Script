@@ -123,7 +123,7 @@ class AbstractInstrument(AbstractObject):
         # type: (bool) -> None
         if self.device:
             self.song.select_device(self.device)
-            self.device._view.is_collapsed = False
+            self.device.view.is_collapsed = False
         self._scroll_presets_or_sample(go_next)
 
     def _scroll_presets_or_sample(self, go_next):

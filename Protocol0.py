@@ -31,8 +31,6 @@ class Protocol0(ControlSurface):
     SELF = None  # type: Protocol0
 
     def __init__(self, c_instance=None, init_song=True):
-        self.log_debug(c_instance.song())
-        self.log_debug(c_instance.song()._view)
         super(Protocol0, self).__init__(c_instance=c_instance)
         # noinspection PyProtectedMember
         Protocol0.SELF = self

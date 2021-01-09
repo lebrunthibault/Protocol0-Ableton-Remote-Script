@@ -13,7 +13,6 @@ class TrackName(AbstractObject):
         super(TrackName, self).__init__(*a, **k)
         self.track = track
         self.parts = track._track.name.split(" - ")
-        self.parent.log_debug(self.parts)
 
     @property
     def name(self):

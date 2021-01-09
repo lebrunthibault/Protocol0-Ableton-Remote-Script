@@ -30,9 +30,18 @@ class Device(AbstractObject):
         # type: (Device) -> bool
         return device and self._device == device._device
 
+    @staticmethod
+    def make_device(device, track):
+        # type: (Live.Device.Device, SimpleTrack) -> Device
+        pass
+
     @property
     def name(self):
         return self._device.name
+
+    @subject_slot("chains")
+    def _chains_listener(self):
+        self.chains = [DeviceChain(self, chain) for chain in self._device.chains]
 
     @property
     def chains(self):
