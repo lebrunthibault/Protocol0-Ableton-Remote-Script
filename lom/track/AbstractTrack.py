@@ -23,12 +23,15 @@ if TYPE_CHECKING:
 
 # noinspection PyDeprecation
 class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
+    ADDED_TRACK_INIT_ENABLED = True
+
     def __init__(self, track, *a, **k):
         # type: (SimpleTrack, Any, Any) -> None
         self._track = track._track
         self._view = self._track.view  # type: Live.Track.Track.View
         self.base_track = track  # type: SimpleTrack
-        super(AbstractTrack, self).__init__(name=self.name, *a, **k)
+        super(AbstractTrack, self).__init__(name=self.base_track._track.name, *a, **k)
+        self.track_name = TrackName(self.base_track)
         self.is_foldable = self._track.is_foldable
         self.can_be_armed = self._track.can_be_armed
         self.index = track.index
@@ -53,12 +56,26 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
         """ this should be be called once, when the Live track is created """
         self.song.current_track.action_arm()
         [clip.delete() for clip in self.song.current_track.all_clips]
-        [setattr(TrackName(track), "clip_slot_index", 0) for track in self.song.current_track.all_tracks]
+        [setattr(track.track_name, "clip_slot_index", 0) for track in self.song.current_track.all_tracks]
         arp = find_if(lambda d: d.name.lower() == "arpeggiator rack", self.song.current_track.all_devices)
         if arp:
             chain_selector_param = find_if(lambda d: d.name.lower() == "chain selector", arp.parameters)
             if chain_selector_param and chain_selector_param.is_enabled:
                 chain_selector_param.value = 0
+
+    @property
+    def name(self):
+        # type: () -> str
+        return self.track_name.base_name
+
+    @name.setter
+    def name(self, name):
+        # type: (str) -> None
+        if name and self._track.name != name:
+            try:
+                self._track.name = name
+            except RuntimeError:
+                self.parent.defer(lambda: setattr(self._track, "name", name))
 
     def is_parent(self, track):
         # type: (AbstractTrack) -> bool
@@ -92,7 +109,10 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
 
     def delete_device(self, device):
         # type: (Device) -> None
-        self.base_track._track.delete_device(self.base_track.devices.index(device))
+        try:
+            self.base_track._track.delete_device(self.base_track.devices.index(device))
+        except Exception:
+            pass
 
     @property
     def clips(self):
@@ -113,20 +133,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
         return self._track.is_visible
 
     @property
-    def name(self):
-        # type: () -> str
-        return self.base_track._name
-
-    @name.setter
-    def name(self, name):
-        # type: (str) -> None
-        if self._track.name != name:
-            try:
-                self._track.name = name
-            except RuntimeError:
-                self.parent.defer(lambda: setattr(self._track, "name", name))
-
-    @property
     def category(self):
         # type: () -> str
         for track_category in TRACK_CATEGORIES:
@@ -138,12 +144,12 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
     @property
     def preset_index(self):
         # type: () -> int
-        return TrackName(self).preset_index
+        return self.base_track.track_name.preset_index
 
     @property
     def clip_slot_index(self):
         # type: () -> int
-        return TrackName(self).clip_slot_index
+        return self.base_track.track_name.clip_slot_index
 
     @property
     def color(self):

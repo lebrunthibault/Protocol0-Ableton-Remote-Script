@@ -134,7 +134,7 @@ class Sequence(AbstractControlSurfaceComponent):
         self._state = SequenceState.TERMINATED
 
         self._end_at = time.time()
-        self._duration = self._end_at - self._start_at
+        self._duration = self._end_at - (self._start_at or self._end_at)
         self._res = self._current_step._res if self._current_step else None
 
         if self._debug:

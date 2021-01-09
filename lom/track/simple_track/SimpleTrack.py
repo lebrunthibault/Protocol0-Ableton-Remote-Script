@@ -10,22 +10,17 @@ from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
-from a_protocol_0.lom.track.TrackName import TrackName
 from a_protocol_0.lom.track.simple_track.SimpleTrackActionMixin import SimpleTrackActionMixin
 from a_protocol_0.utils.decorators import defer
 from a_protocol_0.utils.utils import find_all_devices
 
 
 class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
-    __subject_events__ = ('base_name',)
-
     def __init__(self, track, index, *a, **k):
         # type: (Live.Track.Track, int) -> None
         self._track = track
         self.index = index
-        self.base_name = self._name = TrackName(self).name.lower()
         super(SimpleTrack, self).__init__(track=self, *a, **k)
-        self._name_listener.subject = self._track
         if self.group_track:
             self.group_track.sub_tracks.append(self)
         self.clip_slots = []  # type: List[ClipSlot]
@@ -45,14 +40,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def __hash__(self):
         return self.index
 
-    @subject_slot("name")
-    def _name_listener(self):
-        self._name = TrackName(self).name.lower()
-        if self._name != self.base_name:
-            self.base_name = self._name
-            # noinspection PyUnresolvedReferences
-            self.notify_base_name()
-
     @subject_slot("clip_slots")
     def _clip_slots_listener(self):
         # type: (SimpleTrack) -> None
@@ -69,7 +56,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         if not clip:
             return
         if clip.is_playing:
-            TrackName(self).clip_slot_index = self.playing_slot_index
+            self.track_name.set(clip_slot_index=self.playing_slot_index)
             [setattr(clip, "is_selected", False) for clip in self.clips]
 
     @subject_slot("devices")

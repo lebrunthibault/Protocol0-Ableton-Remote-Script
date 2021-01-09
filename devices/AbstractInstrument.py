@@ -1,12 +1,12 @@
 import os
-from os.path import isfile, isdir
-from typing import TYPE_CHECKING, List, Optional
 from functools import partial
+from os.path import isfile, isdir
+
+from typing import TYPE_CHECKING, List, Optional
 
 from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.device.Device import Device
-from a_protocol_0.lom.track.TrackName import TrackName
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import debounce
 
@@ -38,7 +38,7 @@ class AbstractInstrument(AbstractObject):
             self.name = self.__class__.__name__
         self.preset_names = []  # type: List[str]
         self.get_presets()
-        self._base_name_listener.subject = track
+        self._base_name_listener.subject = track.track_name
 
     @property
     def active_instance(self):
@@ -50,7 +50,7 @@ class AbstractInstrument(AbstractObject):
 
     @subject_slot("base_name")
     def _base_name_listener(self):
-        TrackName(self.track).preset_index = 0
+        # self.track.track_name.set(preset_index=0)
         self.get_presets(set_preset=True)
 
     def exclusive_activate(self):
@@ -131,7 +131,7 @@ class AbstractInstrument(AbstractObject):
         new_preset_index = self.track.preset_index + 1 if go_next else self.track.preset_index - 1
         new_preset_index %= self.NUMBER_OF_PRESETS
 
-        TrackName(self.track).preset_index = new_preset_index
+        self.track.track_name.set(preset_index=new_preset_index)
 
         display_preset = self.preset_names[new_preset_index] if len(self.preset_names) else str(new_preset_index)
         display_preset = os.path.splitext(self.get_display_name(display_preset))[0]

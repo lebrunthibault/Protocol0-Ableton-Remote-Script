@@ -5,6 +5,7 @@ from functools import partial, wraps
 from typing import TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
+from a_protocol_0.utils.log import log_ableton
 from a_protocol_0.utils.utils import _arg_count, is_method
 
 if TYPE_CHECKING:
@@ -195,14 +196,11 @@ class CallbackDescriptor(object):
     def callback_wrapper(self, decorated):
         def callback_caller(*a, **k):
             from a_protocol_0.Protocol0 import Protocol0
-            decorated(*a, **k)
-
+            res = decorated(*a, **k)
             callback_provider = decorated if hasattr(decorated, "_callbacks") else callback_caller
             # callbacks deduplication (useful to mitigate e.g. double encoder click)
             for callback in set(callback_provider._callbacks):
-                Protocol0.SELF.defer(
-                    partial(callback, getattr(decorated, "subject", "toto")) if _arg_count(callback) == 1 else callback)
-                # Protocol0.SELF.defer(partial(callback, decorated.subject) if hasattr(decorated, "subject") and _arg_count(callback) == 1 else callback)
+                Protocol0.SELF.defer(partial(callback, listener_res=res))
             callback_provider._callbacks = []
 
         return callback_caller

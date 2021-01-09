@@ -25,6 +25,7 @@ class SequenceStep(AbstractControlSurfaceComponent):
         self._wait = wait if wait is not None else sequence._wait
         self._state = SequenceState.UN_STARTED
         self._complete_on = complete_on
+        # self._check_timeout = 4  # around 1.5 s
         self._check_timeout = 5  # around 3.1 s
         self._check_count = 0
         self._res = None
@@ -150,11 +151,8 @@ class SequenceStep(AbstractControlSurfaceComponent):
     def _execute(self):
         res = self._callable()
         from a_protocol_0.sequence.Sequence import Sequence
-        if isinstance(res, Sequence):
+        if isinstance(res, Sequence) and res._state != SequenceState.TERMINATED:
             res._parent_seq = self._seq
-            if res._state == SequenceState.TERMINATED:
-                raise SequenceError(sequence=self._seq,
-                                    message="The inner sequence %s was terminated before execution" % res)
             self._step_sequence_terminated_listener.subject = res
             res()
         else:
@@ -172,9 +170,19 @@ class SequenceStep(AbstractControlSurfaceComponent):
         self._res = self._step_sequence_terminated_listener.subject._res
         self._check_for_step_completion()
 
-    def _terminate(self, early_return_seq=False):
+    @subject_slot("terminated")
+    def _terminate(self, early_return_seq=False, listener_res=None):
+        if listener_res:
+            self.parent.log_debug(listener_res)
+            self.parent.log_debug(listener_res._state)
         if self._state == SequenceState.TERMINATED:
-            raise SequenceError(sequence=self._seq, message="You called _terminate multiple times on %s" % self)
+            return
+
+        # allows listeners to execute async actions
+        from a_protocol_0.sequence.Sequence import Sequence
+        if isinstance(listener_res, Sequence) and listener_res._state != SequenceState.TERMINATED:
+            self._terminate.subject = listener_res
+            return
 
         self._state = SequenceState.TERMINATED
 

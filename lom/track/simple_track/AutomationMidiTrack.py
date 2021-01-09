@@ -7,7 +7,6 @@ from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.utils import find_last
 
 
 class AutomationMidiTrack(SimpleTrack):
@@ -31,11 +30,12 @@ class AutomationMidiTrack(SimpleTrack):
         if self.group_track is None:
             raise RuntimeError("An automation track should always be grouped")
         [self.delete_device(d) for d in self.devices]
-        self.output_routing_type = find_if(lambda r: r.attached_object == self.group_track._track,
-                                           self.available_output_routing_types)
-        seq = Sequence().add(wait=1)
-        seq.add(lambda: setattr(self, "output_routing_channel", find_last(lambda r: "lfotool" in r.display_name.lower(),
-                                                                          self.available_output_routing_channels)))
+        seq = Sequence()
+        # self.output_routing_type = find_if(lambda r: r.attached_object == self.group_track._track,
+        #                                    self.available_output_routing_types)
+        # seq.add(wait=1)
+        # seq.add(lambda: setattr(self, "output_routing_channel", find_last(lambda r: "lfotool" in r.display_name.lower(),
+        #                                                                   self.available_output_routing_channels)))
 
         if len(self.clips) == 0:
             seq.add(self._create_base_clips)
