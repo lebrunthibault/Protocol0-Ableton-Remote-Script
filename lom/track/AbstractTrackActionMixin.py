@@ -3,6 +3,8 @@ from typing import TYPE_CHECKING, Callable
 
 import Live
 
+from a_protocol_0.lom.device.RackDevice import RackDevice
+
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
@@ -43,7 +45,7 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         if not self.instrument or not self.instrument.can_be_shown:
             return
-        self.parent.application().view.show_view(u'Detail/DeviceChain')
+        self.parent.clyphxNavigationManager.show_track_view()
         self.is_folded = False
         self.instrument.show_hide(force_show=self.song.selected_track != self.instrument.device_track)
 
@@ -134,5 +136,5 @@ class AbstractTrackActionMixin(object):
     def collapse_devices(self):
         # type: (AbstractTrack) -> None
         for device in self.all_devices:
-            device.view.is_collapsed = not (device.is_rack or self.parent.deviceManager.is_track_instrument(
+            device._view.is_collapsed = not (isinstance(device, RackDevice) or self.parent.deviceManager.is_track_instrument(
                 self, device))

@@ -1,7 +1,8 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 import Live
 
+from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.lom.AbstractObject import AbstractObject
 
 if TYPE_CHECKING:
@@ -29,4 +30,5 @@ class DeviceChain(AbstractObject):
 
     @subject_slot("devices")
     def _devices_listener(self):
-        self.devices = [Device(device, self.base_track) for device in self._chain.devices]
+        from a_protocol_0.lom.device.Device import Device
+        self.devices = [Device.make_device(device, self.track) for device in self._chain.devices]

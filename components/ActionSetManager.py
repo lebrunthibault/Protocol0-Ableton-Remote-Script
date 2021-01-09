@@ -1,5 +1,6 @@
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.controls.MultiEncoder import MultiEncoder
+from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.utils.decorators import button_action
 
 
@@ -13,4 +14,4 @@ class ActionSetManager(AbstractControlSurfaceComponent):
     @button_action()
     def action_update_racks(self):
         for track in self.song.tracks:
-            [self.parent.deviceManager.update_rack(rack_device=device._device) for device in track.all_devices if device.is_rack]
+            [self.parent.deviceManager.update_rack(rack_device=device._device) for device in track.all_devices if isinstance(device, RackDevice)]

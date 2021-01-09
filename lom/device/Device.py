@@ -23,7 +23,6 @@ class Device(AbstractObject):
         self._parameters_listener.subject = self._device
         self._parameters_listener()
         self.is_simpler = isinstance(device, Live.SimplerDevice.SimplerDevice)
-        self.is_rack = isinstance(device, Live.RackDevice.RackDevice)
         self.is_plugin = isinstance(device, Live.PluginDevice.PluginDevice)
 
     def __eq__(self, device):
@@ -33,22 +32,15 @@ class Device(AbstractObject):
     @staticmethod
     def make_device(device, track):
         # type: (Live.Device.Device, SimpleTrack) -> Device
-        pass
+        from a_protocol_0.lom.device.RackDevice import RackDevice
+        if isinstance(device, Live.RackDevice.RackDevice):
+            return RackDevice(device, track)
+        else:
+            return Device(device, track)
 
     @property
     def name(self):
         return self._device.name
-
-    @subject_slot("chains")
-    def _chains_listener(self):
-        self.chains = [DeviceChain(self, chain) for chain in self._device.chains]
-
-    @property
-    def chains(self):
-        """ only for racks """
-        if not isinstance(self._device, Live.RackDevice.RackDevice):
-            raise Exception("chains available only for racks")
-        return self._device.chains
 
     @subject_slot("parameters")
     def _parameters_listener(self):

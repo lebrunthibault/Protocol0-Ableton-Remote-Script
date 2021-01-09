@@ -23,7 +23,9 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # type: (Live.Track.Track, int) -> None
         self._track = track
         self.index = index
+        self.base_name = self._name = TrackName(self).name.lower()
         super(SimpleTrack, self).__init__(track=self, *a, **k)
+        self._name_listener.subject = self._track
         if self.group_track:
             self.group_track.sub_tracks.append(self)
         self.clip_slots = []  # type: List[ClipSlot]
@@ -35,9 +37,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self.all_visible_devices = []  # type: List[Device]
         self._devices_listener.subject = self._track
         self._devices_listener()
-        self.base_name = self._name = ""
-        self._name_listener.subject = self._track
-        self._name_listener()
         self.instrument = self.parent.deviceManager.create_instrument_from_simple_track(track=self)
         if self.is_midi:  # could later create a SimpleMidiTrack class if necessary
             self.push2_selected_matrix_mode = 'note'
@@ -75,8 +74,8 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
 
     @subject_slot("devices")
     def _devices_listener(self):
-        self.devices = [Device(device, self.base_track) for device in self._track.devices]
-        self._all_devices = [self.get_device(device) or Device(device, track) for track in self.all_tracks for device in find_all_devices(track)]
+        self.devices = [Device.make_device(device, self.base_track) for device in self._track.devices]
+        self._all_devices = [self.get_device(device) or Device.make_device(device, track) for track in self.all_tracks for device in find_all_devices(track)]
         self.all_visible_devices = [self.get_device(device) for track in self.all_tracks for device in find_all_devices(track, only_visible=True)]
 
     @property

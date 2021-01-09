@@ -8,6 +8,7 @@ from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceC
 from a_protocol_0.consts import EXTERNAL_SYNTH_MINITAUR_NAME
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.lom.device.Device import Device
+from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -92,10 +93,10 @@ class DeviceManager(AbstractControlSurfaceComponent):
         # type: (AbstractTrack) -> Optional[Device]
         """ deprecated for now """
         # on selection of a the first rack either on simple or group track, we allow browsing the instrument as a shortcut
-        if track.selected_device.is_rack and track.all_devices.index(
+        if isinstance(track.selected_device, RackDevice) and track.all_devices.index(
                 track.selected_device) == 0 and track.instrument:
             return track.instrument.device
-        elif track.selected_device.is_rack:
+        elif isinstance(track.selected_device, RackDevice):
             return None
 
         return track.selected_device
@@ -126,7 +127,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
         # type: (Device, SimpleTrack) -> Sequence
         """ handles only one level of grouping in racks. Should be enough for now """
         seq = Sequence()
-        parent_rack = self._find_device_parent(device, track.devices)
+        parent_rack = self._find_parent_rack(device, track.devices)
 
         if not parent_rack:
             [setattr(d._view, "is_collapsed", True) for d in track.devices]
@@ -155,7 +156,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
         return seq.done()
 
     def _get_device_show_button_click_coordinates(self, track, device, rack_device=None):
-        # type: (SimpleTrack, Device, Device) -> Tuple[int]
+        # type: (SimpleTrack, Device, RackDevice) -> Tuple[int]
         """ one grouping level only : expects all devices to be folded and macro controls hidden """
         if not rack_device:
             device_position = track.devices.index(device) + 1
@@ -178,13 +179,13 @@ class DeviceManager(AbstractControlSurfaceComponent):
 
         return (x, y)
 
-    def _find_device_parent(self, device, devices):
-        # type: (Device, List[Device]) -> Device
+    def _find_parent_rack(self, device, devices):
+        # type: (Device, List[Device]) -> Optional[RackDevice]
         if device in devices:
             return None
 
         for rack_device in devices:
-            if rack_device.is_rack and device._device in rack_device.chains[0].devices:
+            if isinstance(rack_device, RackDevice) and device._device in rack_device.chains[0].devices:
                 return rack_device
 
         return None

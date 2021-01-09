@@ -95,14 +95,14 @@ def _find_all_devices(track_or_chain, only_visible=False):
     # type: (Union[Live.Track.Track, Live.Chain.Chain], bool) -> List[Live.Device.Device]
     u""" Returns a list with all devices from a track or chain """
     devices = []
-    for device in filter(None, track_or_chain.devices):
+    for device in filter(None, track_or_chain.devices):  # type: Live.Device.Device
         if only_visible and device.view.is_collapsed:
             devices += [device]
             continue
         if only_visible and (
                 not device.can_have_drum_pads and device.can_have_chains and device.view.is_showing_chain_devices):
             devices += chain([device], _find_all_devices(device.view.selected_chain, only_visible=only_visible))
-        elif not device.can_have_drum_pads and device.can_have_chains:
+        elif not device.can_have_drum_pads and isinstance(device, Live.RackDevice.RackDevice):
             devices += chain([device],
                              *imap(_partial(_find_all_devices, only_visible=only_visible), filter(None, device.chains)))
         else:

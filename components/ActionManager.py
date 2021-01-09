@@ -131,7 +131,7 @@ class ActionManager(AbstractControlSurfaceComponent):
     @button_action(log_action=False)
     def action_track_collapse_selected_device(self):
         """ record both midi and audio on group track """
-        self.song.current_track.selected_device.view.is_collapsed = not self.song.current_track.selected_device.view.is_collapsed
+        self.song.current_track.selected_device._view.is_collapsed = not self.song.current_track.selected_device._view.is_collapsed
 
     @button_action(log_action=False)
     def action_scroll_track_recording_times(self, go_next):
