@@ -1,21 +1,20 @@
 from abc import abstractproperty
-from typing import Any, Optional, List
-from typing import TYPE_CHECKING
 
 import Live
+from typing import Any, Optional, List
+from typing import TYPE_CHECKING
 
 from _Framework.Util import find_if
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import TRACK_CATEGORIES, TRACK_CATEGORY_OTHER
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
-from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.ClipSlot import ClipSlot
 from a_protocol_0.lom.Colors import Colors
+from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.track.AbstractTrackActionMixin import AbstractTrackActionMixin
 from a_protocol_0.lom.track.TrackName import TrackName
 from a_protocol_0.utils.decorators import defer
-from a_protocol_0.utils.utils import find_all_devices
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -78,14 +77,13 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
         clip_slots = [clip_slot for track in self.all_tracks for clip_slot in track.clip_slots]
         return [clip_slot.clip for clip_slot in clip_slots if clip_slot.has_clip]
 
-    @property
-    def all_devices(self):
-        # type: () -> List[Device]
-        return [Device(device, track) for track in self.all_tracks for device in find_all_devices(track)]
-
     def get_device(self, device):
         # type: (Live.Device.Device) -> Optional[Device]
-        return find_if(lambda d: d._device == device, self.base_track.devices)
+        return find_if(lambda d: d._device == device, self.base_track.all_devices)
+
+    @property
+    def all_devices(self):
+        return self.base_track._all_devices
 
     @property
     def selected_device(self):
@@ -117,7 +115,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
     @property
     def name(self):
         # type: () -> str
-        return TrackName(self).name.lower()
+        return self.base_track._name
 
     @name.setter
     def name(self, name):

@@ -1,13 +1,12 @@
-from typing import Any, List, Optional
-
 import Live
+from typing import Any, List, Optional
 
 from _Framework.Util import find_if
 from a_protocol_0.consts import TRACK_CATEGORY_ALL
 from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.ClipSlot import ClipSlot
 from a_protocol_0.lom.SongActionMixin import SongActionMixin
+from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -18,7 +17,7 @@ class Song(SongActionMixin, AbstractObject):
         # type: (Live.Song.Song) -> None
         super(Song, self).__init__(*a, **k)
         self._song = song
-        self._view = self._song.view  # type: Any
+        self._view = self._song.view  # type: Live.Song.Song.View
         self.tracks = []  # type: List[SimpleTrack]
         self.abstract_tracks = []  # type: List[AbstractTrack]
         self.abstract_group_tracks = []  # type: List[AbstractGroupTrack]

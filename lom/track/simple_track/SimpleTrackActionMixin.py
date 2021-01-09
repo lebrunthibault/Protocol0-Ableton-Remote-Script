@@ -1,10 +1,10 @@
 from functools import partial
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
-from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.ClipSlot import ClipSlot
 from a_protocol_0.lom.Colors import Colors
+from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.utils import scroll_values
 
@@ -51,7 +51,7 @@ class SimpleTrackActionMixin(object):
             self.song.undo()
 
     def create_clip(self, slot_number=0, name=None, bar_count=1, notes_callback=None, sync=True):
-        # type: (SimpleTrack, int, str, int, callable, int, Any, Any) -> None
+        # type: (SimpleTrack, int, str, int, callable, int) -> Sequence
         if self.clip_slots[slot_number].has_clip:
             return
 

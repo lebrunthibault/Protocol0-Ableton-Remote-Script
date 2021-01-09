@@ -3,7 +3,7 @@ from fractions import Fraction
 from functools import partial
 from itertools import chain
 
-from typing import List
+from typing import List, TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.lom.clip.Clip import Clip
@@ -12,12 +12,18 @@ from a_protocol_0.utils.decorators import debounce
 from a_protocol_0.utils.log import set_object_attr
 
 
+if TYPE_CHECKING:
+    # noinspection PyUnresolvedReferences
+    from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMidiTrack
+
+
 class AutomationClip(Clip):
     def __init__(self, *a, **k):
         super(AutomationClip, self).__init__(*a, **k)
         self.ramping_steps = 47
         self.ramping_duration = 0.25  # eighth note
         self._notes_listener.subject = self._clip
+        self.track = self.track  # type: AutomationMidiTrack
 
     @subject_slot("notes")
     def _notes_listener(self):
@@ -56,6 +62,7 @@ class AutomationClip(Clip):
             [setattr(note, "pitch", note.velocity) for note in notes]
 
             self.replace_all_notes(notes)
+            self.track.automated_track.automate_from_note(self.track.automated_parameter, notes)
 
     def _insert_added_note(self, notes):
         # type: (List[Note]) -> List[Note]

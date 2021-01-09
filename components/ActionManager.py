@@ -3,7 +3,7 @@ from a_protocol_0.consts import RECORDING_TIMES, TRACK_CATEGORIES, TRACK_CATEGOR
 from a_protocol_0.controls.MultiEncoder import MultiEncoder
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.utils.decorators import button_action
-from a_protocol_0.utils.utils import scroll_values, find_all_devices
+from a_protocol_0.utils.utils import scroll_values
 
 
 class ActionManager(AbstractControlSurfaceComponent):
@@ -122,8 +122,8 @@ class ActionManager(AbstractControlSurfaceComponent):
     @button_action(log_action=False)
     def action_scroll_track_devices(self, go_next):
         """ record both midi and audio on group track """
-        self.parent.application().view.focus_view(u'Detail/DeviceChain')
-        selected_device = scroll_values(find_all_devices(self.song.current_track, only_visible=True),
+        self.parent.application()._view.focus_view(u'Detail/DeviceChain')
+        selected_device = scroll_values(self.song.current_track.base_track.all_visible_devices,
                                         self.song.current_track.selected_device, go_next)
         if selected_device:
             self.song.select_device(selected_device)
@@ -131,7 +131,7 @@ class ActionManager(AbstractControlSurfaceComponent):
     @button_action(log_action=False)
     def action_track_collapse_selected_device(self):
         """ record both midi and audio on group track """
-        self.song.current_track.selected_device.view.is_collapsed = not self.song.current_track.selected_device.view.is_collapsed
+        self.song.current_track.selected_device._view.is_collapsed = not self.song.current_track.selected_device._view.is_collapsed
 
     @button_action(log_action=False)
     def action_scroll_track_recording_times(self, go_next):
@@ -200,7 +200,7 @@ class ActionManager(AbstractControlSurfaceComponent):
 
     @button_action()
     def action_set_up_lfo_tool_automation(self):
-        self.parent.trackAutomationManager.create_automation_group(self.song.current_track.base_track)
+        self.parent.trackAutomationManager.create_automation_group(self.song.selected_track.selected_parameter)
 
     @button_action()
     def action_set_up_automation_envelope(self):

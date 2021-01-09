@@ -14,6 +14,7 @@ class DeviceParameter(AbstractObject):
         # type: (Device, Live.DeviceParameter.DeviceParameter) -> None
         super(DeviceParameter, self).__init__(*a, **k)
         self.device = device
+        self.track = self.device.track
         self._device_parameter = device_parameter
 
     def __repr__(self):

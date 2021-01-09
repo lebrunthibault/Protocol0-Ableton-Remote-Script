@@ -35,8 +35,8 @@ class ClipSlot(AbstractObject):
         self.has_clip = self._clip_slot.has_clip
         self.clip = None
         if self.has_clip:
-            from a_protocol_0.lom.track.simple_track.AutomationTrack import AutomationTrack
-            self.clip = AutomationClip(clip_slot=self) if isinstance(self.track, AutomationTrack) else Clip(
+            from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMidiTrack
+            self.clip = AutomationClip(clip_slot=self) if isinstance(self.track, AutomationMidiTrack) else Clip(
                 clip_slot=self)
 
     @subject_slot("has_clip")
@@ -61,3 +61,6 @@ class ClipSlot(AbstractObject):
     def duplicate_clip_to(self, clip_slot):
         # type: (ClipSlot) -> None
         self._clip_slot.duplicate_clip_to(clip_slot._clip_slot)
+
+    def insert_dummy_clip(self):
+        self.song.tracks[0].clip_slots[0].duplicate_clip_to(self)

@@ -1,21 +1,17 @@
 from functools import partial
 
+import Live
 from typing import Optional
 
-import Live
-
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.consts import AUTOMATION_TRACK_NAME, EXTERNAL_SYNTH_NAMES
+from a_protocol_0.consts import EXTERNAL_SYNTH_NAMES
+from a_protocol_0.lom.track.TrackName import TrackName
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
-from a_protocol_0.lom.track.group_track.WrappedTrack import WrappedTrack
-from a_protocol_0.lom.track.simple_track.AutomationTrack import AutomationTrack
 from a_protocol_0.lom.track.simple_track.SimpleGroupTrack import SimpleGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
-from a_protocol_0.lom.track.TrackName import TrackName
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import defer, subject_slot
-from a_protocol_0.utils.utils import find_last
 
 
 class TrackManager(AbstractControlSurfaceComponent):
@@ -32,6 +28,7 @@ class TrackManager(AbstractControlSurfaceComponent):
     def group_track(self):
         # type: () -> Sequence
         seq = Sequence()
+        seq.add(self.parent.clyphxNavigationManager.focus_main)
         seq.add(self.parent.keyboardShortcutManager.group_track, complete_on=self._added_track_listener)
         return seq.done()
 
@@ -43,6 +40,7 @@ class TrackManager(AbstractControlSurfaceComponent):
 
     def _create_track(self, track_creator, name=None):
         # type: (callable, str) -> None
+        self.parent.log_debug(name)
         seq = Sequence()
         seq.add(track_creator,
                 complete_on=self.parent.trackManager._added_track_listener)
@@ -54,9 +52,9 @@ class TrackManager(AbstractControlSurfaceComponent):
             self.parent.songManager._tracks_listener()  # rebuild tracks
             # the underlying track object should have changed
             track = self.song.tracks[track_index]
-            track._added_track_init()  # manual call is needed
-            if track.group_track:
-                track.group_track._added_track_init()  # the group track could change type as well
+            # track._added_track_init()  # manual call is needed
+            # if track.group_track:
+            #     track.group_track._added_track_init()  # the group track could change type as well
 
         if name is not None:
             seq.add(set_name)
@@ -67,8 +65,10 @@ class TrackManager(AbstractControlSurfaceComponent):
         # type: (Live.Track.Track, int) -> SimpleTrack
         if track.is_foldable:
             return SimpleGroupTrack(track=track, index=index)
-        elif AUTOMATION_TRACK_NAME in track.name and track.has_midi_input:
-            return AutomationTrack(track=track, index=index)
+        # elif AUTOMATION_TRACK_MIDI_NAME in track.name:
+        #     return AutomationMidiTrack(track=track, index=index)
+        # elif AUTOMATION_TRACK_AUDIO_NAME in track.name:
+        #     return AutomationAudioTrack(track=track, index=index)
         else:
             return SimpleTrack(track=track, index=index)
 
@@ -76,11 +76,11 @@ class TrackManager(AbstractControlSurfaceComponent):
         # type: (SimpleTrack) -> Optional[AbstractGroupTrack]
         if any([track.name in name for name in EXTERNAL_SYNTH_NAMES]):
             return ExternalSynthTrack(group_track=track)
-        if any([isinstance(sub_track, AutomationTrack) for sub_track in track.sub_tracks]) and len(
-                track.sub_tracks) == 2:
-            wrapped_track = find_last(lambda t: t._track.has_audio_output, track.sub_tracks)
-            if wrapped_track is None:
-                raise RuntimeError("Tried to instantiate a WrappedTrack on a group with no audio output track")
-            return WrappedTrack(group_track=track, wrapped_track=wrapped_track)
+        # if any([isinstance(sub_track, AutomationMidiTrack) for sub_track in track.sub_tracks]) and len(
+        #         track.sub_tracks) == 2:
+        #     wrapped_track = find_last(lambda t: t._track.has_audio_output, track.sub_tracks)
+        #     if wrapped_track is None:
+        #         raise RuntimeError("Tried to instantiate a WrappedTrack on a group with no audio output track")
+        #     return WrappedTrack(group_track=track, wrapped_track=wrapped_track)
 
         return None

@@ -129,14 +129,14 @@ class DeviceManager(AbstractControlSurfaceComponent):
         parent_rack = self._find_device_parent(device, track.devices)
 
         if not parent_rack:
-            [setattr(d.view, "is_collapsed", True) for d in track.devices]
+            [setattr(d._view, "is_collapsed", True) for d in track.devices]
             (x_device, y_device) = self._get_device_show_button_click_coordinates(track, device)
             seq.add(lambda: self.parent.keyboardShortcutManager.send_click(x=x_device, y=y_device), wait=1,
                     name="click on device show button")
-            seq.add(lambda: setattr(device.view, "is_collapsed", False), wait=1, name="uncollapse all devices")
+            seq.add(lambda: setattr(device._view, "is_collapsed", False), wait=1, name="uncollapse all devices")
         else:
-            [setattr(d.view, "is_collapsed", True) for d in track.devices if d != parent_rack]
-            [setattr(d.view, "is_collapsed", True) for d in parent_rack.chains[0].devices]
+            [setattr(d._view, "is_collapsed", True) for d in track.devices if d != parent_rack]
+            [setattr(d._view, "is_collapsed", True) for d in parent_rack.chains[0].devices]
 
             (x_rack, y_rack) = self._get_rack_show_macros_button_click_coordinates(track, parent_rack)
             (x_device, y_device) = self._get_device_show_button_click_coordinates(track, device, parent_rack)
@@ -148,7 +148,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
                     name="click on device show button")
             seq.add(lambda: self.parent.keyboardShortcutManager.toggle_device_button(x=x_rack, y=y_rack, activate=True),
                     wait=1, name="show rack macro controls")
-            seq.add(lambda: [setattr(d.view, "is_collapsed", False) for d in parent_rack.chains[0].devices], wait=0,
+            seq.add(lambda: [setattr(d._view, "is_collapsed", False) for d in parent_rack.chains[0].devices], wait=0,
                     name="uncollapse all rack devices")
             # at this point the rack macro controls could still be hidden if the plugin window masks the button
 

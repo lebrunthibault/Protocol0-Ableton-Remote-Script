@@ -62,7 +62,6 @@ class Sequence(AbstractControlSurfaceComponent):
         self._parent_seq = parent_seq  # type: Sequence
         # self._debug = debug and not sync
         self._is_condition_seq = False
-        self._done_called = False
         if not name:
             frame_info = get_frame_info(2)
             if frame_info:
@@ -196,10 +195,6 @@ class Sequence(AbstractControlSurfaceComponent):
         return self
 
     def done(self):
-        if self._done_called:
-            raise SequenceError(sequence=self, message="You cannot call done on a sequence multiple times")
-
-        self._done_called = True
         # e.g. : a totally sync sequence is over (last step is already executed)
         if len(self._steps) == 0:
             if self._current_step:

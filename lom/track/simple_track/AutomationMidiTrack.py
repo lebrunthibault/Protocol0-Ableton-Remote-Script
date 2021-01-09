@@ -4,14 +4,21 @@ from functools import partial
 from _Framework.Util import find_if
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.Note import Note
+from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.utils import find_last
 
 
-class AutomationTrack(SimpleTrack):
+class AutomationMidiTrack(SimpleTrack):
     def __init__(self, *a, **k):
-        super(AutomationTrack, self).__init__(*a, **k)
+        # type: (DeviceParameter) -> None
+        super(AutomationMidiTrack, self).__init__(*a, **k)
+        self.automated_track = self.song.next_track(-1)
+        [_, device_name, parameter_name] = self.automated_track.name.split(":")
+        self.automated_parameter = find_if(lambda p: p.name == parameter_name,
+                                           find_if(lambda d: d.name == device_name,
+                                                   self.automated_track.devices))  # type: DeviceParameter
         self.ramping_steps = 13
         self.ramping_duration = 0.25  # eighth note
         self.push2_selected_main_mode = 'clip'
@@ -46,6 +53,11 @@ class AutomationTrack(SimpleTrack):
                              notes_callback=partial(self._fill_equal_notes, velocities=velocities))
 
         Sequence().add(complete_on=self.clip_slots[0]._has_clip_listener).add(self.play).done()()
+
+    def create_clip(self, slot_number=0, name=None, bar_count=1, notes_callback=None, sync=True):
+        # type: (int, str, int, callable, int) -> None
+        seq = super(AutomationMidiTrack, self).create_clip(slot_number, name, bar_count, notes_callback, sync)
+        seq.add(lambda: self.automated_track.clip_slots[slot_number].insert_dummy_clip())
 
     def _fill_equal_notes(self, clip, velocities):
         duration = clip.length / len(velocities)
