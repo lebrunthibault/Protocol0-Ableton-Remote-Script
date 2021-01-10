@@ -8,8 +8,8 @@ from a_protocol_0.lom.device.DeviceChain import DeviceChain
 
 
 class RackDevice(Device):
-    def __init__(self, *a, **k):
-        super(RackDevice, self).__init__(*a, **k)
+    def __init__(self, device, track, *a, **k):
+        super(RackDevice, self).__init__(device, track, *a, **k)
         self._device = self._device  # type: Live.RackDevice.RackDevice
         self.chains = []  # type: (List[DeviceChain])
         self._chains_listener.subject = self._device

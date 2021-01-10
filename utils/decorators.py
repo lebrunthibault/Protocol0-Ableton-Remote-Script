@@ -5,8 +5,7 @@ from functools import partial, wraps
 from typing import TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
-from a_protocol_0.utils.log import log_ableton
-from a_protocol_0.utils.utils import _arg_count, is_method
+from a_protocol_0.utils.utils import is_method
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences

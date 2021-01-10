@@ -87,7 +87,7 @@ class Sequence(AbstractControlSurfaceComponent):
         return self._steps.append(SequenceStep(callback, sequence=self, *a, **k))
 
     def has_started_check(self):
-        if self._state != SequenceState.UN_STARTED or self._is_condition_seq or self._parent_seq:
+        if self._state != SequenceState.UN_STARTED or self._is_condition_seq or self._parent_seq or self._auto_start:
             return
         if not self._errored and all([not seq._errored for seq in self._parent_seqs]):
             raise SequenceError(sequence=self, message="seq has not been called or added to a parent sequence")
@@ -101,7 +101,8 @@ class Sequence(AbstractControlSurfaceComponent):
             self._state = SequenceState.STARTED
             self._exec_next()
         else:
-            raise SequenceError(sequence=self, message="You called an executing sequence")
+            # auto start sequence executing async step
+            pass
 
     def _exec_next(self):
         if self._state == SequenceState.TERMINATED:
@@ -121,15 +122,15 @@ class Sequence(AbstractControlSurfaceComponent):
             raise SequenceError("Unknown state reached in _exec_next")
 
     def _terminate(self):
+        if self._state == SequenceState.TERMINATED:
+            return
+
         if self._current_step and self._current_step._errored and not self._is_condition_seq:
             self._errored = True
 
         if self._current_step and not self._current_step._is_terminal_step and not self._early_returned and not self._errored:
             raise SequenceError(sequence=self,
                                 message="You called _terminate but the last step is not the terminal one")
-
-        if self._state == SequenceState.TERMINATED:
-            raise SequenceError(sequence=self, message="You called _terminate twice on %s" % self)
 
         self._state = SequenceState.TERMINATED
 

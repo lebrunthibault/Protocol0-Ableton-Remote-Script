@@ -2,13 +2,13 @@ from typing import TYPE_CHECKING, List
 import Live
 
 from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.lom.ClipActionMixin import ClipActionMixin
+from a_protocol_0.lom.clip.ClipActionMixin import ClipActionMixin
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.utils.decorators import defer
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
-    from a_protocol_0.lom.ClipSlot import ClipSlot
+    from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 
 
 class Clip(ClipActionMixin, AbstractObject):
@@ -23,10 +23,20 @@ class Clip(ClipActionMixin, AbstractObject):
         self.is_selected = False
         # memorizing notes for note change comparison
         self._prev_notes = []  # type: List[Note]
-        # self._prev_notes = self.get_notes() if self._clip.is_midi_clip else []  # type: List[Note]
+        self._prev_notes = self.get_notes() if self._clip.is_midi_clip else []  # type: List[Note]
         self._added_note = None  # type: Note
         self._is_updating_notes = False
         self.color = self.track.base_color
+
+    @staticmethod
+    def make_clip(clip_slot):
+        # type: (ClipSlot) -> Clip
+        # from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMidiTrack
+        # if isinstance(clip_slot.track, AutomationMidiTrack):
+        #     from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
+        #     return AutomationMidiClip(clip_slot=clip_slot)
+        # else:
+        return Clip(clip_slot=clip_slot)
 
     @property
     def name(self):

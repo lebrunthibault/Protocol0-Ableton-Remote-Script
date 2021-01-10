@@ -2,7 +2,7 @@ from functools import partial
 
 from typing import TYPE_CHECKING
 
-from a_protocol_0.lom.ClipSlot import ClipSlot
+from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.sequence.Sequence import Sequence
@@ -59,11 +59,13 @@ class SimpleTrackActionMixin(object):
         seq.add(partial(self.clip_slots[slot_number]._clip_slot.create_clip,
                         self.parent.utilsManager.get_beat_time(bar_count)),
                 complete_on=self.clip_slots[slot_number]._has_clip_listener)
+        seq.add(wait=5)
+        seq.add(lambda: self.parent.log_debug((self.clip_slots)))
         if name:
             seq.add(lambda: setattr(self.clip_slots[slot_number].clip, "name", name))
-        if notes_callback:
-            seq.add(partial(lambda cs: cs.clip.replace_all_notes(notes_callback(clip=cs.clip), cache=False),
-                            self.clip_slots[slot_number]))
+        # if notes_callback:
+        #     seq.add(partial(lambda cs: cs.clip.replace_all_notes(notes_callback(clip=cs.clip), cache=False),
+        #                     self.clip_slots[slot_number]))
 
         return seq.done()
 

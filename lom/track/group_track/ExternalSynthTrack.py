@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from a_protocol_0.lom.ClipSlot import ClipSlot
+from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.group_track.ExternalSynthTrackActionMixin import ExternalSynthTrackActionMixin
 from a_protocol_0.utils.utils import find_last

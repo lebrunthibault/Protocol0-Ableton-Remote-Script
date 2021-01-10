@@ -17,9 +17,9 @@ if TYPE_CHECKING:
     from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMidiTrack
 
 
-class AutomationClip(Clip):
+class AutomationMidiClip(Clip):
     def __init__(self, *a, **k):
-        super(AutomationClip, self).__init__(*a, **k)
+        super(AutomationMidiClip, self).__init__(*a, **k)
         self.ramping_steps = 47
         self.ramping_duration = 0.25  # eighth note
         self._notes_listener.subject = self._clip
@@ -35,15 +35,17 @@ class AutomationClip(Clip):
         if len(notes) == 0 or self._is_updating_notes or notes == self._prev_notes:
             return
 
-        self.parent.log_info("%s : mapping notes" % self)
+        self.parent.log_debug("%s : mapping notes" % self)
         if len(self.notes_changed(notes, ["start", "duration", "pitch"])) == 0:
-            self.parent.log_info("manual pitch change")
+            self.parent.log_debug("manual pitch change")
             [setattr(note, "pitch", note.velocity) for (_, note) in self.notes_changed(notes, ["velocity"])]
             # self._notes = notes
             self.parent.defer(partial(self._map_notes, self))
             return
 
-        if len(notes) > len(self._prev_notes):
+        if len(notes) > len(self._prev_notes) and len(self._prev_notes):
+            if len(notes) - len(self._prev_notes) != 1:
+                raise Exception("Multiple added notes are not handled")
             self._added_note = next(iter(list(set(notes) - set(self._prev_notes))), None)
             notes = list(set(notes) - set([self._added_note]))
             notes.sort(key=lambda x: x.start)
@@ -62,7 +64,7 @@ class AutomationClip(Clip):
             [setattr(note, "pitch", note.velocity) for note in notes]
 
             self.replace_all_notes(notes)
-            self.track.automated_track.automate_from_note(self.track.automated_parameter, notes)
+            # self.track.automated_track.automate_from_note(self.track.automated_parameter, notes)
 
     def _insert_added_note(self, notes):
         # type: (List[Note]) -> List[Note]

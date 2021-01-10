@@ -23,7 +23,6 @@ from a_protocol_0.components.TrackManager import TrackManager
 from a_protocol_0.components.UtilsManager import UtilsManager
 from a_protocol_0.consts import LogLevel
 from a_protocol_0.lom.Song import Song
-from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import wait
 from a_protocol_0.utils.log import log_ableton
 

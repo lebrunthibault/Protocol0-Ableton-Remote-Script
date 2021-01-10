@@ -4,7 +4,7 @@ from typing import Any, List, Optional
 from _Framework.Util import find_if
 from a_protocol_0.consts import TRACK_CATEGORY_ALL
 from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.lom.ClipSlot import ClipSlot
+from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.SongActionMixin import SongActionMixin
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack

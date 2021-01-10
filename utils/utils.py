@@ -145,6 +145,8 @@ def is_lambda(func):
 
 
 def get_callable_decorated_func(func):
+    if hasattr(func, "listener"):
+        return get_callable_decorated_func(func.listener)
     if hasattr(func, "function"):
         return get_callable_decorated_func(func.function)
     if hasattr(func, "func"):  # partial
@@ -166,12 +168,13 @@ def get_class_name_from_method(func):
 def get_callable_name(func):
     if func is None:
         return "None"
+
     from a_protocol_0.sequence.Sequence import Sequence
     if isinstance(func, Sequence):
         return str(func.name)
 
     decorated_func = get_callable_decorated_func(func)
-    class_name = get_class_name_from_method(func)
+    class_name = get_class_name_from_method(decorated_func)
 
     if not hasattr(decorated_func, "__name__"):
         return class_name or "unknown"

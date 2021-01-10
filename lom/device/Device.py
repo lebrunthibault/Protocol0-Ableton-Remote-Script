@@ -25,18 +25,14 @@ class Device(AbstractObject):
         self.is_simpler = isinstance(device, Live.SimplerDevice.SimplerDevice)
         self.is_plugin = isinstance(device, Live.PluginDevice.PluginDevice)
 
-    def __eq__(self, device):
-        # type: (Device) -> bool
-        return device and self._device == device._device
-
     @staticmethod
     def make_device(device, track):
         # type: (Live.Device.Device, SimpleTrack) -> Device
         from a_protocol_0.lom.device.RackDevice import RackDevice
         if isinstance(device, Live.RackDevice.RackDevice):
-            return RackDevice(device, track)
+            return RackDevice(device=device, track=track)
         else:
-            return Device(device, track)
+            return Device(device=device, track=track)
 
     @property
     def name(self):

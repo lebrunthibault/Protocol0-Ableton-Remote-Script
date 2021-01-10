@@ -25,8 +25,8 @@ class SequenceStep(AbstractControlSurfaceComponent):
         self._wait = wait if wait is not None else sequence._wait
         self._state = SequenceState.UN_STARTED
         self._complete_on = complete_on
-        # self._check_timeout = 4  # around 1.5 s
-        self._check_timeout = 5  # around 3.1 s
+        self._check_timeout = 4  # around 1.5 s
+        # self._check_timeout = 5  # around 3.1 s
         self._check_count = 0
         self._res = None
         self._errored = False
@@ -160,8 +160,7 @@ class SequenceStep(AbstractControlSurfaceComponent):
             self._check_for_step_completion()
 
     def _step_timed_out(self):
-        self.parent.log_error("timeout error on sequence step waiting for completion %s" % self._complete_on,
-                              debug=False)
+        self.parent.log_error("timeout completion error on %s" % self, debug=False)
         self._res = False
         self._terminate()
 
@@ -172,9 +171,6 @@ class SequenceStep(AbstractControlSurfaceComponent):
 
     @subject_slot("terminated")
     def _terminate(self, early_return_seq=False, listener_res=None):
-        if listener_res:
-            self.parent.log_debug(listener_res)
-            self.parent.log_debug(listener_res._state)
         if self._state == SequenceState.TERMINATED:
             return
 
