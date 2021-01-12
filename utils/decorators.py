@@ -69,7 +69,8 @@ def timeout_limit(func, awaited_func, timeout_limit, on_timeout=None):
         if decorate.executed:
             return
         if timeout_execution:
-            Protocol0.SELF.log_error("Timeout reached for function %s, not executing %s" % (get_callable_name(awaited_func), get_callable_name(func)))
+            Protocol0.SELF.log_error("Timeout reached for function %s, not executing %s" % (
+            get_callable_name(awaited_func), get_callable_name(func)))
             if on_timeout:
                 on_timeout()
                 return
@@ -201,8 +202,8 @@ class CallbackDescriptor(object):
             if isinstance(res, Sequence) and res._state != SequenceState.TERMINATED:
                 res.terminated_callback = _execute_callbacks
             else:
-                pass
-                # _execute_callbacks()
+                # pass
+                _execute_callbacks()
 
         callback_caller.__name__ = get_callable_name(decorated)
 
@@ -213,7 +214,6 @@ class CallbackDescriptor(object):
             for callback in deduplicate_list(callback_provider._callbacks):
                 callback()
             callback_provider._callbacks = []
-
 
         return callback_caller
 
