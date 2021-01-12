@@ -24,22 +24,15 @@ class TrackManager(AbstractControlSurfaceComponent):
 
     @subject_slot("added_track")
     def _added_track_listener(self):
-        seq = Sequence(auto_start=True)
-        seq.add(wait=1)
-        seq.add(self.song.current_track._added_track_init)
-        seq.add(self._added_track_listener_end)
-        seq.done()
-
-    @has_callback_queue
-    def _added_track_listener_end(self):
-        """ hack to allow asynchronous code in _added_track_listener"""
-        pass
+        self.parent.log_debug("track listener call")
+        return "toto"
+        return Sequence().add(wait=1).add(self.song.current_track._added_track_init).done()
 
     def group_track(self):
         # type: () -> Sequence
         seq = Sequence()
         seq.add(self.parent.clyphxNavigationManager.focus_main)
-        seq.add(self.parent.keyboardShortcutManager.group_track, complete_on=self._added_track_listener_end)
+        seq.add(self.parent.keyboardShortcutManager.group_track, complete_on=self._added_track_listener)
         return seq.done()
 
     def create_midi_track(self, index, name=None):
@@ -51,15 +44,15 @@ class TrackManager(AbstractControlSurfaceComponent):
     def _create_track(self, track_creator, name=None):
         # type: (callable, str) -> None
         seq = Sequence()
-        seq.add(track_creator,
-                complete_on=self.parent.trackManager._added_track_listener_end)
+        seq.add(track_creator, complete_on=self.parent.trackManager._added_track_listener)
 
         def set_name():
-            seq = Sequence(auto_start=True)
+            seq = Sequence()
             self.song.selected_track.track_name.set(base_name=name)
             self.parent.songManager._tracks_listener()  # rebuild tracks
             # the underlying track object should have changed
             track = self.song.tracks[self.song.selected_track.index]
+            seq.add(wait=1)
             seq.add(track._added_track_init)  # manual call is needed, this is sync for now
             if track.group_track:
                 seq.add(track.group_track._added_track_init)  # the group track could change type as well

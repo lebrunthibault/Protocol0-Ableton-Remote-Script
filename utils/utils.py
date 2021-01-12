@@ -110,6 +110,12 @@ def _find_all_devices(track_or_chain, only_visible=False):
     return devices
 
 
+def deduplicate_list(seq):
+    seen = set()
+    seen_add = seen.add
+    return [x for x in seq if not (x in seen or seen_add(x))]
+
+
 def get_frame_info(frame_count=1):
     # type: (int) -> namedtuple
     try:
@@ -151,6 +157,8 @@ def get_callable_decorated_func(func):
         return get_callable_decorated_func(func.function)
     if hasattr(func, "func"):  # partial
         return get_callable_decorated_func(func.func)
+    if hasattr(func, "p0_func"):  # partial
+        return get_callable_decorated_func(func.p0_func)
 
     return func
 
@@ -179,10 +187,18 @@ def get_callable_name(func):
     if not hasattr(decorated_func, "__name__"):
         return class_name or "unknown"
 
-    if class_name:
+    if class_name and "function" not in class_name:
         return "%s.%s" % (class_name, decorated_func.__name__)
     else:
         return decorated_func.__name__
+
+
+def has_arg(func, arg):
+    spec = inspect.getargspec(func.func if is_partial(func) else func)
+    if is_partial(func):
+        return arg in spec.args and arg not in func.keywords.keys()
+    else:
+        return arg in spec.args
 
 
 def _arg_count(func):

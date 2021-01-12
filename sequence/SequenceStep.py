@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 class SequenceStep(AbstractControlSurfaceComponent):
     def __init__(self, func, sequence, wait=None, name=None, complete_on=None,
-                 do_if=None, do_if_not=None, return_if=None, return_if_not=None, *a, **k):
+                 do_if=None, do_if_not=None, return_if=None, return_if_not=None, check_timeout=5, *a, **k):
         # type: (callable, Sequence, float, str, callable, bool) -> None
         """ the tick is 100 ms """
         super(SequenceStep, self).__init__(*a, **k)
@@ -25,8 +25,7 @@ class SequenceStep(AbstractControlSurfaceComponent):
         self._wait = wait if wait is not None else sequence._wait
         self._state = SequenceState.UN_STARTED
         self._complete_on = complete_on
-        self._check_timeout = 4  # around 1.5 s
-        # self._check_timeout = 5  # around 3.1 s
+        self._check_timeout = check_timeout
         self._check_count = 0
         self._res = None
         self._errored = False
@@ -40,7 +39,7 @@ class SequenceStep(AbstractControlSurfaceComponent):
         self._return_condition = None
 
         conditions = [do_if, do_if_not, return_if, return_if_not]
-        self._condition = next((c for c in conditions), None)
+        self._condition = next((c for c in conditions if c), None)
 
         if len(filter(None, conditions)) > 1:
             raise SequenceError(sequence=self._seq, message="You cannot specify multiple conditions in a step")
@@ -71,7 +70,7 @@ class SequenceStep(AbstractControlSurfaceComponent):
 
         return "[%s]" % output
 
-    def __call__(self):
+    def _start(self):
         if self._state != SequenceState.UN_STARTED:
             raise SequenceError(sequence=self._seq, message="You cannot start a step twice")
 
@@ -86,12 +85,15 @@ class SequenceStep(AbstractControlSurfaceComponent):
         terminate = self._terminate_if_condition if self._condition in [self._do_if,
                                                                         self._do_if_not] else self._terminate_return_condition
 
-        condition_res = self._condition()
+        condition_res = self._execute_callable(self._condition)
+        if self._errored:
+            return  # error on condition
+
         from a_protocol_0.sequence.Sequence import Sequence
         if isinstance(condition_res, Sequence):
             condition_res._is_condition_seq = True
             terminate.subject = condition_res
-            condition_res()
+            condition_res._start()
         else:
             terminate(res=condition_res)
 
@@ -130,31 +132,41 @@ class SequenceStep(AbstractControlSurfaceComponent):
             self._step_timed_out()
             return
 
-        def handle_callback_queue():
-            self._complete_on._callbacks.append(
-                timeout_limit(self._terminate, timeout_limit=pow(2, self._check_timeout),
-                              on_timeout=self._step_timed_out))
-
         if _has_callback_queue(self._complete_on):
-            handle_callback_queue()
+            self._complete_on._callbacks.append(
+                timeout_limit(self._terminate, awaited_func=self._complete_on,
+                              timeout_limit=pow(2, self._check_timeout),
+                              on_timeout=self._step_timed_out))
             return
         else:
-            check_res = self._complete_on()
-            if _has_callback_queue(check_res):  # allows asynchronous access to objects (e.g. clip creation)
-                handle_callback_queue()
-            elif check_res:
+            check_res = self._execute_callable(self._complete_on)
+            if self._errored:
+                return
+
+            if check_res:
                 self._terminate()
             else:
                 self.parent._wait(pow(2, self._check_count), self._check_for_step_completion)
                 self._check_count += 1
 
+    def _execute_callable(self, func):
+        try:
+            return func()
+        except RuntimeError as e:
+            self.parent.log_error("RuntimeError caught while executing %s" % self)
+            self.parent.log_error(e)
+            self._terminate_with_error()
+
     def _execute(self):
-        res = self._callable()
+        res = self._execute_callable(self._callable)
+        if self._errored:
+            return
+
         from a_protocol_0.sequence.Sequence import Sequence
         if isinstance(res, Sequence) and res._state != SequenceState.TERMINATED:
             res._parent_seq = self._seq
             self._step_sequence_terminated_listener.subject = res
-            res()
+            res._start()
         else:
             self._res = res
             self._check_for_step_completion()
@@ -170,25 +182,23 @@ class SequenceStep(AbstractControlSurfaceComponent):
         self._check_for_step_completion()
 
     @subject_slot("terminated")
-    def _terminate(self, early_return_seq=False, listener_res=None):
+    def _terminate(self, early_return_seq=False):
+        self.parent.log_debug("terminate step %s" % self)
         if self._state == SequenceState.TERMINATED:
-            return
-
-        # allows listeners to execute async actions
-        from a_protocol_0.sequence.Sequence import Sequence
-        if isinstance(listener_res, Sequence) and listener_res._state != SequenceState.TERMINATED:
-            self._terminate.subject = listener_res
             return
 
         self._state = SequenceState.TERMINATED
 
         if self._res is False:
-            self._errored = True
-
-        if early_return_seq:
+            self._terminate_with_error()
+        elif early_return_seq:
             self._seq._early_returned = True
-
-        if early_return_seq or self._errored:
             self._seq._terminate()
         else:
             self._seq._exec_next()
+
+    def _terminate_with_error(self):
+        self._state = SequenceState.TERMINATED
+        self._res = False
+        self._errored = True
+        self._seq._terminate()

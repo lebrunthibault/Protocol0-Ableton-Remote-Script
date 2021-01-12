@@ -82,7 +82,7 @@ class ActionManager(AbstractControlSurfaceComponent):
             # if track_to_select.playable_clip:
             #     self.song.highlighted_clip_slot = track_to_select.playable_clip.clip_slot
             # else:
-            self.song.select_track(track_to_select, sync=True)
+            self.song.select_track(track_to_select)
 
     @button_action()
     def action_arm_track(self):

@@ -39,6 +39,7 @@ class SongManager(AbstractControlSurfaceComponent):
     @subject_slot("tracks")
     def _tracks_listener(self):
         # type: () -> Optional[SimpleTrack]
+        return "totototo"
         track_added = False
         if len(self.song.tracks) and len(self.song._song.tracks) > len(self.song.tracks):
             track_added = True

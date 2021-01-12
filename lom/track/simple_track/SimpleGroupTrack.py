@@ -10,9 +10,10 @@ class SimpleGroupTrack(SimpleTrack):
         self.push2_selected_main_mode = 'mix'
 
     def _added_track_init(self):
-        seq = Sequence(auto_start=True)
+        seq = Sequence()
+        seq.add(wait=1)
         self.is_folded = False
         if len(self.devices) == 0:
-            seq.add(partial(self.parent.browserManager.load_rack_device, "Mix Base Rack", sync=False))
+            seq.add(partial(self.parent.browserManager.load_rack_device, "Mix Base Rack"))
 
         return seq.done()

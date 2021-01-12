@@ -104,9 +104,9 @@ class DeviceManager(AbstractControlSurfaceComponent):
     def _get_device_click_x_position(self, device_position):
         return self.WIDTH_PIXEL_OFFSET + device_position * self.COLLAPSED_DEVICE_PIXEL_WIDTH
 
-    def is_plugin_window_visible(self, device=None, try_show=False, sync=False):
-        # type: (Device, bool, bool) -> Sequence
-        seq = Sequence(auto_start=sync)
+    def is_plugin_window_visible(self, device=None, try_show=False):
+        # type: (Device, bool) -> Sequence
+        seq = Sequence()
         if try_show:
             seq.add(self.parent.keyboardShortcutManager.show_plugins,
                     do_if_not=partial(self.parent.keyboardShortcutManager.is_plugin_window_visible, device.name),

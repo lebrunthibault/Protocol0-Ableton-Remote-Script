@@ -28,7 +28,7 @@ class SimpleTrackActionMixin(object):
             seq = Sequence()
             seq.add(partial(self.instrument.check_activated, focus_device_track=False))
             seq.add(partial(self.song.select_track, selected_track))
-            seq.done()()
+            seq.done()
 
     def action_switch_monitoring(self):
         # type: (SimpleTrack) -> None
@@ -50,12 +50,12 @@ class SimpleTrackActionMixin(object):
         else:
             self.song.undo()
 
-    def create_clip(self, slot_number=0, name=None, bar_count=1, notes_callback=None, sync=True):
+    def create_clip(self, slot_number=0, name=None, bar_count=1, notes_callback=None):
         # type: (SimpleTrack, int, str, int, callable, int) -> Sequence
         if self.clip_slots[slot_number].has_clip:
             return
 
-        seq = Sequence(auto_start=sync)
+        seq = Sequence()
         seq.add(partial(self.clip_slots[slot_number]._clip_slot.create_clip,
                         self.parent.utilsManager.get_beat_time(bar_count)),
                 complete_on=self.clip_slots[slot_number]._has_clip_listener)

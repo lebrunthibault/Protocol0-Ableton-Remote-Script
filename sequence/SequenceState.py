@@ -3,7 +3,6 @@ class SequenceState:
     STARTED = "STARTED"
     PAUSED = "PAUSED"
     TERMINATED = "TERMINATED"
-    ERRORED = "ERRORED"
 
 
 class DebugLevel:

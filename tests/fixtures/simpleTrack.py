@@ -1,6 +1,7 @@
-from a_protocol_0.consts import GROUP_PROPHET_NAME
+from _Framework.SubjectSlot import Subject
+from a_protocol_0.consts import EXTERNAL_SYNTH_PROPHET_NAME
 from a_protocol_0.lom.Song import Song
-from a_protocol_0.lom.track.SimpleTrack import SimpleTrack
+from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.tests.fixtures.device import AbletonDevice, make_device_simpler
 
 
@@ -10,7 +11,9 @@ class TrackType(object):
     AUDIO = 3
 
 
-class AbletonTrack(object):
+class AbletonTrack(Subject):
+    __subject_events__ = ("name", "devices", "clip_slots", "playing_slot_index")
+
     def __init__(self, name="track", device=None, track_type=TrackType.MIDI):
         # type: (str, AbletonDevice, int) -> None
         self.name = name
@@ -21,6 +24,13 @@ class AbletonTrack(object):
         self.is_visible = True
         self.has_midi_input = self.has_audio_output = self.is_foldable = self.fold_state = False
         self.clip_slots = []
+        self.view = None
+        self.group_track = None
+        self.color_index = 0
+        self.has_audio_input = False
+        self.has_audio_output = True
+        self.has_midi_input = False
+        self.has_midi_output = False
 
         if track_type == TrackType.GROUP:
             self.is_foldable = True
@@ -28,27 +38,19 @@ class AbletonTrack(object):
         if track_type == TrackType.MIDI:
             self.has_midi_input = True
         if track_type == TrackType.AUDIO:
-            self.has_audio_output = True
-
-    @staticmethod
-    def name_has_listener(_):
-        return True
-
-    def add_name_listener(self, func):
-        pass
+            self.has_audio_input = True
 
 
-def make_group_track(song, name=GROUP_PROPHET_NAME):
+def make_group_track(song, name=EXTERNAL_SYNTH_PROPHET_NAME):
     # type: (Song, str) -> SimpleTrack
     simple_track = SimpleTrack(song, AbletonTrack(name=name, track_type=TrackType.GROUP), len(song.tracks))
     song.tracks.append(simple_track)
     return simple_track
 
 
-def make_midi_track(song, name="midi"):
-    # type: (Song, str) -> SimpleTrack
-    simple_track = SimpleTrack(song, AbletonTrack(name=name, track_type=TrackType.MIDI), len(song.tracks))
-    song.tracks.append(simple_track)
+def make_midi_track(name="midi"):
+    # type: (str) -> SimpleTrack
+    simple_track = SimpleTrack(AbletonTrack(name=name, track_type=TrackType.MIDI), 0)
     return simple_track
 
 

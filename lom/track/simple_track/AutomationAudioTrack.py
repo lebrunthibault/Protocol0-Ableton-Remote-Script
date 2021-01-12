@@ -23,11 +23,11 @@ class AutomationAudioTrack(SimpleTrack):
 
         self.automated_parameter = None  # type: DeviceParameter
         self.has_monitor_in = True
-        [self.delete_device(d) for d in self.devices]
-        seq = Sequence(auto_start=True)
         self.is_folded = False
         [_, device_name, parameter_name] = self.name.split(":")
-        seq.add(partial(self.parent.browserManager.load_rack_device, device_name, sync=False))
+        seq = Sequence()
+        seq.add(wait=1)
+        seq.add(partial(self.parent.browserManager.load_rack_device, device_name))
         seq.add(lambda: setattr(self, "automated_device", find_if(lambda d: d.name == device_name, self.devices)))
         seq.add(lambda: setattr(self, "automated_parameter", find_if(lambda p: p.name == parameter_name, self.automated_device.parameters)))
 

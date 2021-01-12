@@ -1,5 +1,7 @@
+import threading
 import types
 from functools import partial
+from fractions import Fraction
 
 from typing import Callable
 
@@ -29,6 +31,7 @@ from a_protocol_0.utils.log import log_ableton
 
 class Protocol0(ControlSurface):
     SELF = None  # type: Protocol0
+    LIVE_ENVIRONMENT_LOADED = True
 
     def __init__(self, c_instance=None, init_song=True):
         super(Protocol0, self).__init__(c_instance=c_instance)
@@ -99,7 +102,11 @@ class Protocol0(ControlSurface):
         if ticks_count == 0:
             callback()
         else:
-            self.schedule_message(ticks_count, callback)
+            if Protocol0.LIVE_ENVIRONMENT_LOADED:
+                self.schedule_message(ticks_count, callback)
+            else:
+                # emulate schedule_message
+                threading.Timer(float(Fraction(ticks_count, 10)), callback).start()
 
     def clear_tasks(self):
         del self._remaining_scheduled_messages[:]
@@ -110,7 +117,7 @@ class Protocol0(ControlSurface):
         if self._is_dev_booted:
             return
 
-        self.protocol0_song.select_track(self.protocol0_song.tracks[1], sync=True)
+        # self.protocol0_song.select_track(self.protocol0_song.tracks[1])
         self.trackAutomationManager.create_automation_group(self.protocol0_song.tracks[1].devices[0].parameters[1])
 
         return

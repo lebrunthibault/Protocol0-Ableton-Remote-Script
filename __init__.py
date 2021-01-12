@@ -1,6 +1,7 @@
 import sys
 
 sys.path.insert(0, "C:\Python27\Lib\site-packages")
+live_environment_loaded = "Live" in sys.modules
 
 
 class EmptyModule():
@@ -32,12 +33,14 @@ class EmptyModule():
 
 
 # allows accessing code from this module from outside of the Live python environment, e.g. Jupyter tests
-if "Live" not in sys.modules:
+if not live_environment_loaded:
     sys.modules["Live"] = EmptyModule()
     sys.modules["MidiRemoteScript"] = EmptyModule()
     sys.modules["multipledispatch"] = EmptyModule()
 
 from .Protocol0 import Protocol0
+
+Protocol0.LIVE_ENVIRONMENT_LOADED = live_environment_loaded
 
 
 def create_instance(c_instance):

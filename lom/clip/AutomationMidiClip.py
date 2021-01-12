@@ -64,7 +64,6 @@ class AutomationMidiClip(Clip):
             [setattr(note, "pitch", note.velocity) for note in notes]
 
             self.replace_all_notes(notes)
-            # self.track.automated_track.automate_from_note(self.track.automated_parameter, notes)
 
     def _insert_added_note(self, notes):
         # type: (List[Note]) -> List[Note]

@@ -66,7 +66,7 @@ function Format-LogLine
             if ($showDateTime)
             {
                 $date = [datetime]::parseexact($parts[0], 'yyyy-MM-ddTHH:mm:ss.ffffff:', $null)
-                $logEntry = (Get-Date -Date $date -Format "ss.fff") + " " + $parts[1..($parts.Count - 1)] -join " "
+                $logEntry = (Get-Date -Date $date -Format "HH:mm:ss.fff") + " " + $parts[1..($parts.Count - 1)] -join " "
             }
             else
             {

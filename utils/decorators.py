@@ -5,7 +5,9 @@ from functools import partial, wraps
 from typing import TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
-from a_protocol_0.utils.utils import is_method
+from a_protocol_0.sequence.SequenceState import SequenceState
+from a_protocol_0.utils.log import log_ableton
+from a_protocol_0.utils.utils import is_method, deduplicate_list, get_callable_name
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -58,8 +60,8 @@ def wait(wait_time):
     return wrap
 
 
-def timeout_limit(func, timeout_limit, on_timeout=None):
-    # type: (callable, float, callable) -> callable
+def timeout_limit(func, awaited_func, timeout_limit, on_timeout=None):
+    # type: (callable, callable, float, callable) -> callable
     from a_protocol_0 import Protocol0
 
     @wraps(func)
@@ -67,7 +69,7 @@ def timeout_limit(func, timeout_limit, on_timeout=None):
         if decorate.executed:
             return
         if timeout_execution:
-            Protocol0.SELF.log_error("Timeout reached for function %s, executing" % func)
+            Protocol0.SELF.log_error("Timeout reached for function %s, not executing %s" % (get_callable_name(awaited_func), get_callable_name(func)))
             if on_timeout:
                 on_timeout()
                 return
@@ -113,6 +115,7 @@ def debounce(wait_time=2):
 
         decorate.count = defaultdict(int)
         decorate.wait_time = defaultdict(lambda: wait_time)
+        decorate.func = func
 
         def execute(func, *a, **k):
             index = a[0] if is_method(func) else decorate
@@ -174,7 +177,6 @@ class CallbackDescriptor(object):
         self._data_name = u'%s_%d_decorated_instance' % (func.__name__, id(self))
 
     def __get__(self, obj, cls=None):
-
         if obj is None:
             return
         try:
@@ -194,13 +196,24 @@ class CallbackDescriptor(object):
 
     def callback_wrapper(self, decorated):
         def callback_caller(*a, **k):
-            from a_protocol_0.Protocol0 import Protocol0
             res = decorated(*a, **k)
+            from a_protocol_0.sequence.Sequence import Sequence
+            if isinstance(res, Sequence) and res._state != SequenceState.TERMINATED:
+                res.terminated_callback = _execute_callbacks
+            else:
+                pass
+                # _execute_callbacks()
+
+        callback_caller.__name__ = get_callable_name(decorated)
+
+        def _execute_callbacks():
             callback_provider = decorated if hasattr(decorated, "_callbacks") else callback_caller
+            callback_provider.func = decorated
             # callbacks deduplication (useful to mitigate e.g. double encoder click)
-            for callback in set(callback_provider._callbacks):
-                Protocol0.SELF.defer(partial(callback, listener_res=res))
+            for callback in deduplicate_list(callback_provider._callbacks):
+                callback()
             callback_provider._callbacks = []
+
 
         return callback_caller
 

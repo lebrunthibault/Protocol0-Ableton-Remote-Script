@@ -27,8 +27,9 @@ class AutomationMidiTrack(SimpleTrack):
         """ this can be called once, when the Live track is created """
         if self.group_track is None:
             raise RuntimeError("An automation track should always be grouped")
-        [self.delete_device(d) for d in self.devices]
         seq = Sequence()
+        seq.add(wait=1)
+        seq.add(lambda: [self.delete_device(d) for d in self.devices])
         # self.output_routing_type = find_if(lambda r: r.attached_object == self.group_track._track,
         #                                    self.available_output_routing_types)
         # seq.add(wait=1)
@@ -37,7 +38,7 @@ class AutomationMidiTrack(SimpleTrack):
 
         if len(self.clips) == 0:
             seq.add(self._create_base_clips)
-        seq.done()()
+        seq.done()
 
     def _create_base_clips(self):
         velocity_patterns = OrderedDict()
@@ -50,7 +51,7 @@ class AutomationMidiTrack(SimpleTrack):
             self.create_clip(slot_number=i, name=clip_name, bar_count=1,
                              notes_callback=partial(self._fill_equal_notes, velocities=velocities))
 
-        Sequence().add(complete_on=self.clip_slots[0]._has_clip_listener).add(self.play).done()()
+        Sequence().add(complete_on=self.clip_slots[0]._has_clip_listener).add(self.play).done()
 
     def _fill_equal_notes(self, clip, velocities):
         duration = clip.length / len(velocities)

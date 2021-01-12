@@ -7,9 +7,9 @@ from a_protocol_0.sequence.Sequence import Sequence
 
 
 class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
-    def load_rack_device(self, rack_name, hide=False, sync=True):
-        # type: (str, bool, Sequence) -> None
-        seq = Sequence(auto_start=sync)
+    def load_rack_device(self, rack_name, hide=False):
+        # type: (str, bool) -> None
+        seq = Sequence()
         seq.add(partial(self.load_from_user_library, None, "'%s.adg'" % rack_name),
                 complete_on=lambda: find_if(lambda d: d.name == rack_name, self.song.selected_track.devices))
         if hide:

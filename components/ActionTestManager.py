@@ -12,4 +12,4 @@ class ActionTestManager(AbstractControlSurfaceComponent):
 
     @button_action()
     def action_test(self):
-        self.parent.deviceManager.is_plugin_window_visible(try_show=True)()
+        self.parent.deviceManager.is_plugin_window_visible(try_show=True)
