@@ -24,7 +24,6 @@ class Song(SongActionMixin, AbstractObject):
         self.selected_track = None  # type: SimpleTrack
         self.current_track = None  # type: AbstractTrack
         self.master_track = self._song.master_track  # type: Live.Track.Track
-        self.clip_slots = []  # type: List[ClipSlot]
         self.selected_track_category = TRACK_CATEGORY_ALL
         self.selected_recording_time = "4 bars"
         self.solo_playing_tracks = []  # type: List[AbstractTrack]

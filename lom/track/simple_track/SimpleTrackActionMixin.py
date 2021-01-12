@@ -52,20 +52,21 @@ class SimpleTrackActionMixin(object):
 
     def create_clip(self, slot_number=0, name=None, bar_count=1, notes_callback=None):
         # type: (SimpleTrack, int, str, int, callable, int) -> Sequence
-        if self.clip_slots[slot_number].has_clip:
+        clip_slot = self.clip_slots[slot_number]
+        if clip_slot.has_clip:
             return
 
         seq = Sequence()
-        seq.add(partial(self.clip_slots[slot_number]._clip_slot.create_clip,
-                        self.parent.utilsManager.get_beat_time(bar_count)),
-                complete_on=self.clip_slots[slot_number]._has_clip_listener)
-        seq.add(wait=5)
-        seq.add(lambda: self.parent.log_debug((self.clip_slots)))
         if name:
-            seq.add(lambda: setattr(self.clip_slots[slot_number].clip, "name", name))
-        # if notes_callback:
-        #     seq.add(partial(lambda cs: cs.clip.replace_all_notes(notes_callback(clip=cs.clip), cache=False),
-        #                     self.clip_slots[slot_number]))
+            clip_slot.clip_name = name
+        seq.add(partial(clip_slot._clip_slot.create_clip,
+                        self.parent.utilsManager.get_beat_time(bar_count)),
+                complete_on=clip_slot._has_clip_listener)
+        if name:
+            seq.add(wait=1).add(lambda: setattr(self.clip_slots[slot_number].clip, "name", name))
+        if notes_callback:
+            seq.add(partial(lambda cs: cs.clip.replace_all_notes(notes_callback(clip=cs.clip), cache=False),
+                            self.clip_slots[slot_number]))
 
         return seq.done()
 

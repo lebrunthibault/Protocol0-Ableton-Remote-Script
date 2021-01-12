@@ -8,6 +8,7 @@ from typing import Optional, Any, List, Union, TYPE_CHECKING
 import Live
 
 from a_protocol_0.consts import PROTOCOL0_FOLDER, REMOTE_SCRIPTS_FOLDER
+from a_protocol_0.utils.log import log_ableton
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -150,15 +151,15 @@ def is_lambda(func):
     return isinstance(func, types.LambdaType) and func.__name__ == "<lambda>"
 
 
-def get_callable_decorated_func(func):
-    if hasattr(func, "listener"):
-        return get_callable_decorated_func(func.listener)
+def get_inner_func(func):
     if hasattr(func, "function"):
-        return get_callable_decorated_func(func.function)
+        return get_inner_func(func.function)
     if hasattr(func, "func"):  # partial
-        return get_callable_decorated_func(func.func)
-    if hasattr(func, "p0_func"):  # partial
-        return get_callable_decorated_func(func.p0_func)
+        return get_inner_func(func.func)
+    if hasattr(func, "original_func"):  # partial
+        return get_inner_func(func.original_func)
+    if hasattr(func, "listener"):
+        return get_inner_func(func.listener)
 
     return func
 
@@ -173,7 +174,7 @@ def get_class_name_from_method(func):
     return None
 
 
-def get_callable_name(func):
+def get_callable_name(func, obj=None):
     if func is None:
         return "None"
 
@@ -181,8 +182,11 @@ def get_callable_name(func):
     if isinstance(func, Sequence):
         return str(func.name)
 
-    decorated_func = get_callable_decorated_func(func)
-    class_name = get_class_name_from_method(decorated_func)
+    decorated_func = get_inner_func(func)
+    if obj:
+        class_name = str(obj) if hasattr(obj, "__repr__") else obj.__class__.__name__
+    else:
+        class_name = get_class_name_from_method(decorated_func)
 
     if not hasattr(decorated_func, "__name__"):
         return class_name or "unknown"

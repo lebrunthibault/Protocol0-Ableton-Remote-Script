@@ -2,7 +2,7 @@ from functools import partial
 
 from _Framework.Util import find_if
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.consts import AUTOMATION_TRACK_MIDI_NAME, AUTOMATION_TRACK_AUDIO_NAME
+from a_protocol_0.consts import AUTOMATION_TRACK_AUDIO_NAME, AUTOMATION_TRACK_MIDI_NAME
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.sequence.Sequence import Sequence
@@ -24,10 +24,10 @@ class TrackAutomationManager(AbstractControlSurfaceComponent):
         else:
             seq.add(self.parent.trackManager.group_track)
 
-        # seq.add(partial(self.parent.trackManager.create_audio_track, self.song.selected_track.index + 1,
-        #                 name="%s:%s:%s" % (AUTOMATION_TRACK_AUDIO_NAME, parameter.device.name, parameter.name)))
-        # seq.add(partial(self.parent.trackManager.create_midi_track, self.song.selected_track.index + 2,
-        #                 name="%s:%s:%s" % (AUTOMATION_TRACK_MIDI_NAME, parameter.device.name, parameter.name)))
+        seq.add(partial(self.parent.trackManager.create_audio_track, self.song.selected_track.index + 1,
+                        name="%s:%s:%s" % (AUTOMATION_TRACK_AUDIO_NAME, parameter.device.name, parameter.name)))
+        seq.add(partial(self.parent.trackManager.create_midi_track, self.song.selected_track.index + 2,
+                        name="%s:%s:%s" % (AUTOMATION_TRACK_MIDI_NAME, parameter.device.name, parameter.name)))
         seq.done()
 
     def action_set_up_automation_envelope(self, base_track):

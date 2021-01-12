@@ -35,9 +35,9 @@ class AutomationMidiClip(Clip):
         if len(notes) == 0 or self._is_updating_notes or notes == self._prev_notes:
             return
 
-        self.parent.log_debug("%s : mapping notes" % self)
+        # self.parent.log_info("%s : mapping notes" % self)
         if len(self.notes_changed(notes, ["start", "duration", "pitch"])) == 0:
-            self.parent.log_debug("manual pitch change")
+            # self.parent.log_info("manual pitch change")
             [setattr(note, "pitch", note.velocity) for (_, note) in self.notes_changed(notes, ["velocity"])]
             # self._notes = notes
             self.parent.defer(partial(self._map_notes, self))
@@ -163,3 +163,6 @@ class AutomationMidiClip(Clip):
             ramp_note.duration = base_duration / ramping_steps
             ramp_note.velocity = round(velocity_start + (next_note.velocity - velocity_start) * coeff)
             yield ramp_note
+
+    def disconnect(self):
+        self._notes_listener.disconnect()

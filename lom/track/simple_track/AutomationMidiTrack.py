@@ -47,11 +47,13 @@ class AutomationMidiTrack(SimpleTrack):
         velocity_patterns["half-full"] = [127, 0]
         velocity_patterns["quarter-silent"] = [0, 127, 127, 127]
 
-        for i, (clip_name, velocities) in enumerate(velocity_patterns.items()):
-            self.create_clip(slot_number=i, name=clip_name, bar_count=1,
-                             notes_callback=partial(self._fill_equal_notes, velocities=velocities))
+        seq = Sequence()
 
-        Sequence().add(complete_on=self.clip_slots[0]._has_clip_listener).add(self.play).done()
+        for i, (clip_name, velocities) in enumerate(velocity_patterns.items()):
+            seq.add(partial(self.create_clip, slot_number=i, name=clip_name, bar_count=1,
+                            notes_callback=partial(self._fill_equal_notes, velocities=velocities)))
+
+        seq.add(self.play).done()
 
     def _fill_equal_notes(self, clip, velocities):
         duration = clip.length / len(velocities)

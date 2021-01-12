@@ -19,3 +19,6 @@ class RackDevice(Device):
     def _chains_listener(self):
         self.chains = [DeviceChain(self, chain) for chain in self._device.chains]
 
+    def disconnect(self):
+        super(RackDevice, self).disconnect()
+        [chain.disconnect() for chain in self.chains]

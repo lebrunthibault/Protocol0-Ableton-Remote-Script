@@ -12,7 +12,7 @@ from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMi
 from a_protocol_0.lom.track.simple_track.SimpleGroupTrack import SimpleGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import subject_slot, has_callback_queue
+from a_protocol_0.utils.decorators import subject_slot
 
 
 class TrackManager(AbstractControlSurfaceComponent):
@@ -24,8 +24,6 @@ class TrackManager(AbstractControlSurfaceComponent):
 
     @subject_slot("added_track")
     def _added_track_listener(self):
-        self.parent.log_debug("track listener call")
-        return "toto"
         return Sequence().add(wait=1).add(self.song.current_track._added_track_init).done()
 
     def group_track(self):
@@ -44,7 +42,7 @@ class TrackManager(AbstractControlSurfaceComponent):
     def _create_track(self, track_creator, name=None):
         # type: (callable, str) -> None
         seq = Sequence()
-        seq.add(track_creator, complete_on=self.parent.trackManager._added_track_listener)
+        seq.add(track_creator, complete_on=self._added_track_listener)
 
         def set_name():
             seq = Sequence()
@@ -53,7 +51,7 @@ class TrackManager(AbstractControlSurfaceComponent):
             # the underlying track object should have changed
             track = self.song.tracks[self.song.selected_track.index]
             seq.add(wait=1)
-            seq.add(track._added_track_init)  # manual call is needed, this is sync for now
+            seq.add(track._added_track_init)  # manual call is needed, as _added_track_listener is not going to be called
             if track.group_track:
                 seq.add(track.group_track._added_track_init)  # the group track could change type as well
 

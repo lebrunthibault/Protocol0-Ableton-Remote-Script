@@ -28,15 +28,19 @@ class Clip(ClipActionMixin, AbstractObject):
         self._is_updating_notes = False
         self.color = self.track.base_color
 
+    def __repr__(self):
+        repr = super(Clip, self).__repr__()
+        return "%s (%s)" % (repr, self.track)
+
     @staticmethod
     def make_clip(clip_slot):
         # type: (ClipSlot) -> Clip
-        # from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMidiTrack
-        # if isinstance(clip_slot.track, AutomationMidiTrack):
-        #     from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
-        #     return AutomationMidiClip(clip_slot=clip_slot)
-        # else:
-        return Clip(clip_slot=clip_slot)
+        from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMidiTrack
+        if isinstance(clip_slot.track, AutomationMidiTrack):
+            from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
+            return AutomationMidiClip(clip_slot=clip_slot)
+        else:
+            return Clip(clip_slot=clip_slot)
 
     @property
     def name(self):
@@ -100,3 +104,6 @@ class Clip(ClipActionMixin, AbstractObject):
     def is_recording(self):
         # type: () -> bool
         return self._clip and self._clip.is_recording
+
+    def disconnect(self):
+        super(Clip, self).disconnect()

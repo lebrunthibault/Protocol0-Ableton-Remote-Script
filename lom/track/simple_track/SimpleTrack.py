@@ -115,3 +115,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             index = len(self.song.scenes) - 1
 
         return index
+
+    def disconnect(self):
+        super(SimpleTrack, self).disconnect()
+        [clip_slot.disconnect() for clip_slot in self.clip_slots]

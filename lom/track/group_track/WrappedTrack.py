@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING
 
 from _Framework.Util import forward_property, find_if
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
-from a_protocol_0.utils.decorators import defer
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences

@@ -18,8 +18,8 @@ class AutomationAudioTrack(SimpleTrack):
         self.automated_parameter = None  # type: DeviceParameter
 
     def _added_track_init(self):
-        if self.group_track is None:
-            raise RuntimeError("An automation track should always be grouped")
+        # if self.group_track is None:
+        #     raise RuntimeError("An automation track should always be grouped")
 
         self.automated_parameter = None  # type: DeviceParameter
         self.has_monitor_in = True
@@ -28,8 +28,8 @@ class AutomationAudioTrack(SimpleTrack):
         seq = Sequence()
         seq.add(wait=1)
         seq.add(partial(self.parent.browserManager.load_rack_device, device_name))
-        seq.add(lambda: setattr(self, "automated_device", find_if(lambda d: d.name == device_name, self.devices)))
-        seq.add(lambda: setattr(self, "automated_parameter", find_if(lambda p: p.name == parameter_name, self.automated_device.parameters)))
+        seq.add(lambda: setattr(self, "automated_device", find_if(lambda d: d.name == device_name, self.devices)), name="set self.automated_device")
+        seq.add(lambda: setattr(self, "automated_parameter", find_if(lambda p: p.name == parameter_name, self.automated_device.parameters)), name="set self.automated_parameter")
 
         return seq.done()
 

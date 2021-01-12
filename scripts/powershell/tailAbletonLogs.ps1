@@ -3,7 +3,7 @@ $host.ui.RawUI.WindowTitle = "logs terminal"
 
 $logFile = "$env:userprofile\AppData\Roaming\Ableton\Live $Env:abletonVersion\Preferences\Log.txt"
 $startSize = 70
-$processLogFile = $false
+$processLogFile = $true
 $showDateTime = $true
 
 function Get-LogColor

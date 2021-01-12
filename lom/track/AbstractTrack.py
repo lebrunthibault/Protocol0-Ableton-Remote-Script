@@ -309,3 +309,8 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
     def output_routing_channel(self, output_routing_channel):
         # type: (Live.Track.RoutingChannel) -> None
         self._track.output_routing_channel = output_routing_channel
+
+    def disconnect(self):
+        super(AbstractTrack, self).disconnect()
+        [device.disconnect() for device in self.devices]
+        self.track_name.disconnect()

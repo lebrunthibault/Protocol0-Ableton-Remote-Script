@@ -4,7 +4,7 @@ from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.sequence.SequenceError import SequenceError
 from a_protocol_0.sequence.SequenceState import SequenceState, DebugLevel
-from a_protocol_0.utils.decorators import timeout_limit
+from a_protocol_0.utils.timeout import TimeoutLimit
 from a_protocol_0.utils.utils import _has_callback_queue, is_lambda, get_callable_name
 
 if TYPE_CHECKING:
@@ -27,6 +27,7 @@ class SequenceStep(AbstractControlSurfaceComponent):
         self._complete_on = complete_on
         self._check_timeout = check_timeout
         self._check_count = 0
+        self._callback_timeout = None  # type: callable
         self._res = None
         self._errored = False
         self._by_passed_seq = False
@@ -133,10 +134,8 @@ class SequenceStep(AbstractControlSurfaceComponent):
             return
 
         if _has_callback_queue(self._complete_on):
-            self._complete_on._callbacks.append(
-                timeout_limit(self._terminate, awaited_func=self._complete_on,
-                              timeout_limit=pow(2, self._check_timeout),
-                              on_timeout=self._step_timed_out))
+            self._callback_timeout = TimeoutLimit(func=self._terminate, awaited_listener=self._complete_on, timeout_limit=pow(2, self._check_timeout), on_timeout=self._step_timed_out)
+            self._complete_on.add_callback(self._callback_timeout)
             return
         else:
             check_res = self._execute_callable(self._complete_on)
@@ -172,6 +171,9 @@ class SequenceStep(AbstractControlSurfaceComponent):
             self._check_for_step_completion()
 
     def _step_timed_out(self):
+        if _has_callback_queue(self._complete_on) and self._callback_timeout:
+            self._complete_on._callbacks.remove(self._callback_timeout)
+
         self.parent.log_error("timeout completion error on %s" % self, debug=False)
         self._res = False
         self._terminate()
@@ -183,9 +185,8 @@ class SequenceStep(AbstractControlSurfaceComponent):
 
     @subject_slot("terminated")
     def _terminate(self, early_return_seq=False):
-        self.parent.log_debug("terminate step %s" % self)
         if self._state == SequenceState.TERMINATED:
-            return
+            raise SequenceError("You called terminate twice on %s" % self)
 
         self._state = SequenceState.TERMINATED
 

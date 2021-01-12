@@ -1,7 +1,5 @@
 from typing import TYPE_CHECKING
 
-from a_protocol_0.sequence.SequenceState import SequenceState
-
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from a_protocol_0.sequence.Sequence import Sequence

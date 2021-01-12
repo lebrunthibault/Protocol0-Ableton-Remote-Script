@@ -45,3 +45,8 @@ class Device(AbstractObject):
     def get_parameter(self, device_parameter):
         # type: (Live.DeviceParameter.DeviceParameter) -> DeviceParameter
         return find_if(lambda p: p.name == device_parameter.name, self.parameters)
+
+    def disconnect(self):
+        super(Device, self).disconnect()
+        [parameter.disconnect() for parameter in self.parameters]
+

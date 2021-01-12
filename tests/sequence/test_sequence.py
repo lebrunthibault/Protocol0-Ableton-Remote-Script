@@ -1,3 +1,4 @@
+from __future__ import print_function
 import pytest
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.sequence.SequenceError import SequenceError
@@ -65,7 +66,8 @@ def test_async_callback_timeout():
         def listener(self):
             print("listener call")
             seq = Sequence()
-            # seq.add(wait=1)
+            seq.add(wait=1)
+            seq.add(lambda: print("after wait"))
             seq.done()
 
     obj = Example()
@@ -73,7 +75,7 @@ def test_async_callback_timeout():
     with p0.component_guard():
         seq = Sequence()
         seq.add(lambda: log_ableton("execution"), complete_on=obj.listener, name="timeout step", check_timeout=2)
-        seq.add(lambda: log_ableton("unreachable step"), name="unreachable step")
+        seq.add(lambda: log_ableton("after listener step"), name="after listener step")
         seq.done()
         obj.listener()
 

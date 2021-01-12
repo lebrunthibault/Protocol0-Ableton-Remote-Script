@@ -5,7 +5,6 @@ from contextlib import contextmanager
 from os.path import expanduser
 
 from a_protocol_0.consts import LogLevel
-from a_protocol_0.utils.utils import get_frame_info
 
 home = expanduser("~")
 abletonVersion = os.getenv("abletonVersion")
@@ -21,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 def log_ableton(message, debug=True, direct_call=True, exclusive_log=False):
     # type: (str, bool) -> None
+    message = str(message)
     if any([not isinstance(param, bool) for param in [debug, direct_call, exclusive_log]]):
         log_ableton("log_ableton: parameter mismatch, logging anyway")
         debug = True
@@ -29,6 +29,7 @@ def log_ableton(message, debug=True, direct_call=True, exclusive_log=False):
         message = locals().values()
     if debug:
         try:
+            from a_protocol_0.utils.utils import get_frame_info
             frame_info = get_frame_info(2 if direct_call else 4)
             if frame_info:
                 message = "%s (%s:%s in %s)" % (message, frame_info.filename, frame_info.line, frame_info.method_name)

@@ -119,7 +119,6 @@ class Sequence(AbstractControlSurfaceComponent):
             self._state = SequenceState.PAUSED
 
     def _terminate(self):
-        self.parent.log_debug("terminate seq : %s" % self)
         if self._state == SequenceState.TERMINATED:
             return
 
