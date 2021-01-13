@@ -5,6 +5,7 @@ from typing import Optional, Any
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
+from a_protocol_0.lom.track.simple_track.SimpleGroupTrack import SimpleGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.utils.decorators import subject_slot, has_callback_queue, retry
 
@@ -43,7 +44,7 @@ class SongManager(AbstractControlSurfaceComponent):
         if len(self.song.tracks) and len(self.song._song.tracks) > len(self.song.tracks):
             track_added = True
 
-        [track.disconnect() for track in self.song.tracks]
+        [track.disconnect() for track in self.song.tracks + self.song.abstract_group_tracks]
 
         # generate simple tracks
         self.song.tracks = []
@@ -55,15 +56,24 @@ class SongManager(AbstractControlSurfaceComponent):
         # generate group tracks
         self.song.abstract_group_tracks = list(filter(None,
                                                       [self.parent.trackManager.instantiate_abstract_group_track(track)
-                                                       for track in self.song.tracks]))
+                                                       for track in self.song.tracks if isinstance(track, SimpleGroupTrack)]))
+
         self._simple_track_to_abstract_group_track = {}
         for abstract_group_track in self.song.abstract_group_tracks:  # type: AbstractGroupTrack
             for abstract_group_sub_track in abstract_group_track.all_tracks:
                 self._simple_track_to_abstract_group_track.update({abstract_group_sub_track: abstract_group_track})
 
-        self.song.abstract_tracks = list(set([self.get_current_track(track) for track in self.song.tracks]))
+        abstract_tracks = collections.OrderedDict()
+        for track in self.song.tracks:  # type: SimpleTrack
+            if track in self._simple_track_to_abstract_group_track:
+                track.abstract_group_track = self._simple_track_to_abstract_group_track[track]
+            abstract_tracks[track.abstract_group_track or track] = None
+        self.song.abstract_tracks = abstract_tracks.keys()
+
         self._set_current_track()
+
         self.parent.log_info("SongManager : mapped tracks")
+
         if track_added:
             # noinspection PyUnresolvedReferences
             self.notify_added_track()
@@ -111,8 +121,6 @@ class SongManager(AbstractControlSurfaceComponent):
     def get_current_track(self, track):
         # type: (SimpleTrack) -> AbstractTrack
         if track in self._simple_track_to_abstract_group_track:
-            if not track.is_scrollable or self._simple_track_to_abstract_group_track[track].base_track == track:
-                # click either on a sub_track forwarding to group or the group_track base track yields the group track
-                return self._simple_track_to_abstract_group_track[track]
-
-        return track
+            return self._simple_track_to_abstract_group_track[track]
+        else:
+            return track

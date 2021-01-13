@@ -7,6 +7,7 @@ from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceC
 from a_protocol_0.consts import EXTERNAL_SYNTH_NAMES, AUTOMATION_TRACK_MIDI_NAME, AUTOMATION_TRACK_AUDIO_NAME
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+from a_protocol_0.lom.track.group_track.WrappedTrack import WrappedTrack
 from a_protocol_0.lom.track.simple_track.AutomationAudioTrack import AutomationAudioTrack
 from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMidiTrack
 from a_protocol_0.lom.track.simple_track.SimpleGroupTrack import SimpleGroupTrack
@@ -75,14 +76,13 @@ class TrackManager(AbstractControlSurfaceComponent):
             return SimpleTrack(track=track, index=index)
 
     def instantiate_abstract_group_track(self, track):
-        # type: (SimpleTrack) -> Optional[AbstractGroupTrack]
+        # type: (SimpleGroupTrack) -> Optional[AbstractGroupTrack]
         if any([track.name in name for name in EXTERNAL_SYNTH_NAMES]):
             return ExternalSynthTrack(group_track=track)
-        # if any([isinstance(sub_track, AutomationMidiTrack) for sub_track in track.sub_tracks]) and len(
-        #         track.sub_tracks) == 2:
-        #     wrapped_track = find_last(lambda t: t._track.has_audio_output, track.sub_tracks)
-        #     if wrapped_track is None:
-        #         raise RuntimeError("Tried to instantiate a WrappedTrack on a group with no audio output track")
-        #     return WrappedTrack(group_track=track, wrapped_track=wrapped_track)
+        if any([isinstance(sub_track, AutomationMidiTrack) for sub_track in track.sub_tracks]):
+            main_tracks = [t for t in track.sub_tracks if not isinstance(t, AutomationAudioTrack) and not isinstance(t, AutomationMidiTrack)]
+            if len(main_tracks) != 1:
+                raise RuntimeError("a WrappedTrack should wrap one and only one main track")
+            return WrappedTrack(group_track=track, wrapped_track=main_tracks[0])
 
         return None

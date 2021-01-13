@@ -1,14 +1,10 @@
 import inspect
 import types
 from collections import namedtuple
-from functools import partial as _partial
-from itertools import chain, imap
-from typing import Optional, Any, List, Union, TYPE_CHECKING
 
-import Live
+from typing import Optional, Any, List, TYPE_CHECKING
 
 from a_protocol_0.consts import PROTOCOL0_FOLDER, REMOTE_SCRIPTS_FOLDER
-from a_protocol_0.utils.log import log_ableton
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -87,36 +83,6 @@ def compare_properties(obj1, obj2, properties):
     return True
 
 
-def find_all_devices(track, only_visible=False):
-    # type: (AbstractTrack, bool) -> List[Live.Device.Device]
-    return _find_all_devices(track_or_chain=track._track, only_visible=only_visible)
-
-
-def _find_all_devices(track_or_chain, only_visible=False):
-    # type: (Union[Live.Track.Track, Live.Chain.Chain], bool) -> List[Live.Device.Device]
-    u""" Returns a list with all devices from a track or chain """
-    devices = []
-    for device in filter(None, track_or_chain.devices):  # type: Live.Device.Device
-        if only_visible and device.view.is_collapsed:
-            devices += [device]
-            continue
-        if only_visible and (
-                not device.can_have_drum_pads and device.can_have_chains and device.view.is_showing_chain_devices):
-            devices += chain([device], _find_all_devices(device.view.selected_chain, only_visible=only_visible))
-        elif not device.can_have_drum_pads and isinstance(device, Live.RackDevice.RackDevice):
-            devices += chain([device],
-                             *imap(_partial(_find_all_devices, only_visible=only_visible), filter(None, device.chains)))
-        else:
-            devices += [device]
-    return devices
-
-
-def deduplicate_list(seq):
-    seen = set()
-    seen_add = seen.add
-    return [x for x in seq if not (x in seen or seen_add(x))]
-
-
 def get_frame_info(frame_count=1):
     # type: (int) -> namedtuple
     try:
@@ -191,7 +157,7 @@ def get_callable_name(func, obj=None):
     if not hasattr(decorated_func, "__name__"):
         return class_name or "unknown"
 
-    if class_name and "function" not in class_name:
+    if class_name and all(word not in class_name for word in ["function", "None"]):
         return "%s.%s" % (class_name, decorated_func.__name__)
     else:
         return decorated_func.__name__

@@ -1,8 +1,9 @@
 from abc import abstractproperty
-from itertools import chain
+from functools import partial
+from itertools import chain, imap
 
 import Live
-from typing import Any, Optional, List
+from typing import Any, Optional, List, Union
 from typing import TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot
@@ -14,18 +15,19 @@ from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.device.Device import Device
+from a_protocol_0.lom.device.DeviceChain import DeviceChain
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
+from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.lom.track.AbstractTrackActionMixin import AbstractTrackActionMixin
 from a_protocol_0.lom.track.TrackName import TrackName
 from a_protocol_0.utils.decorators import defer
-from a_protocol_0.utils.utils import find_all_devices
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
+    from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 
 
-# noinspection PyDeprecation
 class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
     ADDED_TRACK_INIT_ENABLED = True
 
@@ -35,20 +37,18 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
         self._view = self._track.view  # type: Live.Track.Track.View
         self.base_track = track  # type: SimpleTrack
         super(AbstractTrack, self).__init__(name=self.base_track._track.name, *a, **k)
-        self.track_name = TrackName(self.base_track)
+        self.track_name = TrackName(self)
         self.is_foldable = self._track.is_foldable
         self.can_be_armed = self._track.can_be_armed
         self.index = track.index
-        self.is_simple_group = self.is_foldable and self not in self.parent.songManager._simple_track_to_abstract_group_track
-        self.group_track = self.parent.songManager._get_simple_track(
-            self._track.group_track) if self._track.group_track else None
+        self.group_track = self.parent.songManager._get_simple_track(self._track.group_track) if self._track.group_track else None
+        self.abstract_group_track = None  # type: Optional[AbstractGroupTrack]
         # here this works because group tracks are at left of inner tracks (but for all_tracks we need a property)
-        self.group_tracks = [
-                                self.group_track] + self.group_track.group_tracks if self.group_track else []  # type: List[SimpleTrack]
+        self.group_tracks = [self.group_track] + self.group_track.group_tracks if self.group_track else []  # type: List[SimpleTrack]
         self.sub_tracks = []  # type: List[SimpleTrack]
 
         self.devices = []  # type: List[Device]
-        self._all_devices = []  # type: List[Device]
+        self.all_devices = []  # type: List[Device]
         self.all_visible_devices = []  # type: List[Device]
         self._devices_listener.subject = self._track
         self._devices_listener()
@@ -59,6 +59,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
         self.base_color = Colors.get(self.name, default=self._track.color_index)
         self.instrument = None  # type: Optional[AbstractInstrument]  #  None here so that we don't instantiate the same instrument twice
         self.is_scrollable = True
+
         self.push2_selected_main_mode = 'device'
         self.push2_selected_matrix_mode = 'session'
         self.push2_selected_instrument_mode = None
@@ -104,29 +105,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
         # type: () -> List[Clip]
         clip_slots = [clip_slot for track in self.all_tracks for clip_slot in track.clip_slots]
         return [clip_slot.clip for clip_slot in clip_slots if clip_slot.has_clip]
-
-    def get_device(self, device):
-        # type: (Live.Device.Device) -> Optional[Device]
-        return find_if(lambda d: d._device == device, self.base_track.all_devices)
-
-    @property
-    def all_devices(self):
-        return self.base_track._all_devices
-
-    @property
-    def selected_device(self):
-        # type: () -> Device
-        return self.get_device(self._track.view.selected_device)
-
-    def delete_device(self, device):
-        # type: (Device) -> None
-        try:
-            self.base_track._track.delete_device(self.base_track.devices.index(device))
-            self.devices.remove(device)
-            self.all_devices.remove(device)
-            self.all_visible_devices.remove(device)
-        except Exception:
-            pass
 
     @property
     def clips(self):
@@ -189,9 +167,47 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
 
     @subject_slot("devices")
     def _devices_listener(self):
-        self.devices = [Device.make_device(device, self.base_track) for device in self._track.devices]
-        self._all_devices = [self.get_device(device) or Device.make_device(device, track) for track in self.all_tracks for device in find_all_devices(track)]
-        self.all_visible_devices = [self.get_device(device) for track in self.all_tracks for device in find_all_devices(track, only_visible=True)]
+        self.devices = [Device.make_device(device, self.base_track, index) for index, device in enumerate(self._track.devices)]
+        self.all_devices = self._find_all_devices(self.base_track)
+        self.all_visible_devices = self._find_all_devices(self.base_track, only_visible=True)
+
+    def get_device(self, device):
+        # type: (Live.Device.Device) -> Optional[Device]
+        return find_if(lambda d: d._device == device, self.base_track.all_devices)
+
+    @property
+    def selected_device(self):
+        # type: () -> Device
+        return self.get_device(self._track.view.selected_device)
+
+    def delete_device(self, device):
+        # type: (Device) -> None
+        try:
+            self.base_track._track.delete_device(self.base_track.devices.index(device))
+            self._devices_listener()  # this should be called by Live
+        except Exception:
+            pass
+
+    def _find_all_devices(self, track_or_chain, only_visible=False):
+        # type: (Union[SimpleTrack, DeviceChain]) -> List[Device]
+        u""" Returns a list with all devices from a track or chain """
+        devices = []
+        for device in filter(None, track_or_chain.devices):  # type: Device
+            if not isinstance(device, RackDevice):
+                devices += [device]
+                continue
+
+            if device.can_have_drum_pads and device.can_have_chains and device._view.is_showing_chain_devices:
+                devices += chain([device], self._find_all_devices(device.selected_chain))
+            elif not device.can_have_drum_pads and isinstance(device, RackDevice):
+                devices += chain([device], *imap(partial(self._find_all_devices, only_visible=only_visible), filter(None, device.chains)))
+        return devices
+
+    def all_devices(self, track_or_chain):
+        devices = self.devices
+        for device in [d for d in devices if isinstance(d, RackDevice)]:
+            devices += self.all_devices(device.chains[0])
+        return devices
 
     @property
     def device_parameters(self):

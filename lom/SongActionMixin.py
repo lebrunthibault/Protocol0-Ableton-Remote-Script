@@ -19,8 +19,9 @@ class SongActionMixin(object):
     def select_track(self, selected_track):
         # type: (Song, AbstractTrack, bool) -> Sequence
         seq = Sequence()
-        seq.add(partial(setattr, self._view, "selected_track", selected_track.base_track._track), wait=1,
+        seq.add(partial(setattr, self._view, "selected_track", selected_track.base_track._track),
                 do_if=lambda: selected_track != self.song.selected_track)
+        seq.add(wait=1)
         return seq.done()
 
     def unfocus_all_tracks(self, except_current=True):

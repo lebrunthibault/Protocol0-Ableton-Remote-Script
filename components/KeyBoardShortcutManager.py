@@ -1,17 +1,20 @@
 import subprocess
+from functools import partial
 from os.path import expanduser
 
 from typing import Any
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import PROTOCOL0_FOLDER
+from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import log
 
 home = expanduser("~")
 
 
 class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
-    def __init__(self):
+    def __init__(self, *a, **k):
+        super(KeyBoardShortcutManager, self).__init__(*a, **k)
         # launch the main ahk script
         subprocess.Popen(["C:\\Program Files\\AutoHotkey\\AutoHotkey.exe",
                           PROTOCOL0_FOLDER + "\\scripts\\ahk\\ableton_shortcuts.ahk"])
@@ -38,9 +41,16 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
         return child.returncode
 
     @log
-    def send_keys(self, keys):
-        # type: (str) -> None
-        self._execute_python("send_keys.py", keys)
+    def send_keys(self, keys, repeat=False):
+        # type: (str, bool) -> None
+        seq = Sequence()
+        seq.add(self.parent.clyphxNavigationManager.focus_main)
+        seq.add(partial(self._execute_python, "send_keys.py", keys))
+        if repeat:
+            # here trying to mitigate shortcuts not received by Live god knows why ..
+            seq.add(wait=1)
+            seq.add(partial(self._execute_python, "send_keys.py", keys))
+        seq.done()
 
     @log
     def send_click(self, x, y):
@@ -51,10 +61,10 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
         self.send_keys("^%p")
 
     def show_plugins(self):
-        self.send_keys("^{F1}")
+        self.send_keys("^{F1}", repeat=True)
 
     def hide_plugins(self):
-        self.send_keys("^{F2}")
+        self.send_keys("^{F2}", repeat=True)
 
     def toggle_device_button(self, x, y, activate=True):
         # type: (int, int) -> None
@@ -72,7 +82,7 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
         self.send_keys("^{F4}")
 
     def up(self):
-        self.send_keys("^{F5}")
+        self.send_keys("^{F5}", repeat=True)
 
     def duplicate(self):
         self.send_keys("^d")

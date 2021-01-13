@@ -1,6 +1,5 @@
-from typing import TYPE_CHECKING, List
-
 import Live
+from typing import TYPE_CHECKING, List
 
 from _Framework.SubjectSlot import subject_slot
 from _Framework.Util import find_if
@@ -13,26 +12,29 @@ if TYPE_CHECKING:
 
 
 class Device(AbstractObject):
-    def __init__(self, device, track, *a, **k):
-        # type: (Live.Device.Device, SimpleTrack) -> None
+    def __init__(self, device, track, index, *a, **k):
+        # type: (Live.Device.Device, SimpleTrack, int) -> None
         super(Device, self).__init__(*a, **k)
         self._device = device
         self.track = track
-        self._view = self._device.view
+        self.index = index
+        self._view = self._device.view  # type: Live.Device.Device.View
         self.parameters = []  # type: (List[DeviceParameter])
         self._parameters_listener.subject = self._device
         self._parameters_listener()
         self.is_simpler = isinstance(device, Live.SimplerDevice.SimplerDevice)
         self.is_plugin = isinstance(device, Live.PluginDevice.PluginDevice)
+        self.can_have_drum_pads = self._device.can_have_drum_pads
+        self.can_have_chains = self._device.can_have_chains
 
     @staticmethod
-    def make_device(device, track):
-        # type: (Live.Device.Device, SimpleTrack) -> Device
+    def make_device(device, track, index):
+        # type: (Live.Device.Device, SimpleTrack, int) -> Device
         from a_protocol_0.lom.device.RackDevice import RackDevice
         if isinstance(device, Live.RackDevice.RackDevice):
-            return RackDevice(device=device, track=track)
+            return RackDevice(device=device, track=track, index=index)
         else:
-            return Device(device=device, track=track)
+            return Device(device=device, track=track, index=index)
 
     @property
     def name(self):

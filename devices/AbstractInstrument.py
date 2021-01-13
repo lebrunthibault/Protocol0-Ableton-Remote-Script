@@ -64,16 +64,15 @@ class AbstractInstrument(AbstractObject):
     def needs_activation(self):
         return not self.activated or (self.NEEDS_EXCLUSIVE_ACTIVATION and self.active_instance != self)
 
-    def check_activated(self, focus_device_track=True):
-        # type: (bool) -> Optional[Sequence]
+    def check_activated(self):
         if not self.can_be_shown:
             return
 
         seq = Sequence()
-        if (focus_device_track or self.needs_activation) and self.song.selected_track != self.device_track:
-            seq.add(partial(self.song.select_track, self.device_track))
+        seq.add(partial(self.song.select_track, self.device.track))
+
         if not self.activated:
-            seq.add(partial(self.parent.deviceManager.check_plugin_window_showable, self.device, self.device_track))
+            seq.add(partial(self.parent.deviceManager.check_plugin_window_showable, self.device))
             seq.add(lambda: setattr(self, "activated", True), name="mark instrument as activated")
 
         if self.NEEDS_EXCLUSIVE_ACTIVATION and self.active_instance != self:
@@ -86,6 +85,7 @@ class AbstractInstrument(AbstractObject):
         force_show = force_show or not self.activated
         seq = Sequence()
         seq.add(self.check_activated)
+        seq.add(wait=1)
         if force_show:
             seq.add(self.parent.keyboardShortcutManager.show_plugins)
         else:
@@ -121,10 +121,14 @@ class AbstractInstrument(AbstractObject):
 
     def action_scroll_presets_or_samples(self, go_next):
         # type: (bool) -> None
+        seq = Sequence()
         if self.device:
-            self.song.select_device(self.device)
-            self.device._view.is_collapsed = False
-        self._scroll_presets_or_sample(go_next)
+            seq.add(partial(self.song.select_track, self.device_track))
+            seq.add(partial(self.song.select_device, self.device))
+            seq.add(lambda: setattr(self.device._view, "is_collapsed", False))
+
+        seq.add(partial(self._scroll_presets_or_sample, go_next))
+        return seq.done()
 
     def _scroll_presets_or_sample(self, go_next):
         # type: (bool) -> None

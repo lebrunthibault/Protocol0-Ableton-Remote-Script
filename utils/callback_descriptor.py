@@ -4,7 +4,7 @@ from functools import partial
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.sequence.SequenceState import SequenceState
 from a_protocol_0.utils.log import log_ableton
-from a_protocol_0.utils.utils import is_partial, get_callable_name, get_inner_func
+from a_protocol_0.utils.utils import is_partial, get_callable_name
 
 
 class CallbackDescriptor(object):

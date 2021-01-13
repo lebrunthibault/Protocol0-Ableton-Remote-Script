@@ -24,7 +24,7 @@ class TrackName(AbstractControlSurfaceComponent):
         self._name_listener()
 
     def __repr__(self):
-        return "TrackName %s" % self.track
+        return "TrackName of %s" % self.track
 
     @subject_slot("name")
     def _name_listener(self):

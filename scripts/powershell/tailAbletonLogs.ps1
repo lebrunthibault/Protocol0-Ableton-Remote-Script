@@ -54,7 +54,7 @@ function Format-LogLine
         [String]$LogEntry)
 
     process {
-        if ( $LogEntry.Contains("Protocol0 script loaded"))
+        if( $LogEntry.Contains("(Protocol0) Initializing"))
         {
             Clear-Host
         }
@@ -85,7 +85,7 @@ function Format-LogLine
     }
 }
 
-$P0Filter = "P0", "RemoteScriptError"
+$P0Filter = "P0", "Protocol0", "RemoteScriptError"
 
 $host.ui.RawUI.WindowTitle = 'logs terminal'
 Get-Process -Id $pid | Set-WindowState -State SHOWMAXIMIZED

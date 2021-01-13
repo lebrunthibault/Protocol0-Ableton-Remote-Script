@@ -6,6 +6,7 @@ from _Framework.Util import find_if
 from a_protocol_0.consts import push2_beat_quantization_steps
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
+from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import defer
 from a_protocol_0.utils.utils import compare_properties
 
@@ -83,17 +84,18 @@ class ClipActionMixin(object):
         # type: (Clip) -> None
         if not self._clip:
             return
+        seq = Sequence()
         if self.is_recording:
             qz = self.track.song.clip_trigger_quantization
             self.track.song.clip_trigger_quantization = 0
             self.track.stop()
 
-            def delete_recording_clip():
-                self.delete()
-                self.track.song.clip_trigger_quantization = qz
+        seq.add(self._clip_slot.delete_clip, complete_on=self.clip_slot._has_clip_listener)
+        if self.is_recording:
+            seq.add(self.delete)
+            seq.add(setattr(self.track.song, "clip_trigger_quantization", qz))
 
-            self.track.parent.defer(delete_recording_clip)
-        self._clip_slot.delete_clip()
+        return seq.done()
 
     def create_automation_envelope(self, parameter):
         # type: (Clip, DeviceParameter) -> Live.Clip.AutomationEnvelope

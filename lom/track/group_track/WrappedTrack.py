@@ -11,9 +11,8 @@ if TYPE_CHECKING:
 class WrappedTrack(AbstractGroupTrack):
     def __init__(self, group_track, wrapped_track, *a, **k):
         # type: (SimpleTrack, SimpleTrack) -> None
-        raise Exception("no wrapped track atm")
         self.wrapped_track = wrapped_track
-        group_track.name = wrapped_track.name
+        self.wrapped_track.track_name.track = self
         super(WrappedTrack, self).__init__(group_track=group_track, *a, **k)
 
     def _added_track_init(self):

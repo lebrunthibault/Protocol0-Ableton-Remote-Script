@@ -39,9 +39,12 @@ class Song(SongActionMixin, AbstractObject):
         # type: () -> List[Any]
         return self._song.scenes
 
-    def next_track(self, increment=1):
-        # type: (int) -> SimpleTrack
-        return self.tracks[(self.selected_track.index + increment) % len(self.tracks)]
+    def next_track(self, increment=1, base_track=None):
+        # type: (int, SimpleTrack) -> SimpleTrack
+        base_track = base_track or self.selected_track
+        if base_track is None:
+            raise RuntimeError("You called next_track before selected_track computation")
+        return self.tracks[(base_track.index + increment) % len(self.tracks)]
 
     @property
     def scrollable_tracks(self):

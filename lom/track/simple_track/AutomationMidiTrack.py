@@ -14,7 +14,7 @@ class AutomationMidiTrack(SimpleTrack):
     def __init__(self, *a, **k):
         # type: (DeviceParameter) -> None
         super(AutomationMidiTrack, self).__init__(*a, **k)
-        self.automated_track = self.song.next_track(-1)  # type: AutomationAudioTrack
+        self.automated_track = self.song.next_track(-1, self)  # type: AutomationAudioTrack
         # self.automated_parameter = self.automated_track.automated_parameter
         self.ramping_steps = 13
         self.ramping_duration = 0.25  # eighth note

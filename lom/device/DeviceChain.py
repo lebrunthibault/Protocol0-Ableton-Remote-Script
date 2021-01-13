@@ -11,12 +11,13 @@ if TYPE_CHECKING:
 
 
 class DeviceChain(AbstractObject):
-    def __init__(self, device, chain, *a, **k):
+    def __init__(self, device, chain, index, *a, **k):
         # type: (Device, Live.Chain.Chain) -> None
         super(DeviceChain, self).__init__(*a, **k)
         self.device = device
-        self.track = self.device.track
         self._chain = chain
+        self.index = index
+        self.track = self.device.track
         self.devices = []  # type: List[Device]
         self._devices_listener.subject = self._chain
         self._devices_listener()
@@ -31,7 +32,7 @@ class DeviceChain(AbstractObject):
     @subject_slot("devices")
     def _devices_listener(self):
         from a_protocol_0.lom.device.Device import Device
-        self.devices = [Device.make_device(device, self.track) for device in self._chain.devices]
+        self.devices = [Device.make_device(device, self.track, index) for index, device in enumerate(self._chain.devices)]
 
     def disconnect(self):
         super(DeviceChain, self).disconnect()

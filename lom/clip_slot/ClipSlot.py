@@ -1,9 +1,12 @@
+from functools import partial
+
 import Live
 from typing import Any, TYPE_CHECKING
 
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.clip.Clip import Clip
-from a_protocol_0.utils.decorators import has_callback_queue, subject_slot
+from a_protocol_0.sequence.Sequence import Sequence
+from a_protocol_0.utils.decorators import subject_slot
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -53,7 +56,6 @@ class ClipSlot(AbstractObject):
     @subject_slot("has_clip")
     def _has_clip_listener(self):
         self._map_clip()
-        # self.parent.defer(lambda: setattr(self.clip, "name", "toto"))
         if self.song.highlighted_clip_slot == self and self.has_clip:
             self.parent._wait(2, self.parent.push2Manager.update_clip_grid_quantization)
 
@@ -75,7 +77,9 @@ class ClipSlot(AbstractObject):
         self._clip_slot.duplicate_clip_to(clip_slot._clip_slot)
 
     def insert_dummy_clip(self):
-        self.song.tracks[0].clip_slots[0].duplicate_clip_to(self)
+        seq = Sequence()
+        seq.add(partial(self.song.tracks[0].clip_slots[0].duplicate_clip_to, self), complete_on=self._has_clip_listener)
+        return seq.done()
 
     def disconnect(self):
         super(ClipSlot, self).disconnect()

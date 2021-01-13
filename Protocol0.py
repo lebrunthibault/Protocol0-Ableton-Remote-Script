@@ -117,8 +117,7 @@ class Protocol0(ControlSurface):
         if self._is_dev_booted:
             return
 
-        self.trackAutomationManager.create_automation_group(self.protocol0_song.tracks[1].devices[0].parameters[1])
-
+        # self.trackAutomationManager.create_automation_group(self.protocol0_song.tracks[1].devices[1].parameters[1])
         return
         self.defer(partial(self.protocol0_song.select_device, self.protocol0_song.tracks[19].devices[-1]))
         self._wait(2, partial(self.trackAutomationManager.action_set_up_automation_envelope,

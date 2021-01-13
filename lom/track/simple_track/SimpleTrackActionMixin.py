@@ -26,7 +26,7 @@ class SimpleTrackActionMixin(object):
         selected_track = self.song.selected_track
         if self.instrument and self.instrument.NEEDS_EXCLUSIVE_ACTIVATION:
             seq = Sequence()
-            seq.add(partial(self.instrument.check_activated, focus_device_track=False))
+            seq.add(self.instrument.check_activated)
             seq.add(partial(self.song.select_track, selected_track))
             seq.done()
 

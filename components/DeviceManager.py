@@ -1,5 +1,5 @@
 from functools import partial
-from typing import TYPE_CHECKING, Optional, List, Tuple
+from typing import TYPE_CHECKING, Optional, Tuple
 
 import Live
 
@@ -116,31 +116,38 @@ class DeviceManager(AbstractControlSurfaceComponent):
 
         return seq.done()
 
-    def check_plugin_window_showable(self, device, track):
-        # type: (Device, SimpleTrack) -> Optional[Sequence]
+    def check_plugin_window_showable(self, device):
+        # type: (Device) -> Optional[Sequence]
         seq = Sequence()
-        seq.add(partial(self._make_device_showable, device, track),
+        seq.add(partial(self._make_device_showable, device),
                 do_if_not=partial(self.is_plugin_window_visible, device, try_show=True))
         return seq.done()
 
-    def _make_device_showable(self, device, track):
-        # type: (Device, SimpleTrack) -> Sequence
+    def _make_device_showable(self, device):
+        # type: (Device) -> Sequence
         """ handles only one level of grouping in racks. Should be enough for now """
         seq = Sequence()
-        parent_rack = self._find_parent_rack(device, track.devices)
+        parent_rack = self._find_parent_rack(device)
+
+        self.parent.log_debug("--------------")
+        self.parent.log_debug(self.song.selected_track)
+        self.parent.log_debug(device.track)
+        self.parent.log_debug(device)
+        self.parent.log_debug(device.track.devices)
+        self.parent.log_debug(parent_rack)
 
         if not parent_rack:
-            [setattr(d._view, "is_collapsed", True) for d in track.devices]
-            (x_device, y_device) = self._get_device_show_button_click_coordinates(track, device)
+            [setattr(d._view, "is_collapsed", True) for d in device.track.devices]
+            (x_device, y_device) = self._get_device_show_button_click_coordinates(device)
             seq.add(lambda: self.parent.keyboardShortcutManager.send_click(x=x_device, y=y_device), wait=1,
                     name="click on device show button")
             seq.add(lambda: setattr(device._view, "is_collapsed", False), wait=1, name="uncollapse all devices")
         else:
-            [setattr(d._view, "is_collapsed", True) for d in track.devices if d != parent_rack]
+            [setattr(d._view, "is_collapsed", True) for d in device.track.devices if d != parent_rack]
             [setattr(d._view, "is_collapsed", True) for d in parent_rack.chains[0].devices]
 
-            (x_rack, y_rack) = self._get_rack_show_macros_button_click_coordinates(track, parent_rack)
-            (x_device, y_device) = self._get_device_show_button_click_coordinates(track, device, parent_rack)
+            (x_rack, y_rack) = self._get_rack_show_macros_button_click_coordinates(parent_rack)
+            (x_device, y_device) = self._get_device_show_button_click_coordinates(device, parent_rack)
 
             seq.add(
                 lambda: self.parent.keyboardShortcutManager.toggle_device_button(x=x_rack, y=y_rack, activate=False),
@@ -155,37 +162,38 @@ class DeviceManager(AbstractControlSurfaceComponent):
 
         return seq.done()
 
-    def _get_device_show_button_click_coordinates(self, track, device, rack_device=None):
-        # type: (SimpleTrack, Device, RackDevice) -> Tuple[int]
+    def _get_device_show_button_click_coordinates(self, device, rack_device=None):
+        # type: (Device, RackDevice) -> Tuple[int]
         """ one grouping level only : expects all devices to be folded and macro controls hidden """
         if not rack_device:
-            device_position = track.devices.index(device) + 1
+            device_position = device.track.devices.index(device) + 1
             x = self._get_device_click_x_position(device_position)
             y = self.SHOW_HIDE_PLUGIN_BUTTON_PIXEL_HEIGHT
         else:
-            device_position = list(rack_device.chains[0].devices).index(device._device) + 1
-            (x_rack, _) = self._get_rack_show_macros_button_click_coordinates(track, rack_device)
+            device_position = list(rack_device.chains[0].devices).index(device) + 1
+            (x_rack, _) = self._get_rack_show_macros_button_click_coordinates(rack_device)
             x = x_rack + device_position * self.COLLAPSED_RACK_DEVICE_PIXEL_WIDTH
             y = self.SHOW_HIDE_PLUGIN_BUTTON_PIXEL_HEIGHT
 
         return (x, y)
 
-    def _get_rack_show_macros_button_click_coordinates(self, track, rack_device):
-        # type: (SimpleTrack, Device) -> Tuple[int]
+    def _get_rack_show_macros_button_click_coordinates(self, rack_device):
+        # type: (Device) -> Tuple[int]
         """ top racks only : expects all devices to be folded """
-        parent_rack_position = track.devices.index(rack_device) + 1
+        parent_rack_position = rack_device.track.devices.index(rack_device) + 1
         x = self._get_device_click_x_position(parent_rack_position)
         y = self.SHOW_HIDE_MACRO_BUTTON_PIXEL_HEIGHT
 
         return (x, y)
 
-    def _find_parent_rack(self, device, devices):
-        # type: (Device, List[Device]) -> Optional[RackDevice]
-        if device in devices:
+    def _find_parent_rack(self, device):
+        # type: (Device) -> Optional[RackDevice]
+        if device in device.track.devices:
             return None
 
-        for rack_device in devices:
-            if isinstance(rack_device, RackDevice) and device._device in rack_device.chains[0].devices:
+        for rack_device in [d for d in device.track.devices if isinstance(d, RackDevice)]:
+            self.parent.log_debug(rack_device.chains[0].devices)
+            if device in rack_device.chains[0].devices:
                 return rack_device
 
-        return None
+        raise RuntimeError("The device is too be too nested to be detected")
