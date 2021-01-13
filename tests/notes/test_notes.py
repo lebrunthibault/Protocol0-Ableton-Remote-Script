@@ -1,12 +1,10 @@
-from a_protocol_0.lom.Song import Song
 from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
-from a_protocol_0.tests.fixtures import AbletonSong, AbletonSongView
 from a_protocol_0.tests.fixtures.clip import AbletonClip
 from a_protocol_0.tests.fixtures.clip_slot import AbletonClipSlot
 from a_protocol_0.lom.Note import Note
-from a_protocol_0.tests.fixtures.simpleTrack import make_midi_track, AbletonTrack, TrackType
+from a_protocol_0.tests.fixtures.simpleTrack import AbletonTrack, TrackType
 from a_protocol_0.tests.test_all import p0
 
 

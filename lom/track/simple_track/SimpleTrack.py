@@ -11,6 +11,8 @@ from a_protocol_0.utils.decorators import defer
 
 
 class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
+    __subject_events__ = ('clip_slots', )
+
     def __init__(self, track, index, *a, **k):
         # type: (Live.Track.Track, int) -> None
         self._track = track
@@ -33,8 +35,10 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @subject_slot("clip_slots")
     def _clip_slots_listener(self):
         # type: (SimpleTrack) -> None
-        self.clip_slots = [ClipSlot.make_clip_slot(clip_slot=clip_slot, index=index, track=self) for (index, clip_slot) in
+        self.clip_slots = [ClipSlot.make(clip_slot=clip_slot, index=index, track=self) for (index, clip_slot) in
                            enumerate(list(self._track.clip_slots))]
+        # noinspection PyUnresolvedReferences
+        self.notify_clip_slots()
 
     @subject_slot("playing_slot_index")
     @defer

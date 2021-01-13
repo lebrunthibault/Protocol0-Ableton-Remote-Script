@@ -6,6 +6,7 @@ from itertools import chain
 from typing import List, TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot
+from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.utils.decorators import debounce
@@ -15,6 +16,8 @@ from a_protocol_0.utils.log import set_object_attr
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMidiTrack
+    from a_protocol_0.lom.clip_slot.AutomationMidiClipSlot import AutomationMidiClipSlot
+    from a_protocol_0.lom.clip.AutomationAudioClip import AutomationAudioClip
 
 
 class AutomationMidiClip(Clip):
@@ -24,6 +27,15 @@ class AutomationMidiClip(Clip):
         self.ramping_duration = 0.25  # eighth note
         self._notes_listener.subject = self._clip
         self.track = self.track  # type: AutomationMidiTrack
+        self.clip_slot = self.clip_slot  # type: AutomationMidiClipSlot
+        self.automated_audio_clip = None  # type: AutomationAudioClip
+
+    def _connect(self, clip):
+        # type: (AutomationAudioClip) -> None
+        if not clip:
+            raise Protocol0Error("Inconsistent clip state for %s (%s)" % (self, self.track))
+        self.automated_audio_clip = clip
+        clip._connect(self)
 
     @subject_slot("notes")
     def _notes_listener(self):
@@ -45,7 +57,7 @@ class AutomationMidiClip(Clip):
 
         if len(notes) > len(self._prev_notes) and len(self._prev_notes):
             if len(notes) - len(self._prev_notes) != 1:
-                raise Exception("Multiple added notes are not handled")
+                raise Protocol0Error("Multiple added notes are not handled")
             self._added_note = next(iter(list(set(notes) - set(self._prev_notes))), None)
             notes = list(set(notes) - set([self._added_note]))
             notes.sort(key=lambda x: x.start)
@@ -73,7 +85,7 @@ class AutomationMidiClip(Clip):
             return
 
         if notes[0].start != self.loop_start:
-            raise Exception("the first note doesn't start on clip loop start")
+            raise Protocol0Error("the first note doesn't start on clip loop start")
 
         i = 0
         while i < len(notes):
@@ -163,6 +175,3 @@ class AutomationMidiClip(Clip):
             ramp_note.duration = base_duration / ramping_steps
             ramp_note.velocity = round(velocity_start + (next_note.velocity - velocity_start) * coeff)
             yield ramp_note
-
-    def disconnect(self):
-        self._notes_listener.disconnect()

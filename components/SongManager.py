@@ -3,6 +3,7 @@ from plistlib import Dict
 from typing import Optional, Any
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleGroupTrack import SimpleGroupTrack
@@ -102,14 +103,14 @@ class SongManager(AbstractControlSurfaceComponent):
         if not track:
             return None
         if isinstance(track, AbstractTrack):
-            raise Exception("Expected Live track, got AbstractTrack instead")
+            raise Protocol0Error("Expected Live track, got AbstractTrack instead")
 
         if track == self.song._song.master_track or track in self.song._song.return_tracks:
             return default
         if track not in self._live_track_to_simple_track.keys():
             if default:
                 return default
-            raise Exception("_get_simple_track mismatch on %s" % track.name)
+            raise Protocol0Error("_get_simple_track mismatch on %s" % track.name)
 
         return self._live_track_to_simple_track[track]
 

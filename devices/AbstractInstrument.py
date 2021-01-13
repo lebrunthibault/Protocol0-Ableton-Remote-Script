@@ -91,7 +91,7 @@ class AbstractInstrument(AbstractObject):
         else:
             seq.add(self.parent.keyboardShortcutManager.show_hide_plugins)
 
-        seq.done()
+        return seq.done()
 
     def _get_presets_path(self):
         return self.PRESETS_PATH

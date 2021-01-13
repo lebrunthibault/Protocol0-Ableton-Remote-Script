@@ -5,6 +5,7 @@ from contextlib import contextmanager
 from os.path import expanduser
 
 from a_protocol_0.consts import LogLevel
+from a_protocol_0.errors.Protocol0Error import Protocol0Error
 
 home = expanduser("~")
 abletonVersion = os.getenv("abletonVersion")
@@ -46,7 +47,7 @@ def log_ableton(message, debug=True, direct_call=True, exclusive_log=False):
 @contextmanager
 def set_object_attr(obj, attr, value):
     if not hasattr(obj, attr):
-        raise RuntimeError("object %s has not specified attr : %s" % (obj, attr))
+        raise Protocol0Error("object %s has not specified attr : %s" % (obj, attr))
     previous_value = getattr(obj, attr)
     setattr(obj, attr, value)
     yield

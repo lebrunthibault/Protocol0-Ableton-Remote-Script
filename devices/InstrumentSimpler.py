@@ -6,6 +6,7 @@ from typing import Optional
 from _Framework.Util import find_if
 from a_protocol_0.consts import SAMPLE_PATH
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
+from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.utils.decorators import debounce
 from a_protocol_0.utils.utils import scroll_values
 
@@ -28,7 +29,7 @@ class InstrumentSimpler(AbstractInstrument):
     def _get_presets_path(self):
         # type: () -> str
         if not self.selected_category:
-            raise Exception("the track name does not correspond with a sample directory")
+            raise Protocol0Error("the track name does not correspond with a sample directory")
 
         return join(SAMPLE_PATH, self.selected_category)
 

@@ -11,6 +11,7 @@ from _Framework.Util import find_if
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import TRACK_CATEGORIES, TRACK_CATEGORY_OTHER
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
+from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.lom.clip.Clip import Clip
@@ -20,6 +21,7 @@ from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.lom.track.AbstractTrackActionMixin import AbstractTrackActionMixin
 from a_protocol_0.lom.track.TrackName import TrackName
+from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import defer
 
 if TYPE_CHECKING:
@@ -66,14 +68,13 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
 
     def _added_track_init(self):
         """ this should be be called once, when the Live track is created """
-        self.song.current_track.action_arm()
-        [clip.delete() for clip in self.song.current_track.all_clips]
+        seq = Sequence()
+        seq.add(self.song.current_track.action_arm)
+        [seq.add(clip.delete) for clip in self.song.current_track.all_clips]
         [setattr(track.track_name, "clip_slot_index", 0) for track in self.song.current_track.all_tracks]
-        arp = find_if(lambda d: d.name.lower() == "arpeggiator rack", self.song.current_track.all_devices)
-        if arp:
-            chain_selector_param = find_if(lambda d: d.name.lower() == "chain selector", arp.parameters)
-            if chain_selector_param and chain_selector_param.is_enabled:
-                chain_selector_param.value = 0
+
+        seq.add(partial(self.set_device_parameter_value, "arpeggiator rack", "chain selector", 0))
+        return seq.done()
 
     @property
     def name(self):
@@ -167,7 +168,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
 
     @subject_slot("devices")
     def _devices_listener(self):
-        self.devices = [Device.make_device(device, self.base_track, index) for index, device in enumerate(self._track.devices)]
+        self.devices = [Device.make(device, self.base_track, index) for index, device in enumerate(self._track.devices)]
         self.all_devices = self._find_all_devices(self.base_track)
         self.all_visible_devices = self._find_all_devices(self.base_track, only_visible=True)
 
@@ -214,15 +215,24 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
         # type: () -> List[DeviceParameter]
         return chain(*[device.parameters for device in self.all_devices])
 
-    @property
-    def selected_parameter(self):
-        # type: () -> DeviceParameter
-        param = find_if(lambda p: p._device_parameter == self.song._view.selected_parameter, self.device_parameters)
+    def set_device_parameter_value(self, device_name, parameter_name, value, raise_if_not_exists=False):
+        # type: (str, str, Any) -> None
+        device = find_if(lambda d: d.name.lower() == device_name, self.song.current_track.all_devices)
+
+        if not device:
+            if not raise_if_not_exists:
+                return
+            raise Protocol0Error("Couldn't find device %s in track devices" % device_name)
+
+        param = find_if(lambda d: d.name.lower() == parameter_name, device.parameters)
+
         if not param:
-            raise Exception("There is no selected parameter or it belongs to a different track than the one selected")
+            if not raise_if_not_exists:
+                return
+            raise Protocol0Error("Couldn't find parameter %s in device %s" % (parameter_name, device_name))
 
-        return param
-
+        if param.is_enabled:
+            param.value = value
 
     @abstractproperty
     def is_playing(self):
@@ -325,6 +335,19 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
     def output_routing_channel(self, output_routing_channel):
         # type: (Live.Track.RoutingChannel) -> None
         self._track.output_routing_channel = output_routing_channel
+
+    def attach_output_routing_to(self, track):
+        # type: (SimpleTrack) -> None
+        output_routing_type = find_if(lambda r: r.attached_object == track._track,
+                                           self.available_output_routing_types)
+        if not output_routing_type:
+            output_routing_type = find_if(lambda r: r.display_name == track.name,
+                                          self.available_output_routing_types)
+
+        if not output_routing_type:
+            raise Protocol0Error("Couldn't find the output routing type of the given track")
+
+        self.output_routing_type = output_routing_type
 
     def disconnect(self):
         super(AbstractTrack, self).disconnect()

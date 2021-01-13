@@ -5,6 +5,7 @@ from typing import Optional
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import EXTERNAL_SYNTH_NAMES, AUTOMATION_TRACK_MIDI_NAME, AUTOMATION_TRACK_AUDIO_NAME
+from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from a_protocol_0.lom.track.group_track.WrappedTrack import WrappedTrack
@@ -25,7 +26,8 @@ class TrackManager(AbstractControlSurfaceComponent):
 
     @subject_slot("added_track")
     def _added_track_listener(self):
-        return Sequence().add(wait=1).add(self.song.current_track._added_track_init).done()
+        seq = Sequence().add(wait=1).add(self.song.current_track._added_track_init)
+        return seq.done()
 
     def group_track(self):
         # type: () -> Sequence
@@ -47,14 +49,14 @@ class TrackManager(AbstractControlSurfaceComponent):
 
         def set_name():
             seq = Sequence()
-            self.song.selected_track.track_name.set(base_name=name)
-            self.parent.songManager._tracks_listener()  # rebuild tracks
+            seq.add(partial(self.song.selected_track.track_name.set, base_name=name))
+            seq.add(self.parent.songManager._tracks_listener)  # rebuild tracks
             # the underlying track object should have changed
             track = self.song.tracks[self.song.selected_track.index]
             seq.add(wait=1)
             seq.add(track._added_track_init)  # manual call is needed, as _added_track_listener is not going to be called
-            if track.group_track:
-                seq.add(track.group_track._added_track_init)  # the group track could change type as well
+            if track.abstract_group_track:
+                seq.add(track.abstract_group_track._added_track_init)  # the group track could change type as well
 
             return seq.done()
 
@@ -79,10 +81,8 @@ class TrackManager(AbstractControlSurfaceComponent):
         # type: (SimpleGroupTrack) -> Optional[AbstractGroupTrack]
         if any([track.name in name for name in EXTERNAL_SYNTH_NAMES]):
             return ExternalSynthTrack(group_track=track)
-        if any([isinstance(sub_track, AutomationMidiTrack) for sub_track in track.sub_tracks]):
-            main_tracks = [t for t in track.sub_tracks if not isinstance(t, AutomationAudioTrack) and not isinstance(t, AutomationMidiTrack)]
-            if len(main_tracks) != 1:
-                raise RuntimeError("a WrappedTrack should wrap one and only one main track")
-            return WrappedTrack(group_track=track, wrapped_track=main_tracks[0])
+        wrapped_track = WrappedTrack.make(group_track=track)
+        if wrapped_track:
+            return wrapped_track
 
         return None

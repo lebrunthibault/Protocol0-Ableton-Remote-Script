@@ -28,7 +28,7 @@ class SimpleTrackActionMixin(object):
             seq = Sequence()
             seq.add(self.instrument.check_activated)
             seq.add(partial(self.song.select_track, selected_track))
-            seq.done()
+            return seq.done()
 
     def action_switch_monitoring(self):
         # type: (SimpleTrack) -> None

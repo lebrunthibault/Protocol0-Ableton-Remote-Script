@@ -200,7 +200,7 @@ class ActionManager(AbstractControlSurfaceComponent):
 
     @button_action()
     def action_set_up_lfo_tool_automation(self):
-        self.parent.trackAutomationManager.create_automation_group(self.song.selected_track.selected_parameter)
+        self.parent.trackAutomationManager.create_automation_group(self.song.selected_parameter)
 
     @button_action()
     def action_set_up_automation_envelope(self):

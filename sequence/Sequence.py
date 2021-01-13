@@ -3,7 +3,7 @@ from collections import deque, Iterable
 from typing import List, Any
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.sequence.SequenceError import SequenceError
+from a_protocol_0.errors.SequenceError import SequenceError
 from a_protocol_0.sequence.SequenceState import SequenceState, DebugLevel
 from a_protocol_0.sequence.SequenceStep import SequenceStep
 from a_protocol_0.utils.utils import get_frame_info, nop

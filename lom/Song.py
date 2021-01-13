@@ -2,7 +2,9 @@ import Live
 from typing import Any, List, Optional
 
 from _Framework.Util import find_if
+from a_Push2.model import DeviceParameter
 from a_protocol_0.consts import TRACK_CATEGORY_ALL
+from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.SongActionMixin import SongActionMixin
@@ -43,7 +45,7 @@ class Song(SongActionMixin, AbstractObject):
         # type: (int, SimpleTrack) -> SimpleTrack
         base_track = base_track or self.selected_track
         if base_track is None:
-            raise RuntimeError("You called next_track before selected_track computation")
+            raise Protocol0Error("You called next_track before selected_track computation")
         return self.tracks[(base_track.index + increment) % len(self.tracks)]
 
     @property
@@ -83,6 +85,16 @@ class Song(SongActionMixin, AbstractObject):
     def highlighted_clip_slot(self, clip_slot):
         # type: (ClipSlot) -> None
         self.song._view.highlighted_clip_slot = clip_slot._clip_slot
+
+    @property
+    def selected_parameter(self):
+        # type: () -> DeviceParameter
+        param = find_if(lambda p: p._device_parameter == self.song._view.selected_parameter, [param for track in self.tracks for param in track.device_parameters])
+
+        if not param:
+            raise Protocol0Error("There is no currently selected parameter")
+
+        return param
 
     @property
     def is_playing(self):

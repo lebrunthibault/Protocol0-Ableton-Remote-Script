@@ -1,7 +1,18 @@
-from typing import TYPE_CHECKING
+import itertools
+from functools import partial
 
-from _Framework.Util import forward_property, find_if
+from typing import TYPE_CHECKING, List
+
+from _Framework.Util import forward_property
+from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
+from a_protocol_0.lom.track.group_track.AutomationTracksCouple import AutomationTracksCouple
+from a_protocol_0.lom.track.simple_track.AutomationAudioTrack import AutomationAudioTrack
+from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMidiTrack
+from a_protocol_0.lom.track.simple_track.SimpleGroupTrack import SimpleGroupTrack
+from a_protocol_0.sequence.Sequence import Sequence
+from a_protocol_0.utils.log import log_ableton
+from a_protocol_0.utils.utils import find_last
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -9,18 +20,47 @@ if TYPE_CHECKING:
 
 
 class WrappedTrack(AbstractGroupTrack):
-    def __init__(self, group_track, wrapped_track, *a, **k):
-        # type: (SimpleTrack, SimpleTrack) -> None
+    def __init__(self, group_track, automation_tracks_couples, wrapped_track, *a, **k):
+        # type: (SimpleTrack, List[AutomationTracksCouple], SimpleTrack) -> None
         self.wrapped_track = wrapped_track
         self.wrapped_track.track_name.track = self
         super(WrappedTrack, self).__init__(group_track=group_track, *a, **k)
+        self.automation_tracks_couples = automation_tracks_couples
+
+    @staticmethod
+    def make(group_track):
+        # type: (SimpleGroupTrack) -> None
+        log_ableton(group_track)
+        log_ableton(group_track.sub_tracks)
+        automation_audio_tracks = [track for track in group_track.sub_tracks if isinstance(track, AutomationAudioTrack)]
+        automation_midi_tracks = [track for track in group_track.sub_tracks if isinstance(track, AutomationMidiTrack)]
+        log_ableton(automation_audio_tracks)
+        log_ableton(automation_midi_tracks)
+        if len(automation_audio_tracks) == 0 and len(automation_midi_tracks) == 0:
+            return None
+        main_tracks = [t for t in group_track.sub_tracks if t not in automation_audio_tracks + automation_midi_tracks]
+        log_ableton(main_tracks)
+        if len(main_tracks) != 1:
+            raise Protocol0Error("a WrappedTrack should wrap one and only one main track")
+        main_track = main_tracks[0]
+        if main_track != group_track.sub_tracks[-1]:
+            raise Protocol0Error("The main track of a Wrapped track should always be the last of the group")
+
+        if len(automation_audio_tracks) != len(automation_midi_tracks):
+            return None  # inconsistent state, happens on creation or when tracks are deleted
+
+        # at this point we should have a consistent state with audio - midi * n and main track at this end
+        # any other state is a bug and raises in AutomationTracksCouple __init__
+        automation_tracks_couples = [AutomationTracksCouple(audio_track, midi_track) for audio_track, midi_track in itertools.izip(automation_audio_tracks, automation_midi_tracks)]
+
+        return WrappedTrack(group_track=track, automation_tracks_couples=automation_tracks_couples, wrapped_track=main_tracks[0])
 
     def _added_track_init(self):
-        self.base_track.output_routing_type = find_if(
-            lambda r: r.attached_object == self.wrapped_track.output_routing_type.attached_object,
-            self.base_track.available_output_routing_types)
-        self.wrapped_track.output_routing_type = find_if(lambda r: r.display_name == self.base_track._track.name,
-                                                         self.wrapped_track.available_output_routing_types)
+        seq = Sequence()
+        self.parent.log_debug("_added_track_init WrappedTrack")
+        seq.add(partial(self.wrapped_track.attach_output_routing_to, find_last(lambda t: isinstance(t, AutomationAudioTrack), self.sub_tracks)))
+
+        return seq.done()
 
     @property
     def name(self):

@@ -28,7 +28,7 @@ class Device(AbstractObject):
         self.can_have_chains = self._device.can_have_chains
 
     @staticmethod
-    def make_device(device, track, index):
+    def make(device, track, index):
         # type: (Live.Device.Device, SimpleTrack, int) -> Device
         from a_protocol_0.lom.device.RackDevice import RackDevice
         if isinstance(device, Live.RackDevice.RackDevice):

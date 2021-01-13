@@ -28,7 +28,9 @@ class TrackAutomationManager(AbstractControlSurfaceComponent):
                         name="%s:%s:%s" % (AUTOMATION_TRACK_AUDIO_NAME, parameter.device.name, parameter.name)))
         seq.add(partial(self.parent.trackManager.create_midi_track, self.song.selected_track.index + 2,
                         name="%s:%s:%s" % (AUTOMATION_TRACK_MIDI_NAME, parameter.device.name, parameter.name)))
-        seq.done()
+        seq.add(lambda: self.parent.log_debug(self.song.abstract_tracks))
+
+        return seq.done()
 
     def action_set_up_automation_envelope(self, base_track):
         # type: (SimpleTrack) -> None

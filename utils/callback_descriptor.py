@@ -1,6 +1,7 @@
 from collections import deque
 from functools import partial
 
+from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.sequence.SequenceState import SequenceState
 from a_protocol_0.utils.log import log_ableton
@@ -14,11 +15,13 @@ class CallbackDescriptor(object):
         Note: there is 2 cases :
             - @has_callback_queue is dropped on a stock, undecorated method. This is the easy part.
             - @has_callback_queue is dropped on top of _Framework subject_slot :
-                - We need to fetch the CallableSlotMixin from the decorated method to add the _callbacks queue (when the method is first accessed via __get__)
+                - We need to fetch the CallableSlotMixin from the decorated method (when the method is first accessed via __get__)
+                    Then we replace the listener with our own CallableWithCallbacks and we patch the subject slot mixin to look like CallableWithCallbacks
+                    The external interface is gonna be the same in both cases now (we use only add_callback, remove_callback and __call)
                 - At method execution time (by _Framework code), we need to fetch the real undecorated method to get the result.
-                    Didn't really understand why _Framework code is not forwarding the result ..
+                    Didn't really understand why _Framework code is not forwarding the result when calling the subject slot mixin ..
                 - Then we get the best of both worlds, _Framework is doing its listener magic while we get full control on the
-                    function execution, response and _callbacks execution. Makes the listener somehow complicated though ^^
+                    function execution, response and _callbacks execution. Makes the decorator somehow complicated though ^^
     """
 
     def __init__(self, func, *a, **k):
@@ -42,6 +45,10 @@ class CallbackDescriptor(object):
                             None)):  # here we cannot do isinstance() as the Decorator class is in a closure
                 self._wrapped = self._func.__get__(obj)  # calling inner descriptor. self._decorated is a SubjectSlot
                 self._wrapped.listener = CallableWithCallbacks(self._wrapped, obj)
+
+                # patching the wrapped function to have a coherent interface
+                self._wrapped.add_callback = self._wrapped.listener.add_callback
+                self._wrapped.remove_callback = self._wrapped.listener.remove_callback
             else:
                 self._wrapped = CallableWithCallbacks(partial(self._func, obj), obj)
 
@@ -54,11 +61,11 @@ class CallableWithCallbacks(object):
         self._real_name = None
         self._decorated = decorated
         self._obj = obj
-        self._setup_callback_queue()
+        self._callbacks = deque()
         self._debug = debug
 
     def __repr__(self):
-        return '%s (%d)' % (get_callable_name(self._decorated, self._obj), id(self))
+        return '%s (cwc %d)' % (get_callable_name(self._decorated, self._obj), id(self))
 
     def __call__(self, *a, **k):
         if is_partial(self._decorated):  # has_callback_queue on a stock method (only decorator set)
@@ -74,7 +81,7 @@ class CallableWithCallbacks(object):
 
         if isinstance(res, Sequence):
             if res._errored:
-                self._decorated._callbacks = deque()
+                self._callbacks = deque()
                 return
             if res._state != SequenceState.TERMINATED:
                 res.terminated_callback = self._execute_callbacks
@@ -82,23 +89,24 @@ class CallableWithCallbacks(object):
 
         self._execute_callbacks()
 
-    def _setup_callback_queue(self):
-        self._decorated._callbacks = deque()  # we need to  set it on
+    def add_callback(self, callback):
+        # type: (callable) -> None
+        # we don't allow the same exact callback to be added. Mitigates stuff like double clicks
+        if callback in self._callbacks:
+            return
+        else:
+            self._callbacks.append(callback)
+            if self._debug:
+                log_ableton("adding_callback to %s : %s" % (self, self._callbacks))
 
-        def add_callback(callback):
-            # we don't allow the same exact callback to be added. Mitigates stuff like double clicks
-            if callback in self._decorated._callbacks:
-                return
-            else:
-                self._decorated._callbacks.append(callback)
-                if self._debug:
-                    log_ableton("adding_callback to %s : %s" % (self, self._decorated._callbacks))
-
-        self._decorated.add_callback = add_callback
-        self._decorated._has_callback_queue = True
+    def remove_callback(self, callback):
+        # type: (callable) -> None
+        if callback not in self._callbacks:
+            raise Protocol0Error("Tried to remove a nonexistent callback from %s" % self)
+        self._callbacks.remove(callback)
 
     def _execute_callbacks(self):
         if self._debug:
-            log_ableton("_execute_callbacks of %s : %s" % (self, self._decorated._callbacks))
-        while len(self._decorated._callbacks):
-            self._decorated._callbacks.popleft()()
+            log_ableton("_execute_callbacks of %s : %s" % (self, self._callbacks))
+        while len(self._callbacks):
+            self._callbacks.popleft()()

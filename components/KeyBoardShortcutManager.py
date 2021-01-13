@@ -50,7 +50,8 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
             # here trying to mitigate shortcuts not received by Live god knows why ..
             seq.add(wait=1)
             seq.add(partial(self._execute_python, "send_keys.py", keys))
-        seq.done()
+
+        return seq.done()
 
     @log
     def send_click(self, x, y):

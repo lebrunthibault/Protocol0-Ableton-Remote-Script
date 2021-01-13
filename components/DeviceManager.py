@@ -7,6 +7,7 @@ from _Framework.Util import find_if
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import EXTERNAL_SYNTH_MINITAUR_NAME
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
+from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.sequence.Sequence import Sequence
@@ -196,4 +197,4 @@ class DeviceManager(AbstractControlSurfaceComponent):
             if device in rack_device.chains[0].devices:
                 return rack_device
 
-        raise RuntimeError("The device is too be too nested to be detected")
+        raise Protocol0Error("The device %s is too be too nested to be detected" % device.name)

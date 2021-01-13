@@ -1,4 +1,5 @@
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.utils.utils import get_callable_name
 
 
@@ -30,7 +31,7 @@ class TimeoutLimit(AbstractControlSurfaceComponent):
 
     def _after_timeout(self):
         if self.timed_out:
-            raise RuntimeError("Tried to execute timeout function twice: %s" % self)
+            raise Protocol0Error("Tried to execute timeout function twice: %s" % self)
 
         if self.executed:
             return

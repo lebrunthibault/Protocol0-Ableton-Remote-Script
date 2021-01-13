@@ -38,12 +38,16 @@ class ClipSlot(AbstractObject):
         return clip_slot and self._clip_slot == clip_slot._clip_slot
 
     @staticmethod
-    def make_clip_slot(clip_slot, index, track):
+    def make(clip_slot, index, track):
         # type: (Live.ClipSlot.ClipSlot, int, SimpleTrack) -> ClipSlot
         from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMidiTrack
         from a_protocol_0.lom.clip_slot.AutomationMidiClipSlot import AutomationMidiClipSlot
+        from a_protocol_0.lom.track.simple_track.AutomationAudioTrack import AutomationAudioTrack
+        from a_protocol_0.lom.clip_slot.AutomationAudioClipSlot import AutomationAudioClipSlot
         if isinstance(track, AutomationMidiTrack):
             return AutomationMidiClipSlot(clip_slot=clip_slot, index=index, track=track)
+        elif isinstance(track, AutomationAudioTrack):
+            return AutomationAudioClipSlot(clip_slot=clip_slot, index=index, track=track)
         else:
             return ClipSlot(clip_slot=clip_slot, index=index, track=track)
 
@@ -51,7 +55,7 @@ class ClipSlot(AbstractObject):
         self.has_clip = self._clip_slot.has_clip
         self.clip = None
         if self.has_clip:
-            self.clip = Clip.make_clip(clip_slot=self)
+            self.clip = Clip.make(clip_slot=self)
 
     @subject_slot("has_clip")
     def _has_clip_listener(self):

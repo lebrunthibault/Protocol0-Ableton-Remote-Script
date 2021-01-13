@@ -2,6 +2,8 @@ import os
 from fractions import Fraction
 from os.path import dirname
 
+from a_protocol_0.errors.Protocol0Error import Protocol0Error
+
 MIDI_STATUS_BYTES = {'note': 144, 'cc': 176, 'pc': 192}
 RECORDING_TIMES = ["1 bar", "2 bars", "4 bars", "8 bars", "16 bars", "32 bars"]
 TRACK_CATEGORY_DRUMS = "Drums"
@@ -53,7 +55,7 @@ class LogLevel:
     def value_to_name(value):
         # type: (int) -> str
         if value not in LogLevel._values_dict:
-            raise RuntimeError("You gave an inexistent value for class LogLevel")
+            raise Protocol0Error("You gave an inexistent value for class LogLevel")
         return LogLevel._values_dict[value]
 
 

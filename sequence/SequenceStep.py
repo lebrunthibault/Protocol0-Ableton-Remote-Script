@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.sequence.SequenceError import SequenceError
+from a_protocol_0.errors.SequenceError import SequenceError
 from a_protocol_0.sequence.SequenceState import SequenceState, DebugLevel
 from a_protocol_0.utils.timeout import TimeoutLimit
 from a_protocol_0.utils.utils import _has_callback_queue, is_lambda, get_callable_name
@@ -172,7 +172,7 @@ class SequenceStep(AbstractControlSurfaceComponent):
 
     def _step_timed_out(self):
         if _has_callback_queue(self._complete_on) and self._callback_timeout:
-            self._complete_on._callbacks.remove(self._callback_timeout)
+            self._complete_on.remove_callback(self._callback_timeout)
 
         self.parent.log_error("timeout completion error on %s" % self, debug=False)
         self._res = False

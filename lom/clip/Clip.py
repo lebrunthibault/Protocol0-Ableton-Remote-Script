@@ -33,12 +33,16 @@ class Clip(ClipActionMixin, AbstractObject):
         return "%s (%s)" % (repr, self.track)
 
     @staticmethod
-    def make_clip(clip_slot):
+    def make(clip_slot):
         # type: (ClipSlot) -> Clip
-        from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMidiTrack
-        if isinstance(clip_slot.track, AutomationMidiTrack):
-            from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
+        from a_protocol_0.lom.clip_slot.AutomationMidiClipSlot import AutomationMidiClipSlot
+        from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
+        from a_protocol_0.lom.clip_slot.AutomationAudioClipSlot import AutomationAudioClipSlot
+        from a_protocol_0.lom.clip.AutomationAudioClip import AutomationAudioClip
+        if isinstance(clip_slot, AutomationMidiClipSlot):
             return AutomationMidiClip(clip_slot=clip_slot)
+        elif isinstance(clip_slot, AutomationAudioClipSlot):
+            return AutomationAudioClip(clip_slot=clip_slot)
         else:
             return Clip(clip_slot=clip_slot)
 
@@ -104,6 +108,3 @@ class Clip(ClipActionMixin, AbstractObject):
     def is_recording(self):
         # type: () -> bool
         return self._clip and self._clip.is_recording
-
-    def disconnect(self):
-        super(Clip, self).disconnect()
