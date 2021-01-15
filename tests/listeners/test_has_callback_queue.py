@@ -44,6 +44,7 @@ def test_has_callback_queue():
     obj.example()
     assert res == ["child", 1, 2, 3]
 
+
 def test_has_callback_queue_result():
     res = []
 

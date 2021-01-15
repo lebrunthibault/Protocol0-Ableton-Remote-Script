@@ -81,8 +81,16 @@ class TrackManager(AbstractControlSurfaceComponent):
         # type: (SimpleGroupTrack) -> Optional[AbstractGroupTrack]
         if any([track.name in name for name in EXTERNAL_SYNTH_NAMES]):
             return ExternalSynthTrack(group_track=track)
-        wrapped_track = WrappedTrack.make(group_track=track)
-        if wrapped_track:
-            return wrapped_track
+
+        try:
+            wrapped_track = WrappedTrack.make(group_track=track)
+            if wrapped_track:
+                return wrapped_track
+        except Protocol0Error as e:
+            # don't raise when the tracks are created
+            if self.parent.songManager.abstract_group_track_creation_in_progress:
+                return None
+            else:
+                raise e
 
         return None

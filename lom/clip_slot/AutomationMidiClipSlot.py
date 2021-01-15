@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 class AutomationMidiClipSlot(ClipSlot):
     def __init__(self, *a, **k):
-        super(AutomationMidiClipSlot, self).__init__(set_listeners=False, *a, **k)
+        super(AutomationMidiClipSlot, self).__init__(*a, **k)
         self.track = self.track  # type: AutomationMidiTrack
         self.clip = self.clip  # type: AutomationMidiClip
         self._has_clip_listener.subject = self._clip_slot

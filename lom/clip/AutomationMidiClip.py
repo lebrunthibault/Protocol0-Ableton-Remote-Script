@@ -5,11 +5,10 @@ from itertools import chain
 
 from typing import List, TYPE_CHECKING
 
-from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.Note import Note
-from a_protocol_0.utils.decorators import debounce
+from a_protocol_0.utils.decorators import debounce, subject_slot
 from a_protocol_0.utils.log import set_object_attr
 
 
@@ -39,7 +38,9 @@ class AutomationMidiClip(Clip):
 
     @subject_slot("notes")
     def _notes_listener(self):
-        self._map_notes()
+        super(AutomationMidiClip, self)._notes_listener()
+        if not self._is_updating_notes:
+            self._map_notes()
 
     @debounce(3)
     def _map_notes(self):

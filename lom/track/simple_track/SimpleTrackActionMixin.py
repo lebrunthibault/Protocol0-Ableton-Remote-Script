@@ -57,13 +57,15 @@ class SimpleTrackActionMixin(object):
             return
 
         seq = Sequence()
+        seq.add(wait=1)
         if name:
             clip_slot.clip_name = name
         seq.add(partial(clip_slot._clip_slot.create_clip,
                         self.parent.utilsManager.get_beat_time(bar_count)),
                 complete_on=clip_slot._has_clip_listener)
         if name:
-            seq.add(wait=1).add(lambda: setattr(self.clip_slots[slot_number].clip, "name", name))
+            seq.add(wait=1)
+            seq.add(lambda: setattr(self.clip_slots[slot_number].clip, "name", name))
         if notes_callback:
             seq.add(partial(lambda cs: cs.clip.replace_all_notes(notes_callback(clip=cs.clip), cache=False),
                             self.clip_slots[slot_number]))

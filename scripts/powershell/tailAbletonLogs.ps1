@@ -5,6 +5,10 @@ $logFile = "$env:userprofile\AppData\Roaming\Ableton\Live $Env:abletonVersion\Pr
 $startSize = 70
 $processLogFile = $true
 $showDateTime = $true
+$global:write_next_n_lines = 0
+
+$host.ui.RawUI.WindowTitle = 'logs terminal'
+Get-Process -Id $pid | Set-WindowState -State SHOWMAXIMIZED
 
 function Get-LogColor
 {
@@ -54,7 +58,7 @@ function Format-LogLine
         [String]$LogEntry)
 
     process {
-        if( $LogEntry.Contains("(Protocol0) Initializing"))
+        if ( $LogEntry.Contains("(Protocol0) Initializing"))
         {
             Clear-Host
         }
@@ -84,15 +88,49 @@ function Format-LogLine
         Return $LogEntry
     }
 }
+function Select-Log-Line
+{
+    Param([Parameter(Position = 0)]
+        [String]$LogEntry)
 
-$P0Filter = "P0", "Protocol0", "RemoteScriptError"
+    if ($write_next_n_lines -ne 0)
+    {
+        $global:write_next_n_lines -= 1
+        return $LogEntry
+    }
 
-$host.ui.RawUI.WindowTitle = 'logs terminal'
-Get-Process -Id $pid | Set-WindowState -State SHOWMAXIMIZED
+    $Filters = "P0", "Protocol0", "RemoteScriptError"
+
+    foreach ($Filter in $Filters)
+    {
+        if ( $LogEntry.Contains($Filter))
+        {
+            if ( $LogEntry.Contains("ArgumentError"))
+            {
+                $global:write_next_n_lines = 3
+
+            }
+            return $LogEntry
+            Write-Host -ForegroundColor (Get-LogColor $LogEntry) (Format-LogLine($LogEntry))
+        }
+    }
+
+    return $null
+}
+function Write-Log-Line
+{
+    Param([Parameter(Position = 0)]
+        [String]$LogEntry)
+
+    if (Select-Log-Line($LogEntry))
+    {
+        Write-Host -ForegroundColor (Get-LogColor $LogEntry) (Format-LogLine($LogEntry))
+    }
+}
 
 if ($processLogFile)
 {
-    Get-Content -Tail $startSize -wait $logFile | Select-String -pattern $P0Filter -AllMatches | ForEach-Object { Write-Host -ForegroundColor (Get-LogColor $_) (Format-LogLine($_)) }
+    Get-Content -Tail $startSize -wait $logFile | ForEach-Object { Write-Log-Line($_) }
 }
 else
 {

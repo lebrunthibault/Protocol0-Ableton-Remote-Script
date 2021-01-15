@@ -89,12 +89,13 @@ class Sequence(AbstractControlSurfaceComponent):
         return self._steps.append(SequenceStep(callback, sequence=self, *a, **k))
 
     def _done_called_check(self):
-        if not self._done_called and not self._early_returned and not self._errored and all([not seq._errored for seq in self._parent_seqs]):
-            raise SequenceError(sequence=self, message="Sequence.done() has not been called")
+        if not self._done_called and not self._early_returned and not self._errored and all(
+                [not seq._errored for seq in self._parent_seqs]):
+            raise SequenceError(object=self, message="Sequence.done() has not been called")
 
     def _start(self):
         if self._state == SequenceState.TERMINATED:
-            raise SequenceError(sequence=self, message="You tried to execute a terminated sequence")
+            raise SequenceError(object=self, message="You tried to execute a terminated sequence")
         if self._state == SequenceState.STARTED:
             return
         if self._state == SequenceState.UN_STARTED:
@@ -105,13 +106,14 @@ class Sequence(AbstractControlSurfaceComponent):
 
     def _exec_next(self):
         if self._state == SequenceState.TERMINATED:
-            raise SequenceError(sequence=self, message="You called _exec_next on a terminated sequence")
+            raise SequenceError(object=self, message="You called _exec_next on a terminated sequence")
 
         if len(self._steps):
             if self._debug:
                 self.parent.log_info("%s : exec %s" % (self, self._steps[0]),
                                      debug=False)
             self._current_step = self._steps.popleft()
+            self._terminate.subject = self._current_step
             self._current_step._start()
         elif self._current_step._is_terminal_step:
             self._terminate()
@@ -126,7 +128,7 @@ class Sequence(AbstractControlSurfaceComponent):
             self._errored = True
 
         if self._current_step and not self._current_step._is_terminal_step and not self._early_returned and not self._errored:
-            raise SequenceError(sequence=self,
+            raise SequenceError(object=self,
                                 message="You called _terminate but the last step is not the terminal one")
 
         self._state = SequenceState.TERMINATED
@@ -154,6 +156,7 @@ class Sequence(AbstractControlSurfaceComponent):
                 self.parent.log_error(message, debug=False)
             else:
                 self.parent.log_info(message, debug=False)
+
         # noinspection PyUnresolvedReferences
         self.notify_terminated()
 
@@ -170,28 +173,27 @@ class Sequence(AbstractControlSurfaceComponent):
             return self
 
         if not callable(callback):
-            raise SequenceError(sequence=self,
+            raise SequenceError(object=self,
                                 message="You passed a non callable to a sequence : %s to %s, type: %s" % (
                                     callback, self, type(callback)))
 
         if self._state == SequenceState.TERMINATED:
             if self._early_returned or self._errored:
                 return
-            raise SequenceError(sequence=self, message="You called add() but the sequence is terminated")
+            raise SequenceError(object=self, message="You called add() but the sequence is terminated")
 
         if callback == nop:
             name = "wait %s" % wait if wait else "pass"
 
         if isinstance(callback, Sequence):
             callback._errored = True
-            raise SequenceError(sequence=self,
+            raise SequenceError(object=self,
                                 message="You passed a Sequence object instead of a function returning a Sequence to add")
         elif isinstance(callback, SequenceStep) and callback._state != SequenceState.TERMINATED:
             self._steps.append(callback)
         else:
-            callbacks = [callback] if not isinstance(callback, Iterable) else callback
-            [self._add_step(func, wait=wait, name=name, complete_on=complete_on, do_if=do_if, do_if_not=do_if_not,
-                            return_if=return_if, return_if_not=return_if_not, check_timeout=check_timeout) for func in callbacks]
+            self._add_step(callback, wait=wait, name=name, complete_on=complete_on, do_if=do_if, do_if_not=do_if_not,
+                           return_if=return_if, return_if_not=return_if_not, check_timeout=check_timeout)
 
         if not self._early_returned and self._state in (SequenceState.UN_STARTED, SequenceState.PAUSED):
             # this is the only way to ensure the sequence steps are going to be executed in a sync sequence with sync sequence steps
@@ -201,7 +203,7 @@ class Sequence(AbstractControlSurfaceComponent):
 
     def done(self):
         if self._done_called:
-            raise SequenceError(sequence=self, message="You called done multiple times")
+            raise SequenceError(object=self, message="You called done multiple times")
         self._done_called = True
 
         # e.g. : a totally sync sequence is over (last step is already executed)

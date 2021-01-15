@@ -20,7 +20,7 @@ from a_protocol_0.components.PlayTrackManager import PlayTrackManager
 from a_protocol_0.components.Push2Manager import Push2Manager
 from a_protocol_0.components.SessionManager import SessionManager
 from a_protocol_0.components.SongManager import SongManager
-from a_protocol_0.components.TrackAutomationManager import TrackAutomationManager
+from a_protocol_0.components.AutomationTrackManager import AutomationTrackManager
 from a_protocol_0.components.TrackManager import TrackManager
 from a_protocol_0.components.UtilsManager import UtilsManager
 from a_protocol_0.consts import LogLevel
@@ -48,7 +48,7 @@ class Protocol0(ControlSurface):
             self.playTrackManager = PlayTrackManager()
             self.push2Manager = Push2Manager()
             self.trackManager = TrackManager()
-            self.trackAutomationManager = TrackAutomationManager()
+            self.trackAutomationManager = AutomationTrackManager()
             self.keyboardShortcutManager = KeyBoardShortcutManager()
             self.midiManager = MidiManager()
             self.browserManager = BrowserManager()

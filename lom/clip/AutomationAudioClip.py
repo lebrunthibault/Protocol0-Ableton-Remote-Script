@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 
+from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.lom.clip.Clip import Clip
 
 if TYPE_CHECKING:
@@ -19,3 +20,9 @@ class AutomationAudioClip(Clip):
     def _connect(self, clip):
         # type: (AutomationMidiClip) -> None
         self.automated_midi_clip = clip
+        self._sync_name.subject = self.automated_midi_clip
+        self.name = clip.name
+
+    @subject_slot("name")
+    def _sync_name(self):
+        self.name = self.automated_midi_clip.name

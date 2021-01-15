@@ -20,6 +20,7 @@ class SongManager(AbstractControlSurfaceComponent):
         self._simple_track_to_abstract_group_track = collections.OrderedDict()  # type: Dict[SimpleTrack, AbstractGroupTrack]
         self._tracks_listener.subject = self.song._song
         self.update_highlighted_clip_slot = True
+        self.abstract_group_track_creation_in_progress = False
 
     def init_song(self):
         self._tracks_listener()

@@ -30,16 +30,12 @@ class WrappedTrack(AbstractGroupTrack):
     @staticmethod
     def make(group_track):
         # type: (SimpleGroupTrack) -> None
-        log_ableton(group_track)
-        log_ableton(group_track.sub_tracks)
         automation_audio_tracks = [track for track in group_track.sub_tracks if isinstance(track, AutomationAudioTrack)]
         automation_midi_tracks = [track for track in group_track.sub_tracks if isinstance(track, AutomationMidiTrack)]
-        log_ableton(automation_audio_tracks)
-        log_ableton(automation_midi_tracks)
         if len(automation_audio_tracks) == 0 and len(automation_midi_tracks) == 0:
             return None
         main_tracks = [t for t in group_track.sub_tracks if t not in automation_audio_tracks + automation_midi_tracks]
-        log_ableton(main_tracks)
+
         if len(main_tracks) != 1:
             raise Protocol0Error("a WrappedTrack should wrap one and only one main track")
         main_track = main_tracks[0]

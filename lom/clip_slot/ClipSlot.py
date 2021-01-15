@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class ClipSlot(AbstractObject):
-    def __init__(self, clip_slot, index, track, set_listeners=True, *a, **k):
+    def __init__(self, clip_slot, index, track, *a, **k):
         # type: (Live.ClipSlot.ClipSlot, int, SimpleTrack, Any, Any) -> None
         super(ClipSlot, self).__init__(*a, **k)
         self._clip_slot = clip_slot
@@ -22,7 +22,7 @@ class ClipSlot(AbstractObject):
         self.index = index
         self.has_clip = clip_slot.has_clip
         self.clip = None  # type: Clip
-        self._has_clip_listener.subject = self._clip_slot if set_listeners else None
+        self._has_clip_listener.subject = self._clip_slot
         self.clip_name = None
         self._map_clip()
 

@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING, List
+from functools import partial
 
 import Live
 
@@ -7,7 +8,7 @@ from a_protocol_0.consts import push2_beat_quantization_steps
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import defer
+from a_protocol_0.utils.utils import _has_callback_queue
 from a_protocol_0.utils.utils import compare_properties
 
 if TYPE_CHECKING:
@@ -28,21 +29,27 @@ class ClipActionMixin(object):
         # type: (Clip) -> None
         return [Note(*note, clip=self) for note in self._clip.get_selected_notes()]
 
-    @defer
-    def replace_selected_notes(self, notes, cache=True):
-        # type: (Clip, List[Note], bool) -> None
+    def _change_clip_notes(self, method, notes, cache=True):
+        # type: (Clip, callable, List[Note], bool) -> Sequence
         self._is_updating_notes = True
         if cache:
             self._prev_notes = notes
-        self._clip.replace_selected_notes(tuple(note.to_data() for note in notes))
-        self.parent.defer(lambda: setattr(self, "_is_updating_notes", False))
+        seq = Sequence()
+        seq.add(wait=1)
+        seq.add(partial(method, tuple(note.to_data() for note in notes)), complete_on=self._notes_listener)
+        seq.add(lambda: setattr(self, "_is_updating_notes", False))
+        # noinspection PyUnresolvedReferences
+        seq.add(self.notify_notes)
 
-    @defer
+        return seq.done()
+
+    def replace_selected_notes(self, notes, cache=True):
+        # type: (Clip, List[Note], bool) -> Sequence
+        return self._change_clip_notes(self._clip.replace_selected_notes, notes, cache=cache)
+
     def set_notes(self, notes):
-        # type: (Clip, List[Note]) -> None
-        self._is_updating_notes = True
-        self._clip.set_notes(tuple(note.to_data() for note in notes))
-        self.parent.defer(lambda: setattr(self, "_is_updating_notes", False))
+        # type: (Clip, List[Note]) -> Sequence
+        return self._change_clip_notes(self._clip.set_notes, notes, cache=False)
 
     def select_all_notes(self):
         # type: (Clip) -> None
@@ -55,8 +62,10 @@ class ClipActionMixin(object):
     def replace_all_notes(self, notes, cache=True):
         # type: (Clip, List[Note], bool) -> None
         self.select_all_notes()
-        self.replace_selected_notes(notes, cache=cache)
-        self.parent.defer(self.deselect_all_notes)
+        seq = Sequence()
+        seq.add(partial(self.replace_selected_notes, notes, cache=cache))
+        seq.add(self.deselect_all_notes)
+        return seq.done()
 
     def notes_changed(self, notes, properties):
         # type: (Clip, List[Note], List[str]) -> List[Note]

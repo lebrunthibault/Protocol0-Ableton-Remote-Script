@@ -9,7 +9,7 @@ from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import defer
 
 
-class TrackAutomationManager(AbstractControlSurfaceComponent):
+class AutomationTrackManager(AbstractControlSurfaceComponent):
     """ Handles the creation, grouping and routing of an automation track """
 
     @defer
@@ -17,6 +17,7 @@ class TrackAutomationManager(AbstractControlSurfaceComponent):
         # type: (DeviceParameter) -> None
         """ first step, instrument track is selected """
         seq = Sequence()
+        self.parent.songManager.abstract_group_track_creation_in_progress = True
 
         if self.song.current_track.is_foldable:
             self.song.current_track.is_folded = False
@@ -28,7 +29,8 @@ class TrackAutomationManager(AbstractControlSurfaceComponent):
                         name="%s:%s:%s" % (AUTOMATION_TRACK_AUDIO_NAME, parameter.device.name, parameter.name)))
         seq.add(partial(self.parent.trackManager.create_midi_track, self.song.selected_track.index + 2,
                         name="%s:%s:%s" % (AUTOMATION_TRACK_MIDI_NAME, parameter.device.name, parameter.name)))
-        seq.add(lambda: self.parent.log_debug(self.song.abstract_tracks))
+        seq.add(lambda: setattr(self.parent.songManager, "abstract_group_track_creation_in_progress", False))
+        seq.add(self.parent.songManager._tracks_listener)
 
         return seq.done()
 
