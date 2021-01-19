@@ -25,6 +25,7 @@ from a_protocol_0.components.TrackManager import TrackManager
 from a_protocol_0.components.UtilsManager import UtilsManager
 from a_protocol_0.consts import LogLevel
 from a_protocol_0.lom.Song import Song
+from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import wait
 from a_protocol_0.utils.log import log_ableton
 
@@ -118,6 +119,10 @@ class Protocol0(ControlSurface):
         if self._is_dev_booted:
             return
 
+        seq = Sequence()
+
+        seq.add(self.protocol0_song.select_track(self.protocol0_song.tracks[2]))
+        seq.add(lambda: self.protocol0_song)
         return
         self.trackAutomationManager.create_automation_group(self.protocol0_song.tracks[1].devices[1].parameters[1])
         return
