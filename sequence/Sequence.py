@@ -1,7 +1,8 @@
 import time
-from collections import deque
+from collections import deque, Iterable
+from functools import partial
 
-from typing import List, Any
+from typing import Any
 
 from a_protocol_0.errors.SequenceError import SequenceError
 from a_protocol_0.lom.AbstractObject import AbstractObject
@@ -46,7 +47,7 @@ class Sequence(AbstractObject):
             These should better be execute in a step if only return_if so that it's clearer
     """
 
-    def __init__(self, wait=0, log_level=SequenceLogLevel.debug, debug=True, name=None, parent_seq=None, *a, **k):
+    def __init__(self, wait=0, log_level=SequenceLogLevel.info, debug=True, name=None, *a, **k):
         super(Sequence, self).__init__(*a, **k)
         self._steps = deque()  # type: [SequenceStep]
         self._current_step = None  # type: SequenceStep
@@ -60,7 +61,7 @@ class Sequence(AbstractObject):
         self._debug = (log_level == SequenceLogLevel.debug) and debug
         self._early_returned = False
         self._errored = False
-        self._parent_seq = parent_seq  # type: Sequence
+        self._parent_seq = None  # type: Sequence
         # self._debug = debug and not sync
         self._is_condition_seq = False
         if not name:
@@ -88,7 +89,15 @@ class Sequence(AbstractObject):
             return []
 
     def _add_step(self, callback, *a, **k):
-        return self._steps.append(SequenceStep(callback, sequence=self, log_level=self._log_level, *a, **k))
+        if isinstance(callback, Iterable):
+            def parallel_sequence_creator(callbacks):
+                from a_protocol_0.sequence.ParallelSequence import ParallelSequence
+                seq = ParallelSequence(log_level=self._log_level, debug=self._debug)
+                [seq.add(func) for func in callbacks]
+                return seq.done()
+            callback = partial(parallel_sequence_creator, callback)
+
+        self._steps.append(SequenceStep(callback, sequence=self, log_level=self._log_level, *a, **k))
 
     def _done_called_check(self):
         if not self._done_called and not self._early_returned and not self._errored and all(
@@ -183,11 +192,6 @@ class Sequence(AbstractObject):
         if callback is None:
             return self
 
-        if not callable(callback):
-            raise SequenceError(object=self,
-                                message="You passed a non callable to a sequence : %s to %s, type: %s" % (
-                                    callback, self, type(callback)))
-
         if self._state == SequenceState.TERMINATED:
             if self._early_returned or self._errored:
                 return
@@ -199,9 +203,7 @@ class Sequence(AbstractObject):
         if isinstance(callback, Sequence):
             callback._errored = True
             raise SequenceError(object=self,
-                                message="You passed a Sequence object instead of a function returning a Sequence to add")
-        elif isinstance(callback, SequenceStep) and callback._state != SequenceState.TERMINATED:
-            self._steps.append(callback)
+                                message="You passed a Sequence object instead of a Sequence factory to add")
         else:
             self._add_step(callback, wait=wait, name=name, complete_on=complete_on, do_if=do_if, do_if_not=do_if_not,
                            return_if=return_if, return_if_not=return_if_not, check_timeout=check_timeout)

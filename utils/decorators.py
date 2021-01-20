@@ -6,13 +6,14 @@ from typing import TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
 from a_protocol_0.utils.callback_descriptor import CallbackDescriptor
+from a_protocol_0.utils.log import log_ableton
 from a_protocol_0.utils.utils import is_method
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
-    from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-    # noinspection PyUnresolvedReferences
     from a_protocol_0.components.Push2Manager import Push2Manager
+    # noinspection PyUnresolvedReferences
+    from a_protocol_0.lom.AbstractObject import AbstractObject
 
 
 def push2_method(defer=True):
@@ -86,9 +87,11 @@ def debounce(wait_time=2):
         @wraps(func)
         def decorate(*a, **k):
             index = a[0] if is_method(func) else decorate
+            wait_time = 0 if k.get("disable_debounce", False) else decorate.wait_time[index]
+            k.pop("disable_debounce", None)
             decorate.count[index] += 1
             from a_protocol_0 import Protocol0
-            Protocol0.SELF._wait(decorate.wait_time[index], partial(execute, func, *a, **k))
+            Protocol0.SELF._wait(wait_time, partial(execute, func, *a, **k))
 
         decorate.count = defaultdict(int)
         decorate.wait_time = defaultdict(lambda: wait_time)
@@ -109,7 +112,7 @@ def button_action(auto_arm=False, log_action=True, auto_undo=True):
     def wrap(func):
         @wraps(func)
         def decorate(self, *a, **k):
-            # type: (AbstractControlSurfaceComponent) -> None
+            # type: (AbstractObject) -> None
             if log_action:
                 self.parent.log_info("Executing " + func.__name__)
             self.song.begin_undo_step()

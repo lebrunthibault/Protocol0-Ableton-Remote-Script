@@ -25,6 +25,7 @@ class AutomationTrackManager(AbstractControlSurfaceComponent):
         else:
             seq.add(self.parent.trackManager.group_track)
 
+        # this cannot be parallelized
         seq.add(partial(self.parent.trackManager.create_audio_track, self.song.selected_track.index + 1,
                         name="%s:%s:%s" % (AUTOMATION_TRACK_AUDIO_NAME, parameter.device.name, parameter.name)))
         seq.add(partial(self.parent.trackManager.create_midi_track, self.song.selected_track.index + 2,

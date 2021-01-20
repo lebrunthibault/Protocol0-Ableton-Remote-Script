@@ -11,6 +11,7 @@ from a_protocol_0.lom.track.simple_track.AutomationAudioTrack import AutomationA
 from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMidiTrack
 from a_protocol_0.lom.track.simple_track.SimpleGroupTrack import SimpleGroupTrack
 from a_protocol_0.sequence.Sequence import Sequence
+from a_protocol_0.utils.log import log_ableton
 from a_protocol_0.utils.utils import find_last
 
 if TYPE_CHECKING:
@@ -22,9 +23,11 @@ class WrappedTrack(AbstractGroupTrack):
     def __init__(self, group_track, automation_tracks_couples, wrapped_track, *a, **k):
         # type: (SimpleTrack, List[AutomationTracksCouple], SimpleTrack) -> None
         self.wrapped_track = wrapped_track
-        self.wrapped_track.track_name.track = self
         super(WrappedTrack, self).__init__(group_track=group_track, *a, **k)
+        self.wrapped_track.track_name.link_track(self)
         self.automation_tracks_couples = automation_tracks_couples
+
+        self._added_track_init()  # we need to call this here because the wrapped track instantiation doesn't happen at the same time as subtrack creation
 
     @staticmethod
     def make(group_track):
@@ -41,6 +44,8 @@ class WrappedTrack(AbstractGroupTrack):
         if main_track != group_track.sub_tracks[-1]:
             raise Protocol0Error("The main track of a Wrapped track should always be the last of the group")
 
+        log_ableton((main_tracks, automation_audio_tracks, automation_midi_tracks))
+
         if len(automation_audio_tracks) != len(automation_midi_tracks):
             return None  # inconsistent state, happens on creation or when tracks are deleted
 
@@ -48,12 +53,13 @@ class WrappedTrack(AbstractGroupTrack):
         # any other state is a bug and raises in AutomationTracksCouple __init__
         automation_tracks_couples = [AutomationTracksCouple(audio_track, midi_track) for audio_track, midi_track in itertools.izip(automation_audio_tracks, automation_midi_tracks)]
 
-        return WrappedTrack(group_track=track, automation_tracks_couples=automation_tracks_couples, wrapped_track=main_tracks[0])
+        return WrappedTrack(group_track=group_track, automation_tracks_couples=automation_tracks_couples, wrapped_track=main_tracks[0])
 
     def _added_track_init(self):
         seq = Sequence()
-        self.parent.log_debug("_added_track_init WrappedTrack")
+        seq.add(wait=1)
         seq.add(partial(self.wrapped_track.attach_output_routing_to, find_last(lambda t: isinstance(t, AutomationAudioTrack), self.sub_tracks)))
+        seq.add(lambda: setattr(self, "name", self.wrapped_track.name))
 
         return seq.done()
 
@@ -67,6 +73,7 @@ class WrappedTrack(AbstractGroupTrack):
         # type: (str) -> None
         self.base_track.name = name
         self.wrapped_track.name = name
+
 
     @forward_property('wrapped_track')
     def arm(): pass

@@ -1,34 +1,43 @@
 from typing import TYPE_CHECKING, Optional, List
 
-from _Framework.SubjectSlot import subject_slot
+import Live
+from _Framework.SubjectSlot import subject_slot_group
 from _Framework.Util import clamp
-from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from a_protocol_0.lom.AbstractObject import AbstractObject
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
+    from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 
 
-class TrackName(AbstractControlSurfaceComponent):
+class TrackName(AbstractObject):
     __subject_events__ = ('base_name',)
 
     def __init__(self, track, *a, **k):
         # type: (SimpleTrack) -> None
         super(TrackName, self).__init__(*a, **k)
         self.track = track
+        self.tracks = [self.track]
         self.parts = []  # type: List[str]
         self.base_name = ""
         self.clip_slot_index = 0
         self.preset_index = 0
-        self._name_listener.subject = self.track._track
-        self._name_listener()
+        self._name_listener.add_subject(self.track._track)
+        self._name_listener(self.track._track)
 
     def __repr__(self):
         return "TrackName of %s" % self.track
 
-    @subject_slot("name")
-    def _name_listener(self):
-        self.parts = self.track._track.name.split(" - ")
+    def link_track(self, track):
+        # type: (AbstractTrack) -> None
+        self.tracks.append(track)
+        self._name_listener.add_subject(track._track)
+
+    @subject_slot_group("name")
+    def _name_listener(self, changed_track):
+        # type: (Live.Track.Track) -> None
+        self.parts = changed_track.name.split(" - ")
         self.base_name = self.parts[0].lower()
         try:
             self.clip_slot_index = int(self.parts[1])
@@ -38,6 +47,9 @@ class TrackName(AbstractControlSurfaceComponent):
             self.preset_index = int(self.parts[2])
         except (ValueError, IndexError):
             self.preset_index = 0
+
+        for track in [track for track in self.tracks if track._track != changed_track]:
+            track.name = changed_track.name
 
     def set(self, base_name=None, clip_slot_index=None, preset_index=None):
         # type: (Optional[str], Optional[int], Optional[int]) -> None
@@ -54,5 +66,7 @@ class TrackName(AbstractControlSurfaceComponent):
             preset_index = preset_index if preset_index is not None else self.preset_index
             preset_index = max(0, preset_index)
             name += " - {0}".format(preset_index)
+
+        self.parent.log_debug("setting name %s on %s" % (name, self.track))
 
         self.track.name = name

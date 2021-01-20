@@ -24,6 +24,12 @@ class SequenceStep(AbstractObject):
         self._log_level = log_level
         self._debug = log_level == SequenceLogLevel.debug
         self._callable = func
+
+        if not callable(self._callable):
+            raise SequenceError(object=self,
+                                message="You passed a non callable to a SequenceStep : %s to %s, type: %s" % (
+                                    self._callable, self, type(self._callable)))
+
         self.name = "step %s" % (name or get_callable_name(func))
         self._wait = wait if wait is not None else sequence._wait
         self._state = SequenceState.UN_STARTED

@@ -34,3 +34,4 @@ class AutomationTracksCouple(AbstractObject):
             midi_clip_slot._connect(audio_clip_slot)
             if midi_clip_slot.has_clip:
                 midi_clip_slot.clip._connect(audio_clip_slot.clip)
+

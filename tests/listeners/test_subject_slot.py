@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 from _Framework.SubjectSlot import Subject, SlotManager, subject_slot
+# noinspection PyUnresolvedReferences
 from a_protocol_0.tests.test_all import p0
 
 
@@ -32,24 +33,13 @@ def test_subject_slot_inheritance():
         def listener(self):
             res.append(2)
 
-    with p0.component_guard():
-        emitter = Emitter()
-        obj = Parent(emitter)
-        emitter.emit()
+    emitter = Emitter()
+    obj = Parent(emitter)
+    emitter.emit()
 
-        assert res == [1]
+    assert res == [1]
 
-        obj.listener.subject = None
-        obj = Child(emitter)
-        emitter.emit()
-        assert res == [1, 2]
-
-    # class Parent:
-    #     @subject_slot("name")
-    #     def example(self):
-    #         res.append("parent")
-    #
-    # class Child:
-    #     @has_callback_queue
-    #     def example(self):
-    #         res.append("child")
+    obj.listener.subject = None
+    obj = Child(emitter)
+    emitter.emit()
+    assert res == [1, 2]

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot
 from _Framework.Util import find_if
-from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.consts import TRACK_CATEGORIES, TRACK_CATEGORY_OTHER
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
@@ -24,13 +24,14 @@ from a_protocol_0.lom.track.TrackName import TrackName
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import defer
 
+
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
     from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 
 
-class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
+class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     ADDED_TRACK_INIT_ENABLED = True
 
     def __init__(self, track, *a, **k):
@@ -338,6 +339,9 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractControlSurfaceComponent):
 
     def attach_output_routing_to(self, track):
         # type: (SimpleTrack) -> None
+        if track is None:
+            raise Protocol0Error("You passed None to attach_output_routing_to")
+
         output_routing_type = find_if(lambda r: r.attached_object == track._track,
                                            self.available_output_routing_types)
         if not output_routing_type:

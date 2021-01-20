@@ -35,11 +35,10 @@ class ClipActionMixin(object):
             self._prev_notes = notes
         seq = Sequence()
         seq.add(wait=1)
-        seq.add(partial(method, tuple(note.to_data() for note in notes)), complete_on=self._notes_listener)
+        seq.add(partial(method, tuple(note.to_data() for note in notes)))
         seq.add(lambda: setattr(self, "_is_updating_notes", False))
         # noinspection PyUnresolvedReferences
-        seq.add(self.notify_notes)
-
+        seq.add(self.notify_notes)  # for automation audio track to be notified
         return seq.done()
 
     def replace_selected_notes(self, notes, cache=True):
@@ -48,6 +47,7 @@ class ClipActionMixin(object):
 
     def set_notes(self, notes):
         # type: (Clip, List[Note]) -> Sequence
+        raise "not used atm"
         return self._change_clip_notes(self._clip.set_notes, notes, cache=False)
 
     def select_all_notes(self):
@@ -61,6 +61,7 @@ class ClipActionMixin(object):
     def replace_all_notes(self, notes, cache=True):
         # type: (Clip, List[Note], bool) -> None
         self.select_all_notes()
+        new_clip = not len(self._prev_notes)
         seq = Sequence()
         seq.add(partial(self.replace_selected_notes, notes, cache=cache))
         seq.add(self.deselect_all_notes)

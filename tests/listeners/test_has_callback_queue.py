@@ -6,6 +6,8 @@ from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.sequence.SequenceState import SequenceLogLevel
 from a_protocol_0.utils.decorators import has_callback_queue, subject_slot, defer
+# noinspection PyUnresolvedReferences
+from a_protocol_0.tests.test_all import p0
 
 
 def test_has_callback_queue():
@@ -115,7 +117,7 @@ def test_async_callback():
 
             self.test_res.append(self.val)
             seq.add(wait=1)
-            self.test_res.append(self.val + 1)
+            seq.add(lambda: self.test_res.append(self.val + 1))
 
             return seq.done()
 
@@ -125,7 +127,7 @@ def test_async_callback():
 
             self.test_res.append(self.val)
             seq.add(wait=1)
-            self.test_res.append(self.val + 1)
+            seq.add(lambda: self.test_res.append(self.val + 1))
 
             return seq.done()
 

@@ -1,17 +1,18 @@
 from typing import TYPE_CHECKING, List
 import Live
 
-from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.clip.ClipActionMixin import ClipActionMixin
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.utils.decorators import defer, subject_slot
+from a_protocol_0.utils.log import log_ableton
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 
 
-class Clip(ClipActionMixin, AbstractControlSurfaceComponent):
+class Clip(ClipActionMixin, AbstractObject):
     __subject_events__ = ('notes', 'name')
 
     def __init__(self, clip_slot, *a, **k):
@@ -26,8 +27,7 @@ class Clip(ClipActionMixin, AbstractControlSurfaceComponent):
         self._notes_listener.subject = self._clip
         self._name_listener.subject = self._clip
         # memorizing notes for note change comparison
-        self._prev_notes = []  # type: List[Note]
-        self._prev_notes = self.get_notes() if self._clip.is_midi_clip else []  # type: List[Note]
+        self._prev_notes = []  # type: List[Note]  # here: trying to use get_notes results in a bug caused by the debounce set on notes_listener
         self._added_note = None  # type: Note
         self._is_updating_notes = False
         self.color = self.track.base_color

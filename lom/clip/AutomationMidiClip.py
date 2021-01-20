@@ -48,7 +48,6 @@ class AutomationMidiClip(Clip):
         if len(notes) == 0 or self._is_updating_notes or notes == self._prev_notes:
             return
 
-        # self.parent.log_info("%s : mapping notes" % self)
         if len(self.notes_changed(notes, ["start", "duration", "pitch"])) == 0:
             # self.parent.log_info("manual pitch change")
             [setattr(note, "pitch", note.velocity) for (_, note) in self.notes_changed(notes, ["velocity"])]
@@ -57,8 +56,9 @@ class AutomationMidiClip(Clip):
             return
 
         if len(notes) > len(self._prev_notes) and len(self._prev_notes):
-            if len(notes) - len(self._prev_notes) != 1:
-                raise Protocol0Error("Multiple added notes are not handled")
+            added_notes_count = len(notes) - len(self._prev_notes)
+            if added_notes_count != 1:
+                raise Protocol0Error("Multiple added notes are not handled (added : %d notes on clip %s)" % (added_notes_count, self))
             self._added_note = next(iter(list(set(notes) - set(self._prev_notes))), None)
             notes = list(set(notes) - set([self._added_note]))
             notes.sort(key=lambda x: x.start)
