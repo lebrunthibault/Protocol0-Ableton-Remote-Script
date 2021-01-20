@@ -11,7 +11,6 @@ from a_protocol_0.lom.track.simple_track.AutomationAudioTrack import AutomationA
 from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMidiTrack
 from a_protocol_0.lom.track.simple_track.SimpleGroupTrack import SimpleGroupTrack
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.log import log_ableton
 from a_protocol_0.utils.utils import find_last
 
 if TYPE_CHECKING:

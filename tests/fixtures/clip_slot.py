@@ -1,4 +1,4 @@
-from _Framework.SubjectSlot import subject_add_event, Subject
+from _Framework.SubjectSlot import Subject
 
 
 class AbletonClipSlot(Subject):

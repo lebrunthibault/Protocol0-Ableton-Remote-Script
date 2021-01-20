@@ -2,7 +2,6 @@ from collections import deque
 from functools import partial
 
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
-from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.sequence.SequenceState import SequenceState
 from a_protocol_0.utils.log import log_ableton
 from a_protocol_0.utils.utils import is_partial, get_callable_name
@@ -28,17 +27,16 @@ class CallbackDescriptor(object):
         self.__name__ = func.__name__
         self.__doc__ = func.__doc__
         self._func = func
-        self._p0_data_name = u'%s_%d_%s' % (get_callable_name(func), id(self), self.__class__.__name__)
         self._wrapped = None
 
     def __repr__(self):
-        return self._wrapped or self._p0_data_name
+        return self._wrapped or (u'%s_%d_%s' % (get_callable_name(self._func), id(self), self.__class__.__name__))
 
     def __get__(self, obj, cls=None):
         if obj is None:
             return
         try:
-            return obj.__dict__[self._p0_data_name]
+            return obj.__dict__[id(self)]
         except KeyError:
             # checking if we are on top of a subject_slot decorator
             if bool(getattr(self._func, "_data_name",
@@ -48,11 +46,12 @@ class CallbackDescriptor(object):
 
                 # patching the wrapped function to have a coherent interface
                 self._wrapped.add_callback = self._wrapped.listener.add_callback
+                self._wrapped._callbacks = self._wrapped.listener._callbacks
                 self._wrapped.remove_callback = self._wrapped.listener.remove_callback
             else:
                 self._wrapped = CallableWithCallbacks(partial(self._func, obj), obj)
 
-            obj.__dict__[self._p0_data_name] = self._wrapped  # caching self._wrapped
+            obj.__dict__[id(self)] = self._wrapped  # caching self._wrapped
             return self._wrapped  # Outer most function replacing the decorated method
 
 
@@ -79,15 +78,17 @@ class CallableWithCallbacks(object):
             log_ableton("listener res of %s : %s" % (self, res))
             log_ableton("callbacks of %s : %s" % (self, self._decorated._callbacks))
 
+        from a_protocol_0.sequence.Sequence import Sequence
         if isinstance(res, Sequence):
             if res._errored:
                 self._callbacks = deque()
-                return
+                return res
             if res._state != SequenceState.TERMINATED:
                 res.terminated_callback = self._execute_callbacks
-                return
 
         self._execute_callbacks()
+
+        return res
 
     def add_callback(self, callback):
         # type: (callable) -> None

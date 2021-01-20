@@ -8,4 +8,3 @@ home = expanduser("~")
 child = subprocess.Popen(["C:\\Program Files\\AutoHotkey\\AutoHotkey.exe",
                           PROTOCOL0_FOLDER + "\\scripts\\ahk\\ableton_shortcuts.ahk"]
                          )
-print(child.returncode)

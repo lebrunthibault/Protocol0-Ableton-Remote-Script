@@ -5,7 +5,7 @@ class SequenceState:
     TERMINATED = "TERMINATED"
 
 
-class DebugLevel:
-    info = 0
-    debug = 1
-    dev = 2
+class SequenceLogLevel:
+    disabled = 1
+    info = 2
+    debug = 3

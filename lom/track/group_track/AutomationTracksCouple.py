@@ -3,9 +3,6 @@ import itertools
 from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.lom.clip_slot.AutomationAudioClipSlot import AutomationAudioClipSlot
-from a_protocol_0.lom.clip_slot.AutomationMidiClipSlot import AutomationMidiClipSlot
-
 from a_protocol_0.lom.track.simple_track.AutomationAudioTrack import AutomationAudioTrack
 from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMidiTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack

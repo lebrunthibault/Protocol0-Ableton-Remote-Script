@@ -121,9 +121,9 @@ class Protocol0(ControlSurface):
 
         seq = Sequence()
 
-        seq.add(self.protocol0_song.select_track(self.protocol0_song.tracks[2]))
+        seq.add(partial(self.protocol0_song.select_track, self.protocol0_song.tracks[2]))
         seq.add(lambda: self.protocol0_song)
-        return
+        return seq.done()
         self.trackAutomationManager.create_automation_group(self.protocol0_song.tracks[1].devices[1].parameters[1])
         return
         self.defer(partial(self.protocol0_song.select_device, self.protocol0_song.tracks[19].devices[-1]))

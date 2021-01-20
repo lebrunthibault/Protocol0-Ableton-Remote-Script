@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot
-from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.errors.SequenceError import SequenceError
-from a_protocol_0.sequence.SequenceState import SequenceState, DebugLevel
+from a_protocol_0.lom.AbstractObject import AbstractObject
+from a_protocol_0.sequence.SequenceState import SequenceState, SequenceLogLevel
 from a_protocol_0.utils.timeout import TimeoutLimit
 from a_protocol_0.utils.utils import _has_callback_queue, is_lambda, get_callable_name
 
@@ -12,16 +12,17 @@ if TYPE_CHECKING:
     from a_protocol_0.sequence.Sequence import Sequence
 
 
-class SequenceStep(AbstractControlSurfaceComponent):
+class SequenceStep(AbstractObject):
     __subject_events__ = ('terminated',)
 
-    def __init__(self, func, sequence, wait=None, name=None, complete_on=None,
+    def __init__(self, func, sequence, wait=None, name=None, log_level=SequenceLogLevel.debug, complete_on=None,
                  do_if=None, do_if_not=None, return_if=None, return_if_not=None, check_timeout=5, *a, **k):
-        # type: (callable, Sequence, float, str, callable, bool) -> None
+        # type: (callable, Sequence, float, str, int, callable, callable, callable, callable, callable, int) -> None
         """ the tick is 100 ms """
         super(SequenceStep, self).__init__(*a, **k)
         self._seq = sequence
-        self._debug = sequence._debug == DebugLevel.dev
+        self._log_level = log_level
+        self._debug = log_level == SequenceLogLevel.debug
         self._callable = func
         self.name = "step %s" % (name or get_callable_name(func))
         self._wait = wait if wait is not None else sequence._wait
@@ -156,8 +157,9 @@ class SequenceStep(AbstractControlSurfaceComponent):
         try:
             return func()
         except RuntimeError as e:
-            self.parent.log_error("RuntimeError caught while executing %s" % self)
-            self.parent.log_error(e)
+            if self._log_level >= SequenceLogLevel.info:
+                self.parent.log_error("RuntimeError caught while executing %s" % self)
+                self.parent.log_error(e)
             self._errored = True
             # here we could check for Changes cannot be triggered by notifications and retry.
             # But if the function has side effects before raising the exception that will not work
@@ -182,7 +184,9 @@ class SequenceStep(AbstractControlSurfaceComponent):
         if _has_callback_queue(self._complete_on) and self._callback_timeout:
             self._complete_on.remove_callback(self._callback_timeout)
 
-        self.parent.log_error("timeout completion error on %s" % self, debug=False)
+        if self._log_level >= SequenceLogLevel.info:
+            self.parent.log_error("timeout completion error on %s" % self, debug=False)
+
         self._res = False
         self._terminate()
 

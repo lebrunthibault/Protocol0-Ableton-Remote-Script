@@ -130,13 +130,6 @@ class DeviceManager(AbstractControlSurfaceComponent):
         seq = Sequence()
         parent_rack = self._find_parent_rack(device)
 
-        self.parent.log_debug("--------------")
-        self.parent.log_debug(self.song.selected_track)
-        self.parent.log_debug(device.track)
-        self.parent.log_debug(device)
-        self.parent.log_debug(device.track.devices)
-        self.parent.log_debug(parent_rack)
-
         if not parent_rack:
             [setattr(d._view, "is_collapsed", True) for d in device.track.devices]
             (x_device, y_device) = self._get_device_show_button_click_coordinates(device)
@@ -193,7 +186,6 @@ class DeviceManager(AbstractControlSurfaceComponent):
             return None
 
         for rack_device in [d for d in device.track.devices if isinstance(d, RackDevice)]:
-            self.parent.log_debug(rack_device.chains[0].devices)
             if device in rack_device.chains[0].devices:
                 return rack_device
 

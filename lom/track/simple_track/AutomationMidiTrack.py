@@ -4,10 +4,8 @@ from functools import partial
 from typing import List
 
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
-from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
-
 from a_protocol_0.lom.Note import Note
-from a_protocol_0.lom.clip_slot.AutomationAudioClipSlot import AutomationAudioClipSlot
+from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
 from a_protocol_0.lom.clip_slot.AutomationMidiClipSlot import AutomationMidiClipSlot
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.track.simple_track.AutomationAudioTrack import AutomationAudioTrack

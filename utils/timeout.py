@@ -1,9 +1,9 @@
-from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
+from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.utils.utils import get_callable_name
 
 
-class TimeoutLimit(AbstractControlSurfaceComponent):
+class TimeoutLimit(AbstractObject):
 
     def __init__(self, func, timeout_limit, awaited_listener=None, on_timeout=None, *a, **k):
         # type: (callable, callable, float, callable) -> callable

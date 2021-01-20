@@ -1,15 +1,17 @@
 import time
-from collections import deque, Iterable
+from collections import deque
+
 from typing import List, Any
 
-from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.errors.SequenceError import SequenceError
-from a_protocol_0.sequence.SequenceState import SequenceState, DebugLevel
+from a_protocol_0.lom.AbstractObject import AbstractObject
+from a_protocol_0.sequence.SequenceState import SequenceState, SequenceLogLevel
 from a_protocol_0.sequence.SequenceStep import SequenceStep
+from a_protocol_0.utils.decorators import subject_slot
 from a_protocol_0.utils.utils import get_frame_info, nop
 
 
-class Sequence(AbstractControlSurfaceComponent):
+class Sequence(AbstractObject):
     __subject_events__ = ('terminated',)
 
     """
@@ -44,8 +46,7 @@ class Sequence(AbstractControlSurfaceComponent):
             These should better be execute in a step if only return_if so that it's clearer
     """
 
-    def __init__(self, wait=0, debug=DebugLevel.dev, name=None, parent_seq=None, *a, **k):
-        # type: (List[callable], float, str, bool, bool, Sequence) -> None
+    def __init__(self, wait=0, log_level=SequenceLogLevel.debug, debug=True, name=None, parent_seq=None, *a, **k):
         super(Sequence, self).__init__(*a, **k)
         self._steps = deque()  # type: [SequenceStep]
         self._current_step = None  # type: SequenceStep
@@ -55,7 +56,8 @@ class Sequence(AbstractControlSurfaceComponent):
         self._start_at = None  # type: float
         self._end_at = None  # type: float
         self._duration = None  # type: float
-        self._debug = (debug == DebugLevel.dev)
+        self._log_level = log_level
+        self._debug = (log_level == SequenceLogLevel.debug) and debug
         self._early_returned = False
         self._errored = False
         self._parent_seq = parent_seq  # type: Sequence
@@ -86,7 +88,7 @@ class Sequence(AbstractControlSurfaceComponent):
             return []
 
     def _add_step(self, callback, *a, **k):
-        return self._steps.append(SequenceStep(callback, sequence=self, *a, **k))
+        return self._steps.append(SequenceStep(callback, sequence=self, log_level=self._log_level, *a, **k))
 
     def _done_called_check(self):
         if not self._done_called and not self._early_returned and not self._errored and all(
@@ -113,19 +115,28 @@ class Sequence(AbstractControlSurfaceComponent):
                 self.parent.log_info("%s : exec %s" % (self, self._steps[0]),
                                      debug=False)
             self._current_step = self._steps.popleft()
-            self._terminate.subject = self._current_step
+            self._step_termination.subject = self._current_step
             self._current_step._start()
         elif self._current_step._is_terminal_step:
             self._terminate()
         else:
             self._state = SequenceState.PAUSED
 
+    @subject_slot("terminated")
+    def _step_termination(self):
+        if self._current_step._errored:
+            self._errored = True
+            self._terminate()
+        elif self._current_step._early_returned:
+            self._early_returned = True
+            self._terminate()
+        else:
+            self._exec_next()
+
     def _terminate(self):
         if self._state == SequenceState.TERMINATED:
-            return
-
-        if self._current_step and self._current_step._errored and not self._is_condition_seq:
-            self._errored = True
+            raise SequenceError(object=self,
+                                message="You called _terminate twice")
 
         if self._current_step and not self._current_step._is_terminal_step and not self._early_returned and not self._errored:
             raise SequenceError(object=self,

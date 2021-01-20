@@ -30,6 +30,7 @@ class AutomationTrackManager(AbstractControlSurfaceComponent):
         seq.add(partial(self.parent.trackManager.create_midi_track, self.song.selected_track.index + 2,
                         name="%s:%s:%s" % (AUTOMATION_TRACK_MIDI_NAME, parameter.device.name, parameter.name)))
         seq.add(lambda: setattr(self.parent.songManager, "abstract_group_track_creation_in_progress", False))
+        seq.add(wait=1)
         seq.add(self.parent.songManager._tracks_listener)
 
         return seq.done()

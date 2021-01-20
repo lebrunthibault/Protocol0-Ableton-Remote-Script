@@ -1,6 +1,7 @@
 import pytest
 from typing import List
 
+from a_protocol_0.consts import EXTERNAL_SYNTH_PROPHET_NAME, EXTERNAL_SYNTH_MINITAUR_NAME
 from a_protocol_0.lom.Song import Song
 from a_protocol_0.tests.fixtures.groupTrack import make_external_synth_track
 from a_protocol_0.tests.fixtures.simpleTrack import make_simpler_track, make_group_track, \
@@ -31,7 +32,7 @@ def make_song(count_group_tracks=0, count_simple_tracks=0):
     [make_simpler_track(song) for _ in range(count_simple_tracks)]
 
     if len(song.tracks):
-        song.view.selected_track = song.tracks[0]._track
+        song._view.selected_track = song.tracks[0]._track
 
     song.set_selected_track = select_song_track
 
@@ -43,12 +44,12 @@ def base_song():
     # type: () -> Song
     # noinspection PyTypeChecker
     song = Song(AbletonSong([], AbletonSongView()))
-    make_external_synth_track(song, GROUP_PROPHET_NAME)
-    make_external_synth_track(song, GROUP_MINITAUR_NAME)
+    make_external_synth_track(song, EXTERNAL_SYNTH_PROPHET_NAME)
+    make_external_synth_track(song, EXTERNAL_SYNTH_MINITAUR_NAME)
     make_group_track(song, "drums")
     make_simpler_track(song, "kicks - 0")
     make_simpler_track(song, "snares - 0")
 
-    song.view.selected_track = song.tracks[0]._track
+    song._view.selected_track = song.tracks[0]._track
 
     return song

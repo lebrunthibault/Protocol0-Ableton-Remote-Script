@@ -1,7 +1,10 @@
+from functools import partial
+
 from typing import TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.lom.clip.Clip import Clip
+from a_protocol_0.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -21,7 +24,8 @@ class AutomationAudioClip(Clip):
         # type: (AutomationMidiClip) -> None
         self.automated_midi_clip = clip
         self._sync_name.subject = self.automated_midi_clip
-        self.name = clip.name
+        seq = Sequence(debug=False).add(wait=1).add(partial(setattr, self, "name", clip.name))
+        return seq.done()
 
     @subject_slot("name")
     def _sync_name(self):

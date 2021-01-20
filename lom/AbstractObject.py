@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Any
 
 from _Framework.ControlSurface import get_control_surfaces
-from _Framework.SubjectSlot import SlotManager
+from _Framework.SubjectSlot import SlotManager, Subject
 from _Framework.Util import find_if
 
 if TYPE_CHECKING:
@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from a_protocol_0 import Protocol0
 
 
-class AbstractObject(SlotManager):
+class AbstractObject(SlotManager, Subject):
     def __init__(self, *a, **k):
         """ we cannot use dependency injection here because objects are created not only at startup """
         from a_protocol_0 import Protocol0

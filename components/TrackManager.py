@@ -45,6 +45,7 @@ class TrackManager(AbstractControlSurfaceComponent):
     def _create_track(self, track_creator, name=None):
         # type: (callable, str) -> None
         seq = Sequence()
+        seq.add(wait=1)
         seq.add(track_creator, complete_on=self._added_track_listener)
 
         def set_name():
