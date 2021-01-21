@@ -1,3 +1,4 @@
+import time
 import traceback
 from collections import defaultdict
 from functools import partial, wraps
@@ -102,6 +103,27 @@ def debounce(wait_time=2):
             decorate.count[index] -= 1
             if decorate.count[index] == 0:
                 func(*a, **k)
+
+        return decorate
+
+    return wrap
+
+
+def throttle(wait_time=2, max_executions=3):
+    def wrap(func):
+        @wraps(func)
+        def decorate(*a, **k):
+            index = a[0] if is_method(func) else decorate
+            exec_time = time.time()
+            if len([t for t in decorate.execution_times[index][-3:] if exec_time - t < decorate.max_executions[wait_time]]) == decorate.max_executions[index]:
+                return
+            func(*a, **k)
+            decorate.execution_times[index].append(time.time())
+
+        decorate.wait_time = defaultdict(lambda: wait_time)
+        decorate.max_executions = defaultdict(lambda: max_executions)
+        decorate.execution_times = defaultdict(lambda: [])
+        decorate.func = func
 
         return decorate
 

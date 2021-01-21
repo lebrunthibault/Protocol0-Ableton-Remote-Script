@@ -110,7 +110,7 @@ class AbstractTrackActionMixin(object):
             self.playable_clip.is_playing = True
             if self.song.playing_clips:
                 max_clip = max(self.song.playing_clips, key=lambda c: c.length)
-                self.playable_clip._clip.start_marker = self.parent.utilsManager.get_next_quantized_position(
+                self.playable_clip.start_marker = self.parent.utilsManager.get_next_quantized_position(
                     max_clip.playing_position, self.playable_clip.length)
 
     def stop(self):

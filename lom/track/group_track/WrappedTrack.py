@@ -11,6 +11,7 @@ from a_protocol_0.lom.track.simple_track.AutomationAudioTrack import AutomationA
 from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMidiTrack
 from a_protocol_0.lom.track.simple_track.SimpleGroupTrack import SimpleGroupTrack
 from a_protocol_0.sequence.Sequence import Sequence
+from a_protocol_0.utils.decorators import throttle
 from a_protocol_0.utils.log import log_ableton
 from a_protocol_0.utils.utils import find_last
 
@@ -26,7 +27,6 @@ class WrappedTrack(AbstractGroupTrack):
         super(WrappedTrack, self).__init__(group_track=group_track, *a, **k)
         self.wrapped_track.track_name.link_track(self)
         self.automation_tracks_couples = automation_tracks_couples
-
         self._added_track_init()  # we need to call this here because the wrapped track instantiation doesn't happen at the same time as subtrack creation
 
     @staticmethod
@@ -67,11 +67,12 @@ class WrappedTrack(AbstractGroupTrack):
         return self.base_track.name
 
     @name.setter
+    # @throttle()
     def name(self, name):
         # type: (str) -> None
+        self.parent.log_debug("setting name in wrapped track: %s" % name)
         self.base_track.name = name
         self.wrapped_track.name = name
-
 
     @forward_property('wrapped_track')
     def arm(): pass

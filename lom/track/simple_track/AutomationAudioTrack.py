@@ -35,6 +35,8 @@ class AutomationAudioTrack(SimpleTrack):
 
     @defer
     def _get_automated_device_and_parameter(self):
+        self.parent.log_debug(self)
+        self.parent.log_debug(self.name)
         [_, device_name, parameter_name] = self.name.split(":")
         (device, parameter) = self.parent.deviceManager.get_device_and_parameter_from_name(track=self, device_name=device_name, parameter_name=parameter_name)
         self.automated_device = device

@@ -27,6 +27,7 @@ class AutomationAudioClip(Clip):
         self.automated_midi_clip = clip
         self._sync_name.subject = self.automated_midi_clip
         self._notes_listener.subject = self.automated_midi_clip
+        self._playing_status_listener.subject = self.automated_midi_clip._clip
         seq = Sequence()
         seq.add(wait=1)
         seq.add(partial(setattr, self, "name", clip.name), name="set audio clip name")
@@ -44,6 +45,15 @@ class AutomationAudioClip(Clip):
         seq.add(self.clear_all_envelopes)
         seq.add(self._create_automation_envelope)
         return seq.done()
+
+    @subject_slot("playing_status")
+    def _playing_status_listener(self):
+        if self.automated_midi_clip.is_playing:
+            self.is_playing = True
+            self.start_marker = self.parent.utilsManager.get_next_quantized_position(
+                self.automated_midi_clip.playing_position, self.automated_midi_clip.length)
+        else:
+            self.is_playing = False
 
     def _create_automation_envelope(self):
         envelope = self.create_automation_envelope(self.track.automated_parameter)

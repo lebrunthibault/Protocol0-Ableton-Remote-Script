@@ -117,6 +117,16 @@ class Clip(ClipActionMixin, AbstractObject):
         self._clip.loop_end = loop_end
 
     @property
+    def start_marker(self):
+        # type: () -> float
+        return self._clip.start_marker if self._clip else 0
+
+    @start_marker.setter
+    def start_marker(self, start_marker):
+        # type: (float) -> None
+        self._clip.start_marker = start_marker
+
+    @property
     def end_marker(self):
         # type: () -> float
         return self._clip.end_marker if self._clip else 0
