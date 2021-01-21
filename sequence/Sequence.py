@@ -47,7 +47,7 @@ class Sequence(AbstractObject):
             These should better be execute in a step if only return_if so that it's clearer
     """
 
-    def __init__(self, wait=0, log_level=SequenceLogLevel.info, debug=True, name=None, *a, **k):
+    def __init__(self, wait=0, log_level=SequenceLogLevel.debug, debug=True, name=None, *a, **k):
         super(Sequence, self).__init__(*a, **k)
         self._steps = deque()  # type: [SequenceStep]
         self._current_step = None  # type: SequenceStep

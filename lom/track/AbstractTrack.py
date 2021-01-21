@@ -190,6 +190,14 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         except Exception:
             pass
 
+    def clear_devices(self):
+        seq = Sequence()
+        for _ in range(len(self.devices)):
+            seq.add(lambda: self.delete_device(self.devices[0]))
+            seq.add(wait=1)
+
+        return seq.done()
+
     def _find_all_devices(self, track_or_chain, only_visible=False):
         # type: (Union[SimpleTrack, DeviceChain]) -> List[Device]
         u""" Returns a list with all devices from a track or chain """

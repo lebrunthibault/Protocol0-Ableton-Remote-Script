@@ -9,6 +9,7 @@ from a_protocol_0.consts import EXTERNAL_SYNTH_MINITAUR_NAME
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.device.Device import Device
+from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.sequence.Sequence import Sequence
 
@@ -190,3 +191,17 @@ class DeviceManager(AbstractControlSurfaceComponent):
                 return rack_device
 
         raise Protocol0Error("The device %s is too be too nested to be detected" % device.name)
+
+    def get_device_and_parameter_from_name(self, track, device_name, parameter_name):
+        # type: (AbstractTrack, str, str) -> Tuple[Device, DeviceParameter]
+        device = find_if(lambda d: d.name.lower() == device_name.lower(), track.devices)
+        parameter = None
+        if device:
+            parameter = find_if(lambda p: parameter_name.lower() == p.name.lower(), device.parameters)
+            # self.parent.log_debug([(p.name, p.original_name) for p in device.parameters])
+            # self.parent.log_debug(parameter_name)
+            # self.parent.log_debug(parameter)
+            # self.parent.log_debug(track)
+            # self.parent.log_debug(device)
+
+        return (device, parameter)

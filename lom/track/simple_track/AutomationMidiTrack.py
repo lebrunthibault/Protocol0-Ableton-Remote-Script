@@ -46,9 +46,9 @@ class AutomationMidiTrack(SimpleTrack):
     def _create_base_clips(self):
         velocity_patterns = OrderedDict()
         velocity_patterns["dry"] = [127]
-        velocity_patterns["half-silent"] = [0, 127]
-        velocity_patterns["half-full"] = [127, 0]
-        velocity_patterns["quarter-silent"] = [0, 127, 127, 127]
+        # velocity_patterns["half-silent"] = [0, 127]
+        # velocity_patterns["half-full"] = [127, 0]
+        # velocity_patterns["quarter-silent"] = [0, 127, 127, 127]
 
         seq = Sequence()
         clip_creation_steps = []

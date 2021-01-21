@@ -1,9 +1,11 @@
 from functools import partial
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from _Framework.SubjectSlot import subject_slot
+from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.Clip import Clip
+from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -24,9 +26,26 @@ class AutomationAudioClip(Clip):
         # type: (AutomationMidiClip) -> None
         self.automated_midi_clip = clip
         self._sync_name.subject = self.automated_midi_clip
-        seq = Sequence(debug=False).add(wait=1).add(partial(setattr, self, "name", clip.name))
+        self._notes_listener.subject = self.automated_midi_clip
+        seq = Sequence()
+        seq.add(wait=1)
+        seq.add(partial(setattr, self, "name", clip.name), name="set audio clip name")
+        seq.add(partial(setattr, self, "end_marker", clip.length), name="set audio clip end_marker")
+        seq.add(partial(setattr, self, "loop_end", clip.length), name="set audio clip loop_end")
         return seq.done()
 
     @subject_slot("name")
     def _sync_name(self):
         self.name = self.automated_midi_clip.name
+
+    @subject_slot("notes")
+    def _notes_listener(self):
+        seq = Sequence()
+        seq.add(self.clear_all_envelopes)
+        seq.add(self._create_automation_envelope)
+        return seq.done()
+
+    def _create_automation_envelope(self):
+        envelope = self.create_automation_envelope(self.track.automated_parameter)
+        for note in self.automated_midi_clip.get_notes():
+            envelope.insert_step(note.start, note.duration, note.velocity)

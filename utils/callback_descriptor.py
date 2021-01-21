@@ -85,6 +85,7 @@ class CallableWithCallbacks(object):
                 return res
             if res._state != SequenceState.TERMINATED:
                 res.terminated_callback = self._execute_callbacks
+                return res
 
         self._execute_callbacks()
 

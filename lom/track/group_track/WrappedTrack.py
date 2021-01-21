@@ -44,8 +44,6 @@ class WrappedTrack(AbstractGroupTrack):
         if main_track != group_track.sub_tracks[-1]:
             raise Protocol0Error("The main track of a Wrapped track should always be the last of the group")
 
-        log_ableton((main_tracks, automation_audio_tracks, automation_midi_tracks))
-
         if len(automation_audio_tracks) != len(automation_midi_tracks):
             return None  # inconsistent state, happens on creation or when tracks are deleted
 

@@ -34,7 +34,7 @@ class AutomationMidiClip(Clip):
         if not clip:
             raise Protocol0Error("Inconsistent clip state for %s (%s)" % (self, self.track))
         self.automated_audio_clip = clip
-        clip._connect(self)
+        return clip._connect(self)
 
     @subject_slot("notes")
     def _notes_listener(self):

@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, List
 
 from _Framework.Util import find_if
 from a_protocol_0.consts import push2_beat_quantization_steps
+from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.sequence.Sequence import Sequence
@@ -47,7 +48,6 @@ class ClipActionMixin(object):
 
     def set_notes(self, notes):
         # type: (Clip, List[Note]) -> Sequence
-        raise "not used atm"
         return self._change_clip_notes(self._clip.set_notes, notes, cache=False)
 
     def select_all_notes(self):
@@ -108,4 +108,10 @@ class ClipActionMixin(object):
 
     def create_automation_envelope(self, parameter):
         # type: (Clip, DeviceParameter) -> Live.Clip.AutomationEnvelope
+        if parameter is None:
+            raise Protocol0Error("You passed None to Clip.create_automation_envelope")
         return self._clip.create_automation_envelope(parameter._device_parameter)
+
+    def clear_all_envelopes(self):
+        # type: (Clip) -> None
+        return self._clip.clear_all_envelopes()

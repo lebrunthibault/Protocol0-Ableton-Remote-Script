@@ -77,10 +77,54 @@ class Clip(ClipActionMixin, AbstractObject):
         return self._clip.length if self._clip else 0
 
     @property
+    def warping(self):
+        # type: () -> float
+        return self._clip.warping if self._clip else 0
+
+    @warping.setter
+    def warping(self, warping):
+        # type: (float) -> None
+        self._clip.warping = warping
+
+    @property
+    def looping(self):
+        # type: () -> float
+        return self._clip.looping if self._clip else 0
+
+    @looping.setter
+    def looping(self, looping):
+        # type: (float) -> None
+        self._clip.looping = looping
+
+    @property
     def loop_start(self):
         # type: () -> float
-        """ For looped clips: loop length in beats """
         return self._clip.loop_start if self._clip else 0
+
+    @loop_start.setter
+    def loop_start(self, loop_start):
+        # type: (float) -> None
+        self._clip.loop_start = loop_start
+
+    @property
+    def loop_end(self):
+        # type: () -> float
+        return self._clip.loop_end if self._clip else 0
+
+    @loop_end.setter
+    def loop_end(self, loop_end):
+        # type: (float) -> None
+        self._clip.loop_end = loop_end
+
+    @property
+    def end_marker(self):
+        # type: () -> float
+        return self._clip.end_marker if self._clip else 0
+
+    @end_marker.setter
+    def end_marker(self, end_marker):
+        # type: (float) -> None
+        self._clip.end_marker = end_marker
 
     @property
     def color(self):

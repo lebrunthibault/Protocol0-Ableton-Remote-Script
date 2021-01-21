@@ -60,6 +60,7 @@ class ClipSlot(AbstractObject):
 
     @subject_slot("has_clip")
     def _has_clip_listener(self):
+        self.parent.log_debug("has clip listener !! %s" % self)
         self._map_clip()
         if self.song.highlighted_clip_slot == self and self.has_clip:
             self.parent._wait(2, self.parent.push2Manager.update_clip_grid_quantization)
@@ -84,6 +85,9 @@ class ClipSlot(AbstractObject):
     def insert_dummy_clip(self):
         seq = Sequence()
         seq.add(partial(self.song.tracks[0].clip_slots[0].duplicate_clip_to, self), complete_on=self._has_clip_listener)
+        seq.add(lambda: setattr(self.clip, "warping", 1), name="enable clip warping")
+        seq.add(wait=1)
+        seq.add(lambda: setattr(self.clip, "looping", 1), name="enable clip looping")
         return seq.done()
 
     def disconnect(self):
