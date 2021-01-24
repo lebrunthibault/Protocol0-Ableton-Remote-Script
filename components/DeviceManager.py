@@ -198,10 +198,5 @@ class DeviceManager(AbstractControlSurfaceComponent):
         parameter = None
         if device:
             parameter = find_if(lambda p: parameter_name.lower() == p.name.lower(), device.parameters)
-            # self.parent.log_debug([(p.name, p.original_name) for p in device.parameters])
-            # self.parent.log_debug(parameter_name)
-            # self.parent.log_debug(parameter)
-            # self.parent.log_debug(track)
-            # self.parent.log_debug(device)
 
         return (device, parameter)

@@ -8,12 +8,12 @@ from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
 from a_protocol_0.lom.clip_slot.AutomationMidiClipSlot import AutomationMidiClipSlot
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
+from a_protocol_0.lom.track.simple_track.AbstractAutomationTrack import AbstractAutomationTrack
 from a_protocol_0.lom.track.simple_track.AutomationAudioTrack import AutomationAudioTrack
-from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.sequence.Sequence import Sequence
 
 
-class AutomationMidiTrack(SimpleTrack):
+class AutomationMidiTrack(AbstractAutomationTrack):
     def __init__(self, *a, **k):
         # type: (DeviceParameter) -> None
         super(AutomationMidiTrack, self).__init__(*a, **k)

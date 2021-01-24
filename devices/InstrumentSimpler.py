@@ -24,7 +24,7 @@ class InstrumentSimpler(AbstractInstrument):
     def selected_category(self):
         # type: () -> Optional[str]
         """ first checking the name of the track to be able to scroll categories without looking up samples """
-        return find_if(lambda f: self.track.name in f.lower(), listdir(SAMPLE_PATH))
+        return find_if(lambda f: self.track.base_name in f.lower(), listdir(SAMPLE_PATH))
 
     def _get_presets_path(self):
         # type: () -> str

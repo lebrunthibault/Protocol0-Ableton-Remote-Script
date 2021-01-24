@@ -22,8 +22,7 @@ from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.lom.track.AbstractTrackActionMixin import AbstractTrackActionMixin
 from a_protocol_0.lom.track.TrackName import TrackName
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import defer
-
+from a_protocol_0.utils.decorators import defer, retry
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -39,7 +38,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self._track = track._track
         self._view = self._track.view  # type: Live.Track.Track.View
         self.base_track = track  # type: SimpleTrack
-        super(AbstractTrack, self).__init__(name=self.base_track._track.name, *a, **k)
+        super(AbstractTrack, self).__init__(name=self.base_track.name, *a, **k)
         self.track_name = TrackName(self)
         self.is_foldable = self._track.is_foldable
         self.can_be_armed = self._track.can_be_armed
@@ -59,7 +58,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self.bar_count = 1
         self.is_midi = self._track.has_midi_input
         self.is_audio = self._track.has_audio_input
-        self.base_color = Colors.get(self.name, default=self._track.color_index)
+        self.base_color = Colors.get(self.base_name, default=self._track.color_index)
         self.instrument = None  # type: Optional[AbstractInstrument]  #  None here so that we don't instantiate the same instrument twice
         self.is_scrollable = True
 
@@ -70,22 +69,22 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def _added_track_init(self):
         """ this should be be called once, when the Live track is created """
         seq = Sequence()
-        seq.add(self.song.current_track.action_arm)
-        [seq.add(clip.delete) for clip in self.song.current_track.all_clips]
-        [setattr(track.track_name, "clip_slot_index", 0) for track in self.song.current_track.all_tracks]
-
-        seq.add(partial(self.set_device_parameter_value, "arpeggiator rack", "chain selector", 0))
+        if not self.parent.songManager.abstract_group_track_creation_in_progress:
+            seq.add(self.song.current_track.action_arm)
+            [seq.add(clip.delete) for clip in self.song.current_track.all_clips]
+            [setattr(track.track_name, "clip_slot_index", 0) for track in self.song.current_track.all_tracks]
+            seq.add(partial(self.set_device_parameter_value, "arpeggiator rack", "chain selector", 0))
         return seq.done()
 
     @property
     def name(self):
         # type: () -> str
-        return self.track_name.base_name
+        return self._track.name
 
     @name.setter
     def name(self, name):
         # type: (str) -> None
-        if name and self._track.name != name:
+        if name and self.name != name:
             try:
                 self._track.name = name
             except RuntimeError:
@@ -134,6 +133,11 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
                 return track_category
 
         return TRACK_CATEGORY_OTHER
+
+    @property
+    def base_name(self):
+        # type: () -> str
+        return self.base_track.track_name.base_name
 
     @property
     def preset_index(self):
@@ -345,6 +349,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # type: (Live.Track.RoutingChannel) -> None
         self._track.output_routing_channel = output_routing_channel
 
+    @retry(2)
     def attach_output_routing_to(self, track):
         # type: (SimpleTrack) -> None
         if track is None:
@@ -353,13 +358,14 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         output_routing_type = find_if(lambda r: r.attached_object == track._track,
                                            self.available_output_routing_types)
         if not output_routing_type:
-            output_routing_type = find_if(lambda r: r.display_name == track.name,
+            output_routing_type = find_if(lambda r: r.display_name.lower() == track.name.lower(),
                                           self.available_output_routing_types)
 
         if not output_routing_type:
-            raise Protocol0Error("Couldn't find the output routing type of the given track")
+                raise Protocol0Error("Couldn't find the output routing type of the given track")
 
-        self.output_routing_type = output_routing_type
+        if self.output_routing_type != output_routing_type:
+            self.output_routing_type = output_routing_type
 
     def disconnect(self):
         super(AbstractTrack, self).disconnect()

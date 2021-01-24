@@ -26,7 +26,7 @@ from a_protocol_0.components.UtilsManager import UtilsManager
 from a_protocol_0.consts import LogLevel
 from a_protocol_0.lom.Song import Song
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import wait
+from a_protocol_0.utils.decorators import wait, subject_slot
 from a_protocol_0.utils.log import log_ableton
 
 
@@ -60,8 +60,11 @@ class Protocol0(ControlSurface):
             self.actionSetManager = ActionSetManager()
             self.actionTestManager = ActionTestManager()
             if init_song:
-                self.songManager.init_song()
-                self.dev_boot()
+                seq = Sequence()
+                seq.add(wait=2)
+                seq.add(self.songManager.init_song)
+                seq.add(self.dev_boot)
+                seq.done()
 
         self.log_info("Protocol0 script loaded")
 
@@ -124,8 +127,6 @@ class Protocol0(ControlSurface):
         self.trackAutomationManager.create_automation_group(self.protocol0_song.tracks[1].devices[1].parameters[1])
         return
         self.defer(partial(self.protocol0_song.select_device, self.protocol0_song.tracks[19].devices[-1]))
-        self._wait(2, partial(self.trackAutomationManager.action_set_up_automation_envelope,
-                              self.protocol0_song.tracks[19]))
         # self.protocol0_song.highlighted_clip_slot = self.protocol0_song.selected_track.clips[0]
         # self.protocol0_song.selected_track.play()
         # self.trackAutomationManager.create_automation_group(self.protocol0_song.selected_track)

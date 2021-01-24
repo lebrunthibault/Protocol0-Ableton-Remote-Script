@@ -20,8 +20,7 @@ class SongActionMixin(object):
         # type: (Song, AbstractTrack, bool) -> Sequence
         seq = Sequence()
         seq.add(partial(setattr, self._view, "selected_track", selected_track.base_track._track),
-                do_if=lambda: selected_track != self.song.selected_track)
-        seq.add(wait=1)
+                do_if=lambda: selected_track != self.song.selected_track, complete_on=lambda: lambda: self.song.selected_track == selected_track)
         return seq.done()
 
     def unfocus_all_tracks(self, except_current=True):
@@ -47,8 +46,7 @@ class SongActionMixin(object):
         self.stop_all_clips(0)
         self.stop_playing()
         self._song.current_song_time = 0
-        [track.reset_track() for track in self.tracks]
-        [track.reset_track() for track in self.abstract_group_tracks]
+        [track.reset_track() for track in self.abstract_tracks]
 
     def stop_playing(self):
         # type: (Song) -> None

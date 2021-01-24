@@ -14,7 +14,7 @@ class ParallelSequence(Sequence):
 
     def _start(self):
         for step in self._steps:  # type: SequenceStep
-            self._parallel_step_termination.subject = step
+            self._parallel_step_termination.add_subject(step)
             step._start()
 
     @subject_slot_group("terminated")

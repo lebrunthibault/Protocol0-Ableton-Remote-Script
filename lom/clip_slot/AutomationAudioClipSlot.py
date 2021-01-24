@@ -28,7 +28,7 @@ class AutomationAudioClipSlot(ClipSlot):
         super(AutomationAudioClipSlot, self)._has_clip_listener()
         seq = Sequence().add(wait=1)
 
-        if not self.has_clip and self.automated_midi_clip_slot.has_clip:
+        if not self.has_clip and self.automated_midi_clip_slot and self.automated_midi_clip_slot.has_clip:
             seq.add(self.automated_midi_clip_slot.clip.delete)
 
         return seq.done()

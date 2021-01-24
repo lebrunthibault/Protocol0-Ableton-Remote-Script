@@ -4,7 +4,7 @@ import Live
 from _Framework.SubjectSlot import subject_slot_group
 from _Framework.Util import clamp
 from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.utils.decorators import throttle
+from a_protocol_0.utils.decorators import defer
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -31,12 +31,11 @@ class TrackName(AbstractObject):
         return "TrackName of %s" % self.track
 
     @subject_slot_group("name")
+    @defer
     def _name_listener(self, changed_track):
         # type: (Live.Track.Track) -> None
-        self.parent.log_debug("_name_listener on %s" % changed_track)
-
         self.parts = changed_track.name.split(" - ")
-        self.base_name = self.parts[0].lower()
+        self.base_name = self.parts[0]
         try:
             self.clip_slot_index = int(self.parts[1])
         except (ValueError, IndexError):
@@ -47,7 +46,8 @@ class TrackName(AbstractObject):
             self.preset_index = 0
 
         for track in [track for track in self.tracks if track._track != changed_track]:
-            track.base_track.name = changed_track.name
+            if track.base_track.name != changed_track.name:
+                track.base_track.name = changed_track.name
 
     def link_track(self, track):
         # type: (AbstractTrack) -> None
@@ -69,7 +69,5 @@ class TrackName(AbstractObject):
             preset_index = preset_index if preset_index is not None else self.preset_index
             preset_index = max(0, preset_index)
             name += " - {0}".format(preset_index)
-
-        self.parent.log_debug("setting name %s on %s" % (name, self.track))
 
         self.track.name = name

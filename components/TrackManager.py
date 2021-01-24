@@ -4,7 +4,7 @@ import Live
 from typing import Optional
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.consts import EXTERNAL_SYNTH_NAMES, AUTOMATION_TRACK_MIDI_NAME, AUTOMATION_TRACK_AUDIO_NAME
+from a_protocol_0.consts import AUTOMATION_TRACK_NAME
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
@@ -71,17 +71,19 @@ class TrackManager(AbstractControlSurfaceComponent):
         # type: (Live.Track.Track, int) -> SimpleTrack
         if track.is_foldable:
             return SimpleGroupTrack(track=track, index=index)
-        elif AUTOMATION_TRACK_MIDI_NAME in track.name:
-            return AutomationMidiTrack(track=track, index=index)
-        elif AUTOMATION_TRACK_AUDIO_NAME in track.name:
-            return AutomationAudioTrack(track=track, index=index)
+        elif AUTOMATION_TRACK_NAME in track.name:
+            if track.has_midi_input:
+                return AutomationMidiTrack(track=track, index=index)
+            else:
+                return AutomationAudioTrack(track=track, index=index)
         else:
             return SimpleTrack(track=track, index=index)
 
     def instantiate_abstract_group_track(self, track):
         # type: (SimpleGroupTrack) -> Optional[AbstractGroupTrack]
-        if any([track.name in name for name in EXTERNAL_SYNTH_NAMES]):
-            return ExternalSynthTrack(group_track=track)
+        external_synth_track = ExternalSynthTrack.make(group_track=track)
+        if external_synth_track:
+            return external_synth_track
 
         try:
             wrapped_track = WrappedTrack.make(group_track=track)

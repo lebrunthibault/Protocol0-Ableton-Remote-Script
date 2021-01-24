@@ -1,5 +1,4 @@
 import itertools
-from functools import partial
 
 from typing import TYPE_CHECKING, List
 
@@ -11,9 +10,6 @@ from a_protocol_0.lom.track.simple_track.AutomationAudioTrack import AutomationA
 from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMidiTrack
 from a_protocol_0.lom.track.simple_track.SimpleGroupTrack import SimpleGroupTrack
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import throttle
-from a_protocol_0.utils.log import log_ableton
-from a_protocol_0.utils.utils import find_last
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -56,10 +52,17 @@ class WrappedTrack(AbstractGroupTrack):
     def _added_track_init(self):
         seq = Sequence()
         seq.add(wait=1)
-        seq.add(partial(self.wrapped_track.attach_output_routing_to, find_last(lambda t: isinstance(t, AutomationAudioTrack), self.sub_tracks)))
+        seq.add(self.link_audio_tracks)
         seq.add(lambda: setattr(self, "name", self.wrapped_track.name))
 
         return seq.done()
+
+    def link_audio_tracks(self):
+        audio_tracks = [self.base_track] + [couple.audio_track for couple in self.automation_tracks_couples] + [self.wrapped_track]
+        for i, audio_track in enumerate(audio_tracks):
+            if i == len(audio_tracks) - 1:
+                break
+            audio_tracks[i + 1].attach_output_routing_to(audio_track)
 
     @property
     def name(self):
@@ -67,10 +70,8 @@ class WrappedTrack(AbstractGroupTrack):
         return self.base_track.name
 
     @name.setter
-    # @throttle()
     def name(self, name):
         # type: (str) -> None
-        self.parent.log_debug("setting name in wrapped track: %s" % name)
         self.base_track.name = name
         self.wrapped_track.name = name
 

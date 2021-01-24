@@ -60,7 +60,6 @@ class ClipSlot(AbstractObject):
 
     @subject_slot("has_clip")
     def _has_clip_listener(self):
-        self.parent.log_debug("has clip listener !! %s" % self)
         self._map_clip()
         if self.song.highlighted_clip_slot == self and self.has_clip:
             self.parent._wait(2, self.parent.push2Manager.update_clip_grid_quantization)

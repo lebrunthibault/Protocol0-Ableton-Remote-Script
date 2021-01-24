@@ -16,8 +16,7 @@ class SequenceStep(AbstractObject):
     __subject_events__ = ('terminated',)
 
     def __init__(self, func, sequence, wait=None, name=None, log_level=SequenceLogLevel.debug, complete_on=None,
-                 do_if=None, do_if_not=None, return_if=None, return_if_not=None, check_timeout=5, *a, **k):
-        # type: (callable, Sequence, float, str, int, callable, callable, callable, callable, callable, int) -> None
+                 do_if=None, do_if_not=None, return_if=None, return_if_not=None, sync=False, check_timeout=5, *a, **k):
         """ the tick is 100 ms """
         super(SequenceStep, self).__init__(*a, **k)
         self._seq = sequence
@@ -38,6 +37,7 @@ class SequenceStep(AbstractObject):
         self._check_count = 0
         self._callback_timeout = None  # type: callable
         self._res = None
+        self._sync = sync  # this unlinks the step from the enclosing sequence if we don't want to listen for the step termination
         self._errored = False
         self._by_passed_seq = False
         self._is_terminal_step = False
@@ -174,7 +174,7 @@ class SequenceStep(AbstractObject):
 
     def _execute(self):
         res = self._execute_callable(self._callable)
-        if self._errored:
+        if self._errored or self._sync:
             return
 
         from a_protocol_0.sequence.Sequence import Sequence

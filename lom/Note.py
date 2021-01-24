@@ -1,9 +1,14 @@
-from typing import TYPE_CHECKING
+from copy import copy
+from functools import partial
+
+from typing import TYPE_CHECKING, List
 
 from _Framework.Util import clamp, find_if
 from a_protocol_0.consts import push2_beat_quantization_steps
 from a_protocol_0.lom.AbstractObject import AbstractObject
+from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import debounce
+from a_protocol_0.utils.log import log_ableton
 from a_protocol_0.utils.utils import is_equal
 from pushbase.note_editor_component import TimeStep
 
@@ -56,7 +61,6 @@ class Note(AbstractObject):
     @pitch.setter
     def pitch(self, pitch):
         self._pitch = clamp(pitch, 0, 127)
-        self.synchronize()
 
     @property
     def start(self):
@@ -65,7 +69,6 @@ class Note(AbstractObject):
     @start.setter
     def start(self, start):
         self._start = max(0, start)
-        self.synchronize()
 
     @property
     def end(self):
@@ -80,7 +83,6 @@ class Note(AbstractObject):
     @duration.setter
     def duration(self, duration):
         self._duration = max(0, duration)
-        self.synchronize()
 
     @property
     def velocity(self):
@@ -93,7 +95,6 @@ class Note(AbstractObject):
     @velocity.setter
     def velocity(self, velocity):
         self._velocity = clamp(velocity, 0, 127)
-        self.synchronize()
 
     @property
     def muted(self):
@@ -102,7 +103,6 @@ class Note(AbstractObject):
     @muted.setter
     def muted(self, muted):
         self._muted = bool(muted)
-        self.synchronize()
 
     @property
     def quantization(self):
@@ -116,23 +116,18 @@ class Note(AbstractObject):
         # type: (Note) -> bool
         return note.start < self.end and note.end > self.start
 
-    def synchronize(self):
-        if not Note.auto_sync_enabled:
-            return
-        self.clip._is_updating_notes = True
-        Note.notes_to_synchronize.add(self)
-        self._synchronize()
-
     @staticmethod
-    @debounce(1)
-    def _synchronize():
-        notes = list(Note.notes_to_synchronize)
+    def _synchronize(notes):
+        # type: (List[Note]) -> None
         if len(notes) == 0:
             return
+        # log_ableton(notes[0].clip._prev_notes)
+        # log_ableton(notes)
+
         for note in notes:
             [(time, length)] = note.time_step.connected_time_ranges()
             note.clip._clip.remove_notes(time, 0, length, 128)
-            note.clip.set_notes([note])
 
-        note.clip._is_updating_notes = False
-        Note.notes_to_synchronize = set()
+        seq = Sequence()
+        seq.add(partial(note.clip.set_notes, notes))
+        return seq.done()

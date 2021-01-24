@@ -8,9 +8,9 @@ from typing import List, TYPE_CHECKING
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.Note import Note
+from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import debounce, subject_slot
-from a_protocol_0.utils.log import set_object_attr
-
+from a_protocol_0.utils.log import set_object_attr, log_ableton
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -38,22 +38,26 @@ class AutomationMidiClip(Clip):
 
     @subject_slot("notes")
     def _notes_listener(self):
+        # type: () -> Sequence
         super(AutomationMidiClip, self)._notes_listener()
         if not self._is_updating_notes:
-            self._map_notes()
+            return self.map_notes()
 
     @debounce(3)
-    def _map_notes(self):
+    def map_notes(self):
         notes = self.get_notes()
         if len(notes) == 0 or self._is_updating_notes or notes == self._prev_notes:
             return
 
-        if len(self.notes_changed(notes, ["start", "duration", "pitch"])) == 0:
-            # self.parent.log_info("manual pitch change")
-            [setattr(note, "pitch", note.velocity) for (_, note) in self.notes_changed(notes, ["velocity"])]
-            # self._notes = notes
-            self.parent.defer(partial(self._map_notes, self))
-            return
+        self._map_notes(notes)
+
+    def _map_notes(self, notes=None):
+        # type: (List[Note]) -> Sequence
+        notes = notes or self._prev_notes
+
+        pitch_or_vel_changes = self.notes_changed(notes, ["pitch", "velocity"])
+        if len(pitch_or_vel_changes):
+            return self._map_single_notes(pitch_or_vel_changes)
 
         if len(notes) > len(self._prev_notes) and len(self._prev_notes):
             added_notes_count = len(notes) - len(self._prev_notes)
@@ -76,7 +80,21 @@ class AutomationMidiClip(Clip):
                 notes.sort(key=lambda x: x.start)
             [setattr(note, "pitch", note.velocity) for note in notes]
 
-            self.replace_all_notes(notes)
+            return self.replace_all_notes(notes)
+
+    def _map_single_notes(self, notes_change):
+        # type: (List[Note]) -> Sequence
+        notes = [note for prev_note, note in notes_change]
+        prev_notes = [prev_note for prev_note, note in notes_change]
+
+        for prev_note, note in self.notes_changed(notes, ["pitch"], prev_notes):
+            prev_note.pitch = prev_note.velocity = note.velocity = note.pitch
+        for prev_note, note in self.notes_changed(notes, ["velocity"], prev_notes):
+            prev_note.velocity = prev_note.pitch = note.pitch = note.velocity
+        seq = Sequence()
+        seq.add(partial(Note._synchronize, notes))
+        seq.add(self._map_notes)
+        return seq.done()
 
     def _insert_added_note(self, notes):
         # type: (List[Note]) -> List[Note]
@@ -85,8 +103,7 @@ class AutomationMidiClip(Clip):
                 yield note
             return
 
-        if notes[0].start != self.loop_start:
-            raise Protocol0Error("the first note doesn't start on clip loop start")
+        notes[0].start = self.loop_start  # ensuring
 
         i = 0
         while i < len(notes):
@@ -107,6 +124,7 @@ class AutomationMidiClip(Clip):
             while self._added_note.end >= note.end and i < len(notes) - 1:
                 i += 1
                 note = notes[i]
+            self._added_note.velocity = self._added_note.pitch
             yield self._added_note
             if self._added_note.end < note.end:
                 end = note.end
@@ -125,6 +143,8 @@ class AutomationMidiClip(Clip):
 
         # merge notes
         current_note = notes[0]
+        current_note.duration += (current_note.start - self.loop_start)
+        current_note.start = self.loop_start
         yield current_note
         for next_note in notes[1:]:
             if next_note.velocity == current_note.velocity:

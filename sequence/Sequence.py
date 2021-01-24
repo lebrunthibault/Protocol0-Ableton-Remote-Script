@@ -47,6 +47,8 @@ class Sequence(AbstractObject):
             These should better be execute in a step if only return_if so that it's clearer
     """
 
+    DISABLE_LOGGING = False
+
     def __init__(self, wait=0, log_level=SequenceLogLevel.debug, debug=True, name=None, *a, **k):
         super(Sequence, self).__init__(*a, **k)
         self._steps = deque()  # type: [SequenceStep]
@@ -57,8 +59,8 @@ class Sequence(AbstractObject):
         self._start_at = None  # type: float
         self._end_at = None  # type: float
         self._duration = None  # type: float
-        self._log_level = log_level
-        self._debug = (log_level == SequenceLogLevel.debug) and debug
+        self._log_level = SequenceLogLevel.disabled if self.DISABLE_LOGGING else log_level
+        self._debug = (log_level == SequenceLogLevel.debug) and debug and not self.DISABLE_LOGGING
         self._early_returned = False
         self._errored = False
         self._parent_seq = None  # type: Sequence
@@ -181,8 +183,7 @@ class Sequence(AbstractObject):
         self.notify_terminated()
 
     def add(self, callback=nop, wait=None, name=None, complete_on=None, do_if=None, do_if_not=None, return_if=None,
-            return_if_not=None, check_timeout=5):
-        # type: (Any, float, str, callable, callable, callable, callable, callable, int) -> Sequence
+            return_if_not=None, sync=False, check_timeout=5):
         """
             callback can be :
             - None: can be used to just wait on a condition
@@ -206,7 +207,7 @@ class Sequence(AbstractObject):
                                 message="You passed a Sequence object instead of a Sequence factory to add")
         else:
             self._add_step(callback, wait=wait, name=name, complete_on=complete_on, do_if=do_if, do_if_not=do_if_not,
-                           return_if=return_if, return_if_not=return_if_not, check_timeout=check_timeout)
+                           return_if=return_if, return_if_not=return_if_not, sync=sync, check_timeout=check_timeout)
 
         if not self._early_returned and self._state in (SequenceState.UN_STARTED, SequenceState.PAUSED):
             # this is the only way to ensure the sequence steps are going to be executed in a sync sequence with sync sequence steps

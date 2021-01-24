@@ -8,7 +8,7 @@ from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleGroupTrack import SimpleGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
-from a_protocol_0.utils.decorators import subject_slot, has_callback_queue, retry
+from a_protocol_0.utils.decorators import subject_slot, has_callback_queue, retry, wait
 
 
 class SongManager(AbstractControlSurfaceComponent):

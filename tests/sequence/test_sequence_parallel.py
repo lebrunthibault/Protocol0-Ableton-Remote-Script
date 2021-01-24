@@ -5,11 +5,12 @@ from functools import partial
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.sequence.SequenceState import SequenceLogLevel
+# noinspection PyUnresolvedReferences
 from a_protocol_0.tests.test_all import p0
 from a_protocol_0.utils.decorators import has_callback_queue, subject_slot
 
 
-def test_async_callback():
+def test_parallel_listeners():
     class Example(AbstractObject):
         __subject_events__ = ('test',)
 

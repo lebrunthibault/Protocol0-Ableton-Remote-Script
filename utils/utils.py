@@ -74,12 +74,16 @@ def is_equal(val1, val2, delta=0.00001):
         return val1 == val2
 
 
-def compare_properties(obj1, obj2, properties):
+def have_equal_properties(obj1, obj2, properties):
+    # print((obj1, obj2))
     for property in properties:
+        # print((property, getattr(obj1, property), getattr(obj2, property)))
         if not hasattr(obj1, property) or not hasattr(obj2, property) or not is_equal(getattr(obj1, property),
                                                                                       getattr(obj2,
                                                                                               property)):
+            # print("False")
             return False
+    # print("True")
     return True
 
 
@@ -110,6 +114,9 @@ def _has_callback_queue(func):
 
 def is_method(func):
     spec = inspect.getargspec(func)
+    print(spec, func)
+    print(spec, func)
+    print(spec, func)
     return spec.args and spec.args[0] == 'self'
 
 

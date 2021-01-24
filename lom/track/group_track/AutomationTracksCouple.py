@@ -5,7 +5,6 @@ from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.track.simple_track.AutomationAudioTrack import AutomationAudioTrack
 from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMidiTrack
-from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
 class AutomationTracksCouple(AbstractObject):
@@ -21,10 +20,6 @@ class AutomationTracksCouple(AbstractObject):
         self.midi_track = midi_track
         self._connect.subject = self.midi_track
         self._connect()
-
-    def link_to(self, track):
-        # type: (SimpleTrack) -> None
-        self.audio_track.attach_output_routing_to(track)
 
     @subject_slot("clip_slots")
     def _connect(self):

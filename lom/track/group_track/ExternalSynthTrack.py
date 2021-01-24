@@ -1,8 +1,11 @@
 from typing import TYPE_CHECKING
 
+from a_protocol_0.consts import EXTERNAL_SYNTH_NAMES
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.group_track.ExternalSynthTrackActionMixin import ExternalSynthTrackActionMixin
+from a_protocol_0.lom.track.simple_track.AbstractAutomationTrack import AbstractAutomationTrack
+from a_protocol_0.lom.track.simple_track.SimpleGroupTrack import SimpleGroupTrack
 from a_protocol_0.utils.utils import find_last
 
 if TYPE_CHECKING:
@@ -17,6 +20,16 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self.midi = find_last(lambda t: t.is_midi, self.sub_tracks)  # type: SimpleTrack
         self.audio = find_last(lambda t: t.is_audio, self.sub_tracks)  # type: SimpleTrack
         self.midi.is_scrollable = self.audio.is_scrollable = False
+
+    @staticmethod
+    def make(group_track):
+        # type: (SimpleGroupTrack) -> None
+        if len([sub_track for sub_track in group_track.sub_tracks if not isinstance(sub_track, AbstractAutomationTrack)]) != 2:
+            return
+        if not any([name in group_track.name for name in EXTERNAL_SYNTH_NAMES]):
+            return
+
+        return ExternalSynthTrack(group_track=group_track)
 
     @property
     def arm(self):

@@ -9,7 +9,7 @@ def test_sequence_is_always_returned():
         if any([folder_name in current_path for folder_name in [".git", "tests", "pytest", "jupyter", ".ipynb_checkpoints", "scripts", "sequence"]]):
             continue
         for file in files:
-            if file.endswith(".pyc"):
+            if file.endswith(".pyc") or file == "Protocol0.py":
                 continue
             code_files.append(os.path.join(current_path, file))
 

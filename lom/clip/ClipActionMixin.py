@@ -9,7 +9,7 @@ from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.utils import compare_properties
+from a_protocol_0.utils.utils import have_equal_properties
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -37,9 +37,10 @@ class ClipActionMixin(object):
         seq = Sequence()
         seq.add(wait=1)
         seq.add(partial(method, tuple(note.to_data() for note in notes)))
-        seq.add(lambda: setattr(self, "_is_updating_notes", False))
         # noinspection PyUnresolvedReferences
         seq.add(self.notify_notes)  # for automation audio track to be notified
+        seq.add(wait=1)
+        seq.add(lambda: setattr(self, "_is_updating_notes", False))
         return seq.done()
 
     def replace_selected_notes(self, notes, cache=True):
@@ -67,12 +68,17 @@ class ClipActionMixin(object):
         seq.add(self.deselect_all_notes)
         return seq.done()
 
-    def notes_changed(self, notes, properties):
+    def notes_changed(self, notes, checked_properties, prev_notes=None):
         # type: (Clip, List[Note], List[str]) -> List[Note]
-        if len(self._prev_notes) != len(notes):
-            return notes
+        prev_notes = prev_notes or self._prev_notes
+        all_properties = ["start", "duration", "pitch", "velocity"]
+        excluded_properties = list(set(all_properties) - set(checked_properties))
+        if len(prev_notes) != len(notes):
+            return []
+
+        # keeping only those who have the same excluded properties and at least one checked_property change
         return list(filter(None,
-                           map(lambda x, y: None if compare_properties(x, y, properties) else (x, y), self._prev_notes,
+                           map(lambda x, y: None if not have_equal_properties(x, y, excluded_properties) or have_equal_properties(x, y, checked_properties) else (x, y), prev_notes,
                                notes)))
 
     @property

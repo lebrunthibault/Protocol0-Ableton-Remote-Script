@@ -87,42 +87,63 @@ def debounce(wait_time=2):
     def wrap(func):
         @wraps(func)
         def decorate(*a, **k):
-            index = a[0] if is_method(func) else decorate
-            wait_time = 0 if k.get("disable_debounce", False) else decorate.wait_time[index]
-            k.pop("disable_debounce", None)
-            decorate.count[index] += 1
+            decorate.count += 1
             from a_protocol_0 import Protocol0
-            Protocol0.SELF._wait(wait_time, partial(execute, func, *a, **k))
+            Protocol0.SELF._wait(decorate.wait_time, partial(execute, func, *a, **k))
 
-        decorate.count = defaultdict(int)
-        decorate.wait_time = defaultdict(lambda: wait_time)
+        decorate.count = 0
+        decorate.wait_time = wait_time
         decorate.func = func
 
         def execute(func, *a, **k):
-            index = a[0] if is_method(func) else decorate
-            decorate.count[index] -= 1
-            if decorate.count[index] == 0:
+            decorate.count -= 1
+            if decorate.count == 0:
                 func(*a, **k)
 
         return decorate
 
     return wrap
+#
+# def debounce(wait_time=2):
+#     def wrap(func):
+#         @wraps(func)
+#         def decorate(*a, **k):
+#             index = a[0] if is_method(func) else decorate
+#             wait_time = 0 if k.get("disable_debounce", False) else decorate.wait_time[index]
+#             print(wait_time)
+#             k.pop("disable_debounce", None)
+#             decorate.count[index] += 1
+#             from a_protocol_0 import Protocol0
+#             Protocol0.SELF._wait(wait_time, partial(execute, func, *a, **k))
+#
+#         decorate.count = defaultdict(int)
+#         decorate.wait_time = defaultdict(lambda: wait_time)
+#         decorate.func = func
+#
+#         def execute(func, *a, **k):
+#             index = a[0] if is_method(func) else decorate
+#             decorate.count[index] -= 1
+#             if decorate.count[index] == 0:
+#                 func(*a, **k)
+#
+#         return decorate
+#
+#     return wrap
 
 
 def throttle(wait_time=2, max_executions=3):
     def wrap(func):
         @wraps(func)
         def decorate(*a, **k):
-            index = a[0] if is_method(func) else decorate
             exec_time = time.time()
-            if len([t for t in decorate.execution_times[index][-3:] if exec_time - t < decorate.max_executions[wait_time]]) == decorate.max_executions[index]:
+            if len([t for t in decorate.execution_times[-3:] if exec_time - t < decorate.wait_time]) == decorate.max_executions:
                 return
             func(*a, **k)
-            decorate.execution_times[index].append(time.time())
+            decorate.execution_times.append(time.time())
 
-        decorate.wait_time = defaultdict(lambda: wait_time)
-        decorate.max_executions = defaultdict(lambda: max_executions)
-        decorate.execution_times = defaultdict(lambda: [])
+        decorate.wait_time = wait_time
+        decorate.max_executions = max_executions
+        decorate.execution_times = []
         decorate.func = func
 
         return decorate

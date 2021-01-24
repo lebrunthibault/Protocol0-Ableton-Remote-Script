@@ -7,6 +7,7 @@ from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.sequence.Sequence import Sequence
+from a_protocol_0.utils.decorators import defer
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -50,12 +51,16 @@ class AutomationAudioClip(Clip):
     def _playing_status_listener(self):
         if self.automated_midi_clip.is_playing:
             self.is_playing = True
-            self.start_marker = self.parent.utilsManager.get_next_quantized_position(
-                self.automated_midi_clip.playing_position, self.automated_midi_clip.length)
+            seq = Sequence()
+            seq.add(wait=1)
+            seq.add(lambda: setattr(self, "start_marker", self.parent.utilsManager.get_next_quantized_position(
+                self.automated_midi_clip.playing_position, self.automated_midi_clip.length)))
+            seq.add(lambda: setattr(self, "is_playing", True))
+            return seq.done()
         else:
             self.is_playing = False
 
     def _create_automation_envelope(self):
         envelope = self.create_automation_envelope(self.track.automated_parameter)
-        for note in self.automated_midi_clip.get_notes():
+        for note in self.automated_midi_clip._prev_notes:
             envelope.insert_step(note.start, note.duration, note.velocity)
