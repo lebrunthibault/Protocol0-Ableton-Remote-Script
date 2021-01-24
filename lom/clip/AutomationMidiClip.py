@@ -1,3 +1,4 @@
+from collections import defaultdict
 from copy import copy
 from fractions import Fraction
 from functools import partial
@@ -10,7 +11,6 @@ from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import debounce, subject_slot
-from a_protocol_0.utils.log import set_object_attr, log_ableton
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -59,28 +59,36 @@ class AutomationMidiClip(Clip):
         if len(pitch_or_vel_changes):
             return self._map_single_notes(pitch_or_vel_changes)
 
-        if len(notes) > len(self._prev_notes) and len(self._prev_notes):
-            added_notes_count = len(notes) - len(self._prev_notes)
+        base_notes = filter(lambda n: n.is_quantized, notes)
+        base_prev_notes = filter(lambda n: n.is_quantized, self._prev_notes)
+        if len(base_notes) > len(base_prev_notes) and len(base_prev_notes):
+            added_notes_count = len(base_notes) - len(base_prev_notes)
             if added_notes_count != 1:
                 raise Protocol0Error("Multiple added notes are not handled (added : %d notes on clip %s)" % (added_notes_count, self))
-            self._added_note = next(iter(list(set(notes) - set(self._prev_notes))), None)
-            notes = list(set(notes) - set([self._added_note]))
+
+            self._added_note = next(iter(list(set(base_notes) - set(base_prev_notes))), None)
+            notes = base_prev_notes
+            self._added_note.velocity = self._added_note.pitch
             notes.sort(key=lambda x: x.start)
 
         note_transforms = [
             lambda notes: filter(lambda n: n.is_quantized, notes),
             self._insert_added_note,
+            lambda notes: filter(lambda n: n.start < self.length, notes),
             self._consolidate_notes,
             lambda notes: list(chain(*self._ramp_note_endings(notes))),
+            self._clean_duplicate_notes,
         ]  # type: List[callable(List[Note])]
 
-        with set_object_attr(Note, "auto_sync_enabled", False):
-            for note_transform in note_transforms:
-                notes = list(note_transform(notes))
-                notes.sort(key=lambda x: x.start)
+        for note_transform in note_transforms:
+            notes = list(note_transform(notes))
+            notes = list(set(notes))
+            notes.sort(key=lambda x: x.start)
             [setattr(note, "pitch", note.velocity) for note in notes]
 
-            return self.replace_all_notes(notes)
+        self._added_note = None
+
+        return self.replace_all_notes(notes)
 
     def _map_single_notes(self, notes_change):
         # type: (List[Note]) -> Sequence
@@ -124,7 +132,6 @@ class AutomationMidiClip(Clip):
             while self._added_note.end >= note.end and i < len(notes) - 1:
                 i += 1
                 note = notes[i]
-            self._added_note.velocity = self._added_note.pitch
             yield self._added_note
             if self._added_note.end < note.end:
                 end = note.end
@@ -153,6 +160,19 @@ class AutomationMidiClip(Clip):
                 current_note = next_note
                 yield current_note
 
+    def _clean_duplicate_notes(self, notes):
+        # type: (List[Note]) -> List[Note]
+        notes_by_start = defaultdict(list)
+
+        for note in notes:
+            notes_by_start[note.start].append(note)
+        for start, notes in notes_by_start.items():
+            notes_by_start[start] = max(notes, key=lambda c: note.duration)
+
+        notes = notes_by_start.values()
+        notes.sort(key=lambda x: x.start)
+        return notes
+
     def _ramp_note_endings(self, notes):
         # type: (List[Note]) -> List[Note]
         """ ramp note endings only for notes going down to handle the filter click on sudden changes """
@@ -172,12 +192,12 @@ class AutomationMidiClip(Clip):
             yield note
             return
 
-        above_ramping_duration = note.duration > self.ramping_duration * (1 + Fraction(1, self.ramping_steps))
-        if above_ramping_duration:
+        is_above_ramping_duration = note.duration > self.ramping_duration * (1 + Fraction(1, self.ramping_steps))
+        if is_above_ramping_duration:
             ramping_steps = self.ramping_steps - 1
             start_coeff = 1 - Fraction(1, self.ramping_steps)
             ramp_start = note.start + note.duration - self.ramping_duration * start_coeff
-            velocity_start = note.velocity * start_coeff
+            velocity_start = next_note.velocity + (note.velocity - next_note.velocity) * start_coeff
             base_duration = self.ramping_duration * start_coeff
 
             first_note = copy(note)

@@ -20,7 +20,6 @@ if TYPE_CHECKING:
 class Note(AbstractObject):
     MIN_DURATION = 1 / 128
     notes_to_synchronize = set()  # type: [Note]
-    auto_sync_enabled = True
 
     def __init__(self, pitch=127, start=0, duration=1, velocity=127, muted=False, clip=None, *a, **k):
         super(Note, self).__init__(*a, **k)
@@ -83,6 +82,8 @@ class Note(AbstractObject):
     @duration.setter
     def duration(self, duration):
         self._duration = max(0, duration)
+        if self._duration == 0:
+            raise RuntimeError("A Note with a duration of 0 is not accepted")
 
     @property
     def velocity(self):
