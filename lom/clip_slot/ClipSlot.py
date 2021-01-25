@@ -6,7 +6,7 @@ from typing import Any, TYPE_CHECKING
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import subject_slot
+from a_protocol_0.utils.decorators import subject_slot, retry
 from a_protocol_0.utils.log import log_ableton
 
 if TYPE_CHECKING:
@@ -65,8 +65,11 @@ class ClipSlot(AbstractObject):
             self.parent._wait(2, self.parent.push2Manager.update_clip_grid_quantization)
 
     def delete_clip(self):
+        seq = Sequence()
         if self._clip_slot.has_clip:
-            return self._clip_slot.delete_clip()
+            seq.add(wait=1)
+            seq.add(self._clip_slot.delete_clip)
+        return seq.done()
 
     @property
     def is_triggered(self):

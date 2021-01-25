@@ -351,11 +351,13 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
 
     @retry(2)
     def attach_output_routing_to(self, track):
-        # type: (SimpleTrack) -> None
+        # type: (Any) -> None
         if track is None:
             raise Protocol0Error("You passed None to attach_output_routing_to")
 
-        output_routing_type = find_if(lambda r: r.attached_object == track._track,
+        track = track._track if isinstance(track, AbstractTrack) else track
+
+        output_routing_type = find_if(lambda r: r.attached_object == track,
                                            self.available_output_routing_types)
         if not output_routing_type:
             output_routing_type = find_if(lambda r: r.display_name.lower() == track.name.lower(),

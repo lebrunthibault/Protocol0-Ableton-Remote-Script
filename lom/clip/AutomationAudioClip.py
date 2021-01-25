@@ -34,6 +34,7 @@ class AutomationAudioClip(Clip):
         seq.add(partial(setattr, self, "name", clip.name), name="set audio clip name")
         seq.add(partial(setattr, self, "end_marker", clip.length), name="set audio clip end_marker")
         seq.add(partial(setattr, self, "loop_end", clip.length), name="set audio clip loop_end")
+        seq.add(self._notes_listener)
         return seq.done()
 
     @subject_slot("name")

@@ -105,7 +105,7 @@ class ClipActionMixin(object):
             self.track.song.clip_trigger_quantization = 0
             self.track.stop()
 
-        seq.add(self._clip_slot.delete_clip, complete_on=self.clip_slot._has_clip_listener)
+        seq.add(self.clip_slot.delete_clip, complete_on=self.clip_slot._has_clip_listener)
         if self.is_recording:
             seq.add(self.delete)
             seq.add(setattr(self.track.song, "clip_trigger_quantization", qz))

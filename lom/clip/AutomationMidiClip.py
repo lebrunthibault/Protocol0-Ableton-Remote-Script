@@ -39,6 +39,8 @@ class AutomationMidiClip(Clip):
     @subject_slot("notes")
     def _notes_listener(self):
         # type: () -> Sequence
+        self.parent.log_debug("_notes_listener for %s" % self)
+        self.parent.log_debug(self._is_updating_notes)
         super(AutomationMidiClip, self)._notes_listener()
         if not self._is_updating_notes:
             return self.map_notes()

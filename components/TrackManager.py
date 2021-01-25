@@ -5,10 +5,9 @@ from typing import Optional
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import AUTOMATION_TRACK_NAME
-from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
-from a_protocol_0.lom.track.group_track.WrappedTrack import WrappedTrack
+from a_protocol_0.lom.track.group_track.AutomatedTrack import AutomatedTrack
 from a_protocol_0.lom.track.simple_track.AutomationAudioTrack import AutomationAudioTrack
 from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMidiTrack
 from a_protocol_0.lom.track.simple_track.SimpleGroupTrack import SimpleGroupTrack
@@ -83,17 +82,10 @@ class TrackManager(AbstractControlSurfaceComponent):
         # type: (SimpleGroupTrack) -> Optional[AbstractGroupTrack]
         external_synth_track = ExternalSynthTrack.make(group_track=track)
         if external_synth_track:
-            return external_synth_track
+            return AutomatedTrack.make(group_track=external_synth_track) or external_synth_track
 
-        try:
-            wrapped_track = WrappedTrack.make(group_track=track)
-            if wrapped_track:
-                return wrapped_track
-        except Protocol0Error as e:
-            # don't raise when the tracks are created
-            if self.parent.songManager.abstract_group_track_creation_in_progress:
-                return None
-            else:
-                raise e
+        wrapped_track = AutomatedTrack.make(group_track=track)
+        if wrapped_track:
+            return wrapped_track
 
         return None

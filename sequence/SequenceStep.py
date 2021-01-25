@@ -193,7 +193,7 @@ class SequenceStep(AbstractObject):
         if self._log_level >= SequenceLogLevel.info:
             self.parent.log_error("timeout completion error on %s" % self, debug=False)
 
-        self._res = False
+        self._errored = True
         self._terminate()
 
     @subject_slot("terminated")
@@ -206,9 +206,6 @@ class SequenceStep(AbstractObject):
             raise SequenceError("You called terminate twice on %s" % self)
 
         self._state = SequenceState.TERMINATED
-
-        if self._res is False:
-            self._errored = True
 
         # noinspection PyUnresolvedReferences
         self.notify_terminated()

@@ -19,10 +19,12 @@ class AutomationTracksCouple(AbstractObject):
         self.audio_track = audio_track
         self.midi_track = midi_track
         self._connect.subject = self.midi_track
-        self._connect()
+
+        self.parent.defer(self._connect)
 
     @subject_slot("clip_slots")
     def _connect(self):
+        self.audio_track._get_automated_device_and_parameter()
         self.midi_track._connect(self.audio_track)
 
         for audio_clip_slot, midi_clip_slot in itertools.izip(self.audio_track.clip_slots, self.midi_track.clip_slots):

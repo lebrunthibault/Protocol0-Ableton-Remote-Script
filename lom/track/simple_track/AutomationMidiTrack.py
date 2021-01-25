@@ -53,12 +53,21 @@ class AutomationMidiTrack(AbstractAutomationTrack):
         seq = Sequence()
         clip_creation_steps = []
         for i, (clip_name, velocities) in enumerate(velocity_patterns.items()):
-            clip_creation_steps.append(partial(self.create_clip, slot_number=i, name=clip_name, bar_count=1,
-                                               notes_callback=partial(self._fill_equal_notes, velocities=velocities)))
+            clip_creation_steps.append(partial(self._create_base_clip, i, clip_name, velocities))
 
         seq.add(clip_creation_steps)
         seq.add(self.play)
 
+        return seq.done()
+
+    def _create_base_clip(self, index, name, velocities):
+        seq = Sequence()
+        seq.add(partial(self.create_clip, slot_number=index, name=name, bar_count=1))
+        seq.add(
+            partial(lambda cs: cs.clip.replace_all_notes(self._fill_equal_notes(velocities=velocities, clip=cs.clip)),
+                    self.clip_slots[index]), name="set clip notes")
+        seq.add(partial(lambda cs: cs.clip._map_notes(),
+                        self.clip_slots[index]), name="process notes")
         return seq.done()
 
     def _fill_equal_notes(self, clip, velocities):

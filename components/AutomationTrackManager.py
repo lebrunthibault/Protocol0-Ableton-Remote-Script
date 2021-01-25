@@ -18,15 +18,14 @@ class AutomationTrackManager(AbstractControlSurfaceComponent):
         self.parent.songManager.abstract_group_track_creation_in_progress = True
 
         if self.song.current_track.is_foldable:
-            seq.add(partial(self.song.select_track, self.song.current_track))
             seq.add(lambda: setattr(self.song.current_track, "is_folded", False))
         else:
             seq.add(self.parent.trackManager.group_track)
 
         # this cannot be parallelized
-        seq.add(partial(self.parent.trackManager.create_audio_track, self.song.selected_track.index + 1,
+        seq.add(partial(self.parent.trackManager.create_audio_track, self.song.current_track.index + 1,
                         name="%s:%s:%s" % (AUTOMATION_TRACK_NAME, parameter.device.name, parameter.name)))
-        seq.add(partial(self.parent.trackManager.create_midi_track, self.song.selected_track.index + 2,
+        seq.add(partial(self.parent.trackManager.create_midi_track, self.song.current_track.index + 2,
                         name="%s:%s:%s" % (AUTOMATION_TRACK_NAME, parameter.device.name, parameter.name)))
         seq.add(lambda: setattr(self.parent.songManager, "abstract_group_track_creation_in_progress", False))
         seq.add(wait=1)

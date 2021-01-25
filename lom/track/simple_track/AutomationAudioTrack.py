@@ -18,7 +18,6 @@ class AutomationAudioTrack(AbstractAutomationTrack):
         self.clip_slots = self.clip_slots  # type: List[AutomationAudioClipSlot]
         self.automated_device = None  # type: Device
         self.automated_parameter = None  # type: DeviceParameter
-        self._get_automated_device_and_parameter()
 
     def _added_track_init(self):
         if self.group_track is None:
@@ -32,7 +31,6 @@ class AutomationAudioTrack(AbstractAutomationTrack):
 
         return seq.done()
 
-    @defer
     def _get_automated_device_and_parameter(self):
         [_, device_name, parameter_name] = self.base_name.split(":")
         (device, parameter) = self.parent.deviceManager.get_device_and_parameter_from_name(track=self, device_name=device_name, parameter_name=parameter_name)
