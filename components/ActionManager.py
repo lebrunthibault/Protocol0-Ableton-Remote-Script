@@ -112,6 +112,8 @@ class ActionManager(AbstractControlSurfaceComponent):
     def action_scroll_track_instrument_presets(self, go_next):
         """ scroll track device presets or samples """
         self.parent.clyphxNavigationManager.show_track_view()
+        if not self.song.current_track.instrument_track:
+            self.song.current_track.instrument_track.instrument = self.parent.deviceManager.create_instrument_from_simple_track(track=self)
         if self.song.current_track.instrument:
             self.song.current_track.instrument.action_scroll_presets_or_samples(go_next)
 

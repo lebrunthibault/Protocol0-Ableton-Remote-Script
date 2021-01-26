@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 
+from _Framework.Util import forward_property
 from a_protocol_0.consts import EXTERNAL_SYNTH_NAMES
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
@@ -19,17 +20,10 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         super(ExternalSynthTrack, self).__init__(group_track=group_track, *a, **k)
         self.midi = find_last(lambda t: t.is_midi, self.sub_tracks)  # type: SimpleTrack
         self.audio = find_last(lambda t: t.is_audio, self.sub_tracks)  # type: SimpleTrack
+        self.instrument_track = self.midi
         self.midi.is_scrollable = self.audio.is_scrollable = False
-
-    @staticmethod
-    def make(group_track):
-        # type: (SimpleGroupTrack) -> None
-        if len([sub_track for sub_track in group_track.sub_tracks if not isinstance(sub_track, AbstractAutomationTrack)]) != 2:
-            return
-        if not any([name in group_track.name for name in EXTERNAL_SYNTH_NAMES]):
-            return
-
-        return ExternalSynthTrack(group_track=group_track)
+        self._instrument_listener.subject = self.instrument_track
+        self._instrument_listener()
 
     @property
     def arm(self):
@@ -46,6 +40,10 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         # type: () -> bool
         return self.midi.is_recording or self.audio.is_recording
 
+    def _post_record(self):
+        self.song.metronome = False
+        self.midi.has_monitor_in = False
+
     @property
     def next_empty_clip_slot_index(self):
         # type: () -> ClipSlot
@@ -54,3 +52,6 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
                 return i
         self.song.create_scene()
         return len(self.song.scenes) - 1
+
+    @forward_property('audio')
+    def set_output_routing_type(self): pass

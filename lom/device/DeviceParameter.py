@@ -32,6 +32,10 @@ class DeviceParameter(AbstractObject):
     def value(self):
         return self._device_parameter.value
 
+    @value.setter
+    def value(self, value):
+        self._device_parameter.value = value
+
     @property
     def min(self):
         return self._device_parameter.min

@@ -33,7 +33,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
         return (track.instrument and device == track.instrument.device) or device.is_simpler
 
     def create_instrument_from_simple_track(self, track):
-        # type: (SimpleTrack) -> AbstractInstrument
+        # type: (SimpleTrack) -> Optional[AbstractInstrument]
         from a_protocol_0.consts import INSTRUMENT_NAME_MAPPINGS
         from a_protocol_0.devices.InstrumentSimpler import InstrumentSimpler
         from a_protocol_0.devices.InstrumentMinitaur import InstrumentMinitaur
@@ -45,14 +45,15 @@ class DeviceManager(AbstractControlSurfaceComponent):
         if simpler_device:
             return InstrumentSimpler(track=track, device=simpler_device)
 
-        instrument_device = find_if(lambda d: d.is_plugin and d.name in INSTRUMENT_NAME_MAPPINGS, track.all_devices)
+        instrument_device = find_if(lambda d: d.is_plugin and d.name.lower() in INSTRUMENT_NAME_MAPPINGS, track.all_devices)
         if not instrument_device:
             if EXTERNAL_SYNTH_MINITAUR_NAME in track.name:
                 return InstrumentMinitaur(track=track, device=None)
             else:
                 return None
 
-        class_name = INSTRUMENT_NAME_MAPPINGS[instrument_device.name]
+        class_name = INSTRUMENT_NAME_MAPPINGS[instrument_device.name.lower()]
+
         try:
             mod = __import__('a_protocol_0.devices.' + class_name, fromlist=[class_name])
         except ImportError:

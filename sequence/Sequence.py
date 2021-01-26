@@ -2,8 +2,6 @@ import time
 from collections import deque, Iterable
 from functools import partial
 
-from typing import Any
-
 from a_protocol_0.errors.SequenceError import SequenceError
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.sequence.SequenceState import SequenceState, SequenceLogLevel

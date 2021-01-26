@@ -17,14 +17,25 @@ class ActionSetManager(AbstractControlSurfaceComponent):
 
     @button_action()
     def action_update_racks(self):
-        for track in self.song.tracks:
+        for track in self.song.simple_tracks:
             [self.parent.deviceManager.update_rack(rack_device=device._device) for device in track.all_devices if isinstance(device, RackDevice)]
 
     @button_action()
     def action_log_set(self):
-        self.parent.log_debug("---------------------")
-        self.parent.log_debug("---------------------")
-        self.parent.log_debug("---------------------")
-        self.parent.log_debug("abstract_tracks : " % self.song.abstract_tracks)
-        self.parent.log_debug("*********************")
-        self.parent.log_debug("simple_tracks : " % self.song.tracks)
+        self.parent.log_info("---------------------")
+        self.parent.log_info("---------------------")
+        self.parent.log_info("---------------------")
+        self.parent.log_info("********* SONG TRACKS *************")
+        self.parent.log_info("abstract_tracks : %s" % self.song.abstract_tracks)
+        self.parent.log_info("*********************")
+        self.parent.log_info("simple_tracks : %s" % self.song.simple_tracks)
+        self.parent.log_info("*********************")
+        self.parent.log_info("abstract_group_tracks : %s" % self.song.abstract_group_tracks)
+        self.parent.log_info("*********************")
+        self.parent.log_info("********* SELECTED_TRACK *************")
+        self.parent.log_info("*********************")
+        self.parent.log_info("selected_track: %s" % self.song.selected_track)
+        self.parent.log_info("current_track: %s" % self.song.current_track)
+        self.parent.log_info("current_track.sub_tracks: %s" % self.song.current_track.sub_tracks)
+        self.parent.log_info("current_track.all_tracks: %s" % self.song.current_track.all_tracks)
+

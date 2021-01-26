@@ -3,11 +3,12 @@ from functools import partial
 import Live
 from typing import Any, TYPE_CHECKING
 
+from _Framework.Util import find_if
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import subject_slot, retry
-from a_protocol_0.utils.log import log_ableton
+from a_protocol_0.utils.decorators import subject_slot
+from a_protocol_0.utils.utils import find_last
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -63,6 +64,9 @@ class ClipSlot(AbstractObject):
         self._map_clip()
         if self.song.highlighted_clip_slot == self and self.has_clip:
             self.parent._wait(2, self.parent.push2Manager.update_clip_grid_quantization)
+        other_clip_slot = find_last(lambda cs: cs.has_clip and cs.index < self.index, self.track.clip_slots) or find_if(lambda cs: cs.has_clip, self.track.clip_slots)
+        if other_clip_slot:
+            self.track.track_name.set(clip_slot_index=other_clip_slot.index)
 
     def delete_clip(self):
         seq = Sequence()
@@ -86,7 +90,7 @@ class ClipSlot(AbstractObject):
 
     def insert_dummy_clip(self):
         seq = Sequence()
-        seq.add(partial(self.song.tracks[0].clip_slots[0].duplicate_clip_to, self), complete_on=self._has_clip_listener)
+        seq.add(partial(self.song.simple_tracks[0].clip_slots[0].duplicate_clip_to, self), complete_on=self._has_clip_listener)
         seq.add(lambda: setattr(self.clip, "warping", 1), name="enable clip warping")
         seq.add(wait=1)
         seq.add(lambda: setattr(self.clip, "looping", 1), name="enable clip looping")

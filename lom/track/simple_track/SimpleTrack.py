@@ -3,6 +3,7 @@ from typing import List, Optional
 
 from _Framework.SubjectSlot import subject_slot
 from _Framework.Util import find_if
+from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
@@ -11,7 +12,7 @@ from a_protocol_0.utils.decorators import defer
 
 
 class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
-    __subject_events__ = ('clip_slots', )
+    __subject_events__ = ('clip_slots',)
 
     def __init__(self, track, index, *a, **k):
         # type: (Live.Track.Track, int) -> None

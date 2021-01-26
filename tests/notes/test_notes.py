@@ -1,6 +1,7 @@
 from copy import copy
 from functools import partial
 
+from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -8,11 +9,9 @@ from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.sequence.SequenceState import SequenceLogLevel
 from a_protocol_0.tests.fixtures.clip import AbletonClip
 from a_protocol_0.tests.fixtures.clip_slot import AbletonClipSlot
-from a_protocol_0.lom.Note import Note
 from a_protocol_0.tests.fixtures.simpleTrack import AbletonTrack, TrackType
 # noinspection PyUnresolvedReferences
 from a_protocol_0.tests.test_all import p0
-from a_protocol_0.utils.log import log_ableton
 
 
 def create_clip_with_notes(notes, prev_notes=[], clip_length=4):

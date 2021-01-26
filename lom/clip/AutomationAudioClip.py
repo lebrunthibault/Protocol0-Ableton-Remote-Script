@@ -1,13 +1,10 @@
 from functools import partial
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot
-from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.Clip import Clip
-from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import defer
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences

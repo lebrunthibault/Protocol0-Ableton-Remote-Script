@@ -31,6 +31,8 @@ if TYPE_CHECKING:
 
 
 class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
+    __subject_events__ = ('instrument',)
+
     ADDED_TRACK_INIT_ENABLED = True
 
     def __init__(self, track, *a, **k):
@@ -40,13 +42,16 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self.base_track = track  # type: SimpleTrack
         super(AbstractTrack, self).__init__(name=self.base_track.name, *a, **k)
         self.track_name = TrackName(self)
+        self.instrument_track = self.base_track  # type: AbstractTrack
         self.is_foldable = self._track.is_foldable
         self.can_be_armed = self._track.can_be_armed
         self.index = track.index
-        self.group_track = self.parent.songManager._get_simple_track(self._track.group_track) if self._track.group_track else None
+        self.group_track = self.parent.songManager._get_simple_track(
+            self._track.group_track) if self._track.group_track else None
         self.abstract_group_track = None  # type: Optional[AbstractGroupTrack]
         # here this works because group tracks are at left of inner tracks (but for all_tracks we need a property)
-        self.group_tracks = [self.group_track] + self.group_track.group_tracks if self.group_track else []  # type: List[SimpleTrack]
+        self.group_tracks = [
+                                self.group_track] + self.group_track.group_tracks if self.group_track else []  # type: List[SimpleTrack]
         self.sub_tracks = []  # type: List[SimpleTrack]
 
         self.devices = []  # type: List[Device]
@@ -59,21 +64,23 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self.is_midi = self._track.has_midi_input
         self.is_audio = self._track.has_audio_input
         self.base_color = Colors.get(self.base_name, default=self._track.color_index)
-        self.instrument = None  # type: Optional[AbstractInstrument]  #  None here so that we don't instantiate the same instrument twice
+        self._instrument = None  # type: Optional[AbstractInstrument]  #  None here so that we don't instantiate the same instrument twice
         self.is_scrollable = True
+        self._is_hearable = True
 
         self.push2_selected_main_mode = 'device'
         self.push2_selected_matrix_mode = 'session'
         self.push2_selected_instrument_mode = None
 
     def _added_track_init(self):
-        """ this should be be called once, when the Live track is created """
+        """ this should be be called once, when the Live track is created, overridden by some child classes """
         seq = Sequence()
         if not self.parent.songManager.abstract_group_track_creation_in_progress:
             seq.add(self.song.current_track.action_arm)
             [seq.add(clip.delete) for clip in self.song.current_track.all_clips]
             [setattr(track.track_name, "clip_slot_index", 0) for track in self.song.current_track.all_tracks]
-            seq.add(partial(self.set_device_parameter_value, "arpeggiator rack", "chain selector", 0))
+            seq.add(partial(self.set_device_parameter_value, "Arpeggiator rack", "Chain Selector", 0))
+            seq.add(partial(self.set_device_parameter_value, "Serum rack", "Arp select", 0))
         return seq.done()
 
     @property
@@ -89,6 +96,18 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
                 self._track.name = name
             except RuntimeError:
                 self.parent.defer(lambda: setattr(self._track, "name", name))
+
+    @property
+    def instrument(self):
+        # type: () -> AbstractInstrument
+        return self._instrument
+
+    @instrument.setter
+    def instrument(self, instrument):
+        # type: (AbstractInstrument) -> None
+        self._instrument = instrument
+        # noinspection PyUnresolvedReferences
+        self.notify_instrument()
 
     def is_parent(self, track):
         # type: (AbstractTrack) -> bool
@@ -214,7 +233,8 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
             if device.can_have_drum_pads and device.can_have_chains and device._view.is_showing_chain_devices:
                 devices += chain([device], self._find_all_devices(device.selected_chain))
             elif not device.can_have_drum_pads and isinstance(device, RackDevice):
-                devices += chain([device], *imap(partial(self._find_all_devices, only_visible=only_visible), filter(None, device.chains)))
+                devices += chain([device], *imap(partial(self._find_all_devices, only_visible=only_visible),
+                                                 filter(None, device.chains)))
         return devices
 
     def all_devices(self, track_or_chain):
@@ -230,14 +250,13 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
 
     def set_device_parameter_value(self, device_name, parameter_name, value, raise_if_not_exists=False):
         # type: (str, str, Any) -> None
-        device = find_if(lambda d: d.name.lower() == device_name, self.song.current_track.all_devices)
-
+        device = find_if(lambda d: d.name.lower() == device_name.lower(), self.song.current_track.all_devices)
         if not device:
             if not raise_if_not_exists:
                 return
             raise Protocol0Error("Couldn't find device %s in track devices" % device_name)
 
-        param = find_if(lambda d: d.name.lower() == parameter_name, device.parameters)
+        param = find_if(lambda d: d.name.lower() == parameter_name.lower(), device.parameters)
 
         if not param:
             if not raise_if_not_exists:
@@ -245,7 +264,9 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
             raise Protocol0Error("Couldn't find parameter %s in device %s" % (parameter_name, device_name))
 
         if param.is_enabled:
-            param.value = value
+            seq = Sequence().add(wait=1)
+            seq.add(lambda: setattr(param, "value", value))
+            return seq.done()
 
     @abstractproperty
     def is_playing(self):
@@ -285,7 +306,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def is_hearable(self):
         # type: () -> bool
-        return self.is_playing and self.output_meter_level > 0.5 and not self.mute and all(
+        return self._is_hearable and self.is_playing and self.output_meter_level > 0.5 and not self.mute and all(
             [not t.mute for t in self.group_tracks])
 
     @abstractproperty
@@ -325,6 +346,11 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         return list(self._track.available_output_routing_types)
 
     @property
+    def available_input_routing_types(self):
+        # type: () -> List[Live.Track.RoutingType]
+        return list(self._track.available_input_routing_types)
+
+    @property
     def output_routing_type(self):
         # type: () -> Live.Track.RoutingType
         return self._track.output_routing_type
@@ -333,6 +359,26 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def output_routing_type(self, output_routing_type):
         # type: (Live.Track.RoutingType) -> None
         self._track.output_routing_type = output_routing_type
+
+    @property
+    def input_routing_type(self):
+        # type: () -> Live.Track.RoutingType
+        return self._track.input_routing_type
+
+    @input_routing_type.setter
+    def input_routing_type(self, input_routing_type):
+        # type: (Live.Track.RoutingType) -> None
+        self._track.input_routing_type = input_routing_type
+
+    @property
+    def current_input_routing(self):
+        # type: () -> str
+        return self._track.current_input_routing
+
+    @input_routing_type.setter
+    def current_input_routing(self, current_input_routing):
+        # type: (str) -> None
+        self._track.current_input_routing = current_input_routing
 
     @property
     def available_output_routing_channels(self):
@@ -348,26 +394,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def output_routing_channel(self, output_routing_channel):
         # type: (Live.Track.RoutingChannel) -> None
         self._track.output_routing_channel = output_routing_channel
-
-    @retry(2)
-    def attach_output_routing_to(self, track):
-        # type: (Any) -> None
-        if track is None:
-            raise Protocol0Error("You passed None to attach_output_routing_to")
-
-        track = track._track if isinstance(track, AbstractTrack) else track
-
-        output_routing_type = find_if(lambda r: r.attached_object == track,
-                                           self.available_output_routing_types)
-        if not output_routing_type:
-            output_routing_type = find_if(lambda r: r.display_name.lower() == track.name.lower(),
-                                          self.available_output_routing_types)
-
-        if not output_routing_type:
-                raise Protocol0Error("Couldn't find the output routing type of the given track")
-
-        if self.output_routing_type != output_routing_type:
-            self.output_routing_type = output_routing_type
 
     def disconnect(self):
         super(AbstractTrack, self).disconnect()

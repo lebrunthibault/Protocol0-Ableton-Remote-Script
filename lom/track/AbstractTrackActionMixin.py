@@ -1,9 +1,14 @@
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Callable
+from functools import partial
+
+from typing import TYPE_CHECKING, Callable, Any
 
 import Live
 
+from _Framework.Util import find_if
+from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.device.RackDevice import RackDevice
+from a_protocol_0.utils.decorators import retry
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -43,6 +48,11 @@ class AbstractTrackActionMixin(object):
 
     def action_show_instrument(self):
         # type: (AbstractTrack) -> None
+        if not self.instrument:  # instrument creation on the go as track.devices is not observable
+            self.instrument_track.instrument = self.parent.deviceManager.create_instrument_from_simple_track(track=self.instrument_track)
+            self.parent.log_debug(self.instrument_track)
+            self.parent.log_debug(self.instrument_track.instrument)
+
         if not self.instrument or not self.instrument.can_be_shown:
             return
         self.parent.clyphxNavigationManager.show_track_view()
@@ -69,20 +79,20 @@ class AbstractTrackActionMixin(object):
             return
         self.song._song.session_automation_record = True
 
-        if not only_audio:
-            self.song.stop_playing()
+        self.song.stop_playing()
         action_record_func()
 
-        if len(filter(None, [t.is_hearable for t in self.song.tracks])) <= 1 and not only_audio:
+        if len(filter(None, [t.is_hearable for t in self.song.simple_tracks])) <= 1 and not only_audio:
             self.song.metronome = True
 
         self.parent.wait_bars(self.bar_count + 1, self._post_record)
 
     def _post_record(self):
         # type: (AbstractTrack) -> None
+        " overridden "
         self.song.metronome = False
-        track = self.midi if hasattr(self, "midi") else self
-        track.has_monitor_in = False
+        self.has_monitor_in = False
+        pass
 
     @abstractmethod
     def action_record_all(self):
@@ -138,3 +148,45 @@ class AbstractTrackActionMixin(object):
         for device in self.all_devices:
             device._view.is_collapsed = not (isinstance(device, RackDevice) or self.parent.deviceManager.is_track_instrument(
                 self, device))
+
+    @retry(2)
+    def set_output_routing_type(self, track):
+        # type: (AbstractTrack, Any) -> None
+        if track is None:
+            raise Protocol0Error("You passed None to %s" % self.set_output_routing_type.__name__)
+
+        from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
+        track = track._track if isinstance(track, AbstractTrack) else track
+
+        output_routing_type = find_if(lambda r: r.attached_object == track,
+                                      self.available_output_routing_types)
+        if not output_routing_type:
+            output_routing_type = find_if(lambda r: r.display_name.lower() == track.name.lower(),
+                                          self.available_output_routing_types)
+
+        if not output_routing_type:
+            raise Protocol0Error("Couldn't find the output routing type of the given track")
+
+        if self.output_routing_type != output_routing_type:
+            self.output_routing_type = output_routing_type
+
+    def set_input_routing_type(self, track):
+        # type: (AbstractTrack, Any) -> None
+        from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
+        track = track._track if isinstance(track, AbstractTrack) else track
+
+        if track is None:
+            self.input_routing_type = self.available_input_routing_types[-1]  # No input
+            return
+
+        input_routing_type = find_if(lambda r: r.attached_object == track,
+                                     self.available_input_routing_types)
+        if not input_routing_type:
+            input_routing_type = find_if(lambda r: r.display_name.lower() == track.name.lower(),
+                                     self.available_input_routing_types)
+
+        if not input_routing_type:
+            raise Protocol0Error("Couldn't find the input routing type of the given track")
+
+        if self.input_routing_type != input_routing_type:
+            self.input_routing_type = input_routing_type

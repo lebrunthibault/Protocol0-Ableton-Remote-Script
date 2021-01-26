@@ -8,7 +8,6 @@ from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.track.simple_track.AbstractAutomationTrack import AbstractAutomationTrack
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import defer
 
 
 class AutomationAudioTrack(AbstractAutomationTrack):
@@ -27,6 +26,7 @@ class AutomationAudioTrack(AbstractAutomationTrack):
         seq = Sequence()
         seq.add(self.clear_devices)
         seq.add(partial(self.parent.browserManager.load_rack_device, self.base_name.split(":")[1]))
+        seq.add(partial(self.set_input_routing_type, None))
         seq.add(self._get_automated_device_and_parameter)
 
         return seq.done()

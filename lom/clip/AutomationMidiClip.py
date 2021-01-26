@@ -39,8 +39,6 @@ class AutomationMidiClip(Clip):
     @subject_slot("notes")
     def _notes_listener(self):
         # type: () -> Sequence
-        self.parent.log_debug("_notes_listener for %s" % self)
-        self.parent.log_debug(self._is_updating_notes)
         super(AutomationMidiClip, self)._notes_listener()
         if not self._is_updating_notes:
             return self.map_notes()
@@ -65,13 +63,13 @@ class AutomationMidiClip(Clip):
         base_prev_notes = filter(lambda n: n.is_quantized, self._prev_notes)
         if len(base_notes) > len(base_prev_notes) and len(base_prev_notes):
             added_notes_count = len(base_notes) - len(base_prev_notes)
-            if added_notes_count != 1:
-                raise Protocol0Error("Multiple added notes are not handled (added : %d notes on clip %s)" % (added_notes_count, self))
-
-            self._added_note = next(iter(list(set(base_notes) - set(base_prev_notes))), None)
-            notes = base_prev_notes
-            self._added_note.velocity = self._added_note.pitch
-            notes.sort(key=lambda x: x.start)
+            # if added_notes_count != 1:
+            #     raise Protocol0Error("Multiple added notes are not handled (added : %d notes on clip %s)" % (added_notes_count, self))
+            if added_notes_count == 1:
+                self._added_note = next(iter(list(set(base_notes) - set(base_prev_notes))), None)
+                notes = base_prev_notes
+                self._added_note.velocity = self._added_note.pitch
+                notes.sort(key=lambda x: x.start)
 
         note_transforms = [
             lambda notes: filter(lambda n: n.is_quantized, notes),
@@ -148,7 +146,8 @@ class AutomationMidiClip(Clip):
         # fill durations
         for i, next_note in enumerate(notes[1:] + [Note(start=self.length)]):
             current_note = notes[i]
-            current_note.duration = next_note.start - current_note.start
+            if next_note.start - current_note.start > 0:
+                current_note.duration = next_note.start - current_note.start
 
         # merge notes
         current_note = notes[0]

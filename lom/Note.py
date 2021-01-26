@@ -1,4 +1,3 @@
-from copy import copy
 from functools import partial
 
 from typing import TYPE_CHECKING, List
@@ -7,8 +6,6 @@ from _Framework.Util import clamp, find_if
 from a_protocol_0.consts import push2_beat_quantization_steps
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import debounce
-from a_protocol_0.utils.log import log_ableton
 from a_protocol_0.utils.utils import is_equal
 from pushbase.note_editor_component import TimeStep
 

@@ -25,9 +25,9 @@ AUTOMATION_TRACK_NAME = "_auto"
 EXTERNAL_SYNTH_NAMES = (EXTERNAL_SYNTH_PROPHET_NAME, EXTERNAL_SYNTH_MINITAUR_NAME)
 
 INSTRUMENT_NAME_MAPPINGS = {
-    "Serum_x64": "InstrumentSerum",
-    "Minitaur Editor-VI(x64)": "InstrumentMinitaur",
-    "REV2Editor": "InstrumentProphet",
+    "serum_x64": "InstrumentSerum",
+    "minitaur editor-vi(x64)": "InstrumentMinitaur",
+    "rev2editor": "InstrumentProphet",
 }
 
 push2_beat_quantization_steps = [v * 4 for v in [

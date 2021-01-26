@@ -20,7 +20,7 @@ class Song(SongActionMixin, AbstractObject):
         super(Song, self).__init__(*a, **k)
         self._song = song
         self._view = self._song.view  # type: Live.Song.Song.View
-        self.tracks = []  # type: List[SimpleTrack]
+        self.simple_tracks = []  # type: List[SimpleTrack]
         self.abstract_tracks = []  # type: List[AbstractTrack]
         self.abstract_group_tracks = []  # type: List[AbstractGroupTrack]
         self.selected_track = None  # type: SimpleTrack
@@ -46,29 +46,29 @@ class Song(SongActionMixin, AbstractObject):
         base_track = base_track or self.selected_track
         if base_track is None:
             raise Protocol0Error("You called next_track before selected_track computation")
-        return self.tracks[(base_track.index + increment) % len(self.tracks)]
+        return self.simple_tracks[(base_track.index + increment) % len(self.simple_tracks)]
 
     @property
     def scrollable_tracks(self):
         # type: () -> List[SimpleTrack]
-        return [track for track in self.tracks if track.is_visible and track.is_scrollable]
+        return [track for track in self.simple_tracks if track.is_visible and track.is_scrollable]
 
     @property
     def root_tracks(self):
         # type: () -> List[SimpleTrack]
-        return [track for track in self.tracks if not track.group_track]
+        return [track for track in self.simple_tracks if not track.group_track]
 
     @property
     def selected_tracks(self):
         # type: () -> List[AbstractTrack]
-        return [self.parent.songManager.get_current_track(track) for track in self.tracks if
+        return [self.parent.songManager.get_current_track(track) for track in self.simple_tracks if
                 track._track.is_part_of_selection]
 
     @property
     def selected_category_tracks(self):
         # type: () -> List[AbstractTrack]
         if self.selected_track_category == TRACK_CATEGORY_ALL:
-            return self.tracks
+            return self.simple_tracks
         return [track for track in self.abstract_tracks if
                 track.category.lower() == self.selected_track_category.lower()]
 
@@ -79,7 +79,7 @@ class Song(SongActionMixin, AbstractObject):
         return find_if(lambda cs: cs._clip_slot == self.song._view.highlighted_clip_slot,
                        self.selected_track.clip_slots) or find_if(
             lambda cs: cs._clip_slot == self.song._view.highlighted_clip_slot,
-            [cs for track in self.song.tracks for cs in track.clip_slots])
+            [cs for track in self.song.simple_tracks for cs in track.clip_slots])
 
     @highlighted_clip_slot.setter
     def highlighted_clip_slot(self, clip_slot):
@@ -89,7 +89,7 @@ class Song(SongActionMixin, AbstractObject):
     @property
     def selected_parameter(self):
         # type: () -> DeviceParameter
-        param = find_if(lambda p: p._device_parameter == self.song._view.selected_parameter, [param for track in self.tracks for param in track.device_parameters])
+        param = find_if(lambda p: p._device_parameter == self.song._view.selected_parameter, [param for track in self.simple_tracks for param in track.device_parameters])
 
         if not param:
             raise Protocol0Error("There is no currently selected parameter")
@@ -127,7 +127,7 @@ class Song(SongActionMixin, AbstractObject):
     @property
     def playing_clips(self):
         # type: () -> List[Clip]
-        return [t.playable_clip for t in self.tracks if t.is_playing and t.playable_clip.is_playing]
+        return [t.playable_clip for t in self.simple_tracks if t.is_playing and t.playable_clip.is_playing]
 
     @property
     def has_solo_selection(self):

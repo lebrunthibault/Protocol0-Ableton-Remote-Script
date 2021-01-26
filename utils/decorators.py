@@ -1,5 +1,6 @@
 import time
 import traceback
+from collections import defaultdict
 from functools import partial, wraps
 
 from typing import TYPE_CHECKING
@@ -82,25 +83,52 @@ def retry(retry_count=2, interval=1):
 
 
 def debounce(wait_time=2):
+    """ here we make the method dynamic for e.g. get_presets """
     def wrap(func):
         @wraps(func)
         def decorate(*a, **k):
-            decorate.count += 1
+            index = a[0] if is_method(func) else decorate
+            wait_time = 0 if k.get("disable_debounce", False) else decorate.wait_time[index]
+            k.pop("disable_debounce", None)
+            decorate.count[index] += 1
             from a_protocol_0 import Protocol0
-            Protocol0.SELF._wait(decorate.wait_time, partial(execute, func, *a, **k))
+            Protocol0.SELF._wait(wait_time, partial(execute, func, *a, **k))
 
-        decorate.count = 0
-        decorate.wait_time = wait_time
+        decorate.count = defaultdict(int)
+        decorate.wait_time = defaultdict(lambda: wait_time)
         decorate.func = func
 
         def execute(func, *a, **k):
-            decorate.count -= 1
-            if decorate.count == 0:
+            index = a[0] if is_method(func) else decorate
+            decorate.count[index] -= 1
+            if decorate.count[index] == 0:
                 func(*a, **k)
 
         return decorate
 
     return wrap
+
+
+# def debounce(wait_time=2):
+#     def wrap(func):
+#         @wraps(func)
+#         def decorate(*a, **k):
+#             decorate.count += 1
+#             from a_protocol_0 import Protocol0
+#             Protocol0.SELF._wait(decorate.wait_time, partial(execute, func, *a, **k))
+#
+#         decorate.count = 0
+#         decorate.wait_time = wait_time
+#         decorate.func = func
+#
+#         def execute(func, *a, **k):
+#             decorate.count -= 1
+#             if decorate.count == 0:
+#                 func(*a, **k)
+#
+#         return decorate
+#
+#     return wrap
 
 
 def throttle(wait_time=2, max_executions=3):

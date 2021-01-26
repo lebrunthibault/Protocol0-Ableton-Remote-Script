@@ -12,4 +12,12 @@ class ActionTestManager(AbstractControlSurfaceComponent):
 
     @button_action()
     def action_test(self):
-        self.parent.deviceManager.is_plugin_window_visible(try_show=True)
+        self.parent.log_debug(self.song.selected_track.available_input_routing_types[-1])
+        self.parent.log_debug(self.song.selected_track.available_input_routing_types[-1].display_name)
+        self.parent.log_debug(self.song.selected_track.available_input_routing_types[-1].attached_object)
+        # self.song.selected_track._track.input_routing_type = None  # No input
+        # self.song.selected_track._track.input_routing_type = self.song.selected_track.available_input_routing_types[-1]  # No input
+        # self.parent.log_debug(self.song.selected_track._track.current_input_routing) # No input
+        self.song.selected_track._track.current_input_routing = "No Input"  # No input
+        # self.parent.log_debug(self.song.selected_track._current_input_routing)
+        # self.song.selected_track._input_routing_type = self.song.selected_track.available_input_routing_types[-1]  # No input

@@ -1,5 +1,6 @@
 import collections
 from plistlib import Dict
+
 from typing import Optional, Any
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
@@ -8,7 +9,7 @@ from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleGroupTrack import SimpleGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
-from a_protocol_0.utils.decorators import subject_slot, has_callback_queue, retry, wait
+from a_protocol_0.utils.decorators import subject_slot, has_callback_queue, retry
 
 
 class SongManager(AbstractControlSurfaceComponent):
@@ -42,23 +43,23 @@ class SongManager(AbstractControlSurfaceComponent):
     @subject_slot("tracks")
     def _tracks_listener(self):
         # type: () -> Optional[SimpleTrack]
-        track_added = False
-        if len(self.song.tracks) and len(self.song._song.tracks) > len(self.song.tracks):
-            track_added = True
+        added_track = False
+        if len(self.song.simple_tracks) and len(self.song._song.tracks) > len(self.song.simple_tracks):
+            added_track = True
 
-        [track.disconnect() for track in self.song.tracks + self.song.abstract_group_tracks]
+        [track.disconnect() for track in self.song.simple_tracks + self.song.abstract_group_tracks]
 
         # generate simple tracks
-        self.song.tracks = []
+        self.song.simple_tracks = []
         for i, track in enumerate(list(self.song._song.tracks)):
             simple_track = self.parent.trackManager.instantiate_simple_track(track=track, index=i)
             self._live_track_to_simple_track[track] = simple_track
-            self.song.tracks.append(simple_track)
+            self.song.simple_tracks.append(simple_track)
 
         # generate group tracks
         self.song.abstract_group_tracks = list(filter(None,
                                                       [self.parent.trackManager.instantiate_abstract_group_track(track)
-                                                       for track in self.song.tracks if isinstance(track, SimpleGroupTrack)]))
+                                                       for track in self.song.simple_tracks if isinstance(track, SimpleGroupTrack)]))
 
         self._simple_track_to_abstract_group_track = {}
         for abstract_group_track in self.song.abstract_group_tracks:  # type: AbstractGroupTrack
@@ -66,7 +67,7 @@ class SongManager(AbstractControlSurfaceComponent):
                 self._simple_track_to_abstract_group_track.update({abstract_group_sub_track: abstract_group_track})
 
         abstract_tracks = collections.OrderedDict()
-        for track in self.song.tracks:  # type: SimpleTrack
+        for track in self.song.simple_tracks:  # type: SimpleTrack
             if track in self._simple_track_to_abstract_group_track:
                 track.abstract_group_track = self._simple_track_to_abstract_group_track[track]
             abstract_tracks[track.abstract_group_track or track] = None
@@ -76,7 +77,7 @@ class SongManager(AbstractControlSurfaceComponent):
 
         self.parent.log_info("SongManager : mapped tracks")
 
-        if track_added:
+        if added_track:
             # noinspection PyUnresolvedReferences
             self.notify_added_track()
 
@@ -85,7 +86,6 @@ class SongManager(AbstractControlSurfaceComponent):
         if self.song.highlighted_clip_slot != self._highlighted_clip_slot:
             self._highlighted_clip_slot = self.song.highlighted_clip_slot
             if self.song.highlighted_clip_slot and self.song.highlighted_clip_slot.has_clip:
-                # self.song.highlighted_clip_slot.track._clip_notes_listener.subject = self.song.highlighted_clip_slot.clip._clip
                 self.parent.push2Manager.update_clip_grid_quantization()
         self.parent.defer(self._highlighted_clip_slot_poller)
 
@@ -117,7 +117,7 @@ class SongManager(AbstractControlSurfaceComponent):
 
     @retry(2)
     def _set_current_track(self):
-        self.song.selected_track = self._get_simple_track(self.song._view.selected_track) or self.song.tracks[0]
+        self.song.selected_track = self._get_simple_track(self.song._view.selected_track) or self.song.simple_tracks[0]
         self.song.current_track = self.get_current_track(self.song.selected_track)
 
     def get_current_track(self, track):

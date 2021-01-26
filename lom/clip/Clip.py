@@ -1,11 +1,10 @@
-from typing import TYPE_CHECKING, List
 import Live
+from typing import TYPE_CHECKING, List
 
 from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.lom.clip.ClipActionMixin import ClipActionMixin
 from a_protocol_0.lom.Note import Note
+from a_protocol_0.lom.clip.ClipActionMixin import ClipActionMixin
 from a_protocol_0.utils.decorators import defer, subject_slot
-from a_protocol_0.utils.log import log_ableton
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences

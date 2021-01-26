@@ -31,7 +31,6 @@ class TrackName(AbstractObject):
         return "TrackName of %s" % self.track
 
     @subject_slot_group("name")
-    @defer
     def _name_listener(self, changed_track):
         # type: (Live.Track.Track) -> None
         self.parts = changed_track.name.split(" - ")
@@ -47,7 +46,7 @@ class TrackName(AbstractObject):
 
         for track in [track for track in self.tracks if track._track != changed_track]:
             if track.base_track.name != changed_track.name:
-                track.base_track.name = changed_track.name
+                self.parent.defer(lambda: setattr(track.base_track, "name", changed_track.name))
 
     def link_track(self, track):
         # type: (AbstractTrack) -> None

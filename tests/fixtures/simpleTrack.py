@@ -43,8 +43,8 @@ class AbletonTrack(Subject):
 
 def make_group_track(song, name=EXTERNAL_SYNTH_PROPHET_NAME):
     # type: (Song, str) -> SimpleTrack
-    simple_track = SimpleTrack(song, AbletonTrack(name=name, track_type=TrackType.GROUP), len(song.tracks))
-    song.tracks.append(simple_track)
+    simple_track = SimpleTrack(song, AbletonTrack(name=name, track_type=TrackType.GROUP), len(song.simple_tracks))
+    song.simple_tracks.append(simple_track)
     return simple_track
 
 
@@ -56,13 +56,13 @@ def make_midi_track(name="midi"):
 
 def make_audio_track(song, name="audio"):
     # type: (Song, str) -> SimpleTrack
-    simple_track = SimpleTrack(song, AbletonTrack(name=name, track_type=TrackType.AUDIO), len(song.tracks))
-    song.tracks.append(simple_track)
+    simple_track = SimpleTrack(song, AbletonTrack(name=name, track_type=TrackType.AUDIO), len(song.simple_tracks))
+    song.simple_tracks.append(simple_track)
     return simple_track
 
 
 def make_simpler_track(song, name="simpler"):
     # type: (Song, str) -> SimpleTrack
-    simple_track = SimpleTrack(song, AbletonTrack(name=name, device=make_device_simpler()), len(song.tracks))
-    song.tracks.append(simple_track)
+    simple_track = SimpleTrack(song, AbletonTrack(name=name, device=make_device_simpler()), len(song.simple_tracks))
+    song.simple_tracks.append(simple_track)
     return simple_track
