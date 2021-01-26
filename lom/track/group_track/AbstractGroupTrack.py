@@ -16,11 +16,9 @@ class AbstractGroupTrack(AbstractTrack):
         self.sub_tracks = group_track.sub_tracks
         self.can_be_armed = True
         [setattr(sub_track, "base_color", self.base_color) for sub_track in self.sub_tracks]
-        self.parent.log_debug((self, self.instrument_track))
 
     @subject_slot("instrument")
     def _instrument_listener(self):
         self.instrument = self.instrument_track.instrument
-        self.parent.log_debug((self.instrument_track, self.instrument))
         if self.instrument:
             self.instrument.track = self

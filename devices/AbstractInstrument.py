@@ -50,7 +50,6 @@ class AbstractInstrument(AbstractObject):
 
     @subject_slot("base_name")
     def _base_name_listener(self):
-        # self.track.track_name.set(preset_index=0)
         self.get_presets(set_preset=True)
 
     def exclusive_activate(self):

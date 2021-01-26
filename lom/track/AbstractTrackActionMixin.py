@@ -50,8 +50,6 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         if not self.instrument:  # instrument creation on the go as track.devices is not observable
             self.instrument_track.instrument = self.parent.deviceManager.create_instrument_from_simple_track(track=self.instrument_track)
-            self.parent.log_debug(self.instrument_track)
-            self.parent.log_debug(self.instrument_track.instrument)
 
         if not self.instrument or not self.instrument.can_be_shown:
             return
