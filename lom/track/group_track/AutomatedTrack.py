@@ -1,5 +1,3 @@
-from functools import partial
-
 from typing import TYPE_CHECKING, List
 
 from _Framework.Util import forward_property

@@ -58,8 +58,6 @@ class TrackName(AbstractObject):
         clip_slot_index = clip_slot_index if clip_slot_index is not None else self.clip_slot_index
         clip_slot_index = clamp(clip_slot_index, 0, len(self.track.song.scenes) - 1)
 
-        self.parent.log_debug((base_name, self.base_name))
-
         if base_name != self.base_name and notify_base_name:
             # noinspection PyUnresolvedReferences
             self.notify_base_name()

@@ -20,8 +20,6 @@ class AutomationMidiTrack(AbstractAutomationTrack):
         # this works here because the tracks are built left to right
         self.clip_slots = self.clip_slots  # type: List[AutomationMidiClipSlot]
         self.automated_audio_track = None  # type: AutomationAudioTrack
-        self.ramping_steps = 13
-        self.ramping_duration = 0.25  # eighth note
         self.push2_selected_main_mode = 'clip'
         self.push2_selected_matrix_mode = 'note'
         self.push2_selected_instrument_mode = 'split_melodic_sequencer'
@@ -45,10 +43,11 @@ class AutomationMidiTrack(AbstractAutomationTrack):
 
     def _create_base_clips(self):
         velocity_patterns = OrderedDict()
-        velocity_patterns["dry"] = [127]
-        velocity_patterns["half-silent"] = [0, 127]
-        velocity_patterns["half-full"] = [127, 0]
-        velocity_patterns["quarter-silent"] = [0, 127, 127, 127]
+        velocity_patterns["max *"] = [127]
+        velocity_patterns["min *"] = [127]
+        velocity_patterns["min-max *"] = [0, 127]
+        velocity_patterns["max-min *"] = [127, 0]
+        velocity_patterns["quarter-min *"] = [0, 127, 127, 127]
 
         seq = Sequence()
         clip_creation_steps = []

@@ -102,13 +102,16 @@ class Note(AbstractObject):
     def muted(self, muted):
         self._muted = bool(muted)
 
-    @property
-    def quantization(self):
-        return find_if(lambda qtz: float(self.start / qtz).is_integer(), reversed(push2_beat_quantization_steps))
+    def quantization(self, time):
+        return find_if(lambda qtz: float(time / qtz).is_integer(), reversed(push2_beat_quantization_steps))
 
     @property
     def is_quantized(self):
-        return self.quantization is not None
+        return self.quantization(self.start) is not None
+
+    @property
+    def is_end_quantized(self):
+        return self.quantization(self.end) is not None
 
     def overlaps(self, note):
         # type: (Note) -> bool

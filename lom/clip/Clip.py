@@ -164,7 +164,7 @@ class Clip(ClipActionMixin, AbstractObject):
     @is_playing.setter
     def is_playing(self, is_playing):
         # type: (bool) -> None
-        if self._clip:
+        if self._clip and is_playing != self.is_playing:
             self._clip.is_playing = is_playing
 
     @property

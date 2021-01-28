@@ -1,5 +1,6 @@
 from copy import copy
 from functools import partial
+from itertools import chain
 
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
@@ -14,9 +15,10 @@ from a_protocol_0.tests.fixtures.simpleTrack import AbletonTrack, TrackType
 from a_protocol_0.tests.test_all import p0
 
 
-def create_clip_with_notes(notes, prev_notes=[], clip_length=4):
+def create_clip_with_notes(notes, prev_notes=[], clip_length=None, name="test *"):
     track = SimpleTrack(AbletonTrack(name="midi", track_type=TrackType.MIDI), 0)
-    cs = ClipSlot(clip_slot=AbletonClipSlot(AbletonClip(length=clip_length)), index=0, track=track)
+    length = clip_length or notes[-1].start + notes[-1].duration
+    cs = ClipSlot(clip_slot=AbletonClipSlot(AbletonClip(length=length, name=name)), index=0, track=track)
     clip = AutomationMidiClip(clip_slot=cs)
     clip._prev_notes = [copy(note) for note in prev_notes]
     [setattr(note, "clip", clip) for note in notes]
@@ -42,8 +44,8 @@ def assert_note(note, expected):
 
 def test_consolidate_notes():
     notes = [
-        Note(start=0, duration=1, pitch=100, velocity=100),
-        Note(start=1, duration=1, pitch=100, velocity=100),
+        Note(start=0, duration=2, pitch=100, velocity=100),
+        Note(start=2, duration=2, pitch=100, velocity=100),
     ]
     (clip, res) = create_clip_with_notes(notes)
     clip._map_notes(notes)
@@ -83,15 +85,15 @@ def test_insert_added_note():
 
 def test_ramp_notes():
     notes = [
-        Note(start=0, duration=1, pitch=80, velocity=80),
-        Note(start=1, duration=1, pitch=100, velocity=100),
+        Note(start=0, duration=2, pitch=80, velocity=80),
+        Note(start=2, duration=2, pitch=100, velocity=100),
     ]
     (clip, res) = create_clip_with_notes(notes)
 
     def check_notes(clip):
-        assert len(clip._prev_notes) == clip.ramping_steps + 1
+        assert len(clip._prev_notes) == clip.RAMPING_STEPS + 1
         assert clip._prev_notes[0].start == 0
-        assert clip._prev_notes[0].duration == 1
+        assert clip._prev_notes[0].duration == 2
         assert clip._prev_notes[3].velocity != clip._prev_notes[-1].velocity
         for i, note in enumerate(clip._prev_notes[2:]):
             assert clip._prev_notes[i + 1].velocity >= note.velocity
@@ -110,13 +112,13 @@ def test_ramp_notes():
 
 def test_ramp_notes_2():
     notes = [
-        Note(start=0, duration=1, pitch=100, velocity=100),
-        Note(start=1, duration=1, pitch=80, velocity=80),
+        Note(start=0, duration=2, pitch=100, velocity=100),
+        Note(start=2, duration=2, pitch=80, velocity=80),
     ]
     (clip, res) = create_clip_with_notes(notes)
 
     def check_notes(clip):
-        assert len(clip._prev_notes) == clip.ramping_steps + 1
+        assert len(clip._prev_notes) == clip.RAMPING_STEPS + 1
         assert clip._prev_notes[2].velocity != clip._prev_notes[-2].velocity
         for i, note in enumerate(clip._prev_notes[1:]):
             assert clip._prev_notes[i + 1].velocity >= note.velocity
@@ -130,13 +132,25 @@ def test_ramp_notes_2():
     notes[1].velocity = 90
     clip._map_notes(notes)
     check_notes(clip)
+    # print(clip._prev_notes)
     assert clip._prev_notes[2].velocity <= clip._prev_notes[1].velocity
+
+
+def test_clean_ramp_notes():
+    notes = [
+        Note(start=0, duration=2, pitch=100, velocity=100),
+        Note(start=2, duration=2, pitch=80, velocity=80),
+    ]
+    base_notes = copy(notes)
+    (clip, res) = create_clip_with_notes(notes)
+
+    assert list(clip._clean_ramp_notes(list(chain(*clip._ramp_notes(notes))))) == base_notes
 
 
 def test_add_note():
     notes = [
         Note(start=0, duration=1, pitch=0, velocity=0),
-        Note(start=1, duration=1, pitch=100, velocity=100),
+        Note(start=1, duration=3, pitch=100, velocity=100),
     ]
     (clip, res) = create_clip_with_notes(notes)
 
@@ -156,51 +170,65 @@ def test_add_note():
 
 def test_modify_note_pitch():
     prev_notes = [
-        Note(start=0, duration=1, pitch=80, velocity=80),
-        Note(start=1, duration=1, pitch=100, velocity=100),
+        Note(start=0, duration=2, pitch=80, velocity=80),
+        Note(start=2, duration=2, pitch=100, velocity=100),
     ]
 
     def check_res(clip, res):
         assert len(res["set_notes"]) == 1
-        assert len(clip._prev_notes) == clip.ramping_steps + 1
+        assert len(clip._prev_notes) == clip.RAMPING_STEPS + 1
         assert res["set_notes"][0].pitch == 70
         assert clip._prev_notes[0].pitch == 70
         assert res["set_notes"][0].velocity == 70
         assert clip._prev_notes[0].velocity == 70
 
-    seq = Sequence(log_level=SequenceLogLevel.disabled)
-
-    # pitch change
     notes = [copy(note) for note in prev_notes]
     notes[0].pitch = 70
     (clip, res) = create_clip_with_notes(notes, prev_notes)
-    seq.add(partial(clip._map_notes, notes))
-    seq.add(partial(check_res, clip, res))
-
-    return seq.done()
+    clip._map_notes(notes)
+    check_res(clip, res)
 
 
 def test_modify_note_velocity():
     prev_notes = [
-        Note(start=0, duration=1, pitch=80, velocity=80),
-        Note(start=1, duration=1, pitch=100, velocity=100),
+        Note(start=0, duration=2, pitch=80, velocity=80),
+        Note(start=2, duration=2, pitch=100, velocity=100),
     ]
 
     def check_res(clip, res):
         assert len(res["set_notes"]) == 1
-        assert len(clip._prev_notes) == clip.ramping_steps + 1
+        assert len(clip._prev_notes) == clip.RAMPING_STEPS + 1
         assert res["set_notes"][0].pitch == 70
         assert clip._prev_notes[0].pitch == 70
         assert res["set_notes"][0].velocity == 70
         assert clip._prev_notes[0].velocity == 70
 
-    seq = Sequence(log_level=SequenceLogLevel.disabled)
-
-    # vel change
     notes = [copy(note) for note in prev_notes]
     notes[0].velocity = 70
     (clip, res) = create_clip_with_notes(notes, prev_notes)
-    seq.add(partial(clip._map_notes, notes))
-    seq.add(partial(check_res, clip, res))
+    clip._map_notes(notes)
+    check_res(clip, res)
 
-    return seq.done()
+
+def test_clean_duplicate_notes():
+    notes = [
+        Note(start=0, duration=2, pitch=80, velocity=80),
+        Note(start=0, duration=4, pitch=100, velocity=100),
+    ]
+
+    (clip, res) = create_clip_with_notes(notes)
+
+    notes = list(clip._clean_duplicate_notes(notes))
+    assert len(notes) == 1
+    assert notes[0].duration == 4
+
+
+def test_insert_min_note():
+    notes = [
+        Note(start=2, duration=2, pitch=100, velocity=100),
+    ]
+
+    (clip, res) = create_clip_with_notes(notes)
+    clip._map_notes(notes)
+
+    assert_note(clip._prev_notes[0], {"start": 0, "duration": 2, "pitch": 0, "velocity": 0})

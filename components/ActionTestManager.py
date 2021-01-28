@@ -12,4 +12,4 @@ class ActionTestManager(AbstractControlSurfaceComponent):
 
     @button_action()
     def action_test(self):
-        pass
+        self.song.current_track.selected_device._view.is_showing_chain_devices = not self.song.current_track.selected_device._view.is_showing_chain_devices

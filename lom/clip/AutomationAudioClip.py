@@ -3,6 +3,7 @@ from functools import partial
 from typing import TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot
+from a_protocol_0.lom.clip.AbstractAutomationClip import AbstractAutomationClip
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.sequence.Sequence import Sequence
 
@@ -13,7 +14,7 @@ if TYPE_CHECKING:
     from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
 
 
-class AutomationAudioClip(Clip):
+class AutomationAudioClip(AbstractAutomationClip):
     def __init__(self, *a, **k):
         super(AutomationAudioClip, self).__init__(*a, **k)
         self.track = self.track  # type: AutomationAudioTrack
@@ -44,19 +45,6 @@ class AutomationAudioClip(Clip):
         seq.add(self.clear_all_envelopes)
         seq.add(self._create_automation_envelope)
         return seq.done()
-
-    @subject_slot("playing_status")
-    def _playing_status_listener(self):
-        if self.automated_midi_clip.is_playing:
-            self.is_playing = True
-            seq = Sequence()
-            seq.add(wait=1)
-            seq.add(lambda: setattr(self, "start_marker", self.parent.utilsManager.get_next_quantized_position(
-                self.automated_midi_clip.playing_position, self.automated_midi_clip.length)))
-            seq.add(lambda: setattr(self, "is_playing", True))
-            return seq.done()
-        else:
-            self.is_playing = False
 
     def _create_automation_envelope(self):
         envelope = self.create_automation_envelope(self.track.automated_parameter)
