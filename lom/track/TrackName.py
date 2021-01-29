@@ -53,12 +53,12 @@ class TrackName(AbstractObject):
         self.tracks.append(track)
         self._name_listener.add_subject(track._track)
 
-    def set(self, base_name=None, clip_slot_index=None, preset_index=None, notify_base_name=True):
+    def set(self, base_name=None, clip_slot_index=None, preset_index=None):
         # type: (Optional[str], Optional[int], Optional[int], bool) -> None
         clip_slot_index = clip_slot_index if clip_slot_index is not None else self.clip_slot_index
         clip_slot_index = clamp(clip_slot_index, 0, len(self.track.song.scenes) - 1)
 
-        if base_name != self.base_name and notify_base_name:
+        if base_name and base_name != self.base_name:
             # noinspection PyUnresolvedReferences
             self.notify_base_name()
 

@@ -66,7 +66,7 @@ class ClipSlot(AbstractObject):
             self.parent._wait(2, self.parent.push2Manager.update_clip_grid_quantization)
         other_clip_slot = find_last(lambda cs: cs.has_clip and cs.index < self.index, self.track.clip_slots) or find_if(lambda cs: cs.has_clip, self.track.clip_slots)
         if other_clip_slot:
-            self.track.track_name.set(clip_slot_index=other_clip_slot.index, notify_base_name=False)
+            self.track.track_name.set(clip_slot_index=other_clip_slot.index)
 
     def delete_clip(self):
         seq = Sequence()
