@@ -40,6 +40,10 @@ class Device(AbstractObject):
     def name(self):
         return self._device.name
 
+    @property
+    def is_active(self):
+        return self._device.is_active
+
     @subject_slot("parameters")
     def _parameters_listener(self):
         self.parameters = [DeviceParameter(self, parameter) for parameter in self._device.parameters]

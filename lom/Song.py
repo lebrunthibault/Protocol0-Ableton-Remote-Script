@@ -12,6 +12,7 @@ from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
+from a_protocol_0.utils.utils import flatten
 
 
 class Song(SongActionMixin, AbstractObject):
@@ -123,6 +124,16 @@ class Song(SongActionMixin, AbstractObject):
     def clip_trigger_quantization(self, clip_trigger_quantization):
         # type: (int) -> None
         self._song.clip_trigger_quantization = clip_trigger_quantization
+
+    def get_clip(self, clip):
+        # type: (Live.Clip.Clip) -> Optional[Clip]
+        return find_if(lambda c: c._clip == clip, self.clips)
+
+    @property
+    def clips(self):
+        # type: () -> List[Clip]
+        clips = [t.clips for t in self.simple_tracks]
+        return flatten(clips)
 
     @property
     def playing_clips(self):

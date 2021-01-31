@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
 from a_protocol_0.utils.callback_descriptor import CallbackDescriptor
+from a_protocol_0.utils.log import log_ableton
 from a_protocol_0.utils.utils import is_method
 
 if TYPE_CHECKING:
@@ -131,19 +132,21 @@ def debounce(wait_time=2):
 #     return wrap
 
 
-def throttle(wait_time=2, max_executions=3):
+def throttle(wait_time=2, max_execution_count=3):
     def wrap(func):
         @wraps(func)
         def decorate(*a, **k):
+            index = a[0] if is_method(func) else decorate
+            log_ableton(decorate.execution_times[index][-3:])
             exec_time = time.time()
-            if len([t for t in decorate.execution_times[-3:] if exec_time - t < decorate.wait_time]) == decorate.max_executions:
+            if len([t for t in decorate.execution_times[index][-3:] if exec_time - t < decorate.wait_time]) == decorate.max_execution_count:
                 return
             func(*a, **k)
-            decorate.execution_times.append(time.time())
+            decorate.execution_times[index].append(time.time())
 
         decorate.wait_time = wait_time
-        decorate.max_executions = max_executions
-        decorate.execution_times = []
+        decorate.max_execution_count = max_execution_count
+        decorate.execution_times = defaultdict(lambda: [])
         decorate.func = func
 
         return decorate
