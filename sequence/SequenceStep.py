@@ -16,7 +16,7 @@ class SequenceStep(AbstractObject):
     __subject_events__ = ('terminated',)
 
     def __init__(self, func, sequence, wait=None, name=None, log_level=SequenceLogLevel.debug, complete_on=None,
-                 do_if=None, do_if_not=None, return_if=None, return_if_not=None, sync=False, check_timeout=5, *a, **k):
+                 do_if=None, do_if_not=None, return_if=None, return_if_not=None, check_timeout=5, silent=False, *a, **k):
         """ the tick is 100 ms """
         super(SequenceStep, self).__init__(*a, **k)
         self._seq = sequence
@@ -37,7 +37,7 @@ class SequenceStep(AbstractObject):
         self._check_count = 0
         self._callback_timeout = None  # type: callable
         self._res = None
-        self._sync = sync  # this unlinks the step from the enclosing sequence if we don't want to listen for the step termination
+        self._silent = silent
         self._errored = False
         self._by_passed_seq = False
         self._is_terminal_step = False
@@ -162,8 +162,8 @@ class SequenceStep(AbstractObject):
     def _execute_callable(self, func):
         try:
             return func()
-        except RuntimeError as e:
-            if self._log_level >= SequenceLogLevel.info:
+        except (Exception, RuntimeError) as e:
+            if self._log_level >= SequenceLogLevel.info and not self._silent:
                 self.parent.log_error("RuntimeError caught while executing %s" % self)
                 self.parent.log_error(e)
             self._errored = True
@@ -174,7 +174,7 @@ class SequenceStep(AbstractObject):
 
     def _execute(self):
         res = self._execute_callable(self._callable)
-        if self._errored or self._sync:
+        if self._errored:
             return
 
         from a_protocol_0.sequence.Sequence import Sequence

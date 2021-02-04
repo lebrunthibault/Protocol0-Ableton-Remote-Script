@@ -19,6 +19,6 @@ class AbstractGroupTrack(AbstractTrack):
 
     @subject_slot("instrument")
     def _instrument_listener(self):
-        self.instrument = self.instrument_track.instrument
+        self.instrument = self.instrument_track.instrument or self.base_track.instrument
         if self.instrument:
             self.instrument.track = self

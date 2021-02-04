@@ -25,8 +25,8 @@ class AbstractInstrument(AbstractObject):
     def __init__(self, track, device, *a, **k):
         # type: (SimpleTrack, Device) -> None
         super(AbstractInstrument, self).__init__(*a, **k)
-        self.track = track
-        self.device_track = track
+        self.track = track  # this could be a group track
+        self.device_track = track  # this will always be the track of the device
         self.device = device
         if device:
             self.can_be_shown = True
@@ -123,7 +123,9 @@ class AbstractInstrument(AbstractObject):
         seq = Sequence()
         if self.device:
             seq.add(partial(self.song.select_track, self.device_track))
-            seq.add(partial(self.song.select_device, self.device))
+            # note: in the case of fast scrolling on a simpler, _devices_listener is not called in time
+            # so the following could fail but will succeed just after so we just ignore the error
+            seq.add(partial(self.song.select_device, self.device), silent=True)
             seq.add(lambda: setattr(self.device._view, "is_collapsed", False))
 
         seq.add(partial(self._scroll_presets_or_sample, go_next))

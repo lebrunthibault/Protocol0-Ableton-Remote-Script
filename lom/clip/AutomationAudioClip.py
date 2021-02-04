@@ -27,7 +27,6 @@ class AutomationAudioClip(AbstractAutomationClip):
         self._sync_name.subject = self.automated_midi_clip
         self._notes_listener.subject = self.automated_midi_clip
         self._playing_status_listener.subject = self.automated_midi_clip._clip
-        self.parent.log_debug("in audio _connect : self: %s, self.automated_midi_clip: %s" % (self, self.automated_midi_clip))
         seq = Sequence()
         seq.add(wait=1)
         seq.add(partial(setattr, self, "name", clip.name), name="set audio clip name")

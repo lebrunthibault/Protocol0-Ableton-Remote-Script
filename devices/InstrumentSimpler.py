@@ -37,6 +37,7 @@ class InstrumentSimpler(AbstractInstrument):
     def set_preset(self, preset_index):
         # type: (int) -> None
         self.parent.browserManager.load_sample(self.preset_names[preset_index])
+        self.parent._wait(5, self.track._devices_listener)
 
     def action_scroll_categories(self, go_next):
         # type: (bool) -> None

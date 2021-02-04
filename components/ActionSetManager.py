@@ -38,4 +38,7 @@ class ActionSetManager(AbstractControlSurfaceComponent):
         self.parent.log_info("current_track: %s" % self.song.current_track)
         self.parent.log_info("current_track.sub_tracks: %s" % self.song.current_track.sub_tracks)
         self.parent.log_info("current_track.all_tracks: %s" % self.song.current_track.all_tracks)
+        self.parent.log_info("*********************")
+        self.parent.log_info("current_track.instrument: %s" % self.song.current_track.instrument)
+
 

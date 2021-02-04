@@ -181,7 +181,7 @@ class Sequence(AbstractObject):
         self.notify_terminated()
 
     def add(self, callback=nop, wait=None, name=None, complete_on=None, do_if=None, do_if_not=None, return_if=None,
-            return_if_not=None, sync=False, check_timeout=5):
+            return_if_not=None, check_timeout=5, silent=False):
         """
             callback can be :
             - None: can be used to just wait on a condition
@@ -205,7 +205,7 @@ class Sequence(AbstractObject):
                                 message="You passed a Sequence object instead of a Sequence factory to add")
         else:
             self._add_step(callback, wait=wait, name=name, complete_on=complete_on, do_if=do_if, do_if_not=do_if_not,
-                           return_if=return_if, return_if_not=return_if_not, sync=sync, check_timeout=check_timeout)
+                           return_if=return_if, return_if_not=return_if_not, check_timeout=check_timeout, silent=silent)
 
         if not self._early_returned and self._state in (SequenceState.UN_STARTED, SequenceState.PAUSED):
             # this is the only way to ensure the sequence steps are going to be executed in a sync sequence with sync sequence steps

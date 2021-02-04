@@ -196,6 +196,9 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self.all_devices = self._find_all_devices(self.base_track)
         self.all_visible_devices = self._find_all_devices(self.base_track, only_visible=True)
 
+        # here we need to refresh the instrument so that it doesn't point to an outdated device
+        self.instrument_track.instrument = self.parent.deviceManager.make_instrument_from_simple_track(track=self)
+
     def get_device(self, device):
         # type: (Live.Device.Device) -> Optional[Device]
         return find_if(lambda d: d._device == device, self.base_track.all_devices)

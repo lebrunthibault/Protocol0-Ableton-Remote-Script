@@ -32,7 +32,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
         # checks for simpler as device object is changing
         return (track.instrument and device == track.instrument.device) or device.is_simpler
 
-    def create_instrument_from_simple_track(self, track):
+    def make_instrument_from_simple_track(self, track):
         # type: (SimpleTrack) -> Optional[AbstractInstrument]
         from a_protocol_0.consts import INSTRUMENT_NAME_MAPPINGS
         from a_protocol_0.devices.InstrumentSimpler import InstrumentSimpler
@@ -47,7 +47,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
 
         instrument_device = find_if(lambda d: d.is_plugin and d.name.lower() in INSTRUMENT_NAME_MAPPINGS, track.all_devices)
         if not instrument_device:
-            if EXTERNAL_SYNTH_MINITAUR_NAME in track.name:
+            if EXTERNAL_SYNTH_MINITAUR_NAME in track.name.lower():
                 return InstrumentMinitaur(track=track, device=None)
             else:
                 return None
