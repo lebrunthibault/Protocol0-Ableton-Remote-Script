@@ -41,14 +41,17 @@ class DeviceManager(AbstractControlSurfaceComponent):
         if not len(track.all_devices):
             return None
 
-        simpler_device = find_if(lambda d: d.is_simpler, track.all_devices)
+        simpler_device = find_if(lambda d: d.is_simpler, track.all_devices)  # type: Live.Device.Device
         if simpler_device:
+            # simpler devices can change, other
+            if track.instrument and track.instrument.device._device == simpler_device:
+                return track.instrument
             return InstrumentSimpler(track=track, device=simpler_device)
 
         instrument_device = find_if(lambda d: d.is_plugin and d.name.lower() in INSTRUMENT_NAME_MAPPINGS, track.all_devices)
         if not instrument_device:
             if EXTERNAL_SYNTH_MINITAUR_NAME in track.name.lower():
-                return InstrumentMinitaur(track=track, device=None)
+                return track.instrument or InstrumentMinitaur(track=track, device=None)
             else:
                 return None
 
@@ -61,7 +64,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
             return None
 
         class_ = getattr(mod, class_name)
-        return class_(track=track, device=instrument_device)
+        return track.instrument or class_(track=track, device=instrument_device)
 
     def update_rack(self, rack_device):
         # type: (Live.RackDevice.RackDevice) -> None

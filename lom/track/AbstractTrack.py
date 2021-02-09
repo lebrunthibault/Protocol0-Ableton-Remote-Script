@@ -54,6 +54,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
                                 self.group_track] + self.group_track.group_tracks if self.group_track else []  # type: List[SimpleTrack]
         self.sub_tracks = []  # type: List[SimpleTrack]
 
+        self._instrument = None  # type: Optional[AbstractInstrument]  #  None here so that we don't instantiate the same instrument twice
         self.devices = []  # type: List[Device]
         self.all_devices = []  # type: List[Device]
         self.all_visible_devices = []  # type: List[Device]
@@ -64,9 +65,9 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self.is_midi = self._track.has_midi_input
         self.is_audio = self._track.has_audio_input
         self.base_color = Colors.get(self.base_name, default=self._track.color_index)
-        self._instrument = None  # type: Optional[AbstractInstrument]  #  None here so that we don't instantiate the same instrument twice
         self.is_scrollable = True
         self._is_hearable = True
+        self._is_duplicated = False  # allows different init when duplicated or when created from e.g. the browser
 
         self.push2_selected_main_mode = 'device'
         self.push2_selected_matrix_mode = 'session'
@@ -75,10 +76,11 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def _added_track_init(self):
         """ this should be be called once, when the Live track is created, overridden by some child classes """
         seq = Sequence()
-        if not self.parent.songManager.abstract_group_track_creation_in_progress:
-            seq.add(self.song.current_track.action_arm)
-            [seq.add(clip.delete) for clip in self.song.current_track.all_clips]
-            [setattr(track.track_name, "clip_slot_index", 0) for track in self.song.current_track.all_tracks]
+        seq.add(self.song.current_track.action_arm)
+        [seq.add(clip.delete) for clip in self.song.current_track.all_clips]
+        [setattr(track.track_name, "clip_slot_index", 0) for track in self.song.current_track.all_tracks]
+
+        if not self._is_duplicated:
             seq.add(partial(self.set_device_parameter_value, "Arpeggiator rack", "Chain Selector", 0))
             seq.add(partial(self.set_device_parameter_value, "Serum rack", "Arp select", 0))
         return seq.done()

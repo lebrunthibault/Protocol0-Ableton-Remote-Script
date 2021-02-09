@@ -56,9 +56,6 @@ class AbstractInstrument(AbstractObject):
         # type: () -> Optional[Sequence]
         return
 
-    def is_visible(self):
-        return self.parent.deviceManager.is_plugin_window_visible(self.device)
-
     @property
     def needs_activation(self):
         return not self.activated or (self.NEEDS_EXCLUSIVE_ACTIVATION and self.active_instance != self)

@@ -30,8 +30,9 @@ class TrackManager(AbstractControlSurfaceComponent):
 
     @subject_slot("added_track")
     def _added_track_listener(self):
-        seq = Sequence().add(wait=1).add(self.song.current_track._added_track_init)
-        return seq.done()
+        if not self.parent.songManager.abstract_group_track_creation_in_progress:
+            seq = Sequence().add(wait=1).add(self.song.current_track._added_track_init)
+            return seq.done()
 
     def group_track(self):
         # type: () -> Sequence

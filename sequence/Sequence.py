@@ -2,6 +2,8 @@ import time
 from collections import deque, Iterable
 from functools import partial
 
+from typing import List
+
 from a_protocol_0.errors.SequenceError import SequenceError
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.sequence.SequenceState import SequenceState, SequenceLogLevel
@@ -83,10 +85,8 @@ class Sequence(AbstractObject):
 
     @property
     def _parent_seqs(self):
-        if self._parent_seq is not None:
-            return [self._parent_seq] + self._parent_seq._parent_seqs
-        else:
-            return []
+        # type: () -> List[Sequence]
+        return [self._parent_seq] + self._parent_seq._parent_seqs if self._parent_seq is not None else []
 
     def _add_step(self, callback, *a, **k):
         if isinstance(callback, Iterable):
@@ -100,8 +100,10 @@ class Sequence(AbstractObject):
         self._steps.append(SequenceStep(callback, sequence=self, log_level=self._log_level, *a, **k))
 
     def _done_called_check(self):
-        if not self._done_called and not self._early_returned and not self._errored and all(
-                [not seq._errored for seq in self._parent_seqs]):
+        if not self._done_called:
+            self.parent.log_debug(self._parent_seqs)
+        if not self._done_called and not self._early_returned and all(
+                [not seq._errored for seq in [self] + self._parent_seqs]):
             raise SequenceError(object=self, message="Sequence.done() has not been called")
 
     def _start(self):

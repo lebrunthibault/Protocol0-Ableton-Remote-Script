@@ -1,3 +1,5 @@
+import traceback
+
 from typing import TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot
@@ -166,6 +168,7 @@ class SequenceStep(AbstractObject):
             if self._log_level >= SequenceLogLevel.info and not self._silent:
                 self.parent.log_error("RuntimeError caught while executing %s" % self)
                 self.parent.log_error(e)
+                traceback.print_exc()
             self._errored = True
             # here we could check for Changes cannot be triggered by notifications and retry.
             # But if the function has side effects before raising the exception that will not work
