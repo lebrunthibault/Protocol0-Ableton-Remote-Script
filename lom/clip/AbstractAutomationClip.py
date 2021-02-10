@@ -1,5 +1,3 @@
-from functools import partial
-
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import subject_slot

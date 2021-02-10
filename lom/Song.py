@@ -12,6 +12,7 @@ from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
+from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.utils import flatten
 
 
@@ -28,14 +29,24 @@ class Song(SongActionMixin, AbstractObject):
         self.current_track = None  # type: AbstractTrack
         self.master_track = self._song.master_track  # type: Live.Track.Track
         self.selected_track_category = TRACK_CATEGORY_ALL
-        self.selected_recording_time = "4 bars"
+        self.selected_recording_time = "1 bar"
+        self.recording_bar_count = 1
         self.solo_playing_tracks = []  # type: List[AbstractTrack]
         self.solo_stopped_tracks = []  # type: List[AbstractTrack]
+        self.errored = False
 
     def __call__(self):
         # type: () -> Live.Song.Song
         """ allows for self.song() behavior to extend other surface script classes """
         return self.parent.song()
+
+    def handle_error(self):
+        seq = Sequence(bypass_errors=True)
+        self.errored = True
+        self.parent.keyboardShortcutManager.focus_window("logs terminal")
+        seq.add(wait=1)
+        seq.add(lambda: setattr(self, "errored", False))
+        return seq.done()
 
     @property
     def scenes(self):

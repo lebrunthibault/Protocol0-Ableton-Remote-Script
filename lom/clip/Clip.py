@@ -183,3 +183,11 @@ class Clip(ClipActionMixin, AbstractObject):
     def is_recording(self):
         # type: () -> bool
         return self._clip and self._clip.is_recording
+
+    @property
+    def warp_mode(self):
+        return self._clip.warp_mode
+
+    @warp_mode.setter
+    def warp_mode(self, warp_mode):
+        self._clip.warp_mode = warp_mode

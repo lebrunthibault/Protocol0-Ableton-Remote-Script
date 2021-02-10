@@ -1,13 +1,10 @@
 from copy import copy
-from functools import partial
 from itertools import chain
 
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
-from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.sequence.SequenceState import SequenceLogLevel
 from a_protocol_0.tests.fixtures.clip import AbletonClip
 from a_protocol_0.tests.fixtures.clip_slot import AbletonClipSlot
 from a_protocol_0.tests.fixtures.simpleTrack import AbletonTrack, TrackType

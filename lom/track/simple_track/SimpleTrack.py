@@ -3,9 +3,8 @@ from typing import List, Optional
 
 from _Framework.SubjectSlot import subject_slot
 from _Framework.Util import find_if
-from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
-from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.clip.Clip import Clip
+from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrackActionMixin import SimpleTrackActionMixin
 from a_protocol_0.utils.decorators import defer
@@ -45,14 +44,10 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @defer
     def _playing_slot_index_listener(self):
         # type: () -> None
-        if self.playing_slot_index < 0:
-            return
-        clip = self.clip_slots[self.playing_slot_index].clip
-        if not clip:
-            return
-        if clip.is_playing:
-            self.track_name.set(clip_slot_index=self.playing_slot_index)
-            [setattr(clip, "is_selected", False) for clip in self.clips]
+        # don't record track stop if we stopped all clips
+        if self._track.playing_slot_index >= 0 or any([track.is_playing for track in self.song.simple_tracks]):
+            self.track_name.set(playing_slot_index=self._track.playing_slot_index)
+        [setattr(clip, "is_selected", False) for clip in self.clips]
 
     @property
     def is_playing(self):
@@ -70,24 +65,14 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         return any([clip_slot.is_triggered for clip_slot in self.clip_slots])
 
     @property
-    def playing_slot_index(self):
-        # type: () -> int
-        """ returns Live playing_slot_index or """
-        if self._track.playing_slot_index >= 0:
-            return self._track.playing_slot_index
-        else:
-            return self.clip_slot_index
-
-    @property
     def playable_clip(self):
         # type: () -> Optional[Clip]
         selected_clip = find_if(lambda clip: clip.is_selected, self.clips)
         if selected_clip:
             return selected_clip
-        if self.clip_slots[self.playing_slot_index].has_clip:
-            return self.clip_slots[self.playing_slot_index].clip
-        elif len(self.clips):
-            return self.clips[0]
+
+        if self.track_name.playing_slot_index >= 0 and self.clip_slots[self.track_name.playing_slot_index].has_clip:
+            return self.clip_slots[self.track_name.playing_slot_index].clip
         else:
             return None
 

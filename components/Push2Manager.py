@@ -3,7 +3,7 @@ from typing import Optional
 from _Framework.SubjectSlot import subject_slot, subject_slot_group
 from a_Push2.push2 import Push2
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.consts import push2_beat_quantization_steps
+from a_protocol_0.consts import PUSH2_BEAT_QUANTIZATION_STEPS
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.utils.decorators import push2_method
 
@@ -64,7 +64,7 @@ class Push2Manager(AbstractControlSurfaceComponent):
         if not self.song.highlighted_clip_slot.has_clip or not self.song.selected_track.is_midi:
             return
         self._update_selected_modes()
-        index = push2_beat_quantization_steps.index(self.song.highlighted_clip_slot.clip.min_note_quantization_start)
+        index = PUSH2_BEAT_QUANTIZATION_STEPS.index(self.song.highlighted_clip_slot.clip.min_note_quantization_start)
         self.push2._grid_resolution.index = index
         self.push2._grid_resolution.quantization_buttons[index].is_checked = True
 

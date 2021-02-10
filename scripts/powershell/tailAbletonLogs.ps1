@@ -22,7 +22,7 @@ function Get-LogColor
             {
                 Return "Green"
             }
-            elseif ($LogEntry.Contains("P0 - error") -or $LogEntry.Contains("a_protocol_0"))
+            elseif ($LogEntry.Contains("error") -or $LogEntry.Contains("a_protocol_0") -or $LogEntry.Contains("RuntimeError") -or $LogEntry.Contains("exception"))
             {
                 Return "Red"
             }

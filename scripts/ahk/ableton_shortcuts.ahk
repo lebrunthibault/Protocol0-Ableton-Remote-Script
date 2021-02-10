@@ -138,7 +138,7 @@ ShowAndActivateRev2Editor()
 
 reloadAbleton()
 {
-    Run reloadAbleton.py, %A_ScriptDir%\..\python, hide
+    Run reload_ableton.py, %A_ScriptDir%\..\python, hide
 }
 
 relaunchAbleton()
@@ -153,7 +153,7 @@ saveAndSetAsTemplate()
     Sleep 500
     Send ^,
     MouseClick, left, 711, 331 ; click on File Folder
-    MouseClick, left, 1034, 223
+    MouseClick, left, 1032, 201
     Sleep 100
     Send {Enter}
     Sleep 200

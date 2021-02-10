@@ -1,4 +1,5 @@
 import inspect
+import traceback
 import types
 from collections import namedtuple
 
@@ -9,6 +10,13 @@ from a_protocol_0.consts import PROTOCOL0_FOLDER, REMOTE_SCRIPTS_FOLDER
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
+
+
+def handle_error():
+    from a_protocol_0 import Protocol0
+    Protocol0.SELF.log_error(traceback.format_exc())
+    if Protocol0.SELF.protocol0_song:
+        Protocol0.SELF.protocol0_song.handle_error()
 
 
 def parse_number(num_as_string, default_value=None, min_value=None, max_value=None, is_float=False):
@@ -105,7 +113,7 @@ def _has_callback_queue(func):
     from a_protocol_0.utils.callback_descriptor import CallableWithCallbacks
     from _Framework.SubjectSlot import CallableSlotMixin
     return hasattr(func, "add_callback") and hasattr(func, "remove_callback") and (
-        isinstance(func, CallableWithCallbacks) or isinstance(func, CallableSlotMixin))
+            isinstance(func, CallableWithCallbacks) or isinstance(func, CallableSlotMixin))
 
 
 def is_method(func):

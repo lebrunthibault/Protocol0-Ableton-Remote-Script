@@ -125,7 +125,7 @@ class Protocol0(ControlSurface):
         if self._is_dev_booted:
             return
 
-        self.log_info(self.protocol0_song.abstract_tracks)
+        # self.log_info(self.protocol0_song.abstract_tracks)
         return
         self.trackAutomationManager.create_automation_group(self.protocol0_song.tracks[1].devices[1].parameters[1])
         return

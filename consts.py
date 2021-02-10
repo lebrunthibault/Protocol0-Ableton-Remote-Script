@@ -1,6 +1,7 @@
 import os
 from fractions import Fraction
 from os.path import dirname
+import Live
 
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 
@@ -30,7 +31,10 @@ INSTRUMENT_NAME_MAPPINGS = {
     "rev2editor": "InstrumentProphet",
 }
 
-push2_beat_quantization_steps = [v * 4 for v in [
+RECORD_QUANTIZE_NAMES = [
+ 'none', '1/4', '1/8', '1/8t', '1/8+t', '1/16', '1/16t',
+ '1/16+t', '1/32']
+PUSH2_BEAT_QUANTIZATION_STEPS = [v * 4 for v in [
     Fraction(1, 48),
     Fraction(1, 32),
     Fraction(1, 24),

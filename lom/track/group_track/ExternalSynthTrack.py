@@ -1,12 +1,11 @@
 from typing import TYPE_CHECKING
+import Live
 
 from _Framework.Util import forward_property
-from a_protocol_0.consts import EXTERNAL_SYNTH_NAMES
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.group_track.ExternalSynthTrackActionMixin import ExternalSynthTrackActionMixin
-from a_protocol_0.lom.track.simple_track.AbstractAutomationTrack import AbstractAutomationTrack
-from a_protocol_0.lom.track.simple_track.SimpleGroupTrack import SimpleGroupTrack
+from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.utils import find_last
 
 if TYPE_CHECKING:
@@ -43,6 +42,10 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     def _post_record(self):
         self.song.metronome = False
         self.midi.has_monitor_in = False
+        seq = Sequence().add(wait=2)
+        seq.add(lambda: setattr(self.audio.playable_clip, "warp_mode", Live.Clip.WarpMode.complex_pro))
+        seq.add(lambda: self.audio.playable_clip.quantize())
+        return seq.done()
 
     @property
     def next_empty_clip_slot_index(self):

@@ -3,7 +3,7 @@ from functools import partial
 from typing import TYPE_CHECKING, List
 
 from _Framework.Util import clamp, find_if
-from a_protocol_0.consts import push2_beat_quantization_steps
+from a_protocol_0.consts import PUSH2_BEAT_QUANTIZATION_STEPS
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.utils import is_equal
@@ -103,7 +103,7 @@ class Note(AbstractObject):
         self._muted = bool(muted)
 
     def quantization(self, time):
-        return find_if(lambda qtz: float(time / qtz).is_integer(), reversed(push2_beat_quantization_steps))
+        return find_if(lambda qtz: float(time / qtz).is_integer(), reversed(PUSH2_BEAT_QUANTIZATION_STEPS))
 
     @property
     def is_quantized(self):

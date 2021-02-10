@@ -1,5 +1,4 @@
 import time
-import traceback
 from collections import defaultdict
 from functools import partial, wraps
 
@@ -8,7 +7,7 @@ from typing import TYPE_CHECKING
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
 from a_protocol_0.utils.callback_descriptor import CallbackDescriptor
 from a_protocol_0.utils.log import log_ableton
-from a_protocol_0.utils.utils import is_method
+from a_protocol_0.utils.utils import is_method, handle_error
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -71,6 +70,7 @@ def retry(retry_count=2, interval=1):
             except Exception:
                 if decorate.count == decorate.retry_count:
                     Protocol0.SELF.log_error("Retry error on %s" % decorate)
+                    handle_error()
                     return
                 Protocol0.SELF._wait(pow(2, decorate.count) * interval, partial(func, *a, **k))
                 decorate.count += 1
@@ -110,28 +110,6 @@ def debounce(wait_time=2):
     return wrap
 
 
-# def debounce(wait_time=2):
-#     def wrap(func):
-#         @wraps(func)
-#         def decorate(*a, **k):
-#             decorate.count += 1
-#             from a_protocol_0 import Protocol0
-#             Protocol0.SELF._wait(decorate.wait_time, partial(execute, func, *a, **k))
-#
-#         decorate.count = 0
-#         decorate.wait_time = wait_time
-#         decorate.func = func
-#
-#         def execute(func, *a, **k):
-#             decorate.count -= 1
-#             if decorate.count == 0:
-#                 func(*a, **k)
-#
-#         return decorate
-#
-#     return wrap
-
-
 def throttle(wait_time=2, max_execution_count=3):
     def wrap(func):
         @wraps(func)
@@ -157,20 +135,18 @@ def throttle(wait_time=2, max_execution_count=3):
 def button_action(auto_arm=False, log_action=True, auto_undo=True):
     def wrap(func):
         @wraps(func)
+        @catch_and_log
         def decorate(self, *a, **k):
             # type: (AbstractObject) -> None
             if log_action:
                 self.parent.log_info("Executing " + func.__name__)
             self.song.begin_undo_step()
-            try:
-                if auto_arm:
-                    self.song.unfocus_all_tracks()
-                    if not self.song.current_track.arm:
-                        self.song.current_track.action_arm()
-                func(self, **k)
-            except (Exception, RuntimeError):
-                self.parent.log_error(traceback.format_exc())
-                return
+            if auto_arm:
+                self.song.unfocus_all_tracks()
+                if not self.song.current_track.arm:
+                    self.song.current_track.action_arm()
+            func(self, **k)
+
             if auto_undo:
                 self.parent.defer(self.song.end_undo_step)
 
@@ -200,10 +176,8 @@ def catch_and_log(func):
     def decorate(*a, **k):
         try:
             func(*a, **k)
-        except Exception:
-            from a_protocol_0 import Protocol0
-            Protocol0.SELF.log_error(traceback.format_exc())
-            return
+        except (Exception, RuntimeError):
+            handle_error()
 
     return decorate
 

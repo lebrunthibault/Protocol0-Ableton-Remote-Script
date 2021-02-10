@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 
+from a_protocol_0.devices.InstrumentMinitaur import InstrumentMinitaur
 from a_protocol_0.lom.Colors import Colors
 
 if TYPE_CHECKING:
@@ -21,6 +22,8 @@ class ExternalSynthTrackActionMixin(object):
     def action_unarm_track(self):
         # type: (ExternalSynthTrack) -> None
         self.midi.has_monitor_in = self.audio.has_monitor_in = False
+        if isinstance(self.instrument, InstrumentMinitaur):
+            self.midi.has_monitor_in = True  # needed when we have multiple minitaur tracks so that other midi clips are not sent to minitaur
 
     def action_switch_monitoring(self):
         # type: (ExternalSynthTrack) -> None
@@ -33,14 +36,13 @@ class ExternalSynthTrackActionMixin(object):
 
     def action_record_all(self):
         # type: (ExternalSynthTrack) -> None
-        self.midi.bar_count = self.audio.bar_count = self.bar_count
         self.midi.action_record_all(clip_slot_index=self.next_empty_clip_slot_index)
         self.audio.action_record_all(clip_slot_index=self.next_empty_clip_slot_index)
 
     def action_record_audio_only(self):
         # type: (ExternalSynthTrack) -> None
         if self.midi.is_playing:
-            self.audio.bar_count = int(round((self.midi.playable_clip.length + 1) / 4))
+            self.song.recording_bar_count = int(round((self.midi.playable_clip.length + 1) / 4))
         clip_slot_index = self.midi.playable_clip.index if not self.audio.clip_slots[
             self.midi.playable_clip.index].has_clip else None
         self.audio.action_record_all(clip_slot_index=clip_slot_index)

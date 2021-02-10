@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.lom.clip.AbstractAutomationClip import AbstractAutomationClip
-from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:

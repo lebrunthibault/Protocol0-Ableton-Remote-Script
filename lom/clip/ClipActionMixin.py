@@ -4,7 +4,7 @@ import Live
 from typing import TYPE_CHECKING, List
 
 from _Framework.Util import find_if
-from a_protocol_0.consts import push2_beat_quantization_steps
+from a_protocol_0.consts import PUSH2_BEAT_QUANTIZATION_STEPS, RECORD_QUANTIZE_NAMES
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
@@ -88,10 +88,10 @@ class ClipActionMixin(object):
         if not len(notes):
             return 1
         notes_start_quantization = [
-            find_if(lambda qtz: float(note.start / qtz).is_integer(), reversed(push2_beat_quantization_steps)) for note
+            find_if(lambda qtz: float(note.start / qtz).is_integer(), reversed(PUSH2_BEAT_QUANTIZATION_STEPS)) for note
             in notes]
         if None in notes_start_quantization:
-            return push2_beat_quantization_steps[3]  # 1/16 by default
+            return PUSH2_BEAT_QUANTIZATION_STEPS[3]  # 1/16 by default
         else:
             return min(notes_start_quantization)
 
@@ -121,3 +121,9 @@ class ClipActionMixin(object):
     def clear_all_envelopes(self):
         # type: (Clip) -> None
         return self._clip.clear_all_envelopes()
+
+    def quantize(self, quantization='1/16', depth=1):
+        # type: (Clip, str, float) -> None
+        rate = RECORD_QUANTIZE_NAMES.index(quantization)
+        self._clip.quantize(rate, depth)
+

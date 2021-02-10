@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Optional
 
 import Live
 
+from a_protocol_0.devices.InstrumentSerum import InstrumentSerum
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.sequence.Sequence import Sequence
@@ -41,12 +42,18 @@ class SongActionMixin(object):
     @defer
     def reset(self):
         # type: (Song) -> None
-        if self._song.current_song_time == 0 and not self._song.is_playing and self._song.session_record_status == Live.Song.SessionRecordStatus.off:
-            return
         self.stop_all_clips(0)
         self.stop_playing()
         self._song.current_song_time = 0
         [track.reset_track() for track in self.abstract_tracks]
+        seq = Sequence()
+        for track in [track for track in self.abstract_tracks if track.instrument and isinstance(track.instrument, InstrumentSerum)]:
+            seq.add(track.action_arm)
+            seq.add(partial(track.instrument.set_preset, track.preset_index))
+            seq.add(wait=1)
+            seq.add(track.action_unarm)
+
+        return seq.done()
 
     def stop_playing(self):
         # type: (Song) -> None

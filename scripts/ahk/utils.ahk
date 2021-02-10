@@ -24,13 +24,6 @@ LogError(exception)
 	msgBox exception
 }
 
-Log(message)
-{
-    FormatTime, CurrentDateTime,, [dd/MM/yyyy HH:mm:ss]
-    EnvGet, version, AbletonVersion
-    FileAppend, %CurrentDateTime% %message%`n, ../logs/ahk.log
-}
-
 ; Link Hotkey to function
 HotkeyAbleton(hk, fun, arg*)
 {
@@ -50,7 +43,6 @@ Hotkey(ifWinActiveCondition, hk, fun, arg*)
 
     Hotkey_Handle:
         funs[A_ThisHotkey].(args[A_ThisHotkey]*)
-        Log(A_ThisHotkey)
 
         Return
 }

@@ -8,13 +8,13 @@ from typing import TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot
 from _Framework.Util import find_if
-from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.consts import TRACK_CATEGORIES, TRACK_CATEGORY_OTHER
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
-from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
+from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.lom.clip.Clip import Clip
+from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.device.DeviceChain import DeviceChain
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
@@ -22,7 +22,7 @@ from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.lom.track.AbstractTrackActionMixin import AbstractTrackActionMixin
 from a_protocol_0.lom.track.TrackName import TrackName
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import defer, retry
+from a_protocol_0.utils.decorators import defer
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -61,7 +61,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self._devices_listener.subject = self._track
         self._devices_listener()
 
-        self.bar_count = 1
         self.is_midi = self._track.has_midi_input
         self.is_audio = self._track.has_audio_input
         self.base_color = Colors.get(self.base_name, default=self._track.color_index)
@@ -78,7 +77,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         seq = Sequence()
         seq.add(self.song.current_track.action_arm)
         [seq.add(clip.delete) for clip in self.song.current_track.all_clips]
-        [setattr(track.track_name, "clip_slot_index", 0) for track in self.song.current_track.all_tracks]
+        [setattr(track.track_name, "playing_slot_index", 0) for track in self.song.current_track.all_tracks]
 
         if not self._is_duplicated:
             seq.add(partial(self.set_device_parameter_value, "Arpeggiator rack", "Chain Selector", 0))
@@ -164,11 +163,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def preset_index(self):
         # type: () -> int
         return self.base_track.track_name.preset_index
-
-    @property
-    def clip_slot_index(self):
-        # type: () -> int
-        return self.base_track.track_name.clip_slot_index
 
     @property
     def color(self):

@@ -49,7 +49,7 @@ class Sequence(AbstractObject):
 
     DISABLE_LOGGING = False
 
-    def __init__(self, wait=0, log_level=SequenceLogLevel.debug, debug=True, name=None, *a, **k):
+    def __init__(self, wait=0, log_level=SequenceLogLevel.debug, debug=True, name=None, bypass_errors=False, *a, **k):
         super(Sequence, self).__init__(*a, **k)
         self._steps = deque()  # type: [SequenceStep]
         self._current_step = None  # type: SequenceStep
@@ -63,6 +63,7 @@ class Sequence(AbstractObject):
         self._debug = (log_level == SequenceLogLevel.debug) and debug and not self.DISABLE_LOGGING
         self._early_returned = False
         self._errored = False
+        self._bypass_errors = bypass_errors
         self._parent_seq = None  # type: Sequence
         # self._debug = debug and not sync
         self._is_condition_seq = False
@@ -135,7 +136,7 @@ class Sequence(AbstractObject):
 
     @subject_slot("terminated")
     def _step_termination(self):
-        if self._current_step._errored:
+        if (self._current_step._errored or self.song.errored) and not self._bypass_errors:
             self._errored = True
             self._terminate()
         elif self._current_step._early_returned:

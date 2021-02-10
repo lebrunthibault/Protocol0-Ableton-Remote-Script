@@ -45,6 +45,7 @@ class ActionManager(AbstractControlSurfaceComponent):
         MultiEncoder(channel=15, identifier=9,
                      on_press=self.action_track_record_fixed,
                      on_long_press=self.action_track_record_audio,
+                     on_shift_press=self.action_track_record_audio_overwrite,
                      on_scroll=self.action_scroll_track_recording_times)
 
         # STOP encoder
@@ -57,7 +58,7 @@ class ActionManager(AbstractControlSurfaceComponent):
         MultiEncoder(channel=15, identifier=12,
                      on_press=self.action_play_selected_tracks,
                      on_shift_press=self.action_solo_play_selected_tracks,
-                     on_long_press=self.restart_category,
+                     on_long_press=self.action_restart_category,
                      on_scroll=self.action_scroll_track_categories)
 
         # MONitor encoder
@@ -140,7 +141,7 @@ class ActionManager(AbstractControlSurfaceComponent):
     def action_scroll_track_recording_times(self, go_next):
         """ record both midi and audio on group track """
         self.song.selected_recording_time = scroll_values(RECORDING_TIMES, self.song.selected_recording_time, go_next)
-        self.song.current_track.bar_count = int(self.song.selected_recording_time.split()[0])
+        self.song.recording_bar_count = int(self.song.selected_recording_time.split()[0])
         self.parent.show_message("Selected %s" % self.song.selected_recording_time)
 
     @button_action(auto_arm=True)
@@ -149,7 +150,7 @@ class ActionManager(AbstractControlSurfaceComponent):
         self.song.current_track.action_restart_and_record(self.song.current_track.action_record_all)
 
     @button_action(auto_arm=True)
-    def action_track_record_audio(self):
+    def action_track_record_audio(self, overwrite=False):
         """ record only audio on group track """
         return self.song.current_track.action_restart_and_record(self.song.current_track.action_record_audio_only,
                                                                  only_audio=True)
@@ -189,7 +190,7 @@ class ActionManager(AbstractControlSurfaceComponent):
         self.parent.playTrackManager.action_solo_play_selected_tracks()
 
     @button_action()
-    def restart_category(self):
+    def action_restart_category(self):
         """" restart a live set from group tracks track names """
         if self.song.has_solo_selection and self.song.selected_track_category in PLAY_MENU_OPTIONS:
             self.parent.playTrackManager.handle_play_menu_click()
