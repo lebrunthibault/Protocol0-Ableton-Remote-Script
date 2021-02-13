@@ -22,6 +22,7 @@ class ActionSetManager(AbstractControlSurfaceComponent):
 
     @button_action()
     def action_log_set(self):
+        self.parent.keyboardShortcutManager.focus_logs()
         self.parent.log_info("---------------------")
         self.parent.log_info("---------------------")
         self.parent.log_info("---------------------")
@@ -32,13 +33,19 @@ class ActionSetManager(AbstractControlSurfaceComponent):
         self.parent.log_info("*********************")
         self.parent.log_info("abstract_group_tracks : %s" % self.song.abstract_group_tracks)
         self.parent.log_info("*********************")
-        self.parent.log_info("********* SELECTED_TRACK *************")
+        self.parent.log_info("********* CURRENT_TRACK *************")
         self.parent.log_info("*********************")
-        self.parent.log_info("selected_track: %s" % self.song.selected_track)
         self.parent.log_info("current_track: %s" % self.song.current_track)
         self.parent.log_info("current_track.sub_tracks: %s" % self.song.current_track.sub_tracks)
         self.parent.log_info("current_track.all_tracks: %s" % self.song.current_track.all_tracks)
         self.parent.log_info("*********************")
         self.parent.log_info("current_track.instrument: %s" % self.song.current_track.instrument)
+        self.parent.log_info("*********************")
+        self.parent.log_info("********* SELECTED_TRACK *************")
+        self.parent.log_info("*********************")
+        self.parent.log_info("selected_track: %s" % self.song.selected_track)
+        self.parent.log_info("selected_track.clip_slots: %s" % self.song.selected_track.clip_slots)
+        self.parent.log_info("selected_track.clips: %s" % self.song.selected_track.clips)
+
 
 

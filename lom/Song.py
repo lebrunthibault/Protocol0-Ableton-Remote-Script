@@ -13,6 +13,7 @@ from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.sequence.Sequence import Sequence
+from a_protocol_0.utils.decorators import is_change_deferrable
 from a_protocol_0.utils.utils import flatten
 
 
@@ -41,9 +42,9 @@ class Song(SongActionMixin, AbstractObject):
         return self.parent.song()
 
     def handle_error(self):
-        seq = Sequence(bypass_errors=True)
+        seq = Sequence(bypass_errors=True, debug=False)
         self.errored = True
-        self.parent.keyboardShortcutManager.focus_window("logs terminal")
+        self.parent.keyboardShortcutManager.focus_logs()
         seq.add(wait=1)
         seq.add(lambda: setattr(self, "errored", False))
         return seq.done()
@@ -122,6 +123,7 @@ class Song(SongActionMixin, AbstractObject):
         return self._song.metronome
 
     @metronome.setter
+    @is_change_deferrable
     def metronome(self, metronome):
         # type: (bool) -> None
         self._song.metronome = metronome

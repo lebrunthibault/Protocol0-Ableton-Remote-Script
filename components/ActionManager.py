@@ -1,3 +1,5 @@
+from functools import partial
+
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import RECORDING_TIMES, TRACK_CATEGORIES, TRACK_CATEGORY_ALL, PLAY_MENU_OPTIONS
 from a_protocol_0.controls.MultiEncoder import MultiEncoder
@@ -45,7 +47,7 @@ class ActionManager(AbstractControlSurfaceComponent):
         MultiEncoder(channel=15, identifier=9,
                      on_press=self.action_track_record_fixed,
                      on_long_press=self.action_track_record_audio,
-                     on_shift_press=self.action_track_record_audio_overwrite,
+                     on_shift_press=partial(self.action_track_record_audio, overwrite=True),
                      on_scroll=self.action_scroll_track_recording_times)
 
         # STOP encoder
@@ -83,9 +85,6 @@ class ActionManager(AbstractControlSurfaceComponent):
         base_track = self.song.selected_track if self.song.selected_track.is_scrollable else self.song.current_track.base_track
         track_to_select = scroll_values(self.song.scrollable_tracks, base_track, go_next)  # type: SimpleTrack
         if track_to_select:
-            # if track_to_select.playable_clip:
-            #     self.song.highlighted_clip_slot = track_to_select.playable_clip.clip_slot
-            # else:
             self.song.select_track(track_to_select)
 
     @button_action()
@@ -152,7 +151,7 @@ class ActionManager(AbstractControlSurfaceComponent):
     @button_action(auto_arm=True)
     def action_track_record_audio(self, overwrite=False):
         """ record only audio on group track """
-        return self.song.current_track.action_restart_and_record(self.song.current_track.action_record_audio_only,
+        return self.song.current_track.action_restart_and_record(partial(self.song.current_track.action_record_audio_only, overwrite=overwrite),
                                                                  only_audio=True)
 
     @button_action(log_action=False)

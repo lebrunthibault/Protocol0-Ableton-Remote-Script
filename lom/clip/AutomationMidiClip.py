@@ -10,7 +10,7 @@ from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.AbstractAutomationClip import AbstractAutomationClip
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import debounce, subject_slot
+from a_protocol_0.utils.decorators import debounce, p0_subject_slot
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -55,16 +55,15 @@ class AutomationMidiClip(AbstractAutomationClip):
         self._playing_status_listener.subject = self.automated_audio_clip._clip
         return clip._connect(self)
 
-    @subject_slot("notes")
+    @p0_subject_slot("notes")
     def _notes_listener(self):
         # type: () -> Sequence
         super(AutomationMidiClip, self)._notes_listener()
         if not self._is_updating_notes:
             return self.map_notes()
 
-    @subject_slot("name")
+    @p0_subject_slot("name")
     def _name_listener(self):
-        super(AutomationMidiClip, self)._name_listener()
         self.ramping_mode = RampModes.get(self)
         self._map_notes()
 

@@ -9,6 +9,7 @@ from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.sequence.Sequence import Sequence
+from a_protocol_0.utils.decorators import is_change_deferrable
 from a_protocol_0.utils.utils import have_equal_properties
 
 if TYPE_CHECKING:
@@ -122,6 +123,7 @@ class ClipActionMixin(object):
         # type: (Clip) -> None
         return self._clip.clear_all_envelopes()
 
+    @is_change_deferrable
     def quantize(self, quantization='1/16', depth=1):
         # type: (Clip, str, float) -> None
         rate = RECORD_QUANTIZE_NAMES.index(quantization)

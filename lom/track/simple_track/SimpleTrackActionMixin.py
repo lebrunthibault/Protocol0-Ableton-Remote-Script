@@ -23,10 +23,10 @@ class SimpleTrackActionMixin(object):
             self.mute = False
             self.arm = True
 
-        selected_track = self.song.selected_track
         if self.instrument and self.instrument.NEEDS_EXCLUSIVE_ACTIVATION:
+            selected_track = self.song.selected_track
             seq = Sequence()
-            seq.add(self.instrument.check_activated)
+            seq.add(self.instrument.check_activated, wait=1)
             seq.add(partial(self.song.select_track, selected_track))
             return seq.done()
 
@@ -36,10 +36,14 @@ class SimpleTrackActionMixin(object):
 
     def action_record_all(self, clip_slot_index=None):
         # type: (SimpleTrack, int) -> None
+        """ finishes on end of recording """
+        seq = Sequence()
         clip_slot_index = clip_slot_index if clip_slot_index else self._next_empty_clip_slot_index
         self.parent.show_message("Starting recording of %d bars" % self.song.recording_bar_count)
-        self.parent.defer(lambda: self.clip_slots[clip_slot_index].fire(
-            record_length=self.parent.utilsManager.get_beat_time(self.song.recording_bar_count)))
+        self.clip_slots[clip_slot_index].fire(record_length=self.parent.utilsManager.get_beat_time(self.song.recording_bar_count))
+        seq.add(complete_on=self.clip_slots[clip_slot_index]._has_clip_listener)
+        seq.add(complete_on=lambda: self.clip_slots[clip_slot_index].clip._is_recording_listener)
+        return seq.done()
 
     def action_undo_track(self):
         # type: (SimpleTrack) -> None

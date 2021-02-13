@@ -18,7 +18,7 @@ from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMi
 from a_protocol_0.lom.track.simple_track.SimpleGroupTrack import SimpleGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import subject_slot
+from a_protocol_0.utils.decorators import p0_subject_slot
 
 
 class TrackManager(AbstractControlSurfaceComponent):
@@ -28,7 +28,7 @@ class TrackManager(AbstractControlSurfaceComponent):
         self.automation_track_color = None
         self._added_track_listener.subject = self.parent.songManager
 
-    @subject_slot("added_track")
+    @p0_subject_slot("added_track")
     def _added_track_listener(self):
         if not self.parent.songManager.abstract_group_track_creation_in_progress:
             seq = Sequence().add(wait=1).add(self.song.current_track._added_track_init)

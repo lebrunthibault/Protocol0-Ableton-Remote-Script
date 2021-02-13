@@ -60,6 +60,21 @@ def wait(wait_time):
     return wrap
 
 
+def is_change_deferrable(func):
+    @wraps(func)
+    def decorate(*a, **k):
+        try:
+            func(*a, **k)
+        except RuntimeError as e:
+            if "Changes cannot be triggered by notifications" in str(e):
+                from a_protocol_0 import Protocol0
+                Protocol0.SELF.defer(partial(func, *a, **k))
+            else:
+                raise e
+
+    return decorate
+
+
 def retry(retry_count=2, interval=1):
     def wrap(func):
         @wraps(func)
@@ -85,6 +100,7 @@ def retry(retry_count=2, interval=1):
 
 def debounce(wait_time=2):
     """ here we make the method dynamic for e.g. get_presets """
+
     def wrap(func):
         @wraps(func)
         def decorate(*a, **k):
@@ -117,7 +133,8 @@ def throttle(wait_time=2, max_execution_count=3):
             index = a[0] if is_method(func) else decorate
             log_ableton(decorate.execution_times[index][-3:])
             exec_time = time.time()
-            if len([t for t in decorate.execution_times[index][-3:] if exec_time - t < decorate.wait_time]) == decorate.max_execution_count:
+            if len([t for t in decorate.execution_times[index][-3:] if
+                    exec_time - t < decorate.wait_time]) == decorate.max_execution_count:
                 return
             func(*a, **k)
             decorate.execution_times[index].append(time.time())
@@ -155,7 +172,7 @@ def button_action(auto_arm=False, log_action=True, auto_undo=True):
     return wrap
 
 
-def subject_slot(event):
+def p0_subject_slot(event):
     def wrap(func):
         def decorate(*a, **k):
             func(*a, **k)

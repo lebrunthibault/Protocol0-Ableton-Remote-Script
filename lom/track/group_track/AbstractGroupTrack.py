@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
-from a_protocol_0.utils.decorators import subject_slot
+from a_protocol_0.utils.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -16,7 +16,7 @@ class AbstractGroupTrack(AbstractTrack):
         self.can_be_armed = True
         [setattr(sub_track, "base_color", self.base_color) for sub_track in self.sub_tracks]
 
-    @subject_slot("instrument")
+    @p0_subject_slot("instrument")
     def _instrument_listener(self):
         self.instrument = self.instrument_track.instrument or self.base_track.instrument
         if self.instrument:

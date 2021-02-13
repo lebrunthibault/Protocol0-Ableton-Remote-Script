@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from functools import partial
 
 import Live
 from typing import TYPE_CHECKING, Callable, Any
@@ -78,22 +79,25 @@ class AbstractTrackActionMixin(object):
         self.song._song.session_automation_record = True
 
         self.song.stop_playing()
-        action_record_func()
 
         if len(filter(None, [t.is_hearable for t in self.song.simple_tracks])) <= 1 and not only_audio:
             self.song.metronome = True
 
-        self.parent.wait_bars(self.song.recording_bar_count + 1, self._post_record)
+        seq = Sequence()
+        seq.add(action_record_func, wait=1)
+        seq.add(partial(self._post_record, only_audio=only_audio))
+        return seq.done()
 
-    def _post_record(self):
-        # type: (AbstractTrack) -> None
+    def _post_record(self, *a, **k):
+        # type: (AbstractTrack, Any, Any) -> None
         " overridden "
         self.song.metronome = False
         self.has_monitor_in = False
-        seq = Sequence().add(wait=2)
-        seq.add(lambda: setattr(self.base_track.playable_clip, "warp_mode", Live.Clip.WarpMode.complex_pro))
-        seq.add(lambda: self.base_track.playable_clip.quantize())
-        return seq.done()
+        if self.is_audio:
+            self.base_track.playable_clip.warp_mode = Live.Clip.WarpMode.complex_pro
+            self.base_track.playable_clip.quantize()
+        self.song.highlighted_clip_slot = self.base_track.playable_clip.clip_slot
+        self.parent.clyphxNavigationManager.show_clip_view()
 
     @abstractmethod
     def action_record_all(self):
@@ -101,14 +105,14 @@ class AbstractTrackActionMixin(object):
         """ this records normally on a simple track and both midi and audio on a group track """
         pass
 
-    def action_record_audio_only(self):
+    def action_record_audio_only(self, *a, **k):
         # type: (AbstractTrack) -> None
         """
             overridden
             this records normally on a simple track and only audio on a group track
             is is available on other tracks just for ease of use
         """
-        self.action_record_all()
+        return self.action_record_all()
 
     def play(self):
         # type: (AbstractTrack) -> None

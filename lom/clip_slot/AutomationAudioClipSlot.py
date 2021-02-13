@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from a_protocol_0.lom.clip.AutomationAudioClip import AutomationAudioClip
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import subject_slot
+from a_protocol_0.utils.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -23,7 +23,7 @@ class AutomationAudioClipSlot(ClipSlot):
         # type: (AutomationMidiClipSlot) -> None
         self.automated_midi_clip_slot = clip_slot
 
-    @subject_slot("has_clip")
+    @p0_subject_slot("has_clip")
     def _has_clip_listener(self):
         super(AutomationAudioClipSlot, self)._has_clip_listener()
         seq = Sequence().add(wait=1)

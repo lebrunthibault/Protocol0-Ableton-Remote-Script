@@ -75,7 +75,7 @@ class AutomatedTrack(AbstractGroupTrack):
     def action_record_all(self): pass
 
     @forward_property('wrapped_track')
-    def action_record_audio_only(self): pass
+    def action_record_audio_only(self, *a, **k): pass
 
     @forward_property('wrapped_track')
     def action_undo_track(self): pass

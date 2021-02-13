@@ -22,7 +22,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             self.group_track.sub_tracks.append(self)
         self.clip_slots = []  # type: List[ClipSlot]
         self._clip_slots_listener.subject = self._track
-        self._clip_slots_listener()
         self._playing_slot_index_listener.subject = self._track
         self.instrument = self.parent.deviceManager.make_instrument_from_simple_track(track=self)
         if self.is_midi:  # could later create a SimpleMidiTrack class if necessary

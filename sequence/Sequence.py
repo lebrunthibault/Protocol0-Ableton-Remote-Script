@@ -8,7 +8,7 @@ from a_protocol_0.errors.SequenceError import SequenceError
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.sequence.SequenceState import SequenceState, SequenceLogLevel
 from a_protocol_0.sequence.SequenceStep import SequenceStep
-from a_protocol_0.utils.decorators import subject_slot
+from a_protocol_0.utils.decorators import p0_subject_slot
 from a_protocol_0.utils.utils import get_frame_info, nop
 
 
@@ -134,7 +134,7 @@ class Sequence(AbstractObject):
         else:
             self._state = SequenceState.PAUSED
 
-    @subject_slot("terminated")
+    @p0_subject_slot("terminated")
     def _step_termination(self):
         if (self._current_step._errored or self.song.errored) and not self._bypass_errors:
             self._errored = True

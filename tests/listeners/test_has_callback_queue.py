@@ -5,7 +5,7 @@ from functools import partial
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.sequence.SequenceState import SequenceLogLevel
-from a_protocol_0.utils.decorators import has_callback_queue, subject_slot, defer
+from a_protocol_0.utils.decorators import has_callback_queue, p0_subject_slot, defer
 # noinspection PyUnresolvedReferences
 from a_protocol_0.tests.test_all import p0
 
@@ -66,11 +66,11 @@ def test_has_callback_queue_result():
             # noinspection PyUnresolvedReferences
             self.notify_test()
 
-        @subject_slot("test")
+        @p0_subject_slot("test")
         def listener_normal(self):
             pass
 
-        @subject_slot("test")
+        @p0_subject_slot("test")
         def listener_sequence(self):
             return Sequence(log_level=SequenceLogLevel.disabled).done()
 
@@ -121,7 +121,7 @@ def test_async_callback():
 
             return seq.done()
 
-        @subject_slot("test")
+        @p0_subject_slot("test")
         def subject_slot_listener(self):
             seq = Sequence(log_level=SequenceLogLevel.disabled)
 

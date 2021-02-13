@@ -1,10 +1,10 @@
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import subject_slot
+from a_protocol_0.utils.decorators import p0_subject_slot
 
 
 class AbstractAutomationClip(Clip):
-    @subject_slot("playing_status")
+    @p0_subject_slot("playing_status")
     def _playing_status_listener(self):
         linked_clip = self._playing_status_listener.subject
         if self.is_playing == linked_clip.is_playing:

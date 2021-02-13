@@ -53,14 +53,16 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
 
         return seq.done()
 
-    @log
     def focus_window(self, window_name):
         # type: (str) -> None
-        seq = Sequence(bypass_errors=True)
+        seq = Sequence(bypass_errors=True, debug=False)
         seq.add(self.parent.clyphxNavigationManager.focus_main)
         seq.add(partial(self._execute_python, "focus_window.py", window_name))
 
         return seq.done()
+
+    def focus_logs(self):
+        return self.focus_window("logs terminal")
 
     @log
     def send_click(self, x, y):

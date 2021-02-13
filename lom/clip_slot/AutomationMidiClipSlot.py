@@ -4,7 +4,7 @@ from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import subject_slot
+from a_protocol_0.utils.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -27,7 +27,7 @@ class AutomationMidiClipSlot(ClipSlot):
         self.automated_audio_clip_slot = clip_slot
         clip_slot._connect(self)
 
-    @subject_slot("has_clip")
+    @p0_subject_slot("has_clip")
     def _has_clip_listener(self):
         super(AutomationMidiClipSlot, self)._has_clip_listener()
         seq = Sequence().add(wait=1)

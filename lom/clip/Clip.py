@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, List
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.ClipActionMixin import ClipActionMixin
-from a_protocol_0.utils.decorators import defer, subject_slot
+from a_protocol_0.utils.decorators import defer, p0_subject_slot, is_change_deferrable
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 class Clip(ClipActionMixin, AbstractObject):
-    __subject_events__ = ('notes', 'name')
+    __subject_events__ = ('notes',)
 
     def __init__(self, clip_slot, *a, **k):
         # type: (ClipSlot) -> None
@@ -23,8 +23,9 @@ class Clip(ClipActionMixin, AbstractObject):
         self.index = clip_slot.index
         self.track = clip_slot.track
         self.is_selected = False
+        self._previous_name = self._clip.name
         self._notes_listener.subject = self._clip
-        self._name_listener.subject = self._clip
+        self._is_recording_listener.subject = self._clip
         # memorizing notes for note change comparison
         self._prev_notes = []  # type: List[Note]  # here: trying to use get_notes results in a bug caused by the debounce set on notes_listener
         self._prev_notes = self.get_notes() if self.is_midi_clip else []  # type: List[Note]
@@ -36,26 +37,30 @@ class Clip(ClipActionMixin, AbstractObject):
         repr = super(Clip, self).__repr__()
         return "%s (%s)" % (repr, self.track)
 
-    @subject_slot("notes")
+    @p0_subject_slot("notes")
     def _notes_listener(self):
         pass
 
-    @subject_slot("name")
-    def _name_listener(self):
-        # noinspection PyUnresolvedReferences
-        self.parent.defer(self.notify_name)
+    @p0_subject_slot("is_recording")
+    def _is_recording_listener(self):
+        pass
 
     @staticmethod
     def make(clip_slot):
         # type: (ClipSlot) -> Clip
         from a_protocol_0.lom.clip_slot.AutomationMidiClipSlot import AutomationMidiClipSlot
-        from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
         from a_protocol_0.lom.clip_slot.AutomationAudioClipSlot import AutomationAudioClipSlot
-        from a_protocol_0.lom.clip.AutomationAudioClip import AutomationAudioClip
+        from a_protocol_0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+
         if isinstance(clip_slot, AutomationMidiClipSlot):
+            from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
             return AutomationMidiClip(clip_slot=clip_slot)
         elif isinstance(clip_slot, AutomationAudioClipSlot):
+            from a_protocol_0.lom.clip.AutomationAudioClip import AutomationAudioClip
             return AutomationAudioClip(clip_slot=clip_slot)
+        elif isinstance(clip_slot.track.abstract_group_track, ExternalSynthTrack):
+            from a_protocol_0.lom.clip.ExternalSynthClip import ExternalSynthClip
+            return ExternalSynthClip(clip_slot=clip_slot)
         else:
             return Clip(clip_slot=clip_slot)
 
@@ -65,10 +70,11 @@ class Clip(ClipActionMixin, AbstractObject):
         return self._clip.name if getattr(self, "_clip", None) else None
 
     @name.setter
+    @is_change_deferrable
     def name(self, name):
         # type: (str) -> None
-        if getattr(self, "_clip", None) and name != self._clip.name:
-            self._clip.name = name
+        if getattr(self, "_clip", None) and str(name) != self._clip.name:
+            self._clip.name = str(name)
 
     @property
     def is_midi_clip(self):
@@ -173,12 +179,6 @@ class Clip(ClipActionMixin, AbstractObject):
         """ For MIDI and warped audio clips the value is given in beats of absolute clip time """
         return self._clip.playing_position if self._clip else 0
 
-    @playing_position.setter
-    def playing_position(self, playing_position):
-        # type: (float) -> None
-        if self._clip:
-            self._clip.playing_position = playing_position
-
     @property
     def is_recording(self):
         # type: () -> bool
@@ -189,5 +189,6 @@ class Clip(ClipActionMixin, AbstractObject):
         return self._clip.warp_mode
 
     @warp_mode.setter
+    @is_change_deferrable
     def warp_mode(self, warp_mode):
         self._clip.warp_mode = warp_mode

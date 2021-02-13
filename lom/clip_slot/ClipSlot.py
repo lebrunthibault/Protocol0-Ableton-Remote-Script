@@ -7,7 +7,7 @@ from _Framework.Util import find_if
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import subject_slot
+from a_protocol_0.utils.decorators import p0_subject_slot
 from a_protocol_0.utils.utils import find_last
 
 if TYPE_CHECKING:
@@ -58,7 +58,7 @@ class ClipSlot(AbstractObject):
         if self.has_clip:
             self.clip = Clip.make(clip_slot=self)
 
-    @subject_slot("has_clip")
+    @p0_subject_slot("has_clip")
     def _has_clip_listener(self):
         self._map_clip()
         if self.song.highlighted_clip_slot == self and self.has_clip:

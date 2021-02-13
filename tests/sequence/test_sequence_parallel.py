@@ -7,7 +7,7 @@ from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.sequence.SequenceState import SequenceLogLevel
 # noinspection PyUnresolvedReferences
 from a_protocol_0.tests.test_all import p0
-from a_protocol_0.utils.decorators import has_callback_queue, subject_slot
+from a_protocol_0.utils.decorators import has_callback_queue, p0_subject_slot
 
 
 def test_parallel_listeners():
@@ -34,7 +34,7 @@ def test_parallel_listeners():
 
             return seq.done()
 
-        @subject_slot("test")
+        @p0_subject_slot("test")
         def subject_slot_listener(self):
             seq = Sequence(log_level=SequenceLogLevel.disabled)
 

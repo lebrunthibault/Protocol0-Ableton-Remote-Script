@@ -9,7 +9,7 @@ from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleGroupTrack import SimpleGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
-from a_protocol_0.utils.decorators import subject_slot, has_callback_queue, retry
+from a_protocol_0.utils.decorators import p0_subject_slot, has_callback_queue, retry
 
 
 class SongManager(AbstractControlSurfaceComponent):
@@ -40,7 +40,7 @@ class SongManager(AbstractControlSurfaceComponent):
         # noinspection PyUnresolvedReferences
         self.notify_scene_list()
 
-    @subject_slot("tracks")
+    @p0_subject_slot("tracks")
     def _tracks_listener(self):
         # type: () -> Optional[SimpleTrack]
         added_track = False
@@ -74,6 +74,9 @@ class SongManager(AbstractControlSurfaceComponent):
         self.song.abstract_tracks = abstract_tracks.keys()
 
         self._set_current_track()
+
+        # doing this now so that clips are instantiated based on abstract_group_tracks
+        [track._clip_slots_listener() for track in self.song.simple_tracks]
 
         self.parent.log_info("SongManager : mapped tracks")
 

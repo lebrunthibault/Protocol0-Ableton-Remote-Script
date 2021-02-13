@@ -1,4 +1,6 @@
 from typing import TYPE_CHECKING
+import time
+from functools import partial
 import Live
 
 from _Framework.Util import forward_property
@@ -38,14 +40,6 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     def is_recording(self):
         # type: () -> bool
         return self.midi.is_recording or self.audio.is_recording
-
-    def _post_record(self):
-        self.song.metronome = False
-        self.midi.has_monitor_in = False
-        seq = Sequence().add(wait=2)
-        seq.add(lambda: setattr(self.audio.playable_clip, "warp_mode", Live.Clip.WarpMode.complex_pro))
-        seq.add(lambda: self.audio.playable_clip.quantize())
-        return seq.done()
 
     @property
     def next_empty_clip_slot_index(self):

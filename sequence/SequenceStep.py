@@ -7,7 +7,7 @@ from a_protocol_0.errors.SequenceError import SequenceError
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.sequence.SequenceState import SequenceState, SequenceLogLevel
 from a_protocol_0.utils.timeout import TimeoutLimit
-from a_protocol_0.utils.utils import _has_callback_queue, is_lambda, get_callable_name
+from a_protocol_0.utils.utils import _has_callback_queue, is_lambda, get_callable_name, handle_error
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -147,13 +147,14 @@ class SequenceStep(AbstractObject):
             return
 
         if _has_callback_queue(self._complete_on):
-            self._callback_timeout = TimeoutLimit(func=self._terminate, awaited_listener=self._complete_on, timeout_limit=pow(2, self._check_timeout), on_timeout=self._step_timed_out)
-            self._complete_on.add_callback(self._callback_timeout)
-            return
+            return self._add_callback_on_listener(self._complete_on)
         else:
             check_res = self._execute_callable(self._complete_on)
             if self._errored:
                 return
+
+            if _has_callback_queue(check_res):  # allows async linking to a listener
+                return self._add_callback_on_listener(check_res)
 
             if check_res:
                 self._terminate()
@@ -161,14 +162,19 @@ class SequenceStep(AbstractObject):
                 self.parent._wait(pow(2, self._check_count), self._check_for_step_completion)
                 self._check_count += 1
 
+    def _add_callback_on_listener(self, listener):
+        self._callback_timeout = TimeoutLimit(func=self._terminate, awaited_listener=listener,
+                                              timeout_limit=pow(2, self._check_timeout),
+                                              on_timeout=self._step_timed_out)
+        listener.add_callback(self._callback_timeout)
+
+
     def _execute_callable(self, func):
         try:
             return func()
         except (Exception, RuntimeError) as e:
             if self._log_level >= SequenceLogLevel.info and not self._silent:
-                self.parent.log_error("RuntimeError caught while executing %s" % self)
-                self.parent.log_error(e)
-                traceback.print_exc()
+                handle_error()
             self._errored = True
             # here we could check for Changes cannot be triggered by notifications and retry.
             # But if the function has side effects before raising the exception that will not work
