@@ -9,6 +9,7 @@ from typing import List, TYPE_CHECKING
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.AbstractAutomationClip import AbstractAutomationClip
+from a_protocol_0.lom.clip.ClipSynchronizer import ClipSynchronizer
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import debounce, p0_subject_slot
 
@@ -45,15 +46,23 @@ class AutomationMidiClip(AbstractAutomationClip):
         self.track = self.track  # type: AutomationMidiTrack
         self.clip_slot = self.clip_slot  # type: AutomationMidiClipSlot
         self.automated_audio_clip = None  # type: AutomationAudioClip
+        self._name_listener.subject = self._clip
         self.ramping_mode = RampModes.get(self)
+        self._clip_synchronizer = None  # type: ClipSynchronizer
 
-    def _connect(self, clip):
+    @property
+    def linked_clip(self):
+        # type: () -> AbstractAutomationClip
+        return self.automated_audio_clip
+
+    def _connect(self, audio_clip):
         # type: (AutomationAudioClip) -> None
-        if not clip:
+        if not audio_clip:
             raise Protocol0Error("Inconsistent clip state for %s (%s)" % (self, self.track))
-        self.automated_audio_clip = clip
+        self.automated_audio_clip = audio_clip
         self._playing_status_listener.subject = self.automated_audio_clip._clip
-        return clip._connect(self)
+        self._clip_synchronizer = ClipSynchronizer(self, audio_clip)
+        return audio_clip._connect(self)
 
     @p0_subject_slot("notes")
     def _notes_listener(self):
@@ -65,7 +74,7 @@ class AutomationMidiClip(AbstractAutomationClip):
     @p0_subject_slot("name")
     def _name_listener(self):
         self.ramping_mode = RampModes.get(self)
-        self._map_notes()
+        self._map_notes(force=True)
 
     @debounce(3)
     def map_notes(self):
@@ -75,9 +84,12 @@ class AutomationMidiClip(AbstractAutomationClip):
 
         self._map_notes(notes)
 
-    def _map_notes(self, notes=None):
+    def _map_notes(self, notes=None, force=False):
         # type: (List[Note]) -> Sequence
         notes = notes or self._prev_notes
+
+        if not force and (len(notes) == 0 or self._is_updating_notes or notes == self._prev_notes):
+            return
 
         pitch_or_vel_changes = self.notes_changed(notes, ["pitch", "velocity"])
         if len(pitch_or_vel_changes):
@@ -96,12 +108,14 @@ class AutomationMidiClip(AbstractAutomationClip):
                 notes.sort(key=lambda x: x.start)
 
         note_transforms = [
-            lambda notes: filter(lambda n: n.start < self.length and n.end > self.loop_start, notes), # clean notes that outside of the clip
+            lambda notes: filter(lambda n: n.start < self.length and n.end > self.loop_start, notes),
+            # clean notes that outside of the clip
             self._clean_ramp_notes,  # clean not ramping
             self._insert_added_note,  # handle adding a new note by splitting enclosing notes
             self._consolidate_notes,
             lambda notes: list(chain(*self._ramp_notes(notes))),  # add note ramps if necessary
-            self._clean_duplicate_notes,  # should not be necessary but sometimes multiple notes are added at the same start point
+            self._clean_duplicate_notes,
+            # should not be necessary but sometimes multiple notes are added at the same start point
         ]  # type: List[callable(List[Note])]
 
         for note_transform in note_transforms:
@@ -131,7 +145,8 @@ class AutomationMidiClip(AbstractAutomationClip):
 
     def _clean_ramp_notes(self, notes):
         # type: (List[Note]) -> List[Note]
-        notes = list(filter(lambda n: n.is_quantized, notes))  # type: (List[Note])  # keep only base notes without ramping
+        notes = list(
+            filter(lambda n: n.is_quantized, notes))  # type: (List[Note])  # keep only base notes without ramping
 
         for i, next_note in enumerate(notes[1:] + [Note(start=self.length)]):
             if not notes[i].is_end_quantized:
@@ -178,7 +193,7 @@ class AutomationMidiClip(AbstractAutomationClip):
 
     def _consolidate_notes(self, notes):
         # type: (List[Note]) -> List[Note]
-        # fill with min notes
+        # fill with min notes and check duration to stay always monophonic
         if notes[0].start != self.loop_start:
             notes = [Note(start=0, duration=notes[0].start - self.loop_start, pitch=0, velocity=0)] + notes
 
@@ -186,7 +201,10 @@ class AutomationMidiClip(AbstractAutomationClip):
             current_note = notes[i]
             if next_note.start - current_note.end > 0:
                 # current_note.duration = next_note.start - current_note.start
-                notes.append(Note(start=current_note.end, duration=next_note.start - current_note.start, pitch=0, velocity=0))
+                notes.append(
+                    Note(start=current_note.end, duration=next_note.start - current_note.start, pitch=0, velocity=0))
+            if next_note.start - current_note.end < 0:
+                current_note.duration = next_note.start - current_note.start
 
         # merge same velocity notes
         current_note = notes[0]
@@ -255,3 +273,7 @@ class AutomationMidiClip(AbstractAutomationClip):
             ramp_note.duration = base_duration / ramping_steps
             ramp_note.velocity = round(velocity_start + (next_note.velocity - velocity_start) * coeff)
             yield ramp_note
+
+    def disconnect(self):
+        if self._clip_synchronizer:
+            self._clip_synchronizer.disconnect()

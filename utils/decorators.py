@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
 from a_protocol_0.utils.callback_descriptor import CallbackDescriptor
 from a_protocol_0.utils.log import log_ableton
-from a_protocol_0.utils.utils import is_method, handle_error
+from a_protocol_0.utils.utils import is_method
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -85,7 +85,6 @@ def retry(retry_count=2, interval=1):
             except Exception:
                 if decorate.count == decorate.retry_count:
                     Protocol0.SELF.log_error("Retry error on %s" % decorate)
-                    handle_error()
                     return
                 Protocol0.SELF._wait(pow(2, decorate.count) * interval, partial(func, *a, **k))
                 decorate.count += 1
@@ -194,7 +193,8 @@ def catch_and_log(func):
         try:
             func(*a, **k)
         except (Exception, RuntimeError):
-            handle_error()
+            from a_protocol_0 import Protocol0
+            Protocol0.log_error("Error while executing %s" % func.__name__)
 
     return decorate
 

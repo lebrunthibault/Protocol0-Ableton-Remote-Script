@@ -2,7 +2,7 @@ import Live
 from typing import Any, List, Optional
 
 from _Framework.Util import find_if
-from a_Push2.model import DeviceParameter
+from a_push2.model import DeviceParameter
 from a_protocol_0.consts import TRACK_CATEGORY_ALL
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
@@ -44,7 +44,7 @@ class Song(SongActionMixin, AbstractObject):
     def handle_error(self):
         seq = Sequence(bypass_errors=True, debug=False)
         self.errored = True
-        self.parent.keyboardShortcutManager.focus_logs()
+        # self.parent.keyboardShortcutManager.focus_logs()
         seq.add(wait=1)
         seq.add(lambda: setattr(self, "errored", False))
         return seq.done()

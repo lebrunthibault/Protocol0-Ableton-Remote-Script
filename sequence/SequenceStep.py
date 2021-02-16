@@ -1,5 +1,3 @@
-import traceback
-
 from typing import TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot
@@ -7,7 +5,7 @@ from a_protocol_0.errors.SequenceError import SequenceError
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.sequence.SequenceState import SequenceState, SequenceLogLevel
 from a_protocol_0.utils.timeout import TimeoutLimit
-from a_protocol_0.utils.utils import _has_callback_queue, is_lambda, get_callable_name, handle_error
+from a_protocol_0.utils.utils import _has_callback_queue, is_lambda, get_callable_name
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -174,7 +172,7 @@ class SequenceStep(AbstractObject):
             return func()
         except (Exception, RuntimeError) as e:
             if self._log_level >= SequenceLogLevel.info and not self._silent:
-                handle_error()
+                self.parent.log_error("Error in _execute callable for step %s" % self)
             self._errored = True
             # here we could check for Changes cannot be triggered by notifications and retry.
             # But if the function has side effects before raising the exception that will not work

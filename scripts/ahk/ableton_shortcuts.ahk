@@ -154,7 +154,9 @@ saveAndSetAsTemplate()
     Send ^,
     MouseClick, left, 711, 331 ; click on File Folder
     MouseClick, left, 1032, 201
-    Sleep 100
+    Sleep 50
+    MouseClick, left, 1032, 228
+    Sleep 50
     Send {Enter}
     Sleep 200
     Send {Escape}

@@ -1,7 +1,10 @@
 KillProcess (GetProcessFromNameOrTitle "*logs terminal*")
 $host.ui.RawUI.WindowTitle = "logs terminal"
 
-$logFile = "$env:userprofile\AppData\Roaming\Ableton\Live $Env:abletonVersion\Preferences\Log.txt"
+$version = $Env:abletonVersion
+#$version = "11.0b29"
+
+$logFile = "$env:userprofile\AppData\Roaming\Ableton\Live $version\Preferences\Log.txt"
 $startSize = 70
 $processLogFile = $true
 $showDateTime = $true
@@ -9,6 +12,11 @@ $global:write_next_n_lines = 0
 
 $host.ui.RawUI.WindowTitle = 'logs terminal'
 Get-Process -Id $pid | Set-WindowState -State SHOWMAXIMIZED
+
+function FocusLogs()
+{
+    python.exe "$p0\scripts\python\focus_window.py" "logs terminal"
+}
 
 function Get-LogColor
 {
@@ -25,6 +33,7 @@ function Get-LogColor
             elseif ($LogEntry.Contains("error") -or $LogEntry.Contains("a_protocol_0") -or $LogEntry.Contains("RuntimeError") -or $LogEntry.Contains("exception"))
             {
                 Return "Red"
+                FocusLogs
             }
             elseif ($LogEntry.Contains("P0 - debug"))
             {
@@ -47,6 +56,7 @@ function Get-LogColor
         if ( $LogEntry.Contains("RemoteScriptError"))
         {
             Return "Red"
+            FocusLogs
         }
 
         Return "DarkGray"
@@ -97,6 +107,16 @@ function Select-Log-Line
     {
         $global:write_next_n_lines -= 1
         return $LogEntry
+    }
+
+#    discarding None messages
+    $SplitLine = $LogEntry -split "P0 - "
+
+    if ($SplitLine.Length -eq 2) {
+        $Message = $SplitLine[1]
+        if ($Message -eq "None") {
+            return $null
+        }
     }
 
     $Filters = "P0", "Protocol0", "RemoteScriptError"

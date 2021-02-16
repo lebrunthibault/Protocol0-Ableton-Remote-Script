@@ -1,5 +1,4 @@
 import inspect
-import traceback
 import types
 from collections import namedtuple
 
@@ -10,18 +9,6 @@ from a_protocol_0.consts import PROTOCOL0_FOLDER, REMOTE_SCRIPTS_FOLDER
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
-
-
-def handle_error():
-    # type: () -> object
-    """
-
-    :rtype: object
-    """
-    from a_protocol_0 import Protocol0
-    Protocol0.SELF.log_error(traceback.format_exc())
-    if Protocol0.SELF.protocol0_song:
-        Protocol0.SELF.protocol0_song.handle_error()
 
 
 def parse_number(num_as_string, default_value=None, min_value=None, max_value=None, is_float=False):

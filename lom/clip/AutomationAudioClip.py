@@ -20,23 +20,24 @@ class AutomationAudioClip(AbstractAutomationClip):
         self.clip_slot = self.clip_slot  # type: AutomationAudioClipSlot
         self.automated_midi_clip = None  # type: AutomationMidiClip
 
-    def _connect(self, clip):
+        if self.track.automated_midi_track and not self.track.automated_midi_track.clip_slots[self.index].has_clip:
+            self.delete()
+            self.parent.show_message("Duplicating automation audio clips is not allowed")
+
+    @property
+    def linked_clip(self):
+        # type: () -> AbstractAutomationClip
+        return self.automated_midi_clip
+
+    def _connect(self, midi_clip):
         # type: (AutomationMidiClip) -> None
-        self.automated_midi_clip = clip
-        self._sync_name.subject = self.automated_midi_clip
-        self._notes_listener.subject = self.automated_midi_clip
-        self._playing_status_listener.subject = self.automated_midi_clip._clip
+        self.automated_midi_clip = midi_clip
+        self._notes_listener.subject = midi_clip
+        self._playing_status_listener.subject = midi_clip._clip
         seq = Sequence()
         seq.add(wait=1)
-        seq.add(partial(setattr, self, "name", clip.name), name="set audio clip name")
-        seq.add(partial(setattr, self, "end_marker", clip.length), name="set audio clip end_marker")
-        seq.add(partial(setattr, self, "loop_end", clip.length), name="set audio clip loop_end")
         seq.add(self._notes_listener)
         return seq.done()
-
-    @subject_slot("name")
-    def _sync_name(self):
-        self.name = self.automated_midi_clip.name
 
     @subject_slot("notes")
     def _notes_listener(self):
@@ -47,5 +48,9 @@ class AutomationAudioClip(AbstractAutomationClip):
 
     def _create_automation_envelope(self):
         envelope = self.create_automation_envelope(self.track.automated_parameter)
+        self.view.show_envelope()
+        self.view.select_envelope_parameter(self.track.automated_parameter._device_parameter)
+        self.view.show_loop()
+
         for note in self.automated_midi_clip._prev_notes:
             envelope.insert_step(note.start, note.duration, note.velocity)

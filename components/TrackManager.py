@@ -54,6 +54,7 @@ class TrackManager(AbstractControlSurfaceComponent):
         seq.add(track_creator, complete_on=self._added_track_listener)
 
         def set_name():
+            # easier to have this here instead of using lambda to get dynamic variables
             seq = Sequence()
             seq.add(partial(self.song.selected_track.track_name.set, base_name=name))
             seq.add(self.parent.songManager._tracks_listener)  # rebuild tracks

@@ -81,8 +81,10 @@ class SongManager(AbstractControlSurfaceComponent):
         self.parent.log_info("SongManager : mapped tracks")
 
         if added_track:
-            root_tracks_added_track_index = self.song.root_tracks.index(self.song.selected_track)
-            if root_tracks_added_track_index > 0 and self.song.root_tracks[root_tracks_added_track_index].name == self.song.selected_track.name:
+            self.parent.log_debug(self.song.selected_track)
+            self.parent.log_debug(self.song.root_tracks)
+            added_track_index = self.song.simple_tracks.index(self.song.selected_track)
+            if added_track_index > 0 and self.song.simple_tracks[added_track_index].name == self.song.selected_track.name:
                 self.song.current_track._is_duplicated = True
             # noinspection PyUnresolvedReferences
             self.notify_added_track()

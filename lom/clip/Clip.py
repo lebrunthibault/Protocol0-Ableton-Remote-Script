@@ -4,15 +4,16 @@ from typing import TYPE_CHECKING, List
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.ClipActionMixin import ClipActionMixin
-from a_protocol_0.utils.decorators import defer, p0_subject_slot, is_change_deferrable
+from a_protocol_0.utils.decorators import p0_subject_slot, is_change_deferrable
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
+    from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
 class Clip(ClipActionMixin, AbstractObject):
-    __subject_events__ = ('notes',)
+    __subject_events__ = ('notes', 'name',)
 
     def __init__(self, clip_slot, *a, **k):
         # type: (ClipSlot) -> None
@@ -20,8 +21,9 @@ class Clip(ClipActionMixin, AbstractObject):
         self.clip_slot = clip_slot
         self._clip_slot = clip_slot._clip_slot
         self._clip = self._clip_slot.clip  # type: Live.Clip.Clip
+        self.view = self._clip.view  # type: Live.Clip.Clip.View
         self.index = clip_slot.index
-        self.track = clip_slot.track
+        self.track = clip_slot.track  # type: SimpleTrack
         self.is_selected = False
         self._previous_name = self._clip.name
         self._notes_listener.subject = self._clip
@@ -32,10 +34,6 @@ class Clip(ClipActionMixin, AbstractObject):
         self._added_note = None  # type: Note
         self._is_updating_notes = False
         self.color = self.track.base_color
-
-    def __repr__(self):
-        repr = super(Clip, self).__repr__()
-        return "%s (%s)" % (repr, self.track)
 
     @p0_subject_slot("notes")
     def _notes_listener(self):
@@ -96,6 +94,7 @@ class Clip(ClipActionMixin, AbstractObject):
         return self._clip.warping if self._clip else 0
 
     @warping.setter
+    @is_change_deferrable
     def warping(self, warping):
         # type: (float) -> None
         self._clip.warping = warping
@@ -106,6 +105,7 @@ class Clip(ClipActionMixin, AbstractObject):
         return self._clip.looping if self._clip else 0
 
     @looping.setter
+    @is_change_deferrable
     def looping(self, looping):
         # type: (float) -> None
         self._clip.looping = looping
@@ -116,6 +116,7 @@ class Clip(ClipActionMixin, AbstractObject):
         return self._clip.loop_start if self._clip else 0
 
     @loop_start.setter
+    @is_change_deferrable
     def loop_start(self, loop_start):
         # type: (float) -> None
         self._clip.loop_start = loop_start
@@ -126,6 +127,7 @@ class Clip(ClipActionMixin, AbstractObject):
         return self._clip.loop_end if self._clip else 0
 
     @loop_end.setter
+    @is_change_deferrable
     def loop_end(self, loop_end):
         # type: (float) -> None
         self._clip.loop_end = loop_end
@@ -136,6 +138,7 @@ class Clip(ClipActionMixin, AbstractObject):
         return self._clip.start_marker if self._clip else 0
 
     @start_marker.setter
+    @is_change_deferrable
     def start_marker(self, start_marker):
         # type: (float) -> None
         self._clip.start_marker = start_marker
@@ -146,6 +149,7 @@ class Clip(ClipActionMixin, AbstractObject):
         return self._clip.end_marker if self._clip else 0
 
     @end_marker.setter
+    @is_change_deferrable
     def end_marker(self, end_marker):
         # type: (float) -> None
         self._clip.end_marker = end_marker
@@ -156,7 +160,7 @@ class Clip(ClipActionMixin, AbstractObject):
         return self._clip.color_index if self._clip else 0
 
     @color.setter
-    @defer
+    @is_change_deferrable
     def color(self, color_index):
         # type: (int) -> None
         if self._clip and color_index != self._clip.color_index:
@@ -166,6 +170,11 @@ class Clip(ClipActionMixin, AbstractObject):
     def is_playing(self):
         # type: () -> bool
         return self._clip and self._clip.is_playing
+
+    @property
+    def is_triggered(self):
+        # type: () -> bool
+        return self._clip and self._clip.is_triggered
 
     @is_playing.setter
     def is_playing(self, is_playing):

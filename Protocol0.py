@@ -1,4 +1,5 @@
 import threading
+import traceback
 import types
 from fractions import Fraction
 from functools import partial
@@ -84,8 +85,11 @@ class Protocol0(ControlSurface):
 
     def log_error(self, message, debug=True):
         # type: (str) -> None
-        self._log(message=message, level=LogLevel.ERROR, debug=debug)
+        self._log(message="%s\n%s" % (message, traceback.format_exc()), level=LogLevel.ERROR, debug=debug)
         self.show_message(str(message))
+
+        if Protocol0.SELF.protocol0_song:
+            Protocol0.SELF.protocol0_song.handle_error()
 
     def _log(self, message, level=LogLevel.INFO, debug=True):
         # type: (str) -> None

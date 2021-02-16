@@ -30,10 +30,6 @@ class ClipSlot(AbstractObject):
     def __nonzero__(self):
         return self._clip_slot is not None
 
-    def __repr__(self):
-        repr = super(ClipSlot, self).__repr__()
-        return "%s (%s)" % (repr, self.track)
-
     def __eq__(self, clip_slot):
         # type: (ClipSlot) -> bool
         return clip_slot and self._clip_slot == clip_slot._clip_slot
@@ -63,9 +59,12 @@ class ClipSlot(AbstractObject):
         self._map_clip()
         if self.song.highlighted_clip_slot == self and self.has_clip:
             self.parent._wait(2, self.parent.push2Manager.update_clip_grid_quantization)
-        other_clip_slot = find_last(lambda cs: cs.has_clip and cs.index < self.index, self.track.clip_slots) or find_if(lambda cs: cs.has_clip, self.track.clip_slots)
-        if other_clip_slot:
-            self.track.track_name.set(playing_slot_index=other_clip_slot.index)
+
+        # in case of clip suppression take the closest previous clip in the list as the playable clip
+        if not self.clip:
+            other_clip_slot = find_last(lambda cs: cs.has_clip and cs.index < self.index, self.track.clip_slots) or find_if(lambda cs: cs.has_clip, self.track.clip_slots)
+            if other_clip_slot:
+                self.track.track_name.set(playing_slot_index=other_clip_slot.index)
 
     def delete_clip(self):
         seq = Sequence()
@@ -78,6 +77,11 @@ class ClipSlot(AbstractObject):
     def is_triggered(self):
         # type: () -> bool
         return self._clip_slot.is_triggered
+
+    @property
+    def is_playing(self):
+        # type: () -> bool
+        return self._clip_slot.is_playing
 
     def fire(self, record_length):
         # type: (int) -> None

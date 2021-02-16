@@ -1,7 +1,7 @@
 from typing import Optional
 
 from _Framework.SubjectSlot import subject_slot, subject_slot_group
-from a_Push2.push2 import Push2
+from a_push2.push2 import Push2
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import PUSH2_BEAT_QUANTIZATION_STEPS
 from a_protocol_0.lom.clip.Clip import Clip

@@ -54,9 +54,9 @@ class SimpleTrackActionMixin(object):
         else:
             self.song.undo()
 
-    def create_clip(self, slot_number=0, name=None, bar_count=1):
+    def create_clip(self, clip_slot_index=0, name=None, bar_count=1):
         # type: (SimpleTrack, int, str, int, callable, int) -> Sequence
-        clip_slot = self.clip_slots[slot_number]
+        clip_slot = self.clip_slots[clip_slot_index]
         if clip_slot.has_clip:
             return
 
@@ -67,7 +67,7 @@ class SimpleTrackActionMixin(object):
                 complete_on=clip_slot._has_clip_listener)
         if name:
             seq.add(wait=1)
-            seq.add(lambda: setattr(self.clip_slots[slot_number].clip, "name", name), name="set clip name")
+            seq.add(lambda: setattr(self.clip_slots[clip_slot_index].clip, "name", name), name="set clip name")
 
         return seq.done()
 
