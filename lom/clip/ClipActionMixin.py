@@ -19,10 +19,10 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class ClipActionMixin(object):
-    def get_notes(self, startTime=0, timeRange=0, startPitch=0, pitchRange=128):
-        # type: (Clip, int, float, float, int) -> List[Note]
+    def get_notes(self):
+        # type: (Clip) -> List[Note]
         notes = [Note(*note, clip=self) for note in
-                 self._clip.get_notes(startTime, startPitch, timeRange or self.length, pitchRange)]
+                 self._clip.get_notes(self.loop_start, 0, self.length, 128)]
         notes.sort(key=lambda x: x.start)
         return notes
 
@@ -36,7 +36,6 @@ class ClipActionMixin(object):
         if cache:
             self._prev_notes = notes
         seq = Sequence()
-        seq.add(wait=1)
         seq.add(partial(method, tuple(note.to_data() for note in notes)))
         # noinspection PyUnresolvedReferences
         seq.add(self.notify_notes)  # for automation audio track to be notified
@@ -44,9 +43,9 @@ class ClipActionMixin(object):
         seq.add(lambda: setattr(self, "_is_updating_notes", False))
         return seq.done()
 
-    def replace_selected_notes(self, notes, cache=True):
+    def replace_selected_notes(self, notes):
         # type: (Clip, List[Note], bool) -> Sequence
-        return self._change_clip_notes(self._clip.replace_selected_notes, notes, cache=cache)
+        return self._change_clip_notes(self._clip.replace_selected_notes, notes)
 
     def set_notes(self, notes):
         # type: (Clip, List[Note]) -> Sequence
@@ -59,13 +58,18 @@ class ClipActionMixin(object):
     def deselect_all_notes(self):
         # type: (Clip) -> None
         self._clip.deselect_all_notes()
+        self.parent.clyphxNavigationManager.show_clip_view()
+        self.view.show_loop()
 
-    def replace_all_notes(self, notes, cache=True):
+    def replace_all_notes(self, notes):
         # type: (Clip, List[Note], bool) -> None
+        # if notes == self._prev_notes:
+        #     return
+        self.parent.log_debug("replace all notes : %s" % notes)
         self.select_all_notes()
-        new_clip = not len(self._prev_notes)
         seq = Sequence()
-        seq.add(partial(self.replace_selected_notes, notes, cache=cache))
+        seq.add(wait=1)
+        seq.add(partial(self.replace_selected_notes, notes))
         seq.add(self.deselect_all_notes)
         return seq.done()
 
@@ -121,7 +125,8 @@ class ClipActionMixin(object):
 
     def clear_all_envelopes(self):
         # type: (Clip) -> None
-        return self._clip.clear_all_envelopes()
+        if self._clip:
+            return self._clip.clear_all_envelopes()
 
     @is_change_deferrable
     def quantize(self, quantization='1/16', depth=1):

@@ -25,6 +25,7 @@ class AutomationAudioTrack(AbstractAutomationTrack):
         self.automated_parameter = None  # type: DeviceParameter
         self._current_monitoring_state_listener.subject = self._track
         self.automated_midi_track = None  # type: AutomationMidiTrack
+        self.push2_selected_main_mode = 'device'
 
     def _connect(self, track):
         # type: (AutomationMidiTrack) -> None
@@ -42,6 +43,10 @@ class AutomationAudioTrack(AbstractAutomationTrack):
         seq.add(self._get_automated_device_and_parameter)
 
         return seq.done()
+
+    def _on_selected(self):
+        """ do specific action when track is selected """
+        pass
 
     def _get_automated_device_and_parameter(self):
         [_, device_name, parameter_name] = self.base_name.split(":")

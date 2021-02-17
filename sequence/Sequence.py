@@ -101,8 +101,6 @@ class Sequence(AbstractObject):
         self._steps.append(SequenceStep(callback, sequence=self, log_level=self._log_level, *a, **k))
 
     def _done_called_check(self):
-        if not self._done_called:
-            self.parent.log_debug(self._parent_seqs)
         if not self._done_called and not self._early_returned and all(
                 [not seq._errored for seq in [self] + self._parent_seqs]):
             raise SequenceError(object=self, message="Sequence.done() has not been called")

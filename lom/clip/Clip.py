@@ -29,11 +29,14 @@ class Clip(ClipActionMixin, AbstractObject):
         self._notes_listener.subject = self._clip
         self._is_recording_listener.subject = self._clip
         # memorizing notes for note change comparison
-        self._prev_notes = []  # type: List[Note]  # here: trying to use get_notes results in a bug caused by the debounce set on notes_listener
+        # self._prev_notes = []  # type: List[Note]  # here: trying to use get_notes results in a bug caused by the debounce set on notes_listener
         self._prev_notes = self.get_notes() if self.is_midi_clip else []  # type: List[Note]
         self._added_note = None  # type: Note
         self._is_updating_notes = False
         self.color = self.track.base_color
+
+    def _on_selected(self):
+        pass
 
     @p0_subject_slot("notes")
     def _notes_listener(self):

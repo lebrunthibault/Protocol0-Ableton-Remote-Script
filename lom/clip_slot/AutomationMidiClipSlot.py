@@ -30,12 +30,19 @@ class AutomationMidiClipSlot(ClipSlot):
     @p0_subject_slot("has_clip")
     def _has_clip_listener(self):
         super(AutomationMidiClipSlot, self)._has_clip_listener()
-        seq = Sequence().add(wait=1)
 
-        if not self.has_clip and self.automated_audio_clip_slot and self.automated_audio_clip_slot.has_clip:
+        if not self.automated_audio_clip_slot:
+            return
+
+        seq = Sequence().add(wait=1)
+        if self.has_clip:
+            if self.automated_audio_clip_slot.has_clip:
+                self.clip._connect(self.automated_audio_clip_slot.clip)
+            else:
+                seq.add(self.automated_audio_clip_slot.insert_dummy_clip)
+                seq.add(lambda: self.clip._connect(self.automated_audio_clip_slot.clip),
+                        name="connect to audio clip slot")
+        elif self.automated_audio_clip_slot.has_clip:
             seq.add(self.automated_audio_clip_slot.clip.delete)
-        elif self.has_clip and self.automated_audio_clip_slot and not self.automated_audio_clip_slot.has_clip:
-            seq.add(self.automated_audio_clip_slot.insert_dummy_clip)
-            seq.add(lambda: self.clip._connect(self.automated_audio_clip_slot.clip), name="connect to audio clip slot")
 
         return seq.done()

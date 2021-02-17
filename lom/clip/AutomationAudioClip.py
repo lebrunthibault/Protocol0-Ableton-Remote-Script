@@ -21,8 +21,12 @@ class AutomationAudioClip(AbstractAutomationClip):
         self.automated_midi_clip = None  # type: AutomationMidiClip
 
         if self.track.automated_midi_track and not self.track.automated_midi_track.clip_slots[self.index].has_clip:
-            self.delete()
-            self.parent.show_message("Duplicating automation audio clips is not allowed")
+            self.song.undo()
+
+    def _on_selected(self):
+        self.view.show_envelope()
+        self.view.select_envelope_parameter(self.track.automated_parameter._device_parameter)
+        self.view.show_loop()
 
     @property
     def linked_clip(self):
@@ -41,6 +45,8 @@ class AutomationAudioClip(AbstractAutomationClip):
 
     @subject_slot("notes")
     def _notes_listener(self):
+        if not self._clip:
+            return
         seq = Sequence()
         seq.add(self.clear_all_envelopes)
         seq.add(self._create_automation_envelope)
@@ -48,9 +54,6 @@ class AutomationAudioClip(AbstractAutomationClip):
 
     def _create_automation_envelope(self):
         envelope = self.create_automation_envelope(self.track.automated_parameter)
-        self.view.show_envelope()
-        self.view.select_envelope_parameter(self.track.automated_parameter._device_parameter)
-        self.view.show_loop()
 
         for note in self.automated_midi_clip._prev_notes:
             envelope.insert_step(note.start, note.duration, note.velocity)

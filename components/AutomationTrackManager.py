@@ -32,9 +32,3 @@ class AutomationTrackManager(AbstractControlSurfaceComponent):
         seq.add(self.parent.songManager._tracks_listener)
 
         return seq.done()
-
-    def un_ramp_notes(self):
-        clip = self.song.highlighted_clip_slot.clip
-        clip._prev_notes = clip.get_notes()
-        notes = filter(lambda n: n.is_quantized, clip.get_notes())
-        clip.replace_all_notes(notes, cache=False)

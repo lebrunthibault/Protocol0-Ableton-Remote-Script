@@ -151,7 +151,7 @@ class Song(SongActionMixin, AbstractObject):
     @property
     def playing_clips(self):
         # type: () -> List[Clip]
-        return [t.playable_clip for t in self.simple_tracks if t.is_playing and t.playable_clip.is_playing]
+        return [t.playable_clip for t in self.simple_tracks if t.is_playing and t.playable_clip and t.playable_clip.is_playing]
 
     @property
     def has_solo_selection(self):

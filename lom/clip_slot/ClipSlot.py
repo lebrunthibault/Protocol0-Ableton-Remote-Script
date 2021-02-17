@@ -94,6 +94,7 @@ class ClipSlot(AbstractObject):
     def insert_dummy_clip(self):
         seq = Sequence()
         seq.add(partial(self.song.simple_tracks[0].clip_slots[0].duplicate_clip_to, self), complete_on=self._has_clip_listener)
+        seq.add(wait=1)
         seq.add(lambda: setattr(self.clip, "warping", 1), name="enable clip warping")
         seq.add(wait=1)
         seq.add(lambda: setattr(self.clip, "looping", 1), name="enable clip looping")

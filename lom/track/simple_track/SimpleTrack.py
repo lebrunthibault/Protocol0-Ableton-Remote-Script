@@ -31,6 +31,10 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def __hash__(self):
         return self.index
 
+    def _on_selected(self):
+        """ do specific action when track is selected """
+        pass
+
     @subject_slot("clip_slots")
     def _clip_slots_listener(self):
         # type: (SimpleTrack) -> None

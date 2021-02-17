@@ -1,3 +1,4 @@
+from copy import copy
 from functools import partial
 
 from typing import TYPE_CHECKING, List
@@ -39,7 +40,7 @@ class Note(AbstractObject):
         return hash((self.pitch, self.start, self.duration, self.velocity, self.muted))
 
     def __repr__(self):
-        return "{start:%s, duration:%s, pitch:%s, vel:%s}" % (
+        return "{start:%.2f, duration:%.2f, pitch:%s, vel:%s}" % (
             self.start, self.duration, self.pitch, self.velocity)
 
     def to_data(self):
@@ -118,17 +119,18 @@ class Note(AbstractObject):
         return note.start < self.end and note.end > self.start
 
     @staticmethod
-    def _synchronize(notes):
-        # type: (List[Note]) -> None
-        if len(notes) == 0:
-            return
-        # log_ableton(notes[0].clip._prev_notes)
-        # log_ableton(notes)
+    def copy_notes(notes):
+        # type: (List[Note]) -> (List[Note])
+        return [copy(note) for note in notes]
 
+    @staticmethod
+    def _synchronize(notes, set_notes=True):
+        # type: (List[Note]) -> None
         for note in notes:
             [(time, length)] = note.time_step.connected_time_ranges()
             note.clip._clip.remove_notes(time, 0, length, 128)
 
-        seq = Sequence()
-        seq.add(partial(note.clip.set_notes, notes))
-        return seq.done()
+        if set_notes:
+            seq = Sequence()
+            seq.add(partial(note.clip.set_notes, notes))
+            return seq.done()

@@ -81,8 +81,6 @@ class SongManager(AbstractControlSurfaceComponent):
         self.parent.log_info("SongManager : mapped tracks")
 
         if added_track:
-            self.parent.log_debug(self.song.selected_track)
-            self.parent.log_debug(self.song.root_tracks)
             added_track_index = self.song.simple_tracks.index(self.song.selected_track)
             if added_track_index > 0 and self.song.simple_tracks[added_track_index].name == self.song.selected_track.name:
                 self.song.current_track._is_duplicated = True
@@ -95,6 +93,7 @@ class SongManager(AbstractControlSurfaceComponent):
             self._highlighted_clip_slot = self.song.highlighted_clip_slot
             if self.song.highlighted_clip_slot and self.song.highlighted_clip_slot.has_clip:
                 self.parent.push2Manager.update_clip_grid_quantization()
+                self._highlighted_clip_slot.clip._on_selected()
         self.parent.defer(self._highlighted_clip_slot_poller)
 
     def _update_highlighted_clip_slot(self):

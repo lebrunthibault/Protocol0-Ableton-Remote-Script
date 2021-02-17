@@ -72,9 +72,9 @@ class Push2Manager(AbstractControlSurfaceComponent):
     def _update_selected_modes(self, reselect=False):
         # type: (bool) -> None
         if self.update_selected_modes:
-            self.push2._main_modes.selected_mode = self.song.current_track.push2_selected_main_mode
-            self.push2._matrix_modes.selected_mode = self.song.current_track.push2_selected_matrix_mode
-            self.push2._instrument.selected_mode = self.song.current_track.push2_selected_instrument_mode or self.push2._instrument.selected_mode
+            self.push2._main_modes.selected_mode = self.song.selected_track.push2_selected_main_mode
+            self.push2._matrix_modes.selected_mode = self.song.selected_track.push2_selected_matrix_mode
+            self.push2._instrument.selected_mode = self.song.selected_track.push2_selected_instrument_mode or self.push2._instrument.selected_mode
 
             # https://trello.com/c/0PUwHZOs/102-push2-bug-setting-selected-matrix-mode-after-clicking-on-session-ring-arrow-messes-selected-track
             if reselect:
