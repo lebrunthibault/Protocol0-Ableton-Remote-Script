@@ -2,13 +2,13 @@ import Live
 from typing import Any, List, Optional
 
 from _Framework.Util import find_if
-from a_push2.model import DeviceParameter
 from a_protocol_0.consts import TRACK_CATEGORY_ALL
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.SongActionMixin import SongActionMixin
 from a_protocol_0.lom.clip.Clip import Clip
+from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack

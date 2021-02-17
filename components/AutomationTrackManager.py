@@ -1,3 +1,5 @@
+import Live
+
 from functools import partial
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
@@ -22,11 +24,17 @@ class AutomationTrackManager(AbstractControlSurfaceComponent):
         else:
             seq.add(self.parent.trackManager.group_track)
 
+        if isinstance(parameter.canonical_parent, Live.Device.Device):
+            device_type = "d"
+        elif isinstance(parameter.canonical_parent, Live.RackDevice.RackDevice):
+            device_type = "r"
+        else:
+            raise RuntimeError("Devices of type %s are not handled" % type(parameter.canonical_parent))
         # this cannot be parallelized
         seq.add(partial(self.parent.trackManager.create_audio_track, self.song.current_track.index + 1,
-                        name="%s:%s:%s" % (AUTOMATION_TRACK_NAME, parameter.device.name, parameter.name)))
+                        name="%s:%s:%s:%s" % (AUTOMATION_TRACK_NAME, device_type, parameter.device.name, parameter.name)))
         seq.add(partial(self.parent.trackManager.create_midi_track, self.song.current_track.index + 2,
-                        name="%s:%s:%s" % (AUTOMATION_TRACK_NAME, parameter.device.name, parameter.name)))
+                        name="%s:%s:%s:%s" % (AUTOMATION_TRACK_NAME, device_type, parameter.device.name, parameter.name)))
         seq.add(lambda: setattr(self.parent.songManager, "abstract_group_track_creation_in_progress", False))
         seq.add(wait=1)
         seq.add(self.parent.songManager._tracks_listener)

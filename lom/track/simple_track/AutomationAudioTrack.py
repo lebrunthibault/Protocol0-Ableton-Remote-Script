@@ -38,7 +38,11 @@ class AutomationAudioTrack(AbstractAutomationTrack):
         self.has_monitor_in = True
         seq = Sequence()
         seq.add(self.clear_devices)
-        seq.add(partial(self.parent.browserManager.load_rack_device, self.base_name.split(":")[1]))
+        device_type = self.base_name.split(":")[1]
+        if device_type == "d":
+            seq.add(partial(self.parent.browserManager.load_device, self.base_name.split(":")[2]))
+        else:
+            seq.add(partial(self.parent.browserManager.load_rack_device, self.base_name.split(":")[2]))
         seq.add(partial(self.set_input_routing_type, None))
         seq.add(self._get_automated_device_and_parameter)
 
@@ -49,8 +53,10 @@ class AutomationAudioTrack(AbstractAutomationTrack):
         pass
 
     def _get_automated_device_and_parameter(self):
-        [_, device_name, parameter_name] = self.base_name.split(":")
+        [_, _, device_name, parameter_name] = self.base_name.split(":")
+        self.parent.log_debug((device_name, parameter_name))
         (device, parameter) = self.parent.deviceManager.get_device_and_parameter_from_name(track=self, device_name=device_name, parameter_name=parameter_name)
+        self.parent.log_debug((device, parameter))
         self.automated_device = device
         self.automated_parameter = parameter
 

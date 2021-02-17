@@ -16,6 +16,7 @@ class DeviceParameter(AbstractObject):
         self.device = device
         self.track = self.device.track
         self._device_parameter = device_parameter
+        self.canonical_parent = self._device_parameter.canonical_parent
 
     def __repr__(self):
         return "%s: %s" % (self.name, self.value)

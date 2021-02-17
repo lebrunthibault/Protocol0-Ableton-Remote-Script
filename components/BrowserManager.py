@@ -16,9 +16,13 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
             seq.add(self.parent.keyboardShortcutManager.hide_plugins, wait=1)
         return seq.done()
 
-    def load_sample(self, preset_name):
+    def load_sample(self, sample_name):
         # type: (str) -> None
-        super(BrowserManager, self).load_sample(None, "'%s'" % preset_name)
+        super(BrowserManager, self).load_sample(None, "'%s'" % sample_name)
+
+    def load_device(self, device_name):
+        # type: (str) -> None
+        super(BrowserManager, self).load_device(None, "'%s'" % device_name)
 
     def swap(self, value):
         # type: (str) -> None

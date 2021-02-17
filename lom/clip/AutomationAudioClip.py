@@ -53,6 +53,8 @@ class AutomationAudioClip(AbstractAutomationClip):
         return seq.done()
 
     def _create_automation_envelope(self):
+        if not self.track.automated_parameter:
+            self.track._get_automated_device_and_parameter()
         envelope = self.create_automation_envelope(self.track.automated_parameter)
 
         for note in self.automated_midi_clip._prev_notes:
