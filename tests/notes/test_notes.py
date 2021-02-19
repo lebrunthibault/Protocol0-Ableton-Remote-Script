@@ -1,4 +1,3 @@
-from copy import copy
 from itertools import chain
 
 from a_protocol_0.lom.Note import Note
@@ -165,25 +164,23 @@ def test_ramp_notes():
         Note(start=0, duration=2, pitch=80, velocity=80),
         Note(start=2, duration=2, pitch=100, velocity=100),
     ]
-    (clip, res) = create_clip_with_notes(notes)
+    (clip, res) = create_clip_with_notes(notes, prev_notes=notes)
 
-    def check_notes(clip):
-        assert len(clip._prev_notes) == clip.RAMPING_STEPS + 1
-        assert clip._prev_notes[0].start == 0
-        assert clip._prev_notes[0].duration == 2
-        assert clip._prev_notes[3].velocity != clip._prev_notes[-1].velocity
-        for i, note in enumerate(clip._prev_notes[2:]):
-            assert clip._prev_notes[i + 1].velocity >= note.velocity
+    def check_notes(notes):
+        assert len(notes) == clip.RAMPING_STEPS * 2
+        assert notes[0].start == 0
+        assert notes[0].duration < 2
+        assert notes[3].velocity != notes[-1].velocity
 
-    clip._map_notes(notes)
-    check_notes(clip)
+    notes = list(chain(*clip._ramp_notes(notes)))
+    check_notes(notes)
 
     # change note velocity
     notes = Note.copy_notes(clip._prev_notes)
     notes[1].velocity = 90
-    clip._map_notes(notes)
-    check_notes(clip)
-    assert clip._prev_notes[2].velocity <= clip._prev_notes[1].velocity
+    notes = list(chain(*clip._ramp_notes(notes)))
+    check_notes(notes)
+    assert notes[2].velocity <= notes[1].velocity
 
 
 def test_ramp_notes_2():
@@ -191,24 +188,20 @@ def test_ramp_notes_2():
         Note(start=0, duration=2, pitch=100, velocity=100),
         Note(start=2, duration=2, pitch=80, velocity=80),
     ]
-    (clip, res) = create_clip_with_notes(notes)
+    (clip, res) = create_clip_with_notes(notes, prev_notes=notes)
 
-    def check_notes(clip):
-        assert len(clip._prev_notes) == clip.RAMPING_STEPS + 1
-        assert clip._prev_notes[2].velocity != clip._prev_notes[-2].velocity
-        for i, note in enumerate(clip._prev_notes[1:]):
-            assert clip._prev_notes[i + 1].velocity >= note.velocity
+    def check_notes(notes):
+        assert len(notes) == clip.RAMPING_STEPS * 2
 
-    clip._map_notes(notes)
-    check_notes(clip)
+    notes = list(chain(*clip._ramp_notes(notes)))
+    check_notes(notes)
 
     # change note velocity
     notes = Note.copy_notes(clip._prev_notes)
     notes[1].velocity = 90
-    clip._map_notes(notes)
-    check_notes(clip)
-    # print(clip._prev_notes)
-    assert clip._prev_notes[2].velocity <= clip._prev_notes[1].velocity
+    notes = list(chain(*clip._ramp_notes(notes)))
+    check_notes(notes)
+    assert notes[2].velocity <= notes[1].velocity
 
 
 def test_clean_ramp_notes():
@@ -219,7 +212,7 @@ def test_clean_ramp_notes():
     base_notes = Note.copy_notes(notes)
     (clip, res) = create_clip_with_notes(notes)
 
-    assert list(clip._clean_ramp_notes(list(chain(*clip._ramp_notes(notes))))) == base_notes
+    assert list(clip._filter_ramp_notes(list(chain(*clip._ramp_notes(notes))))) == base_notes
 
 
 def test_add_note():
@@ -251,7 +244,7 @@ def test_modify_note_pitch():
 
     def check_res(clip, res):
         assert len(res["set_notes"]) == 1
-        assert len(clip._prev_notes) == clip.RAMPING_STEPS + 1
+        assert len(clip._prev_notes) == 2
         assert res["set_notes"][0].pitch == 70
         assert clip._prev_notes[0].pitch == 70
         assert res["set_notes"][0].velocity == 70
@@ -272,7 +265,7 @@ def test_modify_note_velocity():
 
     def check_res(clip, res):
         assert len(res["set_notes"]) == 1
-        assert len(clip._prev_notes) == clip.RAMPING_STEPS + 1
+        assert len(clip._prev_notes) == 2
         assert res["set_notes"][0].pitch == 70
         assert clip._prev_notes[0].pitch == 70
         assert res["set_notes"][0].velocity == 70

@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from a_protocol_0.lom.clip.Clip import Clip
-from a_protocol_0.utils.decorators import p0_subject_slot, defer
+from a_protocol_0.utils.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -18,6 +18,6 @@ class ExternalSynthClip(Clip):
     @p0_subject_slot("name")
     def _name_listener(self):
         """ linking clip names """
-        other_clips = [clip for clip in self._external_synth_track.audio.clips + self._external_synth_track.midi.clips if clip != self]
+        other_clips = [clip for clip in self._external_synth_track.audio_track.clips + self._external_synth_track.midi_track.clips if clip != self]
         [setattr(clip, "name", self.name) for clip in other_clips if clip.name == self._previous_name]
         self._previous_name = self._clip.name

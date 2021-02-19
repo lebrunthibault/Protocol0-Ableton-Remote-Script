@@ -1,6 +1,7 @@
 from copy import copy
 from functools import partial
 
+from pushbase.note_editor_component import TimeStep
 from typing import TYPE_CHECKING, List
 
 from _Framework.Util import clamp, find_if
@@ -8,7 +9,6 @@ from a_protocol_0.consts import PUSH2_BEAT_QUANTIZATION_STEPS
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.utils import is_equal
-from pushbase.note_editor_component import TimeStep
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences

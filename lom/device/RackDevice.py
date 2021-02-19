@@ -6,6 +6,7 @@ from _Framework.SubjectSlot import subject_slot
 from _Framework.Util import find_if
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.device.DeviceChain import DeviceChain
+from a_protocol_0.lom.device.AutomationDeviceType import AutomationDeviceType
 
 
 class RackDevice(Device):
@@ -16,6 +17,7 @@ class RackDevice(Device):
         self._view = self._device.view  # type: Live.RackDevice.RackDevice.View
         self._chains_listener.subject = self._device
         self._chains_listener()
+        self.device_type = AutomationDeviceType.RACK_DEVICE
 
     @subject_slot("chains")
     def _chains_listener(self):

@@ -17,7 +17,7 @@ class ClipSynchronizer(AbstractControlSurfaceComponent):
 
         for property in self.properties:
             self.register_slot(master_clip._clip, self._sync_slave_properties, property)
-            self.register_slot(slave_clip._clip, self._sync_master_properties, property)
+            self.parent.defer(partial(self.register_slot, slave_clip._clip, self._sync_master_properties, property))
 
         self._sync_slave_properties()
 

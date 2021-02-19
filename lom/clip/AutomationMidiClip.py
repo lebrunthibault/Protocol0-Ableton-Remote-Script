@@ -1,13 +1,13 @@
 from collections import defaultdict
 from copy import copy
 from fractions import Fraction
-from functools import partial, wraps
+from functools import partial
 from itertools import chain
 
 from typing import List, TYPE_CHECKING
 
-from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.Note import Note
+from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
 from a_protocol_0.lom.clip.AbstractAutomationClip import AbstractAutomationClip
 from a_protocol_0.lom.clip.ClipSynchronizer import ClipSynchronizer
 from a_protocol_0.sequence.Sequence import Sequence
@@ -65,10 +65,11 @@ class AutomationMidiClip(AbstractAutomationClip):
         # type: (AutomationAudioClip) -> None
         if not audio_clip:
             return  # can happen when deleting /restoring manually clips
-            # raise Protocol0Error("Inconsistent clip state for %s (%s)" % (self, self.track))
         self.automated_audio_clip = audio_clip
-        self._playing_status_listener.subject = self.automated_audio_clip._clip
-        self._clip_synchronizer = ClipSynchronizer(self, audio_clip)
+        self._playing_status_linked_clip_listener.subject = audio_clip._clip
+        self._is_triggered_linked_clip_listener.subject = audio_clip.clip_slot._clip_slot
+        self._clip_synchronizer = ObjectSynchronizer(self, audio_clip, "_clip", ["name", "looping", "loop_start", "loop_end", "start_marker", "end_marker"])
+        self._track_synchronizer = ObjectSynchronizer(self.track, audio_clip.track, "_track", ["mute", "solo"])
         return audio_clip._connect(self)
 
     @p0_subject_slot("loop_start")
@@ -88,6 +89,8 @@ class AutomationMidiClip(AbstractAutomationClip):
 
     @p0_subject_slot("name")
     def _name_listener(self):
+        if not self.name and self.track.automated_audio_track:
+            self.name = "%s *" % self.track.automated_audio_track.automated_parameter.full_name
         self.ramping_mode = RampModes.get(self)
         self._map_notes()
 
@@ -110,17 +113,21 @@ class AutomationMidiClip(AbstractAutomationClip):
         if len(notes) == 0 or (check_change and (self._is_updating_notes or notes == self._prev_notes)):
             return
 
-        self.parent.log_debug("notes: %s" % notes)
-        self.parent.log_debug("_prev_notes: %s" % self._prev_notes)
         pitch_or_vel_changes = self.notes_changed(notes, ["pitch", "velocity"])
+        # self.parent.log_debug("notes: %s" % notes)
+        # self.parent.log_debug("_prev_notes: %s" % self._prev_notes)
         self.parent.log_debug("pitch_or_vel_changes: %s" % pitch_or_vel_changes)
         if len(pitch_or_vel_changes):
+            self._prev_notes = notes
             return self._map_single_notes(pitch_or_vel_changes)
 
-        base_notes = filter(lambda n: n.is_quantized, notes)
-        base_prev_notes = filter(lambda n: n.is_quantized, self._prev_notes)
+        # log_ableton(notes)
+        # log_ableton(self._prev_notes)
+        base_notes = self._filter_ramp_notes(notes)
+        base_prev_notes = self._filter_ramp_notes(self._prev_notes)
         if len(base_notes) > len(base_prev_notes) and len(base_prev_notes):
             added_notes = list(set(base_notes) - set(base_prev_notes))
+            self.parent.log_debug("added_notes: %s" % added_notes)
 
             if len(self._prev_notes) == 0:
                 notes = [added_notes[0]]
@@ -132,31 +139,30 @@ class AutomationMidiClip(AbstractAutomationClip):
             notes.sort(key=lambda x: x.start)
 
         self.parent.log_debug("self._added_note: %s" % self._added_note)
-        self.parent.log_debug(notes)
 
         note_transforms = [
             self._filter_out_of_range_notes,
-            self._remove_duplicate_notes,
+            self._filter_duplicate_notes,
             # clean notes that outside of the clip
-            self._clean_ramp_notes,  # clean not ramping
+            self._filter_ramp_notes,  # legacy, when ramps where added to midi : clean rampings
             self._insert_added_note,  # handle adding a new note by splitting enclosing notes
             self._add_missing_notes,
             self._consolidate_notes,
-            wraps(self._ramp_notes)(lambda notes: list(chain(*self._ramp_notes(notes)))),  # add note ramps if necessary
-            self._remove_start_short_notes
+            # following is done only when exporting to audio automation (not displayed in midi clip)
+            # wraps(self._ramp_notes)(lambda notes: list(chain(*self._ramp_notes(notes)))),  # add note ramps if necessary
+            # self._remove_start_short_notes
             # should not be necessary but sometimes multiple notes are added at the same start point
         ]  # type: List[callable(List[Note])]
 
         for note_transform in note_transforms:
             notes.sort(key=lambda x: x.start)
-            notes = list(note_transform(notes))
+            notes = list(set(note_transform(notes)))
             if len(notes) == 0:
                 raise RuntimeError("Problem after transform %s, no notes left" % note_transform.__name__)
             self.parent.log_debug("_-__-_-_-_-_-_-_")
             self.parent.log_debug("after transform %s" % note_transform.__name__)
             self.parent.log_debug(notes)
             self.parent.log_debug("_-__-_-_-_-_-_-_")
-            notes = list(set(notes))
 
         notes.sort(key=lambda x: x.start)
         [setattr(note, "pitch", note.velocity) for note in notes]
@@ -179,19 +185,31 @@ class AutomationMidiClip(AbstractAutomationClip):
         seq.add(self._map_notes)
         return seq.done()
 
+    @property
+    def automation_notes(self):
+        # type: () -> List[Note]
+        notes = list(chain(*self._ramp_notes(self._prev_notes)))
+        notes = self._remove_start_short_notes(notes)
+        notes.sort(key=lambda x: x.start)
+
+        return notes
+
     def _filter_out_of_range_notes(self, notes):
         # type: (List[Note]) -> List[Note]
         return filter(lambda n: n.start < self.loop_end and n.end > self.loop_start, notes)
 
-
-    def _clean_ramp_notes(self, notes):
+    def _filter_ramp_notes(self, notes):
         # type: (List[Note]) -> List[Note]
+        if len(notes) == 0:
+            return []
+
         notes = list(
             filter(lambda n: n.is_quantized, notes))  # type: (List[Note])  # keep only base notes without ramping
 
         for i, next_note in enumerate(notes[1:] + [Note(start=self.loop_end)]):
             if not notes[i].is_end_quantized:
-                notes[i].duration = next_note.start - notes[i].start
+                if next_note.start - notes[i].start > 0:
+                    notes[i].duration = next_note.start - notes[i].start
 
         return notes
 
@@ -235,15 +253,11 @@ class AutomationMidiClip(AbstractAutomationClip):
     def _add_missing_notes(self, notes):
         # type: (List[Note]) -> List[Note]
         # fill with min notes and check duration to stay always monophonic
-        self.parent.log_debug("-------------")
-        self.parent.log_debug("-------------")
         for i, next_note in enumerate(notes[1:] + [Note(start=self.loop_end)]):
             current_note = notes[i]
-            self.parent.log_debug((i, current_note, next_note))
             if next_note.start - current_note.end > 0:
-                self.parent.log_debug("insertion !!!!!!!!")
                 yield current_note
-                yield Note(start=current_note.end, duration=next_note.start - current_note.end, pitch=0, velocity=0)
+                yield Note(start=current_note.end, duration=next_note.start - current_note.end, pitch=current_note.pitch, velocity=current_note.velocity)
             elif next_note.start - current_note.start == 0:
                 pass
             else:
@@ -256,21 +270,18 @@ class AutomationMidiClip(AbstractAutomationClip):
             notes = [Note(start=0, duration=notes[0].start - self.loop_start, pitch=0, velocity=0)] + notes
 
         notes[-1].duration = self.loop_end - notes[-1].start
-        self.parent.log_debug(notes)
-        # for note in notes:
-        #     yield note
 
         # merge same velocity notes
         current_note = notes[0]
         yield current_note
         for next_note in notes[1:]:
-            # if next_note.velocity == current_note.velocity:
-            #     current_note.duration += next_note.duration
-            # else:
-            #     current_note = next_note
-            #     yield current_note
-            current_note = next_note
-            yield current_note
+            if next_note.velocity == current_note.velocity:
+                current_note.duration += next_note.duration
+            else:
+                current_note = next_note
+                yield current_note
+            # current_note = next_note
+            # yield current_note
 
     def _remove_start_short_notes(self, notes):
         # type: (List[Note]) -> List[Note]
@@ -286,7 +297,7 @@ class AutomationMidiClip(AbstractAutomationClip):
         notes.sort(key=lambda x: x.start)
         return notes
 
-    def _remove_duplicate_notes(self, notes):
+    def _filter_duplicate_notes(self, notes):
         # type: (List[Note]) -> List[Note]
         " Useful to remove bug notes at same start point or when a note start was stretch to the start point of another one "
         unique_notes_by_start_and_duration = {}
@@ -300,33 +311,36 @@ class AutomationMidiClip(AbstractAutomationClip):
 
     def _ramp_notes(self, notes):
         # type: (List[Note]) -> List[Note]
-        """ ramp note endings only for notes going down to handle the filter click on sudden changes """
+        """ ramp note endings, twice faster for notes going up as clicks happen more on notes going down  """
         if len(notes) < 2 or self.ramping_mode == RampModes.NO_RAMP:
             yield notes
         else:
-            for i, note in enumerate(notes[1:] + [notes[0]]):
-                yield self._ramp_two_notes(notes[i], note)
+            for i, next_note in enumerate(notes[1:] + [notes[0]]):
+                current_note = notes[i]
+                ramping_duration = float(self.RAMPING_DURATION) * abs(current_note.velocity - next_note.velocity) / 127
+                if current_note.velocity == next_note.velocity:
+                    yield [next_note]
+                elif current_note.velocity < next_note.velocity:
+                    yield self._ramp_two_notes(notes[i], next_note, ramping_duration / 2)
+                else:
+                    yield self._ramp_two_notes(notes[i], next_note, ramping_duration)
 
-    def _ramp_two_notes(self, note, next_note):
-        # type: (Note, Note) -> List[Note]
+    def _ramp_two_notes(self, note, next_note, ramping_duration):
+        # type: (Note, Note, float) -> List[Note]
         """
             2 cases : when the note is long and ramping happens at the end
             or when the note is short and the ramping takes the whole note duration
         """
-        if note.velocity <= next_note.velocity:
-            yield note
-            return
-
-        is_above_ramping_duration = note.duration > self.RAMPING_DURATION * (1 + Fraction(1, self.RAMPING_STEPS))
+        is_above_ramping_duration = note.duration > ramping_duration * (1 + float(1) / self.RAMPING_STEPS)
         if is_above_ramping_duration and self.ramping_mode == RampModes.END_RAMP:
             ramping_steps = self.RAMPING_STEPS - 1
-            start_coeff = 1 - Fraction(1, self.RAMPING_STEPS)
-            ramp_start = note.start + note.duration - self.RAMPING_DURATION * start_coeff
+            start_coeff = 1 - float(1) / self.RAMPING_STEPS
+            ramp_start = note.start + note.duration - ramping_duration * start_coeff
             velocity_start = next_note.velocity + (note.velocity - next_note.velocity) * start_coeff
-            base_duration = self.RAMPING_DURATION * start_coeff
+            base_duration = ramping_duration * start_coeff
 
             first_note = copy(note)
-            first_note.duration = note.duration - self.RAMPING_DURATION + self.RAMPING_DURATION / self.RAMPING_STEPS
+            first_note.duration = note.duration - ramping_duration + ramping_duration / self.RAMPING_STEPS
             yield first_note
         else:
             ramping_steps = self.RAMPING_STEPS

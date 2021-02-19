@@ -44,7 +44,7 @@ class Song(SongActionMixin, AbstractObject):
     def handle_error(self):
         seq = Sequence(bypass_errors=True, debug=False)
         self.errored = True
-        # self.parent.keyboardShortcutManager.focus_logs()
+        self.parent.keyboardShortcutManager.focus_logs()
         seq.add(wait=1)
         seq.add(lambda: setattr(self, "errored", False))
         return seq.done()
@@ -97,17 +97,13 @@ class Song(SongActionMixin, AbstractObject):
     @highlighted_clip_slot.setter
     def highlighted_clip_slot(self, clip_slot):
         # type: (ClipSlot) -> None
-        self.song._view.highlighted_clip_slot = clip_slot._clip_slot
+        pass
+        # self.song._view.highlighted_clip_slot = clip_slot._clip_slot
 
     @property
     def selected_parameter(self):
-        # type: () -> DeviceParameter
-        param = find_if(lambda p: p._device_parameter == self.song._view.selected_parameter, [param for track in self.simple_tracks for param in track.device_parameters])
-
-        if not param:
-            raise Protocol0Error("There is no currently selected parameter")
-
-        return param
+        # type: () -> Optional[DeviceParameter]
+        return find_if(lambda p: p._device_parameter == self.song._view.selected_parameter, [param for track in self.simple_tracks for param in track.device_parameters])
 
     @property
     def is_playing(self):

@@ -36,7 +36,9 @@ class AutomatedTrack(AbstractGroupTrack):
         for i, audio_track in enumerate(audio_tracks):
             if i == len(audio_tracks) - 1:
                 break
-            audio_tracks[i + 1].set_output_routing_type(audio_track)
+            audio_tracks[i + 1].next_automated_audio_track = audio_track
+            audio_track.previous_automated_audio_track = audio_tracks[i + 1]
+            audio_tracks[i + 1].set_output_routing_to(audio_track)
 
     @property
     def name(self):
@@ -76,6 +78,9 @@ class AutomatedTrack(AbstractGroupTrack):
 
     @forward_property('wrapped_track')
     def action_record_audio_only(self, *a, **k): pass
+
+    @forward_property('wrapped_track')
+    def _post_record(self, *a, **k): pass
 
     @forward_property('wrapped_track')
     def action_undo_track(self): pass

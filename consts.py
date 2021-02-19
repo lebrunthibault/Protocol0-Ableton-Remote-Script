@@ -1,7 +1,6 @@
 import os
 from fractions import Fraction
 from os.path import dirname
-import Live
 
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 

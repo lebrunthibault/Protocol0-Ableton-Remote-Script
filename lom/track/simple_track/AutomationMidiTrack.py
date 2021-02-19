@@ -31,8 +31,11 @@ class AutomationMidiTrack(AbstractAutomationTrack):
 
     def _connect(self, track):
         # type: (AutomationAudioTrack) -> None
+        first_connection = self.automated_audio_track is None
         self.automated_audio_track = track
         self.automated_audio_track._connect(self)
+        if first_connection and len(self.clips) == 0:
+            self._create_base_clips()
 
     def _added_track_init(self):
         """ this can be called once, when the Live track is created """
@@ -41,25 +44,21 @@ class AutomationMidiTrack(AbstractAutomationTrack):
         seq = Sequence()
         seq.add(wait=1)
         seq.add(lambda: [self.delete_device(d) for d in self.devices])
-
-        if len(self.clips) == 0:
-            seq.add(self._create_base_clips)
         return seq.done()
 
     def _create_base_clips(self):
         velocity_patterns = OrderedDict()
-        velocity_patterns["max *"] = [127]
-        # velocity_patterns["min *"] = [127]
-        # velocity_patterns["min-max *"] = [0, 127]
-        # velocity_patterns["max-min *"] = [127, 0]
-        # velocity_patterns["quarter-min *"] = [0, 127, 127, 127]
+        name = self.automated_audio_track.automated_parameter.full_name
+        velocity_patterns["%s *" % name] = [self.automated_audio_track.automated_parameter.get_midi_value_from_value()]
 
         seq = Sequence()
         clip_creation_steps = []
         for i, (clip_name, velocities) in enumerate(velocity_patterns.items()):
-            clip_creation_steps.append(partial(self._create_base_clip, clip_slot_index=i, name=clip_name, velocities=velocities))
+            seq.add(partial(self._create_base_clip, clip_slot_index=i, name=clip_name, velocities=velocities))
+            # the following creates a bug with push when adding multiple clips
+            # clip_creation_steps.append(partial(self._create_base_clip, clip_slot_index=i, name=clip_name, velocities=velocities))
 
-        seq.add(clip_creation_steps)
+        # seq.add(clip_creation_steps)
         seq.add(lambda: self.automated_audio_track.play())
 
         return seq.done()
@@ -72,6 +71,8 @@ class AutomationMidiTrack(AbstractAutomationTrack):
                     self.clip_slots[clip_slot_index]), name="set clip notes")
         seq.add(partial(lambda cs: cs.clip._map_notes(),
                         self.clip_slots[clip_slot_index]), name="process notes")
+        seq.add(partial(lambda cs: cs.clip.view.hide_envelope(),
+                        self.clip_slots[clip_slot_index]))
         return seq.done()
 
     def _fill_equal_notes(self, clip, velocities):

@@ -68,6 +68,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self._is_hearable = True
         self._is_duplicated = False  # allows different init when duplicated or when created from e.g. the browser
 
+        self.nav_view = 'track'
         self.push2_selected_main_mode = 'device'
         self.push2_selected_matrix_mode = 'session'
         self.push2_selected_instrument_mode = None

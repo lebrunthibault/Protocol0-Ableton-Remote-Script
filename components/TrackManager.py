@@ -27,12 +27,23 @@ class TrackManager(AbstractControlSurfaceComponent):
         self.tracks_added = False
         self.automation_track_color = None
         self._added_track_listener.subject = self.parent.songManager
+        self._selected_track_listener.subject = self.parent.songManager
 
     @p0_subject_slot("added_track")
     def _added_track_listener(self):
         if not self.parent.songManager.abstract_group_track_creation_in_progress:
             seq = Sequence().add(wait=1).add(self.song.current_track._added_track_init)
             return seq.done()
+
+    @p0_subject_slot("selected_track")
+    def _selected_track_listener(self):
+        self.parent.defer(self._update_nav_view)
+
+    def _update_nav_view(self):
+        if self.song.selected_track.nav_view == "clip":
+            self.parent.clyphxNavigationManager.show_clip_view()
+        elif self.song.selected_track.nav_view == "track":
+            self.parent.clyphxNavigationManager.show_track_view()
 
     def group_track(self):
         # type: () -> Sequence
@@ -77,7 +88,7 @@ class TrackManager(AbstractControlSurfaceComponent):
         # type: (Live.Track.Track, int) -> SimpleTrack
         if track.is_foldable:
             return SimpleGroupTrack(track=track, index=index)
-        elif AUTOMATION_TRACK_NAME in track.name:
+        elif AUTOMATION_TRACK_NAME in track.name and AbstractAutomationTrack.get_parameter_info(track.name):
             if track.has_midi_input:
                 return AutomationMidiTrack(track=track, index=index)
             else:

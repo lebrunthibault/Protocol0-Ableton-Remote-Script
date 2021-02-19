@@ -194,7 +194,7 @@ def catch_and_log(func):
             func(*a, **k)
         except (Exception, RuntimeError):
             from a_protocol_0 import Protocol0
-            Protocol0.log_error("Error while executing %s" % func.__name__)
+            Protocol0.SELF.log_error("Error while executing %s" % func.__name__)
 
     return decorate
 

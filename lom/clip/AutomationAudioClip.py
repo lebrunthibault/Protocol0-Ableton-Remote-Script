@@ -1,8 +1,9 @@
-from functools import partial
+from itertools import chain
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from _Framework.SubjectSlot import subject_slot
+from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.AbstractAutomationClip import AbstractAutomationClip
 from a_protocol_0.sequence.Sequence import Sequence
 
@@ -37,7 +38,8 @@ class AutomationAudioClip(AbstractAutomationClip):
         # type: (AutomationMidiClip) -> None
         self.automated_midi_clip = midi_clip
         self._notes_listener.subject = midi_clip
-        self._playing_status_listener.subject = midi_clip._clip
+        self._playing_status_linked_clip_listener.subject = midi_clip._clip
+        self._is_triggered_linked_clip_listener.subject = midi_clip.clip_slot._clip_slot
         seq = Sequence()
         seq.add(wait=1)
         seq.add(self._notes_listener)
@@ -57,5 +59,9 @@ class AutomationAudioClip(AbstractAutomationClip):
             self.track._get_automated_device_and_parameter()
         envelope = self.create_automation_envelope(self.track.automated_parameter)
 
-        for note in self.automated_midi_clip._prev_notes:
-            envelope.insert_step(note.start, note.duration, note.velocity)
+        for note in self.automated_midi_clip.automation_notes:
+            envelope.insert_step(note.start, note.duration,
+                                 self.track.automated_parameter.get_value_from_midi_value(note.velocity))
+
+    def _insert_step(self, start, duration, velocity):
+        range = self.track.automated_parameter.max - self.track.automated_parameter.min

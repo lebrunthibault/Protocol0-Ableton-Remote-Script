@@ -28,6 +28,10 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             self.push2_selected_matrix_mode = 'note'
             self.push2_selected_instrument_mode = 'split_melodic_sequencer'
 
+        # only used for automated tracks
+        self.next_automated_audio_track = None  # type: Optional[SimpleTrack]
+        self.previous_automated_audio_track = None  # type: Optional[SimpleTrack]
+
     def __hash__(self):
         return self.index
 

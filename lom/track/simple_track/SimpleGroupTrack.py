@@ -14,8 +14,8 @@ class SimpleGroupTrack(SimpleTrack):
         self.is_folded = False
         output_routing_tracks = list(set([sub_track.output_routing_type.attached_object for sub_track in self.sub_tracks]))
         if len(output_routing_tracks) == 1 and output_routing_tracks[0] and output_routing_tracks[0] != self.song.master_track:
-            self.set_output_routing_type(output_routing_tracks[0])
-            [sub_track.set_output_routing_type(self) for sub_track in self.sub_tracks]
+            self.set_output_routing_to(output_routing_tracks[0])
+            [sub_track.set_output_routing_to(self) for sub_track in self.sub_tracks]
 
         if len(self.devices) == 0:
             seq.add(partial(self.parent.browserManager.load_rack_device, "Mix Base Rack"))

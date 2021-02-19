@@ -14,7 +14,7 @@ class AutomationTracksCouple(AbstractObject):
         super(AutomationTracksCouple, self).__init__(*a, **k)
 
         if audio_track.index != midi_track.index - 1:
-            raise Protocol0Error("Inconsistent automation track state, midi should always be right adjacent to audio")
+            raise Protocol0Error("Inconsistent automation track state, midi should always be right adjacent to audio, \naudio: %s, \nmidi: %s" % (audio_track, midi_track))
 
         self.audio_track = audio_track
         self.midi_track = midi_track

@@ -1,7 +1,6 @@
 import threading
 import traceback
 import types
-from fractions import Fraction
 from functools import partial
 
 from typing import Callable
@@ -71,12 +70,13 @@ class Protocol0(ControlSurface):
         self.log_info("Protocol0 script loaded")
 
     def post_init(self):
-        self.protocol0_song.reset()
+        # self.protocol0_song.reset()
         if LogLevel.ACTIVE_LOG_LEVEL == LogLevel.DEBUG:
             self.defer(self.dev_boot)
 
     def log_debug(self, message, debug=True):
         # type: (str) -> None
+        return
         self._log(message=message, level=LogLevel.DEBUG, debug=debug)
 
     def log_info(self, message, debug=False):
@@ -118,7 +118,7 @@ class Protocol0(ControlSurface):
                 self.schedule_message(ticks_count, callback)
             else:
                 # emulate schedule_message
-                threading.Timer(float(Fraction(ticks_count, 10)), callback).start()
+                threading.Timer(float(ticks_count) / 10, callback).start()
 
     def clear_tasks(self):
         del self._remaining_scheduled_messages[:]

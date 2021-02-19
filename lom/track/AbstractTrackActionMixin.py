@@ -159,10 +159,10 @@ class AbstractTrackActionMixin(object):
                     self, device))
 
     @retry(2)
-    def set_output_routing_type(self, track):
+    def set_output_routing_to(self, track):
         # type: (AbstractTrack, Any) -> None
         if track is None:
-            raise Protocol0Error("You passed None to %s" % self.set_output_routing_type.__name__)
+            raise Protocol0Error("You passed None to %s" % self.set_output_routing_to.__name__)
 
         from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
         track = track._track if isinstance(track, AbstractTrack) else track

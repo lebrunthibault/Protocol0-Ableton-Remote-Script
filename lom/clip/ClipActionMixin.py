@@ -65,7 +65,6 @@ class ClipActionMixin(object):
         # type: (Clip, List[Note], bool) -> None
         # if notes == self._prev_notes:
         #     return
-        self.parent.log_debug("replace all notes : %s" % notes)
         self.select_all_notes()
         seq = Sequence()
         seq.add(wait=1)

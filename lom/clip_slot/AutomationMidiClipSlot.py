@@ -36,6 +36,8 @@ class AutomationMidiClipSlot(ClipSlot):
 
         seq = Sequence().add(wait=1)
         if self.has_clip:
+            if not self.clip.name:
+                self.clip.name = "%s *" % self.track.automated_audio_track.automated_parameter.full_name
             if self.automated_audio_clip_slot.has_clip:
                 self.clip._connect(self.automated_audio_clip_slot.clip)
             else:

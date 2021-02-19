@@ -5,6 +5,7 @@ from _Framework.SubjectSlot import subject_slot
 from _Framework.Util import find_if
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
+from a_protocol_0.lom.device.AutomationDeviceType import AutomationDeviceType
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -26,13 +27,17 @@ class Device(AbstractObject):
         self.is_plugin = isinstance(device, Live.PluginDevice.PluginDevice)
         self.can_have_drum_pads = self._device.can_have_drum_pads
         self.can_have_chains = self._device.can_have_chains
+        self.device_type = AutomationDeviceType.ABLETON_DEVICE
 
     @staticmethod
     def make(device, track, index):
         # type: (Live.Device.Device, SimpleTrack, int) -> Device
         from a_protocol_0.lom.device.RackDevice import RackDevice
+        from a_protocol_0.lom.device.PluginDevice import PluginDevice
         if isinstance(device, Live.RackDevice.RackDevice):
             return RackDevice(device=device, track=track, index=index)
+        elif isinstance(device, Live.PluginDevice.PluginDevice):
+            return PluginDevice(device=device, track=track, index=index)
         else:
             return Device(device=device, track=track, index=index)
 
@@ -55,4 +60,3 @@ class Device(AbstractObject):
     def disconnect(self):
         super(Device, self).disconnect()
         [parameter.disconnect() for parameter in self.parameters]
-

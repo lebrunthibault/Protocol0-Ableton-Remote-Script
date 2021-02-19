@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 import Live
 
 from a_protocol_0.lom.AbstractObject import AbstractObject
+from a_protocol_0.utils.utils import scale_from_value
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -16,7 +17,6 @@ class DeviceParameter(AbstractObject):
         self.device = device
         self.track = self.device.track
         self._device_parameter = device_parameter
-        self.canonical_parent = self._device_parameter.canonical_parent
 
     def __repr__(self):
         return "%s: %s" % (self.name, self.value)
@@ -24,6 +24,10 @@ class DeviceParameter(AbstractObject):
     @property
     def name(self):
         return self._device_parameter.name
+
+    @property
+    def full_name(self):
+        return "%s.%s" % (self._device_parameter.name, self.device.name)
 
     @property
     def original_name(self):
@@ -36,6 +40,22 @@ class DeviceParameter(AbstractObject):
     @value.setter
     def value(self, value):
         self._device_parameter.value = value
+
+    @property
+    def default_value(self):
+        return self._device_parameter.default_value
+
+    @property
+    def default_midi_value(self):
+        pass
+
+    def get_value_from_midi_value(self, midi_value):
+        # type: (int) -> float
+        return scale_from_value(midi_value, 0, 127, self.min, self.max)
+
+    def get_midi_value_from_value(self):
+        # type: () -> float
+        return scale_from_value(self.value, self.min, self.max, 0, 127)
 
     @property
     def min(self):

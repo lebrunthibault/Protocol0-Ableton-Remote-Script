@@ -102,7 +102,8 @@ class SongManager(AbstractControlSurfaceComponent):
             track = self.song.selected_track
             if track and track.is_visible and track.playable_clip and self.song.highlighted_clip_slot == \
                     track.clip_slots[0]:
-                self.song.highlighted_clip_slot = track.playable_clip.clip_slot
+                pass
+                # self.song.highlighted_clip_slot = track.playable_clip.clip_slot
         self.update_highlighted_clip_slot = True
 
     def _get_simple_track(self, track, default=None):

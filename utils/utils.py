@@ -1,6 +1,7 @@
 import inspect
 import types
 from collections import namedtuple
+from fractions import Fraction
 
 from typing import Optional, Any, List, TYPE_CHECKING
 
@@ -199,3 +200,7 @@ def nop():
 
 def flatten(t):
     return [item for sublist in t for item in sublist]
+
+
+def scale_from_value(value, min_a, max_a, min_b, max_b):
+    return float(float((max_b - min_b) * (value - min_a)) / (max_a - min_a)) + min_b

@@ -9,12 +9,23 @@ class AbstractAutomationClip(Clip):
         raise NotImplementedError
 
     @p0_subject_slot("playing_status")
-    def _playing_status_listener(self):
+    def _playing_status_linked_clip_listener(self):
         if self.is_playing == self.linked_clip.is_playing:
             return
 
         if self.linked_clip.is_playing or self.linked_clip.is_triggered:
-            self.start_marker = self.parent.utilsManager.get_next_quantized_position(self.linked_clip.playing_position, min(self.linked_clip.length, self.length))
+            # self.start_marker = self.parent.utilsManager.get_next_quantized_position(self.linked_clip.playing_position, min(self.linked_clip.length, self.length))
             self.is_playing = True
         elif self.linked_clip.track.is_playing is False and self.linked_clip.track.is_triggered is False:
+            self.is_playing = False
+
+    @p0_subject_slot("is_triggered")
+    def _is_triggered_linked_clip_listener(self):
+        if self.is_triggered == self.linked_clip.is_triggered:
+            return
+
+        if self.linked_clip.is_triggered:
+            # self.start_marker = self.parent.utilsManager.get_next_quantized_position(self.linked_clip.playing_position, min(self.linked_clip.length, self.length))
+            self.is_playing = True
+        else:
             self.is_playing = False

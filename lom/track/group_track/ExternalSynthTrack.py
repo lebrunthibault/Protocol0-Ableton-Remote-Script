@@ -7,6 +7,7 @@ from _Framework.Util import forward_property
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.group_track.ExternalSynthTrackActionMixin import ExternalSynthTrackActionMixin
+from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.utils import find_last
 
@@ -19,36 +20,40 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     def __init__(self, group_track, *a, **k):
         # type: (SimpleTrack) -> None
         super(ExternalSynthTrack, self).__init__(group_track=group_track, *a, **k)
-        self.midi = find_last(lambda t: t.is_midi, self.sub_tracks)  # type: SimpleTrack
-        self.audio = find_last(lambda t: t.is_audio, self.sub_tracks)  # type: SimpleTrack
-        self.instrument_track = self.midi
-        self.midi.is_scrollable = self.audio.is_scrollable = False
+        self.midi_track = find_last(lambda t: t.is_midi, self.sub_tracks)  # type: SimpleTrack
+        self.audio_track = find_last(lambda t: t.is_audio, self.sub_tracks)  # type: SimpleTrack
+        self.instrument_track = self.midi_track
+        self.midi_track.is_scrollable = self.audio_track.is_scrollable = False
         self._instrument_listener.subject = self.instrument_track
         self._instrument_listener()
+        self._midi_track_synchronizer = ObjectSynchronizer(self.base_track, self.midi_track, "_track", ["solo"])
 
     @property
     def arm(self):
         # type: () -> bool
-        return self.midi.arm and self.audio.arm
+        return self.midi_track.arm and self.audio_track.arm
 
     @property
     def is_playing(self):
         # type: () -> bool
-        return self.midi.is_playing or self.audio.is_playing
+        return self.midi_track.is_playing or self.audio_track.is_playing
 
     @property
     def is_recording(self):
         # type: () -> bool
-        return self.midi.is_recording or self.audio.is_recording
+        return self.midi_track.is_recording or self.audio_track.is_recording
 
     @property
     def next_empty_clip_slot_index(self):
         # type: () -> ClipSlot
         for i in range(len(self.song.scenes)):
-            if not self.midi.clip_slots[i].has_clip and not self.audio.clip_slots[i].has_clip:
+            if not self.midi_track.clip_slots[i].has_clip and not self.audio_track.clip_slots[i].has_clip:
                 return i
         self.song.create_scene()
         return len(self.song.scenes) - 1
 
-    @forward_property('audio')
-    def set_output_routing_type(self): pass
+    @forward_property('audio_track')
+    def set_output_routing_to(self): pass
+
+    def disconnect(self):
+        self._midi_track_synchronizer.disconnect()

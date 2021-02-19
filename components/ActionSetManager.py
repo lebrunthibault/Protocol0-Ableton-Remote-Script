@@ -1,6 +1,7 @@
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.controls.MultiEncoder import MultiEncoder
 from a_protocol_0.lom.device.RackDevice import RackDevice
+from a_protocol_0.lom.track.group_track.AutomatedTrack import AutomatedTrack
 from a_protocol_0.utils.decorators import button_action
 
 
@@ -46,6 +47,12 @@ class ActionSetManager(AbstractControlSurfaceComponent):
         self.parent.log_info("selected_track: %s" % self.song.selected_track)
         self.parent.log_info("selected_track.clip_slots: %s" % self.song.selected_track.clip_slots)
         self.parent.log_info("selected_track.clips: %s" % self.song.selected_track.clips)
+        self.parent.log_info("********* SELECTED_DEVICE *************")
+        self.parent.log_info("*********************")
+        self.parent.log_info("selected_device: %s" % self.song.selected_track.selected_device)
+        self.parent.log_info("selected_parameter: %s" % self.song.selected_parameter)
+        if self.song.selected_parameter:
+            self.parent.log_info("selected_device.parameters: %s" % self.song.selected_track.selected_device.parameters)
 
 
 
