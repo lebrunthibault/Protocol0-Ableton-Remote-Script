@@ -107,7 +107,8 @@ class Sequence(AbstractObject):
 
     def _start(self):
         if self._state == SequenceState.TERMINATED:
-            raise SequenceError(object=self, message="You tried to execute a terminated sequence")
+            self.parent.log_error("You tried to execute a terminated sequence")
+            return
         if self._state == SequenceState.STARTED:
             return
         if self._state == SequenceState.UN_STARTED:

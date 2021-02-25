@@ -49,7 +49,7 @@ class AutomationMidiTrack(AbstractAutomationTrack):
     def _create_base_clips(self):
         velocity_patterns = OrderedDict()
         name = self.automated_audio_track.automated_parameter.full_name
-        velocity_patterns["%s *" % name] = [self.automated_audio_track.automated_parameter.get_midi_value_from_value()]
+        velocity_patterns["%s (*,*)" % name] = [self.automated_audio_track.automated_parameter.get_midi_value_from_value()]
 
         seq = Sequence()
         clip_creation_steps = []

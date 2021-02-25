@@ -40,9 +40,10 @@ class SimpleTrackActionMixin(object):
         seq = Sequence()
         clip_slot_index = clip_slot_index if clip_slot_index else self._next_empty_clip_slot_index
         self.parent.show_message("Starting recording of %d bars" % self.song.recording_bar_count)
-        self.clip_slots[clip_slot_index].fire(record_length=self.parent.utilsManager.get_beat_time(self.song.recording_bar_count))
-        seq.add(complete_on=self.clip_slots[clip_slot_index]._has_clip_listener)
-        seq.add(complete_on=lambda: self.clip_slots[clip_slot_index].clip._is_recording_listener)
+        seq.add(partial(self.clip_slots[clip_slot_index].fire,
+                        record_length=self.parent.utilsManager.get_beat_time(self.song.recording_bar_count)),
+                complete_on=self.clip_slots[clip_slot_index]._has_clip_listener)
+        seq.add(complete_on=lambda: self.clip_slots[clip_slot_index].clip._is_recording_listener, check_timeout=0)
         return seq.done()
 
     def action_undo_track(self):

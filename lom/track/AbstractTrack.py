@@ -75,6 +75,8 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
 
     def _added_track_init(self):
         """ this should be be called once, when the Live track is created, overridden by some child classes """
+        if self.parent.songManager.abstract_group_track_creation_in_progress:
+            return
         seq = Sequence()
         seq.add(self.song.current_track.action_arm)
         [seq.add(clip.delete) for clip in self.song.current_track.all_clips]

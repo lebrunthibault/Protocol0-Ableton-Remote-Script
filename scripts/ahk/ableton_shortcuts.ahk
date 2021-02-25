@@ -149,8 +149,6 @@ relaunchAbleton()
 
 saveAndSetAsTemplate()
 {
-    Send ^s
-    Sleep 500
     Send ^,
     MouseClick, left, 711, 331 ; click on File Folder
     MouseClick, left, 1032, 201

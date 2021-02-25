@@ -140,7 +140,7 @@ class SequenceStep(AbstractObject):
                 self._terminate()
             return
 
-        if self._check_count == self._check_timeout:
+        if self._check_timeout and self._check_count == self._check_timeout:
             self._step_timed_out()
             return
 
@@ -161,11 +161,13 @@ class SequenceStep(AbstractObject):
                 self._check_count += 1
 
     def _add_callback_on_listener(self, listener):
-        self._callback_timeout = TimeoutLimit(func=self._terminate, awaited_listener=listener,
-                                              timeout_limit=pow(2, self._check_timeout),
-                                              on_timeout=self._step_timed_out)
-        listener.add_callback(self._callback_timeout)
-
+        if not self._check_timeout:
+            listener.add_callback(self._terminate)
+        else:
+            self._callback_timeout = TimeoutLimit(func=self._terminate, awaited_listener=listener,
+                                                  timeout_limit=pow(2, self._check_timeout),
+                                                  on_timeout=self._step_timed_out)
+            listener.add_callback(self._callback_timeout)
 
     def _execute_callable(self, func):
         try:

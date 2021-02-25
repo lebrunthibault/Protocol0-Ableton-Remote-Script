@@ -1,6 +1,5 @@
 from collections import defaultdict
 from copy import copy
-from fractions import Fraction
 from functools import partial
 from itertools import chain
 
@@ -9,6 +8,7 @@ from typing import List, TYPE_CHECKING
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
 from a_protocol_0.lom.clip.AbstractAutomationClip import AbstractAutomationClip
+from a_protocol_0.lom.clip.AutomationRamp import AutomationRampMode, AutomationRamp
 from a_protocol_0.lom.clip.ClipSynchronizer import ClipSynchronizer
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import debounce, p0_subject_slot
@@ -18,22 +18,6 @@ if TYPE_CHECKING:
     from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMidiTrack
     from a_protocol_0.lom.clip_slot.AutomationMidiClipSlot import AutomationMidiClipSlot
     from a_protocol_0.lom.clip.AutomationAudioClip import AutomationAudioClip
-
-
-class RampModes(object):
-    NO_RAMP = "NO_RAMP"
-    END_RAMP = "END_RAMP"
-    FULL_RAMP = "FULL_RAMP"
-
-    @staticmethod
-    def get(clip):
-        # type: (AutomationMidiClip) -> str
-        if "*" in clip.name:
-            return RampModes.END_RAMP
-        elif "+" in clip.name:
-            return RampModes.FULL_RAMP
-        else:
-            return RampModes.NO_RAMP
 
 
 class AutomationMidiClip(AbstractAutomationClip):
@@ -49,7 +33,6 @@ class AutomationMidiClip(AbstractAutomationClip):
         self._loop_start_listener.subject = self._clip
         self._loop_end_listener.subject = self._clip
         self._notes_listener.subject = self._clip
-        self.ramping_mode = RampModes.get(self)
         self._clip_synchronizer = None  # type: ClipSynchronizer
 
     def _on_selected(self):
@@ -68,7 +51,9 @@ class AutomationMidiClip(AbstractAutomationClip):
         self.automated_audio_clip = audio_clip
         self._playing_status_linked_clip_listener.subject = audio_clip._clip
         self._is_triggered_linked_clip_listener.subject = audio_clip.clip_slot._clip_slot
-        self._clip_synchronizer = ObjectSynchronizer(self, audio_clip, "_clip", ["name", "looping", "loop_start", "loop_end", "start_marker", "end_marker"])
+        self._clip_synchronizer = ObjectSynchronizer(self, audio_clip, "_clip",
+                                                     ["name", "looping", "loop_start", "loop_end", "start_marker",
+                                                      "end_marker"])
         self._track_synchronizer = ObjectSynchronizer(self.track, audio_clip.track, "_track", ["mute", "solo"])
         return audio_clip._connect(self)
 
@@ -90,8 +75,9 @@ class AutomationMidiClip(AbstractAutomationClip):
     @p0_subject_slot("name")
     def _name_listener(self):
         if not self.name and self.track.automated_audio_track:
-            self.name = "%s *" % self.track.automated_audio_track.automated_parameter.full_name
-        self.ramping_mode = RampModes.get(self)
+            self.clip_name.set(base_name=self.track.automated_audio_track.automated_parameter.full_name,
+                               ramp_mode_up=AutomationRamp(),
+                               ramp_mode_down=AutomationRamp())
         self._map_notes()
 
     def _refresh_notes(self):
@@ -148,10 +134,6 @@ class AutomationMidiClip(AbstractAutomationClip):
             self._insert_added_note,  # handle adding a new note by splitting enclosing notes
             self._add_missing_notes,
             self._consolidate_notes,
-            # following is done only when exporting to audio automation (not displayed in midi clip)
-            # wraps(self._ramp_notes)(lambda notes: list(chain(*self._ramp_notes(notes)))),  # add note ramps if necessary
-            # self._remove_start_short_notes
-            # should not be necessary but sometimes multiple notes are added at the same start point
         ]  # type: List[callable(List[Note])]
 
         for note_transform in note_transforms:
@@ -188,7 +170,11 @@ class AutomationMidiClip(AbstractAutomationClip):
     @property
     def automation_notes(self):
         # type: () -> List[Note]
+        if len(self._prev_notes) == 0:
+            return []
+
         notes = list(chain(*self._ramp_notes(self._prev_notes)))
+        # should not be necessary but sometimes multiple notes are added at the same start point
         notes = self._remove_start_short_notes(notes)
         notes.sort(key=lambda x: x.start)
 
@@ -257,7 +243,8 @@ class AutomationMidiClip(AbstractAutomationClip):
             current_note = notes[i]
             if next_note.start - current_note.end > 0:
                 yield current_note
-                yield Note(start=current_note.end, duration=next_note.start - current_note.end, pitch=current_note.pitch, velocity=current_note.velocity)
+                yield Note(start=current_note.end, duration=next_note.start - current_note.end,
+                           pitch=current_note.pitch, velocity=current_note.velocity)
             elif next_note.start - current_note.start == 0:
                 pass
             else:
@@ -280,8 +267,6 @@ class AutomationMidiClip(AbstractAutomationClip):
             else:
                 current_note = next_note
                 yield current_note
-            # current_note = next_note
-            # yield current_note
 
     def _remove_start_short_notes(self, notes):
         # type: (List[Note]) -> List[Note]
@@ -312,27 +297,28 @@ class AutomationMidiClip(AbstractAutomationClip):
     def _ramp_notes(self, notes):
         # type: (List[Note]) -> List[Note]
         """ ramp note endings, twice faster for notes going up as clicks happen more on notes going down  """
-        if len(notes) < 2 or self.ramping_mode == RampModes.NO_RAMP:
-            yield notes
-        else:
-            for i, next_note in enumerate(notes[1:] + [notes[0]]):
-                current_note = notes[i]
-                ramping_duration = float(self.RAMPING_DURATION) * abs(current_note.velocity - next_note.velocity) / 127
-                if current_note.velocity == next_note.velocity:
-                    yield [next_note]
-                elif current_note.velocity < next_note.velocity:
-                    yield self._ramp_two_notes(notes[i], next_note, ramping_duration / 2)
-                else:
-                    yield self._ramp_two_notes(notes[i], next_note, ramping_duration)
+        for i, next_note in enumerate(notes[1:] + [notes[0]]):
+            current_note = notes[i]
+            ramping_duration = float(self.RAMPING_DURATION) * abs(current_note.velocity - next_note.velocity) / 127
+            if current_note.velocity == next_note.velocity:
+                yield [current_note]
+            elif next_note.velocity > current_note.velocity:
+                yield self._ramp_two_notes(notes[i], next_note, ramping_duration / (2 * self.automation_ramp_up.division), self.automation_ramp_up.ramp_mode)
+            else:
+                yield self._ramp_two_notes(notes[i], next_note, ramping_duration / self.automation_ramp_down.division, self.automation_ramp_down.ramp_mode)
 
-    def _ramp_two_notes(self, note, next_note, ramping_duration):
-        # type: (Note, Note, float) -> List[Note]
+    def _ramp_two_notes(self, note, next_note, ramping_duration, ramp_mode):
+        # type: (Note, Note, float, AutomationRampMode) -> List[Note]
         """
             2 cases : when the note is long and ramping happens at the end
             or when the note is short and the ramping takes the whole note duration
         """
+        if ramp_mode == AutomationRampMode.NO_RAMP:
+            yield note
+            return
+
         is_above_ramping_duration = note.duration > ramping_duration * (1 + float(1) / self.RAMPING_STEPS)
-        if is_above_ramping_duration and self.ramping_mode == RampModes.END_RAMP:
+        if is_above_ramping_duration and ramp_mode == AutomationRampMode.END_RAMP:
             ramping_steps = self.RAMPING_STEPS - 1
             start_coeff = 1 - float(1) / self.RAMPING_STEPS
             ramp_start = note.start + note.duration - ramping_duration * start_coeff

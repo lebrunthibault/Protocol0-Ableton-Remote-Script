@@ -5,7 +5,7 @@ from os.path import dirname
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 
 MIDI_STATUS_BYTES = {'note': 144, 'cc': 176, 'pc': 192}
-RECORDING_TIMES = ["1 bar", "2 bars", "4 bars", "8 bars", "16 bars", "32 bars"]
+RECORDING_TIMES = ["1 bar", "2 bars", "4 bars", "8 bars", "16 bars", "32 bars", "64 bars"]
 TRACK_CATEGORY_DRUMS = "Drums"
 TRACK_CATEGORY_OTHER = "Other"
 TRACK_CATEGORY_ALL = "All"

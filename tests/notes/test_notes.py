@@ -1,7 +1,8 @@
 from itertools import chain
 
 from a_protocol_0.lom.Note import Note
-from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip, RampModes
+from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
+from a_protocol_0.lom.clip.AutomationRamp import AutomationRamp
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.tests.fixtures.clip import AbletonClip
@@ -12,7 +13,7 @@ from a_protocol_0.tests.test_all import p0
 from a_protocol_0.utils.log import log_ableton
 
 
-def create_clip_with_notes(notes, prev_notes=[], clip_length=None, loop_start=None, name="test *"):
+def create_clip_with_notes(notes, prev_notes=[], clip_length=None, loop_start=None, name="test (*,*)"):
     track = SimpleTrack(AbletonTrack(name="midi", track_type=TrackType.MIDI), 0)
     loop_start = loop_start if loop_start is not None else notes[0].start
     length = clip_length or notes[-1].end - loop_start
@@ -34,6 +35,7 @@ def create_clip_with_notes(notes, prev_notes=[], clip_length=None, loop_start=No
     clip.set_notes = set_notes
 
     return (clip, test_res)
+
 
 def assert_note(note, expected):
     for key in expected.keys():
@@ -63,7 +65,7 @@ def test_map_notes_loop_start_change():
     notes[1].pitch = 50
 
     (clip, res) = create_clip_with_notes(notes=notes, prev_notes=prev_notes)
-    clip.ramping_mode = RampModes.NO_RAMP
+    clip.ramping_mode = AutomationRamp()
     clip._map_notes()
     assert len(clip._prev_notes) == 3
     assert clip._prev_notes[0].start == 1
@@ -83,7 +85,7 @@ def test_map_notes_loop_start_change_edit_last_note():
     notes[-1].pitch = 50
 
     (clip, res) = create_clip_with_notes(notes=notes, prev_notes=prev_notes)
-    clip.ramping_mode = RampModes.NO_RAMP
+    clip.ramping_mode = AutomationRamp()
     clip._map_notes(notes)
     assert len(clip._prev_notes) == 3
     assert clip._prev_notes[0].start == 1
@@ -105,7 +107,7 @@ def test_add_missing_notes():
     notes.pop(1)
 
     (clip, res) = create_clip_with_notes(notes=notes, prev_notes=prev_notes)
-    clip.ramping_mode = RampModes.NO_RAMP
+    clip.ramping_mode = AutomationRamp()
     notes = list(clip._add_missing_notes(notes))
 
     assert len(clip._prev_notes) == 4
@@ -125,7 +127,7 @@ def test_add_missing_notes_loop_start_change():
     notes.pop(1)
 
     (clip, res) = create_clip_with_notes(notes=notes, prev_notes=prev_notes, loop_start=1)
-    clip.ramping_mode = RampModes.NO_RAMP
+    clip.ramping_mode = AutomationRamp()
     notes = list(clip._add_missing_notes(notes))
 
     assert len(clip._prev_notes) == 3
