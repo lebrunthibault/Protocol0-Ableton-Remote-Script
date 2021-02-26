@@ -21,3 +21,6 @@ class SimpleGroupTrack(SimpleTrack):
             seq.add(partial(self.parent.browserManager.load_rack_device, "Mix Base Rack"))
 
         return seq.done()
+
+    def action_restart_and_record(self, *a, **k):
+        pass

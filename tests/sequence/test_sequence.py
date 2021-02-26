@@ -21,14 +21,14 @@ def test_sanity_checks():
         Sequence(log_level=SequenceLogLevel.disabled).done().done()
 
 
-def test_simple_timeout():
+def test_no_timeout():
     seq = Sequence(log_level=SequenceLogLevel.disabled)
-    seq.add(nop, complete_on=lambda: False, name="timeout step", check_timeout=0)
+    seq.add(nop, complete_on=lambda: False, name="timeout step", no_timeout=True)
     seq.add(nop, name="unreachable step")
     seq.done()
 
     assert seq._state == SequenceState.TERMINATED
-    assert seq._errored
+    assert not seq._errored
 
 
 def test_callback_timeout():
@@ -38,14 +38,6 @@ def test_callback_timeout():
             pass
 
     obj = Example()
-
-    seq = Sequence(log_level=SequenceLogLevel.disabled)
-    seq.add(nop, complete_on=obj.listener, name="timeout step", check_timeout=0)
-    seq.add(nop, name="unreachable step")
-    seq.done()
-
-    assert seq._state == SequenceState.TERMINATED
-    assert seq._errored
 
     seq = Sequence(log_level=SequenceLogLevel.disabled)
     seq.add(nop, complete_on=obj.listener, name="timeout step", check_timeout=1)

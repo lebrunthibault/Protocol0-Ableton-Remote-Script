@@ -37,30 +37,34 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
 
     def __init__(self, track, *a, **k):
         # type: (SimpleTrack, Any, Any) -> None
-        self._track = track._track
-        self._view = self._track.view  # type: Live.Track.Track.View
-        self.base_track = track  # type: SimpleTrack
-        super(AbstractTrack, self).__init__(name=self.base_track.name, *a, **k)
-        self.track_name = TrackName(self)
-        self.instrument_track = self.base_track  # type: AbstractTrack
-        self.is_foldable = self._track.is_foldable
-        self.can_be_armed = self._track.can_be_armed
+        super(AbstractTrack, self).__init__(name=track.name, *a, **k)
         self.index = track.index
-        self.group_track = self.parent.songManager._get_simple_track(
-            self._track.group_track) if self._track.group_track else None
-        self.abstract_group_track = None  # type: Optional[AbstractGroupTrack]
+
+        # TRACKS
+        self._track = track._track
+        self.base_track = track  # type: SimpleTrack
+        self.group_track = self.parent.songManager._get_simple_track(self._track.group_track)
+        self.abstract_group_track = None  # type: Optional[AbstractGroupTrack]  # set in SongManager at track processing time
         # here this works because group tracks are at left of inner tracks (but for all_tracks we need a property)
         self.group_tracks = [
                                 self.group_track] + self.group_track.group_tracks if self.group_track else []  # type: List[SimpleTrack]
         self.sub_tracks = []  # type: List[SimpleTrack]
 
+        self.track_name = TrackName(self)
+
+        # DEVICES
         self._instrument = None  # type: Optional[AbstractInstrument]  #  None here so that we don't instantiate the same instrument twice
+        self.instrument_track = self.base_track  # type: AbstractTrack
         self.devices = []  # type: List[Device]
         self.all_devices = []  # type: List[Device]
         self.all_visible_devices = []  # type: List[Device]
         self._devices_listener.subject = self._track
         self._devices_listener()
 
+        # MISC
+        self.is_foldable = self._track.is_foldable
+        self.can_be_armed = self._track.can_be_armed
+        self._view = self._track.view  # type: Live.Track.Track.View
         self.is_midi = self._track.has_midi_input
         self.is_audio = self._track.has_audio_input
         self.base_color = Colors.get(self.base_name, default=self._track.color_index)
@@ -68,6 +72,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self._is_hearable = True
         self._is_duplicated = False  # allows different init when duplicated or when created from e.g. the browser
 
+        # DISPLAY
         self.nav_view = 'track'
         self.push2_selected_main_mode = 'device'
         self.push2_selected_matrix_mode = 'session'

@@ -29,7 +29,7 @@ class InstrumentSimpler(AbstractInstrument):
     def _get_presets_path(self):
         # type: () -> str
         if not self.selected_category:
-            raise Protocol0Error("the track name does not correspond with a sample directory: %s" % self.track.base_name)
+            return
 
         return join(SAMPLE_PATH, self.selected_category)
 

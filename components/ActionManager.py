@@ -16,9 +16,9 @@ class ActionManager(AbstractControlSurfaceComponent):
                      on_press=lambda: setattr(MultiEncoder, "SHIFT_PRESSED", True),
                      on_release=lambda: setattr(MultiEncoder, "SHIFT_PRESSED", False))
 
-        # DUPlicate encoder
+        # FOLD encoder
         MultiEncoder(channel=15, identifier=2,
-                     on_press=self.action_duplicate_track)
+                     on_press=self.action_fold_tracks)
 
         # TRacK encoder
         MultiEncoder(channel=15, identifier=13,
@@ -202,9 +202,9 @@ class ActionManager(AbstractControlSurfaceComponent):
         self.parent.trackAutomationManager.create_automation_group(self.song.selected_parameter)
 
     @button_action()
-    def action_duplicate_track(self):
+    def action_fold_tracks(self):
         """" undo last recording """
-        self.song._song.duplicate_track(self.song.current_track.index)
+        self.song.fold_all_tracks()
 
     @button_action()
     def action_undo(self):

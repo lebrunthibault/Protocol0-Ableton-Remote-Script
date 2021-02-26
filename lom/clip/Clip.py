@@ -46,6 +46,10 @@ class Clip(ClipActionMixin, AbstractObject):
     def _is_recording_listener(self):
         pass
 
+    @p0_subject_slot("name")
+    def _name_listener(self):
+        pass
+
     @staticmethod
     def make(clip_slot):
         # type: (ClipSlot) -> Clip

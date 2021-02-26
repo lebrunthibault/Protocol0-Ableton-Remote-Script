@@ -11,13 +11,14 @@ if TYPE_CHECKING:
 class ExternalSynthClip(Clip):
     def __init__(self, *a, **k):
         super(ExternalSynthClip, self).__init__(*a, **k)
-        self._name_listener.subject = self._clip
-        self._previous_name = self._clip.name
-        self._external_synth_track = self.track.abstract_group_track  # type: ExternalSynthTrack
+        # handled in clip synchronizer now
+        # self._name_listener.subject = self._clip
+        # self._previous_name = self._clip.name
+        # self._external_synth_track = self.track.abstract_group_track  # type: ExternalSynthTrack
 
-    @p0_subject_slot("name")
-    def _name_listener(self):
-        """ linking clip names """
-        other_clips = [clip for clip in self._external_synth_track.audio_track.clips + self._external_synth_track.midi_track.clips if clip != self]
-        [setattr(clip, "name", self.name) for clip in other_clips if clip.name == self._previous_name]
-        self._previous_name = self._clip.name
+    # @p0_subject_slot("name")
+    # def _name_listener(self):
+    #     """ linking clip names """
+    #     other_clips = [clip for clip in self._external_synth_track.audio_track.clips + self._external_synth_track.midi_track.clips if clip != self]
+    #     [setattr(clip, "name", self.name) for clip in other_clips if clip.name == self._previous_name]
+    #     self._previous_name = self._clip.name

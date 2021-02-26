@@ -59,7 +59,7 @@ class SongManager(AbstractControlSurfaceComponent):
         # generate group tracks
         self.song.abstract_group_tracks = list(filter(None,
                                                       [self.parent.trackManager.instantiate_abstract_group_track(track)
-                                                       for track in self.song.simple_tracks if isinstance(track, SimpleGroupTrack)]))
+                                                       for track in self.song.simple_group_tracks]))
 
         self._simple_track_to_abstract_group_track = {}
         for abstract_group_track in self.song.abstract_group_tracks:  # type: AbstractGroupTrack

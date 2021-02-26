@@ -119,7 +119,7 @@ class ClipActionMixin(object):
     def create_automation_envelope(self, parameter):
         # type: (Clip, DeviceParameter) -> Live.Clip.AutomationEnvelope
         if parameter is None:
-            raise Protocol0Error("You passed None to Clip.create_automation_envelope")
+            raise Protocol0Error("You passed None to Clip.create_automation_envelope for clip %s" % self)
         return self._clip.create_automation_envelope(parameter._device_parameter)
 
     def clear_all_envelopes(self):

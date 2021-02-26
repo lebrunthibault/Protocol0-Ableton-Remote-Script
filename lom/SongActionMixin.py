@@ -22,20 +22,28 @@ class SongActionMixin(object):
                 do_if=lambda: selected_track != self.song.selected_track, complete_on=lambda: lambda: self.song.selected_track == selected_track)
         return seq.done()
 
-    def unfocus_all_tracks(self, except_current=True):
+    def unfocus_all_tracks(self):
         # type: (Song, bool) -> None
         self.unarm_all_tracks()
         self.unsolo_all_tracks()
 
-    def unarm_all_tracks(self, except_current=True):
+    def unarm_all_tracks(self):
         # type: (Song, bool) -> None
-        [t.action_unarm() for t in self.abstract_tracks if
-         t.arm and t != (self.current_track if except_current else None)]
+        [t.action_unarm() for t in self.abstract_tracks if t.arm]
 
     def unsolo_all_tracks(self, except_current=True):
         # type: (Song, bool) -> None
         [setattr(t, "solo", False) for t in self.song.abstract_tracks if
          t.solo and t != (self.current_track if except_current else None)]
+
+    def fold_all_tracks(self):
+        # type: (Song, bool) -> None
+        # 1st we fold all except current
+        other_group_tracks = [track for track in self.song.root_tracks if track.is_foldable and track != self.current_track.base_track]
+        if len(filter(None, [not track.is_folded for track in other_group_tracks])):
+            [setattr(track, "is_folded", True) for track in other_group_tracks]
+        else:
+            self.current_track.is_folded = True
 
     @defer
     def reset(self):

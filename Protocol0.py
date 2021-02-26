@@ -76,7 +76,6 @@ class Protocol0(ControlSurface):
 
     def log_debug(self, message, debug=True):
         # type: (str) -> None
-        return
         self._log(message=message, level=LogLevel.DEBUG, debug=debug)
 
     def log_info(self, message, debug=False):

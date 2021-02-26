@@ -140,10 +140,6 @@ class SequenceStep(AbstractObject):
                 self._terminate()
             return
 
-        if self._check_timeout and self._check_count == self._check_timeout:
-            self._step_timed_out()
-            return
-
         if _has_callback_queue(self._complete_on):
             return self._add_callback_on_listener(self._complete_on)
         else:
@@ -154,13 +150,17 @@ class SequenceStep(AbstractObject):
             if _has_callback_queue(check_res):  # allows async linking to a listener
                 return self._add_callback_on_listener(check_res)
 
-            if check_res:
+            if check_res or self._check_timeout == 0:
                 self._terminate()
             else:
+                if self._check_count == self._check_timeout:
+                    self._step_timed_out()
+                    return
                 self.parent._wait(pow(2, self._check_count), self._check_for_step_completion)
                 self._check_count += 1
 
     def _add_callback_on_listener(self, listener):
+        self.parent.log_debug("_add_callback_on_listener : %s, %s, %s" % (self, self._seq, self._check_timeout))
         if not self._check_timeout:
             listener.add_callback(self._terminate)
         else:
@@ -200,7 +200,8 @@ class SequenceStep(AbstractObject):
             self._complete_on.remove_callback(self._callback_timeout)
 
         if self._log_level >= SequenceLogLevel.info:
-            self.parent.log_error("timeout completion error on %s" % self, debug=False)
+            self.parent.log_error("timeout completion error on %s %s" % (self, self._seq), debug=False)
+            self.parent.log_debug(_has_callback_queue(self._complete_on))
 
         self._errored = True
         self._terminate()

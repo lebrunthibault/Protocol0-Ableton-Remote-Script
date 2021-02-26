@@ -85,6 +85,11 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             return None
 
     @property
+    def last_clip(self):
+        # type: () -> Optional[Clip]
+        return self.clips[-1] if len(self.clips) else None
+
+    @property
     def arm(self):
         # type: () -> bool
         return self.can_be_armed and self._track.arm

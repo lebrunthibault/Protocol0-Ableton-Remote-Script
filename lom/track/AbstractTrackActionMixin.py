@@ -101,9 +101,9 @@ class AbstractTrackActionMixin(object):
 
     @abstractmethod
     def action_record_all(self):
-        # type: () -> None
+        # type: () -> Sequence
         """ this records normally on a simple track and both midi and audio on a group track """
-        pass
+        raise NotImplementedError
 
     def action_record_audio_only(self, *a, **k):
         # type: (AbstractTrack) -> None

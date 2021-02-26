@@ -12,6 +12,7 @@ from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
+from a_protocol_0.lom.track.simple_track.SimpleGroupTrack import SimpleGroupTrack
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import is_change_deferrable
 from a_protocol_0.utils.utils import flatten
@@ -70,6 +71,11 @@ class Song(SongActionMixin, AbstractObject):
     def root_tracks(self):
         # type: () -> List[SimpleTrack]
         return [track for track in self.simple_tracks if not track.group_track]
+
+    @property
+    def simple_group_tracks(self):
+        # type: () -> List[SimpleGroupTrack]
+        return [track for track in self.simple_tracks if isinstance(track, SimpleGroupTrack)]
 
     @property
     def selected_tracks(self):

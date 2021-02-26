@@ -25,6 +25,7 @@ class ClipSlot(AbstractObject):
         self.has_clip = clip_slot.has_clip
         self.clip = None  # type: Clip
         self._has_clip_listener.subject = self._clip_slot
+        self._is_triggered_listener.subject = self._clip_slot
         self._map_clip()
 
     def __nonzero__(self):
@@ -66,6 +67,10 @@ class ClipSlot(AbstractObject):
             if other_clip_slot:
                 self.track.track_name.set(playing_slot_index=other_clip_slot.index)
 
+    @p0_subject_slot("is_triggered")
+    def _is_triggered_listener(self):
+        pass
+
     def delete_clip(self):
         seq = Sequence()
         if self._clip_slot.has_clip:
@@ -83,13 +88,24 @@ class ClipSlot(AbstractObject):
         # type: () -> bool
         return self._clip_slot.is_playing
 
+    def record(self):
+        seq = Sequence()
+        self.parent.show_message("Starting recording of %d bars" % self.song.recording_bar_count)
+        seq.add(partial(self.fire, record_length=self.parent.utilsManager.get_beat_time(self.song.recording_bar_count)),
+                complete_on=self._has_clip_listener)
+        seq.add(lambda: setattr(self.clip, "name", "%s bars" % self.song.recording_bar_count))
+        seq.add(complete_on=lambda: self.clip._is_recording_listener, no_timeout=True, name="awaiting clip recording end")
+        return seq.done()
+
     def fire(self, record_length):
         # type: (int) -> None
         self._clip_slot.fire(record_length=record_length)
 
     def duplicate_clip_to(self, clip_slot):
         # type: (ClipSlot) -> None
-        self._clip_slot.duplicate_clip_to(clip_slot._clip_slot)
+        seq = Sequence()
+        seq.add(partial(self._clip_slot.duplicate_clip_to, clip_slot._clip_slot), complete_on=clip_slot._has_clip_listener)
+        return seq.done()
 
     def insert_dummy_clip(self):
         seq = Sequence()

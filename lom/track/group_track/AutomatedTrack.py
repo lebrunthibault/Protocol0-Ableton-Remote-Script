@@ -74,6 +74,9 @@ class AutomatedTrack(AbstractGroupTrack):
     def action_switch_monitoring(self): pass
 
     @forward_property('wrapped_track')
+    def action_restart_and_record(self, *a, **k): pass
+
+    @forward_property('wrapped_track')
     def action_record_all(self): pass
 
     @forward_property('wrapped_track')
