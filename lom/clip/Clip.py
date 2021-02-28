@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, List
 
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.Note import Note
+from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
 from a_protocol_0.lom.clip.ClipActionMixin import ClipActionMixin
 from a_protocol_0.utils.decorators import p0_subject_slot, is_change_deferrable
 
@@ -13,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class Clip(ClipActionMixin, AbstractObject):
-    __subject_events__ = ('notes', 'name',)
+    __subject_events__ = ('notes', 'name', 'playing_status', 'is_triggered')
 
     def __init__(self, clip_slot, *a, **k):
         # type: (ClipSlot) -> None
@@ -28,12 +29,30 @@ class Clip(ClipActionMixin, AbstractObject):
         self._previous_name = self._clip.name
         self._notes_listener.subject = self._clip
         self._is_recording_listener.subject = self._clip
-        # memorizing notes for note change comparison
-        # self._prev_notes = []  # type: List[Note]  # here: trying to use get_notes results in a bug caused by the debounce set on notes_listener
+        self._playing_status_listener.subject = self._clip
+        self.color = self.track.base_color
+
+        # NOTES
+        # storing notes for note change comparison
         self._prev_notes = self.get_notes() if self.is_midi_clip else []  # type: List[Note]
         self._added_note = None  # type: Note
         self._is_updating_notes = False
-        self.color = self.track.base_color
+
+        # Clip sync
+        self._clip_synchronizer = None  # type: ObjectSynchronizer
+        self.parent.defer(self.link_clip)  # deferring
+
+    def link_clip(self):
+        if self.clip_slot.linked_clip_slot and self.clip_slot.linked_clip_slot.clip:
+            self.clip_synchronizer = ObjectSynchronizer(
+                self.clip_slot.clip, self.clip_slot.linked_clip_slot.clip, "_clip",
+                ["name", "looping", "loop_start", "loop_end",
+                 "start_marker", "end_marker"], bidirectional=False)
+
+    @property
+    def linked_clip(self):
+        # type: () -> Clip
+        return self.clip_slot.linked_clip_slot.clip if self.clip_slot.linked_clip_slot else None
 
     def _on_selected(self):
         pass
@@ -50,22 +69,23 @@ class Clip(ClipActionMixin, AbstractObject):
     def _name_listener(self):
         pass
 
+    @p0_subject_slot("playing_status")
+    def _playing_status_listener(self):
+        # noinspection PyUnresolvedReferences
+        self.notify_playing_status()
+
     @staticmethod
     def make(clip_slot):
         # type: (ClipSlot) -> Clip
         from a_protocol_0.lom.clip_slot.AutomationMidiClipSlot import AutomationMidiClipSlot
-        from a_protocol_0.lom.clip_slot.AutomationAudioClipSlot import AutomationAudioClipSlot
-        from a_protocol_0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+        from a_protocol_0.lom.track.simple_track.AutomationAudioTrack import AutomationAudioTrack
+        from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
+        from a_protocol_0.lom.clip.AutomationAudioClip import AutomationAudioClip
 
         if isinstance(clip_slot, AutomationMidiClipSlot):
-            from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
             return AutomationMidiClip(clip_slot=clip_slot)
-        elif isinstance(clip_slot, AutomationAudioClipSlot):
-            from a_protocol_0.lom.clip.AutomationAudioClip import AutomationAudioClip
+        elif isinstance(clip_slot.track, AutomationAudioTrack):
             return AutomationAudioClip(clip_slot=clip_slot)
-        elif isinstance(clip_slot.track.abstract_group_track, ExternalSynthTrack):
-            from a_protocol_0.lom.clip.ExternalSynthClip import ExternalSynthClip
-            return ExternalSynthClip(clip_slot=clip_slot)
         else:
             return Clip(clip_slot=clip_slot)
 
@@ -78,7 +98,7 @@ class Clip(ClipActionMixin, AbstractObject):
     @is_change_deferrable
     def name(self, name):
         # type: (str) -> None
-        if getattr(self, "_clip", None) and str(name) != self._clip.name:
+        if self._clip and str(name) != self._clip.name:
             self._clip.name = str(name)
 
     @property
@@ -104,7 +124,8 @@ class Clip(ClipActionMixin, AbstractObject):
     @is_change_deferrable
     def warping(self, warping):
         # type: (float) -> None
-        self._clip.warping = warping
+        if self._clip:
+            self._clip.warping = warping
 
     @property
     def looping(self):
@@ -115,7 +136,8 @@ class Clip(ClipActionMixin, AbstractObject):
     @is_change_deferrable
     def looping(self, looping):
         # type: (float) -> None
-        self._clip.looping = looping
+        if self._clip:
+            self._clip.looping = looping
 
     @property
     def loop_start(self):
@@ -126,7 +148,8 @@ class Clip(ClipActionMixin, AbstractObject):
     @is_change_deferrable
     def loop_start(self, loop_start):
         # type: (float) -> None
-        self._clip.loop_start = loop_start
+        if self._clip:
+            self._clip.loop_start = loop_start
 
     @property
     def loop_end(self):
@@ -137,7 +160,8 @@ class Clip(ClipActionMixin, AbstractObject):
     @is_change_deferrable
     def loop_end(self, loop_end):
         # type: (float) -> None
-        self._clip.loop_end = loop_end
+        if self._clip:
+            self._clip.loop_end = loop_end
 
     @property
     def start_marker(self):
@@ -148,7 +172,8 @@ class Clip(ClipActionMixin, AbstractObject):
     @is_change_deferrable
     def start_marker(self, start_marker):
         # type: (float) -> None
-        self._clip.start_marker = start_marker
+        if self._clip:
+            self._clip.start_marker = start_marker
 
     @property
     def end_marker(self):
@@ -159,7 +184,8 @@ class Clip(ClipActionMixin, AbstractObject):
     @is_change_deferrable
     def end_marker(self, end_marker):
         # type: (float) -> None
-        self._clip.end_marker = end_marker
+        if self._clip:
+            self._clip.end_marker = end_marker
 
     @property
     def color(self):
@@ -207,4 +233,9 @@ class Clip(ClipActionMixin, AbstractObject):
     @warp_mode.setter
     @is_change_deferrable
     def warp_mode(self, warp_mode):
-        self._clip.warp_mode = warp_mode
+        if self._clip:
+            self._clip.warp_mode = warp_mode
+
+    def disconnect(self):
+        if self._clip_synchronizer:
+            self._clip_synchronizer.disconnect()

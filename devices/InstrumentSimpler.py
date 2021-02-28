@@ -1,12 +1,11 @@
 from os import listdir
 from os.path import join
 
+from _Framework.Util import find_if
 from typing import Optional
 
-from _Framework.Util import find_if
 from a_protocol_0.consts import SAMPLE_PATH
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
-from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.utils.decorators import debounce
 from a_protocol_0.utils.utils import scroll_values
 

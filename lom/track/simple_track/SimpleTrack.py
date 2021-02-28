@@ -11,8 +11,6 @@ from a_protocol_0.utils.decorators import defer
 
 
 class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
-    __subject_events__ = ('clip_slots',)
-
     def __init__(self, track, index, *a, **k):
         # type: (Live.Track.Track, int) -> None
         self._track = track
@@ -20,8 +18,9 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         super(SimpleTrack, self).__init__(track=self, *a, **k)
         if self.group_track:
             self.group_track.sub_tracks.append(self)
-        self.clip_slots = []  # type: List[ClipSlot]
-        self._clip_slots_listener.subject = self._track
+        self.linked_track = None  # type: Optional[SimpleTrack]
+        self.clip_slots = None  # type: List[ClipSlot]
+        # self._clip_slots_listener.subject = self._track
         self._playing_slot_index_listener.subject = self._track
         self.instrument = self.parent.deviceManager.make_instrument_from_simple_track(track=self)
         if self.is_midi:  # could later create a SimpleMidiTrack class if necessary
@@ -31,6 +30,8 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # only used for automated tracks
         self.next_automated_audio_track = None  # type: Optional[SimpleTrack]
         self.previous_automated_audio_track = None  # type: Optional[SimpleTrack]
+        self.clip_slots = [ClipSlot.make(clip_slot=clip_slot, index=index, track=self) for (index, clip_slot) in
+                           enumerate(list(self._track.clip_slots))]
 
     def __hash__(self):
         return self.index
@@ -39,13 +40,11 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         """ do specific action when track is selected """
         pass
 
-    @subject_slot("clip_slots")
-    def _clip_slots_listener(self):
-        # type: (SimpleTrack) -> None
-        self.clip_slots = [ClipSlot.make(clip_slot=clip_slot, index=index, track=self) for (index, clip_slot) in
-                           enumerate(list(self._track.clip_slots))]
-        # noinspection PyUnresolvedReferences
-        self.notify_clip_slots()
+    # @subject_slot("clip_slots")
+    # def _clip_slots_listener(self):
+    #     # type: (SimpleTrack) -> None
+    #     self.clip_slots = [ClipSlot.make(clip_slot=clip_slot, index=index, track=self) for (index, clip_slot) in
+    #                        enumerate(list(self._track.clip_slots))]
 
     @subject_slot("playing_slot_index")
     @defer
@@ -113,12 +112,12 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             index = next(iter([cs.index for cs in self._empty_clip_slots if cs.index > self.clips[-1].index]), None)
         elif len(self._empty_clip_slots):
             index = self._empty_clip_slots[0].index
+
         if index is None:
             self.song.create_scene()
-            index = len(self.song.scenes) - 1
-
-        return index
+            return len(self.song.scenes) - 1
 
     def disconnect(self):
         super(SimpleTrack, self).disconnect()
-        [clip_slot.disconnect() for clip_slot in self.clip_slots]
+        if self.clip_slots:
+            [clip_slot.disconnect() for clip_slot in self.clip_slots]

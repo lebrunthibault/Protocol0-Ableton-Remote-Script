@@ -7,7 +7,6 @@ from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceC
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
-from a_protocol_0.lom.track.simple_track.SimpleGroupTrack import SimpleGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.utils.decorators import p0_subject_slot, has_callback_queue, retry
 
@@ -27,7 +26,7 @@ class SongManager(AbstractControlSurfaceComponent):
         self._tracks_listener()
         self._highlighted_clip_slot = self.song.highlighted_clip_slot
         self._highlighted_clip_slot_poller()
-        self.song.reset()
+        self.parent._wait(2, self.song.reset)
 
     @has_callback_queue
     def on_selected_track_changed(self):
@@ -37,6 +36,7 @@ class SongManager(AbstractControlSurfaceComponent):
         self.notify_selected_track()
 
     def on_scene_list_changed(self):
+        self._tracks_listener()
         # noinspection PyUnresolvedReferences
         self.notify_scene_list()
 
@@ -49,14 +49,14 @@ class SongManager(AbstractControlSurfaceComponent):
 
         [track.disconnect() for track in self.song.simple_tracks + self.song.abstract_group_tracks]
 
-        # generate simple tracks
+        # 1. Generate simple tracks
         self.song.simple_tracks = []
         for i, track in enumerate(list(self.song._song.tracks)):
             simple_track = self.parent.trackManager.instantiate_simple_track(track=track, index=i)
             self._live_track_to_simple_track[track] = simple_track
             self.song.simple_tracks.append(simple_track)
 
-        # generate group tracks
+        # 2. Generate abstract group tracks
         self.song.abstract_group_tracks = list(filter(None,
                                                       [self.parent.trackManager.instantiate_abstract_group_track(track)
                                                        for track in self.song.simple_group_tracks]))
@@ -66,17 +66,22 @@ class SongManager(AbstractControlSurfaceComponent):
             for abstract_group_sub_track in abstract_group_track.all_tracks:
                 self._simple_track_to_abstract_group_track.update({abstract_group_sub_track: abstract_group_track})
 
+        # 3. Populate abstract_tracks property and track.abstract_group_track
         abstract_tracks = collections.OrderedDict()
         for track in self.song.simple_tracks:  # type: SimpleTrack
-            if track in self._simple_track_to_abstract_group_track:
-                track.abstract_group_track = self._simple_track_to_abstract_group_track[track]
-            abstract_tracks[track.abstract_group_track or track] = None
+            # first case is : AutomatedTrack wrapping ExternalSynthTrack
+            abstract_track = getattr(track.abstract_group_track, "abstract_group_track", None) or track.abstract_group_track or track
+            abstract_tracks[abstract_track] = None
         self.song.abstract_tracks = abstract_tracks.keys()
 
+        # 4. Set the currently selected track
         self._set_current_track()
 
-        # doing this now so that clips are instantiated based on abstract_group_tracks
-        [track._clip_slots_listener() for track in self.song.simple_tracks]
+        # 5. Generate clip_slots. tracks and clip_slots have access to all tracks and abstract_group_tracks
+        # [track._clip_slots_listener() for track in self.song.simple_tracks]
+
+        # 6. Generate clips. tracks, clip_slots and clips have access to all tracks, abstract_group_tracks and clip_slots
+        [clip_slot._has_clip_listener() for track in self.song.simple_tracks for clip_slot in track.clip_slots]
 
         self.parent.log_info("SongManager : mapped tracks")
 

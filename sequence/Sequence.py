@@ -49,7 +49,7 @@ class Sequence(AbstractObject):
 
     DISABLE_LOGGING = False
 
-    def __init__(self, wait=0, log_level=SequenceLogLevel.debug, debug=True, name=None, bypass_errors=False, *a, **k):
+    def __init__(self, wait=0, log_level=SequenceLogLevel.debug, debug=True, name=None, bypass_errors=False, silent=False, *a, **k):
         super(Sequence, self).__init__(*a, **k)
         self._steps = deque()  # type: [SequenceStep]
         self._current_step = None  # type: SequenceStep
@@ -59,8 +59,8 @@ class Sequence(AbstractObject):
         self._start_at = None  # type: float
         self._end_at = None  # type: float
         self._duration = None  # type: float
-        self._log_level = SequenceLogLevel.disabled if self.DISABLE_LOGGING else log_level
-        self._debug = (log_level == SequenceLogLevel.debug) and debug and not self.DISABLE_LOGGING
+        self._log_level = SequenceLogLevel.disabled if (self.DISABLE_LOGGING or silent) else log_level
+        self._debug = (self._log_level == SequenceLogLevel.debug) and debug and not self.DISABLE_LOGGING
         self._early_returned = False
         self._errored = False
         self._bypass_errors = bypass_errors
@@ -74,7 +74,6 @@ class Sequence(AbstractObject):
         self.name = name
         self._done_called = False
         self.terminated_callback = None  # type: callable
-
         # expecting the method to execute in less than one tick time
         self.parent.defer(self._done_called_check)
 
@@ -176,7 +175,7 @@ class Sequence(AbstractObject):
 
             if self._errored:
                 self.parent.log_error(message, debug=False)
-            else:
+            elif self._debug:
                 self.parent.log_info(message, debug=False)
 
         # noinspection PyUnresolvedReferences

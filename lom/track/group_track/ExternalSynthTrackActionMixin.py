@@ -1,12 +1,10 @@
-import time
 from functools import partial
-import Live
 
+import Live
 from typing import TYPE_CHECKING
 
 from a_protocol_0.devices.InstrumentMinitaur import InstrumentMinitaur
 from a_protocol_0.lom.Colors import Colors
-from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
 from a_protocol_0.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -49,7 +47,6 @@ class ExternalSynthTrackActionMixin(object):
             partial(midi_clip_slot.record),
             partial(audio_clip_slot.record),
         ])
-        seq.add(lambda: setattr(midi_clip_slot, "_clip_synchronizer", ObjectSynchronizer(midi_clip_slot.clip, audio_clip_slot.clip, "_clip", ["name"])))
         return seq.done()
 
     def action_record_audio_only(self, overwrite=False):
@@ -63,22 +60,7 @@ class ExternalSynthTrackActionMixin(object):
         seq.add(partial(self.midi_track.playable_clip.clip_slot.duplicate_clip_to, midi_clip_slot))
         seq.add(lambda: setattr(midi_clip_slot.clip, "start_marker", 0))
         seq.add(lambda: setattr(midi_clip_slot.clip, "is_playing", True))
-        #
-        #
-        # clip_slot_index = self.midi_track.playable_clip.index if not self.audio_track.clip_slots[
-        #     self.midi_track.playable_clip.index].has_clip else None
-        #
-        #
-        # if overwrite:
-        #     last_linked_clip = next(
-        #         reversed([clip for clip in self.audio_track.clips if clip.name == self.midi_track.playable_clip.name]), None)
-        #     if last_linked_clip:
-        #         clip_slot_index = last_linked_clip.index
-        #         seq.add(last_linked_clip.delete, wait=2)
-
-        # seq.add(lambda: setattr(self.midi_track.playable_clip, "is_playing", True))
         seq.add(audio_clip_slot.record)
-        seq.add(lambda: setattr(midi_clip_slot, "_clip_synchronizer", ObjectSynchronizer(midi_clip_slot.clip, audio_clip_slot.clip, "_clip", ["name"])))
         return seq.done()
 
     def action_undo_track(self):

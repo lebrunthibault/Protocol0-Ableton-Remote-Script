@@ -21,21 +21,13 @@ class AutomationMidiTrack(AbstractAutomationTrack):
         # type: (DeviceParameter) -> None
         super(AutomationMidiTrack, self).__init__(*a, **k)
         # this works here because the tracks are built left to right
+        self.linked_track = None  # type: AutomationAudioTrack
+
         self.clip_slots = self.clip_slots  # type: List[AutomationMidiClipSlot]
-        self.automated_audio_track = None  # type: AutomationAudioTrack
         self.push2_selected_main_mode = 'clip'
         self.push2_selected_matrix_mode = 'note'
         self.push2_selected_instrument_mode = 'split_melodic_sequencer'
         self.editing_clip = None  # type: AutomationMidiClip
-        self.automated_audio_track = None  # type: AutomationAudioTrack
-
-    def _connect(self, track):
-        # type: (AutomationAudioTrack) -> None
-        first_connection = self.automated_audio_track is None
-        self.automated_audio_track = track
-        self.automated_audio_track._connect(self)
-        if first_connection and len(self.clips) == 0:
-            self._create_base_clips()
 
     def _added_track_init(self):
         """ this can be called once, when the Live track is created """
@@ -48,18 +40,12 @@ class AutomationMidiTrack(AbstractAutomationTrack):
 
     def _create_base_clips(self):
         velocity_patterns = OrderedDict()
-        name = self.automated_audio_track.automated_parameter.full_name
-        velocity_patterns["%s (*,*)" % name] = [self.automated_audio_track.automated_parameter.get_midi_value_from_value()]
+        clip_name = "%s (*,*)" % self.linked_track.automated_parameter.full_name
+        clip_velocities = [self.linked_track.automated_parameter.get_midi_value_from_value()]
 
         seq = Sequence()
-        clip_creation_steps = []
-        for i, (clip_name, velocities) in enumerate(velocity_patterns.items()):
-            seq.add(partial(self._create_base_clip, clip_slot_index=i, name=clip_name, velocities=velocities))
-            # the following creates a bug with push when adding multiple clips
-            # clip_creation_steps.append(partial(self._create_base_clip, clip_slot_index=i, name=clip_name, velocities=velocities))
-
-        # seq.add(clip_creation_steps)
-        seq.add(lambda: self.automated_audio_track.play())
+        seq.add(partial(self._create_base_clip, clip_slot_index=self.song.selected_scene_index, name=clip_name, velocities=clip_velocities))
+        seq.add(lambda: self.linked_track.play())
 
         return seq.done()
 

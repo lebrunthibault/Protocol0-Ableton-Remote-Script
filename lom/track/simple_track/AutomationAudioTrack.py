@@ -1,9 +1,8 @@
 from functools import partial
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
-from a_protocol_0.lom.clip_slot.AutomationAudioClipSlot import AutomationAudioClipSlot
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.track.simple_track.AbstractAutomationTrack import AbstractAutomationTrack
@@ -20,19 +19,16 @@ class AutomationAudioTrack(AbstractAutomationTrack):
     def __init__(self, *a, **k):
         # type: (DeviceParameter) -> None
         super(AutomationAudioTrack, self).__init__(*a, **k)
-        self.clip_slots = self.clip_slots  # type: List[AutomationAudioClipSlot]
         self.automated_device = None  # type: Device
         self.automated_parameter = None  # type: DeviceParameter
+        self.linked_track = None  # type: AutomationMidiTrack
         self.abstract_group_track = self.abstract_group_track  # type: AutomatedTrack
+
         self._mute_listener.subject = self._track
         self._solo_listener.subject = self._track
         self._current_monitoring_state_listener.subject = self._track
-        self.automated_midi_track = None  # type: AutomationMidiTrack
-        self.push2_selected_main_mode = 'device'
 
-    def _connect(self, track):
-        # type: (AutomationMidiTrack) -> None
-        self.automated_midi_track = track
+        self.push2_selected_main_mode = 'device'
 
     def _added_track_init(self):
         if self.group_track is None:
@@ -44,7 +40,7 @@ class AutomationAudioTrack(AbstractAutomationTrack):
         parameter_info = AbstractAutomationTrack.get_parameter_info(self.base_name)
         seq.add(partial(self.parent.browserManager.load_any_device, parameter_info.device_type, parameter_info.device_name))
         seq.add(partial(self.set_input_routing_type, None))
-        seq.add(self._get_automated_device_and_parameter)
+        seq.add(self._set_automated_device_and_parameter)
 
         return seq.done()
 
@@ -52,7 +48,7 @@ class AutomationAudioTrack(AbstractAutomationTrack):
         """ do specific action when track is selected """
         pass
 
-    def _get_automated_device_and_parameter(self):
+    def _set_automated_device_and_parameter(self):
         (device, parameter) = self.get_device_and_parameter()
         self.automated_device = device
         self.automated_parameter = parameter

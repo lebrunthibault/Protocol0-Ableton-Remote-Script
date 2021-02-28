@@ -19,7 +19,7 @@ class SequenceStep(AbstractObject):
                  do_if=None, do_if_not=None, return_if=None, return_if_not=None, check_timeout=5, silent=False, *a, **k):
         """ the tick is 100 ms """
         super(SequenceStep, self).__init__(*a, **k)
-        self._seq = sequence
+        self._seq = sequence  # type: Sequence
         self._log_level = log_level
         self._debug = log_level == SequenceLogLevel.debug
         self._callable = func
@@ -160,7 +160,6 @@ class SequenceStep(AbstractObject):
                 self._check_count += 1
 
     def _add_callback_on_listener(self, listener):
-        self.parent.log_debug("_add_callback_on_listener : %s, %s, %s" % (self, self._seq, self._check_timeout))
         if not self._check_timeout:
             listener.add_callback(self._terminate)
         else:
@@ -201,7 +200,6 @@ class SequenceStep(AbstractObject):
 
         if self._log_level >= SequenceLogLevel.info:
             self.parent.log_error("timeout completion error on %s %s" % (self, self._seq), debug=False)
-            self.parent.log_debug(_has_callback_queue(self._complete_on))
 
         self._errored = True
         self._terminate()

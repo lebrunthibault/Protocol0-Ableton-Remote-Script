@@ -83,7 +83,7 @@ class SongActionMixin(object):
 
     def create_scene(self, scene_index=None):
         # type: (Song, Optional[int]) -> None
-        self.song._view.selected_scene = self._song.create_scene(scene_index or len(self.song.scenes))
+        self.song.selected_scene = self._song.create_scene(scene_index or len(self.song.scenes))
 
     def select_device(self, device):
         # type: (Song, Device) -> None

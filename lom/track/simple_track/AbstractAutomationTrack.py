@@ -1,7 +1,6 @@
 from collections import namedtuple
 
-import Live
-from typing import Tuple, NamedTuple, Optional, Any
+from typing import Tuple, Optional, Any
 
 from a_protocol_0.consts import AUTOMATION_TRACK_NAME
 from a_protocol_0.lom.device.AutomationDeviceType import AutomationDeviceType
@@ -23,7 +22,7 @@ class AbstractAutomationTrack(SimpleTrack):
             raise RuntimeError("Plugin devices cannot be automated, use a rack instead: %s" % parameter.device)
 
         return "%s:%s:%s:%s" % (
-        parameter.name, parameter.device.name, parameter.device.device_type, AUTOMATION_TRACK_NAME)
+            parameter.name, parameter.device.name, parameter.device.device_type, AUTOMATION_TRACK_NAME)
 
     def get_device_and_parameter(self):
         # type: () -> Tuple[Device, DeviceParameter]

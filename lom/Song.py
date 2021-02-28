@@ -55,6 +55,21 @@ class Song(SongActionMixin, AbstractObject):
         # type: () -> List[Any]
         return self._song.scenes
 
+    @property
+    def selected_scene(self):
+        # type: () -> Live.Scene.Scene
+        return self.song._view.selected_scene
+
+    @property
+    def selected_scene_index(self):
+        # type: () -> Live.Scene.Scene
+        return self.song.scenes.index(self.song._view.selected_scene)
+
+    @property
+    def selected_scene(self, selected_scene):
+        # type: (Live.Scene.Scene) -> None
+        self.song._view.selected_scene = selected_scene
+
     def next_track(self, increment=1, base_track=None):
         # type: (int, SimpleTrack) -> SimpleTrack
         base_track = base_track or self.selected_track

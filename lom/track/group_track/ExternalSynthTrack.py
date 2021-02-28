@@ -7,6 +7,7 @@ from _Framework.Util import forward_property
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.group_track.ExternalSynthTrackActionMixin import ExternalSynthTrackActionMixin
+from a_protocol_0.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
 from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.utils import find_last
@@ -23,10 +24,19 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self.midi_track = find_last(lambda t: t.is_midi, self.sub_tracks)  # type: SimpleTrack
         self.audio_track = find_last(lambda t: t.is_audio, self.sub_tracks)  # type: SimpleTrack
         self.instrument_track = self.midi_track
+        self.midi_track.abstract_group_track = self.audio_track.abstract_group_track = self
+
         self.midi_track.is_scrollable = self.audio_track.is_scrollable = False
+
         self._instrument_listener.subject = self.instrument_track
         self._instrument_listener()
+
+        self.midi_track.linked_track = self.audio_track
+        self.audio_track.linked_track = self.midi_track
         self._midi_track_synchronizer = ObjectSynchronizer(self.base_track, self.midi_track, "_track", ["solo"])
+
+        for midi_clip_slot, audio_clip_slot in itertools.izip(self.midi_track.clip_slots, self.audio_track.clip_slots)]:
+            ClipSlotSynchronizer(midi_clip_slot, audio_clip_slot)
 
     @property
     def arm(self):

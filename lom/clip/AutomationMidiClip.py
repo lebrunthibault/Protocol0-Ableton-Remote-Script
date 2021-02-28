@@ -6,10 +6,8 @@ from itertools import chain
 from typing import List, TYPE_CHECKING
 
 from a_protocol_0.lom.Note import Note
-from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
 from a_protocol_0.lom.clip.AbstractAutomationClip import AbstractAutomationClip
 from a_protocol_0.lom.clip.AutomationRamp import AutomationRampMode, AutomationRamp
-from a_protocol_0.lom.clip.ClipSynchronizer import ClipSynchronizer
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import debounce, p0_subject_slot
 
@@ -17,7 +15,6 @@ if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMidiTrack
     from a_protocol_0.lom.clip_slot.AutomationMidiClipSlot import AutomationMidiClipSlot
-    from a_protocol_0.lom.clip.AutomationAudioClip import AutomationAudioClip
 
 
 class AutomationMidiClip(AbstractAutomationClip):
@@ -28,34 +25,14 @@ class AutomationMidiClip(AbstractAutomationClip):
         super(AutomationMidiClip, self).__init__(*a, **k)
         self.track = self.track  # type: AutomationMidiTrack
         self.clip_slot = self.clip_slot  # type: AutomationMidiClipSlot
-        self.automated_audio_clip = None  # type: AutomationAudioClip
         self._name_listener.subject = self._clip
         self._loop_start_listener.subject = self._clip
         self._loop_end_listener.subject = self._clip
         self._notes_listener.subject = self._clip
-        self._clip_synchronizer = None  # type: ClipSynchronizer
 
     def _on_selected(self):
         self.view.hide_envelope()
         self.view.show_loop()
-
-    @property
-    def linked_clip(self):
-        # type: () -> AbstractAutomationClip
-        return self.automated_audio_clip
-
-    def _connect(self, audio_clip):
-        # type: (AutomationAudioClip) -> None
-        if not audio_clip:
-            return  # can happen when deleting /restoring manually clips
-        self.automated_audio_clip = audio_clip
-        self._playing_status_linked_clip_listener.subject = audio_clip._clip
-        self._is_triggered_linked_clip_listener.subject = audio_clip.clip_slot._clip_slot
-        self._clip_synchronizer = ObjectSynchronizer(self, audio_clip, "_clip",
-                                                     ["name", "looping", "loop_start", "loop_end", "start_marker",
-                                                      "end_marker"])
-        self._track_synchronizer = ObjectSynchronizer(self.track, audio_clip.track, "_track", ["mute", "solo"])
-        return audio_clip._connect(self)
 
     @p0_subject_slot("loop_start")
     def _loop_start_listener(self):
@@ -74,8 +51,8 @@ class AutomationMidiClip(AbstractAutomationClip):
 
     @p0_subject_slot("name")
     def _name_listener(self):
-        if not self.name and self.track.automated_audio_track:
-            self.clip_name.set(base_name=self.track.automated_audio_track.automated_parameter.full_name,
+        if not self.name and self.track.linked_track:
+            self.clip_name.set(base_name=self.track.linked_track.automated_parameter.full_name,
                                ramp_mode_up=AutomationRamp(),
                                ramp_mode_down=AutomationRamp())
         self._map_notes()
@@ -102,7 +79,7 @@ class AutomationMidiClip(AbstractAutomationClip):
         pitch_or_vel_changes = self.notes_changed(notes, ["pitch", "velocity"])
         # self.parent.log_debug("notes: %s" % notes)
         # self.parent.log_debug("_prev_notes: %s" % self._prev_notes)
-        self.parent.log_debug("pitch_or_vel_changes: %s" % pitch_or_vel_changes)
+        # self.parent.log_debug("pitch_or_vel_changes: %s" % pitch_or_vel_changes)
         if len(pitch_or_vel_changes):
             self._prev_notes = notes
             return self._map_single_notes(pitch_or_vel_changes)
@@ -113,7 +90,7 @@ class AutomationMidiClip(AbstractAutomationClip):
         base_prev_notes = self._filter_ramp_notes(self._prev_notes)
         if len(base_notes) > len(base_prev_notes) and len(base_prev_notes):
             added_notes = list(set(base_notes) - set(base_prev_notes))
-            self.parent.log_debug("added_notes: %s" % added_notes)
+            # self.parent.log_debug("added_notes: %s" % added_notes)
 
             if len(self._prev_notes) == 0:
                 notes = [added_notes[0]]
@@ -124,7 +101,7 @@ class AutomationMidiClip(AbstractAutomationClip):
 
             notes.sort(key=lambda x: x.start)
 
-        self.parent.log_debug("self._added_note: %s" % self._added_note)
+        # self.parent.log_debug("self._added_note: %s" % self._added_note)
 
         note_transforms = [
             self._filter_out_of_range_notes,
@@ -141,10 +118,10 @@ class AutomationMidiClip(AbstractAutomationClip):
             notes = list(set(note_transform(notes)))
             if len(notes) == 0:
                 raise RuntimeError("Problem after transform %s, no notes left" % note_transform.__name__)
-            self.parent.log_debug("_-__-_-_-_-_-_-_")
-            self.parent.log_debug("after transform %s" % note_transform.__name__)
-            self.parent.log_debug(notes)
-            self.parent.log_debug("_-__-_-_-_-_-_-_")
+            # self.parent.log_debug("_-__-_-_-_-_-_-_")
+            # self.parent.log_debug("after transform %s" % note_transform.__name__)
+            # self.parent.log_debug(notes)
+            # self.parent.log_debug("_-__-_-_-_-_-_-_")
 
         notes.sort(key=lambda x: x.start)
         [setattr(note, "pitch", note.velocity) for note in notes]
@@ -342,6 +319,3 @@ class AutomationMidiClip(AbstractAutomationClip):
             ramp_note.velocity = round(velocity_start + (next_note.velocity - velocity_start) * coeff)
             yield ramp_note
 
-    def disconnect(self):
-        if self._clip_synchronizer:
-            self._clip_synchronizer.disconnect()

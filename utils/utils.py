@@ -1,7 +1,6 @@
 import inspect
 import types
 from collections import namedtuple
-from fractions import Fraction
 
 from typing import Optional, Any, List, TYPE_CHECKING
 

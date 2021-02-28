@@ -1,10 +1,9 @@
+from _Framework.Util import forward_property
 from typing import TYPE_CHECKING, List
 
-from _Framework.Util import forward_property
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.group_track.AutomationTracksCouple import AutomationTracksCouple
-from a_protocol_0.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -19,17 +18,15 @@ class AutomatedTrack(AbstractGroupTrack):
         self.instrument_track = self.wrapped_track.instrument_track
         self.wrapped_track.track_name.link_track(self)
         self.automation_tracks_couples = automation_tracks_couples
-        self._added_track_init()  # we need to call this here because the wrapped track instantiation doesn't happen at the same time as subtrack creation
+        self.link_audio_tracks()
         self._instrument_listener.subject = self.instrument_track
         self._instrument_listener()
 
-    def _added_track_init(self):
-        seq = Sequence()
-        seq.add(wait=1)
-        seq.add(self.link_audio_tracks)
-        seq.add(lambda: setattr(self, "name", self.wrapped_track.name))
-
-        return seq.done()
+        # linking sub tracks to self
+        for automation_tracks_couple in automation_tracks_couples:
+            automation_tracks_couple.audio_track.abstract_group_track = self
+            automation_tracks_couple.midi_track.abstract_group_track = self
+        self.wrapped_track.abstract_group_track = self
 
     def link_audio_tracks(self):
         audio_tracks = [self.base_track] + [couple.audio_track for couple in self.automation_tracks_couples] + [self.wrapped_track]
@@ -87,3 +84,8 @@ class AutomatedTrack(AbstractGroupTrack):
 
     @forward_property('wrapped_track')
     def action_undo_track(self): pass
+
+    def disconnect(self):
+        super(AutomatedTrack, self).disconnect()
+        for automation_tracks_couple in self.automation_tracks_couples:
+            automation_tracks_couple.disconnect()

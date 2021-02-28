@@ -12,6 +12,7 @@ class AbstractGroupTrack(AbstractTrack):
     def __init__(self, group_track, *a, **k):
         # type: (SimpleTrack) -> None
         super(AbstractGroupTrack, self).__init__(track=group_track, *a, **k)
+        group_track.abstract_group_track = self
         self.sub_tracks = group_track.sub_tracks
         self.can_be_armed = True
         [setattr(sub_track, "base_color", self.base_color) for sub_track in self.sub_tracks]

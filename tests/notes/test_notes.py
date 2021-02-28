@@ -10,7 +10,6 @@ from a_protocol_0.tests.fixtures.clip_slot import AbletonClipSlot
 from a_protocol_0.tests.fixtures.simpleTrack import AbletonTrack, TrackType
 # noinspection PyUnresolvedReferences
 from a_protocol_0.tests.test_all import p0
-from a_protocol_0.utils.log import log_ableton
 
 
 def create_clip_with_notes(notes, prev_notes=[], clip_length=None, loop_start=None, name="test (*,*)"):

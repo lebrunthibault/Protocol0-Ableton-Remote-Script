@@ -21,17 +21,17 @@ if TYPE_CHECKING:
 class ClipActionMixin(object):
     def get_notes(self):
         # type: (Clip) -> List[Note]
+        if not self._clip:
+            return []
         notes = [Note(*note, clip=self) for note in
                  self._clip.get_notes(self.loop_start, 0, self.length, 128)]
         notes.sort(key=lambda x: x.start)
         return notes
 
-    def get_selected_notes(self):
-        # type: (Clip) -> None
-        return [Note(*note, clip=self) for note in self._clip.get_selected_notes()]
-
     def _change_clip_notes(self, method, notes, cache=True):
         # type: (Clip, callable, List[Note], bool) -> Sequence
+        if not self._clip:
+            return
         self._is_updating_notes = True
         if cache:
             self._prev_notes = notes
@@ -43,33 +43,41 @@ class ClipActionMixin(object):
         seq.add(lambda: setattr(self, "_is_updating_notes", False))
         return seq.done()
 
-    def replace_selected_notes(self, notes):
+    def _replace_selected_notes(self, notes):
         # type: (Clip, List[Note], bool) -> Sequence
+        if not self._clip:
+            return
         return self._change_clip_notes(self._clip.replace_selected_notes, notes)
 
     def set_notes(self, notes):
         # type: (Clip, List[Note]) -> Sequence
+        if not self._clip:
+            return
         return self._change_clip_notes(self._clip.set_notes, notes, cache=False)
 
-    def select_all_notes(self):
+    def _select_all_notes(self):
         # type: (Clip) -> None
+        if not self._clip:
+            return
         self._clip.select_all_notes()
 
-    def deselect_all_notes(self):
+    def _deselect_all_notes(self):
         # type: (Clip) -> None
+        if not self._clip:
+            return
         self._clip.deselect_all_notes()
         self.parent.clyphxNavigationManager.show_clip_view()
         self.view.show_loop()
 
     def replace_all_notes(self, notes):
         # type: (Clip, List[Note], bool) -> None
-        # if notes == self._prev_notes:
-        #     return
-        self.select_all_notes()
+        if not self._clip:
+            return
+        self._select_all_notes()
         seq = Sequence()
         seq.add(wait=1)
-        seq.add(partial(self.replace_selected_notes, notes))
-        seq.add(self.deselect_all_notes)
+        seq.add(partial(self._replace_selected_notes, notes))
+        seq.add(self._deselect_all_notes)
         return seq.done()
 
     def notes_changed(self, notes, checked_properties, prev_notes=None):
@@ -130,6 +138,7 @@ class ClipActionMixin(object):
     @is_change_deferrable
     def quantize(self, quantization='1/16', depth=1):
         # type: (Clip, str, float) -> None
-        rate = RECORD_QUANTIZE_NAMES.index(quantization)
-        self._clip.quantize(rate, depth)
+        if self._clip:
+            rate = RECORD_QUANTIZE_NAMES.index(quantization)
+            self._clip.quantize(rate, depth)
 

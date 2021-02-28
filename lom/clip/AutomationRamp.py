@@ -20,11 +20,10 @@ class AutomationRampMode(Enum):
     @classmethod
     def get_from_value(cls, value):
         value = value.strip()
-        if not value:
+        if not value or not AutomationRampMode.has_value(value):
             return AutomationRampMode.NO_RAMP
-        if not AutomationRampMode.has_value(value):
-            raise Protocol0Error("Invalid ramp mode value: '%s'" % value)
-        return AutomationRampMode(value)
+        else:
+            return AutomationRampMode(value)
 
 
 class AutomationRamp(object):
@@ -37,9 +36,7 @@ class AutomationRamp(object):
     def make(value):
         # type (str) -> AutomationRamp
         chars = list(set(value))
-        if len(chars) > 1:
-            raise Protocol0Error("Invalid ramp mode value: '%s'" % value)
-        if len(chars) == 0:
+        if len(chars) != 1:
             return AutomationRamp(AutomationRampMode.NO_RAMP, 1)
-
-        return AutomationRamp(AutomationRampMode.get_from_value(chars[0]), len(value))
+        else:
+            return AutomationRamp(AutomationRampMode.get_from_value(chars[0]), len(value))
