@@ -1,5 +1,5 @@
 import Live
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.Note import Note
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class Clip(ClipActionMixin, AbstractObject):
-    __subject_events__ = ('notes', 'name', 'playing_status', 'is_triggered')
+    __subject_events__ = ('notes', 'name', 'linked')
 
     def __init__(self, clip_slot, *a, **k):
         # type: (ClipSlot) -> None
@@ -22,6 +22,7 @@ class Clip(ClipActionMixin, AbstractObject):
         self.clip_slot = clip_slot
         self._clip_slot = clip_slot._clip_slot
         self._clip = self._clip_slot.clip  # type: Live.Clip.Clip
+        self.linked_clip = None  # type: Optional[Clip]
         self.view = self._clip.view  # type: Live.Clip.Clip.View
         self.index = clip_slot.index
         self.track = clip_slot.track  # type: SimpleTrack
@@ -29,7 +30,6 @@ class Clip(ClipActionMixin, AbstractObject):
         self._previous_name = self._clip.name
         self._notes_listener.subject = self._clip
         self._is_recording_listener.subject = self._clip
-        self._playing_status_listener.subject = self._clip
         self.color = self.track.base_color
 
         # NOTES
@@ -37,22 +37,6 @@ class Clip(ClipActionMixin, AbstractObject):
         self._prev_notes = self.get_notes() if self.is_midi_clip else []  # type: List[Note]
         self._added_note = None  # type: Note
         self._is_updating_notes = False
-
-        # Clip sync
-        self._clip_synchronizer = None  # type: ObjectSynchronizer
-        self.parent.defer(self.link_clip)  # deferring
-
-    def link_clip(self):
-        if self.clip_slot.linked_clip_slot and self.clip_slot.linked_clip_slot.clip:
-            self.clip_synchronizer = ObjectSynchronizer(
-                self.clip_slot.clip, self.clip_slot.linked_clip_slot.clip, "_clip",
-                ["name", "looping", "loop_start", "loop_end",
-                 "start_marker", "end_marker"], bidirectional=False)
-
-    @property
-    def linked_clip(self):
-        # type: () -> Clip
-        return self.clip_slot.linked_clip_slot.clip if self.clip_slot.linked_clip_slot else None
 
     def _on_selected(self):
         pass
@@ -68,11 +52,6 @@ class Clip(ClipActionMixin, AbstractObject):
     @p0_subject_slot("name")
     def _name_listener(self):
         pass
-
-    @p0_subject_slot("playing_status")
-    def _playing_status_listener(self):
-        # noinspection PyUnresolvedReferences
-        self.notify_playing_status()
 
     @staticmethod
     def make(clip_slot):
@@ -235,7 +214,3 @@ class Clip(ClipActionMixin, AbstractObject):
     def warp_mode(self, warp_mode):
         if self._clip:
             self._clip.warp_mode = warp_mode
-
-    def disconnect(self):
-        if self._clip_synchronizer:
-            self._clip_synchronizer.disconnect()

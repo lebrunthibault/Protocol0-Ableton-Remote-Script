@@ -1,9 +1,12 @@
+from functools import partial
+
 import Live
 from typing import TYPE_CHECKING, Optional, List
 
 from _Framework.SubjectSlot import subject_slot_group
 from _Framework.Util import clamp
 from a_protocol_0.lom.AbstractObject import AbstractObject
+from a_protocol_0.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -68,4 +71,6 @@ class TrackName(AbstractObject):
             preset_index = max(0, preset_index)
             name += " - %s" % preset_index
 
-        self.track.name = name
+        seq = Sequence()
+        seq.add(partial(setattr, self.track, "name", name), wait=1)  # wait is necessary
+        return seq.done()

@@ -199,9 +199,6 @@ class Sequence(AbstractObject):
                 return
             raise SequenceError(object=self, message="You called add() but the sequence is terminated")
 
-        if callback == nop:
-            name = "wait %s" % wait if wait else "pass"
-
         if isinstance(callback, Sequence):
             callback._errored = True
             raise SequenceError(object=self,

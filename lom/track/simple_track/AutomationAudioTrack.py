@@ -2,7 +2,6 @@ from functools import partial
 
 from typing import TYPE_CHECKING
 
-from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.track.simple_track.AbstractAutomationTrack import AbstractAutomationTrack
@@ -19,39 +18,28 @@ class AutomationAudioTrack(AbstractAutomationTrack):
     def __init__(self, *a, **k):
         # type: (DeviceParameter) -> None
         super(AutomationAudioTrack, self).__init__(*a, **k)
-        self.automated_device = None  # type: Device
         self.automated_parameter = None  # type: DeviceParameter
-        self.linked_track = None  # type: AutomationMidiTrack
         self.abstract_group_track = self.abstract_group_track  # type: AutomatedTrack
 
         self._mute_listener.subject = self._track
         self._solo_listener.subject = self._track
         self._current_monitoring_state_listener.subject = self._track
 
-        self.push2_selected_main_mode = 'device'
-
-    def _added_track_init(self):
-        if self.group_track is None:
-            raise Protocol0Error("An automation track should always be grouped")
-
-        self.has_monitor_in = True
-        seq = Sequence()
-        seq.add(self.clear_devices)
-        parameter_info = AbstractAutomationTrack.get_parameter_info(self.base_name)
-        seq.add(partial(self.parent.browserManager.load_any_device, parameter_info.device_type, parameter_info.device_name))
-        seq.add(partial(self.set_input_routing_type, None))
-        seq.add(self._set_automated_device_and_parameter)
-
-        return seq.done()
-
-    def _on_selected(self):
-        """ do specific action when track is selected """
-        pass
-
-    def _set_automated_device_and_parameter(self):
-        (device, parameter) = self.get_device_and_parameter()
-        self.automated_device = device
+        # to speed up creation we instantiate the AutomationGroupTrack before it is renamed
+        if ":" not in self.name and self.parent.automationTrackManager.current_parameter:
+            parameter = self.parent.automationTrackManager.current_parameter
+            (device_name, parameter_name) = (parameter.device.name, parameter.name)
+        else:
+            parameter_info = AbstractAutomationTrack.get_parameter_info_from_track_name(self.base_name)
+            (device_name, parameter_name) = (parameter_info.device_name, parameter_info.parameter_name)
+        (device, parameter) = self.parent.deviceManager.get_device_and_parameter_from_name(track=self,
+                                                                            device_name=device_name,
+                                                                            parameter_name=parameter_name)
         self.automated_parameter = parameter
+        self.has_monitor_in = True
+        self.set_input_routing_type, None
+
+        self.push2_selected_main_mode = 'device'
 
     @p0_subject_slot("mute")
     def _mute_listener(self):

@@ -50,7 +50,7 @@ class Protocol0(ControlSurface):
             self.playTrackManager = PlayTrackManager()
             self.push2Manager = Push2Manager()
             self.trackManager = TrackManager()
-            self.trackAutomationManager = AutomationTrackManager()
+            self.automationTrackManager = AutomationTrackManager()
             self.keyboardShortcutManager = KeyBoardShortcutManager()
             self.midiManager = MidiManager()
             self.browserManager = BrowserManager()
@@ -61,8 +61,7 @@ class Protocol0(ControlSurface):
             self.actionSetManager = ActionSetManager()
             self.actionTestManager = ActionTestManager()
             if init_song:
-                seq = Sequence()
-                seq.add(wait=2)
+                seq = Sequence().add(wait=1)
                 seq.add(self.songManager.init_song)
                 seq.add(self.dev_boot)
                 seq.done()
@@ -123,14 +122,13 @@ class Protocol0(ControlSurface):
         del self._remaining_scheduled_messages[:]
         self._task_group.clear()
 
-    @wait(1)
     def dev_boot(self):
         if self._is_dev_booted:
             return
 
         # self.log_info(self.protocol0_song.abstract_tracks)
         return
-        self.trackAutomationManager.create_automation_group(self.protocol0_song.tracks[1].devices[1].parameters[1])
+        self.automationTrackManager.create_automation_group(self.protocol0_song.tracks[1].devices[1].parameters[1])
         return
         self.defer(partial(self.protocol0_song.select_device, self.protocol0_song.tracks[19].devices[-1]))
         # self.protocol0_song.highlighted_clip_slot = self.protocol0_song.selected_track.clips[0]

@@ -5,7 +5,7 @@ from a_protocol_0.errors.SequenceError import SequenceError
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.sequence.SequenceState import SequenceState, SequenceLogLevel
 from a_protocol_0.utils.timeout import TimeoutLimit
-from a_protocol_0.utils.utils import _has_callback_queue, is_lambda, get_callable_name
+from a_protocol_0.utils.utils import _has_callback_queue, is_lambda, get_callable_name, nop
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -29,6 +29,8 @@ class SequenceStep(AbstractObject):
                                 message="You passed a non callable to a SequenceStep : %s to %s, type: %s" % (
                                     self._callable, self, type(self._callable)))
 
+        if not name and func == nop:
+            name = ("wait %s" % wait if wait else "pass")
         self.name = "step %s" % (name or get_callable_name(func))
         self._wait = wait if wait is not None else sequence._wait
         self._state = SequenceState.UN_STARTED

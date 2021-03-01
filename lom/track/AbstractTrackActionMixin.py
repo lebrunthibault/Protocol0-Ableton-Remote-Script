@@ -84,7 +84,7 @@ class AbstractTrackActionMixin(object):
             self.song.metronome = True
 
         seq = Sequence()
-        seq.add(action_record_func, wait=1)
+        seq.add(action_record_func)
         seq.add(partial(self._post_record, only_audio=only_audio))
         return seq.done()
 
@@ -150,6 +150,13 @@ class AbstractTrackActionMixin(object):
         self.solo = False
         self.action_unarm()
         self.collapse_devices()
+
+    def load_any_device(self, device_type, device_name):
+        # type: (AbstractTrack, str, str) -> None
+        seq = Sequence()
+        seq.add(partial(self.song.select_track, self))
+        seq.add(partial(self.parent.browserManager.load_any_device, device_type, device_name))
+        return seq.done()
 
     def collapse_devices(self):
         # type: (AbstractTrack) -> None

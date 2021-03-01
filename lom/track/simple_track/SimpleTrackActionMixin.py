@@ -57,12 +57,10 @@ class SimpleTrackActionMixin(object):
             return
 
         seq = Sequence()
-        seq.add(wait=1)
         seq.add(partial(clip_slot._clip_slot.create_clip,
                         self.parent.utilsManager.get_beat_time(bar_count)),
                 complete_on=clip_slot._has_clip_listener)
         if name:
-            seq.add(wait=1)
             seq.add(lambda: setattr(self.clip_slots[clip_slot_index].clip, "name", name), name="set clip name")
 
         return seq.done()

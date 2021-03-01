@@ -5,7 +5,7 @@ from _Framework.SubjectSlot import subject_slot
 from _Framework.Util import find_if
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
-from a_protocol_0.lom.device.AutomationDeviceType import AutomationDeviceType
+from a_protocol_0.lom.device.DeviceType import DeviceType
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -27,7 +27,7 @@ class Device(AbstractObject):
         self.is_plugin = isinstance(device, Live.PluginDevice.PluginDevice)
         self.can_have_drum_pads = self._device.can_have_drum_pads
         self.can_have_chains = self._device.can_have_chains
-        self.device_type = AutomationDeviceType.ABLETON_DEVICE
+        self.device_type = DeviceType.ABLETON_DEVICE
 
     @staticmethod
     def make(device, track, index):

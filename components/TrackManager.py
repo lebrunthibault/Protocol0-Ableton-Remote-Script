@@ -7,6 +7,8 @@ from typing import Optional
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import AUTOMATION_TRACK_NAME, EXTERNAL_SYNTH_NAMES
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
+from a_protocol_0.lom.device.Device import Device
+from a_protocol_0.lom.device.DeviceType import DeviceType
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.group_track.AutomatedTrack import AutomatedTrack
@@ -29,9 +31,9 @@ class TrackManager(AbstractControlSurfaceComponent):
 
     @p0_subject_slot("added_track")
     def _added_track_listener(self):
-        if not self.parent.songManager.abstract_group_track_creation_in_progress:
-            seq = Sequence().add(wait=1).add(self.song.current_track._added_track_init)
-            return seq.done()
+        seq = Sequence()
+        seq.add(self.song.current_track._added_track_init)
+        return seq.done()
 
     @p0_subject_slot("selected_track")
     def _selected_track_listener(self):
@@ -50,35 +52,20 @@ class TrackManager(AbstractControlSurfaceComponent):
         seq.add(self.parent.keyboardShortcutManager.group_track, complete_on=self._added_track_listener)
         return seq.done()
 
-    def create_midi_track(self, index, name=None):
-        return self._create_track(track_creator=partial(self.song._song.create_midi_track, index), name=name)
+    def create_midi_track(self, index, name, device=None):
+        return self._create_track(track_creator=partial(self.song._song.create_midi_track, index), name=name, device=device)
 
-    def create_audio_track(self, index, name=None):
-        return self._create_track(track_creator=partial(self.song._song.create_audio_track, index), name=name)
+    def create_audio_track(self, index, name, device=None):
+        return self._create_track(track_creator=partial(self.song._song.create_audio_track, index), name=name, device=device)
 
-    def _create_track(self, track_creator, name=None):
-        # type: (callable, str) -> None
-        seq = Sequence()
-        seq.add(wait=1)
-        seq.add(track_creator, complete_on=self._added_track_listener)
-
-        def set_name():
-            # easier to have this here instead of using lambda to get dynamic variables
-            seq = Sequence()
-            seq.add(partial(self.song.selected_track.track_name.set, base_name=name))
-            seq.add(self.parent.songManager._tracks_listener)  # rebuild tracks
-            # the underlying track object should have changed
-            track = self.song.simple_tracks[self.song.selected_track.index]
-            seq.add(wait=1)
-            seq.add(track._added_track_init)  # manual call is needed, as _added_track_listener is not going to be called
-            # if track.abstract_group_track:
-            #     seq.add(track.abstract_group_track._added_track_init)  # the group track could change type as well
-
-            return seq.done()
-
-        if name is not None:
-            seq.add(wait=1)
-            seq.add(set_name)
+    def _create_track(self, track_creator, name, device):
+        # type: (callable, str, Optional[Device]) -> None
+        seq = Sequence().add(wait=1, name="defer change")
+        seq.add(track_creator, complete_on=self.parent.songManager._tracks_listener)
+        seq.add(lambda: self.song.selected_track.track_name.set(base_name=name), name="set track name to %s" % name)
+        if device:
+            seq.add(lambda: self.song.selected_track.clear_devices())
+            seq.add(partial(self.parent.browserManager.load_any_device, device_type=device.device_type, device_name=device.name))
 
         return seq.done()
 
@@ -103,7 +90,7 @@ class TrackManager(AbstractControlSurfaceComponent):
 
     def make_external_synth_track(self, group_track):
         # type: (SimpleGroupTrack) -> None
-        if len([sub_track for sub_track in group_track.sub_tracks if not TrackManager._is_automated_sub_track(sub_track)]) != 2:
+        if len([sub_track for sub_track in group_track.sub_tracks if not self._is_automated_sub_track(sub_track)]) != 2:
             return
         if not any([name.lower() in group_track.track_name.base_name.lower() for name in EXTERNAL_SYNTH_NAMES]):
             return
@@ -111,20 +98,9 @@ class TrackManager(AbstractControlSurfaceComponent):
         return ExternalSynthTrack(group_track=group_track)
 
     def make_automated_track(self, group_track, wrapped_track=None):
-        # type: (SimpleGroupTrack, AbstractGroupTrack) -> None
-        try:
-            return self._make_automated_track(group_track=group_track, wrapped_track=wrapped_track)
-        except Protocol0Error as e:
-            # don't raise when the tracks are created
-            if self.parent.songManager.abstract_group_track_creation_in_progress:
-                return None
-            else:
-                raise e
-
-    def _make_automated_track(self, group_track, wrapped_track=None):
         # type: (SimpleGroupTrack, AbstractTrack) -> Optional[AutomatedTrack]
-        automation_audio_tracks = [track for track in group_track.sub_tracks if TrackManager._is_automated_sub_track(track) and track.is_audio]
-        automation_midi_tracks = [track for track in group_track.sub_tracks if TrackManager._is_automated_sub_track(track) and track.is_midi]
+        automation_audio_tracks = [track for track in group_track.sub_tracks if self._is_automated_sub_track(track) and track.is_audio]
+        automation_midi_tracks = [track for track in group_track.sub_tracks if self._is_automated_sub_track(track) and track.is_midi]
 
         if len(automation_audio_tracks) == 0 and len(automation_midi_tracks) == 0:
             return None
@@ -147,7 +123,8 @@ class TrackManager(AbstractControlSurfaceComponent):
 
         return AutomatedTrack(group_track=group_track, automation_tracks_couples=automation_tracks_couples, wrapped_track=wrapped_track)
 
-    @staticmethod
-    def _is_automated_sub_track(track):
+    def _is_automated_sub_track(self, track):
         # type: (SimpleTrack) -> bool
-        return AUTOMATION_TRACK_NAME in track.name and AbstractAutomationTrack.get_parameter_info(track.name)
+        if track.index in self.parent.automationTrackManager.created_tracks_indexes:
+            return True
+        return AUTOMATION_TRACK_NAME in track.name and AbstractAutomationTrack.get_parameter_info_from_track_name(track.name)

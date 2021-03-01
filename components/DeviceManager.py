@@ -199,8 +199,13 @@ class DeviceManager(AbstractControlSurfaceComponent):
     def get_device_and_parameter_from_name(self, track, device_name, parameter_name):
         # type: (AbstractTrack, str, str) -> Tuple[Device, DeviceParameter]
         device = find_if(lambda d: d.name.lower() == device_name.lower(), track.devices)
-        parameter = None
-        if device:
-            parameter = find_if(lambda p: parameter_name.lower() == p.name.lower(), device.parameters)
+
+        if device is None:
+            raise Protocol0Error("Couldn't find device name %s for track %s" % (device_name, track))
+
+        parameter = find_if(lambda p: parameter_name.lower() == p.name.lower(), device.parameters)
+
+        if device is None:
+            raise Protocol0Error("Couldn't find parameter name %s for device % in track %s" % (parameter_name, device, track))
 
         return (device, parameter)

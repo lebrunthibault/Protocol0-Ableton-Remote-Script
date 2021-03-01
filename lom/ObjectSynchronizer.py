@@ -9,20 +9,23 @@ from a_protocol_0.lom.AbstractObject import AbstractObject
 
 class ObjectSynchronizer(AbstractControlSurfaceComponent):
     """ Class that handles the parameter sync of 2 objects (usually track or clip) """
-    def __init__(self, master, slave, subject_name, properties, bidirectional=True, *a, **k):
+    def __init__(self, master, slave, subject_name, properties=[], *a, **k):
         # type: (AbstractObject, AbstractObject, str, List[str]) -> None
         super(ObjectSynchronizer, self).__init__(*a, **k)
 
         if not master or not slave:
             raise Protocol0Error("Master and slave should be objects")
+
+        self.master = master
+        self.slave = slave
+
         # sync is two way but the master clip defines start values
         self.properties = properties
         self.updating_properties = set()  # type: Set[str]
 
         for property in self.properties:
             self.register_slot(getattr(master, subject_name), partial(self._sync_properties, master, slave), property)
-            if bidirectional:
-                self.register_slot(getattr(slave, subject_name), partial(self._sync_properties, slave, master), property)
+            self.register_slot(getattr(slave, subject_name), partial(self._sync_properties, slave, master), property)
 
         self._sync_properties(master, slave)
 

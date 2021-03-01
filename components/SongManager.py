@@ -47,10 +47,13 @@ class SongManager(AbstractControlSurfaceComponent):
         if len(self.song.simple_tracks) and len(self.song._song.tracks) > len(self.song.simple_tracks):
             added_track = True
 
+        # reset state
         [track.disconnect() for track in self.song.simple_tracks + self.song.abstract_group_tracks]
+        self.song.simple_tracks = self.song.abstract_group_tracks = []
+        self._simple_track_to_abstract_group_track = {}
+        abstract_tracks = collections.OrderedDict()
 
         # 1. Generate simple tracks
-        self.song.simple_tracks = []
         for i, track in enumerate(list(self.song._song.tracks)):
             simple_track = self.parent.trackManager.instantiate_simple_track(track=track, index=i)
             self._live_track_to_simple_track[track] = simple_track
@@ -61,13 +64,11 @@ class SongManager(AbstractControlSurfaceComponent):
                                                       [self.parent.trackManager.instantiate_abstract_group_track(track)
                                                        for track in self.song.simple_group_tracks]))
 
-        self._simple_track_to_abstract_group_track = {}
         for abstract_group_track in self.song.abstract_group_tracks:  # type: AbstractGroupTrack
             for abstract_group_sub_track in abstract_group_track.all_tracks:
                 self._simple_track_to_abstract_group_track.update({abstract_group_sub_track: abstract_group_track})
 
         # 3. Populate abstract_tracks property and track.abstract_group_track
-        abstract_tracks = collections.OrderedDict()
         for track in self.song.simple_tracks:  # type: SimpleTrack
             # first case is : AutomatedTrack wrapping ExternalSynthTrack
             abstract_track = getattr(track.abstract_group_track, "abstract_group_track", None) or track.abstract_group_track or track
@@ -76,12 +77,6 @@ class SongManager(AbstractControlSurfaceComponent):
 
         # 4. Set the currently selected track
         self._set_current_track()
-
-        # 5. Generate clip_slots. tracks and clip_slots have access to all tracks and abstract_group_tracks
-        # [track._clip_slots_listener() for track in self.song.simple_tracks]
-
-        # 6. Generate clips. tracks, clip_slots and clips have access to all tracks, abstract_group_tracks and clip_slots
-        [clip_slot._has_clip_listener() for track in self.song.simple_tracks for clip_slot in track.clip_slots]
 
         self.parent.log_info("SongManager : mapped tracks")
 

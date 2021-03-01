@@ -52,8 +52,8 @@ class Song(SongActionMixin, AbstractObject):
 
     @property
     def scenes(self):
-        # type: () -> List[Any]
-        return self._song.scenes
+        # type: () -> List[Live.Scene.Scene]
+        return list(self._song.scenes)
 
     @property
     def selected_scene(self):

@@ -45,14 +45,14 @@ class AutomationMidiClip(AbstractAutomationClip):
     @p0_subject_slot("notes")
     def _notes_listener(self):
         # type: () -> Sequence
-        super(AutomationMidiClip, self)._notes_listener()
         if not self._is_updating_notes:
             return self.map_notes()
 
     @p0_subject_slot("name")
     def _name_listener(self):
         if not self.name and self.track.linked_track:
-            self.clip_name.set(base_name=self.track.linked_track.automated_parameter.full_name,
+            automated_parameter = self.track.linked_track.automated_parameter or self.parent.automationTrackManager.current_parameter
+            self.clip_name.set(base_name=automated_parameter.full_name,
                                ramp_mode_up=AutomationRamp(),
                                ramp_mode_down=AutomationRamp())
         self._map_notes()

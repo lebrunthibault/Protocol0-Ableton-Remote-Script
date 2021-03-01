@@ -19,7 +19,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         if self.group_track:
             self.group_track.sub_tracks.append(self)
         self.linked_track = None  # type: Optional[SimpleTrack]
-        self.clip_slots = None  # type: List[ClipSlot]
         # self._clip_slots_listener.subject = self._track
         self._playing_slot_index_listener.subject = self._track
         self.instrument = self.parent.deviceManager.make_instrument_from_simple_track(track=self)
@@ -35,10 +34,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
 
     def __hash__(self):
         return self.index
-
-    def _on_selected(self):
-        """ do specific action when track is selected """
-        pass
 
     # @subject_slot("clip_slots")
     # def _clip_slots_listener(self):
@@ -119,5 +114,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
 
     def disconnect(self):
         super(SimpleTrack, self).disconnect()
-        if self.clip_slots:
-            [clip_slot.disconnect() for clip_slot in self.clip_slots]
+        [clip_slot.disconnect() for clip_slot in self.clip_slots]
+        if self.instrument:
+            self.instrument.disconnect()

@@ -1,6 +1,7 @@
 from _Framework.Util import forward_property
 from typing import TYPE_CHECKING, List
 
+from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.group_track.AutomationTracksCouple import AutomationTracksCouple
@@ -26,6 +27,10 @@ class AutomatedTrack(AbstractGroupTrack):
         for automation_tracks_couple in automation_tracks_couples:
             automation_tracks_couple.audio_track.abstract_group_track = self
             automation_tracks_couple.midi_track.abstract_group_track = self
+
+            if automation_tracks_couple.audio_track.index in self.parent.automationTrackManager.created_tracks_indexes:
+                automation_tracks_couple.midi_track._added_track_init()
+
         self.wrapped_track.abstract_group_track = self
 
     def link_audio_tracks(self):
@@ -87,5 +92,4 @@ class AutomatedTrack(AbstractGroupTrack):
 
     def disconnect(self):
         super(AutomatedTrack, self).disconnect()
-        for automation_tracks_couple in self.automation_tracks_couples:
-            automation_tracks_couple.disconnect()
+        [automation_tracks_couple.disconnect() for automation_tracks_couple in self.automation_tracks_couples]

@@ -7,7 +7,7 @@ from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import p0_subject_slot
+from a_protocol_0.utils.decorators import p0_subject_slot, is_change_deferrable
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -15,6 +15,8 @@ if TYPE_CHECKING:
 
 
 class ClipSlot(AbstractObject):
+    __subject_events__ = ("has_clip", "is_triggered")
+
     def __init__(self, clip_slot, index, track, *a, **k):
         # type: (Live.ClipSlot.ClipSlot, int, SimpleTrack, Any, Any) -> None
         super(ClipSlot, self).__init__(*a, **k)
@@ -22,10 +24,10 @@ class ClipSlot(AbstractObject):
         self.track = track
         self.index = index
         self._has_clip_listener.subject = self._clip_slot
-        self._clip_slot_synchronizer = ClipSlotSynchronizer(self) if self.track.linked_track else None
+        self._is_triggered_listener.subject = self._clip_slot
+        self.linked_clip_slot = None  # type: Optional[ClipSlot]
         self.clip = None  # type: Optional[Clip]
         self._has_clip_listener()
-        self.linked_clip_slot = None  # type: Optional[ClipSlot]
 
     def __nonzero__(self):
         return self._clip_slot is not None
@@ -34,10 +36,6 @@ class ClipSlot(AbstractObject):
         # type: (ClipSlot) -> bool
         return clip_slot and self._clip_slot == clip_slot._clip_slot
 
-    # @property
-    # def linked_clip_slot(self):
-    #     # type: () -> Optional[ClipSlot]
-    #     return self._clip_slot_synchronizer.linked_clip_slot if self._clip_slot_synchronizer else None
 
     @staticmethod
     def make(clip_slot, index, track):
@@ -59,19 +57,19 @@ class ClipSlot(AbstractObject):
         # noinspection PyUnresolvedReferences
         self.notify_has_clip()
 
-        # if self._clip_slot_synchronizer:
-        #     self._clip_slot_synchronizer._has_clip_listener()
+    @p0_subject_slot("is_triggered")
+    def _is_triggered_listener(self):
+        # noinspection PyUnresolvedReferences
+        self.notify_is_triggered()
 
     @property
     def has_clip(self):
         return self._clip_slot.has_clip
 
+    @is_change_deferrable
     def delete_clip(self):
-        seq = Sequence()
         if self._clip_slot.has_clip:
-            seq.add(wait=1)
-            seq.add(self._clip_slot.delete_clip, do_if=lambda: self._clip_slot.has_clip)
-        return seq.done()
+            self._clip_slot.delete_clip()
 
     @property
     def is_triggered(self):
@@ -107,19 +105,19 @@ class ClipSlot(AbstractObject):
                 complete_on=clip_slot._has_clip_listener)
         return seq.done()
 
-    def insert_dummy_clip(self):
+    @is_change_deferrable
+    def insert_dummy_clip(self, name):
+        # type: (str) -> None
         seq = Sequence()
         seq.add(partial(self.song.simple_tracks[0].clip_slots[0].duplicate_clip_to, self),
                 complete_on=self._has_clip_listener)
-        seq.add(wait=1)
         seq.add(lambda: setattr(self.clip, "warping", 1), name="enable clip warping")
-        seq.add(wait=1)
         seq.add(lambda: setattr(self.clip, "looping", 1), name="enable clip looping")
+        seq.add(wait=2)  # should be 2 because the created dummy clip name syncs to the midi clip
+        seq.add(lambda: setattr(self.clip, "name", name))
         return seq.done()
 
     def disconnect(self):
         super(ClipSlot, self).disconnect()
-        if self._clip_slot_synchronizer:
-            self._clip_slot_synchronizer.disconnect()
         if self.clip:
             self.clip.disconnect()

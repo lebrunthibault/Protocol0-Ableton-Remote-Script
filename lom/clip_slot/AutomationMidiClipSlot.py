@@ -1,8 +1,9 @@
+from functools import partial
+
 from typing import TYPE_CHECKING
 
 from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
-from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
@@ -20,7 +21,5 @@ class AutomationMidiClipSlot(ClipSlot):
     def _has_clip_listener(self):
         super(AutomationMidiClipSlot, self)._has_clip_listener()
 
-        if self.clip and not self.linked_clip_slot.clip:
-            seq = Sequence(silent=True).add(wait=1)
-            seq.add(self.linked_clip_slot.insert_dummy_clip, do_if=lambda: not self.linked_clip_slot.has_clip)
-            return seq.done()
+        if self.clip and self.linked_clip_slot and not self.linked_clip_slot.clip:
+            self.parent.defer(partial(self.linked_clip_slot.insert_dummy_clip, name=self.clip.name))

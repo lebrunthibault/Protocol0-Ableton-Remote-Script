@@ -1,62 +1,53 @@
-from typing import TYPE_CHECKING
+from _Framework.CompoundElement import subject_slot_group
+from typing import Optional, TYPE_CHECKING
 
-from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
-from a_protocol_0.utils.decorators import p0_subject_slot
+from a_protocol_0.lom.clip.ClipSynchronizer import ClipSynchronizer
 
 if TYPE_CHECKING:
     from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 
 
-class ClipSlotSynchronizer(AbstractControlSurfaceComponent):
-    """ Class that handles the linking of 2 clips (usually audio / midi)"""
+class ClipSlotSynchronizer(ObjectSynchronizer):
+    def __init__(self, master, slave, *a, **k):
+        # type: (ClipSlot, ClipSlot) -> None
+        super(ClipSlotSynchronizer, self).__init__(master, slave, "_clip_slot", *a, **k)
+        self.master = self.master  # type: ClipSlot
+        self.slave = self.slave  # type: ClipSlot
 
-    def __init__(self, clip_slot, *a, **k):
+        master.linked_clip_slot = slave
+        slave.linked_clip_slot = master
+        self._has_clip_listener.replace_subjects([master, slave])
+        self._is_triggered_listener.replace_subjects([master, slave])
+        self._clip_synchronizer = None  # type: Optional[ClipSynchronizer]
+        self._has_clip_listener(master)
+
+    @subject_slot_group("has_clip")
+    def _has_clip_listener(self, clip_slot):
         # type: (ClipSlot) -> None
-        super(ClipSlotSynchronizer, self).__init__(*a, **k)
-        self._clip_synchronizer = None  # type: ObjectSynchronizer
-        self.clip_slot = clip_slot
-        self._is_triggered_listener.subject = self.clip_slot._clip_slot
-
-    @property
-    def linked_clip_slot(self):
-        """ in property because at __init__ time the linked clip slot may not be instantiated """
-        return self.clip_slot.track.linked_track.clip_slots[self.clip_slot.index]
-
-    @property
-    def clip_synchronizer(self):
-        return self.linked_clip_slot._clip_slot_synchronizer._clip_synchronizer or self._clip_synchronizer
-
-    @clip_synchronizer.setter
-    def clip_synchronizer(self, clip_synchronizer):
-        if self.clip_synchronizer:
-            self.clip_synchronizer.disconnect()
-        self._clip_synchronizer = clip_synchronizer
-        if self.linked_clip_slot._clip_slot_synchronizer.clip_synchronizer:
-            self.linked_clip_slot._clip_slot_synchronizer.clip_synchronizer.disconnect()
-        self.linked_clip_slot._clip_slot_synchronizer._clip_synchronizer = clip_synchronizer
-
-    def _has_clip_listener(self):
-        if not self.clip_slot.has_clip:
-            self.clip_synchronizer = None
-            # auto delete linked clip on suppression
-            if self.linked_clip_slot.has_clip:
-                self.linked_clip_slot.clip.delete()
-        else:
-            if self.linked_clip_slot.clip:
-                self.clip_synchronizer = ObjectSynchronizer(
-                    self.clip_slot.clip, self.linked_clip_slot.clip, "_clip",
+        if self._clip_synchronizer:
+            self._clip_synchronizer.disconnect()
+        if clip_slot.clip and clip_slot.linked_clip_slot.clip:
+            self._clip_synchronizer = ClipSynchronizer(
+                    clip_slot.linked_clip_slot.clip, clip_slot.clip, "_clip",
                     ["name", "looping", "loop_start", "loop_end",
                      "start_marker", "end_marker"])
+        else:
+            self._clip_synchronizer = None
 
-    @p0_subject_slot("is_triggered")
-    def _is_triggered_listener(self):
-        if self.clip_slot.is_triggered and not self.linked_clip_slot.is_triggered and self.clip_slot.clip and self.linked_clip_slot.clip:
-            self.linked_clip_slot.clip.is_playing = True
-        elif not self.clip_slot.clip:
-            self.linked_clip_slot.track.stop()
+        if not clip_slot.clip and clip_slot.linked_clip_slot.clip:
+            clip_slot.linked_clip_slot.clip.delete()
+
+    @subject_slot_group("is_triggered")
+    def _is_triggered_listener(self, clip_slot):
+        # type: (ClipSlot) -> None
+        if clip_slot.is_triggered and not clip_slot.linked_clip_slot.is_triggered and clip_slot.clip and clip_slot.linked_clip_slot.clip:
+            clip_slot.linked_clip_slot.clip.is_playing = True
+        elif not clip_slot.clip:
+            clip_slot.linked_clip_slot.track.stop()
 
     def disconnect(self):
         super(ClipSlotSynchronizer, self).disconnect()
+        self.master.linked_clip_slot = self.slave.linked_clip_slot = None
         if self._clip_synchronizer:
             self._clip_synchronizer.disconnect()

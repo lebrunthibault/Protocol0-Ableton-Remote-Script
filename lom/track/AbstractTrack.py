@@ -78,18 +78,21 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self.push2_selected_matrix_mode = 'session'
         self.push2_selected_instrument_mode = None
 
+    @defer
     def _added_track_init(self):
         """ this should be be called once, when the Live track is created, overridden by some child classes """
         if self.parent.songManager.abstract_group_track_creation_in_progress:
             return
-        seq = Sequence()
-        seq.add(self.song.current_track.action_arm)
-        [seq.add(clip.delete) for clip in self.song.current_track.all_clips]
+        self.song.current_track.action_arm()
         [setattr(track.track_name, "playing_slot_index", 0) for track in self.song.current_track.all_tracks]
 
         if not self._is_duplicated:
-            seq.add(partial(self.set_device_parameter_value, "Arpeggiator rack", "Chain Selector", 0))
-            seq.add(partial(self.set_device_parameter_value, "Serum rack", "Arp select", 0))
+            self.set_device_parameter_value("Arpeggiator rack", "Chain Selector", 0)
+            self.set_device_parameter_value("Serum rack", "Arp select", 0)
+
+        seq = Sequence()
+        [seq.add(clip.delete) for clip in self.song.current_track.all_clips]
+
         return seq.done()
 
     @property
@@ -196,6 +199,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
 
     @subject_slot("devices")
     def _devices_listener(self):
+        [device.disconnect() for device in self.devices]
         self.devices = [Device.make(device, self.base_track, index) for index, device in enumerate(self._track.devices)]
         self.all_devices = self._find_all_devices(self.base_track)
         self.all_visible_devices = self._find_all_devices(self.base_track, only_visible=True)
@@ -215,18 +219,15 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def delete_device(self, device):
         # type: (Device) -> None
         try:
+            device.disconnect()
             self.base_track._track.delete_device(self.base_track.devices.index(device))
             self._devices_listener()  # this should be called by Live
         except Exception:
             pass
 
     def clear_devices(self):
-        seq = Sequence()
-        for _ in range(len(self.devices)):
-            seq.add(lambda: self.delete_device(self.devices[0]))
-            seq.add(wait=1)
-
-        return seq.done()
+        for device in self.devices:
+            self.delete_device(self.devices[0])
 
     def _find_all_devices(self, track_or_chain, only_visible=False):
         # type: (Union[SimpleTrack, DeviceChain]) -> List[Device]

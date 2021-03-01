@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 import time
+import itertools
 from functools import partial
 import Live
 
@@ -35,8 +36,9 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self.audio_track.linked_track = self.midi_track
         self._midi_track_synchronizer = ObjectSynchronizer(self.base_track, self.midi_track, "_track", ["solo"])
 
-        for midi_clip_slot, audio_clip_slot in itertools.izip(self.midi_track.clip_slots, self.audio_track.clip_slots)]:
-            ClipSlotSynchronizer(midi_clip_slot, audio_clip_slot)
+        self._clip_slot_synchronizers = [ClipSlotSynchronizer(midi_clip_slot, audio_clip_slot) for
+                                        midi_clip_slot, audio_clip_slot in
+                                        itertools.izip(self.midi_track.clip_slots, self.audio_track.clip_slots)]
 
     @property
     def arm(self):
@@ -68,7 +70,11 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         return len(self.song.scenes) - 1
 
     @forward_property('audio_track')
-    def set_output_routing_to(self): pass
+    def set_output_routing_to(self):
+        pass
 
     def disconnect(self):
+        super(ExternalSynthTrack, self).disconnect()
         self._midi_track_synchronizer.disconnect()
+        for clip_slot_synchronizer in self._clip_slot_synchronizers:
+            clip_slot_synchronizer.disconnect()

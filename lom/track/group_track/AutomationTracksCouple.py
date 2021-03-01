@@ -1,9 +1,14 @@
+import itertools
+from functools import partial
+
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
+from a_protocol_0.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
 from a_protocol_0.lom.track.simple_track.AutomationAudioTrack import AutomationAudioTrack
 from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMidiTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
+from a_protocol_0.sequence.Sequence import Sequence
 
 
 class AutomationTracksCouple(AbstractObject):
@@ -21,7 +26,9 @@ class AutomationTracksCouple(AbstractObject):
         self.audio_track.linked_track = self.audio_track
 
         self._track_synchronizer = ObjectSynchronizer(self.audio_track, self.midi_track, "_track", ["mute", "solo"])
-        self.audio_track._set_automated_device_and_parameter()
+        self._clip_slot_synchronizers = [ClipSlotSynchronizer(midi_clip_slot, audio_clip_slot) for
+                                        midi_clip_slot, audio_clip_slot in
+                                        itertools.izip(self.midi_track.clip_slots, self.audio_track.clip_slots)]
 
         # replace obsolete simple_tracks
         self.song.simple_tracks[audio_simple_track.index] = self.audio_track
@@ -38,7 +45,15 @@ class AutomationTracksCouple(AbstractObject):
         audio_simple_track.disconnect()
         midi_simple_track.disconnect()
 
+    def _added_track_init(self):
+        self.audio_track.loaded = False
+        self.audio_track._added_track_init()
+        self.midi_track._added_track_init()
+
+
     def disconnect(self):
         super(AutomationTracksCouple, self).disconnect()
         self._track_synchronizer.disconnect()
+        for clip_slot_synchronizer in self._clip_slot_synchronizers:
+            clip_slot_synchronizer.disconnect()
 
