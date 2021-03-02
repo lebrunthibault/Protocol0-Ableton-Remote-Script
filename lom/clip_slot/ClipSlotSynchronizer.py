@@ -29,7 +29,7 @@ class ClipSlotSynchronizer(ObjectSynchronizer):
             self._clip_synchronizer.disconnect()
         if clip_slot.clip and clip_slot.linked_clip_slot.clip:
             self._clip_synchronizer = ClipSynchronizer(
-                    clip_slot.linked_clip_slot.clip, clip_slot.clip, "_clip",
+                    clip_slot.linked_clip_slot.clip, clip_slot.clip,
                     ["name", "looping", "loop_start", "loop_end",
                      "start_marker", "end_marker"])
         else:

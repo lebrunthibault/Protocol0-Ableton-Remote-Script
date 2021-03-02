@@ -30,10 +30,12 @@ class Clip(ClipActionMixin, AbstractObject):
         self._previous_name = self._clip.name
         self._notes_listener.subject = self._clip
         self._is_recording_listener.subject = self._clip
+        self._warping_listener.subject = self._clip  # for audio clips only
         self.color = self.track.base_color
 
         # NOTES
         # storing notes for note change comparison
+        self._muted_notes = []  # type: List[Note]  # keeping this separate
         self._prev_notes = self.get_notes() if self.is_midi_clip else []  # type: List[Note]
         self._added_note = None  # type: Note
         self._is_updating_notes = False
@@ -52,6 +54,11 @@ class Clip(ClipActionMixin, AbstractObject):
     @p0_subject_slot("name")
     def _name_listener(self):
         pass
+
+    @p0_subject_slot("warping")
+    def _warping_listener(self):
+        if self.warping:
+            self.looping = True
 
     @staticmethod
     def make(clip_slot):

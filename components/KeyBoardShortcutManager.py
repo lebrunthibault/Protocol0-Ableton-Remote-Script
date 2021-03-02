@@ -21,7 +21,9 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
 
     def _execute_python(self, filename, *args):
         # type: (str, Any) -> int
-        parameters = ["pythonw.exe", PROTOCOL0_FOLDER + "\\scripts\\python\\%s" % filename]
+        python3_exe = "C:\\Users\\thiba\\AppData\\Local\\Programs\\Python\\Python39\\pythonw.exe"
+        # parameters = ["pythonw", PROTOCOL0_FOLDER + "\\scripts\\python\\%s" % filename]
+        parameters = [python3_exe, PROTOCOL0_FOLDER + "\\scripts\\python\\%s" % filename]
         for arg in args:
             parameters.append(str(arg))
 
@@ -80,7 +82,7 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
 
     def toggle_device_button(self, x, y, activate=True):
         # type: (int, int) -> None
-        self._execute_ahk("deactivate_ableton_button.ahk", str(x), str(y), "1" if activate else "0")
+        self._execute_python("toggle_ableton_button.py", str(x), str(y), "1" if activate else "0")
 
     def is_plugin_window_visible(self, plugin_name=""):
         # type: (str) -> bool

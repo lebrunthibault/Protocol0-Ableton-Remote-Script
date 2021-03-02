@@ -25,21 +25,22 @@ class AutomationAudioTrack(AbstractAutomationTrack):
         self._solo_listener.subject = self._track
         self._current_monitoring_state_listener.subject = self._track
 
-        # to speed up creation we instantiate the AutomationGroupTrack before it is renamed
-        if ":" not in self.name and self.parent.automationTrackManager.current_parameter:
-            parameter = self.parent.automationTrackManager.current_parameter
-            (device_name, parameter_name) = (parameter.device.name, parameter.name)
-        else:
-            parameter_info = AbstractAutomationTrack.get_parameter_info_from_track_name(self.base_name)
-            (device_name, parameter_name) = (parameter_info.device_name, parameter_info.parameter_name)
+        parameter_info = AbstractAutomationTrack.get_parameter_info_from_track_name(self.base_name)
         (device, parameter) = self.parent.deviceManager.get_device_and_parameter_from_name(track=self,
-                                                                            device_name=device_name,
-                                                                            parameter_name=parameter_name)
+                                                                            device_name=parameter_info.device_name,
+                                                                            parameter_name=parameter_info.parameter_name)
         self.automated_parameter = parameter
         self.has_monitor_in = True
         self.set_input_routing_type, None
 
         self.push2_selected_main_mode = 'device'
+
+    @p0_subject_slot("playing_slot_index")
+    def _playing_slot_index_listener(self):
+        # type: () -> None
+        super(AutomationAudioTrack, self)._playing_slot_index_listener()
+        if self.track_name.playing_slot_index < 0:
+            self.parent.defer(partial(setattr, self.automated_parameter, "value", self.automated_parameter.default_value))
 
     @p0_subject_slot("mute")
     def _mute_listener(self):

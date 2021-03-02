@@ -15,8 +15,8 @@ if TYPE_CHECKING:
 class SequenceStep(AbstractObject):
     __subject_events__ = ('terminated',)
 
-    def __init__(self, func, sequence, wait=None, name=None, log_level=SequenceLogLevel.debug, complete_on=None,
-                 do_if=None, do_if_not=None, return_if=None, return_if_not=None, check_timeout=5, silent=False, *a, **k):
+    def __init__(self, func, sequence, wait, name, complete_on,
+                 do_if, do_if_not, return_if, return_if_not, check_timeout, silent, log_level, *a, **k):
         """ the tick is 100 ms """
         super(SequenceStep, self).__init__(*a, **k)
         self._seq = sequence  # type: Sequence
@@ -166,7 +166,7 @@ class SequenceStep(AbstractObject):
             listener.add_callback(self._terminate)
         else:
             self._callback_timeout = TimeoutLimit(func=self._terminate, awaited_listener=listener,
-                                                  timeout_limit=pow(2, self._check_timeout),
+                                                  timeout_limit=self._check_timeout,
                                                   on_timeout=self._step_timed_out)
             listener.add_callback(self._callback_timeout)
 

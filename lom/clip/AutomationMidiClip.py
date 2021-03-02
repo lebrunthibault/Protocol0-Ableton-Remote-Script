@@ -5,6 +5,7 @@ from itertools import chain
 
 from typing import List, TYPE_CHECKING
 
+from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.AbstractAutomationClip import AbstractAutomationClip
 from a_protocol_0.lom.clip.AutomationRamp import AutomationRampMode, AutomationRamp
@@ -73,6 +74,7 @@ class AutomationMidiClip(AbstractAutomationClip):
     def _map_notes(self, notes=None, check_change=False):
         # type: (List[Note]) -> Sequence
         notes = notes or Note.copy_notes(self._prev_notes)
+        self.parent.log_debug(notes)
         if len(notes) == 0 or (check_change and (self._is_updating_notes or notes == self._prev_notes)):
             return
 
@@ -117,7 +119,7 @@ class AutomationMidiClip(AbstractAutomationClip):
             notes.sort(key=lambda x: x.start)
             notes = list(set(note_transform(notes)))
             if len(notes) == 0:
-                raise RuntimeError("Problem after transform %s, no notes left" % note_transform.__name__)
+                raise Protocol0Error("Problem after transform %s, no notes left" % note_transform.__name__)
             # self.parent.log_debug("_-__-_-_-_-_-_-_")
             # self.parent.log_debug("after transform %s" % note_transform.__name__)
             # self.parent.log_debug(notes)

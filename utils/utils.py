@@ -114,7 +114,7 @@ def is_method(func):
 
 
 def is_partial(func):
-    return str(type(func)) == "<type 'functools.partial'>"
+    return "functools.partial" in str(type(func))
 
 
 def is_lambda(func):

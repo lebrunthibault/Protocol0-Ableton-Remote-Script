@@ -3,6 +3,7 @@ from functools import partial
 from ClyphX_Pro.clyphx_pro.actions.BrowserActions import BrowserActions
 from _Framework.Util import find_if
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.device.DeviceType import DeviceType
 from a_protocol_0.sequence.Sequence import Sequence
 
@@ -18,9 +19,9 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
         elif device_type == DeviceType.ABLETON_DEVICE:
             load_func = partial(self._load_device, device_name)
         else:
-            raise RuntimeError("DeviceType not handled : %s" % device_type)
+            raise Protocol0Error("DeviceType not handled : %s" % device_type)
 
-        seq.add(load_func)
+        seq.add(load_func, check_timeout=15)
 
         return seq.done()
 

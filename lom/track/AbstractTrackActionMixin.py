@@ -130,10 +130,15 @@ class AbstractTrackActionMixin(object):
             self.playable_clip.start_marker = self.parent.utilsManager.get_next_quantized_position(playing_position,
                                                                                                    self.playable_clip.length)
 
-    def stop(self):
-        # type: (AbstractTrack) -> None
+    def stop(self, immediate=False):
+        # type: (AbstractTrack, bool) -> None
+        qz = self.song.clip_trigger_quantization
+        if immediate:
+            self.song.clip_trigger_quantization = 0
         self.base_track._track.stop_all_clips()
         self.base_track.track_name.set(playing_slot_index=-1)
+        if immediate:
+            self.parent.defer(partial(setattr, self.song, "clip_trigger_quantization", qz))
 
     def action_undo(self):
         # type: (AbstractTrack) -> None

@@ -48,7 +48,8 @@ class DeviceManager(AbstractControlSurfaceComponent):
                 return track.instrument
             return InstrumentSimpler(track=track, device=simpler_device)
 
-        instrument_device = find_if(lambda d: d.is_plugin and d.name.lower() in INSTRUMENT_NAME_MAPPINGS, track.all_devices)
+        instrument_device = find_if(lambda d: d.is_plugin and d.name.lower() in INSTRUMENT_NAME_MAPPINGS,
+                                    track.all_devices)
         if not instrument_device:
             if EXTERNAL_SYNTH_MINITAUR_NAME in track.name.lower():
                 return track.instrument or InstrumentMinitaur(track=track, device=None)
@@ -194,7 +195,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
             if device in rack_device.chains[0].devices:
                 return rack_device
 
-        raise Protocol0Error("The device %s is too be too nested to be detected" % device.name)
+        raise Protocol0Error("Couldn't find device %s (may be too nested to be detected)" % device.name)
 
     def get_device_and_parameter_from_name(self, track, device_name, parameter_name):
         # type: (AbstractTrack, str, str) -> Tuple[Device, DeviceParameter]
@@ -206,6 +207,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
         parameter = find_if(lambda p: parameter_name.lower() == p.name.lower(), device.parameters)
 
         if device is None:
-            raise Protocol0Error("Couldn't find parameter name %s for device % in track %s" % (parameter_name, device, track))
+            raise Protocol0Error(
+                "Couldn't find parameter name %s for device % in track %s" % (parameter_name, device, track))
 
         return (device, parameter)

@@ -182,7 +182,8 @@ class Sequence(AbstractObject):
         self.notify_terminated()
 
     def add(self, callback=nop, wait=None, name=None, complete_on=None, do_if=None, do_if_not=None, return_if=None,
-            return_if_not=None, check_timeout=5, no_timeout=False, silent=False):
+            return_if_not=None, check_timeout=20, no_timeout=False, silent=False, log_level=SequenceLogLevel.debug):
+        """ check_timeout is in live ticks """
         if no_timeout:
             check_timeout = 0
         """

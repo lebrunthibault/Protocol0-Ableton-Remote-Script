@@ -19,12 +19,16 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class ClipActionMixin(object):
-    def get_notes(self):
-        # type: (Clip) -> List[Note]
+    def get_notes(self, exclude_muted=True):
+        # type: (Clip, bool) -> List[Note]
         if not self._clip:
             return []
         notes = [Note(*note, clip=self) for note in
                  self._clip.get_notes(self.loop_start, 0, self.length, 128)]
+        self._muted_notes = [note for note in notes if note.muted]
+        if exclude_muted:
+            notes = [note for note in notes if not note.muted]
+
         notes.sort(key=lambda x: x.start)
         return notes
 
@@ -34,7 +38,8 @@ class ClipActionMixin(object):
             return
         self._is_updating_notes = True
         if cache:
-            self._prev_notes = notes
+            self._prev_notes = [note for note in notes if not note.muted]
+        notes += [note for note in self._muted_notes if note.start == 0]  # reintegrating muted notes
         seq = Sequence()
         seq.add(partial(method, tuple(note.to_data() for note in notes)))
         # noinspection PyUnresolvedReferences
@@ -113,14 +118,12 @@ class ClipActionMixin(object):
             return
         seq = Sequence()
         if self.is_recording:
-            qz = self.track.song.clip_trigger_quantization
-            self.track.song.clip_trigger_quantization = 0
-            self.track.stop()
+            self.track.stop(immediate=True)
 
         seq.add(self.clip_slot.delete_clip, complete_on=self.clip_slot._has_clip_listener)
+
         if self.is_recording:
             seq.add(self.delete)
-            seq.add(partial(setattr, self.track.song, "clip_trigger_quantization", qz))
 
         return seq.done()
 

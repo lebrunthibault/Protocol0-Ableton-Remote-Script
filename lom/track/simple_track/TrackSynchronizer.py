@@ -1,0 +1,26 @@
+from _Framework.CompoundElement import subject_slot_group
+from typing import TYPE_CHECKING
+
+from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
+
+if TYPE_CHECKING:
+    from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
+
+
+class TrackSynchronizer(ObjectSynchronizer):
+    def __init__(self, master, slave, *a, **k):
+        # type: (SimpleTrack, SimpleTrack) -> None
+        super(TrackSynchronizer, self).__init__(master, slave, "_track", *a, **k)
+        self.master = self.master  # type: SimpleTrack
+        self.slave = self.slave  # type: SimpleTrack
+
+        master.linked_track = slave
+        slave.linked_track = master
+
+        self._playing_slot_index_listener.replace_subjects([master, slave])
+
+    @subject_slot_group("playing_slot_index")
+    def _playing_slot_index_listener(self, track):
+        # type: (SimpleTrack) -> None
+        if track.playing_slot_index < 0 and track.linked_track.is_playing:
+            track.linked_track.stop(immediate=True)

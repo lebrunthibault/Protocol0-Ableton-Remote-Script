@@ -1,8 +1,8 @@
 KillProcess (GetProcessFromNameOrTitle "*logs terminal*")
 $host.ui.RawUI.WindowTitle = "logs terminal"
 
-$version = $Env:abletonVersion
-#$version = "11.0b29"
+#$version = $Env:abletonVersion
+$version = "11.0"
 
 $logFile = "$env:userprofile\AppData\Roaming\Ableton\Live $version\Preferences\Log.txt"
 $startSize = 70
@@ -30,7 +30,7 @@ function Get-LogColor
             {
                 Return "Green"
             }
-            elseif ($LogEntry.Contains("error") -or $LogEntry.Contains("a_protocol_0") -or $LogEntry.Contains("RuntimeError") -or $LogEntry.Contains("exception"))
+            elseif ($LogEntry.Contains("error") -or $LogEntry.Contains("a_protocol_0") -or $LogEntry.Contains("RuntimeError") -or $LogEntry.Contains("Protocol0Error") -or $LogEntry.Contains("exception"))
             {
                 Return "Red"
                 FocusLogs

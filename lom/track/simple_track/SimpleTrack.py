@@ -19,7 +19,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         if self.group_track:
             self.group_track.sub_tracks.append(self)
         self.linked_track = None  # type: Optional[SimpleTrack]
-        # self._clip_slots_listener.subject = self._track
         self._playing_slot_index_listener.subject = self._track
         self.instrument = self.parent.deviceManager.make_instrument_from_simple_track(track=self)
         if self.is_midi:  # could later create a SimpleMidiTrack class if necessary
@@ -35,20 +34,21 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def __hash__(self):
         return self.index
 
-    # @subject_slot("clip_slots")
-    # def _clip_slots_listener(self):
-    #     # type: (SimpleTrack) -> None
-    #     self.clip_slots = [ClipSlot.make(clip_slot=clip_slot, index=index, track=self) for (index, clip_slot) in
-    #                        enumerate(list(self._track.clip_slots))]
-
     @subject_slot("playing_slot_index")
     @defer
     def _playing_slot_index_listener(self):
         # type: () -> None
         # don't record track stop if we stopped all clips
-        if self._track.playing_slot_index >= 0 or any([track.is_playing for track in self.song.simple_tracks]):
-            self.track_name.set(playing_slot_index=self._track.playing_slot_index)
+        if self.playing_slot_index >= 0 or any([track.is_playing for track in self.song.simple_tracks]):
+            self.track_name.set(playing_slot_index=self.playing_slot_index)
         [setattr(clip, "is_selected", False) for clip in self.clips]
+
+        # noinspection PyUnresolvedReferences
+        self.notify_playing_slot_index()
+
+    @property
+    def playing_slot_index(self):
+        return self._track.playing_slot_index
 
     @property
     def is_playing(self):
@@ -108,7 +108,10 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         elif len(self._empty_clip_slots):
             index = self._empty_clip_slots[0].index
 
-        if index is None:
+        if index:
+            return index
+        else:
+            # todo: this is not sync
             self.song.create_scene()
             return len(self.song.scenes) - 1
 

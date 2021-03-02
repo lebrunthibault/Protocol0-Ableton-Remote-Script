@@ -27,26 +27,28 @@ class AutomationTrackManager(AbstractControlSurfaceComponent):
         seq = Sequence()
         self.parent.songManager.abstract_group_track_creation_in_progress = True
 
-        if self.song.current_track != self.song.selected_track:
-            group_track = self.song.current_track
-        elif self.song.selected_track.group_track:
-            group_track = self.song.selected_track.group_track
+        if self.song.selected_track.abstract_group_track:
+            base_track = self.song.selected_track.abstract_group_track
+        elif self.song.selected_track.group_track and len(self.song.selected_track.group_track.sub_tracks) == 1:
+            base_track = self.song.selected_track.group_track
         else:
-            group_track = self.song.selected_track
+            base_track = self.song.selected_track
 
-        if not group_track.is_foldable or (isinstance(group_track, SimpleGroupTrack) and len(group_track.sub_tracks) > 1):
+        if not base_track.is_foldable:
             seq.add(self.parent.trackManager.group_track)
         else:
             seq.add(lambda: setattr(self.song.current_track, "is_folded", False), name="unfold group track")
 
         track_name = AbstractAutomationTrack.get_automation_track_name_from_parameter(parameter)
 
+        self.parent.log_debug(base_track)
+        self.parent.log_debug(base_track.index)
         # this should not be parallelized
-        seq.add(partial(self.parent.trackManager.create_audio_track, group_track.index + 1, name=track_name, device=parameter.device))
-        seq.add(partial(self.parent.trackManager.create_midi_track, group_track.index + 2, name=track_name))
+        seq.add(partial(self.parent.trackManager.create_audio_track, base_track.index + 1, name=track_name, device=parameter.device))
+        seq.add(partial(self.parent.trackManager.create_midi_track, base_track.index + 2, name=track_name))
         seq.add(lambda: setattr(self.parent.songManager, "abstract_group_track_creation_in_progress", False))
         # storing the indexes makes the setup faster
-        seq.add(partial(setattr, self, "created_tracks_indexes", set([group_track.index + 1, group_track.index + 2])))
+        seq.add(partial(setattr, self, "created_tracks_indexes", set([base_track.index + 1, base_track.index + 2])))
         seq.add(self.parent.songManager._tracks_listener)  # instantiating AutomatedTrack on first parameter automation
         seq.add(partial(setattr, self, "created_tracks_indexes", set()))
 

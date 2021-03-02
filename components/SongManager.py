@@ -26,7 +26,7 @@ class SongManager(AbstractControlSurfaceComponent):
         self._tracks_listener()
         self._highlighted_clip_slot = self.song.highlighted_clip_slot
         self._highlighted_clip_slot_poller()
-        self.parent._wait(2, self.song.reset)
+        self.song.reset()
 
     @has_callback_queue
     def on_selected_track_changed(self):
@@ -82,7 +82,7 @@ class SongManager(AbstractControlSurfaceComponent):
 
         if added_track:
             added_track_index = self.song.simple_tracks.index(self.song.selected_track)
-            if added_track_index > 0 and self.song.simple_tracks[added_track_index].name == self.song.selected_track.name:
+            if added_track_index > 0 and self.song.simple_tracks[added_track_index - 1].name == self.song.selected_track.name:
                 self.song.current_track._is_duplicated = True
             # noinspection PyUnresolvedReferences
             self.notify_added_track()

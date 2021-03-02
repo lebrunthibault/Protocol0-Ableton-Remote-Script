@@ -53,9 +53,10 @@ class DeviceParameter(AbstractObject):
         # type: (int) -> float
         return scale_from_value(midi_value, 0, 127, self.min, self.max)
 
-    def get_midi_value_from_value(self):
-        # type: () -> float
-        return scale_from_value(self.value, self.min, self.max, 0, 127)
+    def get_midi_value_from_value(self, value=None):
+        # type: (float) -> float
+        value = self.value if value is None else value
+        return scale_from_value(value, self.min, self.max, 0, 127)
 
     @property
     def min(self):

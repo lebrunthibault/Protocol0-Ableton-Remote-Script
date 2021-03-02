@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, List
 
 from _Framework.Util import clamp, find_if
 from a_protocol_0.consts import PUSH2_BEAT_QUANTIZATION_STEPS
+from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.utils import is_equal
@@ -40,8 +41,8 @@ class Note(AbstractObject):
         return hash((self.pitch, self.start, self.duration, self.velocity, self.muted))
 
     def __repr__(self):
-        return "{start:%.2f, duration:%.2f, pitch:%s, vel:%s}" % (
-            self.start, self.duration, self.pitch, self.velocity)
+        return "{start:%.2f, duration:%.2f, pitch:%s, vel:%s, muted: %s}" % (
+            self.start, self.duration, self.pitch, self.velocity, self.muted)
 
     def to_data(self):
         return (self.pitch, self.start, self.duration, self.velocity, self.muted)
@@ -81,7 +82,7 @@ class Note(AbstractObject):
     def duration(self, duration):
         self._duration = max(0, duration)
         if self._duration == 0:
-            raise RuntimeError("A Note with a duration of 0 is not accepted")
+            raise Protocol0Error("A Note with a duration of 0 is not accepted")
 
     @property
     def velocity(self):

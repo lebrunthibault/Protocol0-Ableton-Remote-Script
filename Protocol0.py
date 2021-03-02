@@ -39,6 +39,7 @@ class Protocol0(ControlSurface):
         super(Protocol0, self).__init__(c_instance=c_instance)
         # noinspection PyProtectedMember
         Protocol0.SELF = self
+        self.song().stop_playing()
         self._c_instance.log_message = types.MethodType(lambda s, message: None, self._c_instance)
         self._is_dev_booted = False
         with self.component_guard():
@@ -61,10 +62,8 @@ class Protocol0(ControlSurface):
             self.actionSetManager = ActionSetManager()
             self.actionTestManager = ActionTestManager()
             if init_song:
-                seq = Sequence().add(wait=1)
-                seq.add(self.songManager.init_song)
-                seq.add(self.dev_boot)
-                seq.done()
+                self.songManager.init_song()
+                self.dev_boot()
 
         self.log_info("Protocol0 script loaded")
 

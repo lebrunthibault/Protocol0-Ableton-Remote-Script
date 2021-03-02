@@ -3,6 +3,7 @@ from collections import namedtuple
 from typing import Tuple, Optional, Any
 
 from a_protocol_0.consts import AUTOMATION_TRACK_NAME
+from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.device.DeviceType import DeviceType
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
@@ -18,8 +19,12 @@ class AbstractAutomationTrack(SimpleTrack):
     @staticmethod
     def get_automation_track_name_from_parameter(parameter):
         # type: (DeviceParameter) -> str
+        from a_protocol_0 import Protocol0
+        if parameter is None:
+            raise Protocol0Error("You passed None to get_automation_track_name_from_parameter, selected_track : %s" % Protocol0.SELF.protocol0_song.selected_track)
+
         if parameter.device.device_type == DeviceType.PLUGIN_DEVICE:
-            raise RuntimeError("Plugin devices cannot be automated, use a rack instead: %s" % parameter.device)
+            raise Protocol0Error("Plugin devices cannot be automated, use a rack instead: %s" % parameter.device)
 
         return "%s:%s:%s:%s" % (
             parameter.name, parameter.device.name, parameter.device.device_type, AUTOMATION_TRACK_NAME)

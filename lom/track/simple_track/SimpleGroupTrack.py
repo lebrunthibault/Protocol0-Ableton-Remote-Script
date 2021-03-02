@@ -18,7 +18,7 @@ class SimpleGroupTrack(SimpleTrack):
             self.set_output_routing_to(output_routing_tracks[0])
             [sub_track.set_output_routing_to(self) for sub_track in self.sub_tracks]
 
-        if len(self.devices) == 0:
+        if not self.has_device("Mix Rack"):
             seq.add(partial(self.load_any_device, DeviceType.RACK_DEVICE, "Mix Rack"))
 
         return seq.done()

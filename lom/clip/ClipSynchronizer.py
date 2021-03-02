@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 class ClipSynchronizer(ObjectSynchronizer):
     def __init__(self, master, slave, *a, **k):
         # type: (Clip, Clip) -> None
-        super(ClipSynchronizer, self).__init__(master, slave, *a, **k)
+        super(ClipSynchronizer, self).__init__(master, slave, "_clip", *a, **k)
         self.master = self.master  # type: Clip
         self.slave = self.slave  # type: Clip
 

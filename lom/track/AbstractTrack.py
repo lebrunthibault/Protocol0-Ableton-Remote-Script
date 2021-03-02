@@ -18,6 +18,7 @@ from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.device.DeviceChain import DeviceChain
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
+from a_protocol_0.lom.device.DeviceType import DeviceType
 from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.lom.track.AbstractTrackActionMixin import AbstractTrackActionMixin
 from a_protocol_0.lom.track.TrackName import TrackName
@@ -31,7 +32,7 @@ if TYPE_CHECKING:
 
 
 class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
-    __subject_events__ = ('instrument',)
+    __subject_events__ = ('instrument', 'playing_slot_index')
 
     ADDED_TRACK_INIT_ENABLED = True
 
@@ -89,6 +90,8 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         if not self._is_duplicated:
             self.set_device_parameter_value("Arpeggiator rack", "Chain Selector", 0)
             self.set_device_parameter_value("Serum rack", "Arp select", 0)
+            if not self.has_device("Mix Rack"):
+                self.load_any_device(DeviceType.RACK_DEVICE, "Mix Rack")
 
         seq = Sequence()
         [seq.add(clip.delete) for clip in self.song.current_track.all_clips]
@@ -210,6 +213,9 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def get_device(self, device):
         # type: (Live.Device.Device) -> Optional[Device]
         return find_if(lambda d: d._device == device, self.base_track.all_devices)
+
+    def has_device(self, device_name):
+        return find_if(lambda d: d.name == device_name, self.base_track.all_devices)
 
     @property
     def selected_device(self):

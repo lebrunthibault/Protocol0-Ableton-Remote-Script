@@ -3,12 +3,11 @@ from functools import partial
 
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
 from a_protocol_0.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
 from a_protocol_0.lom.track.simple_track.AutomationAudioTrack import AutomationAudioTrack
 from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMidiTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
-from a_protocol_0.sequence.Sequence import Sequence
+from a_protocol_0.lom.track.simple_track.TrackSynchronizer import TrackSynchronizer
 
 
 class AutomationTracksCouple(AbstractObject):
@@ -25,7 +24,7 @@ class AutomationTracksCouple(AbstractObject):
         self.midi_track.linked_track = self.audio_track
         self.audio_track.linked_track = self.audio_track
 
-        self._track_synchronizer = ObjectSynchronizer(self.audio_track, self.midi_track, "_track", ["mute", "solo"])
+        self._track_synchronizer = TrackSynchronizer(self.audio_track, self.midi_track, ["mute", "solo"])
         self._clip_slot_synchronizers = [ClipSlotSynchronizer(midi_clip_slot, audio_clip_slot) for
                                         midi_clip_slot, audio_clip_slot in
                                         itertools.izip(self.midi_track.clip_slots, self.audio_track.clip_slots)]

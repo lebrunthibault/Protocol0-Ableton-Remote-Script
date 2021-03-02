@@ -8,6 +8,7 @@ from _Framework.Util import forward_property
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.group_track.ExternalSynthTrackActionMixin import ExternalSynthTrackActionMixin
+from a_protocol_0.lom.track.simple_track.TrackSynchronizer import TrackSynchronizer
 from a_protocol_0.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
 from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
 from a_protocol_0.sequence.Sequence import Sequence
@@ -32,8 +33,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self._instrument_listener.subject = self.instrument_track
         self._instrument_listener()
 
-        self.midi_track.linked_track = self.audio_track
-        self.audio_track.linked_track = self.midi_track
+        self._midi_audio_synchronizer = TrackSynchronizer(self.audio_track, self.midi_track)
         self._midi_track_synchronizer = ObjectSynchronizer(self.base_track, self.midi_track, "_track", ["solo"])
 
         self._clip_slot_synchronizers = [ClipSlotSynchronizer(midi_clip_slot, audio_clip_slot) for
@@ -76,5 +76,6 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     def disconnect(self):
         super(ExternalSynthTrack, self).disconnect()
         self._midi_track_synchronizer.disconnect()
+        self._midi_audio_synchronizer.disconnect()
         for clip_slot_synchronizer in self._clip_slot_synchronizers:
             clip_slot_synchronizer.disconnect()
