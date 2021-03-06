@@ -18,4 +18,4 @@ def test_sequence_is_always_returned():
             file_content = f.read()
             instantiated_sequences = file_content.count("Sequence(")
             returned_sequences = file_content.count("seq.done(")  # expecting coherent naming
-            assert instantiated_sequences == returned_sequences, code_file
+            assert instantiated_sequences <= returned_sequences, code_file

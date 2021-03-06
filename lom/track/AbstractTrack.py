@@ -101,7 +101,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def name(self):
         # type: () -> str
-        return self._track.name
+        return self._track.name if self._track else ""
 
     @name.setter
     def name(self, name):
@@ -326,12 +326,12 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @abstractproperty
     def is_recording(self):
         # type: () -> bool
-        pass
+        raise NotImplementedError
 
     @abstractproperty
     def arm(self):
         # type: () -> bool
-        pass
+        raise NotImplementedError
 
     @property
     def output_meter_level(self):

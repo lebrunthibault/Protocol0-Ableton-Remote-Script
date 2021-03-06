@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 from a_protocol_0.devices.InstrumentMinitaur import InstrumentMinitaur
 from a_protocol_0.lom.Colors import Colors
+from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -41,33 +42,43 @@ class ExternalSynthTrackActionMixin(object):
     def action_record_all(self):
         # type: (ExternalSynthTrack) -> None
         seq = Sequence()
+        if self.next_empty_clip_slot_index is None:
+            self.song.create_scene()
+            self.parent.defer(lambda: self.song.current_track.action_record_all())
+            return seq.done()
+
         midi_clip_slot = self.midi_track.clip_slots[self.next_empty_clip_slot_index]
         audio_clip_slot = self.audio_track.clip_slots[self.next_empty_clip_slot_index]
-        seq.add([
-            partial(midi_clip_slot.record),
-            partial(audio_clip_slot.record),
-        ])
+        seq.add([midi_clip_slot.record, audio_clip_slot.record])
+        seq.add(self._post_record)
         return seq.done()
 
     def action_record_audio_only(self, overwrite=False):
         # type: (ExternalSynthTrack, bool) -> None
-        seq = Sequence()
+        midi_clip = self.midi_track.playable_clip or self.song.highlighted_clip_slot.clip
+        if not midi_clip:
+            self.parent.show_message("No midi clip selected")
+            return
 
+        self.song.metronome = False
+
+        seq = Sequence()
         clip_slot_index = self.next_empty_clip_slot_index
         self.song.recording_bar_count = int(round((self.midi_track.playable_clip.length + 1) / 4))
-        midi_clip_slot = self.midi_track.clip_slots[clip_slot_index]
-        audio_clip_slot = self.audio_track.clip_slots[clip_slot_index]
+        midi_clip_slot = self.midi_track.clip_slots[clip_slot_index]  # type: ClipSlot
+        audio_clip_slot = self.audio_track.clip_slots[clip_slot_index]  # type: ClipSlot
         seq.add(partial(self.midi_track.playable_clip.clip_slot.duplicate_clip_to, midi_clip_slot))
         seq.add(lambda: setattr(midi_clip_slot.clip, "start_marker", 0))
-        seq.add(lambda: setattr(midi_clip_slot.clip, "is_playing", True))
+        seq.add(lambda: midi_clip_slot.clip.play())
         seq.add(audio_clip_slot.record)
+        seq.add(self._post_record)
         return seq.done()
 
     def action_undo_track(self):
         # type: (ExternalSynthTrack) -> None
         [sub_track.action_undo_track() for sub_track in self.sub_tracks]
 
-    def _post_record(self, only_audio):
+    def _post_record(self):
         # type: (ExternalSynthTrack, bool) -> None
         self.song.metronome = False
         self.midi_track.has_monitor_in = False

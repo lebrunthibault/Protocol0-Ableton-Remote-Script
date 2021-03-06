@@ -3,6 +3,7 @@ from functools import partial
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import RECORDING_TIMES, TRACK_CATEGORIES, TRACK_CATEGORY_ALL, PLAY_MENU_OPTIONS
 from a_protocol_0.controls.MultiEncoder import MultiEncoder
+from a_protocol_0.lom.device.PluginDevice import PluginDevice
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.utils.decorators import button_action
 from a_protocol_0.utils.utils import scroll_values
@@ -18,30 +19,21 @@ class ActionManager(AbstractControlSurfaceComponent):
 
         # FOLD encoder
         MultiEncoder(channel=15, identifier=2,
-                     on_press=self.action_fold_tracks)
+                     on_press=self.action_fold_track,
+                     on_long_press=self.action_fold_tracks,
+                     )
 
-        # TRacK encoder
-        MultiEncoder(channel=15, identifier=13,
-                     on_press=self.action_arm_track,
-                     on_long_press=self.action_solo_track,
-                     on_shift_long_press=self.action_un_solo_all_tracks,
-                     on_scroll=self.action_scroll_tracks)
+        # MONitor encoder
+        MultiEncoder(channel=15, identifier=3,
+                     on_press=self.action_switch_track_monitoring)
 
-        # PRESet encoder
-        MultiEncoder(channel=15, identifier=14,
-                     on_press=self.action_show_track_instrument,
-                     on_scroll=self.action_scroll_track_instrument_presets,
-                     on_shift_scroll=self.action_scroll_simpler_drum_categories)
+        # UNDO encoder
+        MultiEncoder(channel=15, identifier=4,
+                     on_press=self.action_undo)
 
-        # DEVice encoder
-        MultiEncoder(channel=15, identifier=15,
-                     on_press=self.action_track_collapse_selected_device,
-                     on_scroll=self.action_scroll_track_devices)
-
-        # CLIP encoder
-        MultiEncoder(channel=15, identifier=16,
-                     on_press=self.action_play_selected_tracks,
-                     on_scroll=self.action_scroll_track_clips)
+        # LFO encoder (add group track with lfo tool binding)
+        MultiEncoder(channel=15, identifier=5,
+                     on_press=self.action_set_up_lfo_tool_automation)
 
         # RECord encoder
         MultiEncoder(channel=15, identifier=9,
@@ -63,17 +55,31 @@ class ActionManager(AbstractControlSurfaceComponent):
                      on_long_press=self.action_restart_category,
                      on_scroll=self.action_scroll_track_categories)
 
-        # MONitor encoder
-        MultiEncoder(channel=15, identifier=3,
-                     on_press=self.action_switch_track_monitoring)
+        # TRacK encoder
+        MultiEncoder(channel=15, identifier=13,
+                     on_press=self.action_arm_track,
+                     on_long_press=self.action_solo_track,
+                     on_shift_long_press=self.action_un_solo_all_tracks,
+                     on_scroll=self.action_scroll_tracks)
 
-        # LFO encoder (add group track with lfo tool binding)
-        MultiEncoder(channel=15, identifier=5,
-                     on_press=self.action_set_up_lfo_tool_automation)
+        # PRESet encoder
+        MultiEncoder(channel=15, identifier=14,
+                     on_press=self.action_show_track_instrument,
+                     on_scroll=self.action_scroll_track_instrument_presets,
+                     on_shift_scroll=self.action_scroll_simpler_drum_categories)
 
-        # UNDO encoder
-        MultiEncoder(channel=15, identifier=4,
-                     on_press=self.action_undo)
+        # DEVice encoder
+        MultiEncoder(channel=15, identifier=15,
+                     on_press=self.action_track_collapse_selected_device,
+                     on_scroll=self.action_scroll_track_devices,
+                     on_shift_scroll=self.action_scroll_selected_device_presets,
+                     )
+
+        # CLIP encoder
+        MultiEncoder(channel=15, identifier=16,
+                     on_press=self.action_play_selected_tracks,
+                     on_scroll=self.action_scroll_track_clips)
+
 
     @button_action(log_action=False)
     def action_scroll_tracks(self, go_next):
@@ -102,7 +108,7 @@ class ActionManager(AbstractControlSurfaceComponent):
     @button_action()
     def action_show_track_instrument(self):
         """ Sel instrument track and open instrument window """
-        self.song.current_track.action_show_instrument()
+        self.song.current_track.action_show_hide_instrument()
 
     @button_action(log_action=False)
     def action_scroll_track_instrument_presets(self, go_next):
@@ -128,9 +134,25 @@ class ActionManager(AbstractControlSurfaceComponent):
             self.song.select_device(selected_device)
 
     @button_action(log_action=False)
+    def action_scroll_selected_device_presets(self, go_next):
+        """ record both midi and audio on group track """
+        self.parent.clyphxNavigationManager.focus_detail()
+
+        if not isinstance(self.song.current_track.selected_device, PluginDevice):
+            self.parent.show_message("Presets scrolling is only available for plugin devices")
+            return
+
+        selected_device = self.song.current_track.selected_device  # type: PluginDevice
+        selected_device.is_collapsed = False
+        selected_device.selected_preset_index = scroll_values(selected_device.presets, selected_device.selected_preset,
+                                                              go_next, return_index=True)
+
+    @button_action(log_action=False)
     def action_track_collapse_selected_device(self):
         """ record both midi and audio on group track """
-        self.song.current_track.selected_device._view.is_collapsed = not self.song.current_track.selected_device._view.is_collapsed
+        if not self.song.current_track.selected_device:
+            return
+        self.song.current_track.selected_device.is_collapsed = not self.song.current_track.selected_device.is_collapsed
 
     @button_action(log_action=False)
     def action_scroll_track_recording_times(self, go_next):
@@ -147,8 +169,9 @@ class ActionManager(AbstractControlSurfaceComponent):
     @button_action(auto_arm=True)
     def action_track_record_audio(self, overwrite=False):
         """ record only audio on group track """
-        return self.song.current_track.action_restart_and_record(partial(self.song.current_track.action_record_audio_only, overwrite=overwrite),
-                                                                 only_audio=True)
+        return self.song.current_track.action_restart_and_record(
+            partial(self.song.current_track.action_record_audio_only, overwrite=overwrite),
+            only_audio=True)
 
     @button_action(log_action=False)
     def action_scroll_track_categories(self, go_next):
@@ -200,6 +223,11 @@ class ActionManager(AbstractControlSurfaceComponent):
     @button_action()
     def action_set_up_lfo_tool_automation(self):
         self.parent.automationTrackManager.create_automation_group(self.song.selected_parameter)
+
+    @button_action()
+    def action_fold_track(self):
+        """" undo last recording """
+        self.song.current_track.is_folded = not self.song.current_track.is_folded
 
     @button_action()
     def action_fold_tracks(self):

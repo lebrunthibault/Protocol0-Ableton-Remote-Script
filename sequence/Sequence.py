@@ -106,7 +106,7 @@ class Sequence(AbstractObject):
 
     def _start(self):
         if self._state == SequenceState.TERMINATED:
-            self.parent.log_error("You tried to execute a terminated sequence")
+            self.parent.log_error("You tried to execute a terminated sequence: %s" % self)
             return
         if self._state == SequenceState.STARTED:
             return
@@ -188,7 +188,7 @@ class Sequence(AbstractObject):
             check_timeout = 0
         """
             callback can be :
-            - None: can be used to just wait on a condition
+            - not given (nop): can be used to just wait on a condition
             - a SequenceStep
             - a callable or a list of callable which are added as SequenceStep
         """

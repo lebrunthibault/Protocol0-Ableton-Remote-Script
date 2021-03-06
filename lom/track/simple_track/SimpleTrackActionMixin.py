@@ -24,11 +24,7 @@ class SimpleTrackActionMixin(object):
             self.arm = True
 
         if self.instrument and self.instrument.NEEDS_EXCLUSIVE_ACTIVATION:
-            selected_track = self.song.selected_track
-            seq = Sequence()
-            seq.add(self.instrument.check_activated, wait=1)
-            seq.add(partial(self.song.select_track, selected_track))
-            return seq.done()
+            self.instrument.check_activated()
 
     def action_switch_monitoring(self):
         # type: (SimpleTrack) -> None
@@ -39,6 +35,7 @@ class SimpleTrackActionMixin(object):
         """ finishes on end of recording """
         seq = Sequence()
         seq.add(self.clip_slots[self._next_empty_clip_slot_index].record)
+        seq.add(self._post_record)
         return seq.done()
 
     def action_undo_track(self):
@@ -73,8 +70,7 @@ class SimpleTrackActionMixin(object):
     def scroll_clips(self, go_next):
         # type: (SimpleTrack, bool) -> None
         selected_clip_slot = None  # type: ClipSlot
-        self.parent.clyphxNavigationManager._app_view.show_view('Session')
-        self.parent.clyphxNavigationManager.focus_main()
+        self.parent.clyphxNavigationManager.show_clip_view()
         if not len(self.clips):  # scroll clip_slots when track is empty
             if self.song.highlighted_clip_slot and self.song.highlighted_clip_slot.index == 0 and not go_next:
                 return self.parent.keyboardShortcutManager.up()

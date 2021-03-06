@@ -64,7 +64,7 @@ loadVst(search, vst = true, unGroupRack = false, createMidiTrack = false, positi
         Sleep 1000
     }
 
-    Send ^!p ; hide plugin windows
+    hidePlugins()
     clearSearchBox()
     Send %search%
 
@@ -72,7 +72,7 @@ loadVst(search, vst = true, unGroupRack = false, createMidiTrack = false, positi
 
     if (positionInResults == 0) {
         Send {Down down} ; Press down the up-arrow key.
-        Sleep 1500 ; Keep it down for one second.
+        Sleep 1500 ; Keep it down for 1.5 second.
         Send {Down up} ; Release the up-arrow key.
     } else {
         while (positionInResults-- > 0) {
@@ -84,16 +84,13 @@ loadVst(search, vst = true, unGroupRack = false, createMidiTrack = false, positi
 
     if unGroupRack {
         Sleep 1000
+        ; hack to select the rack so that we can ungroup
         Send +{Tab}
         Send +{Tab}
         Send ^+g
     }
 
-    if vst {
-        Send ^!p
-    }
     clearSearchBox()
-    Send ^!p
 
     return
 }
@@ -150,7 +147,7 @@ relaunchAbleton()
 saveAndSetAsTemplate()
 {
     Send ^,
-    MouseClick, left, 711, 331 ; click on File Folder
+    MouseClick, left, 711, 351 ; click on File Folder
     MouseClick, left, 1032, 201
     Sleep 50
     MouseClick, left, 1032, 228

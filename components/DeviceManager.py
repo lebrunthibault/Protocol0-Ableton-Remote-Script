@@ -41,10 +41,10 @@ class DeviceManager(AbstractControlSurfaceComponent):
         if not len(track.all_devices):
             return None
 
-        simpler_device = find_if(lambda d: d.is_simpler, track.all_devices)  # type: Live.Device.Device
+        simpler_device = find_if(lambda d: d.is_simpler, track.all_devices)  # type: Device
         if simpler_device:
             # simpler devices can change, other
-            if track.instrument and track.instrument.device._device == simpler_device:
+            if track.instrument and track.instrument.device == simpler_device:
                 return track.instrument
             return InstrumentSimpler(track=track, device=simpler_device)
 
@@ -111,24 +111,16 @@ class DeviceManager(AbstractControlSurfaceComponent):
     def _get_device_click_x_position(self, device_position):
         return self.WIDTH_PIXEL_OFFSET + device_position * self.COLLAPSED_DEVICE_PIXEL_WIDTH
 
-    def is_plugin_window_visible(self, device=None, try_show=False):
-        # type: (Device, bool) -> Sequence
-        seq = Sequence()
-        if try_show:
-            seq.add(self.parent.keyboardShortcutManager.show_plugins,
-                    do_if_not=partial(self.parent.keyboardShortcutManager.is_plugin_window_visible, device.name),
-                    wait=1)
-
-        seq.add(partial(self.parent.keyboardShortcutManager.is_plugin_window_visible, device.name))
-
-        return seq.done()
-
     def check_plugin_window_showable(self, device):
         # type: (Device) -> Optional[Sequence]
-        seq = Sequence()
-        seq.add(partial(self._make_device_showable, device),
-                do_if_not=partial(self.is_plugin_window_visible, device, try_show=True))
-        return seq.done()
+        if self.parent.keyboardShortcutManager.is_plugin_window_visible(device.name):
+            return
+
+        self.parent.keyboardShortcutManager.show_plugins()
+        if self.parent.keyboardShortcutManager.is_plugin_window_visible(device.name):
+            return
+
+        return self._make_device_showable(device)
 
     def _make_device_showable(self, device):
         # type: (Device) -> Sequence
@@ -137,14 +129,14 @@ class DeviceManager(AbstractControlSurfaceComponent):
         parent_rack = self._find_parent_rack(device)
 
         if not parent_rack:
-            [setattr(d._view, "is_collapsed", True) for d in device.track.devices]
+            [setattr(d, "is_collapsed", True) for d in device.track.devices]
             (x_device, y_device) = self._get_device_show_button_click_coordinates(device)
             seq.add(lambda: self.parent.keyboardShortcutManager.send_click(x=x_device, y=y_device), wait=1,
                     name="click on device show button")
-            seq.add(lambda: setattr(device._view, "is_collapsed", False), wait=1, name="uncollapse all devices")
+            seq.add(lambda: setattr(device, "is_collapsed", False), wait=1, name="uncollapse all devices")
         else:
-            [setattr(d._view, "is_collapsed", True) for d in device.track.devices if d != parent_rack]
-            [setattr(d._view, "is_collapsed", True) for d in parent_rack.chains[0].devices]
+            [setattr(d, "is_collapsed", True) for d in device.track.devices if d != parent_rack]
+            [setattr(d, "is_collapsed", True) for d in parent_rack.chains[0].devices]
 
             (x_rack, y_rack) = self._get_rack_show_macros_button_click_coordinates(parent_rack)
             (x_device, y_device) = self._get_device_show_button_click_coordinates(device, parent_rack)
@@ -156,7 +148,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
                     name="click on device show button")
             seq.add(lambda: self.parent.keyboardShortcutManager.toggle_device_button(x=x_rack, y=y_rack, activate=True),
                     wait=1, name="show rack macro controls")
-            seq.add(lambda: [setattr(d._view, "is_collapsed", False) for d in parent_rack.chains[0].devices], wait=0,
+            seq.add(lambda: [setattr(d, "is_collapsed", False) for d in parent_rack.chains[0].devices],
                     name="uncollapse all rack devices")
             # at this point the rack macro controls could still be hidden if the plugin window masks the button
 

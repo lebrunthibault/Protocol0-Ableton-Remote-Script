@@ -1,29 +1,20 @@
-from enum import Enum
 from typing import TYPE_CHECKING
 
-from a_protocol_0.errors.Protocol0Error import Protocol0Error
+from a_protocol_0.utils.AbstractEnum import AbstractEnum
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.clip.Clip import Clip
 
 
-class AutomationRampMode(Enum):
+class AutomationRampMode(AbstractEnum):
     NO_RAMP = ""
     END_RAMP = "*"
     LINEAR_RAMP = "/"
 
     @classmethod
-    def has_value(cls, value):
-        return value in cls._value2member_map_
-
-    @classmethod
-    def get_from_value(cls, value):
-        value = value.strip()
-        if not value or not AutomationRampMode.has_value(value):
-            return AutomationRampMode.NO_RAMP
-        else:
-            return AutomationRampMode(value)
+    def default(cls):
+        return AutomationRampMode.NO_RAMP
 
 
 class AutomationRamp(object):

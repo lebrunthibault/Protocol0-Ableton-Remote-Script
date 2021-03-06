@@ -41,8 +41,6 @@ class AutomationTrackManager(AbstractControlSurfaceComponent):
 
         track_name = AbstractAutomationTrack.get_automation_track_name_from_parameter(parameter)
 
-        self.parent.log_debug(base_track)
-        self.parent.log_debug(base_track.index)
         # this should not be parallelized
         seq.add(partial(self.parent.trackManager.create_audio_track, base_track.index + 1, name=track_name, device=parameter.device))
         seq.add(partial(self.parent.trackManager.create_midi_track, base_track.index + 2, name=track_name))

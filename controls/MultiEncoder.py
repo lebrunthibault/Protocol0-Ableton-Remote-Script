@@ -19,7 +19,9 @@ class MultiEncoder(AbstractObject):
         self.identifier = identifier
         self.on_press = on_press
         self.on_release = on_release
-        self.on_long_press = on_long_press or on_press
+        self.on_long_press = on_long_press
+        if not self.on_long_press and not self.on_release:
+            self.on_long_press = on_press
         self.on_shift_press = on_shift_press
         self.on_shift_long_press = on_shift_long_press or on_shift_press
         self.on_scroll = on_scroll

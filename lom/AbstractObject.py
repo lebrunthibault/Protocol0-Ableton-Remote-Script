@@ -24,6 +24,8 @@ class AbstractObject(SlotManager, Subject):
             repr = "%s: %s" % (repr, self.name)
         if hasattr(self, 'index'):
             repr = "%s (%s)" % (repr, self.index)
+        if hasattr(self, '_device'):
+            repr = "%s (%s)" % (repr, self._device)
 
         return repr
 

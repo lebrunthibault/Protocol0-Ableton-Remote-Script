@@ -58,16 +58,10 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     @property
     def next_empty_clip_slot_index(self):
         # type: () -> ClipSlot
-        current_index = max(
-            getattr(self.midi_track.playable_clip or self.midi_track.last_clip, "index", -1),
-            getattr(self.audio_track.playable_clip or self.audio_track.last_clip, "index", -1)
-        )
-
-        for i in range(current_index + 1, len(self.song.scenes)):
+        for i in range(self.song.selected_scene_index, len(self.song.scenes)):
             if not self.midi_track.clip_slots[i].has_clip and not self.audio_track.clip_slots[i].has_clip:
                 return i
-        self.song.create_scene()
-        return len(self.song.scenes) - 1
+        return None
 
     @forward_property('audio_track')
     def set_output_routing_to(self):

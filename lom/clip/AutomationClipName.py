@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Optional
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.clip.AutomationRamp import AutomationRamp
+from a_protocol_0.lom.clip.ClipName import ClipName
 from a_protocol_0.utils.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
@@ -12,11 +13,10 @@ if TYPE_CHECKING:
     from a_protocol_0.lom.clip.AbstractAutomationClip import AbstractAutomationClip
 
 
-class AutomationClipName(AbstractObject):
+class AutomationClipName(ClipName):
     def __init__(self, clip, *a, **k):
         # type: (AbstractAutomationClip) -> None
-        super(AutomationClipName, self).__init__(*a, **k)
-        self.clip = clip
+        super(AutomationClipName, self).__init__(clip, *a, **k)
         self._base_name = ""
         self._automation_ramp_up = AutomationRamp()
         self._automation_ramp_down = AutomationRamp()

@@ -45,7 +45,7 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
     @log
     def send_keys(self, keys, repeat=False):
         # type: (str, bool) -> None
-        seq = Sequence()
+        seq = Sequence(silent=True)
         seq.add(self.parent.clyphxNavigationManager.focus_main)
         seq.add(partial(self._execute_python, "send_keys.py", keys))
         if repeat:
@@ -86,8 +86,8 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
 
     def is_plugin_window_visible(self, plugin_name=""):
         # type: (str) -> bool
-        """ we cannot do this inside of ahk because the sleeping prevents the window to show """
-        return bool(self._execute_ahk("show_plugins_and_check.ahk", str(plugin_name)))
+        """ we cannot do ctrl alt p and recheck inside of ahk because the sleeping prevents the window to show """
+        return bool(self._execute_ahk("is_plugin_visible.ahk", str(plugin_name)))
 
     def show_and_activate_rev2_editor(self):
         self.send_keys("^{F3}")

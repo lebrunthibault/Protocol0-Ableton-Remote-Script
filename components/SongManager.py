@@ -1,7 +1,9 @@
 import collections
+import itertools
+from copy import copy
 from plistlib import Dict
 
-from typing import Optional, Any
+from typing import Optional, Any, List
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
@@ -47,17 +49,20 @@ class SongManager(AbstractControlSurfaceComponent):
         if len(self.song.simple_tracks) and len(self.song._song.tracks) > len(self.song.simple_tracks):
             added_track = True
 
-        # reset state
-        [track.disconnect() for track in self.song.simple_tracks + self.song.abstract_group_tracks]
+        former_simple_tracks = self.song.simple_tracks
         self.song.simple_tracks = self.song.abstract_group_tracks = []
         self._simple_track_to_abstract_group_track = {}
         abstract_tracks = collections.OrderedDict()
 
-        # 1. Generate simple tracks
+        # 1. Generate simple tracks and sync back previous objects
         for i, track in enumerate(list(self.song._song.tracks)):
             simple_track = self.parent.trackManager.instantiate_simple_track(track=track, index=i)
             self._live_track_to_simple_track[track] = simple_track
             self.song.simple_tracks.append(simple_track)
+
+        self._sync_instrument_activation_states(former_simple_tracks, self.song.simple_tracks)
+        # reset state
+        [track.disconnect() for track in former_simple_tracks + self.song.abstract_group_tracks]
 
         # 2. Generate abstract group tracks
         self.song.abstract_group_tracks = list(filter(None,
@@ -71,7 +76,8 @@ class SongManager(AbstractControlSurfaceComponent):
         # 3. Populate abstract_tracks property and track.abstract_group_track
         for track in self.song.simple_tracks:  # type: SimpleTrack
             # first case is : AutomatedTrack wrapping ExternalSynthTrack
-            abstract_track = getattr(track.abstract_group_track, "abstract_group_track", None) or track.abstract_group_track or track
+            abstract_track = getattr(track.abstract_group_track, "abstract_group_track",
+                                     None) or track.abstract_group_track or track
             abstract_tracks[abstract_track] = None
         self.song.abstract_tracks = abstract_tracks.keys()
 
@@ -82,16 +88,60 @@ class SongManager(AbstractControlSurfaceComponent):
 
         if added_track:
             added_track_index = self.song.simple_tracks.index(self.song.selected_track)
-            if added_track_index > 0 and self.song.simple_tracks[added_track_index - 1].name == self.song.selected_track.name:
+            if added_track_index > 0 and self.song.simple_tracks[
+                added_track_index - 1].name == self.song.selected_track.name:
                 self.song.current_track._is_duplicated = True
             # noinspection PyUnresolvedReferences
             self.notify_added_track()
+
+    def _sync_instrument_activation_states(self, former_simple_tracks, current_simple_tracks):
+        # type: (List[SimpleTrack], List[SimpleTrack]) -> None
+        """ not handling track suppression for now """
+        if len(former_simple_tracks) == 0:
+            return
+        self._set_current_track()
+        index = self.song.selected_track.index
+        difference = abs(len(current_simple_tracks) - len(former_simple_tracks))
+
+        # added track
+        if len(former_simple_tracks) < len(current_simple_tracks):
+            current_simple_tracks = current_simple_tracks[0:index] + current_simple_tracks[index + difference:]
+        elif len(former_simple_tracks) > len(current_simple_tracks):
+            """ 
+                when one or multiple tracks are deleted the right next track is then the selected track 
+                except when the last track(s) are deleted (there is no right track) so we need to check for this case
+            """
+            former = former_simple_tracks[0:index] + former_simple_tracks[index + difference:]
+            if self.song.selected_track == self.song.root_tracks[-1] and not self._are_track_lists_equivalent(former, current_simple_tracks):
+                former = former_simple_tracks[0:len(current_simple_tracks)]
+            former_simple_tracks = former
+
+        if not self._are_track_lists_equivalent(former_simple_tracks, current_simple_tracks):
+            raise Protocol0Error(
+                "An error occurred while syncing instrument activation states, track lists are not equivalent")
+
+        for old_track, new_track in itertools.izip(former_simple_tracks, current_simple_tracks):
+            if old_track.instrument and new_track.instrument:
+                new_track.instrument.activated = old_track.instrument.activated
+                if old_track.instrument.active_instance == old_track.instrument:
+                    new_track.instrument.active_instance = new_track.instrument
+
+    def _are_track_lists_equivalent(self, former_simple_tracks, current_simple_tracks):
+        # type: (List[SimpleTrack], List[SimpleTrack]) -> bool
+        if len(former_simple_tracks) != len(current_simple_tracks):
+            return False
+
+        if any([old_track.name != new_track.name for old_track, new_track in
+                itertools.izip(former_simple_tracks, current_simple_tracks)]):
+            return False
+
+        return True
 
     def _highlighted_clip_slot_poller(self):
         # type: () -> None
         if self.song.highlighted_clip_slot != self._highlighted_clip_slot:
             self._highlighted_clip_slot = self.song.highlighted_clip_slot
-            if self.song.highlighted_clip_slot and self.song.highlighted_clip_slot.has_clip:
+            if self.song.highlighted_clip_slot and self.song.highlighted_clip_slot.clip:
                 self.parent.push2Manager.update_clip_grid_quantization()
                 self._highlighted_clip_slot.clip._on_selected()
         self.parent.defer(self._highlighted_clip_slot_poller)

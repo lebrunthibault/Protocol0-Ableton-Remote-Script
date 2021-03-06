@@ -19,7 +19,7 @@ class SongActionMixin(object):
         # type: (Song, AbstractTrack, bool) -> Sequence
         if self.song.selected_track == selected_track.base_track:
             return
-        seq = Sequence()
+        seq = Sequence(silent=True)
         seq.add(partial(setattr, self._view, "selected_track", selected_track._track), wait=1)
         return seq.done()
 
@@ -53,14 +53,6 @@ class SongActionMixin(object):
         self.stop_playing()
         self._song.current_song_time = 0
         [track.reset_track() for track in self.abstract_tracks]
-        seq = Sequence()
-        for track in [track for track in self.abstract_tracks if track.instrument and isinstance(track.instrument, InstrumentSerum)]:
-            seq.add(track.action_arm)
-            seq.add(partial(track.instrument.set_preset, track.preset_index))
-            seq.add(wait=1)
-            seq.add(track.action_unarm)
-
-        return seq.done()
 
     def stop_playing(self):
         # type: (Song) -> None

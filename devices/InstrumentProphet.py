@@ -9,8 +9,6 @@ class InstrumentProphet(AbstractInstrument):
 
     def exclusive_activate(self):
         # type: () -> Sequence
-        self.active_instance = self
-
         seq = Sequence()
         seq.add(partial(self.song.select_track, self.device_track))
         seq.add(self.parent.keyboardShortcutManager.show_and_activate_rev2_editor, wait=3)

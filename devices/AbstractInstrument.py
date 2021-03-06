@@ -20,6 +20,7 @@ class AbstractInstrument(AbstractObject):
     PRESETS_PATH = None
     PRESET_EXTENSION = ""
     NEEDS_EXCLUSIVE_ACTIVATION = False
+    NEEDS_ACTIVATION_FOR_PRESETS_CHANGE = False
     _active_instance = None  # type: AbstractInstrument
 
     def __init__(self, track, device, *a, **k):
@@ -27,7 +28,7 @@ class AbstractInstrument(AbstractObject):
         super(AbstractInstrument, self).__init__(*a, **k)
         self.track = track  # this could be a group track
         self.device_track = track  # this will always be the track of the device
-        self.device = device
+        self.device = device  # type: Device
         if device:
             self.can_be_shown = True
             self.activated = False
@@ -57,10 +58,10 @@ class AbstractInstrument(AbstractObject):
         return
 
     @property
-    def needs_activation(self):
+    def should_be_activated(self):
         return not self.activated or (self.NEEDS_EXCLUSIVE_ACTIVATION and self.active_instance != self)
 
-    def check_activated(self):
+    def check_activated(self, keep_focus=False):
         if not self.can_be_shown:
             return
 
@@ -73,21 +74,23 @@ class AbstractInstrument(AbstractObject):
 
         if self.NEEDS_EXCLUSIVE_ACTIVATION and self.active_instance != self:
             seq.add(self.exclusive_activate)
+            seq.add(partial(setattr, self, "active_instance", self))
+
+        if not keep_focus:
+            seq.add(partial(self.song.select_track, self.song.selected_track))
 
         return seq.done()
 
-    def show_hide(self, force_show=False):
-        # here we are on the device track
-        force_show = force_show or not self.activated
-        seq = Sequence()
-        seq.add(self.check_activated)
-        seq.add(wait=1)
-        if force_show:
-            seq.add(self.parent.keyboardShortcutManager.show_plugins)
+    def show_hide(self):
+        is_shown = self.parent.keyboardShortcutManager.is_plugin_window_visible(self.name)
+        if not self.should_be_activated or is_shown:
+            seq = Sequence()
+            seq.add(partial(self.song.select_track, self.device.track))
+            # happens when clicking from current track
+            seq.add(self.parent.keyboardShortcutManager.show_hide_plugins, do_if_not=lambda: self.parent.keyboardShortcutManager.is_plugin_window_visible(self.name) and not is_shown)
+            seq.done()
         else:
-            seq.add(self.parent.keyboardShortcutManager.show_hide_plugins)
-
-        return seq.done()
+            self.check_activated()
 
     def _get_presets_path(self):
         return self.PRESETS_PATH
@@ -123,7 +126,9 @@ class AbstractInstrument(AbstractObject):
             # note: in the case of fast scrolling on a simpler, _devices_listener is not called in time
             # so the following could fail but will succeed just after so we just ignore the error
             seq.add(partial(self.song.select_device, self.device), silent=True)
-            seq.add(lambda: setattr(self.device._view, "is_collapsed", False))
+            if self.NEEDS_ACTIVATION_FOR_PRESETS_CHANGE:
+                seq.add(self.check_activated)
+            seq.add(lambda: setattr(self.device, "is_collapsed", False))
 
         seq.add(partial(self._scroll_presets_or_sample, go_next))
         return seq.done()

@@ -46,7 +46,7 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         pass
 
-    def action_show_instrument(self):
+    def action_show_hide_instrument(self):
         # type: (AbstractTrack) -> None
         if not self.instrument:
             self.instrument_track.instrument = self.parent.deviceManager.make_instrument_from_simple_track(
@@ -56,7 +56,7 @@ class AbstractTrackActionMixin(object):
             return
         self.parent.clyphxNavigationManager.show_track_view()
         self.is_folded = False
-        self.instrument.show_hide(force_show=self.song.selected_track != self.instrument.device_track)
+        self.instrument.show_hide()
 
     def action_solo(self):
         # type: (AbstractTrack) -> None
@@ -66,6 +66,25 @@ class AbstractTrackActionMixin(object):
     def action_switch_monitoring(self):
         # type: (AbstractTrack) -> None
         pass
+
+    def action_check_and_prepare_recording(self):
+        # type: (AbstractTrack, Callable, bool) -> None
+        """ restart audio to get a count in and recfix"""
+        if not self.can_be_armed:
+            return False
+        if self.is_recording:
+            self.action_undo()
+            return False
+        if self.song._song.session_record_status != Live.Song.SessionRecordStatus.off:
+            return False
+        self.song._song.session_automation_record = True
+
+        self.song.stop_playing()
+
+        if len(filter(None, [t.is_hearable for t in self.song.simple_tracks])) <= 1:
+            self.song.metronome = True
+
+        return True
 
     def action_restart_and_record(self, action_record_func, only_audio=False):
         # type: (AbstractTrack, Callable, bool) -> None
@@ -80,13 +99,10 @@ class AbstractTrackActionMixin(object):
 
         self.song.stop_playing()
 
-        if len(filter(None, [t.is_hearable for t in self.song.simple_tracks])) <= 1 and not only_audio:
+        if len(filter(None, [t.is_hearable for t in self.song.simple_tracks])) <= 1:
             self.song.metronome = True
 
-        seq = Sequence()
-        seq.add(action_record_func)
-        seq.add(partial(self._post_record, only_audio=only_audio))
-        return seq.done()
+        action_record_func()
 
     def _post_record(self, *a, **k):
         # type: (AbstractTrack, Any, Any) -> None
@@ -166,7 +182,7 @@ class AbstractTrackActionMixin(object):
     def collapse_devices(self):
         # type: (AbstractTrack) -> None
         for device in self.all_devices:
-            device._view.is_collapsed = not (
+            device.is_collapsed = not (
                         isinstance(device, RackDevice) or self.parent.deviceManager.is_track_instrument(
                     self, device))
 

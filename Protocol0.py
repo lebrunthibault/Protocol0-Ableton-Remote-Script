@@ -26,8 +26,6 @@ from a_protocol_0.components.UtilsManager import UtilsManager
 from a_protocol_0.consts import LogLevel
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.Song import Song
-from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import wait
 from a_protocol_0.utils.log import log_ableton
 
 
@@ -99,10 +97,14 @@ class Protocol0(ControlSurface):
         # type: (Callable) -> None
         self._wait(1, callback)
 
-    def wait_bars(self, bar_count, message):
+    def wait_beats(self, beats, callback):
         # type: (int, Callable) -> None
-        ticks = round((600 / self.protocol0_song._song.tempo) * (4 * int(bar_count) - 0.5))
-        self._wait(ticks, message)
+        ticks = round((600 / self.protocol0_song._song.tempo) * (beats - 0.5))
+        self._wait(ticks, callback)
+
+    def wait_bars(self, bar_count, callback):
+        # type: (int, Callable) -> None
+        self.wait_beats(4 * bar_count, callback)
 
     def _wait(self, ticks_count, callback):
         # type: (int, callable) -> None

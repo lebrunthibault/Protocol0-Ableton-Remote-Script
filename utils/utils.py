@@ -40,7 +40,7 @@ def parse_midi_channel(num_as_string):
     return parse_number(num_as_string, default_value=1, min_value=1, max_value=16) - 1
 
 
-def scroll_values(items, selected_item, go_next, default=None):
+def scroll_values(items, selected_item, go_next, default=None, return_index=False):
     # type: (List[Any], Optional[Any], bool, Any) -> Optional[Any]
     if len(items) == 0:
         return None
@@ -55,7 +55,7 @@ def scroll_values(items, selected_item, go_next, default=None):
             except ValueError:
                 pass
 
-    return items[index]
+    return index if return_index else items[index]
 
 
 def find_where(predicate, seq):

@@ -19,6 +19,11 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class ClipActionMixin(object):
+    def play(self):
+        # type: (Clip) -> None
+        if self._clip:
+            self.is_playing = True
+
     def get_notes(self, exclude_muted=True):
         # type: (Clip, bool) -> List[Note]
         if not self._clip:

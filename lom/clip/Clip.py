@@ -5,6 +5,8 @@ from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
 from a_protocol_0.lom.clip.ClipActionMixin import ClipActionMixin
+from a_protocol_0.lom.clip.ClipName import ClipName
+from a_protocol_0.lom.clip.ClipType import ClipType
 from a_protocol_0.utils.decorators import p0_subject_slot, is_change_deferrable
 
 if TYPE_CHECKING:
@@ -14,7 +16,7 @@ if TYPE_CHECKING:
 
 
 class Clip(ClipActionMixin, AbstractObject):
-    __subject_events__ = ('notes', 'name', 'linked')
+    __subject_events__ = ('notes', 'linked')
 
     def __init__(self, clip_slot, *a, **k):
         # type: (ClipSlot) -> None
@@ -32,6 +34,7 @@ class Clip(ClipActionMixin, AbstractObject):
         self._is_recording_listener.subject = self._clip
         self._warping_listener.subject = self._clip  # for audio clips only
         self.color = self.track.base_color
+        self.clip_name = ClipName(self)
 
         # NOTES
         # storing notes for note change comparison
@@ -49,10 +52,6 @@ class Clip(ClipActionMixin, AbstractObject):
 
     @p0_subject_slot("is_recording")
     def _is_recording_listener(self):
-        pass
-
-    @p0_subject_slot("name")
-    def _name_listener(self):
         pass
 
     @p0_subject_slot("warping")
@@ -74,6 +73,11 @@ class Clip(ClipActionMixin, AbstractObject):
             return AutomationAudioClip(clip_slot=clip_slot)
         else:
             return Clip(clip_slot=clip_slot)
+
+    @property
+    def type(self):
+        # type: () -> ClipType
+        return ClipType.get_from_value(self.clip_name.base_name.split(" ")[0])
 
     @property
     def name(self):
@@ -182,6 +186,8 @@ class Clip(ClipActionMixin, AbstractObject):
     @is_change_deferrable
     def color(self, color_index):
         # type: (int) -> None
+        if self.track.base_color != color_index:
+            return
         if self._clip and color_index != self._clip.color_index:
             self._clip.color_index = int(color_index)
 

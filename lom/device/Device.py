@@ -29,6 +29,10 @@ class Device(AbstractObject):
         self.can_have_chains = self._device.can_have_chains
         self.device_type = DeviceType.ABLETON_DEVICE
 
+    def __eq__(self, device):
+        # type: (Device) -> bool
+        return device and self._device == device._device
+
     @staticmethod
     def make(device, track, index):
         # type: (Live.Device.Device, SimpleTrack, int) -> Device
@@ -48,6 +52,14 @@ class Device(AbstractObject):
     @property
     def is_active(self):
         return self._device.is_active
+
+    @property
+    def is_collapsed(self):
+        return self._view.is_collapsed
+
+    @is_collapsed.setter
+    def is_collapsed(self, is_collapsed):
+        self._view.is_collapsed = is_collapsed
 
     @subject_slot("parameters")
     def _parameters_listener(self):

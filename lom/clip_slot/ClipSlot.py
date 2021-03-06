@@ -36,6 +36,9 @@ class ClipSlot(AbstractObject):
         # type: (ClipSlot) -> bool
         return clip_slot and self._clip_slot == clip_slot._clip_slot
 
+    def __repr__(self):
+        repr = super(ClipSlot, self).__repr__()
+        return "%s (%s)" % (repr, "has_clip" if self.has_clip else "empty")
 
     @staticmethod
     def make(clip_slot, index, track):
@@ -86,7 +89,6 @@ class ClipSlot(AbstractObject):
         self.parent.show_message("Starting recording of %d bars" % self.song.recording_bar_count)
         seq.add(partial(self.fire, record_length=self.parent.utilsManager.get_beat_time(self.song.recording_bar_count)),
                 complete_on=self._has_clip_listener)
-        seq.add(lambda: setattr(self.clip, "name", "%s bars" % self.song.recording_bar_count))
         seq.add(complete_on=lambda: self.clip._is_recording_listener, no_timeout=True,
                 name="awaiting clip recording end")
         return seq.done()
@@ -94,9 +96,6 @@ class ClipSlot(AbstractObject):
     def fire(self, record_length):
         # type: (int) -> None
         self._clip_slot.fire(record_length=record_length)
-
-    def stop(self):
-        self._clip_slot.stop()
 
     def duplicate_clip_to(self, clip_slot):
         # type: (ClipSlot) -> None

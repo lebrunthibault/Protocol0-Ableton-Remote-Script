@@ -63,8 +63,6 @@ class SequenceStep(AbstractObject):
 
     def __repr__(self):
         output = self.name
-        if self._wait:
-            output += " (and wait %s)" % self._wait
         if self._complete_on:
             if _has_callback_queue(self._complete_on):
                 output += " (and wait for listener call : %s)" % get_callable_name(self._complete_on)

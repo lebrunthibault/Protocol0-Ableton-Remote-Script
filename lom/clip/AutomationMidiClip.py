@@ -74,25 +74,18 @@ class AutomationMidiClip(AbstractAutomationClip):
     def _map_notes(self, notes=None, check_change=False):
         # type: (List[Note]) -> Sequence
         notes = notes or Note.copy_notes(self._prev_notes)
-        self.parent.log_debug(notes)
         if len(notes) == 0 or (check_change and (self._is_updating_notes or notes == self._prev_notes)):
             return
 
         pitch_or_vel_changes = self.notes_changed(notes, ["pitch", "velocity"])
-        # self.parent.log_debug("notes: %s" % notes)
-        # self.parent.log_debug("_prev_notes: %s" % self._prev_notes)
-        # self.parent.log_debug("pitch_or_vel_changes: %s" % pitch_or_vel_changes)
         if len(pitch_or_vel_changes):
             self._prev_notes = notes
             return self._map_single_notes(pitch_or_vel_changes)
 
-        # log_ableton(notes)
-        # log_ableton(self._prev_notes)
         base_notes = self._filter_ramp_notes(notes)
         base_prev_notes = self._filter_ramp_notes(self._prev_notes)
         if len(base_notes) > len(base_prev_notes) and len(base_prev_notes):
             added_notes = list(set(base_notes) - set(base_prev_notes))
-            # self.parent.log_debug("added_notes: %s" % added_notes)
 
             if len(self._prev_notes) == 0:
                 notes = [added_notes[0]]
@@ -102,8 +95,6 @@ class AutomationMidiClip(AbstractAutomationClip):
                 self._added_note.velocity = self._added_note.pitch
 
             notes.sort(key=lambda x: x.start)
-
-        # self.parent.log_debug("self._added_note: %s" % self._added_note)
 
         note_transforms = [
             self._filter_out_of_range_notes,

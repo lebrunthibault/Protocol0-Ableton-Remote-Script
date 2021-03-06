@@ -65,7 +65,7 @@ class Song(SongActionMixin, AbstractObject):
         # type: () -> Live.Scene.Scene
         return self.song.scenes.index(self.song._view.selected_scene)
 
-    @property
+    @selected_scene.setter
     def selected_scene(self, selected_scene):
         # type: (Live.Scene.Scene) -> None
         self.song._view.selected_scene = selected_scene
@@ -85,6 +85,7 @@ class Song(SongActionMixin, AbstractObject):
     @property
     def root_tracks(self):
         # type: () -> List[SimpleTrack]
+        """ top tracks """
         return [track for track in self.simple_tracks if not track.group_track]
 
     @property
@@ -118,8 +119,7 @@ class Song(SongActionMixin, AbstractObject):
     @highlighted_clip_slot.setter
     def highlighted_clip_slot(self, clip_slot):
         # type: (ClipSlot) -> None
-        pass
-        # self.song._view.highlighted_clip_slot = clip_slot._clip_slot
+        self.song._view.highlighted_clip_slot = clip_slot._clip_slot
 
     @property
     def selected_parameter(self):

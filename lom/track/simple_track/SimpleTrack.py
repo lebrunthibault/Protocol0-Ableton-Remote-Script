@@ -4,6 +4,7 @@ from typing import List, Optional
 from _Framework.SubjectSlot import subject_slot
 from _Framework.Util import find_if
 from a_protocol_0.lom.clip.Clip import Clip
+from a_protocol_0.lom.clip.ClipType import ClipType
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrackActionMixin import SimpleTrackActionMixin
@@ -31,6 +32,8 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self.clip_slots = [ClipSlot.make(clip_slot=clip_slot, index=index, track=self) for (index, clip_slot) in
                            enumerate(list(self._track.clip_slots))]
 
+        self.last_clip_played = None  # type: Optional[Clip]
+
     def __hash__(self):
         return self.index
 
@@ -38,10 +41,19 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @defer
     def _playing_slot_index_listener(self):
         # type: () -> None
-        # don't record track stop if we stopped all clips
+        # handle one shot clips
+        if self.playable_clip and self.playable_clip.type == ClipType.ONE_SHOT:
+            if not self.last_clip_played or self.last_clip_played == self.playable_clip:
+                self.parent.wait_beats(self.playable_clip.length, self.stop)
+            else:
+                self.parent.wait_beats(self.playable_clip.length, self.last_clip_played.play)
+
+        # update track name
         if self.playing_slot_index >= 0 or any([track.is_playing for track in self.song.simple_tracks]):
             self.track_name.set(playing_slot_index=self.playing_slot_index)
         [setattr(clip, "is_selected", False) for clip in self.clips]
+
+        self.last_clip_played = self.playable_clip if self.playing_slot_index >= 0 else None
 
         # noinspection PyUnresolvedReferences
         self.notify_playing_slot_index()
@@ -64,7 +76,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def is_recording(self):
         # type: () -> bool
-        return any([clip_slot for clip_slot in self.clip_slots if clip_slot.has_clip and clip_slot.clip.is_recording])
+        return any([clip for clip in self.clips if clip.is_recording])
 
     @property
     def playable_clip(self):
@@ -73,15 +85,11 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         if selected_clip:
             return selected_clip
 
-        if self.track_name.playing_slot_index >= 0 and self.clip_slots[self.track_name.playing_slot_index].has_clip:
-            return self.clip_slots[self.track_name.playing_slot_index].clip
+        index = self.playing_slot_index if self.playing_slot_index >= 0 else self.track_name.playing_slot_index
+        if self.track_name.playing_slot_index >= 0 and self.clip_slots[index].has_clip:
+            return self.clip_slots[index].clip
         else:
             return None
-
-    @property
-    def last_clip(self):
-        # type: () -> Optional[Clip]
-        return self.clips[-1] if len(self.clips) else None
 
     @property
     def arm(self):
