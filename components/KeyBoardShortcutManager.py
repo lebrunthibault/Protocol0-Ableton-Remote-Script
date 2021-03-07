@@ -80,6 +80,10 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
     def hide_plugins(self):
         self.send_keys("^{F2}", repeat=True)
 
+    def click_clip_fold(self):
+        self.send_click(418, 686)
+        self.send_click(418, 686)
+
     def toggle_device_button(self, x, y, activate=True):
         # type: (int, int) -> None
         self._execute_python("toggle_ableton_button.py", str(x), str(y), "1" if activate else "0")

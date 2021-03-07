@@ -58,7 +58,6 @@ class TrackName(AbstractObject):
 
     def set(self, base_name=None, playing_slot_index=None, preset_index=None):
         # type: (Optional[str], Optional[int], Optional[int]) -> None
-        return
         playing_slot_index = playing_slot_index if playing_slot_index is not None else self.playing_slot_index
         self.playing_slot_index = clamp(playing_slot_index, -1, len(self.song.scenes) - 1)
 

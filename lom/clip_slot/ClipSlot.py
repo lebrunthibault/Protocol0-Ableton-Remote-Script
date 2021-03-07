@@ -38,7 +38,7 @@ class ClipSlot(AbstractObject):
 
     def __repr__(self):
         repr = super(ClipSlot, self).__repr__()
-        return "%s (%s)" % (repr, "has_clip" if self.has_clip else "empty")
+        return "%s (%s)" % (repr, self.clip.name if self.has_clip else "empty (of %s)" % self.track.base_name)
 
     @staticmethod
     def make(clip_slot, index, track):

@@ -215,7 +215,7 @@ def log(func):
         if is_method(func):
             func_name = "%s.%s" % (a[0].__class__.__name__, func_name)
             args = args[1:]
-        message = func_name + "(%s)" % (", ".join(args))
+        message = func_name + "(%s)" % (", ".join([str(arg) for arg in args]))
 
         from a_protocol_0 import Protocol0
         Protocol0.SELF.log_info(message, debug=False)

@@ -53,6 +53,8 @@ class SongActionMixin(object):
         self.stop_playing()
         self._song.current_song_time = 0
         [track.reset_track() for track in self.abstract_tracks]
+        from a_protocol_0.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
+        ClipSlotSynchronizer(self.song.simple_tracks[0].clip_slots[0], self.song.simple_tracks[1].clip_slots[0])
 
     def stop_playing(self):
         # type: (Song) -> None

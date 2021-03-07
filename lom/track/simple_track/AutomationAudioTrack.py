@@ -26,6 +26,8 @@ class AutomationAudioTrack(AbstractAutomationTrack):
         self._current_monitoring_state_listener.subject = self._track
 
         parameter_info = AbstractAutomationTrack.get_parameter_info_from_track_name(self.base_name)
+        self.parent.log_debug(self.base_name)
+        self.parent.log_debug(parameter_info)
         (device, parameter) = self.parent.deviceManager.get_device_and_parameter_from_name(track=self,
                                                                             device_name=parameter_info.device_name,
                                                                             parameter_name=parameter_info.parameter_name)

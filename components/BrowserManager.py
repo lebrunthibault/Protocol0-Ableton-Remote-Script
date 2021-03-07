@@ -29,7 +29,7 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
         # type: (str, bool) -> None
         seq = Sequence()
         seq.add(partial(self.load_from_user_library, None, "'%s.adg'" % rack_name),
-                complete_on=lambda: find_if(lambda d: d.name == rack_name, self.song.selected_track.devices))
+                complete_on=lambda: find_if(lambda d: d.name == rack_name, self.song.selected_track.devices), check_timeout=10)
         if hide:
             seq.add(self.parent.keyboardShortcutManager.hide_plugins, wait=1)
         return seq.done()

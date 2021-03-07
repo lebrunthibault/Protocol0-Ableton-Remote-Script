@@ -56,7 +56,8 @@ class AutomationMidiClip(AbstractAutomationClip):
             self.clip_name.set(base_name=automated_parameter.full_name,
                                ramp_mode_up=AutomationRamp(),
                                ramp_mode_down=AutomationRamp())
-        self._map_notes()
+        if len(self._prev_notes) >= 2:
+            self._map_notes()
 
     def _refresh_notes(self):
         self._prev_notes = self.get_notes()
