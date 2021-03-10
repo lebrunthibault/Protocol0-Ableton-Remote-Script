@@ -62,7 +62,7 @@ class SongManager(AbstractControlSurfaceComponent):
 
         self._sync_instrument_activation_states(former_simple_tracks, self.song.simple_tracks)
         # reset state
-        [track.disconnect() for track in former_simple_tracks + self.song.abstract_group_tracks]
+        [track.disconnect() for track in former_simple_tracks]
 
         # 2. Generate abstract group tracks
         self.song.abstract_group_tracks = list(filter(None,

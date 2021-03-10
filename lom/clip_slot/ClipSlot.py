@@ -57,11 +57,14 @@ class ClipSlot(AbstractObject):
 
         self.clip = Clip.make(clip_slot=self) if self.has_clip else None
 
+        self.parent.log_debug("has clip !")
+
         # noinspection PyUnresolvedReferences
         self.notify_has_clip()
 
     @p0_subject_slot("is_triggered")
     def _is_triggered_listener(self):
+        self.parent.log_debug("is_triggered !")
         # noinspection PyUnresolvedReferences
         self.notify_is_triggered()
 

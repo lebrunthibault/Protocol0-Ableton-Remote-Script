@@ -23,7 +23,6 @@ class ClipSlotSynchronizer(ObjectSynchronizer):
         self._is_triggered_listener.replace_subjects([master, slave])
         self._clip_synchronizer = None  # type: Optional[ClipSynchronizer]
         self._has_clip_listener(master)
-        self.parent.log_debug(self._has_clip_listener)
 
     @subject_slot_group("has_clip")
     def _has_clip_listener(self, clip_slot):

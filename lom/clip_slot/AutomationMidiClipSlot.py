@@ -21,15 +21,15 @@ class AutomationMidiClipSlot(ClipSlot):
         self.clip = self.clip  # type: AutomationMidiClip
         self.track = self.track  # type: AutomationMidiTrack
 
-    @p0_subject_slot("has_clip")
-    def _has_clip_listener(self):
-        super(AutomationMidiClipSlot, self)._has_clip_listener()
-
-        if self.clip and len(self.clip.get_notes()) == 0:
-            self.configure_base_clip()
-
-        if self.clip and self.linked_clip_slot and not self.linked_clip_slot.clip:
-            self.parent.defer(partial(self.linked_clip_slot.insert_dummy_clip, name=self.clip.name))
+    # @p0_subject_slot("has_clip")
+    # def _has_clip_listener(self):
+    #     super(AutomationMidiClipSlot, self)._has_clip_listener()
+    #
+    #     if self.clip and len(self.clip.get_notes()) == 0:
+    #         self.configure_base_clip()
+    #
+    #     if self.clip and self.linked_clip_slot and not self.linked_clip_slot.clip:
+    #         self.parent.defer(partial(self.linked_clip_slot.insert_dummy_clip, name=self.clip.name))
 
     def configure_base_clip(self):
         if not self.clip:

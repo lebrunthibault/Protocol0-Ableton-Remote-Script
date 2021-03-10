@@ -70,6 +70,17 @@ class ActionSetManager(AbstractControlSurfaceComponent):
         if self.song.selected_parameter:
             self.parent.log_info("---------------------")
             self.parent.log_info("selected_device.parameters: %s" % self.song.selected_track.selected_device.parameters)
+        if self.song.highlighted_clip_slot:
+            self.parent.log_info(".")
+            self.parent.log_info(".")
+            self.parent.log_info("********* HIGHLIGHTED_CLIP_SLOT *************")
+            self.parent.log_info("---------------------")
+            self.parent.log_info("song.highlighted_clip_slot: %s" % self.song.highlighted_clip_slot)
+            self.parent.log_info("song.highlighted_clip_slot._toto_listener: %s" % self.song.highlighted_clip_slot._toto_listener)
+            self.parent.log_info("song.highlighted_clip_slot._toto_listener.subject: %s" % self.song.highlighted_clip_slot._toto_listener.subject)
+            self.parent.log_info("song.highlighted_clip_slot._clip_slot: %s" % self.song.highlighted_clip_slot._clip_slot)
+            self.parent.log_info("song.highlighted_clip_slot.linked_clip_slot: %s" % self.song.highlighted_clip_slot.linked_clip_slot)
+
 
 
 
