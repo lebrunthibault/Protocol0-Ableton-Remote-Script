@@ -5,15 +5,17 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 SetTitleMatchMode, 2
 CoordMode,mouse,screen
 
+EnvGet, abletonFullVersion, AbletonVersion
+versionArray := StrSplit(abletonFullVersion, ".")
+MajorVersion := versionArray[1]
 
 #Include %A_ScriptDir%/utils.ahk
 
-#IfWinActive ahk_exe Ableton Live 10 Suite.exe
+;#IfWinActive ahk_exe Ableton Live 10 Suite.exe
 ; Control: ^
 ; Alt: !
 ; Shift: +
 ; Win: #
-global ableton := "Ableton Live 10 Suite"
 
 #SingleInstance force
 
@@ -215,4 +217,4 @@ loadMinitaur()
     clearSearchBox()
 }
 
-#IfWinActive
+;#IfWinActive

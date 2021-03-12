@@ -15,8 +15,6 @@ class ClipSlotSynchronizer(ObjectSynchronizer):
         self.master = self.master  # type: ClipSlot
         self.slave = self.slave  # type: ClipSlot
 
-        self.parent.log_debug("clip slot sync, master: %s, slave: %s" % (self.master, self.slave))
-
         master.linked_clip_slot = slave
         slave.linked_clip_slot = master
         self._has_clip_listener.replace_subjects([master, slave])
@@ -27,7 +25,6 @@ class ClipSlotSynchronizer(ObjectSynchronizer):
     @subject_slot_group("has_clip")
     def _has_clip_listener(self, clip_slot):
         # type: (ClipSlot) -> None
-        self.parent.log_debug("has clip listener on %s" % clip_slot)
         if self._clip_synchronizer:
             self._clip_synchronizer.disconnect()
         if clip_slot.clip and clip_slot.linked_clip_slot.clip:
@@ -39,15 +36,14 @@ class ClipSlotSynchronizer(ObjectSynchronizer):
             self._clip_synchronizer = None
 
         if not clip_slot.clip and clip_slot.linked_clip_slot.clip:
+            from a_protocol_0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+            if isinstance(clip_slot.track.abstract_group_track, ExternalSynthTrack) and clip_slot.track.is_audio:
+                return
             clip_slot.linked_clip_slot.clip.delete()
 
     @subject_slot_group("is_triggered")
     def _is_triggered_listener(self, clip_slot):
         # type: (ClipSlot) -> None
-        self.parent.log_debug("clip slot triggered : %s" % clip_slot)
-        self.parent.log_debug("clip_slot.is_triggered : %s" % clip_slot.is_triggered)
-        self.parent.log_debug("clip_slot.linked_clip_slot : %s" % clip_slot.linked_clip_slot)
-        self.parent.log_debug("clip_slot.linked_clip_slot.is_triggered : %s" % clip_slot.linked_clip_slot.is_triggered)
         if clip_slot.is_triggered and not clip_slot.linked_clip_slot.is_triggered and clip_slot.clip and clip_slot.linked_clip_slot.clip:
             clip_slot.linked_clip_slot.clip.is_playing = True
         elif not clip_slot.clip and clip_slot.linked_clip_slot.clip and not clip_slot.linked_clip_slot.clip.is_recording:

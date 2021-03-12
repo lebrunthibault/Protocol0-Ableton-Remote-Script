@@ -1,85 +1,74 @@
 from functools import partial
 
-from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from a_protocol_0.components.actionManagers.AbstractActionManager import AbstractActionManager
 from a_protocol_0.consts import RECORDING_TIMES, TRACK_CATEGORIES, TRACK_CATEGORY_ALL, PLAY_MENU_OPTIONS
-from a_protocol_0.controls.MultiEncoder import MultiEncoder
 from a_protocol_0.lom.device.PluginDevice import PluginDevice
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.utils.decorators import button_action
 from a_protocol_0.utils.utils import scroll_values
 
 
-class ActionManager(AbstractControlSurfaceComponent):
+class ActionManager(AbstractActionManager):
+    """
+        Main manager: gathering most the functionnalities. My faithful companion when producing on Live !
+    """
     def __init__(self, *a, **k):
-        super(ActionManager, self).__init__(*a, **k)
-        # SHiFT encoder
-        MultiEncoder(channel=15, identifier=1,
-                     on_press=lambda: setattr(MultiEncoder, "SHIFT_PRESSED", True),
-                     on_release=lambda: setattr(MultiEncoder, "SHIFT_PRESSED", False))
-
+        super(ActionManager, self).__init__(channel=15, has_shift=True, record_actions_as_global=True, *a, **k)
         # FOLD encoder
-        MultiEncoder(channel=15, identifier=2,
-                     on_press=self.action_fold_track,
-                     on_long_press=self.action_fold_tracks,
-                     )
+        self.add_encoder(identifier=2, on_press=self.action_fold_track, on_long_press=self.action_fold_tracks)
 
         # MONitor encoder
-        MultiEncoder(channel=15, identifier=3,
-                     on_press=self.action_switch_track_monitoring)
+        self.add_encoder(identifier=3, on_press=self.action_switch_track_monitoring)
 
         # UNDO encoder
-        MultiEncoder(channel=15, identifier=4,
-                     on_press=self.action_undo)
+        self.add_encoder(identifier=4, on_press=self.action_undo)
 
         # LFO encoder (add group track with lfo tool binding)
-        MultiEncoder(channel=15, identifier=5,
-                     on_press=self.action_set_up_lfo_tool_automation)
+        self.add_encoder(identifier=5, on_press=self.action_set_up_lfo_tool_automation)
 
         # RECord encoder
-        MultiEncoder(channel=15, identifier=9,
-                     on_press=self.action_track_record_fixed,
-                     on_long_press=self.action_track_record_audio,
-                     on_shift_press=partial(self.action_track_record_audio, overwrite=True),
-                     on_scroll=self.action_scroll_track_recording_times)
+        self.add_encoder(identifier=9,
+                         on_press=self.action_track_record_fixed,
+                         on_long_press=self.action_track_record_audio,
+                         on_shift_press=partial(self.action_track_record_audio, overwrite=True),
+                         on_scroll=self.action_scroll_track_recording_times)
 
         # STOP encoder
-        MultiEncoder(channel=15, identifier=11,
-                     on_press=self.action_stop_track,
-                     on_long_press=self.action_stop_category,
-                     on_scroll=self.action_scroll_track_categories)
+        self.add_encoder(identifier=11,
+                         on_press=self.action_stop_track,
+                         on_long_press=self.action_stop_category,
+                         on_scroll=self.action_scroll_track_categories)
 
         # PLAY encoder
-        MultiEncoder(channel=15, identifier=12,
-                     on_press=self.action_play_selected_tracks,
-                     on_shift_press=self.action_solo_play_selected_tracks,
-                     on_long_press=self.action_restart_category,
-                     on_scroll=self.action_scroll_track_categories)
+        self.add_encoder(identifier=12,
+                         on_press=self.action_play_selected_tracks,
+                         on_shift_press=self.action_solo_play_selected_tracks,
+                         on_long_press=self.action_restart_category,
+                         on_scroll=self.action_scroll_track_categories)
 
         # TRacK encoder
-        MultiEncoder(channel=15, identifier=13,
-                     on_press=self.action_arm_track,
-                     on_long_press=self.action_solo_track,
-                     on_shift_long_press=self.action_un_solo_all_tracks,
-                     on_scroll=self.action_scroll_tracks)
+        self.add_encoder(identifier=13,
+                         on_press=self.action_arm_track,
+                         on_long_press=self.action_solo_track,
+                         on_shift_long_press=self.action_un_solo_all_tracks,
+                         on_scroll=self.action_scroll_tracks)
 
         # PRESet encoder
-        MultiEncoder(channel=15, identifier=14,
-                     on_press=self.action_show_track_instrument,
-                     on_scroll=self.action_scroll_track_instrument_presets,
-                     on_shift_scroll=self.action_scroll_simpler_drum_categories)
+        self.add_encoder(identifier=14,
+                         on_press=self.action_show_track_instrument,
+                         on_scroll=self.action_scroll_track_instrument_presets,
+                         on_shift_scroll=self.action_scroll_simpler_drum_categories)
 
         # DEVice encoder
-        MultiEncoder(channel=15, identifier=15,
-                     on_press=self.action_track_collapse_selected_device,
-                     on_scroll=self.action_scroll_track_devices,
-                     on_shift_scroll=self.action_scroll_selected_device_presets,
-                     )
+        self.add_encoder(identifier=15,
+                         on_press=self.action_track_collapse_selected_device,
+                         on_scroll=self.action_scroll_track_devices,
+                         on_shift_scroll=self.action_scroll_selected_device_presets)
 
         # CLIP encoder
-        MultiEncoder(channel=15, identifier=16,
-                     on_press=self.action_play_selected_tracks,
-                     on_scroll=self.action_scroll_track_clips)
-
+        self.add_encoder(identifier=16,
+                         on_press=self.action_play_selected_tracks,
+                         on_scroll=self.action_scroll_track_clips)
 
     @button_action(log_action=False)
     def action_scroll_tracks(self, go_next):
@@ -87,7 +76,7 @@ class ActionManager(AbstractControlSurfaceComponent):
         base_track = self.song.selected_track if self.song.selected_track.is_scrollable else self.song.current_track.base_track
         track_to_select = scroll_values(self.song.scrollable_tracks, base_track, go_next)  # type: SimpleTrack
         if track_to_select:
-            self.song.select_track(track_to_select)
+            track_to_select.select()
 
     @button_action()
     def action_arm_track(self):
@@ -167,11 +156,10 @@ class ActionManager(AbstractControlSurfaceComponent):
         self.song.current_track.action_restart_and_record(self.song.current_track.action_record_all)
 
     @button_action(auto_arm=True)
-    def action_track_record_audio(self, overwrite=False):
+    def action_track_record_audio(self, duplicate=False):
         """ record only audio on group track """
         return self.song.current_track.action_restart_and_record(
-            partial(self.song.current_track.action_record_audio_only, overwrite=overwrite),
-            only_audio=True)
+            partial(self.song.current_track.action_record_audio_only, duplicate=duplicate))
 
     @button_action(log_action=False)
     def action_scroll_track_categories(self, go_next):

@@ -1,9 +1,7 @@
 import re
-
 from typing import TYPE_CHECKING, Optional
 
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
-from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.clip.AutomationRamp import AutomationRamp
 from a_protocol_0.lom.clip.ClipName import ClipName
 from a_protocol_0.utils.decorators import p0_subject_slot

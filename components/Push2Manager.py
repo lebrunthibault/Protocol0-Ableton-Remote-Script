@@ -61,10 +61,10 @@ class Push2Manager(AbstractControlSurfaceComponent):
     @push2_method()
     def update_clip_grid_quantization(self):
         # type: () -> Clip
-        if not self.song.highlighted_clip_slot.has_clip or not self.song.selected_track.is_midi:
+        if not self.song.highlighted_clip or not self.song.selected_track.is_midi:
             return
         self._update_selected_modes()
-        index = PUSH2_BEAT_QUANTIZATION_STEPS.index(self.song.highlighted_clip_slot.clip.min_note_quantization_start)
+        index = PUSH2_BEAT_QUANTIZATION_STEPS.index(self.song.highlighted_clip.min_note_quantization_start)
         self.push2._grid_resolution.index = index
         self.push2._grid_resolution.quantization_buttons[index].is_checked = True
 
@@ -75,10 +75,5 @@ class Push2Manager(AbstractControlSurfaceComponent):
             self.push2._main_modes.selected_mode = self.song.selected_track.push2_selected_main_mode
             self.push2._matrix_modes.selected_mode = self.song.selected_track.push2_selected_matrix_mode
             self.push2._instrument.selected_mode = self.song.selected_track.push2_selected_instrument_mode or self.push2._instrument.selected_mode
-
-            # https://trello.com/c/0PUwHZOs/102-push2-bug-setting-selected-matrix-mode-after-clicking-on-session-ring-arrow-messes-selected-track
-            # if reselect:
-                # self.update_selected_modes = False
-                # self.song.select_track(self.song.selected_track)
 
         self.update_selected_modes = True

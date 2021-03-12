@@ -4,7 +4,7 @@ from typing import List, Optional
 from _Framework.SubjectSlot import subject_slot
 from _Framework.Util import find_if
 from a_protocol_0.lom.clip.Clip import Clip
-from a_protocol_0.lom.clip.ClipType import ClipType
+from a_protocol_0.enums.ClipTypeEnum import ClipTypeEnum
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrackActionMixin import SimpleTrackActionMixin
@@ -42,7 +42,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def _playing_slot_index_listener(self):
         # type: () -> None
         # handle one shot clips
-        if self.playable_clip and self.playable_clip.type == ClipType.ONE_SHOT:
+        if self.playable_clip and self.playable_clip.type == ClipTypeEnum.ONE_SHOT:
             if not self.last_clip_played or self.last_clip_played == self.playable_clip:
                 self.parent.wait_beats(self.playable_clip.length, self.stop)
             else:
@@ -108,20 +108,13 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         return [clip_slot for clip_slot in self.clip_slots if not clip_slot.has_clip]
 
     @property
-    def _next_empty_clip_slot_index(self):
+    def next_empty_clip_slot_index(self):
         # type: () -> int
-        index = None
-        if len(self.clips):
-            index = next(iter([cs.index for cs in self._empty_clip_slots if cs.index > self.clips[-1].index]), None)
-        elif len(self._empty_clip_slots):
-            index = self._empty_clip_slots[0].index
+        for i in range(self.song.selected_scene_index, len(self.song.scenes)):
+            if not self.clip_slots[i].has_clip:
+                return i
 
-        if index:
-            return index
-        else:
-            # todo: this is not sync
-            self.song.create_scene()
-            return len(self.song.scenes) - 1
+        return None
 
     def disconnect(self):
         super(SimpleTrack, self).disconnect()

@@ -1,11 +1,9 @@
 from functools import partial
-
 from typing import Set
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.track.simple_track.AbstractAutomationTrack import AbstractAutomationTrack
-from a_protocol_0.lom.track.simple_track.SimpleGroupTrack import SimpleGroupTrack
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import defer
 

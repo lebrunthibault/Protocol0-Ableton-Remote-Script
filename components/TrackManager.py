@@ -1,14 +1,13 @@
 import itertools
 from functools import partial
+from typing import Optional
 
 import Live
-from typing import Optional
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import AUTOMATION_TRACK_NAME, EXTERNAL_SYNTH_NAMES
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.device.Device import Device
-from a_protocol_0.lom.device.DeviceType import DeviceType
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.group_track.AutomatedTrack import AutomatedTrack

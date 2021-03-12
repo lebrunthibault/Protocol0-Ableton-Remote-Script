@@ -1,12 +1,10 @@
 from collections import namedtuple
-
-from typing import Tuple, Optional, Any
+from typing import Optional, Any
 
 from a_protocol_0.consts import AUTOMATION_TRACK_NAME
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
-from a_protocol_0.lom.device.DeviceType import DeviceType
-from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
+from a_protocol_0.lom.device.DeviceType import DeviceType
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 

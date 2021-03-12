@@ -1,8 +1,6 @@
 from functools import partial
-
 from typing import TYPE_CHECKING, Optional
 
-from a_protocol_0.devices.InstrumentSerum import InstrumentSerum
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.sequence.Sequence import Sequence
@@ -75,8 +73,10 @@ class SongActionMixin(object):
         self._song.undo()
 
     def create_scene(self, scene_index=None):
-        # type: (Song, Optional[int]) -> None
-        self.song.selected_scene = self._song.create_scene(scene_index or len(self.song.scenes))
+        # type: (Song, Optional[int]) -> Sequence
+        seq = Sequence()
+        seq.add(lambda: setattr(self.song, "selected_scene", self._song.create_scene(scene_index or len(self.song.scenes))), wait=1)
+        return seq.done()
 
     def select_device(self, device):
         # type: (Song, Device) -> None

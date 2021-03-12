@@ -1,8 +1,6 @@
 import collections
 import itertools
-from copy import copy
 from plistlib import Dict
-
 from typing import Optional, Any, List
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
@@ -150,8 +148,7 @@ class SongManager(AbstractControlSurfaceComponent):
         """ auto_update highlighted clip slot to match the playable clip """
         if self.update_highlighted_clip_slot:
             track = self.song.selected_track
-            if track and track.is_visible and track.playable_clip and self.song.highlighted_clip_slot == \
-                    track.clip_slots[0]:
+            if track and track.is_visible and track.playable_clip and track.clip_slots[0].is_selected:
                 pass
                 # self.song.highlighted_clip_slot = track.playable_clip.clip_slot
         self.update_highlighted_clip_slot = True

@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from a_protocol_0.lom.clip.AbstractAutomationClip import AbstractAutomationClip
-from a_protocol_0.utils.decorators import p0_subject_slot, retry
+from a_protocol_0.utils.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences

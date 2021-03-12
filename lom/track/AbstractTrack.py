@@ -1,10 +1,10 @@
 from abc import abstractproperty
 from functools import partial
 from itertools import chain, imap
-
-import Live
 from typing import Any, Optional, List, Union
 from typing import TYPE_CHECKING
+
+import Live
 
 from _Framework.SubjectSlot import subject_slot
 from _Framework.Util import find_if
@@ -14,7 +14,6 @@ from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.lom.clip.Clip import Clip
-from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.device.DeviceChain import DeviceChain
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
@@ -146,13 +145,9 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # type: () -> List[Clip]
         return [clip_slot.clip for clip_slot in self.base_track.clip_slots if clip_slot.has_clip]
 
-    def get_clip_slot(self, clip_slot):
-        # type: (Live.ClipSlot.ClipSlot) -> Optional[ClipSlot]
-        return find_if(lambda cs: cs._clip_slot == clip_slot, self.base_track.clip_slots)
-
-    def get_clip(self, clip):
-        # type: (Live.Clip.Clip) -> Optional[Clip]
-        return find_if(lambda c: c._clip == clip, self.base_track.clips)
+    @abstractproperty
+    def next_empty_clip_slot_index(self):
+        raise NotImplementedError
 
     @property
     def is_visible(self):
@@ -188,6 +183,10 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # type: (int) -> None
         for track in self.all_tracks:
             track._track.color_index = color_index
+
+    @property
+    def is_selected(self):
+        self.song.selected_track in self.all_tracks
 
     @property
     def is_folded(self):

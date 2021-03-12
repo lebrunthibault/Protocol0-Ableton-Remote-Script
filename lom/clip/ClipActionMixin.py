@@ -19,6 +19,11 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class ClipActionMixin(object):
+    def select(self):
+        # type: (Clip) -> None
+        self.song.highlighted_clip_slot = self.clip_slot
+        self.parent.clyphxNavigationManager.show_clip_view()
+
     def play(self):
         # type: (Clip) -> None
         if self._clip:

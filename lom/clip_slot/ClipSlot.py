@@ -5,7 +5,6 @@ from typing import Any, TYPE_CHECKING, Optional
 
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.clip.Clip import Clip
-from a_protocol_0.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import p0_subject_slot, is_change_deferrable
 
@@ -57,14 +56,11 @@ class ClipSlot(AbstractObject):
 
         self.clip = Clip.make(clip_slot=self) if self.has_clip else None
 
-        self.parent.log_debug("has clip !")
-
         # noinspection PyUnresolvedReferences
         self.notify_has_clip()
 
     @p0_subject_slot("is_triggered")
     def _is_triggered_listener(self):
-        self.parent.log_debug("is_triggered !")
         # noinspection PyUnresolvedReferences
         self.notify_is_triggered()
 
@@ -78,6 +74,11 @@ class ClipSlot(AbstractObject):
             self._clip_slot.delete_clip()
 
     @property
+    def is_selected(self):
+        # type: () -> bool
+        return self == self.song.highlighted_clip_slot
+
+    @property
     def is_triggered(self):
         # type: () -> bool
         return self._clip_slot.is_triggered
@@ -87,11 +88,17 @@ class ClipSlot(AbstractObject):
         # type: () -> bool
         return self._clip_slot.is_playing
 
+    def select(self):
+        self.song.highlighted_clip_slot = self
+
     def record(self):
         seq = Sequence()
         self.parent.show_message("Starting recording of %d bars" % self.song.recording_bar_count)
         seq.add(partial(self.fire, record_length=self.parent.utilsManager.get_beat_time(self.song.recording_bar_count)),
                 complete_on=self._has_clip_listener)
+        if self.track.is_audio:
+            seq.add(self.select)
+            seq.add(self.parent.clyphxNavigationManager.show_clip_view)
         seq.add(complete_on=lambda: self.clip._is_recording_listener, no_timeout=True,
                 name="awaiting clip recording end")
         return seq.done()

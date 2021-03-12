@@ -1,18 +1,19 @@
+from typing import List, Optional
+
 import Live
-from typing import Any, List, Optional
 
 from _Framework.Util import find_if
 from a_protocol_0.consts import TRACK_CATEGORY_ALL
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.SongActionMixin import SongActionMixin
 from a_protocol_0.lom.clip.Clip import Clip
+from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
-from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.lom.track.simple_track.SimpleGroupTrack import SimpleGroupTrack
+from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import is_change_deferrable
 from a_protocol_0.utils.utils import flatten
@@ -122,6 +123,11 @@ class Song(SongActionMixin, AbstractObject):
         self.song._view.highlighted_clip_slot = clip_slot._clip_slot
 
     @property
+    def highlighted_clip(self):
+        # type: () -> Optional[Clip]
+        return self.highlighted_clip_slot.clip if self.highlighted_clip_slot and self.highlighted_clip_slot.has_clip else None
+
+    @property
     def selected_parameter(self):
         # type: () -> Optional[DeviceParameter]
         return find_if(lambda p: p._device_parameter == self.song._view.selected_parameter, [param for track in self.simple_tracks for param in track.device_parameters])
@@ -154,10 +160,6 @@ class Song(SongActionMixin, AbstractObject):
     def clip_trigger_quantization(self, clip_trigger_quantization):
         # type: (int) -> None
         self._song.clip_trigger_quantization = clip_trigger_quantization
-
-    def get_clip(self, clip):
-        # type: (Live.Clip.Clip) -> Optional[Clip]
-        return find_if(lambda c: c._clip == clip, self.clips)
 
     @property
     def clips(self):

@@ -1,18 +1,20 @@
-from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.controls.MultiEncoder import MultiEncoder
+from a_protocol_0.components.actionManagers.AbstractActionManager import AbstractActionManager
 from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.utils.decorators import button_action
 
 
-class ActionSetManager(AbstractControlSurfaceComponent):
+class ActionSetManager(AbstractActionManager):
+    """
+        This manager is supposed to group mundane tasks on Live like debug or one shot actions on a set
+    """
     def __init__(self, *a, **k):
-        super(ActionSetManager, self).__init__(*a, **k)
+        super(ActionSetManager, self).__init__(channel=14, *a, **k)
         # RACK encoder
-        MultiEncoder(channel=14, identifier=1,
+        self.add_encoder(identifier=1,
                      on_press=self.action_update_racks)
 
         # LOG encoder
-        MultiEncoder(channel=14, identifier=3,
+        self.add_encoder(identifier=3,
                      on_press=self.action_log_set)
 
     @button_action()
@@ -27,6 +29,7 @@ class ActionSetManager(AbstractControlSurfaceComponent):
         self.parent.log_info(".")
         self.parent.log_info(".")
         self.parent.log_info(".")
+        self.parent.log_info("current action: %s" % self.parent.current_action)
         self.parent.log_info(".")
         self.parent.log_info("********* SONG TRACKS *************")
         self.parent.log_info("simple_tracks : %s" % self.song.simple_tracks)
@@ -56,6 +59,7 @@ class ActionSetManager(AbstractControlSurfaceComponent):
         self.parent.log_info("selected_track.clip_slots: %s" % self.song.selected_track.clip_slots)
         self.parent.log_info("---------------------")
         self.parent.log_info("selected_track.clips: %s" % self.song.selected_track.clips)
+        self.parent.log_info("selected_track.arrangement_clips: %s" % [clip for clip in self.song.selected_track.clips if clip._clip.is_arrangement_clip])
         self.parent.log_info("---------------------")
         self.parent.log_info("selected_track.playable_clip: %s" % self.song.selected_track.playable_clip)
         self.parent.log_info("---------------------")
@@ -76,8 +80,6 @@ class ActionSetManager(AbstractControlSurfaceComponent):
             self.parent.log_info("********* HIGHLIGHTED_CLIP_SLOT *************")
             self.parent.log_info("---------------------")
             self.parent.log_info("song.highlighted_clip_slot: %s" % self.song.highlighted_clip_slot)
-            self.parent.log_info("song.highlighted_clip_slot._toto_listener: %s" % self.song.highlighted_clip_slot._toto_listener)
-            self.parent.log_info("song.highlighted_clip_slot._toto_listener.subject: %s" % self.song.highlighted_clip_slot._toto_listener.subject)
             self.parent.log_info("song.highlighted_clip_slot._clip_slot: %s" % self.song.highlighted_clip_slot._clip_slot)
             self.parent.log_info("song.highlighted_clip_slot.linked_clip_slot: %s" % self.song.highlighted_clip_slot.linked_clip_slot)
 

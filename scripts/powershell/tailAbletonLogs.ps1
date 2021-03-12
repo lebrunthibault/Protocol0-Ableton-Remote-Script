@@ -2,7 +2,6 @@ KillProcess (GetProcessFromNameOrTitle "*logs terminal*")
 $host.ui.RawUI.WindowTitle = "logs terminal"
 
 $version = $Env:abletonVersion
-#$version = "11.0"
 
 $logFile = "$env:userprofile\AppData\Roaming\Ableton\Live $version\Preferences\Log.txt"
 $startSize = 70

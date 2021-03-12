@@ -148,23 +148,19 @@ def throttle(wait_time=2, max_execution_count=3):
     return wrap
 
 
-def button_action(auto_arm=False, log_action=True, auto_undo=True):
+def button_action(auto_arm=False, log_action=True):
+    """ decorator on an action to configure logging and arming (for now) """
     def wrap(func):
         @wraps(func)
-        @catch_and_log
         def decorate(self, *a, **k):
             # type: (AbstractObject) -> None
             if log_action:
                 self.parent.log_info("Executing " + func.__name__)
-            self.song.begin_undo_step()
             if auto_arm:
                 self.song.unfocus_all_tracks()
                 if not self.song.current_track.arm:
                     self.song.current_track.action_arm()
             func(self, **k)
-
-            if auto_undo:
-                self.parent.defer(self.song.end_undo_step)
 
         return decorate
 

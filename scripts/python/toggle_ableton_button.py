@@ -2,10 +2,11 @@ import math
 import sys
 from typing import Tuple
 
+# noinspection PyUnresolvedReferences
 from PIL import ImageGrab
 
 from send_click import click
-f = open("./demofile2.txt", "a")
+f = open("./test.txt", "a")
 f.write(sys.version)
 f.close()
 

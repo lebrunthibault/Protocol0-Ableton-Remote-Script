@@ -34,7 +34,7 @@ class SimpleTrackActionMixin(object):
         # type: (SimpleTrack, int) -> None
         """ finishes on end of recording """
         seq = Sequence()
-        seq.add(self.clip_slots[self._next_empty_clip_slot_index].record)
+        seq.add(self.clip_slots[self.next_empty_clip_slot_index].record)
         seq.add(self._post_record)
         return seq.done()
 

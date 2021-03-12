@@ -1,16 +1,11 @@
 import threading
 import traceback
 import types
-from functools import partial
-
 from typing import Callable
 
 from ClyphX_Pro.clyphx_pro.actions.GlobalActions import GlobalActions
 from ClyphX_Pro.clyphx_pro.actions.NavAndViewActions import NavAndViewActions
 from _Framework.ControlSurface import ControlSurface
-from a_protocol_0.components.ActionManager import ActionManager
-from a_protocol_0.components.ActionSetManager import ActionSetManager
-from a_protocol_0.components.ActionTestManager import ActionTestManager
 from a_protocol_0.components.AutomationTrackManager import AutomationTrackManager
 from a_protocol_0.components.BrowserManager import BrowserManager
 from a_protocol_0.components.DeviceManager import DeviceManager
@@ -23,6 +18,9 @@ from a_protocol_0.components.SessionManager import SessionManager
 from a_protocol_0.components.SongManager import SongManager
 from a_protocol_0.components.TrackManager import TrackManager
 from a_protocol_0.components.UtilsManager import UtilsManager
+from a_protocol_0.components.actionManagers.ActionManager import ActionManager
+from a_protocol_0.components.actionManagers.ActionSetManager import ActionSetManager
+from a_protocol_0.components.actionManagers.ActionTestManager import ActionTestManager
 from a_protocol_0.consts import LogLevel
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.Song import Song
@@ -40,6 +38,7 @@ class Protocol0(ControlSurface):
         self.song().stop_playing()
         self._c_instance.log_message = types.MethodType(lambda s, message: None, self._c_instance)
         self._is_dev_booted = False
+        self.current_action = None  # type: callable
         with self.component_guard():
             self.protocol0_song = Song(song=self.song())
             self.deviceManager = DeviceManager()  # needs to be here first
@@ -128,11 +127,3 @@ class Protocol0(ControlSurface):
             return
 
         # self.log_info(self.protocol0_song.abstract_tracks)
-        return
-        self.automationTrackManager.create_automation_group(self.protocol0_song.tracks[1].devices[1].parameters[1])
-        return
-        self.defer(partial(self.protocol0_song.select_device, self.protocol0_song.tracks[19].devices[-1]))
-        # self.protocol0_song.highlighted_clip_slot = self.protocol0_song.selected_track.clips[0]
-        # self.protocol0_song.selected_track.play()
-        # self.trackAutomationManager.create_automation_group(self.protocol0_song.selected_track)
-        self._is_dev_booted = True

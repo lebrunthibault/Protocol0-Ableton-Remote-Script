@@ -1,11 +1,8 @@
 from functools import partial
-
 from typing import TYPE_CHECKING
 
-from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.track.simple_track.AbstractAutomationTrack import AbstractAutomationTrack
-from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import p0_subject_slot
 
 if TYPE_CHECKING:

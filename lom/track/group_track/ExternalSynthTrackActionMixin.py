@@ -41,21 +41,18 @@ class ExternalSynthTrackActionMixin(object):
 
     def action_record_all(self):
         # type: (ExternalSynthTrack) -> None
+        """ next_empty_clip_slot_index is guaranteed to be not None """
         seq = Sequence()
-        if self.next_empty_clip_slot_index is None:
-            self.song.create_scene()
-            self.parent.defer(lambda: self.song.current_track.action_record_all())
-            return seq.done()
-
         midi_clip_slot = self.midi_track.clip_slots[self.next_empty_clip_slot_index]
         audio_clip_slot = self.audio_track.clip_slots[self.next_empty_clip_slot_index]
+        self.audio_track.select()
         seq.add([midi_clip_slot.record, audio_clip_slot.record])
         seq.add(self._post_record)
         return seq.done()
 
-    def action_record_audio_only(self, overwrite=False):
+    def action_record_audio_only(self, duplicate):
         # type: (ExternalSynthTrack, bool) -> None
-        midi_clip = self.midi_track.playable_clip or self.song.highlighted_clip_slot.clip
+        midi_clip = self.midi_track.playable_clip or (self.song.highlighted_clip if self.midi_track.is_selected else None)
         if not midi_clip:
             self.parent.show_message("No midi clip selected")
             return
@@ -85,8 +82,7 @@ class ExternalSynthTrackActionMixin(object):
         self.audio_track.has_monitor_in = True
         self.audio_track.playable_clip.warp_mode = Live.Clip.WarpMode.complex_pro
         seq = Sequence()
-        seq.add(partial(self.song.select_track, self.audio_track), wait=2)
-        seq.add(lambda: setattr(self.song, "highlighted_clip_slot", self.audio_track.playable_clip.clip_slot))
+        seq.add(self.audio_track.select, wait=2)
+        seq.add(lambda: self.audio_track.playable_clip.clip_slot.select())
         seq.add(self.parent.clyphxNavigationManager.show_clip_view)
-        seq.add(self.audio_track.playable_clip.quantize)
         return seq.done()

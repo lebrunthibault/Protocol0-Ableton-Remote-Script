@@ -1,13 +1,12 @@
 from functools import partial
-import Live
-
 from typing import TYPE_CHECKING, List
+
+import Live
 
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences

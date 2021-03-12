@@ -5,10 +5,11 @@ from itertools import chain
 
 from typing import List, TYPE_CHECKING
 
+from a_protocol_0.enums.AutomationRampModeEnum import AutomationRampModeEnum
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.AbstractAutomationClip import AbstractAutomationClip
-from a_protocol_0.lom.clip.AutomationRamp import AutomationRampMode, AutomationRamp
+from a_protocol_0.lom.clip.AutomationRamp import AutomationRamp
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import debounce, p0_subject_slot
 
@@ -279,17 +280,17 @@ class AutomationMidiClip(AbstractAutomationClip):
                 yield self._ramp_two_notes(notes[i], next_note, ramping_duration / self.automation_ramp_down.division, self.automation_ramp_down.ramp_mode)
 
     def _ramp_two_notes(self, note, next_note, ramping_duration, ramp_mode):
-        # type: (Note, Note, float, AutomationRampMode) -> List[Note]
+        # type: (Note, Note, float, AutomationRampModeEnum) -> List[Note]
         """
             2 cases : when the note is long and ramping happens at the end
             or when the note is short and the ramping takes the whole note duration
         """
-        if ramp_mode == AutomationRampMode.NO_RAMP:
+        if ramp_mode == AutomationRampModeEnum.NO_RAMP:
             yield note
             return
 
         is_above_ramping_duration = note.duration > ramping_duration * (1 + float(1) / self.RAMPING_STEPS)
-        if is_above_ramping_duration and ramp_mode == AutomationRampMode.END_RAMP:
+        if is_above_ramping_duration and ramp_mode == AutomationRampModeEnum.END_RAMP:
             ramping_steps = self.RAMPING_STEPS - 1
             start_coeff = 1 - float(1) / self.RAMPING_STEPS
             ramp_start = note.start + note.duration - ramping_duration * start_coeff

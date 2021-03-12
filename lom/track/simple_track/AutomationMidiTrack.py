@@ -1,10 +1,6 @@
-from collections import OrderedDict
 from functools import partial
-
 from typing import List, TYPE_CHECKING
 
-from a_protocol_0.lom.Note import Note
-from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.clip_slot.AutomationMidiClipSlot import AutomationMidiClipSlot
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.track.simple_track.AbstractAutomationTrack import AbstractAutomationTrack

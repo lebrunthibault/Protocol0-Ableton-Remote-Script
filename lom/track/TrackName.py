@@ -1,11 +1,10 @@
 from functools import partial
+from typing import TYPE_CHECKING, Optional
 
 import Live
-from typing import TYPE_CHECKING, Optional, List
 
 from _Framework.SubjectSlot import subject_slot_group
 from _Framework.Util import clamp
-
 from a_protocol_0.devices.InstrumentSimpler import InstrumentSimpler
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.sequence.Sequence import Sequence

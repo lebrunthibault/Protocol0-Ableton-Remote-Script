@@ -1,7 +1,6 @@
-from _Framework.Util import forward_property
 from typing import TYPE_CHECKING, List
 
-from a_protocol_0.errors.Protocol0Error import Protocol0Error
+from _Framework.Util import forward_property
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.group_track.AutomationTracksCouple import AutomationTracksCouple

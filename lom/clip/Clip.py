@@ -1,12 +1,12 @@
-import Live
 from typing import TYPE_CHECKING, List, Optional
 
+import Live
+
+from a_protocol_0.enums.ClipTypeEnum import ClipTypeEnum
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.Note import Note
-from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
 from a_protocol_0.lom.clip.ClipActionMixin import ClipActionMixin
 from a_protocol_0.lom.clip.ClipName import ClipName
-from a_protocol_0.lom.clip.ClipType import ClipType
 from a_protocol_0.utils.decorators import p0_subject_slot, is_change_deferrable
 
 if TYPE_CHECKING:
@@ -76,8 +76,8 @@ class Clip(ClipActionMixin, AbstractObject):
 
     @property
     def type(self):
-        # type: () -> ClipType
-        return ClipType.get_from_value(self.clip_name.base_name.split(" ")[0])
+        # type: () -> ClipTypeEnum
+        return ClipTypeEnum.get_from_value(self.clip_name.base_name.split(" ")[0])
 
     @property
     def name(self):

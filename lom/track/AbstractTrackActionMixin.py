@@ -17,6 +17,10 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class AbstractTrackActionMixin(object):
+    def select(self):
+        # type: (AbstractTrack) -> None
+        return self.song.select_track(self)
+
     def action_arm(self):
         # type: (AbstractTrack) -> None
         if self.arm:
@@ -36,8 +40,6 @@ class AbstractTrackActionMixin(object):
     def action_unarm(self):
         # type: (AbstractTrack) -> None
         self.color = self.base_color
-        if self.is_foldable:
-            self.base_track.is_folded = True
         [setattr(track, "arm", False) for track in self.all_tracks]
         [setattr(clip, "color", self.base_color) for clip in self.all_clips]
         self.action_unarm_track()
@@ -86,8 +88,8 @@ class AbstractTrackActionMixin(object):
 
         return True
 
-    def action_restart_and_record(self, action_record_func, only_audio=False):
-        # type: (AbstractTrack, Callable, bool) -> None
+    def action_restart_and_record(self, action_record_func):
+        # type: (AbstractTrack, Callable) -> None
         """ restart audio to get a count in and recfix"""
         if not self.can_be_armed:
             return
@@ -102,7 +104,15 @@ class AbstractTrackActionMixin(object):
         if len(filter(None, [t.is_hearable for t in self.song.simple_tracks])) <= 1:
             self.song.metronome = True
 
-        action_record_func()
+        seq = Sequence()
+        if self.next_empty_clip_slot_index is None:
+            seq.add(self.song.create_scene)
+            # here the tracks are mapped again ! we cannot simply call this method again on a stale object
+            seq.add(self.parent.current_action)
+        else:
+            seq.add(action_record_func)
+
+        return seq.done()
 
     def _post_record(self, *a, **k):
         # type: (AbstractTrack, Any, Any) -> None
@@ -112,8 +122,7 @@ class AbstractTrackActionMixin(object):
         if self.is_audio:
             self.base_track.playable_clip.warp_mode = Live.Clip.WarpMode.complex_pro
             self.base_track.playable_clip.quantize()
-        self.song.highlighted_clip_slot = self.base_track.playable_clip.clip_slot
-        self.parent.clyphxNavigationManager.show_clip_view()
+        self.base_track.playable_clip.select()
 
     @abstractmethod
     def action_record_all(self):
@@ -175,7 +184,7 @@ class AbstractTrackActionMixin(object):
     def load_any_device(self, device_type, device_name):
         # type: (AbstractTrack, str, str) -> None
         seq = Sequence()
-        seq.add(partial(self.song.select_track, self))
+        seq.add(self.select)
         seq.add(partial(self.parent.browserManager.load_any_device, device_type, device_name))
         return seq.done()
 

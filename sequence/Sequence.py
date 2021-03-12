@@ -18,33 +18,35 @@ class Sequence(AbstractObject):
     """
         Replacement of the _Framework Task as it does not seem to allow variable timeouts like triggers from listeners.
             Nothing but some pale asyncio imitation. Can't wait for python3
-        A Sequence represents a function and a SequenceStep represents one or multiple statement
-        A Sequence step can very often be a function call and is thus a Sequence as well.
-        Sequences can be nested allowing deep asynchronous function calls.
-        A Sequence should never be passed to the called code but instead the called code should return it's own sequence to be appended to the calling one.
-            Attention : this means that the called code is gonna be called synchronously, any data lookup (e.g. on Live API)
+        A Sequence usually represents a number of statements (usually a whole method) and a SequenceStep one statement
+        A Sequence step is very often a function call that could return a Sequence.
+        That is Sequences can be nested allowing deep asynchronous function calls.
+        A Sequence should never be passed to the called code but instead the called code should return it's own sequence to be appended (and executed) to the calling one.
+        
+        Attention : The called code is gonna be called synchronously, any data lookup (e.g. on Live API)
                 is gonna be computed at sequence instantiation time and not at sequence runtime !
                 If you don't want this behavior to happen, wrap your lookup calls in a step
                 Ideally, an asynchronous method should wrap all it's statements in a sequence and do lookups in lambda functions
         The code can declare asynchronous behavior in 2 ways:
-            - via wait which leverages Live 100ms tick for short and hard to check tasks like click on the interface
+            - via wait which leverages Live 100ms tick for tasks we know are much faster than 100ms or done in one tick by Live.
+                or hard to check stuff like click on the interface.
             - via the on_complete argument that defers the completion of the step until a condition is satisfied
         This condition can be either
             - a simple callable returning a bool : in this case an exponential polling is setup with a timeout
-            - a CallbackDescriptor decorated function : the step executes when the function is called next.
-            This is the best part because it allows us to react to the execution of Live listeners (e.g. on_selected_track_changed)
+            - a CallbackDescriptor decorated function (a function decorate by @p0_subject_slot) : the step executes when the function is called next.
+            This is the best part because it allows us to react to the execution of Live listeners
             or even our own listeners. Thus being a shortcut to define yet another listener on an already listened to subject.
+            To be clearer it is equivalent to defining a method listening on a subject (a listener) that would call back the sequence when executed.
         A sequence step should always define it's completion step and not expect the next step to handle any timeout or checks
             Example : A step song.create_midi_track should define it's completion check to be the next call to the _added_track_listener.
             Like this any step can always be assured that it executes after the previous one has succeeded or failed (thus ending the sequence).
-        sync allows the async methods to be called both synchronously and asynchronously.
-            - In the first case the caller expects immediate action or is not even aware of the sequence pattern and sync is True
-            - In the second case the caller is going to nest the sequence to it's own and will call it later
+        after instantiating a sequence by e.g. seq = Sequence(..) you should always call seq.done() to start the sequence execution.
+        If not the sequence is not going to be called and an exception will be thrown at the next tick. 
         Conditional execution of steps is available via do_if and do_if_not which can be any argument to Sequence.add
             - The condition is executed *before* the main callable and can bypass the step depending on the result
         return_if and return_if_not are similar but will end the enclosing sequence early instead.
             These 2 callables are going to be executed *before* the main callable which can therefore not be called
-            These should better be execute in a step if only return_if so that it's clearer
+            This is rarely needed but if needed it's better to put return_if or return_if_not in an empty step (without a callable) so that it's clearer
     """
 
     DISABLE_LOGGING = False
