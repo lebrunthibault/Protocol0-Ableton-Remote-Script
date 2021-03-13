@@ -69,6 +69,11 @@ class Protocol0(ControlSurface):
         if LogLevel.ACTIVE_LOG_LEVEL == LogLevel.DEBUG:
             self.defer(self.dev_boot)
 
+    def show_message(self, message, log=True):
+        # type: (str, bool) -> None
+        super(Protocol0, self).show_message(message)
+        self.log_warning(message)
+
     def log_debug(self, message, debug=True):
         # type: (str) -> None
         self._log(message=message, level=LogLevel.DEBUG, debug=debug)
@@ -77,10 +82,14 @@ class Protocol0(ControlSurface):
         # type: (str) -> None
         self._log(message=message, level=LogLevel.INFO, debug=debug)
 
+    def log_warning(self, message, debug=False):
+        # type: (str) -> None
+        self._log(message=message, level=LogLevel.WARNING, debug=debug)
+
     def log_error(self, message, debug=True):
         # type: (str) -> None
         self._log(message="%s\n%s" % (message, traceback.format_exc()), level=LogLevel.ERROR, debug=debug)
-        self.show_message(str(message))
+        self.show_message(str(message), log=False)
 
         if Protocol0.SELF.protocol0_song:
             Protocol0.SELF.protocol0_song.handle_error()

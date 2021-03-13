@@ -29,6 +29,7 @@ class SequenceStep(AbstractObject):
                                 message="You passed a non callable to a SequenceStep : %s to %s, type: %s" % (
                                     self._callable, self, type(self._callable)))
 
+        self._original_name = name
         if not name and func == nop:
             name = ("wait %s" % wait if wait else "pass")
         self.name = "step %s" % (name or get_callable_name(func))
@@ -66,7 +67,7 @@ class SequenceStep(AbstractObject):
         if self._complete_on:
             if _has_callback_queue(self._complete_on):
                 output += " (and wait for listener call : %s)" % get_callable_name(self._complete_on)
-            elif is_lambda(self._complete_on):
+            elif is_lambda(self._complete_on) and not self._original_name:
                 output += " (and poll for lambda condition)"
             else:
                 output += " (and poll for %s)" % get_callable_name(self._complete_on)
@@ -110,7 +111,9 @@ class SequenceStep(AbstractObject):
 
     @subject_slot("terminated")
     def _terminate_if_condition(self, res=None):
-        if_res = res if res is not None else self._terminate_if_condition.subject._res
+        if_res = res
+        if if_res is not None and self._terminate_if_condition.subject:
+            if_res = self._terminate_if_condition.subject._res
         if self._debug:
             self.parent.log_info("%s condition returned %s" % (self, if_res))
 
@@ -122,7 +125,9 @@ class SequenceStep(AbstractObject):
 
     @subject_slot("terminated")
     def _terminate_return_condition(self, res=None):
-        return_res = res if res is not None else self._terminate_return_condition.subject._res
+        return_res = res
+        if return_res is not None and self._terminate_return_condition.subject:
+            return_res = self._terminate_return_condition.subject._res
         if self._debug:
             self.parent.log_info("%s condition returned %s" % (self, return_res))
 

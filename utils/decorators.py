@@ -156,11 +156,16 @@ def button_action(auto_arm=False, log_action=True):
             # type: (AbstractObject) -> None
             if log_action:
                 self.parent.log_info("Executing " + func.__name__)
+            from a_protocol_0.sequence.Sequence import Sequence
+            seq = Sequence(silent=True)
             if auto_arm:
-                self.song.unfocus_all_tracks()
+                seq.add(self.song.unfocus_all_tracks)
                 if not self.song.current_track.arm:
-                    self.song.current_track.action_arm()
-            func(self, **k)
+                    seq.add(self.song.current_track.action_arm)
+
+            seq.add(partial(func, self, **k))
+
+            return seq.done()
 
         return decorate
 
@@ -214,7 +219,7 @@ def log(func):
         message = func_name + "(%s)" % (", ".join([str(arg) for arg in args]))
 
         from a_protocol_0 import Protocol0
-        Protocol0.SELF.log_info(message, debug=False)
+        Protocol0.SELF.log_info("-- %s" % message, debug=False)
         func(*a, **k)
 
     return decorate

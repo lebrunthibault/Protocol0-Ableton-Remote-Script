@@ -67,7 +67,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self._view = self._track.view  # type: Live.Track.Track.View
         self.is_midi = self._track.has_midi_input
         self.is_audio = self._track.has_audio_input
-        self.base_color = Colors.get(self.base_name, default=self._track.color_index)
+        self.base_color = self.base_track.instrument.TRACK_COLOR if self.base_track.instrument else self._track.color_index
         self.is_scrollable = True
         self._is_hearable = True
         self._is_duplicated = False  # allows different init when duplicated or when created from e.g. the browser

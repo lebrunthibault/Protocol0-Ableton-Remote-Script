@@ -73,6 +73,6 @@ class TrackName(AbstractObject):
             self.preset_index = max(0, preset_index)
             name += " - %s" % self.preset_index
 
-        seq = Sequence()
+        seq = Sequence(silent=True)
         seq.add(partial(setattr, self.track, "name", name), wait=1)  # wait is necessary
         return seq.done()

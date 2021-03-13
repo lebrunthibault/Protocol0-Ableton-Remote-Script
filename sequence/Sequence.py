@@ -28,8 +28,7 @@ class Sequence(AbstractObject):
                 If you don't want this behavior to happen, wrap your lookup calls in a step
                 Ideally, an asynchronous method should wrap all it's statements in a sequence and do lookups in lambda functions
         The code can declare asynchronous behavior in 2 ways:
-            - via wait which leverages Live 100ms tick for tasks we know are much faster than 100ms or done in one tick by Live.
-                or hard to check stuff like click on the interface.
+            - via wait which leverages Live 100ms tick for tasks where we have a rough idea of the delay and guess without too much hassle
             - via the on_complete argument that defers the completion of the step until a condition is satisfied
         This condition can be either
             - a simple callable returning a bool : in this case an exponential polling is setup with a timeout
@@ -104,7 +103,7 @@ class Sequence(AbstractObject):
     def _done_called_check(self):
         if not self._done_called and not self._early_returned and all(
                 [not seq._errored for seq in [self] + self._parent_seqs]):
-            raise SequenceError(object=self, message="Sequence.done() has not been called")
+            raise SequenceError(object=self, message="Sequence.done() has not been called for %s" % self)
 
     def _start(self):
         if self._state == SequenceState.TERMINATED:

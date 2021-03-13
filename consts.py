@@ -48,8 +48,9 @@ class LogLevel:
     ACTIVE_LOG_LEVEL = None
     DEBUG = 1
     INFO = 2
-    ERROR = 3
-    EXCLUSIVE_LOG = 4
+    WARNING = 3
+    ERROR = 4
+    EXCLUSIVE_LOG = 5
 
     _values_dict = {}
 

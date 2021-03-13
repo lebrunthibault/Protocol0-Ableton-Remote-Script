@@ -22,7 +22,10 @@ class ClipActionMixin(object):
     def select(self):
         # type: (Clip) -> None
         self.song.highlighted_clip_slot = self.clip_slot
-        self.parent.clyphxNavigationManager.show_clip_view()
+        seq = Sequence(silent=True)
+        seq.add(wait=2)
+        seq.add(self.parent.clyphxNavigationManager.show_clip_view)
+        return seq.done()
 
     def play(self):
         # type: (Clip) -> None
@@ -128,7 +131,8 @@ class ClipActionMixin(object):
             return
         seq = Sequence()
         if self.is_recording:
-            self.track.stop(immediate=True)
+            return
+            # self.track.stop(immediate=True)
 
         seq.add(self.clip_slot.delete_clip, complete_on=self.clip_slot._has_clip_listener)
 

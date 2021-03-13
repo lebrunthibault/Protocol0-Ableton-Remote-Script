@@ -19,10 +19,14 @@ class ExternalSynthTrackActionMixin(object):
         # type: (ExternalSynthTrack) -> None
         self.color = Colors.ARM
         self.base_track.is_folded = False
-        self.midi_track.action_arm_track()
-        self.audio_track.action_arm_track()
         self.midi_track.has_monitor_in = False
         self.audio_track.has_monitor_in = True
+        seq = Sequence(silent=True)
+        seq.add([
+            self.midi_track.action_arm_track,
+            self.audio_track.action_arm_track
+        ])
+        return seq.done()
 
     def action_unarm_track(self):
         # type: (ExternalSynthTrack) -> None
@@ -50,8 +54,8 @@ class ExternalSynthTrackActionMixin(object):
         seq.add(self._post_record)
         return seq.done()
 
-    def action_record_audio_only(self, duplicate):
-        # type: (ExternalSynthTrack, bool) -> None
+    def action_record_audio_only(self):
+        # type: (ExternalSynthTrack, bool) -> Sequence
         midi_clip = self.midi_track.playable_clip or (self.song.highlighted_clip if self.midi_track.is_selected else None)
         if not midi_clip:
             self.parent.show_message("No midi clip selected")
@@ -60,14 +64,13 @@ class ExternalSynthTrackActionMixin(object):
         self.song.metronome = False
 
         seq = Sequence()
-        clip_slot_index = self.next_empty_clip_slot_index
         self.song.recording_bar_count = int(round((self.midi_track.playable_clip.length + 1) / 4))
-        midi_clip_slot = self.midi_track.clip_slots[clip_slot_index]  # type: ClipSlot
-        audio_clip_slot = self.audio_track.clip_slots[clip_slot_index]  # type: ClipSlot
-        seq.add(partial(self.midi_track.playable_clip.clip_slot.duplicate_clip_to, midi_clip_slot))
-        seq.add(lambda: setattr(midi_clip_slot.clip, "start_marker", 0))
-        seq.add(lambda: midi_clip_slot.clip.play())
-        seq.add(audio_clip_slot.record)
+        audio_clip_slot = self.audio_track.clip_slots[midi_clip.index]
+        if audio_clip_slot.clip:
+            seq.add(audio_clip_slot.clip.delete, wait=1)
+        seq.add(partial(setattr, midi_clip, "start_marker", 0))
+        seq.add(partial(self.parent._wait, 5, midi_clip.play))  # launching the midi clip after the record has started
+        seq.add(self.audio_track.clip_slots[midi_clip.index].record)
         seq.add(self._post_record)
         return seq.done()
 
@@ -78,11 +81,5 @@ class ExternalSynthTrackActionMixin(object):
     def _post_record(self):
         # type: (ExternalSynthTrack, bool) -> None
         self.song.metronome = False
-        self.midi_track.has_monitor_in = False
-        self.audio_track.has_monitor_in = True
+        self.midi_track.has_monitor_in = self.audio_track.has_monitor_in = False
         self.audio_track.playable_clip.warp_mode = Live.Clip.WarpMode.complex_pro
-        seq = Sequence()
-        seq.add(self.audio_track.select, wait=2)
-        seq.add(lambda: self.audio_track.playable_clip.clip_slot.select())
-        seq.add(self.parent.clyphxNavigationManager.show_clip_view)
-        return seq.done()

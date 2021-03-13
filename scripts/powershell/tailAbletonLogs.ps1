@@ -34,6 +34,10 @@ function Get-LogColor
                 Return "Red"
                 FocusLogs
             }
+            elseif ($LogEntry.Contains("P0 - warning"))
+            {
+                Return "Magenta"
+            }
             elseif ($LogEntry.Contains("P0 - debug"))
             {
                 Return "Yellow"

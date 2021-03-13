@@ -113,10 +113,6 @@ class AutomationMidiClip(AbstractAutomationClip):
             notes = list(set(note_transform(notes)))
             if len(notes) == 0:
                 raise Protocol0Error("Problem after transform %s, no notes left" % note_transform.__name__)
-            # self.parent.log_debug("_-__-_-_-_-_-_-_")
-            # self.parent.log_debug("after transform %s" % note_transform.__name__)
-            # self.parent.log_debug(notes)
-            # self.parent.log_debug("_-__-_-_-_-_-_-_")
 
         notes.sort(key=lambda x: x.start)
         [setattr(note, "pitch", note.velocity) for note in notes]

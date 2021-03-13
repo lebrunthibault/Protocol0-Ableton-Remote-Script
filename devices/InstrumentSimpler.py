@@ -6,11 +6,13 @@ from typing import Optional
 
 from a_protocol_0.consts import SAMPLE_PATH
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
+from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.utils.decorators import debounce
 from a_protocol_0.utils.utils import scroll_values
 
 
 class InstrumentSimpler(AbstractInstrument):
+    TRACK_COLOR = Colors.SIMPLER
     PRESET_EXTENSION = ".wav"
 
     def __init__(self, *a, **k):

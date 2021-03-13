@@ -66,7 +66,7 @@ class AutomatedTrack(AbstractGroupTrack):
 
     def action_arm_track(self):
         self.is_folded = False
-        self.wrapped_track.action_arm_track()
+        return self.wrapped_track.action_arm_track()
 
     @forward_property('wrapped_track')
     def action_unarm_track(self): pass

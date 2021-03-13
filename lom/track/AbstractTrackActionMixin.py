@@ -2,7 +2,7 @@ from abc import abstractmethod
 from functools import partial
 
 import Live
-from typing import TYPE_CHECKING, Callable, Any
+from typing import TYPE_CHECKING, Callable, Any, Optional
 
 from _Framework.Util import find_if
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
@@ -22,13 +22,13 @@ class AbstractTrackActionMixin(object):
         return self.song.select_track(self)
 
     def action_arm(self):
-        # type: (AbstractTrack) -> None
+        # type: (AbstractTrack) -> Optional[Sequence]
         if self.arm:
             return
         self.base_track.collapse_devices()
         if self.can_be_armed:
             self.song.unfocus_all_tracks()
-            self.action_arm_track()
+            return self.action_arm_track()
         elif self.is_foldable:
             self.is_folded = not self.is_folded
 
@@ -69,25 +69,6 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         pass
 
-    def action_check_and_prepare_recording(self):
-        # type: (AbstractTrack, Callable, bool) -> None
-        """ restart audio to get a count in and recfix"""
-        if not self.can_be_armed:
-            return False
-        if self.is_recording:
-            self.action_undo()
-            return False
-        if self.song._song.session_record_status != Live.Song.SessionRecordStatus.off:
-            return False
-        self.song._song.session_automation_record = True
-
-        self.song.stop_playing()
-
-        if len(filter(None, [t.is_hearable for t in self.song.simple_tracks])) <= 1:
-            self.song.metronome = True
-
-        return True
-
     def action_restart_and_record(self, action_record_func):
         # type: (AbstractTrack, Callable) -> None
         """ restart audio to get a count in and recfix"""
@@ -121,7 +102,6 @@ class AbstractTrackActionMixin(object):
         self.has_monitor_in = False
         if self.is_audio:
             self.base_track.playable_clip.warp_mode = Live.Clip.WarpMode.complex_pro
-            self.base_track.playable_clip.quantize()
         self.base_track.playable_clip.select()
 
     @abstractmethod

@@ -1,8 +1,10 @@
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
+from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.sequence.Sequence import Sequence
 
 
 class InstrumentProphet(AbstractInstrument):
+    TRACK_COLOR = Colors.PROPHET
     NEEDS_EXCLUSIVE_ACTIVATION = True
 
     def exclusive_activate(self):

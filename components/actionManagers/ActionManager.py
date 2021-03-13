@@ -30,7 +30,6 @@ class ActionManager(AbstractActionManager):
         self.add_encoder(identifier=9,
                          on_press=self.action_track_record_fixed,
                          on_long_press=self.action_track_record_audio,
-                         on_shift_press=partial(self.action_track_record_audio, overwrite=True),
                          on_scroll=self.action_scroll_track_recording_times)
 
         # STOP encoder
@@ -82,9 +81,9 @@ class ActionManager(AbstractActionManager):
     def action_arm_track(self):
         """ arm or unarm both midi and audio track """
         if self.song.current_track.arm:
-            self.song.current_track.action_unarm()
+            return self.song.current_track.action_unarm()
         else:
-            self.song.current_track.action_arm()
+            return self.song.current_track.action_arm()
 
     @button_action()
     def action_solo_track(self):
@@ -156,10 +155,9 @@ class ActionManager(AbstractActionManager):
         self.song.current_track.action_restart_and_record(self.song.current_track.action_record_all)
 
     @button_action(auto_arm=True)
-    def action_track_record_audio(self, duplicate=False):
+    def action_track_record_audio(self):
         """ record only audio on group track """
-        return self.song.current_track.action_restart_and_record(
-            partial(self.song.current_track.action_record_audio_only, duplicate=duplicate))
+        return self.song.current_track.action_restart_and_record(self.song.current_track.action_record_audio_only)
 
     @button_action(log_action=False)
     def action_scroll_track_categories(self, go_next):

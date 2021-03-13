@@ -16,6 +16,8 @@ MajorVersion := versionArray[1]
 ; Alt: !
 ; Shift: +
 ; Win: #
+;global ableton := "Ableton Live %MajorVersion% Suite"
+global ableton := "Ableton Live 10 Suite"
 
 #SingleInstance force
 

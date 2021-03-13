@@ -19,6 +19,10 @@ class AutomationTrackManager(AbstractControlSurfaceComponent):
     def create_automation_group(self, parameter):
         # type: (DeviceParameter) -> None
         """ first step, instrument track is selected """
+        if parameter is None:
+            self.parent.show_message("No selected parameter")
+            return
+
         # here we store this parameter so that the midi track can access it
         # before the audio track has loaded the device from the browser. Makes the track creation faster
         self.current_parameter = parameter

@@ -22,5 +22,5 @@ class TrackSynchronizer(ObjectSynchronizer):
     @subject_slot_group("playing_slot_index")
     def _playing_slot_index_listener(self, track):
         # type: (SimpleTrack) -> None
-        if track.playing_slot_index < 0 and track.linked_track.is_playing and not track.is_recording and not track.linked_track.is_recording:
+        if track.playing_slot_index == -1 and track.linked_track.is_playing and not track.is_recording and not track.linked_track.is_recording:
             track.linked_track.stop(immediate=True)

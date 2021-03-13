@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, List, Optional
 
 from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.lom.AbstractObject import AbstractObject
+from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import debounce
@@ -16,6 +17,7 @@ if TYPE_CHECKING:
 
 
 class AbstractInstrument(AbstractObject):
+    TRACK_COLOR = Colors.DISABLED
     NUMBER_OF_PRESETS = 128
     PRESETS_PATH = None
     PRESET_EXTENSION = ""
@@ -59,10 +61,12 @@ class AbstractInstrument(AbstractObject):
 
     @property
     def should_be_activated(self):
+        if not self.can_be_shown:
+            return False
         return not self.activated or (self.NEEDS_EXCLUSIVE_ACTIVATION and self.active_instance != self)
 
-    def check_activated(self, keep_focus=False):
-        if not self.can_be_shown:
+    def check_activated(self):
+        if not self.should_be_activated:
             return
 
         seq = Sequence()
@@ -76,8 +80,7 @@ class AbstractInstrument(AbstractObject):
             seq.add(self.exclusive_activate)
             seq.add(partial(setattr, self, "active_instance", self))
 
-        if not keep_focus:
-            seq.add(self.song.selected_track.select)
+        seq.add(self.song.selected_track.select)
 
         return seq.done()
 
@@ -146,10 +149,12 @@ class AbstractInstrument(AbstractObject):
         self.set_preset(new_preset_index)
 
     def set_preset(self, preset_index):
-        # type: (int) -> None
+        # type: (int) -> Sequence
         """ default is send program change """
-        self.track.action_arm()
-        self.parent.midiManager.send_program_change(preset_index)
+        seq = Sequence()
+        seq.add(self.track.action_arm)
+        seq.add(partial(self.parent.midiManager.send_program_change, preset_index))
+        return seq.done()
 
     def action_scroll_categories(self, go_next):
         # type: (bool) -> None

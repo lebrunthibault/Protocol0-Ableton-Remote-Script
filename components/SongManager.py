@@ -82,7 +82,11 @@ class SongManager(AbstractControlSurfaceComponent):
         # 4. Set the currently selected track
         self._set_current_track()
 
+        self.parent.log_info("**************************")
+        self.parent.log_info("**************************")
         self.parent.log_info("SongManager : mapped tracks")
+        self.parent.log_info("**************************")
+        self.parent.log_info("**************************")
 
         if added_track:
             added_track_index = self.song.simple_tracks.index(self.song.selected_track)
