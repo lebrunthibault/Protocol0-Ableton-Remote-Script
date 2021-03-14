@@ -8,11 +8,10 @@ import Live
 
 from _Framework.SubjectSlot import subject_slot
 from _Framework.Util import find_if
-from a_protocol_0.consts import TRACK_CATEGORIES, TRACK_CATEGORY_OTHER
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
+from a_protocol_0.enums.TrackCategoryEnum import TrackCategoryEnum
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.device.DeviceChain import DeviceChain
@@ -67,7 +66,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self._view = self._track.view  # type: Live.Track.Track.View
         self.is_midi = self._track.has_midi_input
         self.is_audio = self._track.has_audio_input
-        self.base_color = self.base_track.instrument.TRACK_COLOR if self.base_track.instrument else self._track.color_index
         self.is_scrollable = True
         self._is_hearable = True
         self._is_duplicated = False  # allows different init when duplicated or when created from e.g. the browser
@@ -110,6 +108,10 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
                 self._track.name = name
             except RuntimeError:
                 self.parent.defer(lambda: setattr(self._track, "name", name))
+
+    @property
+    def base_color(self):
+        return self.instrument.TRACK_COLOR if self.instrument else self._track.color_index
 
     @property
     def instrument(self):
@@ -157,11 +159,11 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def category(self):
         # type: () -> str
-        for track_category in TRACK_CATEGORIES:
+        for track_category in TrackCategoryEnum:
             if any([t for t in [self] + self.group_tracks if track_category.lower() in t.name]):
                 return track_category
 
-        return TRACK_CATEGORY_OTHER
+        return TrackCategoryEnum.OTHER
 
     @property
     def base_name(self):
@@ -281,10 +283,10 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
             seq.add(lambda: setattr(param, "value", value))
             return seq.done()
 
-    @abstractproperty
+    @property
     def is_playing(self):
         # type: () -> bool
-        pass
+        return False
 
     @property
     def mute(self):
@@ -322,15 +324,15 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         return self._is_hearable and self.is_playing and self.output_meter_level > 0.5 and not self.mute and all(
             [not t.mute for t in self.group_tracks])
 
-    @abstractproperty
+    @property
     def is_recording(self):
         # type: () -> bool
-        raise NotImplementedError
+        return False
 
-    @abstractproperty
+    @property
     def arm(self):
         # type: () -> bool
-        raise NotImplementedError
+        return False
 
     @property
     def output_meter_level(self):

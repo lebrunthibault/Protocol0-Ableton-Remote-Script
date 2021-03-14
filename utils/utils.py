@@ -4,7 +4,7 @@ from collections import namedtuple
 
 from typing import Optional, Any, List, TYPE_CHECKING
 
-from a_protocol_0.consts import PROTOCOL0_FOLDER, REMOTE_SCRIPTS_FOLDER
+from a_protocol_0.consts import ROOT_DIR, REMOTE_SCRIPTS_DIR
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -93,7 +93,7 @@ def get_frame_info(frame_count=1):
     except Exception:
         return None
 
-    filename = filename.replace(PROTOCOL0_FOLDER + "\\", "").replace(REMOTE_SCRIPTS_FOLDER + "\\", "")
+    filename = filename.replace(ROOT_DIR + "\\", "").replace(REMOTE_SCRIPTS_DIR + "\\", "")
     class_name = filename.replace(".py", "").split("\\")[-1]
 
     FrameInfo = namedtuple('FrameInfo', ['filename', 'class_name', 'line', 'method_name'])

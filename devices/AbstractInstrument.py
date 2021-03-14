@@ -17,6 +17,13 @@ if TYPE_CHECKING:
 
 
 class AbstractInstrument(AbstractObject):
+    INSTRUMENT_NAME_MAPPINGS = {
+        "serum_x64": "InstrumentSerum",
+        "minitaur editor-vi(x64)": "InstrumentMinitaur",
+        "rev2editor": "InstrumentProphet",
+    }
+
+    NAME = "AbstractInstrument"
     TRACK_COLOR = Colors.DISABLED
     NUMBER_OF_PRESETS = 128
     PRESETS_PATH = None

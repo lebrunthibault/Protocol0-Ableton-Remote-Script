@@ -66,7 +66,11 @@ class TrackName(AbstractObject):
 
         self.base_name = base_name if base_name else self.base_name
 
-        name = "%s - %s" % (self.base_name, playing_slot_index)
+        name = self.base_name
+
+        from a_protocol_0.lom.track.group_track.SimpleGroupTrack import SimpleGroupTrack
+        if not isinstance(self.track, SimpleGroupTrack):
+            name = "%s - %s" % (name, self.playing_slot_index)
 
         if self.track.instrument and not isinstance(self.track.instrument, InstrumentSimpler):
             preset_index = preset_index if preset_index is not None else self.preset_index

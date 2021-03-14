@@ -5,7 +5,6 @@ import Live
 
 from _Framework.Util import find_if
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.consts import EXTERNAL_SYNTH_MINITAUR_NAME
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.device.Device import Device
@@ -34,7 +33,6 @@ class DeviceManager(AbstractControlSurfaceComponent):
 
     def make_instrument_from_simple_track(self, track):
         # type: (SimpleTrack) -> Optional[AbstractInstrument]
-        from a_protocol_0.consts import INSTRUMENT_NAME_MAPPINGS
         from a_protocol_0.devices.InstrumentSimpler import InstrumentSimpler
         from a_protocol_0.devices.InstrumentMinitaur import InstrumentMinitaur
 
@@ -48,15 +46,15 @@ class DeviceManager(AbstractControlSurfaceComponent):
                 return track.instrument
             return InstrumentSimpler(track=track, device=simpler_device)
 
-        instrument_device = find_if(lambda d: d.is_plugin and d.name.lower() in INSTRUMENT_NAME_MAPPINGS,
+        instrument_device = find_if(lambda d: d.is_plugin and d.name.lower() in AbstractInstrument.INSTRUMENT_NAME_MAPPINGS,
                                     track.all_devices)
         if not instrument_device:
-            if EXTERNAL_SYNTH_MINITAUR_NAME in track.name.lower():
+            if InstrumentMinitaur.NAME in track.name.lower():
                 return track.instrument or InstrumentMinitaur(track=track, device=None)
             else:
                 return None
 
-        class_name = INSTRUMENT_NAME_MAPPINGS[instrument_device.name.lower()]
+        class_name = AbstractInstrument.INSTRUMENT_NAME_MAPPINGS[instrument_device.name.lower()]
 
         try:
             mod = __import__('a_protocol_0.devices.' + class_name, fromlist=[class_name])

@@ -26,11 +26,8 @@ class AbstractTrackActionMixin(object):
         if self.arm:
             return
         self.base_track.collapse_devices()
-        if self.can_be_armed:
-            self.song.unfocus_all_tracks()
-            return self.action_arm_track()
-        elif self.is_foldable:
-            self.is_folded = not self.is_folded
+        self.song.unfocus_all_tracks()
+        return self.action_arm_track()
 
     @abstractmethod
     def action_arm_track(self):
@@ -175,17 +172,17 @@ class AbstractTrackActionMixin(object):
                         isinstance(device, RackDevice) or self.parent.deviceManager.is_track_instrument(
                     self, device))
 
-    @retry(2)
+    @retry(2, 2)
     def set_output_routing_to(self, track):
-        # type: (AbstractTrack, Any) -> None
+        # type: (AbstractTrack, AbstractTrack) -> None
         if track is None:
             raise Protocol0Error("You passed None to %s" % self.set_output_routing_to.__name__)
 
         from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
         track = track._track if isinstance(track, AbstractTrack) else track
-
         output_routing_type = find_if(lambda r: r.attached_object == track,
                                       self.available_output_routing_types)
+
         if not output_routing_type:
             output_routing_type = find_if(lambda r: r.display_name.lower() == track.name.lower(),
                                           self.available_output_routing_types)

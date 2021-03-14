@@ -15,7 +15,11 @@ class AbstractGroupTrack(AbstractTrack):
         group_track.abstract_group_track = self
         self.sub_tracks = group_track.sub_tracks
         self.can_be_armed = True
-        [setattr(sub_track, "base_color", self.base_color) for sub_track in self.sub_tracks]
+
+        # tracks that are going to be mapped to this AbstractGroupTrack on selection
+        # (that is their current track is self)
+        self.selection_tracks = self.all_tracks
+        # [setattr(sub_track, "base_color", self.base_color) for sub_track in self.sub_tracks]
 
     @p0_subject_slot("instrument")
     def _instrument_listener(self):

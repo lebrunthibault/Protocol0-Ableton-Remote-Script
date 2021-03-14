@@ -2,10 +2,9 @@ import itertools
 from functools import partial
 from typing import Optional
 
-import Live
-
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.consts import AUTOMATION_TRACK_NAME, EXTERNAL_SYNTH_NAMES
+from a_protocol_0.devices.InstrumentMinitaur import InstrumentMinitaur
+from a_protocol_0.devices.InstrumentProphet import InstrumentProphet
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
@@ -13,8 +12,8 @@ from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupT
 from a_protocol_0.lom.track.group_track.AutomatedTrack import AutomatedTrack
 from a_protocol_0.lom.track.group_track.AutomationTracksCouple import AutomationTracksCouple
 from a_protocol_0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+from a_protocol_0.lom.track.group_track.SimpleGroupTrack import SimpleGroupTrack
 from a_protocol_0.lom.track.simple_track.AbstractAutomationTrack import AbstractAutomationTrack
-from a_protocol_0.lom.track.simple_track.SimpleGroupTrack import SimpleGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import p0_subject_slot
@@ -68,36 +67,32 @@ class TrackManager(AbstractControlSurfaceComponent):
 
         return seq.done()
 
-    def instantiate_simple_track(self, track, index):
-        # type: (Live.Track.Track, int) -> SimpleTrack
-        if track.is_foldable:
-            return SimpleGroupTrack(track=track, index=index)
-        else:
-            return SimpleTrack(track=track, index=index)
-
     def instantiate_abstract_group_track(self, group_track):
-        # type: (SimpleGroupTrack) -> Optional[AbstractGroupTrack]
+        # type: (SimpleTrack) -> AbstractGroupTrack
+        if not group_track.is_foldable:
+            raise Protocol0Error("You passed a non group_track to instantiate_abstract_group_track : %s" % group_track)
+
         external_synth_track = self.make_external_synth_track(group_track=group_track)
         if external_synth_track:
             return self.make_automated_track(group_track=group_track, wrapped_track=external_synth_track) or external_synth_track
 
-        wrapped_track = self.make_automated_track(group_track=group_track)
-        if wrapped_track:
-            return wrapped_track
+        automated_track = self.make_automated_track(group_track=group_track)
+        if automated_track:
+            return automated_track
 
-        return None
+        return SimpleGroupTrack(group_track=group_track)
 
     def make_external_synth_track(self, group_track):
-        # type: (SimpleGroupTrack) -> None
+        # type: (SimpleTrack) -> None
         if len([sub_track for sub_track in group_track.sub_tracks if not self._is_automated_sub_track(sub_track)]) != 2:
             return
-        if not any([name.lower() in group_track.track_name.base_name.lower() for name in EXTERNAL_SYNTH_NAMES]):
+        if not any([name.lower() in group_track.track_name.base_name.lower() for name in [InstrumentProphet.NAME, InstrumentMinitaur.NAME]]):
             return
 
         return ExternalSynthTrack(group_track=group_track)
 
     def make_automated_track(self, group_track, wrapped_track=None):
-        # type: (SimpleGroupTrack, AbstractTrack) -> Optional[AutomatedTrack]
+        # type: (SimpleTrack, AbstractTrack) -> Optional[AutomatedTrack]
         automation_audio_tracks = [track for track in group_track.sub_tracks if self._is_automated_sub_track(track) and track.is_audio]
         automation_midi_tracks = [track for track in group_track.sub_tracks if self._is_automated_sub_track(track) and track.is_midi]
 
@@ -126,4 +121,4 @@ class TrackManager(AbstractControlSurfaceComponent):
         # type: (SimpleTrack) -> bool
         if track.index in self.parent.automationTrackManager.created_tracks_indexes:
             return True
-        return AUTOMATION_TRACK_NAME in track.name and AbstractAutomationTrack.get_parameter_info_from_track_name(track.name)
+        return AutomatedTrack.AUTOMATION_TRACK_NAME in track.name and AbstractAutomationTrack.get_parameter_info_from_track_name(track.name)

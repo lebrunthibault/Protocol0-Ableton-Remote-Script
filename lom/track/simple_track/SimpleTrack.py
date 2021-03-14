@@ -65,7 +65,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def is_playing(self):
         # type: () -> bool
-        # return bool(self.playable_clip) and self.playable_clip.is_playing
         return any([clip_slot.is_playing for clip_slot in self.clip_slots])
 
     @property

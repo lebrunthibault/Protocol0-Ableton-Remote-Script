@@ -1,7 +1,6 @@
 from collections import namedtuple
 from typing import Optional, Any
 
-from a_protocol_0.consts import AUTOMATION_TRACK_NAME
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.device.DeviceType import DeviceType
@@ -24,8 +23,9 @@ class AbstractAutomationTrack(SimpleTrack):
         if parameter.device.device_type == DeviceType.PLUGIN_DEVICE:
             raise Protocol0Error("Plugin devices cannot be automated, use a rack instead: %s" % parameter.device)
 
+        from a_protocol_0.lom.track.group_track.AutomatedTrack import AutomatedTrack
         return "%s:%s:%s:%s" % (
-            parameter.name, parameter.device.name, parameter.device.device_type, AUTOMATION_TRACK_NAME)
+            parameter.name, parameter.device.name, parameter.device.device_type, AutomatedTrack.AUTOMATION_TRACK_NAME)
 
     @staticmethod
     def get_parameter_info_from_track_name(track_name):

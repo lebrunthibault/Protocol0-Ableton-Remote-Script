@@ -6,9 +6,6 @@ from typing import Tuple
 from PIL import ImageGrab
 
 from send_click import click
-f = open("./test.txt", "a")
-f.write(sys.version)
-f.close()
 
 class Color():
     ACTIVATED = "ACTIVATED"

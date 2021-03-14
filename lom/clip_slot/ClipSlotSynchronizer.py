@@ -44,11 +44,14 @@ class ClipSlotSynchronizer(ObjectSynchronizer):
     @subject_slot_group("is_triggered")
     def _is_triggered_listener(self, clip_slot):
         # type: (ClipSlot) -> None
-        if clip_slot.is_triggered and not clip_slot.linked_clip_slot.is_triggered and clip_slot.clip and clip_slot.linked_clip_slot.clip:
+        if not clip_slot.is_triggered:
+            return
+
+        if not clip_slot.linked_clip_slot.is_triggered and clip_slot.clip and clip_slot.linked_clip_slot.clip:
             clip_slot.linked_clip_slot.clip.is_playing = True
             return
 
-        if clip_slot.is_triggered and not clip_slot.clip and not clip_slot.linked_clip_slot.clip:
+        if not clip_slot.clip and clip_slot.linked_clip_slot.clip:
             clip_slot.linked_clip_slot.track.stop()
 
     def disconnect(self):

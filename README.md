@@ -9,7 +9,6 @@ to users. I don't plan to distribute or adapt it in any near future. But it coul
 
 There is a few specificities / dependencies to bear in mind if anyone would ever want to test it :
 - External Software dependencies on python3 and autoHotkey (hard dependencies)
-- A few hardcoded paths (executable, sample paths ..)
 - Synths targeted (Prophet rev2, Serum ..). Not blocking
 - Push2 handling code. Not blocking
 
@@ -32,9 +31,10 @@ Specifically it aims to achieve :
 - A lot of little improvements in the session view including:
 > - Fixed length recording
 > - Memorization of the last clip played opening some possibilities in playing live or instant session state recall at startup
-> - Automatic track and clip naming depending on what is played
+> - Automatic track and clip naming / coloring depending on clip playing, instrument
 > - a GroupTrack template defined in the script
 > - One shot clips definable by name
+> - Smart handling of group tracks output routing
 > - Automatic tracks volume mixer lowering to never go over 0db (except when a limiter is set) 
 > - Integration with push2 (automatic configuration of a few display parameters depending on the type of track)
 

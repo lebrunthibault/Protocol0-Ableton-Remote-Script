@@ -1,5 +1,5 @@
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.consts import RESTART_SOLO_STOPPED, RESET_SOLO_PLAY
+from a_protocol_0.enums.PlayMenuEnum import PlayMenuEnum
 
 
 class PlayTrackManager(AbstractControlSurfaceComponent):
@@ -8,14 +8,14 @@ class PlayTrackManager(AbstractControlSurfaceComponent):
             self.song.solo_stopped_tracks = [t for t in self.song.abstract_tracks if t.is_playing and not any(
                 t == selected_track or selected_track.is_parent(t) for selected_track in self.song.selected_tracks)]
             [t.stop() for t in self.song.solo_stopped_tracks]
-            self.song.selected_track_category = RESTART_SOLO_STOPPED
+            self.song.selected_track_category = PlayMenuEnum.RESTART_SOLO_STOPPED
         self.song.solo_playing_tracks += self.song.selected_tracks
         [t.play() for t in self.song.solo_playing_tracks]
 
     def handle_play_menu_click(self):
-        if self.song.selected_track_category == RESTART_SOLO_STOPPED:
+        if self.song.selected_track_category == PlayMenuEnum.RESTART_SOLO_STOPPED:
             [t.play() for t in self.song.solo_stopped_tracks]
             self.song.solo_stopped_tracks = self.song.solo_playing_tracks = []
-        elif self.song.selected_track_category == RESET_SOLO_PLAY:
+        elif self.song.selected_track_category == PlayMenuEnum.RESET_SOLO_PLAY:
             self.parent.show_message("Solo play reset")
             self.song.solo_stopped_tracks = self.song.solo_playing_tracks = []

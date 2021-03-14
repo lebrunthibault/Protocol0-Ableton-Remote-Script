@@ -1,7 +1,7 @@
-from functools import partial
-
 from a_protocol_0.components.actionManagers.AbstractActionManager import AbstractActionManager
-from a_protocol_0.consts import RECORDING_TIMES, TRACK_CATEGORIES, TRACK_CATEGORY_ALL, PLAY_MENU_OPTIONS
+from a_protocol_0.consts import RECORDING_TIMES
+from a_protocol_0.enums.TrackCategoryEnum import TrackCategoryEnum
+from a_protocol_0.enums.PlayMenuEnum import PlayMenuEnum
 from a_protocol_0.lom.device.PluginDevice import PluginDevice
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.utils.decorators import button_action
@@ -162,9 +162,9 @@ class ActionManager(AbstractActionManager):
     @button_action(log_action=False)
     def action_scroll_track_categories(self, go_next):
         """" stop a live set from group tracks track names """
-        options = TRACK_CATEGORIES + (PLAY_MENU_OPTIONS if self.song.has_solo_selection else [])
+        options = list(TrackCategoryEnum) + (list(PlayMenuEnum.values) if self.song.has_solo_selection else [])
         self.song.selected_track_category = scroll_values(options, self.song.selected_track_category, go_next)
-        self.parent.show_message("Selected %s" % self.song.selected_track_category)
+        self.parent.show_message("Selected %s" % self.song.selected_track_category.name)
 
     @button_action()
     def action_stop_track(self):
@@ -174,7 +174,7 @@ class ActionManager(AbstractActionManager):
     @button_action()
     def action_stop_category(self):
         """" stop a live set from group tracks track names """
-        if self.song.selected_track_category == TRACK_CATEGORY_ALL:
+        if self.song.selected_track_category == TrackCategoryEnum.ALL:
             self.song.stop_all_clips()
         else:
             [track.stop() for track in self.song.selected_category_tracks]
@@ -196,7 +196,8 @@ class ActionManager(AbstractActionManager):
     @button_action()
     def action_restart_category(self):
         """" restart a live set from group tracks track names """
-        if self.song.has_solo_selection and self.song.selected_track_category in PLAY_MENU_OPTIONS:
+        # todo: clean this mix of enums
+        if self.song.has_solo_selection and self.song.selected_track_category in PlayMenuEnum:
             self.parent.playTrackManager.handle_play_menu_click()
         else:
             [track.play() for track in self.song.selected_category_tracks]

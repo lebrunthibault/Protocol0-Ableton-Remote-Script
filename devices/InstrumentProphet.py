@@ -4,6 +4,7 @@ from a_protocol_0.sequence.Sequence import Sequence
 
 
 class InstrumentProphet(AbstractInstrument):
+    NAME = "Prophet"
     TRACK_COLOR = Colors.PROPHET
     NEEDS_EXCLUSIVE_ACTIVATION = True
 

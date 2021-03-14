@@ -20,9 +20,8 @@ if TYPE_CHECKING:
 
 
 class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
-    def __init__(self, group_track, *a, **k):
-        # type: (SimpleTrack) -> None
-        super(ExternalSynthTrack, self).__init__(group_track=group_track, *a, **k)
+    def __init__(self, *a, **k):
+        super(ExternalSynthTrack, self).__init__(*a, **k)
         self.midi_track = find_last(lambda t: t.is_midi, self.sub_tracks)  # type: SimpleTrack
         self.audio_track = find_last(lambda t: t.is_audio, self.sub_tracks)  # type: SimpleTrack
         self.instrument_track = self.midi_track
@@ -39,6 +38,8 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self._clip_slot_synchronizers = [ClipSlotSynchronizer(midi_clip_slot, audio_clip_slot) for
                                         midi_clip_slot, audio_clip_slot in
                                         itertools.izip(self.midi_track.clip_slots, self.audio_track.clip_slots)]
+
+        self.audio_track.set_output_routing_to(self.base_track)
 
     @property
     def arm(self):

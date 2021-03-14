@@ -7,6 +7,7 @@ from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceC
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
+from a_protocol_0.lom.track.group_track.SimpleGroupTrack import SimpleGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.utils.decorators import p0_subject_slot, has_callback_queue, retry
 
@@ -54,7 +55,7 @@ class SongManager(AbstractControlSurfaceComponent):
 
         # 1. Generate simple tracks and sync back previous objects
         for i, track in enumerate(list(self.song._song.tracks)):
-            simple_track = self.parent.trackManager.instantiate_simple_track(track=track, index=i)
+            simple_track = SimpleTrack(track=track, index=i)
             self._live_track_to_simple_track[track] = simple_track
             self.song.simple_tracks.append(simple_track)
 
@@ -68,7 +69,7 @@ class SongManager(AbstractControlSurfaceComponent):
                                                        for track in self.song.simple_group_tracks]))
 
         for abstract_group_track in self.song.abstract_group_tracks:  # type: AbstractGroupTrack
-            for abstract_group_sub_track in abstract_group_track.all_tracks:
+            for abstract_group_sub_track in abstract_group_track.selection_tracks:
                 self._simple_track_to_abstract_group_track.update({abstract_group_sub_track: abstract_group_track})
 
         # 3. Populate abstract_tracks property and track.abstract_group_track
@@ -119,8 +120,7 @@ class SongManager(AbstractControlSurfaceComponent):
             former_simple_tracks = former
 
         if not self._are_track_lists_equivalent(former_simple_tracks, current_simple_tracks):
-            raise Protocol0Error(
-                "An error occurred while syncing instrument activation states, track lists are not equivalent")
+            self.parent.log_error("An error occurred while syncing instrument activation states, track lists are not equivalent")
 
         for old_track, new_track in itertools.izip(former_simple_tracks, current_simple_tracks):
             if old_track.instrument and new_track.instrument:

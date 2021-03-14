@@ -1,3 +1,4 @@
+import os
 import subprocess
 from functools import partial
 from os.path import expanduser
@@ -5,7 +6,7 @@ from os.path import expanduser
 from typing import Any
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.consts import PROTOCOL0_FOLDER
+from a_protocol_0.consts import ROOT_DIR
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import log
 
@@ -16,14 +17,12 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
     def __init__(self, *a, **k):
         super(KeyBoardShortcutManager, self).__init__(*a, **k)
         # launch the main ahk script
-        subprocess.Popen(["C:\\Program Files\\AutoHotkey\\AutoHotkey.exe",
-                          PROTOCOL0_FOLDER + "\\scripts\\ahk\\ableton_shortcuts.ahk"])
+        subprocess.Popen([os.getenv("AHK_EXE"),
+                          ROOT_DIR + "\\scripts\\ahk\\ableton_shortcuts.ahk"])
 
     def _execute_python(self, filename, *args):
         # type: (str, Any) -> int
-        python3_exe = "C:\\Users\\thiba\\AppData\\Local\\Programs\\Python\\Python39\\pythonw.exe"
-        # parameters = ["pythonw", PROTOCOL0_FOLDER + "\\scripts\\python\\%s" % filename]
-        parameters = [python3_exe, PROTOCOL0_FOLDER + "\\scripts\\python\\%s" % filename]
+        parameters = [os.getenv("PYTHONW_EXE"), ROOT_DIR + "\\scripts\\python\\%s" % filename]
         for arg in args:
             parameters.append(str(arg))
 
@@ -33,8 +32,8 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
 
     def _execute_ahk(self, filename, *args):
         # type: (str, Any) -> int
-        parameters = ["C:\\Program Files\\AutoHotkey\\AutoHotkey.exe",
-                      PROTOCOL0_FOLDER + "\\scripts\\ahk\\%s" % filename]
+        parameters = [os.getenv("AHK_EXE"),
+                      ROOT_DIR + "\\scripts\\ahk\\%s" % filename]
         for arg in args:
             parameters.append(str(arg))
 

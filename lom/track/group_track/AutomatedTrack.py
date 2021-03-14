@@ -4,6 +4,7 @@ from _Framework.Util import forward_property
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.group_track.AutomationTracksCouple import AutomationTracksCouple
+from a_protocol_0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -11,6 +12,8 @@ if TYPE_CHECKING:
 
 
 class AutomatedTrack(AbstractGroupTrack):
+    AUTOMATION_TRACK_NAME = "_auto"
+
     def __init__(self, group_track, automation_tracks_couples, wrapped_track, *a, **k):
         # type: (SimpleTrack, List[AutomationTracksCouple], AbstractTrack) -> None
         super(AutomatedTrack, self).__init__(group_track=group_track, *a, **k)
@@ -31,6 +34,12 @@ class AutomatedTrack(AbstractGroupTrack):
                 automation_tracks_couple.midi_track._added_track_init()
 
         self.wrapped_track.abstract_group_track = self
+        self.selection_tracks = [self.base_track]
+        for automation_tracks_couple in automation_tracks_couples:
+            self.selection_tracks += [automation_tracks_couple.audio_track, automation_tracks_couple.midi_track]
+        # this case is specific
+        if isinstance(self.wrapped_track, ExternalSynthTrack):
+            self.wrapped_track.selection_tracks = [self.wrapped_track.audio_track, self.wrapped_track.midi_track]
 
     def link_audio_tracks(self):
         audio_tracks = [self.base_track] + [couple.audio_track for couple in self.automation_tracks_couples] + [self.wrapped_track]

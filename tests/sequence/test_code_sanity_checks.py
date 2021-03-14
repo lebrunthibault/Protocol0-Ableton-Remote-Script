@@ -1,11 +1,11 @@
 import os
 
-from a_protocol_0.consts import PROTOCOL0_FOLDER
+from a_protocol_0.consts import ROOT_DIR
 
 
 def test_sequence_is_always_returned():
     code_files = []
-    for current_path, folders, files in os.walk(PROTOCOL0_FOLDER):
+    for current_path, folders, files in os.walk(ROOT_DIR):
         if any([folder_name in current_path for folder_name in [".git", "tests", "pytest", "jupyter", ".ipynb_checkpoints", "scripts", "sequence"]]):
             continue
         for file in files:

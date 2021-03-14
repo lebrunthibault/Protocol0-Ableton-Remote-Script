@@ -1,5 +1,5 @@
 from _Framework.SubjectSlot import Subject
-from a_protocol_0.consts import EXTERNAL_SYNTH_PROPHET_NAME
+from a_protocol_0.devices.InstrumentProphet import InstrumentProphet
 from a_protocol_0.lom.Song import Song
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.tests.fixtures.device import AbletonDevice, make_device_simpler
@@ -41,7 +41,7 @@ class AbletonTrack(Subject):
             self.has_audio_input = True
 
 
-def make_group_track(song, name=EXTERNAL_SYNTH_PROPHET_NAME):
+def make_group_track(song, name=InstrumentProphet.NAME):
     # type: (Song, str) -> SimpleTrack
     simple_track = SimpleTrack(song, AbletonTrack(name=name, track_type=TrackType.GROUP), len(song.simple_tracks))
     song.simple_tracks.append(simple_track)

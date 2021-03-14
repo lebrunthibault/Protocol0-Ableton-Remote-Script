@@ -3,7 +3,8 @@ from typing import List, Optional
 import Live
 
 from _Framework.Util import find_if
-from a_protocol_0.consts import TRACK_CATEGORY_ALL
+from a_protocol_0.enums.AbstractEnum import AbstractEnum
+from a_protocol_0.enums.TrackCategoryEnum import TrackCategoryEnum
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.SongActionMixin import SongActionMixin
@@ -12,7 +13,6 @@ from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
-from a_protocol_0.lom.track.simple_track.SimpleGroupTrack import SimpleGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import is_change_deferrable
@@ -31,7 +31,7 @@ class Song(SongActionMixin, AbstractObject):
         self.selected_track = None  # type: SimpleTrack
         self.current_track = None  # type: AbstractTrack
         self.master_track = self._song.master_track  # type: Live.Track.Track
-        self.selected_track_category = TRACK_CATEGORY_ALL
+        self.selected_track_category = TrackCategoryEnum.ALL  # type: AbstractEnum
         self.selected_recording_time = "1 bar"
         self.recording_bar_count = 1
         self.solo_playing_tracks = []  # type: List[AbstractTrack]
@@ -91,8 +91,8 @@ class Song(SongActionMixin, AbstractObject):
 
     @property
     def simple_group_tracks(self):
-        # type: () -> List[SimpleGroupTrack]
-        return [track for track in self.simple_tracks if isinstance(track, SimpleGroupTrack)]
+        # type: () -> List[SimpleTrack]
+        return [track for track in self.simple_tracks if len(track.sub_tracks)]
 
     @property
     def selected_tracks(self):
@@ -103,7 +103,7 @@ class Song(SongActionMixin, AbstractObject):
     @property
     def selected_category_tracks(self):
         # type: () -> List[AbstractTrack]
-        if self.selected_track_category == TRACK_CATEGORY_ALL:
+        if self.selected_track_category == TrackCategoryEnum.ALL:
             return self.simple_tracks
         return [track for track in self.abstract_tracks if
                 track.category.lower() == self.selected_track_category.lower()]

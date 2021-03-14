@@ -1,6 +1,9 @@
+import json
+import os
 import threading
 import traceback
 import types
+
 from typing import Callable
 
 from ClyphX_Pro.clyphx_pro.actions.GlobalActions import GlobalActions
@@ -21,7 +24,8 @@ from a_protocol_0.components.UtilsManager import UtilsManager
 from a_protocol_0.components.actionManagers.ActionManager import ActionManager
 from a_protocol_0.components.actionManagers.ActionSetManager import ActionSetManager
 from a_protocol_0.components.actionManagers.ActionTestManager import ActionTestManager
-from a_protocol_0.consts import LogLevel
+from a_protocol_0.consts import ROOT_DIR
+from a_protocol_0.enums.LogLevelEnum import LogLevelEnum, ACTIVE_LOG_LEVEL
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.Song import Song
 from a_protocol_0.utils.log import log_ableton
@@ -35,8 +39,11 @@ class Protocol0(ControlSurface):
         super(Protocol0, self).__init__(c_instance=c_instance)
         # noinspection PyProtectedMember
         Protocol0.SELF = self
-        self.song().stop_playing()
-        self._c_instance.log_message = types.MethodType(lambda s, message: None, self._c_instance)
+        self.song().stop_playing()  # doing this early because the set often loads playing
+        self._c_instance.log_message = types.MethodType(lambda s, message: None, self._c_instance)  # stop log duplication
+
+        self.load_dotenv()  # loading env file
+
         self._is_dev_booted = False
         self.current_action = None  # type: callable
         with self.component_guard():
@@ -66,7 +73,7 @@ class Protocol0(ControlSurface):
 
     def post_init(self):
         # self.protocol0_song.reset()
-        if LogLevel.ACTIVE_LOG_LEVEL == LogLevel.DEBUG:
+        if ACTIVE_LOG_LEVEL == LogLevelEnum.DEBUG:
             self.defer(self.dev_boot)
 
     def show_message(self, message, log=True):
@@ -76,29 +83,29 @@ class Protocol0(ControlSurface):
 
     def log_debug(self, message, debug=True):
         # type: (str) -> None
-        self._log(message=message, level=LogLevel.DEBUG, debug=debug)
+        self._log(message=message, level=LogLevelEnum.DEBUG, debug=debug)
 
     def log_info(self, message, debug=False):
         # type: (str) -> None
-        self._log(message=message, level=LogLevel.INFO, debug=debug)
+        self._log(message=message, level=LogLevelEnum.INFO, debug=debug)
 
     def log_warning(self, message, debug=False):
         # type: (str) -> None
-        self._log(message=message, level=LogLevel.WARNING, debug=debug)
+        self._log(message=message, level=LogLevelEnum.WARNING, debug=debug)
 
     def log_error(self, message, debug=True):
         # type: (str) -> None
-        self._log(message="%s\n%s" % (message, traceback.format_exc()), level=LogLevel.ERROR, debug=debug)
+        self._log(message="%s\n%s" % (message, traceback.format_exc()), level=LogLevelEnum.ERROR, debug=debug)
         self.show_message(str(message), log=False)
 
         if Protocol0.SELF.protocol0_song:
             Protocol0.SELF.protocol0_song.handle_error()
 
-    def _log(self, message, level=LogLevel.INFO, debug=True):
+    def _log(self, message, level=LogLevelEnum.INFO, debug=True):
         # type: (str) -> None
-        if level < LogLevel.ACTIVE_LOG_LEVEL:
+        if level.value < ACTIVE_LOG_LEVEL.value:
             return
-        log_ableton(debug=debug, message="%s: %s" % (LogLevel.value_to_name(level).lower(), str(message)),
+        log_ableton(debug=debug, message="%s: %s" % (LogLevelEnum(level).name.lower(), str(message)),
                     direct_call=False)
 
     def defer(self, callback):
@@ -135,4 +142,9 @@ class Protocol0(ControlSurface):
         if self._is_dev_booted:
             return
 
-        # self.log_info(self.protocol0_song.abstract_tracks)
+    def load_dotenv(self):
+        """ doing this manually because dotenv throws an encoding error """
+        with open("%s/env.json" % ROOT_DIR) as f:
+            env_vars = json.loads(f.read())
+            for key, value in env_vars.iteritems():
+                os.environ[key] = value
