@@ -1,15 +1,14 @@
-import os
 from functools import partial
-from os.path import isfile, isdir
 
 from typing import TYPE_CHECKING, List, Optional
 
 from _Framework.SubjectSlot import subject_slot
+from a_protocol_0.devices.presets.InstrumentPreset import InstrumentPreset
+from a_protocol_0.devices.presets.InstrumentPresetList import InstrumentPresetList
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import debounce
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -17,6 +16,8 @@ if TYPE_CHECKING:
 
 
 class AbstractInstrument(AbstractObject):
+    __subject_events__ = ('selected_preset',)
+
     INSTRUMENT_NAME_MAPPINGS = {
         "serum_x64": "InstrumentSerum",
         "minitaur editor-vi(x64)": "InstrumentMinitaur",
@@ -30,6 +31,11 @@ class AbstractInstrument(AbstractObject):
     PRESET_EXTENSION = ""
     NEEDS_EXCLUSIVE_ACTIVATION = False
     NEEDS_ACTIVATION_FOR_PRESETS_CHANGE = False
+    IS_EXTERNAL_SYNTH = False
+    SHOULD_DISPLAY_SELECTED_PRESET_NAME = True
+    SHOULD_DISPLAY_SELECTED_PRESET_INDEX = True
+    SHOULD_UPDATE_TRACK_NAME = True
+
     _active_instance = None  # type: AbstractInstrument
 
     def __init__(self, track, device, *a, **k):
@@ -46,9 +52,19 @@ class AbstractInstrument(AbstractObject):
             self.can_be_shown = False
             self.activated = True
             self.name = self.__class__.__name__
-        self.preset_names = []  # type: List[str]
-        self.get_presets()
+
+        self.preset_list = InstrumentPresetList(self)  # type: InstrumentPresetList
+        self._selected_preset_index = self.track.selected_preset_index
         self._base_name_listener.subject = track.track_name
+
+    @property
+    def selected_preset(self):
+        # type: () -> InstrumentPreset
+        return self.preset_list.selected_preset
+
+    @property
+    def should_display_selected_preset_name(self):
+        return self.preset_list.has_preset_names and self.SHOULD_DISPLAY_SELECTED_PRESET_NAME
 
     @property
     def active_instance(self):
@@ -60,7 +76,10 @@ class AbstractInstrument(AbstractObject):
 
     @subject_slot("base_name")
     def _base_name_listener(self):
-        self.get_presets(set_preset=True)
+        self.parent.log_dev("base name listener !!!!")
+        self.preset_list.import_presets()
+        self.parent.log_dev(self.selected_preset)
+        self.sync_selected_preset()
 
     def exclusive_activate(self):
         # type: () -> Optional[Sequence]
@@ -87,7 +106,7 @@ class AbstractInstrument(AbstractObject):
             seq.add(self.exclusive_activate)
             seq.add(partial(setattr, self, "active_instance", self))
 
-        seq.add(self.song.selected_track.select)
+        seq.add(self.song.selected_track.select, silent=True)
 
         return seq.done()
 
@@ -102,30 +121,14 @@ class AbstractInstrument(AbstractObject):
         else:
             self.check_activated()
 
-    def _get_presets_path(self):
+    @property
+    def presets_path(self):
+        """ overridden """
         return self.PRESETS_PATH
 
-    @debounce()
-    def get_presets(self, set_preset=False):
-        self.preset_names = []  # type: List[str]
-        presets_path = self._get_presets_path()
-        if not presets_path:
-            return
-
-        if isfile(presets_path):
-            self.preset_names = open(presets_path).readlines()
-        elif isdir(presets_path):
-            for root, sub_dirs, files in os.walk(presets_path):
-                for file in files:
-                    if file.endswith(self.PRESET_EXTENSION):
-                        self.preset_names.append(file)
-
-        self.NUMBER_OF_PRESETS = len(self.preset_names) or self.NUMBER_OF_PRESETS
-        if set_preset:
-            self.set_preset(self.track.preset_index)
-
-    def get_display_name(self, preset_name):
+    def format_preset_name(self, preset_name):
         # type: (str) -> str
+        """ overridden """
         return preset_name
 
     def action_scroll_presets_or_samples(self, go_next):
@@ -133,34 +136,28 @@ class AbstractInstrument(AbstractObject):
         seq = Sequence()
         if self.device:
             seq.add(self.device_track.select)
-            # note: in the case of fast scrolling on a simpler, _devices_listener is not called in time
-            # so the following could fail but will succeed just after so we just ignore the error
-            seq.add(partial(self.song.select_device, self.device), silent=True)
             if self.NEEDS_ACTIVATION_FOR_PRESETS_CHANGE:
                 seq.add(self.check_activated)
-            seq.add(lambda: setattr(self.device, "is_collapsed", False))
 
-        seq.add(partial(self._scroll_presets_or_sample, go_next))
+        seq.add(partial(self.preset_list.scroll, go_next=go_next))
+        seq.add(partial(self.sync_selected_preset))
         return seq.done()
 
-    def _scroll_presets_or_sample(self, go_next):
-        # type: (bool) -> None
-        new_preset_index = self.track.preset_index + 1 if go_next else self.track.preset_index - 1
-        new_preset_index %= self.NUMBER_OF_PRESETS
+    def sync_selected_preset(self):
+        self.parent.log_dev(self.selected_preset)
+        seq = Sequence()
+        seq.add(partial(self.load_preset, self.selected_preset))
+        seq.add(partial(self.parent.show_message, "preset change : %s" % self.selected_preset.name or self.selected_preset.index))
+        # noinspection PyUnresolvedReferences
+        seq.add(self.notify_selected_preset)
+        return seq.done()
 
-        self.track.track_name.set(preset_index=new_preset_index)
-
-        display_preset = self.preset_names[new_preset_index] if len(self.preset_names) else str(new_preset_index)
-        display_preset = os.path.splitext(self.get_display_name(display_preset))[0]
-        self.parent.show_message("preset change : %s" % self.get_display_name(display_preset))
-        self.set_preset(new_preset_index)
-
-    def set_preset(self, preset_index):
-        # type: (int) -> Sequence
-        """ default is send program change """
+    def load_preset(self, preset):
+        # type: (InstrumentPreset) -> Sequence
+        """ Overridden default is send program change """
         seq = Sequence()
         seq.add(self.track.action_arm)
-        seq.add(partial(self.parent.midiManager.send_program_change, preset_index))
+        seq.add(self.parent.midiManager.send_program_change(preset.index))
         return seq.done()
 
     def action_scroll_categories(self, go_next):

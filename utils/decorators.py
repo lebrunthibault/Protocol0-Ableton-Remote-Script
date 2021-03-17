@@ -98,7 +98,7 @@ def retry(retry_count=2, interval=1):
 
 
 def debounce(wait_time=2):
-    """ here we make the method dynamic for e.g. get_presets """
+    """ here we make the method dynamic """
 
     def wrap(func):
         @wraps(func)

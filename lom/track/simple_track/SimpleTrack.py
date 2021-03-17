@@ -8,7 +8,7 @@ from a_protocol_0.enums.ClipTypeEnum import ClipTypeEnum
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrackActionMixin import SimpleTrackActionMixin
-from a_protocol_0.utils.decorators import defer
+from a_protocol_0.utils.decorators import defer, p0_subject_slot
 
 
 class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
@@ -22,6 +22,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self.linked_track = None  # type: Optional[SimpleTrack]
         self._playing_slot_index_listener.subject = self._track
         self.instrument = self.parent.deviceManager.make_instrument_from_simple_track(track=self)
+        self._instrument_listener.subject = self
         if self.is_midi:  # could later create a SimpleMidiTrack class if necessary
             self.push2_selected_matrix_mode = 'note'
             self.push2_selected_instrument_mode = 'split_melodic_sequencer'
@@ -57,6 +58,13 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
 
         # noinspection PyUnresolvedReferences
         self.notify_playing_slot_index()
+
+    @p0_subject_slot("instrument")
+    def _instrument_listener(self):
+        if self.instrument:
+            self.color = self.instrument.TRACK_COLOR
+            if self.instrument.SHOULD_UPDATE_TRACK_NAME:
+                self.track_name.set(base_name=self.instrument.NAME)
 
     @property
     def playing_slot_index(self):

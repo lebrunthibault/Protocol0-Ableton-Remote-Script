@@ -21,7 +21,7 @@ from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.lom.track.AbstractTrackActionMixin import AbstractTrackActionMixin
 from a_protocol_0.lom.track.TrackName import TrackName
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import defer
+from a_protocol_0.utils.decorators import defer, is_change_deferrable
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -82,6 +82,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         if self.parent.songManager.abstract_group_track_creation_in_progress:
             return
         self.song.current_track.action_arm()
+        self.song.current_track.stop()
         [setattr(track.track_name, "playing_slot_index", 0) for track in self.song.current_track.all_tracks]
 
         if not self._is_duplicated:
@@ -171,9 +172,9 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         return self.base_track.track_name.base_name
 
     @property
-    def preset_index(self):
+    def selected_preset_index(self):
         # type: () -> int
-        return self.base_track.track_name.preset_index
+        return self.base_track.track_name.selected_preset_index
 
     @property
     def color(self):
@@ -181,6 +182,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         return self._track.color_index
 
     @color.setter
+    @is_change_deferrable
     def color(self, color_index):
         # type: (int) -> None
         for track in self.all_tracks:

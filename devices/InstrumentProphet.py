@@ -7,6 +7,7 @@ class InstrumentProphet(AbstractInstrument):
     NAME = "Prophet"
     TRACK_COLOR = Colors.PROPHET
     NEEDS_EXCLUSIVE_ACTIVATION = True
+    IS_EXTERNAL_SYNTH = True
 
     def exclusive_activate(self):
         # type: () -> Sequence

@@ -60,7 +60,7 @@ class Sequence(AbstractObject):
         self._start_at = None  # type: float
         self._end_at = None  # type: float
         self._duration = None  # type: float
-        self._log_level = SequenceLogLevel.disabled if (self.DISABLE_LOGGING or silent) else log_level
+        self._log_level = SequenceLogLevel.disabled if self.DISABLE_LOGGING or silent else log_level
         self._debug = (self._log_level == SequenceLogLevel.debug) and debug and not self.DISABLE_LOGGING
         self._early_returned = False
         self._errored = False

@@ -6,6 +6,7 @@ $version = $Env:abletonVersion
 $logFile = "$env:userprofile\AppData\Roaming\Ableton\Live $version\Preferences\Log.txt"
 $startSize = 70
 $processLogFile = $true
+$debug = $false
 $showDateTime = $true
 $global:write_next_n_lines = 0
 
@@ -45,7 +46,7 @@ function Get-LogColor
             {
                 Return "Magenta"
             }
-            elseif ($LogEntry.Contains("error") -or $LogEntry.Contains("a_protocol_0") -or $LogEntry.Contains("RuntimeError") -or $LogEntry.Contains("Protocol0Error") -or $LogEntry.Contains("exception"))
+            elseif ($LogEntry.Contains("error") -or $LogEntry.Contains("a_protocol_0") -or $LogEntry.Contains("Error") -or $LogEntry.Contains("exception"))
             {
                 Return "Red"
                 FocusLogs
@@ -72,25 +73,31 @@ function Format-LogLine
 
     process {
         # remove Protocol 0 log prefix
+        if ($debug) {
+            Write-Host $LogEntry
+        }
         $LogEntry = $LogEntry -replace "P0 - (\w+:)?"
 
         # remove unecessary remote script log info
         $LogEntry = $LogEntry -replace "Python: INFO:root:\d* - "
         $LogEntry = $LogEntry -replace "(info|debug):\s?"
+        $LogEntry = $LogEntry -replace "RemoteScriptError: "
 
         # Simplify date
         $timestampReg = "^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{6}:"
         if ($LogEntry -match $timestampReg)
         {
-            $parts = $LogEntry.Split(" ")
+            $parts = [regex]::split($LogEntry, '\s+')
             if (-not $parts[2])  # allow printing empty lines
             {
                 return ""
             }
+
+            $parts = $LogEntry.Split(" ")  # keeping indentation
             if ($showDateTime)
             {
                 $date = [datetime]::parseexact($parts[0], 'yyyy-MM-ddTHH:mm:ss.ffffff:', $null)
-                $logEntry = (Get-Date -Date $date -Format "HH:mm:ss.fff") + " " + $parts[1..($parts.Count - 1)] -join " "
+                $logEntry = (Get-Date -Date $date -Format "HH:mm:ss.fff") + $parts[1..($parts.Count - 1)] -join " "
             }
             else
             {
@@ -106,6 +113,10 @@ function Select-Log-Line
     Param([Parameter(Position = 0)]
         [String]$LogEntry)
 
+    if ($debug) {
+        return $true
+    }
+
     if ($LogEntry.Contains("(Protocol0) Initializing"))
     {
         Clear-Host
@@ -115,18 +126,6 @@ function Select-Log-Line
     {
         $global:write_next_n_lines -= 1
         return $LogEntry
-    }
-
-    #    discarding None messages
-    $SplitLine = $LogEntry -split "P0 - "
-
-    if ($SplitLine.Length -eq 2)
-    {
-        $Message = $SplitLine[1]
-        if ($Message -eq "None")
-        {
-            return $null
-        }
     }
 
     $Filters = "P0", "ArgumentError", "RemoteScriptError"

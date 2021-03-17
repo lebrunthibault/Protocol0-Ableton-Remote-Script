@@ -81,39 +81,35 @@ class Protocol0(ControlSurface):
         super(Protocol0, self).show_message(message)
         self.log_warning(message)
 
-    def log_dev(self, message, debug=True):
+    def log_dev(self, message="", debug=True):
         # type: (str) -> None
-        self._log(message=message, level=LogLevelEnum.DEV, debug=debug)
+        self._log(level=LogLevelEnum.DEV, message=message, debug=debug)
 
-    def log_debug(self, message, debug=False):
-        # type: (str) -> None
-        self._log(message=message, level=LogLevelEnum.DEBUG, debug=debug)
+    def log_debug(self, *a, **k):
+        self._log(level=LogLevelEnum.DEBUG, *a, **k)
 
-    def log_info(self, message, debug=False):
-        # type: (str) -> None
-        self._log(message=message, level=LogLevelEnum.INFO, debug=debug)
+    def log_info(self, *a, **k):
+        self._log(level=LogLevelEnum.INFO, *a, **k)
 
-    def log_notice(self, message, debug=False):
-        # type: (str) -> None
-        self._log(message=message, level=LogLevelEnum.NOTICE, debug=debug)
+    def log_notice(self, *a, **k):
+        self._log(level=LogLevelEnum.NOTICE, *a, **k)
 
-    def log_warning(self, message, debug=False):
-        # type: (str) -> None
-        self._log(message=message, level=LogLevelEnum.WARNING, debug=debug)
+    def log_warning(self, *a, **k):
+        self._log(level=LogLevelEnum.WARNING, *a, **k)
 
     def log_error(self, message, debug=True):
         # type: (str) -> None
-        self._log(message="%s\n%s" % (message, traceback.format_exc()), level=LogLevelEnum.ERROR, debug=debug)
+        self._log(message="%s\n%s" % (message, traceback.format_exc()), level=LogLevelEnum.ERROR, debug=True)
         self.show_message(str(message), log=False)
 
         if Protocol0.SELF.protocol0_song:
             Protocol0.SELF.protocol0_song.handle_error()
 
-    def _log(self, message, level=LogLevelEnum.INFO, debug=True):
+    def _log(self, message="", level=LogLevelEnum.INFO, debug=False):
         # type: (str) -> None
         if level.value < ACTIVE_LOG_LEVEL.value and not debug:
             return
-        log_ableton(debug=debug, message="%s: %s" % (LogLevelEnum(level).name.lower(), str(message)),
+        log_ableton(debug=bool(message) and debug, message="%s: %s" % (LogLevelEnum(level).name.lower(), str(message)),
                     direct_call=False)
 
     def defer(self, callback):
@@ -152,7 +148,7 @@ class Protocol0(ControlSurface):
 
     def load_dotenv(self):
         """ doing this manually because dotenv throws an encoding error """
-        with open("%s/env.json" % ROOT_DIR) as f:
+        with open("%s/.env.json" % ROOT_DIR) as f:
             env_vars = json.loads(f.read())
             for key, value in env_vars.iteritems():
                 os.environ[key] = value

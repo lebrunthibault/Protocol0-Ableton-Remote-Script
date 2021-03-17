@@ -84,12 +84,19 @@ class TrackManager(AbstractControlSurfaceComponent):
 
     def make_external_synth_track(self, group_track):
         # type: (SimpleTrack) -> None
+        # discarding automated tracks in creation / suppression
         if len([sub_track for sub_track in group_track.sub_tracks if not self._is_automated_sub_track(sub_track)]) != 2:
             return
-        if not any([name.lower() in group_track.track_name.base_name.lower() for name in [InstrumentProphet.NAME, InstrumentMinitaur.NAME]]):
-            return
 
-        return ExternalSynthTrack(group_track=group_track)
+        is_external_synth_track = False
+        if any([sub_track.instrument and sub_track.instrument.IS_EXTERNAL_SYNTH for sub_track in group_track.sub_tracks]):
+            is_external_synth_track = True
+        # minitaur is a special case as it doesn't have a vst
+        elif group_track.track_name.base_name.lower() == InstrumentMinitaur.NAME:
+            is_external_synth_track = True
+
+        if is_external_synth_track:
+            return ExternalSynthTrack(group_track=group_track)
 
     def make_automated_track(self, group_track, wrapped_track=None):
         # type: (SimpleTrack, AbstractTrack) -> Optional[AutomatedTrack]
