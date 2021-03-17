@@ -58,12 +58,12 @@ class TrackManager(AbstractControlSurfaceComponent):
 
     def _create_track(self, track_creator, name, device):
         # type: (callable, str, Optional[Device]) -> None
-        seq = Sequence().add(wait=1, name="defer change")
+        seq = Sequence().add(wait=1, silent=True)  # defer change
         seq.add(track_creator, complete_on=self.parent.songManager._tracks_listener)
         seq.add(lambda: self.song.selected_track.track_name.set(base_name=name), name="set track name to %s" % name)
         if device:
-            seq.add(lambda: self.song.selected_track.clear_devices())
-            seq.add(partial(self.parent.browserManager.load_any_device, device_type=device.device_type, device_name=device.name))
+            seq.add(lambda: self.song.selected_track.clear_devices(), name="clear devices")
+            seq.add(partial(self.parent.browserManager.load_any_device, device_type=device.device_type, device_name=device.name), silent=True)
 
         return seq.done()
 

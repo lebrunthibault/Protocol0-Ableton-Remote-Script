@@ -53,7 +53,7 @@ class ClipActionMixin(object):
         if cache:
             self._prev_notes = [note for note in notes if not note.muted]
         notes += [note for note in self._muted_notes if note.start == 0]  # reintegrating muted notes
-        seq = Sequence()
+        seq = Sequence(silent=True)
         seq.add(partial(method, tuple(note.to_data() for note in notes)))
         # noinspection PyUnresolvedReferences
         seq.add(self.notify_notes)  # for automation audio track to be notified
@@ -92,7 +92,7 @@ class ClipActionMixin(object):
         if not self._clip:
             return
         self._select_all_notes()
-        seq = Sequence()
+        seq = Sequence(silent=True)
         seq.add(wait=1)
         seq.add(partial(self._replace_selected_notes, notes))
         seq.add(self._deselect_all_notes)

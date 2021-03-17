@@ -67,7 +67,7 @@ class SequenceStep(AbstractObject):
         if self._complete_on:
             if _has_callback_queue(self._complete_on):
                 output += " (and wait for listener call : %s)" % get_callable_name(self._complete_on)
-            elif is_lambda(self._complete_on) and not self._original_name:
+            elif is_lambda(self._complete_on) and not self._original_name and self._debug:
                 output += " (and poll for lambda condition)"
             else:
                 output += " (and poll for %s)" % get_callable_name(self._complete_on)

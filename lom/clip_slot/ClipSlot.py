@@ -8,6 +8,7 @@ from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.sequence.SequenceState import SequenceLogLevel
 from a_protocol_0.utils.decorators import p0_subject_slot, is_change_deferrable
+from a_protocol_0.utils.log import log_ableton
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -121,10 +122,10 @@ class ClipSlot(AbstractObject):
         seq = Sequence()
         seq.add(partial(self.song.simple_tracks[0].clip_slots[0].duplicate_clip_to, self),
                 complete_on=self._has_clip_listener)
-        seq.add(lambda: setattr(self.clip, "warping", 1), name="enable clip warping")
-        seq.add(lambda: setattr(self.clip, "looping", 1), name="enable clip looping")
+        seq.add(lambda: setattr(self.clip, "warping", 1), name="enable clip warping", silent=True)
+        seq.add(lambda: setattr(self.clip, "looping", 1), name="enable clip looping", silent=True)
         seq.add(wait=2)  # should be 2 because the created dummy clip name syncs to the midi clip
-        seq.add(lambda: setattr(self.clip, "name", name))
+        seq.add(lambda: setattr(self.clip, "name", name), silent=True)
         return seq.done()
 
     def disconnect(self):

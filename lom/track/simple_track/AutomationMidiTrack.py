@@ -28,8 +28,8 @@ class AutomationMidiTrack(AbstractAutomationTrack):
         self.clear_devices()
         seq = Sequence()
         seq.add(partial(self._create_base_clip, clip_slot_index=self.song.selected_scene_index))
-        seq.add(partial(self.track_name.set, playing_slot_index=self.song.selected_scene_index))
-        seq.add(partial(self.linked_track.track_name.set, playing_slot_index=self.song.selected_scene_index))
+        seq.add(partial(self.track_name.set, playing_slot_index=self.song.selected_scene_index), silent=True)
+        seq.add(partial(self.linked_track.track_name.set, playing_slot_index=self.song.selected_scene_index), silent=True)
         seq.add(self.linked_track.play)
 
         return seq.done()

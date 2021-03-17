@@ -155,7 +155,7 @@ def button_action(auto_arm=False, log_action=True):
         def decorate(self, *a, **k):
             # type: (AbstractObject) -> None
             if log_action:
-                self.parent.log_info("Executing " + func.__name__)
+                self.parent.log_notice("Executing " + func.__name__)
             from a_protocol_0.sequence.Sequence import Sequence
             seq = Sequence(silent=True)
             if auto_arm:

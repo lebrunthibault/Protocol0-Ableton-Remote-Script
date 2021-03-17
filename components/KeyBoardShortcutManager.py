@@ -65,7 +65,6 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
     def focus_logs(self):
         return self.focus_window("logs terminal")
 
-    @log
     def send_click(self, x, y):
         # type: (int, int) -> None
         self._execute_python("send_click.py", x, y)

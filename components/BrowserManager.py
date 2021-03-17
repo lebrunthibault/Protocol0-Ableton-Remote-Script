@@ -21,7 +21,7 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
         else:
             raise Protocol0Error("DeviceType not handled : %s" % device_type)
 
-        seq.add(load_func, check_timeout=15)
+        seq.add(load_func, check_timeout=15, name="loading device %s" % device_name)
 
         return seq.done()
 
@@ -29,9 +29,10 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
         # type: (str, bool) -> None
         seq = Sequence()
         seq.add(partial(self.load_from_user_library, None, "'%s.adg'" % rack_name),
-                complete_on=lambda: find_if(lambda d: d.name == rack_name, self.song.selected_track.devices), check_timeout=10)
+                complete_on=lambda: find_if(lambda d: d.name == rack_name, self.song.selected_track.devices),
+                check_timeout=10, silent=True)
         if hide:
-            seq.add(self.parent.keyboardShortcutManager.hide_plugins, wait=1)
+            seq.add(self.parent.keyboardShortcutManager.hide_plugins, wait=1, silent=True)
         return seq.done()
 
     def load_sample(self, sample_name):

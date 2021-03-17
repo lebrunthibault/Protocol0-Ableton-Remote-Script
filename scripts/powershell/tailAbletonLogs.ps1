@@ -1,4 +1,4 @@
-KillProcess (GetProcessFromNameOrTitle "*logs terminal*")
+KillProcess (GetProcessFromNameOrTitle "*logs terminal*") -force
 $host.ui.RawUI.WindowTitle = "logs terminal"
 
 $version = $Env:abletonVersion
@@ -25,30 +25,30 @@ function Get-LogColor
     process {
         if ( $LogEntry.Contains("P0 -"))
         {
-            if ( $LogEntry.Contains("P0 - info"))
+            if ( $LogEntry.Contains("P0 - dev"))
+            {
+                Return "Yellow"
+            }
+            elseif ($LogEntry.Contains("P0 - debug"))
+            {
+                Return "Gray"
+            }
+            elseif ( $LogEntry.Contains("P0 - info"))
             {
                 Return "Green"
             }
-            elseif ($LogEntry.Contains("error") -or $LogEntry.Contains("a_protocol_0") -or $LogEntry.Contains("RuntimeError") -or $LogEntry.Contains("Protocol0Error") -or $LogEntry.Contains("exception"))
+            elseif ($LogEntry.Contains("P0 - notice"))
             {
-                Return "Red"
-                FocusLogs
+                Return "Blue"
             }
             elseif ($LogEntry.Contains("P0 - warning"))
             {
                 Return "Magenta"
             }
-            elseif ($LogEntry.Contains("P0 - debug"))
+            elseif ($LogEntry.Contains("error") -or $LogEntry.Contains("a_protocol_0") -or $LogEntry.Contains("RuntimeError") -or $LogEntry.Contains("Protocol0Error") -or $LogEntry.Contains("exception"))
             {
-                Return "Yellow"
-            }
-            elseif ($LogEntry.Contains("send_keys"))
-            {
-                Return "Blue"
-            }
-            elseif ($LogEntry.Contains("send_click"))
-            {
-                Return "Blue"
+                Return "Red"
+                FocusLogs
             }
             else
             {
@@ -71,15 +71,22 @@ function Format-LogLine
         [String]$LogEntry)
 
     process {
-        if ( $LogEntry.Contains("(Protocol0) Initializing"))
-        {
-            Clear-Host
-        }
+        # remove Protocol 0 log prefix
+        $LogEntry = $LogEntry -replace "P0 - (\w+:)?"
+
+        # remove unecessary remote script log info
+        $LogEntry = $LogEntry -replace "Python: INFO:root:\d* - "
+        $LogEntry = $LogEntry -replace "(info|debug):\s?"
+
         # Simplify date
         $timestampReg = "^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{6}:"
         if ($LogEntry -match $timestampReg)
         {
             $parts = $LogEntry.Split(" ")
+            if (-not $parts[2])  # allow printing empty lines
+            {
+                return ""
+            }
             if ($showDateTime)
             {
                 $date = [datetime]::parseexact($parts[0], 'yyyy-MM-ddTHH:mm:ss.ffffff:', $null)
@@ -91,13 +98,6 @@ function Format-LogLine
             }
         }
 
-        # remove Protocol 0 log prefix
-        $LogEntry = $LogEntry -replace "P0 - (\w+: )?"
-
-        # remove unecessary remote script log info
-        $LogEntry = $LogEntry -replace "info: "
-        $LogEntry = $LogEntry -replace "Python: INFO:root:\d* - "
-
         Return $LogEntry
     }
 }
@@ -106,23 +106,30 @@ function Select-Log-Line
     Param([Parameter(Position = 0)]
         [String]$LogEntry)
 
+    if ($LogEntry.Contains("(Protocol0) Initializing"))
+    {
+        Clear-Host
+    }
+
     if ($write_next_n_lines -ne 0)
     {
         $global:write_next_n_lines -= 1
         return $LogEntry
     }
 
-#    discarding None messages
+    #    discarding None messages
     $SplitLine = $LogEntry -split "P0 - "
 
-    if ($SplitLine.Length -eq 2) {
+    if ($SplitLine.Length -eq 2)
+    {
         $Message = $SplitLine[1]
-        if ($Message -eq "None") {
+        if ($Message -eq "None")
+        {
             return $null
         }
     }
 
-    $Filters = "P0", "Protocol0", "RemoteScriptError"
+    $Filters = "P0", "ArgumentError", "RemoteScriptError"
 
     foreach ($Filter in $Filters)
     {

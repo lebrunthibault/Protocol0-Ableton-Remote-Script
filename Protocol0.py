@@ -81,13 +81,21 @@ class Protocol0(ControlSurface):
         super(Protocol0, self).show_message(message)
         self.log_warning(message)
 
-    def log_debug(self, message, debug=True):
+    def log_dev(self, message, debug=True):
+        # type: (str) -> None
+        self._log(message=message, level=LogLevelEnum.DEV, debug=debug)
+
+    def log_debug(self, message, debug=False):
         # type: (str) -> None
         self._log(message=message, level=LogLevelEnum.DEBUG, debug=debug)
 
     def log_info(self, message, debug=False):
         # type: (str) -> None
         self._log(message=message, level=LogLevelEnum.INFO, debug=debug)
+
+    def log_notice(self, message, debug=False):
+        # type: (str) -> None
+        self._log(message=message, level=LogLevelEnum.NOTICE, debug=debug)
 
     def log_warning(self, message, debug=False):
         # type: (str) -> None
@@ -103,7 +111,7 @@ class Protocol0(ControlSurface):
 
     def _log(self, message, level=LogLevelEnum.INFO, debug=True):
         # type: (str) -> None
-        if level.value < ACTIVE_LOG_LEVEL.value:
+        if level.value < ACTIVE_LOG_LEVEL.value and not debug:
             return
         log_ableton(debug=debug, message="%s: %s" % (LogLevelEnum(level).name.lower(), str(message)),
                     direct_call=False)

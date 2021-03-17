@@ -44,6 +44,8 @@ class SongManager(AbstractControlSurfaceComponent):
     @p0_subject_slot("tracks")
     def _tracks_listener(self):
         # type: () -> Optional[SimpleTrack]
+        self.parent.log_debug("SongManager : start mapping tracks")
+
         added_track = False
         if len(self.song.simple_tracks) and len(self.song._song.tracks) > len(self.song.simple_tracks):
             added_track = True
@@ -83,12 +85,6 @@ class SongManager(AbstractControlSurfaceComponent):
         # 4. Set the currently selected track
         self._set_current_track()
 
-        self.parent.log_info("**************************")
-        self.parent.log_info("**************************")
-        self.parent.log_info("SongManager : mapped tracks")
-        self.parent.log_info("**************************")
-        self.parent.log_info("**************************")
-
         if added_track:
             added_track_index = self.song.simple_tracks.index(self.song.selected_track)
             if added_track_index > 0 and self.song.simple_tracks[
@@ -96,6 +92,9 @@ class SongManager(AbstractControlSurfaceComponent):
                 self.song.current_track._is_duplicated = True
             # noinspection PyUnresolvedReferences
             self.notify_added_track()
+
+        self.parent.log_debug("SongManager : mapped tracks")
+        self.parent.log_debug("")
 
     def _sync_instrument_activation_states(self, former_simple_tracks, current_simple_tracks):
         # type: (List[SimpleTrack], List[SimpleTrack]) -> None

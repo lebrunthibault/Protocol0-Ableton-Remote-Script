@@ -46,10 +46,10 @@ class AutomationTrackManager(AbstractControlSurfaceComponent):
         # this should not be parallelized
         seq.add(partial(self.parent.trackManager.create_audio_track, base_track.index + 1, name=track_name, device=parameter.device))
         seq.add(partial(self.parent.trackManager.create_midi_track, base_track.index + 2, name=track_name))
-        seq.add(lambda: setattr(self.parent.songManager, "abstract_group_track_creation_in_progress", False))
+        seq.add(partial(setattr, self.parent.songManager, "abstract_group_track_creation_in_progress", False), silent=True)
         # storing the indexes makes the setup faster
-        seq.add(partial(setattr, self, "created_tracks_indexes", set([base_track.index + 1, base_track.index + 2])))
-        seq.add(self.parent.songManager._tracks_listener)  # instantiating AutomatedTrack on first parameter automation
-        seq.add(partial(setattr, self, "created_tracks_indexes", set()))
+        seq.add(partial(setattr, self, "created_tracks_indexes", set([base_track.index + 1, base_track.index + 2])), silent=True)
+        seq.add(self.parent.songManager._tracks_listener, name="AutomatedTrack creation")  # instantiating AutomatedTrack on first parameter automation
+        seq.add(partial(setattr, self, "created_tracks_indexes", set()), silent=True)
 
         return seq.done()

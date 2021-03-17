@@ -7,6 +7,7 @@ from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.sequence.Sequence import Sequence
+from a_protocol_0.utils.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -20,15 +21,15 @@ class AutomationMidiClipSlot(ClipSlot):
         self.clip = self.clip  # type: AutomationMidiClip
         self.track = self.track  # type: AutomationMidiTrack
 
-    # @p0_subject_slot("has_clip")
-    # def _has_clip_listener(self):
-    #     super(AutomationMidiClipSlot, self)._has_clip_listener()
-    #
-    #     if self.clip and len(self.clip.get_notes()) == 0:
-    #         self.configure_base_clip()
-    #
-    #     if self.clip and self.linked_clip_slot and not self.linked_clip_slot.clip:
-    #         self.parent.defer(partial(self.linked_clip_slot.insert_dummy_clip, name=self.clip.name))
+    @p0_subject_slot("has_clip")
+    def _has_clip_listener(self):
+        super(AutomationMidiClipSlot, self)._has_clip_listener()
+
+        if self.clip and len(self.clip.get_notes()) == 0:
+            self.configure_base_clip()
+
+        if self.clip and self.linked_clip_slot and not self.linked_clip_slot.clip:
+            self.parent.defer(partial(self.linked_clip_slot.insert_dummy_clip, name=self.clip.name))
 
     def configure_base_clip(self):
         if not self.clip:
@@ -44,10 +45,10 @@ class AutomationMidiClipSlot(ClipSlot):
         seq = Sequence()
         seq.add(partial(self.clip.replace_all_notes, self._get_equal_duration_notes(velocities=velocities,
                                                                    muted_start_note_velocities=muted_start_note_velocities)))
-        seq.add(self.clip.view.hide_envelope)
-        seq.add(wait=2)
+        seq.add(self.clip.view.hide_envelope, silent=True)
+        seq.add(wait=2, silent=True)
         seq.add(self.parent.keyboardShortcutManager.click_clip_fold)
-        seq.done()
+        return seq.done()
 
     def _get_equal_duration_notes(self, velocities, muted_start_note_velocities):
         # type: (List[int], List[int]) -> List[Note]

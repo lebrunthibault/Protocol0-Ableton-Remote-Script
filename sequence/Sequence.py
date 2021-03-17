@@ -2,7 +2,7 @@ import time
 from collections import deque, Iterable
 from functools import partial
 
-from typing import List
+from typing import List, Deque
 
 from a_protocol_0.errors.SequenceError import SequenceError
 from a_protocol_0.lom.AbstractObject import AbstractObject
@@ -52,7 +52,7 @@ class Sequence(AbstractObject):
 
     def __init__(self, wait=0, log_level=SequenceLogLevel.debug, debug=True, name=None, bypass_errors=False, silent=False, *a, **k):
         super(Sequence, self).__init__(*a, **k)
-        self._steps = deque()  # type: [SequenceStep]
+        self._steps = deque()  # type: Deque[SequenceStep]
         self._current_step = None  # type: SequenceStep
         self._wait = wait
         self._state = SequenceState.UN_STARTED
@@ -122,10 +122,10 @@ class Sequence(AbstractObject):
             raise SequenceError(object=self, message="You called _exec_next on a terminated sequence")
 
         if len(self._steps):
-            if self._debug:
-                self.parent.log_info("%s : exec %s" % (self, self._steps[0]),
-                                     debug=False)
             self._current_step = self._steps.popleft()
+            if self._debug and not self._current_step._silent:
+                self.parent.log_info("%s : %s" % (self, self._current_step),
+                                     debug=False)
             self._step_termination.subject = self._current_step
             self._current_step._start()
         elif self._current_step._is_terminal_step:
@@ -177,7 +177,8 @@ class Sequence(AbstractObject):
             if self._errored:
                 self.parent.log_error(message, debug=False)
             elif self._debug:
-                self.parent.log_info(message, debug=False)
+                pass
+                # self.parent.log_info(message, debug=False)
 
         # noinspection PyUnresolvedReferences
         self.notify_terminated()
