@@ -164,6 +164,7 @@ class Song(SongActionMixin, AbstractObject):
     @property
     def clips(self):
         # type: () -> List[Clip]
+        """ All clips of the set flattened """
         clips = [t.clips for t in self.simple_tracks]
         return flatten(clips)
 

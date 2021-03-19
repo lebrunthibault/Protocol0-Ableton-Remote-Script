@@ -1,10 +1,10 @@
 import itertools
 from functools import partial
+
 from typing import Optional
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.devices.InstrumentMinitaur import InstrumentMinitaur
-from a_protocol_0.devices.InstrumentProphet import InstrumentProphet
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
@@ -60,7 +60,7 @@ class TrackManager(AbstractControlSurfaceComponent):
         # type: (callable, str, Optional[Device]) -> None
         seq = Sequence().add(wait=1, silent=True)  # defer change
         seq.add(track_creator, complete_on=self.parent.songManager._tracks_listener)
-        seq.add(lambda: self.song.selected_track.track_name.set(base_name=name), name="set track name to %s" % name)
+        seq.add(lambda: self.song.selected_track.track_name.set_track_name(base_name=name), name="set track name to %s" % name)
         if device:
             seq.add(lambda: self.song.selected_track.clear_devices(), name="clear devices")
             seq.add(partial(self.parent.browserManager.load_any_device, device_type=device.device_type, device_name=device.name), silent=True)
@@ -128,4 +128,4 @@ class TrackManager(AbstractControlSurfaceComponent):
         # type: (SimpleTrack) -> bool
         if track.index in self.parent.automationTrackManager.created_tracks_indexes:
             return True
-        return AutomatedTrack.AUTOMATION_TRACK_NAME in track.name and AbstractAutomationTrack.get_parameter_info_from_track_name(track.name)
+        return AutomatedTrack.AUTOMATION_TRACK_NAME in track.name

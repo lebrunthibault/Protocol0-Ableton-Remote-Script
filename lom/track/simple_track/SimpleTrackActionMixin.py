@@ -3,7 +3,6 @@ from functools import partial
 from typing import TYPE_CHECKING
 
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
-from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.utils import scroll_values
@@ -79,12 +78,10 @@ class SimpleTrackActionMixin(object):
         else:
             if self.playable_clip == self.clips[0] and not go_next:
                 return self.parent.keyboardShortcutManager.up()
+
             selected_clip = scroll_values(self.clips, self.playable_clip, go_next)  # type: Clip
-            for clip in self.clips:
-                clip.color = self.base_color
-                clip.is_selected = False
+            self.playable_clip.is_selected = False
             selected_clip.is_selected = True
-            selected_clip.color = Colors.SELECTED
             selected_clip_slot = selected_clip.clip_slot
 
         self.song.highlighted_clip_slot = selected_clip_slot

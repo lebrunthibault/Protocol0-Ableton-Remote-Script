@@ -17,7 +17,7 @@ class MultiEncoder(AbstractObject):
     PRESS_MAX_TIME = 0.25  # maximum time in seconds we consider a simple press
     SHIFT_PRESSED = False
 
-    def __init__(self, action_manager, channel, identifier, on_press=None, on_release=None, on_long_press=None, on_shift_press=None,
+    def __init__(self, action_manager, channel, id, on_press=None, on_release=None, on_long_press=None, on_shift_press=None,
                  on_shift_long_press=None, on_scroll=None, on_shift_scroll=None, *a, **k):
         """
             Actions are triggered at the end of the press not the start. Allows press vs long_press
@@ -26,7 +26,7 @@ class MultiEncoder(AbstractObject):
         super(MultiEncoder, self).__init__(*a, **k)
         self.action_manager = action_manager  # type: AbstractActionManager
         self.channel = channel
-        self.identifier = identifier
+        self.identifier = id
         self.on_press = on_press
         self.on_release = on_release
         self.on_long_press = on_long_press

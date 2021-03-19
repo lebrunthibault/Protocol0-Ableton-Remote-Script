@@ -1,6 +1,7 @@
 from typing import Optional
 
 from _Framework.SubjectSlot import subject_slot, subject_slot_group
+from a_protocol_0.lom.clip.MidiClip import MidiClip
 from a_push2.push2 import Push2
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import PUSH2_BEAT_QUANTIZATION_STEPS
@@ -61,10 +62,11 @@ class Push2Manager(AbstractControlSurfaceComponent):
     @push2_method()
     def update_clip_grid_quantization(self):
         # type: () -> Clip
-        if not self.song.highlighted_clip or not self.song.selected_track.is_midi:
+        if not isinstance(self.song.highlighted_clip, MidiClip):
             return
+        clip = self.song.highlighted_clip  # type: MidiClip
         self._update_selected_modes()
-        index = PUSH2_BEAT_QUANTIZATION_STEPS.index(self.song.highlighted_clip.min_note_quantization_start)
+        index = PUSH2_BEAT_QUANTIZATION_STEPS.index(clip.min_note_quantization_start)
         self.push2._grid_resolution.index = index
         self.push2._grid_resolution.quantization_buttons[index].is_checked = True
 

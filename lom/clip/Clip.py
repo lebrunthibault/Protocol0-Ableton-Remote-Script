@@ -1,10 +1,10 @@
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Optional
 
 import Live
 
 from a_protocol_0.enums.ClipTypeEnum import ClipTypeEnum
+from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.ClipActionMixin import ClipActionMixin
 from a_protocol_0.lom.clip.ClipName import ClipName
 from a_protocol_0.utils.decorators import p0_subject_slot, is_change_deferrable
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 class Clip(ClipActionMixin, AbstractObject):
     __subject_events__ = ('notes', 'linked')
 
-    def __init__(self, clip_slot, *a, **k):
+    def __init__(self, clip_slot, set_clip_name=True, is_new=False, *a, **k):
         # type: (ClipSlot) -> None
         super(Clip, self).__init__(*a, **k)
         self.clip_slot = clip_slot
@@ -32,16 +32,11 @@ class Clip(ClipActionMixin, AbstractObject):
         self._previous_name = self._clip.name
         self._notes_listener.subject = self._clip
         self._is_recording_listener.subject = self._clip
-        self._warping_listener.subject = self._clip  # for audio clips only
         self.color = self.track.base_color
-        self.clip_name = ClipName(self)
-
-        # NOTES
-        # storing notes for note change comparison
-        self._muted_notes = []  # type: List[Note]  # keeping this separate
-        self._prev_notes = self.get_notes() if self.is_midi_clip else []  # type: List[Note]
-        self._added_note = None  # type: Note
-        self._is_updating_notes = False
+        self.clip_name = ClipName(self) if set_clip_name else None
+        # handles duplicate clips
+        if self.clip_name and is_new:
+            self.clip_name.set_clip_name(is_playable=False)
 
     def _on_selected(self):
         pass
@@ -54,25 +49,34 @@ class Clip(ClipActionMixin, AbstractObject):
     def _is_recording_listener(self):
         pass
 
-    @p0_subject_slot("warping")
-    def _warping_listener(self):
-        if self.warping:
-            self.looping = True
-
     @staticmethod
-    def make(clip_slot):
+    def make(clip_slot, is_new=False):
         # type: (ClipSlot) -> Clip
         from a_protocol_0.lom.clip_slot.AutomationMidiClipSlot import AutomationMidiClipSlot
         from a_protocol_0.lom.track.simple_track.AutomationAudioTrack import AutomationAudioTrack
         from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
         from a_protocol_0.lom.clip.AutomationAudioClip import AutomationAudioClip
+        from a_protocol_0.lom.clip.AudioClip import AudioClip
+        from a_protocol_0.lom.clip.MidiClip import MidiClip
 
+        class_ = None
         if isinstance(clip_slot, AutomationMidiClipSlot):
-            return AutomationMidiClip(clip_slot=clip_slot)
+            class_ = AutomationMidiClip
         elif isinstance(clip_slot.track, AutomationAudioTrack):
-            return AutomationAudioClip(clip_slot=clip_slot)
+            class_ = AutomationAudioClip
+        elif clip_slot.track.is_audio:
+            class_ = AudioClip
+        elif clip_slot.track.is_midi:
+            class_ = MidiClip
         else:
-            return Clip(clip_slot=clip_slot)
+            raise Protocol0Error("Couldn't generate clip for track %s" % clip_slot.track)
+
+        clip = class_(clip_slot=clip_slot, is_new=is_new)
+
+        if is_new:
+            clip.configure_new_clip()
+
+        return clip
 
     @property
     def type(self):
@@ -92,30 +96,10 @@ class Clip(ClipActionMixin, AbstractObject):
             self._clip.name = str(name)
 
     @property
-    def is_midi_clip(self):
-        return self._clip.is_midi_clip if self._clip else None
-
-    @property
-    def is_audio_clip(self):
-        return self._clip.is_audio_clip if self._clip else None
-
-    @property
     def length(self):
         # type: () -> float
         """ For looped clips: loop length in beats """
         return self._clip.length if self._clip else 0
-
-    @property
-    def warping(self):
-        # type: () -> float
-        return self._clip.warping if self._clip else 0
-
-    @warping.setter
-    @is_change_deferrable
-    def warping(self, warping):
-        # type: (float) -> None
-        if self._clip:
-            self._clip.warping = warping
 
     @property
     def looping(self):
@@ -126,7 +110,8 @@ class Clip(ClipActionMixin, AbstractObject):
     @is_change_deferrable
     def looping(self, looping):
         # type: (float) -> None
-        if self._clip:
+        # enforce looping
+        if self._clip and looping:
             self._clip.looping = looping
 
     @property
@@ -196,16 +181,16 @@ class Clip(ClipActionMixin, AbstractObject):
         # type: () -> bool
         return self._clip and self._clip.is_playing
 
-    @property
-    def is_triggered(self):
-        # type: () -> bool
-        return self._clip and self._clip.is_triggered
-
     @is_playing.setter
     def is_playing(self, is_playing):
         # type: (bool) -> None
         if self._clip and is_playing != self.is_playing:
             self._clip.is_playing = is_playing
+
+    @property
+    def is_triggered(self):
+        # type: () -> bool
+        return self._clip and self._clip.is_triggered
 
     @property
     def playing_position(self):
@@ -218,12 +203,7 @@ class Clip(ClipActionMixin, AbstractObject):
         # type: () -> bool
         return self._clip and self._clip.is_recording
 
-    @property
-    def warp_mode(self):
-        return self._clip.warp_mode
-
-    @warp_mode.setter
-    @is_change_deferrable
-    def warp_mode(self, warp_mode):
-        if self._clip:
-            self._clip.warp_mode = warp_mode
+    def disconnect(self):
+        super(Clip, self).disconnect()
+        if self.clip_name:
+            self.clip_name.disconnect()

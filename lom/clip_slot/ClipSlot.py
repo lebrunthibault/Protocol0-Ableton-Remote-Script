@@ -8,7 +8,6 @@ from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.sequence.SequenceState import SequenceLogLevel
 from a_protocol_0.utils.decorators import p0_subject_slot, is_change_deferrable
-from a_protocol_0.utils.log import log_ableton
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -16,7 +15,7 @@ if TYPE_CHECKING:
 
 
 class ClipSlot(AbstractObject):
-    __subject_events__ = ("has_clip", "is_triggered")
+    __subject_events__ = ("map_clip", "is_triggered")
 
     def __init__(self, clip_slot, index, track, *a, **k):
         # type: (Live.ClipSlot.ClipSlot, int, SimpleTrack, Any, Any) -> None
@@ -27,8 +26,8 @@ class ClipSlot(AbstractObject):
         self._has_clip_listener.subject = self._clip_slot
         self._is_triggered_listener.subject = self._clip_slot
         self.linked_clip_slot = None  # type: Optional[ClipSlot]
-        self.clip = None  # type: Optional[Clip]
-        self._has_clip_listener()
+        self.clip = None  # type: Clip
+        self.map_clip()
 
     def __nonzero__(self):
         return self._clip_slot is not None
@@ -56,10 +55,14 @@ class ClipSlot(AbstractObject):
         if self.clip:
             self.clip.disconnect()
 
-        self.clip = Clip.make(clip_slot=self) if self.has_clip else None
+        self.map_clip(is_new=True)
+
+    def map_clip(self, is_new=False):
+        # type: (bool) -> Clip
+        self.clip = Clip.make(clip_slot=self, is_new=is_new) if self.has_clip else None
 
         # noinspection PyUnresolvedReferences
-        self.notify_has_clip()
+        self.notify_map_clip()
 
     @p0_subject_slot("is_triggered")
     def _is_triggered_listener(self):

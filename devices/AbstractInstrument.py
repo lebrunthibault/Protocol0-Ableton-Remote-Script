@@ -1,12 +1,14 @@
 from functools import partial
 
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Optional, List
 
 from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.devices.presets.InstrumentPreset import InstrumentPreset
 from a_protocol_0.devices.presets.InstrumentPresetList import InstrumentPresetList
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.Colors import Colors
+from a_protocol_0.lom.Note import Note
+from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.sequence.Sequence import Sequence
 
@@ -76,9 +78,7 @@ class AbstractInstrument(AbstractObject):
 
     @subject_slot("base_name")
     def _base_name_listener(self):
-        self.parent.log_dev("base name listener !!!!")
         self.preset_list.import_presets()
-        self.parent.log_dev(self.selected_preset)
         self.sync_selected_preset()
 
     def exclusive_activate(self):
@@ -116,7 +116,9 @@ class AbstractInstrument(AbstractObject):
             seq = Sequence()
             seq.add(self.device.track.select)
             # happens when clicking from current track
-            seq.add(self.parent.keyboardShortcutManager.show_hide_plugins, do_if_not=lambda: self.parent.keyboardShortcutManager.is_plugin_window_visible(self.name) and not is_shown)
+            seq.add(self.parent.keyboardShortcutManager.show_hide_plugins,
+                    do_if_not=lambda: self.parent.keyboardShortcutManager.is_plugin_window_visible(
+                        self.name) and not is_shown)
             seq.done()
         else:
             self.check_activated()
@@ -144,10 +146,10 @@ class AbstractInstrument(AbstractObject):
         return seq.done()
 
     def sync_selected_preset(self):
-        self.parent.log_dev(self.selected_preset)
         seq = Sequence()
         seq.add(partial(self.load_preset, self.selected_preset))
-        seq.add(partial(self.parent.show_message, "preset change : %s" % self.selected_preset.name or self.selected_preset.index))
+        seq.add(partial(self.parent.show_message,
+                        "preset change : %s" % self.selected_preset.name or self.selected_preset.index))
         # noinspection PyUnresolvedReferences
         seq.add(self.notify_selected_preset)
         return seq.done()
@@ -163,3 +165,8 @@ class AbstractInstrument(AbstractObject):
     def action_scroll_categories(self, go_next):
         # type: (bool) -> None
         self.parent.log_error("this instrument does not have scrollable categories")
+
+    def generate_base_notes(self, clip):
+        # type: (Clip) -> List[Note]
+        """ overridden """
+        return []

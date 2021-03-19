@@ -1,13 +1,13 @@
 import collections
 import itertools
 from plistlib import Dict
+
 from typing import Optional, Any, List
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
-from a_protocol_0.lom.track.group_track.SimpleGroupTrack import SimpleGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.utils.decorators import p0_subject_slot, has_callback_queue, retry
 
@@ -61,7 +61,7 @@ class SongManager(AbstractControlSurfaceComponent):
             self._live_track_to_simple_track[track] = simple_track
             self.song.simple_tracks.append(simple_track)
 
-        self._sync_instrument_activation_states(former_simple_tracks, self.song.simple_tracks)
+        self._sync_simple_tracks_state(former_simple_tracks, self.song.simple_tracks)
         # reset state
         [track.disconnect() for track in former_simple_tracks]
 
@@ -96,7 +96,7 @@ class SongManager(AbstractControlSurfaceComponent):
         self.parent.log_debug("SongManager : mapped tracks")
         self.parent.log_debug("")
 
-    def _sync_instrument_activation_states(self, former_simple_tracks, current_simple_tracks):
+    def _sync_simple_tracks_state(self, former_simple_tracks, current_simple_tracks):
         # type: (List[SimpleTrack], List[SimpleTrack]) -> None
         """ not handling track suppression for now """
         if len(former_simple_tracks) == 0:
@@ -126,6 +126,9 @@ class SongManager(AbstractControlSurfaceComponent):
                 new_track.instrument.activated = old_track.instrument.activated
                 if old_track.instrument.active_instance == old_track.instrument:
                     new_track.instrument.active_instance = new_track.instrument
+            # automation tracks
+            if hasattr(old_track, "automated_parameter"):
+                new_track.automated_parameter = old_track.automated_parameter
 
     def _are_track_lists_equivalent(self, former_simple_tracks, current_simple_tracks):
         # type: (List[SimpleTrack], List[SimpleTrack]) -> bool

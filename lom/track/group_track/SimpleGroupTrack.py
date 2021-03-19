@@ -1,8 +1,6 @@
 from functools import partial
 
-from _Framework.Util import forward_property
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
-
 from a_protocol_0.lom.device.DeviceType import DeviceType
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.sequence.Sequence import Sequence
@@ -42,7 +40,7 @@ class SimpleGroupTrack(AbstractGroupTrack):
         instrument_classes = list(set([sub_track.instrument.__class__ for sub_track in self.sub_tracks]))
         if len(instrument_classes) == 1:
             instrument_class = instrument_classes[0]  # type: AbstractInstrument
-            self.track_name.set(base_name=instrument_class.NAME)
+            self.track_name.set_track_name(base_name=instrument_class.NAME)
 
     def _get_single_sub_track_routing(self):
         output_routing_objects = list(

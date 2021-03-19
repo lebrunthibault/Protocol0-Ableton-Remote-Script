@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Callable, Any, Optional
 
 from _Framework.Util import find_if
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
+from a_protocol_0.lom.clip.AudioClip import AudioClip
 from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import retry
@@ -97,8 +98,9 @@ class AbstractTrackActionMixin(object):
         " overridden "
         self.song.metronome = False
         self.has_monitor_in = False
+        clip = self.base_track.playable_clip  # type: AudioClip
         if self.is_audio:
-            self.base_track.playable_clip.warp_mode = Live.Clip.WarpMode.complex_pro
+            clip.warp_mode = Live.Clip.WarpMode.complex_pro
         self.base_track.playable_clip.select()
 
     @abstractmethod
@@ -118,13 +120,13 @@ class AbstractTrackActionMixin(object):
 
     def play(self):
         # type: (AbstractTrack) -> None
+        from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
+
         if not self.song.is_playing:
             self.song.is_playing = True
         if self.is_foldable:
             [sub_track.play() for sub_track in self.sub_tracks]
-        elif self.is_playing:
-            return
-        elif hasattr(self, "playable_clip") and self.playable_clip:
+        elif isinstance(self, SimpleTrack) and self.playable_clip:
             self.playable_clip.is_playing = True
             playing_position = 0
             if self.song.playing_clips:
@@ -138,7 +140,6 @@ class AbstractTrackActionMixin(object):
         if immediate:
             self.song.clip_trigger_quantization = 0
         self.base_track._track.stop_all_clips()
-        self.base_track.track_name.set(playing_slot_index=-1)
         if immediate:
             self.parent.defer(partial(setattr, self.song, "clip_trigger_quantization", qz))
 

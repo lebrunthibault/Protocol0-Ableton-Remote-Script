@@ -41,7 +41,7 @@ class AutomationTrackManager(AbstractControlSurfaceComponent):
         else:
             seq.add(lambda: setattr(self.song.current_track, "is_folded", False), name="unfold group track")
 
-        track_name = AbstractAutomationTrack.get_automation_track_name_from_parameter(parameter)
+        track_name = "_%s" % parameter.name
 
         # this should not be parallelized
         seq.add(partial(self.parent.trackManager.create_audio_track, base_track.index + 1, name=track_name, device=parameter.device))
@@ -49,7 +49,8 @@ class AutomationTrackManager(AbstractControlSurfaceComponent):
         seq.add(partial(setattr, self.parent.songManager, "abstract_group_track_creation_in_progress", False), silent=True)
         # storing the indexes makes the setup faster
         seq.add(partial(setattr, self, "created_tracks_indexes", set([base_track.index + 1, base_track.index + 2])), silent=True)
-        seq.add(self.parent.songManager._tracks_listener, name="AutomatedTrack creation")  # instantiating AutomatedTrack on first parameter automation
+        # instantiating AutomatedTrack on first parameter automation
+        seq.add(self.parent.songManager._tracks_listener, name="AutomatedTrack creation")
         seq.add(partial(setattr, self, "created_tracks_indexes", set()), silent=True)
 
         return seq.done()

@@ -1,6 +1,9 @@
 from functools import partial
+
+from _Framework.Util import find_if
 from typing import TYPE_CHECKING
 
+from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.track.simple_track.AbstractAutomationTrack import AbstractAutomationTrack
 from a_protocol_0.utils.decorators import p0_subject_slot
@@ -22,10 +25,15 @@ class AutomationAudioTrack(AbstractAutomationTrack):
         self._solo_listener.subject = self._track
         self._current_monitoring_state_listener.subject = self._track
 
-        parameter_info = AbstractAutomationTrack.get_parameter_info_from_track_name(self.base_name)
-        (device, parameter) = self.parent.deviceManager.get_device_and_parameter_from_name(track=self,
-                                                                            device_name=parameter_info.device_name,
-                                                                            parameter_name=parameter_info.parameter_name)
+        if len(self.devices) != 1:
+            raise Protocol0Error("An AutomationAudioTrack should have 1 and only 1 device. For %s" % self)
+
+        device = self.devices[0]
+        parameter = find_if(lambda p: self.track_name.automated_parameter_name.lower() == p.name.lower(), device.parameters)
+
+        if not parameter:
+            raise Protocol0Error("Couldn't find automated parameter for %s" % self)
+
         self.automated_parameter = parameter
         self.has_monitor_in = True
         self.set_input_routing_type, None
@@ -35,8 +43,9 @@ class AutomationAudioTrack(AbstractAutomationTrack):
     @p0_subject_slot("playing_slot_index")
     def _playing_slot_index_listener(self):
         # type: () -> None
+        """ on stopping dummy clip playing on the track, set back the automated parameter to its default value """
         super(AutomationAudioTrack, self)._playing_slot_index_listener()
-        if self.track_name.playing_slot_index < 0:
+        if not self.playing_clip:
             self.parent.defer(partial(setattr, self.automated_parameter, "value", self.automated_parameter.default_value))
 
     @p0_subject_slot("mute")

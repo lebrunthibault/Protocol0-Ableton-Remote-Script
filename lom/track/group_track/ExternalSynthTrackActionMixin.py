@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING
 
 from a_protocol_0.devices.InstrumentMinitaur import InstrumentMinitaur
 from a_protocol_0.lom.Colors import Colors
-from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:

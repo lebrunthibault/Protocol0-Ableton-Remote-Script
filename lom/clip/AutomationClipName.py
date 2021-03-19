@@ -1,13 +1,14 @@
 import re
+
+from _Framework.SubjectSlot import subject_slot_group
 from typing import TYPE_CHECKING, Optional
 
-from a_protocol_0.errors.Protocol0Error import Protocol0Error
-from a_protocol_0.lom.clip.AutomationRamp import AutomationRamp
+from a_protocol_0.enums.DirectionEnum import DirectionEnum
+from a_protocol_0.automation.AutomationRampMode import AutomationRampMode
 from a_protocol_0.lom.clip.ClipName import ClipName
 from a_protocol_0.utils.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
-    # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.clip.AbstractAutomationClip import AbstractAutomationClip
 
 
@@ -15,43 +16,30 @@ class AutomationClipName(ClipName):
     def __init__(self, clip, *a, **k):
         # type: (AbstractAutomationClip) -> None
         super(AutomationClipName, self).__init__(clip, *a, **k)
-        self._base_name = ""
-        self._automation_ramp_up = AutomationRamp()
-        self._automation_ramp_down = AutomationRamp()
-        self._name_listener.subject = self.clip._clip
-        self._name_listener()
+        self.automation_ramp_up = AutomationRampMode(direction=DirectionEnum.UP)  # type: AutomationRampMode
+        self.automation_ramp_down = AutomationRampMode(direction=DirectionEnum.DOWN)  # type: AutomationRampMode
+        self._ramp_change_listener.replace_subjects([
+            self.automation_ramp_up,
+            self.automation_ramp_down,
+        ])
 
     def __repr__(self):
         return "AutomationClipName of %s" % self.clip
 
-    @property
-    def is_ramp_mode_defined(self):
-        return re.match("(?P<base_name>.*)\((?P<ramps>.*)\)", self.clip.name)
-
     @p0_subject_slot("name")
     def _name_listener(self):
-        match = re.match("(?P<base_name>[^()]*)(\((?P<ramps>.*)\))?", self.clip.name)
+        match = re.match("^(?P<base_name>[^()[\]]*)[^[\]]*(\[(?P<ramp_up>[^,]*),(?P<ramp_down>[^,]*)])?.*$", self.clip.name)
 
-        self._base_name = match.group("base_name")
+        self.base_name = match.group("base_name").strip() if match.group("base_name") else ""
+        self.automation_ramp_up.update_from_value(match.group("ramp_up"))
+        self.automation_ramp_down.update_from_value(match.group("ramp_down"))
+        self.set_clip_name()
 
-        if match.group("ramps") is None:
-            self._automation_ramp_up = self._automation_ramp_down = AutomationRamp()
-            return
+    @subject_slot_group("ramp_change")
+    def _ramp_change_listener(self, ramp_mode):
+        self.set_clip_name()
 
-        ramp_modes = match.group("ramps").split(",")
-        if len(ramp_modes) > 2:
-            raise Protocol0Error("You cannot define more than 2 ramp modes (up and down)")
-
-        if len(ramp_modes) == 1:
-            self._automation_ramp_up = self._automation_ramp_down = AutomationRamp.make(ramp_modes[0])
-        else:
-            self._automation_ramp_up = AutomationRamp.make(ramp_modes[0])
-            self._automation_ramp_down = AutomationRamp.make(ramp_modes[1])
-
-    def set(self, base_name=None, ramp_mode_up=None, ramp_mode_down=None):
-        # type: (Optional[str], Optional[AutomationRamp], Optional[AutomationRamp]) -> None
-        base_name = base_name or self._base_name
-        ramp_mode_up = ramp_mode_up or self._automation_ramp_up
-        ramp_mode_down = ramp_mode_down or self._automation_ramp_down
-
-        self.clip.name = "%s (%s,%s)" % (base_name, ramp_mode_up, ramp_mode_down)
+    def set_clip_name(self, *a, **k):
+        name = self.base_name + " " if self.base_name else ""
+        name = "%s[%s,%s]" % (self.base_name, self.automation_ramp_up, self.automation_ramp_down)
+        super(AutomationClipName, self).set_clip_name(base_name=name, *a, **k)

@@ -9,7 +9,7 @@ class ActionTestManager(AbstractActionManager):
     def __init__(self, *a, **k):
         super(ActionTestManager, self).__init__(channel=0, *a, **k)
         # 1 encoder
-        self.add_encoder(identifier=1, on_press=self.action_test)
+        self.add_encoder(id=1, on_press=self.action_test)
 
     @button_action()
     def action_test(self):

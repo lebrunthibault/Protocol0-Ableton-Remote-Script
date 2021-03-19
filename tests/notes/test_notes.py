@@ -1,8 +1,7 @@
-from itertools import chain
-
+from a_protocol_0.automation.AutomationCurveGenerator import AutomationCurveGenerator
 from a_protocol_0.lom.Note import Note
+from a_protocol_0.lom.clip.AutomationClipName import AutomationClipName
 from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
-from a_protocol_0.lom.clip.AutomationRamp import AutomationRamp
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.tests.fixtures.clip import AbletonClip
@@ -12,7 +11,7 @@ from a_protocol_0.tests.fixtures.simpleTrack import AbletonTrack, TrackType
 from a_protocol_0.tests.test_all import p0
 
 
-def create_clip_with_notes(notes, prev_notes=[], clip_length=None, loop_start=None, name="test (*,*)"):
+def create_clip_with_notes(notes, prev_notes=[], clip_length=None, loop_start=None, name="test"):
     track = SimpleTrack(AbletonTrack(name="midi", track_type=TrackType.MIDI), 0)
     loop_start = loop_start if loop_start is not None else notes[0].start
     length = clip_length or notes[-1].end - loop_start
@@ -40,19 +39,6 @@ def assert_note(note, expected):
     for key in expected.keys():
         assert getattr(note, key) == expected[key]
 
-
-# def test_consolidate_notes():
-#     notes = [
-#         Note(start=0, duration=2, pitch=100, velocity=100),
-#         Note(start=2, duration=2, pitch=100, velocity=100),
-#     ]
-#     (clip, res) = create_clip_with_notes(notes)
-#     clip._map_notes(notes)
-#
-#     assert len(clip._prev_notes) == 1
-#     assert clip._prev_notes[0].start == 0
-#     assert clip._prev_notes[0].duration == clip.length
-
 def test_map_notes_loop_start_change():
     prev_notes = [
         Note(start=1, duration=1, pitch=80, velocity=80),
@@ -64,7 +50,6 @@ def test_map_notes_loop_start_change():
     notes[1].pitch = 50
 
     (clip, res) = create_clip_with_notes(notes=notes, prev_notes=prev_notes)
-    clip.ramping_mode = AutomationRamp()
     clip._map_notes()
     assert len(clip._prev_notes) == 3
     assert clip._prev_notes[0].start == 1
@@ -84,7 +69,6 @@ def test_map_notes_loop_start_change_edit_last_note():
     notes[-1].pitch = 50
 
     (clip, res) = create_clip_with_notes(notes=notes, prev_notes=prev_notes)
-    clip.ramping_mode = AutomationRamp()
     clip._map_notes(notes)
     assert len(clip._prev_notes) == 3
     assert clip._prev_notes[0].start == 1
@@ -106,7 +90,6 @@ def test_add_missing_notes():
     notes.pop(1)
 
     (clip, res) = create_clip_with_notes(notes=notes, prev_notes=prev_notes)
-    clip.ramping_mode = AutomationRamp()
     notes = list(clip._add_missing_notes(notes))
 
     assert len(clip._prev_notes) == 4
@@ -126,7 +109,6 @@ def test_add_missing_notes_loop_start_change():
     notes.pop(1)
 
     (clip, res) = create_clip_with_notes(notes=notes, prev_notes=prev_notes, loop_start=1)
-    clip.ramping_mode = AutomationRamp()
     notes = list(clip._add_missing_notes(notes))
 
     assert len(clip._prev_notes) == 3
@@ -166,54 +148,19 @@ def test_ramp_notes():
         Note(start=2, duration=2, pitch=100, velocity=100),
     ]
     (clip, res) = create_clip_with_notes(notes, prev_notes=notes)
+    clip.clip_name = AutomationClipName(clip)
 
-    def check_notes(notes):
-        assert len(notes) == clip.RAMPING_STEPS * 2
+    def check_notes(notes, expected_count):
+        assert len(notes) == expected_count
         assert notes[0].start == 0
         assert notes[0].duration < 2
         assert notes[3].velocity != notes[-1].velocity
 
-    notes = list(chain(*clip._ramp_notes(notes)))
-    check_notes(notes)
+    check_notes(AutomationCurveGenerator.automation_notes(clip), 40)
 
     # change note velocity
-    notes = Note.copy_notes(clip._prev_notes)
-    notes[1].velocity = 90
-    notes = list(chain(*clip._ramp_notes(notes)))
-    check_notes(notes)
-    assert notes[2].velocity <= notes[1].velocity
-
-
-def test_ramp_notes_2():
-    notes = [
-        Note(start=0, duration=2, pitch=100, velocity=100),
-        Note(start=2, duration=2, pitch=80, velocity=80),
-    ]
-    (clip, res) = create_clip_with_notes(notes, prev_notes=notes)
-
-    def check_notes(notes):
-        assert len(notes) == clip.RAMPING_STEPS * 2
-
-    notes = list(chain(*clip._ramp_notes(notes)))
-    check_notes(notes)
-
-    # change note velocity
-    notes = Note.copy_notes(clip._prev_notes)
-    notes[1].velocity = 90
-    notes = list(chain(*clip._ramp_notes(notes)))
-    check_notes(notes)
-    assert notes[2].velocity <= notes[1].velocity
-
-
-def test_clean_ramp_notes():
-    notes = [
-        Note(start=0, duration=2, pitch=100, velocity=100),
-        Note(start=2, duration=2, pitch=80, velocity=80),
-    ]
-    base_notes = Note.copy_notes(notes)
-    (clip, res) = create_clip_with_notes(notes)
-
-    assert list(clip._filter_ramp_notes(list(chain(*clip._ramp_notes(notes))))) == base_notes
+    clip._prev_notes[1].velocity = 90
+    check_notes(AutomationCurveGenerator.automation_notes(clip), 20)
 
 
 def test_add_note():
@@ -279,17 +226,17 @@ def test_modify_note_velocity():
     check_res(clip, res)
 
 
-def test_clean_duplicate_notes():
-    notes = [
-        Note(start=0, duration=2, pitch=80, velocity=80),
-        Note(start=0, duration=4, pitch=100, velocity=100),
-    ]
-
-    (clip, res) = create_clip_with_notes(notes)
-
-    notes = list(clip._remove_start_short_notes(notes))
-    assert len(notes) == 1
-    assert notes[0].duration == 4
+# def test_clean_duplicate_notes():
+#     notes = [
+#         Note(start=0, duration=2, pitch=80, velocity=80),
+#         Note(start=0, duration=4, pitch=100, velocity=100),
+#     ]
+#
+#     (clip, res) = create_clip_with_notes(notes)
+#
+#     notes = list(clip._remove_start_short_notes(notes))
+#     assert len(notes) == 1
+#     assert notes[0].duration == 4
 
 
 def test_insert_min_note():

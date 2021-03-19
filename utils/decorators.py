@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
 from a_protocol_0.utils.callback_descriptor import CallbackDescriptor
-from a_protocol_0.utils.log import log_ableton
 from a_protocol_0.utils.utils import is_method
 
 if TYPE_CHECKING:
@@ -130,7 +129,6 @@ def throttle(wait_time=2, max_execution_count=3):
         @wraps(func)
         def decorate(*a, **k):
             index = a[0] if is_method(func) else decorate
-            log_ableton(decorate.execution_times[index][-3:])
             exec_time = time.time()
             if len([t for t in decorate.execution_times[index][-3:] if
                     exec_time - t < decorate.wait_time]) == decorate.max_execution_count:

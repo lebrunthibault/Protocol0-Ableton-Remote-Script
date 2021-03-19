@@ -1,7 +1,11 @@
+from functools import partial
+
 from a_protocol_0.components.actionManagers.AbstractActionManager import AbstractActionManager
 from a_protocol_0.consts import RECORDING_TIMES
+from a_protocol_0.enums.DirectionEnum import DirectionEnum
 from a_protocol_0.enums.TrackCategoryEnum import TrackCategoryEnum
 from a_protocol_0.enums.PlayMenuEnum import PlayMenuEnum
+from a_protocol_0.lom.clip.AbstractAutomationClip import AbstractAutomationClip
 from a_protocol_0.lom.device.PluginDevice import PluginDevice
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.utils.decorators import button_action
@@ -15,57 +19,61 @@ class ActionManager(AbstractActionManager):
     def __init__(self, *a, **k):
         super(ActionManager, self).__init__(channel=15, has_shift=True, record_actions_as_global=True, *a, **k)
         # FOLD encoder
-        self.add_encoder(identifier=2, on_press=self.action_fold_track, on_long_press=self.action_fold_tracks)
+        self.add_encoder(id=2, on_press=self.action_fold_track, on_long_press=self.action_fold_tracks)
 
         # MONitor encoder
-        self.add_encoder(identifier=3, on_press=self.action_switch_track_monitoring)
+        self.add_encoder(id=3, on_press=self.action_switch_track_monitoring)
 
         # UNDO encoder
-        self.add_encoder(identifier=4, on_press=self.action_undo)
+        self.add_encoder(id=4, on_press=self.action_undo)
 
-        # LFO encoder (add group track with lfo tool binding)
-        self.add_encoder(identifier=5, on_press=self.action_set_up_lfo_tool_automation)
+        # AUTOmation encoder
+        self.add_encoder(id=5,
+                         on_press=self.action_set_up_parameter_automation,
+                         on_shift_press=partial(self.action_adjust_clip_automation_curve, reset=True),
+                         on_scroll=partial(self.action_adjust_clip_automation_curve, direction=DirectionEnum.UP),
+                         on_shift_scroll=partial(self.action_adjust_clip_automation_curve, direction=DirectionEnum.DOWN), )
 
         # RECord encoder
-        self.add_encoder(identifier=9,
+        self.add_encoder(id=9,
                          on_press=self.action_track_record_fixed,
                          on_long_press=self.action_track_record_audio,
                          on_scroll=self.action_scroll_track_recording_times)
 
         # STOP encoder
-        self.add_encoder(identifier=11,
+        self.add_encoder(id=11,
                          on_press=self.action_stop_track,
                          on_long_press=self.action_stop_category,
                          on_scroll=self.action_scroll_track_categories)
 
         # PLAY encoder
-        self.add_encoder(identifier=12,
+        self.add_encoder(id=12,
                          on_press=self.action_play_selected_tracks,
                          on_shift_press=self.action_solo_play_selected_tracks,
                          on_long_press=self.action_restart_category,
                          on_scroll=self.action_scroll_track_categories)
 
         # TRacK encoder
-        self.add_encoder(identifier=13,
+        self.add_encoder(id=13,
                          on_press=self.action_arm_track,
                          on_long_press=self.action_solo_track,
                          on_shift_long_press=self.action_un_solo_all_tracks,
                          on_scroll=self.action_scroll_tracks)
 
         # PRESet encoder
-        self.add_encoder(identifier=14,
+        self.add_encoder(id=14,
                          on_press=self.action_show_track_instrument,
                          on_scroll=self.action_scroll_track_instrument_presets,
                          on_shift_scroll=self.action_scroll_simpler_drum_categories)
 
         # DEVice encoder
-        self.add_encoder(identifier=15,
+        self.add_encoder(id=15,
                          on_press=self.action_track_collapse_selected_device,
                          on_scroll=self.action_scroll_track_devices,
                          on_shift_scroll=self.action_scroll_selected_device_presets)
 
         # CLIP encoder
-        self.add_encoder(identifier=16,
+        self.add_encoder(id=16,
                          on_press=self.action_play_selected_tracks,
                          on_scroll=self.action_scroll_track_clips)
 
@@ -208,8 +216,25 @@ class ActionManager(AbstractActionManager):
         self.song.current_track.action_switch_monitoring()
 
     @button_action()
-    def action_set_up_lfo_tool_automation(self):
+    def action_set_up_parameter_automation(self):
         self.parent.automationTrackManager.create_automation_group(self.song.selected_parameter)
+
+    @button_action(log_action=False)
+    def action_adjust_clip_automation_curve(self, go_next, reset=False, direction=DirectionEnum.UP):
+        if not isinstance(self.song.highlighted_clip, AbstractAutomationClip):
+            return
+
+        clip = self.song.highlighted_clip  # type: AbstractAutomationClip
+
+        if reset:
+            clip.automation_ramp_up.is_active = False
+            clip.automation_ramp_down.is_active = False
+            return
+
+        if direction == DirectionEnum.UP:
+            clip.automation_ramp_up.scroll(go_next=go_next)
+        else:
+            clip.automation_ramp_down.scroll(go_next=go_next)
 
     @button_action()
     def action_fold_track(self):

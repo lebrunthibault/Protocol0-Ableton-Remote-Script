@@ -4,7 +4,6 @@ from os.path import isfile, isdir
 from typing import TYPE_CHECKING, List
 
 from a_protocol_0.devices.presets.InstrumentPreset import InstrumentPreset
-from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
 
 if TYPE_CHECKING:

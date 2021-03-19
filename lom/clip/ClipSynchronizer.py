@@ -1,6 +1,8 @@
 from typing import TYPE_CHECKING
 
 from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
+from a_protocol_0.lom.clip.AbstractAutomationClip import AbstractAutomationClip
+from a_protocol_0.lom.clip.AutomationClipName import AutomationClipName
 
 if TYPE_CHECKING:
     from a_protocol_0.lom.clip.Clip import Clip
@@ -15,6 +17,11 @@ class ClipSynchronizer(ObjectSynchronizer):
 
         master.linked_clip = slave
         slave.linked_clip = master
+
+        slave.clip_name = master.clip_name
+
+        if isinstance(master, AbstractAutomationClip):
+            master.clip_name = slave.clip_name = AutomationClipName(master)
 
         # noinspection PyUnresolvedReferences
         master.notify_linked()

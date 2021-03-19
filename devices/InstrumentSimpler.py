@@ -9,6 +9,8 @@ from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.devices.presets.InstrumentPreset import InstrumentPreset
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.Colors import Colors
+from a_protocol_0.lom.Note import Note
+from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.utils.utils import scroll_values
 
 
@@ -49,4 +51,10 @@ class InstrumentSimpler(AbstractInstrument):
     def action_scroll_categories(self, go_next):
         # type: (bool) -> None
         selected_category = scroll_values(listdir(self.PRESETS_PATH), self.selected_category, go_next)
-        self.track.track_name.set(base_name=selected_category)
+        self.track.track_name.set_track_name(base_name=selected_category)
+
+    def generate_base_notes(self, clip):
+        # type: (Clip) -> None
+        """ overridden """
+        # add c3 note
+        return [Note(pitch=60, velocity=127, start=0, duration=min(1, clip.length), clip=clip)]

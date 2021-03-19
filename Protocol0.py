@@ -13,6 +13,7 @@ from a_protocol_0.components.AutomationTrackManager import AutomationTrackManage
 from a_protocol_0.components.BrowserManager import BrowserManager
 from a_protocol_0.components.DeviceManager import DeviceManager
 from a_protocol_0.components.KeyBoardShortcutManager import KeyBoardShortcutManager
+from a_protocol_0.components.LogManager import LogManager
 from a_protocol_0.components.MidiManager import MidiManager
 from a_protocol_0.components.MixingManager import MixingManager
 from a_protocol_0.components.PlayTrackManager import PlayTrackManager
@@ -62,6 +63,7 @@ class Protocol0(ControlSurface):
             self.clyphxNavigationManager = NavAndViewActions()
             self.clyphxGlobalManager = GlobalActions()
             self.utilsManager = UtilsManager()
+            self.log_manager = LogManager()
             self.actionManager = ActionManager()
             self.actionSetManager = ActionSetManager()
             self.actionTestManager = ActionTestManager()

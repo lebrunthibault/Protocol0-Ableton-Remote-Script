@@ -22,13 +22,13 @@ class AbstractActionManager(AbstractControlSurfaceComponent):
 
         # shift encoder
         if has_shift:
-            self.add_encoder(identifier=1,
+            self.add_encoder(id=1,
                              on_press=lambda: setattr(MultiEncoder, "SHIFT_PRESSED", True),
                              on_release=lambda: setattr(MultiEncoder, "SHIFT_PRESSED", False))
 
-    def add_encoder(self, *a, **k):
-        # type: () -> MultiEncoder
-        encoder = MultiEncoder(action_manager=self, channel=self.channel, *a, **k)
+    def add_encoder(self, id, *a, **k):
+        # type: (int) -> MultiEncoder
+        encoder = MultiEncoder(action_manager=self, channel=self.channel, id=id, *a, **k)
         self.encoders.append(encoder)
         return encoder
 

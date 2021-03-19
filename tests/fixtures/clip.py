@@ -12,6 +12,7 @@ class AbletonClip(Subject):
         self.loop_end = self.loop_start + length
         self.name = name
         self.view = None
+        self.is_recording = False
 
     def get_notes(self, *a, **k):
         return []

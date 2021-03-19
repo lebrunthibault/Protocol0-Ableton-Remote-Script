@@ -12,8 +12,7 @@ from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.utils import is_equal
 
 if TYPE_CHECKING:
-    # noinspection PyUnresolvedReferences
-    from a_protocol_0.lom.clip.Clip import Clip
+    from a_protocol_0.lom.clip.MidiClip import MidiClip
 
 
 class Note(AbstractObject):
@@ -27,7 +26,7 @@ class Note(AbstractObject):
         self._duration = duration
         self._velocity = int(velocity)
         self._muted = muted
-        self.clip = clip  # type: Clip
+        self.clip = clip  # type: MidiClip
 
     def __eq__(self, other):
         return isinstance(other, Note) and \

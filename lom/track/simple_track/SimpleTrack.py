@@ -1,3 +1,5 @@
+from functools import partial
+
 import Live
 from typing import List, Optional
 
@@ -49,12 +51,11 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             else:
                 self.parent.wait_beats(self.playable_clip.length, self.last_clip_played.play)
 
-        # update track name
-        if self.playing_slot_index >= 0 or any([track.is_playing for track in self.song.simple_tracks]):
-            self.track_name.set(playing_slot_index=self.playing_slot_index)
+        # keep the playable clip memorized if the set is still playing
+        if any([track.is_playing for track in self.song.simple_tracks]):
+            index = self.playing_slot_index
+            self.last_clip_played = self.playable_clip = self.playing_clip
         [setattr(clip, "is_selected", False) for clip in self.clips]
-
-        self.last_clip_played = self.playable_clip if self.playing_slot_index >= 0 else None
 
         # noinspection PyUnresolvedReferences
         self.notify_playing_slot_index()
@@ -64,7 +65,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         if self.instrument:
             self.color = self.instrument.TRACK_COLOR
             if self.instrument.SHOULD_UPDATE_TRACK_NAME:
-                self.track_name.set(base_name=self.instrument.NAME)
+                self.track_name.set_track_name(base_name=self.instrument.NAME)
 
     @property
     def playing_slot_index(self):
@@ -86,17 +87,34 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         return any([clip for clip in self.clips if clip.is_recording])
 
     @property
+    def playing_clip(self):
+        # type: () -> Optional[Clip]
+        """ Returns the currently playing clip is any """
+        return self.clip_slots[self.playing_slot_index].clip if self.playing_slot_index >= 0 else None
+
+    @property
     def playable_clip(self):
         # type: () -> Optional[Clip]
+        """
+            The clip preselected for playing on track play
+
+            Checked in order :
+            - The clip.is_selected (selected via the scrolling the clip encoder)
+            - The clip corresponding to the track's playing_slot_index
+            - If None then check the clip marked as playable on the clip name (allows set recall)
+        :return:
+        """
+        # encoder scrolled clips
         selected_clip = find_if(lambda clip: clip.is_selected, self.clips)
         if selected_clip:
             return selected_clip
+        return self.playing_clip or find_if(lambda clip: clip.clip_name.is_playable, self.clips)
 
-        index = self.playing_slot_index if self.playing_slot_index >= 0 else self.track_name.playing_slot_index
-        if self.track_name.playing_slot_index >= 0 and self.clip_slots[index].has_clip:
-            return self.clip_slots[index].clip
-        else:
-            return None
+    @playable_clip.setter
+    def playable_clip(self, playable_clip):
+        # type: (Clip) -> None
+        [clip.clip_name.set_clip_name(is_playable=False) for clip in self.clips]
+        playable_clip.clip_name.set_clip_name(is_playable=True)
 
     @property
     def arm(self):
