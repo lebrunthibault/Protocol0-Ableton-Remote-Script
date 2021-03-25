@@ -128,4 +128,4 @@ class TrackManager(AbstractControlSurfaceComponent):
         # type: (SimpleTrack) -> bool
         if track.index in self.parent.automationTrackManager.created_tracks_indexes:
             return True
-        return AutomatedTrack.AUTOMATION_TRACK_NAME in track.name
+        return track.name.startswith("_")

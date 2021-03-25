@@ -116,6 +116,8 @@ class MidiClip(Clip):
         self.view.grid_quantization = Live.Clip.GridQuantization.g_sixteenth
 
         if len(self.get_notes()) > 0:
+            self.play()
+            self.parent.clyphxNavigationManager.show_clip_view()
             return
 
         seq = Sequence()

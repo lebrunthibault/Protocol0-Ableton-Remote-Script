@@ -46,18 +46,15 @@ function Get-LogColor
             {
                 Return "Magenta"
             }
-            elseif ($LogEntry.Contains("error") -or $LogEntry.Contains("a_protocol_0") -or $LogEntry.Contains("Error") -or $LogEntry.Contains("exception"))
+            else
             {
                 Return "Red"
                 FocusLogs
-            }
-            else
-            {
-                Return "White"
+                #                Return "White"
             }
         }
 
-        if ( $LogEntry.Contains("RemoteScriptError"))
+        if ($LogEntry -like ("*error*") -or $LogEntry -like ("*exception*"))
         {
             Return "Red"
             FocusLogs
@@ -73,7 +70,8 @@ function Format-LogLine
 
     process {
         # remove Protocol 0 log prefix
-        if ($debug) {
+        if ($debug)
+        {
             Write-Host $LogEntry
         }
         $LogEntry = $LogEntry -replace "P0 - (\w+:)?"
@@ -88,7 +86,7 @@ function Format-LogLine
         if ($LogEntry -match $timestampReg)
         {
             $parts = [regex]::split($LogEntry, '\s+')
-            if (-not $parts[2])  # allow printing empty lines
+            if (-not$parts[2])  # allow printing empty lines
             {
                 return ""
             }
@@ -97,7 +95,7 @@ function Format-LogLine
             if ($showDateTime)
             {
                 $date = [datetime]::parseexact($parts[0], 'yyyy-MM-ddTHH:mm:ss.ffffff:', $null)
-                $logEntry = (Get-Date -Date $date -Format "HH:mm:ss.fff") + $parts[1..($parts.Count - 1)] -join " "
+                $logEntry = (Get-Date -Date $date -Format "HH:mm:ss.fff") + " " + $parts[1].TrimStart() + ($parts[2..($parts.Count - 1)] -join " ")
             }
             else
             {
@@ -113,11 +111,12 @@ function Select-Log-Line
     Param([Parameter(Position = 0)]
         [String]$LogEntry)
 
-    if ($debug) {
+    if ($debug)
+    {
         return $true
     }
 
-    if ($LogEntry.Contains("(Protocol0) Initializing"))
+    if ( $LogEntry.Contains("(Protocol0) Initializing"))
     {
         Clear-Host
     }

@@ -49,7 +49,7 @@ class TrackName(AbstractObject):
     @subject_slot_group("name")
     def _name_listener(self, changed_track):
         # type: (Live.Track.Track) -> None
-        match = re.match("^(?P<base_name>[^()]*).*\((?P<selected_preset_index>\d+)\)\s*$", self.track.name)
+        match = re.match("^(?P<base_name>[^()-]*).*(\((?P<selected_preset_index>\d+)\))?\s*$", self.track.name)
 
         previous_base_name = self.base_name
         # _ is a reserved character for track names

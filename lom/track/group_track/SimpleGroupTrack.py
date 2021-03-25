@@ -18,7 +18,6 @@ class SimpleGroupTrack(AbstractGroupTrack):
         [sub_track.set_output_routing_to(self) for sub_track in self.sub_tracks]
 
         self.push2_selected_main_mode = 'mix'
-        self.can_be_armed = False
         self.selection_tracks = [self.base_track]  # sub tracks are independent
 
     def _added_track_init(self):

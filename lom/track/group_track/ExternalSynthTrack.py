@@ -40,6 +40,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
                                         itertools.izip(self.midi_track.clip_slots, self.audio_track.clip_slots)]
 
         self.audio_track.set_output_routing_to(self.base_track)
+        self.selection_tracks = [self.base_track, self.midi_track, self.audio_track]
 
     @property
     def arm(self):

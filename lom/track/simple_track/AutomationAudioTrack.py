@@ -29,14 +29,13 @@ class AutomationAudioTrack(AbstractAutomationTrack):
             raise Protocol0Error("An AutomationAudioTrack should have 1 and only 1 device. For %s" % self)
 
         device = self.devices[0]
-        parameter = find_if(lambda p: self.track_name.automated_parameter_name.lower() == p.name.lower(), device.parameters)
+        self.automated_parameter = find_if(lambda p: self.track_name.automated_parameter_name.lower() == p.name.lower(), device.parameters)
 
-        if not parameter:
+        if not self.automated_parameter:
             raise Protocol0Error("Couldn't find automated parameter for %s" % self)
 
-        self.automated_parameter = parameter
         self.has_monitor_in = True
-        self.set_input_routing_type, None
+        self.set_input_routing_type(None)
 
         self.push2_selected_main_mode = 'device'
 

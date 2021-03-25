@@ -17,6 +17,7 @@ class AutomationTrackName(TrackName):
         # type: (AbstractAutomationTrack) -> None
         super(AutomationTrackName, self).__init__(track, *a, **k)
         self.automated_parameter_name = None
+        self._name_listener(self.track)
 
     @subject_slot_group("name")
     def _name_listener(self, changed_track):

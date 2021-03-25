@@ -54,7 +54,8 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # keep the playable clip memorized if the set is still playing
         if any([track.is_playing for track in self.song.simple_tracks]):
             index = self.playing_slot_index
-            self.last_clip_played = self.playable_clip = self.playing_clip
+            self.playable_clip = self.playing_clip
+            self.last_clip_played = self.playing_clip
         [setattr(clip, "is_selected", False) for clip in self.clips]
 
         # noinspection PyUnresolvedReferences

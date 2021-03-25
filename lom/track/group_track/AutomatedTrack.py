@@ -37,9 +37,9 @@ class AutomatedTrack(AbstractGroupTrack):
         self.selection_tracks = [self.base_track]
         for automation_tracks_couple in automation_tracks_couples:
             self.selection_tracks += [automation_tracks_couple.audio_track, automation_tracks_couple.midi_track]
-        # this case is specific
-        if isinstance(self.wrapped_track, ExternalSynthTrack):
-            self.wrapped_track.selection_tracks = [self.wrapped_track.audio_track, self.wrapped_track.midi_track]
+
+        # checking if the wrapped track is an AbstractGroupTrack
+        self.selection_tracks += getattr(self.wrapped_track, "selection_tracks", None) or [self.wrapped_track]
 
     def link_audio_tracks(self):
         audio_tracks = [self.base_track] + [couple.audio_track for couple in self.automation_tracks_couples] + [self.wrapped_track]

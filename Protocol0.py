@@ -20,6 +20,7 @@ from a_protocol_0.components.PlayTrackManager import PlayTrackManager
 from a_protocol_0.components.Push2Manager import Push2Manager
 from a_protocol_0.components.SessionManager import SessionManager
 from a_protocol_0.components.SongManager import SongManager
+from a_protocol_0.components.SongStateManager import SongStateManager
 from a_protocol_0.components.TrackManager import TrackManager
 from a_protocol_0.components.UtilsManager import UtilsManager
 from a_protocol_0.components.actionManagers.ActionManager import ActionManager
@@ -51,6 +52,7 @@ class Protocol0(ControlSurface):
             self.protocol0_song = Song(song=self.song())
             self.deviceManager = DeviceManager()  # needs to be here first
             self.songManager = SongManager()
+            self.songStateManager = SongStateManager()
             self.sessionManager = SessionManager()
             self.mixingManager = MixingManager()
             self.playTrackManager = PlayTrackManager()
@@ -63,7 +65,7 @@ class Protocol0(ControlSurface):
             self.clyphxNavigationManager = NavAndViewActions()
             self.clyphxGlobalManager = GlobalActions()
             self.utilsManager = UtilsManager()
-            self.log_manager = LogManager()
+            self.logManager = LogManager()
             self.actionManager = ActionManager()
             self.actionSetManager = ActionSetManager()
             self.actionTestManager = ActionTestManager()

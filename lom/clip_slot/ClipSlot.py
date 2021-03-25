@@ -27,7 +27,7 @@ class ClipSlot(AbstractObject):
         self._is_triggered_listener.subject = self._clip_slot
         self.linked_clip_slot = None  # type: Optional[ClipSlot]
         self.clip = None  # type: Clip
-        self.map_clip()
+        self._map_clip()
 
     def __nonzero__(self):
         return self._clip_slot is not None
@@ -55,9 +55,9 @@ class ClipSlot(AbstractObject):
         if self.clip:
             self.clip.disconnect()
 
-        self.map_clip(is_new=True)
+        self._map_clip(is_new=True)
 
-    def map_clip(self, is_new=False):
+    def _map_clip(self, is_new=False):
         # type: (bool) -> Clip
         self.clip = Clip.make(clip_slot=self, is_new=is_new) if self.has_clip else None
 

@@ -220,7 +220,7 @@ class ActionManager(AbstractActionManager):
         self.parent.automationTrackManager.create_automation_group(self.song.selected_parameter)
 
     @button_action(log_action=False)
-    def action_adjust_clip_automation_curve(self, go_next, reset=False, direction=DirectionEnum.UP):
+    def action_adjust_clip_automation_curve(self, go_next=True, reset=False, direction=DirectionEnum.UP):
         if not isinstance(self.song.highlighted_clip, AbstractAutomationClip):
             return
 

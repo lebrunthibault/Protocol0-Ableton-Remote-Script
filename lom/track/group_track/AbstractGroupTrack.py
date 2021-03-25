@@ -14,7 +14,6 @@ class AbstractGroupTrack(AbstractTrack):
         super(AbstractGroupTrack, self).__init__(track=group_track, *a, **k)
         group_track.abstract_group_track = self
         self.sub_tracks = group_track.sub_tracks
-        self.can_be_armed = True
 
         # tracks that are going to be mapped to this AbstractGroupTrack on selection
         # (that is their current track is self)

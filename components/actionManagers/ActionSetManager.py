@@ -41,16 +41,17 @@ class ActionSetManager(AbstractActionManager):
     @button_action()
     def action_set_track_names(self):
         for track in self.song.simple_tracks:
-            track.track_name.set_track_name()
-
-            if isinstance(track, AbstractAutomationTrack):
+            # previous automation track naming
+            if "_auto" in track.name:
                 try:
                     [parameter_name, device_name, device_type, _] = track.name.split(":")
                 except ValueError:
                     continue
 
                 track.name = "_%s" % parameter_name
+            else:
+                track.track_name.set_track_name()
 
     @button_action()
     def action_log_set(self):
-        return self.parent.log_manager.log_set()
+        return self.parent.logManager.log_set()

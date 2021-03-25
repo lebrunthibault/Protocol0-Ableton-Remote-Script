@@ -62,7 +62,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
 
         # MISC
         self.is_foldable = self._track.is_foldable
-        self.can_be_armed = self._track.can_be_armed
         self._view = self._track.view  # type: Live.Track.Track.View
         self.is_midi = self._track.has_midi_input
         self.is_audio = self._track.has_audio_input
@@ -330,6 +329,10 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def is_recording(self):
         # type: () -> bool
         return False
+
+    @property
+    def can_be_armed(self):
+        return self._track.can_be_armed
 
     @property
     def arm(self):

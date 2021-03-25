@@ -11,8 +11,8 @@ class AutomationRampMode(AbstractObject):
         # type: (DirectionEnum, bool, float) -> None
         """ exp coeff 0 is linear, 100 is already almost a right angle """
         super(AutomationRampMode, self).__init__(*a, **k)
-        self.is_active = is_active
-        self.exp_coeff = float(exp_coeff)
+        self._is_active = is_active
+        self._exp_coeff = float(exp_coeff)
         self.direction = direction
 
     def __repr__(self):
@@ -31,6 +31,32 @@ class AutomationRampMode(AbstractObject):
         except (ValueError, TypeError):
             self.is_active = False
             self.exp_coeff = 0
+            
+    @property
+    def is_active(self):
+        # type: () -> bool
+        return self._is_active
+    
+    @is_active.setter
+    def is_active(self, is_active):
+        # type: (bool) -> None
+        if is_active != self._is_active:
+            self._is_active = is_active
+            # noinspection PyUnresolvedReferences
+            self.parent.defer(self.notify_ramp_change)
+
+    @property
+    def exp_coeff(self):
+        # type: () -> float
+        return self._exp_coeff
+
+    @exp_coeff.setter
+    def exp_coeff(self, exp_coeff):
+        # type: (float) -> None
+        if exp_coeff != self._exp_coeff:
+            self._exp_coeff = exp_coeff
+            # noinspection PyUnresolvedReferences
+            self.parent.defer(self.notify_ramp_change)
 
     def scroll(self, go_next):
         # type: (bool) -> None
@@ -40,6 +66,3 @@ class AutomationRampMode(AbstractObject):
             self.exp_coeff += factor
         else:
             self.exp_coeff -= factor
-
-        # noinspection PyUnresolvedReferences
-        self.notify_ramp_change()
