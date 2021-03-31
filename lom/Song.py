@@ -139,6 +139,15 @@ class Song(SongActionMixin, AbstractObject):
         self._song.metronome = metronome
 
     @property
+    def tempo(self):
+        # type: () -> float
+        return self._song.tempo
+
+    def get_current_beats_song_time(self):
+        # type: () -> Live.Song.BeatTime
+        return self._song.get_current_beats_song_time()
+
+    @property
     def clip_trigger_quantization(self):
         # type: () -> int
         return self._song.clip_trigger_quantization

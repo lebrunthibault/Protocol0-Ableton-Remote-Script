@@ -121,19 +121,13 @@ function Select-Log-Line
         Clear-Host
     }
 
-    if ($write_next_n_lines -ne 0)
-    {
-        $global:write_next_n_lines -= 1
-        return $LogEntry
-    }
-
     $Filters = "P0", "ArgumentError", "RemoteScriptError"
 
     foreach ($Filter in $Filters)
     {
         if ( $LogEntry.Contains($Filter))
         {
-            if ( $LogEntry.Contains("ArgumentError"))
+            if ( $LogEntry.Contains("ArgumentError") -or $LogEntry.Contains("Pythonargument"))
             {
                 $global:write_next_n_lines = 3
 
@@ -141,6 +135,12 @@ function Select-Log-Line
             return $LogEntry
             Write-Host -ForegroundColor (Get-LogColor $LogEntry) (Format-LogLine($LogEntry))
         }
+    }
+
+    if ($write_next_n_lines -ne 0)
+    {
+        $global:write_next_n_lines -= 1
+        return $LogEntry
     }
 
     return $null

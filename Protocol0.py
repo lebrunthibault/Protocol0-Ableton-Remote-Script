@@ -6,6 +6,8 @@ import types
 
 from typing import Callable
 
+from ClyphX_Pro import ClyphXComponentBase
+from ClyphX_Pro.SyncedScheduler import SyncedScheduler
 from ClyphX_Pro.clyphx_pro.actions.GlobalActions import GlobalActions
 from ClyphX_Pro.clyphx_pro.actions.NavAndViewActions import NavAndViewActions
 from _Framework.ControlSurface import ControlSurface
@@ -42,7 +44,8 @@ class Protocol0(ControlSurface):
         # noinspection PyProtectedMember
         Protocol0.SELF = self
         self.song().stop_playing()  # doing this early because the set often loads playing
-        self._c_instance.log_message = types.MethodType(lambda s, message: None, self._c_instance)  # stop log duplication
+        self._c_instance.log_message = types.MethodType(lambda s, message: None,
+                                                        self._c_instance)  # stop log duplication
 
         self.load_dotenv()  # loading env file
 
@@ -64,6 +67,8 @@ class Protocol0(ControlSurface):
             self.browserManager = BrowserManager()
             self.clyphxNavigationManager = NavAndViewActions()
             self.clyphxGlobalManager = GlobalActions()
+            self.scheduler = SyncedScheduler(unschedule_on_stop=True)
+            ClyphXComponentBase.start_scheduler()
             self.utilsManager = UtilsManager()
             self.logManager = LogManager()
             self.actionManager = ActionManager()
@@ -72,8 +77,12 @@ class Protocol0(ControlSurface):
             if init_song:
                 self.songManager.init_song()
                 self.dev_boot()
-
+            self.scheduler.schedule_message("4", self.tick)
+            # self._scheduler = Live.Base.Timer(self.tick, interval=1, repeat=True, start=True)
         self.log_info("Protocol0 script loaded")
+
+    def tick(self):
+        self.log_dev("message scheduled !")
 
     def post_init(self):
         # self.protocol0_song.reset()
@@ -157,3 +166,7 @@ class Protocol0(ControlSurface):
             env_vars = json.loads(f.read())
             for key, value in env_vars.iteritems():
                 os.environ[key] = value
+
+    def disconnect(self):
+        pass
+        # self._scheduler.stop()
