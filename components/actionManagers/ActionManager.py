@@ -204,7 +204,6 @@ class ActionManager(AbstractActionManager):
     @button_action()
     def action_restart_category(self):
         """" restart a live set from group tracks track names """
-        # todo: clean this mix of enums
         if self.song.has_solo_selection and self.song.selected_track_category in PlayMenuEnum:
             self.parent.playTrackManager.handle_play_menu_click()
         else:

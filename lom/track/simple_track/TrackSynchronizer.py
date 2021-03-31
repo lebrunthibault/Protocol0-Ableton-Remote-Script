@@ -17,10 +17,11 @@ class TrackSynchronizer(ObjectSynchronizer):
         master.linked_track = slave
         slave.linked_track = master
 
-        self._playing_slot_index_listener.replace_subjects([master, slave])
+        self._fired_slot_index_listener.replace_subjects([master, slave])
 
-    @subject_slot_group("playing_slot_index")
-    def _playing_slot_index_listener(self, track):
+    @subject_slot_group("fired_slot_index")
+    def _fired_slot_index_listener(self, track):
         # type: (SimpleTrack) -> None
-        if track.playing_slot_index == -1 and track.linked_track.is_playing and not track.is_recording and not track.linked_track.is_recording:
-            track.linked_track.stop(immediate=True)
+        """ Stops linked track on track stop """
+        if track.fired_slot_index == -2 and track.linked_track.is_playing and not track.is_recording and not track.linked_track.is_recording:
+            track.linked_track.stop()

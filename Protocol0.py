@@ -122,6 +122,7 @@ class Protocol0(ControlSurface):
 
     def wait_beats(self, beats, callback):
         # type: (int, Callable) -> None
+        # todo: rework this
         ticks = round((600 / self.protocol0_song._song.tempo) * (beats - 0.5))
         self._wait(ticks, callback)
 

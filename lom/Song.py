@@ -7,6 +7,7 @@ from a_protocol_0.enums.AbstractEnum import AbstractEnum
 from a_protocol_0.enums.TrackCategoryEnum import TrackCategoryEnum
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
+from a_protocol_0.lom.Scene import Scene
 from a_protocol_0.lom.SongActionMixin import SongActionMixin
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
@@ -25,6 +26,7 @@ class Song(SongActionMixin, AbstractObject):
         super(Song, self).__init__(*a, **k)
         self._song = song
         self._view = self._song.view  # type: Live.Song.Song.View
+        self.scenes = []  # type: List[Scene]
         self.simple_tracks = []  # type: List[SimpleTrack]
         self.abstract_tracks = []  # type: List[AbstractTrack]
         self.abstract_group_tracks = []  # type: List[AbstractGroupTrack]
@@ -52,24 +54,9 @@ class Song(SongActionMixin, AbstractObject):
         return seq.done()
 
     @property
-    def scenes(self):
-        # type: () -> List[Live.Scene.Scene]
-        return list(self._song.scenes)
-
-    @property
     def selected_scene(self):
-        # type: () -> Live.Scene.Scene
-        return self.song._view.selected_scene
-
-    @property
-    def selected_scene_index(self):
-        # type: () -> Live.Scene.Scene
-        return self.song.scenes.index(self.song._view.selected_scene)
-
-    @selected_scene.setter
-    def selected_scene(self, selected_scene):
-        # type: (Live.Scene.Scene) -> None
-        self.song._view.selected_scene = selected_scene
+        # type: () -> Scene
+        return find_if(lambda scene: scene._scene == self.song._view.selected_scene, self.scenes)
 
     def next_track(self, increment=1, base_track=None):
         # type: (int, SimpleTrack) -> SimpleTrack

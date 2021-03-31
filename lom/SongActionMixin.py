@@ -38,7 +38,8 @@ class SongActionMixin(object):
     def fold_all_tracks(self):
         # type: (Song, bool) -> None
         # 1st we fold all except current
-        other_group_tracks = [track for track in self.song.root_tracks if track.is_foldable and track != self.current_track.base_track]
+        other_group_tracks = [track for track in self.song.root_tracks if
+                              track.is_foldable and track != self.current_track.base_track]
         if len(filter(None, [not track.is_folded for track in other_group_tracks])):
             [setattr(track, "is_folded", True) for track in other_group_tracks]
         else:
@@ -75,7 +76,7 @@ class SongActionMixin(object):
     def create_scene(self, scene_index=None):
         # type: (Song, Optional[int]) -> Sequence
         seq = Sequence()
-        seq.add(lambda: setattr(self.song, "selected_scene", self._song.create_scene(scene_index or len(self.song.scenes))), wait=1)
+        seq.add(lambda: self._song.create_scene(scene_index or len(self.song.scenes)), wait=1)
         return seq.done()
 
     def select_device(self, device):

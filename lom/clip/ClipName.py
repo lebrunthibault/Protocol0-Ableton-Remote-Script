@@ -22,6 +22,7 @@ class ClipName(AbstractObject):
         self.register_slot(self.clip._clip, self.set_clip_name, "start_marker")
         self.register_slot(self.clip._clip, self.set_clip_name, "end_marker")
         self._name_listener.subject = clip._clip
+        self.prev_name = ""
         self.parent.defer(self._name_listener)
 
     def __repr__(self):
@@ -53,4 +54,4 @@ class ClipName(AbstractObject):
         self.is_playable = is_playable if is_playable is not None else self.is_playable
         name = base_name or self.base_name
         name += " " if name else ""
-        self.clip.name = "%s(%s)%s" % (name, self.length_legend, "." if self.is_playable else "")
+        self.prev_name = self.clip.name = "%s(%s)%s" % (name, self.length_legend, "." if self.is_playable else "")

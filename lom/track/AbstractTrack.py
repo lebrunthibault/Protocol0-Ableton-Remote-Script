@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 
 
 class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
-    __subject_events__ = ('instrument', 'playing_slot_index')
+    __subject_events__ = ('instrument', 'fired_slot_index')
 
     ADDED_TRACK_INIT_ENABLED = True
 

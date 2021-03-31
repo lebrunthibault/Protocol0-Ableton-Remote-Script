@@ -23,6 +23,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             self.group_track.sub_tracks.append(self)
         self.linked_track = None  # type: Optional[SimpleTrack]
         self._playing_slot_index_listener.subject = self._track
+        self._fired_slot_index_listener.subject = self._track
         self.instrument = self.parent.deviceManager.make_instrument_from_simple_track(track=self)
         self._instrument_listener.subject = self
         if self.is_midi:  # could later create a SimpleMidiTrack class if necessary
@@ -58,8 +59,10 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             self.last_clip_played = self.playing_clip
         [setattr(clip, "is_selected", False) for clip in self.clips]
 
+    @subject_slot("fired_slot_index")
+    def _fired_slot_index_listener(self):
         # noinspection PyUnresolvedReferences
-        self.notify_playing_slot_index()
+        self.parent.defer(self.notify_fired_slot_index)
 
     @p0_subject_slot("instrument")
     def _instrument_listener(self):
@@ -71,6 +74,10 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def playing_slot_index(self):
         return self._track.playing_slot_index
+
+    @property
+    def fired_slot_index(self):
+        return self._track.fired_slot_index
 
     @property
     def is_playing(self):
@@ -114,6 +121,8 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @playable_clip.setter
     def playable_clip(self, playable_clip):
         # type: (Clip) -> None
+        if not playable_clip:
+            return
         [clip.clip_name.set_clip_name(is_playable=False) for clip in self.clips]
         playable_clip.clip_name.set_clip_name(is_playable=True)
 
@@ -136,7 +145,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def next_empty_clip_slot_index(self):
         # type: () -> int
-        for i in range(self.song.selected_scene_index, len(self.song.scenes)):
+        for i in range(self.song.selected_scene.index, len(self.song.scenes)):
             if not self.clip_slots[i].has_clip:
                 return i
 

@@ -27,8 +27,8 @@ class AutomationMidiTrack(AbstractAutomationTrack):
         """ when this is called the AutomatedTrack and AutomationAudioTrack are fully loaded """
         self.clear_devices()
         seq = Sequence()
-        seq.add(partial(self._create_base_clip, clip_slot_index=self.song.selected_scene_index))
-        seq.add(partial(self.linked_track.track_name.set_track_name, playing_slot_index=self.song.selected_scene_index), silent=True)
+        seq.add(partial(self._create_base_clip, clip_slot_index=self.song.selected_scene.index))
+        seq.add(partial(self.linked_track.track_name.set_track_name, playing_slot_index=self.song.selected_scene.index), silent=True)
         seq.add(self.linked_track.play)
 
         return seq.done()

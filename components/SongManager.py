@@ -5,11 +5,11 @@ from typing import Optional, Any
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
+from a_protocol_0.lom.Scene import Scene
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.utils.decorators import p0_subject_slot, has_callback_queue, retry
-from a_protocol_0.utils.utils import flatten
 
 
 class SongManager(AbstractControlSurfaceComponent):
@@ -24,6 +24,7 @@ class SongManager(AbstractControlSurfaceComponent):
         self.abstract_group_track_creation_in_progress = False
 
     def init_song(self):
+        self.on_scene_list_changed()
         self._tracks_listener()
         self._highlighted_clip_slot = self.song.highlighted_clip_slot
         self._highlighted_clip_slot_poller()
@@ -40,6 +41,7 @@ class SongManager(AbstractControlSurfaceComponent):
         self._tracks_listener()
         # noinspection PyUnresolvedReferences
         self.notify_scene_list()
+        self.song.scenes = [Scene(scene, index) for index, scene in enumerate(list(self.song._song.scenes))]
 
     @p0_subject_slot("tracks")
     def _tracks_listener(self):

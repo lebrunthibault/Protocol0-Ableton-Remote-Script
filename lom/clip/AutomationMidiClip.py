@@ -47,12 +47,17 @@ class AutomationMidiClip(AbstractAutomationClip, MidiClip, AutomationMidiClipNot
 
     @p0_subject_slot("name")
     def _name_listener(self):
+        if self.name == self.clip_name.prev_name:
+            return
         if len(self._prev_notes) >= 2:
             self._map_notes()
 
     def configure_new_clip(self):
-        super(AutomationMidiClip, self).configure_new_clip()
         self.view.grid_quantization = Live.Clip.GridQuantization.g_eighth
+        seq = Sequence()
+        seq.add(super(AutomationMidiClip, self).configure_new_clip)
+        seq.add(self.play)
+        return seq.done()
 
     def generate_base_notes(self):
         # type: () -> List[Note]
