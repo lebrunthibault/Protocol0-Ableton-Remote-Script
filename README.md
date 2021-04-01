@@ -66,6 +66,12 @@ That's a lot of clutter on the interface but the best way to achieve what I want
 - We can configure ableton like curves in the midi clips by scrolling a control.
 - Midi clips should be monophonic (as notes are mapped to automation) and the code is ensuring this by automatic remapping of manual note changes (can be surprising at first ^^)
 
+## Usage
+If you want to try the script try the following :
+- clone the repo in your remote scripts directory
+- Ensure python3 and autohotkey are installed on your system (if you're on windows)
+- create a .env.json file by duplicating the .env.json. and fill in the paths
+- Try using a controller with configurable note, CC and midi channels or modify the mappings in ./components/actionManagers. The bulk of the script uses the midi channel 15 and notes / CCs from 1 to 16.
 
 ## Code organisation
 
