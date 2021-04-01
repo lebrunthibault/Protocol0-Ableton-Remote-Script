@@ -4,6 +4,8 @@ Protocol 0 is a control surface script written in python 2 (moving to python3/Li
 The aim of this script is to make interaction with Live easier while producing music (well of course ^^).
 It is specifically targeted to working in session view. I did not use it yet to work in arrangement.
 
+## Technical Foreword
+
 This script is tailor made for my gear and workflow and is probably thus of little interest
 to users. But it could be interesting to remote scripts devs !
 
@@ -16,6 +18,8 @@ These external dependencies should not prevent the script from loading or workin
 the script from dispatching keys and clicks to the interface if you don't set up the .env.json file.
 
 > The code is not stable even on master and will probably throw a lot of errors.
+
+## Features
 
 I started writing the script specifically because I thought recording my rev2 was tedious. Later on I realized I would
 probably produce better if I was working more in session view and experiment instead of rushing to arrangement.
@@ -40,12 +44,12 @@ Specifically it aims to achieve :
 <br><br>
 The bigger part of the script is dedicated to the handling of external synths and automation.
 
-## External Synths
+### External Synths
 - The script is able to record both midi and audio at the same time doing fixed length recordings.
 - It can record multiple versions of the same midi (not at the same time obviously)
 - Midi and audio clips are linked (start / end / looping, suppression ..)
 
-## Automation
+### Automation
 > This is by far the most complex part of the script
 > The goal is to manage chained dummy clips to play with them in session.
 > 2nd goal is to handle automation via midi clip notes without using the very boring red automation curves
@@ -54,12 +58,12 @@ So : for each parameter we want to automate in a track 2 tracks are going to be 
 That's a lot of clutter on the interface but the best way to achieve what I wanted.
 
 
-### Automation audio tracks
+#### Automation audio tracks
 - It handles creating dummy tracks for each mapped parameter of a track at a button click.
 - We can create as many audio dummy tracks (with dummy clips obviously !) as parameters we want to map
 - Audio tracks are automatically chained together and we can solo / mute effects in the chain
 
-### Automation midi tracks
+#### Automation midi tracks
 - Each audio track is linked to a midi track
 - Audio / midi clips are linked (same as the external synth tracks)
 - Midi notes in the midi clips define the automation curves in the synced audio clip
@@ -73,7 +77,7 @@ If you want to try the script try the following :
 - create a .env.json file by duplicating the .env.json.example and fill in the paths
 - Try using a controller with configurable note, CC and midi channels or modify the mappings in ./components/actionManagers. The bulk of the script uses the midi channel 15 and notes / CCs from 1 to 16.
 
-## Code organisation
+## Development
 
 I've written a technical google doc (actually 2) that details important part of the script object model and techniques. Also a few remote scripts concepts are explained. [see this google doc](https://docs.google.com/document/d/1H5pxHiAWlyvTJJPb2GCb4fMy_26haCoi709zmcKMTYg/edit?usp=sharing)
 
@@ -83,7 +87,6 @@ What I've done in the script :
   tracks ("simple", grouped, externally synth, automation), clip_slots, clips ..
 - Worked a lot on asynchronous code handling to be able to do complex stuff like creating tracks, adding devices, creating clips all with one button push. This is handled by the Sequence class (see doc inside the class)
 
-### Development
 I'm working on the dev branch and releasing to master when a stable state is reached.
 But it's still a work in progress so there is bugs everywhere for sure.
 
