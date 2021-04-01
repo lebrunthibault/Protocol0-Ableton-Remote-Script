@@ -8,17 +8,17 @@ This script is tailor made for my gear and workflow and is probably thus of litt
 to users. I don't plan to distribute or adapt it in any near future. But it could be interesting to remote scripts devs !
 
 There is a few specificities / dependencies to bear in mind if anyone would ever want to test it :
-- External Software dependencies on python3 and autoHotkey (hard dependencies)
+- External Software dependencies on python3 and autoHotkey (hard dependencies). Paths can be configured by creating and editing the .env.json file.
 - Synths targeted (Prophet rev2, Serum ..). Not blocking
 - Push2 handling code. Not blocking
 
-These dependencies should not prevent the script from loading or working in degraded state but it will prevent
-the script from dispatching keys and clicks to the interface if you don't adapt the code a bit probably.
+These external dependencies should not prevent the script from loading or working in degraded state but it will prevent
+the script from dispatching keys and clicks to the interface if you don't set up the .env.json file.
 
 > The code is not stable even on master and will probably throw a lot of errors.
 
-I started writing the script specifically because I though recording my rev2 was tedious. Then I realized I would
-probably produce better if I was working more in session view and experimenting instead of rushing to arrangement.
+I started writing the script specifically because I thought recording my rev2 was tedious. Later on I realized I would
+probably produce better if I was working more in session view and experiment instead of rushing to arrangement.
 So now it is more of a session view tool. My goal is to be able to produce better quality music faster in session view by experimenting
 fast without too much technical hassle and get over the 8 bars loop problem :p 
 
@@ -34,7 +34,6 @@ Specifically it aims to achieve :
 > - Automatic track and clip naming / coloring depending on clip playing, instrument
 > - a GroupTrack template defined in the script
 > - One shot clips definable by name
-> - Smart handling of group tracks output routing
 > - Automatic tracks volume mixer lowering to never go over 0db (except when a limiter is set) 
 > - Integration with push2 (automatic configuration of a few display parameters depending on the type of track)
 
@@ -64,24 +63,21 @@ That's a lot of clutter on the interface but the best way to achieve what I want
 - Each audio track is linked to a midi track
 - Audio / midi clips are linked (same as the external synth tracks)
 - Midi notes in the midi clips define the automation curves in the synced audio clip
-- We can roughly define curves in the midi clips by changing the clip name
-- Midi clips should be monophonic and the code is ensuring this by automatic remapping of manual note changes (can be surprising at first ^^)
+- We can configure ableton like curves in the midi clips by scrolling a control.
+- Midi clips should be monophonic (as notes are mapped to automation) and the code is ensuring this by automatic remapping of manual note changes (can be surprising at first ^^)
 
 
 ## Code organisation
 
-I've written a little doc about some parts of the script summarizing some
-remote script concepts and also protocol0 concepts [in this google doc](https://docs.google.com/document/d/1H5pxHiAWlyvTJJPb2GCb4fMy_26haCoi709zmcKMTYg/edit?usp=sharing)
+I've written a technical google doc (actually 2) that details important part of the script object model and techniques. Also a few remote scripts concepts are explained. [see this google doc](https://docs.google.com/document/d/1H5pxHiAWlyvTJJPb2GCb4fMy_26haCoi709zmcKMTYg/edit?usp=sharing)
 
 What I've done in the script :
 - Wrapped a good part of the lom object model in my own classes to make stuff easier to comprehend
 - Used inheritance to play with my different type of 
   tracks ("simple", grouped, externally synth, automation), clip_slots, clips ..
-- Worked a lot on asynchronous code handling to be able to do complex stuff like creating tracks, adding devices, creating clips all with one button push
-- This is handled by the Sequence class (see doc inside the class)
+- Worked a lot on asynchronous code handling to be able to do complex stuff like creating tracks, adding devices, creating clips all with one button push. This is handled by the Sequence class (see doc inside the class)
 
 ### Development
 I'm working on the dev branch and releasing to master when a stable state is reached.
 But it's still a work in progress so there is bugs everywhere for sure.
-Regarding the doc (in the code and in the google doc) I'm trying to update it for my own sake but it can lag behind.
 
