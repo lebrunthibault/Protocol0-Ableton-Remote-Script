@@ -5,7 +5,7 @@ The aim of this script is to make interaction with Live easier while producing m
 It is specifically targeted to working in session view. I did not use it yet to work in arrangement.
 
 This script is tailor made for my gear and workflow and is probably thus of little interest
-to users. I don't plan to distribute or adapt it in any near future. But it could be interesting to remote scripts devs !
+to users. But it could be interesting to remote scripts devs !
 
 There is a few specificities / dependencies to bear in mind if anyone would ever want to test it :
 - External Software dependencies on python3 and autoHotkey (hard dependencies). Paths can be configured by creating and editing the .env.json file.
