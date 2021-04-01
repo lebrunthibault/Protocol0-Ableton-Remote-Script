@@ -98,12 +98,13 @@ class SongManager(AbstractControlSurfaceComponent):
 
     def _highlighted_clip_slot_poller(self):
         # type: () -> None
+        return
         if self.song.highlighted_clip_slot != self._highlighted_clip_slot:
             self._highlighted_clip_slot = self.song.highlighted_clip_slot
             if self.song.highlighted_clip_slot and self.song.highlighted_clip_slot.clip:
                 self.parent.push2Manager.update_clip_grid_quantization()
                 self._highlighted_clip_slot.clip._on_selected()
-        self.parent.defer(self._highlighted_clip_slot_poller)
+        self.parent.schedule_message(1, self._highlighted_clip_slot_poller)
 
     def _update_highlighted_clip_slot(self):
         """ auto_update highlighted clip slot to match the playable clip """

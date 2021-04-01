@@ -79,7 +79,7 @@ class AutomationMidiClip(AbstractAutomationClip, MidiClip, AutomationMidiClipNot
         # noinspection PyUnresolvedReferences
         self.parent.defer(self.notify_notes)
 
-    @debounce(3)
+    @debounce(300)
     def map_notes(self):
         notes = self.get_notes()
         if len(notes) == 0 or self._is_updating_notes or notes == self._prev_notes:

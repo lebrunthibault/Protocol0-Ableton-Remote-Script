@@ -78,7 +78,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
         self.parent.browserManager.swap(rack_device.name)
         # restore values : this means we cannot dispatch values, only mappings
         # here 100ms is not enough
-        self.parent._wait(10, partial(self._update_device_params, rack_device, parameters))
+        self.parent._wait(1000, partial(self._update_device_params, rack_device, parameters))
 
     def _update_device_params(self, device, parameters):
         for name, value in parameters.items():

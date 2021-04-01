@@ -68,7 +68,7 @@ class ExternalSynthTrackActionMixin(object):
         if audio_clip_slot.clip:
             seq.add(audio_clip_slot.clip.delete, wait=1)
         seq.add(partial(setattr, midi_clip, "start_marker", 0))
-        seq.add(partial(self.parent._wait, 5, midi_clip.play))  # launching the midi clip after the record has started
+        seq.add(partial(self.parent._wait, 500, midi_clip.play))  # launching the midi clip after the record has started
         seq.add(self.audio_track.clip_slots[midi_clip.index].record)
         seq.add(self._post_record)
         return seq.done()

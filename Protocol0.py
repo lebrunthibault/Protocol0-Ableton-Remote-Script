@@ -31,7 +31,6 @@ from a_protocol_0.components.actionManagers.ActionSetManager import ActionSetMan
 from a_protocol_0.components.actionManagers.ActionTestManager import ActionTestManager
 from a_protocol_0.consts import ROOT_DIR
 from a_protocol_0.enums.LogLevelEnum import LogLevelEnum, ACTIVE_LOG_LEVEL
-from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.Song import Song
 from a_protocol_0.utils.log import log_ableton
 
@@ -69,8 +68,8 @@ class Protocol0(ControlSurface):
             self.clyphxNavigationManager = NavAndViewActions()
             self.clyphxGlobalManager = GlobalActions()
             self.beatScheduler = SyncedScheduler(unschedule_on_stop=True)
-            self.fastScheduler = FastScheduler()
             ClyphXComponentBase.start_scheduler()
+            self.fastScheduler = FastScheduler()
             self.utilsManager = UtilsManager()
             self.logManager = LogManager()
             self.actionManager = ActionManager()
@@ -159,6 +158,7 @@ class Protocol0(ControlSurface):
     def clear_tasks(self):
         del self._remaining_scheduled_messages[:]
         self._task_group.clear()
+        self.fastScheduler.restart()
 
     def dev_boot(self):
         if self._is_dev_booted:

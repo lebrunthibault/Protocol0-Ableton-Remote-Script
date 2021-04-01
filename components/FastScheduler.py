@@ -38,15 +38,20 @@ class FastScheduler(AbstractControlSurfaceComponent):
 
     def __init__(self, *a, **k):
         super(FastScheduler, self).__init__(*a, **k)
-        self._scheduler = Live.Base.Timer(callback=self._on_tick, interval=1, repeat=True, start=True)
+        self._scheduler = Live.Base.Timer(callback=self._on_tick, interval=1, repeat=True)
+        self._scheduler.start()
         self._scheduled_events = []  # type: List[SchedulerEvent]
 
     def stop(self):
         self._scheduled_events = []
         self._scheduler.stop()
 
+    def restart(self):
+        self.stop()
+        self._scheduler.start()
+
     def _on_tick(self):
-        for scheduled_event in self._scheduled_events:
+        for scheduled_event in self._scheduled_events[:]:
             if scheduled_event.is_timeout_elapsed:
                 self._execute_event(scheduled_event)
             else:
@@ -56,7 +61,10 @@ class FastScheduler(AbstractControlSurfaceComponent):
         # type: (SchedulerEvent) -> None
         assert scheduled_event.is_timeout_elapsed
         scheduled_event.execute()
-        self._scheduled_events.remove(scheduled_event)
+        try:
+            self._scheduled_events.remove(scheduled_event)
+        except:
+            self.parent.log_dev("scheduled_event: %s" % scheduled_event)
 
     def schedule(self, timeout_duration, callback):
         # type: (int, callable) -> None

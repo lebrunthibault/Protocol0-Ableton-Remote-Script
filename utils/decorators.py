@@ -47,18 +47,6 @@ def defer(func):
     return decorate
 
 
-def wait(wait_time):
-    def wrap(func):
-        @wraps(func)
-        def decorate(*a, **k):
-            from a_protocol_0 import Protocol0
-            Protocol0.SELF._wait(wait_time, partial(func, *a, **k))
-
-        return decorate
-
-    return wrap
-
-
 def is_change_deferrable(func):
     @wraps(func)
     def decorate(*a, **k):
@@ -95,7 +83,7 @@ def retry(retry_count=2, interval=100):
     return wrap
 
 
-def debounce(wait_time=2):
+def debounce(wait_time=200):
     """ here we make the method dynamic """
 
     def wrap(func):

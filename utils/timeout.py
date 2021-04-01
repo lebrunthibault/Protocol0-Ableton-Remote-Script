@@ -6,7 +6,8 @@ from a_protocol_0.utils.utils import get_callable_name
 class TimeoutLimit(AbstractObject):
 
     def __init__(self, func, timeout_limit, awaited_listener=None, on_timeout=None, *a, **k):
-        # type: (callable, callable, float, callable) -> callable
+        # type: (callable, int, callable, callable) -> callable
+        """ timeout_limit in ms """
         super(TimeoutLimit, self).__init__(*a, **k)
         self.func = func
         self.awaited_listener = awaited_listener

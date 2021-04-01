@@ -12,7 +12,7 @@ class TrackType(object):
 
 
 class AbletonTrack(Subject):
-    __subject_events__ = ("name", "devices", "clip_slots", "playing_slot_index")
+    __subject_events__ = ("name", "devices", "clip_slots", "playing_slot_index", "fired_slot_index")
 
     def __init__(self, name="track", device=None, track_type=TrackType.MIDI):
         # type: (str, AbletonDevice, int) -> None
