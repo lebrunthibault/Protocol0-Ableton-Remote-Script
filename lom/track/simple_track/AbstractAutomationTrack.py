@@ -8,4 +8,3 @@ class AbstractAutomationTrack(SimpleTrack):
         self._is_hearable = False
         self.nav_view = 'clip'
         self.track_name = AutomationTrackName(self)
-

@@ -74,7 +74,7 @@ def is_change_deferrable(func):
     return decorate
 
 
-def retry(retry_count=2, interval=1):
+def retry(retry_count=2, interval=100):
     def wrap(func):
         @wraps(func)
         def decorate(*a, **k):
@@ -83,7 +83,6 @@ def retry(retry_count=2, interval=1):
                 func(*a, **k)
             except Exception:
                 if decorate.count == decorate.retry_count:
-                    # Protocol0.SELF.log_error("Retry error on %s" % decorate)
                     return
                 Protocol0.SELF._wait(pow(2, decorate.count) * interval, partial(func, *a, **k))
                 decorate.count += 1

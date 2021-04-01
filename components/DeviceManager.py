@@ -151,8 +151,8 @@ class DeviceManager(AbstractControlSurfaceComponent):
                     name="click on device show button")
             seq.add(lambda: self.parent.keyboardShortcutManager.toggle_device_button(x=x_rack, y=y_rack, activate=True),
                     wait=1, name="show rack macro controls")
-            seq.add(lambda: [setattr(d, "is_collapsed", False) for d in parent_rack.chains[0].devices],
-                    name="uncollapse all rack devices")
+            # seq.add(lambda: [setattr(d, "is_collapsed", False) for d in parent_rack.chains[0].devices],
+            #         name="uncollapse all rack devices")
             # at this point the rack macro controls could still be hidden if the plugin window masks the button
 
         return seq.done()

@@ -143,6 +143,11 @@ class Song(SongActionMixin, AbstractObject):
         # type: () -> float
         return self._song.tempo
 
+    @property
+    def signature_denominator(self):
+        # type: () -> int
+        return self._song.signature_denominator
+
     def get_current_beats_song_time(self):
         # type: () -> Live.Song.BeatTime
         return self._song.get_current_beats_song_time()

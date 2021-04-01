@@ -26,6 +26,7 @@ global ableton := "Ableton Live 10 Suite"
 ; global hotkeys
 Hotkey("", "^#+n", "reloadAbleton")
 Hotkey("", "^#+a", "relaunchAbleton")
+Hotkey("", "^!l", "refreshLogs")
 ; ableton hotkeys
 HotkeyAbleton("^#+s", "saveAndSetAsTemplate")
 HotkeyAbleton("^!+c", 	 "loadVst", "H-Comp")
@@ -147,6 +148,24 @@ relaunchAbleton()
     command = Startup "'Ableton Live 10 Suite,*logs terminal*,AutoHotkey Ableton'"
     Run PowerShell.exe -Command %command%,, hide
 }
+
+refreshLogs()
+{
+    setkeydelay, 0
+    Send {Esc}
+    Sleep 1000
+
+    loop 10 {
+        Send {LWin down}
+        Sleep 10
+    }
+    Send {LWin up}
+    Sleep 100
+    Send t
+    Sleep 500
+    Send {Enter}
+}
+
 
 saveAndSetAsTemplate()
 {

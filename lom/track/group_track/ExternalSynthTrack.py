@@ -32,12 +32,13 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self._instrument_listener.subject = self.instrument_track
         self._instrument_listener()
 
-        self._midi_audio_synchronizer = TrackSynchronizer(self.audio_track, self.midi_track)
-        self._midi_track_synchronizer = ObjectSynchronizer(self.base_track, self.midi_track, "_track", ["solo"])
+        with self.parent.component_guard():
+            self._midi_audio_synchronizer = TrackSynchronizer(self.audio_track, self.midi_track)
+            self._midi_track_synchronizer = ObjectSynchronizer(self.base_track, self.midi_track, "_track", ["solo"])
 
-        self._clip_slot_synchronizers = [ClipSlotSynchronizer(midi_clip_slot, audio_clip_slot) for
-                                        midi_clip_slot, audio_clip_slot in
-                                        itertools.izip(self.midi_track.clip_slots, self.audio_track.clip_slots)]
+            self._clip_slot_synchronizers = [ClipSlotSynchronizer(midi_clip_slot, audio_clip_slot) for
+                                            midi_clip_slot, audio_clip_slot in
+                                            itertools.izip(self.midi_track.clip_slots, self.audio_track.clip_slots)]
 
         self.audio_track.set_output_routing_to(self.base_track)
         self.selection_tracks = [self.base_track, self.midi_track, self.audio_track]

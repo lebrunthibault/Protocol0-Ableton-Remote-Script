@@ -170,10 +170,9 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         for device in self.all_devices:
             device.is_collapsed = not (
-                        isinstance(device, RackDevice) or self.parent.deviceManager.is_track_instrument(
-                    self, device))
+                    isinstance(device, RackDevice) or self.parent.deviceManager.is_track_instrument(self, device))
 
-    @retry(2, 2)
+    @retry(2, 200)
     def set_output_routing_to(self, track):
         # type: (AbstractTrack, AbstractTrack) -> None
         if track is None:
@@ -189,7 +188,7 @@ class AbstractTrackActionMixin(object):
                                           self.available_output_routing_types)
 
         if not output_routing_type:
-            raise Protocol0Error("Couldn't find the output routing type of the given track")
+            raise Protocol0Error("Couldn't find the output routing type of the given track", log_error=False)
 
         if self.output_routing_type != output_routing_type:
             self.output_routing_type = output_routing_type

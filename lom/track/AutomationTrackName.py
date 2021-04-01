@@ -25,6 +25,7 @@ class AutomationTrackName(TrackName):
         match = re.match("^_(?P<automated_parameter_name>.*)$", self.track.name)
 
         if not match or not match.group("automated_parameter_name"):
+            self.parent.log_dev(self.track.name)
             raise Protocol0Error("AbstractAutomationTrack is missing it's track name automated parameter")
 
         self.automated_parameter_name = match.group("automated_parameter_name").strip()

@@ -5,10 +5,10 @@ from a_protocol_0.enums.LogLevelEnum import LogLevelEnum, ACTIVE_LOG_LEVEL
 logger = logging.getLogger(__name__)
 
 
-def log_ableton(message, debug=True, direct_call=True, exclusive_log=False):
+def log_ableton(message, debug=True, level=LogLevelEnum.DEV, direct_call=True, exclusive_log=False):
     # type: (str, bool) -> None
     """ a log function and not method allowing us to call this even with no access to the ControlSurface object """
-    message = str(message)
+    message = "%s: %s" % (LogLevelEnum(level).name.lower(), str(message))
     if any([not isinstance(param, bool) for param in [debug, direct_call, exclusive_log]]):
         log_ableton("log_ableton: parameter mismatch, logging anyway")
         debug = True

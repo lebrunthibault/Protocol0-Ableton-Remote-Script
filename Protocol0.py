@@ -14,6 +14,7 @@ from _Framework.ControlSurface import ControlSurface
 from a_protocol_0.components.AutomationTrackManager import AutomationTrackManager
 from a_protocol_0.components.BrowserManager import BrowserManager
 from a_protocol_0.components.DeviceManager import DeviceManager
+from a_protocol_0.components.FastScheduler import FastScheduler
 from a_protocol_0.components.KeyBoardShortcutManager import KeyBoardShortcutManager
 from a_protocol_0.components.LogManager import LogManager
 from a_protocol_0.components.MidiManager import MidiManager
@@ -67,7 +68,8 @@ class Protocol0(ControlSurface):
             self.browserManager = BrowserManager()
             self.clyphxNavigationManager = NavAndViewActions()
             self.clyphxGlobalManager = GlobalActions()
-            self.scheduler = SyncedScheduler(unschedule_on_stop=True)
+            self.beatScheduler = SyncedScheduler(unschedule_on_stop=True)
+            self.fastScheduler = FastScheduler()
             ClyphXComponentBase.start_scheduler()
             self.utilsManager = UtilsManager()
             self.logManager = LogManager()
@@ -77,15 +79,10 @@ class Protocol0(ControlSurface):
             if init_song:
                 self.songManager.init_song()
                 self.dev_boot()
-            self.scheduler.schedule_message("4", self.tick)
-            # self._scheduler = Live.Base.Timer(self.tick, interval=1, repeat=True, start=True)
         self.log_info("Protocol0 script loaded")
 
-    def tick(self):
-        self.log_dev("message scheduled !")
-
     def post_init(self):
-        # self.protocol0_song.reset()
+        self.protocol0_song.reset()
         if ACTIVE_LOG_LEVEL == LogLevelEnum.DEBUG:
             self.defer(self.dev_boot)
 
@@ -122,35 +119,42 @@ class Protocol0(ControlSurface):
         # type: (str) -> None
         if level.value < ACTIVE_LOG_LEVEL.value and not debug:
             return
-        log_ableton(debug=bool(message) and debug, message="%s: %s" % (LogLevelEnum(level).name.lower(), str(message)),
-                    direct_call=False)
+        log_ableton(debug=bool(message) and debug, message=message, level=level, direct_call=False)
 
     def defer(self, callback):
         # type: (Callable) -> None
-        self._wait(1, callback)
+        self.fastScheduler.schedule_next(callback)
 
     def wait_beats(self, beats, callback):
         # type: (int, Callable) -> None
-        # todo: rework this
-        ticks = round((600 / self.protocol0_song._song.tempo) * (beats - 0.5))
-        self._wait(ticks, callback)
+        """ Wait beats uses the clyphx beat scheduler """
+        self.beatScheduler.schedule_message("%d" % beats, callback)
 
-    def wait_bars(self, bar_count, callback):
-        # type: (int, Callable) -> None
-        self.wait_beats(4 * bar_count, callback)
+    def wait_bars(self, bar_count, callback, exact=False):
+        # type: (int, Callable, bool) -> None
+        """
+            if exact if False, wait_bars executes the callback on the last beat preceding the next <bar_count> bar
+            that is if the we are on the 3rd beat in 4/4, the callback will be executed in one beat
+            This mode will work when global quantization is set to 1/4 or more
+        """
+        beat_offset = 0 if exact else self.protocol0_song.get_current_beats_song_time().beats
+        beat_count = (self.protocol0_song.signature_denominator * bar_count) - beat_offset
+        self.wait_beats(beat_count, callback)
 
-    def _wait(self, ticks_count, callback):
+    def _wait(self, duration, callback):
         # type: (int, callable) -> None
-        if not callable(callback):
-            raise Protocol0Error("callback must be callable")
-        if ticks_count == 0:
+        """ duration in ms (execution is not ms precise) """
+        assert duration >= 0
+        assert callable(callback)
+        if duration == 0:
             callback()
         else:
+            # for ticks_count > 1 we use the 100ms timer losing some speed but it's easier for now
             if Protocol0.LIVE_ENVIRONMENT_LOADED:
-                self.schedule_message(ticks_count, callback)
+                self.fastScheduler.schedule(timeout_duration=duration, callback=callback)
             else:
                 # emulate schedule_message
-                threading.Timer(float(ticks_count) / 10, callback).start()
+                threading.Timer(float(duration) / 1000, callback).start()
 
     def clear_tasks(self):
         del self._remaining_scheduled_messages[:]

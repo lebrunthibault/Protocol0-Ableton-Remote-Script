@@ -48,9 +48,9 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # handle one shot clips
         if self.playable_clip and self.playable_clip.type == ClipTypeEnum.ONE_SHOT:
             if not self.last_clip_played or self.last_clip_played == self.playable_clip:
-                self.parent.wait_beats(self.playable_clip.length, self.stop)
+                self.parent.wait_beats(self.playable_clip.length - 1, self.stop)
             else:
-                self.parent.wait_beats(self.playable_clip.length, self.last_clip_played.play)
+                self.parent.wait_beats(self.playable_clip.length - 1, self.last_clip_played.play)
 
         # keep the playable clip memorized if the set is still playing
         if any([track.is_playing for track in self.song.simple_tracks]):

@@ -13,6 +13,10 @@ $global:write_next_n_lines = 0
 $host.ui.RawUI.WindowTitle = 'logs terminal'
 Get-Process -Id $pid | Set-WindowState -State SHOWMAXIMIZED
 
+if ($debug) {
+    $startSize *= 2
+}
+
 function FocusLogs()
 {
     python.exe "$p0\scripts\python\focus_window.py" "logs terminal"
@@ -50,7 +54,6 @@ function Get-LogColor
             {
                 Return "Red"
                 FocusLogs
-                #                Return "White"
             }
         }
 
@@ -95,7 +98,7 @@ function Format-LogLine
             if ($showDateTime)
             {
                 $date = [datetime]::parseexact($parts[0], 'yyyy-MM-ddTHH:mm:ss.ffffff:', $null)
-                $logEntry = (Get-Date -Date $date -Format "HH:mm:ss.fff") + " " + $parts[1].TrimStart() + ($parts[2..($parts.Count - 1)] -join " ")
+                $logEntry = (Get-Date -Date $date -Format "HH:mm:ss.fff") + " " + $parts[1].Trim() + " " + ($parts[2..($parts.Count - 1)] -join " ")
             }
             else
             {
