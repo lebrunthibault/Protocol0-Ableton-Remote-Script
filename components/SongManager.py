@@ -25,7 +25,6 @@ class SongManager(AbstractControlSurfaceComponent):
 
     def init_song(self):
         self.on_scene_list_changed()
-        self._tracks_listener()
         self._highlighted_clip_slot = self.song.highlighted_clip_slot
         self._highlighted_clip_slot_poller()
         self.song.reset()
@@ -132,7 +131,7 @@ class SongManager(AbstractControlSurfaceComponent):
 
         return self._live_track_to_simple_track[track]
 
-    @retry(2)
+    @retry(3)
     def _set_current_track(self):
         self.song.selected_track = self._get_simple_track(self.song._view.selected_track) or self.song.simple_tracks[0]
         self.song.current_track = self.get_current_track(self.song.selected_track)

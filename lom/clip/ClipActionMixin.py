@@ -13,7 +13,7 @@ class ClipActionMixin(object):
         # type: (Clip) -> None
         self.song.highlighted_clip_slot = self.clip_slot
         seq = Sequence(silent=True)
-        seq.add(wait=2)
+        seq.add(wait=10)
         seq.add(self.parent.clyphxNavigationManager.show_clip_view)
         return seq.done()
 

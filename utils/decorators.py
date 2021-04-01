@@ -62,7 +62,7 @@ def is_change_deferrable(func):
     return decorate
 
 
-def retry(retry_count=2, interval=100):
+def retry(retry_count=3, interval=3):
     def wrap(func):
         @wraps(func)
         def decorate(*a, **k):

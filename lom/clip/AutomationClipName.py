@@ -1,10 +1,10 @@
 import re
 
-from _Framework.SubjectSlot import subject_slot_group
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
-from a_protocol_0.enums.DirectionEnum import DirectionEnum
+from _Framework.SubjectSlot import subject_slot_group
 from a_protocol_0.automation.AutomationRampMode import AutomationRampMode
+from a_protocol_0.enums.DirectionEnum import DirectionEnum
 from a_protocol_0.lom.clip.ClipName import ClipName
 from a_protocol_0.utils.decorators import p0_subject_slot
 

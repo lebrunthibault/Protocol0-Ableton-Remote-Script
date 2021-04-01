@@ -172,7 +172,7 @@ class AbstractTrackActionMixin(object):
             device.is_collapsed = not (
                     isinstance(device, RackDevice) or self.parent.deviceManager.is_track_instrument(self, device))
 
-    @retry(2, 200)
+    @retry(3, 8)
     def set_output_routing_to(self, track):
         # type: (AbstractTrack, AbstractTrack) -> None
         if track is None:

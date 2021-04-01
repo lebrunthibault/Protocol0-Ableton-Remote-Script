@@ -1,11 +1,10 @@
 import re
 from functools import partial
-from typing import TYPE_CHECKING, Optional
 
 import Live
+from typing import TYPE_CHECKING, Optional
 
 from _Framework.SubjectSlot import subject_slot_group
-from _Framework.Util import clamp
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import p0_subject_slot
@@ -85,5 +84,5 @@ class TrackName(AbstractObject):
             # noinspection PyUnresolvedReferences
             self.notify_base_name()
         seq = Sequence(silent=True)
-        seq.add(partial(setattr, self.track, "name", name), wait=1)  # wait is necessary
+        seq.add(partial(setattr, self.track, "name", name), complete_on=lambda: self.track.name == name)
         return seq.done()

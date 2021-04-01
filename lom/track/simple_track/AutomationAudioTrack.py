@@ -69,5 +69,3 @@ class AutomationAudioTrack(AbstractAutomationTrack):
     def _current_monitoring_state_listener(self):
         if not self.has_monitor_in and not any([couple.audio_track.solo for couple in self.abstract_group_track.automation_tracks_couples]):  # enforce monitor in
             self.has_monitor_in = True
-
-        self.parent.show_message("An audio automation track should have monitor in")

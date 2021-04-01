@@ -140,7 +140,6 @@ class SequenceStep(AbstractObject):
     def _check_for_step_completion(self):
         if not self._complete_on:
             if self._wait:
-                self.parent.log_dev(self._wait)
                 self.parent._wait(self._wait, self._terminate)
             else:
                 self._terminate()
@@ -162,7 +161,7 @@ class SequenceStep(AbstractObject):
                 if self._check_count == self._check_timeout:
                     self._step_timed_out()
                     return
-                self.parent._wait(10 * pow(3, self._check_count), self._check_for_step_completion)
+                self.parent._wait(pow(2, self._check_count), self._check_for_step_completion)
                 self._check_count += 1
 
     def _add_callback_on_listener(self, listener):

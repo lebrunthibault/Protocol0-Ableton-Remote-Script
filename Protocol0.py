@@ -140,20 +140,19 @@ class Protocol0(ControlSurface):
         beat_count = (self.protocol0_song.signature_denominator * bar_count) - beat_offset
         self.wait_beats(beat_count, callback)
 
-    def _wait(self, duration, callback):
+    def _wait(self, tick_count, callback):
         # type: (int, callable) -> None
-        """ duration in ms (execution is not ms precise) """
-        assert duration >= 0
+        """ tick_count (relative to fastScheduler) """
         assert callable(callback)
-        if duration == 0:
+        if tick_count == 0:
             callback()
         else:
             # for ticks_count > 1 we use the 100ms timer losing some speed but it's easier for now
             if Protocol0.LIVE_ENVIRONMENT_LOADED:
-                self.fastScheduler.schedule(timeout_duration=duration, callback=callback)
+                self.fastScheduler.schedule(tick_count=tick_count, callback=callback)
             else:
                 # emulate schedule_message
-                threading.Timer(float(duration) / 1000, callback).start()
+                threading.Timer(float(tick_count) * self.fastScheduler.TICK_MS_DURATION / 1000, callback).start()
 
     def clear_tasks(self):
         del self._remaining_scheduled_messages[:]

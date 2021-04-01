@@ -91,7 +91,8 @@ class AbstractInstrument(AbstractObject):
             return False
         return not self.activated or (self.NEEDS_EXCLUSIVE_ACTIVATION and self.active_instance != self)
 
-    def check_activated(self):
+    def check_activated(self, select_instrument_track=False):
+        # type: (bool) -> None
         if not self.should_be_activated:
             return
 
@@ -106,7 +107,8 @@ class AbstractInstrument(AbstractObject):
             seq.add(self.exclusive_activate)
             seq.add(partial(setattr, self, "active_instance", self))
 
-        seq.add(self.song.selected_track.select, silent=True)
+        if not select_instrument_track:
+            seq.add(self.song.selected_track.select, silent=True)
 
         return seq.done()
 
@@ -121,7 +123,7 @@ class AbstractInstrument(AbstractObject):
                         self.name) and not is_shown)
             seq.done()
         else:
-            self.check_activated()
+            self.check_activated(select_instrument_track=True)
 
     @property
     def presets_path(self):

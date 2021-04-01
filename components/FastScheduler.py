@@ -2,7 +2,6 @@ import Live
 from typing import List
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.utils.utils import get_callable_name
 
@@ -61,29 +60,16 @@ class FastScheduler(AbstractControlSurfaceComponent):
         # type: (SchedulerEvent) -> None
         assert scheduled_event.is_timeout_elapsed
         scheduled_event.execute()
-        try:
-            self._scheduled_events.remove(scheduled_event)
-        except:
-            self.parent.log_dev("scheduled_event: %s" % scheduled_event)
+        self._scheduled_events.remove(scheduled_event)
 
-    def schedule(self, timeout_duration, callback):
+    def schedule(self, tick_count, callback):
         # type: (int, callable) -> None
         """ timeout_duration in ms """
-        scheduled_event = SchedulerEvent(callback=callback, tick_count=self._ms_to_tick(timeout_duration))
+        scheduled_event = SchedulerEvent(callback=callback, tick_count=tick_count)
+        self._scheduled_events.append(scheduled_event)
         if scheduled_event.is_timeout_elapsed:
             self._execute_event(scheduled_event)
-        else:
-            self._scheduled_events.append(scheduled_event)
 
     def schedule_next(self, callback):
         # type: (callable) -> None
         self.schedule(self.TICK_MS_DURATION, callback)
-
-    def _ms_to_tick(self, duration):
-        # type: (int) -> int
-        """ with small ms duration we always offset to the next tick """
-        if duration == 0:
-            return 0
-        else:
-            duration = min(self.TICK_MS_DURATION, duration)
-            return duration / self.TICK_MS_DURATION

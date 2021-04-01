@@ -1,6 +1,5 @@
 from a_protocol_0.components.actionManagers.AbstractActionManager import AbstractActionManager
 from a_protocol_0.lom.device.RackDevice import RackDevice
-from a_protocol_0.lom.track.simple_track.AbstractAutomationTrack import AbstractAutomationTrack
 from a_protocol_0.utils.decorators import button_action
 
 

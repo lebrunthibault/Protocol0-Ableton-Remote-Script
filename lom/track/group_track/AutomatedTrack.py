@@ -4,7 +4,6 @@ from _Framework.Util import forward_property
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.group_track.AutomationTracksCouple import AutomationTracksCouple
-from a_protocol_0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences

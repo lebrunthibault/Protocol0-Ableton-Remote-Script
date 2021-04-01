@@ -15,7 +15,7 @@ def test_sanity_checks():
     assert seq._state == SequenceState.TERMINATED
 
     with pytest.raises(SequenceError):
-        seq.add(wait=3)
+        seq.add(wait=1)
 
     with pytest.raises(SequenceError):
         Sequence(log_level=SequenceLogLevel.disabled).done().done()

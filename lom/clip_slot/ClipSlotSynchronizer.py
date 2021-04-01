@@ -28,10 +28,11 @@ class ClipSlotSynchronizer(ObjectSynchronizer):
         if self._clip_synchronizer:
             self._clip_synchronizer.disconnect()
         if self.master.clip and self.slave.clip:
-            self._clip_synchronizer = ClipSynchronizer(
-                    master=self.master.clip, slave=self.slave.clip,
-                    properties=["name", "looping", "loop_start", "loop_end",
-                     "start_marker", "end_marker"])
+            with self.parent.component_guard():
+                self._clip_synchronizer = ClipSynchronizer(
+                        master=self.master.clip, slave=self.slave.clip,
+                        properties=["name", "looping", "loop_start", "loop_end",
+                         "start_marker", "end_marker"])
         else:
             self._clip_synchronizer = None
 

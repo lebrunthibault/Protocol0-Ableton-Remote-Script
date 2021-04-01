@@ -133,10 +133,8 @@ function Select-Log-Line
             if ( $LogEntry.Contains("ArgumentError") -or $LogEntry.Contains("Pythonargument"))
             {
                 $global:write_next_n_lines = 3
-
             }
             return $LogEntry
-            Write-Host -ForegroundColor (Get-LogColor $LogEntry) (Format-LogLine($LogEntry))
         }
     }
 

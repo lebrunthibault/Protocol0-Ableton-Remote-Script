@@ -127,8 +127,10 @@ class ClipSlot(AbstractObject):
                 complete_on=self._has_clip_listener)
         seq.add(lambda: setattr(self.clip, "warping", 1), name="enable clip warping", silent=True)
         seq.add(lambda: setattr(self.clip, "looping", 1), name="enable clip looping", silent=True)
-        seq.add(wait=2)  # should be 2 because the created dummy clip name syncs to the midi clip
+        seq.add(wait=10)  # because the created dummy clip name syncs to the midi clip
         seq.add(lambda: setattr(self.clip, "name", name), silent=True)
+        if self.song.is_playing:
+            seq.add(lambda: self.clip.play())
         return seq.done()
 
     def disconnect(self):

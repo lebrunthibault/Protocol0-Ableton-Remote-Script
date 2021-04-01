@@ -135,7 +135,6 @@ ShowAndActivateRev2Editor()
     Sleep 50
     MouseClick, left, 921, 550 ; click on activate in window
     MouseClick, left, 1416, 20 ; click on nothing
-
 }
 
 reloadAbleton()

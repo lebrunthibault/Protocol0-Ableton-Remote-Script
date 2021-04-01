@@ -75,7 +75,6 @@ class Sequence(AbstractObject):
         self.name = name
         self._done_called = False
         self.terminated_callback = None  # type: callable
-        # expecting the method to execute in less than one tick time
         self.parent.defer(self._done_called_check)
 
     def __repr__(self):
@@ -184,7 +183,7 @@ class Sequence(AbstractObject):
         self.notify_terminated()
 
     def add(self, callback=nop, wait=None, name=None, complete_on=None, do_if=None, do_if_not=None, return_if=None,
-            return_if_not=None, check_timeout=20, no_timeout=False, silent=False, log_level=SequenceLogLevel.debug):
+            return_if_not=None, check_timeout=7, no_timeout=False, silent=False, log_level=SequenceLogLevel.debug):
         """ check_timeout is in live ticks """
         if no_timeout:
             check_timeout = 0
@@ -217,6 +216,7 @@ class Sequence(AbstractObject):
         return self
 
     def done(self):
+        # type: () -> Sequence
         if self._done_called:
             raise SequenceError(object=self, message="You called done multiple times")
         self._done_called = True

@@ -134,9 +134,9 @@ class DeviceManager(AbstractControlSurfaceComponent):
         if not parent_rack:
             [setattr(d, "is_collapsed", True) for d in device.track.devices]
             (x_device, y_device) = self._get_device_show_button_click_coordinates(device)
-            seq.add(lambda: self.parent.keyboardShortcutManager.send_click(x=x_device, y=y_device), wait=1,
+            seq.add(lambda: self.parent.keyboardShortcutManager.send_click(x=x_device, y=y_device), wait=2,
                     name="click on device show button")
-            seq.add(lambda: setattr(device, "is_collapsed", False), wait=1, name="uncollapse all devices")
+            seq.add(lambda: setattr(device, "is_collapsed", False), name="uncollapse all devices")
         else:
             [setattr(d, "is_collapsed", True) for d in device.track.devices if d != parent_rack]
             [setattr(d, "is_collapsed", True) for d in parent_rack.chains[0].devices]
@@ -147,13 +147,15 @@ class DeviceManager(AbstractControlSurfaceComponent):
             seq.add(
                 lambda: self.parent.keyboardShortcutManager.toggle_device_button(x=x_rack, y=y_rack, activate=False),
                 wait=1, name="hide rack macro controls")
-            seq.add(lambda: self.parent.keyboardShortcutManager.send_click(x=x_device, y=y_device), wait=1,
+            seq.add(lambda: self.parent.keyboardShortcutManager.send_click(x=x_device, y=y_device), wait=2,
                     name="click on device show button")
             seq.add(lambda: self.parent.keyboardShortcutManager.toggle_device_button(x=x_rack, y=y_rack, activate=True),
                     wait=1, name="show rack macro controls")
-            # seq.add(lambda: [setattr(d, "is_collapsed", False) for d in parent_rack.chains[0].devices],
-            #         name="uncollapse all rack devices")
+            seq.add(lambda: [setattr(d, "is_collapsed", False) for d in parent_rack.chains[0].devices],
+                    name="uncollapse all rack devices")
             # at this point the rack macro controls could still be hidden if the plugin window masks the button
+
+        seq.add(wait=3)
 
         return seq.done()
 

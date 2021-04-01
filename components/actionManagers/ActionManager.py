@@ -62,7 +62,7 @@ class ActionManager(AbstractActionManager):
 
         # PRESet encoder
         self.add_encoder(id=14,
-                         on_press=self.action_show_track_instrument,
+                         on_press=self.action_show_hide_instrument,
                          on_scroll=self.action_scroll_track_instrument_presets,
                          on_shift_scroll=self.action_scroll_simpler_drum_categories)
 
@@ -102,7 +102,7 @@ class ActionManager(AbstractActionManager):
         self.song.unsolo_all_tracks(except_current=False)
 
     @button_action()
-    def action_show_track_instrument(self):
+    def action_show_hide_instrument(self):
         """ Sel instrument track and open instrument window """
         self.song.current_track.action_show_hide_instrument()
 

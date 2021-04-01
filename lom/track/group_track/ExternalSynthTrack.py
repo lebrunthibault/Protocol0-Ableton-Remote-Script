@@ -46,7 +46,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     @property
     def arm(self):
         # type: () -> bool
-        return self.midi_track.arm and self.audio_track.arm
+        return self.midi_track.arm or self.audio_track.arm
 
     @property
     def is_playing(self):

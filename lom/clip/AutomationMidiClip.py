@@ -56,7 +56,8 @@ class AutomationMidiClip(AbstractAutomationClip, MidiClip, AutomationMidiClipNot
         self.view.grid_quantization = Live.Clip.GridQuantization.g_eighth
         seq = Sequence()
         seq.add(super(AutomationMidiClip, self).configure_new_clip)
-        seq.add(self.play)
+        if self.song.is_playing:
+            seq.add(self.play)
         return seq.done()
 
     def generate_base_notes(self):

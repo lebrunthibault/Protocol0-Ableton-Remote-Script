@@ -123,7 +123,7 @@ class MidiClip(Clip):
         seq = Sequence()
         seq.add(partial(self.replace_all_notes, self.generate_base_notes()))
         seq.add(self.view.hide_envelope, silent=True)
-        seq.add(wait=2, silent=True)
+        seq.add(wait=10, silent=True)
         seq.add(self.parent.keyboardShortcutManager.click_clip_fold)
         return seq.done()
 
