@@ -6,7 +6,6 @@ from typing import Any, TYPE_CHECKING, Optional
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.sequence.SequenceState import SequenceLogLevel
 from a_protocol_0.utils.decorators import p0_subject_slot, is_change_deferrable
 
 if TYPE_CHECKING:
@@ -97,14 +96,14 @@ class ClipSlot(AbstractObject):
         self.song.highlighted_clip_slot = self
 
     def record(self):
-        seq = Sequence(log_level=SequenceLogLevel.debug)
+        seq = Sequence()
         self.parent.show_message("Starting recording of %d bars" % self.song.recording_bar_count)
         seq.add(partial(self.fire, record_length=self.parent.utilsManager.get_beat_time(self.song.recording_bar_count)),
                 complete_on=self._has_clip_listener)
         # this is a convenience to see right away if there is a problem with the audio recording
         if self.track.is_audio:
             seq.add(lambda: self.clip.select(), name="select audio clip")
-        seq.add(complete_on=lambda: self.clip._is_recording_listener, no_timeout=True,
+        seq.add(complete_on=lambda: self.clip._is_recording_listener,
                 name="awaiting clip recording end")
         return seq.done()
 

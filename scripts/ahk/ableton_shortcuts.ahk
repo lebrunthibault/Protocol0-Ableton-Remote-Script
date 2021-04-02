@@ -26,7 +26,7 @@ global ableton := "Ableton Live 10 Suite"
 ; global hotkeys
 Hotkey("", "^#+n", "reloadAbleton")
 Hotkey("", "^#+a", "relaunchAbleton")
-Hotkey("", "^!l", "refreshLogs")
+Hotkey("", "^!+l", "refreshLogs")
 ; ableton hotkeys
 HotkeyAbleton("^#+s", "saveAndSetAsTemplate")
 HotkeyAbleton("^!+c", 	 "loadVst", "H-Comp")

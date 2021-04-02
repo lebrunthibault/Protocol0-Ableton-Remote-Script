@@ -2,7 +2,6 @@ from collections import deque
 from functools import partial
 
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
-from a_protocol_0.sequence.SequenceState import SequenceState
 from a_protocol_0.utils.log import log_ableton
 from a_protocol_0.utils.utils import is_partial, get_callable_name
 
@@ -80,11 +79,11 @@ class CallableWithCallbacks(object):
 
         from a_protocol_0.sequence.Sequence import Sequence
         if isinstance(res, Sequence):
-            if res._errored:
+            if res.errored:
                 self._callbacks = deque()
                 return res
-            if res._state != SequenceState.TERMINATED:
-                res.terminated_callback = self._execute_callbacks
+            if not res.terminated:
+                res.add(self._execute_callbacks)
                 return res
 
         self._execute_callbacks()
