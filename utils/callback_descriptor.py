@@ -80,11 +80,11 @@ class CallableWithCallbacks(object):
 
         from a_protocol_0.sequence.Sequence import Sequence
         if isinstance(res, Sequence):
-            if res._errored:
+            if res.errored:
                 self._callbacks = deque()
                 return res
-            if res._state != SequenceState.TERMINATED:
-                res.terminated_callback = self._execute_callbacks
+            if not res.terminated:
+                res.add(self._execute_callbacks)
                 return res
 
         self._execute_callbacks()

@@ -4,13 +4,12 @@ from functools import partial
 
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.sequence.SequenceState import SequenceLogLevel
-from a_protocol_0.utils.decorators import has_callback_queue, p0_subject_slot, defer
 # noinspection PyUnresolvedReferences
 from a_protocol_0.tests.test_all import p0
+from a_protocol_0.utils.decorators import has_callback_queue, p0_subject_slot, defer
 
 
-def test_has_callback_queue():
+def test_has_callback_queue_1():
     res = []
 
     class Example:
@@ -27,7 +26,7 @@ def test_has_callback_queue():
     assert res == [0, 1, 2, 3]
 
 
-def test_has_callback_queue():
+def test_has_callback_queue_2():
     res = []
 
     class Parent:
@@ -72,13 +71,13 @@ def test_has_callback_queue_result():
 
         @p0_subject_slot("test")
         def listener_sequence(self):
-            return Sequence(log_level=SequenceLogLevel.disabled).done()
+            return Sequence(silent=True).done()
 
     test_res = {"callback_called": False}
 
     # 'normal' listener
     obj = Example()
-    seq = Sequence(log_level=SequenceLogLevel.disabled)
+    seq = Sequence(silent=True)
     seq.add(obj.test, complete_on=obj.listener_normal)
     seq.add(lambda: setattr(obj, "callback_called", True))
 
@@ -90,7 +89,7 @@ def test_has_callback_queue_result():
 
     # listener returning sequence
     test_res = {"callback_called": False}
-    seq = Sequence(log_level=SequenceLogLevel.disabled)
+    seq = Sequence(silent=True)
     seq.add(obj.test, complete_on=obj.listener_sequence)
     seq.add(lambda: setattr(obj, "callback_called", True))
 
@@ -113,7 +112,7 @@ def test_async_callback():
 
         @has_callback_queue
         def callback_listener(self):
-            seq = Sequence(log_level=SequenceLogLevel.disabled)
+            seq = Sequence(silent=True)
 
             self.test_res.append(self.val)
             seq.add(wait=1)
@@ -123,7 +122,7 @@ def test_async_callback():
 
         @p0_subject_slot("test")
         def subject_slot_listener(self):
-            seq = Sequence(log_level=SequenceLogLevel.disabled)
+            seq = Sequence(silent=True)
 
             self.test_res.append(self.val)
             seq.add(wait=1)
@@ -138,7 +137,7 @@ def test_async_callback():
     def check_res(test_res):
         assert test_res_callbacks == [0, 1, 2, 3]
 
-    seq = Sequence(log_level=SequenceLogLevel.disabled)
+    seq = Sequence(silent=True)
     seq.add(obj1.callback_listener)
     seq.add(obj2.callback_listener)
     seq.add(partial(check_res, test_res_callbacks))

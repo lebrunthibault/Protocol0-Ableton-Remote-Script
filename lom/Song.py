@@ -46,10 +46,10 @@ class Song(SongActionMixin, AbstractObject):
         return self.parent.song()
 
     def handle_error(self):
-        seq = Sequence(bypass_errors=True, debug=False)
+        seq = Sequence(bypass_errors=True, silent=True)
         self.errored = True
         self.parent.keyboardShortcutManager.focus_logs()
-        seq.add(wait=1)
+        seq.add(wait=100)
         seq.add(lambda: setattr(self, "errored", False))
         return seq.done()
 

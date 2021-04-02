@@ -1,6 +1,5 @@
 from _Framework.SubjectSlot import subject_slot_group
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.sequence.SequenceState import SequenceState
 from a_protocol_0.sequence.SequenceStep import SequenceStep
 
 
@@ -9,7 +8,6 @@ class ParallelSequence(Sequence):
     def __init__(self, *a, **k):
         # type: (callable, Sequence, float, str, callable, bool) -> None
         super(ParallelSequence, self).__init__(*a, **k)
-        self._state = SequenceState.STARTED  # do not autostart this one, execution is handled internally once all parallel steps are added
         self._steps_terminated_count = 0
 
     def _start(self):

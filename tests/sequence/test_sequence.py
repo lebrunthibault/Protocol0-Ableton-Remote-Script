@@ -1,7 +1,7 @@
-from __future__ import print_function
 import pytest
+from transitions import MachineError
+
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.errors.SequenceError import SequenceError
 from a_protocol_0.sequence.SequenceState import SequenceState, SequenceLogLevel
 # noinspection PyUnresolvedReferences
 from a_protocol_0.tests.test_all import p0
@@ -10,25 +10,37 @@ from a_protocol_0.utils.utils import nop
 
 
 def test_sanity_checks():
-    seq = Sequence(log_level=SequenceLogLevel.disabled)
+    seq = Sequence(silent=True)
     seq.done()
-    assert seq._state == SequenceState.TERMINATED
+    assert seq.terminated
 
-    with pytest.raises(SequenceError):
+    with pytest.raises(Exception):
         seq.add(wait=1)
 
-    with pytest.raises(SequenceError):
-        Sequence(log_level=SequenceLogLevel.disabled).done().done()
+    with pytest.raises(Exception):
+        Sequence(silent=True).done().done()
+
+
+def test_state_machine():
+    seq = Sequence(silent=True)
+    seq.dispatch("start")
+
+    with pytest.raises(MachineError):
+        seq.dispatch("start")
+
+    with pytest.raises(MachineError):
+        seq = Sequence(silent=True)
+        seq._state_machine.state = SequenceState.TERMINATED
+        seq.dispatch("start")
 
 
 def test_no_timeout():
-    seq = Sequence(log_level=SequenceLogLevel.disabled)
-    seq.add(nop, complete_on=lambda: False, name="timeout step", no_timeout=True)
+    seq = Sequence(silent=True)
+    seq.add(nop, complete_on=lambda: False, name="timeout step", check_timeout=0)
     seq.add(nop, name="unreachable step")
     seq.done()
 
-    assert seq._state == SequenceState.TERMINATED
-    assert not seq._errored
+    assert seq.terminated
 
 
 def test_callback_timeout():
@@ -39,14 +51,13 @@ def test_callback_timeout():
 
     obj = Example()
 
-    seq = Sequence(log_level=SequenceLogLevel.disabled)
+    seq = Sequence(silent=True)
     seq.add(nop, complete_on=obj.listener, name="timeout step", check_timeout=1)
     seq.add(nop, name="unreachable step")
     seq.done()
     obj.listener()
 
-    assert seq._state == SequenceState.TERMINATED
-    assert not seq._errored
+    assert seq.terminated
 
 
 def test_async_callback_execution_order():
@@ -55,7 +66,7 @@ def test_async_callback_execution_order():
     class Example:
         @has_callback_queue
         def listener(self):
-            seq = Sequence(log_level=SequenceLogLevel.disabled)
+            seq = Sequence(silent=True)
             seq.add(lambda: test_res.append(0))
             seq.add(wait=1)
             seq.add(lambda: test_res.append(1))
@@ -63,7 +74,7 @@ def test_async_callback_execution_order():
 
     obj = Example()
 
-    seq = Sequence(log_level=SequenceLogLevel.disabled)
+    seq = Sequence(silent=True)
     seq.add(nop, complete_on=obj.listener, name="timeout step", check_timeout=2)
     seq.add(lambda: test_res.append(2))
     seq.add(nop, name="after listener step")

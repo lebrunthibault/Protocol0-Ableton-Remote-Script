@@ -11,7 +11,7 @@ class EmptyModule():
     def __ne__(self, other):
         return False
 
-    def __eq__(self):
+    def __eq__(self, other):
         return False
 
     def __nonzero__(self):

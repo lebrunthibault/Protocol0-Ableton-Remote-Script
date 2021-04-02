@@ -1,4 +1,6 @@
-from typing import TYPE_CHECKING
+from functools import partial
+
+from typing import TYPE_CHECKING, Iterable
 
 from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.errors.SequenceError import SequenceError
@@ -19,21 +21,16 @@ class SequenceStep(AbstractObject):
                  do_if, do_if_not, return_if, return_if_not, check_timeout, silent, log_level, *a, **k):
         """ the tick is 100 ms """
         super(SequenceStep, self).__init__(*a, **k)
+        assert callable(func), "You passed a non callable to %s" % self
         self._seq = sequence  # type: Sequence
         self._log_level = log_level
-        self._debug = log_level == SequenceLogLevel.debug
+        self._debug = log_level == SequenceLogLevel.DEBUG
         self._callable = func
-
-        if not callable(self._callable):
-            raise SequenceError(object=self,
-                                message="You passed a non callable to a SequenceStep : %s to %s, type: %s" % (
-                                    self._callable, self, type(self._callable)))
-
         self._original_name = name
         if not name and func == nop:
             name = ("wait %s" % wait if wait else "pass")
         self.name = "step %s" % (name or get_callable_name(func))
-        self._wait = wait if wait is not None else sequence._wait
+        self._wait = wait or 0
         self._state = SequenceState.UN_STARTED
         self._complete_on = complete_on
         self._check_timeout = check_timeout
@@ -42,8 +39,6 @@ class SequenceStep(AbstractObject):
         self._res = None
         self._silent = silent
         self._errored = False
-        self._by_passed_seq = False
-        self._is_terminal_step = False
         self._do_if = do_if
         self._do_if_not = do_if_not
         self._if_condition = None
@@ -82,6 +77,19 @@ class SequenceStep(AbstractObject):
 
         return "[%s]" % output
 
+    @staticmethod
+    def make(sequence, callback, *a, **k):
+        if isinstance(callback, Iterable):
+            def parallel_sequence_creator(callbacks):
+                from a_protocol_0.sequence.ParallelSequence import ParallelSequence
+                seq = ParallelSequence(log_level=sequence._log_level, debug=sequence._debug)
+                [seq.add(func) for func in callbacks]
+                return seq.done()
+
+            callback = partial(parallel_sequence_creator, callback)
+
+        return SequenceStep(callback, sequence=sequence, log_level=sequence._log_level, *a, **k)
+
     def _start(self):
         if self._state != SequenceState.UN_STARTED:
             raise SequenceError(object=self, message="You cannot start a step twice")
@@ -105,7 +113,7 @@ class SequenceStep(AbstractObject):
         if isinstance(condition_res, Sequence):
             condition_res._is_condition_seq = True
             terminate.subject = condition_res
-            condition_res._start()
+            condition_res.start()
         else:
             terminate(res=condition_res)
 
@@ -177,7 +185,7 @@ class SequenceStep(AbstractObject):
         try:
             return func()
         except (Exception, RuntimeError) as e:
-            if self._log_level >= SequenceLogLevel.info and not self._silent:
+            if self._log_level >= SequenceLogLevel.INFO and not self._silent:
                 self.parent.log_error("Error in _execute callable for step %s" % self)
             self._errored = True
             # here we could check for Changes cannot be triggered by notifications and retry.
@@ -191,10 +199,11 @@ class SequenceStep(AbstractObject):
             return
 
         from a_protocol_0.sequence.Sequence import Sequence
-        if isinstance(res, Sequence) and res._state != SequenceState.TERMINATED:
+        if isinstance(res, Sequence) and not res.terminated:
             res._parent_seq = self._seq
             self._step_sequence_terminated_listener.subject = res
-            res._start()
+            if not res.started:
+                res.start()
         else:
             self._res = res
             self._check_for_step_completion()
@@ -203,7 +212,7 @@ class SequenceStep(AbstractObject):
         if _has_callback_queue(self._complete_on) and self._callback_timeout:
             self._complete_on.remove_callback(self._callback_timeout)
 
-        if self._log_level >= SequenceLogLevel.info:
+        if self._log_level >= SequenceLogLevel.INFO:
             self.parent.log_error("timeout completion error on %s %s" % (self, self._seq), debug=False)
 
         self._errored = True
