@@ -1,10 +1,10 @@
 from collections import deque
 
-from typing import List, Deque
+from typing import List, Deque, Optional
 
 from a_protocol_0.errors.SequenceError import SequenceError
 from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.sequence.SequenceState import SequenceState, SequenceLogLevel
+from a_protocol_0.sequence.SequenceLogLevel import SequenceLogLevel
 from a_protocol_0.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
 from a_protocol_0.sequence.SequenceStep import SequenceStep
 from a_protocol_0.utils.decorators import p0_subject_slot
@@ -18,15 +18,14 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
 
     DISABLE_LOGGING = False
 
-    def __init__(self, log_level=SequenceLogLevel.DEBUG, debug=True, name=None, bypass_errors=False,
-                 silent=False, *a, **k):
+    def __init__(self, log_level=SequenceLogLevel.DEBUG, name=None, bypass_errors=False, silent=False, *a, **k):
         super(Sequence, self).__init__(*a, **k)
 
         self._steps = deque()  # type: Deque[SequenceStep]
-        self._current_step = None  # type: SequenceStep
+        self._current_step = None  # type: Optional[SequenceStep]
         self._res = None
         self._log_level = SequenceLogLevel.DISABLED if (self.DISABLE_LOGGING or silent) else log_level
-        self._debug = (self._log_level == SequenceLogLevel.DEBUG) and debug
+        self._debug = (self._log_level == SequenceLogLevel.DEBUG)
         self._bypass_errors = bypass_errors
         self._parent_seq = None  # type: Sequence
         # self._debug = debug and not sync
@@ -56,27 +55,27 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
         return [self._parent_seq] + self._parent_seq._parent_seqs if self._parent_seq is not None else []
 
     def _on_start(self):
-        self._exec_next()
+        self._execute_next_step()
 
-    def _exec_next(self):
+    def _execute_next_step(self):
         if len(self._steps):
             self._current_step = self._steps.popleft()
-            if self._debug and not self._current_step._silent:
+            if self._debug and self._current_step.debug:
                 self.parent.log_info("%s : %s" % (self, self._current_step),
                                      debug=False)
             self._step_termination.subject = self._current_step
-            self._current_step._start()
+            self._current_step.start()
         else:
-            self.dispatch("terminate")
+            self.terminate()
 
     @p0_subject_slot("terminated")
     def _step_termination(self):
-        if (self._current_step._errored or self.song.errored) and not self._bypass_errors:
-            self.dispatch("error")
+        if (self._current_step.errored or self.song.errored) and not self._bypass_errors:
+            self.error()
         elif self._current_step._early_returned:
-            self.dispatch("terminate")
+            self.terminate()
         else:
-            self._exec_next()
+            self._execute_next_step()
 
     def _on_terminate(self):
         self._res = self._current_step._res if self._current_step else None
@@ -84,11 +83,8 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
         if self.errored and self._debug:
             self.parent.log_error(self.debug_str, debug=False)
 
-        # noinspection PyUnresolvedReferences
-        self.notify_terminated()
-
     def add(self, callback=nop, wait=None, name=None, complete_on=None, do_if=None, do_if_not=None, return_if=None,
-            return_if_not=None, check_timeout=7, silent=False, log_level=SequenceLogLevel.DEBUG):
+            return_if_not=None, check_timeout=7, silent=False):
         """
             check_timeout is the number of (exponential duration) checks executed before step failure (based on the Live.Base.Timer tick)
             callback can be :
@@ -96,7 +92,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
             - a callable or a list of callable (parallel sequence execution) which are added as SequenceStep
         """
         assert callback
-        assert self.state in (SequenceState.UN_STARTED, SequenceState.STARTED)
+        assert not self.terminated or self.errored
 
         # common error
         if isinstance(callback, Sequence):

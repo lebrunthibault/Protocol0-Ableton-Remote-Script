@@ -1,5 +1,4 @@
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.sequence.SequenceState import SequenceState, SequenceLogLevel
 # noinspection PyUnresolvedReferences
 from a_protocol_0.tests.test_all import p0
 

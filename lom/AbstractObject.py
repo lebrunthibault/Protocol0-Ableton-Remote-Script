@@ -1,3 +1,4 @@
+from functools32 import lru_cache
 from typing import TYPE_CHECKING, Any
 
 from _Framework.ControlSurface import get_control_surfaces
@@ -13,10 +14,7 @@ if TYPE_CHECKING:
 
 class AbstractObject(SlotManager, Subject):
     def __init__(self, *a, **k):
-        """ we cannot use dependency injection here because objects are created not only at startup """
-        from a_protocol_0 import Protocol0
-        self._registered_disconnectables = []
-        self._parent = find_if(lambda cs: isinstance(cs, Protocol0), get_control_surfaces())
+        super(AbstractObject, self).__init__()
 
     def __repr__(self):
         repr = "P0 %s" % self.__class__.__name__
@@ -38,11 +36,14 @@ class AbstractObject(SlotManager, Subject):
         method.__dict__[property][self] = value
 
     @property
+    @lru_cache(maxsize=20)
     def parent(self):
         # type: () -> Protocol0
+        from a_protocol_0 import Protocol0
+        self._parent = find_if(lambda cs: isinstance(cs, Protocol0), get_control_surfaces())
         return self._parent
 
     @property
     def song(self):
         # type: () -> Song
-        return self._parent.protocol0_song
+        return self.parent.protocol0_song

@@ -39,6 +39,7 @@ def assert_note(note, expected):
     for key in expected.keys():
         assert getattr(note, key) == expected[key]
 
+
 def test_map_notes_loop_start_change():
     prev_notes = [
         Note(start=1, duration=1, pitch=80, velocity=80),

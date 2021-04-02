@@ -17,5 +17,5 @@ class SequenceError(RuntimeError):
         if not isinstance(object, Sequence) and not isinstance(object, SequenceStep):
             raise Protocol0Error("You didn't pass an appropriate object parameter to SequenceError")
 
-        object._errored = True
+        object.errored = True
         super(RuntimeError, self).__init__("%s, (%s)" % (str(message), object))

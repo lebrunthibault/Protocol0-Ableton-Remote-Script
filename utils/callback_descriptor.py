@@ -2,7 +2,6 @@ from collections import deque
 from functools import partial
 
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
-from a_protocol_0.sequence.SequenceState import SequenceState
 from a_protocol_0.utils.log import log_ableton
 from a_protocol_0.utils.utils import is_partial, get_callable_name
 

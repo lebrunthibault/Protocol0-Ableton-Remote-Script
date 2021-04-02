@@ -1,13 +1,18 @@
-from abc import abstractmethod
-
 from transitions import Machine, State
 
-from a_protocol_0.sequence.SequenceState import SequenceState
+from a_protocol_0.enums.AbstractEnum import AbstractEnum
 
 
-class SequenceStateMachineMixin():
+class SequenceState(AbstractEnum):
+    UN_STARTED = "UN_STARTED"
+    STARTED = "STARTED"
+    TERMINATED = "TERMINATED"
+    ERRORED = "ERRORED"
+
+
+class SequenceStateMachineMixin(object):
     def __init__(self, *a, **k):
-        raise "hello"
+        super(SequenceStateMachineMixin, self).__init__(*a, **k)
         transitions = [
             ['start', SequenceState.UN_STARTED, SequenceState.STARTED],
             ['terminate', SequenceState.STARTED, SequenceState.TERMINATED],
@@ -50,10 +55,16 @@ class SequenceStateMachineMixin():
     def start(self):
         self.dispatch("start")
 
-    @abstractmethod
-    def _on_start(self):
-        raise NotImplementedError
+    def terminate(self):
+        self.dispatch("terminate")
+        # noinspection PyUnresolvedReferences
+        self.notify_terminated()
 
-    @abstractmethod
+    def error(self):
+        self.dispatch("error")
+
+    def _on_start(self):
+        pass
+
     def _on_terminate(self):
-        raise NotImplementedError
+        pass
