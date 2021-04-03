@@ -84,20 +84,15 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
             self.parent.log_error(self.debug_str, debug=False)
 
     def add(self, callback=nop, wait=None, name=None, complete_on=None, do_if=None, do_if_not=None, return_if=None,
-            return_if_not=None, check_timeout=7, silent=False):
+            return_if_not=None, check_timeout=4, silent=False):
         """
             check_timeout is the number of (exponential duration) checks executed before step failure (based on the Live.Base.Timer tick)
             callback can be :
             - not given (nop): can be used to just wait on a condition
             - a callable or a list of callable (parallel sequence execution) which are added as SequenceStep
         """
-        assert callback
-        assert not self.terminated or self.errored
-
-        # common error
-        if isinstance(callback, Sequence):
-            raise SequenceError(object=self,
-                                message="You passed a Sequence object instead of a Sequence factory to add")
+        assert not self.terminated and not self.errored
+        assert not isinstance(callback, Sequence), "You passed a Sequence object instead of a Sequence factory to add"
 
         self._steps.append(
             SequenceStep.make(self, callback, wait=wait, name=name, complete_on=complete_on, do_if=do_if,

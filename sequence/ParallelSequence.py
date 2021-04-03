@@ -10,7 +10,7 @@ class ParallelSequence(Sequence):
         super(ParallelSequence, self).__init__(*a, **k)
         self._steps_terminated_count = 0
 
-    def _start(self):
+    def _on_start(self):
         for step in self._steps:  # type: SequenceStep
             self._parallel_step_termination.add_subject(step)
             step.start()

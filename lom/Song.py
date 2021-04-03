@@ -1,6 +1,5 @@
-from typing import List, Optional
-
 import Live
+from typing import List, Optional
 
 from _Framework.Util import find_if
 from a_protocol_0.enums.AbstractEnum import AbstractEnum

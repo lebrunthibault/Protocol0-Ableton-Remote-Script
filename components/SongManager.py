@@ -77,7 +77,8 @@ class SongManager(AbstractControlSurfaceComponent):
                 self._simple_track_to_abstract_group_track.update({abstract_group_sub_track: abstract_group_track})
 
         # 4. Populate abstract_tracks property
-        independent_simple_tracks = set(self.song.simple_tracks) - set(self._simple_track_to_abstract_group_track.keys())
+        independent_simple_tracks = set(self.song.simple_tracks) - set(
+            self._simple_track_to_abstract_group_track.keys())
         self.song.abstract_tracks = list(independent_simple_tracks) + self.song.abstract_group_tracks
         self.song.abstract_tracks.sort(key=lambda t: t.index)
 

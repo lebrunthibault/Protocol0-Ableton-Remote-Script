@@ -7,6 +7,7 @@ $logFile = "$env:userprofile\AppData\Roaming\Ableton\Live $version\Preferences\L
 $startSize = 70
 $processLogFile = $true
 $debug = $false
+$filterLogs = $true
 $showDateTime = $true
 $global:write_next_n_lines = 0
 
@@ -14,7 +15,7 @@ $host.ui.RawUI.WindowTitle = 'logs terminal'
 Get-Process -Id $pid | Set-WindowState -State SHOWMAXIMIZED
 
 if ($debug) {
-    $startSize *= 2
+    $startSize *= 5
 }
 
 function FocusLogs()
@@ -88,12 +89,6 @@ function Format-LogLine
         $timestampReg = "^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{6}:"
         if ($LogEntry -match $timestampReg)
         {
-            $parts = [regex]::split($LogEntry, '\s+')
-            if (-not$parts[2])  # allow printing empty lines
-            {
-                return ""
-            }
-
             $parts = $LogEntry.Split(" ")  # keeping indentation
             if ($showDateTime)
             {
@@ -114,12 +109,12 @@ function Select-Log-Line
     Param([Parameter(Position = 0)]
         [String]$LogEntry)
 
-    if ($debug)
+    if (-not $filterLogs)
     {
         return $true
     }
 
-    if ( $LogEntry.Contains("(Protocol0) Initializing"))
+    if ($LogEntry.Contains("(Protocol0) Initializing"))
     {
         Clear-Host
     }

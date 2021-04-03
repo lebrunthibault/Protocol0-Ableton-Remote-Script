@@ -22,15 +22,14 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
                  do_if, do_if_not, return_if, return_if_not, check_timeout, silent, *a, **k):
         """ the tick is 100 ms """
         super(SequenceStep, self).__init__(*a, **k)
-        assert callable(func), "You passed a non callable to %s" % self
         self._seq = sequence  # type: Sequence
         self._log_level = SequenceLogLevel.DISABLED if silent else self._seq._log_level
         self.debug = self._log_level == SequenceLogLevel.DEBUG
-        self._callable = func
         self._original_name = name
         if not name and func == nop:
             name = ("wait %s" % wait if wait else "pass")
         self.name = "step %s" % (name or get_callable_name(func))
+        self._callable = func
         self._wait = wait or 0
         self._complete_on = complete_on
         self._check_timeout = check_timeout
@@ -48,6 +47,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         conditions = [do_if, do_if_not, return_if, return_if_not]
         self._condition = next((c for c in conditions if c), None)
 
+        assert callable(self._callable), "You passed a non callable to %s" % self
         assert len(filter(None, conditions)) <= 1, "You cannot specify multiple conditions in a step"
         from a_protocol_0.sequence.Sequence import Sequence
         if any([isinstance(condition, Sequence) for condition in conditions]):
@@ -79,7 +79,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         if isinstance(callback, Iterable):
             def parallel_sequence_creator(callbacks):
                 from a_protocol_0.sequence.ParallelSequence import ParallelSequence
-                seq = ParallelSequence(log_level=sequence._log_level, silent=sequence._silent)
+                seq = ParallelSequence(log_level=sequence._log_level)
                 [seq.add(func) for func in callbacks]
                 return seq.done()
 
