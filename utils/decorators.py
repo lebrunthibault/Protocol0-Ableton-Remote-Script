@@ -146,7 +146,7 @@ def button_action(auto_arm=False, log_action=True):
             if auto_arm and not self.song.current_track.arm:
                 seq.add(self.song.current_track.action_arm, silent=True)
 
-            seq.add(partial(func, self, **k), silent=True)
+            seq.add(partial(func, self, **k))
 
             return seq.done()
 

@@ -1,3 +1,5 @@
+from functools import partial
+
 from typing import TYPE_CHECKING, Optional
 
 import Live
@@ -165,7 +167,7 @@ class Clip(ClipActionMixin, AbstractObject):
 
     @p0_subject_slot("color")
     def _color_listener(self):
-        self._clip.color_index = int(self.track.base_color)
+        self.parent.defer(partial(setattr, self, "color", int(self.track.base_color)))
 
     @property
     def color(self):
@@ -176,11 +178,8 @@ class Clip(ClipActionMixin, AbstractObject):
     @is_change_deferrable
     def color(self, color_index):
         # type: (int) -> None
-        if self.track.base_color != color_index:
-            return
-        if self._clip and color_index != self._clip.color_index:
-            self.parent.log_dev("setting color index %d on %s" % (color_index, self))
-            self._clip.color_index = int(color_index)
+        if self._clip and self._clip.color_index != self.track.base_color:
+            self._clip.color_index = int(self.track.base_color)
 
     @property
     def is_playing(self):

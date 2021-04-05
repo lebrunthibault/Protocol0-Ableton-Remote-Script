@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, Iterable
 from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.errors.SequenceError import SequenceError
 from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.sequence.SequenceLogLevel import SequenceLogLevel
 from a_protocol_0.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
 from a_protocol_0.utils.timeout import TimeoutLimit
 from a_protocol_0.utils.utils import _has_callback_queue, is_lambda, get_callable_name, nop
@@ -22,9 +21,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
                  do_if, do_if_not, return_if, return_if_not, check_timeout, silent, *a, **k):
         """ the tick is 100 ms """
         super(SequenceStep, self).__init__(*a, **k)
-        self._seq = sequence  # type: Sequence
-        self._log_level = SequenceLogLevel.DISABLED if silent else self._seq._log_level
-        self.debug = self._log_level == SequenceLogLevel.DEBUG
+        self.debug = False if silent else sequence.debug
         self._original_name = name
         if not name and func == nop:
             name = ("wait %s" % wait if wait else "pass")
@@ -35,14 +32,12 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         self._check_timeout = check_timeout
         self._check_count = 0
         self._callback_timeout = None  # type: callable
-        self._res = None
+        self.res = None
         self._do_if = do_if
         self._do_if_not = do_if_not
-        self._if_condition = None
         self._return_if = return_if
         self._return_if_not = return_if_not
-        self._return_condition = None
-        self._early_returned = False
+        self.early_returned = False
 
         conditions = [do_if, do_if_not, return_if, return_if_not]
         self._condition = next((c for c in conditions if c), None)
@@ -79,7 +74,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         if isinstance(callback, Iterable):
             def parallel_sequence_creator(callbacks):
                 from a_protocol_0.sequence.ParallelSequence import ParallelSequence
-                seq = ParallelSequence(log_level=sequence._log_level)
+                seq = ParallelSequence(silent=not sequence.debug)
                 [seq.add(func) for func in callbacks]
                 return seq.done()
 
@@ -96,14 +91,13 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
     def _execute_condition(self):
         terminate_callback = self._terminate_if_condition if self._condition in [self._do_if,
                                                                         self._do_if_not] else self._terminate_return_condition
-
-        condition_res = self._execute_callable(self._condition)
-        if self.errored:
-            return  # error on condition
+        try:
+            condition_res = self._execute_callable(self._condition)
+        except SequenceError:
+            return
 
         from a_protocol_0.sequence.Sequence import Sequence
         if isinstance(condition_res, Sequence):
-            condition_res._is_condition_seq = True
             terminate_callback.subject = condition_res
             condition_res.start()
         else:
@@ -113,26 +107,26 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
     def _terminate_if_condition(self, res=None):
         if_res = res
         if if_res is not None and self._terminate_if_condition.subject:
-            if_res = self._terminate_if_condition.subject._res
+            if_res = self._terminate_if_condition.subject.res
         if self.debug:
             self.parent.log_info("%s condition returned %s" % (self, if_res))
 
         if (if_res and self._do_if) or (not if_res and self._do_if_not):
             self._execute()
         else:
-            self._res = True  # Sequence is not an error
+            self.res = True  # Sequence is not an error
             self.terminate()
 
     @subject_slot("terminated")
     def _terminate_return_condition(self, res=None):
         return_res = res
         if return_res is not None and self._terminate_return_condition.subject:
-            return_res = self._terminate_return_condition.subject._res
+            return_res = self._terminate_return_condition.subject.res
         if self.debug:
             self.parent.log_info("%s condition returned %s" % (self, return_res))
 
         if (return_res and self._return_if) or (not return_res and self._return_if_not):
-            self._early_returned = True
+            self.early_returned = True
             self.terminate()
         else:
             self._execute()
@@ -148,8 +142,9 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         if _has_callback_queue(self._complete_on):
             return self._add_callback_on_listener(self._complete_on)
 
-        check_res = self._execute_callable(self._complete_on)
-        if self.errored:
+        try:
+            check_res = self._execute_callable(self._complete_on)
+        except SequenceError:
             return
 
         if _has_callback_queue(check_res):  # allows async linking to a listener
@@ -177,36 +172,33 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         try:
             return func()
         except (Exception, RuntimeError) as e:
-            if self._log_level >= SequenceLogLevel.INFO:
-                self.parent.log_error("SequenceStep errored : %s" % self)
-            self.error()
+            raise SequenceError(self, str(e))
 
     def _execute(self):
-        res = self._execute_callable(self._callable)
-        if self.errored:
+        try:
+            res = self._execute_callable(self._callable)
+        except SequenceError:
             return
 
         from a_protocol_0.sequence.Sequence import Sequence
         if isinstance(res, Sequence) and not res.terminated:
-            res._parent_seq = self._seq
             self._step_sequence_terminated_listener.subject = res
             if not res.started:
                 res.start()
         else:
-            self._res = res
+            self.res = res
             self._check_for_step_completion()
 
     def _step_timed_out(self):
         if _has_callback_queue(self._complete_on) and self._callback_timeout:
             self._complete_on.remove_callback(self._callback_timeout)
 
-        if self._log_level >= SequenceLogLevel.INFO:
-            self.parent.log_error("timeout completion error on %s %s" % (self, self._seq), debug=False)
+        if self.debug:
+            self.parent.log_error("timeout completion error on %s" % self, debug=False)
 
         self.error()
 
     @subject_slot("terminated")
     def _step_sequence_terminated_listener(self):
-        self._res = self._step_sequence_terminated_listener.subject._res
+        self.res = self._step_sequence_terminated_listener.subject.res
         self._check_for_step_completion()
-

@@ -5,6 +5,7 @@ from a_protocol_0.sequence.SequenceStep import SequenceStep
 
 class ParallelSequence(Sequence):
     """ executes steps in parallel """
+
     def __init__(self, *a, **k):
         # type: (callable, Sequence, float, str, callable, bool) -> None
         super(ParallelSequence, self).__init__(*a, **k)
@@ -23,5 +24,4 @@ class ParallelSequence(Sequence):
     def check_for_parallel_step_completion(self):
         if self._steps_terminated_count == len(self._steps):
             self._res = True
-            # noinspection PyUnresolvedReferences
-            self.notify_terminated()
+            self.terminate()

@@ -111,7 +111,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
 
     @property
     def base_color(self):
-        return self.instrument.TRACK_COLOR if self.instrument else self._track.color_index
+        return self.top_abstract_track.instrument.TRACK_COLOR if self.top_abstract_track.instrument else self._track.color_index
 
     @property
     def instrument(self):
@@ -128,6 +128,14 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def is_parent(self, track):
         # type: (AbstractTrack) -> bool
         return track in self.all_tracks
+
+    @property
+    def top_abstract_track(self):
+        # type: () -> AbstractTrack
+        top_abstract_track = self
+        while top_abstract_track.abstract_group_track:
+            top_abstract_track = top_abstract_track.abstract_group_track
+        return top_abstract_track
 
     @property
     def all_tracks(self):
