@@ -34,6 +34,8 @@ class ClipName(AbstractObject):
         """ overridden """
         match = re.match("^(?P<base_name>[^()]*)(\(.*\))(?P<is_playable>\.)?.*$", self.clip.name)
         self.base_name = match.group("base_name").strip() if match else self.clip.name.strip()
+        if self.base_name.strip() == self.clip.track.base_name.strip():
+            self.base_name = ""
         self.is_playable = bool(match.group("is_playable")) if match else False
         self.set_clip_name()
 

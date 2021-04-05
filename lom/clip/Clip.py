@@ -31,6 +31,7 @@ class Clip(ClipActionMixin, AbstractObject):
         self.is_selected = False
         self._previous_name = self._clip.name
         self._notes_listener.subject = self._clip
+        self._color_listener.subject = self._clip
         self._is_recording_listener.subject = self._clip
         self.color = self.track.base_color
         self.clip_name = ClipName(self) if set_clip_name else None
@@ -162,6 +163,10 @@ class Clip(ClipActionMixin, AbstractObject):
         if self._clip:
             self._clip.end_marker = end_marker
 
+    @p0_subject_slot("color")
+    def _color_listener(self):
+        self._clip.color_index = int(self.track.base_color)
+
     @property
     def color(self):
         # type: () -> int
@@ -174,6 +179,7 @@ class Clip(ClipActionMixin, AbstractObject):
         if self.track.base_color != color_index:
             return
         if self._clip and color_index != self._clip.color_index:
+            self.parent.log_dev("setting color index %d on %s" % (color_index, self))
             self._clip.color_index = int(color_index)
 
     @property
