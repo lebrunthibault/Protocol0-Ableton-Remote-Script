@@ -70,7 +70,7 @@ class AbstractTrackActionMixin(object):
     def action_restart_and_record(self, action_record_func):
         # type: (AbstractTrack, Callable) -> None
         """ restart audio to get a count in and recfix"""
-        if not self.can_be_armed:
+        if not self.can_be_armed or not self.arm:
             return
         if self.is_recording:
             return self.action_undo()

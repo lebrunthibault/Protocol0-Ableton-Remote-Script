@@ -22,7 +22,7 @@ class SimpleTrackActionMixin(object):
             self.mute = False
             self.arm = True
 
-        if self.instrument and self.instrument.NEEDS_EXCLUSIVE_ACTIVATION:
+        if self.instrument and self.instrument.needs_exclusive_activation:
             return self.instrument.check_activated()
 
     def action_switch_monitoring(self):

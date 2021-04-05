@@ -23,12 +23,14 @@ class SongActionMixin(object):
 
     def unfocus_all_tracks(self):
         # type: (Song, bool) -> None
-        self.unarm_all_tracks()
         self.unsolo_all_tracks()
+        return self.unarm_all_tracks()
 
     def unarm_all_tracks(self):
         # type: (Song, bool) -> None
-        [t.action_unarm() for t in self.abstract_tracks if t.arm]
+        seq = Sequence(silent=True)
+        seq.add([t.action_unarm() for t in self.abstract_tracks if t.arm])
+        return seq.done()
 
     def unsolo_all_tracks(self, except_current=True):
         # type: (Song, bool) -> None

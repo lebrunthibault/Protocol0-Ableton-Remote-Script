@@ -52,8 +52,7 @@ class ClipSlotSynchronizer(ObjectSynchronizer):
             clip_slot.linked_clip_slot.clip.is_playing = True
             return
 
-        if not clip_slot.clip:
-        # if not clip_slot.clip and clip_slot.linked_clip_slot.clip:
+        if not clip_slot.clip and not clip_slot.track.arm:
             clip_slot.linked_clip_slot.track.stop()
 
     def disconnect(self):

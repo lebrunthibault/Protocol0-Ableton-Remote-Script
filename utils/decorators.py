@@ -143,12 +143,10 @@ def button_action(auto_arm=False, log_action=True):
                 self.parent.log_notice("Executing " + func.__name__)
             from a_protocol_0.sequence.Sequence import Sequence
             seq = Sequence()
-            if auto_arm:
-                seq.add(self.song.unfocus_all_tracks, silent=True)
-                if not self.song.current_track.arm:
-                    seq.add(self.song.current_track.action_arm, silent=True)
+            if auto_arm and not self.song.current_track.arm:
+                seq.add(self.song.current_track.action_arm, silent=True)
 
-            seq.add(partial(func, self, **k), silent=True)
+            seq.add(partial(func, self, **k))
 
             return seq.done()
 

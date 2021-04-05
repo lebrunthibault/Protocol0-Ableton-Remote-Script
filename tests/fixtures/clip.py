@@ -2,7 +2,7 @@ from _Framework.SubjectSlot import Subject
 
 
 class AbletonClip(Subject):
-    __subject_events__ = ("notes", "name", "is_recording", "loop_start", "loop_end", "warping", "start_marker", "end_marker")
+    __subject_events__ = ("notes", "name", "color", "is_recording", "loop_start", "loop_end", "warping", "start_marker", "end_marker")
 
     def __init__(self, length, name, loop_start):
         self.length = length

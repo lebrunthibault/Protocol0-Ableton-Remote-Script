@@ -31,7 +31,6 @@ class AbstractInstrument(AbstractObject):
     NUMBER_OF_PRESETS = 128
     PRESETS_PATH = None
     PRESET_EXTENSION = ""
-    NEEDS_EXCLUSIVE_ACTIVATION = False
     NEEDS_ACTIVATION_FOR_PRESETS_CHANGE = False
     IS_EXTERNAL_SYNTH = False
     SHOULD_DISPLAY_SELECTED_PRESET_NAME = True
@@ -81,6 +80,10 @@ class AbstractInstrument(AbstractObject):
         self.preset_list.import_presets()
         self.sync_selected_preset()
 
+    @property
+    def needs_exclusive_activation(self):
+        return False
+
     def exclusive_activate(self):
         # type: () -> Optional[Sequence]
         return
@@ -89,7 +92,7 @@ class AbstractInstrument(AbstractObject):
     def should_be_activated(self):
         if not self.can_be_shown:
             return False
-        return not self.activated or (self.NEEDS_EXCLUSIVE_ACTIVATION and self.active_instance != self)
+        return not self.activated or (self.needs_exclusive_activation)
 
     def check_activated(self, select_instrument_track=False):
         # type: (bool) -> None
@@ -103,9 +106,8 @@ class AbstractInstrument(AbstractObject):
             seq.add(partial(self.parent.deviceManager.check_plugin_window_showable, self.device))
             seq.add(lambda: setattr(self, "activated", True), name="mark instrument as activated")
 
-        if self.NEEDS_EXCLUSIVE_ACTIVATION and self.active_instance != self:
+        if self.needs_exclusive_activation:
             seq.add(self.exclusive_activate)
-            seq.add(partial(setattr, self, "active_instance", self))
 
         if not select_instrument_track:
             seq.add(self.song.selected_track.select, silent=True)
@@ -161,7 +163,7 @@ class AbstractInstrument(AbstractObject):
         """ Overridden default is send program change """
         seq = Sequence()
         seq.add(self.track.action_arm)
-        seq.add(self.parent.midiManager.send_program_change(preset.index))
+        seq.add(partial(self.parent.midiManager.send_program_change, preset.index))
         return seq.done()
 
     def action_scroll_categories(self, go_next):
