@@ -70,7 +70,7 @@ class ClipSlot(AbstractObject):
 
     @property
     def has_clip(self):
-        return self._clip_slot.has_clip
+        return self._clip_slot and self._clip_slot.has_clip
 
     @is_change_deferrable
     def delete_clip(self):
@@ -85,12 +85,12 @@ class ClipSlot(AbstractObject):
     @property
     def is_triggered(self):
         # type: () -> bool
-        return self._clip_slot.is_triggered
+        return self._clip_slot and self._clip_slot.is_triggered
 
     @property
     def is_playing(self):
         # type: () -> bool
-        return self._clip_slot.is_playing
+        return self._clip_slot and self._clip_slot.is_playing
 
     def select(self):
         self.song.highlighted_clip_slot = self
@@ -104,7 +104,7 @@ class ClipSlot(AbstractObject):
         if self.track.is_audio:
             seq.add(lambda: self.clip.select(), name="select audio clip")
         seq.add(complete_on=lambda: self.clip._is_recording_listener,
-                name="awaiting clip recording end")
+                name="awaiting clip recording end", no_timeout=True)
         return seq.done()
 
     def fire(self, record_length):

@@ -6,9 +6,10 @@ from a_protocol_0.sequence.Sequence import Sequence
 
 
 class InstrumentProphet(AbstractInstrument):
-    NAME = "Prophet"
+    NAME = "prophet"
     TRACK_COLOR = Colors.PROPHET
     IS_EXTERNAL_SYNTH = True
+    SHOULD_DISPLAY_SELECTED_PRESET_INDEX = True
 
     def __init__(self, *a, **k):
         super(InstrumentProphet, self).__init__(*a, **k)

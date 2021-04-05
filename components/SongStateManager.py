@@ -25,7 +25,7 @@ class SongStateManager(AbstractControlSurfaceComponent):
                 except when the last track(s) are deleted (there is no right track) so we need to check for this case
             """
             former = former_simple_tracks[0:index] + former_simple_tracks[index + difference:]
-            if self.song.selected_track == self.song.root_tracks[-1] and not self._are_track_lists_equivalent(former,
+            if self.song.selected_track == self.song.simple_tracks[-1] and not self._are_track_lists_equivalent(former,
                                                                                                               current_simple_tracks):
                 former = former_simple_tracks[0:len(current_simple_tracks)]
             former_simple_tracks = former

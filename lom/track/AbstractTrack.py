@@ -34,8 +34,8 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
 
     ADDED_TRACK_INIT_ENABLED = True
 
-    def __init__(self, track, set_track_name=True, *a, **k):
-        # type: (SimpleTrack, Any, Any) -> None
+    def __init__(self, track, *a, **k):
+        # type: (SimpleTrack) -> None
         super(AbstractTrack, self).__init__(name=track.name, *a, **k)
         self.index = track.index
 
@@ -49,7 +49,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
                                 self.group_track] + self.group_track.group_tracks if self.group_track else []  # type: List[SimpleTrack]
         self.sub_tracks = []  # type: List[SimpleTrack]
 
-        self.track_name = TrackName(self) if set_track_name else False
+        self.track_name = TrackName(self)
 
         # DEVICES
         self._instrument = None  # type: Optional[AbstractInstrument]  #  None here so that we don't instantiate the same instrument twice

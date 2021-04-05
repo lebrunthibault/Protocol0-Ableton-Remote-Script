@@ -57,16 +57,16 @@ def test_parallel_listeners():
 
     # subject_slot
 
-    # test_res_subject_slot = []
-    # obj1 = Example(0, test_res_subject_slot)
-    # obj2 = Example(2, test_res_subject_slot)
-    #
-    # def check_res(test_res):
-    #     assert test_res_subject_slot == [0, 2, 1, 3] or test_res_subject_slot == [0, 2, 3, 1]
-    #
-    # seq = Sequence(silent=True)
-    # # p0.defer(obj1.test)
-    # # p0.defer(obj2.test)
-    # seq.add([obj1.subject_slot_listener.listener, obj2.subject_slot_listener.listener])
-    # seq.add(partial(check_res, test_res_subject_slot))
-    # seq.done()
+    test_res_subject_slot = []
+    obj1 = Example(0, test_res_subject_slot)
+    obj2 = Example(2, test_res_subject_slot)
+
+    def check_res(test_res):
+        assert test_res_subject_slot == [0, 2, 1, 3] or test_res_subject_slot == [0, 2, 3, 1]
+
+    seq = Sequence(silent=True)
+    p0.defer(obj1.test)
+    p0.defer(obj2.test)
+    seq.add([obj1.subject_slot_listener.listener, obj2.subject_slot_listener.listener])
+    seq.add(partial(check_res, test_res_subject_slot))
+    seq.done()

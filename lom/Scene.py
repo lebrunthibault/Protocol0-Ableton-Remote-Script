@@ -20,7 +20,8 @@ class Scene(AbstractObject):
             self.parent.wait_bars(self.scene_name.bar_count, self.song.scenes[self.index + 1].fire)
 
     def fire(self):
-        self._scene.fire()
+        if self._scene:
+            self._scene.fire()
 
     @property
     def color(self):

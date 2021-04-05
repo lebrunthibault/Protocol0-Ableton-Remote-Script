@@ -18,7 +18,7 @@ class InstrumentPreset(AbstractObject):
         self.name = self._format_name(name)
 
     def __repr__(self):
-        return "%s (%s)" % (self.name, self.index)
+        return "%s (%s)" % (self.name, self.index + 1)
 
     def _format_name(self, name):
         if not name:

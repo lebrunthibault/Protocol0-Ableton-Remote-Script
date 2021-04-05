@@ -34,8 +34,9 @@ class AbstractInstrument(AbstractObject):
     NEEDS_ACTIVATION_FOR_PRESETS_CHANGE = False
     IS_EXTERNAL_SYNTH = False
     SHOULD_DISPLAY_SELECTED_PRESET_NAME = True
-    SHOULD_DISPLAY_SELECTED_PRESET_INDEX = True
+    SHOULD_DISPLAY_SELECTED_PRESET_INDEX = False
     SHOULD_UPDATE_TRACK_NAME = True
+    PROGRAM_CHANGE_OFFSET = 0  # if we store presets not at the beginning of the list
 
     _active_instance = None  # type: AbstractInstrument
 
@@ -54,18 +55,20 @@ class AbstractInstrument(AbstractObject):
             self.activated = True
             self.name = self.__class__.__name__
 
-        self.preset_list = InstrumentPresetList(self)  # type: InstrumentPresetList
-        self._selected_preset_index = self.track.selected_preset_index
-        self._base_name_listener.subject = track.track_name
+        self._preset_list = InstrumentPresetList(self)  # type: InstrumentPresetList
+
+    def sync_presets(self):
+        """ allows syncing using the abstract_group_track name (where the preset index / name is stored) """
+        self._preset_list.sync_presets()
 
     @property
     def selected_preset(self):
         # type: () -> InstrumentPreset
-        return self.preset_list.selected_preset
+        return self._preset_list.selected_preset
 
     @property
     def should_display_selected_preset_name(self):
-        return self.preset_list.has_preset_names and self.SHOULD_DISPLAY_SELECTED_PRESET_NAME
+        return self._preset_list.has_preset_names and self.SHOULD_DISPLAY_SELECTED_PRESET_NAME
 
     @property
     def active_instance(self):
@@ -74,11 +77,6 @@ class AbstractInstrument(AbstractObject):
     @active_instance.setter
     def active_instance(self, instance):
         self.__class__._active_instance = instance
-
-    @subject_slot("base_name")
-    def _base_name_listener(self):
-        self.preset_list.import_presets()
-        self.sync_selected_preset()
 
     @property
     def needs_exclusive_activation(self):
@@ -145,7 +143,7 @@ class AbstractInstrument(AbstractObject):
             if self.NEEDS_ACTIVATION_FOR_PRESETS_CHANGE:
                 seq.add(self.check_activated)
 
-        seq.add(partial(self.preset_list.scroll, go_next=go_next))
+        seq.add(partial(self._preset_list.scroll, go_next=go_next))
         seq.add(partial(self.sync_selected_preset))
         return seq.done()
 
@@ -153,7 +151,7 @@ class AbstractInstrument(AbstractObject):
         seq = Sequence()
         seq.add(partial(self.load_preset, self.selected_preset))
         seq.add(partial(self.parent.show_message,
-                        "preset change : %s" % self.selected_preset.name or self.selected_preset.index))
+                        "preset change : %s" % self.selected_preset))
         # noinspection PyUnresolvedReferences
         seq.add(self.notify_selected_preset)
         return seq.done()
@@ -162,8 +160,8 @@ class AbstractInstrument(AbstractObject):
         # type: (InstrumentPreset) -> Sequence
         """ Overridden default is send program change """
         seq = Sequence()
-        seq.add(self.track.action_arm)
-        seq.add(partial(self.parent.midiManager.send_program_change, preset.index))
+        seq.add(self.track.top_abstract_track.action_arm)
+        seq.add(partial(self.parent.midiManager.send_program_change, preset.index + self.PROGRAM_CHANGE_OFFSET))
         return seq.done()
 
     def action_scroll_categories(self, go_next):

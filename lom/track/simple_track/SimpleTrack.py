@@ -50,12 +50,14 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             else:
                 self.parent.wait_beats(self.playable_clip.length - 1, self.last_clip_played.play)
 
-        # keep the playable clip memorized if the set is still playing
-        if any([track.is_playing for track in self.song.simple_tracks]):
-            index = self.playing_slot_index
-            self.playable_clip = self.playing_clip
-            self.last_clip_played = self.playing_clip
         [setattr(clip, "is_selected", False) for clip in self.clips]
+
+        # we keep track state when the set is stopped
+        if all([not track.is_playing for track in self.song.simple_tracks]):
+            return
+
+        self.playable_clip = self.playing_clip
+        self.last_clip_played = self.playing_clip
 
     @subject_slot("fired_slot_index")
     def _fired_slot_index_listener(self):
@@ -119,10 +121,9 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @playable_clip.setter
     def playable_clip(self, playable_clip):
         # type: (Clip) -> None
-        if not playable_clip:
-            return
         [clip.clip_name.set_clip_name(is_playable=False) for clip in self.clips]
-        playable_clip.clip_name.set_clip_name(is_playable=True)
+        if playable_clip:
+            playable_clip.clip_name.set_clip_name(is_playable=True)
 
     @property
     def arm(self):

@@ -16,8 +16,6 @@ if TYPE_CHECKING:
 
 
 class TrackName(AbstractObject):
-    __subject_events__ = ('base_name',)
-
     def __init__(self, track, *a, **k):
         # type: (SimpleTrack) -> None
         super(TrackName, self).__init__(*a, **k)
@@ -39,29 +37,25 @@ class TrackName(AbstractObject):
 
     @p0_subject_slot("selected_preset")
     def _selected_preset_listener(self):
-        setter = partial(self.set_track_name, selected_preset_index=self.track.instrument.selected_preset.index)
         if self.track.instrument.should_display_selected_preset_name:
-            setter(base_name=self.track.instrument.selected_preset.name)
-        else:
-            setter()
+            self.track.top_abstract_track.track_name.set_track_name(base_name=self.track.instrument.selected_preset.name)
+        elif self.track.instrument.SHOULD_DISPLAY_SELECTED_PRESET_INDEX:
+            self.track.top_abstract_track.track_name.set_track_name(selected_preset_index=self.track.instrument.selected_preset.index)
 
     @subject_slot_group("name")
     def _name_listener(self, changed_track):
         # type: (Live.Track.Track) -> None
-        match = re.match("^(?P<base_name>[^()-]*).*(\((?P<selected_preset_index>\d+)\))?\s*$", self.track.name)
+        match = re.match("^(?P<base_name>[^()]*)[()]*(\((?P<selected_preset_index>\d+)\))?$", self.track.name)
 
         previous_base_name = self.base_name
         # _ is a reserved character for track names
         self.base_name = match.group("base_name").strip().replace("_", " ") if match else ""
-        self.selected_preset_index = int(match.group("selected_preset_index") or 0) if match else 0
+        if match and match.group("selected_preset_index"):
+            self.selected_preset_index = int(match.group("selected_preset_index")) - 1
 
         for track in [track for track in self.tracks if track._track != changed_track]:
             if track.base_track.name != changed_track.name:
                 self.parent.defer(lambda: setattr(track.base_track, "name", changed_track.name))
-
-        if self.base_name and self.base_name != previous_base_name:
-            # noinspection PyUnresolvedReferences
-            self.notify_base_name()
 
     def link_track(self, track):
         # type: (AbstractTrack) -> None
@@ -78,11 +72,8 @@ class TrackName(AbstractObject):
 
         name = self.base_name
         if self.track.instrument and self.track.instrument.SHOULD_DISPLAY_SELECTED_PRESET_INDEX:
-            name += " (%s)" % self.selected_preset_index
+            name += " (%s)" % (self.selected_preset_index + 1)
 
-        if self.base_name and self.base_name != previous_base_name:
-            # noinspection PyUnresolvedReferences
-            self.notify_base_name()
         seq = Sequence(silent=True)
         seq.add(partial(setattr, self.track, "name", name), complete_on=lambda: self.track.name == name)
         return seq.done()

@@ -16,7 +16,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
     __subject_events__ = ('terminated',)
 
     DEBUG_MODE = False
-    SILENT_MODE = False
+    SILENT_MODE = True
 
     def __init__(self, bypass_errors=False, silent=False, *a, **k):
         super(Sequence, self).__init__(*a, **k)
@@ -72,7 +72,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
             self.parent.log_error(self.debug_str, debug=False)
 
     def add(self, callback=nop, wait=None, name=None, complete_on=None, do_if=None, do_if_not=None, return_if=None,
-            return_if_not=None, check_timeout=4, silent=False):
+            return_if_not=None, check_timeout=4, no_timeout=False, silent=False):
         """
             check_timeout is the number of (exponential duration) checks executed before step failure (based on the Live.Base.Timer tick)
             callback can be :
@@ -85,7 +85,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
         self._steps.append(
             SequenceStep.make(self, callback, wait=wait, name=name, complete_on=complete_on, do_if=do_if,
                               do_if_not=do_if_not,
-                              return_if=return_if, return_if_not=return_if_not, check_timeout=check_timeout,
+                              return_if=return_if, return_if_not=return_if_not, check_timeout=0 if no_timeout else check_timeout,
                               silent=silent))
 
         return self

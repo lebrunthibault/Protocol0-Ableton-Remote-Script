@@ -50,16 +50,17 @@ class DeviceManager(AbstractControlSurfaceComponent):
                 return track.instrument
             return InstrumentSimpler(track=track, device=simpler_device)
 
-        instrument_device = find_if(lambda d: d.is_plugin and d.name.lower() in AbstractInstrument.INSTRUMENT_NAME_MAPPINGS,
-                                    track.all_devices)
+        instrument_device = find_if(
+            lambda d: d.is_plugin and d.name.lower() in AbstractInstrument.INSTRUMENT_NAME_MAPPINGS,
+            track.all_devices)
         if not instrument_device:
-            if InstrumentMinitaur.NAME in track.name.lower():
-                return track.instrument if isinstance(track.instrument, InstrumentMinitaur) else InstrumentMinitaur(track=track, device=None)
+            if InstrumentMinitaur.NAME.lower() in track.name.lower():
+                return track.instrument if isinstance(track.instrument, InstrumentMinitaur) else InstrumentMinitaur(
+                    track=track, device=None)
             else:
                 return None
 
         class_name = AbstractInstrument.INSTRUMENT_NAME_MAPPINGS[instrument_device.name.lower()]
-
 
         try:
             mod = __import__('a_protocol_0.devices.' + class_name, fromlist=[class_name])
@@ -68,7 +69,8 @@ class DeviceManager(AbstractControlSurfaceComponent):
             return None
 
         class_ = getattr(mod, class_name)
-        return track.instrument if isinstance(track.instrument, class_) else class_(track=track, device=instrument_device)
+        return track.instrument if isinstance(track.instrument, class_) else class_(track=track,
+                                                                                    device=instrument_device)
 
     def update_rack(self, rack_device):
         # type: (Live.RackDevice.RackDevice) -> None

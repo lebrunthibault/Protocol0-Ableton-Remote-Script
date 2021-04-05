@@ -18,10 +18,8 @@ class AbstractGroupTrack(AbstractTrack):
         # tracks that are going to be mapped to this AbstractGroupTrack on selection
         # (that is their current track is self)
         self.selection_tracks = self.all_tracks
-        # [setattr(sub_track, "base_color", self.base_color) for sub_track in self.sub_tracks]
 
     @p0_subject_slot("instrument")
     def _instrument_listener(self):
         self.instrument = self.instrument_track.instrument or self.base_track.instrument
-        if self.instrument:
-            self.instrument.track = self
+        self.instrument.sync_presets()
