@@ -84,6 +84,7 @@ class TrackManager(AbstractControlSurfaceComponent):
     def make_external_synth_track(self, group_track):
         # type: (SimpleTrack) -> None
         # discarding automated tracks in creation / suppression
+        self.parent.log_dev([sub_track.instrument for sub_track in group_track.sub_tracks])
         if len([sub_track for sub_track in group_track.sub_tracks if not self._is_automated_sub_track(sub_track)]) != 2:
             return
 
