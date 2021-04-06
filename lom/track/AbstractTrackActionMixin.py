@@ -60,7 +60,7 @@ class AbstractTrackActionMixin(object):
 
     def action_solo(self):
         # type: (AbstractTrack) -> None
-        self.base_track.solo = not self.base_track.solo
+        self.solo = not self.solo
 
     @abstractmethod
     def action_switch_monitoring(self):
@@ -100,7 +100,7 @@ class AbstractTrackActionMixin(object):
         self.has_monitor_in = False
         clip = self.base_track.playable_clip  # type: AudioClip
         if self.is_audio:
-            clip.warp_mode = Live.Clip.WarpMode.complex_pro
+            clip.warp_mode = Live.Clip.WarpMode.tones
         self.base_track.playable_clip.select()
 
     @abstractmethod

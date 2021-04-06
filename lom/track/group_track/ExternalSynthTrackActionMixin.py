@@ -81,4 +81,4 @@ class ExternalSynthTrackActionMixin(object):
         # type: (ExternalSynthTrack, bool) -> None
         self.song.metronome = False
         self.midi_track.has_monitor_in = self.audio_track.has_monitor_in = False
-        self.audio_track.playable_clip.warp_mode = Live.Clip.WarpMode.complex_pro
+        self.audio_track.playable_clip.warp_mode = Live.Clip.WarpMode.tones

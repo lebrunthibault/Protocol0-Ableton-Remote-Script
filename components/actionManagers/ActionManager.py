@@ -95,7 +95,7 @@ class ActionManager(AbstractActionManager):
 
     @button_action()
     def action_solo_track(self):
-        [t.action_solo() for t in self.song.selected_tracks]
+        [t.action_solo() for t in self.song.selected_abstract_tracks]
 
     @button_action()
     def action_un_solo_all_tracks(self):
@@ -177,7 +177,7 @@ class ActionManager(AbstractActionManager):
     @button_action()
     def action_stop_track(self):
         """" stop a live set from group tracks track names """
-        [t.stop() for t in self.song.selected_tracks]
+        [t.stop() for t in self.song.selected_abstract_tracks]
 
     @button_action()
     def action_stop_category(self):
@@ -195,7 +195,7 @@ class ActionManager(AbstractActionManager):
 
     @button_action()
     def action_play_selected_tracks(self):
-        [t.base_track.play() for t in self.song.selected_tracks]
+        [t.base_track.play() for t in self.song.selected_abstract_tracks]
 
     @button_action()
     def action_solo_play_selected_tracks(self):

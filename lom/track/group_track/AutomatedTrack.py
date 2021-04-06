@@ -64,6 +64,9 @@ class AutomatedTrack(AbstractGroupTrack):
     def arm(): pass
 
     @forward_property('wrapped_track')
+    def solo(): pass
+
+    @forward_property('wrapped_track')
     def is_playing(): pass
 
     @forward_property('wrapped_track')

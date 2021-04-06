@@ -81,7 +81,7 @@ class Song(SongActionMixin, AbstractObject):
         return [track for track in self.simple_tracks if len(track.sub_tracks)]
 
     @property
-    def selected_tracks(self):
+    def selected_abstract_tracks(self):
         # type: () -> List[AbstractTrack]
         return [self.parent.songManager.get_current_track(track) for track in self.simple_tracks if
                 track._track.is_part_of_selection]

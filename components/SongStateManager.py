@@ -31,8 +31,7 @@ class SongStateManager(AbstractControlSurfaceComponent):
             former_simple_tracks = former
 
         if not self._are_track_lists_equivalent(former_simple_tracks, current_simple_tracks):
-            self.parent.log_error(
-                "An error occurred while syncing instrument activation states, track lists are not equivalent")
+            self.parent.log_error("track lists are not equivalent")
 
         for old_track, new_track in itertools.izip(former_simple_tracks, current_simple_tracks):
             if old_track.instrument and new_track.instrument:
