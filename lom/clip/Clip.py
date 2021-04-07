@@ -34,6 +34,7 @@ class Clip(ClipActionMixin, AbstractObject):
         self._previous_name = self._clip.name
         self._notes_listener.subject = self._clip
         self._color_listener.subject = self._clip
+        self._looping_listener.subject = self._clip
         self._is_recording_listener.subject = self._clip
         self.color = self.track.base_color
         self.clip_name = ClipName(self) if set_clip_name else None
@@ -104,18 +105,15 @@ class Clip(ClipActionMixin, AbstractObject):
         """ For looped clips: loop length in beats """
         return self._clip.length if self._clip else 0
 
+    @p0_subject_slot("looping")
+    def _looping_listener(self):
+        # enforce looping
+        self.parent.defer(partial(setattr, self._clip, "looping", True))
+
     @property
     def looping(self):
         # type: () -> float
         return self._clip.looping if self._clip else 0
-
-    @looping.setter
-    @is_change_deferrable
-    def looping(self, looping):
-        # type: (float) -> None
-        # enforce looping
-        if self._clip and looping:
-            self._clip.looping = looping
 
     @property
     def loop_start(self):

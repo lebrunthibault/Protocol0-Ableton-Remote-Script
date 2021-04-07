@@ -1,3 +1,5 @@
+from functools import partial
+
 import Live
 
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
@@ -14,7 +16,7 @@ class AudioClip(Clip):
     @p0_subject_slot("warping")
     def _warping_listener(self):
         if self.warping:
-            self.looping = True
+            self.parent.defer(partial(setattr, self._clip, "looping", True))
 
     @property
     def warping(self):

@@ -138,10 +138,8 @@ class AbstractInstrument(AbstractObject):
     def action_scroll_presets_or_samples(self, go_next):
         # type: (bool) -> None
         seq = Sequence()
-        if self.device:
-            seq.add(self.device_track.select)
-            if self.NEEDS_ACTIVATION_FOR_PRESETS_CHANGE:
-                seq.add(self.check_activated)
+        if self.NEEDS_ACTIVATION_FOR_PRESETS_CHANGE:
+            seq.add(self.check_activated)
 
         seq.add(partial(self._preset_list.scroll, go_next=go_next))
         seq.add(partial(self.sync_selected_preset))
