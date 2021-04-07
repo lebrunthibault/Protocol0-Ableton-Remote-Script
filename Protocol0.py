@@ -6,7 +6,7 @@ import types
 
 from typing import Callable
 
-from ClyphX_Pro import ClyphXComponentBase
+from ClyphX_Pro import ClyphXComponentBase, ParseUtils
 from ClyphX_Pro.SyncedScheduler import SyncedScheduler
 from ClyphX_Pro.clyphx_pro.actions.GlobalActions import GlobalActions
 from ClyphX_Pro.clyphx_pro.actions.NavAndViewActions import NavAndViewActions
@@ -171,5 +171,6 @@ class Protocol0(ControlSurface):
                 os.environ[key] = value
 
     def disconnect(self):
-        pass
-        # self._scheduler.stop()
+        ParseUtils._midi_message_registry = {}
+        super(Protocol0, self).disconnect()
+        self.fastScheduler.stop()
