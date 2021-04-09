@@ -8,7 +8,6 @@ from typing import Any
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import ROOT_DIR
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import log
 
 home = expanduser("~")
 
@@ -41,7 +40,6 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
         child.communicate()
         return child.returncode
 
-    @log
     def send_keys(self, keys, repeat=False):
         # type: (str, bool) -> None
         seq = Sequence(silent=True)

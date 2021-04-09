@@ -1,5 +1,5 @@
 import Live
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 from _Framework.Util import find_if
 from a_protocol_0.enums.AbstractEnum import AbstractEnum
@@ -13,13 +13,15 @@ from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
+from a_protocol_0.lom.track.simple_track.AudioBusTrack import AudioBusTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import is_change_deferrable
 from a_protocol_0.utils.utils import flatten
 
 
 class Song(SongActionMixin, AbstractObject):
+    AUDIO_BUS_TRACK_INDEX = 0  # audio bus is supposed to be the first track
+
     def __init__(self, song, *a, **k):
         # type: (Live.Song.Song) -> None
         super(Song, self).__init__(*a, **k)
@@ -37,6 +39,8 @@ class Song(SongActionMixin, AbstractObject):
         self.recording_bar_count = 1
         self.solo_playing_tracks = []  # type: List[AbstractTrack]
         self.solo_stopped_tracks = []  # type: List[AbstractTrack]
+        self.clip_slots = []  # type: List[ClipSlot]
+        self.clip_slots_by_live_live_clip_slot = {}  # type: Dict[int, Live.ClipSlot.ClipSlot]
         self.errored = False
 
     def __call__(self):
@@ -44,10 +48,10 @@ class Song(SongActionMixin, AbstractObject):
         """ allows for self.song() behavior to extend other surface script classes """
         return self.parent.song()
 
-    def handle_error(self):
+    def handle_error(self, message):
+        self.reset()
         seq = Sequence(bypass_errors=True, silent=True)
         self.errored = True
-        self.parent.keyboardShortcutManager.focus_logs()
         seq.add(wait=100)
         seq.add(lambda: setattr(self, "errored", False))
         return seq.done()
@@ -56,6 +60,11 @@ class Song(SongActionMixin, AbstractObject):
     def selected_scene(self):
         # type: () -> Scene
         return find_if(lambda scene: scene._scene == self.song._view.selected_scene, self.scenes)
+
+    @selected_scene.setter
+    def selected_scene(self, scene):
+        # type: (Scene) -> None
+        self.song._view.selected_scene = scene._scene
 
     def next_track(self, increment=1, base_track=None):
         # type: (int, SimpleTrack) -> SimpleTrack
@@ -92,7 +101,15 @@ class Song(SongActionMixin, AbstractObject):
         if self.selected_track_category == TrackCategoryEnum.ALL:
             return self.simple_tracks
         return [track for track in self.abstract_tracks if
-                track.category.lower() == self.selected_track_category.lower()]
+                track.category.lower() == self.selected_track_category.value.lower()]
+
+    @property
+    def audio_bus_track(self):
+        # type: () -> AudioBusTrack
+        audio_bus_index = self.song.AUDIO_BUS_TRACK_INDEX
+        audio_bus_track = self.song.simple_tracks[audio_bus_index]
+        assert isinstance(audio_bus_track, AudioBusTrack), "set should contain an audio bus track at index " + audio_bus_index
+        return audio_bus_track
 
     @property
     def highlighted_clip_slot(self):
@@ -132,7 +149,6 @@ class Song(SongActionMixin, AbstractObject):
         return self._song.metronome
 
     @metronome.setter
-    @is_change_deferrable
     def metronome(self, metronome):
         # type: (bool) -> None
         self._song.metronome = metronome
@@ -165,8 +181,7 @@ class Song(SongActionMixin, AbstractObject):
     def clips(self):
         # type: () -> List[Clip]
         """ All clips of the set flattened """
-        clips = [t.clips for t in self.simple_tracks]
-        return flatten(clips)
+        return flatten([t.clips for t in self.simple_tracks])
 
     @property
     def playing_clips(self):

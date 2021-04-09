@@ -1,4 +1,3 @@
-from abc import abstractmethod
 from functools import partial
 
 import Live
@@ -30,10 +29,9 @@ class AbstractTrackActionMixin(object):
         self.song.unfocus_all_tracks()
         return self.action_arm_track()
 
-    @abstractmethod
     def action_arm_track(self):
         # type: (AbstractTrack) -> None
-        pass
+        raise NotImplementedError()
 
     def action_unarm(self):
         # type: (AbstractTrack) -> None
@@ -62,10 +60,9 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         self.solo = not self.solo
 
-    @abstractmethod
     def action_switch_monitoring(self):
         # type: (AbstractTrack) -> None
-        pass
+        raise NotImplementedError()
 
     def action_restart_and_record(self, action_record_func):
         # type: (AbstractTrack, Callable) -> None
@@ -99,11 +96,8 @@ class AbstractTrackActionMixin(object):
         self.song.metronome = False
         self.has_monitor_in = False
         clip = self.base_track.playable_clip  # type: AudioClip
-        if self.is_audio:
-            clip.warp_mode = Live.Clip.WarpMode.tones
         self.base_track.playable_clip.select()
 
-    @abstractmethod
     def action_record_all(self):
         # type: () -> Sequence
         """ this records normally on a simple track and both midi and audio on a group track """
@@ -148,10 +142,9 @@ class AbstractTrackActionMixin(object):
         self.parent.clear_tasks()
         self.action_undo_track()
 
-    @abstractmethod
     def action_undo_track(self):
         # type: (AbstractTrack) -> None
-        pass
+        raise NotImplementedError()
 
     def reset_track(self):
         # type: (AbstractTrack) -> None
@@ -188,7 +181,7 @@ class AbstractTrackActionMixin(object):
                                           self.available_output_routing_types)
 
         if not output_routing_type:
-            raise Protocol0Error("Couldn't find the output routing type of the given track", log_error=False)
+            raise Protocol0Error("Couldn't find the output routing type of the given track", show_warning=False)
 
         if self.output_routing_type != output_routing_type:
             self.output_routing_type = output_routing_type

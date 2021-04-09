@@ -2,7 +2,6 @@ from functools import partial
 
 from typing import TYPE_CHECKING, Optional, List
 
-from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.devices.presets.InstrumentPreset import InstrumentPreset
 from a_protocol_0.devices.presets.InstrumentPresetList import InstrumentPresetList
 from a_protocol_0.lom.AbstractObject import AbstractObject

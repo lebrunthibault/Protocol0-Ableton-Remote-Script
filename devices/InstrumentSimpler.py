@@ -50,7 +50,7 @@ class InstrumentSimpler(AbstractInstrument):
     def action_scroll_categories(self, go_next):
         # type: (bool) -> None
         selected_category = scroll_values(listdir(self.PRESETS_PATH), self.selected_category, go_next)
-        self.track.track_name.set_track_name(base_name=selected_category)
+        self.track.track_name.update(base_name=selected_category)
 
     def generate_base_notes(self, clip):
         # type: (Clip) -> None

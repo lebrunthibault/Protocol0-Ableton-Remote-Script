@@ -39,7 +39,7 @@ class SimpleGroupTrack(AbstractGroupTrack):
         instrument_classes = list(set([sub_track.instrument.__class__ for sub_track in self.sub_tracks]))
         if len(instrument_classes) == 1:
             instrument_class = instrument_classes[0]  # type: AbstractInstrument
-            self.track_name.set_track_name(base_name=instrument_class.NAME)
+            self.track_name.update(base_name=instrument_class.NAME)
 
     def _get_single_sub_track_routing(self):
         output_routing_objects = list(

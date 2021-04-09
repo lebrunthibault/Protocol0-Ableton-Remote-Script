@@ -34,8 +34,8 @@ class ActionSetManager(AbstractActionManager):
     @button_action()
     def action_set_clip_names(self):
         for clip in self.song.clips:
-            clip.clip_name.base_name = ""
-            clip.clip_name.set_clip_name()
+            clip.clip_name._base_name = ""
+            clip.clip_name.update()
 
     @button_action()
     def action_set_track_names(self):
@@ -49,7 +49,7 @@ class ActionSetManager(AbstractActionManager):
 
                 track.name = "_%s" % parameter_name
             else:
-                track.track_name.set_track_name()
+                track.track_name.update()
 
     @button_action()
     def action_log_set(self):

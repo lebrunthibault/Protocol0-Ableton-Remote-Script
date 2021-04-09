@@ -1,6 +1,7 @@
 from functools import partial
 from typing import List, TYPE_CHECKING
 
+from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
 from a_protocol_0.lom.clip_slot.AutomationMidiClipSlot import AutomationMidiClipSlot
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.track.simple_track.AbstractAutomationTrack import AbstractAutomationTrack
@@ -12,6 +13,8 @@ if TYPE_CHECKING:
 
 
 class AutomationMidiTrack(AbstractAutomationTrack):
+    CLIP_CLASS = AutomationMidiClip
+
     def __init__(self, *a, **k):
         # type: (DeviceParameter) -> None
         super(AutomationMidiTrack, self).__init__(*a, **k)

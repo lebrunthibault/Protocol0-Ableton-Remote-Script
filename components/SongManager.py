@@ -9,7 +9,8 @@ from a_protocol_0.lom.Scene import Scene
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
-from a_protocol_0.utils.decorators import p0_subject_slot, has_callback_queue, retry
+from a_protocol_0.utils.decorators import p0_subject_slot, has_callback_queue, retry, catch_and_stop, defer
+from a_protocol_0.utils.utils import flatten
 
 
 class SongManager(AbstractControlSurfaceComponent):
@@ -23,6 +24,8 @@ class SongManager(AbstractControlSurfaceComponent):
         self.update_highlighted_clip_slot = True
         self.abstract_group_track_creation_in_progress = False
 
+    @catch_and_stop
+    @defer
     def init_song(self):
         self.on_scene_list_changed()
         self._highlighted_clip_slot = self.song.highlighted_clip_slot
@@ -58,7 +61,7 @@ class SongManager(AbstractControlSurfaceComponent):
 
         # 1. Generate simple tracks and sync back previous objects
         for i, track in enumerate(list(self.song._song.tracks)):
-            simple_track = SimpleTrack(track=track, index=i)
+            simple_track = self.parent.trackManager.instantiate_simple_track(track=track, index=i)
             self._live_track_to_simple_track[track] = simple_track
             self.song.simple_tracks.append(simple_track)
 
@@ -85,6 +88,11 @@ class SongManager(AbstractControlSurfaceComponent):
         # 5. Set the currently selected track
         self._set_current_track()
 
+        # 6. Store clip_slots. track and scene changes trigger a song remapping so it's fine
+        self.song.clip_slots = flatten([track.clip_slots for track in self.song.simple_tracks])
+        self.song.clip_slots_by_live_live_clip_slot = {clip_slot._clip_slot: clip_slot for clip_slot in self.song.clip_slots}
+
+        # 7 handle added tracks
         if added_track:
             added_track_index = self.song.simple_tracks.index(self.song.selected_track)
             if added_track_index > 0 and self.song.simple_tracks[

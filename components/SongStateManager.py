@@ -1,5 +1,3 @@
-import itertools
-
 from typing import List
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
@@ -7,48 +5,22 @@ from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
 class SongStateManager(AbstractControlSurfaceComponent):
-    def sync_simple_tracks_state(self, former_simple_tracks, current_simple_tracks):
+    def sync_simple_tracks_state(self, former_simple_tracks, new_simple_tracks):
         # type: (List[SimpleTrack], List[SimpleTrack]) -> None
-        """ not handling track suppression for now """
-        if len(former_simple_tracks) == 0:
-            return
-        self.parent.songManager._set_current_track()
-        index = self.song.selected_track.index
-        difference = abs(len(current_simple_tracks) - len(former_simple_tracks))
+        current_simple_tracks_by_live_id = {track.live_id: track for track in new_simple_tracks}
+        for former_simple_track in former_simple_tracks:
+            if former_simple_track.live_id in current_simple_tracks_by_live_id:
+                self._sync_simple_track(former_simple_track, current_simple_tracks_by_live_id[former_simple_track.live_id])
 
-        # added track
-        if len(former_simple_tracks) < len(current_simple_tracks):
-            current_simple_tracks = current_simple_tracks[0:index] + current_simple_tracks[index + difference:]
-        elif len(former_simple_tracks) > len(current_simple_tracks):
-            """ 
-                when one or multiple tracks are deleted the right next track is then the selected track 
-                except when the last track(s) are deleted (there is no right track) so we need to check for this case
-            """
-            former = former_simple_tracks[0:index] + former_simple_tracks[index + difference:]
-            if self.song.selected_track == self.song.simple_tracks[-1] and not self._are_track_lists_equivalent(former,
-                                                                                                              current_simple_tracks):
-                former = former_simple_tracks[0:len(current_simple_tracks)]
-            former_simple_tracks = former
+    def _sync_simple_track(self, former_simple_track, new_simple_track):
+        # type: (SimpleTrack, SimpleTrack) -> None
+        if former_simple_track.instrument and new_simple_track.instrument:
+            new_simple_track.instrument.activated = former_simple_track.instrument.activated
+            if former_simple_track.instrument.active_instance == former_simple_track.instrument:
+                new_simple_track.instrument.active_instance = new_simple_track.instrument
+        # automation tracks
+        if hasattr(former_simple_track, "automated_parameter"):
+            new_simple_track.automated_parameter = former_simple_track.automated_parameter
 
-        if not self._are_track_lists_equivalent(former_simple_tracks, current_simple_tracks):
-            self.parent.log_error("track lists are not equivalent")
 
-        for old_track, new_track in itertools.izip(former_simple_tracks, current_simple_tracks):
-            if old_track.instrument and new_track.instrument:
-                new_track.instrument.activated = old_track.instrument.activated
-                if old_track.instrument.active_instance == old_track.instrument:
-                    new_track.instrument.active_instance = new_track.instrument
-            # automation tracks
-            if hasattr(old_track, "automated_parameter"):
-                new_track.automated_parameter = old_track.automated_parameter
 
-    def _are_track_lists_equivalent(self, former_simple_tracks, current_simple_tracks):
-        # type: (List[SimpleTrack], List[SimpleTrack]) -> bool
-        if len(former_simple_tracks) != len(current_simple_tracks):
-            return False
-
-        if any([old_track.name != new_track.name for old_track, new_track in
-                itertools.izip(former_simple_tracks, current_simple_tracks)]):
-            return False
-
-        return True

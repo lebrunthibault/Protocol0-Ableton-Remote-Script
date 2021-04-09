@@ -5,8 +5,8 @@ from functools import partial, wraps
 from typing import TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
-from a_protocol_0.utils.callback_descriptor import CallbackDescriptor
-from a_protocol_0.utils.utils import is_method
+from a_protocol_0.errors.Protocol0Error import Protocol0Error
+from a_protocol_0.utils.utils import is_method, get_callable_name
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -135,12 +135,13 @@ def throttle(wait_time=2, max_execution_count=3):
 
 def button_action(auto_arm=False, log_action=True):
     """ decorator on an action to configure logging and arming (for now) """
+
     def wrap(func):
         @wraps(func)
         def decorate(self, *a, **k):
             # type: (AbstractObject) -> None
             if log_action:
-                self.parent.log_notice("Executing " + func.__name__)
+                self.parent.log_notice("Executing %s" % func.__name__)
             from a_protocol_0.sequence.Sequence import Sequence
             seq = Sequence()
             if auto_arm and not self.song.current_track.arm:
@@ -168,17 +169,21 @@ def p0_subject_slot(event):
 
 
 def has_callback_queue(func):
+    from a_protocol_0.utils.callback_descriptor import CallbackDescriptor
     return CallbackDescriptor(func)
 
 
-def catch_and_log(func):
+def catch_and_stop(func):
     @wraps(func)
     def decorate(*a, **k):
+        from a_protocol_0 import Protocol0
+        song = Protocol0.SELF.protocol0_song
+        if song.errored:
+            return
         try:
             func(*a, **k)
-        except (Exception, RuntimeError):
-            from a_protocol_0 import Protocol0
-            Protocol0.SELF.log_error("Error while executing %s" % func.__name__)
+        except (Exception, RuntimeError) as e:
+            raise Protocol0Error("Error on %s" % get_callable_name(func))
 
     return decorate
 

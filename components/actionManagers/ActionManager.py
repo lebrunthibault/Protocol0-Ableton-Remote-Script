@@ -5,6 +5,7 @@ from a_protocol_0.consts import RECORDING_TIMES
 from a_protocol_0.enums.DirectionEnum import DirectionEnum
 from a_protocol_0.enums.TrackCategoryEnum import TrackCategoryEnum
 from a_protocol_0.enums.PlayMenuEnum import PlayMenuEnum
+from a_protocol_0.lom.Scene import Scene
 from a_protocol_0.lom.clip.AbstractAutomationClip import AbstractAutomationClip
 from a_protocol_0.lom.device.PluginDevice import PluginDevice
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -33,6 +34,13 @@ class ActionManager(AbstractActionManager):
                          on_shift_press=partial(self.action_adjust_clip_automation_curve, reset=True),
                          on_scroll=partial(self.action_adjust_clip_automation_curve, direction=DirectionEnum.UP),
                          on_shift_scroll=partial(self.action_adjust_clip_automation_curve, direction=DirectionEnum.DOWN), )
+
+        # SCENe encoder
+        self.add_encoder(id=6,
+                         on_press=self.action_play_selected_scene,
+                         on_shift_press=self.action_update_selected_scene_name,
+                         on_shift_long_press=self.action_update_all_scenes_names,
+                         on_scroll=self.action_scroll_scenes)
 
         # RECord encoder
         self.add_encoder(id=9,
@@ -244,6 +252,25 @@ class ActionManager(AbstractActionManager):
     def action_fold_tracks(self):
         """" undo last recording """
         self.song.fold_all_tracks()
+
+    @button_action()
+    def action_play_selected_scene(self):
+        self.song.selected_scene.fire()
+
+    @button_action()
+    def action_update_selected_scene_name(self):
+        self.song.selected_scene.update_name()
+
+    @button_action()
+    def action_update_all_scenes_names(self):
+        Scene.update_all_names()
+
+    @button_action(log_action=False)
+    def action_scroll_scenes(self, go_next):
+        """ scroll top tracks """
+        scene_to_select = scroll_values(self.song.scenes, self.song.selected_scene, go_next)  # type: Scene
+        if scene_to_select:
+            scene_to_select.select()
 
     @button_action()
     def action_undo(self):

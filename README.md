@@ -1,7 +1,7 @@
 # Protocol 0 control surface script for ableton 10
 
 Protocol 0 is a control surface script written in python 2 (moving to python3/Live 11 as soon as tiny problems are handled).
-The aim of this script is to make interaction with Live easier while producing music (well of course ^^).
+It is a selected track control like script I wrote to automate boring tasks.
 It is specifically targeted to working in session view. I did not use it yet to work in arrangement.
 
 ## Technical Foreword
@@ -35,9 +35,10 @@ Specifically it aims to achieve :
 - A lot of little improvements in the session view including:
 > - Fixed length recording
 > - Memorization of the last clip played opening some possibilities in playing live or instant session state recall at startup
-> - Automatic track and clip naming / coloring depending on clip playing, instrument
+> - Automatic track, clip, scene naming / coloring according to set state
 > - a GroupTrack template defined in the script
 > - One shot clips definable by name
+> - Simple Scene Follow actions definable by name
 > - Automatic tracks volume mixer lowering to never go over 0db (except when a limiter is set) 
 > - Integration with push2 (automatic configuration of a few display parameters depending on the type of track)
 

@@ -91,10 +91,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
     def _execute_condition(self):
         terminate_callback = self._terminate_if_condition if self._condition in [self._do_if,
                                                                         self._do_if_not] else self._terminate_return_condition
-        try:
-            condition_res = self._execute_callable(self._condition)
-        except SequenceError:
-            return
+        condition_res = self._execute_callable(self._condition)
 
         from a_protocol_0.sequence.Sequence import Sequence
         if isinstance(condition_res, Sequence):
@@ -142,10 +139,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         if _has_callback_queue(self._complete_on):
             return self._add_callback_on_listener(self._complete_on)
 
-        try:
-            check_res = self._execute_callable(self._complete_on)
-        except SequenceError:
-            return
+        check_res = self._execute_callable(self._complete_on)
 
         if _has_callback_queue(check_res):  # allows async linking to a listener
             return self._add_callback_on_listener(check_res)
@@ -175,10 +169,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
             raise SequenceError(self, str(e))
 
     def _execute(self):
-        try:
-            res = self._execute_callable(self._callable)
-        except SequenceError:
-            return
+        res = self._execute_callable(self._callable)
 
         from a_protocol_0.sequence.Sequence import Sequence
         if isinstance(res, Sequence) and not res.terminated:

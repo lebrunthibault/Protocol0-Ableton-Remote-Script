@@ -2,6 +2,7 @@ import inspect
 import types
 from collections import namedtuple
 
+from qualname import qualname
 from typing import Optional, Any, List, TYPE_CHECKING
 
 from a_protocol_0.consts import ROOT_DIR, REMOTE_SCRIPTS_DIR
@@ -136,10 +137,18 @@ def get_inner_func(func):
 
 def get_class_name_from_method(func):
     if hasattr(func, "__self__"):
-        return func.__self__.__class__.__name__
+        class_name = func.__self__.__class__.__name__
 
-    if hasattr(func, "__class__"):
-        return func.__class__.__name__
+    elif hasattr(func, "__class__"):
+        class_name = func.__class__.__name__
+
+    if class_name and all(word not in class_name for word in ["function", "None"]):
+        return class_name
+
+    try:
+        return ".".join(qualname(func).split(".")[:-1])
+    except AttributeError:
+        pass
 
     return None
 
@@ -161,7 +170,7 @@ def get_callable_name(func, obj=None):
     if not hasattr(decorated_func, "__name__"):
         return class_name or "unknown"
 
-    if class_name and all(word not in class_name for word in ["function", "None"]):
+    if class_name:
         return "%s.%s" % (class_name, decorated_func.__name__)
     else:
         return decorated_func.__name__

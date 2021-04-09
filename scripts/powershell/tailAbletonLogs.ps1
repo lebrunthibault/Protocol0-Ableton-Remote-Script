@@ -18,8 +18,14 @@ if ($debug) {
     $startSize *= 5
 }
 
+# simple FocusLogs debounce
+$focusLogStopWatch = New-Object System.Diagnostics.Stopwatch
 function FocusLogs()
 {
+    if ($focusLogStopWatch.IsRunning -and $focusLogStopWatch.ElapsedMilliseconds -lt 1000) {
+        return;
+    }
+    $focusLogStopWatch.Restart()
     python.exe "$p0\scripts\python\focus_window.py" "logs terminal"
 }
 
@@ -53,15 +59,15 @@ function Get-LogColor
             }
             else
             {
-                Return "Red"
                 FocusLogs
+                Return "Red"
             }
         }
 
         if ($LogEntry -like ("*error*") -or $LogEntry -like ("*exception*"))
         {
-            Return "Red"
             FocusLogs
+            Return "Red"
         }
 
         Return "DarkGray"

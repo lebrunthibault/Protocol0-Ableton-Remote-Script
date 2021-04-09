@@ -27,15 +27,7 @@ class ClipActionMixin(object):
         if not self._clip:
             return
         seq = Sequence()
-        if self.is_recording:
-            return
-            # self.track.stop(immediate=True)
-
         seq.add(self.clip_slot.delete_clip, complete_on=self.clip_slot._has_clip_listener)
-
-        if self.is_recording:
-            seq.add(self.delete)
-
         return seq.done()
 
     def configure_new_clip(self):

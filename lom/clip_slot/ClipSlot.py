@@ -6,7 +6,7 @@ from typing import Any, TYPE_CHECKING, Optional
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import p0_subject_slot, is_change_deferrable
+from a_protocol_0.utils.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -72,7 +72,6 @@ class ClipSlot(AbstractObject):
     def has_clip(self):
         return self._clip_slot and self._clip_slot.has_clip
 
-    @is_change_deferrable
     def delete_clip(self):
         if self._clip_slot.has_clip:
             self._clip_slot.delete_clip()
@@ -118,14 +117,13 @@ class ClipSlot(AbstractObject):
                 complete_on=clip_slot._has_clip_listener)
         return seq.done()
 
-    @is_change_deferrable
     def insert_dummy_clip(self, name):
         # type: (str) -> None
         seq = Sequence()
-        seq.add(partial(self.song.simple_tracks[0].clip_slots[0].duplicate_clip_to, self),
+        seq.add(partial(self.song.simple_tracks[self.song.AUDIO_BUS_TRACK_INDEX].clip_slots[0].duplicate_clip_to, self),
                 complete_on=self._has_clip_listener)
-        seq.add(lambda: setattr(self.clip, "warping", 1), name="enable clip warping", silent=True)
-        seq.add(lambda: setattr(self.clip, "looping", 1), name="enable clip looping", silent=True)
+        seq.add(lambda: setattr(self.clip, "warping", True), name="enable clip warping", silent=True)
+        seq.add(lambda: setattr(self.clip, "looping", True), name="enable clip looping", silent=True)
         seq.add(wait=10)  # because the created dummy clip name syncs to the midi clip
         seq.add(lambda: setattr(self.clip, "name", name), silent=True)
         if self.song.is_playing:

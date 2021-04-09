@@ -3,6 +3,7 @@ import os
 import threading
 import traceback
 import types
+from functools import partial
 
 from typing import Callable
 
@@ -78,7 +79,7 @@ class Protocol0(ControlSurface):
             if init_song:
                 self.songManager.init_song()
                 self.dev_boot()
-        self.log_info("Protocol0 script loaded")
+            self.log_info("Protocol0 script loaded")
 
     def post_init(self):
         self.protocol0_song.reset()
@@ -88,7 +89,8 @@ class Protocol0(ControlSurface):
     def show_message(self, message, log=True):
         # type: (str, bool) -> None
         super(Protocol0, self).show_message(message)
-        self.log_warning(message)
+        if log:
+            self.log_warning(message)
 
     def log_dev(self, message="", debug=True):
         # type: (str) -> None
@@ -111,9 +113,6 @@ class Protocol0(ControlSurface):
         self._log(message="%s\n%s" % (message, traceback.format_exc()), level=LogLevelEnum.ERROR, debug=True)
         self.show_message(str(message), log=False)
 
-        if Protocol0.SELF.protocol0_song:
-            Protocol0.SELF.protocol0_song.handle_error()
-
     def _log(self, message="", level=LogLevelEnum.INFO, debug=False):
         # type: (str) -> None
         if level.value < ACTIVE_LOG_LEVEL.value and not debug:
@@ -134,11 +133,12 @@ class Protocol0(ControlSurface):
         """
             if exact if False, wait_bars executes the callback on the last beat preceding the next <bar_count> bar
             that is if the we are on the 3rd beat in 4/4, the callback will be executed in one beat
+            + a little offset to mitigate not precise scheduling
             This mode will work when global quantization is set to 1/4 or more
         """
         beat_offset = 0 if exact else self.protocol0_song.get_current_beats_song_time().beats
         beat_count = (self.protocol0_song.signature_denominator * bar_count) - beat_offset
-        self.wait_beats(beat_count, callback)
+        self._wait(0 if exact else 5, partial(self.wait_beats, beat_count, callback))
 
     def _wait(self, tick_count, callback):
         # type: (int, callable) -> None

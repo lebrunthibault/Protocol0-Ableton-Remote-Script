@@ -1,10 +1,10 @@
 from functools import partial
+
 from typing import TYPE_CHECKING, Optional
 
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import defer
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -47,7 +47,6 @@ class SongActionMixin(object):
         else:
             self.current_track.is_folded = True
 
-    @defer
     def reset(self):
         # type: (Song) -> None
         self.stop_all_clips(0)

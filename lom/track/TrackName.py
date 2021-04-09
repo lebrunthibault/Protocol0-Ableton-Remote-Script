@@ -23,13 +23,9 @@ class TrackName(AbstractObject):
         self.tracks = [self.track]
         self.base_name = ""
         self.selected_preset_index = 0
-
         self._instrument_listener.subject = self.track
         self._name_listener.add_subject(self.track._track)
         self._name_listener(self.track._track)
-
-    def __repr__(self):
-        return "TrackName of %s" % self.track
 
     @p0_subject_slot("instrument")
     def _instrument_listener(self):
@@ -38,16 +34,14 @@ class TrackName(AbstractObject):
     @p0_subject_slot("selected_preset")
     def _selected_preset_listener(self):
         if self.track.instrument.should_display_selected_preset_name:
-            self.track.top_abstract_track.track_name.set_track_name(base_name=self.track.instrument.selected_preset.name)
+            self.track.top_abstract_track.track_name.update(base_name=self.track.instrument.selected_preset.name)
         elif self.track.instrument.SHOULD_DISPLAY_SELECTED_PRESET_INDEX:
-            self.track.top_abstract_track.track_name.set_track_name(selected_preset_index=self.track.instrument.selected_preset.index)
+            self.track.top_abstract_track.track_name.update(selected_preset_index=self.track.instrument.selected_preset.index)
 
     @subject_slot_group("name")
     def _name_listener(self, changed_track):
         # type: (Live.Track.Track) -> None
         match = re.match("^(?P<base_name>[^()]*)[()]*(\((?P<selected_preset_index>\d+)\))?$", self.track.name)
-
-        previous_base_name = self.base_name
         # _ is a reserved character for track names
         self.base_name = match.group("base_name").strip().replace("_", " ") if match else ""
         if match and match.group("selected_preset_index"):
@@ -62,9 +56,8 @@ class TrackName(AbstractObject):
         self.tracks.append(track)
         self._name_listener.add_subject(track._track)
 
-    def set_track_name(self, base_name=None, playing_slot_index=None, selected_preset_index=None):
+    def update(self, base_name=None, playing_slot_index=None, selected_preset_index=None):
         # type: (Optional[str], Optional[int], Optional[int]) -> None
-        previous_base_name = self.base_name
         self.base_name = base_name if base_name else self.base_name
 
         selected_preset_index = selected_preset_index if selected_preset_index is not None else self.selected_preset_index

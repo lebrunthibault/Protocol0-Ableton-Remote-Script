@@ -1,10 +1,10 @@
 from abc import abstractproperty
 from functools import partial
 from itertools import chain, imap
-from typing import Any, Optional, List, Union
-from typing import TYPE_CHECKING
 
 import Live
+from typing import Any, Optional, List, Union
+from typing import TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot
 from _Framework.Util import find_if
@@ -21,7 +21,7 @@ from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.lom.track.AbstractTrackActionMixin import AbstractTrackActionMixin
 from a_protocol_0.lom.track.TrackName import TrackName
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import defer, is_change_deferrable
+from a_protocol_0.utils.decorators import defer
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -63,8 +63,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # MISC
         self.is_foldable = self._track.is_foldable
         self._view = self._track.view  # type: Live.Track.Track.View
-        self.is_midi = self._track.has_midi_input
-        self.is_audio = self._track.has_audio_input
         self.is_scrollable = True
         self._is_hearable = True
         self._is_duplicated = False  # allows different init when duplicated or when created from e.g. the browser
@@ -189,7 +187,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         return self._track.color_index
 
     @color.setter
-    @is_change_deferrable
     def color(self, color_index):
         # type: (int) -> None
         for track in self.all_tracks:

@@ -1,7 +1,7 @@
 import Live
 from typing import List, Optional
 
-from _Framework.SubjectSlot import subject_slot
+from _Framework.SubjectSlot import subject_slot, subject_slot_group
 from _Framework.Util import find_if
 from a_protocol_0.enums.ClipTypeEnum import ClipTypeEnum
 from a_protocol_0.lom.clip.Clip import Clip
@@ -12,6 +12,8 @@ from a_protocol_0.utils.decorators import defer, p0_subject_slot
 
 
 class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
+    CLIP_CLASS = Clip
+
     def __init__(self, track, index, *a, **k):
         # type: (Live.Track.Track, int) -> None
         self._track = track
@@ -24,15 +26,13 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self._fired_slot_index_listener.subject = self._track
         self.instrument = self.parent.deviceManager.make_instrument_from_simple_track(track=self)
         self._instrument_listener.subject = self
-        if self.is_midi:  # could later create a SimpleMidiTrack class if necessary
-            self.push2_selected_matrix_mode = 'note'
-            self.push2_selected_instrument_mode = 'split_melodic_sequencer'
 
         # only used for automated tracks
         self.next_automated_audio_track = None  # type: Optional[SimpleTrack]
         self.previous_automated_audio_track = None  # type: Optional[SimpleTrack]
         self.clip_slots = [ClipSlot.make(clip_slot=clip_slot, index=index, track=self) for (index, clip_slot) in
                            enumerate(list(self._track.clip_slots))]
+        self._map_clip_listener.replace_subjects(self.clip_slots)
 
         self.last_clip_played = None  # type: Optional[Clip]
 
@@ -69,7 +69,11 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         if self.instrument:
             self.color = self.instrument.TRACK_COLOR
             if self.instrument.SHOULD_UPDATE_TRACK_NAME:
-                self.track_name.set_track_name(base_name=self.instrument.NAME)
+                self.track_name.update(base_name=self.instrument.NAME)
+
+    @subject_slot_group("map_clip")
+    def _map_clip_listener(self, clip_slot):
+        pass
 
     @property
     def playing_slot_index(self):
@@ -78,6 +82,21 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def fired_slot_index(self):
         return self._track.fired_slot_index
+
+    @property
+    def live_id(self):
+        # type: () -> int
+        return self._track._live_ptr
+
+    @property
+    def is_audio(self):
+        from a_protocol_0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+        return isinstance(self, SimpleAudioTrack) and self._track.has_audio_input
+
+    @property
+    def is_midi(self):
+        from a_protocol_0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
+        return isinstance(self, SimpleMidiTrack) and self._track.has_midi_input
 
     @property
     def is_playing(self):
@@ -121,9 +140,9 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @playable_clip.setter
     def playable_clip(self, playable_clip):
         # type: (Clip) -> None
-        [clip.clip_name.set_clip_name(is_playable=False) for clip in self.clips]
+        [clip.clip_name.update(is_playable=False) for clip in self.clips]
         if playable_clip:
-            playable_clip.clip_name.set_clip_name(is_playable=True)
+            playable_clip.clip_name.update(is_playable=True)
 
     @property
     def arm(self):

@@ -13,9 +13,10 @@ class SchedulerEvent(AbstractObject):
         self._callback = callback
         self._tick_count = tick_count
         self._ticks_left = tick_count
+        self.name = get_callable_name(self._callback)
 
     def __repr__(self):
-        return "%s (%d / %d)" % (get_callable_name(self._callback), self._ticks_left, self._tick_count)
+        return "%s (%d / %d)" % (self.name, self._ticks_left, self._tick_count)
 
     @property
     def is_timeout_elapsed(self):
@@ -28,6 +29,8 @@ class SchedulerEvent(AbstractObject):
 
     def execute(self):
         assert not self._executed
+        if self.song.errored:
+            return
         self._executed = True
         self._callback()
 

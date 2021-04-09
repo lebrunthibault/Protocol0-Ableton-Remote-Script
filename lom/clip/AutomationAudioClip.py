@@ -1,3 +1,5 @@
+from functools import partial
+
 from _Framework.SubjectSlot import subject_slot_group
 from typing import TYPE_CHECKING
 
@@ -18,6 +20,7 @@ class AutomationAudioClip(AbstractAutomationClip, AudioClip):
         self.track = self.track  # type: AutomationAudioTrack
         self._linked_listener.subject = self
         self.linked_clip = None  # type: AutomationMidiClip
+        self.parent.defer(partial(setattr, self, "warping", True))
 
     @p0_subject_slot("linked")
     def _linked_listener(self):

@@ -3,6 +3,8 @@ from functools import partial
 
 from typing import Optional
 
+import Live
+
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.devices.InstrumentMinitaur import InstrumentMinitaur
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
@@ -13,6 +15,9 @@ from a_protocol_0.lom.track.group_track.AutomatedTrack import AutomatedTrack
 from a_protocol_0.lom.track.group_track.AutomationTracksCouple import AutomationTracksCouple
 from a_protocol_0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from a_protocol_0.lom.track.group_track.SimpleGroupTrack import SimpleGroupTrack
+from a_protocol_0.lom.track.simple_track.AudioBusTrack import AudioBusTrack
+from a_protocol_0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+from a_protocol_0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import p0_subject_slot
@@ -59,12 +64,23 @@ class TrackManager(AbstractControlSurfaceComponent):
         # type: (callable, str, Optional[Device]) -> None
         seq = Sequence().add(wait=1, silent=True)  # defer change
         seq.add(track_creator, complete_on=self.parent.songManager._tracks_listener)
-        seq.add(lambda: self.song.selected_track.track_name.set_track_name(base_name=name), name="set track name to %s" % name)
+        seq.add(lambda: self.song.selected_track.track_name.update(base_name=name), name="set track name to %s" % name)
         if device:
             seq.add(lambda: self.song.selected_track.clear_devices(), name="clear devices")
             seq.add(partial(self.parent.browserManager.load_any_device, device_type=device.device_type, device_name=device.name), silent=True)
 
         return seq.done()
+
+    def instantiate_simple_track(self, track, index):
+        # type: (Live.Track.Track) -> SimpleTrack
+        if index == self.song.AUDIO_BUS_TRACK_INDEX:
+            return AudioBusTrack(track=track, index=index)
+        elif track.has_midi_input:
+            return SimpleMidiTrack(track=track, index=index)
+        elif track.has_audio_input:
+            return SimpleAudioTrack(track=track, index=index)
+
+        assert False, "unknown track type %s" % track
 
     def instantiate_abstract_group_track(self, group_track):
         # type: (SimpleTrack) -> AbstractGroupTrack
@@ -84,7 +100,6 @@ class TrackManager(AbstractControlSurfaceComponent):
     def make_external_synth_track(self, group_track):
         # type: (SimpleTrack) -> None
         # discarding automated tracks in creation / suppression
-        self.parent.log_dev([sub_track.instrument for sub_track in group_track.sub_tracks])
         if len([sub_track for sub_track in group_track.sub_tracks if not self._is_automated_sub_track(sub_track)]) != 2:
             return
 
@@ -92,7 +107,7 @@ class TrackManager(AbstractControlSurfaceComponent):
         if any([sub_track.instrument and sub_track.instrument.IS_EXTERNAL_SYNTH for sub_track in group_track.sub_tracks]):
             is_external_synth_track = True
         # minitaur is a special case as it doesn't have a vst
-        elif group_track.track_name.base_name.lower() == InstrumentMinitaur.NAME:
+        elif group_track.track_name._base_name.lower() == InstrumentMinitaur.NAME:
             is_external_synth_track = True
 
         if is_external_synth_track:

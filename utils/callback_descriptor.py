@@ -2,6 +2,7 @@ from collections import deque
 from functools import partial
 
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
+from a_protocol_0.utils.decorators import defer
 from a_protocol_0.utils.log import log_ableton
 from a_protocol_0.utils.utils import is_partial, get_callable_name
 
@@ -106,7 +107,9 @@ class CallableWithCallbacks(object):
             raise Protocol0Error("Tried to remove a nonexistent callback from %s" % self)
         self._callbacks.remove(callback)
 
+    @defer
     def _execute_callbacks(self):
+        """ deferring so that next code doesn't have to handle notification changes error """
         if self._debug:
             log_ableton("_execute_callbacks of %s : %s" % (self, self._callbacks))
         while len(self._callbacks):

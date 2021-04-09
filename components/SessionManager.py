@@ -1,6 +1,5 @@
 from _Framework.SessionComponent import SessionComponent
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.utils.decorators import catch_and_log
 
 
 class SessionManager(AbstractControlSurfaceComponent):
@@ -10,7 +9,6 @@ class SessionManager(AbstractControlSurfaceComponent):
         self.register_slot(self.parent.songManager, self._setup_session_control, "selected_track")
         self.register_slot(self.parent.songManager, self._setup_session_control, "scene_list")
 
-    @catch_and_log
     def _setup_session_control(self):
         if not self.is_enabled() or self.song.current_track is None:
             return
@@ -18,7 +16,8 @@ class SessionManager(AbstractControlSurfaceComponent):
         if self.session:
             self.session.disconnect()
         num_tracks = len([track for track in self.song.current_track.all_tracks if track.is_visible])
-        self.session = SessionComponent(num_tracks=num_tracks, num_scenes=len(self.song.scenes))
+        with self.parent.component_guard():
+            self.session = SessionComponent(num_tracks=num_tracks, num_scenes=len(self.song.scenes))
         self.session.set_offsets(track_offset=session_track_offset, scene_offset=0)
         self.parent.set_highlighting_session_component(self.session)
 

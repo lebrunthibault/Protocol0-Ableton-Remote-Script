@@ -1,5 +1,5 @@
 from functools import partial
-from typing import List
+from typing import List, TYPE_CHECKING
 
 import Live
 
@@ -10,10 +10,14 @@ from a_protocol_0.utils.utils import have_equal_properties
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.Clip import Clip
 
+if TYPE_CHECKING:
+    from a_protocol_0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
+
 
 class MidiClip(Clip):
     def __init__(self, *a, **k):
         super(MidiClip, self).__init__(*a, **k)
+        self.track = self.track  # type: SimpleMidiTrack
         # NOTES
         # storing notes for note change comparison
         self._muted_notes = []  # type: List[Note]  # keeping this separate
@@ -95,7 +99,9 @@ class MidiClip(Clip):
 
         # keeping only those who have the same excluded properties and at least one checked_property change
         return list(filter(None,
-                           map(lambda x, y: None if not have_equal_properties(x, y, excluded_properties) or have_equal_properties(x, y, checked_properties) else (x, y), prev_notes,
+                           map(lambda x, y: None if not have_equal_properties(x, y,
+                                                                              excluded_properties) or have_equal_properties(
+                               x, y, checked_properties) else (x, y), prev_notes,
                                notes)))
 
     @property

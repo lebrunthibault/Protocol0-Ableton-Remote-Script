@@ -33,13 +33,13 @@ class AutomationClipName(ClipName):
         self.base_name = match.group("base_name").strip() if match.group("base_name") else ""
         self.automation_ramp_up.update_from_value(match.group("ramp_up"))
         self.automation_ramp_down.update_from_value(match.group("ramp_down"))
-        self.set_clip_name()
+        self.update()
 
     @subject_slot_group("ramp_change")
     def _ramp_change_listener(self, ramp_mode):
-        self.set_clip_name()
+        self.update()
 
-    def set_clip_name(self, *a, **k):
+    def update(self, *a, **k):
         name = self.base_name + " " if self.base_name else ""
         name = "%s[%s,%s]" % (self.base_name, self.automation_ramp_up, self.automation_ramp_down)
-        super(AutomationClipName, self).set_clip_name(base_name=name, *a, **k)
+        super(AutomationClipName, self).update(base_name=name, *a, **k)

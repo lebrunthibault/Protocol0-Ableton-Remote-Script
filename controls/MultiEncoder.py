@@ -1,13 +1,12 @@
 import time
+
 from typing import TYPE_CHECKING
 
 from _Framework.ButtonElement import ButtonElement
 from _Framework.InputControlElement import *
 from _Framework.SubjectSlot import subject_slot
-
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.utils.decorators import catch_and_log
 
 if TYPE_CHECKING:
     from a_protocol_0.components.actionManagers.AbstractActionManager import AbstractActionManager
@@ -42,7 +41,6 @@ class MultiEncoder(AbstractObject):
         self.is_pressed = False
 
     @subject_slot("value")
-    @catch_and_log
     def _press_listener(self, value):
         # type: (int) -> None
         if value:
