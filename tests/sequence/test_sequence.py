@@ -56,7 +56,8 @@ def test_callback_timeout():
     seq.done()
     obj.listener()
 
-    assert seq.terminated
+    # because complete_on defers
+    assert not seq.terminated
 
 
 def test_async_callback_execution_order():
@@ -66,22 +67,22 @@ def test_async_callback_execution_order():
         @has_callback_queue
         def listener(self):
             seq = Sequence(silent=True)
-            seq.add(lambda: test_res.append(0))
-            seq.add(wait=1)
-            seq.add(lambda: test_res.append(1))
+            seq.add(lambda: test_res.append(0), name="append 0")
+            seq.add(wait=100)
+            seq.add(lambda: test_res.append(1), name="append 1")
             return seq.done()
 
     obj = Example()
 
-    seq = Sequence(silent=True)
-    seq.add(nop, complete_on=obj.listener, name="timeout step", check_timeout=2)
-    seq.add(lambda: test_res.append(2))
+    seq = Sequence(silent=False)
+    seq.add(nop, complete_on=obj.listener, name="waiting for obj.listener", check_timeout=2)
+    seq.add(lambda: test_res.append(2), name="append 2")
     seq.add(nop, name="after listener step")
 
     def check_res():
         assert test_res == [0, 1, 2]
 
     seq.add(check_res)
-
     seq.done()
+
     obj.listener()

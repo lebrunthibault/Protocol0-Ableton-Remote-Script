@@ -2,6 +2,7 @@ from functools import partial
 
 from a_protocol_0.components.actionManagers.AbstractActionManager import AbstractActionManager
 from a_protocol_0.consts import RECORDING_TIMES
+from a_protocol_0.controls.EncoderAction import EncoderAction, EncoderModifierEnum
 from a_protocol_0.enums.DirectionEnum import DirectionEnum
 from a_protocol_0.enums.TrackCategoryEnum import TrackCategoryEnum
 from a_protocol_0.enums.PlayMenuEnum import PlayMenuEnum
@@ -18,12 +19,16 @@ class ActionManager(AbstractActionManager):
         Main manager: gathering most the functionnalities. My faithful companion when producing on Live !
     """
     def __init__(self, *a, **k):
-        super(ActionManager, self).__init__(channel=15, has_shift=True, record_actions_as_global=True, *a, **k)
+        super(ActionManager, self).__init__(channel=15, record_actions_as_global=True, *a, **k)
+        # SHiFT encoder
+        self.add_modifier(id=1, modifier_type=EncoderModifierEnum.SHIFT)
+
         # FOLD encoder
         self.add_encoder(id=2, on_press=self.action_fold_track, on_long_press=self.action_fold_tracks)
 
         # MONitor encoder
-        self.add_encoder(id=3, on_press=self.action_switch_track_monitoring)
+        monitor_encoder = self.add_encoder(id=3, on_press=self.action_switch_track_monitoring)
+        # monitor_encoder.add_action(EncoderAction(self.action_undo, scroll=True, modifier_type=EncoderModifierEnum.SHIFT))
 
         # UNDO encoder
         self.add_encoder(id=4, on_press=self.action_undo)

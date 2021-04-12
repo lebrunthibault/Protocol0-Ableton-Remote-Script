@@ -3,16 +3,15 @@ import os
 import threading
 import traceback
 import types
-from functools import partial
 
 from typing import Callable
 
 from ClyphX_Pro import ClyphXComponentBase, ParseUtils
-from ClyphX_Pro.SyncedScheduler import SyncedScheduler
 from ClyphX_Pro.clyphx_pro.actions.GlobalActions import GlobalActions
 from ClyphX_Pro.clyphx_pro.actions.NavAndViewActions import NavAndViewActions
 from _Framework.ControlSurface import ControlSurface
 from a_protocol_0.components.AutomationTrackManager import AutomationTrackManager
+from a_protocol_0.components.BeatScheduler import BeatScheduler
 from a_protocol_0.components.BrowserManager import BrowserManager
 from a_protocol_0.components.DeviceManager import DeviceManager
 from a_protocol_0.components.FastScheduler import FastScheduler
@@ -30,8 +29,9 @@ from a_protocol_0.components.UtilsManager import UtilsManager
 from a_protocol_0.components.actionManagers.ActionManager import ActionManager
 from a_protocol_0.components.actionManagers.ActionSetManager import ActionSetManager
 from a_protocol_0.components.actionManagers.ActionTestManager import ActionTestManager
+from a_protocol_0.config import Config
 from a_protocol_0.consts import ROOT_DIR
-from a_protocol_0.enums.LogLevelEnum import LogLevelEnum, ACTIVE_LOG_LEVEL
+from a_protocol_0.enums.LogLevelEnum import LogLevelEnum
 from a_protocol_0.lom.Song import Song
 from a_protocol_0.utils.log import log_ableton
 
@@ -68,7 +68,8 @@ class Protocol0(ControlSurface):
             self.browserManager = BrowserManager()
             self.clyphxNavigationManager = NavAndViewActions()
             self.clyphxGlobalManager = GlobalActions()
-            self.beatScheduler = SyncedScheduler(unschedule_on_stop=True)
+            self.globalBeatScheduler = BeatScheduler()
+            self.sceneBeatScheduler = BeatScheduler()
             ClyphXComponentBase.start_scheduler()
             self.fastScheduler = FastScheduler()
             self.utilsManager = UtilsManager()
@@ -83,8 +84,7 @@ class Protocol0(ControlSurface):
 
     def post_init(self):
         self.protocol0_song.reset()
-        if ACTIVE_LOG_LEVEL == LogLevelEnum.DEBUG:
-            self.defer(self.dev_boot)
+        self.defer(self.dev_boot)
 
     def show_message(self, message, log=True):
         # type: (str, bool) -> None
@@ -115,30 +115,22 @@ class Protocol0(ControlSurface):
 
     def _log(self, message="", level=LogLevelEnum.INFO, debug=False):
         # type: (str) -> None
-        if level.value < ACTIVE_LOG_LEVEL.value and not debug:
+        if level.value < Config.LOG_LEVEL.value and not debug:
             return
         log_ableton(debug=bool(message) and debug, message=message, level=level, direct_call=False)
 
-    def defer(self, callback):
+    @staticmethod
+    def defer(callback):
         # type: (Callable) -> None
-        self.fastScheduler.schedule_next(callback)
+        Protocol0.SELF.fastScheduler.schedule_next(callback)
 
     def wait_beats(self, beats, callback):
         # type: (int, Callable) -> None
-        """ Wait beats uses the clyphx beat scheduler """
-        self.beatScheduler.schedule_message("%d" % beats, callback)
+        self.globalBeatScheduler.wait_beats(beats, callback)
 
     def wait_bars(self, bar_count, callback, exact=False):
         # type: (int, Callable, bool) -> None
-        """
-            if exact if False, wait_bars executes the callback on the last beat preceding the next <bar_count> bar
-            that is if the we are on the 3rd beat in 4/4, the callback will be executed in one beat
-            + a little offset to mitigate not precise scheduling
-            This mode will work when global quantization is set to 1/4 or more
-        """
-        beat_offset = 0 if exact else self.protocol0_song.get_current_beats_song_time().beats
-        beat_count = (self.protocol0_song.signature_denominator * bar_count) - beat_offset
-        self._wait(0 if exact else 5, partial(self.wait_beats, beat_count, callback))
+        self.globalBeatScheduler.wait_bars(bar_count, callback, exact)
 
     def _wait(self, tick_count, callback):
         # type: (int, callable) -> None

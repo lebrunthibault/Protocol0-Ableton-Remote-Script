@@ -19,10 +19,10 @@ class ActionTestManager(AbstractActionManager):
 
     @button_action()
     def action_test_state(self):
-        self.parent.log_dev(self.previous_instrument)
-        self.parent.log_dev(self.song.selected_track.instrument.device._device)
-        self.parent.log_dev(self.song.selected_track.instrument.device._device._live_ptr)
-        self.parent.log_dev(self.previous_instrument == self.song.selected_track.instrument.device._device)
-        self.parent.log_dev(self.previous_live_id == self.song.selected_track.instrument.device._device._live_ptr)
+        self.parent.log_info(self.previous_instrument)
+        self.parent.log_info(self.song.selected_track.instrument.device._device)
+        self.parent.log_info(self.song.selected_track.instrument.device._device._live_ptr)
+        self.parent.log_info(self.previous_instrument == self.song.selected_track.instrument.device._device)
+        self.parent.log_info(self.previous_live_id == self.song.selected_track.instrument.device._device._live_ptr)
         self.previous_instrument = self.song.selected_track.instrument.device._device
         self.previous_live_id = self.song.selected_track.instrument.device._device._live_ptr

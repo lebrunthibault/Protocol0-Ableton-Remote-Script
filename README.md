@@ -10,11 +10,14 @@ This script is tailor made for my gear and workflow and is probably thus of litt
 to users. But it could be interesting to remote scripts devs !
 
 There is a few specificities / dependencies to bear in mind if anyone would ever want to test it :
+- The biggest one is on a famous remote script as I'm using a few of its classes (in particular for scheduling, using Live browser and a few others, see the code).
+  I'm not gonna give the name because I'm not so sure this kind of use of the code is allowed by the EULA.
+  Without this script in your remote script folder, protocol0 will fail miserably.
 - External Software dependencies on python3 and autoHotkey (hard dependencies). Paths can be configured by creating and editing the .env.json file.
 - Synths targeted (Prophet rev2, Serum ..). Not blocking
 - Push2 handling code. Not blocking
 
-These external dependencies should not prevent the script from loading or working in degraded state but it will prevent
+Apart from the first point, these external dependencies should not prevent the script from loading or working in degraded state but it will prevent
 the script from dispatching keys and clicks to the interface if you don't set up the .env.json file.
 
 > The code is not stable even on master and will probably throw a lot of errors.

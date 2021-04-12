@@ -18,9 +18,9 @@ def test_has_callback_queue_1():
             res.append(0)
 
     obj = Example()
-    obj.example.add_callback(lambda: res.append(1))
-    obj.example.add_callback(lambda: res.append(2))
-    obj.example.add_callback(lambda: res.append(3))
+    obj.example.add_callback(lambda: res.append(1), defer=False)
+    obj.example.add_callback(lambda: res.append(2), defer=False)
+    obj.example.add_callback(lambda: res.append(3), defer=False)
 
     obj.example()
     assert res == [0, 1, 2, 3]
@@ -40,9 +40,9 @@ def test_has_callback_queue_2():
             res.append("child")
 
     obj = Child()
-    obj.example.add_callback(lambda: res.append(1))
-    obj.example.add_callback(lambda: res.append(2))
-    obj.example.add_callback(lambda: res.append(3))
+    obj.example.add_callback(lambda: res.append(1), defer=False)
+    obj.example.add_callback(lambda: res.append(2), defer=False)
+    obj.example.add_callback(lambda: res.append(3), defer=False)
 
     obj.example()
     assert res == ["child", 1, 2, 3]

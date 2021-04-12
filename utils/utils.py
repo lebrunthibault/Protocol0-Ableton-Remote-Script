@@ -105,7 +105,7 @@ def _has_callback_queue(func):
     """ mixing duck typing and isinstance to ensure we really have a callback handler object """
     from a_protocol_0.utils.callback_descriptor import CallableWithCallbacks
     from _Framework.SubjectSlot import CallableSlotMixin
-    return func and hasattr(func, "add_callback") and hasattr(func, "remove_callback") and (
+    return func and hasattr(func, "add_callback") and (
             isinstance(func, CallableWithCallbacks) or isinstance(func, CallableSlotMixin))
 
 

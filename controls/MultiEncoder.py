@@ -1,11 +1,12 @@
 import time
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional
 
 from _Framework.ButtonElement import ButtonElement
 from _Framework.InputControlElement import *
 from _Framework.SubjectSlot import subject_slot
-from a_protocol_0.errors.Protocol0Error import Protocol0Error
+from a_protocol_0.controls.EncoderAction import EncoderAction, EncoderMoveEnum
+from a_protocol_0.controls.EncoderModifier import EncoderModifier, EncoderModifierEnum
 from a_protocol_0.lom.AbstractObject import AbstractObject
 
 if TYPE_CHECKING:
@@ -14,73 +15,72 @@ if TYPE_CHECKING:
 
 class MultiEncoder(AbstractObject):
     PRESS_MAX_TIME = 0.25  # maximum time in seconds we consider a simple press
-    SHIFT_PRESSED = False
 
-    def __init__(self, action_manager, channel, id, on_press=None, on_release=None, on_long_press=None, on_shift_press=None,
-                 on_shift_long_press=None, on_scroll=None, on_shift_scroll=None, *a, **k):
+    def __init__(self, action_manager, channel, identifier, *a, **k):
+        # type: (AbstractActionManager, int, int) -> None
         """
-            Actions are triggered at the end of the press not the start. Allows press vs long_press
-            on release combined with on_press allows for immediate action and release action. Used for shift functionality
+            Actions are triggered at the end of the press not the start. Allows press vs long_press (Note) vs scroll (CC)
+            Also possible to define modifiers to duplicate the number of actions possible.
+            NB : for press actions the action is triggered on button release (allowing long_press)
         """
         super(MultiEncoder, self).__init__(*a, **k)
-        self.action_manager = action_manager  # type: AbstractActionManager
-        self.channel = channel
-        self.identifier = id
-        self.on_press = on_press
-        self.on_release = on_release
-        self.on_long_press = on_long_press
-        if not self.on_long_press and not self.on_release:
-            self.on_long_press = on_press
-        self.on_shift_press = on_shift_press
-        self.on_shift_long_press = on_shift_long_press or on_shift_press
-        self.on_scroll = on_scroll
-        self.on_shift_scroll = on_shift_scroll
-        self._press_listener.subject = ButtonElement(True, MIDI_NOTE_TYPE, self.channel, self.identifier)
-        self._scroll_listener.subject = ButtonElement(True, MIDI_CC_TYPE, self.channel, self.identifier)
-        self.pressed_at = 0  # type: float
-        self.is_pressed = False
+        self._actions = []  # type: List[EncoderAction]
+        self._action_manager = action_manager  # type: AbstractActionManager
+        self.identifier = identifier
+
+        self._press_listener.subject = ButtonElement(True, MIDI_NOTE_TYPE, channel, identifier)
+        self._scroll_listener.subject = ButtonElement(True, MIDI_CC_TYPE, channel, identifier)
+        self._pressed_at = None  # type: Optional[float]
+
+    def get_modifier_from_enum(self, modifier_type):
+        # type: (EncoderModifierEnum) -> EncoderModifier
+        return [modifier for modifier in self._action_manager.available_modifiers if modifier.type == modifier_type][0]
+
+    def add_action(self, action):
+        # type: (EncoderAction) -> None
+        assert not self._find_matching_action(action.move_type, action.modifier_type, False), "duplicate move %s" % action
+        self._actions.append(action)
+
+    @property
+    def _pressed_modifier_type(self):
+        # type: () -> Optional[EncoderModifierEnum]
+        pressed_modifiers = [modifier for modifier in self._action_manager.available_modifiers if modifier.pressed]
+        assert len(pressed_modifiers) <= 1, "Multiple modifiers pressed. Not allowed."
+        return pressed_modifiers[0].type if len(pressed_modifiers) else None
+
+    @property
+    def _is_long_pressed(self):
+        return self._pressed_at and (time.time() - self._pressed_at) > MultiEncoder.PRESS_MAX_TIME
 
     @subject_slot("value")
     def _press_listener(self, value):
         # type: (int) -> None
         if value:
-            # only for shift action
-            if self.on_release:
-                self.on_press()
-            self.pressed_at = time.time()
-            self.is_pressed = True
+            self._pressed_at = time.time()
             return
 
-        self.is_pressed = False
-        action = self._get_action()
-        self.action_manager.current_action = action
-        action()
-
-    def _get_action(self):
-        # type: () -> callable
-        long_press = (time.time() - self.pressed_at) > MultiEncoder.PRESS_MAX_TIME
-
-        if long_press and self.SHIFT_PRESSED and self.on_shift_long_press:
-            return self.on_shift_long_press
-        elif long_press and self.on_long_press:
-            return self.on_long_press
-        elif self.SHIFT_PRESSED and self.on_shift_press:
-            return self.on_shift_press
-        # on release if reachable only when long presses and shift presses are not setup
-        elif self.on_release:
-            return self.on_release
-        elif self.on_press:
-            return self.on_press
-
-        raise Protocol0Error("Press didn't trigger action", {
-            "press_time": time.time() - self.pressed_at,
-            "long_press": long_press,
-            "shift_press": self.SHIFT_PRESSED
-        })
+        move_type = EncoderMoveEnum.LONG_PRESS if self._is_long_pressed else EncoderMoveEnum.PRESS
+        action = self._find_matching_action(move_type=move_type)
+        self._pressed_at = None
+        if action:
+            self._action_manager.current_action = action
+            action.execute()
 
     @subject_slot("value")
     def _scroll_listener(self, value):
-        if self.SHIFT_PRESSED and self.on_shift_scroll:
-            self.on_shift_scroll(go_next=value == 1)
-        elif self.on_scroll:
-            self.on_scroll(go_next=value == 1)
+        action = self._find_matching_action(move_type=EncoderMoveEnum.SCROLL)
+        if action:
+            action.execute(go_next=value == 1)
+
+    def _find_matching_action(self, move_type, modifier_type=None, log_not_found=True):
+        # type: (EncoderMoveEnum, EncoderModifier) -> EncoderAction
+        modifier_type = modifier_type or self._pressed_modifier_type
+        action = next(
+            iter([action for action in self._actions if action.move_type == move_type and action.modifier_type == modifier_type]),
+            None)
+
+        if not action and log_not_found:
+            self.parent.log_warning(
+                "Press didn't trigger action, move_type: %s, modifier: %s" % (move_type, self._pressed_modifier_type))
+
+        return action

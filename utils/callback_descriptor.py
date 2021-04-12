@@ -2,7 +2,6 @@ from collections import deque
 from functools import partial
 
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
-from a_protocol_0.utils.decorators import defer
 from a_protocol_0.utils.log import log_ableton
 from a_protocol_0.utils.utils import is_partial, get_callable_name
 
@@ -16,7 +15,7 @@ class CallbackDescriptor(object):
             - @has_callback_queue is dropped on top of _Framework subject_slot :
                 - We need to fetch the CallableSlotMixin from the decorated method (when the method is first accessed via __get__)
                     Then we replace the listener with our own CallableWithCallbacks and we patch the subject slot mixin to look like CallableWithCallbacks
-                    The external interface is gonna be the same in both cases now (we use only add_callback, remove_callback and __call)
+                    The external interface is gonna be the same in both cases now (we use only add_callback, clear_callbacks and __call)
                 - At method execution time (by _Framework code), we need to fetch the real undecorated method to get the result.
                     Didn't really understand why _Framework code is not forwarding the result when calling the subject slot mixin ..
                 - Then we get the best of both worlds, _Framework is doing its listener magic while we get full control on the
@@ -47,7 +46,7 @@ class CallbackDescriptor(object):
                 # patching the wrapped function to have a coherent interface
                 self._wrapped.add_callback = self._wrapped.listener.add_callback
                 self._wrapped._callbacks = self._wrapped.listener._callbacks
-                self._wrapped.remove_callback = self._wrapped.listener.remove_callback
+                self._wrapped.clear_callbacks = self._wrapped.listener.clear_callbacks
             else:
                 self._wrapped = CallableWithCallbacks(partial(self._func, obj), obj)
 
@@ -72,44 +71,42 @@ class CallableWithCallbacks(object):
         else:
             # has_callback_queue on top of Framework's @subject_slot
             # let's fetch the inner function (bypass _Framework logic) to get the response
-            res = self._decorated.function.func.original_func(self._obj)
+            res = self._decorated.function.func.original_func(self._obj, *a, **k)
 
         if self._debug:
             log_ableton("listener res of %s : %s" % (self, res))
             log_ableton("callbacks of %s : %s" % (self, self._decorated._callbacks))
 
         from a_protocol_0.sequence.Sequence import Sequence
-        if isinstance(res, Sequence):
+        if isinstance(res, Sequence) and not res.terminated:
             if res.errored:
                 self._callbacks = deque()
-                return res
-            if not res.terminated:
+            else:
                 res.add(self._execute_callbacks)
-                return res
-
-        self._execute_callbacks()
+        else:
+            self._execute_callbacks()
 
         return res
 
-    def add_callback(self, callback):
-        # type: (callable) -> None
-        # we don't allow the same exact callback to be added. Mitigates stuff like double clicks
+    def add_callback(self, callback, defer=True):
+        # type: (callable, bool) -> None
+        """
+        we don't allow the same exact callback to be added. Mitigates stuff like double clicks
+        defer is used for triggering callback after listeners and prevents change after notification error
+        """
         if callback in self._callbacks:
             return
-        else:
-            self._callbacks.append(callback)
-            if self._debug:
-                log_ableton("adding_callback to %s : %s" % (self, self._callbacks))
+        if defer:
+            from a_protocol_0 import Protocol0
+            callback = partial(Protocol0.defer, callback)
+        self._callbacks.append(callback)
+        if self._debug:
+            log_ableton("adding_callback to %s : %s" % (self, self._callbacks))
 
-    def remove_callback(self, callback):
-        # type: (callable) -> None
-        if callback not in self._callbacks:
-            raise Protocol0Error("Tried to remove a nonexistent callback from %s" % self)
-        self._callbacks.remove(callback)
+    def clear_callbacks(self):
+        self._callbacks = []
 
-    @defer
     def _execute_callbacks(self):
-        """ deferring so that next code doesn't have to handle notification changes error """
         if self._debug:
             log_ableton("_execute_callbacks of %s : %s" % (self, self._callbacks))
         while len(self._callbacks):

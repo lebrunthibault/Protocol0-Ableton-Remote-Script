@@ -1,7 +1,10 @@
 from typing import List
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from a_protocol_0.controls.EncoderAction import EncoderAction
+from a_protocol_0.controls.EncoderModifier import EncoderModifierEnum, EncoderModifier
 from a_protocol_0.controls.MultiEncoder import MultiEncoder
+from a_protocol_0.controls.MultiEncoderModifier import MultiEncoderModifier
 
 
 class AbstractActionManager(AbstractControlSurfaceComponent):
@@ -14,28 +17,40 @@ class AbstractActionManager(AbstractControlSurfaceComponent):
     def __init__(self, channel, has_shift=False, record_actions_as_global=False, *a, **k):
         # type: (int) -> None
         super(AbstractActionManager, self).__init__(*a, **k)
+        self.available_modifiers = [EncoderModifier(type) for type in EncoderModifierEnum]  # type: List[EncoderModifier]
         self.channel = channel
-        self.encoders = []  # type: List[MultiEncoder]
+        self.multi_encoders = []  # type: List[MultiEncoder]
         self._current_action = None  # type: callable
         # allows recording actions at the top script level allowing last action re execution in very specific cases
         self.record_actions_as_global = record_actions_as_global
 
-        # shift encoder
-        if has_shift:
-            self.add_encoder(id=1,
-                             on_press=lambda: setattr(MultiEncoder, "SHIFT_PRESSED", True),
-                             on_release=lambda: setattr(MultiEncoder, "SHIFT_PRESSED", False))
+    def _add_multi_encoder(self, multi_encoder):
+        # type: (MultiEncoder) -> MultiEncoder
+        assert len([encoder for encoder in
+                    self.multi_encoders if encoder.identifier == multi_encoder.identifier]) == 0, "duplicate multi encoder"
+        self.multi_encoders.append(multi_encoder)
+        return multi_encoder
 
-    def add_encoder(self, id, *a, **k):
+    def add_encoder(self, id, on_press=None, on_long_press=None, on_shift_press=None,
+                    on_shift_long_press=None, on_scroll=None, on_shift_scroll=None):
         # type: (int) -> MultiEncoder
-        encoder = MultiEncoder(action_manager=self, channel=self.channel, id=id, *a, **k)
-        self.encoders.append(encoder)
-        return encoder
+        k = locals()
+        del k["self"]
+        del k["id"]
+        encoder = MultiEncoder(action_manager=self, channel=self.channel, identifier=id)
+        [encoder.add_action(action) for action in EncoderAction.make_actions(**k)]
+        return self._add_multi_encoder(encoder)
+
+    def add_modifier(self, id, modifier_type, *a, **k):
+        # type: (int, EncoderModifierEnum) -> MultiEncoder
+        encoder = MultiEncoderModifier(action_manager=self, channel=self.channel, identifier=id,
+                                    modifier_type=modifier_type, *a, **k)
+        return self._add_multi_encoder(encoder)
 
     @property
     def current_action(self):
         return self._current_action
-    
+
     @current_action.setter
     def current_action(self, current_action):
         self._current_action = current_action

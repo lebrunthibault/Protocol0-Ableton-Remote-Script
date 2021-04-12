@@ -22,8 +22,21 @@ class Scene(AbstractObject):
 
     @p0_subject_slot("is_triggered")
     def _is_triggered_listener(self):
-        if not self.is_triggered and self.scene_name.bar_count and self.index < len(self.song.scenes) - 1:
-            self.parent.wait_bars(self.scene_name.bar_count, self.song.scenes[self.index + 1].fire)
+        """
+            implements a next scene follow action
+            when the scene is triggered (e.g. clicked or fired via script) the scheduler is cleared
+            when the scene starts playing we schedule firing the next scene after this one ended
+            NB : self.is_triggered == False can mean 3 things :
+            - the scene is playing (usual case): the we schedule the next one
+            - the song is stopped : we check this
+            - another scene is launched : that's why we stop the scheduler when is_triggered is True
+        """
+        if self.is_triggered:
+            self.parent.sceneBeatScheduler.clear()
+        # doing this when scene starts playing
+        elif self.scene_name.bar_count and self.song.is_playing and self.index < len(self.song.scenes) - 1:
+            next_scene = self.song.scenes[self.index + 1]
+            self.parent.sceneBeatScheduler.wait_bars(self.scene_name.bar_count, next_scene.fire)
 
     def select(self):
         self.song.selected_scene = self

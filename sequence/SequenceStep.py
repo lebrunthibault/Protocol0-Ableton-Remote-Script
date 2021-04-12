@@ -129,11 +129,12 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
             self._execute()
 
     def _check_for_step_completion(self):
-        if not self._complete_on:
-            if self._wait:
-                self.parent._wait(self._wait, self.terminate)
-            else:
-                self.terminate()
+        if not self._complete_on and not self._wait:
+            self.terminate()
+            return
+
+        if not self._complete_on and self._wait:
+            self.parent._wait(self._wait, self.terminate)
             return
 
         if _has_callback_queue(self._complete_on):
@@ -182,7 +183,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
 
     def _step_timed_out(self):
         if _has_callback_queue(self._complete_on) and self._callback_timeout:
-            self._complete_on.remove_callback(self._callback_timeout)
+            self._complete_on.clear_callbacks()
 
         if self.debug:
             self.parent.log_error("timeout completion error on %s" % self, debug=False)

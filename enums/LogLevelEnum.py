@@ -8,7 +8,3 @@ class LogLevelEnum(AbstractEnum):
     NOTICE = 4
     WARNING = 5
     ERROR = 6
-    EXCLUSIVE_LOG = 7
-
-
-ACTIVE_LOG_LEVEL = LogLevelEnum.DEBUG
