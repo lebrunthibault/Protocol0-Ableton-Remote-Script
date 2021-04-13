@@ -112,12 +112,14 @@ class AbstractTrackActionMixin(object):
         """
         return self.action_record_all()
 
+    def play_stop(self):
+        # type: (AbstractTrack) -> None
+        return self.stop() if self.is_playing else self.play()
+
     def play(self):
         # type: (AbstractTrack) -> None
         from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
-        if not self.song.is_playing:
-            self.song.is_playing = True
         if self.is_foldable:
             [sub_track.play() for sub_track in self.sub_tracks]
         elif isinstance(self, SimpleTrack) and self.playable_clip:

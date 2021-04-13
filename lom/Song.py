@@ -12,6 +12,7 @@ from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
+from a_protocol_0.lom.track.AbstractTrackList import AbstractTrackList
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.simple_track.AudioBusTrack import AudioBusTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -91,9 +92,9 @@ class Song(SongActionMixin, AbstractObject):
 
     @property
     def selected_abstract_tracks(self):
-        # type: () -> List[AbstractTrack]
-        return [self.parent.songManager.get_current_track(track) for track in self.simple_tracks if
-                track._track.is_part_of_selection]
+        # type: () -> AbstractTrackList
+        return AbstractTrackList([self.parent.songManager.get_current_track(track) for track in self.simple_tracks if
+                track._track.is_part_of_selection])
 
     @property
     def selected_category_tracks(self):

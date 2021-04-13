@@ -10,7 +10,7 @@ from a_protocol_0.controls.EncoderModifier import EncoderModifier, EncoderModifi
 from a_protocol_0.lom.AbstractObject import AbstractObject
 
 if TYPE_CHECKING:
-    from a_protocol_0.components.actionManagers.AbstractActionManager import AbstractActionManager
+    from a_protocol_0.components.actionGroups.AbstractActionManager import AbstractActionManager
 
 
 class MultiEncoder(AbstractObject):
@@ -37,9 +37,10 @@ class MultiEncoder(AbstractObject):
         return [modifier for modifier in self._action_manager.available_modifiers if modifier.type == modifier_type][0]
 
     def add_action(self, action):
-        # type: (EncoderAction) -> None
+        # type: (EncoderAction) -> MultiEncoder
         assert not self._find_matching_action(action.move_type, action.modifier_type, False), "duplicate move %s" % action
         self._actions.append(action)
+        return self
 
     @property
     def _pressed_modifier_type(self):

@@ -65,6 +65,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self.parent.defer(self.notify_fired_slot_index)
 
     @p0_subject_slot("instrument")
+    @defer
     def _instrument_listener(self):
         if self.instrument:
             self.color = self.instrument.TRACK_COLOR

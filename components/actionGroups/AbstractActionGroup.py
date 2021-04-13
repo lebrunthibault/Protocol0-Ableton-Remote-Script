@@ -7,16 +7,15 @@ from a_protocol_0.controls.MultiEncoder import MultiEncoder
 from a_protocol_0.controls.MultiEncoderModifier import MultiEncoderModifier
 
 
-class AbstractActionManager(AbstractControlSurfaceComponent):
+class AbstractActionGroup(AbstractControlSurfaceComponent):
     """
-        An action manager represents a group of 16 encoder available on the ec4
+        An action group represents a group of 16 encoder available on my faderfox ec4
         It responds on a midi channel to cc messages
-        has_shift controls the shift functionality
         See MultiEncoder to configure an encoder
     """
-    def __init__(self, channel, has_shift=False, record_actions_as_global=False, *a, **k):
+    def __init__(self, channel, record_actions_as_global=False, *a, **k):
         # type: (int) -> None
-        super(AbstractActionManager, self).__init__(*a, **k)
+        super(AbstractActionGroup, self).__init__(*a, **k)
         self.available_modifiers = [EncoderModifier(type) for type in EncoderModifierEnum]  # type: List[EncoderModifier]
         self.channel = channel
         self.multi_encoders = []  # type: List[MultiEncoder]

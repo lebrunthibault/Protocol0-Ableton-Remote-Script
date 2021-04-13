@@ -26,9 +26,10 @@ from a_protocol_0.components.SongManager import SongManager
 from a_protocol_0.components.SongStateManager import SongStateManager
 from a_protocol_0.components.TrackManager import TrackManager
 from a_protocol_0.components.UtilsManager import UtilsManager
-from a_protocol_0.components.actionManagers.ActionManager import ActionManager
-from a_protocol_0.components.actionManagers.ActionSetManager import ActionSetManager
-from a_protocol_0.components.actionManagers.ActionTestManager import ActionTestManager
+from a_protocol_0.components.actionGroups.ActionGroupMain import ActionGroupMain
+from a_protocol_0.components.actionGroups.ActionGroupP0v1 import ActionGroupP0v1
+from a_protocol_0.components.actionGroups.ActionGroupSet import ActionGroupSet
+from a_protocol_0.components.actionGroups.ActionGroupTest import ActionGroupTest
 from a_protocol_0.config import Config
 from a_protocol_0.consts import ROOT_DIR
 from a_protocol_0.enums.LogLevelEnum import LogLevelEnum
@@ -74,9 +75,10 @@ class Protocol0(ControlSurface):
             self.fastScheduler = FastScheduler()
             self.utilsManager = UtilsManager()
             self.logManager = LogManager()
-            self.actionManager = ActionManager()
-            self.actionSetManager = ActionSetManager()
-            self.actionTestManager = ActionTestManager()
+            ActionGroupMain()
+            # ActionGroupP0v1()
+            ActionGroupSet()
+            ActionGroupTest()
             if init_song:
                 self.songManager.init_song()
                 self.dev_boot()

@@ -1,15 +1,15 @@
-from a_protocol_0.components.actionManagers.AbstractActionManager import AbstractActionManager
+from a_protocol_0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
 from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.utils.decorators import button_action
 
 
-class ActionSetManager(AbstractActionManager):
+class ActionGroupSet(AbstractActionGroup):
     """
         This manager is supposed to group mundane tasks on Live like debug
         or one shot actions on a set (like upgrading to a new naming scheme)
     """
     def __init__(self, *a, **k):
-        super(ActionSetManager, self).__init__(channel=14, *a, **k)
+        super(ActionGroupSet, self).__init__(channel=14, *a, **k)
         # RACK encoder
         self.add_encoder(id=1,
                          on_press=self.action_update_racks)

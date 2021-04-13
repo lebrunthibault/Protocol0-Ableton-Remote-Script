@@ -1,13 +1,13 @@
-from a_protocol_0.components.actionManagers.AbstractActionManager import AbstractActionManager
+from a_protocol_0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
 from a_protocol_0.utils.decorators import button_action
 
 
-class ActionTestManager(AbstractActionManager):
+class ActionGroupTest(AbstractActionGroup):
     """
         Just a playground to launch test actions
     """
     def __init__(self, *a, **k):
-        super(ActionTestManager, self).__init__(channel=0, *a, **k)
+        super(ActionGroupTest, self).__init__(channel=0, *a, **k)
         # 1 encoder
         self.add_encoder(id=1, on_press=self.action_test)
         self.previous_instrument = None

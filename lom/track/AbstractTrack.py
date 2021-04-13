@@ -292,7 +292,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def is_playing(self):
         # type: () -> bool
-        return False
+        return any([simple_track.is_playing for simple_track in self.all_tracks])
 
     @property
     def mute(self):

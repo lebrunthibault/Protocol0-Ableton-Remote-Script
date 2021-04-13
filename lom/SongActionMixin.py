@@ -37,6 +37,11 @@ class SongActionMixin(object):
         [setattr(t, "solo", False) for t in self.song.abstract_tracks if
          t.solo and t != (self.current_track if except_current else None)]
 
+    def toggle_fold(self):
+        # type: (Song) -> None
+        fold = (any(not simple_group_track.is_folded for simple_group_track in self.simple_group_tracks))
+        [setattr(simple_group_track, "is_folded", fold) for simple_group_track in self.simple_group_tracks]
+
     def fold_all_tracks(self):
         # type: (Song, bool) -> None
         # 1st we fold all except current
@@ -53,6 +58,14 @@ class SongActionMixin(object):
         self.stop_playing()
         self._song.current_song_time = 0
         [track.reset_track() for track in self.abstract_tracks]
+
+    def play_stop(self):
+        # type: (Song) -> None
+        if not self.is_playing:
+            [simple_track.play() for simple_track in self.song.simple_tracks]
+        else:
+            self.stop_all_clips()
+            self.stop_playing()
 
     def stop_playing(self):
         # type: (Song) -> None

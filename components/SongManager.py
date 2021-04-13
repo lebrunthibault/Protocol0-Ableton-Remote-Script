@@ -136,7 +136,9 @@ class SongManager(AbstractControlSurfaceComponent):
         if track not in self._live_track_to_simple_track.keys():
             if default:
                 return default
-            raise Protocol0Error("_get_simple_track mismatch on %s" % track.name)
+            else:
+                self.parent.log_error("_get_simple_track mismatch on %s" % track.name)
+                return None
 
         return self._live_track_to_simple_track[track]
 

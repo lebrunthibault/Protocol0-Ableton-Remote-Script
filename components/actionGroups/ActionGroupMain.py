@@ -1,11 +1,10 @@
-from functools import partial
-
-from a_protocol_0.components.actionManagers.AbstractActionManager import AbstractActionManager
+from a_protocol_0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
 from a_protocol_0.consts import RECORDING_TIMES
-from a_protocol_0.controls.EncoderAction import EncoderAction, EncoderModifierEnum
+from a_protocol_0.controls.EncoderAction import EncoderAction
+from a_protocol_0.controls.EncoderModifier import EncoderModifierEnum
 from a_protocol_0.enums.DirectionEnum import DirectionEnum
-from a_protocol_0.enums.TrackCategoryEnum import TrackCategoryEnum
 from a_protocol_0.enums.PlayMenuEnum import PlayMenuEnum
+from a_protocol_0.enums.TrackCategoryEnum import TrackCategoryEnum
 from a_protocol_0.lom.Scene import Scene
 from a_protocol_0.lom.clip.AbstractAutomationClip import AbstractAutomationClip
 from a_protocol_0.lom.device.PluginDevice import PluginDevice
@@ -14,105 +13,96 @@ from a_protocol_0.utils.decorators import button_action
 from a_protocol_0.utils.utils import scroll_values
 
 
-class ActionManager(AbstractActionManager):
+class ActionGroupMain(AbstractActionGroup):
     """
         Main manager: gathering most the functionnalities. My faithful companion when producing on Live !
     """
+
     def __init__(self, *a, **k):
-        super(ActionManager, self).__init__(channel=15, record_actions_as_global=True, *a, **k)
-        # SHiFT encoder
-        self.add_modifier(id=1, modifier_type=EncoderModifierEnum.SHIFT)
+        super(ActionGroupMain, self).__init__(channel=15, record_actions_as_global=True, *a, **k)
+        # 1: empty
 
-        # FOLD encoder
-        self.add_encoder(id=2, on_press=self.action_fold_track, on_long_press=self.action_fold_tracks)
+        # PLAY_stop modifier
+        self.add_modifier(id=1, modifier_type=EncoderModifierEnum.PLAY_STOP)
 
-        # MONitor encoder
-        monitor_encoder = self.add_encoder(id=3, on_press=self.action_switch_track_monitoring)
-        # monitor_encoder.add_action(EncoderAction(self.action_undo, scroll=True, modifier_type=EncoderModifierEnum.SHIFT))
+        # SOLO modifier
+        self.add_modifier(id=2, modifier_type=EncoderModifierEnum.SOLO)
 
-        # UNDO encoder
-        self.add_encoder(id=4, on_press=self.action_undo)
+        # FOLD modifier
+        self.add_modifier(id=3, modifier_type=EncoderModifierEnum.FOLD)
 
-        # AUTOmation encoder
+        # DUPLicate modifier
+        self.add_modifier(id=4, modifier_type=EncoderModifierEnum.DUPLICATE)
+
+        # REC encoder
         self.add_encoder(id=5,
-                         on_press=self.action_set_up_parameter_automation,
-                         on_shift_press=partial(self.action_adjust_clip_automation_curve, reset=True),
-                         on_scroll=partial(self.action_adjust_clip_automation_curve, direction=DirectionEnum.UP),
-                         on_shift_scroll=partial(self.action_adjust_clip_automation_curve, direction=DirectionEnum.DOWN), )
-
-        # SCENe encoder
-        self.add_encoder(id=6,
-                         on_press=self.action_play_selected_scene,
-                         on_shift_press=self.action_update_selected_scene_name,
-                         on_shift_long_press=self.action_update_all_scenes_names,
-                         on_scroll=self.action_scroll_scenes)
-
-        # RECord encoder
-        self.add_encoder(id=9,
+                         on_scroll=self.action_scroll_track_recording_times,
                          on_press=self.action_track_record_fixed,
-                         on_long_press=self.action_track_record_audio,
-                         on_scroll=self.action_scroll_track_recording_times)
+                         on_long_press=self.action_track_record_audio)
 
-        # STOP encoder
-        self.add_encoder(id=11,
-                         on_press=self.action_stop_track,
-                         on_long_press=self.action_stop_category,
-                         on_scroll=self.action_scroll_track_categories)
+        # 6: empty
 
-        # PLAY encoder
-        self.add_encoder(id=12,
-                         on_press=self.action_play_selected_tracks,
-                         on_shift_press=self.action_solo_play_selected_tracks,
-                         on_long_press=self.action_restart_category,
-                         on_scroll=self.action_scroll_track_categories)
+        # 7: empty
 
-        # TRacK encoder
-        self.add_encoder(id=13,
-                         on_press=self.action_arm_track,
-                         on_long_press=self.action_solo_track,
-                         on_shift_long_press=self.action_un_solo_all_tracks,
-                         on_scroll=self.action_scroll_tracks)
+        monitor_encoder = self.add_encoder(id=8, on_press=self.action_switch_track_monitoring)
 
-        # PRESet encoder
-        self.add_encoder(id=14,
+        # INSTrument encoder
+        self.add_encoder(id=9,
                          on_press=self.action_show_hide_instrument,
                          on_scroll=self.action_scroll_track_instrument_presets,
                          on_shift_scroll=self.action_scroll_simpler_drum_categories)
 
-        # DEVice encoder
+        # SONG encoder
+        self.add_encoder(id=10).add_action(
+            EncoderAction(func=self.song.play_stop, modifier_type=EncoderModifierEnum.PLAY_STOP)).add_action(
+            EncoderAction(func=self.song.toggle_fold, modifier_type=EncoderModifierEnum.FOLD))
+
+        # 11 : empty
+
+        # 12 : empty
+
+        # 13 : TRaCK encoder
+        self.add_encoder(id=13,
+                         on_scroll=self.action_scroll_tracks,
+                         on_press=self.action_arm_track,
+                         ).add_action(
+            EncoderAction(func=lambda: self.song.selected_abstract_tracks.play_stop(),
+                          modifier_type=EncoderModifierEnum.PLAY_STOP)).add_action(
+            EncoderAction(func=lambda: self.song.selected_abstract_tracks.solo(),
+                          modifier_type=EncoderModifierEnum.SOLO))
+
+        # 14 : CATegory encoder
+        # todo
+
+        # 15 : SCENe encoder
         self.add_encoder(id=15,
-                         on_press=self.action_track_collapse_selected_device,
-                         on_scroll=self.action_scroll_track_devices,
-                         on_shift_scroll=self.action_scroll_selected_device_presets)
+                         on_scroll=self.action_scroll_scenes,
+                         ).add_action(
+            EncoderAction(func=lambda: self.song.selected_scene.play_stop(),
+                          modifier_type=EncoderModifierEnum.PLAY_STOP))
 
-        # CLIP encoder
-        self.add_encoder(id=16,
-                         on_press=self.action_play_selected_tracks,
-                         on_scroll=self.action_scroll_track_clips)
-
+    # REC encoder
     @button_action(log_action=False)
-    def action_scroll_tracks(self, go_next):
-        """ scroll top tracks """
-        base_track = self.song.selected_track if self.song.selected_track.is_scrollable else self.song.current_track.base_track
-        track_to_select = scroll_values(self.song.scrollable_tracks, base_track, go_next)  # type: SimpleTrack
-        if track_to_select:
-            track_to_select.select()
+    def action_scroll_track_recording_times(self, go_next):
+        """ record both midi and audio on group track """
+        self.song.selected_recording_time = scroll_values(RECORDING_TIMES, self.song.selected_recording_time, go_next)
+        self.song.recording_bar_count = int(self.song.selected_recording_time.split()[0])
+        self.parent.show_message("Selected %s" % self.song.selected_recording_time)
 
-    @button_action()
-    def action_arm_track(self):
-        """ arm or unarm both midi and audio track """
-        if self.song.current_track.arm:
-            return self.song.current_track.action_unarm()
-        else:
-            return self.song.current_track.action_arm()
+    @button_action(auto_arm=True)
+    def action_track_record_fixed(self):
+        """ record both midi and audio on group track """
+        self.song.current_track.action_restart_and_record(self.song.current_track.action_record_all)
 
-    @button_action()
-    def action_solo_track(self):
-        [t.action_solo() for t in self.song.selected_abstract_tracks]
+    @button_action(auto_arm=True)
+    def action_track_record_audio(self):
+        """ record only audio on group track """
+        return self.song.current_track.action_restart_and_record(self.song.current_track.action_record_audio_only)
 
+    # INSTrument encoder
     @button_action()
-    def action_un_solo_all_tracks(self):
-        self.song.unsolo_all_tracks(except_current=False)
+    def action_switch_track_monitoring(self):
+        self.song.current_track.action_switch_monitoring()
 
     @button_action()
     def action_show_hide_instrument(self):
@@ -132,6 +122,26 @@ class ActionManager(AbstractActionManager):
         self.parent.clyphxNavigationManager.show_track_view()
         if self.song.current_track.instrument:
             self.song.current_track.instrument.action_scroll_categories(go_next=go_next)
+
+    @button_action(log_action=False)
+    def action_scroll_tracks(self, go_next):
+        """ scroll top tracks """
+        base_track = self.song.selected_track if self.song.selected_track.is_scrollable else self.song.current_track.base_track
+        track_to_select = scroll_values(self.song.scrollable_tracks, base_track, go_next)  # type: SimpleTrack
+        if track_to_select:
+            track_to_select.select()
+
+    @button_action()
+    def action_arm_track(self):
+        """ arm or unarm both midi and audio track """
+        if self.song.current_track.arm:
+            return self.song.current_track.action_unarm()
+        else:
+            return self.song.current_track.action_arm()
+
+    @button_action()
+    def action_un_solo_all_tracks(self):
+        self.song.unsolo_all_tracks(except_current=False)
 
     @button_action(log_action=False)
     def action_scroll_track_devices(self, go_next):
@@ -162,23 +172,6 @@ class ActionManager(AbstractActionManager):
         if not self.song.current_track.selected_device:
             return
         self.song.current_track.selected_device.is_collapsed = not self.song.current_track.selected_device.is_collapsed
-
-    @button_action(log_action=False)
-    def action_scroll_track_recording_times(self, go_next):
-        """ record both midi and audio on group track """
-        self.song.selected_recording_time = scroll_values(RECORDING_TIMES, self.song.selected_recording_time, go_next)
-        self.song.recording_bar_count = int(self.song.selected_recording_time.split()[0])
-        self.parent.show_message("Selected %s" % self.song.selected_recording_time)
-
-    @button_action(auto_arm=True)
-    def action_track_record_fixed(self):
-        """ record both midi and audio on group track """
-        self.song.current_track.action_restart_and_record(self.song.current_track.action_record_all)
-
-    @button_action(auto_arm=True)
-    def action_track_record_audio(self):
-        """ record only audio on group track """
-        return self.song.current_track.action_restart_and_record(self.song.current_track.action_record_audio_only)
 
     @button_action(log_action=False)
     def action_scroll_track_categories(self, go_next):
@@ -224,10 +217,6 @@ class ActionManager(AbstractActionManager):
             self.parent.show_message("Starting %s" % self.song.selected_track_category)
 
     @button_action()
-    def action_switch_track_monitoring(self):
-        self.song.current_track.action_switch_monitoring()
-
-    @button_action()
     def action_set_up_parameter_automation(self):
         self.parent.automationTrackManager.create_automation_group(self.song.selected_parameter)
 
@@ -257,10 +246,6 @@ class ActionManager(AbstractActionManager):
     def action_fold_tracks(self):
         """" undo last recording """
         self.song.fold_all_tracks()
-
-    @button_action()
-    def action_play_selected_scene(self):
-        self.song.selected_scene.fire()
 
     @button_action()
     def action_update_selected_scene_name(self):

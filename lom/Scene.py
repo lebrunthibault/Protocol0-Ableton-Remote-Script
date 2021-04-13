@@ -45,6 +45,9 @@ class Scene(AbstractObject):
         if self._scene:
             self._scene.fire()
 
+    def play_stop(self):
+        self.fire()
+
     def update_name(self, show_bar_count=False):
         """ toggle bar count and change base_name if index based """
         if self.scene_name.bar_count and not show_bar_count:
@@ -97,3 +100,4 @@ class Scene(AbstractObject):
     def longest_clip(self):
         # type: () -> Clip
         return None if not len(self.clips) else max(self.clips, key=lambda c: c.length)
+
