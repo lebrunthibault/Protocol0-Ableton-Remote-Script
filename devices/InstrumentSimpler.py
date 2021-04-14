@@ -42,13 +42,14 @@ class InstrumentSimpler(AbstractInstrument):
         # type: () -> str
         return join(self.PRESETS_PATH, self.selected_category)
 
-    def load_preset(self, preset):
+    def _load_preset(self, preset):
         # type: (InstrumentPreset) -> None
         self.parent.browserManager.load_sample(preset.original_name)
         self.parent._wait(400, self.track._devices_listener)
 
-    def action_scroll_categories(self, go_next):
+    def scroll_preset_categories(self, go_next):
         # type: (bool) -> None
+        self.parent.clyphxNavigationManager.show_track_view()
         selected_category = scroll_values(listdir(self.PRESETS_PATH), self.selected_category, go_next)
         self.track.track_name.update(base_name=selected_category)
 

@@ -21,30 +21,34 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         return self.song.select_track(self)
 
-    def action_arm(self):
+    def toggle_arm(self):
+        # type: (AbstractTrack) -> None
+        return self.unarm() if self.is_armed else self.arm()
+
+    def arm(self):
         # type: (AbstractTrack) -> Optional[Sequence]
-        if self.arm:
+        if self.is_armed:
             return
         self.base_track.collapse_devices()
         self.song.unfocus_all_tracks()
-        return self.action_arm_track()
+        return self.arm_track()
 
-    def action_arm_track(self):
+    def arm_track(self):
         # type: (AbstractTrack) -> None
         raise NotImplementedError()
 
-    def action_unarm(self):
+    def unarm(self):
         # type: (AbstractTrack) -> None
         self.color = self.base_color
-        [setattr(track, "arm", False) for track in self.all_tracks]
+        [setattr(track, "is_armed", False) for track in self.all_tracks]
         [setattr(clip, "color", self.base_color) for clip in self.all_clips]
-        self.action_unarm_track()
+        self.unarm_track()
 
-    def action_unarm_track(self):
+    def unarm_track(self):
         # type: (AbstractTrack) -> None
         pass
 
-    def action_show_hide_instrument(self):
+    def show_hide_instrument(self):
         # type: (AbstractTrack) -> None
         if not self.instrument:
             self.instrument_track.instrument = self.parent.deviceManager.make_instrument_from_simple_track(
@@ -56,9 +60,15 @@ class AbstractTrackActionMixin(object):
         self.is_folded = False
         self.instrument.show_hide()
 
-    def action_solo(self):
-        # type: (AbstractTrack) -> None
-        self.solo = not self.solo
+    def scroll_presets_or_samples(self, go_next):
+        # type: (AbstractTrack, bool) -> None
+        if self.instrument:
+            self.instrument.scroll_presets_or_samples(go_next)
+
+    def scroll_preset_categories(self, go_next):
+        # type: (AbstractTrack, bool) -> None
+        if self.instrument:
+            self.instrument.scroll_preset_categories(go_next=go_next)
 
     def action_switch_monitoring(self):
         # type: (AbstractTrack) -> None
@@ -67,7 +77,7 @@ class AbstractTrackActionMixin(object):
     def action_restart_and_record(self, action_record_func):
         # type: (AbstractTrack, Callable) -> None
         """ restart audio to get a count in and recfix"""
-        if not self.can_be_armed or not self.arm:
+        if not self.can_be_armed:
             return
         if self.is_recording:
             return self.action_undo()
@@ -81,6 +91,8 @@ class AbstractTrackActionMixin(object):
             self.song.metronome = True
 
         seq = Sequence()
+        if not self.is_armed:
+            seq.add(self.arm, silent=True)
         if self.next_empty_clip_slot_index is None:
             seq.add(self.song.create_scene)
             # here the tracks are mapped again ! we cannot simply call this method again on a stale object
@@ -151,7 +163,7 @@ class AbstractTrackActionMixin(object):
     def reset_track(self):
         # type: (AbstractTrack) -> None
         self.solo = False
-        self.action_unarm()
+        self.unarm()
         self.collapse_devices()
 
     def load_any_device(self, device_type, device_name):

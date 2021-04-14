@@ -140,12 +140,10 @@ def button_action(auto_arm=False, log_action=True):
         @wraps(func)
         def decorate(self, *a, **k):
             # type: (AbstractObject) -> None
-            if log_action:
-                self.parent.log_notice("Executing %s" % func.__name__)
             from a_protocol_0.sequence.Sequence import Sequence
             seq = Sequence()
-            if auto_arm and not self.song.current_track.arm:
-                seq.add(self.song.current_track.action_arm, silent=True)
+            if auto_arm and not self.song.current_track.is_armed:
+                seq.add(self.song.current_track.arm, silent=True)
 
             seq.add(partial(func, self, **k))
 

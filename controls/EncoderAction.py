@@ -3,7 +3,7 @@ from typing import Callable, Optional, List
 from a_protocol_0.controls.EncoderModifier import EncoderModifierEnum
 from a_protocol_0.enums.AbstractEnum import AbstractEnum
 from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.utils.utils import get_callable_name
+from a_protocol_0.utils.utils import get_callable_name, is_lambda
 
 
 class EncoderMoveEnum(AbstractEnum):
@@ -31,7 +31,13 @@ class EncoderAction(AbstractObject):
         return "%s : %s" % (move, get_callable_name(self.func))
 
     def execute(self, *a, **k):
-        self.func(*a, **k)
+        # NB : Here lambda is just a way to act on the right objects at runtime
+        # like this we can display the function name
+        func = self.func() if is_lambda(self.func) else self.func
+        if self.move_type != EncoderMoveEnum.SCROLL:
+            self.parent.log_notice("Executing %s" % get_callable_name(func))
+        assert callable(func), "%s is not a callable" % get_callable_name(func)
+        func(*a, **k)
 
     @staticmethod
     def make_actions(on_press=None, on_long_press=None, on_shift_press=None,

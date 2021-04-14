@@ -95,7 +95,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
         if device is None:
             return
         if self.is_track_instrument(track, device):
-            track.instrument.action_scroll_presets_or_samples(go_next)
+            track.instrument.scroll_presets_or_samples(go_next)
         elif not device.is_plugin:
             self.parent.browserManager.swap(">" if go_next else "<")
         elif device.is_plugin:

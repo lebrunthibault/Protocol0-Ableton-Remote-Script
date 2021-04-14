@@ -10,14 +10,14 @@ from a_protocol_0.controls.EncoderModifier import EncoderModifier, EncoderModifi
 from a_protocol_0.lom.AbstractObject import AbstractObject
 
 if TYPE_CHECKING:
-    from a_protocol_0.components.actionGroups.AbstractActionManager import AbstractActionManager
+    from a_protocol_0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
 
 
 class MultiEncoder(AbstractObject):
     PRESS_MAX_TIME = 0.25  # maximum time in seconds we consider a simple press
 
-    def __init__(self, action_manager, channel, identifier, *a, **k):
-        # type: (AbstractActionManager, int, int) -> None
+    def __init__(self, action_group, channel, identifier, *a, **k):
+        # type: (AbstractActionGroup, int, int) -> None
         """
             Actions are triggered at the end of the press not the start. Allows press vs long_press (Note) vs scroll (CC)
             Also possible to define modifiers to duplicate the number of actions possible.
@@ -25,7 +25,7 @@ class MultiEncoder(AbstractObject):
         """
         super(MultiEncoder, self).__init__(*a, **k)
         self._actions = []  # type: List[EncoderAction]
-        self._action_manager = action_manager  # type: AbstractActionManager
+        self._action_group = action_group  # type: AbstractActionGroup
         self.identifier = identifier
 
         self._press_listener.subject = ButtonElement(True, MIDI_NOTE_TYPE, channel, identifier)
@@ -34,7 +34,7 @@ class MultiEncoder(AbstractObject):
 
     def get_modifier_from_enum(self, modifier_type):
         # type: (EncoderModifierEnum) -> EncoderModifier
-        return [modifier for modifier in self._action_manager.available_modifiers if modifier.type == modifier_type][0]
+        return [modifier for modifier in self._action_group.available_modifiers if modifier.type == modifier_type][0]
 
     def add_action(self, action):
         # type: (EncoderAction) -> MultiEncoder
@@ -45,7 +45,7 @@ class MultiEncoder(AbstractObject):
     @property
     def _pressed_modifier_type(self):
         # type: () -> Optional[EncoderModifierEnum]
-        pressed_modifiers = [modifier for modifier in self._action_manager.available_modifiers if modifier.pressed]
+        pressed_modifiers = [modifier for modifier in self._action_group.available_modifiers if modifier.pressed]
         assert len(pressed_modifiers) <= 1, "Multiple modifiers pressed. Not allowed."
         return pressed_modifiers[0].type if len(pressed_modifiers) else None
 
@@ -64,7 +64,7 @@ class MultiEncoder(AbstractObject):
         action = self._find_matching_action(move_type=move_type)
         self._pressed_at = None
         if action:
-            self._action_manager.current_action = action
+            self._action_group.current_action = action
             action.execute()
 
     @subject_slot("value")

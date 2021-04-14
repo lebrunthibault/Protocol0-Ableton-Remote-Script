@@ -61,7 +61,7 @@ class AutomatedTrack(AbstractGroupTrack):
         self.wrapped_track.name = name
 
     @forward_property('wrapped_track')
-    def arm(): pass
+    def is_armed(): pass
 
     @forward_property('wrapped_track')
     def solo(): pass
@@ -75,12 +75,12 @@ class AutomatedTrack(AbstractGroupTrack):
     @forward_property('wrapped_track')
     def next_empty_clip_slot_index(): pass
 
-    def action_arm_track(self):
+    def arm_track(self):
         self.is_folded = False
-        return self.wrapped_track.action_arm_track()
+        return self.wrapped_track.arm_track()
 
     @forward_property('wrapped_track')
-    def action_unarm_track(self): pass
+    def unarm_track(self): pass
 
     @forward_property('wrapped_track')
     def action_switch_monitoring(self): pass

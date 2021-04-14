@@ -71,5 +71,5 @@ class AutomationAudioTrack(AbstractAutomationTrack):
 
     @p0_subject_slot("current_monitoring_state")
     def _current_monitoring_state_listener(self):
-        if not self.has_monitor_in and not any([couple.audio_track.solo for couple in self.abstract_group_track.automation_tracks_couples]):  # enforce monitor in
+        if not self.has_monitor_in and not any([couple.audio_track.toggle_solo for couple in self.abstract_group_track.automation_tracks_couples]):  # enforce monitor in
             self.has_monitor_in = True

@@ -36,13 +36,13 @@ class AbstractActionGroup(AbstractControlSurfaceComponent):
         k = locals()
         del k["self"]
         del k["id"]
-        encoder = MultiEncoder(action_manager=self, channel=self.channel, identifier=id)
+        encoder = MultiEncoder(action_group=self, channel=self.channel, identifier=id)
         [encoder.add_action(action) for action in EncoderAction.make_actions(**k)]
         return self._add_multi_encoder(encoder)
 
     def add_modifier(self, id, modifier_type, *a, **k):
         # type: (int, EncoderModifierEnum) -> MultiEncoder
-        encoder = MultiEncoderModifier(action_manager=self, channel=self.channel, identifier=id,
+        encoder = MultiEncoderModifier(action_group=self, channel=self.channel, identifier=id,
                                     modifier_type=modifier_type, *a, **k)
         return self._add_multi_encoder(encoder)
 

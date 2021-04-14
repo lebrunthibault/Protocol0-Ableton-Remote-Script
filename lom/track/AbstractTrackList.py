@@ -19,7 +19,11 @@ class AbstractTrackList(list, AbstractObject):
         else:
             [t.play() for t in self._abstract_tracks]
 
-    def solo(self):
-        [t.action_solo() for t in self._abstract_tracks]
+    def toggle_solo(self):
+        for t in self._abstract_tracks:
+            t.solo = not t.solo
 
+    def toggle_fold(self):
+        fold = (any(not abstract_track.is_folded for abstract_track in self._abstract_tracks))
+        [setattr(abstract_track, "is_folded", fold) for abstract_track in self._abstract_tracks]
 

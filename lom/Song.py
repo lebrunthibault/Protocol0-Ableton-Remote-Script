@@ -36,7 +36,7 @@ class Song(SongActionMixin, AbstractObject):
         self.current_track = None  # type: AbstractTrack
         self.master_track = self._song.master_track  # type: Live.Track.Track
         self.selected_track_category = TrackCategoryEnum.ALL  # type: AbstractEnum
-        self.selected_recording_time = "1 bar"
+        self._selected_recording_time = "1 bar"
         self.recording_bar_count = 1
         self.solo_playing_tracks = []  # type: List[AbstractTrack]
         self.solo_stopped_tracks = []  # type: List[AbstractTrack]
@@ -98,11 +98,9 @@ class Song(SongActionMixin, AbstractObject):
 
     @property
     def selected_category_tracks(self):
-        # type: () -> List[AbstractTrack]
-        if self.selected_track_category == TrackCategoryEnum.ALL:
-            return self.simple_tracks
-        return [track for track in self.abstract_tracks if
-                track.category.lower() == self.selected_track_category.value.lower()]
+        # type: () -> AbstractTrackList
+        return AbstractTrackList([track for track in self.abstract_tracks if
+                track.category.value.lower() == self.selected_track_category.value.lower()])
 
     @property
     def audio_bus_track(self):
@@ -167,6 +165,15 @@ class Song(SongActionMixin, AbstractObject):
     def get_current_beats_song_time(self):
         # type: () -> Live.Song.BeatTime
         return self._song.get_current_beats_song_time()
+
+    @property
+    def selected_recording_time(self):
+        return self._selected_recording_time
+
+    @selected_recording_time.setter
+    def selected_recording_time(self, selected_recording_time):
+        self.recording_bar_count = int(selected_recording_time.split()[0])
+        self._selected_recording_time = selected_recording_time
 
     @property
     def clip_trigger_quantization(self):

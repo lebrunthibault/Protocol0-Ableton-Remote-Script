@@ -35,8 +35,8 @@ def test_multi_encoder_press():
         res["pressed"] = True
 
     with p0.component_guard():
-        action_manager = ActionGroupTest()
-        multi_encoder = action_manager.add_encoder(id=2, on_press=press)
+        action_group = ActionGroupTest()
+        multi_encoder = action_group.add_encoder(id=2, on_press=press)
 
     with pytest.raises(Exception):
         multi_encoder.add_action(EncoderAction(func=lambda: None))
@@ -52,8 +52,8 @@ def test_multi_encoder_scroll():
         res["scrolled"] = True
 
     with p0.component_guard():
-        action_manager = ActionGroupTest()
-        multi_encoder = action_manager.add_encoder(id=2, on_scroll=scroll)
+        action_group = ActionGroupTest()
+        multi_encoder = action_group.add_encoder(id=2, on_scroll=scroll)
 
     scroll_encoder(multi_encoder)
     assert res["scrolled"] is True
@@ -69,8 +69,8 @@ def test_multi_encoder_press_and_scroll():
         res["pressed"] = True
 
     with p0.component_guard():
-        action_manager = ActionGroupTest()
-        multi_encoder = action_manager.add_encoder(id=2, on_press=press, on_scroll=scroll)
+        action_group = ActionGroupTest()
+        multi_encoder = action_group.add_encoder(id=2, on_press=press, on_scroll=scroll)
 
     scroll_encoder(multi_encoder)
     assert res["scrolled"] is True
@@ -86,9 +86,9 @@ def test_multi_encoder_shift_press():
         res["shift_pressed"] = True
 
     with p0.component_guard():
-        action_manager = ActionGroupTest()
-        action_manager.add_modifier(id=1, modifier_type=EncoderModifierEnum.SHIFT)
-        multi_encoder = action_manager.add_encoder(id=2, on_shift_press=shift_press)
+        action_group = ActionGroupTest()
+        action_group.add_modifier(id=1, modifier_type=EncoderModifierEnum.SHIFT)
+        multi_encoder = action_group.add_encoder(id=2, on_shift_press=shift_press)
 
     press_encoder(multi_encoder)
     assert res["shift_pressed"] is False

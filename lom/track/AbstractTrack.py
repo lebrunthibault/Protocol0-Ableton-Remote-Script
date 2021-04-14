@@ -78,7 +78,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         """ this should be be called once, when the Live track is created, overridden by some child classes """
         if self.parent.songManager.abstract_group_track_creation_in_progress:
             return
-        self.song.current_track.action_arm()
+        self.song.current_track.arm()
         self.song.current_track.stop()
         [setattr(track.track_name, "playing_slot_index", 0) for track in self.song.current_track.all_tracks]
 
@@ -164,9 +164,9 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
 
     @property
     def category(self):
-        # type: () -> str
+        # type: () -> TrackCategoryEnum
         for track_category in TrackCategoryEnum:
-            if any([t for t in [self] + self.group_tracks if track_category.lower() in t.name]):
+            if any([t for t in [self] + self.group_tracks if track_category.value.lower() in t.name]):
                 return track_category
 
         return TrackCategoryEnum.OTHER
@@ -340,7 +340,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         return self._track.can_be_armed
 
     @property
-    def arm(self):
+    def is_armed(self):
         # type: () -> bool
         return False
 

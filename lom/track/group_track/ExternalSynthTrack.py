@@ -52,16 +52,16 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         if not solo:
             [setattr(track, "solo", False) for track in self.all_tracks]
         else:
-            self.midi_track.solo = self.audio._track.solo = True
+            self.midi_track.solo = self.audio._track.toggle_solo = True
 
     @property
     def can_be_armed(self):
         return True
 
     @property
-    def arm(self):
+    def is_armed(self):
         # type: () -> bool
-        return self.midi_track.arm or self.audio_track.arm
+        return self.midi_track.is_armed or self.audio_track.is_armed
 
     @property
     def is_playing(self):

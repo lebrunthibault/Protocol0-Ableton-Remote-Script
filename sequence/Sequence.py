@@ -71,7 +71,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
         if self.errored and self.debug:
             self.parent.log_error(self.debug_str, debug=False)
 
-    def add(self, callback=nop, wait=None, name=None, complete_on=None, do_if=None, do_if_not=None, return_if=None,
+    def add(self, func=nop, wait=None, name=None, complete_on=None, do_if=None, do_if_not=None, return_if=None,
             return_if_not=None, check_timeout=4, no_timeout=False, silent=False):
         """
             check_timeout is the number of (exponential duration) checks executed before step failure (based on the Live.Base.Timer tick)
@@ -79,11 +79,12 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
             - not given (nop): can be used to just wait on a condition
             - a callable or a list of callable (parallel sequence execution) which are added as SequenceStep
         """
+        assert callable(func), "You passed a non callable (%s) to %s" % (func, self)
         assert not self.terminated and not self.errored
-        assert not isinstance(callback, Sequence), "You passed a Sequence object instead of a Sequence factory to add"
+        assert not isinstance(func, Sequence), "You passed a Sequence object instead of a Sequence factory to add"
 
         self._steps.append(
-            SequenceStep.make(self, callback, wait=wait, name=name, complete_on=complete_on, do_if=do_if,
+            SequenceStep.make(self, func, wait=wait, name=name, complete_on=complete_on, do_if=do_if,
                               do_if_not=do_if_not,
                               return_if=return_if, return_if_not=return_if_not, check_timeout=0 if no_timeout else check_timeout,
                               silent=silent))

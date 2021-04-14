@@ -4,7 +4,9 @@ from typing import TYPE_CHECKING, Optional
 
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
+from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.sequence.Sequence import Sequence
+from a_protocol_0.utils.utils import scroll_values
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -21,6 +23,13 @@ class SongActionMixin(object):
         seq.add(partial(setattr, self._view, "selected_track", selected_track._track), wait=1)
         return seq.done()
 
+    def scroll_tracks(self, go_next):
+        # type: (Song, bool) -> None
+        base_track = self.selected_track if self.selected_track.is_scrollable else self.current_track.base_track
+        track_to_select = scroll_values(self.scrollable_tracks, base_track, go_next)  # type: SimpleTrack
+        if track_to_select:
+            track_to_select.select()
+
     def unfocus_all_tracks(self):
         # type: (Song, bool) -> None
         self.unsolo_all_tracks()
@@ -29,18 +38,13 @@ class SongActionMixin(object):
     def unarm_all_tracks(self):
         # type: (Song, bool) -> None
         seq = Sequence(silent=True)
-        seq.add([t.action_unarm() for t in self.abstract_tracks if t.arm])
+        seq.add([t.unarm() for t in self.abstract_tracks if t.is_armed])
         return seq.done()
 
     def unsolo_all_tracks(self, except_current=True):
         # type: (Song, bool) -> None
         [setattr(t, "solo", False) for t in self.song.abstract_tracks if
          t.solo and t != (self.current_track if except_current else None)]
-
-    def toggle_fold(self):
-        # type: (Song) -> None
-        fold = (any(not simple_group_track.is_folded for simple_group_track in self.simple_group_tracks))
-        [setattr(simple_group_track, "is_folded", fold) for simple_group_track in self.simple_group_tracks]
 
     def fold_all_tracks(self):
         # type: (Song, bool) -> None
@@ -62,10 +66,9 @@ class SongActionMixin(object):
     def play_stop(self):
         # type: (Song) -> None
         if not self.is_playing:
-            [simple_track.play() for simple_track in self.song.simple_tracks]
+            self.selected_scene.fire()
         else:
             self.stop_all_clips()
-            self.stop_playing()
 
     def stop_playing(self):
         # type: (Song) -> None

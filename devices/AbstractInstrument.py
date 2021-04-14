@@ -134,36 +134,38 @@ class AbstractInstrument(AbstractObject):
         """ overridden """
         return preset_name
 
-    def action_scroll_presets_or_samples(self, go_next):
+    def scroll_presets_or_samples(self, go_next):
         # type: (bool) -> None
+        self.parent.clyphxNavigationManager.show_track_view()
+
         seq = Sequence()
         if self.NEEDS_ACTIVATION_FOR_PRESETS_CHANGE:
             seq.add(self.check_activated)
 
         seq.add(partial(self._preset_list.scroll, go_next=go_next))
-        seq.add(partial(self.sync_selected_preset))
+        seq.add(partial(self._sync_selected_preset))
         return seq.done()
 
-    def sync_selected_preset(self):
+    def scroll_preset_categories(self, go_next):
+        # type: (bool) -> None
+        self.parent.log_error("this instrument does not have scrollable categories")
+
+    def _sync_selected_preset(self):
         seq = Sequence()
-        seq.add(partial(self.load_preset, self.selected_preset))
+        seq.add(partial(self._load_preset, self.selected_preset))
         seq.add(partial(self.parent.show_message,
                         "preset change : %s" % self.selected_preset))
         # noinspection PyUnresolvedReferences
         seq.add(self.notify_selected_preset)
         return seq.done()
 
-    def load_preset(self, preset):
+    def _load_preset(self, preset):
         # type: (InstrumentPreset) -> Sequence
         """ Overridden default is send program change """
         seq = Sequence()
-        seq.add(self.track.top_abstract_track.action_arm)
+        seq.add(self.track.top_abstract_track.arm)
         seq.add(partial(self.parent.midiManager.send_program_change, preset.index + self.PROGRAM_CHANGE_OFFSET))
         return seq.done()
-
-    def action_scroll_categories(self, go_next):
-        # type: (bool) -> None
-        self.parent.log_error("this instrument does not have scrollable categories")
 
     def generate_base_notes(self, clip):
         # type: (Clip) -> List[Note]

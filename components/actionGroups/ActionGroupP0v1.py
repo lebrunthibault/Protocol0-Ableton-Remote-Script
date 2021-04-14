@@ -101,10 +101,10 @@ class ActionGroupP0v1(AbstractActionGroup):
     @button_action()
     def action_arm_track(self):
         """ arm or unarm both midi and audio track """
-        if self.song.current_track.arm:
-            return self.song.current_track.action_unarm()
+        if self.song.current_track.is_armed:
+            return self.song.current_track.unarm()
         else:
-            return self.song.current_track.action_arm()
+            return self.song.current_track.arm()
 
     @button_action()
     def action_solo_track(self):
@@ -117,21 +117,21 @@ class ActionGroupP0v1(AbstractActionGroup):
     @button_action()
     def action_show_hide_instrument(self):
         """ Sel instrument track and open instrument window """
-        self.song.current_track.action_show_hide_instrument()
+        self.song.current_track.show_hide_instrument()
 
     @button_action(log_action=False)
     def action_scroll_track_instrument_presets(self, go_next):
         """ scroll track device presets or samples """
         self.parent.clyphxNavigationManager.show_track_view()
         if self.song.current_track.instrument:
-            self.song.current_track.instrument.action_scroll_presets_or_samples(go_next)
+            self.song.current_track.instrument.scroll_presets_or_samples(go_next)
 
     @button_action(log_action=False)
     def action_scroll_simpler_drum_categories(self, go_next):
         """ scroll track device presets or samples """
         self.parent.clyphxNavigationManager.show_track_view()
         if self.song.current_track.instrument:
-            self.song.current_track.instrument.action_scroll_categories(go_next=go_next)
+            self.song.current_track.instrument.scroll_preset_categories(go_next=go_next)
 
     @button_action(log_action=False)
     def action_scroll_track_devices(self, go_next):

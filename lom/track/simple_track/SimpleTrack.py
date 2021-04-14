@@ -128,15 +128,18 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
 
             Checked in order :
             - The clip.is_selected (selected via the scrolling the clip encoder)
-            - The clip corresponding to the track's playing_slot_index
-            - If None then check the clip marked as playable on the clip name (allows set recall)
+            - The playing clip
+            - The clip corresponding to the selected scene if it exists
         :return:
         """
         # encoder scrolled clips
         selected_clip = find_if(lambda clip: clip.is_selected, self.clips)
         if selected_clip:
             return selected_clip
-        return self.playing_clip or find_if(lambda clip: clip.clip_name.is_playable, self.clips)
+        # return self.playing_clip or find_if(lambda clip: clip.clip_name.is_playable, self.clips)
+        selected_scene_clip = self.clip_slots[self.song.selected_scene.index].clip if self.clip_slots[
+            self.song.selected_scene.index].has_clip else None
+        return self.playing_clip or selected_scene_clip
 
     @playable_clip.setter
     def playable_clip(self, playable_clip):
@@ -146,15 +149,15 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             playable_clip.clip_name.update(is_playable=True)
 
     @property
-    def arm(self):
+    def is_armed(self):
         # type: () -> bool
         return self.can_be_armed and self._track.arm
 
-    @arm.setter
-    def arm(self, arm):
+    @is_armed.setter
+    def is_armed(self, is_armed):
         # type: (bool) -> None
         if self.can_be_armed:
-            self._track.arm = arm
+            self._track.arm = is_armed
 
     @property
     def _empty_clip_slots(self):

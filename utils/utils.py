@@ -41,6 +41,14 @@ def parse_midi_channel(num_as_string):
     return parse_number(num_as_string, default_value=1, min_value=1, max_value=16) - 1
 
 
+def scroll_object_property(base_object, property, items, go_next):
+    # type: (Any, str, List[Any], bool) -> None
+    new_value = scroll_values(items, getattr(base_object, property), go_next)
+    setattr(base_object, property, new_value)
+    from a_protocol_0 import Protocol0
+    Protocol0.SELF.show_message("Selected %s" % new_value)
+
+
 def scroll_values(items, selected_item, go_next, default=None, return_index=False):
     # type: (List[Any], Optional[Any], bool, Any) -> Optional[Any]
     if len(items) == 0:

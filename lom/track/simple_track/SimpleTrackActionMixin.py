@@ -20,7 +20,7 @@ class SimpleTrackActionMixin(object):
             self.is_folded = not self.is_folded
         else:
             self.mute = False
-            self.arm = True
+            self.is_armed = True
 
         if self.instrument and self.instrument.needs_exclusive_activation:
             return self.instrument.check_activated()

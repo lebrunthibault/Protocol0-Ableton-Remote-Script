@@ -79,7 +79,7 @@ If you want to try the script try the following :
 - clone the repo in your remote scripts directory
 - Ensure python3 and AutoHotkey are installed on your system (if you're on windows)
 - create a .env.json file by duplicating the .env.json.example and fill in the paths
-- Try using a controller with configurable note, CC and midi channels or modify the mappings in ./components/actionManagers. The bulk of the script uses the midi channel 15 and notes / CCs from 1 to 16.
+- Try using a controller with configurable note, CC and midi channels or modify the mappings in ./components/actionGroups. The bulk of the script uses the midi channel 15 and notes / CCs from 1 to 16.
 
 ## Development
 

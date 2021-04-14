@@ -42,7 +42,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         conditions = [do_if, do_if_not, return_if, return_if_not]
         self._condition = next((c for c in conditions if c), None)
 
-        assert callable(self._callable), "You passed a non callable to %s" % self
+        assert callable(self._callable), "You passed a non callable (%s) to %s" % (self._callable, self)
         assert len(filter(None, conditions)) <= 1, "You cannot specify multiple conditions in a step"
         from a_protocol_0.sequence.Sequence import Sequence
         if any([isinstance(condition, Sequence) for condition in conditions]):
