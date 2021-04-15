@@ -32,7 +32,7 @@ class SongManager(AbstractControlSurfaceComponent):
         self._highlighted_clip_slot_poller()
         self.song.reset()
 
-    @has_callback_queue
+    @has_callback_queue()
     def on_selected_track_changed(self):
         self._set_current_track()
         self.parent.clyphxNavigationManager.show_track_view()

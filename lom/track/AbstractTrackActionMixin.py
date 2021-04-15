@@ -195,7 +195,7 @@ class AbstractTrackActionMixin(object):
                                           self.available_output_routing_types)
 
         if not output_routing_type:
-            raise Protocol0Error("Couldn't find the output routing type of the given track", show_warning=False)
+            raise Protocol0Error("Couldn't find the output routing type of the given track")
 
         if self.output_routing_type != output_routing_type:
             self.output_routing_type = output_routing_type

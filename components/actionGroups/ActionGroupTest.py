@@ -15,18 +15,23 @@ class ActionGroupTest(AbstractActionGroup):
         self.previous_instrument = None
         self.previous_live_id = None
 
-    @button_action()
-    def action_test(self):
+    def error(self):
+        raise Exception("exception thrown")
+
+    def action_error(self):
         seq = Sequence()
+        seq.add(self.error)
+        return seq.done()
 
-        def error():
-            raise Exception("error message here")
+    def action_test(self):
+        self.parent.defer(self.error)
+        # seq = Sequence()
+        # seq.add(wait=1)
+        # seq.add(self.action_error)
+        # return seq.done()
 
-        seq.add(error)
-        seq.done()
-
-    @button_action()
     def action_test_state(self):
+        self.error()
         self.parent.log_info(self.previous_instrument)
         self.parent.log_info(self.song.selected_track.instrument.device._device)
         self.parent.log_info(self.song.selected_track.instrument.device._device._live_ptr)

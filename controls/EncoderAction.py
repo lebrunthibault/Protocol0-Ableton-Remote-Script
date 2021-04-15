@@ -45,7 +45,6 @@ class EncoderAction(AbstractObject):
         assert callable(func), "%s is not a callable" % get_callable_name(func)
         try:
             func(*a, **k)
-            self.parent.log_notice("executed %s" % get_callable_name(func))
         except Exception as e:
             self.parent.errorManager.handle_error(e)
 

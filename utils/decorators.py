@@ -154,21 +154,34 @@ def button_action(auto_arm=False, log_action=True):
     return wrap
 
 
-def p0_subject_slot(event):
+def p0_subject_slot(event, immediate=False):
+    """
+        Drop in replacement of _Framework subject_slot decorator
+        Allows the registration of callbacks to be execute after the decorated function
+        By default the callbacks are deferred to handle the notification change error
+        immediate calls the callbacks synchronously
+        This decorator is used by the Sequence pattern and allows the sequence to wait for a change to happen
+        That is it waits for a listener to be triggered.
+        With this, a callback to continue the sequence can be automatically attached to any listener without more hassle
+    """
+
     def wrap(func):
         def decorate(*a, **k):
             func(*a, **k)
 
         decorate.original_func = func
 
-        return wraps(func)(has_callback_queue(_framework_subject_slot(event)(decorate)))
+        return wraps(func)(has_callback_queue(immediate)(_framework_subject_slot(event)(decorate)))
 
     return wrap
 
 
-def has_callback_queue(func):
-    from a_protocol_0.utils.callback_descriptor import CallbackDescriptor
-    return CallbackDescriptor(func)
+def has_callback_queue(immediate=False):
+    def wrap(func):
+        from a_protocol_0.utils.callback_descriptor import CallbackDescriptor
+        return CallbackDescriptor(func, immediate)
+
+    return wrap
 
 
 def catch_and_stop(func):

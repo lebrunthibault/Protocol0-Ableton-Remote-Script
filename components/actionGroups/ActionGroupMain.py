@@ -96,7 +96,6 @@ class ActionGroupMain(AbstractActionGroup):
     # REC encoder
     def action_track_record_fixed(self):
         """ record both midi and audio on group track """
-        self.parent.log_dev("hey")
         self.song.current_track.action_restart_and_record(self.song.current_track.action_record_all)
 
     def action_track_record_audio(self):

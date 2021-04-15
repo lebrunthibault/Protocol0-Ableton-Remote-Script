@@ -23,7 +23,7 @@ def test_parallel_listeners():
             # noinspection PyUnresolvedReferences
             self.notify_test()
 
-        @has_callback_queue
+        @has_callback_queue()
         def callback_listener(self):
             seq = Sequence(silent=True)
 

@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING, Iterable, Any
 
 from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.errors.SequenceError import SequenceError
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 class SequenceStep(AbstractObject, SequenceStateMachineMixin):
-    __subject_events__ = ('terminated',)
+    __subject_events__ = ('terminated','errored')
 
     def __init__(self, func, sequence, wait, name, complete_on,
                  do_if, do_if_not, return_if, return_if_not, check_timeout, silent, *a, **k):
@@ -42,12 +42,14 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         conditions = [do_if, do_if_not, return_if, return_if_not]
         self._condition = next((c for c in conditions if c), None)
 
+        if _has_callback_queue(self._complete_on):
+            self._add_callback_on_listener(self._complete_on)
+
         assert callable(self._callable), "You passed a non callable (%s) to %s" % (self._callable, self)
         assert len(filter(None, conditions)) <= 1, "You cannot specify multiple conditions in a step"
         from a_protocol_0.sequence.Sequence import Sequence
-        if any([isinstance(condition, Sequence) for condition in conditions]):
-            raise SequenceError(object=self,
-                                message="You passed a Sequence object instead of a Sequence factory for a condition")
+        assert all([not isinstance(condition, Sequence) for condition in
+                    conditions]), "You passed a Sequence object instead of a Sequence factory for a condition"
 
     def __repr__(self):
         output = self.name
@@ -90,15 +92,13 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
 
     def _execute_condition(self):
         terminate_callback = self._terminate_if_condition if self._condition in [self._do_if,
-                                                                        self._do_if_not] else self._terminate_return_condition
-        condition_res = self._execute_callable(self._condition)
+                                                                                 self._do_if_not] else self._terminate_return_condition
+        try:
+            condition_res = self._execute_callable(self._condition)
+        except SequenceError:
+            return
 
-        from a_protocol_0.sequence.Sequence import Sequence
-        if isinstance(condition_res, Sequence):
-            terminate_callback.subject = condition_res
-            condition_res.start()
-        else:
-            terminate_callback(res=condition_res)
+        self._handle_return_value(condition_res, terminate_callback, terminate_callback)
 
     @subject_slot("terminated")
     def _terminate_if_condition(self, res=None):
@@ -128,29 +128,29 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         else:
             self._execute()
 
-    def _check_for_step_completion(self):
+    def _check_for_step_completion(self, *a):
         if not self._complete_on and not self._wait:
-            self.terminate()
-            return
+            return self.terminate()
 
         if not self._complete_on and self._wait:
-            self.parent._wait(self._wait, self.terminate)
-            return
+            return self.parent._wait(self._wait, self.terminate)
 
         if _has_callback_queue(self._complete_on):
-            return self._add_callback_on_listener(self._complete_on)
+            return
 
-        check_res = self._execute_callable(self._complete_on)
+        try:
+            check_res = self._execute_callable(self._complete_on)
+        except SequenceError:
+            return  # handled
 
         if _has_callback_queue(check_res):  # allows async linking to a listener
             return self._add_callback_on_listener(check_res)
 
-        if check_res or self._check_timeout == 0:
+        if check_res:
             self.terminate()
         else:
             if self._check_count == self._check_timeout:
-                self._step_timed_out()
-                return
+                return self._step_timed_out()
             self.parent._wait(pow(2, self._check_count), self._check_for_step_completion)
             self._check_count += 1
 
@@ -159,27 +159,43 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
             listener.add_callback(self.terminate)
         else:
             self._callback_timeout = TimeoutLimit(func=self.terminate, awaited_listener=listener,
-                                                  timeout_limit=self._check_timeout * 100,
+                                                  timeout_limit=self._check_timeout,
                                                   on_timeout=self._step_timed_out)
             listener.add_callback(self._callback_timeout)
 
     def _execute_callable(self, func):
         try:
             return func()
+        except SequenceError:
+            self.parent.log_notice("caught sequence error !!!!!")
+            raise
         except (Exception, RuntimeError) as e:
-            raise SequenceError(self, e)
+            self.error()
+            self.parent.errorManager.handle_error(e, self)
+            raise SequenceError()  # will stop sequence processing
+
+    def _handle_return_value(self, res, listener, success_callback):
+        # type: (Any, callable, callable) -> None
+        from a_protocol_0.sequence.Sequence import Sequence
+        if isinstance(res, Sequence):
+            if res.errored:
+                self.error()
+            elif res.terminated:
+                success_callback(res.res)
+            else:
+                listener.subject = res
+                if not res.started:
+                    res.start()
+        else:
+            success_callback(res)
 
     def _execute(self):
-        res = self._execute_callable(self._callable)
+        try:
+            res = self._execute_callable(self._callable)
+        except SequenceError:
+            return
 
-        from a_protocol_0.sequence.Sequence import Sequence
-        if isinstance(res, Sequence) and not res.terminated:
-            self._step_sequence_terminated_listener.subject = res
-            if not res.started:
-                res.start()
-        else:
-            self.res = res
-            self._check_for_step_completion()
+        self._handle_return_value(res, self._step_sequence_terminated_listener, self._check_for_step_completion)
 
     def _step_timed_out(self):
         if _has_callback_queue(self._complete_on) and self._callback_timeout:

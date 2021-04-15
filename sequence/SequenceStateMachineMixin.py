@@ -34,6 +34,11 @@ class SequenceStateMachineMixin(object):
         return self._state_machine.state
 
     @property
+    def un_started(self):
+        # type: () -> SequenceState
+        return self._state_machine.state == SequenceState.UN_STARTED
+
+    @property
     def started(self):
         # type: () -> SequenceState
         return self._state_machine.state == SequenceState.STARTED
@@ -62,6 +67,8 @@ class SequenceStateMachineMixin(object):
 
     def error(self):
         self.dispatch("error")
+        # noinspection PyUnresolvedReferences
+        self.notify_errored()
 
     def _on_start(self):
         pass

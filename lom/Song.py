@@ -53,7 +53,8 @@ class Song(SongActionMixin, AbstractObject):
         self.reset()
         seq = Sequence(bypass_errors=True, silent=True)
         self.errored = True
-        seq.add(wait=100)
+        if self.parent.LIVE_ENVIRONMENT_LOADED:
+            seq.add(wait=100)
         seq.add(lambda: setattr(self, "errored", False))
         return seq.done()
 

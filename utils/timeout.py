@@ -4,6 +4,7 @@ from a_protocol_0.utils.utils import get_callable_name
 
 
 class TimeoutLimit(AbstractObject):
+    TICKS_COUNT = 100
 
     def __init__(self, func, timeout_limit, awaited_listener=None, on_timeout=None, *a, **k):
         # type: (callable, int, callable, callable) -> callable
@@ -12,7 +13,7 @@ class TimeoutLimit(AbstractObject):
         self.func = func
         self.awaited_listener = awaited_listener
         self.on_timeout = on_timeout
-        self.parent._wait(timeout_limit, self._after_timeout)
+        self.parent._wait(timeout_limit * self.TICKS_COUNT, self._after_timeout)
         self.executed = False
         self.timed_out = False
 

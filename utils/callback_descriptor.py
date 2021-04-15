@@ -22,10 +22,12 @@ class CallbackDescriptor(object):
                     function execution, response and _callbacks execution. Makes the decorator somehow complicated though ^^
     """
 
-    def __init__(self, func, *a, **k):
+    def __init__(self, func, immediate, *a, **k):
+        # type: (callable, bool) -> None
         self.__name__ = func.__name__
         self.__doc__ = func.__doc__
         self._func = func
+        self._immediate = immediate
         self._wrapped = None
 
     def __repr__(self):
@@ -41,26 +43,29 @@ class CallbackDescriptor(object):
             if bool(getattr(self._func, "_data_name",
                             None)):  # here we cannot do isinstance() as the Decorator class is in a closure
                 self._wrapped = self._func.__get__(obj)  # calling inner descriptor. self._decorated is a SubjectSlot
-                self._wrapped.listener = CallableWithCallbacks(self._wrapped, obj)
+                self._wrapped.listener = CallableWithCallbacks(self._wrapped, obj, self._immediate)
 
                 # patching the wrapped function to have a coherent interface
                 self._wrapped.add_callback = self._wrapped.listener.add_callback
                 self._wrapped._callbacks = self._wrapped.listener._callbacks
                 self._wrapped.clear_callbacks = self._wrapped.listener.clear_callbacks
             else:
-                self._wrapped = CallableWithCallbacks(partial(self._func, obj), obj)
+                self._wrapped = CallableWithCallbacks(partial(self._func, obj), obj, self._immediate)
 
             obj.__dict__[id(self)] = self._wrapped  # caching self._wrapped
             return self._wrapped  # Outer most function replacing the decorated method
 
 
 class CallableWithCallbacks(object):
-    def __init__(self, decorated, obj, debug=False, *a, **k):
+    DEBUG_MODE = False
+
+    def __init__(self, decorated, obj, immediate, *a, **k):
+        # type: (callable, object, bool) -> None
         self._real_name = None
         self._decorated = decorated
         self._obj = obj
+        self._immediate = immediate
         self._callbacks = deque()
-        self._debug = debug
 
     def __repr__(self):
         return '%s (cwc %d)' % (get_callable_name(self._decorated, self._obj), id(self))
@@ -73,7 +78,7 @@ class CallableWithCallbacks(object):
             # let's fetch the inner function (bypass _Framework logic) to get the response
             res = self._decorated.function.func.original_func(self._obj, *a, **k)
 
-        if self._debug:
+        if self.DEBUG_MODE:
             log_ableton("listener res of %s : %s" % (self, res))
             log_ableton("callbacks of %s : %s" % (self, self._decorated._callbacks))
 
@@ -82,13 +87,13 @@ class CallableWithCallbacks(object):
             if res.errored:
                 self._callbacks = deque()
             else:
-                res.add(self._execute_callbacks)
+                res.add(self._execute_callback_queue)
         else:
-            self._execute_callbacks()
+            self._execute_callback_queue()
 
         return res
 
-    def add_callback(self, callback, defer=True):
+    def add_callback(self, callback):
         # type: (callable, bool) -> None
         """
         we don't allow the same exact callback to be added. Mitigates stuff like double clicks
@@ -96,18 +101,22 @@ class CallableWithCallbacks(object):
         """
         if callback in self._callbacks:
             return
-        if defer:
-            from a_protocol_0 import Protocol0
-            callback = partial(Protocol0.defer, callback)
         self._callbacks.append(callback)
-        if self._debug:
+        if self.DEBUG_MODE:
             log_ableton("adding_callback to %s : %s" % (self, self._callbacks))
 
     def clear_callbacks(self):
         self._callbacks = []
 
+    def _execute_callback_queue(self):
+        """ execute callbacks and check if we defer this or not """
+        if len(self._callbacks) == 0:
+            return
+        from a_protocol_0 import Protocol0
+        Protocol0.SELF._wait(0 if self._immediate else 1, self._execute_callbacks)
+
     def _execute_callbacks(self):
-        if self._debug:
+        if self.DEBUG_MODE:
             log_ableton("_execute_callbacks of %s : %s" % (self, self._callbacks))
         while len(self._callbacks):
             self._callbacks.popleft()()

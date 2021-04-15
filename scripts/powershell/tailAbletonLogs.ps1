@@ -57,6 +57,15 @@ function Get-LogColor
             {
                 Return "Magenta"
             }
+            elseif ($LogEntry.Contains("P0 - error"))
+            {
+                # copying the filename where the error happened
+                if (".\components\actionGroups\ActionGroupTest.py" -match "\.\\.*\.py")
+                {
+                    Set-Clipboard -Value $matches[0]
+                }
+                Return "Red"
+            }
             else
             {
                 FocusLogs

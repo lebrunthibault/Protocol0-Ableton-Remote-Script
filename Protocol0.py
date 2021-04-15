@@ -50,11 +50,12 @@ class Protocol0(ControlSurface):
                                                         self._c_instance)  # stop log duplication
 
         self.load_dotenv()  # loading env file
-
         self._is_dev_booted = False
         self.current_action = None  # type: callable
         with self.component_guard():
+            self.errorManager = ErrorManager()
             self.protocol0_song = Song(song=self.song())
+            self.fastScheduler = FastScheduler()
             self.deviceManager = DeviceManager()  # needs to be here first
             self.songManager = SongManager()
             self.songStateManager = SongStateManager()
@@ -72,10 +73,8 @@ class Protocol0(ControlSurface):
             self.globalBeatScheduler = BeatScheduler()
             self.sceneBeatScheduler = BeatScheduler()
             ClyphXComponentBase.start_scheduler()
-            self.fastScheduler = FastScheduler()
             self.utilsManager = UtilsManager()
             self.logManager = LogManager()
-            self.errorManager = ErrorManager()
             ActionGroupMain()
             # ActionGroupP0v1()
             ActionGroupSet()
@@ -162,7 +161,7 @@ class Protocol0(ControlSurface):
         with open("%s/.env.json" % ROOT_DIR) as f:
             env_vars = json.loads(f.read())
             for key, value in env_vars.iteritems():
-                os.environ[key] = value
+                os.environ[key] = str(value)
 
     def disconnect(self):
         ParseUtils._midi_message_registry = {}

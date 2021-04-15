@@ -5,6 +5,7 @@ from a_protocol_0.sequence.Sequence import Sequence
 # noinspection PyUnresolvedReferences
 from a_protocol_0.tests.test_all import p0
 from a_protocol_0.utils.decorators import has_callback_queue
+from a_protocol_0.utils.log import log_ableton
 from a_protocol_0.utils.utils import nop
 
 
@@ -33,18 +34,18 @@ def test_state_machine():
         seq.dispatch("start")
 
 
-def test_no_timeout():
+def test_error_no_timeout():
     seq = Sequence(silent=True)
     seq.add(nop, complete_on=lambda: False, name="timeout step", check_timeout=0)
-    seq.add(nop, name="unreachable step")
+    seq.add(lambda: log_ableton("toto"), name="unreachable step")
     seq.done()
 
-    assert seq.terminated
+    assert seq.errored
 
 
 def test_callback_timeout():
     class Example:
-        @has_callback_queue
+        @has_callback_queue()
         def listener(self):
             pass
 
@@ -64,11 +65,11 @@ def test_async_callback_execution_order():
     test_res = []
 
     class Example:
-        @has_callback_queue
+        @has_callback_queue()
         def listener(self):
             seq = Sequence(silent=True)
             seq.add(lambda: test_res.append(0), name="append 0")
-            seq.add(wait=100)
+            seq.add(wait=1)
             seq.add(lambda: test_res.append(1), name="append 1")
             return seq.done()
 

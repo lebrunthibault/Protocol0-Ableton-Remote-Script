@@ -38,7 +38,5 @@ if __name__ == "__main__":
     y = int(sys.argv[2])
     activate = bool(int(sys.argv[3]))
     closest_color = get_closest_color_at_pixel(x, y)
-    print(activate)
-    print(closest_color)
     if (activate and closest_color == Color.DEACTIVATED) or (not activate and closest_color == Color.ACTIVATED):
         click(x, y)

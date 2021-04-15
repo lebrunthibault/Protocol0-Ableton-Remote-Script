@@ -13,7 +13,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
     """ Replacement of the _Framework Task as it does not seem to allow variable timeouts like triggers from listeners.
         See google doc for details.
     """
-    __subject_events__ = ('terminated',)
+    __subject_events__ = ('terminated', 'errored')
 
     DEBUG_MODE = False
     SILENT_MODE = True
@@ -51,19 +51,23 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
             if self.debug and self._current_step.debug:
                 self.parent.log_info("%s : %s" % (self, self._current_step),
                                      debug=False)
-            self._step_termination.subject = self._current_step
+            self._step_terminated.subject = self._current_step
+            self._step_errored.subject = self._current_step
             self._current_step.start()
         else:
             self.terminate()
 
     @p0_subject_slot("terminated")
-    def _step_termination(self):
-        if (self._current_step.errored or self.song.errored) and not self._bypass_errors:
-            self.error()
-        elif self._current_step.early_returned:
+    def _step_terminated(self):
+        if self._current_step.early_returned:
             self.terminate()
         else:
             self._execute_next_step()
+
+    @p0_subject_slot("errored")
+    def _step_errored(self):
+        if not self._bypass_errors:
+            self.error()
 
     def _on_terminate(self):
         self.res = self._current_step.res if self._current_step else None

@@ -124,7 +124,6 @@ class TrackManager(AbstractControlSurfaceComponent):
 
         if wrapped_track is None:
             if len(main_tracks) != 1:
-                # raise Protocol0Error("an AutomatedTrack should wrap one and only one main track (or one composite track)")
                 return None
             wrapped_track = main_tracks[0]
             if wrapped_track != group_track.sub_tracks[-1]:

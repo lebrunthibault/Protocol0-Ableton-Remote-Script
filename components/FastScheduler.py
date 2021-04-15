@@ -32,7 +32,10 @@ class SchedulerEvent(AbstractObject):
         if self.song.errored:
             return
         self._executed = True
-        self._callback()
+        try:
+            self._callback()
+        except Exception as e:
+            self.parent.errorManager.handle_error(e)
 
 
 class FastScheduler(AbstractControlSurfaceComponent):
