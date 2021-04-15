@@ -1,4 +1,5 @@
 from a_protocol_0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
+from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import button_action
 
 
@@ -6,6 +7,7 @@ class ActionGroupTest(AbstractActionGroup):
     """
         Just a playground to launch test actions
     """
+
     def __init__(self, *a, **k):
         super(ActionGroupTest, self).__init__(channel=0, *a, **k)
         # 1 encoder
@@ -15,7 +17,13 @@ class ActionGroupTest(AbstractActionGroup):
 
     @button_action()
     def action_test(self):
-        self.parent.show_message("hello")
+        seq = Sequence()
+
+        def error():
+            raise Exception("error message here")
+
+        seq.add(error)
+        seq.done()
 
     @button_action()
     def action_test_state(self):

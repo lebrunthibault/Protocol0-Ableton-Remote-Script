@@ -4,7 +4,7 @@ import threading
 import traceback
 import types
 
-from typing import Callable
+from typing import Callable, Optional
 
 from ClyphX_Pro import ClyphXComponentBase, ParseUtils
 from ClyphX_Pro.clyphx_pro.actions.GlobalActions import GlobalActions
@@ -14,6 +14,7 @@ from a_protocol_0.components.AutomationTrackManager import AutomationTrackManage
 from a_protocol_0.components.BeatScheduler import BeatScheduler
 from a_protocol_0.components.BrowserManager import BrowserManager
 from a_protocol_0.components.DeviceManager import DeviceManager
+from a_protocol_0.components.ErrorManager import ErrorManager
 from a_protocol_0.components.FastScheduler import FastScheduler
 from a_protocol_0.components.KeyBoardShortcutManager import KeyBoardShortcutManager
 from a_protocol_0.components.LogManager import LogManager
@@ -27,7 +28,6 @@ from a_protocol_0.components.SongStateManager import SongStateManager
 from a_protocol_0.components.TrackManager import TrackManager
 from a_protocol_0.components.UtilsManager import UtilsManager
 from a_protocol_0.components.actionGroups.ActionGroupMain import ActionGroupMain
-from a_protocol_0.components.actionGroups.ActionGroupP0v1 import ActionGroupP0v1
 from a_protocol_0.components.actionGroups.ActionGroupSet import ActionGroupSet
 from a_protocol_0.components.actionGroups.ActionGroupTest import ActionGroupTest
 from a_protocol_0.config import Config
@@ -75,6 +75,7 @@ class Protocol0(ControlSurface):
             self.fastScheduler = FastScheduler()
             self.utilsManager = UtilsManager()
             self.logManager = LogManager()
+            self.errorManager = ErrorManager()
             ActionGroupMain()
             # ActionGroupP0v1()
             ActionGroupSet()
@@ -110,16 +111,15 @@ class Protocol0(ControlSurface):
     def log_warning(self, *a, **k):
         self._log(level=LogLevelEnum.WARNING, *a, **k)
 
-    def log_error(self, message, debug=True):
-        # type: (str) -> None
-        self._log(message="%s\n%s" % (message, traceback.format_exc()), level=LogLevelEnum.ERROR, debug=True)
-        self.show_message(str(message), log=False)
+    def log_error(self, message="", debug=True):
+        # type: (str, bool) -> None
+        self._log(message, level=LogLevelEnum.ERROR, debug=debug)
 
     def _log(self, message="", level=LogLevelEnum.INFO, debug=False):
         # type: (str) -> None
-        if level.value < Config.LOG_LEVEL.value and not debug:
+        if level.value < Config.LOG_LEVEL.value:
             return
-        log_ableton(debug=bool(message) and debug, message=message, level=level, direct_call=False)
+        log_ableton(message=message, debug=bool(message) and debug, level=level, direct_call=False)
 
     @staticmethod
     def defer(callback):

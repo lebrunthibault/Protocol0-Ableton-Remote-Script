@@ -1,4 +1,10 @@
+import sys
+import traceback
+
 from typing import Callable, Optional, List
+from os.path import abspath
+from string import join
+from traceback import extract_tb, format_list, format_exception_only
 
 from a_protocol_0.controls.EncoderModifier import EncoderModifierEnum
 from a_protocol_0.enums.AbstractEnum import AbstractEnum
@@ -37,7 +43,11 @@ class EncoderAction(AbstractObject):
         if self.move_type != EncoderMoveEnum.SCROLL:
             self.parent.log_notice("Executing %s" % get_callable_name(func))
         assert callable(func), "%s is not a callable" % get_callable_name(func)
-        func(*a, **k)
+        try:
+            func(*a, **k)
+            self.parent.log_notice("executed %s" % get_callable_name(func))
+        except Exception as e:
+            self.parent.errorManager.handle_error(e)
 
     @staticmethod
     def make_actions(on_press=None, on_long_press=None, on_shift_press=None,

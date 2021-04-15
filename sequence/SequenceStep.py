@@ -167,7 +167,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         try:
             return func()
         except (Exception, RuntimeError) as e:
-            raise SequenceError(self, str(e))
+            raise SequenceError(self, e)
 
     def _execute(self):
         res = self._execute_callable(self._callable)

@@ -12,4 +12,4 @@ p0 = Protocol0(EmptyModule(is_false=False), init_song=False)
 Sequence.DEBUG_MODE = False
 Sequence.SILENT_MODE = True
 
-Config.LOG_LEVEL = LogLevelEnum.ERROR
+Config.LOG_LEVEL = LogLevelEnum.DISABLED

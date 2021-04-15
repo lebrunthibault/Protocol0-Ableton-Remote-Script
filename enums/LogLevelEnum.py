@@ -8,3 +8,4 @@ class LogLevelEnum(AbstractEnum):
     NOTICE = 4
     WARNING = 5
     ERROR = 6
+    DISABLED = 7

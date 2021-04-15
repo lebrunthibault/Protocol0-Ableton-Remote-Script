@@ -96,6 +96,10 @@ function Format-LogLine
         if ($LogEntry -match $timestampReg)
         {
             $parts = $LogEntry.Split(" ")  # keeping indentation
+
+            if (-not ($parts[2..($parts.Count - 1)] -join " ").Trim()) {
+                return ""
+            }
             if ($showDateTime)
             {
                 $date = [datetime]::parseexact($parts[0], 'yyyy-MM-ddTHH:mm:ss.ffffff:', $null)

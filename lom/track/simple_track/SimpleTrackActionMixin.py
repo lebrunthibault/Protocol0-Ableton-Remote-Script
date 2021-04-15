@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class SimpleTrackActionMixin(object):
-    def action_arm_track(self):
+    def arm_track(self):
         # type: (SimpleTrack) -> Sequence
         if self.is_foldable:
             self.is_folded = not self.is_folded

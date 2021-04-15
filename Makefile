@@ -1,0 +1,3 @@
+test:
+	cls
+	pytest -s .

@@ -1,6 +1,6 @@
 from collections import deque
 
-from typing import Deque, Optional
+from typing import Deque, Optional, Iterable
 
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
@@ -79,7 +79,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
             - not given (nop): can be used to just wait on a condition
             - a callable or a list of callable (parallel sequence execution) which are added as SequenceStep
         """
-        assert callable(func), "You passed a non callable (%s) to %s" % (func, self)
+        assert callable(func) or isinstance(func, Iterable), "You passed a non callable (%s) to %s" % (func, self)
         assert not self.terminated and not self.errored
         assert not isinstance(func, Sequence), "You passed a Sequence object instead of a Sequence factory to add"
 
