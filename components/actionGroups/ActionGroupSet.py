@@ -5,31 +5,32 @@ from a_protocol_0.utils.decorators import button_action
 
 class ActionGroupSet(AbstractActionGroup):
     """
-        This manager is supposed to group mundane tasks on Live like debug
-        or one shot actions on a set (like upgrading to a new naming scheme)
+    This manager is supposed to group mundane tasks on Live like debug
+    or one shot actions on a set (like upgrading to a new naming scheme)
     """
+
     def __init__(self, *a, **k):
         super(ActionGroupSet, self).__init__(channel=14, *a, **k)
         # RACK encoder
-        self.add_encoder(id=1, name="racks",
-                         on_press=self.action_update_racks)
+        self.add_encoder(id=1, name="racks", on_press=self.action_update_racks)
 
         # CLIP encoder
-        self.add_encoder(id=2, name="clips",
-                         on_press=self.action_set_clip_names)
+        self.add_encoder(id=2, name="clips", on_press=self.action_set_clip_names)
 
         # TRAcK encoder
-        self.add_encoder(id=3, name="tracks",
-                         on_press=self.action_set_track_names)
+        self.add_encoder(id=3, name="tracks", on_press=self.action_set_track_names)
 
         # LOG encoder
-        self.add_encoder(id=13, name="log",
-                         on_press=self.parent.logManager.log_set)
+        self.add_encoder(id=13, name="log", on_press=self.parent.logManager.log_set)
 
     @button_action()
     def action_update_racks(self):
         for track in self.song.simple_tracks:
-            [self.parent.deviceManager.update_rack(rack_device=device._device) for device in track.all_devices if isinstance(device, RackDevice)]
+            [
+                self.parent.deviceManager.update_rack(rack_device=device._device)
+                for device in track.all_devices
+                if isinstance(device, RackDevice)
+            ]
 
     @button_action()
     def action_set_clip_names(self):

@@ -6,7 +6,6 @@ from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupT
 from a_protocol_0.lom.track.group_track.AutomationTracksCouple import AutomationTracksCouple
 
 if TYPE_CHECKING:
-    # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
@@ -29,19 +28,29 @@ class AutomatedTrack(AbstractGroupTrack):
             automation_tracks_couple.audio_track.abstract_group_track = self
             automation_tracks_couple.midi_track.abstract_group_track = self
 
-            if automation_tracks_couple.audio_track.index in self.parent.automationTrackManager.created_tracks_indexes:
+            if (
+                automation_tracks_couple.audio_track.index
+                in self.parent.automationTrackManager.created_tracks_indexes
+            ):
                 automation_tracks_couple.midi_track._added_track_init()
 
         self.wrapped_track.abstract_group_track = self
         self.selection_tracks = [self.base_track]
         for automation_tracks_couple in automation_tracks_couples:
-            self.selection_tracks += [automation_tracks_couple.audio_track, automation_tracks_couple.midi_track]
+            self.selection_tracks += [
+                automation_tracks_couple.audio_track,
+                automation_tracks_couple.midi_track,
+            ]
 
         # checking if the wrapped track is an AbstractGroupTrack
         self.selection_tracks += getattr(self.wrapped_track, "selection_tracks", None) or [self.wrapped_track]
 
     def link_audio_tracks(self):
-        audio_tracks = [self.base_track] + [couple.audio_track for couple in self.automation_tracks_couples] + [self.wrapped_track]
+        audio_tracks = (
+            [self.base_track]
+            + [couple.audio_track for couple in self.automation_tracks_couples]
+            + [self.wrapped_track]
+        )
         for i, audio_track in enumerate(audio_tracks):
             if i == len(audio_tracks) - 1:
                 break
@@ -60,45 +69,57 @@ class AutomatedTrack(AbstractGroupTrack):
         self.base_track.name = name
         self.wrapped_track.name = name
 
-    @forward_property('wrapped_track')
-    def is_armed(): pass
+    @forward_property("wrapped_track")
+    def is_armed():
+        pass
 
-    @forward_property('wrapped_track')
-    def solo(): pass
+    @forward_property("wrapped_track")
+    def solo():
+        pass
 
-    @forward_property('wrapped_track')
-    def is_playing(): pass
+    @forward_property("wrapped_track")
+    def is_playing():
+        pass
 
-    @forward_property('wrapped_track')
-    def is_recording(): pass
+    @forward_property("wrapped_track")
+    def is_recording():
+        pass
 
-    @forward_property('wrapped_track')
-    def next_empty_clip_slot_index(): pass
+    @forward_property("wrapped_track")
+    def next_empty_clip_slot_index():
+        pass
 
     def arm_track(self):
         self.is_folded = False
         return self.wrapped_track.arm_track()
 
-    @forward_property('wrapped_track')
-    def unarm_track(self): pass
+    @forward_property("wrapped_track")
+    def unarm_track(self):
+        pass
 
-    @forward_property('wrapped_track')
-    def action_switch_monitoring(self): pass
+    @forward_property("wrapped_track")
+    def action_switch_monitoring(self):
+        pass
 
-    @forward_property('wrapped_track')
-    def action_restart_and_record(self, *a, **k): pass
+    @forward_property("wrapped_track")
+    def action_restart_and_record(self, *a, **k):
+        pass
 
-    @forward_property('wrapped_track')
-    def action_record_all(self): pass
+    @forward_property("wrapped_track")
+    def action_record_all(self):
+        pass
 
-    @forward_property('wrapped_track')
-    def action_record_audio_only(self, *a, **k): pass
+    @forward_property("wrapped_track")
+    def action_record_audio_only(self, *a, **k):
+        pass
 
-    @forward_property('wrapped_track')
-    def _post_record(self, *a, **k): pass
+    @forward_property("wrapped_track")
+    def _post_record(self, *a, **k):
+        pass
 
-    @forward_property('wrapped_track')
-    def action_undo_track(self): pass
+    @forward_property("wrapped_track")
+    def action_undo_track(self):
+        pass
 
     def disconnect(self):
         super(AutomatedTrack, self).disconnect()

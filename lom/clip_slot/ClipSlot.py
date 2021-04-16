@@ -9,7 +9,6 @@ from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
-    # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
@@ -44,6 +43,7 @@ class ClipSlot(AbstractObject):
         # type: (Live.ClipSlot.ClipSlot, int, SimpleTrack) -> ClipSlot
         from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMidiTrack
         from a_protocol_0.lom.clip_slot.AutomationMidiClipSlot import AutomationMidiClipSlot
+
         if isinstance(track, AutomationMidiTrack):
             return AutomationMidiClipSlot(clip_slot=clip_slot, index=index, track=track)
         else:
@@ -97,13 +97,20 @@ class ClipSlot(AbstractObject):
     def record(self):
         seq = Sequence()
         self.parent.show_message("Starting recording of %d bars" % self.song.recording_bar_count)
-        seq.add(partial(self.fire, record_length=self.parent.utilsManager.get_beat_time(self.song.recording_bar_count)),
-                complete_on=self._has_clip_listener)
+        seq.add(
+            partial(
+                self.fire, record_length=self.parent.utilsManager.get_beat_time(self.song.recording_bar_count)
+            ),
+            complete_on=self._has_clip_listener,
+        )
         # this is a convenience to see right away if there is a problem with the audio recording
         if self.track.is_audio:
             seq.add(lambda: self.clip.select(), name="select audio clip")
-        seq.add(complete_on=lambda: self.clip._is_recording_listener,
-                name="awaiting clip recording end", no_timeout=True)
+        seq.add(
+            complete_on=lambda: self.clip._is_recording_listener,
+            name="awaiting clip recording end",
+            no_timeout=True,
+        )
         return seq.done()
 
     def fire(self, record_length):
@@ -113,15 +120,21 @@ class ClipSlot(AbstractObject):
     def duplicate_clip_to(self, clip_slot):
         # type: (ClipSlot) -> None
         seq = Sequence()
-        seq.add(partial(self._clip_slot.duplicate_clip_to, clip_slot._clip_slot),
-                complete_on=clip_slot._has_clip_listener)
+        seq.add(
+            partial(self._clip_slot.duplicate_clip_to, clip_slot._clip_slot),
+            complete_on=clip_slot._has_clip_listener,
+        )
         return seq.done()
 
     def insert_dummy_clip(self, name):
         # type: (str) -> None
         seq = Sequence()
-        seq.add(partial(self.song.simple_tracks[self.song.AUDIO_BUS_TRACK_INDEX].clip_slots[0].duplicate_clip_to, self),
-                complete_on=self._has_clip_listener)
+        seq.add(
+            partial(
+                self.song.simple_tracks[self.song.AUDIO_BUS_TRACK_INDEX].clip_slots[0].duplicate_clip_to, self
+            ),
+            complete_on=self._has_clip_listener,
+        )
         seq.add(lambda: setattr(self.clip, "warping", True), name="enable clip warping", silent=True)
         seq.add(lambda: setattr(self.clip, "looping", True), name="enable clip looping", silent=True)
         seq.add(wait=10)  # because the created dummy clip name syncs to the midi clip

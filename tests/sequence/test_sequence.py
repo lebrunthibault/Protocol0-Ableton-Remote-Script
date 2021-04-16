@@ -2,8 +2,7 @@ import pytest
 from transitions import MachineError
 
 from a_protocol_0.sequence.Sequence import Sequence
-# noinspection PyUnresolvedReferences
-from a_protocol_0.tests.test_all import p0
+
 from a_protocol_0.utils.decorators import has_callback_queue
 from a_protocol_0.utils.log import log_ableton
 from a_protocol_0.utils.utils import nop

@@ -14,9 +14,9 @@ class SequenceStateMachineMixin(object):
     def __init__(self, *a, **k):
         super(SequenceStateMachineMixin, self).__init__(*a, **k)
         transitions = [
-            ['start', SequenceState.UN_STARTED, SequenceState.STARTED],
-            ['terminate', SequenceState.STARTED, SequenceState.TERMINATED],
-            ['error', SequenceState.STARTED, SequenceState.ERRORED]
+            ["start", SequenceState.UN_STARTED, SequenceState.STARTED],
+            ["terminate", SequenceState.STARTED, SequenceState.TERMINATED],
+            ["error", SequenceState.STARTED, SequenceState.ERRORED],
         ]
 
         states = [
@@ -26,8 +26,9 @@ class SequenceStateMachineMixin(object):
             State(SequenceState.ERRORED, on_enter=[self._on_terminate]),
         ]
 
-        self._state_machine = Machine(states=states, transitions=transitions,
-                                      initial=SequenceState.UN_STARTED)
+        self._state_machine = Machine(
+            states=states, transitions=transitions, initial=SequenceState.UN_STARTED
+        )
 
     @property
     def state(self):

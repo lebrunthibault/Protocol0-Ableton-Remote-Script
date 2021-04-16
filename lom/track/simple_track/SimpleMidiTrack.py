@@ -7,5 +7,5 @@ class SimpleMidiTrack(SimpleTrack):
 
     def __init__(self, *a, **k):
         super(SimpleMidiTrack, self).__init__(*a, **k)
-        self.push2_selected_matrix_mode = 'note'
-        self.push2_selected_instrument_mode = 'split_melodic_sequencer'
+        self.push2_selected_matrix_mode = "note"
+        self.push2_selected_instrument_mode = "split_melodic_sequencer"

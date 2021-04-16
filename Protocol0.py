@@ -1,10 +1,9 @@
 import json
 import os
 import threading
-import traceback
 import types
 
-from typing import Callable, Optional
+from typing import Callable
 
 from ClyphX_Pro import ClyphXComponentBase, ParseUtils
 from ClyphX_Pro.clyphx_pro.actions.GlobalActions import GlobalActions

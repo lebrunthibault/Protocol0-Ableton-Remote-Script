@@ -2,13 +2,12 @@ from functools import partial
 
 from typing import TYPE_CHECKING
 
-from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.clip.Clip import Clip
+from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.utils import scroll_values
 
 if TYPE_CHECKING:
-    # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
@@ -53,11 +52,14 @@ class SimpleTrackActionMixin(object):
             return
 
         seq = Sequence()
-        seq.add(partial(clip_slot._clip_slot.create_clip,
-                        self.parent.utilsManager.get_beat_time(bar_count)),
-                complete_on=clip_slot._has_clip_listener)
+        seq.add(
+            partial(clip_slot._clip_slot.create_clip, self.parent.utilsManager.get_beat_time(bar_count)),
+            complete_on=clip_slot._has_clip_listener,
+        )
         if name:
-            seq.add(lambda: setattr(self.clip_slots[clip_slot_index].clip, "name", name), name="set clip name")
+            seq.add(
+                lambda: setattr(self.clip_slots[clip_slot_index].clip, "name", name), name="set clip name"
+            )
 
         return seq.done()
 
@@ -73,8 +75,9 @@ class SimpleTrackActionMixin(object):
         if not len(self.clips):  # scroll clip_slots when track is empty
             if self.song.highlighted_clip_slot and self.song.highlighted_clip_slot.index == 0 and not go_next:
                 return self.parent.keyboardShortcutManager.up()
-            selected_clip_slot = scroll_values(self.clip_slots, self.song.highlighted_clip_slot,
-                                               go_next)  # type: ClipSlot
+            selected_clip_slot = scroll_values(
+                self.clip_slots, self.song.highlighted_clip_slot, go_next
+            )  # type: ClipSlot
         else:
             if self.playable_clip == self.clips[0] and not go_next:
                 return self.parent.keyboardShortcutManager.up()

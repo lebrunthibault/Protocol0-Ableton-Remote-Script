@@ -10,7 +10,9 @@ class SongStateManager(AbstractControlSurfaceComponent):
         current_simple_tracks_by_live_id = {track.live_id: track for track in new_simple_tracks}
         for former_simple_track in former_simple_tracks:
             if former_simple_track.live_id in current_simple_tracks_by_live_id:
-                self._sync_simple_track(former_simple_track, current_simple_tracks_by_live_id[former_simple_track.live_id])
+                self._sync_simple_track(
+                    former_simple_track, current_simple_tracks_by_live_id[former_simple_track.live_id]
+                )
 
     def _sync_simple_track(self, former_simple_track, new_simple_track):
         # type: (SimpleTrack, SimpleTrack) -> None
@@ -21,6 +23,3 @@ class SongStateManager(AbstractControlSurfaceComponent):
         # automation tracks
         if hasattr(former_simple_track, "automated_parameter"):
             new_simple_track.automated_parameter = former_simple_track.automated_parameter
-
-
-

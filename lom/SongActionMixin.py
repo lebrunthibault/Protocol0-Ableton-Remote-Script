@@ -10,7 +10,6 @@ from a_protocol_0.utils.decorators import handle_error
 from a_protocol_0.utils.utils import scroll_values
 
 if TYPE_CHECKING:
-    # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.Song import Song
 
 
@@ -26,7 +25,9 @@ class SongActionMixin(object):
 
     def scroll_tracks(self, go_next):
         # type: (Song, bool) -> None
-        base_track = self.selected_track if self.selected_track.is_scrollable else self.current_track.base_track
+        base_track = (
+            self.selected_track if self.selected_track.is_scrollable else self.current_track.base_track
+        )
         track_to_select = scroll_values(self.scrollable_tracks, base_track, go_next)  # type: SimpleTrack
         if track_to_select:
             track_to_select.select()
@@ -44,14 +45,20 @@ class SongActionMixin(object):
 
     def unsolo_all_tracks(self, except_current=True):
         # type: (Song, bool) -> None
-        [setattr(t, "solo", False) for t in self.song.abstract_tracks if
-         t.solo and t != (self.current_track if except_current else None)]
+        [
+            setattr(t, "solo", False)
+            for t in self.song.abstract_tracks
+            if t.solo and t != (self.current_track if except_current else None)
+        ]
 
     def fold_all_tracks(self):
         # type: (Song, bool) -> None
         # 1st we fold all except current
-        other_group_tracks = [track for track in self.song.root_tracks if
-                              track.is_foldable and track != self.current_track.base_track]
+        other_group_tracks = [
+            track
+            for track in self.song.root_tracks
+            if track.is_foldable and track != self.current_track.base_track
+        ]
         if len(filter(None, [not track.is_folded for track in other_group_tracks])):
             [setattr(track, "is_folded", True) for track in other_group_tracks]
         else:

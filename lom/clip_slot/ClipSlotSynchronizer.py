@@ -1,6 +1,6 @@
-from _Framework.CompoundElement import subject_slot_group
 from typing import Optional, TYPE_CHECKING
 
+from _Framework.CompoundElement import subject_slot_group
 from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
 from a_protocol_0.lom.clip.ClipSynchronizer import ClipSynchronizer
 
@@ -29,14 +29,17 @@ class ClipSlotSynchronizer(ObjectSynchronizer):
             self._clip_synchronizer.disconnect()
         if self.master.clip and self.slave.clip:
             with self.parent.component_guard():
-                self._clip_synchronizer = ClipSynchronizer(
-                    master=self.master.clip, slave=self.slave.clip)
+                self._clip_synchronizer = ClipSynchronizer(master=self.master.clip, slave=self.slave.clip)
         else:
             self._clip_synchronizer = None
 
         if not clip_slot.clip and clip_slot.linked_clip_slot.clip:
             from a_protocol_0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
-            if isinstance(clip_slot.track.abstract_group_track, ExternalSynthTrack) and clip_slot.track.is_audio:
+
+            if (
+                isinstance(clip_slot.track.abstract_group_track, ExternalSynthTrack)
+                and clip_slot.track.is_audio
+            ):
                 return
             clip_slot.linked_clip_slot.clip.delete()
 

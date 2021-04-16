@@ -1,6 +1,6 @@
 import sys
 
-sys.path.insert(0, "C:\Python27\Lib\site-packages")
+sys.path.insert(0, "C:\\Python27\\Lib\\site-packages")
 live_environment_loaded = "Live" in sys.modules
 
 
@@ -38,7 +38,7 @@ if not live_environment_loaded:
     sys.modules["MidiRemoteScript"] = EmptyModule()
     sys.modules["multipledispatch"] = EmptyModule()
 
-from .Protocol0 import Protocol0
+from .Protocol0 import Protocol0  # noqa
 
 Protocol0.LIVE_ENVIRONMENT_LOADED = live_environment_loaded
 

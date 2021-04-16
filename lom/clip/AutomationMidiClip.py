@@ -1,6 +1,5 @@
-from typing import TYPE_CHECKING, List
-
 import Live
+from typing import TYPE_CHECKING, List
 
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.AbstractAutomationClip import AbstractAutomationClip
@@ -10,7 +9,6 @@ from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import debounce, p0_subject_slot
 
 if TYPE_CHECKING:
-    # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMidiTrack
     from a_protocol_0.lom.clip_slot.AutomationMidiClipSlot import AutomationMidiClipSlot
     from a_protocol_0.lom.clip.AutomationAudioClip import AutomationAudioClip
@@ -63,16 +61,22 @@ class AutomationMidiClip(AbstractAutomationClip, MidiClip, AutomationMidiClipNot
     def generate_base_notes(self):
         # type: () -> List[Note]
         base_velocity = self.track.linked_track.automated_parameter.get_midi_value_from_value()
-        base_note = Note(pitch=base_velocity, velocity=base_velocity, start=0, duration=self.length, clip=self)
-        muted_start_note_velocities = [self.track.linked_track.automated_parameter.get_midi_value_from_value(velo) for
-                                       velo in [
-                                           self.track.linked_track.automated_parameter.min,
-                                           self.track.linked_track.automated_parameter.max
-                                       ] if velo != base_velocity]
+        base_note = Note(
+            pitch=base_velocity, velocity=base_velocity, start=0, duration=self.length, clip=self
+        )
+        muted_start_note_velocities = [
+            self.track.linked_track.automated_parameter.get_midi_value_from_value(velo)
+            for velo in [
+                self.track.linked_track.automated_parameter.min,
+                self.track.linked_track.automated_parameter.max,
+            ]
+            if velo != base_velocity
+        ]
 
-        self._muted_notes = [Note(pitch=vel, velocity=vel, start=0, duration=min(1, self.length), muted=True, clip=self)
-                             for vel in
-                             muted_start_note_velocities]
+        self._muted_notes = [
+            Note(pitch=vel, velocity=vel, start=0, duration=min(1, self.length), muted=True, clip=self)
+            for vel in muted_start_note_velocities
+        ]
         return self._muted_notes + [base_note]
 
     def _refresh_notes(self):

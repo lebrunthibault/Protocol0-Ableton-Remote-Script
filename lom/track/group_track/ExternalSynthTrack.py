@@ -1,21 +1,16 @@
-from typing import TYPE_CHECKING
-import time
 import itertools
-from functools import partial
-import Live
+
+from typing import TYPE_CHECKING, Optional
 
 from _Framework.Util import forward_property
-from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
+from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
+from a_protocol_0.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.group_track.ExternalSynthTrackActionMixin import ExternalSynthTrackActionMixin
 from a_protocol_0.lom.track.simple_track.TrackSynchronizer import TrackSynchronizer
-from a_protocol_0.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
-from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
-from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.utils import find_last
 
 if TYPE_CHECKING:
-    # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
@@ -34,11 +29,16 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
 
         with self.parent.component_guard():
             self._midi_audio_synchronizer = TrackSynchronizer(self.audio_track, self.midi_track)
-            self._midi_track_synchronizer = ObjectSynchronizer(self.base_track, self.midi_track, "_track", ["solo"])
+            self._midi_track_synchronizer = ObjectSynchronizer(
+                self.base_track, self.midi_track, "_track", ["solo"]
+            )
 
-            self._clip_slot_synchronizers = [ClipSlotSynchronizer(midi_clip_slot, audio_clip_slot) for
-                                            midi_clip_slot, audio_clip_slot in
-                                            itertools.izip(self.midi_track.clip_slots, self.audio_track.clip_slots)]
+            self._clip_slot_synchronizers = [
+                ClipSlotSynchronizer(midi_clip_slot, audio_clip_slot)
+                for midi_clip_slot, audio_clip_slot in itertools.izip(
+                    self.midi_track.clip_slots, self.audio_track.clip_slots
+                )
+            ]
 
         self.audio_track.set_output_routing_to(self.base_track)
         self.selection_tracks = [self.base_track, self.midi_track, self.audio_track]
@@ -81,7 +81,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
                 return i
         return None
 
-    @forward_property('audio_track')
+    @forward_property("audio_track")
     def set_output_routing_to(self):
         pass
 

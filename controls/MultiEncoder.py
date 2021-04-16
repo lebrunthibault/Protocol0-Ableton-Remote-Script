@@ -3,7 +3,7 @@ import time
 from typing import TYPE_CHECKING, List, Optional
 
 from _Framework.ButtonElement import ButtonElement
-from _Framework.InputControlElement import *
+from _Framework.InputControlElement import MIDI_NOTE_TYPE, MIDI_CC_TYPE
 from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.controls.EncoderAction import EncoderAction, EncoderMoveEnum
 from a_protocol_0.controls.EncoderModifier import EncoderModifier, EncoderModifierEnum
@@ -19,9 +19,9 @@ class MultiEncoder(AbstractObject):
     def __init__(self, action_group, channel, identifier, name, *a, **k):
         # type: (AbstractActionGroup, int, int, str) -> None
         """
-            Actions are triggered at the end of the press not the start. Allows press vs long_press (Note) vs scroll (CC)
-            Also possible to define modifiers to duplicate the number of actions possible.
-            NB : for press actions the action is triggered on button release (allowing long_press)
+        Actions are triggered at the end of the press not the start. Allows press vs long_press (Note) vs scroll (CC)
+        Also possible to define modifiers to duplicate the number of actions possible.
+        NB : for press actions the action is triggered on button release (allowing long_press)
         """
         super(MultiEncoder, self).__init__(*a, **k)
         self._actions = []  # type: List[EncoderAction]
@@ -34,18 +34,24 @@ class MultiEncoder(AbstractObject):
 
     def get_modifier_from_enum(self, modifier_type):
         # type: (EncoderModifierEnum) -> EncoderModifier
-        return [modifier for modifier in self._action_group.available_modifiers if modifier.type == modifier_type][0]
+        return [
+            modifier for modifier in self._action_group.available_modifiers if modifier.type == modifier_type
+        ][0]
 
     def add_action(self, action):
         # type: (EncoderAction) -> MultiEncoder
-        assert not self._find_matching_action(action.move_type, action.modifier_type, False), "duplicate move %s" % action
+        assert not self._find_matching_action(action.move_type, action.modifier_type, False), (
+            "duplicate move %s" % action
+        )
         self._actions.append(action)
         return self
 
     @property
     def _pressed_modifier_type(self):
         # type: () -> Optional[EncoderModifierEnum]
-        pressed_modifiers = [modifier for modifier in self._action_group.available_modifiers if modifier.pressed]
+        pressed_modifiers = [
+            modifier for modifier in self._action_group.available_modifiers if modifier.pressed
+        ]
         assert len(pressed_modifiers) <= 1, "Multiple modifiers pressed. Not allowed."
         return pressed_modifiers[0].type if len(pressed_modifiers) else None
 
@@ -77,11 +83,20 @@ class MultiEncoder(AbstractObject):
         # type: (EncoderMoveEnum, EncoderModifier) -> EncoderAction
         modifier_type = modifier_type or self._pressed_modifier_type
         action = next(
-            iter([action for action in self._actions if action.move_type == move_type and action.modifier_type == modifier_type]),
-            None)
+            iter(
+                [
+                    action
+                    for action in self._actions
+                    if action.move_type == move_type and action.modifier_type == modifier_type
+                ]
+            ),
+            None,
+        )
 
         if not action and log_not_found:
             self.parent.show_message(
-                "Press didn't trigger action, move_type: %s, modifier: %s" % (move_type, self._pressed_modifier_type))
+                "Press didn't trigger action, move_type: %s, modifier: %s"
+                % (move_type, self._pressed_modifier_type)
+            )
 
         return action

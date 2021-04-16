@@ -4,14 +4,13 @@ from functools import partial
 
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.sequence.Sequence import Sequence
-# noinspection PyUnresolvedReferences
 from a_protocol_0.tests.test_all import p0
 from a_protocol_0.utils.decorators import has_callback_queue, p0_subject_slot
 
 
 def test_parallel_listeners():
     class Example(AbstractObject):
-        __subject_events__ = ('test',)
+        __subject_events__ = ("test",)
 
         def __init__(self, val, test_res, *a, **k):
             super(Example, self).__init__(*a, **k)

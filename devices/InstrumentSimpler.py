@@ -2,9 +2,9 @@ import os
 from os import listdir
 from os.path import join
 
-from _Framework.Util import find_if
 from typing import Optional
 
+from _Framework.Util import find_if
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.devices.presets.InstrumentPreset import InstrumentPreset
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
@@ -31,7 +31,9 @@ class InstrumentSimpler(AbstractInstrument):
     def selected_category(self):
         # type: () -> Optional[str]
         """ the name of the track is the name of a sample sub_directory """
-        selected_category = find_if(lambda f: self.track.base_name.lower() in f.lower(), listdir(self.PRESETS_PATH))
+        selected_category = find_if(
+            lambda f: self.track.base_name.lower() in f.lower(), listdir(self.PRESETS_PATH)
+        )
         if not selected_category:
             raise Protocol0Error("Couldn't find sample selected category for %s" % self.track)
 

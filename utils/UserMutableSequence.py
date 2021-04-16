@@ -9,9 +9,10 @@ from a_protocol_0.lom.AbstractObject import AbstractObject
 
 class CombinedMeta(SubjectMeta, abc.ABCMeta):
     """
-        makes it possible to inherit both from AbstractObject and class defining
-        abc.ABCMeta as its meta class
+    makes it possible to inherit both from AbstractObject and class defining
+    abc.ABCMeta as its meta class
     """
+
     pass
 
 

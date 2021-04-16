@@ -5,13 +5,11 @@ from typing import TYPE_CHECKING, Callable, Any, Optional
 
 from _Framework.Util import find_if
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
-from a_protocol_0.lom.clip.AudioClip import AudioClip
 from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import retry
 
 if TYPE_CHECKING:
-    # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 
 
@@ -52,7 +50,8 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         if not self.instrument:
             self.instrument_track.instrument = self.parent.deviceManager.make_instrument_from_simple_track(
-                track=self.instrument_track)
+                track=self.instrument_track
+            )
 
         if not self.instrument or not self.instrument.can_be_shown:
             return
@@ -107,7 +106,6 @@ class AbstractTrackActionMixin(object):
         " overridden "
         self.song.metronome = False
         self.has_monitor_in = False
-        clip = self.base_track.playable_clip  # type: AudioClip
         self.base_track.playable_clip.select()
 
     def action_record_all(self):
@@ -118,9 +116,9 @@ class AbstractTrackActionMixin(object):
     def action_record_audio_only(self, *a, **k):
         # type: (AbstractTrack) -> None
         """
-            overridden
-            this records normally on a simple track and only audio on a group track
-            is is available on other tracks just for ease of use
+        overridden
+        this records normally on a simple track and only audio on a group track
+        is is available on other tracks just for ease of use
         """
         return self.action_record_all()
 
@@ -139,8 +137,9 @@ class AbstractTrackActionMixin(object):
             playing_position = 0
             if self.song.playing_clips:
                 playing_position = max(self.song.playing_clips, key=lambda c: c.length).playing_position
-            self.playable_clip.start_marker = self.parent.utilsManager.get_next_quantized_position(playing_position,
-                                                                                                   self.playable_clip.length)
+            self.playable_clip.start_marker = self.parent.utilsManager.get_next_quantized_position(
+                playing_position, self.playable_clip.length
+            )
 
     def stop(self, immediate=False):
         # type: (AbstractTrack, bool) -> None
@@ -177,7 +176,8 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         for device in self.all_devices:
             device.is_collapsed = not (
-                    isinstance(device, RackDevice) or self.parent.deviceManager.is_track_instrument(self, device))
+                isinstance(device, RackDevice) or self.parent.deviceManager.is_track_instrument(self, device)
+            )
 
     @retry(3, 8)
     def set_output_routing_to(self, track):
@@ -186,13 +186,16 @@ class AbstractTrackActionMixin(object):
             raise Protocol0Error("You passed None to %s" % self.set_output_routing_to.__name__)
 
         from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
+
         track = track._track if isinstance(track, AbstractTrack) else track
-        output_routing_type = find_if(lambda r: r.attached_object == track,
-                                      self.available_output_routing_types)
+        output_routing_type = find_if(
+            lambda r: r.attached_object == track, self.available_output_routing_types
+        )
 
         if not output_routing_type:
-            output_routing_type = find_if(lambda r: r.display_name.lower() == track.name.lower(),
-                                          self.available_output_routing_types)
+            output_routing_type = find_if(
+                lambda r: r.display_name.lower() == track.name.lower(), self.available_output_routing_types
+            )
 
         if not output_routing_type:
             raise Protocol0Error("Couldn't find the output routing type of the given track")
@@ -203,17 +206,18 @@ class AbstractTrackActionMixin(object):
     def set_input_routing_type(self, track):
         # type: (AbstractTrack, Any) -> None
         from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
+
         track = track._track if isinstance(track, AbstractTrack) else track
 
         if track is None:
             self.input_routing_type = self.available_input_routing_types[-1]  # No input
             return
 
-        input_routing_type = find_if(lambda r: r.attached_object == track,
-                                     self.available_input_routing_types)
+        input_routing_type = find_if(lambda r: r.attached_object == track, self.available_input_routing_types)
         if not input_routing_type:
-            input_routing_type = find_if(lambda r: r.display_name.lower() == track.name.lower(),
-                                         self.available_input_routing_types)
+            input_routing_type = find_if(
+                lambda r: r.display_name.lower() == track.name.lower(), self.available_input_routing_types
+            )
 
         if not input_routing_type:
             raise Protocol0Error("Couldn't find the input routing type of the given track")

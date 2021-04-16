@@ -9,8 +9,6 @@ from a_protocol_0.lom.Note import Note
 from a_protocol_0.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
-    # noinspection PyUnresolvedReferences
-    from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMidiTrack
     from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
 
 
@@ -122,8 +120,12 @@ class AutomationMidiClipNoteMixin(AbstractObject):
             current_note = notes[i]
             if next_note.start - current_note.end > 0:
                 yield current_note
-                yield Note(start=current_note.end, duration=next_note.start - current_note.end,
-                           pitch=current_note.pitch, velocity=current_note.velocity)
+                yield Note(
+                    start=current_note.end,
+                    duration=next_note.start - current_note.end,
+                    pitch=current_note.pitch,
+                    velocity=current_note.velocity,
+                )
             elif next_note.start - current_note.start == 0:
                 pass
             else:
@@ -147,23 +149,12 @@ class AutomationMidiClipNoteMixin(AbstractObject):
                 current_note = next_note
                 yield current_note
 
-    # def _remove_start_short_notes(self, notes):
-    #     # type: (AutomationMidiClip, List[Note]) -> List[Note]
-    #     " Useful to remove bug notes at same start point or when a note start was stretch to the start point of another one "
-    #     notes_by_start = defaultdict(list)
-    #
-    #     for note in notes:
-    #         notes_by_start[note.start].append(note)
-    #     for start, notes in notes_by_start.items():
-    #         notes_by_start[start] = max(notes, key=lambda note: note.duration)
-    #
-    #     notes = notes_by_start.values()
-    #     notes.sort(key=lambda x: x.start)
-    #     return notes
-
     def _filter_duplicate_notes(self, notes):
         # type: (AutomationMidiClip, List[Note]) -> List[Note]
-        " Useful to remove bug notes at same start point or when a note start was stretch to the start point of another one "
+        """
+        Useful to remove bug notes at same start point
+        or when a note start was stretch to the start point of another one
+        """
         unique_notes_by_start_and_duration = {}
 
         for note in notes:

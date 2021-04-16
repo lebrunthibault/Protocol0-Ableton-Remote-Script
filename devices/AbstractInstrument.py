@@ -12,12 +12,11 @@ from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
-    # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
 class AbstractInstrument(AbstractObject):
-    __subject_events__ = ('selected_preset',)
+    __subject_events__ = ("selected_preset",)
 
     INSTRUMENT_NAME_MAPPINGS = {
         "serum_x64": "InstrumentSerum",
@@ -117,9 +116,11 @@ class AbstractInstrument(AbstractObject):
             seq = Sequence()
             seq.add(self.device.track.select)
             # happens when clicking from current track
-            seq.add(self.parent.keyboardShortcutManager.show_hide_plugins,
-                    do_if_not=lambda: self.parent.keyboardShortcutManager.is_plugin_window_visible(
-                        self.name) and not is_shown)
+            seq.add(
+                self.parent.keyboardShortcutManager.show_hide_plugins,
+                do_if_not=lambda: self.parent.keyboardShortcutManager.is_plugin_window_visible(self.name)
+                and not is_shown,
+            )
             seq.done()
         else:
             self.check_activated(select_instrument_track=True)
@@ -153,8 +154,7 @@ class AbstractInstrument(AbstractObject):
     def _sync_selected_preset(self):
         seq = Sequence()
         seq.add(partial(self._load_preset, self.selected_preset))
-        seq.add(partial(self.parent.show_message,
-                        "preset change : %s" % self.selected_preset))
+        seq.add(partial(self.parent.show_message, "preset change : %s" % self.selected_preset))
         # noinspection PyUnresolvedReferences
         seq.add(self.notify_selected_preset)
         return seq.done()
@@ -164,7 +164,9 @@ class AbstractInstrument(AbstractObject):
         """ Overridden default is send program change """
         seq = Sequence()
         seq.add(self.track.top_abstract_track.arm)
-        seq.add(partial(self.parent.midiManager.send_program_change, preset.index + self.PROGRAM_CHANGE_OFFSET))
+        seq.add(
+            partial(self.parent.midiManager.send_program_change, preset.index + self.PROGRAM_CHANGE_OFFSET)
+        )
         return seq.done()
 
     def generate_base_notes(self, clip):

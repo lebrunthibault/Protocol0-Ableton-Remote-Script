@@ -1,14 +1,13 @@
 import re
-from typing import TYPE_CHECKING
 
 import Live
+from typing import TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot_group
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.track.TrackName import TrackName
 
 if TYPE_CHECKING:
-    # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.simple_track.AbstractAutomationTrack import AbstractAutomationTrack
 
 

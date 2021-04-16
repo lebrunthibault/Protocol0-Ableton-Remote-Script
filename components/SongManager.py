@@ -14,12 +14,14 @@ from a_protocol_0.utils.utils import flatten
 
 
 class SongManager(AbstractControlSurfaceComponent):
-    __subject_events__ = ('selected_track', 'scene_list', 'added_track')
+    __subject_events__ = ("selected_track", "scene_list", "added_track")
 
     def __init__(self, *a, **k):
         super(SongManager, self).__init__(*a, **k)
         self._live_track_to_simple_track = collections.OrderedDict()  # type: Dict[Any, SimpleTrack]
-        self._simple_track_to_abstract_group_track = collections.OrderedDict()  # type: Dict[SimpleTrack, AbstractGroupTrack]
+        self._simple_track_to_abstract_group_track = (
+            collections.OrderedDict()
+        )  # type: Dict[SimpleTrack, AbstractGroupTrack]
         self._tracks_listener.subject = self.song._song
         self.update_highlighted_clip_slot = True
         self.abstract_group_track_creation_in_progress = False
@@ -59,7 +61,6 @@ class SongManager(AbstractControlSurfaceComponent):
         former_simple_tracks = self.song.simple_tracks
         self.song.simple_tracks = self.song.abstract_group_tracks = []
         self._simple_track_to_abstract_group_track = {}
-        abstract_tracks = collections.OrderedDict()
 
         # 1. Generate simple tracks and sync back previous objects
         for i, track in enumerate(list(self.song._song.tracks)):
@@ -72,18 +73,27 @@ class SongManager(AbstractControlSurfaceComponent):
         [track.disconnect() for track in former_simple_tracks]
 
         # 2. Generate abstract group tracks
-        self.song.abstract_group_tracks = list(filter(None,
-                                                      [self.parent.trackManager.instantiate_abstract_group_track(track)
-                                                       for track in self.song.simple_group_tracks]))
+        self.song.abstract_group_tracks = list(
+            filter(
+                None,
+                [
+                    self.parent.trackManager.instantiate_abstract_group_track(track)
+                    for track in self.song.simple_group_tracks
+                ],
+            )
+        )
 
         # 3. Creating a mapping of SimpleTrack to AbstractGroupTrack
         for abstract_group_track in self.song.abstract_group_tracks:  # type: AbstractGroupTrack
             for abstract_group_sub_track in abstract_group_track.selection_tracks:
-                self._simple_track_to_abstract_group_track.update({abstract_group_sub_track: abstract_group_track})
+                self._simple_track_to_abstract_group_track.update(
+                    {abstract_group_sub_track: abstract_group_track}
+                )
 
         # 4. Populate abstract_tracks property
         independent_simple_tracks = set(self.song.simple_tracks) - set(
-            self._simple_track_to_abstract_group_track.keys())
+            self._simple_track_to_abstract_group_track.keys()
+        )
         self.song.abstract_tracks = list(independent_simple_tracks) + self.song.abstract_group_tracks
         self.song.abstract_tracks.sort(key=lambda t: t.index)
 
@@ -92,13 +102,17 @@ class SongManager(AbstractControlSurfaceComponent):
 
         # 6. Store clip_slots. track and scene changes trigger a song remapping so it's fine
         self.song.clip_slots = flatten([track.clip_slots for track in self.song.simple_tracks])
-        self.song.clip_slots_by_live_live_clip_slot = {clip_slot._clip_slot: clip_slot for clip_slot in self.song.clip_slots}
+        self.song.clip_slots_by_live_live_clip_slot = {
+            clip_slot._clip_slot: clip_slot for clip_slot in self.song.clip_slots
+        }
 
         # 7 handle added tracks
         if added_track:
             added_track_index = self.song.simple_tracks.index(self.song.selected_track)
-            if added_track_index > 0 and self.song.simple_tracks[
-                added_track_index - 1].name == self.song.selected_track.name:
+            if (
+                added_track_index > 0
+                and self.song.simple_tracks[added_track_index - 1].name == self.song.selected_track.name
+            ):
                 self.song.current_track._is_duplicated = True
             # noinspection PyUnresolvedReferences
             self.notify_added_track()
@@ -146,7 +160,9 @@ class SongManager(AbstractControlSurfaceComponent):
 
     @retry(3)
     def _set_current_track(self):
-        self.song.selected_track = self._get_simple_track(self.song._view.selected_track) or self.song.simple_tracks[0]
+        self.song.selected_track = (
+            self._get_simple_track(self.song._view.selected_track) or self.song.simple_tracks[0]
+        )
         self.song.current_track = self.get_current_track(self.song.selected_track)
 
     def get_current_track(self, track):

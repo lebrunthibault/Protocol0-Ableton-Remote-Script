@@ -84,31 +84,45 @@ class Song(SongActionMixin, AbstractObject):
     @property
     def selected_abstract_tracks(self):
         # type: () -> AbstractTrackList
-        return AbstractTrackList([self.parent.songManager.get_current_track(track) for track in self.simple_tracks if
-                track._track.is_part_of_selection])
+        return AbstractTrackList(
+            [
+                self.parent.songManager.get_current_track(track)
+                for track in self.simple_tracks
+                if track._track.is_part_of_selection
+            ]
+        )
 
     @property
     def selected_category_tracks(self):
         # type: () -> AbstractTrackList
-        return AbstractTrackList([track for track in self.abstract_tracks if
-                track.category.value.lower() == self.selected_track_category.value.lower()])
+        return AbstractTrackList(
+            [
+                track
+                for track in self.abstract_tracks
+                if track.category.value.lower() == self.selected_track_category.value.lower()
+            ]
+        )
 
     @property
     def audio_bus_track(self):
         # type: () -> AudioBusTrack
         audio_bus_index = self.song.AUDIO_BUS_TRACK_INDEX
         audio_bus_track = self.song.simple_tracks[audio_bus_index]
-        assert isinstance(audio_bus_track, AudioBusTrack), "set should contain an audio bus track at index " + audio_bus_index
+        assert isinstance(audio_bus_track, AudioBusTrack), (
+            "set should contain an audio bus track at index " + audio_bus_index
+        )
         return audio_bus_track
 
     @property
     def highlighted_clip_slot(self):
         # type: () -> Optional[ClipSlot]
         """ first look in track then in song """
-        return find_if(lambda cs: cs._clip_slot == self.song._view.highlighted_clip_slot,
-                       self.selected_track.clip_slots) or find_if(
+        return find_if(
+            lambda cs: cs._clip_slot == self.song._view.highlighted_clip_slot, self.selected_track.clip_slots
+        ) or find_if(
             lambda cs: cs._clip_slot == self.song._view.highlighted_clip_slot,
-            [cs for track in self.song.simple_tracks for cs in track.clip_slots])
+            [cs for track in self.song.simple_tracks for cs in track.clip_slots],
+        )
 
     @highlighted_clip_slot.setter
     def highlighted_clip_slot(self, clip_slot):
@@ -118,12 +132,19 @@ class Song(SongActionMixin, AbstractObject):
     @property
     def highlighted_clip(self):
         # type: () -> Optional[Clip]
-        return self.highlighted_clip_slot.clip if self.highlighted_clip_slot and self.highlighted_clip_slot.has_clip else None
+        return (
+            self.highlighted_clip_slot.clip
+            if self.highlighted_clip_slot and self.highlighted_clip_slot.has_clip
+            else None
+        )
 
     @property
     def selected_parameter(self):
         # type: () -> Optional[DeviceParameter]
-        return find_if(lambda p: p._device_parameter == self.song._view.selected_parameter, [param for track in self.simple_tracks for param in track.device_parameters])
+        return find_if(
+            lambda p: p._device_parameter == self.song._view.selected_parameter,
+            [param for track in self.simple_tracks for param in track.device_parameters],
+        )
 
     @property
     def is_playing(self):
@@ -185,7 +206,11 @@ class Song(SongActionMixin, AbstractObject):
     @property
     def playing_clips(self):
         # type: () -> List[Clip]
-        return [t.playable_clip for t in self.simple_tracks if t.is_playing and t.playable_clip and t.playable_clip.is_playing]
+        return [
+            t.playable_clip
+            for t in self.simple_tracks
+            if t.is_playing and t.playable_clip and t.playable_clip.is_playing
+        ]
 
     @property
     def has_solo_selection(self):

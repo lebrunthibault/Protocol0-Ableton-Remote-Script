@@ -4,7 +4,6 @@ from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.utils.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
-    # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 

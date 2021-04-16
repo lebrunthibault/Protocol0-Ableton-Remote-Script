@@ -5,13 +5,10 @@ from functools import partial, wraps
 from typing import TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
-from a_protocol_0.errors.Protocol0Error import Protocol0Error
-from a_protocol_0.utils.utils import is_method, get_callable_name
+from a_protocol_0.utils.utils import is_method
 
 if TYPE_CHECKING:
-    # noinspection PyUnresolvedReferences
     from a_protocol_0.components.Push2Manager import Push2Manager
-    # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.AbstractObject import AbstractObject
 
 
@@ -42,6 +39,7 @@ def defer(func):
     @wraps(func)
     def decorate(*a, **k):
         from a_protocol_0 import Protocol0
+
         Protocol0.SELF.defer(partial(func, *a, **k))
 
     return decorate
@@ -52,6 +50,7 @@ def retry(retry_count=3, interval=3):
         @wraps(func)
         def decorate(*a, **k):
             from a_protocol_0 import Protocol0
+
             try:
                 func(*a, **k)
             except Exception:
@@ -79,6 +78,7 @@ def debounce(wait_time=200):
             k.pop("disable_debounce", None)
             decorate.count[index] += 1
             from a_protocol_0 import Protocol0
+
             Protocol0.SELF._wait(wait_time, partial(execute, func, *a, **k))
 
         decorate.count = defaultdict(int)
@@ -102,8 +102,10 @@ def throttle(wait_time=2, max_execution_count=3):
         def decorate(*a, **k):
             index = a[0] if is_method(func) else decorate
             exec_time = time.time()
-            if len([t for t in decorate.execution_times[index][-3:] if
-                    exec_time - t < decorate.wait_time]) == decorate.max_execution_count:
+            if (
+                len([t for t in decorate.execution_times[index][-3:] if exec_time - t < decorate.wait_time])
+                == decorate.max_execution_count
+            ):
                 return
             func(*a, **k)
             decorate.execution_times[index].append(time.time())
@@ -126,6 +128,7 @@ def button_action(auto_arm=False, log_action=True):
         def decorate(self, *a, **k):
             # type: (AbstractObject) -> None
             from a_protocol_0.sequence.Sequence import Sequence
+
             seq = Sequence()
             if auto_arm and not self.song.current_track.is_armed:
                 seq.add(self.song.current_track.arm, silent=True)
@@ -141,13 +144,13 @@ def button_action(auto_arm=False, log_action=True):
 
 def p0_subject_slot(event, immediate=False):
     """
-        Drop in replacement of _Framework subject_slot decorator
-        Allows the registration of callbacks to be execute after the decorated function
-        By default the callbacks are deferred to handle the notification change error
-        immediate calls the callbacks synchronously
-        This decorator is used by the Sequence pattern and allows the sequence to wait for a change to happen
-        That is it waits for a listener to be triggered.
-        With this, a callback to continue the sequence can be automatically attached to any listener without more hassle
+    Drop in replacement of _Framework subject_slot decorator
+    Allows the registration of callbacks to be execute after the decorated function
+    By default the callbacks are deferred to handle the notification change error
+    immediate calls the callbacks synchronously
+    This decorator is used by the Sequence pattern and allows the sequence to wait for a change to happen
+    That is it waits for a listener to be triggered.
+    With this, a callback to continue the sequence can be automatically attached to any listener without more hassle
     """
 
     def wrap(func):
@@ -164,6 +167,7 @@ def p0_subject_slot(event, immediate=False):
 def has_callback_queue(immediate=False):
     def wrap(func):
         from a_protocol_0.utils.callback_descriptor import CallbackDescriptor
+
         return CallbackDescriptor(func, immediate)
 
     return wrap
@@ -180,14 +184,16 @@ def log(func):
     @wraps(func)
     def decorate(*a, **k):
         func_name = func.__name__
-        args = [_arg_to_string(arg) for arg in a] + ["%s=%s" % (key, _arg_to_string(value)) for (key, value) in
-                                                     k.items()]
+        args = [_arg_to_string(arg) for arg in a] + [
+            "%s=%s" % (key, _arg_to_string(value)) for (key, value) in k.items()
+        ]
         if is_method(func):
             func_name = "%s.%s" % (a[0].__class__.__name__, func_name)
             args = args[1:]
         message = func_name + "(%s)" % (", ".join([str(arg) for arg in args]))
 
         from a_protocol_0 import Protocol0
+
         Protocol0.SELF.log_info("-- %s" % message, debug=False)
         func(*a, **k)
 
@@ -201,6 +207,7 @@ def handle_error(func):
             func(*a, **k)
         except Exception as e:
             from a_protocol_0 import Protocol0
+
             Protocol0.SELF.errorManager.handle_error(e)
 
     return decorate

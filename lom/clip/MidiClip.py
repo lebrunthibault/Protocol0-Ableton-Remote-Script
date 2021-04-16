@@ -1,14 +1,14 @@
 from functools import partial
-from typing import List, TYPE_CHECKING
 
 import Live
+from typing import List, TYPE_CHECKING
 
 from _Framework.Util import find_if
 from a_protocol_0.consts import PUSH2_BEAT_QUANTIZATION_STEPS
-from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.utils import have_equal_properties
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.Clip import Clip
+from a_protocol_0.sequence.Sequence import Sequence
+from a_protocol_0.utils.utils import have_equal_properties
 
 if TYPE_CHECKING:
     from a_protocol_0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
@@ -29,8 +29,9 @@ class MidiClip(Clip):
         # type: (bool) -> List[Note]
         if not self._clip:
             return []
-        notes = [Note(*note, clip=self) for note in
-                 self._clip.get_notes(self.loop_start, 0, self.length, 128)]
+        notes = [
+            Note(*note, clip=self) for note in self._clip.get_notes(self.loop_start, 0, self.length, 128)
+        ]
         self._muted_notes = [note for note in notes if note.muted]
         if exclude_muted:
             notes = [note for note in notes if not note.muted]
@@ -98,11 +99,19 @@ class MidiClip(Clip):
             return []
 
         # keeping only those who have the same excluded properties and at least one checked_property change
-        return list(filter(None,
-                           map(lambda x, y: None if not have_equal_properties(x, y,
-                                                                              excluded_properties) or have_equal_properties(
-                               x, y, checked_properties) else (x, y), prev_notes,
-                               notes)))
+        return list(
+            filter(
+                None,
+                map(
+                    lambda x, y: None
+                    if not have_equal_properties(x, y, excluded_properties)
+                    or have_equal_properties(x, y, checked_properties)
+                    else (x, y),
+                    prev_notes,
+                    notes,
+                ),
+            )
+        )
 
     @property
     def min_note_quantization_start(self):
@@ -111,8 +120,9 @@ class MidiClip(Clip):
         if not len(notes):
             return 1
         notes_start_quantization = [
-            find_if(lambda qtz: float(note.start / qtz).is_integer(), reversed(PUSH2_BEAT_QUANTIZATION_STEPS)) for note
-            in notes]
+            find_if(lambda qtz: float(note.start / qtz).is_integer(), reversed(PUSH2_BEAT_QUANTIZATION_STEPS))
+            for note in notes
+        ]
         if None in notes_start_quantization:
             return PUSH2_BEAT_QUANTIZATION_STEPS[3]  # 1/16 by default
         else:

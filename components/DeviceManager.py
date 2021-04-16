@@ -1,7 +1,7 @@
 from functools import partial
-from typing import TYPE_CHECKING, Optional, Tuple
 
 import Live
+from typing import TYPE_CHECKING, Optional, Tuple
 
 from _Framework.Util import find_if
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
@@ -13,9 +13,7 @@ from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
-    # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
-    # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 
 
@@ -34,8 +32,8 @@ class DeviceManager(AbstractControlSurfaceComponent):
     def make_instrument_from_simple_track(self, track):
         # type: (SimpleTrack) -> Optional[AbstractInstrument]
         """
-            If the instrument didn't change we keep the same instrument and don't instantiate a new one
-            to keep instrument state
+        If the instrument didn't change we keep the same instrument and don't instantiate a new one
+        to keep instrument state
         """
         from a_protocol_0.devices.InstrumentSimpler import InstrumentSimpler
         from a_protocol_0.devices.InstrumentMinitaur import InstrumentMinitaur
@@ -52,30 +50,39 @@ class DeviceManager(AbstractControlSurfaceComponent):
 
         instrument_device = find_if(
             lambda d: d.is_plugin and d.name.lower() in AbstractInstrument.INSTRUMENT_NAME_MAPPINGS,
-            track.all_devices)
+            track.all_devices,
+        )
         if not instrument_device:
             if InstrumentMinitaur.NAME.lower() in track.name.lower():
-                return track.instrument if isinstance(track.instrument, InstrumentMinitaur) else InstrumentMinitaur(
-                    track=track, device=None)
+                return (
+                    track.instrument
+                    if isinstance(track.instrument, InstrumentMinitaur)
+                    else InstrumentMinitaur(track=track, device=None)
+                )
             else:
                 return None
 
         class_name = AbstractInstrument.INSTRUMENT_NAME_MAPPINGS[instrument_device.name.lower()]
 
         try:
-            mod = __import__('a_protocol_0.devices.' + class_name, fromlist=[class_name])
+            mod = __import__("a_protocol_0.devices." + class_name, fromlist=[class_name])
         except ImportError:
             self.parent.log_info("Import Error on instrument %s" % class_name)
             return None
 
         class_ = getattr(mod, class_name)
-        return track.instrument if isinstance(track.instrument, class_) else class_(track=track,
-                                                                                    device=instrument_device)
+        return (
+            track.instrument
+            if isinstance(track.instrument, class_)
+            else class_(track=track, device=instrument_device)
+        )
 
     def update_rack(self, rack_device):
         # type: (Live.RackDevice.RackDevice) -> None
         """ update rack with the version stored in browser, keeping old values for identical parameters """
-        parameters = {param.name: param.value for param in rack_device.parameters if "macro" not in param.name.lower()}
+        parameters = {
+            param.name: param.value for param in rack_device.parameters if "macro" not in param.name.lower()
+        }
         self.song.select_device(rack_device)
         self.parent.browserManager.swap(rack_device.name)
         # restore values : this means we cannot dispatch values, only mappings
@@ -103,10 +110,16 @@ class DeviceManager(AbstractControlSurfaceComponent):
 
     def _get_device_to_scroll(self, track):
         # type: (AbstractTrack) -> Optional[Device]
-        """ deprecated for now """
-        # on selection of a the first rack either on simple or group track, we allow browsing the instrument as a shortcut
-        if isinstance(track.selected_device, RackDevice) and track.all_devices.index(
-                track.selected_device) == 0 and track.instrument:
+        """
+        deprecated for now
+        on selection of a the first rack either on simple or group track,
+        we allow browsing the instrument as a shortcut
+        """
+        if (
+            isinstance(track.selected_device, RackDevice)
+            and track.all_devices.index(track.selected_device) == 0
+            and track.instrument
+        ):
             return track.instrument.device
         elif isinstance(track.selected_device, RackDevice):
             return None
@@ -136,8 +149,11 @@ class DeviceManager(AbstractControlSurfaceComponent):
         if not parent_rack:
             [setattr(d, "is_collapsed", True) for d in device.track.devices]
             (x_device, y_device) = self._get_device_show_button_click_coordinates(device)
-            seq.add(lambda: self.parent.keyboardShortcutManager.send_click(x=x_device, y=y_device), wait=2,
-                    name="click on device show button")
+            seq.add(
+                lambda: self.parent.keyboardShortcutManager.send_click(x=x_device, y=y_device),
+                wait=2,
+                name="click on device show button",
+            )
             seq.add(lambda: setattr(device, "is_collapsed", False), name="uncollapse all devices")
         else:
             [setattr(d, "is_collapsed", True) for d in device.track.devices if d != parent_rack]
@@ -147,14 +163,28 @@ class DeviceManager(AbstractControlSurfaceComponent):
             (x_device, y_device) = self._get_device_show_button_click_coordinates(device, parent_rack)
 
             seq.add(
-                lambda: self.parent.keyboardShortcutManager.toggle_device_button(x=x_rack, y=y_rack, activate=False),
-                wait=1, name="hide rack macro controls")
-            seq.add(lambda: self.parent.keyboardShortcutManager.send_click(x=x_device, y=y_device), wait=2,
-                    name="click on device show button")
-            seq.add(lambda: self.parent.keyboardShortcutManager.toggle_device_button(x=x_rack, y=y_rack, activate=True),
-                    wait=1, name="show rack macro controls")
-            seq.add(lambda: [setattr(d, "is_collapsed", False) for d in parent_rack.chains[0].devices],
-                    name="uncollapse all rack devices")
+                lambda: self.parent.keyboardShortcutManager.toggle_device_button(
+                    x=x_rack, y=y_rack, activate=False
+                ),
+                wait=1,
+                name="hide rack macro controls",
+            )
+            seq.add(
+                lambda: self.parent.keyboardShortcutManager.send_click(x=x_device, y=y_device),
+                wait=2,
+                name="click on device show button",
+            )
+            seq.add(
+                lambda: self.parent.keyboardShortcutManager.toggle_device_button(
+                    x=x_rack, y=y_rack, activate=True
+                ),
+                wait=1,
+                name="show rack macro controls",
+            )
+            seq.add(
+                lambda: [setattr(d, "is_collapsed", False) for d in parent_rack.chains[0].devices],
+                name="uncollapse all rack devices",
+            )
             # at this point the rack macro controls could still be hidden if the plugin window masks the button
 
         seq.add(wait=3)
@@ -207,6 +237,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
 
         if device is None:
             raise Protocol0Error(
-                "Couldn't find parameter name %s for device % in track %s" % (parameter_name, device, track))
+                "Couldn't find parameter name %s for device % in track %s" % (parameter_name, device, track)
+            )
 
         return (device, parameter)

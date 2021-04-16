@@ -1,6 +1,5 @@
-from typing import List
-
 import Live
+from typing import List
 
 from _Framework.SubjectSlot import subject_slot
 from _Framework.Util import find_if

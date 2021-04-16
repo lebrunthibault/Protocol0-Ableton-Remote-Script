@@ -8,7 +8,6 @@ from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.device.DeviceType import DeviceType
 
 if TYPE_CHECKING:
-    # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
@@ -38,6 +37,7 @@ class Device(AbstractObject):
         # type: (Live.Device.Device, SimpleTrack, int) -> Device
         from a_protocol_0.lom.device.RackDevice import RackDevice
         from a_protocol_0.lom.device.PluginDevice import PluginDevice
+
         if isinstance(device, Live.RackDevice.RackDevice):
             return RackDevice(device=device, track=track, index=index)
         elif isinstance(device, Live.PluginDevice.PluginDevice):

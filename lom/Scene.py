@@ -17,19 +17,20 @@ class Scene(AbstractObject):
         self._scene = scene
         self.scene_name = SceneName(self)
         self._is_triggered_listener.subject = self._scene
-        self.clip_slots = [self.song.clip_slots_by_live_live_clip_slot[clip_slot] for clip_slot in
-                           self._scene.clip_slots]  # type: List[ClipSlot]
+        self.clip_slots = [
+            self.song.clip_slots_by_live_live_clip_slot[clip_slot] for clip_slot in self._scene.clip_slots
+        ]  # type: List[ClipSlot]
 
     @p0_subject_slot("is_triggered")
     def _is_triggered_listener(self):
         """
-            implements a next scene follow action
-            when the scene is triggered (e.g. clicked or fired via script) the scheduler is cleared
-            when the scene starts playing we schedule firing the next scene after this one ended
-            NB : self.is_triggered == False can mean 3 things :
-            - the scene is playing (usual case): the we schedule the next one
-            - the song is stopped : we check this
-            - another scene is launched : that's why we stop the scheduler when is_triggered is True
+        implements a next scene follow action
+        when the scene is triggered (e.g. clicked or fired via script) the scheduler is cleared
+        when the scene starts playing we schedule firing the next scene after this one ended
+        NB : self.is_triggered == False can mean 3 things :
+        - the scene is playing (usual case): the we schedule the next one
+        - the song is stopped : we check this
+        - another scene is launched : that's why we stop the scheduler when is_triggered is True
         """
         if self.is_triggered:
             self.parent.sceneBeatScheduler.clear()
@@ -60,6 +61,7 @@ class Scene(AbstractObject):
     @staticmethod
     def update_all_names():
         from a_protocol_0 import Protocol0
+
         scenes = Protocol0.SELF.protocol0_song.scenes
         bar_count_states = set([bool(scene.scene_name.bar_count) for scene in scenes])
         if len(bar_count_states) > 1:
@@ -94,10 +96,13 @@ class Scene(AbstractObject):
     @property
     def clips(self):
         # type: () -> List[Clip]
-        return [clip_slot.clip for clip_slot in self.clip_slots if clip_slot.has_clip and not isinstance(clip_slot.track, AudioBusTrack)]
+        return [
+            clip_slot.clip
+            for clip_slot in self.clip_slots
+            if clip_slot.has_clip and not isinstance(clip_slot.track, AudioBusTrack)
+        ]
 
     @property
     def longest_clip(self):
         # type: () -> Clip
         return None if not len(self.clips) else max(self.clips, key=lambda c: c.length)
-

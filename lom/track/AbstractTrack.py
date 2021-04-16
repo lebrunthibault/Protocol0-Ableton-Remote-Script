@@ -24,13 +24,12 @@ from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import defer
 
 if TYPE_CHECKING:
-    # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
     from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 
 
-class AbstractTrack(AbstractObject):
-    __subject_events__ = ('instrument', 'fired_slot_index')
+class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
+    __subject_events__ = ("instrument", "fired_slot_index")
 
     ADDED_TRACK_INIT_ENABLED = True
 
@@ -44,16 +43,21 @@ class AbstractTrack(AbstractObject):
         self._track = track._track
         self.base_track = track  # type: SimpleTrack
         self.group_track = self.parent.songManager._get_simple_track(self._track.group_track)
-        self.abstract_group_track = None  # type: Optional[AbstractGroupTrack]  # set in SongManager at track processing time
+        self.abstract_group_track = (
+            None
+        )  # type: Optional[AbstractGroupTrack]  # set in SongManager at track processing time
         # here this works because group tracks are at left of inner tracks (but for all_tracks we need a property)
-        self.group_tracks = [
-                                self.group_track] + self.group_track.group_tracks if self.group_track else []  # type: List[SimpleTrack]
+        self.group_tracks = (
+            [self.group_track] + self.group_track.group_tracks if self.group_track else []
+        )  # type: List[SimpleTrack]
         self.sub_tracks = []  # type: List[SimpleTrack]
 
         self.track_name = TrackName(self)
 
         # DEVICES
-        self._instrument = None  # type: Optional[AbstractInstrument]  #  None here so that we don't instantiate the same instrument twice
+        self._instrument = (
+            None
+        )  # type: Optional[AbstractInstrument]  #  None here so that we don't instantiate the same instrument twice
         self.instrument_track = self.base_track  # type: AbstractTrack
         self.devices = []  # type: List[Device]
         self.all_devices = []  # type: List[Device]
@@ -66,12 +70,14 @@ class AbstractTrack(AbstractObject):
         self._view = self._track.view  # type: Live.Track.Track.View
         self.is_scrollable = True
         self._is_hearable = True
-        self._is_duplicated = False  # allows different init when duplicated or when created from e.g. the browser
+        self._is_duplicated = (
+            False  # allows different init when duplicated or when created from e.g. the browser
+        )
 
         # DISPLAY
-        self.nav_view = 'track'
-        self.push2_selected_main_mode = 'device'
-        self.push2_selected_matrix_mode = 'session'
+        self.nav_view = "track"
+        self.push2_selected_main_mode = "device"
+        self.push2_selected_matrix_mode = "session"
         self.push2_selected_instrument_mode = None
 
     @defer
@@ -106,7 +112,11 @@ class AbstractTrack(AbstractObject):
 
     @property
     def base_color(self):
-        return self.top_abstract_track.instrument.TRACK_COLOR if self.top_abstract_track.instrument else self._track.color_index
+        return (
+            self.top_abstract_track.instrument.TRACK_COLOR
+            if self.top_abstract_track.instrument
+            else self._track.color_index
+        )
 
     @property
     def instrument(self):
@@ -207,12 +217,16 @@ class AbstractTrack(AbstractObject):
     @subject_slot("devices")
     def _devices_listener(self):
         [device.disconnect() for device in self.devices]
-        self.devices = [Device.make(device, self.base_track, index) for index, device in enumerate(self._track.devices)]
+        self.devices = [
+            Device.make(device, self.base_track, index) for index, device in enumerate(self._track.devices)
+        ]
         self.all_devices = self._find_all_devices(self.base_track)
         self.all_visible_devices = self._find_all_devices(self.base_track, only_visible=True)
 
         # here we need to refresh the instrument so that it doesn't point to an outdated device
-        self.instrument_track.instrument = self.parent.deviceManager.make_instrument_from_simple_track(track=self)
+        self.instrument_track.instrument = self.parent.deviceManager.make_instrument_from_simple_track(
+            track=self
+        )
 
     def get_device(self, device):
         # type: (Live.Device.Device) -> Optional[Device]
@@ -251,8 +265,13 @@ class AbstractTrack(AbstractObject):
             if device.can_have_drum_pads and device.can_have_chains and device._view.is_showing_chain_devices:
                 devices += chain([device], self._find_all_devices(device.selected_chain))
             elif not device.can_have_drum_pads and isinstance(device, RackDevice):
-                devices += chain([device], *imap(partial(self._find_all_devices, only_visible=only_visible),
-                                                 filter(None, device.chains)))
+                devices += chain(
+                    [device],
+                    *imap(
+                        partial(self._find_all_devices, only_visible=only_visible),
+                        filter(None, device.chains),
+                    )
+                )
         return devices
 
     def all_devices(self, track_or_chain):
@@ -324,8 +343,13 @@ class AbstractTrack(AbstractObject):
     @property
     def is_hearable(self):
         # type: () -> bool
-        return self._is_hearable and self.is_playing and self.output_meter_level > 0.5 and not self.mute and all(
-            [not t.mute for t in self.group_tracks])
+        return (
+            self._is_hearable
+            and self.is_playing
+            and self.output_meter_level > 0.5
+            and not self.mute
+            and all([not t.mute for t in self.group_tracks])
+        )
 
     @property
     def is_recording(self):
@@ -397,7 +421,7 @@ class AbstractTrack(AbstractObject):
         # type: () -> str
         return self._track.current_input_routing
 
-    @input_routing_type.setter
+    @current_input_routing.setter
     def current_input_routing(self, current_input_routing):
         # type: (str) -> None
         self._track.current_input_routing = current_input_routing

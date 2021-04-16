@@ -12,7 +12,7 @@ sys.path.insert(0, "C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote S
 
 p0 = Protocol0(EmptyModule(is_false=False), init_song=False)
 
-debug = os.getenv("DEBUG_TESTS", 'False').lower() == 'true'
+debug = os.getenv("DEBUG_TESTS", "False").lower() == "true"
 
 Sequence.DEBUG_MODE = debug
 Sequence.SILENT_MODE = not debug

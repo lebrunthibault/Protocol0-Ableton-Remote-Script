@@ -1,6 +1,5 @@
 import sys
-import traceback
-from traceback import extract_tb, format_exception_only
+from traceback import extract_tb
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import ROOT_DIR
@@ -25,10 +24,12 @@ class ErrorManager(AbstractControlSurfaceComponent):
         self.parent.log_error("----- %s -----" % exc_value, debug=False)
         if context:
             self.parent.log_error(context, debug=False)
-        self.parent.log_error('at ' + ''.join(self._format_list(show[-1:], print_line=False)).strip(), debug=False)
+        self.parent.log_error(
+            "at " + "".join(self._format_list(show[-1:], print_line=False)).strip(), debug=False
+        )
         self.parent.log_error()
         self.parent.log_error("----- traceback -----", debug=False)
-        self.parent.log_error(''.join(self._format_list(show)), debug=False)
+        self.parent.log_error("".join(self._format_list(show)), debug=False)
 
         self.song.errored = True
         self.parent.fastScheduler.restart()
@@ -50,8 +51,8 @@ class ErrorManager(AbstractControlSurfaceComponent):
         list = []
 
         for filename, lineno, name, line in extracted_list:  # type: (str, int, str, str)
-            item = '  %s, line %d, in %s\n' % (filename.replace(ROOT_DIR, "."), lineno, name)
+            item = "  %s, line %d, in %s\n" % (filename.replace(ROOT_DIR, "."), lineno, name)
             if line and print_line:
-                item = item + '    %s\n' % line.strip()
+                item = item + "    %s\n" % line.strip()
             list.append(item)
         return list

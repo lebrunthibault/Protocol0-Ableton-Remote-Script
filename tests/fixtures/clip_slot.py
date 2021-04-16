@@ -8,4 +8,5 @@ class AbletonClipSlot(Subject):
         self.clip = clip
         self.has_clip = bool(clip)
 
+
 # subject_add_event(AbletonClipSlot, "has_clip")

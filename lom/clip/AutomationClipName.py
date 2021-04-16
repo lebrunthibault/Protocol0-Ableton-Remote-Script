@@ -17,18 +17,24 @@ class AutomationClipName(ClipName):
         # type: (AbstractAutomationClip) -> None
         super(AutomationClipName, self).__init__(clip, *a, **k)
         self.automation_ramp_up = AutomationRampMode(direction=DirectionEnum.UP)  # type: AutomationRampMode
-        self.automation_ramp_down = AutomationRampMode(direction=DirectionEnum.DOWN)  # type: AutomationRampMode
-        self._ramp_change_listener.replace_subjects([
-            self.automation_ramp_up,
-            self.automation_ramp_down,
-        ])
+        self.automation_ramp_down = AutomationRampMode(
+            direction=DirectionEnum.DOWN
+        )  # type: AutomationRampMode
+        self._ramp_change_listener.replace_subjects(
+            [
+                self.automation_ramp_up,
+                self.automation_ramp_down,
+            ]
+        )
 
     def __repr__(self):
         return "AutomationClipName of %s" % self.clip
 
     @p0_subject_slot("name")
     def _name_listener(self):
-        match = re.match("^(?P<base_name>[^()[\]]*)[^[\]]*(\[(?P<ramp_up>[^,]*),(?P<ramp_down>[^,]*)])?.*$", self.clip.name)
+        match = re.match(
+            "^(?P<base_name>[^()[\]]*)[^[\]]*(\[(?P<ramp_up>[^,]*),(?P<ramp_down>[^,]*)])?.*$", self.clip.name
+        )
 
         self.base_name = match.group("base_name").strip() if match.group("base_name") else ""
         self.automation_ramp_up.update_from_value(match.group("ramp_up"))

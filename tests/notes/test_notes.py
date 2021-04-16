@@ -7,16 +7,17 @@ from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.tests.fixtures.clip import AbletonClip
 from a_protocol_0.tests.fixtures.clip_slot import AbletonClipSlot
 from a_protocol_0.tests.fixtures.simpleTrack import AbletonTrack, TrackType
-# noinspection PyUnresolvedReferences
-from a_protocol_0.tests.test_all import p0
 
 
 def create_clip_with_notes(notes, prev_notes=[], clip_length=None, loop_start=None, name="test"):
     track = SimpleTrack(AbletonTrack(name="midi", track_type=TrackType.MIDI), 0)
     loop_start = loop_start if loop_start is not None else notes[0].start
     length = clip_length or notes[-1].end - loop_start
-    cs = ClipSlot(clip_slot=AbletonClipSlot(AbletonClip(length=length, name=name, loop_start=loop_start)), index=0,
-                  track=track)
+    cs = ClipSlot(
+        clip_slot=AbletonClipSlot(AbletonClip(length=length, name=name, loop_start=loop_start)),
+        index=0,
+        track=track,
+    )
     clip = AutomationMidiClip(clip_slot=cs)
     clip._prev_notes = Note.copy_notes(prev_notes)
     [setattr(note, "clip", clip) for note in notes]

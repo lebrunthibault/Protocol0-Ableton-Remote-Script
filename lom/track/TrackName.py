@@ -10,7 +10,6 @@ from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
-    # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
     from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 
@@ -34,9 +33,13 @@ class TrackName(AbstractObject):
     @p0_subject_slot("selected_preset")
     def _selected_preset_listener(self):
         if self.track.instrument.should_display_selected_preset_name:
-            self.track.top_abstract_track.track_name.update(base_name=self.track.instrument.selected_preset.name)
+            self.track.top_abstract_track.track_name.update(
+                base_name=self.track.instrument.selected_preset.name
+            )
         elif self.track.instrument.SHOULD_DISPLAY_SELECTED_PRESET_INDEX:
-            self.track.top_abstract_track.track_name.update(selected_preset_index=self.track.instrument.selected_preset.index)
+            self.track.top_abstract_track.track_name.update(
+                selected_preset_index=self.track.instrument.selected_preset.index
+            )
 
     @subject_slot_group("name")
     def _name_listener(self, changed_track):
@@ -60,7 +63,9 @@ class TrackName(AbstractObject):
         # type: (Optional[str], Optional[int], Optional[int]) -> None
         self.base_name = base_name if base_name else self.base_name
 
-        selected_preset_index = selected_preset_index if selected_preset_index is not None else self.selected_preset_index
+        selected_preset_index = (
+            selected_preset_index if selected_preset_index is not None else self.selected_preset_index
+        )
         self.selected_preset_index = max(0, selected_preset_index)
 
         name = self.base_name

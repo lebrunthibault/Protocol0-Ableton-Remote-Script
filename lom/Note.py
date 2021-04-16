@@ -1,7 +1,6 @@
 from copy import copy
 from functools import partial
 
-from pushbase.note_editor_component import TimeStep
 from typing import TYPE_CHECKING, List
 
 from _Framework.Util import clamp, find_if
@@ -10,6 +9,7 @@ from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.utils import is_equal
+from pushbase.note_editor_component import TimeStep
 
 if TYPE_CHECKING:
     from a_protocol_0.lom.clip.MidiClip import MidiClip
@@ -29,26 +29,36 @@ class Note(AbstractObject):
         self.clip = clip  # type: MidiClip
 
     def __eq__(self, other):
-        return isinstance(other, Note) and \
-               self.pitch == other.pitch and \
-               is_equal(self.start, other.start) and \
-               is_equal(self.duration, other.duration) and \
-               self.velocity == other.velocity and \
-               self.muted == other.muted
+        return (
+            isinstance(other, Note)
+            and self.pitch == other.pitch
+            and is_equal(self.start, other.start)
+            and is_equal(self.duration, other.duration)
+            and self.velocity == other.velocity
+            and self.muted == other.muted
+        )
 
     def __hash__(self):
         return hash((self.pitch, self.start, self.duration, self.velocity, self.muted))
 
     def __repr__(self):
         return "{start:%.2f, duration:%.2f, pitch:%s, vel:%s, muted: %s}" % (
-            self.start, self.duration, self.pitch, self.velocity, self.muted)
+            self.start,
+            self.duration,
+            self.pitch,
+            self.velocity,
+            self.muted,
+        )
 
     def to_data(self):
         return (self.pitch, self.start, self.duration, self.velocity, self.muted)
 
     @property
     def time_step(self):
-        """ this is totally undocumented behavior but the TimeStep offset is important for removing specific notes .. """
+        """
+        this is totally undocumented behavior
+        but the TimeStep offset is important for removing specific notes ..
+        """
         return TimeStep(self.start, self.duration)
 
     @property

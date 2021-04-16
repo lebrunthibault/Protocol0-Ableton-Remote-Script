@@ -10,9 +10,15 @@ class ClipSynchronizer(ObjectSynchronizer):
     def __init__(self, master, slave, *a, **k):
         # type: (Clip, Clip) -> None
         properties = ["loop_start", "loop_end", "start_marker", "end_marker"]
-        super(ClipSynchronizer, self).__init__(master, slave, "_clip",
-                        listenable_properties=["name"] + properties,
-                        properties=["base_name"] + properties, *a, **k)
+        super(ClipSynchronizer, self).__init__(
+            master,
+            slave,
+            "_clip",
+            listenable_properties=["name"] + properties,
+            properties=["base_name"] + properties,
+            *a,
+            **k
+        )
         self.master = self.master  # type: Clip
         self.slave = self.slave  # type: Clip
 
@@ -20,9 +26,6 @@ class ClipSynchronizer(ObjectSynchronizer):
         slave.linked_clip = master
 
         slave.clip_name = master.clip_name  # because clips are synchronized
-
-        # if isinstance(master, AbstractAutomationClip):
-        #     master.clip_name = slave.clip_name = AutomationClipName(master)
 
         # noinspection PyUnresolvedReferences
         master.notify_linked()

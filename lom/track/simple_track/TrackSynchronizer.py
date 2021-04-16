@@ -1,6 +1,6 @@
-from _Framework.CompoundElement import subject_slot_group
 from typing import TYPE_CHECKING
 
+from _Framework.CompoundElement import subject_slot_group
 from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
 
 if TYPE_CHECKING:
@@ -23,5 +23,10 @@ class TrackSynchronizer(ObjectSynchronizer):
     def _fired_slot_index_listener(self, track):
         # type: (SimpleTrack) -> None
         """ Stops linked track on track stop """
-        if track.fired_slot_index == -2 and track.linked_track.is_playing and not track.is_recording and not track.linked_track.is_recording:
+        if (
+            track.fired_slot_index == -2
+            and track.linked_track.is_playing
+            and not track.is_recording
+            and not track.linked_track.is_recording
+        ):
             track.linked_track.stop()

@@ -1,8 +1,7 @@
 from a_protocol_0.devices.InstrumentProphet import InstrumentProphet
 from a_protocol_0.lom.Song import Song
 from a_protocol_0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
-from a_protocol_0.tests.fixtures.simpleTrack import \
-    make_midi_track, make_audio_track, make_group_track
+from a_protocol_0.tests.fixtures.simpleTrack import make_midi_track, make_audio_track, make_group_track
 
 
 def make_external_synth_track(song, name=InstrumentProphet.NAME):

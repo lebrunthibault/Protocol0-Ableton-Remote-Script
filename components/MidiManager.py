@@ -1,4 +1,5 @@
 from functools import partial
+
 from typing import Optional
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
@@ -29,6 +30,6 @@ class MidiManager(AbstractControlSurfaceComponent):
             msg.append(value2)
         self.parent.log_info("MidiManager sending : %s" % msg, debug=False)
         self.parent._send_midi(tuple(msg))
-        if message_type == 'note':
+        if message_type == "note":
             msg[-1] = 0
             self.canonical_parent.schedule_message(1, partial(self.parent._send_midi, tuple(msg)))

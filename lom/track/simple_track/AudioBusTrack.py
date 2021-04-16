@@ -7,9 +7,10 @@ from a_protocol_0.utils.decorators import defer
 
 class AudioBusTrack(SimpleAudioTrack):
     """
-        Corresponds to the audio bus track in my sets
-        This is where is stored the base dummy clip that is copied over when
-        generating automation dummy clips. It is thus mandatory. It should be BASE_DUMMY_CLIP_BAR_LENGTH bars long with empty audio.
+    Corresponds to the audio bus track in my sets
+    This is where is stored the base dummy clip that is copied over when
+    generating automation dummy clips. It is thus mandatory.
+    It should be BASE_DUMMY_CLIP_BAR_LENGTH bars long with empty audio.
     """
 
     CLIP_WARPING_MANDATORY = True
@@ -43,4 +44,3 @@ class AudioBusTrack(SimpleAudioTrack):
         # cleaning unnecessary clips usually created when duplicating scenes
         if len(self.clips) > 1:
             [clip.delete() for clip in self.clips[1:]]
-

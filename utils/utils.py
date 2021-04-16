@@ -3,21 +3,16 @@ import types
 from collections import namedtuple
 
 from qualname import qualname
-from typing import Optional, Any, List, TYPE_CHECKING
+from typing import Optional, Any, List
 
 from a_protocol_0.consts import ROOT_DIR, REMOTE_SCRIPTS_DIR
-from a_protocol_0.utils.log import log_ableton
-
-if TYPE_CHECKING:
-    # noinspection PyUnresolvedReferences
-    from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 
 
 def parse_number(num_as_string, default_value=None, min_value=None, max_value=None, is_float=False):
-    """ Parses the given string containing a number and returns the parsed number.
+    """Parses the given string containing a number and returns the parsed number.
     If a parse error occurs, the default_value will be returned. If a min_value or
     max_value is given, the default_value will be returned if the parsed_value is not
-    within range. """
+    within range."""
     ret_value = default_value
     try:
         parsed_value = float(num_as_string) if is_float else int(num_as_string)
@@ -47,6 +42,7 @@ def scroll_object_property(base_object, property, items, go_next):
     new_value = scroll_values(items, getattr(base_object, property), go_next)
     setattr(base_object, property, new_value)
     from a_protocol_0 import Protocol0
+
     Protocol0.SELF.show_message("Selected %s" % new_value)
 
 
@@ -54,7 +50,7 @@ def scroll_values(items, selected_item, go_next, default=None, return_index=Fals
     # type: (List[Any], Optional[Any], bool, Any) -> Optional[Any]
     if len(items) == 0:
         return None
-    increment = 1 if go_next else - 1
+    increment = 1 if go_next else -1
     index = 0
     if selected_item:
         try:
@@ -86,9 +82,11 @@ def is_equal(val1, val2, delta=0.00001):
 
 def have_equal_properties(obj1, obj2, properties):
     for property in properties:
-        if not hasattr(obj1, property) or not hasattr(obj2, property) or not is_equal(getattr(obj1, property),
-                                                                                      getattr(obj2,
-                                                                                              property)):
+        if (
+            not hasattr(obj1, property)
+            or not hasattr(obj2, property)
+            or not is_equal(getattr(obj1, property), getattr(obj2, property))
+        ):
             return False
     return True
 
@@ -106,7 +104,7 @@ def get_frame_info(frame_count=1):
     filename = filename.replace(ROOT_DIR + "\\", "").replace(REMOTE_SCRIPTS_DIR + "\\", "")
     class_name = filename.replace(".py", "").split("\\")[-1]
 
-    FrameInfo = namedtuple('FrameInfo', ['filename', 'class_name', 'line', 'method_name'])
+    FrameInfo = namedtuple("FrameInfo", ["filename", "class_name", "line", "method_name"])
     return FrameInfo(filename=filename, class_name=class_name, line=line, method_name=method_name)
 
 
@@ -114,13 +112,17 @@ def _has_callback_queue(func):
     """ mixing duck typing and isinstance to ensure we really have a callback handler object """
     from a_protocol_0.utils.callback_descriptor import CallableWithCallbacks
     from _Framework.SubjectSlot import CallableSlotMixin
-    return func and hasattr(func, "add_callback") and (
-            isinstance(func, CallableWithCallbacks) or isinstance(func, CallableSlotMixin))
+
+    return (
+        func
+        and hasattr(func, "add_callback")
+        and (isinstance(func, CallableWithCallbacks) or isinstance(func, CallableSlotMixin))
+    )
 
 
 def is_method(func):
     spec = inspect.getargspec(func)
-    return spec.args and spec.args[0] == 'self'
+    return spec.args and spec.args[0] == "self"
 
 
 def is_partial(func):
@@ -167,6 +169,7 @@ def get_callable_name(func, obj=None):
         return "None"
 
     from a_protocol_0.sequence.Sequence import Sequence
+
     if isinstance(func, Sequence):
         return str(func.name)
 
@@ -195,8 +198,9 @@ def has_arg(func, arg):
 
 def _arg_count(func):
     # type: (callable) -> int
-    """ Note : this is not ideal because we cannot know if the defaults are already set by e.g a partial function
-        Thus we could be subtracting twice a parameter, but that's better than to have an outer function setting a mismatched parameter
+    """Note : this is not ideal because we cannot know if the defaults are already set by e.g a partial function
+    Thus we could be subtracting twice a parameter,
+    but that's better than to have an outer function setting a mismatched parameter
     """
     if is_partial(func):
         spec = inspect.getargspec(func.func)

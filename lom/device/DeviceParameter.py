@@ -1,12 +1,10 @@
-from typing import TYPE_CHECKING
-
 import Live
+from typing import TYPE_CHECKING
 
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.utils.utils import scale_from_value
 
 if TYPE_CHECKING:
-    # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.device.Device import Device
 
 

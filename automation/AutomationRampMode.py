@@ -3,7 +3,7 @@ from a_protocol_0.lom.AbstractObject import AbstractObject
 
 
 class AutomationRampMode(AbstractObject):
-    __subject_events__ = ('ramp_change',)
+    __subject_events__ = ("ramp_change",)
 
     SCROLLING_FACTOR = 2
 
@@ -17,10 +17,14 @@ class AutomationRampMode(AbstractObject):
 
     def __repr__(self):
         return "direction: %s, is_active: %s, exp_coeff: %s, id: %s" % (
-            self.direction, self.is_active, self.exp_coeff, id(self))
+            self.direction,
+            self.is_active,
+            self.exp_coeff,
+            id(self),
+        )
 
     def __str__(self):
-        return "%.1f" % self.exp_coeff if self.is_active else ''
+        return "%.1f" % self.exp_coeff if self.is_active else ""
 
     def update_from_value(self, value=""):
         # type: (str) -> AutomationRampMode
@@ -31,12 +35,12 @@ class AutomationRampMode(AbstractObject):
         except (ValueError, TypeError):
             self.is_active = False
             self.exp_coeff = 0
-            
+
     @property
     def is_active(self):
         # type: () -> bool
         return self._is_active
-    
+
     @is_active.setter
     def is_active(self, is_active):
         # type: (bool) -> None

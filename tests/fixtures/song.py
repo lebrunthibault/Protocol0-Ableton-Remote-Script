@@ -5,8 +5,7 @@ from a_protocol_0.devices.InstrumentMinitaur import InstrumentMinitaur
 from a_protocol_0.devices.InstrumentProphet import InstrumentProphet
 from a_protocol_0.lom.Song import Song
 from a_protocol_0.tests.fixtures.groupTrack import make_external_synth_track
-from a_protocol_0.tests.fixtures.simpleTrack import make_simpler_track, make_group_track, \
-    AbletonTrack
+from a_protocol_0.tests.fixtures.simpleTrack import make_simpler_track, make_group_track, AbletonTrack
 from a_protocol_0.tests.fixtures.songView import AbletonSongView
 
 

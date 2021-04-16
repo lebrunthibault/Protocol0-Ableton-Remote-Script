@@ -2,9 +2,9 @@ from itertools import chain
 
 from typing import List, TYPE_CHECKING
 
+from a_protocol_0.automation.AutomationRampMode import AutomationRampMode
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.Note import Note
-from a_protocol_0.automation.AutomationRampMode import AutomationRampMode
 from a_protocol_0.utils.math_utils import exp_curve
 
 if TYPE_CHECKING:
@@ -35,16 +35,22 @@ class AutomationCurveGenerator(AbstractObject):
     def _ramp_two_notes(cls, start_note, end_note, ramp_mode):
         # type: (Note, Note, AutomationRampMode) -> List[Note]
         """
-            2 cases : when the note is long and ramping happens at the end
-            or when the note is short and the ramping takes the whole note duration
+        2 cases : when the note is long and ramping happens at the end
+        or when the note is short and the ramping takes the whole note duration
         """
         if not ramp_mode.is_active:
             yield start_note
             return
 
         for note in cls.generate_step_notes(start_note, end_note):
-            note.velocity = exp_curve(x1=start_note.start, y1=start_note.velocity, x2=end_note.start, y2=end_note.velocity, x=note.start,
-                                            alpha=ramp_mode.exp_coeff)
+            note.velocity = exp_curve(
+                x1=start_note.start,
+                y1=start_note.velocity,
+                x2=end_note.start,
+                y2=end_note.velocity,
+                x=note.start,
+                alpha=ramp_mode.exp_coeff,
+            )
             yield note
 
     @classmethod

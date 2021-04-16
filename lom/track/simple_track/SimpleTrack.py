@@ -30,8 +30,10 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # only used for automated tracks
         self.next_automated_audio_track = None  # type: Optional[SimpleTrack]
         self.previous_automated_audio_track = None  # type: Optional[SimpleTrack]
-        self.clip_slots = [ClipSlot.make(clip_slot=clip_slot, index=index, track=self) for (index, clip_slot) in
-                           enumerate(list(self._track.clip_slots))]
+        self.clip_slots = [
+            ClipSlot.make(clip_slot=clip_slot, index=i, track=self)
+            for (i, clip_slot) in enumerate(list(self._track.clip_slots))
+        ]
         self._map_clip_listener.replace_subjects(self.clip_slots)
 
         self.last_clip_played = None  # type: Optional[Clip]
@@ -92,11 +94,13 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def is_audio(self):
         from a_protocol_0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+
         return isinstance(self, SimpleAudioTrack) and self._track.has_audio_input
 
     @property
     def is_midi(self):
         from a_protocol_0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
+
         return isinstance(self, SimpleMidiTrack) and self._track.has_midi_input
 
     @property
@@ -137,8 +141,11 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         if selected_clip:
             return selected_clip
         # return self.playing_clip or find_if(lambda clip: clip.clip_name.is_playable, self.clips)
-        selected_scene_clip = self.clip_slots[self.song.selected_scene.index].clip if self.clip_slots[
-            self.song.selected_scene.index].has_clip else None
+        selected_scene_clip = (
+            self.clip_slots[self.song.selected_scene.index].clip
+            if self.clip_slots[self.song.selected_scene.index].has_clip
+            else None
+        )
         return self.playing_clip or selected_scene_clip
 
     @playable_clip.setter

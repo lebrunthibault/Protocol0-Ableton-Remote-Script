@@ -6,6 +6,7 @@ from a_protocol_0.utils.UserMutableSequence import UserMutableSequence
 
 class AbstractTrackList(UserMutableSequence):
     """ Manipulate a track list as an object """
+
     def __init__(self, abstract_tracks, *a, **k):
         # type: (List[AbstractTrack]) -> None
         super(AbstractTrackList, self).__init__(abstract_tracks, *a, **k)
@@ -23,5 +24,5 @@ class AbstractTrackList(UserMutableSequence):
 
     def toggle_fold(self):
         self.parent.log_dev(self._abstract_tracks)
-        fold = (any(not abstract_track.is_folded for abstract_track in self._abstract_tracks))
+        fold = any(not abstract_track.is_folded for abstract_track in self._abstract_tracks)
         [setattr(abstract_track, "is_folded", fold) for abstract_track in self._abstract_tracks]

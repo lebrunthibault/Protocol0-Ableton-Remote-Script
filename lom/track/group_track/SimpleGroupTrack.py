@@ -17,7 +17,7 @@ class SimpleGroupTrack(AbstractGroupTrack):
         # enforce this (e.g. when deleting automation tracks)
         [sub_track.set_output_routing_to(self) for sub_track in self.sub_tracks]
 
-        self.push2_selected_main_mode = 'mix'
+        self.push2_selected_main_mode = "mix"
         self.selection_tracks = [self.base_track]  # sub tracks are independent
 
     def _added_track_init(self):
@@ -36,22 +36,29 @@ class SimpleGroupTrack(AbstractGroupTrack):
         self.is_folded = not self.is_folded
 
     def _rename_to_sub_tracks_instrument(self):
-        instrument_classes = list(set([sub_track.instrument.__class__ for sub_track in self.sub_tracks if sub_track.instrument]))
+        instrument_classes = list(
+            set([sub_track.instrument.__class__ for sub_track in self.sub_tracks if sub_track.instrument])
+        )
         if len(instrument_classes) == 1:
             instrument_class = instrument_classes[0]  # type: AbstractInstrument
             self.track_name.update(base_name=instrument_class.NAME)
 
     def _get_single_sub_track_routing(self):
         output_routing_objects = list(
-            set([sub_track.output_routing_type.attached_object for sub_track in self.sub_tracks]))
-        if len(output_routing_objects) == 1 and output_routing_objects[0] not in (None, self, self.song.master_track):
+            set([sub_track.output_routing_type.attached_object for sub_track in self.sub_tracks])
+        )
+        if len(output_routing_objects) == 1 and output_routing_objects[0] not in (
+            None,
+            self,
+            self.song.master_track,
+        ):
             return output_routing_objects[0]
 
     def _sync_group_output_routing(self):
         """
-            if all subtracks (usually only one) are mapped to a single different track (e.g. a bus)
-            then route the group track to this track
-            Usually happens when grouping a single track routed to an audio bus
+        if all subtracks (usually only one) are mapped to a single different track (e.g. a bus)
+        then route the group track to this track
+        Usually happens when grouping a single track routed to an audio bus
         """
         if self._single_sub_track_routing:
             self.set_output_routing_to(self._single_sub_track_routing)

@@ -10,22 +10,35 @@ from a_protocol_0.utils.timeout import TimeoutLimit
 from a_protocol_0.utils.utils import _has_callback_queue, is_lambda, get_callable_name, nop
 
 if TYPE_CHECKING:
-    # noinspection PyUnresolvedReferences
-    from a_protocol_0.sequence.Sequence import Sequence
+    from a_protocol_0.sequence.Sequence import Sequence  # noqa
 
 
 class SequenceStep(AbstractObject, SequenceStateMachineMixin):
-    __subject_events__ = ('terminated','errored')
+    __subject_events__ = ("terminated", "errored")
 
-    def __init__(self, func, sequence, wait, name, complete_on,
-                 do_if, do_if_not, return_if, return_if_not, check_timeout, silent, *a, **k):
+    def __init__(
+        self,
+        func,
+        sequence,
+        wait,
+        name,
+        complete_on,
+        do_if,
+        do_if_not,
+        return_if,
+        return_if_not,
+        check_timeout,
+        silent,
+        *a,
+        **k
+    ):
         # type: (callable, Sequence, int, str, callable, callable, callable, callable, callable, int, bool) -> None
         """ the tick is 100 ms """
         super(SequenceStep, self).__init__(*a, **k)
         self.debug = False if silent else sequence.debug
         self._original_name = name
         if not name and func == nop:
-            name = ("wait %s" % wait if wait else "pass")
+            name = "wait %s" % wait if wait else "pass"
         self.name = "step %s" % (name or get_callable_name(func))
         self._sequence_name = sequence.name
         self._callable = func
@@ -49,9 +62,11 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
 
         assert callable(self._callable), "You passed a non callable (%s) to %s" % (self._callable, self)
         assert len(filter(None, conditions)) <= 1, "You cannot specify multiple conditions in a step"
-        from a_protocol_0.sequence.Sequence import Sequence
-        assert all([not isinstance(condition, Sequence) for condition in
-                    conditions]), "You passed a Sequence object instead of a Sequence factory for a condition"
+        from a_protocol_0.sequence.Sequence import Sequence  # noqa
+
+        assert all(
+            [not isinstance(condition, Sequence) for condition in conditions]
+        ), "You passed a Sequence object instead of a Sequence factory for a condition"
 
     def __repr__(self):
         output = self.name
@@ -76,8 +91,10 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
     @staticmethod
     def make(sequence, callback, *a, **k):
         if isinstance(callback, Iterable):
+
             def parallel_sequence_creator(callbacks):
                 from a_protocol_0.sequence.ParallelSequence import ParallelSequence
+
                 seq = ParallelSequence(silent=not sequence.debug)
                 [seq.add(func) for func in callbacks]
                 return seq.done()
@@ -93,8 +110,11 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
             self._execute()
 
     def _execute_condition(self):
-        terminate_callback = self._terminate_if_condition if self._condition in [self._do_if,
-                                                                                 self._do_if_not] else self._terminate_return_condition
+        terminate_callback = (
+            self._terminate_if_condition
+            if self._condition in [self._do_if, self._do_if_not]
+            else self._terminate_return_condition
+        )
         try:
             condition_res = self._execute_callable(self._condition)
         except SequenceError:
@@ -160,9 +180,12 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         if not self._check_timeout:
             listener.add_callback(self.terminate)
         else:
-            self._callback_timeout = TimeoutLimit(func=self.terminate, awaited_listener=listener,
-                                                  timeout_limit=self._check_timeout,
-                                                  on_timeout=self._step_timed_out)
+            self._callback_timeout = TimeoutLimit(
+                func=self.terminate,
+                awaited_listener=listener,
+                timeout_limit=self._check_timeout,
+                on_timeout=self._step_timed_out,
+            )
             listener.add_callback(self._callback_timeout)
 
     def _execute_callable(self, func):
@@ -178,7 +201,8 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
 
     def _handle_return_value(self, res, listener, success_callback):
         # type: (Any, callable, callable) -> None
-        from a_protocol_0.sequence.Sequence import Sequence
+        from a_protocol_0.sequence.Sequence import Sequence  # noqa
+
         if isinstance(res, Sequence):
             if res.errored:
                 self.error()
@@ -197,7 +221,9 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         except SequenceError:
             return
 
-        self._handle_return_value(res, self._step_sequence_terminated_listener, self._check_for_step_completion)
+        self._handle_return_value(
+            res, self._step_sequence_terminated_listener, self._check_for_step_completion
+        )
 
     def _step_timed_out(self):
         if _has_callback_queue(self._complete_on) and self._callback_timeout:

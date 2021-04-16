@@ -9,9 +9,9 @@ from a_protocol_0.lom.AbstractObject import AbstractObject
 
 class ObjectSynchronizer(AbstractControlSurfaceComponent):
     """
-        Class that handles the parameter sync of 2 objects (usually track or clip)
-        listenable_properties are properties that trigger the sync
-        properties are properties effectively synced
+    Class that handles the parameter sync of 2 objects (usually track or clip)
+    listenable_properties are properties that trigger the sync
+    properties are properties effectively synced
     """
 
     def __init__(self, master, slave, subject_name, listenable_properties=None, properties=[], *a, **k):
@@ -30,8 +30,12 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
         self.updating_properties = set()  # type: Set[str]
 
         for property in self.listenable_properties:
-            self.register_slot(getattr(master, subject_name), partial(self._sync_properties, master, slave), property)
-            self.register_slot(getattr(slave, subject_name), partial(self._sync_properties, slave, master), property)
+            self.register_slot(
+                getattr(master, subject_name), partial(self._sync_properties, master, slave), property
+            )
+            self.register_slot(
+                getattr(slave, subject_name), partial(self._sync_properties, slave, master), property
+            )
 
         self._sync_properties(master, slave)
 

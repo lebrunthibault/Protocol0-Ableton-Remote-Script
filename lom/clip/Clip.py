@@ -10,13 +10,12 @@ from a_protocol_0.lom.clip.ClipName import ClipName
 from a_protocol_0.utils.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
-    # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
     from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
 class Clip(ClipActionMixin, AbstractObject):
-    __subject_events__ = ('notes', 'linked')
+    __subject_events__ = ("notes", "linked")
 
     def __init__(self, clip_slot, set_clip_name=True, is_new=False, *a, **k):
         # type: (ClipSlot, bool, bool) -> None
@@ -89,17 +88,23 @@ class Clip(ClipActionMixin, AbstractObject):
     @property
     def is_audio(self):
         from a_protocol_0.lom.clip.AudioClip import AudioClip
+
         return isinstance(self, AudioClip)
 
     @property
     def is_midi(self):
         from a_protocol_0.lom.clip.MidiClip import MidiClip
+
         return isinstance(self, MidiClip)
 
     @property
     def length(self):
         # type: () -> float
-        """ For looped clips: loop length in beats. Casting to int to have whole beats. not using unwarped audio clips """
+        """
+        For looped clips: loop length in beats.
+        Casting to int to have whole beats.
+        not using unwarped audio clips
+        """
         return int(self._clip.length) if self._clip and getattr(self, "warping", True) else 0
 
     @length.setter

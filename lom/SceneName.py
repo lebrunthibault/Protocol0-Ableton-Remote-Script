@@ -6,7 +6,6 @@ from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.utils.decorators import p0_subject_slot, defer
 
 if TYPE_CHECKING:
-    # noinspection PyUnresolvedReferences
     from a_protocol_0.lom.Scene import Scene
 
 
