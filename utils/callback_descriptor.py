@@ -24,6 +24,7 @@ class CallbackDescriptor(object):
 
     def __init__(self, func, immediate, *a, **k):
         # type: (callable, bool) -> None
+        super(CallbackDescriptor, self).__init__(*a, **k)
         self.__name__ = func.__name__
         self.__doc__ = func.__doc__
         self._func = func
@@ -61,6 +62,7 @@ class CallableWithCallbacks(object):
 
     def __init__(self, decorated, obj, immediate, *a, **k):
         # type: (callable, object, bool) -> None
+        super(CallableWithCallbacks, self).__init__(*a, **k)
         self._real_name = None
         self._decorated = decorated
         self._obj = obj

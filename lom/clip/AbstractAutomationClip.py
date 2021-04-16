@@ -6,8 +6,6 @@ class AbstractAutomationClip(Clip):
     def __init__(self, *a, **k):
         super(AbstractAutomationClip, self).__init__(set_clip_name=False, *a, **k)
         self.clip_name = AutomationClipName(self)
-        # # handled by the ClipSynchronizer
-        # self.clip_name = None  # type: AutomationClipName
 
     @property
     def automation_ramp_up(self):

@@ -11,20 +11,20 @@ class ActionGroupSet(AbstractActionGroup):
     def __init__(self, *a, **k):
         super(ActionGroupSet, self).__init__(channel=14, *a, **k)
         # RACK encoder
-        self.add_encoder(id=1,
+        self.add_encoder(id=1, name="racks",
                          on_press=self.action_update_racks)
 
         # CLIP encoder
-        self.add_encoder(id=2,
+        self.add_encoder(id=2, name="clips",
                          on_press=self.action_set_clip_names)
 
         # TRAcK encoder
-        self.add_encoder(id=3,
+        self.add_encoder(id=3, name="tracks",
                          on_press=self.action_set_track_names)
 
         # LOG encoder
-        self.add_encoder(id=13,
-                         on_press=self.action_log_set)
+        self.add_encoder(id=13, name="log",
+                         on_press=self.parent.logManager.log_set)
 
     @button_action()
     def action_update_racks(self):
@@ -34,8 +34,7 @@ class ActionGroupSet(AbstractActionGroup):
     @button_action()
     def action_set_clip_names(self):
         for clip in self.song.clips:
-            clip.clip_name._base_name = ""
-            clip.clip_name.update()
+            clip.clip_name.update(base_name="")
 
     @button_action()
     def action_set_track_names(self):
@@ -50,7 +49,3 @@ class ActionGroupSet(AbstractActionGroup):
                 track.name = "_%s" % parameter_name
             else:
                 track.track_name.update()
-
-    @button_action()
-    def action_log_set(self):
-        return self.parent.logManager.log_set()

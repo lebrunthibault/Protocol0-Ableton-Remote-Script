@@ -9,6 +9,7 @@ from a_protocol_0.utils.utils import get_callable_name
 class SchedulerEvent(AbstractObject):
     def __init__(self, callback, tick_count, *a, **k):
         # type: (callable, int) -> None
+        super(SchedulerEvent, self).__init__(*a, **k)
         self._executed = False
         self._callback = callback
         self._tick_count = tick_count
@@ -35,6 +36,7 @@ class SchedulerEvent(AbstractObject):
         try:
             self._callback()
         except Exception as e:
+            self.parent.log_dev("error caught")
             self.parent.errorManager.handle_error(e)
 
 
@@ -66,7 +68,10 @@ class FastScheduler(AbstractControlSurfaceComponent):
         # type: (SchedulerEvent) -> None
         assert scheduled_event.is_timeout_elapsed
         scheduled_event.execute()
-        self._scheduled_events.remove(scheduled_event)
+        try:
+            self._scheduled_events.remove(scheduled_event)
+        except ValueError:
+            pass
 
     def schedule(self, tick_count, callback):
         # type: (int, callable) -> None

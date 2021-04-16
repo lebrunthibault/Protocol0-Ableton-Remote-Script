@@ -229,7 +229,7 @@ class ActionGroupP0v1(AbstractActionGroup):
 
     @button_action()
     def action_set_up_parameter_automation(self):
-        self.parent.automationTrackManager.create_automation_group(self.song.selected_parameter)
+        self.parent.automationTrackManager.create_automation_group()
 
     @button_action(log_action=False)
     def action_adjust_clip_automation_curve(self, go_next=True, reset=False, direction=DirectionEnum.UP):

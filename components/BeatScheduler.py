@@ -9,7 +9,8 @@ class BeatScheduler(AbstractObject, SyncedScheduler):
     TIMER_DELAY = 5  # mitigate not precise scheduling
 
     def __init__(self, *a, **k):
-        SyncedScheduler.__init__(self, unschedule_on_stop=True, *a, **k)
+        super(BeatScheduler, self).__init__(unschedule_on_stop=True, *a, **k)
+        # SyncedScheduler.__init__(self, unschedule_on_stop=True, *a, **k)
 
     def wait_bars(self, bar_count, callback, exact=False):
         # type: (int, Callable, bool) -> None

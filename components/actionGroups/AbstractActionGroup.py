@@ -30,20 +30,21 @@ class AbstractActionGroup(AbstractControlSurfaceComponent):
         self.multi_encoders.append(multi_encoder)
         return multi_encoder
 
-    def add_encoder(self, id, on_press=None, on_long_press=None, on_shift_press=None,
+    def add_encoder(self, id, name=None, on_press=None, on_long_press=None, on_shift_press=None,
                     on_shift_long_press=None, on_scroll=None, on_shift_scroll=None):
         # type: (int) -> MultiEncoder
+        assert name, "encoder should have a name"
         k = locals()
-        del k["self"]
-        del k["id"]
-        encoder = MultiEncoder(action_group=self, channel=self.channel, identifier=id)
+        encoder = MultiEncoder(action_group=self, channel=self.channel, identifier=id, name=name)
+        for name in ["self", "id", "name"]:
+            del k[name]
         [encoder.add_action(action) for action in EncoderAction.make_actions(**k)]
         return self._add_multi_encoder(encoder)
 
     def add_modifier(self, id, modifier_type, *a, **k):
         # type: (int, EncoderModifierEnum) -> MultiEncoder
         encoder = MultiEncoderModifier(action_group=self, channel=self.channel, identifier=id,
-                                    modifier_type=modifier_type, *a, **k)
+                                    modifier_type=modifier_type, name=modifier_type.name, *a, **k)
         return self._add_multi_encoder(encoder)
 
     @property

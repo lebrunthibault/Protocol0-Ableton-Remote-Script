@@ -27,10 +27,10 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
         self.res = None
         self.debug = self.DEBUG_MODE or not (silent or self.SILENT_MODE)
         frame_info = get_frame_info(2)
-        self.name = "%s.%s" % (frame_info.class_name, frame_info.method_name) if frame_info else "Unknown"
+        self.name = "[seq %s.%s]" % (frame_info.class_name, frame_info.method_name) if frame_info else "Unknown"
 
     def __repr__(self):
-        return "[seq %s]" % self.name
+        return self.name
 
     def debug_str(self):
         message = "%s in state %s" % (self, self.state)

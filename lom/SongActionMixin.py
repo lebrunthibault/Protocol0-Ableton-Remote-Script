@@ -6,6 +6,7 @@ from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.sequence.Sequence import Sequence
+from a_protocol_0.utils.decorators import handle_error
 from a_protocol_0.utils.utils import scroll_values
 
 if TYPE_CHECKING:
@@ -56,19 +57,22 @@ class SongActionMixin(object):
         else:
             self.current_track.is_folded = True
 
-    def reset(self):
-        # type: (Song) -> None
-        self.stop_all_clips(0)
+    @handle_error
+    def reset(self, reset_tracks=True):
+        # type: (Song, int) -> None
+        """ stopping immediately """
         self.stop_playing()
         self._song.current_song_time = 0
-        [track.reset_track() for track in self.abstract_tracks]
+        self.stop_all_clips()
+        if reset_tracks:
+            [track.reset_track() for track in self.abstract_tracks]
 
     def play_stop(self):
         # type: (Song) -> None
         if not self.is_playing:
             self.selected_scene.fire()
         else:
-            self.stop_all_clips()
+            self.reset()
 
     def stop_playing(self):
         # type: (Song) -> None
@@ -99,4 +103,5 @@ class SongActionMixin(object):
     def select_device(self, device):
         # type: (Song, Device) -> None
         if device:
+            self.parent.clyphxNavigationManager.focus_detail()
             self._view.select_device(device._device)

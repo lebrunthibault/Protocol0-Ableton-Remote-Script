@@ -19,6 +19,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
 
     def __init__(self, func, sequence, wait, name, complete_on,
                  do_if, do_if_not, return_if, return_if_not, check_timeout, silent, *a, **k):
+        # type: (callable, Sequence, int, str, callable, callable, callable, callable, callable, int, bool) -> None
         """ the tick is 100 ms """
         super(SequenceStep, self).__init__(*a, **k)
         self.debug = False if silent else sequence.debug
@@ -26,6 +27,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         if not name and func == nop:
             name = ("wait %s" % wait if wait else "pass")
         self.name = "step %s" % (name or get_callable_name(func))
+        self._sequence_name = sequence.name
         self._callable = func
         self._wait = wait or 0
         self._complete_on = complete_on
@@ -169,9 +171,9 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         except SequenceError:
             self.parent.log_notice("caught sequence error !!!!!")
             raise
-        except (Exception, RuntimeError) as e:
+        except Exception as e:
             self.error()
-            self.parent.errorManager.handle_error(e, self)
+            self.parent.errorManager.handle_error(e, "%s : %s" % (self._sequence_name, self))
             raise SequenceError()  # will stop sequence processing
 
     def _handle_return_value(self, res, listener, success_callback):

@@ -9,7 +9,7 @@ from a_protocol_0.lom.Scene import Scene
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
-from a_protocol_0.utils.decorators import p0_subject_slot, has_callback_queue, retry, catch_and_stop, defer
+from a_protocol_0.utils.decorators import p0_subject_slot, has_callback_queue, retry, defer, handle_error
 from a_protocol_0.utils.utils import flatten
 
 
@@ -24,7 +24,6 @@ class SongManager(AbstractControlSurfaceComponent):
         self.update_highlighted_clip_slot = True
         self.abstract_group_track_creation_in_progress = False
 
-    @catch_and_stop
     @defer
     def init_song(self):
         self.on_scene_list_changed()
@@ -33,12 +32,14 @@ class SongManager(AbstractControlSurfaceComponent):
         self.song.reset()
 
     @has_callback_queue()
+    @handle_error
     def on_selected_track_changed(self):
         self._set_current_track()
         self.parent.clyphxNavigationManager.show_track_view()
         # noinspection PyUnresolvedReferences
         self.notify_selected_track()
 
+    @handle_error
     def on_scene_list_changed(self):
         self._tracks_listener()
         # noinspection PyUnresolvedReferences
@@ -46,6 +47,7 @@ class SongManager(AbstractControlSurfaceComponent):
         self.song.scenes = [Scene(scene, index) for index, scene in enumerate(list(self.song._song.scenes))]
 
     @p0_subject_slot("tracks")
+    @handle_error
     def _tracks_listener(self):
         # type: () -> Optional[SimpleTrack]
         self.parent.log_debug("SongManager : start mapping tracks")

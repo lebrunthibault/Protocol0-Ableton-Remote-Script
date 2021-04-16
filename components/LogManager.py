@@ -5,11 +5,14 @@ from a_protocol_0.lom.clip.AbstractAutomationClip import AbstractAutomationClip
 class LogManager(AbstractObject):
     def log_set(self):
         self.parent.keyboardShortcutManager.focus_logs()
+        self.parent.log_notice("********* SONG *************")
         self.parent.log_info()
         self.parent.log_info()
         self.parent.log_info("current action: %s" % self.parent.current_action)
         self.parent.log_info()
         self.parent.log_info("song position: %s" % self.song.get_current_beats_song_time())
+        self.parent.log_info()
+        self.parent.log_info("song.errored: %s" % self.song.errored)
         self.parent.log_info()
         self.parent.log_notice("********* SONG TRACKS *************")
         self.parent.log_info("simple_tracks : %s" % self.song.simple_tracks)

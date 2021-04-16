@@ -29,14 +29,15 @@ if TYPE_CHECKING:
     from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 
 
-class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
+class AbstractTrack(AbstractObject):
     __subject_events__ = ('instrument', 'fired_slot_index')
 
     ADDED_TRACK_INIT_ENABLED = True
 
     def __init__(self, track, *a, **k):
         # type: (SimpleTrack) -> None
-        super(AbstractTrack, self).__init__(name=track.name, *a, **k)
+        super(AbstractTrack, self).__init__(*a, **k)
+        # super(AbstractTrack, self).__init__(name=track.name, *a, **k)
         self.index = track.index
 
         # TRACKS
@@ -101,11 +102,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @name.setter
     def name(self, name):
         # type: (str) -> None
-        if name and self.name != name:
-            try:
-                self._track.name = name
-            except RuntimeError:
-                self.parent.defer(lambda: setattr(self._track, "name", name))
+        self._track.name = name
 
     @property
     def base_color(self):
@@ -166,7 +163,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def category(self):
         # type: () -> TrackCategoryEnum
         for track_category in TrackCategoryEnum:
-            if any([t for t in [self] + self.group_tracks if track_category.value.lower() in t.name]):
+            if any(t for t in [self] + self.group_tracks if track_category.value.lower() in t.name):
                 return track_category
 
         return TrackCategoryEnum.OTHER
@@ -292,7 +289,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def is_playing(self):
         # type: () -> bool
-        return any([simple_track.is_playing for simple_track in self.all_tracks])
+        return any(simple_track.is_playing for simple_track in self.all_tracks)
 
     @property
     def mute(self):

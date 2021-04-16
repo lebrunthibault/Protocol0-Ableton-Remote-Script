@@ -36,7 +36,7 @@ class SimpleGroupTrack(AbstractGroupTrack):
         self.is_folded = not self.is_folded
 
     def _rename_to_sub_tracks_instrument(self):
-        instrument_classes = list(set([sub_track.instrument.__class__ for sub_track in self.sub_tracks]))
+        instrument_classes = list(set([sub_track.instrument.__class__ for sub_track in self.sub_tracks if sub_track.instrument]))
         if len(instrument_classes) == 1:
             instrument_class = instrument_classes[0]  # type: AbstractInstrument
             self.track_name.update(base_name=instrument_class.NAME)

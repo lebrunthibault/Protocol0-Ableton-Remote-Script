@@ -46,8 +46,9 @@ class Protocol0(ControlSurface):
         # noinspection PyProtectedMember
         Protocol0.SELF = self
         self.song().stop_playing()  # doing this early because the set often loads playing
-        self._c_instance.log_message = types.MethodType(lambda s, message: None,
-                                                        self._c_instance)  # stop log duplication
+        self._c_instance.log_message = types.MethodType(
+            lambda s, message: None, self._c_instance
+        )  # stop log duplication
 
         self.load_dotenv()  # loading env file
         self._is_dev_booted = False
@@ -118,7 +119,12 @@ class Protocol0(ControlSurface):
         # type: (str) -> None
         if level.value < Config.LOG_LEVEL.value:
             return
-        log_ableton(message=message, debug=bool(message) and debug, level=level, direct_call=False)
+        log_ableton(
+            message=message,
+            debug=bool(message) and debug,
+            level=level,
+            direct_call=False,
+        )
 
     @staticmethod
     def defer(callback):
@@ -145,7 +151,10 @@ class Protocol0(ControlSurface):
                 self.fastScheduler.schedule(tick_count=tick_count, callback=callback)
             else:
                 # emulate schedule_message
-                threading.Timer(float(tick_count) * self.fastScheduler.TICK_MS_DURATION / 1000, callback).start()
+                threading.Timer(
+                    float(tick_count) * self.fastScheduler.TICK_MS_DURATION / 1000,
+                    callback,
+                ).start()
 
     def clear_tasks(self):
         del self._remaining_scheduled_messages[:]

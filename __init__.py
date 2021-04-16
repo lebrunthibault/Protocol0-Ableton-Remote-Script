@@ -4,7 +4,7 @@ sys.path.insert(0, "C:\Python27\Lib\site-packages")
 live_environment_loaded = "Live" in sys.modules
 
 
-class EmptyModule():
+class EmptyModule(object):
     def __init__(self, is_false=True):
         self.is_false = is_false
 

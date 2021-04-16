@@ -47,21 +47,6 @@ def defer(func):
     return decorate
 
 
-def is_change_deferrable(func):
-    @wraps(func)
-    def decorate(*a, **k):
-        try:
-            func(*a, **k)
-        except RuntimeError as e:
-            if "Changes cannot be triggered by notifications" in str(e):
-                from a_protocol_0 import Protocol0
-                Protocol0.SELF.defer(partial(func, *a, **k))
-            else:
-                raise e
-
-    return decorate
-
-
 def retry(retry_count=3, interval=3):
     def wrap(func):
         @wraps(func)
@@ -184,21 +169,6 @@ def has_callback_queue(immediate=False):
     return wrap
 
 
-def catch_and_stop(func):
-    @wraps(func)
-    def decorate(*a, **k):
-        from a_protocol_0 import Protocol0
-        song = Protocol0.SELF.protocol0_song
-        if song.errored:
-            return
-        try:
-            func(*a, **k)
-        except (Exception, RuntimeError) as e:
-            raise Protocol0Error("Error on %s" % get_callable_name(func))
-
-    return decorate
-
-
 def _arg_to_string(arg):
     if isinstance(arg, str):
         return '"%s"' % arg
@@ -220,5 +190,17 @@ def log(func):
         from a_protocol_0 import Protocol0
         Protocol0.SELF.log_info("-- %s" % message, debug=False)
         func(*a, **k)
+
+    return decorate
+
+
+def handle_error(func):
+    @wraps(func)
+    def decorate(*a, **k):
+        try:
+            func(*a, **k)
+        except Exception as e:
+            from a_protocol_0 import Protocol0
+            Protocol0.SELF.errorManager.handle_error(e)
 
     return decorate

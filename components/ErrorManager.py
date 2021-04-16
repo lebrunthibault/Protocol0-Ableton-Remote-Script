@@ -7,7 +7,8 @@ from a_protocol_0.consts import ROOT_DIR
 
 
 class ErrorManager(AbstractControlSurfaceComponent):
-    def __init__(self, set_excepthook=False):
+    def __init__(self, set_excepthook=False, *a, **k):
+        super(ErrorManager, self).__init__(*a, **k)
         if set_excepthook:
             sys.excepthook = self.handle_uncaught_exception
 
@@ -24,11 +25,14 @@ class ErrorManager(AbstractControlSurfaceComponent):
         self.parent.log_error("----- %s -----" % exc_value, debug=False)
         if context:
             self.parent.log_error(context, debug=False)
-        self.parent.log_error(''.join(self._format_list(show[-1:], print_line=False)), debug=False)
+        self.parent.log_error('at ' + ''.join(self._format_list(show[-1:], print_line=False)).strip(), debug=False)
         self.parent.log_error()
         self.parent.log_error("----- traceback -----", debug=False)
         self.parent.log_error(''.join(self._format_list(show)), debug=False)
-        self.song.handle_error(exc_value)
+
+        self.song.errored = True
+        self.parent.fastScheduler.restart()
+        self.parent.defer(self.song.reset)
 
     def _check_file(self, name):
         return name and name.startswith(ROOT_DIR)

@@ -16,8 +16,8 @@ if TYPE_CHECKING:
 class MultiEncoder(AbstractObject):
     PRESS_MAX_TIME = 0.25  # maximum time in seconds we consider a simple press
 
-    def __init__(self, action_group, channel, identifier, *a, **k):
-        # type: (AbstractActionGroup, int, int) -> None
+    def __init__(self, action_group, channel, identifier, name, *a, **k):
+        # type: (AbstractActionGroup, int, int, str) -> None
         """
             Actions are triggered at the end of the press not the start. Allows press vs long_press (Note) vs scroll (CC)
             Also possible to define modifiers to duplicate the number of actions possible.
@@ -27,7 +27,7 @@ class MultiEncoder(AbstractObject):
         self._actions = []  # type: List[EncoderAction]
         self._action_group = action_group  # type: AbstractActionGroup
         self.identifier = identifier
-
+        self.name = name[0].upper() + name[1:].lower()
         self._press_listener.subject = ButtonElement(True, MIDI_NOTE_TYPE, channel, identifier)
         self._scroll_listener.subject = ButtonElement(True, MIDI_CC_TYPE, channel, identifier)
         self._pressed_at = None  # type: Optional[float]
@@ -65,13 +65,13 @@ class MultiEncoder(AbstractObject):
         self._pressed_at = None
         if action:
             self._action_group.current_action = action
-            action.execute()
+            action.execute(encoder_name=self.name)
 
     @subject_slot("value")
     def _scroll_listener(self, value):
         action = self._find_matching_action(move_type=EncoderMoveEnum.SCROLL)
         if action:
-            action.execute(go_next=value == 1)
+            action.execute(encoder_name=self.name, go_next=value == 1)
 
     def _find_matching_action(self, move_type, modifier_type=None, log_not_found=True):
         # type: (EncoderMoveEnum, EncoderModifier) -> EncoderAction
@@ -81,7 +81,7 @@ class MultiEncoder(AbstractObject):
             None)
 
         if not action and log_not_found:
-            self.parent.log_warning(
+            self.parent.show_message(
                 "Press didn't trigger action, move_type: %s, modifier: %s" % (move_type, self._pressed_modifier_type))
 
         return action

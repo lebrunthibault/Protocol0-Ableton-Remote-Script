@@ -45,7 +45,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
 
     @property
     def solo(self):
-        return any([track.solo for track in self.all_tracks])
+        return any(track.solo for track in self.all_tracks)
 
     @solo.setter
     def solo(self, solo):

@@ -16,16 +16,15 @@ class AutomationTrackManager(AbstractControlSurfaceComponent):
         self.created_tracks_indexes = set()  # type: Set[int]
 
     @defer
-    def create_automation_group(self, parameter):
-        # type: (DeviceParameter) -> None
-        """ first step, instrument track is selected """
-        if parameter is None:
+    def create_automation_group(self):
+        """ create 2 automation dummy tracks for the selected parameter """
+        if self.song.selected_parameter is None:
             self.parent.show_message("No selected parameter")
             return
 
         # here we store this parameter so that the midi track can access it
         # before the audio track has loaded the device from the browser. Makes the track creation faster
-        self.current_parameter = parameter
+        self.current_parameter = self.song.selected_parameter
         seq = Sequence()
         self.parent.songManager.abstract_group_track_creation_in_progress = True
 
@@ -41,10 +40,10 @@ class AutomationTrackManager(AbstractControlSurfaceComponent):
         else:
             seq.add(lambda: setattr(self.song.current_track, "is_folded", False), name="unfold group track")
 
-        track_name = "_%s" % parameter.name
+        track_name = "_%s" % self.current_parameter.name
 
         # this should not be parallelized
-        seq.add(partial(self.parent.trackManager.create_audio_track, base_track.index + 1, name=track_name, device=parameter.device))
+        seq.add(partial(self.parent.trackManager.create_audio_track, base_track.index + 1, name=track_name, device=self.current_parameter.device))
         seq.add(partial(self.parent.trackManager.create_midi_track, base_track.index + 2, name=track_name))
         seq.add(partial(setattr, self.parent.songManager, "abstract_group_track_creation_in_progress", False), silent=True)
         # storing the indexes makes the setup faster

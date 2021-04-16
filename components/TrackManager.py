@@ -104,10 +104,10 @@ class TrackManager(AbstractControlSurfaceComponent):
             return
 
         is_external_synth_track = False
-        if any([sub_track.instrument and sub_track.instrument.IS_EXTERNAL_SYNTH for sub_track in group_track.sub_tracks]):
+        if any(sub_track.instrument and sub_track.instrument.IS_EXTERNAL_SYNTH for sub_track in group_track.sub_tracks):
             is_external_synth_track = True
         # minitaur is a special case as it doesn't have a vst
-        elif group_track.track_name._base_name.lower() == InstrumentMinitaur.NAME:
+        elif group_track.track_name.base_name.lower() == InstrumentMinitaur.NAME:
             is_external_synth_track = True
 
         if is_external_synth_track:

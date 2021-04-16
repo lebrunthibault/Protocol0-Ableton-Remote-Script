@@ -60,9 +60,9 @@ function Get-LogColor
             elseif ($LogEntry.Contains("P0 - error"))
             {
                 # copying the filename where the error happened
-                if (".\components\actionGroups\ActionGroupTest.py" -match "\.\\.*\.py")
+                if ($LogEntry -match "at (?<filename>\.\\.*\.py)")
                 {
-                    Set-Clipboard -Value $matches[0]
+                    Set-Clipboard -Value $matches["filename"]
                 }
                 Return "Red"
             }

@@ -11,7 +11,7 @@ class ActionGroupTest(AbstractActionGroup):
     def __init__(self, *a, **k):
         super(ActionGroupTest, self).__init__(channel=0, *a, **k)
         # 1 encoder
-        self.add_encoder(id=1, on_press=self.action_test)
+        self.add_encoder(id=1, name="test", on_press=self.action_test)
         self.previous_instrument = None
         self.previous_live_id = None
 

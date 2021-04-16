@@ -25,7 +25,7 @@ def scroll_encoder(encoder):
 
 def make_multi_encoder(identifier=1):
     with p0.component_guard():
-        return ActionGroupTest().add_encoder(id=identifier)
+        return ActionGroupTest().add_encoder(id=identifier, name="pytest")
 
 
 def test_multi_encoder_press():
@@ -36,7 +36,7 @@ def test_multi_encoder_press():
 
     with p0.component_guard():
         action_group = ActionGroupTest()
-        multi_encoder = action_group.add_encoder(id=2, on_press=press)
+        multi_encoder = action_group.add_encoder(id=2, name="pytest", on_press=press)
 
     with pytest.raises(Exception):
         multi_encoder.add_action(EncoderAction(func=lambda: None))
@@ -53,7 +53,7 @@ def test_multi_encoder_scroll():
 
     with p0.component_guard():
         action_group = ActionGroupTest()
-        multi_encoder = action_group.add_encoder(id=2, on_scroll=scroll)
+        multi_encoder = action_group.add_encoder(id=2, name="pytest", on_scroll=scroll)
 
     scroll_encoder(multi_encoder)
     assert res["scrolled"] is True
@@ -70,7 +70,7 @@ def test_multi_encoder_press_and_scroll():
 
     with p0.component_guard():
         action_group = ActionGroupTest()
-        multi_encoder = action_group.add_encoder(id=2, on_press=press, on_scroll=scroll)
+        multi_encoder = action_group.add_encoder(id=2, name="pytest", on_press=press, on_scroll=scroll)
 
     scroll_encoder(multi_encoder)
     assert res["scrolled"] is True
@@ -88,7 +88,7 @@ def test_multi_encoder_shift_press():
     with p0.component_guard():
         action_group = ActionGroupTest()
         action_group.add_modifier(id=1, modifier_type=EncoderModifierEnum.SHIFT)
-        multi_encoder = action_group.add_encoder(id=2, on_shift_press=shift_press)
+        multi_encoder = action_group.add_encoder(id=2, name="pytest", on_shift_press=shift_press)
 
     press_encoder(multi_encoder)
     assert res["shift_pressed"] is False

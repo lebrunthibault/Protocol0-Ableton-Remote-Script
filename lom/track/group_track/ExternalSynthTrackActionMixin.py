@@ -16,7 +16,6 @@ if TYPE_CHECKING:
 class ExternalSynthTrackActionMixin(object):
     def arm_track(self):
         # type: (ExternalSynthTrack) -> None
-        raise Exception("toto")
         self.color = Colors.ARM
         self.base_track.is_folded = False
         self.midi_track.has_monitor_in = False

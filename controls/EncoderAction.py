@@ -9,6 +9,7 @@ from traceback import extract_tb, format_list, format_exception_only
 from a_protocol_0.controls.EncoderModifier import EncoderModifierEnum
 from a_protocol_0.enums.AbstractEnum import AbstractEnum
 from a_protocol_0.lom.AbstractObject import AbstractObject
+from a_protocol_0.utils.decorators import handle_error
 from a_protocol_0.utils.utils import get_callable_name, is_lambda
 
 
@@ -27,7 +28,7 @@ class EncoderAction(AbstractObject):
             Any modifier can be applied to a press or long_press but only shift is available for scrolling for now
         """
         super(EncoderAction, self).__init__(*a, **k)
-        assert func
+        assert callable(func), "func action should be callable: %s" % get_callable_name(func)
         self.func = func
         self.move_type = move_type
         self.modifier_type = modifier_type
@@ -36,17 +37,19 @@ class EncoderAction(AbstractObject):
         move = self.move_type.value + ("(%s)" % self.modifier_type.value if self.modifier_type else "")
         return "%s : %s" % (move, get_callable_name(self.func))
 
-    def execute(self, *a, **k):
-        # NB : Here lambda is just a way to act on the right objects at runtime
-        # like this we can display the function name
+    @handle_error
+    def execute(self, encoder_name, *a, **k):
+        # type: (str) -> None
+        """
+        NB : Here lambda is just a way to act on the right objects at runtime
+            like this we can display the function name
+        """
         func = self.func() if is_lambda(self.func) else self.func
+        assert callable(func), "%s : action func should be callable, got %s" % (encoder_name, get_callable_name(func))
         if self.move_type != EncoderMoveEnum.SCROLL:
-            self.parent.log_notice("Executing %s" % get_callable_name(func))
-        assert callable(func), "%s is not a callable" % get_callable_name(func)
-        try:
-            func(*a, **k)
-        except Exception as e:
-            self.parent.errorManager.handle_error(e)
+            self.parent.log_notice("%s : executing %s" % (encoder_name, get_callable_name(func)))
+
+        func(*a, **k)
 
     @staticmethod
     def make_actions(on_press=None, on_long_press=None, on_shift_press=None,

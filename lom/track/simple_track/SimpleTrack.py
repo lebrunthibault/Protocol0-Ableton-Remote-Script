@@ -102,17 +102,17 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def is_playing(self):
         # type: () -> bool
-        return any([clip_slot.is_playing for clip_slot in self.clip_slots])
+        return any(clip_slot.is_playing for clip_slot in self.clip_slots)
 
     @property
     def is_triggered(self):
         # type: () -> bool
-        return any([clip_slot.is_triggered for clip_slot in self.clip_slots])
+        return any(clip_slot.is_triggered for clip_slot in self.clip_slots)
 
     @property
     def is_recording(self):
         # type: () -> bool
-        return any([clip for clip in self.clips if clip.is_recording])
+        return any(clip for clip in self.clips if clip.is_recording)
 
     @property
     def playing_clip(self):

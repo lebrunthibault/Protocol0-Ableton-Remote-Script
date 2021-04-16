@@ -68,5 +68,6 @@ class TrackName(AbstractObject):
             name += " (%s)" % (self.selected_preset_index + 1)
 
         seq = Sequence(silent=True)
+        seq.add(wait=1)
         seq.add(partial(setattr, self.track, "name", name), complete_on=lambda: self.track.name == name)
         return seq.done()

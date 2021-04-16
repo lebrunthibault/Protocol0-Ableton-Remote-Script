@@ -16,7 +16,6 @@ from a_protocol_0.lom.track.AbstractTrackList import AbstractTrackList
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.simple_track.AudioBusTrack import AudioBusTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
-from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.utils import flatten
 
 
@@ -49,15 +48,6 @@ class Song(SongActionMixin, AbstractObject):
         """ allows for self.song() behavior to extend other surface script classes """
         return self.parent.song()
 
-    def handle_error(self, message):
-        self.reset()
-        seq = Sequence(bypass_errors=True, silent=True)
-        self.errored = True
-        if self.parent.LIVE_ENVIRONMENT_LOADED:
-            seq.add(wait=100)
-        seq.add(lambda: setattr(self, "errored", False))
-        return seq.done()
-
     @property
     def selected_scene(self):
         # type: () -> Scene
@@ -82,9 +72,9 @@ class Song(SongActionMixin, AbstractObject):
 
     @property
     def root_tracks(self):
-        # type: () -> List[SimpleTrack]
+        # type: () -> AbstractTrackList
         """ top tracks """
-        return [track for track in self.simple_tracks if not track.group_track]
+        return AbstractTrackList([track for track in self.simple_tracks if not track.group_track])
 
     @property
     def simple_group_tracks(self):

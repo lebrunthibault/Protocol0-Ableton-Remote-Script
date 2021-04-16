@@ -9,7 +9,7 @@ def log_ableton(message, debug=True, level=LogLevelEnum.DEV, direct_call=True):
     # type: (str, bool) -> None
     """ a log function and not method allowing us to call this even with no access to the ControlSurface object """
     message = "%s: %s" % (LogLevelEnum(level).name.lower(), str(message))
-    if any([not isinstance(param, bool) for param in [debug, direct_call]]):
+    if any(not isinstance(param, bool) for param in [debug, direct_call]):
         log_ableton("log_ableton: parameter mismatch, logging anyway")
         debug = True
         direct_call = True

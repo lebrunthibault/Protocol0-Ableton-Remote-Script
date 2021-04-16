@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class ClipName(AbstractObject):
     def __init__(self, clip, *a, **k):
         # type: (Clip) -> None
-        super(ClipName, self).__init__(clip, *a, **k)
+        super(ClipName, self).__init__(*a, **k)
         self.clip = clip
         self.base_name = ""
         self.is_playable = False

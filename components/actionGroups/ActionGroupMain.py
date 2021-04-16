@@ -9,8 +9,6 @@ from a_protocol_0.enums.TrackCategoryEnum import TrackCategoryEnum
 from a_protocol_0.lom.Scene import Scene
 from a_protocol_0.lom.clip.AbstractAutomationClip import AbstractAutomationClip
 from a_protocol_0.lom.device.PluginDevice import PluginDevice
-from a_protocol_0.lom.track.AbstractTrackList import AbstractTrackList
-from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.utils.decorators import button_action
 from a_protocol_0.utils.utils import scroll_values, scroll_object_property
 
@@ -22,10 +20,9 @@ class ActionGroupMain(AbstractActionGroup):
 
     def __init__(self, *a, **k):
         super(ActionGroupMain, self).__init__(channel=15, record_actions_as_global=True, *a, **k)
-        # 1: empty
 
-        # PLAY_stop modifier
-        self.add_modifier(id=1, modifier_type=EncoderModifierEnum.PLAY_STOP)
+        # DUPLicate modifier
+        self.add_modifier(id=1, modifier_type=EncoderModifierEnum.DUPLICATE)
 
         # SOLO modifier
         self.add_modifier(id=2, modifier_type=EncoderModifierEnum.SOLO)
@@ -33,51 +30,63 @@ class ActionGroupMain(AbstractActionGroup):
         # FOLD modifier
         self.add_modifier(id=3, modifier_type=EncoderModifierEnum.FOLD)
 
-        # DUPLicate modifier
-        self.add_modifier(id=4, modifier_type=EncoderModifierEnum.DUPLICATE)
+        # PLAY_stop modifier
+        self.add_modifier(id=4, modifier_type=EncoderModifierEnum.PLAY_STOP)
 
-        # REC encoder
-        self.add_encoder(id=5,
-                         on_scroll=partial(scroll_object_property, self.song, "selected_recording_time",
-                                           RECORDING_TIMES),
-                         on_press=self.action_track_record_fixed,
-                         on_long_press=self.action_track_record_audio)
+        # 5 AUTOmation encoder
+        self.add_encoder(id=5, name="automation",
+                         on_press=lambda: self.parent.automationTrackManager.create_automation_group,
+                         # on_press=self.action_set_up_parameter_automation,
+                         # on_shift_press=partial(self.action_adjust_clip_automation_curve, reset=True),
+                         # on_scroll=partial(self.action_adjust_clip_automation_curve, direction=DirectionEnum.UP),
+                         # on_shift_scroll=partial(self.action_adjust_clip_automation_curve, direction=DirectionEnum.DOWN)
+                         )
 
         # 6: empty
 
         # 7: empty
 
-        monitor_encoder = self.add_encoder(id=8, on_press=lambda: self.song.current_track.action_switch_monitoring)
+        # MONitor encoder
+        self.add_encoder(id=8, name="monitor", on_press=lambda: self.song.current_track.action_switch_monitoring)
+
+        # REC encoder
+        self.add_encoder(id=9, name="record",
+                         on_scroll=partial(scroll_object_property, self.song, "selected_recording_time",
+                                           RECORDING_TIMES),
+                         on_press=self.action_track_record_fixed,
+                         on_long_press=self.action_track_record_audio)
+
+        # 10: empty
+
+        # SONG encoder
+        self.add_encoder(id=11, name="song").add_action(
+            EncoderAction(func=self.song.play_stop, modifier_type=EncoderModifierEnum.PLAY_STOP)).add_action(
+            EncoderAction(func=lambda: self.song.root_tracks.toggle_fold,
+                          modifier_type=EncoderModifierEnum.FOLD))
+
+        # todo: CLIP
 
         # 13 : TRaCK encoder
-        self.add_encoder(id=9,
+        self.add_encoder(id=13, name="track",
                          on_scroll=self.song.scroll_tracks,
                          on_press=lambda: self.song.current_track.toggle_arm,
                          ).add_action(
             EncoderAction(func=lambda: self.song.selected_abstract_tracks.play_stop,
                           modifier_type=EncoderModifierEnum.PLAY_STOP)).add_action(
             EncoderAction(func=lambda: self.song.selected_abstract_tracks.toggle_solo,
-                          modifier_type=EncoderModifierEnum.SOLO))
-
-        # SONG encoder
-        self.add_encoder(id=10).add_action(
-            EncoderAction(func=self.song.play_stop, modifier_type=EncoderModifierEnum.PLAY_STOP)).add_action(
-            EncoderAction(func=AbstractTrackList(self.song.root_tracks).toggle_fold,
+                          modifier_type=EncoderModifierEnum.SOLO)).add_action(
+            EncoderAction(func=lambda: self.song.selected_abstract_tracks.toggle_fold,
                           modifier_type=EncoderModifierEnum.FOLD))
 
-        # 11 : empty
-
-        # 12 : empty
-
         # INSTrument encoder
-        self.add_encoder(id=13,
+        self.add_encoder(id=14, name="instrument",
                          on_press=lambda: self.song.current_track.show_hide_instrument,
                          on_scroll=lambda: self.song.current_track.scroll_presets_or_samples,
                          on_shift_scroll=lambda: self.song.current_track.scroll_preset_categories,
                          )
 
         # 14 : CATegory encoder
-        self.add_encoder(id=14,
+        self.add_encoder(id=15, name="track category",
                          on_scroll=partial(scroll_object_property, self.song, "selected_track_category",
                                            list(TrackCategoryEnum)),
                          ).add_action(
@@ -87,7 +96,7 @@ class ActionGroupMain(AbstractActionGroup):
                           modifier_type=EncoderModifierEnum.SOLO))
 
         # 15 : SCENe encoder
-        self.add_encoder(id=15,
+        self.add_encoder(id=16, name="scene",
                          on_scroll=self.action_scroll_scenes,
                          ).add_action(
             EncoderAction(func=lambda: self.song.selected_scene.play_stop,
@@ -96,6 +105,7 @@ class ActionGroupMain(AbstractActionGroup):
     # REC encoder
     def action_track_record_fixed(self):
         """ record both midi and audio on group track """
+        raise Exception("toto")
         self.song.current_track.action_restart_and_record(self.song.current_track.action_record_all)
 
     def action_track_record_audio(self):
@@ -111,7 +121,6 @@ class ActionGroupMain(AbstractActionGroup):
     @button_action(log_action=False)
     def action_scroll_track_devices(self, go_next):
         """ record both midi and audio on group track """
-        self.parent.clyphxNavigationManager.focus_detail()
         selected_device = scroll_values(self.song.current_track.base_track.all_visible_devices,
                                         self.song.current_track.selected_device, go_next)
         if selected_device:
@@ -159,7 +168,7 @@ class ActionGroupMain(AbstractActionGroup):
 
     @button_action()
     def action_set_up_parameter_automation(self):
-        self.parent.automationTrackManager.create_automation_group(self.song.selected_parameter)
+        self.parent.automationTrackManager.create_automation_group()
 
     @button_action(log_action=False)
     def action_adjust_clip_automation_curve(self, go_next=True, reset=False, direction=DirectionEnum.UP):
