@@ -23,6 +23,9 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         return self.unarm() if self.is_armed else self.arm()
 
+    def toggle_solo(self):
+        self.solo = not self.solo
+
     def arm(self):
         # type: (AbstractTrack) -> Optional[Sequence]
         if self.is_armed:

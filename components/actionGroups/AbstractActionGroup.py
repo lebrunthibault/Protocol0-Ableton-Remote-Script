@@ -33,7 +33,7 @@ class AbstractActionGroup(AbstractControlSurfaceComponent):
                 [encoder for encoder in self.multi_encoders if encoder.identifier == multi_encoder.identifier]
             )
             == 0
-        ), "duplicate multi encoder"
+        ), ("duplicate multi encoder with id %s" % multi_encoder.identifier)
         self.multi_encoders.append(multi_encoder)
         return multi_encoder
 

@@ -7,6 +7,7 @@ from _Framework.Util import find_if
 
 if TYPE_CHECKING:
     from a_protocol_0.lom.Song import Song
+    from a_protocol_0 import Protocol0
 
 
 class AbstractObject(SlotManager, Subject):
@@ -14,9 +15,7 @@ class AbstractObject(SlotManager, Subject):
         super(AbstractObject, self).__init__(*a, **k)
         from a_protocol_0 import Protocol0
 
-        self.parent = find_if(
-            lambda cs: isinstance(cs, Protocol0), get_control_surfaces()
-        )  # type: (Protocol0)
+        self._parent = find_if(lambda cs: isinstance(cs, Protocol0), get_control_surfaces())
 
     def __repr__(self):
         repr = "P0 %s" % self.__class__.__name__
@@ -35,6 +34,12 @@ class AbstractObject(SlotManager, Subject):
     def __ne__(self, obj):
         # type: (AbstractObject) -> bool
         return not obj or not self == obj
+
+    @property
+    def parent(self):
+        # type: () -> Protocol0
+        """ to get a working type hint """
+        return self._parent
 
     @property
     def song(self):

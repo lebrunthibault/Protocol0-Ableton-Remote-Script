@@ -40,6 +40,9 @@ class EncoderAction(AbstractObject):
             like this we can display the function name
         """
         func = self.func() if is_lambda(self.func) else self.func
+        if func is None:
+            self.parent.show_message("Action empty")
+            return
         assert callable(func), "%s : action func should be callable, got %s" % (
             encoder_name,
             get_callable_name(func),

@@ -130,7 +130,7 @@ class Song(SongActionMixin, AbstractObject):
         self.song._view.highlighted_clip_slot = clip_slot._clip_slot
 
     @property
-    def highlighted_clip(self):
+    def selected_clip(self):
         # type: () -> Optional[Clip]
         return (
             self.highlighted_clip_slot.clip

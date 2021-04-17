@@ -9,7 +9,7 @@ from ClyphX_Pro import ClyphXComponentBase, ParseUtils
 from ClyphX_Pro.clyphx_pro.actions.GlobalActions import GlobalActions
 from ClyphX_Pro.clyphx_pro.actions.NavAndViewActions import NavAndViewActions
 from _Framework.ControlSurface import ControlSurface
-from a_protocol_0.components.AutomationTrackManager import AutomationTrackManager
+from a_protocol_0.automation.AutomationTrackManager import AutomationTrackManager
 from a_protocol_0.components.BeatScheduler import BeatScheduler
 from a_protocol_0.components.BrowserManager import BrowserManager
 from a_protocol_0.components.DeviceManager import DeviceManager
@@ -75,13 +75,16 @@ class Protocol0(ControlSurface):
             ClyphXComponentBase.start_scheduler()
             self.utilsManager = UtilsManager()
             self.logManager = LogManager()
-            ActionGroupMain()
-            # ActionGroupP0v1()
-            ActionGroupSet()
-            ActionGroupTest()
-            if init_song:
-                self.songManager.init_song()
-                self.dev_boot()
+            try:
+                ActionGroupMain()
+                # ActionGroupP0v1()
+                ActionGroupSet()
+                ActionGroupTest()
+                if init_song:
+                    self.songManager.init_song()
+                    self.dev_boot()
+            except Exception as e:
+                self.errorManager.handle_error(e)
             self.log_info("Protocol0 script loaded")
 
     def post_init(self):

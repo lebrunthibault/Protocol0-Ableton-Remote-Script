@@ -106,10 +106,10 @@ class LogManager(AbstractObject):
         self.parent.log_info()
         self.parent.log_notice("********* HIGHLIGHTED_CLIP *************")
         self.parent.log_info()
-        self.parent.log_info("song.highlighted_clip: %s" % self.song.highlighted_clip)
-        if self.song.highlighted_clip:
-            if isinstance(self.song.highlighted_clip, AbstractAutomationClip):
-                clip = self.song.highlighted_clip  # type: AbstractAutomationClip
+        self.parent.log_info("song.highlighted_clip: %s" % self.song.selected_clip)
+        if self.song.selected_clip:
+            if isinstance(self.song.selected_clip, AbstractAutomationClip):
+                clip = self.song.selected_clip  # type: AbstractAutomationClip
                 self.parent.log_info("song.highlighted_clip.automation_ramp_up: %s" % clip.automation_ramp_up)
                 self.parent.log_info(
                     "song.highlighted_clip.automation_ramp_down: %s" % clip.automation_ramp_down

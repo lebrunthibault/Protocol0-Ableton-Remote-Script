@@ -53,7 +53,7 @@ class ExternalSynthTrackActionMixin(object):
     def action_record_audio_only(self):
         # type: (ExternalSynthTrack, bool) -> Sequence
         midi_clip = self.midi_track.playable_clip or (
-            self.song.highlighted_clip if self.midi_track.is_selected else None
+            self.song.selected_clip if self.midi_track.is_selected else None
         )
         if not midi_clip:
             self.parent.show_message("No midi clip selected")

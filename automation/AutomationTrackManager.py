@@ -3,6 +3,8 @@ from functools import partial
 from typing import Set
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from a_protocol_0.enums.DirectionEnum import DirectionEnum
+from a_protocol_0.lom.clip.AbstractAutomationClip import AbstractAutomationClip
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import defer
@@ -71,3 +73,19 @@ class AutomationTrackManager(AbstractControlSurfaceComponent):
         seq.add(partial(setattr, self, "created_tracks_indexes", set()), silent=True)
 
         return seq.done()
+
+    def action_adjust_clip_automation_curve(self, go_next=True, reset=False, direction=DirectionEnum.UP):
+        if not isinstance(self.song.selected_clip, AbstractAutomationClip):
+            return
+
+        clip = self.song.selected_clip  # type: AbstractAutomationClip
+
+        if reset:
+            clip.automation_ramp_up.is_active = False
+            clip.automation_ramp_down.is_active = False
+            return
+
+        if direction == DirectionEnum.UP:
+            clip.automation_ramp_up.scroll(go_next=go_next)
+        else:
+            clip.automation_ramp_down.scroll(go_next=go_next)

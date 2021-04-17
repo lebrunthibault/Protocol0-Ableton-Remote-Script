@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 class SceneName(AbstractObject):
     def __init__(self, scene, *a, **k):
         # type: (Scene) -> None
-        super(SceneName, self).__init__(scene, *a, **k)
+        super(SceneName, self).__init__(*a, **k)
         self.scene = scene
         self.base_name = ""
         self.bar_count = None

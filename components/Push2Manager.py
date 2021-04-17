@@ -64,9 +64,9 @@ class Push2Manager(AbstractControlSurfaceComponent):
     @push2_method()
     def update_clip_grid_quantization(self):
         # type: () -> Clip
-        if not self.song.highlighted_clip.is_midi:
+        if not self.song.selected_clip.is_midi:
             return
-        clip = self.song.highlighted_clip  # type: MidiClip
+        clip = self.song.selected_clip  # type: MidiClip
         self._update_selected_modes()
         index = PUSH2_BEAT_QUANTIZATION_STEPS.index(clip.min_note_quantization_start)
         self.push2._grid_resolution.index = index

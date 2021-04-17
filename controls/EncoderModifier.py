@@ -7,7 +7,7 @@ class EncoderModifierEnum(AbstractEnum):
     PLAY_STOP = "PLAY_STOP"
     SOLO = "SOLO"
     FOLD = "FOLD"
-    DUPLICATE = "DUPLICATE"
+    DUPX = "DUPLICATE"
 
 
 class EncoderModifier(AbstractObject):

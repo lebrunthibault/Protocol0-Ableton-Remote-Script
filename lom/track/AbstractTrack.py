@@ -36,7 +36,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def __init__(self, track, *a, **k):
         # type: (SimpleTrack) -> None
         super(AbstractTrack, self).__init__(*a, **k)
-        # super(AbstractTrack, self).__init__(name=track.name, *a, **k)
         self.index = track.index
 
         # TRACKS

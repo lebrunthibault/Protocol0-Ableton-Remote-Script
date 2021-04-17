@@ -265,10 +265,10 @@ class ActionGroupP0v1(AbstractActionGroup):
 
     @button_action(log_action=False)
     def action_adjust_clip_automation_curve(self, go_next=True, reset=False, direction=DirectionEnum.UP):
-        if not isinstance(self.song.highlighted_clip, AbstractAutomationClip):
+        if not isinstance(self.song.selected_clip, AbstractAutomationClip):
             return
 
-        clip = self.song.highlighted_clip  # type: AbstractAutomationClip
+        clip = self.song.selected_clip  # type: AbstractAutomationClip
 
         if reset:
             clip.automation_ramp_up.is_active = False
