@@ -1,4 +1,5 @@
 from functools import partial
+from math import floor
 
 from typing import Callable
 
@@ -20,14 +21,16 @@ class BeatScheduler(AbstractObject, SyncedScheduler):
         that is if the we are on the 3rd beat in 4/4, the callback will be executed in one beat
         This mode will work when global quantization is set to 1/4 or more
         """
+        if not self.song.is_playing:
+            return
         beat_offset = 0 if exact else self.song.get_current_beats_song_time().beats
         beat_count = (self.song.signature_denominator * bar_count) - beat_offset
         delay = 0 if exact else self.TIMER_DELAY
         self.parent._wait(delay, partial(self.wait_beats, beat_count, callback))
 
     def wait_beats(self, beats, callback):
-        # type: (int, Callable) -> None
-        self.schedule_message("%d" % beats, callback)
+        # type: (float, Callable) -> None
+        self.schedule_message("%d" % floor(beats), callback)
 
     def clear(self):
         self._pending_action_lists = {}

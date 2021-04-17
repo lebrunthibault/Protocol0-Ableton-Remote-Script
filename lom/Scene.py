@@ -35,9 +35,14 @@ class Scene(AbstractObject):
         if self.is_triggered:
             self.parent.sceneBeatScheduler.clear()
         # doing this when scene starts playing
-        elif self.scene_name.bar_count and self.song.is_playing and self.index < len(self.song.scenes) - 1:
-            next_scene = self.song.scenes[self.index + 1]
-            self.parent.sceneBeatScheduler.wait_bars(self.scene_name.bar_count, next_scene.fire)
+        elif not self.looping:
+            self._schedule_next_scene_launch()
+
+    def _schedule_next_scene_launch(self):
+        if self.index == len(self.song.scenes) - 1:
+            return
+        next_scene = self.song.scenes[self.index + 1]
+        self.parent.sceneBeatScheduler.wait_beats(self.length - self.playing_position, next_scene.fire)
 
     def select(self):
         self.song.selected_scene = self
@@ -49,25 +54,19 @@ class Scene(AbstractObject):
     def play_stop(self):
         self.fire()
 
-    def update_name(self, show_bar_count=False):
-        """ toggle bar count and change base_name if index based """
-        if self.scene_name.bar_count and not show_bar_count:
-            self.scene_name.bar_count = None
-        elif self.longest_clip:
-            self.scene_name.bar_count = int(self.longest_clip.length) / self.song.signature_denominator
-
+    def toggle_solo(self):
+        """ for a scene solo means looped """
+        if not self.looping:  # solo activation
+            previous_looping_scene = self.song.looping_scene
+            self.song.looping_scene = self
+            self.fire()
+            if previous_looping_scene:
+                previous_looping_scene.scene_name.update()
+            self.parent.sceneBeatScheduler.clear()  # clearing scene scheduling
+        else:  # solo inactivation
+            self.song.looping_scene = None
+            self._schedule_next_scene_launch()  # restore previous behavior of follow action
         self.scene_name.update()
-
-    @staticmethod
-    def update_all_names():
-        from a_protocol_0 import Protocol0
-
-        scenes = Protocol0.SELF.protocol0_song.scenes
-        bar_count_states = set([bool(scene.scene_name.bar_count) for scene in scenes])
-        if len(bar_count_states) > 1:
-            [scene.update_name(show_bar_count=True) for scene in scenes]
-        else:
-            [scene.update_name() for scene in scenes]
 
     @property
     def color(self):
@@ -92,6 +91,26 @@ class Scene(AbstractObject):
     def name(self, name):
         if self._scene and name:
             self._scene.name = str(name).strip()
+
+    @property
+    def length(self):
+        # type: () -> int
+        return self.longest_clip.length if self.longest_clip else 0
+
+    @property
+    def bar_length(self):
+        # type: () -> int
+        return self.length / self.song.signature_denominator
+
+    @property
+    def playing_position(self):
+        # type: () -> int
+        return self.longest_clip.playing_position if self.longest_clip else 0
+
+    @property
+    def looping(self):
+        # type: () -> bool
+        return self == self.song.looping_scene
 
     @property
     def clips(self):

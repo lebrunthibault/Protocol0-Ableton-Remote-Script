@@ -15,16 +15,16 @@ class ActionGroupSet(AbstractActionGroup):
         self.add_encoder(id=1, name="log", on_press=self.parent.logManager.log_set)
 
         # RACK encoder
-        self.add_encoder(id=2, name="racks", on_press=self.action_update_racks)
+        self.add_encoder(id=2, name="racks", on_press=self.update_racks)
 
         # CLIP encoder
-        self.add_encoder(id=3, name="clips", on_press=self.action_set_clip_names)
+        self.add_encoder(id=3, name="clips", on_press=self.set_clip_names)
 
         # TRAcK encoder
-        self.add_encoder(id=4, name="tracks", on_press=self.action_set_track_names)
+        self.add_encoder(id=4, name="tracks", on_press=self.set_track_names)
 
     @button_action()
-    def action_update_racks(self):
+    def update_racks(self):
         for track in self.song.simple_tracks:
             [
                 self.parent.deviceManager.update_rack(rack_device=device._device)
@@ -33,12 +33,12 @@ class ActionGroupSet(AbstractActionGroup):
             ]
 
     @button_action()
-    def action_set_clip_names(self):
+    def set_clip_names(self):
         for clip in self.song.clips:
             clip.clip_name.update()
 
     @button_action()
-    def action_set_track_names(self):
+    def set_track_names(self):
         for track in self.song.simple_tracks:
             # previous automation track naming
             if "_auto" in track.name:

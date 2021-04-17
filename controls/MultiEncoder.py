@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 class MultiEncoder(AbstractObject):
     PRESS_MAX_TIME = 0.25  # maximum time in seconds we consider a simple press
 
-    def __init__(self, action_group, channel, identifier, name, *a, **k):
+    def __init__(self, group, channel, identifier, name, *a, **k):
         # type: (AbstractActionGroup, int, int, str) -> None
         """
         Actions are triggered at the end of the press not the start. Allows press vs long_press (Note) vs scroll (CC)
@@ -25,7 +25,7 @@ class MultiEncoder(AbstractObject):
         """
         super(MultiEncoder, self).__init__(*a, **k)
         self._actions = []  # type: List[EncoderAction]
-        self._action_group = action_group  # type: AbstractActionGroup
+        self._group = group  # type: AbstractActionGroup
         self.identifier = identifier
         self.name = name[0].upper() + name[1:].lower()
         self._press_listener.subject = ButtonElement(True, MIDI_NOTE_TYPE, channel, identifier)
@@ -34,7 +34,7 @@ class MultiEncoder(AbstractObject):
 
     def get_modifier_from_enum(self, modifier_type):
         # type: (EncoderModifierEnum) -> EncoderModifier
-        return [modifier for modifier in self._action_group.available_modifiers if modifier.type == modifier_type][0]
+        return [modifier for modifier in self._group.available_modifiers if modifier.type == modifier_type][0]
 
     def add_action(self, action):
         # type: (EncoderAction) -> MultiEncoder
@@ -47,7 +47,7 @@ class MultiEncoder(AbstractObject):
     @property
     def _pressed_modifier_type(self):
         # type: () -> Optional[EncoderModifierEnum]
-        pressed_modifiers = [modifier for modifier in self._action_group.available_modifiers if modifier.pressed]
+        pressed_modifiers = [modifier for modifier in self._group.available_modifiers if modifier.pressed]
         assert len(pressed_modifiers) <= 1, "Multiple modifiers pressed. Not allowed."
         return pressed_modifiers[0].type if len(pressed_modifiers) else None
 
@@ -66,7 +66,7 @@ class MultiEncoder(AbstractObject):
         action = self._find_matching_action(move_type=move_type)
         self._pressed_at = None
         if action:
-            self._action_group.current_action = action
+            self._group.current_action = action
             action.execute(encoder_name=self.name)
 
     @subject_slot("value")

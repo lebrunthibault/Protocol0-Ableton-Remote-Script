@@ -63,5 +63,5 @@ class SimpleGroupTrack(AbstractGroupTrack):
         if self._single_sub_track_routing:
             self.set_output_routing_to(self._single_sub_track_routing)
 
-    def action_restart_and_record(self, *a, **k):
+    def record(self, *a, **k):
         pass

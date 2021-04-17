@@ -42,6 +42,8 @@ class Song(SongActionMixin, AbstractObject):
         self.clip_slots = []  # type: List[ClipSlot]
         self.clip_slots_by_live_live_clip_slot = {}  # type: Dict[int, Live.ClipSlot.ClipSlot]
         self.errored = False
+        # only one scene can be set to looping : it should be the scene we are working on ("soloing")
+        self.looping_scene = None  # type: Optional[Scene]
 
     def __call__(self):
         # type: () -> Live.Song.Song

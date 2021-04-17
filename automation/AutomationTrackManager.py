@@ -70,7 +70,7 @@ class AutomationTrackManager(AbstractControlSurfaceComponent):
 
         return seq.done()
 
-    def action_adjust_clip_automation_curve(self, go_next=True, reset=False, direction=DirectionEnum.UP):
+    def adjust_clip_automation_curve(self, go_next=True, reset=False, direction=DirectionEnum.UP):
         if not isinstance(self.song.selected_clip, AbstractAutomationClip):
             return
 

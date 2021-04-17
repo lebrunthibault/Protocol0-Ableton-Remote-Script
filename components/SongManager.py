@@ -118,7 +118,6 @@ class SongManager(AbstractControlSurfaceComponent):
 
     def _highlighted_clip_slot_poller(self):
         # type: () -> None
-        return
         if self.song.highlighted_clip_slot != self._highlighted_clip_slot:
             self._highlighted_clip_slot = self.song.highlighted_clip_slot
             if self.song.highlighted_clip_slot and self.song.highlighted_clip_slot.clip:

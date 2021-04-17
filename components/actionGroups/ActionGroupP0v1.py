@@ -30,9 +30,6 @@ class ActionGroupP0v1(AbstractActionGroup):
         # MONitor encoder
         self.add_encoder(id=3, on_press=self.action_switch_track_monitoring)
 
-        # UNDO encoder
-        self.add_encoder(id=4, on_press=self.action_undo)
-
         # AUTOmation encoder
         self.add_encoder(
             id=5,
@@ -46,8 +43,6 @@ class ActionGroupP0v1(AbstractActionGroup):
         self.add_encoder(
             id=6,
             on_press=self.action_play_selected_scene,
-            on_shift_press=self.action_update_selected_scene_name,
-            on_shift_long_press=self.action_update_all_scenes_names,
             on_scroll=self.action_scroll_scenes,
         )
 
@@ -193,12 +188,12 @@ class ActionGroupP0v1(AbstractActionGroup):
     @button_action(auto_arm=True)
     def action_track_record_fixed(self):
         """ record both midi and audio on group track """
-        self.song.current_track.action_restart_and_record(self.song.current_track.action_record_all)
+        self.song.current_track.record(self.song.current_track.record_all)
 
     @button_action(auto_arm=True)
     def action_track_record_audio(self):
         """ record only audio on group track """
-        return self.song.current_track.action_restart_and_record(self.song.current_track.action_record_audio_only)
+        return self.song.current_track.record(self.song.current_track.record_audio_only)
 
     @button_action(log_action=False)
     def action_scroll_track_categories(self, go_next):
@@ -245,7 +240,7 @@ class ActionGroupP0v1(AbstractActionGroup):
 
     @button_action()
     def action_switch_track_monitoring(self):
-        self.song.current_track.action_switch_monitoring()
+        self.song.current_track.switch_monitoring()
 
     @button_action()
     def action_set_up_parameter_automation(self):
@@ -282,22 +277,9 @@ class ActionGroupP0v1(AbstractActionGroup):
     def action_play_selected_scene(self):
         self.song.selected_scene.fire()
 
-    @button_action()
-    def action_update_selected_scene_name(self):
-        self.song.selected_scene.update_name()
-
-    @button_action()
-    def action_update_all_scenes_names(self):
-        Scene.update_all_names()
-
     @button_action(log_action=False)
     def action_scroll_scenes(self, go_next):
         """ scroll top tracks """
         scene_to_select = scroll_values(self.song.scenes, self.song.selected_scene, go_next)  # type: Scene
         if scene_to_select:
             scene_to_select.select()
-
-    @button_action()
-    def action_undo(self):
-        """" undo last recording """
-        self.song.current_track.action_undo()

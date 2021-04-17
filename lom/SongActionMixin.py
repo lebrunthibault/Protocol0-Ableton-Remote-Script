@@ -2,6 +2,7 @@ from functools import partial
 
 from typing import TYPE_CHECKING, Optional
 
+from a_protocol_0.lom.Scene import Scene
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -29,6 +30,12 @@ class SongActionMixin(object):
         track_to_select = scroll_values(self.scrollable_tracks, base_track, go_next)  # type: SimpleTrack
         if track_to_select:
             track_to_select.select()
+
+    def scroll_scenes(self, go_next):
+        # type: (Song, bool) -> None
+        scene_to_select = scroll_values(self.scenes, self.selected_scene, go_next)  # type: Scene
+        if scene_to_select:
+            scene_to_select.select()
 
     def unfocus_all_tracks(self):
         # type: (Song, bool) -> None

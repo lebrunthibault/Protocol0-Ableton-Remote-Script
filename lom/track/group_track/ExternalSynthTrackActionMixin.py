@@ -23,14 +23,14 @@ class ExternalSynthTrackActionMixin(object):
         seq.add([self.midi_track.arm_track, self.audio_track.arm_track])
         return seq.done()
 
-    def action_unarm_track(self):
+    def unarm_track(self):
         # type: (ExternalSynthTrack) -> None
         self.midi_track.has_monitor_in = self.audio_track.has_monitor_in = False
         if isinstance(self.instrument, InstrumentMinitaur):
             # needed when we have multiple minitaur tracks so that other midi clips are not sent to minitaur
             self.midi_track.has_monitor_in = True
 
-    def action_switch_monitoring(self):
+    def switch_monitoring(self):
         # type: (ExternalSynthTrack) -> None
         if self.midi_track.has_monitor_in and self.audio_track.has_monitor_in:
             self.midi_track.has_monitor_in = self.audio_track.has_monitor_in = False
@@ -39,7 +39,7 @@ class ExternalSynthTrackActionMixin(object):
         else:
             self.audio_track.has_monitor_in = True
 
-    def action_record_all(self):
+    def record_all(self):
         # type: (ExternalSynthTrack) -> None
         """ next_empty_clip_slot_index is guaranteed to be not None """
         seq = Sequence()
@@ -50,7 +50,7 @@ class ExternalSynthTrackActionMixin(object):
         seq.add(self._post_record)
         return seq.done()
 
-    def action_record_audio_only(self):
+    def record_audio_only(self):
         # type: (ExternalSynthTrack, bool) -> Sequence
         midi_clip = self.midi_track.playable_clip or (self.song.selected_clip if self.midi_track.is_selected else None)
         if not midi_clip:
@@ -72,9 +72,9 @@ class ExternalSynthTrackActionMixin(object):
         seq.add(self._post_record)
         return seq.done()
 
-    def action_undo_track(self):
+    def undo_track(self):
         # type: (ExternalSynthTrack) -> None
-        [sub_track.action_undo_track() for sub_track in self.sub_tracks]
+        [sub_track.undo_track() for sub_track in self.sub_tracks]
 
     def _post_record(self):
         # type: (ExternalSynthTrack, bool) -> None

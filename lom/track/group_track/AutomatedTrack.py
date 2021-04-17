@@ -93,19 +93,19 @@ class AutomatedTrack(AbstractGroupTrack):
         pass
 
     @forward_property("wrapped_track")
-    def action_switch_monitoring(self):
+    def switch_monitoring(self):
         pass
 
     @forward_property("wrapped_track")
-    def action_restart_and_record(self, *a, **k):
+    def record(self, *a, **k):
         pass
 
     @forward_property("wrapped_track")
-    def action_record_all(self):
+    def record_all(self):
         pass
 
     @forward_property("wrapped_track")
-    def action_record_audio_only(self, *a, **k):
+    def record_audio_only(self, *a, **k):
         pass
 
     @forward_property("wrapped_track")
@@ -113,7 +113,7 @@ class AutomatedTrack(AbstractGroupTrack):
         pass
 
     @forward_property("wrapped_track")
-    def action_undo_track(self):
+    def undo_track(self):
         pass
 
     def disconnect(self):

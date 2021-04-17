@@ -72,17 +72,17 @@ class AbstractTrackActionMixin(object):
         if self.instrument:
             self.instrument.scroll_preset_categories(go_next=go_next)
 
-    def action_switch_monitoring(self):
+    def switch_monitoring(self):
         # type: (AbstractTrack) -> None
         raise NotImplementedError()
 
-    def action_restart_and_record(self, action_record_func):
+    def record(self, record_func):
         # type: (AbstractTrack, Callable) -> None
         """ restart audio to get a count in and recfix"""
         if not self.can_be_armed:
             return
         if self.is_recording:
-            return self.action_undo()
+            return self.undo()
         if self.song._song.session_record_status != Live.Song.SessionRecordStatus.off:
             return
         self.song._song.session_automation_record = True
@@ -100,7 +100,7 @@ class AbstractTrackActionMixin(object):
             # here the tracks are mapped again ! we cannot simply call this method again on a stale object
             seq.add(self.parent.current_action)
         else:
-            seq.add(action_record_func)
+            seq.add(record_func)
 
         return seq.done()
 
@@ -111,19 +111,19 @@ class AbstractTrackActionMixin(object):
         self.has_monitor_in = False
         self.base_track.playable_clip.select()
 
-    def action_record_all(self):
+    def record_all(self):
         # type: () -> Sequence
         """ this records normally on a simple track and both midi and audio on a group track """
         raise NotImplementedError
 
-    def action_record_audio_only(self, *a, **k):
+    def record_audio_only(self, *a, **k):
         # type: (AbstractTrack) -> None
         """
         overridden
         this records normally on a simple track and only audio on a group track
         is is available on other tracks just for ease of use
         """
-        return self.action_record_all()
+        return self.record_all()
 
     def play_stop(self):
         # type: (AbstractTrack) -> None
@@ -137,12 +137,7 @@ class AbstractTrackActionMixin(object):
             [sub_track.play() for sub_track in self.sub_tracks]
         elif isinstance(self, SimpleTrack) and self.playable_clip:
             self.playable_clip.is_playing = True
-            playing_position = 0
-            if self.song.playing_clips:
-                playing_position = max(self.song.playing_clips, key=lambda c: c.length).playing_position
-            self.playable_clip.start_marker = self.parent.utilsManager.get_next_quantized_position(
-                playing_position, self.playable_clip.length
-            )
+            self.playable_clip.start_marker = self.song.selected_scene.playing_position
 
     def stop(self, immediate=False):
         # type: (AbstractTrack, bool) -> None
@@ -153,12 +148,12 @@ class AbstractTrackActionMixin(object):
         if immediate:
             self.parent.defer(partial(setattr, self.song, "clip_trigger_quantization", qz))
 
-    def action_undo(self):
+    def undo(self):
         # type: (AbstractTrack) -> None
         self.parent.clear_tasks()
-        self.action_undo_track()
+        self.undo_track()
 
-    def action_undo_track(self):
+    def undo_track(self):
         # type: (AbstractTrack) -> None
         raise NotImplementedError()
 

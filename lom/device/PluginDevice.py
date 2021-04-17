@@ -3,6 +3,7 @@ from typing import List
 
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.device.DeviceType import DeviceType
+from a_protocol_0.utils.utils import scroll_values
 
 
 class PluginDevice(Device):
@@ -10,6 +11,12 @@ class PluginDevice(Device):
         super(PluginDevice, self).__init__(*a, **k)
         self._device = self._device  # type: Live.PluginDevice.PluginDevice
         self.device_type = DeviceType.PLUGIN_DEVICE
+
+    def scroll_presets(self, go_next):
+        # type: (bool) -> None
+        self.parent.clyphxNavigationManager.focus_detail()
+        self.is_collapsed = False
+        self.selected_preset_index = scroll_values(self.presets, self.selected_preset, go_next, return_index=True)
 
     @property
     def presets(self):

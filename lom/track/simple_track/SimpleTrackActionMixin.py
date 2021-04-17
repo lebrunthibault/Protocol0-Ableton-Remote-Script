@@ -22,11 +22,11 @@ class SimpleTrackActionMixin(object):
         if self.instrument and self.instrument.needs_exclusive_activation:
             return self.instrument.check_activated()
 
-    def action_switch_monitoring(self):
+    def switch_monitoring(self):
         # type: (SimpleTrack) -> None
         self.has_monitor_in = not self.has_monitor_in
 
-    def action_record_all(self):
+    def record_all(self):
         # type: (SimpleTrack, int) -> None
         """ finishes on end of recording """
         seq = Sequence()
@@ -34,7 +34,7 @@ class SimpleTrackActionMixin(object):
         seq.add(self._post_record)
         return seq.done()
 
-    def action_undo_track(self):
+    def undo_track(self):
         # type: (SimpleTrack) -> None
         if self.is_recording:
             self.delete_current_clip()

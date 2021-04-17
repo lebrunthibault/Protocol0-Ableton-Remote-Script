@@ -48,7 +48,7 @@ class AbstractActionGroup(AbstractControlSurfaceComponent):
         # type: (int) -> MultiEncoder
         assert name, "encoder should have a name"
         k = locals()
-        encoder = MultiEncoder(action_group=self, channel=self.channel, identifier=id, name=name)
+        encoder = MultiEncoder(group=self, channel=self.channel, identifier=id, name=name)
         for name in ["self", "id", "name"]:
             del k[name]
         [encoder.add_action(action) for action in EncoderAction.make_actions(**k)]
@@ -57,7 +57,7 @@ class AbstractActionGroup(AbstractControlSurfaceComponent):
     def add_modifier(self, id, modifier_type, *a, **k):
         # type: (int, EncoderModifierEnum) -> MultiEncoder
         encoder = MultiEncoderModifier(
-            action_group=self,
+            group=self,
             channel=self.channel,
             identifier=id,
             modifier_type=modifier_type,
