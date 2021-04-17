@@ -91,7 +91,7 @@ class Scene(AbstractObject):
     @name.setter
     def name(self, name):
         if self._scene and name:
-            self._scene.name = name
+            self._scene.name = str(name).strip()
 
     @property
     def clips(self):

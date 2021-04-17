@@ -23,7 +23,10 @@ class ActionGroupTest(AbstractActionGroup):
         return seq.done()
 
     def action_test(self):
-        self.parent.defer(self.error)
+        self.song.end_undo_step()
+        self.song.end_undo_step()
+        self.song.end_undo_step()
+
         # seq = Sequence()
         # seq.add(wait=1)
         # seq.add(self.action_error)

@@ -54,9 +54,7 @@ class SongManager(AbstractControlSurfaceComponent):
         # type: () -> Optional[SimpleTrack]
         self.parent.log_debug("SongManager : start mapping tracks")
 
-        added_track = False
-        if len(self.song.simple_tracks) and len(self.song._song.tracks) > len(self.song.simple_tracks):
-            added_track = True
+        added_track = len(self.song.simple_tracks) and len(self.song._song.tracks) > len(self.song.simple_tracks)
 
         former_simple_tracks = self.song.simple_tracks
         self.song.simple_tracks = self.song.abstract_group_tracks = []

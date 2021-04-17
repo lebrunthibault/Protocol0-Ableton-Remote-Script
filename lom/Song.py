@@ -138,6 +138,11 @@ class Song(SongActionMixin, AbstractObject):
             else None
         )
 
+    @selected_clip.setter
+    def selected_clip(self, selected_clip):
+        # type: (Clip) -> None
+        self.highlighted_clip_slot = selected_clip.clip_slot
+
     @property
     def selected_parameter(self):
         # type: () -> Optional[DeviceParameter]

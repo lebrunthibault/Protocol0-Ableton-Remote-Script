@@ -43,7 +43,10 @@ class AutomationClipName(ClipName):
     def _ramp_change_listener(self, ramp_mode):
         self.update()
 
-    def update(self, *a, **k):
-        name = self.base_name + " " if self.base_name else ""
-        name = "%s[%s,%s]" % (self.base_name, self.automation_ramp_up, self.automation_ramp_down)
+    def update(self, base_name=None, *a, **k):
+        self.base_name = base_name if base_name is not None else self.base_name
+        name = "%s [%s,%s]" % (self.base_name, self.automation_ramp_up, self.automation_ramp_down)
+        name = name.strip()
+        if "base_name" in k:
+            del k["base_name"]
         super(AutomationClipName, self).update(base_name=name, *a, **k)

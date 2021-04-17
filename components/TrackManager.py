@@ -32,8 +32,10 @@ class TrackManager(AbstractControlSurfaceComponent):
 
     @p0_subject_slot("added_track")
     def _added_track_listener(self):
+        self.song.begin_undo_step()  # Live crashes on undo without this
         seq = Sequence()
         seq.add(self.song.current_track._added_track_init)
+        seq.add(self.song.end_undo_step)
         return seq.done()
 
     @p0_subject_slot("selected_track")

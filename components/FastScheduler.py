@@ -36,7 +36,6 @@ class SchedulerEvent(AbstractObject):
         try:
             self._callback()
         except Exception as e:
-            self.parent.log_dev("error caught")
             self.parent.errorManager.handle_error(e)
 
 

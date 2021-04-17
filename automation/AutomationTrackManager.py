@@ -57,7 +57,7 @@ class AutomationTrackManager(AbstractControlSurfaceComponent):
         seq.add(partial(self.parent.trackManager.create_midi_track, base_track.index + 2, name=track_name))
         seq.add(
             partial(setattr, self.parent.songManager, "abstract_group_track_creation_in_progress", False),
-            silent=True,
+            silent=False,
         )
         # storing the indexes makes the setup faster
         seq.add(

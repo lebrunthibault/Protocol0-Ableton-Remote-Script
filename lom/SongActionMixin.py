@@ -58,7 +58,7 @@ class SongActionMixin(object):
         if len(filter(None, [not track.is_folded for track in other_group_tracks])):
             [setattr(track, "is_folded", True) for track in other_group_tracks]
         else:
-            self.current_track.is_folded = True
+            self.current_track.is_folded = not self.current_track.is_folded
 
     @handle_error
     def reset(self, reset_tracks=True):

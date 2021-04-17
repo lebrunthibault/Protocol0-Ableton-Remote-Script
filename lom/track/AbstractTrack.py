@@ -77,7 +77,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self.push2_selected_matrix_mode = "session"
         self.push2_selected_instrument_mode = None
 
-    @defer
     def _added_track_init(self):
         """ this should be be called once, when the Live track is created, overridden by some child classes """
         if self.parent.songManager.abstract_group_track_creation_in_progress:
@@ -105,7 +104,8 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @name.setter
     def name(self, name):
         # type: (str) -> None
-        self._track.name = name
+        if self._track and name:
+            self._track.name = str(name).strip()
 
     @property
     def base_color(self):

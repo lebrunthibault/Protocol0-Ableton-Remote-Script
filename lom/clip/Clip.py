@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 class Clip(ClipActionMixin, AbstractObject):
     __subject_events__ = ("notes", "linked")
 
-    def __init__(self, clip_slot, set_clip_name=True, is_new=False, *a, **k):
+    def __init__(self, clip_slot, set_clip_name=True, *a, **k):
         # type: (ClipSlot, bool, bool) -> None
         super(Clip, self).__init__(*a, **k)
         self.clip_slot = clip_slot
@@ -27,7 +27,6 @@ class Clip(ClipActionMixin, AbstractObject):
         self.view = self._clip.view  # type: Live.Clip.Clip.View
         self.index = clip_slot.index
         self.track = clip_slot.track  # type: SimpleTrack
-        self.is_selected = False
         self._previous_name = self._clip.name
         self._notes_listener.subject = self._clip
         self._color_listener.subject = self._clip
@@ -35,9 +34,6 @@ class Clip(ClipActionMixin, AbstractObject):
         self._is_recording_listener.subject = self._clip
         self.parent.defer(partial(setattr, self, "color", self.track.base_color))
         self.clip_name = ClipName(self) if set_clip_name else None
-        # handles duplicate clips
-        if self.clip_name and is_new:
-            self.clip_name.update(is_playable=False)
 
     def _on_selected(self):
         pass
@@ -53,7 +49,7 @@ class Clip(ClipActionMixin, AbstractObject):
     @staticmethod
     def make(clip_slot, is_new=False):
         # type: (ClipSlot) -> Clip
-        clip = clip_slot.track.CLIP_CLASS(clip_slot=clip_slot, is_new=is_new)
+        clip = clip_slot.track.CLIP_CLASS(clip_slot=clip_slot)
 
         if is_new:
             clip.configure_new_clip()
@@ -73,8 +69,8 @@ class Clip(ClipActionMixin, AbstractObject):
     @name.setter
     def name(self, name):
         # type: (str) -> None
-        if self._clip and str(name) != self._clip.name:
-            self._clip.name = str(name)
+        if self._clip and name:
+            self._clip.name = str(name).strip()
 
     @property
     def base_name(self):
@@ -83,6 +79,7 @@ class Clip(ClipActionMixin, AbstractObject):
     @base_name.setter
     def base_name(self, base_name):
         # type: (str) -> None
+        self.parent.log_warning("calling base_name on clip %s : %s" % (self, base_name))
         self.clip_name.update(base_name=base_name)
 
     @property

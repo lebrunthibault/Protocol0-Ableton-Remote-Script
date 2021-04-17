@@ -49,8 +49,9 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
 
     def sync_property(self, master, slave, property):
         # type: (AbstractObject, AbstractObject, str) -> None
-        value = getattr(master, property)
-        if value is not None and getattr(slave, property) != value:
+        master_value = getattr(master, property)
+        slave_value = getattr(slave, property)
+        if master_value is not None and slave_value != master_value:
             self.updating_properties.add(property)
             self.parent.defer(partial(self.updating_properties.discard, property))
-            self.parent.defer(partial(setattr, slave, property, value))
+            self.parent.defer(partial(setattr, slave, property, master_value))

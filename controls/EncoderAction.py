@@ -39,6 +39,7 @@ class EncoderAction(AbstractObject):
         NB : Here lambda is just a way to act on the right objects at runtime
             like this we can display the function name
         """
+        self.song.begin_undo_step()
         func = self.func() if is_lambda(self.func) else self.func
         if func is None:
             self.parent.show_message("Action empty")
@@ -51,6 +52,7 @@ class EncoderAction(AbstractObject):
             self.parent.log_notice("%s : executing %s" % (encoder_name, get_callable_name(func)))
 
         func(*a, **k)
+        self.song.end_undo_step()
 
     @staticmethod
     def make_actions(

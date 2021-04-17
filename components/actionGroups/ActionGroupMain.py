@@ -105,7 +105,7 @@ class ActionGroupMain(AbstractActionGroup):
             )
         ).add_action(
             EncoderAction(
-                func=lambda: self.song.selected_abstract_tracks.toggle_solo,
+                func=lambda: self.song.fold_all_tracks,
                 modifier_type=EncoderModifierEnum.SOLO,
             )
         ).add_action(

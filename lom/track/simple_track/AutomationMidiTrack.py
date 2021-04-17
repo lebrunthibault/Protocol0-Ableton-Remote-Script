@@ -36,7 +36,6 @@ class AutomationMidiTrack(AbstractAutomationTrack):
 
     def _create_base_clip(self, clip_slot_index):
         # type: (int) -> Sequence
-        clip_name = self.linked_track.automated_parameter.full_name
         seq = Sequence()
-        seq.add(partial(self.create_clip, clip_slot_index=clip_slot_index, name=clip_name, bar_count=1))
+        seq.add(partial(self.create_clip, clip_slot_index=clip_slot_index, bar_count=1))
         return seq.done()

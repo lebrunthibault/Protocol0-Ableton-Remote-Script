@@ -2,7 +2,6 @@ import Live
 from typing import List, Optional
 
 from _Framework.SubjectSlot import subject_slot, subject_slot_group
-from _Framework.Util import find_if
 from a_protocol_0.enums.ClipTypeEnum import ClipTypeEnum
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
@@ -52,13 +51,10 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             else:
                 self.parent.wait_beats(self.playable_clip.length - 1, self.last_clip_played.play)
 
-        [setattr(clip, "is_selected", False) for clip in self.clips]
-
         # we keep track state when the set is stopped
         if all([not track.is_playing for track in self.song.simple_tracks]):
             return
 
-        self.playable_clip = self.playing_clip
         self.last_clip_played = self.playing_clip
 
     @subject_slot("fired_slot_index")
@@ -136,24 +132,12 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             - The clip corresponding to the selected scene if it exists
         :return:
         """
-        # encoder scrolled clips
-        selected_clip = find_if(lambda clip: clip.is_selected, self.clips)
-        if selected_clip:
-            return selected_clip
-        # return self.playing_clip or find_if(lambda clip: clip.clip_name.is_playable, self.clips)
         selected_scene_clip = (
             self.clip_slots[self.song.selected_scene.index].clip
             if self.clip_slots[self.song.selected_scene.index].has_clip
             else None
         )
         return self.playing_clip or selected_scene_clip
-
-    @playable_clip.setter
-    def playable_clip(self, playable_clip):
-        # type: (Clip) -> None
-        [clip.clip_name.update(is_playable=False) for clip in self.clips]
-        if playable_clip:
-            playable_clip.clip_name.update(is_playable=True)
 
     @property
     def is_armed(self):

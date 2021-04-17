@@ -51,11 +51,6 @@ class AutomationTracksCouple(AbstractObject):
         audio_simple_track.disconnect()
         midi_simple_track.disconnect()
 
-    def _added_track_init(self):
-        self.audio_track.loaded = False
-        self.audio_track._added_track_init()
-        self.midi_track._added_track_init()
-
     def disconnect(self):
         super(AutomationTracksCouple, self).disconnect()
         self._track_synchronizer.disconnect()

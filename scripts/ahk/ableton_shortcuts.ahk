@@ -25,8 +25,8 @@ global ableton := "Ableton Live 10 Suite"
 
 ; global hotkeys
 Hotkey("", "^#+n", "reloadAbleton")
-Hotkey("", "^#+a", "relaunchAbleton")
-Hotkey("", "^!+l", "refreshLogs")
+Hotkey("", "^#+a", "restartAbleton")
+Hotkey("", "^#+l", "refreshLogs")
 ; ableton hotkeys
 HotkeyAbleton("^#+s", "saveAndSetAsTemplate")
 HotkeyAbleton("^!+c", 	 "loadVst", "H-Comp")
@@ -142,7 +142,7 @@ reloadAbleton()
     Run reload_ableton.py, %A_ScriptDir%\..\python, hide
 }
 
-relaunchAbleton()
+restartAbleton()
 {
     command = Startup "'Ableton Live 10 Suite,*logs terminal*,AutoHotkey Ableton'"
     Run PowerShell.exe -Command %command%,, hide

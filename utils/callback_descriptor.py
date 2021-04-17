@@ -116,7 +116,7 @@ class CallableWithCallbacks(object):
             log_ableton("adding_callback to %s : %s" % (self, self._callbacks))
 
     def clear_callbacks(self):
-        self._callbacks = []
+        self._callbacks = deque()
 
     def _execute_callback_queue(self):
         """ execute callbacks and check if we defer this or not """

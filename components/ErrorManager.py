@@ -13,6 +13,7 @@ class ErrorManager(AbstractControlSurfaceComponent):
 
     def handle_error(self, e, context=None):
         # type: (Exception) -> None
+        self.song.end_undo_step()
         exc_type, exc_value, tb = sys.exc_info()
         self._handle_exception(exc_type, exc_value, tb, context)
 
