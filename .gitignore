@@ -77,6 +77,7 @@ target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+jupyter
 
 # IPython
 profile_default/
@@ -139,3 +140,6 @@ dmypy.json
 cython_debug/
 
 logs/
+
+# Pycharm
+.idea
