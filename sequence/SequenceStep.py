@@ -221,9 +221,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         except SequenceError:
             return
 
-        self._handle_return_value(
-            res, self._step_sequence_terminated_listener, self._check_for_step_completion
-        )
+        self._handle_return_value(res, self._step_sequence_terminated_listener, self._check_for_step_completion)
 
     def _step_timed_out(self):
         if _has_callback_queue(self._complete_on) and self._callback_timeout:

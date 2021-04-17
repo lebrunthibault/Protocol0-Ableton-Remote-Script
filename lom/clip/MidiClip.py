@@ -29,9 +29,7 @@ class MidiClip(Clip):
         # type: (bool) -> List[Note]
         if not self._clip:
             return []
-        notes = [
-            Note(*note, clip=self) for note in self._clip.get_notes(self.loop_start, 0, self.length, 128)
-        ]
+        notes = [Note(*note, clip=self) for note in self._clip.get_notes(self.loop_start, 0, self.length, 128)]
         self._muted_notes = [note for note in notes if note.muted]
         if exclude_muted:
             notes = [note for note in notes if not note.muted]

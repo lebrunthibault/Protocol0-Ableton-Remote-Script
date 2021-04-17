@@ -31,9 +31,7 @@ class DeviceChain(AbstractObject):
     def _devices_listener(self):
         from a_protocol_0.lom.device.Device import Device
 
-        self.devices = [
-            Device.make(device, self.track, index) for index, device in enumerate(self._chain.devices)
-        ]
+        self.devices = [Device.make(device, self.track, index) for index, device in enumerate(self._chain.devices)]
 
     def disconnect(self):
         super(DeviceChain, self).disconnect()

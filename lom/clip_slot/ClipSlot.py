@@ -98,9 +98,7 @@ class ClipSlot(AbstractObject):
         seq = Sequence()
         self.parent.show_message("Starting recording of %d bars" % self.song.recording_bar_count)
         seq.add(
-            partial(
-                self.fire, record_length=self.parent.utilsManager.get_beat_time(self.song.recording_bar_count)
-            ),
+            partial(self.fire, record_length=self.parent.utilsManager.get_beat_time(self.song.recording_bar_count)),
             complete_on=self._has_clip_listener,
         )
         # this is a convenience to see right away if there is a problem with the audio recording
@@ -130,9 +128,7 @@ class ClipSlot(AbstractObject):
         # type: (str) -> None
         seq = Sequence()
         seq.add(
-            partial(
-                self.song.simple_tracks[self.song.AUDIO_BUS_TRACK_INDEX].clip_slots[0].duplicate_clip_to, self
-            ),
+            partial(self.song.simple_tracks[self.song.AUDIO_BUS_TRACK_INDEX].clip_slots[0].duplicate_clip_to, self),
             complete_on=self._has_clip_listener,
         )
         seq.add(lambda: setattr(self.clip, "warping", True), name="enable clip warping", silent=True)

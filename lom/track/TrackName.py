@@ -33,9 +33,7 @@ class TrackName(AbstractObject):
     @p0_subject_slot("selected_preset")
     def _selected_preset_listener(self):
         if self.track.instrument.should_display_selected_preset_name:
-            self.track.top_abstract_track.track_name.update(
-                base_name=self.track.instrument.selected_preset.name
-            )
+            self.track.top_abstract_track.track_name.update(base_name=self.track.instrument.selected_preset.name)
         elif self.track.instrument.SHOULD_DISPLAY_SELECTED_PRESET_INDEX:
             self.track.top_abstract_track.track_name.update(
                 selected_preset_index=self.track.instrument.selected_preset.index

@@ -30,12 +30,8 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
         self.updating_properties = set()  # type: Set[str]
 
         for property in self.listenable_properties:
-            self.register_slot(
-                getattr(master, subject_name), partial(self._sync_properties, master, slave), property
-            )
-            self.register_slot(
-                getattr(slave, subject_name), partial(self._sync_properties, slave, master), property
-            )
+            self.register_slot(getattr(master, subject_name), partial(self._sync_properties, master, slave), property)
+            self.register_slot(getattr(slave, subject_name), partial(self._sync_properties, slave, master), property)
 
         self._sync_properties(master, slave)
 

@@ -26,9 +26,7 @@ class SequenceStateMachineMixin(object):
             State(SequenceState.ERRORED, on_enter=[self._on_terminate]),
         ]
 
-        self._state_machine = Machine(
-            states=states, transitions=transitions, initial=SequenceState.UN_STARTED
-        )
+        self._state_machine = Machine(states=states, transitions=transitions, initial=SequenceState.UN_STARTED)
 
     @property
     def state(self):

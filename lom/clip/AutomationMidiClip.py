@@ -61,9 +61,7 @@ class AutomationMidiClip(AbstractAutomationClip, MidiClip, AutomationMidiClipNot
     def generate_base_notes(self):
         # type: () -> List[Note]
         base_velocity = self.track.linked_track.automated_parameter.get_midi_value_from_value()
-        base_note = Note(
-            pitch=base_velocity, velocity=base_velocity, start=0, duration=self.length, clip=self
-        )
+        base_note = Note(pitch=base_velocity, velocity=base_velocity, start=0, duration=self.length, clip=self)
         muted_start_note_velocities = [
             self.track.linked_track.automated_parameter.get_midi_value_from_value(velo)
             for velo in [

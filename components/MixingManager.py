@@ -12,10 +12,7 @@ class MixingManager(AbstractControlSurfaceComponent):
     @property
     def should_activate_mix_volume_follower(self):
         for device in self.song.master_track.devices:
-            if (
-                any([name.lower() in device.name.lower() for name in self.MIXING_PLUGIN_NAMES])
-                and device.is_active
-            ):
+            if any([name.lower() in device.name.lower() for name in self.MIXING_PLUGIN_NAMES]) and device.is_active:
                 return True
 
         return False

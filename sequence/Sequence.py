@@ -29,9 +29,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
         self.res = None
         self.debug = self.DEBUG_MODE or not (silent or self.SILENT_MODE)
         frame_info = get_frame_info(2)
-        self.name = (
-            "[seq %s.%s]" % (frame_info.class_name, frame_info.method_name) if frame_info else "Unknown"
-        )
+        self.name = "[seq %s.%s]" % (frame_info.class_name, frame_info.method_name) if frame_info else "Unknown"
 
     def __repr__(self):
         return self.name
@@ -104,9 +102,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
             self,
         )
         assert not self.terminated and not self.errored
-        assert not isinstance(
-            func, Sequence
-        ), "You passed a Sequence object instead of a Sequence factory to add"
+        assert not isinstance(func, Sequence), "You passed a Sequence object instead of a Sequence factory to add"
 
         self._steps.append(
             SequenceStep.make(

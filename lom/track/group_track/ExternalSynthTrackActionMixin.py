@@ -52,9 +52,7 @@ class ExternalSynthTrackActionMixin(object):
 
     def action_record_audio_only(self):
         # type: (ExternalSynthTrack, bool) -> Sequence
-        midi_clip = self.midi_track.playable_clip or (
-            self.song.selected_clip if self.midi_track.is_selected else None
-        )
+        midi_clip = self.midi_track.playable_clip or (self.song.selected_clip if self.midi_track.is_selected else None)
         if not midi_clip:
             self.parent.show_message("No midi clip selected")
             return
@@ -69,9 +67,7 @@ class ExternalSynthTrackActionMixin(object):
         if audio_clip_slot.clip:
             seq.add(audio_clip_slot.clip.delete, wait=1)
         seq.add(partial(setattr, midi_clip, "start_marker", 0))
-        seq.add(
-            partial(self.parent._wait, 500, midi_clip.play)
-        )  # launching the midi clip after the record has started
+        seq.add(partial(self.parent._wait, 500, midi_clip.play))  # launching the midi clip after the record has started
         seq.add(self.audio_track.clip_slots[midi_clip.index].record)
         seq.add(self._post_record)
         return seq.done()

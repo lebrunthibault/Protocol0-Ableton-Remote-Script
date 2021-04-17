@@ -25,8 +25,6 @@ class SessionManager(AbstractControlSurfaceComponent):
     def session_track_offset(self):
         # type: () -> int
         try:
-            return [t for t in self.song.simple_tracks if t.is_visible].index(
-                self.song.current_track.base_track
-            )
+            return [t for t in self.song.simple_tracks if t.is_visible].index(self.song.current_track.base_track)
         except ValueError:
             return self.session.track_offset() if self.session else 0

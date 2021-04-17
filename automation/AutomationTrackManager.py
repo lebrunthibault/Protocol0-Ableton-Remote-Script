@@ -33,9 +33,7 @@ class AutomationTrackManager(AbstractControlSurfaceComponent):
 
         if self.song.selected_track.abstract_group_track:
             base_track = self.song.selected_track.abstract_group_track
-        elif (
-            self.song.selected_track.group_track and len(self.song.selected_track.group_track.sub_tracks) == 1
-        ):
+        elif self.song.selected_track.group_track and len(self.song.selected_track.group_track.sub_tracks) == 1:
             base_track = self.song.selected_track.group_track
         else:
             base_track = self.song.selected_track
@@ -63,9 +61,7 @@ class AutomationTrackManager(AbstractControlSurfaceComponent):
         )
         # storing the indexes makes the setup faster
         seq.add(
-            partial(
-                setattr, self, "created_tracks_indexes", set([base_track.index + 1, base_track.index + 2])
-            ),
+            partial(setattr, self, "created_tracks_indexes", set([base_track.index + 1, base_track.index + 2])),
             silent=True,
         )
         # instantiating AutomatedTrack on first parameter automation

@@ -191,9 +191,7 @@ class AbstractTrackActionMixin(object):
         from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 
         track = track._track if isinstance(track, AbstractTrack) else track
-        output_routing_type = find_if(
-            lambda r: r.attached_object == track, self.available_output_routing_types
-        )
+        output_routing_type = find_if(lambda r: r.attached_object == track, self.available_output_routing_types)
 
         if not output_routing_type:
             output_routing_type = find_if(

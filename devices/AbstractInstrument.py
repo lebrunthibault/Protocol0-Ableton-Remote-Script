@@ -164,9 +164,7 @@ class AbstractInstrument(AbstractObject):
         """ Overridden default is send program change """
         seq = Sequence()
         seq.add(self.track.top_abstract_track.arm)
-        seq.add(
-            partial(self.parent.midiManager.send_program_change, preset.index + self.PROGRAM_CHANGE_OFFSET)
-        )
+        seq.add(partial(self.parent.midiManager.send_program_change, preset.index + self.PROGRAM_CHANGE_OFFSET))
         return seq.done()
 
     def generate_base_notes(self, clip):

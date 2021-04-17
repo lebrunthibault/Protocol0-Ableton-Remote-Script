@@ -29,10 +29,7 @@ class AbstractActionGroup(AbstractControlSurfaceComponent):
     def _add_multi_encoder(self, multi_encoder):
         # type: (MultiEncoder) -> MultiEncoder
         assert (
-            len(
-                [encoder for encoder in self.multi_encoders if encoder.identifier == multi_encoder.identifier]
-            )
-            == 0
+            len([encoder for encoder in self.multi_encoders if encoder.identifier == multi_encoder.identifier]) == 0
         ), ("duplicate multi encoder with id %s" % multi_encoder.identifier)
         self.multi_encoders.append(multi_encoder)
         return multi_encoder

@@ -31,9 +31,7 @@ class InstrumentSimpler(AbstractInstrument):
     def selected_category(self):
         # type: () -> Optional[str]
         """ the name of the track is the name of a sample sub_directory """
-        selected_category = find_if(
-            lambda f: self.track.base_name.lower() in f.lower(), listdir(self.PRESETS_PATH)
-        )
+        selected_category = find_if(lambda f: self.track.base_name.lower() in f.lower(), listdir(self.PRESETS_PATH))
         if not selected_category:
             raise Protocol0Error("Couldn't find sample selected category for %s" % self.track)
 

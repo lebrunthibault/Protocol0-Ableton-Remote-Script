@@ -25,9 +25,7 @@ class SongActionMixin(object):
 
     def scroll_tracks(self, go_next):
         # type: (Song, bool) -> None
-        base_track = (
-            self.selected_track if self.selected_track.is_scrollable else self.current_track.base_track
-        )
+        base_track = self.selected_track if self.selected_track.is_scrollable else self.current_track.base_track
         track_to_select = scroll_values(self.scrollable_tracks, base_track, go_next)  # type: SimpleTrack
         if track_to_select:
             track_to_select.select()
@@ -55,9 +53,7 @@ class SongActionMixin(object):
         # type: (Song, bool) -> None
         # 1st we fold all except current
         other_group_tracks = [
-            track
-            for track in self.song.root_tracks
-            if track.is_foldable and track != self.current_track.base_track
+            track for track in self.song.root_tracks if track.is_foldable and track != self.current_track.base_track
         ]
         if len(filter(None, [not track.is_folded for track in other_group_tracks])):
             [setattr(track, "is_folded", True) for track in other_group_tracks]

@@ -38,9 +38,7 @@ class CallbackDescriptor(object):
         self._wrapped = None
 
     def __repr__(self):
-        return self._wrapped or (
-            u"%s_%d_%s" % (get_callable_name(self._func), id(self), self.__class__.__name__)
-        )
+        return self._wrapped or (u"%s_%d_%s" % (get_callable_name(self._func), id(self), self.__class__.__name__))
 
     def __get__(self, obj, cls=None):
         if obj is None:
@@ -52,9 +50,7 @@ class CallbackDescriptor(object):
             if bool(
                 getattr(self._func, "_data_name", None)
             ):  # here we cannot do isinstance() as the Decorator class is in a closure
-                self._wrapped = self._func.__get__(
-                    obj
-                )  # calling inner descriptor. self._decorated is a SubjectSlot
+                self._wrapped = self._func.__get__(obj)  # calling inner descriptor. self._decorated is a SubjectSlot
                 self._wrapped.listener = CallableWithCallbacks(self._wrapped, obj, self._immediate)
 
                 # patching the wrapped function to have a coherent interface

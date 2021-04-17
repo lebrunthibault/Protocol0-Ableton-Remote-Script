@@ -72,17 +72,13 @@ class DeviceManager(AbstractControlSurfaceComponent):
 
         class_ = getattr(mod, class_name)
         return (
-            track.instrument
-            if isinstance(track.instrument, class_)
-            else class_(track=track, device=instrument_device)
+            track.instrument if isinstance(track.instrument, class_) else class_(track=track, device=instrument_device)
         )
 
     def update_rack(self, rack_device):
         # type: (Live.RackDevice.RackDevice) -> None
         """ update rack with the version stored in browser, keeping old values for identical parameters """
-        parameters = {
-            param.name: param.value for param in rack_device.parameters if "macro" not in param.name.lower()
-        }
+        parameters = {param.name: param.value for param in rack_device.parameters if "macro" not in param.name.lower()}
         self.song.select_device(rack_device)
         self.parent.browserManager.swap(rack_device.name)
         # restore values : this means we cannot dispatch values, only mappings
@@ -163,9 +159,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
             (x_device, y_device) = self._get_device_show_button_click_coordinates(device, parent_rack)
 
             seq.add(
-                lambda: self.parent.keyboardShortcutManager.toggle_device_button(
-                    x=x_rack, y=y_rack, activate=False
-                ),
+                lambda: self.parent.keyboardShortcutManager.toggle_device_button(x=x_rack, y=y_rack, activate=False),
                 wait=1,
                 name="hide rack macro controls",
             )
@@ -175,9 +169,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
                 name="click on device show button",
             )
             seq.add(
-                lambda: self.parent.keyboardShortcutManager.toggle_device_button(
-                    x=x_rack, y=y_rack, activate=True
-                ),
+                lambda: self.parent.keyboardShortcutManager.toggle_device_button(x=x_rack, y=y_rack, activate=True),
                 wait=1,
                 name="show rack macro controls",
             )

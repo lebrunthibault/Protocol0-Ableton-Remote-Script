@@ -29,9 +29,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
 
         with self.parent.component_guard():
             self._midi_audio_synchronizer = TrackSynchronizer(self.audio_track, self.midi_track)
-            self._midi_track_synchronizer = ObjectSynchronizer(
-                self.base_track, self.midi_track, "_track", ["solo"]
-            )
+            self._midi_track_synchronizer = ObjectSynchronizer(self.base_track, self.midi_track, "_track", ["solo"])
 
             self._clip_slot_synchronizers = [
                 ClipSlotSynchronizer(midi_clip_slot, audio_clip_slot)

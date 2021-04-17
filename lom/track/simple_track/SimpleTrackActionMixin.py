@@ -57,9 +57,7 @@ class SimpleTrackActionMixin(object):
             complete_on=clip_slot._has_clip_listener,
         )
         if name:
-            seq.add(
-                lambda: setattr(self.clip_slots[clip_slot_index].clip, "name", name), name="set clip name"
-            )
+            seq.add(lambda: setattr(self.clip_slots[clip_slot_index].clip, "name", name), name="set clip name")
 
         return seq.done()
 

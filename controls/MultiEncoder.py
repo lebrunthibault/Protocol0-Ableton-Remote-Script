@@ -34,9 +34,7 @@ class MultiEncoder(AbstractObject):
 
     def get_modifier_from_enum(self, modifier_type):
         # type: (EncoderModifierEnum) -> EncoderModifier
-        return [
-            modifier for modifier in self._action_group.available_modifiers if modifier.type == modifier_type
-        ][0]
+        return [modifier for modifier in self._action_group.available_modifiers if modifier.type == modifier_type][0]
 
     def add_action(self, action):
         # type: (EncoderAction) -> MultiEncoder
@@ -49,9 +47,7 @@ class MultiEncoder(AbstractObject):
     @property
     def _pressed_modifier_type(self):
         # type: () -> Optional[EncoderModifierEnum]
-        pressed_modifiers = [
-            modifier for modifier in self._action_group.available_modifiers if modifier.pressed
-        ]
+        pressed_modifiers = [modifier for modifier in self._action_group.available_modifiers if modifier.pressed]
         assert len(pressed_modifiers) <= 1, "Multiple modifiers pressed. Not allowed."
         return pressed_modifiers[0].type if len(pressed_modifiers) else None
 
@@ -95,8 +91,7 @@ class MultiEncoder(AbstractObject):
 
         if not action and log_not_found:
             self.parent.show_message(
-                "Press didn't trigger action, move_type: %s, modifier: %s"
-                % (move_type, self._pressed_modifier_type)
+                "Press didn't trigger action, move_type: %s, modifier: %s" % (move_type, self._pressed_modifier_type)
             )
 
         return action

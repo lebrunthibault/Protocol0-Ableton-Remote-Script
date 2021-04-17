@@ -31,9 +31,9 @@ def test_sequence_pattern():
             file_content = f.read()
             instantiated_sequences = file_content.count(" Sequence(")
             returned_sequences = file_content.count("seq.done(")  # expecting coherent naming
-            assert (
-                instantiated_sequences <= returned_sequences
-            ), "invalid sequence code in %s" % filename.replace(ROOT_DIR, "")
+            assert instantiated_sequences <= returned_sequences, "invalid sequence code in %s" % filename.replace(
+                ROOT_DIR, ""
+            )
 
 
 def test_init_has_arguments():

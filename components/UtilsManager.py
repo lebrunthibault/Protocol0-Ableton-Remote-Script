@@ -15,6 +15,4 @@ class UtilsManager(AbstractControlSurfaceComponent):
     def get_next_quantized_position(self, position, length):
         # type: (float, float) -> float
         """ Use clip_trigger_quantization if the quantization is variable """
-        return (
-            ceil((position % length) / self.song.signature_denominator) * self.song.signature_denominator
-        ) % length
+        return (ceil((position % length) / self.song.signature_denominator) * self.song.signature_denominator) % length

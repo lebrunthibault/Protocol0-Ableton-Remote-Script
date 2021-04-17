@@ -24,9 +24,7 @@ class ErrorManager(AbstractControlSurfaceComponent):
         self.parent.log_error("----- %s -----" % exc_value, debug=False)
         if context:
             self.parent.log_error(context, debug=False)
-        self.parent.log_error(
-            "at " + "".join(self._format_list(show[-1:], print_line=False)).strip(), debug=False
-        )
+        self.parent.log_error("at " + "".join(self._format_list(show[-1:], print_line=False)).strip(), debug=False)
         self.parent.log_error()
         self.parent.log_error("----- traceback -----", debug=False)
         self.parent.log_error("".join(self._format_list(show)), debug=False)

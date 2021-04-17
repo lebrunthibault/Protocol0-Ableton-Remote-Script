@@ -28,10 +28,7 @@ class AutomatedTrack(AbstractGroupTrack):
             automation_tracks_couple.audio_track.abstract_group_track = self
             automation_tracks_couple.midi_track.abstract_group_track = self
 
-            if (
-                automation_tracks_couple.audio_track.index
-                in self.parent.automationTrackManager.created_tracks_indexes
-            ):
+            if automation_tracks_couple.audio_track.index in self.parent.automationTrackManager.created_tracks_indexes:
                 automation_tracks_couple.midi_track._added_track_init()
 
         self.wrapped_track.abstract_group_track = self
@@ -47,9 +44,7 @@ class AutomatedTrack(AbstractGroupTrack):
 
     def link_audio_tracks(self):
         audio_tracks = (
-            [self.base_track]
-            + [couple.audio_track for couple in self.automation_tracks_couples]
-            + [self.wrapped_track]
+            [self.base_track] + [couple.audio_track for couple in self.automation_tracks_couples] + [self.wrapped_track]
         )
         for i, audio_track in enumerate(audio_tracks):
             if i == len(audio_tracks) - 1:

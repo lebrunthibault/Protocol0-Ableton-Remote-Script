@@ -102,9 +102,7 @@ class TrackManager(AbstractControlSurfaceComponent):
     def instantiate_abstract_group_track(self, group_track):
         # type: (SimpleTrack) -> AbstractGroupTrack
         if not group_track.is_foldable:
-            raise Protocol0Error(
-                "You passed a non group_track to instantiate_abstract_group_track : %s" % group_track
-            )
+            raise Protocol0Error("You passed a non group_track to instantiate_abstract_group_track : %s" % group_track)
 
         external_synth_track = self.make_external_synth_track(group_track=group_track)
         if external_synth_track:
@@ -122,23 +120,11 @@ class TrackManager(AbstractControlSurfaceComponent):
     def make_external_synth_track(self, group_track):
         # type: (SimpleTrack) -> None
         # discarding automated tracks in creation / suppression
-        if (
-            len(
-                [
-                    sub_track
-                    for sub_track in group_track.sub_tracks
-                    if not self._is_automated_sub_track(sub_track)
-                ]
-            )
-            != 2
-        ):
+        if len([sub_track for sub_track in group_track.sub_tracks if not self._is_automated_sub_track(sub_track)]) != 2:
             return
 
         is_external_synth_track = False
-        if any(
-            sub_track.instrument and sub_track.instrument.IS_EXTERNAL_SYNTH
-            for sub_track in group_track.sub_tracks
-        ):
+        if any(sub_track.instrument and sub_track.instrument.IS_EXTERNAL_SYNTH for sub_track in group_track.sub_tracks):
             is_external_synth_track = True
         # minitaur is a special case as it doesn't have a vst
         elif group_track.track_name.base_name.lower() == InstrumentMinitaur.NAME:
@@ -150,9 +136,7 @@ class TrackManager(AbstractControlSurfaceComponent):
     def make_automated_track(self, group_track, wrapped_track=None):
         # type: (SimpleTrack, AbstractTrack) -> Optional[AutomatedTrack]
         automation_audio_tracks = [
-            track
-            for track in group_track.sub_tracks
-            if self._is_automated_sub_track(track) and track.is_audio
+            track for track in group_track.sub_tracks if self._is_automated_sub_track(track) and track.is_audio
         ]
         automation_midi_tracks = [
             track for track in group_track.sub_tracks if self._is_automated_sub_track(track) and track.is_midi
@@ -160,18 +144,14 @@ class TrackManager(AbstractControlSurfaceComponent):
 
         if len(automation_audio_tracks) == 0 and len(automation_midi_tracks) == 0:
             return None
-        main_tracks = [
-            t for t in group_track.sub_tracks if t not in automation_audio_tracks + automation_midi_tracks
-        ]
+        main_tracks = [t for t in group_track.sub_tracks if t not in automation_audio_tracks + automation_midi_tracks]
 
         if wrapped_track is None:
             if len(main_tracks) != 1:
                 return None
             wrapped_track = main_tracks[0]
             if wrapped_track != group_track.sub_tracks[-1]:
-                raise Protocol0Error(
-                    "The main track of a AutomatedTrack track should always be the last of the group"
-                )
+                raise Protocol0Error("The main track of a AutomatedTrack track should always be the last of the group")
 
         if len(automation_audio_tracks) != len(automation_midi_tracks):
             return None  # inconsistent state, happens on creation or when tracks are deleted

@@ -31,9 +31,7 @@ class LogManager(AbstractObject):
         self.parent.log_notice("********* CURRENT_TRACK *************")
         self.parent.log_info("current_track: %s" % self.song.current_track)
         self.parent.log_info()
-        self.parent.log_info(
-            "current_track.abstract_group_track: %s" % self.song.current_track.abstract_group_track
-        )
+        self.parent.log_info("current_track.abstract_group_track: %s" % self.song.current_track.abstract_group_track)
         self.parent.log_info()
         self.parent.log_info("current_track.sub_tracks: %s" % self.song.current_track.sub_tracks)
         self.parent.log_info()
@@ -45,9 +43,7 @@ class LogManager(AbstractObject):
         self.parent.log_notice("********* SELECTED_TRACK *************")
         self.parent.log_info("selected_track: %s" % self.song.selected_track)
         self.parent.log_info()
-        self.parent.log_info(
-            "selected_track.abstract_group_track: %s" % self.song.selected_track.abstract_group_track
-        )
+        self.parent.log_info("selected_track.abstract_group_track: %s" % self.song.selected_track.abstract_group_track)
         self.parent.log_info()
         self.parent.log_info("selected_track.clip_slots: %s" % self.song.selected_track.clip_slots)
         self.parent.log_info()
@@ -59,9 +55,7 @@ class LogManager(AbstractObject):
         self.parent.log_info()
         self.parent.log_info("selected_track.playable_clip: %s" % self.song.selected_track.playable_clip)
         self.parent.log_info()
-        self.parent.log_info(
-            "selected_track.last_clip_played: %s" % self.song.selected_track.last_clip_played
-        )
+        self.parent.log_info("selected_track.last_clip_played: %s" % self.song.selected_track.last_clip_played)
         self.parent.log_info()
         self.parent.log_info()
         self.parent.log_notice("********* SELECTED_DEVICE *************")
@@ -84,9 +78,7 @@ class LogManager(AbstractObject):
             self.parent.log_info()
             self.parent.log_info("selected_parameter: %s" % self.song.selected_parameter)
             self.parent.log_info()
-            self.parent.log_info(
-                "selected_device.parameters: %s" % self.song.selected_track.selected_device.parameters
-            )
+            self.parent.log_info("selected_device.parameters: %s" % self.song.selected_track.selected_device.parameters)
 
         self.parent.log_info()
         self.parent.log_info()
@@ -98,8 +90,7 @@ class LogManager(AbstractObject):
                 "song.highlighted_clip_slot._clip_slot: %s" % self.song.highlighted_clip_slot._clip_slot
             )
             self.parent.log_info(
-                "song.highlighted_clip_slot.linked_clip_slot: %s"
-                % self.song.highlighted_clip_slot.linked_clip_slot
+                "song.highlighted_clip_slot.linked_clip_slot: %s" % self.song.highlighted_clip_slot.linked_clip_slot
             )
 
         self.parent.log_info()
@@ -111,6 +102,4 @@ class LogManager(AbstractObject):
             if isinstance(self.song.selected_clip, AbstractAutomationClip):
                 clip = self.song.selected_clip  # type: AbstractAutomationClip
                 self.parent.log_info("song.highlighted_clip.automation_ramp_up: %s" % clip.automation_ramp_up)
-                self.parent.log_info(
-                    "song.highlighted_clip.automation_ramp_down: %s" % clip.automation_ramp_down
-                )
+                self.parent.log_info("song.highlighted_clip.automation_ramp_down: %s" % clip.automation_ramp_down)

@@ -86,9 +86,7 @@ class SongManager(AbstractControlSurfaceComponent):
         # 3. Creating a mapping of SimpleTrack to AbstractGroupTrack
         for abstract_group_track in self.song.abstract_group_tracks:  # type: AbstractGroupTrack
             for abstract_group_sub_track in abstract_group_track.selection_tracks:
-                self._simple_track_to_abstract_group_track.update(
-                    {abstract_group_sub_track: abstract_group_track}
-                )
+                self._simple_track_to_abstract_group_track.update({abstract_group_sub_track: abstract_group_track})
 
         # 4. Populate abstract_tracks property
         independent_simple_tracks = set(self.song.simple_tracks) - set(
@@ -160,9 +158,7 @@ class SongManager(AbstractControlSurfaceComponent):
 
     @retry(3)
     def _set_current_track(self):
-        self.song.selected_track = (
-            self._get_simple_track(self.song._view.selected_track) or self.song.simple_tracks[0]
-        )
+        self.song.selected_track = self._get_simple_track(self.song._view.selected_track) or self.song.simple_tracks[0]
         self.song.current_track = self.get_current_track(self.song.selected_track)
 
     def get_current_track(self, track):

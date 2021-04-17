@@ -17,9 +17,7 @@ class AutomationClipName(ClipName):
         # type: (AbstractAutomationClip) -> None
         super(AutomationClipName, self).__init__(clip, *a, **k)
         self.automation_ramp_up = AutomationRampMode(direction=DirectionEnum.UP)  # type: AutomationRampMode
-        self.automation_ramp_down = AutomationRampMode(
-            direction=DirectionEnum.DOWN
-        )  # type: AutomationRampMode
+        self.automation_ramp_down = AutomationRampMode(direction=DirectionEnum.DOWN)  # type: AutomationRampMode
         self._ramp_change_listener.replace_subjects(
             [
                 self.automation_ramp_up,

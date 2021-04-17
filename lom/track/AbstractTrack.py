@@ -69,9 +69,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self._view = self._track.view  # type: Live.Track.Track.View
         self.is_scrollable = True
         self._is_hearable = True
-        self._is_duplicated = (
-            False  # allows different init when duplicated or when created from e.g. the browser
-        )
+        self._is_duplicated = False  # allows different init when duplicated or when created from e.g. the browser
 
         # DISPLAY
         self.nav_view = "track"
@@ -216,16 +214,12 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @subject_slot("devices")
     def _devices_listener(self):
         [device.disconnect() for device in self.devices]
-        self.devices = [
-            Device.make(device, self.base_track, index) for index, device in enumerate(self._track.devices)
-        ]
+        self.devices = [Device.make(device, self.base_track, index) for index, device in enumerate(self._track.devices)]
         self.all_devices = self._find_all_devices(self.base_track)
         self.all_visible_devices = self._find_all_devices(self.base_track, only_visible=True)
 
         # here we need to refresh the instrument so that it doesn't point to an outdated device
-        self.instrument_track.instrument = self.parent.deviceManager.make_instrument_from_simple_track(
-            track=self
-        )
+        self.instrument_track.instrument = self.parent.deviceManager.make_instrument_from_simple_track(track=self)
 
     def get_device(self, device):
         # type: (Live.Device.Device) -> Optional[Device]

@@ -102,17 +102,13 @@ class ActionGroupP0v1(AbstractActionGroup):
         )
 
         # CLIP encoder
-        self.add_encoder(
-            id=16, on_press=self.action_play_selected_tracks, on_scroll=self.action_scroll_track_clips
-        )
+        self.add_encoder(id=16, on_press=self.action_play_selected_tracks, on_scroll=self.action_scroll_track_clips)
 
     @button_action(log_action=False)
     def action_scroll_tracks(self, go_next):
         """ scroll top tracks """
         base_track = (
-            self.song.selected_track
-            if self.song.selected_track.is_scrollable
-            else self.song.current_track.base_track
+            self.song.selected_track if self.song.selected_track.is_scrollable else self.song.current_track.base_track
         )
         track_to_select = scroll_values(self.song.scrollable_tracks, base_track, go_next)  # type: SimpleTrack
         if track_to_select:
@@ -185,16 +181,12 @@ class ActionGroupP0v1(AbstractActionGroup):
         """ record both midi and audio on group track """
         if not self.song.current_track.selected_device:
             return
-        self.song.current_track.selected_device.is_collapsed = (
-            not self.song.current_track.selected_device.is_collapsed
-        )
+        self.song.current_track.selected_device.is_collapsed = not self.song.current_track.selected_device.is_collapsed
 
     @button_action(log_action=False)
     def action_scroll_track_recording_times(self, go_next):
         """ record both midi and audio on group track """
-        self.song.selected_recording_time = scroll_values(
-            RECORDING_TIMES, self.song.selected_recording_time, go_next
-        )
+        self.song.selected_recording_time = scroll_values(RECORDING_TIMES, self.song.selected_recording_time, go_next)
         self.song.recording_bar_count = int(self.song.selected_recording_time.split()[0])
         self.parent.show_message("Selected %s" % self.song.selected_recording_time)
 
@@ -206,16 +198,12 @@ class ActionGroupP0v1(AbstractActionGroup):
     @button_action(auto_arm=True)
     def action_track_record_audio(self):
         """ record only audio on group track """
-        return self.song.current_track.action_restart_and_record(
-            self.song.current_track.action_record_audio_only
-        )
+        return self.song.current_track.action_restart_and_record(self.song.current_track.action_record_audio_only)
 
     @button_action(log_action=False)
     def action_scroll_track_categories(self, go_next):
         """" stop a live set from group tracks track names """
-        options = list(TrackCategoryEnum) + (
-            list(PlayMenuEnum.values) if self.song.has_solo_selection else []
-        )
+        options = list(TrackCategoryEnum) + (list(PlayMenuEnum.values) if self.song.has_solo_selection else [])
         self.song.selected_track_category = scroll_values(options, self.song.selected_track_category, go_next)
         self.parent.show_message("Selected %s" % self.song.selected_track_category.name)
 
