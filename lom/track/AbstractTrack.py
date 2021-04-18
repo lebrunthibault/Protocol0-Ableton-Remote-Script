@@ -38,7 +38,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self.index = track.index
 
         # TRACKS
-        self._track = track._track
+        self._track = track._track  # type: Live.Track.Track
         self.base_track = track  # type: SimpleTrack
         self.group_track = self.parent.songManager._get_simple_track(self._track.group_track)
         # set in SongManager at track processing time
@@ -57,13 +57,12 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         )  # type: Optional[AbstractInstrument]  #  None here so that we don't instantiate the same instrument twice
         self.instrument_track = self.base_track  # type: AbstractTrack
         self.devices = []  # type: List[Device]
-        self.all_devices = []  # type: List[Device]
         self.all_visible_devices = []  # type: List[Device]
         self._devices_listener.subject = self._track
         self._devices_listener()
 
         # MISC
-        self.is_foldable = self._track.is_foldable
+        self.is_foldable = self._track.is_foldable  # type: bool
         self._view = self._track.view  # type: Live.Track.Track.View
         self.is_scrollable = True
         self._is_hearable = True
@@ -81,7 +80,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
             return
         self.song.current_track.arm()
         self.song.current_track.stop()
-        [setattr(track.track_name, "playing_slot_index", 0) for track in self.song.current_track.all_tracks]
 
         if not self._is_duplicated:
             self.set_device_parameter_value("Arpeggiator rack", "Chain Selector", 0)
@@ -107,6 +105,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
 
     @property
     def base_color(self):
+        # type: () -> int
         return (
             self.top_abstract_track.instrument.TRACK_COLOR
             if self.top_abstract_track.instrument
@@ -141,7 +140,8 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def all_tracks(self):
         # type: () -> List[SimpleTrack]
         all_tracks = [self.base_track]
-        [all_tracks.extend(sub_track.all_tracks) for sub_track in self.sub_tracks]
+        for sub_track in self.sub_tracks:
+            all_tracks.extend(sub_track.all_tracks)
         return all_tracks
 
     @property
@@ -228,7 +228,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
 
     @property
     def selected_device(self):
-        # type: () -> Device
+        # type: () -> Optional[Device]
         return self.get_device(self._track.view.selected_device)
 
     def delete_device(self, device):
@@ -278,12 +278,17 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
 
     def set_device_parameter_value(self, device_name, parameter_name, value):
         # type: (str, str, int) -> Optional[Sequence]
-        device = find_if(lambda d: d.name.lower() == device_name.lower(), self.song.current_track.all_devices)
+
+        device = find_if(
+            lambda d: d.name.lower() == device_name.lower(), self.song.current_track.all_devices
+        )  # type: Optional[Device]
         if not device:
             self.parent.log_error("Couldn't find device %s in track devices" % device_name)
-            return
+            return None
 
-        param = find_if(lambda d: d.name.lower() == parameter_name.lower(), device.parameters)
+        param = find_if(
+            lambda d: d.name.lower() == parameter_name.lower(), device.parameters
+        )  # type: Optional[DeviceParameter]
 
         if not param:
             self.parent.log_error("Couldn't find parameter %s in device %s" % (parameter_name, device_name))
@@ -292,6 +297,8 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
             seq = Sequence().add(wait=1)
             seq.add(lambda: setattr(param, "value", value))
             return seq.done()
+
+        return None
 
     @property
     def is_playing(self):

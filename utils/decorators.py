@@ -2,7 +2,7 @@ import time
 from collections import defaultdict
 from functools import partial, wraps
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Callable
 
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
 from a_protocol_0.utils.utils import is_method
@@ -171,7 +171,7 @@ def p0_subject_slot(event, immediate=False):
 
 def has_callback_queue(immediate=False):
     def wrap(func):
-        # type: (callable) -> CallbackDescriptor
+        # type: (Callable) -> CallbackDescriptor
         from a_protocol_0.utils.callback_descriptor import CallbackDescriptor  # noqa
 
         return CallbackDescriptor(func, immediate)

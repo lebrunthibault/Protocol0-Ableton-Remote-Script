@@ -78,7 +78,6 @@ class Protocol0(ControlSurface):
             self.logManager = LogManager()
             try:
                 ActionGroupMain()
-                # ActionGroupP0v1()
                 ActionGroupSet()
                 ActionGroupTest()
                 if init_song:
@@ -143,7 +142,7 @@ class Protocol0(ControlSurface):
         self.globalBeatScheduler.wait_bars(bar_count, callback, exact)
 
     def _wait(self, tick_count, callback):
-        # type: (int, callable) -> None
+        # type: (int, Callable) -> None
         """ tick_count (relative to fastScheduler) """
         assert callable(callback)
         if tick_count == 0:

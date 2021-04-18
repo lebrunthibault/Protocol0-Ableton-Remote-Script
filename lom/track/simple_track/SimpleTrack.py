@@ -15,7 +15,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
 
     def __init__(self, track, index, *a, **k):
         # type: (Live.Track.Track, int, Any, Any) -> None
-        self._track = track
+        self._track = track  # type: Live.Track.Track
         self.index = index
         super(SimpleTrack, self).__init__(track=self, *a, **k)
         if self.group_track:

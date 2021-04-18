@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import TYPE_CHECKING, Iterable, Any, Union
+from typing import TYPE_CHECKING, Iterable, Any, Union, Callable, Optional
 
 from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.errors.SequenceError import SequenceError
@@ -18,21 +18,20 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
 
     def __init__(
         self,
-        func,
-        sequence,
-        wait,
-        name,
-        complete_on,
-        do_if,
-        do_if_not,
-        return_if,
-        return_if_not,
-        check_timeout,
-        silent,
-        *a,
-        **k
+        func,  # type: Callable
+        sequence,  # type: Sequence
+        wait,  # type: int
+        name,  # type: str
+        complete_on,  # type: Callable
+        do_if,  # type: Callable
+        do_if_not,  # type: Callable
+        return_if,  # type: Callable
+        return_if_not,  # type: Callable
+        check_timeout,  # type: int
+        silent,  # type: bool
+        *a,  # type: Any
+        **k  # type: Any
     ):
-        # type: (callable, Sequence, int, str, callable, callable, callable, callable, callable, int, bool, Any, Any) -> None
         """ the tick is 100 ms """
         super(SequenceStep, self).__init__(*a, **k)
         self.debug = False if silent else sequence.debug
@@ -46,7 +45,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         self._complete_on = complete_on
         self._check_timeout = check_timeout
         self._check_count = 0
-        self._callback_timeout = None  # type: callable
+        self._callback_timeout = None  # type: Optional[Callable]
         self.res = None
         self._do_if = do_if
         self._do_if_not = do_if_not
@@ -61,7 +60,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
             self._add_callback_on_listener(self._complete_on)
 
         assert callable(self._callable), "You passed a non callable (%s) to %s" % (self._callable, self)
-        assert len(filter(None, conditions)) <= 1, "You cannot specify multiple conditions in a step"
+        assert len(list(filter(None, conditions))) <= 1, "You cannot specify multiple conditions in a step"
         from a_protocol_0.sequence.Sequence import Sequence  # noqa
 
         assert all(
@@ -90,7 +89,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
 
     @staticmethod
     def make(sequence, callback, *a, **k):
-        # type: (Sequence, Union[callable, Iterable], Any, Any) -> SequenceStep
+        # type: (Sequence, Union[Callable, Iterable], Any, Any) -> SequenceStep
         if isinstance(callback, Iterable):
 
             def parallel_sequence_creator(callbacks):
@@ -201,7 +200,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
             raise SequenceError()  # will stop sequence processing
 
     def _handle_return_value(self, res, listener, success_callback):
-        # type: (Any, callable, callable) -> None
+        # type: (Any, Callable, Callable) -> None
         from a_protocol_0.sequence.Sequence import Sequence  # noqa
 
         if isinstance(res, Sequence):

@@ -16,11 +16,11 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
     def __init__(self, *a, **k):
         super(KeyBoardShortcutManager, self).__init__(*a, **k)
         # launch the main ahk script
-        subprocess.Popen([os.getenv("AHK_EXE"), ROOT_DIR + "\\scripts\\ahk\\ableton_shortcuts.ahk"])
+        subprocess.Popen([str(os.getenv("AHK_EXE")), ROOT_DIR + "\\scripts\\ahk\\ableton_shortcuts.ahk"])
 
     def _execute_python(self, filename, *args):
         # type: (str, Any) -> int
-        parameters = [os.getenv("PYTHONW_EXE"), ROOT_DIR + "\\scripts\\python\\%s" % filename]
+        parameters = [str(os.getenv("PYTHONW_EXE")), ROOT_DIR + "\\scripts\\python\\%s" % filename]
         for arg in args:
             parameters.append(str(arg))
 
@@ -30,7 +30,7 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
 
     def _execute_ahk(self, filename, *args):
         # type: (str, Any) -> int
-        parameters = [os.getenv("AHK_EXE"), ROOT_DIR + "\\scripts\\ahk\\%s" % filename]
+        parameters = [str(os.getenv("AHK_EXE")), ROOT_DIR + "\\scripts\\ahk\\%s" % filename]
         for arg in args:
             parameters.append(str(arg))
 

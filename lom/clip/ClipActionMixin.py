@@ -29,7 +29,7 @@ class ClipActionMixin(object):
     def delete(self):
         # type: (Clip) -> Optional[Sequence]
         if not self._clip:
-            return
+            return None
         seq = Sequence()
         seq.add(self.clip_slot.delete_clip, complete_on=self.clip_slot._has_clip_listener)
         return seq.done()

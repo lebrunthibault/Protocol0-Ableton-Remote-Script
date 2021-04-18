@@ -1,5 +1,5 @@
 import Live
-from typing import List, Any
+from typing import List, Any, Callable
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.lom.AbstractObject import AbstractObject
@@ -8,7 +8,7 @@ from a_protocol_0.utils.utils import get_callable_name
 
 class SchedulerEvent(AbstractObject):
     def __init__(self, callback, tick_count, *a, **k):
-        # type: (callable, int, Any, Any) -> None
+        # type: (Callable, int, Any, Any) -> None
         super(SchedulerEvent, self).__init__(*a, **k)
         self._executed = False
         self._callback = callback
@@ -73,7 +73,7 @@ class FastScheduler(AbstractControlSurfaceComponent):
             pass
 
     def schedule(self, tick_count, callback):
-        # type: (int, callable) -> None
+        # type: (int, Callable) -> None
         """ timeout_duration in ms """
         scheduled_event = SchedulerEvent(callback=callback, tick_count=tick_count)
         self._scheduled_events.append(scheduled_event)
@@ -81,5 +81,5 @@ class FastScheduler(AbstractControlSurfaceComponent):
             self._execute_event(scheduled_event)
 
     def schedule_next(self, callback):
-        # type: (callable) -> None
+        # type: (Callable) -> None
         self.schedule(self.TICK_MS_DURATION, callback)

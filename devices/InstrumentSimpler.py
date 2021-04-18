@@ -18,7 +18,7 @@ class InstrumentSimpler(AbstractInstrument):
     NAME = "Simpler"
     TRACK_COLOR = Colors.SIMPLER
     PRESET_EXTENSION = ".wav"
-    PRESETS_PATH = os.getenv("SAMPLE_PATH")
+    PRESETS_PATH = str(os.getenv("SAMPLE_PATH"))
     SHOULD_DISPLAY_SELECTED_PRESET_NAME = False
     SHOULD_UPDATE_TRACK_NAME = False
 
@@ -29,9 +29,11 @@ class InstrumentSimpler(AbstractInstrument):
 
     @property
     def selected_category(self):
-        # type: () -> Optional[str]
+        # type: () -> str
         """ the name of the track is the name of a sample sub_directory """
-        selected_category = find_if(lambda f: self.track.base_name.lower() in f.lower(), listdir(self.PRESETS_PATH))
+        selected_category = find_if(
+            lambda f: self.track.base_name.lower() in f.lower(), listdir(self.PRESETS_PATH)
+        )  # type: Optional[str]
         if not selected_category:
             raise Protocol0Error("Couldn't find sample selected category for %s" % self.track)
 

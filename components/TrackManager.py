@@ -2,7 +2,7 @@ import itertools
 from functools import partial
 
 import Live
-from typing import Optional
+from typing import Optional, Callable
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.devices.InstrumentMinitaur import InstrumentMinitaur
@@ -71,7 +71,7 @@ class TrackManager(AbstractControlSurfaceComponent):
         )
 
     def _create_track(self, track_creator, name, device):
-        # type: (callable, str, Optional[Device]) -> None
+        # type: (Callable, str, Optional[Device]) -> None
         seq = Sequence().add(wait=1, silent=True)  # defer change
         seq.add(track_creator, complete_on=self.parent.songManager._tracks_listener)
         seq.add(
@@ -122,9 +122,9 @@ class TrackManager(AbstractControlSurfaceComponent):
 
     def make_external_synth_track(self, group_track):
         # type: (SimpleTrack) -> Optional[ExternalSynthTrack]
-        # discarding automated tracks in creation / suppression
+        """ discarding automated tracks in creation / suppression """
         if len([sub_track for sub_track in group_track.sub_tracks if not self._is_automated_sub_track(sub_track)]) != 2:
-            return
+            return None
 
         is_external_synth_track = False
         if any(sub_track.instrument and sub_track.instrument.IS_EXTERNAL_SYNTH for sub_track in group_track.sub_tracks):
@@ -133,8 +133,7 @@ class TrackManager(AbstractControlSurfaceComponent):
         elif group_track.track_name.base_name.lower() == InstrumentMinitaur.NAME:
             is_external_synth_track = True
 
-        if is_external_synth_track:
-            return ExternalSynthTrack(group_track=group_track)
+        return ExternalSynthTrack(group_track=group_track) if is_external_synth_track else None
 
     def make_automated_track(self, group_track, wrapped_track=None):
         # type: (SimpleTrack, AbstractTrack) -> Optional[AutomatedTrack]

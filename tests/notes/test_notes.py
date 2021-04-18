@@ -20,7 +20,8 @@ def create_clip_with_notes(notes, prev_notes=[], clip_length=None, loop_start=No
     )
     clip = AutomationMidiClip(clip_slot=cs)
     clip._prev_notes = Note.copy_notes(prev_notes)
-    [setattr(note, "clip", clip) for note in notes]
+    for note in notes:
+        note.clip = clip
     test_res = {"set_notes": []}
     clip.map_notes.__func__.wait_time = 0
 

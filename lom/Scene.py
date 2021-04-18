@@ -1,5 +1,5 @@
 import Live
-from typing import List, Any
+from typing import List, Any, Optional
 
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.SceneName import SceneName
@@ -95,17 +95,17 @@ class Scene(AbstractObject):
 
     @property
     def length(self):
-        # type: () -> int
+        # type: () -> float
         return self.longest_clip.length if self.longest_clip else 0
 
     @property
     def bar_length(self):
         # type: () -> int
-        return self.length / self.song.signature_denominator
+        return int(self.length / self.song.signature_denominator)
 
     @property
     def playing_position(self):
-        # type: () -> int
+        # type: () -> float
         return self.longest_clip.playing_position if self.longest_clip else 0
 
     @property
@@ -124,5 +124,5 @@ class Scene(AbstractObject):
 
     @property
     def longest_clip(self):
-        # type: () -> Clip
+        # type: () -> Optional[Clip]
         return None if not len(self.clips) else max(self.clips, key=lambda c: c.length)

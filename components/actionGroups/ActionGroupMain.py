@@ -2,8 +2,9 @@ from functools import partial
 
 from a_protocol_0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
 from a_protocol_0.consts import RECORDING_TIMES
-from a_protocol_0.controls.EncoderAction import EncoderAction, EncoderMoveEnum
+from a_protocol_0.controls.EncoderAction import EncoderAction
 from a_protocol_0.controls.EncoderModifierEnum import EncoderModifierEnum
+from a_protocol_0.controls.EncoderMoveEnum import EncoderMoveEnum
 from a_protocol_0.enums.DirectionEnum import DirectionEnum
 from a_protocol_0.enums.TrackCategoryEnum import TrackCategoryEnum
 from a_protocol_0.utils.utils import scroll_object_property
@@ -102,7 +103,7 @@ class ActionGroupMain(AbstractActionGroup):
             )
         ).add_action(
             EncoderAction(
-                func=lambda: self.song.fold_all_tracks,
+                func=lambda: self.song.current_track.toggle_solo,
                 modifier_type=EncoderModifierEnum.SOLO,
             )
         ).add_action(

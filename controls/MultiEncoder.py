@@ -1,6 +1,6 @@
 import time
 
-from typing import TYPE_CHECKING, List, Optional, Any
+from typing import TYPE_CHECKING, List, Optional, Any, cast
 
 from _Framework.ButtonElement import ButtonElement
 from _Framework.InputControlElement import MIDI_NOTE_TYPE, MIDI_CC_TYPE
@@ -63,7 +63,9 @@ class MultiEncoder(AbstractObject):
             self._pressed_at = time.time()
             return
 
-        move_type = EncoderMoveEnum.LONG_PRESS if self._is_long_pressed else EncoderMoveEnum.PRESS
+        move_type = cast(
+            EncoderMoveEnum, EncoderMoveEnum.LONG_PRESS if self._is_long_pressed else EncoderMoveEnum.PRESS
+        )
         action = self._find_matching_action(move_type=move_type)
         self._pressed_at = None
         if action:
@@ -77,18 +79,14 @@ class MultiEncoder(AbstractObject):
             action.execute(encoder_name=self.name, go_next=value == 1)
 
     def _find_matching_action(self, move_type, modifier_type=None, log_not_found=True):
-        # type: (EncoderMoveEnum, EncoderModifierEnum, bool) -> EncoderAction
+        # type: (EncoderMoveEnum, EncoderModifierEnum, bool) -> Optional[EncoderAction]
         modifier_type = modifier_type or self._pressed_modifier_type
-        action = next(
-            iter(
-                [
-                    action
-                    for action in self._actions
-                    if action.move_type == move_type and action.modifier_type == modifier_type
-                ]
-            ),
-            None,
-        )
+        actions = [
+            action
+            for action in self._actions
+            if action.move_type == move_type and action.modifier_type == modifier_type
+        ]
+        action = next(iter(actions), None)
 
         if not action and log_not_found:
             self.parent.show_message(

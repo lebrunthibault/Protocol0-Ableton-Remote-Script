@@ -15,7 +15,7 @@ class AbstractEnum(Enum):
     @classmethod
     def has_value(cls, value):
         # type: (AbstractEnum) -> bool
-        return value in cls._value2member_map_
+        return value in cls._value2member_map_.values()
 
     @classmethod
     def values(cls):

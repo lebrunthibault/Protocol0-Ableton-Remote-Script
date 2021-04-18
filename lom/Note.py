@@ -1,7 +1,7 @@
 from copy import copy
 from functools import partial
 
-from typing import TYPE_CHECKING, List, Any
+from typing import TYPE_CHECKING, List, Any, cast
 
 from _Framework.Util import clamp, find_if
 from a_protocol_0.consts import PUSH2_BEAT_QUANTIZATION_STEPS
@@ -27,7 +27,7 @@ class Note(AbstractObject):
         self._duration = duration
         self._velocity = int(velocity)
         self._muted = muted
-        self.clip = clip  # type: MidiClip
+        self.clip = cast(MidiClip, clip)
 
     def __eq__(self, other):
         return (
@@ -136,7 +136,7 @@ class Note(AbstractObject):
 
     @staticmethod
     def _synchronize(notes, set_notes=True):
-        # type: (List[Note]) -> Sequence
+        # type: (List[Note], bool) -> Sequence
         for note in notes:
             [(time, length)] = note.time_step.connected_time_ranges()
             note.clip._clip.remove_notes(time, 0, length, 128)

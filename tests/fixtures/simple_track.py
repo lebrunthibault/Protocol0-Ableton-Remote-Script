@@ -1,5 +1,5 @@
 import Live
-from typing import cast
+from typing import cast, List
 
 from _Framework.SubjectSlot import Subject
 from a_protocol_0.devices.InstrumentProphet import InstrumentProphet
@@ -26,7 +26,7 @@ class AbletonTrack(Subject):
         self.fold_state = False
         self.is_visible = True
         self.has_midi_input = self.has_audio_output = self.is_foldable = self.fold_state = False
-        self.clip_slots = []
+        self.clip_slots = []  # type: List[Live.ClipSlot.ClipSlot]
         self.view = None
         self.group_track = None
         self.color_index = 0

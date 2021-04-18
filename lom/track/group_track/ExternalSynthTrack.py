@@ -48,7 +48,8 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     @solo.setter
     def solo(self, solo):
         if not solo:
-            [setattr(track, "solo", False) for track in self.all_tracks]
+            for track in self.all_tracks:
+                track.solo = False
         else:
             self.midi_track.solo = self.audio._track.toggle_solo = True
 

@@ -8,7 +8,8 @@ from a_protocol_0.sequence.Sequence import Sequence
 class SimpleGroupTrack(AbstractGroupTrack):
     def __init__(self, *a, **k):
         super(SimpleGroupTrack, self).__init__(*a, **k)
-        [setattr(sub_track, "abstract_group_track", self) for sub_track in self.sub_tracks]
+        for sub_track in self.sub_tracks:
+            sub_track.abstract_group_track = self
 
         self.track_name.display_playing_slot_index = False
 

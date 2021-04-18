@@ -43,6 +43,7 @@ class ExternalSynthTrackActionMixin(object):
         # type: (ExternalSynthTrack) -> Sequence
         """ next_empty_clip_slot_index is guaranteed to be not None """
         seq = Sequence()
+        assert self.next_empty_clip_slot_index
         midi_clip_slot = self.midi_track.clip_slots[self.next_empty_clip_slot_index]
         audio_clip_slot = self.audio_track.clip_slots[self.next_empty_clip_slot_index]
         self.audio_track.select()
@@ -55,7 +56,7 @@ class ExternalSynthTrackActionMixin(object):
         midi_clip = self.midi_track.playable_clip or (self.song.selected_clip if self.midi_track.is_selected else None)
         if not midi_clip:
             self.parent.show_message("No midi clip selected")
-            return
+            return None
 
         self.song.metronome = False
 
@@ -74,7 +75,8 @@ class ExternalSynthTrackActionMixin(object):
 
     def undo_track(self):
         # type: (ExternalSynthTrack) -> None
-        [sub_track.undo_track() for sub_track in self.sub_tracks]
+        for sub_track in self.sub_tracks:
+            sub_track.undo_track()
 
     def _post_record(self):
         # type: (ExternalSynthTrack) -> None

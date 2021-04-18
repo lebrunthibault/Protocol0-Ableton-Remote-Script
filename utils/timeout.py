@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Callable
 
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
@@ -9,7 +9,7 @@ class TimeoutLimit(AbstractObject):
     TICKS_COUNT = 100
 
     def __init__(self, func, timeout_limit, awaited_listener=None, on_timeout=None, *a, **k):
-        # type: (callable, int, callable, callable, Any, Any) -> None
+        # type: (Callable, int, Callable, Callable, Any, Any) -> None
         """ timeout_limit in ms """
         super(TimeoutLimit, self).__init__(*a, **k)
         self.func = func

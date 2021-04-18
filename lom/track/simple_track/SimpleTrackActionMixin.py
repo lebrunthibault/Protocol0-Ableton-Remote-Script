@@ -47,7 +47,7 @@ class SimpleTrackActionMixin(object):
         # type: (SimpleTrack, int, str, int) -> Optional[Sequence]
         clip_slot = self.clip_slots[clip_slot_index]
         if clip_slot.has_clip:
-            return
+            return None
 
         seq = Sequence()
         seq.add(

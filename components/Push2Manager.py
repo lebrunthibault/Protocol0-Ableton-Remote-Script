@@ -3,7 +3,6 @@ from typing import Optional, cast
 from _Framework.SubjectSlot import subject_slot, subject_slot_group
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import PUSH2_BEAT_QUANTIZATION_STEPS
-from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.clip.MidiClip import MidiClip
 from a_protocol_0.utils.decorators import push2_method
 from a_push2.push2 import Push2  # type: ignore
@@ -63,7 +62,6 @@ class Push2Manager(AbstractControlSurfaceComponent):
 
     @push2_method()
     def update_clip_grid_quantization(self):
-        # type: () -> Optional[Clip]
         if not self.song.selected_clip.is_midi:
             return
         clip = cast(MidiClip, self.song.selected_clip)

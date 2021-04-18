@@ -27,7 +27,7 @@ class AbstractInstrument(AbstractObject):
     NAME = "AbstractInstrument"
     TRACK_COLOR = Colors.DISABLED
     NUMBER_OF_PRESETS = 128
-    PRESETS_PATH = None
+    PRESETS_PATH = ""
     PRESET_EXTENSION = ""
     NEEDS_ACTIVATION_FOR_PRESETS_CHANGE = False
     IS_EXTERNAL_SYNTH = False
@@ -61,7 +61,7 @@ class AbstractInstrument(AbstractObject):
 
     @property
     def selected_preset(self):
-        # type: () -> InstrumentPreset
+        # type: () -> Optional[InstrumentPreset]
         return self._preset_list.selected_preset
 
     @property
@@ -81,8 +81,7 @@ class AbstractInstrument(AbstractObject):
         return False
 
     def exclusive_activate(self):
-        # type: () -> Optional[Sequence]
-        return
+        pass
 
     @property
     def should_be_activated(self):
@@ -93,7 +92,7 @@ class AbstractInstrument(AbstractObject):
     def check_activated(self, select_instrument_track=False):
         # type: (bool) -> Optional[Sequence]
         if not self.should_be_activated:
-            return
+            return None
 
         seq = Sequence()
 

@@ -7,7 +7,7 @@ from _Framework.Util import find_if
 
 if TYPE_CHECKING:
     from a_protocol_0.lom.Song import Song
-    from a_protocol_0 import Protocol0
+    from a_protocol_0 import Protocol0  # noqa
 
 
 class AbstractObject(SlotManager, Subject):
@@ -32,7 +32,7 @@ class AbstractObject(SlotManager, Subject):
         return hash(repr(self))
 
     def __ne__(self, obj):
-        # type: (AbstractObject) -> bool
+        # type: (object) -> bool
         return not obj or not self == obj
 
     @property

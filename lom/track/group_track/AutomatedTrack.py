@@ -67,23 +67,23 @@ class AutomatedTrack(AbstractGroupTrack):
         self.wrapped_track.name = name
 
     @forward_property("wrapped_track")
-    def is_armed():
+    def is_armed(self):
         pass
 
     @forward_property("wrapped_track")
-    def solo():
+    def solo(self):
         pass
 
     @forward_property("wrapped_track")
-    def is_playing():
+    def is_playing(self):
         pass
 
     @forward_property("wrapped_track")
-    def is_recording():
+    def is_recording(self):
         pass
 
     @forward_property("wrapped_track")
-    def next_empty_clip_slot_index():
+    def next_empty_clip_slot_index(self):
         pass
 
     def arm_track(self):

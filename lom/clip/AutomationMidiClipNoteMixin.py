@@ -1,7 +1,7 @@
 from copy import copy
 from functools import partial
 
-from typing import List, TYPE_CHECKING, Optional
+from typing import List, TYPE_CHECKING, Optional, Callable, Tuple, Iterator, Union, cast
 
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
@@ -17,7 +17,7 @@ class AutomationMidiClipNoteMixin(AbstractObject):
         # type: (AutomationMidiClip, List[Note], bool) -> Optional[Sequence]
         notes = notes or Note.copy_notes(self._prev_notes)
         if len(notes) == 0 or (check_change and (self._is_updating_notes or notes == self._prev_notes)):
-            return
+            return None
 
         pitch_or_vel_changes = self.notes_changed(notes, ["pitch", "velocity"])
         if len(pitch_or_vel_changes):
@@ -39,27 +39,27 @@ class AutomationMidiClipNoteMixin(AbstractObject):
         note_transforms = [
             self._filter_out_of_range_notes,
             self._filter_duplicate_notes,
-            # clean notes that outside of the clip
             self._insert_added_note,  # handle adding a new note by splitting enclosing notes
             self._add_missing_notes,
             self._consolidate_notes,
-        ]  # type: List[callable(List[Note])]
+        ]  # type: List[Callable[[List[Note]], Union[List[Note], Iterator[Note]]]]
 
         for note_transform in note_transforms:
             notes.sort(key=lambda x: x.start)
-            notes = list(set(note_transform(notes)))
+            notes = list(set(note_transform(cast(List[Note], notes))))
             if len(notes) == 0:
                 raise Protocol0Error("Problem after transform %s, no notes left" % note_transform.__name__)
 
         notes.sort(key=lambda x: x.start)
-        [setattr(note, "pitch", note.velocity) for note in notes]
+        for note in notes:
+            note.pitch = note.velocity
 
         self._added_note = None
 
-        return self.replace_all_notes(notes)
+        return self.replace_all_notes(cast(List[Note], notes))
 
     def _map_single_notes(self, notes_change):
-        # type: (AutomationMidiClip, List[Note]) -> Sequence
+        # type: (AutomationMidiClip, List[Tuple[Note, Note]]) -> Sequence
         notes = [note for prev_note, note in notes_change]
         prev_notes = [prev_note for prev_note, note in notes_change]
 
@@ -74,10 +74,10 @@ class AutomationMidiClipNoteMixin(AbstractObject):
 
     def _filter_out_of_range_notes(self, notes):
         # type: (AutomationMidiClip, List[Note]) -> List[Note]
-        return filter(lambda n: n.start < self.loop_end and n.end > self.loop_start, notes)
+        return list(filter(lambda n: n.start < self.loop_end and n.end > self.loop_start, notes))
 
     def _insert_added_note(self, notes):
-        # type: (AutomationMidiClip, List[Note]) -> List[Note]
+        # type: (AutomationMidiClip, List[Note]) -> Iterator[Note]
         if self._added_note is None:
             for note in notes:
                 yield note
@@ -114,7 +114,7 @@ class AutomationMidiClipNoteMixin(AbstractObject):
             i += 1
 
     def _add_missing_notes(self, notes):
-        # type: (AutomationMidiClip, List[Note]) -> List[Note]
+        # type: (AutomationMidiClip, List[Note]) -> Iterator[Note]
         # fill with min notes and check duration to stay always monophonic
         for i, next_note in enumerate(notes[1:] + [Note(start=self.loop_end)]):
             current_note = notes[i]
@@ -133,7 +133,7 @@ class AutomationMidiClipNoteMixin(AbstractObject):
                 yield current_note
 
     def _consolidate_notes(self, notes):
-        # type: (AutomationMidiClip, List[Note]) -> List[Note]
+        # type: (AutomationMidiClip, List[Note]) -> Iterator[Note]
         if notes[0].start != self.loop_start:
             notes = [Note(start=0, duration=notes[0].start - self.loop_start, pitch=0, velocity=0)] + notes
 
@@ -160,6 +160,6 @@ class AutomationMidiClipNoteMixin(AbstractObject):
         for note in notes:
             unique_notes_by_start_and_duration["%s-%s" % (note.start, note.duration)] = note
 
-        unique_notes = unique_notes_by_start_and_duration.values()
+        unique_notes = list(unique_notes_by_start_and_duration.values())
         unique_notes.sort(key=lambda x: x.start)
         return unique_notes

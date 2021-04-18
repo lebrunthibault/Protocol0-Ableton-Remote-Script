@@ -1,6 +1,6 @@
 import re
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Optional
 
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.utils.decorators import p0_subject_slot, defer
@@ -48,10 +48,10 @@ class ClipName(AbstractObject):
 
     @defer
     def update(self, base_name=None):
-        # type: (str) -> None
+        # type: (Optional[str]) -> None
         """ extended """
         if self.clip.is_recording:
-            return
+            return None
         self.base_name = base_name if base_name is not None else self.base_name
         self.clip.name = "%s (%s)" % (self.base_name, self.length_legend)
         self.prev_name = self.clip.name

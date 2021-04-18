@@ -1,9 +1,10 @@
 import inspect
 import types
 from collections import namedtuple
+from types import FrameType
 
 from qualname import qualname
-from typing import Optional, Any, List
+from typing import Optional, Any, List, cast
 
 from a_protocol_0.consts import ROOT_DIR, REMOTE_SCRIPTS_DIR
 
@@ -92,12 +93,12 @@ def have_equal_properties(obj1, obj2, properties):
 
 
 def get_frame_info(frame_count=1):
-    # type: (int) -> namedtuple
+    # type: (int) -> Optional[Any]
     try:
         call_frame = inspect.currentframe()
         for _ in range(frame_count):
             call_frame = call_frame.f_back
-        (filename, line, method_name, _, _) = inspect.getframeinfo(call_frame)
+        (filename, line, method_name, _, _) = inspect.getframeinfo(cast(FrameType, call_frame))
     except Exception:
         return None
 
@@ -197,7 +198,7 @@ def has_arg(func, arg):
 
 
 def _arg_count(func):
-    # type: (callable) -> int
+    # type: (Any) -> int
     """Note : this is not ideal because we cannot know if the defaults are already set by e.g a partial function
     Thus we could be subtracting twice a parameter,
     but that's better than to have an outer function setting a mismatched parameter
@@ -224,4 +225,5 @@ def flatten(t):
 
 
 def scale_from_value(value, min_a, max_a, min_b, max_b):
+    # type: (float, float, float, float, float) -> float
     return float(float((max_b - min_b) * (value - min_a)) / (max_a - min_a)) + min_b

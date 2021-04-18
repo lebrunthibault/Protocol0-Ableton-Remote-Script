@@ -29,7 +29,7 @@ class AutomationRampMode(AbstractObject):
         return "%.1f" % self.exp_coeff if self.is_active else ""
 
     def update_from_value(self, value=""):
-        # type: (str) -> AutomationRampMode
+        # type: (str) -> None
         try:
             exp_coeff = float(value)
             self.is_active = True

@@ -1,7 +1,7 @@
 from collections import deque
 from functools import partial
 
-from typing import Any
+from typing import Callable, Deque
 
 from a_protocol_0.utils.log import log_ableton
 from a_protocol_0.utils.utils import is_partial, get_callable_name
@@ -10,8 +10,8 @@ from a_protocol_0.utils.utils import is_partial, get_callable_name
 class CallbackDescriptor(object):
     """
     Inspired from _Framework @instance_method, adds a callback queue to any method or listener method
-    The callback queue is going to be executed after Sequence termination in the listener
-    if the listener executes async code
+    The callback queue is going to be executed after the decorated method returns
+    if the listener executes in a sequence the callbacks are going to be executed after the sequence termination
     Note: there is 2 cases :
         - @has_callback_queue is dropped on a stock, undecorated method. This is the easy part.
         - @has_callback_queue is dropped on top of _Framework subject_slot :
@@ -30,9 +30,9 @@ class CallbackDescriptor(object):
                 Makes the decorator somehow complicated though ^^
     """
 
-    def __init__(self, func, immediate, *a, **k):
-        # type: (callable, bool, Any, Any) -> None
-        super(CallbackDescriptor, self).__init__(*a, **k)
+    def __init__(self, func, immediate):
+        # type: (Callable, bool) -> None
+        super(CallbackDescriptor, self).__init__()
         self.__name__ = func.__name__
         self.__doc__ = func.__doc__
         self._func = func
@@ -52,7 +52,8 @@ class CallbackDescriptor(object):
             if bool(
                 getattr(self._func, "_data_name", None)
             ):  # here we cannot do isinstance() as the Decorator class is in a closure
-                self._wrapped = self._func.__get__(obj)  # calling inner descriptor. self._decorated is a SubjectSlot
+                # calling inner descriptor. self._decorated is a SubjectSlot
+                self._wrapped = self._func.__get__(obj)  # noqa
                 self._wrapped.listener = CallableWithCallbacks(self._wrapped, obj, self._immediate)
 
                 # patching the wrapped function to have a coherent interface
@@ -69,14 +70,14 @@ class CallbackDescriptor(object):
 class CallableWithCallbacks(object):
     DEBUG_MODE = False
 
-    def __init__(self, decorated, obj, immediate, *a, **k):
-        # type: (callable, object, bool, Any, Any) -> None
-        super(CallableWithCallbacks, self).__init__(*a, **k)
+    def __init__(self, decorated, obj, immediate):
+        # type: (Callable, object, bool) -> None
+        super(CallableWithCallbacks, self).__init__()
         self._real_name = None
         self._decorated = decorated
         self._obj = obj
         self._immediate = immediate
-        self._callbacks = deque()
+        self._callbacks = deque()  # type: Deque[Callable]
 
     def __repr__(self):
         return "%s (cwc %d)" % (get_callable_name(self._decorated, self._obj), id(self))
@@ -87,11 +88,11 @@ class CallableWithCallbacks(object):
         else:
             # has_callback_queue on top of Framework's @subject_slot
             # let's fetch the inner function (bypass _Framework logic) to get the response
-            res = self._decorated.function.func.original_func(self._obj, *a, **k)
+            res = self._decorated.function.func.original_func(self._obj, *a, **k)  # noqa
 
         if self.DEBUG_MODE:
             log_ableton("listener res of %s : %s" % (self, res))
-            log_ableton("callbacks of %s : %s" % (self, self._decorated._callbacks))
+            log_ableton("callbacks of %s : %s" % (self, self._decorated._callbacks))  # noqa
 
         from a_protocol_0.sequence.Sequence import Sequence
 
@@ -106,7 +107,7 @@ class CallableWithCallbacks(object):
         return res
 
     def add_callback(self, callback):
-        # type: (callable, bool) -> None
+        # type: (Callable) -> None
         """
         we don't allow the same exact callback to be added. Mitigates stuff like double clicks
         defer is used for triggering callback after listeners and prevents change after notification error

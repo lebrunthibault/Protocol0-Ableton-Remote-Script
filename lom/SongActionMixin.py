@@ -19,7 +19,7 @@ class SongActionMixin(object):
     def select_track(self, selected_track):
         # type: (Song, AbstractTrack) -> Optional[Sequence]
         if self.song.selected_track == selected_track.base_track:
-            return
+            return None
         seq = Sequence(silent=True)
         seq.add(partial(setattr, self._view, "selected_track", selected_track._track), wait=1)
         return seq.done()
@@ -50,22 +50,9 @@ class SongActionMixin(object):
 
     def unsolo_all_tracks(self, except_current=True):
         # type: (Song, bool) -> None
-        [
-            setattr(t, "solo", False)
-            for t in self.song.abstract_tracks
-            if t.solo and t != (self.current_track if except_current else None)
-        ]
-
-    def fold_all_tracks(self):
-        # type: (Song) -> None
-        # 1st we fold all except current
-        other_group_tracks = [
-            track for track in self.song.root_tracks if track.is_foldable and track != self.current_track.base_track
-        ]
-        if len(filter(None, [not track.is_folded for track in other_group_tracks])):
-            [setattr(track, "is_folded", True) for track in other_group_tracks]
-        else:
-            self.current_track.is_folded = not self.current_track.is_folded
+        for t in self.song.abstract_tracks:
+            if t.solo and t != (self.current_track if except_current else None):
+                t.solo = False
 
     def record_all(self):
         # type: (Song) -> None
@@ -83,7 +70,8 @@ class SongActionMixin(object):
         self._song.current_song_time = 0
         self.stop_all_clips()
         if reset_tracks:
-            [track.reset_track() for track in self.abstract_tracks]
+            for track in self.abstract_tracks:
+                track.reset_track()
 
     def play_stop(self):
         # type: (Song) -> None

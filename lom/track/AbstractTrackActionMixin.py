@@ -17,11 +17,11 @@ if TYPE_CHECKING:
 class AbstractTrackActionMixin(object):
     def select(self):
         # type: (AbstractTrack) -> None
-        return self.song.select_track(self)
+        self.song.select_track(self)
 
     def toggle_arm(self):
         # type: (AbstractTrack) -> None
-        return self.unarm() if self.is_armed else self.arm()
+        self.unarm() if self.is_armed else self.arm()
 
     def toggle_solo(self):
         self.solo = not self.solo
@@ -29,20 +29,21 @@ class AbstractTrackActionMixin(object):
     def arm(self):
         # type: (AbstractTrack) -> Optional[Sequence]
         if self.is_armed:
-            return
+            return None
         self.base_track.collapse_devices()
         self.song.unfocus_all_tracks()
         return self.arm_track()
 
     def arm_track(self):
-        # type: (AbstractTrack) -> None
         raise NotImplementedError()
 
     def unarm(self):
         # type: (AbstractTrack) -> None
         self.color = self.base_color
-        [setattr(track, "is_armed", False) for track in self.all_tracks]
-        [setattr(clip, "color", self.base_color) for clip in self.all_clips]
+        for track in self.all_tracks:
+            track.is_armed = False
+        for clip in self.all_clips:
+            clip.color = self.base_color
         self.unarm_track()
 
     def unarm_track(self):
@@ -57,7 +58,7 @@ class AbstractTrackActionMixin(object):
             )
 
         if not self.instrument or not self.instrument.can_be_shown:
-            return
+            return None
         self.parent.clyphxNavigationManager.show_track_view()
         self.is_folded = False
         self.instrument.show_hide()
@@ -73,23 +74,23 @@ class AbstractTrackActionMixin(object):
             self.instrument.scroll_preset_categories(go_next=go_next)
 
     def switch_monitoring(self):
-        # type: (AbstractTrack) -> None
         raise NotImplementedError()
 
     def record(self, record_func):
         # type: (AbstractTrack, Callable) -> Optional[Sequence]
         """ restart audio to get a count in and recfix"""
         if not self.can_be_armed:
-            return
+            return None
         if self.is_recording:
-            return self.undo()
+            self.undo()
+            return None
         if self.song._song.session_record_status != Live.Song.SessionRecordStatus.off:
-            return
+            return None
         self.song._song.session_automation_record = True
 
         self.song.stop_playing()
 
-        if len(filter(None, [t.is_hearable for t in self.song.simple_tracks])) <= 1:
+        if len(list(filter(None, [t.is_hearable for t in self.song.simple_tracks]))) <= 1:
             self.song.metronome = True
 
         seq = Sequence()
@@ -127,17 +128,20 @@ class AbstractTrackActionMixin(object):
 
     def play_stop(self):
         # type: (AbstractTrack) -> None
-        return self.stop() if self.is_playing else self.play()
+        self.stop() if self.is_playing else self.play()
 
     def play(self):
         # type: (AbstractTrack) -> None
         from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
         if self.is_foldable:
-            [sub_track.play() for sub_track in self.sub_tracks]
+            for sub_track in self.sub_tracks:
+                sub_track.play()
         elif isinstance(self, SimpleTrack) and self.playable_clip:
             self.playable_clip.is_playing = True
             self.playable_clip.start_marker = self.song.selected_scene.playing_position
+
+        return None
 
     def stop(self, immediate=False):
         # type: (AbstractTrack, bool) -> None
@@ -154,7 +158,6 @@ class AbstractTrackActionMixin(object):
         self.undo_track()
 
     def undo_track(self):
-        # type: (AbstractTrack) -> None
         raise NotImplementedError()
 
     def reset_track(self):
@@ -207,7 +210,7 @@ class AbstractTrackActionMixin(object):
 
         if track is None:
             self.input_routing_type = self.available_input_routing_types[-1]  # No input
-            return
+            return None
 
         input_routing_type = find_if(lambda r: r.attached_object == track, self.available_input_routing_types)
         if not input_routing_type:

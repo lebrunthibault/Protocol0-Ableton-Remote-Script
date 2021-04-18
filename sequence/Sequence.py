@@ -1,6 +1,6 @@
 from collections import deque
 
-from typing import Deque, Optional, Iterable, Union
+from typing import Deque, Optional, Iterable, Union, Callable
 
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
@@ -81,7 +81,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
 
     def add(
         self,
-        func=nop,  # type: Union[Iterable, callable]
+        func=nop,  # type: Union[Iterable, Callable]
         wait=None,
         name=None,
         complete_on=None,

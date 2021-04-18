@@ -128,11 +128,11 @@ class DeviceManager(AbstractControlSurfaceComponent):
     def check_plugin_window_showable(self, device):
         # type: (Device) -> Optional[Sequence]
         if self.parent.keyboardShortcutManager.is_plugin_window_visible(device.name):
-            return
+            return None
 
         self.parent.keyboardShortcutManager.show_plugins()
         if self.parent.keyboardShortcutManager.is_plugin_window_visible(device.name):
-            return
+            return None
 
         return self._make_device_showable(device)
 
@@ -143,7 +143,8 @@ class DeviceManager(AbstractControlSurfaceComponent):
         parent_rack = self._find_parent_rack(device)
 
         if not parent_rack:
-            [setattr(d, "is_collapsed", True) for d in device.track.devices]
+            for d in device.track.devices:
+                d.is_collapsed = True
             (x_device, y_device) = self._get_device_show_button_click_coordinates(device)
             seq.add(
                 lambda: self.parent.keyboardShortcutManager.send_click(x=x_device, y=y_device),
@@ -152,8 +153,11 @@ class DeviceManager(AbstractControlSurfaceComponent):
             )
             seq.add(lambda: setattr(device, "is_collapsed", False), name="uncollapse all devices")
         else:
-            [setattr(d, "is_collapsed", True) for d in device.track.devices if d != parent_rack]
-            [setattr(d, "is_collapsed", True) for d in parent_rack.chains[0].devices]
+            for d in device.track.devices:
+                if d != parent_rack:
+                    d.is_collapsed = True
+            for d in parent_rack.chains[0].devices:
+                d.is_collapsed = True
 
             (x_rack, y_rack) = self._get_rack_show_macros_button_click_coordinates(parent_rack)
             (x_device, y_device) = self._get_device_show_button_click_coordinates(device, parent_rack)
@@ -173,10 +177,12 @@ class DeviceManager(AbstractControlSurfaceComponent):
                 wait=1,
                 name="show rack macro controls",
             )
-            seq.add(
-                lambda: [setattr(d, "is_collapsed", False) for d in parent_rack.chains[0].devices],
-                name="uncollapse all rack devices",
-            )
+
+            def collapse_rack_devices():
+                for d in parent_rack.chains[0].devices:
+                    d.is_collapsed = False
+
+            seq.add(collapse_rack_devices)
             # at this point the rack macro controls could still be hidden if the plugin window masks the button
 
         seq.add(wait=3)
@@ -220,16 +226,18 @@ class DeviceManager(AbstractControlSurfaceComponent):
 
     def get_device_and_parameter_from_name(self, track, device_name, parameter_name):
         # type: (AbstractTrack, str, str) -> Tuple[Device, DeviceParameter]
-        device = find_if(lambda d: d.name.lower() == device_name.lower(), track.devices)
+        device = find_if(lambda d: d.name.lower() == device_name.lower(), track.devices)  # type: Device
 
         if device is None:
             raise Protocol0Error("Couldn't find device name %s for track %s" % (device_name, track))
 
-        parameter = find_if(lambda p: parameter_name.lower() == p.name.lower(), device.parameters)
+        parameter = find_if(
+            lambda p: parameter_name.lower() == p.name.lower(), device.parameters
+        )  # type: DeviceParameter
 
         if device is None:
             raise Protocol0Error(
-                "Couldn't find parameter name %s for device % in track %s" % (parameter_name, device, track)
+                "Couldn't find parameter name %s for device %s in track %s" % (parameter_name, device, track)
             )
 
         return (device, parameter)

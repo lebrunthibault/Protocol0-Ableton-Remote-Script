@@ -83,14 +83,14 @@ If you want to try the script try the following :
 
 ## Development
 
-I've written a technical google doc (actually 2) that details important part of the script object model and techniques. Also a few remote scripts concepts are explained. [see this google doc](https://docs.google.com/document/d/1H5pxHiAWlyvTJJPb2GCb4fMy_26haCoi709zmcKMTYg/edit?usp=sharing)
-
-What I've done in the script :
-- Wrapped a good part of the lom object model in my own classes to make stuff easier to comprehend
-- Used inheritance to play with my different type of 
-  tracks ("simple", grouped, externally synth, automation), clip_slots, clips ..
-- Worked a lot on asynchronous code handling to be able to do complex stuff like creating tracks, adding devices, creating clips all with one button push. This is handled by the Sequence class (see doc inside the class)
+I've written a technical google doc that details important parts of the script object model and techniques. 
+Also a few remote scripts concepts are explained. [see this google doc](https://docs.google.com/document/d/1H5pxHiAWlyvTJJPb2GCb4fMy_26haCoi709zmcKMTYg/edit?usp=sharing)
 
 I'm working on the dev branch and releasing to master when a stable state is reached.
-But it's still a work in progress so there is bugs everywhere for sure.
+
+### Tools
+
+- `make test` runs the test suite (pytest) I've written a few unit tests mostly related to non LOM stuff.
+- `make lint` runs the linting tools on the whole project. I'm using flake8 and mypy for type checking.
+- The code is formatted with black
 

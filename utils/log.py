@@ -13,7 +13,7 @@ def log_ableton(message, debug=True, level=LogLevelEnum.DEV, direct_call=True):
         log_ableton("log_ableton: parameter mismatch, logging anyway")
         debug = True
         direct_call = True
-        message = locals().values()
+        message = str(locals().values())
     if debug:
         try:
             from a_protocol_0.utils.utils import get_frame_info

@@ -1,7 +1,8 @@
+import itertools
 from functools import partial
 
 import Live
-from typing import List, TYPE_CHECKING, Optional
+from typing import List, TYPE_CHECKING, Optional, Callable, Tuple
 
 from _Framework.Util import find_if
 from a_protocol_0.consts import PUSH2_BEAT_QUANTIZATION_STEPS
@@ -38,9 +39,9 @@ class MidiClip(Clip):
         return notes
 
     def _change_clip_notes(self, method, notes, cache=True):
-        # type: (callable, List[Note], bool) -> Optional[Sequence]
+        # type: (Callable, List[Note], bool) -> Optional[Sequence]
         if not self._clip:
-            return
+            return None
         self._is_updating_notes = True
         if cache:
             self._prev_notes = [note for note in notes if not note.muted]
@@ -56,13 +57,13 @@ class MidiClip(Clip):
     def _replace_selected_notes(self, notes):
         # type: (List[Note]) -> Optional[Sequence]
         if not self._clip:
-            return
+            return None
         return self._change_clip_notes(self._clip.replace_selected_notes, notes)
 
     def set_notes(self, notes):
         # type: (List[Note]) -> Optional[Sequence]
         if not self._clip:
-            return
+            return None
         return self._change_clip_notes(self._clip.set_notes, notes, cache=False)
 
     def _select_all_notes(self):
@@ -80,7 +81,7 @@ class MidiClip(Clip):
     def replace_all_notes(self, notes):
         # type: (List[Note]) -> Optional[Sequence]
         if not self._clip:
-            return
+            return None
         self._select_all_notes()
         seq = Sequence(silent=True)
         seq.add(wait=1)
@@ -89,22 +90,22 @@ class MidiClip(Clip):
         return seq.done()
 
     def notes_changed(self, notes, checked_properties, prev_notes=None):
-        # type: (List[Note], List[str], List[Note]) -> List[Note]
+        # type: (List[Note], List[str], List[Note]) -> List[Tuple[Note, Note]]
         prev_notes = prev_notes or self._prev_notes
         all_properties = ["start", "duration", "pitch", "velocity"]
         excluded_properties = list(set(all_properties) - set(checked_properties))
         if len(prev_notes) != len(notes):
             return []
 
+        changed_notes = []  # type: List[Tuple[Note, Note]]
         # keeping only those who have the same excluded properties and at least one checked_property change
-        changed_notes = map(
-            lambda x, y: None
-            if not have_equal_properties(x, y, excluded_properties) or have_equal_properties(x, y, checked_properties)
-            else (x, y),
-            prev_notes,
-            notes,
-        )  # type: List[Optional[Note]]
-        return list(filter(None, changed_notes))
+        for prev_note, note in itertools.izip(prev_notes, notes):
+            if have_equal_properties(prev_note, note, excluded_properties) and not have_equal_properties(
+                prev_note, note, checked_properties
+            ):
+                changed_notes.append((prev_note, note))
+
+        return changed_notes
 
     @property
     def min_note_quantization_start(self):
