@@ -19,7 +19,7 @@ from a_protocol_0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrac
 from a_protocol_0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import p0_subject_slot
+from a_protocol_0.utils.decorators import p0_subject_slot, defer
 
 
 class TrackManager(AbstractControlSurfaceComponent):
@@ -31,6 +31,7 @@ class TrackManager(AbstractControlSurfaceComponent):
         self._selected_track_listener.subject = self.parent.songManager
 
     @p0_subject_slot("added_track")
+    @defer
     def _added_track_listener(self):
         self.song.begin_undo_step()  # Live crashes on undo without this
         seq = Sequence()

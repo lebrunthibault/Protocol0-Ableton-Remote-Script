@@ -5,6 +5,7 @@ from typing import List, Set, Optional
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
+from a_protocol_0.utils.decorators import defer
 
 
 class ObjectSynchronizer(AbstractControlSurfaceComponent):
@@ -40,11 +41,10 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
         """ getter allows dynamic syncing configurable in child classes """
         return self.properties
 
+    @defer
     def _sync_properties(self, master, slave):
         # type: (AbstractObject, AbstractObject) -> None
         for property in self.get_syncable_properties(master):
-            if property in self.updating_properties:  # handle update loop
-                return
             self.sync_property(master, slave, property)
 
     def sync_property(self, master, slave, property):
@@ -52,6 +52,4 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
         master_value = getattr(master, property)
         slave_value = getattr(slave, property)
         if master_value is not None and slave_value != master_value:
-            self.updating_properties.add(property)
-            self.parent.defer(partial(self.updating_properties.discard, property))
-            self.parent.defer(partial(setattr, slave, property, master_value))
+            setattr(slave, property, master_value)

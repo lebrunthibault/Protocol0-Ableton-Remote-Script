@@ -60,7 +60,7 @@ class AutomationRampMode(AbstractObject):
         if exp_coeff != self._exp_coeff:
             self._exp_coeff = exp_coeff
             # noinspection PyUnresolvedReferences
-            self.parent.defer(self.notify_ramp_change)
+            self.notify_ramp_change()
 
     def scroll(self, go_next):
         # type: (bool) -> None

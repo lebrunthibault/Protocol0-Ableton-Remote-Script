@@ -21,5 +21,7 @@ class SongStateManager(AbstractControlSurfaceComponent):
             if former_simple_track.instrument.active_instance == former_simple_track.instrument:
                 new_simple_track.instrument.active_instance = new_simple_track.instrument
         # automation tracks
-        if hasattr(former_simple_track, "automated_parameter"):
-            new_simple_track.automated_parameter = former_simple_track.automated_parameter
+        additional_parameters = ("automated_parameter", "automation_ramp_up", "automation_ramp_down")
+        for parameter in additional_parameters:
+            if hasattr(former_simple_track, parameter):
+                setattr(new_simple_track, parameter, getattr(former_simple_track, parameter))

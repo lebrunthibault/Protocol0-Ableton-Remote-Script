@@ -25,8 +25,6 @@ class ClipSynchronizer(ObjectSynchronizer):
         master.linked_clip = slave
         slave.linked_clip = master
 
-        # slave.clip_name = master.clip_name  # because clips are synchronized
-
         # noinspection PyUnresolvedReferences
         master.notify_linked()
         # noinspection PyUnresolvedReferences

@@ -71,13 +71,13 @@ class SongManager(AbstractControlSurfaceComponent):
         [track.disconnect() for track in former_simple_tracks]
 
         # 2. Generate abstract group tracks
+        abstract_group_tracks = [
+            self.parent.trackManager.instantiate_abstract_group_track(track) for track in self.song.simple_group_tracks
+        ]
         self.song.abstract_group_tracks = list(
             filter(
                 None,
-                [
-                    self.parent.trackManager.instantiate_abstract_group_track(track)
-                    for track in self.song.simple_group_tracks
-                ],
+                abstract_group_tracks,
             )
         )
 

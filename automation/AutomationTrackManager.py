@@ -5,6 +5,7 @@ from typing import Set
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.enums.DirectionEnum import DirectionEnum
 from a_protocol_0.lom.clip.AbstractAutomationClip import AbstractAutomationClip
+from a_protocol_0.lom.clip.AutomationAudioClip import AutomationAudioClip
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import defer
@@ -75,10 +76,11 @@ class AutomationTrackManager(AbstractControlSurfaceComponent):
             return
 
         clip = self.song.selected_clip  # type: AbstractAutomationClip
+        if not isinstance(clip, AutomationAudioClip):
+            clip = clip.linked_clip
 
         if reset:
-            clip.automation_ramp_up.is_active = False
-            clip.automation_ramp_down.is_active = False
+            clip.automation_ramp_up.is_active = clip.automation_ramp_down.is_active = False
             return
 
         if direction == DirectionEnum.UP:

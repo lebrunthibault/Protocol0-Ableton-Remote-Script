@@ -28,10 +28,9 @@ class ClipName(AbstractObject):
     def _name_listener(self):
         # type: () -> None
         """ overridden """
-        match = re.match("^(?P<base_name>[^().]*)(\(.*\))?.*$", self.clip.name or "")
+        match = re.match("^(?P<base_name>[^()[\].]*).*$", self.clip.name or "")
         self.base_name = match.group("base_name").strip() if match else ""
         if re.match("^%s( \d+)?" % self.clip.track.base_name.strip(), self.base_name):
-            self.parent.log_dev("match for %s on %s" % self.clip.track.base_name.strip(), self.base_name)
             self.base_name = ""
         self.update()
 

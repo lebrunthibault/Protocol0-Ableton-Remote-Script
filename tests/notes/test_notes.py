@@ -1,6 +1,5 @@
 from a_protocol_0.automation.AutomationCurveGenerator import AutomationCurveGenerator
 from a_protocol_0.lom.Note import Note
-from a_protocol_0.lom.clip.AutomationClipName import AutomationClipName
 from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -150,7 +149,6 @@ def test_ramp_notes():
         Note(start=2, duration=2, pitch=100, velocity=100),
     ]
     (clip, res) = create_clip_with_notes(notes, prev_notes=notes)
-    clip.clip_name = AutomationClipName(clip)
 
     def check_notes(notes, expected_count):
         assert len(notes) == expected_count
