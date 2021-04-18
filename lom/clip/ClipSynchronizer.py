@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Any
 
 from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
 
@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 class ClipSynchronizer(ObjectSynchronizer):
     def __init__(self, master, slave, *a, **k):
-        # type: (Clip, Clip) -> None
+        # type: (Clip, Clip, Any, Any) -> None
         properties = ["loop_start", "loop_end", "start_marker", "end_marker"]
         super(ClipSynchronizer, self).__init__(
             master,

@@ -1,6 +1,8 @@
 from collections import deque
 from functools import partial
 
+from typing import Any
+
 from a_protocol_0.utils.log import log_ableton
 from a_protocol_0.utils.utils import is_partial, get_callable_name
 
@@ -29,7 +31,7 @@ class CallbackDescriptor(object):
     """
 
     def __init__(self, func, immediate, *a, **k):
-        # type: (callable, bool) -> None
+        # type: (callable, bool, Any, Any) -> None
         super(CallbackDescriptor, self).__init__(*a, **k)
         self.__name__ = func.__name__
         self.__doc__ = func.__doc__
@@ -68,7 +70,7 @@ class CallableWithCallbacks(object):
     DEBUG_MODE = False
 
     def __init__(self, decorated, obj, immediate, *a, **k):
-        # type: (callable, object, bool) -> None
+        # type: (callable, object, bool, Any, Any) -> None
         super(CallableWithCallbacks, self).__init__(*a, **k)
         self._real_name = None
         self._decorated = decorated

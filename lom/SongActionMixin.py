@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 # noinspection PyTypeHints
 class SongActionMixin(object):
     def select_track(self, selected_track):
-        # type: (Song, AbstractTrack, bool) -> Optional[Sequence]
+        # type: (Song, AbstractTrack) -> Optional[Sequence]
         if self.song.selected_track == selected_track.base_track:
             return
         seq = Sequence(silent=True)
@@ -38,12 +38,12 @@ class SongActionMixin(object):
             scene_to_select.select()
 
     def unfocus_all_tracks(self):
-        # type: (Song, bool) -> Sequence
+        # type: (Song) -> Sequence
         self.unsolo_all_tracks()
         return self.unarm_all_tracks()
 
     def unarm_all_tracks(self):
-        # type: (Song, bool) -> Sequence
+        # type: (Song) -> Sequence
         seq = Sequence(silent=True)
         seq.add([t.unarm for t in self.abstract_tracks if t.is_armed])
         return seq.done()
@@ -57,7 +57,7 @@ class SongActionMixin(object):
         ]
 
     def fold_all_tracks(self):
-        # type: (Song, bool) -> None
+        # type: (Song) -> None
         # 1st we fold all except current
         other_group_tracks = [
             track for track in self.song.root_tracks if track.is_foldable and track != self.current_track.base_track
@@ -77,7 +77,7 @@ class SongActionMixin(object):
 
     @handle_error
     def reset(self, reset_tracks=True):
-        # type: (Song, int) -> None
+        # type: (Song, bool) -> None
         """ stopping immediately """
         self.stop_playing()
         self._song.current_song_time = 0

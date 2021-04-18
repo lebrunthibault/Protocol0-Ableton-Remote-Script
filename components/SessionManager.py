@@ -1,3 +1,5 @@
+from typing import Optional
+
 from _Framework.SessionComponent import SessionComponent
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 
@@ -5,7 +7,7 @@ from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceC
 class SessionManager(AbstractControlSurfaceComponent):
     def __init__(self, *a, **k):
         super(SessionManager, self).__init__(*a, **k)
-        self.session = None  # type: SessionComponent
+        self.session = None  # type: Optional[SessionComponent]
         self.register_slot(self.parent.songManager, self._setup_session_control, "selected_track")
         self.register_slot(self.parent.songManager, self._setup_session_control, "scene_list")
 

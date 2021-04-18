@@ -2,7 +2,7 @@ import pytest
 
 from a_protocol_0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
 from a_protocol_0.controls.EncoderAction import EncoderAction
-from a_protocol_0.controls.EncoderModifier import EncoderModifierEnum
+from a_protocol_0.controls.EncoderModifierEnum import EncoderModifierEnum
 from a_protocol_0.controls.MultiEncoder import MultiEncoder
 from a_protocol_0.tests.test_all import p0
 

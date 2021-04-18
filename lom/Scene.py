@@ -1,5 +1,5 @@
 import Live
-from typing import List
+from typing import List, Any
 
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.SceneName import SceneName
@@ -11,7 +11,7 @@ from a_protocol_0.utils.decorators import p0_subject_slot
 
 class Scene(AbstractObject):
     def __init__(self, scene, index, *a, **k):
-        # type: (Live.Scene.Scene, int) -> None
+        # type: (Live.Scene.Scene, int, Any, Any) -> None
         super(Scene, self).__init__(*a, **k)
         self.index = index
         self._scene = scene
@@ -84,11 +84,12 @@ class Scene(AbstractObject):
 
     @property
     def name(self):
-        # type: () -> int
+        # type: () -> str
         return self._scene.name
 
     @name.setter
     def name(self, name):
+        # type: (str) -> None
         if self._scene and name:
             self._scene.name = str(name).strip()
 

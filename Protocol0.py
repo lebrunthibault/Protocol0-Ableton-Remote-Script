@@ -99,7 +99,7 @@ class Protocol0(ControlSurface):
             self.log_warning(message)
 
     def log_dev(self, message="", debug=True):
-        # type: (str) -> None
+        # type: (str, bool) -> None
         self._log(level=LogLevelEnum.DEV, message=message, debug=debug)
 
     def log_debug(self, *a, **k):
@@ -119,7 +119,7 @@ class Protocol0(ControlSurface):
         self._log(message, level=LogLevelEnum.ERROR, debug=debug)
 
     def _log(self, message="", level=LogLevelEnum.INFO, debug=False):
-        # type: (str) -> None
+        # type: (str, LogLevelEnum, bool) -> None
         if level.value < Config.LOG_LEVEL.value:
             return
         log_ableton(
@@ -135,7 +135,7 @@ class Protocol0(ControlSurface):
         Protocol0.SELF.fastScheduler.schedule_next(callback)
 
     def wait_beats(self, beats, callback):
-        # type: (int, Callable) -> None
+        # type: (float, Callable) -> None
         self.globalBeatScheduler.wait_beats(beats, callback)
 
     def wait_bars(self, bar_count, callback, exact=False):

@@ -1,5 +1,5 @@
 import Live
-from typing import List, Optional
+from typing import List, Optional, Any
 
 from _Framework.SubjectSlot import subject_slot, subject_slot_group
 from a_protocol_0.enums.ClipTypeEnum import ClipTypeEnum
@@ -14,7 +14,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     CLIP_CLASS = Clip
 
     def __init__(self, track, index, *a, **k):
-        # type: (Live.Track.Track, int) -> None
+        # type: (Live.Track.Track, int, Any, Any) -> None
         self._track = track
         self.index = index
         super(SimpleTrack, self).__init__(track=self, *a, **k)
@@ -157,7 +157,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
 
     @property
     def next_empty_clip_slot_index(self):
-        # type: () -> int
+        # type: () -> Optional[int]
         for i in range(self.song.selected_scene.index, len(self.song.scenes)):
             if not self.clip_slots[i].has_clip:
                 return i

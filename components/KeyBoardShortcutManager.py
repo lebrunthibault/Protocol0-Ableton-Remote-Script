@@ -39,7 +39,7 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
         return child.returncode
 
     def send_keys(self, keys, repeat=False):
-        # type: (str, bool) -> None
+        # type: (str, bool) -> Sequence
         seq = Sequence(silent=True)
         seq.add(self.parent.clyphxNavigationManager.focus_main)
         seq.add(partial(self._execute_python, "send_keys.py", keys))
@@ -51,7 +51,7 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
         return seq.done()
 
     def focus_window(self, window_name):
-        # type: (str) -> None
+        # type: (str) -> Sequence
         seq = Sequence(bypass_errors=True, silent=True)
         seq.add(self.parent.clyphxNavigationManager.focus_main)
         seq.add(partial(self._execute_python, "focus_window.py", window_name))
@@ -79,7 +79,7 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
         self.send_click(418, 686)
 
     def toggle_device_button(self, x, y, activate=True):
-        # type: (int, int) -> None
+        # type: (int, int, bool) -> None
         self._execute_python("toggle_ableton_button.py", str(x), str(y), "1" if activate else "0")
 
     def is_plugin_window_visible(self, plugin_name=""):

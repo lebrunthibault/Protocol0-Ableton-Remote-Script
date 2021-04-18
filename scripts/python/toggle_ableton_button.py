@@ -3,7 +3,6 @@ import sys
 
 # noinspection PyUnresolvedReferences
 from PIL import ImageGrab
-from typing import Tuple
 
 from send_click import click
 
@@ -26,7 +25,7 @@ def distance(c1, c2):
 
 
 def get_closest_color_at_pixel(x, y):
-    # type: (Tuple) -> Color
+    # type: (int, int) -> str
     image = ImageGrab.grab()
     color = image.getpixel((x, y))
     colors = list(rgb_code_dictionary.keys())

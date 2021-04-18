@@ -1,7 +1,7 @@
 from functools import partial
 
 import Live
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from a_protocol_0.devices.InstrumentMinitaur import InstrumentMinitaur
 from a_protocol_0.lom.Colors import Colors
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 # noinspection PyTypeHints
 class ExternalSynthTrackActionMixin(object):
     def arm_track(self):
-        # type: (ExternalSynthTrack) -> None
+        # type: (ExternalSynthTrack) -> Sequence
         self.color = Colors.ARM
         self.base_track.is_folded = False
         self.midi_track.has_monitor_in = False
@@ -40,7 +40,7 @@ class ExternalSynthTrackActionMixin(object):
             self.audio_track.has_monitor_in = True
 
     def record_all(self):
-        # type: (ExternalSynthTrack) -> None
+        # type: (ExternalSynthTrack) -> Sequence
         """ next_empty_clip_slot_index is guaranteed to be not None """
         seq = Sequence()
         midi_clip_slot = self.midi_track.clip_slots[self.next_empty_clip_slot_index]
@@ -51,7 +51,7 @@ class ExternalSynthTrackActionMixin(object):
         return seq.done()
 
     def record_audio_only(self):
-        # type: (ExternalSynthTrack, bool) -> Sequence
+        # type: (ExternalSynthTrack) -> Optional[Sequence]
         midi_clip = self.midi_track.playable_clip or (self.song.selected_clip if self.midi_track.is_selected else None)
         if not midi_clip:
             self.parent.show_message("No midi clip selected")
@@ -77,7 +77,7 @@ class ExternalSynthTrackActionMixin(object):
         [sub_track.undo_track() for sub_track in self.sub_tracks]
 
     def _post_record(self):
-        # type: (ExternalSynthTrack, bool) -> None
+        # type: (ExternalSynthTrack) -> None
         self.song.metronome = False
         self.midi_track.has_monitor_in = self.audio_track.has_monitor_in = False
         self.audio_track.playable_clip.warp_mode = Live.Clip.WarpMode.tones

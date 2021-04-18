@@ -2,7 +2,7 @@ import re
 from functools import partial
 
 import Live
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Any
 
 from _Framework.SubjectSlot import subject_slot_group
 from a_protocol_0.lom.AbstractObject import AbstractObject
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 class TrackName(AbstractObject):
     def __init__(self, track, *a, **k):
-        # type: (AbstractTrack) -> None
+        # type: (AbstractTrack, Any, Any) -> None
         super(TrackName, self).__init__(*a, **k)
         self.track = track
         self.tracks = [self.track]

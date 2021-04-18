@@ -117,7 +117,7 @@ class AbstractTrackActionMixin(object):
         raise NotImplementedError
 
     def record_audio_only(self, *a, **k):
-        # type: (AbstractTrack) -> Sequence
+        # type: (AbstractTrack, Any, Any) -> Sequence
         """
         overridden
         this records normally on a simple track and only audio on a group track

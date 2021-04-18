@@ -1,4 +1,6 @@
-from a_protocol_0.controls.EncoderModifier import EncoderModifierEnum
+from typing import Any
+
+from a_protocol_0.controls.EncoderModifierEnum import EncoderModifierEnum
 from a_protocol_0.controls.MultiEncoder import MultiEncoder
 from a_protocol_0.utils.decorators import p0_subject_slot
 
@@ -10,7 +12,7 @@ class MultiEncoderModifier(MultiEncoder):
     """
 
     def __init__(self, modifier_type, *a, **k):
-        # type: (EncoderModifierEnum) -> None
+        # type: (EncoderModifierEnum, Any, Any) -> None
         super(MultiEncoderModifier, self).__init__(*a, **k)
         self.modifier_type = modifier_type
 

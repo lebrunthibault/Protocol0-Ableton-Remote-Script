@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.utils import scroll_values
@@ -27,7 +27,7 @@ class SimpleTrackActionMixin(object):
         self.has_monitor_in = not self.has_monitor_in
 
     def record_all(self):
-        # type: (SimpleTrack, int) -> None
+        # type: (SimpleTrack) -> Sequence
         """ finishes on end of recording """
         seq = Sequence()
         seq.add(self.clip_slots[self.next_empty_clip_slot_index].record)
@@ -44,7 +44,7 @@ class SimpleTrackActionMixin(object):
             self.song.undo()
 
     def create_clip(self, clip_slot_index=0, name=None, bar_count=1):
-        # type: (SimpleTrack, int, str, int, callable, int) -> Sequence
+        # type: (SimpleTrack, int, str, int) -> Optional[Sequence]
         clip_slot = self.clip_slots[clip_slot_index]
         if clip_slot.has_clip:
             return

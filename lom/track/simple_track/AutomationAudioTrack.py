@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from _Framework.Util import find_if
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
@@ -18,9 +18,8 @@ class AutomationAudioTrack(AbstractAutomationTrack):
     CLIP_WARPING_MANDATORY = True
 
     def __init__(self, *a, **k):
-        # type: (DeviceParameter) -> None
         super(AutomationAudioTrack, self).__init__(*a, **k)
-        self.automated_parameter = None  # type: DeviceParameter
+        self.automated_parameter = None  # type: Optional[DeviceParameter]
         self.abstract_group_track = self.abstract_group_track  # type: AutomatedTrack
 
         self._mute_listener.subject = self._track

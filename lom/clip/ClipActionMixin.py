@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import defer
@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 # noinspection PyTypeHints
 class ClipActionMixin(object):
     def select(self):
-        # type: (Clip) -> None
+        # type: (Clip) -> Sequence
         self.song.highlighted_clip_slot = self.clip_slot
         seq = Sequence(silent=True)
         seq.add(wait=10)
@@ -27,7 +27,7 @@ class ClipActionMixin(object):
 
     @defer
     def delete(self):
-        # type: (Clip) -> None
+        # type: (Clip) -> Optional[Sequence]
         if not self._clip:
             return
         seq = Sequence()

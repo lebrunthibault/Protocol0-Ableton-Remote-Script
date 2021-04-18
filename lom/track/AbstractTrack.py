@@ -10,7 +10,6 @@ from _Framework.SubjectSlot import subject_slot
 from _Framework.Util import find_if
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.enums.TrackCategoryEnum import TrackCategoryEnum
-from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.device.Device import Device
@@ -34,7 +33,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     ADDED_TRACK_INIT_ENABLED = True
 
     def __init__(self, track, *a, **k):
-        # type: (SimpleTrack) -> None
+        # type: (SimpleTrack, Any, Any) -> None
         super(AbstractTrack, self).__init__(*a, **k)
         self.index = track.index
 
@@ -246,7 +245,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
             self.delete_device(self.devices[0])
 
     def _find_all_devices(self, track_or_chain, only_visible=False):
-        # type: (Union[SimpleTrack, DeviceChain]) -> List[Device]
+        # type: (Union[SimpleTrack, DeviceChain], bool) -> List[Device]
         u""" Returns a list with all devices from a track or chain """
         devices = []
         for device in filter(None, track_or_chain.devices):  # type: Device
@@ -277,20 +276,17 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # type: () -> List[DeviceParameter]
         return list(chain(*[device.parameters for device in self.all_devices]))
 
-    def set_device_parameter_value(self, device_name, parameter_name, value, raise_if_not_exists=False):
-        # type: (str, str, Any) -> Optional[Sequence]
+    def set_device_parameter_value(self, device_name, parameter_name, value):
+        # type: (str, str, int) -> Optional[Sequence]
         device = find_if(lambda d: d.name.lower() == device_name.lower(), self.song.current_track.all_devices)
         if not device:
-            if not raise_if_not_exists:
-                return
-            raise Protocol0Error("Couldn't find device %s in track devices" % device_name)
+            self.parent.log_error("Couldn't find device %s in track devices" % device_name)
+            return
 
         param = find_if(lambda d: d.name.lower() == parameter_name.lower(), device.parameters)
 
         if not param:
-            if not raise_if_not_exists:
-                return
-            raise Protocol0Error("Couldn't find parameter %s in device %s" % (parameter_name, device_name))
+            self.parent.log_error("Couldn't find parameter %s in device %s" % (parameter_name, device_name))
 
         if param.is_enabled:
             seq = Sequence().add(wait=1)

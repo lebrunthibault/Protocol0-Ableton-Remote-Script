@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import TYPE_CHECKING, Iterable, Any
+from typing import TYPE_CHECKING, Iterable, Any, Union
 
 from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.errors.SequenceError import SequenceError
@@ -32,7 +32,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         *a,
         **k
     ):
-        # type: (callable, Sequence, int, str, callable, callable, callable, callable, callable, int, bool) -> None
+        # type: (callable, Sequence, int, str, callable, callable, callable, callable, callable, int, bool, Any, Any) -> None
         """ the tick is 100 ms """
         super(SequenceStep, self).__init__(*a, **k)
         self.debug = False if silent else sequence.debug
@@ -90,6 +90,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
 
     @staticmethod
     def make(sequence, callback, *a, **k):
+        # type: (Sequence, Union[callable, Iterable], Any, Any) -> SequenceStep
         if isinstance(callback, Iterable):
 
             def parallel_sequence_creator(callbacks):

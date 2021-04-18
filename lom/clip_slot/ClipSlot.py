@@ -24,7 +24,7 @@ class ClipSlot(AbstractObject):
         self._has_clip_listener.subject = self._clip_slot
         self._is_triggered_listener.subject = self._clip_slot
         self.linked_clip_slot = None  # type: Optional[ClipSlot]
-        self.clip = None  # type: Clip
+        self.clip = None  # type: Optional[Clip]
         self._map_clip()
 
     def __nonzero__(self):
@@ -57,7 +57,7 @@ class ClipSlot(AbstractObject):
         self._map_clip(is_new=True)
 
     def _map_clip(self, is_new=False):
-        # type: (bool) -> Clip
+        # type: (bool) -> None
         self.clip = Clip.make(clip_slot=self, is_new=is_new) if self.has_clip else None
 
         # noinspection PyUnresolvedReferences
@@ -116,7 +116,7 @@ class ClipSlot(AbstractObject):
         self._clip_slot.fire(record_length=record_length)
 
     def duplicate_clip_to(self, clip_slot):
-        # type: (ClipSlot) -> None
+        # type: (ClipSlot) -> Sequence
         seq = Sequence()
         seq.add(
             partial(self._clip_slot.duplicate_clip_to, clip_slot._clip_slot),
@@ -125,7 +125,7 @@ class ClipSlot(AbstractObject):
         return seq.done()
 
     def insert_dummy_clip(self, name):
-        # type: (str) -> None
+        # type: (str) -> Sequence
         seq = Sequence()
         seq.add(
             partial(self.song.simple_tracks[self.song.AUDIO_BUS_TRACK_INDEX].clip_slots[0].duplicate_clip_to, self),

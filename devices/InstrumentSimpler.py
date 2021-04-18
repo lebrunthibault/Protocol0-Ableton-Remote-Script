@@ -2,7 +2,7 @@ import os
 from os import listdir
 from os.path import join
 
-from typing import Optional
+from typing import Optional, List
 
 from _Framework.Util import find_if
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
@@ -10,7 +10,7 @@ from a_protocol_0.devices.presets.InstrumentPreset import InstrumentPreset
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.lom.Note import Note
-from a_protocol_0.lom.clip.Clip import Clip
+from a_protocol_0.lom.clip.MidiClip import MidiClip
 from a_protocol_0.utils.utils import scroll_values
 
 
@@ -54,7 +54,7 @@ class InstrumentSimpler(AbstractInstrument):
         self.track.track_name.update(base_name=selected_category)
 
     def generate_base_notes(self, clip):
-        # type: (Clip) -> None
+        # type: (MidiClip) -> List[Note]
         """ overridden """
         # add c3 note
-        return [Note(pitch=60, velocity=127, start=0, duration=min(1, clip.length), clip=clip)]
+        return [Note(pitch=60, velocity=127, start=0, duration=min(1, int(clip.length)), clip=clip)]

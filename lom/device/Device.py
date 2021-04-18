@@ -1,5 +1,5 @@
 import Live
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Any
 
 from _Framework.SubjectSlot import subject_slot
 from _Framework.Util import find_if
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 class Device(AbstractObject):
     def __init__(self, device, track, index, *a, **k):
-        # type: (Live.Device.Device, SimpleTrack, int) -> None
+        # type: (Live.Device.Device, SimpleTrack, int, Any, Any) -> None
         super(Device, self).__init__(*a, **k)
         self._device = device
         self.track = track

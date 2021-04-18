@@ -1,12 +1,13 @@
 import time
 
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List, Optional, Any
 
 from _Framework.ButtonElement import ButtonElement
 from _Framework.InputControlElement import MIDI_NOTE_TYPE, MIDI_CC_TYPE
 from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.controls.EncoderAction import EncoderAction, EncoderMoveEnum
-from a_protocol_0.controls.EncoderModifier import EncoderModifier, EncoderModifierEnum
+from a_protocol_0.controls.EncoderModifier import EncoderModifier
+from a_protocol_0.controls.EncoderModifierEnum import EncoderModifierEnum
 from a_protocol_0.lom.AbstractObject import AbstractObject
 
 if TYPE_CHECKING:
@@ -17,7 +18,7 @@ class MultiEncoder(AbstractObject):
     PRESS_MAX_TIME = 0.25  # maximum time in seconds we consider a simple press
 
     def __init__(self, group, channel, identifier, name, *a, **k):
-        # type: (AbstractActionGroup, int, int, str) -> None
+        # type: (AbstractActionGroup, int, int, str, Any, Any) -> None
         """
         Actions are triggered at the end of the press not the start. Allows press vs long_press (Note) vs scroll (CC)
         Also possible to define modifiers to duplicate the number of actions possible.
@@ -76,7 +77,7 @@ class MultiEncoder(AbstractObject):
             action.execute(encoder_name=self.name, go_next=value == 1)
 
     def _find_matching_action(self, move_type, modifier_type=None, log_not_found=True):
-        # type: (EncoderMoveEnum, EncoderModifier) -> EncoderAction
+        # type: (EncoderMoveEnum, EncoderModifierEnum, bool) -> EncoderAction
         modifier_type = modifier_type or self._pressed_modifier_type
         action = next(
             iter(

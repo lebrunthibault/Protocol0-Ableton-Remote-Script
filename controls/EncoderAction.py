@@ -1,6 +1,6 @@
-from typing import Callable, Optional, List
+from typing import Optional, List, Any
 
-from a_protocol_0.controls.EncoderModifier import EncoderModifierEnum
+from a_protocol_0.controls.EncoderModifierEnum import EncoderModifierEnum
 from a_protocol_0.enums.AbstractEnum import AbstractEnum
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.utils.decorators import handle_error
@@ -17,7 +17,7 @@ class EncoderMoveEnum(AbstractEnum):
 
 class EncoderAction(AbstractObject):
     def __init__(self, func, move_type=EncoderMoveEnum.PRESS, modifier_type=None, *a, **k):
-        # type: (Callable, EncoderMoveEnum, Optional[EncoderModifierEnum], bool) -> None
+        # type: (callable, EncoderMoveEnum, Optional[EncoderModifierEnum], Any, Any) -> None
         """
         base moves are listed in the enum. press is the default choice
         Any modifier can be applied to a press or long_press but only shift is available for scrolling for now
@@ -34,7 +34,7 @@ class EncoderAction(AbstractObject):
 
     @handle_error
     def execute(self, encoder_name, *a, **k):
-        # type: (str) -> None
+        # type: (str, Any, Any) -> None
         """
         NB : Here lambda is just a way to act on the right objects at runtime
             like this we can display the function name

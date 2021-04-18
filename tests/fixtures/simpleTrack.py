@@ -1,3 +1,6 @@
+import Live
+from typing import cast
+
 from _Framework.SubjectSlot import Subject
 from a_protocol_0.devices.InstrumentProphet import InstrumentProphet
 from a_protocol_0.lom.Song import Song
@@ -43,26 +46,33 @@ class AbletonTrack(Subject):
 
 def make_group_track(song, name=InstrumentProphet.NAME):
     # type: (Song, str) -> SimpleTrack
-    simple_track = SimpleTrack(song, AbletonTrack(name=name, track_type=TrackType.GROUP), len(song.simple_tracks))
+    simple_track = SimpleTrack(
+        cast(Live.Track.Track, AbletonTrack(name=name, track_type=TrackType.GROUP)), len(song.simple_tracks)
+    )
     song.simple_tracks.append(simple_track)
     return simple_track
 
 
-def make_midi_track(name="midi"):
-    # type: (str) -> SimpleTrack
-    simple_track = SimpleTrack(AbletonTrack(name=name, track_type=TrackType.MIDI), 0)
+def make_midi_track(song, name="midi"):
+    # type: (Song, str) -> SimpleTrack
+    simple_track = SimpleTrack(cast(Live.Track.Track, AbletonTrack(name=name, track_type=TrackType.MIDI)), 0)
+    song.simple_tracks.append(simple_track)
     return simple_track
 
 
 def make_audio_track(song, name="audio"):
     # type: (Song, str) -> SimpleTrack
-    simple_track = SimpleTrack(song, AbletonTrack(name=name, track_type=TrackType.AUDIO), len(song.simple_tracks))
+    simple_track = SimpleTrack(
+        cast(Live.Track.Track, AbletonTrack(name=name, track_type=TrackType.AUDIO)), len(song.simple_tracks)
+    )
     song.simple_tracks.append(simple_track)
     return simple_track
 
 
 def make_simpler_track(song, name="simpler"):
     # type: (Song, str) -> SimpleTrack
-    simple_track = SimpleTrack(song, AbletonTrack(name=name, device=make_device_simpler()), len(song.simple_tracks))
+    simple_track = SimpleTrack(
+        cast(Live.Track.Track, AbletonTrack(name=name, device=make_device_simpler())), len(song.simple_tracks)
+    )
     song.simple_tracks.append(simple_track)
     return simple_track

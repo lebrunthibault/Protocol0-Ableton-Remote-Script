@@ -1,7 +1,6 @@
 import collections
-from plistlib import Dict
 
-from typing import Optional, Any
+from typing import Optional, Any, Dict
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
@@ -51,7 +50,6 @@ class SongManager(AbstractControlSurfaceComponent):
     @p0_subject_slot("tracks")
     @handle_error
     def _tracks_listener(self):
-        # type: () -> Optional[SimpleTrack]
         self.parent.log_debug("SongManager : start mapping tracks")
 
         added_track = len(self.song.simple_tracks) and len(self.song._song.tracks) > len(self.song.simple_tracks)
@@ -82,7 +80,7 @@ class SongManager(AbstractControlSurfaceComponent):
         )
 
         # 3. Creating a mapping of SimpleTrack to AbstractGroupTrack
-        for abstract_group_track in self.song.abstract_group_tracks:  # type: AbstractGroupTrack
+        for abstract_group_track in self.song.abstract_group_tracks:
             for abstract_group_sub_track in abstract_group_track.selection_tracks:
                 self._simple_track_to_abstract_group_track.update({abstract_group_sub_track: abstract_group_track})
 

@@ -92,7 +92,7 @@ class TrackManager(AbstractControlSurfaceComponent):
         return seq.done()
 
     def instantiate_simple_track(self, track, index):
-        # type: (Live.Track.Track) -> SimpleTrack
+        # type: (Live.Track.Track, int) -> SimpleTrack
         if index == self.song.AUDIO_BUS_TRACK_INDEX:
             return AudioBusTrack(track=track, index=index)
         elif track.has_midi_input:
@@ -121,7 +121,7 @@ class TrackManager(AbstractControlSurfaceComponent):
         return SimpleGroupTrack(group_track=group_track)
 
     def make_external_synth_track(self, group_track):
-        # type: (SimpleTrack) -> None
+        # type: (SimpleTrack) -> Optional[ExternalSynthTrack]
         # discarding automated tracks in creation / suppression
         if len([sub_track for sub_track in group_track.sub_tracks if not self._is_automated_sub_track(sub_track)]) != 2:
             return

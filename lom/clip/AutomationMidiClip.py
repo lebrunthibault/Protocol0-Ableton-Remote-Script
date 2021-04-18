@@ -1,5 +1,5 @@
 import Live
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.AbstractAutomationClip import AbstractAutomationClip
@@ -18,8 +18,8 @@ class AutomationMidiClip(AbstractAutomationClip, MidiClip, AutomationMidiClipNot
     def __init__(self, *a, **k):
         super(AutomationMidiClip, self).__init__(*a, **k)
         self.track = self.track  # type: AutomationMidiTrack
-        self.clip_slot = None  # type: AutomationMidiClipSlot
-        self.linked_clip = None  # type: AutomationAudioClip
+        self.clip_slot = None  # type: Optional[AutomationMidiClipSlot]
+        self.linked_clip = None  # type: Optional[AutomationAudioClip]
         self._name_listener.subject = self._clip
         self._loop_start_listener.subject = self._clip
         self._loop_end_listener.subject = self._clip
@@ -72,7 +72,7 @@ class AutomationMidiClip(AbstractAutomationClip, MidiClip, AutomationMidiClipNot
         ]
 
         self._muted_notes = [
-            Note(pitch=vel, velocity=vel, start=0, duration=min(1, self.length), muted=True, clip=self)
+            Note(pitch=vel, velocity=vel, start=0, duration=min(1, int(self.length)), muted=True, clip=self)
             for vel in muted_start_note_velocities
         ]
         return self._muted_notes + [base_note]

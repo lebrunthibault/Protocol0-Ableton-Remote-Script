@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 
 def log_ableton(message, debug=True, level=LogLevelEnum.DEV, direct_call=True):
-    # type: (str, bool) -> None
+    # type: (str, bool, LogLevelEnum, bool) -> None
     """ a log function and not method allowing us to call this even with no access to the ControlSurface object """
     message = "%s: %s" % (LogLevelEnum(level).name.lower(), str(message))
     if any(not isinstance(param, bool) for param in [debug, direct_call]):

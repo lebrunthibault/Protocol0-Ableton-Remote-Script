@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Any
 
 from _Framework.Util import forward_property
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
@@ -13,7 +13,7 @@ class AutomatedTrack(AbstractGroupTrack):
     AUTOMATION_TRACK_NAME = "_auto"
 
     def __init__(self, group_track, automation_tracks_couples, wrapped_track, *a, **k):
-        # type: (SimpleTrack, List[AutomationTracksCouple], AbstractTrack) -> None
+        # type: (SimpleTrack, List[AutomationTracksCouple], AbstractTrack, Any, Any) -> None
         super(AutomatedTrack, self).__init__(group_track=group_track, *a, **k)
         self.wrapped_track = wrapped_track
         self.instrument_track = self.wrapped_track.instrument_track
@@ -44,7 +44,9 @@ class AutomatedTrack(AbstractGroupTrack):
 
     def link_audio_tracks(self):
         audio_tracks = (
-            [self.base_track] + [couple.audio_track for couple in self.automation_tracks_couples] + [self.wrapped_track]
+            [self.base_track]
+            + [couple.audio_track for couple in self.automation_tracks_couples]
+            + [self.wrapped_track.base_track]
         )
         for i, audio_track in enumerate(audio_tracks):
             if i == len(audio_tracks) - 1:

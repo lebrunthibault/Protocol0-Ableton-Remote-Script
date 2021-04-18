@@ -1,7 +1,7 @@
 import re
 
 import Live
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from _Framework.SubjectSlot import subject_slot_group
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
@@ -13,10 +13,10 @@ if TYPE_CHECKING:
 
 class AutomationTrackName(TrackName):
     def __init__(self, track, *a, **k):
-        # type: (AbstractAutomationTrack) -> None
+        # type: (AbstractAutomationTrack, Any, Any) -> None
         super(AutomationTrackName, self).__init__(track, *a, **k)
         self.automated_parameter_name = None
-        self._name_listener(self.track)
+        self._name_listener(self.track._track)
 
     @subject_slot_group("name")
     def _name_listener(self, changed_track):

@@ -1,7 +1,7 @@
 import os
 from os.path import isfile, isdir
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional, Any
 
 from a_protocol_0.devices.presets.InstrumentPreset import InstrumentPreset
 from a_protocol_0.lom.AbstractObject import AbstractObject
@@ -12,12 +12,12 @@ if TYPE_CHECKING:
 
 class InstrumentPresetList(AbstractObject):
     def __init__(self, instrument, *a, **k):
-        # type: (AbstractInstrument, List[InstrumentPreset]) -> None
+        # type: (AbstractInstrument, Any, Any) -> None
         super(InstrumentPresetList, self).__init__(*a, **k)
         self.instrument = instrument
         self.has_preset_names = False
         self.presets = []  # type: List[InstrumentPreset]
-        self.selected_preset = None  # type: InstrumentPreset
+        self.selected_preset = None  # type: Optional[InstrumentPreset]
         self.sync_presets()
 
     def __repr__(self):
@@ -65,7 +65,7 @@ class InstrumentPresetList(AbstractObject):
         )
 
     def _find_by_name(self, name):
-        # type: (str) -> None
+        # type: (str) -> Optional[InstrumentPreset]
         for preset in self.presets:
             if preset.name == name:
                 return preset

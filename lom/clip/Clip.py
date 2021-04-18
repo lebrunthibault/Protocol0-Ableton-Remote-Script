@@ -1,7 +1,7 @@
 from functools import partial
 
 import Live
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Any
 
 from a_protocol_0.enums.ClipTypeEnum import ClipTypeEnum
 from a_protocol_0.lom.AbstractObject import AbstractObject
@@ -18,7 +18,7 @@ class Clip(ClipActionMixin, AbstractObject):
     __subject_events__ = ("notes", "linked")
 
     def __init__(self, clip_slot, set_clip_name=True, *a, **k):
-        # type: (ClipSlot, bool, bool) -> None
+        # type: (ClipSlot, bool, Any, Any) -> None
         super(Clip, self).__init__(*a, **k)
         self.clip_slot = clip_slot
         self._clip_slot = clip_slot._clip_slot

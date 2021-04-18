@@ -1,5 +1,5 @@
 import Live
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 
 from _Framework.Util import find_if
 from a_protocol_0.enums.AbstractEnum import AbstractEnum
@@ -23,7 +23,7 @@ class Song(SongActionMixin, AbstractObject):
     AUDIO_BUS_TRACK_INDEX = 0  # audio bus is supposed to be the first track
 
     def __init__(self, song, *a, **k):
-        # type: (Live.Song.Song) -> None
+        # type: (Live.Song.Song, Any, Any) -> None
         super(Song, self).__init__(*a, **k)
         self._song = song
         self._view = self._song.view  # type: Live.Song.Song.View
@@ -31,8 +31,8 @@ class Song(SongActionMixin, AbstractObject):
         self.simple_tracks = []  # type: List[SimpleTrack]
         self.abstract_tracks = []  # type: List[AbstractTrack]
         self.abstract_group_tracks = []  # type: List[AbstractGroupTrack]
-        self.selected_track = None  # type: SimpleTrack
-        self.current_track = None  # type: AbstractTrack
+        self.selected_track = None  # type: Optional[SimpleTrack]
+        self.current_track = None  # type: Optional[AbstractTrack]
         self.master_track = self._song.master_track  # type: Live.Track.Track
         self.selected_track_category = TrackCategoryEnum.ALL  # type: AbstractEnum
         self._selected_recording_time = "1 bar"
@@ -111,7 +111,7 @@ class Song(SongActionMixin, AbstractObject):
         audio_bus_index = self.song.AUDIO_BUS_TRACK_INDEX
         audio_bus_track = self.song.simple_tracks[audio_bus_index]
         assert isinstance(audio_bus_track, AudioBusTrack), (
-            "set should contain an audio bus track at index " + audio_bus_index
+            "set should contain an audio bus track at index %d" % audio_bus_index
         )
         return audio_bus_track
 

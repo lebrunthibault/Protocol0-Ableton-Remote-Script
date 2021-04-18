@@ -24,7 +24,7 @@ class UserMutableSequence(MutableSequence, AbstractObject):
     """
 
     def __init__(self, list, *a, **k):
-        # type: (List[Any]) -> None
+        # type: (List[Any], Any, Any) -> None
         super(UserMutableSequence, self).__init__(*a, **k)
         self._list = list
 

@@ -2,7 +2,8 @@ from typing import List, Optional, Any
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.controls.EncoderAction import EncoderAction
-from a_protocol_0.controls.EncoderModifier import EncoderModifierEnum, EncoderModifier
+from a_protocol_0.controls.EncoderModifier import EncoderModifier
+from a_protocol_0.controls.EncoderModifierEnum import EncoderModifierEnum
 from a_protocol_0.controls.MultiEncoder import MultiEncoder
 from a_protocol_0.controls.MultiEncoderModifier import MultiEncoderModifier
 

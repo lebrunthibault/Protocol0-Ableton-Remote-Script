@@ -7,7 +7,6 @@ class ParallelSequence(Sequence):
     """ executes steps in parallel """
 
     def __init__(self, *a, **k):
-        # type: (callable, Sequence, float, str, callable, bool) -> None
         super(ParallelSequence, self).__init__(*a, **k)
         self._steps_terminated_count = 0
 

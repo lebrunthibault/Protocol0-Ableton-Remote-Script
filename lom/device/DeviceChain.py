@@ -1,5 +1,5 @@
 import Live
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Any
 
 from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.lom.AbstractObject import AbstractObject
@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 class DeviceChain(AbstractObject):
     def __init__(self, device, chain, index, *a, **k):
-        # type: (Device, Live.Chain.Chain) -> None
+        # type: (Device, Live.Chain.Chain, int, Any, Any) -> None
         super(DeviceChain, self).__init__(*a, **k)
         self.device = device
         self._chain = chain

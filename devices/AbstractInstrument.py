@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import TYPE_CHECKING, Optional, List
+from typing import TYPE_CHECKING, Optional, List, Any
 
 from a_protocol_0.devices.presets.InstrumentPreset import InstrumentPreset
 from a_protocol_0.devices.presets.InstrumentPresetList import InstrumentPresetList
@@ -39,7 +39,7 @@ class AbstractInstrument(AbstractObject):
     _active_instance = None  # type: AbstractInstrument
 
     def __init__(self, track, device, *a, **k):
-        # type: (SimpleTrack, Optional[Device]) -> None
+        # type: (SimpleTrack, Optional[Device], Any, Any) -> None
         super(AbstractInstrument, self).__init__(*a, **k)
         self.track = track  # this could be a group track
         self.device_track = track  # this will always be the track of the device

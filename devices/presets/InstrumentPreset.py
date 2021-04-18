@@ -1,6 +1,6 @@
 import os
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from a_protocol_0.lom.AbstractObject import AbstractObject
 
@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 class InstrumentPreset(AbstractObject):
     def __init__(self, instrument, index, name="empty", *a, **k):
-        # type: (AbstractInstrument, int, str) -> None
+        # type: (AbstractInstrument, int, str, Any, Any) -> None
         super(InstrumentPreset, self).__init__(*a, **k)
         self.instrument = instrument
         self.index = index

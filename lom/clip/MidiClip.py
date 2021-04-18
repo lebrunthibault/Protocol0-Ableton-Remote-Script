@@ -1,7 +1,7 @@
 from functools import partial
 
 import Live
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Optional
 
 from _Framework.Util import find_if
 from a_protocol_0.consts import PUSH2_BEAT_QUANTIZATION_STEPS
@@ -22,7 +22,7 @@ class MidiClip(Clip):
         # storing notes for note change comparison
         self._muted_notes = []  # type: List[Note]  # keeping this separate
         self._prev_notes = self.get_notes()  # type: List[Note]
-        self._added_note = None  # type: Note
+        self._added_note = None  # type: Optional[Note]
         self._is_updating_notes = False
 
     def get_notes(self, exclude_muted=True):
@@ -38,7 +38,7 @@ class MidiClip(Clip):
         return notes
 
     def _change_clip_notes(self, method, notes, cache=True):
-        # type: (callable, List[Note], bool) -> Sequence
+        # type: (callable, List[Note], bool) -> Optional[Sequence]
         if not self._clip:
             return
         self._is_updating_notes = True
@@ -54,13 +54,13 @@ class MidiClip(Clip):
         return seq.done()
 
     def _replace_selected_notes(self, notes):
-        # type: (List[Note]) -> Sequence
+        # type: (List[Note]) -> Optional[Sequence]
         if not self._clip:
             return
         return self._change_clip_notes(self._clip.replace_selected_notes, notes)
 
     def set_notes(self, notes):
-        # type: (List[Note]) -> Sequence
+        # type: (List[Note]) -> Optional[Sequence]
         if not self._clip:
             return
         return self._change_clip_notes(self._clip.set_notes, notes, cache=False)
@@ -78,7 +78,7 @@ class MidiClip(Clip):
         self.view.show_loop()
 
     def replace_all_notes(self, notes):
-        # type: (List[Note]) -> None
+        # type: (List[Note]) -> Optional[Sequence]
         if not self._clip:
             return
         self._select_all_notes()
@@ -89,7 +89,7 @@ class MidiClip(Clip):
         return seq.done()
 
     def notes_changed(self, notes, checked_properties, prev_notes=None):
-        # type: (Clip, List[Note], List[str]) -> List[Note]
+        # type: (List[Note], List[str], List[Note]) -> List[Note]
         prev_notes = prev_notes or self._prev_notes
         all_properties = ["start", "duration", "pitch", "velocity"]
         excluded_properties = list(set(all_properties) - set(checked_properties))
@@ -97,19 +97,14 @@ class MidiClip(Clip):
             return []
 
         # keeping only those who have the same excluded properties and at least one checked_property change
-        return list(
-            filter(
-                None,
-                map(
-                    lambda x, y: None
-                    if not have_equal_properties(x, y, excluded_properties)
-                    or have_equal_properties(x, y, checked_properties)
-                    else (x, y),
-                    prev_notes,
-                    notes,
-                ),
-            )
-        )
+        changed_notes = map(
+            lambda x, y: None
+            if not have_equal_properties(x, y, excluded_properties) or have_equal_properties(x, y, checked_properties)
+            else (x, y),
+            prev_notes,
+            notes,
+        )  # type: List[Optional[Note]]
+        return list(filter(None, changed_notes))
 
     @property
     def min_note_quantization_start(self):
@@ -142,7 +137,7 @@ class MidiClip(Clip):
         return seq.done()
 
     def generate_base_notes(self):
-        # type: (Clip) -> None
+        # type: (Clip) -> List[Note]
         """ Generate base clip notes on clip creation, overridden"""
         if self.track.instrument:
             return self.track.instrument.generate_base_notes(self)

@@ -1,5 +1,7 @@
 import itertools
 
+from typing import Any
+
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
@@ -13,7 +15,7 @@ class AutomationTracksCouple(AbstractObject):
     """ helper class to simplify operations on automation tracks. The linking of clip_slots and clips is done here """
 
     def __init__(self, group_track, audio_simple_track, midi_simple_track, *a, **k):
-        # type: (SimpleTrack, SimpleTrack, SimpleTrack) -> None
+        # type: (SimpleTrack, SimpleTrack, SimpleTrack, Any, Any) -> None
         super(AutomationTracksCouple, self).__init__(*a, **k)
 
         if audio_simple_track.index != midi_simple_track.index - 1:
@@ -22,8 +24,8 @@ class AutomationTracksCouple(AbstractObject):
                 + "audio: %s, \n midi: %s" % (audio_simple_track, midi_simple_track)
             )
 
-        self.audio_track = AutomationAudioTrack(audio_simple_track._track, audio_simple_track.index)
-        self.midi_track = AutomationMidiTrack(midi_simple_track._track, midi_simple_track.index)
+        self.audio_track = AutomationAudioTrack(track=audio_simple_track._track, index=audio_simple_track.index)
+        self.midi_track = AutomationMidiTrack(track=midi_simple_track._track, index=midi_simple_track.index)
         self.midi_track.linked_track = self.audio_track
         self.audio_track.linked_track = self.audio_track
 

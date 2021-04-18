@@ -1,7 +1,7 @@
 from copy import copy
 from functools import partial
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Any
 
 from _Framework.Util import clamp, find_if
 from a_protocol_0.consts import PUSH2_BEAT_QUANTIZATION_STEPS
@@ -20,6 +20,7 @@ class Note(AbstractObject):
     notes_to_synchronize = set()  # type: [Note]
 
     def __init__(self, pitch=127, start=0, duration=1, velocity=127, muted=False, clip=None, *a, **k):
+        # type: (int, float, float, int, bool, MidiClip, Any, Any) -> None
         super(Note, self).__init__(*a, **k)
         self._pitch = int(pitch)
         self._start = start
@@ -71,7 +72,7 @@ class Note(AbstractObject):
 
     @property
     def start(self):
-        return max(0, float(self._start))
+        return 0 if self._start < 0 else self._start
 
     @start.setter
     def start(self, start):
@@ -135,7 +136,7 @@ class Note(AbstractObject):
 
     @staticmethod
     def _synchronize(notes, set_notes=True):
-        # type: (List[Note]) -> None
+        # type: (List[Note]) -> Sequence
         for note in notes:
             [(time, length)] = note.time_step.connected_time_ranges()
             note.clip._clip.remove_notes(time, 0, length, 128)

@@ -47,7 +47,7 @@ def scroll_object_property(base_object, property, items, go_next):
 
 
 def scroll_values(items, selected_item, go_next, default=None, return_index=False):
-    # type: (List[Any], Optional[Any], bool, Any) -> Optional[Any]
+    # type: (List[Any], Optional[Any], bool, Optional[Any], bool) -> Optional[Any]
     if len(items) == 0:
         return None
     increment = 1 if go_next else -1

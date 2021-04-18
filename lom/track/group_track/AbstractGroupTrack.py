@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.utils.decorators import p0_subject_slot
@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 class AbstractGroupTrack(AbstractTrack):
     def __init__(self, group_track, *a, **k):
-        # type: (SimpleTrack) -> None
+        # type: (SimpleTrack, Any, Any) -> None
         super(AbstractGroupTrack, self).__init__(track=group_track, *a, **k)
         group_track.abstract_group_track = self
         self.sub_tracks = group_track.sub_tracks

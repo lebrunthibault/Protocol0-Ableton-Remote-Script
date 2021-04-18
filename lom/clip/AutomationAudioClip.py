@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from _Framework.SubjectSlot import subject_slot_group
 from a_protocol_0.automation.AutomationCurveGenerator import AutomationCurveGenerator
@@ -20,7 +20,7 @@ class AutomationAudioClip(AbstractAutomationClip, AudioClip):
         super(AutomationAudioClip, self).__init__(*a, **k)
         self.track = self.track  # type: AutomationAudioTrack
         self._linked_listener.subject = self
-        self.linked_clip = None  # type: AutomationMidiClip
+        self.linked_clip = None  # type: Optional[AutomationMidiClip]
         self.parent.defer(partial(setattr, self, "warping", True))
         self.automation_ramp_up = AutomationRampMode(direction=DirectionEnum.UP)  # type: AutomationRampMode
         self.automation_ramp_down = AutomationRampMode(direction=DirectionEnum.DOWN)  # type: AutomationRampMode

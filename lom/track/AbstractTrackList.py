@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Any
 
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.utils.UserMutableSequence import UserMutableSequence
@@ -8,7 +8,7 @@ class AbstractTrackList(UserMutableSequence):
     """ Manipulate a track list as an object """
 
     def __init__(self, abstract_tracks, *a, **k):
-        # type: (List[AbstractTrack]) -> None
+        # type: (List[AbstractTrack], Any, Any) -> None
         super(AbstractTrackList, self).__init__(abstract_tracks, *a, **k)
         self._abstract_tracks = abstract_tracks
 

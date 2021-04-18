@@ -1,6 +1,6 @@
 import re
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.utils.decorators import p0_subject_slot, defer
@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 class ClipName(AbstractObject):
     def __init__(self, clip, *a, **k):
-        # type: (Clip) -> None
+        # type: (Clip, Any, Any) -> None
         super(ClipName, self).__init__(*a, **k)
         self.clip = clip
         self.clips = [self.clip]

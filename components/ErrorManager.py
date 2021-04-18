@@ -1,6 +1,8 @@
 import sys
 from traceback import extract_tb
 
+from typing import Optional
+
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import ROOT_DIR
 
@@ -12,7 +14,7 @@ class ErrorManager(AbstractControlSurfaceComponent):
             sys.excepthook = self.handle_uncaught_exception
 
     def handle_error(self, e, context=None):
-        # type: (Exception) -> None
+        # type: (Exception, Optional[str]) -> None
         self.song.end_undo_step()
         exc_type, exc_value, tb = sys.exc_info()
         self._handle_exception(exc_type, exc_value, tb, context)

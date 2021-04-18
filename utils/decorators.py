@@ -2,7 +2,7 @@ import time
 from collections import defaultdict
 from functools import partial, wraps
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
 from a_protocol_0.utils.utils import is_method
@@ -10,13 +10,15 @@ from a_protocol_0.utils.utils import is_method
 if TYPE_CHECKING:
     from a_protocol_0.components.Push2Manager import Push2Manager
     from a_protocol_0.lom.AbstractObject import AbstractObject
+    from a_protocol_0.sequence.Sequence import Sequence  # noqa
+    from a_protocol_0.utils.callback_descriptor import CallbackDescriptor  # noqa
 
 
 def push2_method(defer=True):
     def wrap(func):
         @wraps(func)
         def decorate(self, *a, **k):
-            # type: (Push2Manager) -> None
+            # type: (Push2Manager, Any, Any) -> None
             # check hasattr in case the push2 is turned off during a set
             if not self.push2 or not hasattr(self.push2, "_initialized") or not self.push2._initialized:
                 return
@@ -126,8 +128,8 @@ def button_action(auto_arm=False, log_action=True):
     def wrap(func):
         @wraps(func)
         def decorate(self, *a, **k):
-            # type: (AbstractObject) -> None
-            from a_protocol_0.sequence.Sequence import Sequence
+            # type: (AbstractObject, Any, Any) -> Sequence
+            from a_protocol_0.sequence.Sequence import Sequence  # noqa
 
             seq = Sequence()
             if auto_arm and not self.song.current_track.is_armed:
@@ -159,14 +161,18 @@ def p0_subject_slot(event, immediate=False):
 
         decorate.original_func = func
 
-        return wraps(func)(has_callback_queue(immediate)(_framework_subject_slot(event)(decorate)))
+        callback_descriptor = has_callback_queue(immediate)(_framework_subject_slot(event)(decorate))
+
+        # noinspection PyTypeChecker
+        return wraps(func)(callback_descriptor)
 
     return wrap
 
 
 def has_callback_queue(immediate=False):
     def wrap(func):
-        from a_protocol_0.utils.callback_descriptor import CallbackDescriptor
+        # type: (callable) -> CallbackDescriptor
+        from a_protocol_0.utils.callback_descriptor import CallbackDescriptor  # noqa
 
         return CallbackDescriptor(func, immediate)
 

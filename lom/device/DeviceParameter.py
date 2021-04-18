@@ -1,5 +1,5 @@
 import Live
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.utils.utils import scale_from_value
@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 class DeviceParameter(AbstractObject):
     def __init__(self, device, device_parameter, *a, **k):
-        # type: (Device, Live.DeviceParameter.DeviceParameter) -> None
+        # type: (Device, Live.DeviceParameter.DeviceParameter, Any, Any) -> None
         super(DeviceParameter, self).__init__(*a, **k)
         self.device = device
         self.track = self.device.track

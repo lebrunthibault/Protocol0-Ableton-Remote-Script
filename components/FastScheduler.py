@@ -1,5 +1,5 @@
 import Live
-from typing import List
+from typing import List, Any
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.lom.AbstractObject import AbstractObject
@@ -8,7 +8,7 @@ from a_protocol_0.utils.utils import get_callable_name
 
 class SchedulerEvent(AbstractObject):
     def __init__(self, callback, tick_count, *a, **k):
-        # type: (callable, int) -> None
+        # type: (callable, int, Any, Any) -> None
         super(SchedulerEvent, self).__init__(*a, **k)
         self._executed = False
         self._callback = callback

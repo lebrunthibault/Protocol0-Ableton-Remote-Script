@@ -1,4 +1,4 @@
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, Any
 
 from _Framework.CompoundElement import subject_slot_group
 from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 class ClipSlotSynchronizer(ObjectSynchronizer):
     def __init__(self, master, slave, *a, **k):
-        # type: (ClipSlot, ClipSlot) -> None
+        # type: (ClipSlot, ClipSlot, Any, Any) -> None
         super(ClipSlotSynchronizer, self).__init__(master, slave, "_clip_slot", *a, **k)
         self.master = self.master  # type: ClipSlot
         self.slave = self.slave  # type: ClipSlot

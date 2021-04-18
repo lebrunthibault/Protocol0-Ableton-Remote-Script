@@ -3,7 +3,7 @@ from functools import partial
 from a_protocol_0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
 from a_protocol_0.consts import RECORDING_TIMES
 from a_protocol_0.controls.EncoderAction import EncoderAction, EncoderMoveEnum
-from a_protocol_0.controls.EncoderModifier import EncoderModifierEnum
+from a_protocol_0.controls.EncoderModifierEnum import EncoderModifierEnum
 from a_protocol_0.enums.DirectionEnum import DirectionEnum
 from a_protocol_0.enums.TrackCategoryEnum import TrackCategoryEnum
 from a_protocol_0.utils.utils import scroll_object_property

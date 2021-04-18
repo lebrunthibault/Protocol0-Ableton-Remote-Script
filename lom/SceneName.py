@@ -1,6 +1,6 @@
 import re
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.utils.decorators import p0_subject_slot, defer
@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 class SceneName(AbstractObject):
     def __init__(self, scene, *a, **k):
-        # type: (Scene) -> None
+        # type: (Scene, Any, Any) -> None
         super(SceneName, self).__init__(*a, **k)
         self.scene = scene
         self.base_name = ""
@@ -21,13 +21,12 @@ class SceneName(AbstractObject):
     @p0_subject_slot("name")
     @defer
     def _name_listener(self):
-        # type: () -> None
         match = re.match("^(?P<base_name>[^()]*[^()\s])\s*(\((?P<length>\d*)\))?(?P<looping>\*)?.*$", self.scene.name)
         self.base_name = match.group("base_name").strip() if match else ""
         self.update()
 
     def update(self, base_name=None, looping=None):
-        # type: (str) -> None
+        # type: (str, bool) -> None
         self.base_name = base_name if base_name is not None else self.base_name
         # renaming numeric named scenes
         try:

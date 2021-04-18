@@ -1,7 +1,7 @@
 from copy import copy
 from functools import partial
 
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Optional
 
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 class AutomationMidiClipNoteMixin(AbstractObject):
     def _map_notes(self, notes=None, check_change=False):
-        # type: (AutomationMidiClip, List[Note], bool) -> Sequence
+        # type: (AutomationMidiClip, List[Note], bool) -> Optional[Sequence]
         notes = notes or Note.copy_notes(self._prev_notes)
         if len(notes) == 0 or (check_change and (self._is_updating_notes or notes == self._prev_notes)):
             return

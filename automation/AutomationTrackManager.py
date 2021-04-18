@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import Set, Optional
+from typing import Set, Optional, cast
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.enums.DirectionEnum import DirectionEnum
@@ -75,7 +75,7 @@ class AutomationTrackManager(AbstractControlSurfaceComponent):
         if not isinstance(self.song.selected_clip, AbstractAutomationClip):
             return
 
-        clip = self.song.selected_clip  # type: AbstractAutomationClip
+        clip = cast(AbstractAutomationClip, self.song.selected_clip)
         if not isinstance(clip, AutomationAudioClip):
             clip = clip.linked_clip
 
