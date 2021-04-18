@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import Set
+from typing import Set, Optional
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.enums.DirectionEnum import DirectionEnum
@@ -16,7 +16,7 @@ class AutomationTrackManager(AbstractControlSurfaceComponent):
 
     def __init__(self, *a, **k):
         super(AutomationTrackManager, self).__init__(*a, **k)
-        self.current_parameter = None  # type: DeviceParameter
+        self.current_parameter = None  # type: Optional[DeviceParameter]
         self.created_tracks_indexes = set()  # type: Set[int]
 
     @defer

@@ -275,10 +275,10 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def device_parameters(self):
         # type: () -> List[DeviceParameter]
-        return chain(*[device.parameters for device in self.all_devices])
+        return list(chain(*[device.parameters for device in self.all_devices]))
 
     def set_device_parameter_value(self, device_name, parameter_name, value, raise_if_not_exists=False):
-        # type: (str, str, Any) -> None
+        # type: (str, str, Any) -> Optional[Sequence]
         device = find_if(lambda d: d.name.lower() == device_name.lower(), self.song.current_track.all_devices)
         if not device:
             if not raise_if_not_exists:

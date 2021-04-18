@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import List, Set, Optional
+from typing import List, Set, Optional, Any
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
@@ -16,7 +16,7 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
     """
 
     def __init__(self, master, slave, subject_name, listenable_properties=None, properties=[], *a, **k):
-        # type: (AbstractObject, AbstractObject, str, Optional[List[str]], List[str]) -> None
+        # type: (AbstractObject, AbstractObject, str, Optional[List[str]], List[str], Any, Any) -> None
         super(ObjectSynchronizer, self).__init__(*a, **k)
 
         if not master or not slave:

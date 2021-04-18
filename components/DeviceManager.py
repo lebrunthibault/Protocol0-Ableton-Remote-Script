@@ -79,7 +79,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
         # type: (Live.RackDevice.RackDevice) -> None
         """ update rack with the version stored in browser, keeping old values for identical parameters """
         parameters = {param.name: param.value for param in rack_device.parameters if "macro" not in param.name.lower()}
-        self.song.select_device(rack_device)
+        self.song._view.select_device(rack_device)
         self.parent.browserManager.swap(rack_device.name)
         # restore values : this means we cannot dispatch values, only mappings
         # here 100ms is not enough
@@ -184,7 +184,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
         return seq.done()
 
     def _get_device_show_button_click_coordinates(self, device, rack_device=None):
-        # type: (Device, RackDevice) -> Tuple[int]
+        # type: (Device, RackDevice) -> Tuple[int, int]
         """ one grouping level only : expects all devices to be folded and macro controls hidden """
         if not rack_device:
             device_position = device.track.devices.index(device) + 1
@@ -199,7 +199,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
         return (x, y)
 
     def _get_rack_show_macros_button_click_coordinates(self, rack_device):
-        # type: (Device) -> Tuple[int]
+        # type: (Device) -> Tuple[int, int]
         """ top racks only : expects all devices to be folded """
         parent_rack_position = rack_device.track.devices.index(rack_device) + 1
         x = self._get_device_click_x_position(parent_rack_position)

@@ -1,4 +1,3 @@
-from a_protocol_0.automation.AutomationCurveGenerator import AutomationCurveGenerator
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
@@ -9,9 +8,11 @@ from a_protocol_0.tests.fixtures.simpleTrack import AbletonTrack, TrackType
 
 
 def create_clip_with_notes(notes, prev_notes=[], clip_length=None, loop_start=None, name="test"):
+    # noinspection PyTypeChecker
     track = SimpleTrack(AbletonTrack(name="midi", track_type=TrackType.MIDI), 0)
     loop_start = loop_start if loop_start is not None else notes[0].start
     length = clip_length or notes[-1].end - loop_start
+    # noinspection PyTypeChecker
     cs = ClipSlot(
         clip_slot=AbletonClipSlot(AbletonClip(length=length, name=name, loop_start=loop_start)),
         index=0,
@@ -143,24 +144,25 @@ def test_consolidate_notes_3():
     clip._map_notes(notes)
 
 
-def test_ramp_notes():
-    notes = [
-        Note(start=0, duration=2, pitch=80, velocity=80),
-        Note(start=2, duration=2, pitch=100, velocity=100),
-    ]
-    (clip, res) = create_clip_with_notes(notes, prev_notes=notes)
-
-    def check_notes(notes, expected_count):
-        assert len(notes) == expected_count
-        assert notes[0].start == 0
-        assert notes[0].duration < 2
-        assert notes[3].velocity != notes[-1].velocity
-
-    check_notes(AutomationCurveGenerator.automation_notes(clip), 40)
-
-    # change note velocity
-    clip._prev_notes[1].velocity = 90
-    check_notes(AutomationCurveGenerator.automation_notes(clip), 20)
+#
+# def test_ramp_notes():
+#     notes = [
+#         Note(start=0, duration=2, pitch=80, velocity=80),
+#         Note(start=2, duration=2, pitch=100, velocity=100),
+#     ]
+#     (clip, res) = create_clip_with_notes(notes, prev_notes=notes)
+#
+#     def check_notes(notes, expected_count):
+#         assert len(notes) == expected_count
+#         assert notes[0].start == 0
+#         assert notes[0].duration < 2
+#         assert notes[3].velocity != notes[-1].velocity
+#
+#     check_notes(AutomationCurveGenerator.automation_notes(clip), 40)
+#
+#     # change note velocity
+#     clip._prev_notes[1].velocity = 90
+#     check_notes(AutomationCurveGenerator.automation_notes(clip), 20)
 
 
 def test_add_note():

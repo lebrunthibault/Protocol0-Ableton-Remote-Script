@@ -10,7 +10,7 @@ from a_protocol_0.sequence.Sequence import Sequence
 
 class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
     def load_any_device(self, device_type, device_name):
-        # type: (DeviceType, str) -> None
+        # type: (DeviceType, str) -> Sequence
         seq = Sequence()
         if device_type == DeviceType.RACK_DEVICE:
             load_func = partial(self._load_rack_device, device_name)
@@ -26,7 +26,7 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
         return seq.done()
 
     def _load_rack_device(self, rack_name, hide=False):
-        # type: (str, bool) -> None
+        # type: (str, bool) -> Sequence
         seq = Sequence()
         seq.add(
             partial(self.load_from_user_library, None, "'%s.adg'" % rack_name),

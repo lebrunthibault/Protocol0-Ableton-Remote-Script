@@ -1,6 +1,6 @@
 from collections import deque
 
-from typing import Deque, Optional, Iterable
+from typing import Deque, Optional, Iterable, Union
 
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
@@ -34,12 +34,15 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
     def __repr__(self):
         return self.name
 
+    @property
     def debug_str(self):
+        # type: () -> str
         message = "%s in state %s" % (self, self.state)
         if not self._current_step:
             message += " (empty seq)"
         if self.res:
             message += " (res %s)" % self.res
+        return message
 
     def __len__(self):
         return len(self._steps)
@@ -78,7 +81,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
 
     def add(
         self,
-        func=nop,
+        func=nop,  # type: Union[Iterable, callable]
         wait=None,
         name=None,
         complete_on=None,

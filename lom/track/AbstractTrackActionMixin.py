@@ -77,7 +77,7 @@ class AbstractTrackActionMixin(object):
         raise NotImplementedError()
 
     def record(self, record_func):
-        # type: (AbstractTrack, Callable) -> None
+        # type: (AbstractTrack, Callable) -> Optional[Sequence]
         """ restart audio to get a count in and recfix"""
         if not self.can_be_armed:
             return
@@ -98,7 +98,7 @@ class AbstractTrackActionMixin(object):
         if self.next_empty_clip_slot_index is None:
             seq.add(self.song.create_scene)
             # here the tracks are mapped again ! we cannot simply call this method again on a stale object
-            seq.add(self.parent.current_action)
+            seq.add(self.parent.current_action.execute)
         else:
             seq.add(record_func)
 
@@ -117,7 +117,7 @@ class AbstractTrackActionMixin(object):
         raise NotImplementedError
 
     def record_audio_only(self, *a, **k):
-        # type: (AbstractTrack) -> None
+        # type: (AbstractTrack) -> Sequence
         """
         overridden
         this records normally on a simple track and only audio on a group track
@@ -164,7 +164,7 @@ class AbstractTrackActionMixin(object):
         self.collapse_devices()
 
     def load_any_device(self, device_type, device_name):
-        # type: (AbstractTrack, str, str) -> None
+        # type: (AbstractTrack, str, str) -> Sequence
         seq = Sequence()
         seq.add(self.select)
         seq.add(partial(self.parent.browserManager.load_any_device, device_type, device_name))

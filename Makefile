@@ -5,3 +5,4 @@ test:
 lint:
 	cls
 	flake8 .
+	mypy .

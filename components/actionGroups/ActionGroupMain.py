@@ -6,7 +6,6 @@ from a_protocol_0.controls.EncoderAction import EncoderAction, EncoderMoveEnum
 from a_protocol_0.controls.EncoderModifier import EncoderModifierEnum
 from a_protocol_0.enums.DirectionEnum import DirectionEnum
 from a_protocol_0.enums.TrackCategoryEnum import TrackCategoryEnum
-from a_protocol_0.utils.decorators import button_action
 from a_protocol_0.utils.utils import scroll_object_property
 
 
@@ -62,13 +61,13 @@ class ActionGroupMain(AbstractActionGroup):
         # MONitor encoder
         self.add_encoder(id=8, name="monitor", on_press=lambda: self.song.current_track.switch_monitoring)
 
-        # REC encoder
+        # RECord encoder
         self.add_encoder(
             id=9,
             name="record",
             on_scroll=partial(scroll_object_property, self.song, "selected_recording_time", RECORDING_TIMES),
-            on_press=lambda: self.song.current_track.record(self.song.current_track.record_all),
-            on_long_press=lambda: self.song.current_track.record(self.song.current_track.record_audio_only),
+            on_press=self.song.record_all,
+            on_long_press=self.song.record_audio_only,
         )
 
         # 10: empty
@@ -119,7 +118,6 @@ class ActionGroupMain(AbstractActionGroup):
             name="instrument",
             on_press=lambda: self.song.current_track.show_hide_instrument,
             on_scroll=lambda: self.song.current_track.scroll_presets_or_samples,
-            on_shift_scroll=lambda: self.song.current_track.scroll_preset_categories,
         )
 
         # 14 : CATegory encoder
@@ -150,9 +148,3 @@ class ActionGroupMain(AbstractActionGroup):
         ).add_action(
             EncoderAction(func=lambda: self.song.selected_scene.toggle_solo, modifier_type=EncoderModifierEnum.SOLO)
         )
-
-    # ------------------------------
-
-    @button_action()
-    def action_un_solo_all_tracks(self):
-        self.song.unsolo_all_tracks(except_current=False)

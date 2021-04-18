@@ -45,6 +45,9 @@ class Device(AbstractObject):
         else:
             return Device(device=device, track=track, index=index)
 
+    def select(self):
+        self.song.select_device(self)
+
     def scroll_presets(self, *a, **k):
         self.parent.show_message("Presets scrolling is only available for plugin devices")
 

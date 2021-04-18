@@ -10,13 +10,12 @@ from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
-    from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
     from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 
 
 class TrackName(AbstractObject):
     def __init__(self, track, *a, **k):
-        # type: (SimpleTrack) -> None
+        # type: (AbstractTrack) -> None
         super(TrackName, self).__init__(*a, **k)
         self.track = track
         self.tracks = [self.track]
@@ -58,7 +57,7 @@ class TrackName(AbstractObject):
         self._name_listener.add_subject(track._track)
 
     def update(self, base_name=None, playing_slot_index=None, selected_preset_index=None):
-        # type: (Optional[str], Optional[int], Optional[int]) -> None
+        # type: (Optional[str], Optional[int], Optional[int]) -> Sequence
         self.base_name = base_name if base_name else self.base_name
 
         selected_preset_index = (

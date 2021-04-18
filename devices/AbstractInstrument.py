@@ -39,7 +39,7 @@ class AbstractInstrument(AbstractObject):
     _active_instance = None  # type: AbstractInstrument
 
     def __init__(self, track, device, *a, **k):
-        # type: (SimpleTrack, Device) -> None
+        # type: (SimpleTrack, Optional[Device]) -> None
         super(AbstractInstrument, self).__init__(*a, **k)
         self.track = track  # this could be a group track
         self.device_track = track  # this will always be the track of the device
@@ -91,7 +91,7 @@ class AbstractInstrument(AbstractObject):
         return not self.activated or (self.needs_exclusive_activation)
 
     def check_activated(self, select_instrument_track=False):
-        # type: (bool) -> None
+        # type: (bool) -> Optional[Sequence]
         if not self.should_be_activated:
             return
 
@@ -136,7 +136,7 @@ class AbstractInstrument(AbstractObject):
         return preset_name
 
     def scroll_presets_or_samples(self, go_next):
-        # type: (bool) -> None
+        # type: (bool) -> Sequence
         self.parent.clyphxNavigationManager.show_track_view()
 
         seq = Sequence()

@@ -1,3 +1,5 @@
+from typing import Any
+
 from a_protocol_0.enums.DirectionEnum import DirectionEnum
 from a_protocol_0.lom.AbstractObject import AbstractObject
 
@@ -8,7 +10,7 @@ class AutomationRampMode(AbstractObject):
     SCROLLING_FACTOR = 2
 
     def __init__(self, direction, is_active=True, exp_coeff=0, *a, **k):
-        # type: (DirectionEnum, bool, float) -> None
+        # type: (DirectionEnum, bool, float, Any, Any) -> None
         """ exp coeff 0 is linear, 100 is already almost a right angle """
         super(AutomationRampMode, self).__init__(*a, **k)
         self._is_active = is_active

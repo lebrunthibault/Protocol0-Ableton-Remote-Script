@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional, Any
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.controls.EncoderAction import EncoderAction
@@ -15,14 +15,14 @@ class AbstractActionGroup(AbstractControlSurfaceComponent):
     """
 
     def __init__(self, channel, record_actions_as_global=False, *a, **k):
-        # type: (int) -> None
+        # type: (int, bool, Any, Any) -> None
         super(AbstractActionGroup, self).__init__(*a, **k)
         self.available_modifiers = [
             EncoderModifier(type) for type in EncoderModifierEnum
         ]  # type: List[EncoderModifier]
         self.channel = channel
         self.multi_encoders = []  # type: List[MultiEncoder]
-        self._current_action = None  # type: callable
+        self._current_action = None  # type: Optional[EncoderAction]
         # allows recording actions at the top script level allowing last action re execution in very specific cases
         self.record_actions_as_global = record_actions_as_global
 
@@ -36,7 +36,7 @@ class AbstractActionGroup(AbstractControlSurfaceComponent):
 
     def add_encoder(
         self,
-        id,
+        id,  # type: int
         name=None,
         on_press=None,
         on_long_press=None,
@@ -45,7 +45,6 @@ class AbstractActionGroup(AbstractControlSurfaceComponent):
         on_scroll=None,
         on_shift_scroll=None,
     ):
-        # type: (int) -> MultiEncoder
         assert name, "encoder should have a name"
         k = locals()
         encoder = MultiEncoder(group=self, channel=self.channel, identifier=id, name=name)
@@ -55,7 +54,7 @@ class AbstractActionGroup(AbstractControlSurfaceComponent):
         return self._add_multi_encoder(encoder)
 
     def add_modifier(self, id, modifier_type, *a, **k):
-        # type: (int, EncoderModifierEnum) -> MultiEncoder
+        # type: (int, EncoderModifierEnum, Any, Any) -> MultiEncoder
         encoder = MultiEncoderModifier(
             group=self,
             channel=self.channel,
@@ -73,6 +72,7 @@ class AbstractActionGroup(AbstractControlSurfaceComponent):
 
     @current_action.setter
     def current_action(self, current_action):
+        # type: (EncoderAction) -> None
         self._current_action = current_action
         if self.record_actions_as_global:
             self.parent.current_action = current_action

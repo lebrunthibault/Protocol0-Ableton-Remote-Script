@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 # noinspection PyTypeHints
 class SongActionMixin(object):
     def select_track(self, selected_track):
-        # type: (Song, AbstractTrack, bool) -> Sequence
+        # type: (Song, AbstractTrack, bool) -> Optional[Sequence]
         if self.song.selected_track == selected_track.base_track:
             return
         seq = Sequence(silent=True)
@@ -38,12 +38,12 @@ class SongActionMixin(object):
             scene_to_select.select()
 
     def unfocus_all_tracks(self):
-        # type: (Song, bool) -> None
+        # type: (Song, bool) -> Sequence
         self.unsolo_all_tracks()
         return self.unarm_all_tracks()
 
     def unarm_all_tracks(self):
-        # type: (Song, bool) -> None
+        # type: (Song, bool) -> Sequence
         seq = Sequence(silent=True)
         seq.add([t.unarm for t in self.abstract_tracks if t.is_armed])
         return seq.done()
@@ -66,6 +66,14 @@ class SongActionMixin(object):
             [setattr(track, "is_folded", True) for track in other_group_tracks]
         else:
             self.current_track.is_folded = not self.current_track.is_folded
+
+    def record_all(self):
+        # type: (Song) -> None
+        self.current_track.record(self.current_track.record_all)
+
+    def record_audio_only(self):
+        # type: (Song) -> None
+        self.current_track.record(self.current_track.record_audio_only)
 
     @handle_error
     def reset(self, reset_tracks=True):
@@ -90,6 +98,7 @@ class SongActionMixin(object):
 
     def stop_all_clips(self, quantized=1):
         # type: (Song, int) -> None
+        # noinspection PyTypeChecker
         self._song.stop_all_clips(quantized)
 
     def begin_undo_step(self):
