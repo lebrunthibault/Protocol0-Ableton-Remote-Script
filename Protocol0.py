@@ -19,7 +19,6 @@ from a_protocol_0.components.KeyBoardShortcutManager import KeyBoardShortcutMana
 from a_protocol_0.components.LogManager import LogManager
 from a_protocol_0.components.MidiManager import MidiManager
 from a_protocol_0.components.MixingManager import MixingManager
-from a_protocol_0.components.PlayTrackManager import PlayTrackManager
 from a_protocol_0.components.Push2Manager import Push2Manager
 from a_protocol_0.components.QuantizationManager import QuantizationManager
 from a_protocol_0.components.SessionManager import SessionManager
@@ -62,7 +61,6 @@ class Protocol0(ControlSurface):
             self.songStateManager = SongStateManager()
             self.sessionManager = SessionManager()
             self.mixingManager = MixingManager()
-            self.playTrackManager = PlayTrackManager()
             self.push2Manager = Push2Manager()
             self.trackManager = TrackManager()
             self.automationTrackManager = AutomationTrackManager()

@@ -24,7 +24,7 @@ class AbstractEnum(Enum):
     def get_from_value(cls, value):
         # type: (str) -> T
         value = value.strip()
-        for int, enum in cls._value2member_map_:
+        for int, enum in cls._value2member_map_:  # type: ignore[attr-defined]
             if value == enum.value:
                 return enum
 

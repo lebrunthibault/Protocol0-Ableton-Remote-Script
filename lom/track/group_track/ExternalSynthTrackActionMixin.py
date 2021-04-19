@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Optional
 
 from a_protocol_0.devices.InstrumentMinitaur import InstrumentMinitaur
 from a_protocol_0.lom.Colors import Colors
+from a_protocol_0.lom.clip.MidiClip import MidiClip
 from a_protocol_0.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -57,6 +58,7 @@ class ExternalSynthTrackActionMixin(object):
         if not midi_clip:
             self.parent.show_message("No midi clip selected")
             return None
+        assert isinstance(midi_clip, MidiClip)
 
         self.song.metronome = False
 

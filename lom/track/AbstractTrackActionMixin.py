@@ -25,7 +25,7 @@ class AbstractTrackActionMixin(object):
 
     def toggle_solo(self):
         # type: () -> None
-        self.solo = not self.solo
+        self.solo = not self.solo  # type: ignore[has-type]
 
     def arm(self):
         # type: (AbstractTrack) -> Optional[Sequence]

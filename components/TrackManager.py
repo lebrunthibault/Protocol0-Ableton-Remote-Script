@@ -168,7 +168,7 @@ class TrackManager(AbstractControlSurfaceComponent):
         # any other state is a bug and raises in AutomationTracksCouple __init__
         automation_tracks_couples = [
             AutomationTracksCouple(group_track, audio_track, midi_track)
-            for audio_track, midi_track in itertools.izip(automation_audio_tracks, automation_midi_tracks)
+            for audio_track, midi_track in itertools.izip(automation_audio_tracks, automation_midi_tracks)  # type: ignore[attr-defined]
         ]
 
         return AutomatedTrack(

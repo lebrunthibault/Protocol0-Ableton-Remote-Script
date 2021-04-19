@@ -22,7 +22,7 @@ class ClipName(AbstractObject):
         self.register_slot(self.clip._clip, self.update, "end_marker")
         self._name_listener.subject = clip._clip
         self.prev_name = ""
-        self.parent.defer(self._name_listener)
+        self.parent.defer(self._name_listener)  # type: ignore[arg-type]
 
     @p0_subject_slot("name")
     def _name_listener(self):

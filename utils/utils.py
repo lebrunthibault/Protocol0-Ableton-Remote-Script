@@ -126,12 +126,12 @@ def is_lambda(func):
 
 
 def get_inner_func(func):
-    # type: (Callable) -> Callable
+    # type: (Any) -> Callable
     if hasattr(func, "function"):
         return get_inner_func(func.function)
     if hasattr(func, "func"):  # partial
         return get_inner_func(func.func)
-    if hasattr(func, "original_func"):  # partial
+    if hasattr(func, "original_func"):
         return get_inner_func(func.original_func)
     if hasattr(func, "listener"):
         return get_inner_func(func.listener)
@@ -140,7 +140,7 @@ def get_inner_func(func):
 
 
 def get_class_name_from_method(func):
-    # type: (Callable) -> str
+    # type: (Any) -> str
     if hasattr(func, "__self__"):
         class_name = func.__self__.__class__.__name__
 

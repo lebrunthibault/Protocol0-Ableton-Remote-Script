@@ -14,8 +14,6 @@ class SimpleGroupTrack(AbstractGroupTrack):
         for sub_track in self.sub_tracks:
             sub_track.abstract_group_track = self
 
-        self.track_name.display_playing_slot_index = False
-
         self._single_sub_track_routing = self._get_single_sub_track_routing()
         # enforce this (e.g. when deleting automation tracks)
         [sub_track.set_output_routing_to(self) for sub_track in self.sub_tracks]

@@ -61,13 +61,13 @@ def retry(retry_count=3, interval=3):
             try:
                 func(*a, **k)
             except Exception:
-                if decorate.count == decorate.retry_count:
+                if decorate.count == decorate.retry_count:  # type: ignore[attr-defined]
                     return
-                Protocol0.SELF._wait(pow(2, decorate.count) * interval, partial(func, *a, **k))
-                decorate.count += 1
+                Protocol0.SELF._wait(pow(2, decorate.count) * interval, partial(func, *a, **k))  # type: ignore[attr-defined]
+                decorate.count += 1  # type: ignore[attr-defined]
 
-        decorate.count = 0
-        decorate.retry_count = retry_count
+        decorate.count = 0  # type: ignore[attr-defined]
+        decorate.retry_count = retry_count  # type: ignore[attr-defined]
 
         return decorate
 
@@ -84,22 +84,22 @@ def debounce(wait_time=200):
         def decorate(*a, **k):
             # type: (Any, Any) -> None
             index = a[0] if is_method(func) else decorate
-            wait_time = 0 if k.get("disable_debounce", False) else decorate.wait_time[index]
+            wait_time = 0 if k.get("disable_debounce", False) else decorate.wait_time[index]  # type: ignore[attr-defined]
             k.pop("disable_debounce", None)
-            decorate.count[index] += 1
+            decorate.count[index] += 1  # type: ignore[attr-defined]
             from a_protocol_0 import Protocol0
 
             Protocol0.SELF._wait(wait_time, partial(execute, func, *a, **k))
 
-        decorate.count = defaultdict(int)
-        decorate.wait_time = defaultdict(lambda: wait_time)
-        decorate.func = func
+        decorate.count = defaultdict(int)  # type: ignore[attr-defined]
+        decorate.wait_time = defaultdict(lambda: wait_time)  # type: ignore[attr-defined]
+        decorate.func = func  # type: ignore[attr-defined]
 
         def execute(func, *a, **k):
             # type: (Callable, Any, Any) -> None
             index = a[0] if is_method(func) else decorate
-            decorate.count[index] -= 1
-            if decorate.count[index] == 0:
+            decorate.count[index] -= 1  # type: ignore[attr-defined]
+            if decorate.count[index] == 0:  # type: ignore[attr-defined]
                 func(*a, **k)
 
         return decorate
@@ -108,7 +108,7 @@ def debounce(wait_time=200):
 
 
 def p0_subject_slot(event, immediate=False):
-    # type: (str, bool) -> Callable
+    # type: (str, bool) -> Callable[[Callable], CallbackDescriptor]
     """
     Drop in replacement of _Framework subject_slot decorator
     Allows the registration of callbacks to be execute after the decorated function
@@ -120,23 +120,22 @@ def p0_subject_slot(event, immediate=False):
     """
 
     def wrap(func):
-        # type: (Callable) -> Callable
+        # type: (Callable) -> CallbackDescriptor
         def decorate(*a, **k):
             # type: (Any, Any) -> None
             func(*a, **k)
 
-        decorate.original_func = func
+        decorate.original_func = func  # type: ignore[attr-defined]
 
         callback_descriptor = has_callback_queue(immediate)(_framework_subject_slot(event)(decorate))
 
-        # noinspection PyTypeChecker
-        return wraps(func)(callback_descriptor)
+        return callback_descriptor
 
     return wrap
 
 
 def has_callback_queue(immediate=False):
-    # type: (bool) -> Callable
+    # type: (bool) -> Callable[[Callable], CallbackDescriptor]
     def wrap(func):
         # type: (Callable) -> CallbackDescriptor
         from a_protocol_0.utils.callback_descriptor import CallbackDescriptor

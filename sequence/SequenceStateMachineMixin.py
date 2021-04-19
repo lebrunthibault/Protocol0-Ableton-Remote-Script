@@ -1,4 +1,5 @@
 from transitions import Machine, State
+from typing import Any
 
 from a_protocol_0.enums.AbstractEnum import AbstractEnum
 
@@ -11,8 +12,8 @@ class SequenceState(AbstractEnum):
 
 
 class SequenceStateMachineMixin(object):
-    def __init__(self):
-        # type: () -> None
+    def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
         transitions = [
             ["start", SequenceState.UN_STARTED, SequenceState.STARTED],
             ["terminate", SequenceState.STARTED, SequenceState.TERMINATED],
@@ -31,27 +32,27 @@ class SequenceStateMachineMixin(object):
     @property
     def state(self):
         # type: () -> str
-        return self._state_machine.state.value
+        return str(self._state_machine.state)
 
     @property
     def un_started(self):
         # type: () -> bool
-        return self.state == SequenceState.UN_STARTED.value
+        return self.state == str(SequenceState.UN_STARTED)
 
     @property
     def started(self):
         # type: () -> bool
-        return self.state == SequenceState.STARTED.value
+        return self.state == str(SequenceState.STARTED)
 
     @property
     def errored(self):
         # type: () -> bool
-        return self.state == SequenceState.ERRORED.value
+        return self.state == str(SequenceState.ERRORED)
 
     @property
     def terminated(self):
         # type: () -> bool
-        return self.state == SequenceState.TERMINATED.value
+        return self.state == str(SequenceState.TERMINATED)
 
     def dispatch(self, action):
         # type: (str) -> None
@@ -64,14 +65,12 @@ class SequenceStateMachineMixin(object):
     def terminate(self):
         # type: () -> None
         self.dispatch("terminate")
-        # noinspection PyUnresolvedReferences
-        self.notify_terminated()
+        self.notify_terminated()  # type: ignore[attr-defined]
 
     def error(self):
         # type: () -> None
         self.dispatch("error")
-        # noinspection PyUnresolvedReferences
-        self.notify_errored()
+        self.notify_errored()  # type: ignore[attr-defined]
 
     def _on_start(self):
         # type: () -> None

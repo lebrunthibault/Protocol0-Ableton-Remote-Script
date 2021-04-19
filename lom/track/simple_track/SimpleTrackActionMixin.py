@@ -14,7 +14,7 @@ class SimpleTrackActionMixin(object):
     def arm_track(self):
         # type: (SimpleTrack) -> Optional[Sequence]
         if self.is_foldable:
-            self.is_folded = not self.is_folded
+            self.is_folded = not self.is_folded  # type: ignore[has-type]
         else:
             self.mute = False
             self.is_armed = True
@@ -26,13 +26,14 @@ class SimpleTrackActionMixin(object):
 
     def switch_monitoring(self):
         # type: (SimpleTrack) -> None
-        self.has_monitor_in = not self.has_monitor_in
+        self.has_monitor_in = not self.has_monitor_in  # type: ignore[has-type]
 
     def record_all(self):
         # type: (SimpleTrack) -> Sequence
         """ finishes on end of recording """
         seq = Sequence()
-        seq.add(self.clip_slots[self.next_empty_clip_slot_index].record)
+        assert self.next_empty_clip_slot_index
+        seq.add(self.clip_slots[self.next_empty_clip_slot_index].record)  # type: ignore[has-type]
         seq.add(self._post_record)
         return seq.done()
 
@@ -47,7 +48,7 @@ class SimpleTrackActionMixin(object):
 
     def create_clip(self, clip_slot_index=0, name=None, bar_count=1):
         # type: (SimpleTrack, int, str, int) -> Optional[Sequence]
-        clip_slot = self.clip_slots[clip_slot_index]
+        clip_slot = self.clip_slots[clip_slot_index]  # type: ignore[has-type]
         if clip_slot.has_clip:
             return None
 
@@ -57,7 +58,7 @@ class SimpleTrackActionMixin(object):
             complete_on=clip_slot._has_clip_listener,
         )
         if name:
-            seq.add(lambda: setattr(self.clip_slots[clip_slot_index].clip, "name", name), name="set clip name")
+            seq.add(lambda: setattr(self.clip_slots[clip_slot_index].clip, "name", name), name="set clip name")  # type: ignore[has-type]
 
         return seq.done()
 

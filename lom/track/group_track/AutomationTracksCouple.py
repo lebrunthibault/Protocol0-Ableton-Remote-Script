@@ -33,7 +33,7 @@ class AutomationTracksCouple(AbstractObject):
             self._track_synchronizer = TrackSynchronizer(self.audio_track, self.midi_track, ["mute", "solo"])
             self._clip_slot_synchronizers = [
                 ClipSlotSynchronizer(midi_clip_slot, audio_clip_slot)
-                for midi_clip_slot, audio_clip_slot in itertools.izip(
+                for midi_clip_slot, audio_clip_slot in itertools.izip(  # type: ignore[attr-defined]
                     self.midi_track.clip_slots, self.audio_track.clip_slots
                 )
             ]

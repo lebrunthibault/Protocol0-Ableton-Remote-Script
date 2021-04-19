@@ -16,7 +16,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def __init__(self, track, index, *a, **k):
         # type: (Live.Track.Track, int, Any, Any) -> None
         self._track = track  # type: Live.Track.Track
-        self.index = index
+        self.index = index  # type: int
         super(SimpleTrack, self).__init__(track=self, *a, **k)
         if self.group_track:
             self.group_track.sub_tracks.append(self)
@@ -32,7 +32,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self.clip_slots = [
             ClipSlot.make(clip_slot=clip_slot, index=i, track=self)
             for (i, clip_slot) in enumerate(list(self._track.clip_slots))
-        ]
+        ]  # type: List[ClipSlot]
         self._map_clip_listener.replace_subjects(self.clip_slots)
 
         self.last_clip_played = None  # type: Optional[Clip]
@@ -58,7 +58,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
 
         self.last_clip_played = self.playing_clip
 
-    @subject_slot("fired_slot_index")
+    @p0_subject_slot("fired_slot_index")
     def _fired_slot_index_listener(self):
         # type: () -> None
         # noinspection PyUnresolvedReferences

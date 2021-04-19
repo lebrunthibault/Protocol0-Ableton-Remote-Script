@@ -151,7 +151,7 @@ def test_async_callback():
         assert test_res_callbacks == [0, 1, 2, 3]
 
     seq = Sequence(silent=True)
-    seq.add(obj1.callback_listener)
-    seq.add(obj2.callback_listener)
+    seq.add(obj1.callback_listener)  # type: ignore[arg-type]
+    seq.add(obj2.callback_listener)  # type: ignore[arg-type]
     seq.add(partial(check_res, test_res_callbacks))
     seq.done()

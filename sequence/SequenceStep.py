@@ -7,6 +7,7 @@ from a_protocol_0.errors.SequenceError import SequenceError
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
 from a_protocol_0.utils.callback_descriptor import CallableWithCallbacks
+from a_protocol_0.utils.decorators import p0_subject_slot
 from a_protocol_0.utils.timeout import TimeoutLimit
 from a_protocol_0.utils.utils import _has_callback_queue, is_lambda, get_callable_name, nop
 
@@ -115,10 +116,13 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
 
     def _execute_condition(self):
         # type: () -> None
-        terminate_callback = (
-            self._terminate_if_condition
-            if self._condition in [self._do_if, self._do_if_not]
-            else self._terminate_return_condition
+        terminate_callback = cast(
+            CallableWithCallbacks,
+            (
+                self._terminate_if_condition
+                if self._condition in [self._do_if, self._do_if_not]
+                else self._terminate_return_condition
+            ),
         )
         try:
             condition_res = self._execute_callable(cast(Callable, self._condition))
@@ -127,7 +131,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
 
         self._handle_return_value(condition_res, terminate_callback, terminate_callback)
 
-    @subject_slot("terminated")
+    @p0_subject_slot("terminated")
     def _terminate_if_condition(self, res=None):
         # type: (Optional[Any]) -> None
         if_res = res
@@ -210,7 +214,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
             raise SequenceError()  # will stop sequence processing
 
     def _handle_return_value(self, res, listener, success_callback):
-        # type: (Any, Callable, Callable[Any]) -> None
+        # type: (Any, CallableWithCallbacks, Callable[Any]) -> None
         from a_protocol_0.sequence.Sequence import Sequence
 
         if isinstance(res, Sequence):
@@ -219,7 +223,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
             elif res.terminated:
                 success_callback(res.res)
             else:
-                listener.subject = res
+                listener.subject = res  # type: ignore[attr-defined]
                 if not res.started:
                     res.start()
         else:
@@ -232,7 +236,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         except SequenceError:
             return
 
-        self._handle_return_value(res, self._step_sequence_terminated_listener, self._check_for_step_completion)
+        self._handle_return_value(res, self._step_sequence_terminated_listener, self._check_for_step_completion)  # type: ignore[arg-type]
 
     def _step_timed_out(self):
         # type: () -> None
@@ -244,7 +248,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
 
         self.error()
 
-    @subject_slot("terminated")
+    @p0_subject_slot("terminated")
     def _step_sequence_terminated_listener(self):
         # type: () -> None
         self.res = self._step_sequence_terminated_listener.subject.res

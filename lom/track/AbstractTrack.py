@@ -1,9 +1,9 @@
 from abc import abstractproperty
 from functools import partial
-from itertools import chain, imap
+from itertools import chain, imap  # type: ignore[attr-defined]
 
 import Live
-from typing import Any, Optional, List, Union
+from typing import Any, Optional, List, Union, cast
 from typing import TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot
@@ -49,6 +49,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         )  # type: List[SimpleTrack]
         self.sub_tracks = []  # type: List[SimpleTrack]
 
+        self.track_name = None  # type: Optional[TrackName]
         self.track_name = TrackName(self)
 
         # DEVICES
@@ -136,7 +137,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         top_abstract_track = self
         while top_abstract_track.abstract_group_track:
             top_abstract_track = top_abstract_track.abstract_group_track
-        return top_abstract_track
+        return cast(AbstractTrack, top_abstract_track)
 
     @property
     def all_tracks(self):

@@ -1,7 +1,7 @@
 from collections import deque
 from functools import partial
 
-from typing import Callable, Deque, Optional, Any, cast
+from typing import Callable, Deque, Optional, Any, cast, Type
 
 from a_protocol_0.utils.log import log_ableton
 from a_protocol_0.utils.utils import is_partial, get_callable_name
@@ -35,7 +35,7 @@ class CallbackDescriptor(object):
         super(CallbackDescriptor, self).__init__()
         self.__name__ = func.__name__
         self.__doc__ = func.__doc__
-        self._func = func
+        self._func = func  # type: Any
         self._immediate = immediate
         self._wrapped = None  # type: Optional[CallableWithCallbacks]
 
@@ -44,10 +44,10 @@ class CallbackDescriptor(object):
         if self._wrapped:
             return str(self._wrapped)
         else:
-            return u"%s_%d_%s" % (get_callable_name(self._func), id(self), self.__class__.__name__)
+            return "%s_%d_%s" % (get_callable_name(self._func), id(self), self.__class__.__name__)
 
     def __get__(self, obj, cls=None):
-        # type: (Any, Optional[str]) -> Optional[Any]
+        # type: (Any, Type[object]) -> Optional[Any]
         if obj is None:
             return None
         try:
@@ -80,7 +80,7 @@ class CallableWithCallbacks(object):
         # type: (Callable, object, bool) -> None
         super(CallableWithCallbacks, self).__init__()
         self._real_name = None
-        self._decorated = decorated
+        self._decorated = decorated  # type: Any
         self._obj = obj
         self._immediate = immediate
         self._callbacks = deque()  # type: Deque[Callable]

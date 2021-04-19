@@ -68,7 +68,7 @@ class AutomationTrackManager(AbstractControlSurfaceComponent):
             silent=True,
         )
         # instantiating AutomatedTrack on first parameter automation
-        seq.add(self.parent.songManager._tracks_listener, name="AutomatedTrack creation")
+        seq.add(self.parent.songManager._tracks_listener, name="AutomatedTrack creation")  # type: ignore[arg-type]
         seq.add(partial(setattr, self, "created_tracks_indexes", set()), silent=True)
 
         return seq.done()

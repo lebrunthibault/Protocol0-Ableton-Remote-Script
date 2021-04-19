@@ -100,7 +100,7 @@ class MidiClip(Clip):
 
         changed_notes = []  # type: List[Tuple[Note, Note]]
         # keeping only those who have the same excluded properties and at least one checked_property change
-        for prev_note, note in itertools.izip(prev_notes, notes):
+        for prev_note, note in itertools.izip(prev_notes, notes):  # type: ignore[attr-defined]
             if have_equal_properties(prev_note, note, excluded_properties) and not have_equal_properties(
                 prev_note, note, checked_properties
             ):
