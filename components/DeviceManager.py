@@ -1,7 +1,7 @@
 from functools import partial
 
 import Live
-from typing import TYPE_CHECKING, Optional, Tuple
+from typing import TYPE_CHECKING, Optional, Tuple, Dict
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
@@ -86,6 +86,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
         self.parent._wait(1000, partial(self._update_device_params, rack_device, parameters))
 
     def _update_device_params(self, device, parameters):
+        # type: (Device, Dict[str, float]) -> None
         for name, value in parameters.items():
             param = find_if(lambda p: p.name.lower() == name.lower(), device.parameters)
             if param and param.is_enabled:
@@ -123,6 +124,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
         return track.selected_device
 
     def _get_device_click_x_position(self, device_position):
+        # type: (int) -> int
         return self.WIDTH_PIXEL_OFFSET + device_position * self.COLLAPSED_DEVICE_PIXEL_WIDTH
 
     def check_plugin_window_showable(self, device):
@@ -179,6 +181,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
             )
 
             def collapse_rack_devices():
+                # type: () -> None
                 for d in parent_rack.chains[0].devices:
                     d.is_collapsed = False
 

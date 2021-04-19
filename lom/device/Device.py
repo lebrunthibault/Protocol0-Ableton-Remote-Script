@@ -45,31 +45,40 @@ class Device(AbstractObject):
             return Device(device=device, track=track, index=index)
 
     def select(self):
+        # type: () -> None
         self.song.select_device(self)
 
-    def scroll_presets(self, *a, **k):
+    def scroll_presets(self):
+        # type: () -> None
         self.parent.show_message("Presets scrolling is only available for plugin devices")
 
     @property
     def name(self):
+        # type: () -> str
         return self._device.name
 
     @property
     def is_active(self):
+        # type: () -> bool
         return self._device.is_active
 
     @property
     def is_collapsed(self):
+        # type: () -> bool
         return self._view.is_collapsed
 
     @is_collapsed.setter
     def is_collapsed(self, is_collapsed):
+        # type: (bool) -> None
         self._view.is_collapsed = is_collapsed
 
     @subject_slot("parameters")
     def _parameters_listener(self):
+        # type: () -> None
         self.parameters = [DeviceParameter(self, parameter) for parameter in self._device.parameters]
 
     def disconnect(self):
+        # type: () -> None
         super(Device, self).disconnect()
-        [parameter.disconnect() for parameter in self.parameters]
+        for parameter in self.parameters:
+            parameter.disconnect()

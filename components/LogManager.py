@@ -6,6 +6,7 @@ from a_protocol_0.lom.clip.AutomationAudioClip import AutomationAudioClip
 
 class LogManager(AbstractObject):
     def log_set(self):
+        # type: () -> None
         self.parent.keyboardShortcutManager.focus_logs()
         self.parent.log_notice("********* SONG *************")
         self.parent.log_info()

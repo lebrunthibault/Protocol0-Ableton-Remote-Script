@@ -1,4 +1,5 @@
 import pytest
+from typing import Any
 
 from a_protocol_0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
 from a_protocol_0.controls.EncoderAction import EncoderAction
@@ -9,6 +10,7 @@ from a_protocol_0.tests.test_all import p0
 
 class ActionGroupTest(AbstractActionGroup):
     def __init__(self, channel=0, *a, **k):
+        # type: (int, Any, Any) -> None
         super(ActionGroupTest, self).__init__(channel=channel, record_actions_as_global=False, *a, **k)
 
 
@@ -24,14 +26,17 @@ def scroll_encoder(encoder):
 
 
 def make_multi_encoder(identifier=1):
+    # type: (int) -> MultiEncoder
     with p0.component_guard():
         return ActionGroupTest().add_encoder(id=identifier, name="pytest")
 
 
 def test_multi_encoder_press():
+    # type: () -> None
     res = {"pressed": False}
 
     def press():
+        # type: () -> None
         res["pressed"] = True
 
     with p0.component_guard():
@@ -46,9 +51,11 @@ def test_multi_encoder_press():
 
 
 def test_multi_encoder_scroll():
+    # type: () -> None
     res = {"scrolled": False}
 
     def scroll(go_next):
+        # type: (bool) -> None
         res["scrolled"] = True
 
     with p0.component_guard():
@@ -60,12 +67,15 @@ def test_multi_encoder_scroll():
 
 
 def test_multi_encoder_press_and_scroll():
+    # type: () -> None
     res = {"pressed": False, "scrolled": False}
 
     def scroll(go_next):
+        # type: (bool) -> None
         res["scrolled"] = True
 
     def press():
+        # type: () -> None
         res["pressed"] = True
 
     with p0.component_guard():
@@ -80,9 +90,11 @@ def test_multi_encoder_press_and_scroll():
 
 
 def test_multi_encoder_shift_press():
+    # type: () -> None
     res = {"shift_pressed": False}
 
     def shift_press():
+        # type: () -> None
         res["shift_pressed"] = True
 
     with p0.component_guard():
@@ -99,9 +111,11 @@ def test_multi_encoder_shift_press():
 
 
 def test_multi_encoder_dup_press():
+    # type: () -> None
     res = {"dup_pressed": False}
 
     def dup_press():
+        # type: () -> None
         res["dup_pressed"] = True
 
     multi_encoder = make_multi_encoder()

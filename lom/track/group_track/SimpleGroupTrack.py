@@ -1,5 +1,7 @@
 from functools import partial
 
+from typing import Any, Optional
+
 from a_protocol_0.lom.device.DeviceType import DeviceType
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.sequence.Sequence import Sequence
@@ -7,6 +9,7 @@ from a_protocol_0.sequence.Sequence import Sequence
 
 class SimpleGroupTrack(AbstractGroupTrack):
     def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
         super(SimpleGroupTrack, self).__init__(*a, **k)
         for sub_track in self.sub_tracks:
             sub_track.abstract_group_track = self
@@ -21,6 +24,7 @@ class SimpleGroupTrack(AbstractGroupTrack):
         self.selection_tracks = [self.base_track]  # sub tracks are independent
 
     def _added_track_init(self):
+        # type: () -> Sequence
         seq = Sequence()
         self.is_folded = False
 
@@ -33,9 +37,11 @@ class SimpleGroupTrack(AbstractGroupTrack):
         return seq.done()
 
     def arm_track(self):
+        # type: () -> None
         self.is_folded = not self.is_folded
 
     def _rename_to_sub_tracks_instrument(self):
+        # type: () -> None
         instrument_classes = list(
             set([sub_track.instrument.__class__ for sub_track in self.sub_tracks if sub_track.instrument])
         )
@@ -44,6 +50,7 @@ class SimpleGroupTrack(AbstractGroupTrack):
             self.track_name.update(base_name=instrument_class.NAME)
 
     def _get_single_sub_track_routing(self):
+        # type: () -> Optional[Any]
         output_routing_objects = list(
             set([sub_track.output_routing_type.attached_object for sub_track in self.sub_tracks])
         )
@@ -53,8 +60,11 @@ class SimpleGroupTrack(AbstractGroupTrack):
             self.song.master_track,
         ):
             return output_routing_objects[0]
+        else:
+            return None
 
     def _sync_group_output_routing(self):
+        # type: () -> None
         """
         if all subtracks (usually only one) are mapped to a single different track (e.g. a bus)
         then route the group track to this track
@@ -64,4 +74,5 @@ class SimpleGroupTrack(AbstractGroupTrack):
             self.set_output_routing_to(self._single_sub_track_routing)
 
     def record(self, *a, **k):
+        # type: (Any, Any) -> None
         pass

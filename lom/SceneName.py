@@ -21,6 +21,7 @@ class SceneName(AbstractObject):
     @p0_subject_slot("name")
     @defer
     def _name_listener(self):
+        # type: () -> None
         match = re.match("^(?P<base_name>[^()]*[^()\s])\s*(\((?P<length>\d*)\))?(?P<looping>\*)?.*$", self.scene.name)
         self.base_name = match.group("base_name").strip() if match else ""
         self.update()

@@ -21,18 +21,23 @@ class DeviceChain(AbstractObject):
         self._devices_listener()
 
     def __repr__(self):
+        # type: () -> str
         return self.name
 
     @property
     def name(self):
+        # type: () -> str
         return self._chain.name
 
     @subject_slot("devices")
     def _devices_listener(self):
+        # type: () -> None
         from a_protocol_0.lom.device.Device import Device
 
         self.devices = [Device.make(device, self.track, index) for index, device in enumerate(self._chain.devices)]
 
     def disconnect(self):
+        # type: () -> None
         super(DeviceChain, self).disconnect()
-        [device.disconnect() for device in self.devices]
+        for device in self.devices:
+            device.disconnect()

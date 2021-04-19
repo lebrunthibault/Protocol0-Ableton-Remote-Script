@@ -1,4 +1,5 @@
 import Live
+from traitlets import Any
 from typing import TYPE_CHECKING
 
 from _Framework.ControlSurface import get_control_surfaces
@@ -12,12 +13,16 @@ if TYPE_CHECKING:
 
 class AbstractObject(SlotManager, Subject):
     def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
         super(AbstractObject, self).__init__(*a, **k)
         from a_protocol_0 import Protocol0
 
-        self._parent = find_if(lambda cs: isinstance(cs, Protocol0), get_control_surfaces())
+        parent = find_if(lambda cs: isinstance(cs, Protocol0), get_control_surfaces())
+        assert parent
+        self._parent = parent  # type: Protocol0
 
     def __repr__(self):
+        # type: () -> str
         repr = "P0 %s" % self.__class__.__name__
         if hasattr(self, "name") and isinstance(self.name, str):
             repr = "%s: %s" % (repr, self.name)
@@ -29,6 +34,7 @@ class AbstractObject(SlotManager, Subject):
         return repr
 
     def __hash__(self):
+        # type: () -> int
         return hash(repr(self))
 
     def __ne__(self, obj):

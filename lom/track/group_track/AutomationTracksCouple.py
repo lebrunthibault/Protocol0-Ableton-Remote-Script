@@ -54,6 +54,7 @@ class AutomationTracksCouple(AbstractObject):
         midi_simple_track.disconnect()
 
     def disconnect(self):
+        # type: () -> None
         super(AutomationTracksCouple, self).disconnect()
         self._track_synchronizer.disconnect()
         for clip_slot_synchronizer in self._clip_slot_synchronizers:

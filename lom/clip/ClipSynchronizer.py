@@ -38,5 +38,6 @@ class ClipSynchronizer(ObjectSynchronizer):
             return self.properties
 
     def disconnect(self):
+        # type: () -> None
         super(ClipSynchronizer, self).disconnect()
         self.master.linked_clip = self.slave.linked_clip = None

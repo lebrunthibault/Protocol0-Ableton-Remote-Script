@@ -21,13 +21,16 @@ class InstrumentPresetList(AbstractObject):
         self.sync_presets()
 
     def __repr__(self):
+        # type: () -> str
         return "preset count: %d, selected preset: %s" % (len(self.presets), self.selected_preset)
 
     def sync_presets(self):
+        # type: () -> None
         self._import_presets()
         self.selected_preset = self._get_selected_preset()
 
     def _import_presets(self):
+        # type: () -> None
         self.presets = []
         presets_path = self.instrument.presets_path
         if not presets_path:

@@ -1,7 +1,8 @@
 import sys
 from traceback import extract_tb
+from types import TracebackType
 
-from typing import Optional
+from typing import Optional, Any, List, Type
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import ROOT_DIR
@@ -9,6 +10,7 @@ from a_protocol_0.consts import ROOT_DIR
 
 class ErrorManager(AbstractControlSurfaceComponent):
     def __init__(self, set_excepthook=False, *a, **k):
+        # type: (bool, Any, Any) -> None
         super(ErrorManager, self).__init__(*a, **k)
         if set_excepthook:
             sys.excepthook = self.handle_uncaught_exception
@@ -17,12 +19,15 @@ class ErrorManager(AbstractControlSurfaceComponent):
         # type: (Exception, Optional[str]) -> None
         self.song.end_undo_step()
         exc_type, exc_value, tb = sys.exc_info()
+        assert exc_type and exc_value and tb
         self._handle_exception(exc_type, exc_value, tb, context)
 
     def handle_uncaught_exception(self, exc_type, exc_value, tb):
+        # type: (Type[BaseException], BaseException, TracebackType) -> None
         self._handle_exception(exc_type, exc_value, tb)
 
     def _handle_exception(self, exc_type, exc_value, tb, context=None):
+        # type: (Type[BaseException], BaseException, TracebackType, Optional[str]) -> None
         show = [fs for fs in extract_tb(tb) if self._check_file(fs[0])]
         self.parent.log_error("----- %s -----" % exc_value, debug=False)
         if context:
@@ -37,9 +42,11 @@ class ErrorManager(AbstractControlSurfaceComponent):
         self.parent.defer(self.song.reset)
 
     def _check_file(self, name):
-        return name and name.startswith(ROOT_DIR)
+        # type: (str) -> bool
+        return bool(name and name.startswith(ROOT_DIR))
 
     def _format_list(self, extracted_list, print_line=True):
+        # type: (List[Any], bool) -> List[str]
         """Format a list of traceback entry tuples for printing.
 
         Given a list of tuples as returned by extract_tb() or

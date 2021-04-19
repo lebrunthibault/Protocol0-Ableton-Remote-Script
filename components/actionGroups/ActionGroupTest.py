@@ -1,3 +1,5 @@
+from typing import Any, NoReturn
+
 from a_protocol_0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
 from a_protocol_0.sequence.Sequence import Sequence
 
@@ -8,6 +10,7 @@ class ActionGroupTest(AbstractActionGroup):
     """
 
     def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
         super(ActionGroupTest, self).__init__(channel=0, *a, **k)
         # 1 encoder
         self.add_encoder(id=1, name="test", on_press=self.action_test)
@@ -15,25 +18,23 @@ class ActionGroupTest(AbstractActionGroup):
         self.previous_live_id = None
 
     def error(self):
+        # type: () -> NoReturn
         raise Exception("exception thrown")
 
     def action_error(self):
+        # type: () -> Sequence
         seq = Sequence()
         seq.add(self.error)
         return seq.done()
 
     def action_test(self):
+        # type: () -> None
         self.song.end_undo_step()
         self.song.end_undo_step()
         self.song.end_undo_step()
-
-        # seq = Sequence()
-        # seq.add(wait=1)
-        # seq.add(self.action_error)
-        # return seq.done()
 
     def action_test_state(self):
-        self.error()
+        # type: () -> None
         self.parent.log_info(self.previous_instrument)
         self.parent.log_info(self.song.selected_track.instrument.device._device)
         self.parent.log_info(self.song.selected_track.instrument.device._device._live_ptr)

@@ -20,5 +20,6 @@ class AbstractGroupTrack(AbstractTrack):
 
     @p0_subject_slot("instrument")
     def _instrument_listener(self):
+        # type: () -> None
         self.instrument = self.instrument_track.instrument or self.base_track.instrument
         self.instrument.sync_presets()

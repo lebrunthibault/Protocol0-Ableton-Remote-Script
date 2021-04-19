@@ -1,9 +1,10 @@
-from typing import TYPE_CHECKING, List, Any
+from typing import TYPE_CHECKING, List, Any, Optional
 
 from _Framework.Util import forward_property
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.group_track.AutomationTracksCouple import AutomationTracksCouple
+from a_protocol_0.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
     from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -43,6 +44,7 @@ class AutomatedTrack(AbstractGroupTrack):
         self.selection_tracks += getattr(self.wrapped_track, "selection_tracks", None) or [self.wrapped_track]
 
     def link_audio_tracks(self):
+        # type: () -> None
         audio_tracks = (
             [self.base_track]
             + [couple.audio_track for couple in self.automation_tracks_couples]
@@ -68,56 +70,71 @@ class AutomatedTrack(AbstractGroupTrack):
 
     @forward_property("wrapped_track")
     def is_armed(self):
+        # type: () -> None
         pass
 
     @forward_property("wrapped_track")
     def solo(self):
+        # type: () -> None
         pass
 
     @forward_property("wrapped_track")
     def is_playing(self):
+        # type: () -> None
         pass
 
     @forward_property("wrapped_track")
     def is_recording(self):
+        # type: () -> None
         pass
 
     @forward_property("wrapped_track")
     def next_empty_clip_slot_index(self):
+        # type: () -> None
         pass
 
     def arm_track(self):
+        # type: () -> Optional[Sequence]
         self.is_folded = False
         return self.wrapped_track.arm_track()
 
     @forward_property("wrapped_track")
     def unarm_track(self):
+        # type: () -> None
         pass
 
     @forward_property("wrapped_track")
     def switch_monitoring(self):
+        # type: () -> None
         pass
 
     @forward_property("wrapped_track")
     def record(self, *a, **k):
+        # type: (Any, Any) -> None
         pass
 
     @forward_property("wrapped_track")
     def record_all(self):
+        # type: () -> None
         pass
 
     @forward_property("wrapped_track")
     def record_audio_only(self, *a, **k):
+        # type: (Any, Any) -> None
         pass
 
     @forward_property("wrapped_track")
     def _post_record(self, *a, **k):
+        # type: (Any, Any) -> None
         pass
 
     @forward_property("wrapped_track")
     def undo_track(self):
+        # type: () -> None
         pass
 
     def disconnect(self):
+        # type: () -> None
         super(AutomatedTrack, self).disconnect()
-        [automation_tracks_couple.disconnect() for automation_tracks_couple in self.automation_tracks_couples]
+        for automation_tracks_couple in self.automation_tracks_couples:
+            automation_tracks_couple.disconnect()

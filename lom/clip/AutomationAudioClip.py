@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Any
 
 from _Framework.SubjectSlot import subject_slot_group
 from a_protocol_0.automation.AutomationCurveGenerator import AutomationCurveGenerator
@@ -17,6 +17,7 @@ if TYPE_CHECKING:
 
 class AutomationAudioClip(AbstractAutomationClip, AudioClip):
     def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
         super(AutomationAudioClip, self).__init__(*a, **k)
         self.track = self.track  # type: AutomationAudioTrack
         self._linked_listener.subject = self
@@ -27,6 +28,7 @@ class AutomationAudioClip(AbstractAutomationClip, AudioClip):
 
     @p0_subject_slot("linked")
     def _linked_listener(self):
+        # type: () -> None
         """ linked clip is available """
         self._notes_listener.subject = self.linked_clip
         self._ramp_change_listener.replace_subjects(
@@ -37,18 +39,21 @@ class AutomationAudioClip(AbstractAutomationClip, AudioClip):
         )
 
     def _on_selected(self):
+        # type: () -> None
         self.view.show_envelope()
         self.view.select_envelope_parameter(self.track.automated_parameter._device_parameter)
         self.view.show_loop()
 
     @subject_slot_group("ramp_change")
     def _ramp_change_listener(self, ramp_mode):
+        # type: (AutomationRampMode) -> None
         self._notes_listener()
 
     @p0_subject_slot("notes")
     def _notes_listener(self):
+        # type: () -> None
         """ retry is on clip creation : the clip is created but the device can take longer to load """
-        if not self._clip:
+        if not self._clip or not self.track.automated_parameter:
             return
 
         envelope = self.automation_envelope(self.track.automated_parameter)

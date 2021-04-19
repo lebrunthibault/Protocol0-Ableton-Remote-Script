@@ -17,6 +17,7 @@ class SchedulerEvent(AbstractObject):
         self.name = get_callable_name(self._callback)
 
     def __repr__(self):
+        # type: () -> str
         return "%s (%d / %d)" % (self.name, self._ticks_left, self._tick_count)
 
     @property
@@ -25,10 +26,12 @@ class SchedulerEvent(AbstractObject):
         return self._ticks_left == 0
 
     def decrement_timeout(self):
+        # type: () -> None
         assert self._ticks_left > 0
         self._ticks_left -= 1
 
     def execute(self):
+        # type: () -> None
         assert not self._executed
         if self.song.errored:
             return
@@ -43,20 +46,24 @@ class FastScheduler(AbstractControlSurfaceComponent):
     TICK_MS_DURATION = 17  # average 17 ms
 
     def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
         super(FastScheduler, self).__init__(*a, **k)
         self._scheduler = Live.Base.Timer(callback=self._on_tick, interval=1, repeat=True)
         self._scheduler.start()
         self._scheduled_events = []  # type: List[SchedulerEvent]
 
     def stop(self):
+        # type: () -> None
         self._scheduled_events = []
         self._scheduler.stop()
 
     def restart(self):
+        # type: () -> None
         self.stop()
         self._scheduler.start()
 
     def _on_tick(self):
+        # type: () -> None
         for scheduled_event in self._scheduled_events[:]:
             if scheduled_event.is_timeout_elapsed:
                 self._execute_event(scheduled_event)

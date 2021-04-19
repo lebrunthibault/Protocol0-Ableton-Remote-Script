@@ -1,8 +1,9 @@
 import json
 import os
 import threading
+from types import MethodType
 
-from typing import Callable, Optional
+from typing import Callable, Optional, Any
 
 from ClyphX_Pro import ClyphXComponentBase, ParseUtils
 from ClyphX_Pro.clyphx_pro.actions.GlobalActions import GlobalActions
@@ -35,7 +36,6 @@ from a_protocol_0.controls.EncoderAction import EncoderAction
 from a_protocol_0.enums.LogLevelEnum import LogLevelEnum
 from a_protocol_0.lom.Song import Song
 from a_protocol_0.utils.log import log_ableton
-from types import MethodType
 
 
 class Protocol0(ControlSurface):
@@ -43,6 +43,7 @@ class Protocol0(ControlSurface):
     LIVE_ENVIRONMENT_LOADED = True
 
     def __init__(self, c_instance=None, init_song=True):
+        # type: (Any, bool) -> None
         super(Protocol0, self).__init__(c_instance=c_instance)
         # noinspection PyProtectedMember
         Protocol0.SELF = self
@@ -88,6 +89,7 @@ class Protocol0(ControlSurface):
             self.log_info("Protocol0 script loaded")
 
     def post_init(self):
+        # type: () -> None
         self.protocol0_song.reset()
         self.defer(self.dev_boot)
 
@@ -102,15 +104,19 @@ class Protocol0(ControlSurface):
         self._log(level=LogLevelEnum.DEV, message=message, debug=debug)
 
     def log_debug(self, *a, **k):
+        # type: (Any, Any) -> None
         self._log(level=LogLevelEnum.DEBUG, *a, **k)
 
     def log_info(self, *a, **k):
+        # type: (Any, Any) -> None
         self._log(level=LogLevelEnum.INFO, *a, **k)
 
     def log_notice(self, *a, **k):
+        # type: (Any, Any) -> None
         self._log(level=LogLevelEnum.NOTICE, *a, **k)
 
     def log_warning(self, *a, **k):
+        # type: (Any, Any) -> None
         self._log(level=LogLevelEnum.WARNING, *a, **k)
 
     def log_error(self, message="", debug=True):
@@ -159,15 +165,18 @@ class Protocol0(ControlSurface):
                 ).start()
 
     def clear_tasks(self):
+        # type: () -> None
         del self._remaining_scheduled_messages[:]
         self._task_group.clear()
         self.fastScheduler.restart()
 
     def dev_boot(self):
+        # type: () -> None
         if self._is_dev_booted:
             return
 
     def load_dotenv(self):
+        # type: () -> None
         """ doing this manually because dotenv throws an encoding error """
         with open("%s/.env.json" % ROOT_DIR) as f:
             env_vars = json.loads(f.read())
@@ -175,6 +184,7 @@ class Protocol0(ControlSurface):
                 os.environ[key] = str(value)
 
     def disconnect(self):
+        # type: () -> None
         ParseUtils._midi_message_registry = {}
         super(Protocol0, self).disconnect()
         self.fastScheduler.stop()

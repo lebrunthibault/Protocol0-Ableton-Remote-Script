@@ -23,6 +23,7 @@ class Scene(AbstractObject):
 
     @p0_subject_slot("is_triggered")
     def _is_triggered_listener(self):
+        # type: () -> None
         """
         implements a next scene follow action
         when the scene is triggered (e.g. clicked or fired via script) the scheduler is cleared
@@ -39,22 +40,27 @@ class Scene(AbstractObject):
             self._schedule_next_scene_launch()
 
     def _schedule_next_scene_launch(self):
+        # type: () -> None
         if self.index == len(self.song.scenes) - 1:
             return
         next_scene = self.song.scenes[self.index + 1]
         self.parent.sceneBeatScheduler.wait_beats(self.length - self.playing_position, next_scene.fire)
 
     def select(self):
+        # type: () -> None
         self.song.selected_scene = self
 
     def fire(self):
+        # type: () -> None
         if self._scene:
             self._scene.fire()
 
     def play_stop(self):
+        # type: () -> None
         self.fire()
 
     def toggle_solo(self):
+        # type: () -> None
         """ for a scene solo means looped """
         if not self.looping:  # solo activation
             previous_looping_scene = self.song.looping_scene
@@ -75,12 +81,13 @@ class Scene(AbstractObject):
 
     @color.setter
     def color(self, color):
+        # type: (int) -> None
         self._scene.color = color
 
     @property
     def is_triggered(self):
-        # type: () -> int
-        return self._scene.is_triggered
+        # type: () -> bool
+        return bool(self._scene.is_triggered)
 
     @property
     def name(self):

@@ -1,4 +1,4 @@
-from typing import List, Optional, Any
+from typing import List, Optional, Any, Callable
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.controls.EncoderAction import EncoderAction
@@ -38,15 +38,15 @@ class AbstractActionGroup(AbstractControlSurfaceComponent):
     def add_encoder(
         self,
         id,  # type: int
-        name=None,
-        on_press=None,
-        on_long_press=None,
-        on_shift_press=None,
-        on_shift_long_press=None,
-        on_scroll=None,
-        on_shift_scroll=None,
+        name,  # type: str
+        on_press=None,  # type: Optional[Callable]
+        on_long_press=None,  # type: Optional[Callable]
+        on_shift_press=None,  # type: Optional[Callable]
+        on_shift_long_press=None,  # type: Optional[Callable]
+        on_scroll=None,  # type: Optional[Callable]
+        on_shift_scroll=None,  # type: Optional[Callable]
     ):
-        assert name, "encoder should have a name"
+        # type: (...) -> MultiEncoder
         k = locals()
         encoder = MultiEncoder(group=self, channel=self.channel, identifier=id, name=name)
         for name in ["self", "id", "name"]:
@@ -69,6 +69,7 @@ class AbstractActionGroup(AbstractControlSurfaceComponent):
 
     @property
     def current_action(self):
+        # type: () -> Optional[EncoderAction]
         return self._current_action
 
     @current_action.setter

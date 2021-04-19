@@ -17,6 +17,7 @@ class DeviceParameter(AbstractObject):
         self._device_parameter = device_parameter
 
     def __repr__(self):
+        # type: () -> str
         return "%s: %s" % (self.name, self.value)
 
     @property

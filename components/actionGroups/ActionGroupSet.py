@@ -1,6 +1,7 @@
+from typing import Any
+
 from a_protocol_0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
 from a_protocol_0.lom.device.RackDevice import RackDevice
-from a_protocol_0.utils.decorators import button_action
 
 
 class ActionGroupSet(AbstractActionGroup):
@@ -10,6 +11,7 @@ class ActionGroupSet(AbstractActionGroup):
     """
 
     def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
         super(ActionGroupSet, self).__init__(channel=14, *a, **k)
         # LOG encoder
         self.add_encoder(id=1, name="log", on_press=self.parent.logManager.log_set)
@@ -23,8 +25,8 @@ class ActionGroupSet(AbstractActionGroup):
         # TRAcK encoder
         self.add_encoder(id=4, name="tracks", on_press=self.set_track_names)
 
-    @button_action()
     def update_racks(self):
+        # type: () -> None
         for track in self.song.simple_tracks:
             [
                 self.parent.deviceManager.update_rack(rack_device=device._device)
@@ -32,13 +34,13 @@ class ActionGroupSet(AbstractActionGroup):
                 if isinstance(device, RackDevice)
             ]
 
-    @button_action()
     def set_clip_names(self):
+        # type: () -> None
         for clip in self.song.clips:
             clip.clip_name.update()
 
-    @button_action()
     def set_track_names(self):
+        # type: () -> None
         for track in self.song.simple_tracks:
             # previous automation track naming
             if "_auto" in track.name:

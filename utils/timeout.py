@@ -20,12 +20,14 @@ class TimeoutLimit(AbstractObject):
         self.timed_out = False
 
     def __repr__(self):
+        # type: () -> str
         output = "%s: %s" % (id(self), get_callable_name(self.func))
         if self.awaited_listener:
             output += " (waiting for listener call %s)" % get_callable_name(self.awaited_listener)
         return output
 
     def __call__(self, *a, **k):
+        # type: (Any, Any) -> None
         if self.timed_out:
             self.parent.log_error("Executed function after timeout: %s" % self)
             return
@@ -34,6 +36,7 @@ class TimeoutLimit(AbstractObject):
         self.func(*a, **k)
 
     def _after_timeout(self):
+        # type: () -> None
         if self.timed_out:
             raise Protocol0Error("Tried to execute timeout function twice: %s" % self)
 

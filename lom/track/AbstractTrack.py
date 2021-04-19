@@ -73,12 +73,13 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self.nav_view = "track"
         self.push2_selected_main_mode = "device"
         self.push2_selected_matrix_mode = "session"
-        self.push2_selected_instrument_mode = None
+        self.push2_selected_instrument_mode = None  # type: Optional[str]
 
     def _added_track_init(self):
+        # type: () -> Optional[Sequence]
         """ this should be be called once, when the Live track is created, overridden by some child classes """
         if self.parent.songManager.abstract_group_track_creation_in_progress:
-            return
+            return None
         self.song.current_track.arm()
         self.song.current_track.stop()
 
@@ -158,6 +159,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
 
     @abstractproperty
     def next_empty_clip_slot_index(self):
+        # type: () -> Optional[int]
         raise NotImplementedError
 
     @property
@@ -197,7 +199,8 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
 
     @property
     def is_selected(self):
-        self.song.selected_track in self.all_tracks
+        # type: () -> bool
+        return self.song.selected_track in self.all_tracks
 
     @property
     def is_folded(self):
@@ -212,7 +215,9 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
 
     @subject_slot("devices")
     def _devices_listener(self):
-        [device.disconnect() for device in self.devices]
+        # type: () -> None
+        for device in self.devices:
+            device.disconnect()
         self.devices = [Device.make(device, self.base_track, index) for index, device in enumerate(self._track.devices)]
         self.all_devices = self._find_all_devices(self.base_track)
         self.all_visible_devices = self._find_all_devices(self.base_track, only_visible=True)
@@ -243,6 +248,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
             pass
 
     def clear_devices(self):
+        # type: () -> None
         for device in self.devices:
             self.delete_device(self.devices[0])
 
@@ -277,16 +283,12 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def set_device_parameter_value(self, device_name, parameter_name, value):
         # type: (str, str, int) -> Optional[Sequence]
 
-        device = find_if(
-            lambda d: d.name.lower() == device_name.lower(), self.song.current_track.all_devices
-        )  # type: Optional[Device]
+        device = find_if(lambda d: d.name.lower() == device_name.lower(), self.song.current_track.all_devices)
         if not device:
             self.parent.log_error("Couldn't find device %s in track devices" % device_name)
             return None
 
-        param = find_if(
-            lambda d: d.name.lower() == parameter_name.lower(), device.parameters
-        )  # type: Optional[DeviceParameter]
+        param = find_if(lambda d: d.name.lower() == parameter_name.lower(), device.parameters)
 
         if not param:
             self.parent.log_error("Couldn't find parameter %s in device %s" % (parameter_name, device_name))
@@ -351,6 +353,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
 
     @property
     def can_be_armed(self):
+        # type: () -> bool
         return self._track.can_be_armed
 
     @property
@@ -435,6 +438,8 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self._track.output_routing_channel = output_routing_channel
 
     def disconnect(self):
+        # type: () -> None
         super(AbstractTrack, self).disconnect()
-        [device.disconnect() for device in self.devices]
+        for device in self.devices:
+            device.disconnect()
         self.track_name.disconnect()

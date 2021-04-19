@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import Set, Optional, cast
+from typing import Set, Optional, Any
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.enums.DirectionEnum import DirectionEnum
@@ -15,16 +15,18 @@ class AutomationTrackManager(AbstractControlSurfaceComponent):
     """ Handles the creation, grouping and routing of an automation track """
 
     def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
         super(AutomationTrackManager, self).__init__(*a, **k)
         self.current_parameter = None  # type: Optional[DeviceParameter]
         self.created_tracks_indexes = set()  # type: Set[int]
 
     @defer
     def create_automation_group(self):
+        # type: () -> Optional[Sequence]
         """ create 2 automation dummy tracks for the selected parameter """
         if self.song.selected_parameter is None:
             self.parent.show_message("No selected parameter")
-            return
+            return None
 
         # here we store this parameter so that the midi track can access it
         # before the audio track has loaded the device from the browser. Makes the track creation faster
@@ -72,16 +74,19 @@ class AutomationTrackManager(AbstractControlSurfaceComponent):
         return seq.done()
 
     def adjust_clip_automation_curve(self, go_next=True, reset=False, direction=DirectionEnum.UP):
+        # type: (bool, bool, DirectionEnum) -> None
         if not isinstance(self.song.selected_clip, AbstractAutomationClip):
-            return
+            return None
 
-        clip = cast(AbstractAutomationClip, self.song.selected_clip)
+        clip = self.song.selected_clip
+        assert isinstance(clip, AbstractAutomationClip)
         if not isinstance(clip, AutomationAudioClip):
+            assert isinstance(clip.linked_clip, AutomationAudioClip)
             clip = clip.linked_clip
 
         if reset:
             clip.automation_ramp_up.is_active = clip.automation_ramp_down.is_active = False
-            return
+            return None
 
         if direction == DirectionEnum.UP:
             clip.automation_ramp_up.scroll(go_next=go_next)

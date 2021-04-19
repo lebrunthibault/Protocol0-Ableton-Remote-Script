@@ -38,6 +38,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self.last_clip_played = None  # type: Optional[Clip]
 
     def __hash__(self):
+        # type: () -> int
         return self.index
 
     @subject_slot("playing_slot_index")
@@ -59,12 +60,14 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
 
     @subject_slot("fired_slot_index")
     def _fired_slot_index_listener(self):
+        # type: () -> None
         # noinspection PyUnresolvedReferences
         self.parent.defer(self.notify_fired_slot_index)
 
     @p0_subject_slot("instrument")
     @defer
     def _instrument_listener(self):
+        # type: () -> None
         if self.instrument:
             self.color = self.instrument.TRACK_COLOR
             if self.instrument.SHOULD_UPDATE_TRACK_NAME:
@@ -72,14 +75,17 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
 
     @subject_slot_group("map_clip")
     def _map_clip_listener(self, clip_slot):
+        # type: (ClipSlot) -> None
         pass
 
     @property
     def playing_slot_index(self):
+        # type: () -> int
         return self._track.playing_slot_index
 
     @property
     def fired_slot_index(self):
+        # type: () -> int
         return self._track.fired_slot_index
 
     @property
@@ -89,12 +95,14 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
 
     @property
     def is_audio(self):
+        # type: () -> bool
         from a_protocol_0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 
         return isinstance(self, SimpleAudioTrack) and self._track.has_audio_input
 
     @property
     def is_midi(self):
+        # type: () -> bool
         from a_protocol_0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 
         return isinstance(self, SimpleMidiTrack) and self._track.has_midi_input
@@ -165,7 +173,9 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         return None
 
     def disconnect(self):
+        # type: () -> None
         super(SimpleTrack, self).disconnect()
-        [clip_slot.disconnect() for clip_slot in self.clip_slots]
+        for clip_slot in self.clip_slots:
+            clip_slot.disconnect()
         if self.instrument:
             self.instrument.disconnect()

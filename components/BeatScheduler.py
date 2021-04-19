@@ -1,7 +1,7 @@
 from functools import partial
 from math import floor
 
-from typing import Callable
+from typing import Callable, Any, Dict
 
 from ClyphX_Pro.SyncedScheduler import SyncedScheduler
 from a_protocol_0.lom.AbstractObject import AbstractObject
@@ -11,7 +11,9 @@ class BeatScheduler(AbstractObject, SyncedScheduler):
     TIMER_DELAY = 5  # mitigate not precise scheduling
 
     def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
         super(BeatScheduler, self).__init__(unschedule_on_stop=True, *a, **k)
+        self._pending_action_lists = self._pending_action_lists  # type: Dict[Callable, Dict[str, float]]
         # SyncedScheduler.__init__(self, unschedule_on_stop=True, *a, **k)
 
     def wait_bars(self, bar_count, callback, exact=False):
@@ -33,5 +35,6 @@ class BeatScheduler(AbstractObject, SyncedScheduler):
         self.schedule_message("%d" % floor(beats), callback)
 
     def clear(self):
+        # type: () -> None
         self._pending_action_lists = {}
         self.parent._wait(self.TIMER_DELAY + 1, partial(setattr, self, "_pending_action_lists", {}))

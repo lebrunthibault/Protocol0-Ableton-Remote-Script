@@ -1,21 +1,25 @@
 import os
+from collections import Iterator
+
+import pytest
+from typing import List
 
 from a_protocol_0.consts import ROOT_DIR
+from a_protocol_0.tests.windows import focus_pycharm
 
 
-def get_code_filenames():
+def get_code_filenames(exclude_folder_list=[]):
+    # type: (List[str]) -> Iterator[str]
     for current_path, folders, files in os.walk(ROOT_DIR):
         if any(
             folder_name in current_path
             for folder_name in [
                 ".git",
-                "tests",
                 "pytest",
                 "jupyter",
                 ".ipynb_checkpoints",
-                "scripts",
-                "sequence",
             ]
+            + exclude_folder_list
         ):
             continue
         for file in files:
@@ -24,9 +28,11 @@ def get_code_filenames():
             yield os.path.join(current_path, file)
 
 
+@pytest.mark.skip(reason="slow")
 def test_sequence_pattern():
+    # type: () -> None
     """ test sequence pattern is respected """
-    for filename in get_code_filenames():
+    for filename in get_code_filenames(["sequence", "tests"]):
         with open(filename, "r") as f:
             file_content = f.read()
             instantiated_sequences = file_content.count(" Sequence(")
@@ -36,13 +42,21 @@ def test_sequence_pattern():
             )
 
 
-def test_init_has_arguments():
-    """ rudimentary code sanity checks """
+@pytest.mark.skip(reason="slow")
+def test_all_methods_typed():
+    # type: () -> None
+    """ used when refactoring untyped code """
     for filename in get_code_filenames():
         with open(filename, "r") as f:
-            file_content = f.read()
             base_filename = filename.replace(ROOT_DIR, "")
-            assert file_content.count("def __init__") <= file_content.count("super("), (
-                "super not called in %s" % base_filename
-            )
-            assert file_content.find("__init__()") == -1, "__init__ called without args in %s" % base_filename
+            lines = f.readlines()
+            for index, line in enumerate(lines):
+                if "def " in line and "):" in line:
+                    if "type: " not in lines[index + 1]:
+                        os.system("pycharm64.exe --line %d ./%s" % (index + 1, base_filename))
+                        focus_pycharm()
+                        assert False, "untyped function in %s:%d\n%s" % (
+                            filename,
+                            index + 1,
+                            line,
+                        )

@@ -1,5 +1,5 @@
 import Live
-from typing import List, Optional
+from typing import List, Optional, Any
 
 from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.lom.device.Device import Device
@@ -10,6 +10,7 @@ from a_protocol_0.utils.utils import find_if
 
 class RackDevice(Device):
     def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
         super(RackDevice, self).__init__(*a, **k)
         self._device = self._device  # type: Live.RackDevice.RackDevice
         self.chains = []  # type: List[DeviceChain]
@@ -20,6 +21,7 @@ class RackDevice(Device):
 
     @subject_slot("chains")
     def _chains_listener(self):
+        # type: () -> None
         self.chains = [DeviceChain(self, chain, index) for index, chain in enumerate(self._device.chains)]
 
     @property
@@ -28,5 +30,7 @@ class RackDevice(Device):
         return find_if(lambda c: c._chain == self._view.selected_chain, self.chains)
 
     def disconnect(self):
+        # type: () -> None
         super(RackDevice, self).disconnect()
-        [chain.disconnect() for chain in self.chains]
+        for chain in self.chains:
+            chain.disconnect()

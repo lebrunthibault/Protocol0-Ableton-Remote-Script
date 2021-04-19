@@ -1,4 +1,4 @@
-from typing import List, Optional, cast
+from typing import List, Optional, cast, Any
 
 from a_protocol_0.consts import PUSH2_BEAT_QUANTIZATION_STEPS
 from a_protocol_0.lom.AbstractObject import AbstractObject
@@ -7,6 +7,7 @@ from a_protocol_0.lom.Note import Note
 
 class QuantizationManager(AbstractObject):
     def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
         super(QuantizationManager, self).__init__(*a, **k)
         self._steps = [v * 4 for v in PUSH2_BEAT_QUANTIZATION_STEPS]
         self._default_index = 3

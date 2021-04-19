@@ -1,10 +1,13 @@
 from enum import Enum
-from typing import List
+from typing import List, NoReturn, TypeVar
+
+T = TypeVar("T", bound=Enum)
 
 
 class AbstractEnum(Enum):
     @classmethod
     def default(cls):
+        # type: () -> NoReturn
         raise NotImplementedError
 
     @classmethod
@@ -13,19 +16,16 @@ class AbstractEnum(Enum):
         return hasattr(cls, key)
 
     @classmethod
-    def has_value(cls, value):
-        # type: (AbstractEnum) -> bool
-        return value in cls._value2member_map_.values()
-
-    @classmethod
     def values(cls):
-        # type: () -> List[AbstractEnum]
+        # type: () -> List[T]
         return cls._value2member_map_.values()
 
     @classmethod
     def get_from_value(cls, value):
+        # type: (str) -> T
         value = value.strip()
-        if not value or not cls.has_value(value):
-            return cls.default()
-        else:
-            return cls(value)
+        for int, enum in cls._value2member_map_:
+            if value == enum.value:
+                return enum
+
+        return cls.default()

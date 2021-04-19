@@ -21,6 +21,7 @@ class EncoderAction(AbstractObject):
         self.modifier_type = modifier_type
 
     def __repr__(self):
+        # type: () -> str
         move = self.move_type.value + ("(%s)" % self.modifier_type.value if self.modifier_type else "")
         return "%s : %s" % (move, get_callable_name(self.func))
 
@@ -48,13 +49,14 @@ class EncoderAction(AbstractObject):
 
     @staticmethod
     def make_actions(
-        on_press=None,
-        on_long_press=None,
-        on_shift_press=None,
-        on_shift_long_press=None,
-        on_scroll=None,
-        on_shift_scroll=None,
+        on_press=None,  # type: Optional[Callable]
+        on_long_press=None,  # type: Optional[Callable]
+        on_shift_press=None,  # type: Optional[Callable]
+        on_shift_long_press=None,  # type: Optional[Callable]
+        on_scroll=None,  # type: Optional[Callable]
+        on_shift_scroll=None,  # type: Optional[Callable]
     ):
+        # type: (...) -> List[EncoderAction]
         """ This is not necessary but makes it more convenient to define most encoder actions. """
         actions = []  # type: List[EncoderAction]
         if on_press:

@@ -1,4 +1,3 @@
-import time
 from collections import defaultdict
 from functools import partial, wraps
 
@@ -9,13 +8,13 @@ from a_protocol_0.utils.utils import is_method
 
 if TYPE_CHECKING:
     from a_protocol_0.components.Push2Manager import Push2Manager
-    from a_protocol_0.lom.AbstractObject import AbstractObject
-    from a_protocol_0.sequence.Sequence import Sequence
     from a_protocol_0.utils.callback_descriptor import CallbackDescriptor
 
 
 def push2_method(defer=True):
+    # type: (bool) -> Callable
     def wrap(func):
+        # type: (Callable) -> Callable
         @wraps(func)
         def decorate(self, *a, **k):
             # type: (Push2Manager, Any, Any) -> None
@@ -24,6 +23,7 @@ def push2_method(defer=True):
                 return
 
             def execute():
+                # type: () -> None
                 with self.push2.component_guard():
                     func(self, *a, **k)
 
@@ -38,8 +38,10 @@ def push2_method(defer=True):
 
 
 def defer(func):
+    # type: (Callable) -> Callable
     @wraps(func)
     def decorate(*a, **k):
+        # type: (Any, Any) -> None
         from a_protocol_0 import Protocol0
 
         Protocol0.SELF.defer(partial(func, *a, **k))
@@ -48,9 +50,12 @@ def defer(func):
 
 
 def retry(retry_count=3, interval=3):
+    # type: (int, int) -> Callable
     def wrap(func):
+        # type: (Callable) -> Callable
         @wraps(func)
         def decorate(*a, **k):
+            # type: (Any, Any) -> None
             from a_protocol_0 import Protocol0
 
             try:
@@ -70,11 +75,14 @@ def retry(retry_count=3, interval=3):
 
 
 def debounce(wait_time=200):
+    # type: (int) -> Callable
     """ here we make the method dynamic """
 
     def wrap(func):
+        # type: (Callable) -> Callable
         @wraps(func)
         def decorate(*a, **k):
+            # type: (Any, Any) -> None
             index = a[0] if is_method(func) else decorate
             wait_time = 0 if k.get("disable_debounce", False) else decorate.wait_time[index]
             k.pop("disable_debounce", None)
@@ -88,6 +96,7 @@ def debounce(wait_time=200):
         decorate.func = func
 
         def execute(func, *a, **k):
+            # type: (Callable, Any, Any) -> None
             index = a[0] if is_method(func) else decorate
             decorate.count[index] -= 1
             if decorate.count[index] == 0:
@@ -98,53 +107,8 @@ def debounce(wait_time=200):
     return wrap
 
 
-def throttle(wait_time=2, max_execution_count=3):
-    def wrap(func):
-        @wraps(func)
-        def decorate(*a, **k):
-            index = a[0] if is_method(func) else decorate
-            exec_time = time.time()
-            if (
-                len([t for t in decorate.execution_times[index][-3:] if exec_time - t < decorate.wait_time])
-                == decorate.max_execution_count
-            ):
-                return
-            func(*a, **k)
-            decorate.execution_times[index].append(time.time())
-
-        decorate.wait_time = wait_time
-        decorate.max_execution_count = max_execution_count
-        decorate.execution_times = defaultdict(lambda: [])
-        decorate.func = func
-
-        return decorate
-
-    return wrap
-
-
-def button_action(auto_arm=False, log_action=True):
-    """ decorator on an action to configure logging and arming (for now) """
-
-    def wrap(func):
-        @wraps(func)
-        def decorate(self, *a, **k):
-            # type: (AbstractObject, Any, Any) -> Sequence
-            from a_protocol_0.sequence.Sequence import Sequence
-
-            seq = Sequence()
-            if auto_arm and not self.song.current_track.is_armed:
-                seq.add(self.song.current_track.arm, silent=True)
-
-            seq.add(partial(func, self, **k))
-
-            return seq.done()
-
-        return decorate
-
-    return wrap
-
-
 def p0_subject_slot(event, immediate=False):
+    # type: (str, bool) -> Callable
     """
     Drop in replacement of _Framework subject_slot decorator
     Allows the registration of callbacks to be execute after the decorated function
@@ -156,7 +120,9 @@ def p0_subject_slot(event, immediate=False):
     """
 
     def wrap(func):
+        # type: (Callable) -> Callable
         def decorate(*a, **k):
+            # type: (Any, Any) -> None
             func(*a, **k)
 
         decorate.original_func = func
@@ -170,6 +136,7 @@ def p0_subject_slot(event, immediate=False):
 
 
 def has_callback_queue(immediate=False):
+    # type: (bool) -> Callable
     def wrap(func):
         # type: (Callable) -> CallbackDescriptor
         from a_protocol_0.utils.callback_descriptor import CallbackDescriptor
@@ -179,20 +146,13 @@ def has_callback_queue(immediate=False):
     return wrap
 
 
-def _arg_to_string(arg):
-    if isinstance(arg, str):
-        return '"%s"' % arg
-    else:
-        return arg
-
-
 def log(func):
+    # type: (Callable) -> Callable
     @wraps(func)
     def decorate(*a, **k):
+        # type: (Any, Any) -> None
         func_name = func.__name__
-        args = [_arg_to_string(arg) for arg in a] + [
-            "%s=%s" % (key, _arg_to_string(value)) for (key, value) in k.items()
-        ]
+        args = [str(arg) for arg in a] + ["%s=%s" % (key, str(value)) for (key, value) in k.items()]
         if is_method(func):
             func_name = "%s.%s" % (a[0].__class__.__name__, func_name)
             args = args[1:]
@@ -207,8 +167,10 @@ def log(func):
 
 
 def handle_error(func):
+    # type: (Callable) -> Callable
     @wraps(func)
     def decorate(*a, **k):
+        # type: (Any, Any) -> None
         try:
             func(*a, **k)
         except Exception as e:

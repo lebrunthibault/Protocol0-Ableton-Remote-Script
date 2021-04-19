@@ -1,6 +1,6 @@
 import itertools
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Any, Literal
 
 from _Framework.Util import forward_property
 from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
@@ -11,14 +11,16 @@ from a_protocol_0.lom.track.simple_track.TrackSynchronizer import TrackSynchroni
 from a_protocol_0.utils.utils import find_last
 
 if TYPE_CHECKING:
-    from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
+    pass
 
 
 class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
         super(ExternalSynthTrack, self).__init__(*a, **k)
-        self.midi_track = find_last(lambda t: t.is_midi, self.sub_tracks)  # type: SimpleTrack
-        self.audio_track = find_last(lambda t: t.is_audio, self.sub_tracks)  # type: SimpleTrack
+        self.midi_track = find_last(lambda t: t.is_midi, self.sub_tracks)
+        self.audio_track = find_last(lambda t: t.is_audio, self.sub_tracks)
+        assert self.midi_track and self.audio_track
         self.instrument_track = self.midi_track
         self.midi_track.abstract_group_track = self.audio_track.abstract_group_track = self
 
@@ -43,10 +45,12 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
 
     @property
     def solo(self):
+        # type: () -> bool
         return any(track.solo for track in self.all_tracks)
 
     @solo.setter
     def solo(self, solo):
+        # type: (bool) -> None
         if not solo:
             for track in self.all_tracks:
                 track.solo = False
@@ -55,6 +59,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
 
     @property
     def can_be_armed(self):
+        # type: () -> Literal[True]
         return True
 
     @property
@@ -82,9 +87,11 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
 
     @forward_property("audio_track")
     def set_output_routing_to(self):
+        # type: () -> None
         pass
 
     def disconnect(self):
+        # type: () -> None
         super(ExternalSynthTrack, self).disconnect()
         self._midi_track_synchronizer.disconnect()
         self._midi_audio_synchronizer.disconnect()

@@ -1,14 +1,15 @@
-from typing import Optional, cast
+from typing import Optional, cast, Any
 
 from _Framework.SubjectSlot import subject_slot, subject_slot_group
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.lom.clip.MidiClip import MidiClip
 from a_protocol_0.utils.decorators import push2_method
-from a_push2.push2 import Push2  # type: ignore
+from a_push2.push2 import Push2
 
 
 class Push2Manager(AbstractControlSurfaceComponent):
     def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
         super(Push2Manager, self).__init__(*a, **k)
         self.push2 = None  # type: Optional[Push2]
         self.update_session_ring = True
@@ -31,6 +32,7 @@ class Push2Manager(AbstractControlSurfaceComponent):
 
     @subject_slot("value")
     def _session_pad_press_listener(self, value, *a, **k):
+        # type: (Any, Any, Any) -> None
         if value:
             self.update_session_ring = (
                 self.update_selected_modes
@@ -38,21 +40,25 @@ class Push2Manager(AbstractControlSurfaceComponent):
 
     @subject_slot("value")
     def _track_select_button_press_listener(self, value, *a, **k):
+        # type: (Any, Any, Any) -> None
         if value:
             self.update_session_ring = False
             self.parent.defer(lambda: self._update_selected_modes(reselect=True))
 
     @subject_slot_group("value")
     def _nav_button_press_listener(self, value, *a, **k):
+        # type: (Any, Any, Any) -> None
         pass
 
     @subject_slot("selected_track")
     def _selected_track_listener(self):
+        # type: () -> None
         self._update_session_ring()
         self._update_selected_modes()
 
     @push2_method()
     def _update_session_ring(self):
+        # type: () -> None
         if self.update_session_ring:
             self.push2._session_ring.set_offsets(
                 self.parent.sessionManager.session.track_offset(), self.push2._session_ring.scene_offset
@@ -61,6 +67,7 @@ class Push2Manager(AbstractControlSurfaceComponent):
 
     @push2_method()
     def update_clip_grid_quantization(self):
+        # type: () -> None
         if not self.song.selected_clip.is_midi:
             return
         clip = cast(MidiClip, self.song.selected_clip)

@@ -1,33 +1,43 @@
 import sys
 
+from typing import Literal, Any, Iterator, Tuple
+
 sys.path.insert(0, "C:\\Python27\\Lib\\site-packages")
 live_environment_loaded = "Live" in sys.modules
 
 
 class EmptyModule(object):
     def __init__(self, is_false=True):
+        # type: (bool) -> None
         self.is_false = is_false
 
     def __ne__(self, other):
+        # type: (bool) -> Literal[False]
         return False
 
     def __eq__(self, other):
+        # type: (bool) -> Literal[False]
         return False
 
     def __nonzero__(self):
-        # allows Live environment check
+        # type: () -> bool
+        """ allows Live environment check """
         return not self.is_false
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *a, **k):
+        # type: (Any, Any) -> EmptyModule
         return self
 
     def __getattr__(self, name):
+        # type: (Any) -> EmptyModule
         return self
 
     def __hash__(self):
+        # type: () -> int
         return 0
 
     def __iter__(self):
+        # type: () -> Iterator[Tuple[int, int]]
         # that's for push2 checking scales
         return iter([(0, 0)])
 
@@ -44,4 +54,5 @@ Protocol0.LIVE_ENVIRONMENT_LOADED = live_environment_loaded
 
 
 def create_instance(c_instance):
+    # type: (Any) -> Protocol0
     return Protocol0(c_instance)

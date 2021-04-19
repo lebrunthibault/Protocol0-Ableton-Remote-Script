@@ -3,6 +3,7 @@ import sys
 
 # noinspection PyUnresolvedReferences
 from PIL import ImageGrab
+from typing import Tuple
 
 from send_click import click
 
@@ -19,6 +20,7 @@ rgb_code_dictionary = {
 
 
 def distance(c1, c2):
+    # type: (Tuple[int, int, int], Tuple[int, int, int]) -> float
     (r1, g1, b1) = c1
     (r2, g2, b2) = c2
     return math.sqrt((r1 - r2) ** 2 + (g1 - g2) ** 2 + (b1 - b2) ** 2)

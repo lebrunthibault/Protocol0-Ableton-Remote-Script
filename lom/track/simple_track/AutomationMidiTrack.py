@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import List, TYPE_CHECKING, Optional
+from typing import List, TYPE_CHECKING, Optional, Any
 
 from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
 from a_protocol_0.lom.clip_slot.AutomationMidiClipSlot import AutomationMidiClipSlot
@@ -15,6 +15,7 @@ class AutomationMidiTrack(AbstractAutomationTrack):
     CLIP_CLASS = AutomationMidiClip
 
     def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
         super(AutomationMidiTrack, self).__init__(*a, **k)
         # this works here because the tracks are built left to right
         self.linked_track = None  # type: Optional[AutomationAudioTrack]
@@ -25,6 +26,7 @@ class AutomationMidiTrack(AbstractAutomationTrack):
         self.push2_selected_instrument_mode = "split_melodic_sequencer"
 
     def _added_track_init(self):
+        # type: () -> Sequence
         """ when this is called the AutomatedTrack and AutomationAudioTrack are fully loaded """
         self.clear_devices()
         seq = Sequence()

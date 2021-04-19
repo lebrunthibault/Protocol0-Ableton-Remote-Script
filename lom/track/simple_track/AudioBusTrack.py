@@ -1,6 +1,8 @@
+from typing import Any
+
 from _Framework.SubjectSlot import subject_slot_group
 from a_protocol_0.lom.clip.AudioClip import AudioClip
-
+from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from a_protocol_0.utils.decorators import defer
 
@@ -17,6 +19,7 @@ class AudioBusTrack(SimpleAudioTrack):
     BASE_DUMMY_CLIP_BAR_LENGTH = 32
 
     def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
         super(AudioBusTrack, self).__init__(*a, **k)
 
         assert self.is_audio, "AudioBusTrack should be audio"
@@ -32,9 +35,11 @@ class AudioBusTrack(SimpleAudioTrack):
     @subject_slot_group("map_clip")
     @defer
     def _map_clip_listener(self, clip_slot):
+        # type: (ClipSlot) -> None
         self._check_clip_structure()
 
     def _check_clip_structure(self):
+        # type: () -> None
         assert self.base_dummy_clip, "The base dummy clip should be the first one"
 
         self.base_dummy_clip.warping = True

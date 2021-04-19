@@ -18,11 +18,13 @@ class InstrumentPreset(AbstractObject):
         self.name = self._format_name(name)
 
     def __repr__(self):
+        # type: () -> str
         return "%s (%s)" % (self.name, self.index + 1)
 
     def _format_name(self, name):
+        # type: (str) -> str
         if not name:
-            return None
+            return ""
 
         base_preset_name = os.path.splitext(name)[0]  # remove file extension
         return self.instrument.format_preset_name(base_preset_name)  # calling subclass formatting

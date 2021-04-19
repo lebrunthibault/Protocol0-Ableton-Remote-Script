@@ -1,5 +1,5 @@
 import Live
-from typing import List
+from typing import List, Any
 
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.device.DeviceType import DeviceType
@@ -8,6 +8,7 @@ from a_protocol_0.utils.utils import scroll_values
 
 class PluginDevice(Device):
     def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
         super(PluginDevice, self).__init__(*a, **k)
         self._device = self._device  # type: Live.PluginDevice.PluginDevice
         self.device_type = DeviceType.PLUGIN_DEVICE

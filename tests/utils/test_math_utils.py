@@ -2,6 +2,7 @@ from a_protocol_0.utils.math_utils import linear, exp_curve
 
 
 def test_linear():
+    # type: () -> None
     x1 = 0
     x2 = 2
     y1 = 0
@@ -12,6 +13,7 @@ def test_linear():
 
 
 def test_exp():
+    # type: () -> None
     x1 = 0
     x2 = 2
     y1 = 0

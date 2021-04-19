@@ -1,7 +1,7 @@
 from functools import partial
 
 import Live
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.clip.Clip import Clip
@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 
 class AudioClip(Clip):
     def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
         super(AudioClip, self).__init__(*a, **k)
         self.track = self.track  # type: SimpleAudioTrack
         self._warping_listener.subject = self._clip
@@ -21,6 +22,7 @@ class AudioClip(Clip):
     @p0_subject_slot("warping")
     @defer
     def _warping_listener(self):
+        # type: () -> None
         """ neither dummy clip on """
         if not self.warping and self.track.CLIP_WARPING_MANDATORY:
             self.warping = True
@@ -40,15 +42,18 @@ class AudioClip(Clip):
 
     @property
     def warp_mode(self):
+        # type: () -> Live.Clip.WarpMode
         return self._clip.warp_mode
 
     @warp_mode.setter
     def warp_mode(self, warp_mode):
+        # type: (Live.Clip.WarpMode) -> None
         if self._clip:
             self._clip.warp_mode = warp_mode
 
     @p0_subject_slot("looping")
     def _looping_listener(self):
+        # type: () -> None
         if self.warping:
             # enforce looping
             self.parent.defer(partial(setattr, self._clip, "looping", True))

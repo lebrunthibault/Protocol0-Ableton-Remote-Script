@@ -1,7 +1,7 @@
 from collections import deque
 from functools import partial
 
-from typing import Callable, Deque
+from typing import Callable, Deque, Optional, Any, cast
 
 from a_protocol_0.utils.log import log_ableton
 from a_protocol_0.utils.utils import is_partial, get_callable_name
@@ -37,14 +37,19 @@ class CallbackDescriptor(object):
         self.__doc__ = func.__doc__
         self._func = func
         self._immediate = immediate
-        self._wrapped = None
+        self._wrapped = None  # type: Optional[CallableWithCallbacks]
 
     def __repr__(self):
-        return self._wrapped or (u"%s_%d_%s" % (get_callable_name(self._func), id(self), self.__class__.__name__))
+        # type: () -> str
+        if self._wrapped:
+            return str(self._wrapped)
+        else:
+            return u"%s_%d_%s" % (get_callable_name(self._func), id(self), self.__class__.__name__)
 
     def __get__(self, obj, cls=None):
+        # type: (Any, Optional[str]) -> Optional[Any]
         if obj is None:
-            return
+            return None
         try:
             return obj.__dict__[id(self)]
         except KeyError:
@@ -55,12 +60,12 @@ class CallbackDescriptor(object):
                 # calling inner descriptor. self._decorated is a SubjectSlot
                 # noinspection PyUnresolvedReferences
                 self._wrapped = self._func.__get__(obj)
-                self._wrapped.listener = CallableWithCallbacks(self._wrapped, obj, self._immediate)
+                self._wrapped.listener = CallableWithCallbacks(cast(Callable, self._wrapped), obj, self._immediate)
 
                 # patching the wrapped function to have a coherent interface
-                self._wrapped.add_callback = self._wrapped.listener.add_callback
+                self._wrapped.add_callback = self._wrapped.listener.add_callback  # type: ignore[assignment]
                 self._wrapped._callbacks = self._wrapped.listener._callbacks
-                self._wrapped.clear_callbacks = self._wrapped.listener.clear_callbacks
+                self._wrapped.clear_callbacks = self._wrapped.listener.clear_callbacks  # type: ignore[assignment]
             else:
                 self._wrapped = CallableWithCallbacks(partial(self._func, obj), obj, self._immediate)
 
@@ -81,9 +86,11 @@ class CallableWithCallbacks(object):
         self._callbacks = deque()  # type: Deque[Callable]
 
     def __repr__(self):
+        # type: () -> str
         return "%s (cwc %d)" % (get_callable_name(self._decorated, self._obj), id(self))
 
     def __call__(self, *a, **k):
+        # type: (Any, Any) -> Any
         if is_partial(self._decorated):  # has_callback_queue on a stock method (only decorator set)
             res = self._decorated(*a, **k)
         else:
@@ -120,9 +127,11 @@ class CallableWithCallbacks(object):
             log_ableton("adding_callback to %s : %s" % (self, self._callbacks))
 
     def clear_callbacks(self):
+        # type: () -> None
         self._callbacks = deque()
 
     def _execute_callback_queue(self):
+        # type: () -> None
         """ execute callbacks and check if we defer this or not """
         if len(self._callbacks) == 0:
             return
@@ -131,6 +140,7 @@ class CallableWithCallbacks(object):
         Protocol0.SELF._wait(0 if self._immediate else 1, self._execute_callbacks)
 
     def _execute_callbacks(self):
+        # type: () -> None
         if self.DEBUG_MODE:
             log_ableton("_execute_callbacks of %s : %s" % (self, self._callbacks))
         while len(self._callbacks):

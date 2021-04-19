@@ -56,6 +56,7 @@ class AbstractInstrument(AbstractObject):
         self._preset_list = InstrumentPresetList(self)  # type: InstrumentPresetList
 
     def sync_presets(self):
+        # type: () -> None
         """ allows syncing using the abstract_group_track name (where the preset index / name is stored) """
         self._preset_list.sync_presets()
 
@@ -66,25 +67,31 @@ class AbstractInstrument(AbstractObject):
 
     @property
     def should_display_selected_preset_name(self):
+        # type: () -> bool
         return self._preset_list.has_preset_names and self.SHOULD_DISPLAY_SELECTED_PRESET_NAME
 
     @property
     def active_instance(self):
+        # type: () -> Optional[AbstractInstrument]
         return self.__class__._active_instance
 
     @active_instance.setter
     def active_instance(self, instance):
+        # type: (AbstractInstrument) -> None
         self.__class__._active_instance = instance
 
     @property
     def needs_exclusive_activation(self):
+        # type: () -> bool
         return False
 
     def exclusive_activate(self):
+        # type: () -> None
         pass
 
     @property
     def should_be_activated(self):
+        # type: () -> bool
         if not self.can_be_shown:
             return False
         return not self.activated or (self.needs_exclusive_activation)
@@ -110,6 +117,7 @@ class AbstractInstrument(AbstractObject):
         return seq.done()
 
     def show_hide(self):
+        # type: () -> None
         is_shown = self.parent.keyboardShortcutManager.is_plugin_window_visible(self.name)
         if not self.should_be_activated or is_shown:
             seq = Sequence()
@@ -126,6 +134,7 @@ class AbstractInstrument(AbstractObject):
 
     @property
     def presets_path(self):
+        # type: () -> str
         """ overridden """
         return self.PRESETS_PATH
 
@@ -151,6 +160,7 @@ class AbstractInstrument(AbstractObject):
         self.parent.log_error("this instrument does not have scrollable categories")
 
     def _sync_selected_preset(self):
+        # type: () -> Sequence
         seq = Sequence()
         seq.add(partial(self._load_preset, self.selected_preset))
         seq.add(partial(self.parent.show_message, "preset change : %s" % self.selected_preset))

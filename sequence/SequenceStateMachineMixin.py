@@ -11,8 +11,8 @@ class SequenceState(AbstractEnum):
 
 
 class SequenceStateMachineMixin(object):
-    def __init__(self, *a, **k):
-        super(SequenceStateMachineMixin, self).__init__(*a, **k)
+    def __init__(self):
+        # type: () -> None
         transitions = [
             ["start", SequenceState.UN_STARTED, SequenceState.STARTED],
             ["terminate", SequenceState.STARTED, SequenceState.TERMINATED],
@@ -30,47 +30,53 @@ class SequenceStateMachineMixin(object):
 
     @property
     def state(self):
-        return self._state_machine.state
+        # type: () -> str
+        return self._state_machine.state.value
 
     @property
     def un_started(self):
-        # type: () -> SequenceState
-        return self._state_machine.state == SequenceState.UN_STARTED
+        # type: () -> bool
+        return self.state == SequenceState.UN_STARTED.value
 
     @property
     def started(self):
-        # type: () -> SequenceState
-        return self._state_machine.state == SequenceState.STARTED
+        # type: () -> bool
+        return self.state == SequenceState.STARTED.value
 
     @property
     def errored(self):
-        # type: () -> SequenceState
-        return self._state_machine.state == SequenceState.ERRORED
+        # type: () -> bool
+        return self.state == SequenceState.ERRORED.value
 
     @property
     def terminated(self):
-        # type: () -> SequenceState
-        return self._state_machine.state == SequenceState.TERMINATED
+        # type: () -> bool
+        return self.state == SequenceState.TERMINATED.value
 
     def dispatch(self, action):
         # type: (str) -> None
         self._state_machine.dispatch(action)
 
     def start(self):
+        # type: () -> None
         self.dispatch("start")
 
     def terminate(self):
+        # type: () -> None
         self.dispatch("terminate")
         # noinspection PyUnresolvedReferences
         self.notify_terminated()
 
     def error(self):
+        # type: () -> None
         self.dispatch("error")
         # noinspection PyUnresolvedReferences
         self.notify_errored()
 
     def _on_start(self):
+        # type: () -> None
         pass
 
     def _on_terminate(self):
+        # type: () -> None
         pass

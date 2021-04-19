@@ -157,10 +157,12 @@ class Song(SongActionMixin, AbstractObject):
 
     @property
     def is_playing(self):
+        # type: () -> bool
         return self._song.is_playing
 
     @is_playing.setter
     def is_playing(self, is_playing):
+        # type: (bool) -> None
         self._song.is_playing = is_playing
 
     @property
@@ -189,10 +191,12 @@ class Song(SongActionMixin, AbstractObject):
 
     @property
     def selected_recording_time(self):
+        # type: () -> str
         return self._selected_recording_time
 
     @selected_recording_time.setter
     def selected_recording_time(self, selected_recording_time):
+        # type: (str) -> None
         self.recording_bar_count = int(selected_recording_time.split()[0])
         self._selected_recording_time = selected_recording_time
 
@@ -223,4 +227,5 @@ class Song(SongActionMixin, AbstractObject):
 
     @property
     def has_solo_selection(self):
+        # type: () -> bool
         return len(self.solo_playing_tracks) != 0

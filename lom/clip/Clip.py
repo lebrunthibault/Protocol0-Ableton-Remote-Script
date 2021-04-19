@@ -36,14 +36,17 @@ class Clip(ClipActionMixin, AbstractObject):
         self.clip_name = ClipName(self) if set_clip_name else None
 
     def _on_selected(self):
+        # type: () -> None
         pass
 
     @p0_subject_slot("notes")
     def _notes_listener(self):
+        # type: () -> None
         pass
 
     @p0_subject_slot("is_recording")
     def _is_recording_listener(self):
+        # type: () -> None
         pass
 
     @staticmethod
@@ -74,6 +77,7 @@ class Clip(ClipActionMixin, AbstractObject):
 
     @property
     def base_name(self):
+        # type: () -> str
         return self.clip_name.base_name
 
     @base_name.setter
@@ -83,13 +87,8 @@ class Clip(ClipActionMixin, AbstractObject):
         self.clip_name.update(base_name=base_name)
 
     @property
-    def is_audio(self):
-        from a_protocol_0.lom.clip.AudioClip import AudioClip
-
-        return isinstance(self, AudioClip)
-
-    @property
     def is_midi(self):
+        # type: () -> bool
         from a_protocol_0.lom.clip.MidiClip import MidiClip
 
         return isinstance(self, MidiClip)
@@ -106,10 +105,12 @@ class Clip(ClipActionMixin, AbstractObject):
 
     @length.setter
     def length(self, length):
+        # type: (float) -> None
         self.loop_end = self.loop_start + length
 
     @p0_subject_slot("looping")
     def _looping_listener(self):
+        # type: () -> None
         # enforce looping
         self.looping = True
 
@@ -170,6 +171,7 @@ class Clip(ClipActionMixin, AbstractObject):
 
     @p0_subject_slot("color")
     def _color_listener(self):
+        # type: () -> None
         self.parent.defer(partial(setattr, self, "color", int(self.track.base_color)))
 
     @property
@@ -211,6 +213,7 @@ class Clip(ClipActionMixin, AbstractObject):
         return self._clip and self._clip.is_recording
 
     def disconnect(self):
+        # type: () -> None
         super(Clip, self).disconnect()
         if self.clip_name:
             self.clip_name.disconnect()

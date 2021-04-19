@@ -5,6 +5,7 @@ from a_protocol_0.tests.test_all import p0
 
 
 def test_abstract_track_list():
+    # type: () -> None
     with p0.component_guard():
         midi_track = make_midi_track(make_song())
         track_list = AbstractTrackList([midi_track])

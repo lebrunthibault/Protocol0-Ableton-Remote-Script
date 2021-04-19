@@ -13,37 +13,8 @@ if TYPE_CHECKING:
     from a_protocol_0.lom.AbstractObject import AbstractObject
 
 
-def parse_number(num_as_string, default_value=None, min_value=None, max_value=None, is_float=False):
-    """Parses the given string containing a number and returns the parsed number.
-    If a parse error occurs, the default_value will be returned. If a min_value or
-    max_value is given, the default_value will be returned if the parsed_value is not
-    within range."""
-    ret_value = default_value
-    try:
-        parsed_value = float(num_as_string) if is_float else int(num_as_string)
-        if min_value is not None and parsed_value < min_value:
-            return ret_value
-        if max_value is not None and parsed_value > max_value:
-            return ret_value
-        ret_value = parsed_value
-    except Exception:
-        pass
-
-    return ret_value
-
-
-def parse_midi_value(num_as_string, default_value=0):
-    """ Returns a MIDI value (range 0 - 127) or the given default value. """
-    return parse_number(num_as_string, default_value=default_value, min_value=0, max_value=127)
-
-
-def parse_midi_channel(num_as_string):
-    """ Returns a MIDI channel number (0 - 15) or 0 if parse error. """
-    return parse_number(num_as_string, default_value=1, min_value=1, max_value=16) - 1
-
-
 def scroll_object_property(base_object, property, items, go_next):
-    # type: (Any, str, List[Any], bool) -> None
+    # type: (T, str, List[T], bool) -> None
     new_value = scroll_values(items, getattr(base_object, property), go_next)
     setattr(base_object, property, new_value)
     from a_protocol_0 import Protocol0
@@ -126,6 +97,7 @@ def get_frame_info(frame_count=1):
 
 
 def _has_callback_queue(func):
+    # type: (Any) -> bool
     """ mixing duck typing and isinstance to ensure we really have a callback handler object """
     from a_protocol_0.utils.callback_descriptor import CallableWithCallbacks
     from _Framework.SubjectSlot import CallableSlotMixin
@@ -138,19 +110,23 @@ def _has_callback_queue(func):
 
 
 def is_method(func):
+    # type: (Callable) -> bool
     spec = inspect.getargspec(func)
-    return spec.args and spec.args[0] == "self"
+    return bool(spec.args and spec.args[0] == "self")
 
 
 def is_partial(func):
+    # type: (Callable) -> bool
     return "functools.partial" in str(type(func))
 
 
 def is_lambda(func):
+    # type: (Callable) -> bool
     return isinstance(func, types.LambdaType) and func.__name__ == "<lambda>"
 
 
 def get_inner_func(func):
+    # type: (Callable) -> Callable
     if hasattr(func, "function"):
         return get_inner_func(func.function)
     if hasattr(func, "func"):  # partial
@@ -164,6 +140,7 @@ def get_inner_func(func):
 
 
 def get_class_name_from_method(func):
+    # type: (Callable) -> str
     if hasattr(func, "__self__"):
         class_name = func.__self__.__class__.__name__
 
@@ -178,14 +155,11 @@ def get_class_name_from_method(func):
     except AttributeError:
         pass
 
-    return None
+    return ""
 
 
 def get_callable_name(func, obj=None):
     # type: (Callable, object) -> str
-    if func is None:
-        return "None"
-
     from a_protocol_0.sequence.Sequence import Sequence
 
     if isinstance(func, Sequence):
@@ -204,14 +178,6 @@ def get_callable_name(func, obj=None):
         return "%s.%s" % (class_name, decorated_func.__name__)
     else:
         return decorated_func.__name__
-
-
-def has_arg(func, arg):
-    spec = inspect.getargspec(func.func if is_partial(func) else func)
-    if is_partial(func):
-        return arg in spec.args and arg not in func.keywords.keys()
-    else:
-        return arg in spec.args
 
 
 def _arg_count(func):
@@ -234,10 +200,12 @@ def _arg_count(func):
 
 
 def nop():
+    # type: () -> None
     pass
 
 
 def flatten(t):
+    # type: (List[List[T]]) -> List[T]
     return [item for sublist in t for item in sublist]
 
 

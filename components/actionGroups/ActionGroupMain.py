@@ -1,5 +1,7 @@
 from functools import partial
 
+from typing import Any
+
 from a_protocol_0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
 from a_protocol_0.consts import RECORDING_TIMES
 from a_protocol_0.controls.EncoderAction import EncoderAction
@@ -16,6 +18,7 @@ class ActionGroupMain(AbstractActionGroup):
     """
 
     def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
         super(ActionGroupMain, self).__init__(channel=15, record_actions_as_global=True, *a, **k)
 
         # DUPX modifier (both duplicate and shift)

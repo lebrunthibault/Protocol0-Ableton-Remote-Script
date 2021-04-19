@@ -12,4 +12,5 @@ class EncoderModifier(AbstractObject):
         self.pressed = False
 
     def __repr__(self):
+        # type: () -> str
         return "%s(%s)" % (super(EncoderModifier, self).__repr__(), self.type.value)

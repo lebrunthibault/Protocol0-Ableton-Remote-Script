@@ -20,7 +20,7 @@ class AutomationCurveGenerator(AbstractObject):
     @classmethod
     def _ramp_notes(cls, clip):
         # type: (AutomationMidiClip) -> List[Note]
-        """ ramp note endings, twice faster for notes going up as clicks happen more on notes going down  """
+        """ create ramps between notes  """
         notes = clip._prev_notes
         audio_clip = clip.linked_clip
         for i, next_note in enumerate(notes[1:] + [notes[0]]):

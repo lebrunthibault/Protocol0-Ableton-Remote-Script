@@ -54,6 +54,7 @@ class ClipSlotSynchronizer(ObjectSynchronizer):
             clip_slot.linked_clip_slot.track.stop()
 
     def disconnect(self):
+        # type: () -> None
         super(ClipSlotSynchronizer, self).disconnect()
         self.master.linked_clip_slot = self.slave.linked_clip_slot = None
         if self._clip_synchronizer:

@@ -16,6 +16,7 @@ class SongManager(AbstractControlSurfaceComponent):
     __subject_events__ = ("selected_track", "scene_list", "added_track")
 
     def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
         super(SongManager, self).__init__(*a, **k)
         self._live_track_to_simple_track = collections.OrderedDict()  # type: Dict[Any, SimpleTrack]
         self._simple_track_to_abstract_group_track = (
@@ -27,6 +28,7 @@ class SongManager(AbstractControlSurfaceComponent):
 
     @defer
     def init_song(self):
+        # type: () -> None
         self.on_scene_list_changed()
         self._highlighted_clip_slot = self.song.highlighted_clip_slot
         self._highlighted_clip_slot_poller()
@@ -35,6 +37,7 @@ class SongManager(AbstractControlSurfaceComponent):
     @has_callback_queue()
     @handle_error
     def on_selected_track_changed(self):
+        # type: () -> None
         self._set_current_track()
         self.parent.clyphxNavigationManager.show_track_view()
         # noinspection PyUnresolvedReferences
@@ -42,6 +45,7 @@ class SongManager(AbstractControlSurfaceComponent):
 
     @handle_error
     def on_scene_list_changed(self):
+        # type: () -> None
         self._tracks_listener()
         # noinspection PyUnresolvedReferences
         self.notify_scene_list()
@@ -50,6 +54,7 @@ class SongManager(AbstractControlSurfaceComponent):
     @p0_subject_slot("tracks")
     @handle_error
     def _tracks_listener(self):
+        # type: () -> None
         self.parent.log_debug("SongManager : start mapping tracks")
 
         added_track = len(self.song.simple_tracks) and len(self.song._song.tracks) > len(self.song.simple_tracks)
@@ -66,7 +71,8 @@ class SongManager(AbstractControlSurfaceComponent):
 
         self.parent.songStateManager.sync_simple_tracks_state(former_simple_tracks, self.song.simple_tracks)
         # reset state
-        [track.disconnect() for track in former_simple_tracks]
+        for track in former_simple_tracks:
+            track.disconnect()
 
         # 2. Generate abstract group tracks
         abstract_group_tracks = [
@@ -101,7 +107,7 @@ class SongManager(AbstractControlSurfaceComponent):
         }
 
         # 7 handle added tracks
-        if added_track:
+        if added_track and self.song.selected_track:
             added_track_index = self.song.simple_tracks.index(self.song.selected_track)
             if (
                 added_track_index > 0
@@ -124,6 +130,7 @@ class SongManager(AbstractControlSurfaceComponent):
         self.parent.schedule_message(1, self._highlighted_clip_slot_poller)
 
     def _update_highlighted_clip_slot(self):
+        # type: () -> None
         """ auto_update highlighted clip slot to match the playable clip """
         if self.update_highlighted_clip_slot:
             track = self.song.selected_track
@@ -153,6 +160,7 @@ class SongManager(AbstractControlSurfaceComponent):
 
     @retry(3)
     def _set_current_track(self):
+        # type: () -> None
         self.song.selected_track = self._get_simple_track(self.song._view.selected_track) or self.song.simple_tracks[0]
         self.song.current_track = self.get_current_track(self.song.selected_track)
 

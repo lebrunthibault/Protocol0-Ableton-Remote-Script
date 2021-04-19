@@ -1,7 +1,7 @@
 from functools import partial
 
 import Live
-from typing import TYPE_CHECKING, Callable, Any, Optional
+from typing import TYPE_CHECKING, Callable, Any, Optional, NoReturn
 
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.device.RackDevice import RackDevice
@@ -24,6 +24,7 @@ class AbstractTrackActionMixin(object):
         self.unarm() if self.is_armed else self.arm()
 
     def toggle_solo(self):
+        # type: () -> None
         self.solo = not self.solo
 
     def arm(self):
@@ -35,6 +36,7 @@ class AbstractTrackActionMixin(object):
         return self.arm_track()
 
     def arm_track(self):
+        # type: () -> NoReturn
         raise NotImplementedError()
 
     def unarm(self):
@@ -74,6 +76,7 @@ class AbstractTrackActionMixin(object):
             self.instrument.scroll_preset_categories(go_next=go_next)
 
     def switch_monitoring(self):
+        # type: () -> NoReturn
         raise NotImplementedError()
 
     def record(self, record_func):
@@ -158,6 +161,7 @@ class AbstractTrackActionMixin(object):
         self.undo_track()
 
     def undo_track(self):
+        # type: () -> NoReturn
         raise NotImplementedError()
 
     def reset_track(self):

@@ -54,7 +54,8 @@ class MultiEncoder(AbstractObject):
 
     @property
     def _is_long_pressed(self):
-        return self._pressed_at and (time.time() - self._pressed_at) > MultiEncoder.PRESS_MAX_TIME
+        # type: () -> bool
+        return bool(self._pressed_at and (time.time() - self._pressed_at) > MultiEncoder.PRESS_MAX_TIME)
 
     @subject_slot("value")
     def _press_listener(self, value):
@@ -74,6 +75,7 @@ class MultiEncoder(AbstractObject):
 
     @subject_slot("value")
     def _scroll_listener(self, value):
+        # type: (int) -> None
         action = self._find_matching_action(move_type=EncoderMoveEnum.SCROLL)
         if action:
             action.execute(encoder_name=self.name, go_next=value == 1)

@@ -2,6 +2,8 @@ from __future__ import print_function
 
 from functools import partial
 
+from typing import List, Any
+
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.sequence.Sequence import Sequence
 
@@ -11,11 +13,13 @@ from a_protocol_0.utils.decorators import has_callback_queue, p0_subject_slot, d
 
 
 def test_has_callback_queue_1():
+    # type: () -> None
     res = []
 
     class Example:
         @has_callback_queue(immediate=True)
         def example(self):
+            # type: () -> None
             res.append(0)
 
     obj = Example()
@@ -28,34 +32,37 @@ def test_has_callback_queue_1():
 
 
 def test_has_callback_queue_2():
+    # type: () -> None
     res = []
 
     class Parent:
         @has_callback_queue()
         def example(self):
+            # type: () -> None
             res.append("parent")
 
     class Child:
         @has_callback_queue(immediate=True)
         def example(self):
+            # type: () -> None
             res.append("child")
 
     obj = Child()
-    obj.example.add_callback(lambda: res.append(1))
-    obj.example.add_callback(lambda: res.append(2))
-    obj.example.add_callback(lambda: res.append(3))
+    obj.example.add_callback(lambda: res.append("1"))
+    obj.example.add_callback(lambda: res.append("2"))
+    obj.example.add_callback(lambda: res.append("3"))
 
     obj.example()
-    assert res == ["child", 1, 2, 3]
+    assert res == ["child", "1", "2", "3"]
 
 
 def test_has_callback_queue_result():
-    test_res = []
-
+    # type: () -> None
     class Example(AbstractObject):
         __subject_events__ = ("test",)
 
         def __init__(self):
+            # type: () -> None
             super(Example, self).__init__()
             self.listener_normal.subject = self
             self.listener_sequence.subject = self
@@ -63,15 +70,18 @@ def test_has_callback_queue_result():
 
         @defer
         def test(self):
+            # type: () -> None
             # noinspection PyUnresolvedReferences
             self.notify_test()
 
         @p0_subject_slot("test", immediate=False)
         def listener_normal(self):
+            # type: () -> None
             pass
 
         @p0_subject_slot("test", immediate=True)
         def listener_sequence(self):
+            # type: () -> Sequence
             return Sequence().done()
 
     test_res = {"callback_called": False}
@@ -83,6 +93,7 @@ def test_has_callback_queue_result():
     seq.add(lambda: setattr(obj, "callback_called", True))
 
     def check_called():
+        # type: () -> None
         assert obj.callback_called
 
     seq.add(check_called)
@@ -93,19 +104,17 @@ def test_has_callback_queue_result():
     seq = Sequence()
     seq.add(obj.test, complete_on=obj.listener_sequence)
     seq.add(lambda: setattr(obj, "callback_called", True))
-
-    def check_called():
-        assert obj.callback_called
-
     seq.add(check_called)
     seq.done()
 
 
 def test_async_callback():
+    # type: () -> None
     class Example(AbstractObject):
         __subject_events__ = ("test",)
 
         def __init__(self, val, test_res, *a, **k):
+            # type: (int, List[int], Any, Any) -> None
             super(Example, self).__init__(*a, **k)
             self.val = val
             self.test_res = test_res
@@ -113,6 +122,7 @@ def test_async_callback():
 
         @has_callback_queue()
         def callback_listener(self):
+            # type: () -> Sequence
             seq = Sequence(silent=True)
 
             self.test_res.append(self.val)
@@ -123,6 +133,7 @@ def test_async_callback():
 
         @p0_subject_slot("test")
         def subject_slot_listener(self):
+            # type: () -> Sequence
             seq = Sequence(silent=True)
 
             self.test_res.append(self.val)
@@ -131,11 +142,12 @@ def test_async_callback():
 
             return seq.done()
 
-    test_res_callbacks = []
+    test_res_callbacks = []  # type: List[int]
     obj1 = Example(0, test_res_callbacks)
     obj2 = Example(2, test_res_callbacks)
 
     def check_res(test_res):
+        # type: (List[int]) -> None
         assert test_res_callbacks == [0, 1, 2, 3]
 
     seq = Sequence(silent=True)

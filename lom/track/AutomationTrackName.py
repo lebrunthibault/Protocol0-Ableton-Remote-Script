@@ -29,5 +29,6 @@ class AutomationTrackName(TrackName):
         self.automated_parameter_name = match.group("automated_parameter_name").strip()
 
     def update(self, *a, **k):
+        # type: (Any, Any) -> None
         """ Not necessary for AbstractAutomationTrack """
         pass

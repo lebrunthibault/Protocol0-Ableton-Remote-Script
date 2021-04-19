@@ -1,6 +1,6 @@
 from collections import deque
 
-from typing import Deque, Optional, Iterable, Union, Callable
+from typing import Deque, Optional, Iterable, Union, Callable, Any
 
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
@@ -21,17 +21,19 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
     SILENT_MODE = True
 
     def __init__(self, bypass_errors=False, silent=False, *a, **k):
+        # type: (bool, bool, Any, Any) -> None
         super(Sequence, self).__init__(*a, **k)
 
         self._steps = deque()  # type: Deque[SequenceStep]
         self._current_step = None  # type: Optional[SequenceStep]
         self._bypass_errors = bypass_errors
-        self.res = None
+        self.res = None  # type: Optional[Any]
         self.debug = self.DEBUG_MODE or not (silent or self.SILENT_MODE)
         frame_info = get_frame_info(2)
         self.name = "[seq %s.%s]" % (frame_info.class_name, frame_info.method_name) if frame_info else "Unknown"
 
     def __repr__(self):
+        # type: () -> str
         return self.name
 
     @property
@@ -44,13 +46,12 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
             message += " (res %s)" % self.res
         return message
 
-    def __len__(self):
-        return len(self._steps)
-
     def _on_start(self):
+        # type: () -> None
         self._execute_next_step()
 
     def _execute_next_step(self):
+        # type: () -> None
         if len(self._steps):
             self._current_step = self._steps.popleft()
             if self.debug and self._current_step.debug:
@@ -63,6 +64,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
 
     @p0_subject_slot("terminated")
     def _step_terminated(self):
+        # type: () -> None
         if self._current_step.early_returned:
             self.terminate()
         else:
@@ -70,10 +72,12 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
 
     @p0_subject_slot("errored")
     def _step_errored(self):
+        # type: () -> None
         if not self._bypass_errors:
             self.error()
 
     def _on_terminate(self):
+        # type: () -> None
         self.res = self._current_step.res if self._current_step else None
 
         if self.errored and self.debug:
@@ -82,17 +86,18 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
     def add(
         self,
         func=nop,  # type: Union[Iterable, Callable]
-        wait=None,
-        name=None,
-        complete_on=None,
-        do_if=None,
-        do_if_not=None,
-        return_if=None,
-        return_if_not=None,
-        check_timeout=4,
-        no_timeout=False,
-        silent=False,
+        wait=None,  # type: int
+        name=None,  # type: str
+        complete_on=None,  # type: Callable
+        do_if=None,  # type: Callable
+        do_if_not=None,  # type: Callable
+        return_if=None,  # type: Callable
+        return_if_not=None,  # type: Callable
+        check_timeout=4,  # type: int
+        no_timeout=False,  # type: bool
+        silent=False,  # type: bool
     ):
+        # type: (...) -> Sequence
         """
         check_timeout is the number of (exponential duration) checks executed before step failure
         (based on the Live.Base.Timer tick)

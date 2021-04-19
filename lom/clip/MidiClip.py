@@ -2,7 +2,7 @@ import itertools
 from functools import partial
 
 import Live
-from typing import List, TYPE_CHECKING, Optional, Callable, Tuple
+from typing import List, TYPE_CHECKING, Optional, Callable, Tuple, Any
 
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.Clip import Clip
@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 
 class MidiClip(Clip):
     def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
         super(MidiClip, self).__init__(*a, **k)
         self.track = self.track  # type: SimpleMidiTrack
         # NOTES
@@ -65,11 +66,13 @@ class MidiClip(Clip):
         return self._change_clip_notes(self._clip.set_notes, notes, cache=False)
 
     def _select_all_notes(self):
+        # type: () -> None
         if not self._clip:
-            return
+            return None
         self._clip.select_all_notes()
 
     def _deselect_all_notes(self):
+        # type: () -> None
         if not self._clip:
             return
         self._clip.deselect_all_notes()
@@ -111,12 +114,13 @@ class MidiClip(Clip):
         return self.parent.quantizationManager.get_notes_quantization_index(self.get_notes())
 
     def configure_new_clip(self):
+        # type: () -> Optional[Sequence]
         self.view.grid_quantization = Live.Clip.GridQuantization.g_sixteenth
 
         if len(self.get_notes()) > 0:
             self.play()
             self.parent.clyphxNavigationManager.show_clip_view()
-            return
+            return None
 
         seq = Sequence()
         seq.add(partial(self.replace_all_notes, self.generate_base_notes()))

@@ -1,3 +1,5 @@
+from typing import cast
+
 from a_protocol_0.enums.AbstractEnum import AbstractEnum
 
 
@@ -7,4 +9,5 @@ class ClipTypeEnum(AbstractEnum):
 
     @classmethod
     def default(cls):
-        return ClipTypeEnum.NORMAL
+        # type: () -> ClipTypeEnum
+        return cast(ClipTypeEnum, ClipTypeEnum.NORMAL)

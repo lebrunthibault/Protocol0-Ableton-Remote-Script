@@ -2,7 +2,7 @@ import os
 from os import listdir
 from os.path import join
 
-from typing import List
+from typing import List, Any
 
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.devices.presets.InstrumentPreset import InstrumentPreset
@@ -23,6 +23,7 @@ class InstrumentSimpler(AbstractInstrument):
     SHOULD_UPDATE_TRACK_NAME = False
 
     def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
         super(InstrumentSimpler, self).__init__(*a, **k)
         self.can_be_shown = False
         self.activated = True
@@ -32,10 +33,10 @@ class InstrumentSimpler(AbstractInstrument):
         # type: () -> str
         """ the name of the track is the name of a sample sub_directory """
         selected_category = find_if(lambda f: self.track.base_name.lower() in f.lower(), listdir(self.PRESETS_PATH))
-        if not selected_category:
+        if selected_category is None:
             raise Protocol0Error("Couldn't find sample selected category for %s" % self.track)
 
-        return selected_category
+        return str(selected_category)
 
     @property
     def presets_path(self):

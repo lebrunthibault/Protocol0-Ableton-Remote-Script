@@ -18,6 +18,7 @@ class AutomationRampMode(AbstractObject):
         self.direction = direction
 
     def __repr__(self):
+        # type: () -> str
         return "direction: %s, is_active: %s, exp_coeff: %s, id: %s" % (
             self.direction,
             self.is_active,
@@ -26,6 +27,7 @@ class AutomationRampMode(AbstractObject):
         )
 
     def __str__(self):
+        # type: () -> str
         return "%.1f" % self.exp_coeff if self.is_active else ""
 
     def update_from_value(self, value=""):

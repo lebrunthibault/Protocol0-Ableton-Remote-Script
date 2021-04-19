@@ -1,10 +1,11 @@
 import abc
 from collections import MutableSequence
 
-from typing import List, Any
+from typing import List, Any, Iterator
 
 from _Framework.SubjectSlot import SubjectMeta
 from a_protocol_0.lom.AbstractObject import AbstractObject
+from a_protocol_0.my_types import T
 
 
 class CombinedMeta(SubjectMeta, abc.ABCMeta):
@@ -24,26 +25,32 @@ class UserMutableSequence(MutableSequence, AbstractObject):
     """
 
     def __init__(self, list, *a, **k):
-        # type: (List[Any], Any, Any) -> None
+        # type: (List[T], Any, Any) -> None
         super(UserMutableSequence, self).__init__(*a, **k)
         self._list = list
 
     def __getitem__(self, value):
+        # type: (int) -> T
         return self._list[value]
 
     def __delitem__(self, value):
+        # type: (T) -> None
         self._list.remove(value)
 
     def __setitem__(self, value):
+        # type: (T) -> None
         if value in self:
-            return
+            return None
         self._list.append(value)
 
     def insert(self, index, value):
+        # type: (int, T) -> None
         self._list.insert(index, value)
 
     def __iter__(self):
+        # type: () -> Iterator[T]
         return iter(self._list)
 
     def __len__(self):
+        # type: () -> int
         return len(self._list)

@@ -29,6 +29,7 @@ class Note(AbstractObject):
         self.clip = cast("MidiClip", clip)
 
     def __eq__(self, other):
+        # type: (Note) -> bool
         return (
             isinstance(other, Note)
             and self.pitch == other.pitch
@@ -39,9 +40,11 @@ class Note(AbstractObject):
         )
 
     def __hash__(self):
+        # type: () -> int
         return hash((self.pitch, self.start, self.duration, self.velocity, self.muted))
 
     def __repr__(self):
+        # type: () -> str
         return "{start:%.2f, duration:%.2f, pitch:%s, vel:%s, muted: %s}" % (
             self.start,
             self.duration,

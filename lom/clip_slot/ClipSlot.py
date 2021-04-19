@@ -28,6 +28,7 @@ class ClipSlot(AbstractObject):
         self._map_clip()
 
     def __nonzero__(self):
+        # type: () -> bool
         return self._clip_slot is not None
 
     def __eq__(self, clip_slot):
@@ -35,6 +36,7 @@ class ClipSlot(AbstractObject):
         return clip_slot and self._clip_slot == clip_slot._clip_slot
 
     def __repr__(self):
+        # type: () -> str
         repr = super(ClipSlot, self).__repr__()
         return "%s (%s)" % (repr, self.clip.name if self.clip else "empty (of %s)" % self.track.base_name)
 
@@ -51,6 +53,7 @@ class ClipSlot(AbstractObject):
 
     @p0_subject_slot("has_clip")
     def _has_clip_listener(self):
+        # type: () -> None
         if self.clip:
             self.clip.disconnect()
 
@@ -65,14 +68,17 @@ class ClipSlot(AbstractObject):
 
     @p0_subject_slot("is_triggered")
     def _is_triggered_listener(self):
+        # type: () -> None
         # noinspection PyUnresolvedReferences
         self.notify_is_triggered()
 
     @property
     def has_clip(self):
+        # type: () -> bool
         return self._clip_slot and self._clip_slot.has_clip
 
     def delete_clip(self):
+        # type: () -> None
         if self._clip_slot.has_clip:
             self._clip_slot.delete_clip()
 
@@ -92,9 +98,11 @@ class ClipSlot(AbstractObject):
         return self._clip_slot and self._clip_slot.is_playing
 
     def select(self):
+        # type: () -> None
         self.song.highlighted_clip_slot = self
 
     def record(self):
+        # type: () -> Sequence
         seq = Sequence()
         self.parent.show_message("Starting recording of %d bars" % self.song.recording_bar_count)
         seq.add(
@@ -140,6 +148,7 @@ class ClipSlot(AbstractObject):
         return seq.done()
 
     def disconnect(self):
+        # type: () -> None
         super(ClipSlot, self).disconnect()
         if self.clip:
             self.clip.disconnect()

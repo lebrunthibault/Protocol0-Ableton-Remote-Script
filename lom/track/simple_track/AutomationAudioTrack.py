@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Any
 
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.clip.AutomationAudioClip import AutomationAudioClip
@@ -18,6 +18,7 @@ class AutomationAudioTrack(AbstractAutomationTrack):
     CLIP_WARPING_MANDATORY = True
 
     def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
         super(AutomationAudioTrack, self).__init__(*a, **k)
         self.automated_parameter = None  # type: Optional[DeviceParameter]
         self.abstract_group_track = self.abstract_group_track  # type: AutomatedTrack
@@ -54,6 +55,7 @@ class AutomationAudioTrack(AbstractAutomationTrack):
 
     @p0_subject_slot("mute")
     def _mute_listener(self):
+        # type: () -> None
         # mute audio effect
         if self.mute:
             self.previous_automated_audio_track.set_output_routing_to(self.next_automated_audio_track)
@@ -62,6 +64,7 @@ class AutomationAudioTrack(AbstractAutomationTrack):
 
     @p0_subject_slot("solo")
     def _solo_listener(self):
+        # type: () -> None
         # solo audio effect
         if self.solo:
             self.abstract_group_track.wrapped_track.set_output_routing_to(self)
@@ -74,6 +77,7 @@ class AutomationAudioTrack(AbstractAutomationTrack):
 
     @p0_subject_slot("current_monitoring_state")
     def _current_monitoring_state_listener(self):
+        # type: () -> None
         if not self.has_monitor_in and not any(
             couple.audio_track.toggle_solo for couple in self.abstract_group_track.automation_tracks_couples
         ):  # enforce monitor in

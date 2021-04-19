@@ -2,7 +2,7 @@ import itertools
 from functools import partial
 
 import Live
-from typing import Optional, Callable
+from typing import Optional, Callable, Any
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.devices.InstrumentMinitaur import InstrumentMinitaur
@@ -24,6 +24,7 @@ from a_protocol_0.utils.decorators import p0_subject_slot, defer
 
 class TrackManager(AbstractControlSurfaceComponent):
     def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
         super(TrackManager, self).__init__(*a, **k)
         self.tracks_added = False
         self.automation_track_color = None
@@ -33,6 +34,7 @@ class TrackManager(AbstractControlSurfaceComponent):
     @p0_subject_slot("added_track")
     @defer
     def _added_track_listener(self):
+        # type: () -> Sequence
         self.song.begin_undo_step()  # Live crashes on undo without this
         seq = Sequence()
         seq.add(self.song.current_track._added_track_init)
@@ -41,9 +43,11 @@ class TrackManager(AbstractControlSurfaceComponent):
 
     @p0_subject_slot("selected_track")
     def _selected_track_listener(self):
+        # type: () -> None
         self.parent.defer(self._update_nav_view)
 
     def _update_nav_view(self):
+        # type: () -> None
         if self.song.selected_track.nav_view == "clip":
             self.parent.clyphxNavigationManager.show_clip_view()
         elif self.song.selected_track.nav_view == "track":
@@ -61,17 +65,19 @@ class TrackManager(AbstractControlSurfaceComponent):
         return seq.done()
 
     def create_midi_track(self, index, name, device=None):
+        # type: (int, str, Device) -> Sequence
         return self._create_track(
             track_creator=partial(self.song._song.create_midi_track, index), name=name, device=device
         )
 
     def create_audio_track(self, index, name, device=None):
+        # type: (int, str, Device) -> Sequence
         return self._create_track(
             track_creator=partial(self.song._song.create_audio_track, index), name=name, device=device
         )
 
     def _create_track(self, track_creator, name, device):
-        # type: (Callable, str, Optional[Device]) -> None
+        # type: (Callable, str, Optional[Device]) -> Sequence
         seq = Sequence().add(wait=1, silent=True)  # defer change
         seq.add(track_creator, complete_on=self.parent.songManager._tracks_listener)
         seq.add(

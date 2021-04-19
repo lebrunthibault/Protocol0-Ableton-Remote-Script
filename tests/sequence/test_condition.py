@@ -2,6 +2,7 @@ from a_protocol_0.sequence.Sequence import Sequence
 
 
 def test_do_if():
+    # type: () -> None
     class Obj:
         a = 2
 
@@ -15,6 +16,7 @@ def test_do_if():
 
 
 def test_return_if():
+    # type: () -> None
     class Obj:
         a = 2
 

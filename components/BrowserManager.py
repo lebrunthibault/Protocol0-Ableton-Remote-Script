@@ -14,11 +14,11 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
     def load_any_device(self, device_type, device_name):
         # type: (DeviceType, str) -> Sequence
         seq = Sequence()
-        if device_type == DeviceType.RACK_DEVICE:
+        if device_type == DeviceType.RACK_DEVICE.value:
             load_func = partial(self._load_rack_device, device_name)  # type: Callable[[str], Optional[Sequence]]
-        elif device_type == DeviceType.PLUGIN_DEVICE:
+        elif device_type == DeviceType.PLUGIN_DEVICE.value:
             load_func = partial(self._load_plugin, device_name)
-        elif device_type == DeviceType.ABLETON_DEVICE:
+        elif device_type == DeviceType.ABLETON_DEVICE.value:
             load_func = partial(self._load_device, device_name)
         else:
             raise Protocol0Error("DeviceType not handled : %s" % device_type)
