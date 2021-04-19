@@ -26,8 +26,7 @@ class AudioBusTrack(SimpleAudioTrack):
     @property
     def base_dummy_clip(self):
         # type: () -> AudioClip
-        assert self.clip_slots[0].clip, "The base dummy clip does not exist"
-        assert isinstance(AudioClip, self.clip_slots[0].clip), "The base dummy clip should be audio"
+        assert isinstance(self.clip_slots[0].clip, AudioClip), "The base dummy clip does not exist"
         return self.clip_slots[0].clip
 
     @subject_slot_group("map_clip")

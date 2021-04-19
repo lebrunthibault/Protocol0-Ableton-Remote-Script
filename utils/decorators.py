@@ -10,8 +10,8 @@ from a_protocol_0.utils.utils import is_method
 if TYPE_CHECKING:
     from a_protocol_0.components.Push2Manager import Push2Manager
     from a_protocol_0.lom.AbstractObject import AbstractObject
-    from a_protocol_0.sequence.Sequence import Sequence  # noqa
-    from a_protocol_0.utils.callback_descriptor import CallbackDescriptor  # noqa
+    from a_protocol_0.sequence.Sequence import Sequence
+    from a_protocol_0.utils.callback_descriptor import CallbackDescriptor
 
 
 def push2_method(defer=True):
@@ -129,7 +129,7 @@ def button_action(auto_arm=False, log_action=True):
         @wraps(func)
         def decorate(self, *a, **k):
             # type: (AbstractObject, Any, Any) -> Sequence
-            from a_protocol_0.sequence.Sequence import Sequence  # noqa
+            from a_protocol_0.sequence.Sequence import Sequence
 
             seq = Sequence()
             if auto_arm and not self.song.current_track.is_armed:
@@ -172,7 +172,7 @@ def p0_subject_slot(event, immediate=False):
 def has_callback_queue(immediate=False):
     def wrap(func):
         # type: (Callable) -> CallbackDescriptor
-        from a_protocol_0.utils.callback_descriptor import CallbackDescriptor  # noqa
+        from a_protocol_0.utils.callback_descriptor import CallbackDescriptor
 
         return CallbackDescriptor(func, immediate)
 

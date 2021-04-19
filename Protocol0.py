@@ -1,7 +1,6 @@
 import json
 import os
 import threading
-import types
 
 from typing import Callable, Optional
 
@@ -21,6 +20,7 @@ from a_protocol_0.components.MidiManager import MidiManager
 from a_protocol_0.components.MixingManager import MixingManager
 from a_protocol_0.components.PlayTrackManager import PlayTrackManager
 from a_protocol_0.components.Push2Manager import Push2Manager
+from a_protocol_0.components.QuantizationManager import QuantizationManager
 from a_protocol_0.components.SessionManager import SessionManager
 from a_protocol_0.components.SongManager import SongManager
 from a_protocol_0.components.SongStateManager import SongStateManager
@@ -35,6 +35,7 @@ from a_protocol_0.controls.EncoderAction import EncoderAction
 from a_protocol_0.enums.LogLevelEnum import LogLevelEnum
 from a_protocol_0.lom.Song import Song
 from a_protocol_0.utils.log import log_ableton
+from types import MethodType
 
 
 class Protocol0(ControlSurface):
@@ -46,9 +47,7 @@ class Protocol0(ControlSurface):
         # noinspection PyProtectedMember
         Protocol0.SELF = self
         self.song().stop_playing()  # doing this early because the set often loads playing
-        self._c_instance.log_message = types.MethodType(
-            lambda s, message: None, self._c_instance
-        )  # stop log duplication
+        self._c_instance.log_message = MethodType(lambda s, message: None, self._c_instance)  # stop log duplication
 
         self.load_dotenv()  # loading env file
         self._is_dev_booted = False
@@ -66,6 +65,7 @@ class Protocol0(ControlSurface):
             self.push2Manager = Push2Manager()
             self.trackManager = TrackManager()
             self.automationTrackManager = AutomationTrackManager()
+            self.quantizationManager = QuantizationManager()
             self.keyboardShortcutManager = KeyBoardShortcutManager()
             self.midiManager = MidiManager()
             self.browserManager = BrowserManager()

@@ -53,7 +53,8 @@ class CallbackDescriptor(object):
                 getattr(self._func, "_data_name", None)
             ):  # here we cannot do isinstance() as the Decorator class is in a closure
                 # calling inner descriptor. self._decorated is a SubjectSlot
-                self._wrapped = self._func.__get__(obj)  # noqa
+                # noinspection PyUnresolvedReferences
+                self._wrapped = self._func.__get__(obj)
                 self._wrapped.listener = CallableWithCallbacks(self._wrapped, obj, self._immediate)
 
                 # patching the wrapped function to have a coherent interface
@@ -88,11 +89,11 @@ class CallableWithCallbacks(object):
         else:
             # has_callback_queue on top of Framework's @subject_slot
             # let's fetch the inner function (bypass _Framework logic) to get the response
-            res = self._decorated.function.func.original_func(self._obj, *a, **k)  # noqa
+            # noinspection PyUnresolvedReferences
+            res = self._decorated.function.func.original_func(self._obj, *a, **k)
 
         if self.DEBUG_MODE:
             log_ableton("listener res of %s : %s" % (self, res))
-            log_ableton("callbacks of %s : %s" % (self, self._decorated._callbacks))  # noqa
 
         from a_protocol_0.sequence.Sequence import Sequence
 

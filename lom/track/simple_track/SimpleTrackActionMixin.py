@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 # noinspection PyTypeHints
 class SimpleTrackActionMixin(object):
     def arm_track(self):
-        # type: (SimpleTrack) -> Sequence
+        # type: (SimpleTrack) -> Optional[Sequence]
         if self.is_foldable:
             self.is_folded = not self.is_folded
         else:
@@ -21,6 +21,8 @@ class SimpleTrackActionMixin(object):
 
         if self.instrument and self.instrument.needs_exclusive_activation:
             return self.instrument.check_activated()
+        else:
+            return None
 
     def switch_monitoring(self):
         # type: (SimpleTrack) -> None

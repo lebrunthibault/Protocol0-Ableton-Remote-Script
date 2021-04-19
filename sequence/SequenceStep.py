@@ -6,11 +6,12 @@ from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.errors.SequenceError import SequenceError
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
+from a_protocol_0.utils.callback_descriptor import CallableWithCallbacks
 from a_protocol_0.utils.timeout import TimeoutLimit
 from a_protocol_0.utils.utils import _has_callback_queue, is_lambda, get_callable_name, nop
 
 if TYPE_CHECKING:
-    from a_protocol_0.sequence.Sequence import Sequence  # noqa
+    from a_protocol_0.sequence.Sequence import Sequence
 
 
 class SequenceStep(AbstractObject, SequenceStateMachineMixin):
@@ -22,7 +23,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         sequence,  # type: Sequence
         wait,  # type: int
         name,  # type: str
-        complete_on,  # type: Callable
+        complete_on,  # type: Union[Callable, CallableWithCallbacks]
         do_if,  # type: Callable
         do_if_not,  # type: Callable
         return_if,  # type: Callable
@@ -61,7 +62,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
 
         assert callable(self._callable), "You passed a non callable (%s) to %s" % (self._callable, self)
         assert len(list(filter(None, conditions))) <= 1, "You cannot specify multiple conditions in a step"
-        from a_protocol_0.sequence.Sequence import Sequence  # noqa
+        from a_protocol_0.sequence.Sequence import Sequence
 
         assert all(
             [not isinstance(condition, Sequence) for condition in conditions]
@@ -201,7 +202,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
 
     def _handle_return_value(self, res, listener, success_callback):
         # type: (Any, Callable, Callable) -> None
-        from a_protocol_0.sequence.Sequence import Sequence  # noqa
+        from a_protocol_0.sequence.Sequence import Sequence
 
         if isinstance(res, Sequence):
             if res.errored:
@@ -224,7 +225,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         self._handle_return_value(res, self._step_sequence_terminated_listener, self._check_for_step_completion)
 
     def _step_timed_out(self):
-        if _has_callback_queue(self._complete_on) and self._callback_timeout:
+        if isinstance(self._complete_on, CallableWithCallbacks) and self._callback_timeout:
             self._complete_on.clear_callbacks()
 
         if self.debug:

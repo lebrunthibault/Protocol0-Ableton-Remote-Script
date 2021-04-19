@@ -1,6 +1,6 @@
 from typing import Optional
 
-from a_protocol_0.tests.fixtures.simpleTrack import AbletonTrack
+from a_protocol_0.tests.fixtures.simple_track import AbletonTrack
 
 
 class AbletonSongView(object):

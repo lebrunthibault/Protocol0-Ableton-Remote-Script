@@ -3,11 +3,11 @@ from functools import partial
 import Live
 from typing import TYPE_CHECKING, Callable, Any, Optional
 
-from _Framework.Util import find_if
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import retry
+from a_protocol_0.utils.utils import find_if
 
 if TYPE_CHECKING:
     from a_protocol_0.lom.track.AbstractTrack import AbstractTrack

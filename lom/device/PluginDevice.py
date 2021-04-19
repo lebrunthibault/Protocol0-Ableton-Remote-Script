@@ -16,7 +16,8 @@ class PluginDevice(Device):
         # type: (bool) -> None
         self.parent.clyphxNavigationManager.focus_detail()
         self.is_collapsed = False
-        self.selected_preset_index = scroll_values(self.presets, self.selected_preset, go_next, return_index=True)
+        selected_preset = scroll_values(self.presets, self.selected_preset, go_next)
+        self.selected_preset_index = self.presets.index(selected_preset)
 
     @property
     def presets(self):

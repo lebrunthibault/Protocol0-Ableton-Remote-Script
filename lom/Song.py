@@ -1,7 +1,6 @@
 import Live
 from typing import List, Optional, Dict, Any
 
-from _Framework.Util import find_if
 from a_protocol_0.enums.AbstractEnum import AbstractEnum
 from a_protocol_0.enums.TrackCategoryEnum import TrackCategoryEnum
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
@@ -16,6 +15,7 @@ from a_protocol_0.lom.track.AbstractTrackList import AbstractTrackList
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.simple_track.AudioBusTrack import AudioBusTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
+from a_protocol_0.utils.utils import find_if
 from a_protocol_0.utils.utils import flatten
 
 
@@ -53,7 +53,9 @@ class Song(SongActionMixin, AbstractObject):
     @property
     def selected_scene(self):
         # type: () -> Scene
-        return find_if(lambda scene: scene._scene == self.song._view.selected_scene, self.scenes)
+        scene = find_if(lambda scene: scene._scene == self.song._view.selected_scene, self.scenes)
+        assert scene
+        return scene
 
     @selected_scene.setter
     def selected_scene(self, scene):

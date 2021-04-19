@@ -7,7 +7,6 @@ from typing import Any, Optional, List, Union
 from typing import TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot
-from _Framework.Util import find_if
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.enums.TrackCategoryEnum import TrackCategoryEnum
 from a_protocol_0.lom.AbstractObject import AbstractObject
@@ -21,6 +20,7 @@ from a_protocol_0.lom.track.AbstractTrackActionMixin import AbstractTrackActionM
 from a_protocol_0.lom.track.TrackName import TrackName
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import defer
+from a_protocol_0.utils.utils import find_if
 
 if TYPE_CHECKING:
     from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -57,6 +57,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         )  # type: Optional[AbstractInstrument]  #  None here so that we don't instantiate the same instrument twice
         self.instrument_track = self.base_track  # type: AbstractTrack
         self.devices = []  # type: List[Device]
+        self.all_devices = []  # type: List[Device]
         self.all_visible_devices = []  # type: List[Device]
         self._devices_listener.subject = self._track
         self._devices_listener()
@@ -114,7 +115,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
 
     @property
     def instrument(self):
-        # type: () -> AbstractInstrument
+        # type: () -> Optional[AbstractInstrument]
         return self._instrument
 
     @instrument.setter
@@ -224,7 +225,8 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         return find_if(lambda d: d._device == device, self.base_track.all_devices)
 
     def has_device(self, device_name):
-        return find_if(lambda d: d.name == device_name, self.base_track.all_devices)
+        # type: (str) -> bool
+        return find_if(lambda d: d.name == device_name, self.base_track.all_devices) is not None
 
     @property
     def selected_device(self):
@@ -245,9 +247,11 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
             self.delete_device(self.devices[0])
 
     def _find_all_devices(self, track_or_chain, only_visible=False):
-        # type: (Union[SimpleTrack, DeviceChain], bool) -> List[Device]
+        # type: (Optional[Union[SimpleTrack, DeviceChain]], bool) -> List[Device]
         u""" Returns a list with all devices from a track or chain """
         devices = []
+        if track_or_chain is None:
+            return []
         for device in filter(None, track_or_chain.devices):  # type: Device
             if not isinstance(device, RackDevice):
                 devices += [device]
@@ -263,12 +267,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
                         filter(None, device.chains),
                     )
                 )
-        return devices
-
-    def all_devices(self, track_or_chain):
-        devices = self.devices
-        for device in [d for d in devices if isinstance(d, RackDevice)]:
-            devices += self.all_devices(device.chains[0])
         return devices
 
     @property

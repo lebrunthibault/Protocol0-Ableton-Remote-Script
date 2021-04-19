@@ -4,8 +4,6 @@ from functools import partial
 import Live
 from typing import List, TYPE_CHECKING, Optional, Callable, Tuple
 
-from _Framework.Util import find_if
-from a_protocol_0.consts import PUSH2_BEAT_QUANTIZATION_STEPS
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.sequence.Sequence import Sequence
@@ -108,19 +106,9 @@ class MidiClip(Clip):
         return changed_notes
 
     @property
-    def min_note_quantization_start(self):
-        # type: () -> float
-        notes = self.get_notes()
-        if not len(notes):
-            return 1
-        notes_start_quantization = [
-            find_if(lambda qtz: float(note.start / qtz).is_integer(), reversed(PUSH2_BEAT_QUANTIZATION_STEPS))
-            for note in notes
-        ]
-        if None in notes_start_quantization:
-            return PUSH2_BEAT_QUANTIZATION_STEPS[3]  # 1/16 by default
-        else:
-            return min(notes_start_quantization)
+    def quantization_index(self):
+        # type: () -> int
+        return self.parent.quantizationManager.get_notes_quantization_index(self.get_notes())
 
     def configure_new_clip(self):
         self.view.grid_quantization = Live.Clip.GridQuantization.g_sixteenth

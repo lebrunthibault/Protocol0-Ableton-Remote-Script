@@ -39,9 +39,10 @@ class AutomationMidiClip(AbstractAutomationClip, MidiClip, AutomationMidiClipNot
 
     @p0_subject_slot("notes")
     def _notes_listener(self):
-        # type: () -> Sequence
+        # type: () -> Optional[Sequence]
         if not self._is_updating_notes:
             return self.map_notes()
+        return None
 
     @p0_subject_slot("name")
     def _name_listener(self):

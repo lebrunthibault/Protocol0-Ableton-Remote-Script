@@ -1,9 +1,9 @@
 from typing import List
 
 from a_protocol_0.lom.Song import Song
-from a_protocol_0.tests.fixtures.groupTrack import make_external_synth_track
-from a_protocol_0.tests.fixtures.simpleTrack import make_simpler_track, AbletonTrack
-from a_protocol_0.tests.fixtures.songView import AbletonSongView
+from a_protocol_0.tests.fixtures.group_track import make_external_synth_track
+from a_protocol_0.tests.fixtures.simple_track import make_simpler_track, AbletonTrack
+from a_protocol_0.tests.fixtures.song_view import AbletonSongView
 
 
 class AbletonSong(object):

@@ -3,13 +3,13 @@ from math import exp
 
 
 def linear(x1, y1, x2, y2, x):
-    # type: (int, int, int, int, int) -> float
+    # type: (float, float, float, float, float) -> float
     """ Straight line """
     return x * ((y1 - y2) / (x1 - x2)) + ((x1 * y2) - (y1 * x2)) / (x1 - x2)
 
 
 def exp_curve(x1, y1, x2, y2, x, alpha):
-    # type: (int, int, int, int, int, float) -> float
+    # type: (float, float, float, float, float, float) -> float
     """ Exp curve like in ableton automation red alt-curves """
     f = partial(linear, x1, y1, x2, y2)
 

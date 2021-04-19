@@ -2,15 +2,15 @@ import os
 from os import listdir
 from os.path import join
 
-from typing import Optional, List
+from typing import List
 
-from _Framework.Util import find_if
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.devices.presets.InstrumentPreset import InstrumentPreset
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.MidiClip import MidiClip
+from a_protocol_0.utils.utils import find_if
 from a_protocol_0.utils.utils import scroll_values
 
 
@@ -31,9 +31,7 @@ class InstrumentSimpler(AbstractInstrument):
     def selected_category(self):
         # type: () -> str
         """ the name of the track is the name of a sample sub_directory """
-        selected_category = find_if(
-            lambda f: self.track.base_name.lower() in f.lower(), listdir(self.PRESETS_PATH)
-        )  # type: Optional[str]
+        selected_category = find_if(lambda f: self.track.base_name.lower() in f.lower(), listdir(self.PRESETS_PATH))
         if not selected_category:
             raise Protocol0Error("Couldn't find sample selected category for %s" % self.track)
 

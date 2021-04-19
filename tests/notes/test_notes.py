@@ -4,7 +4,7 @@ from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.tests.fixtures.clip import AbletonClip
 from a_protocol_0.tests.fixtures.clip_slot import AbletonClipSlot
-from a_protocol_0.tests.fixtures.simpleTrack import AbletonTrack, TrackType
+from a_protocol_0.tests.fixtures.simple_track import AbletonTrack, TrackType
 
 
 def create_clip_with_notes(notes, prev_notes=[], clip_length=None, loop_start=None, name="test"):

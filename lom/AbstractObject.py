@@ -3,11 +3,11 @@ from typing import TYPE_CHECKING
 
 from _Framework.ControlSurface import get_control_surfaces
 from _Framework.SubjectSlot import SlotManager, Subject
-from _Framework.Util import find_if
+from a_protocol_0.utils.utils import find_if
 
 if TYPE_CHECKING:
     from a_protocol_0.lom.Song import Song
-    from a_protocol_0 import Protocol0  # noqa
+    from a_protocol_0.Protocol0 import Protocol0
 
 
 class AbstractObject(SlotManager, Subject):

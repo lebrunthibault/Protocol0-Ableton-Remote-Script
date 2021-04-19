@@ -4,9 +4,13 @@ from collections import namedtuple
 from types import FrameType
 
 from qualname import qualname
-from typing import Optional, Any, List, cast
+from typing import Optional, Any, List, cast, Callable, TYPE_CHECKING
 
 from a_protocol_0.consts import ROOT_DIR, REMOTE_SCRIPTS_DIR
+from a_protocol_0.my_types import StringOrNumber, T
+
+if TYPE_CHECKING:
+    from a_protocol_0.lom.AbstractObject import AbstractObject
 
 
 def parse_number(num_as_string, default_value=None, min_value=None, max_value=None, is_float=False):
@@ -47,41 +51,48 @@ def scroll_object_property(base_object, property, items, go_next):
     Protocol0.SELF.show_message("Selected %s" % new_value)
 
 
-def scroll_values(items, selected_item, go_next, default=None, return_index=False):
-    # type: (List[Any], Optional[Any], bool, Optional[Any], bool) -> Optional[Any]
+def scroll_values(items, selected_item, go_next):
+    # type: (List[T], T, bool) -> T
     if len(items) == 0:
-        return None
+        return selected_item
     increment = 1 if go_next else -1
     index = 0
-    if selected_item:
-        try:
-            index = (items.index(selected_item) + increment) % len(items)
-        except ValueError:
-            try:
-                index = (items.index(default) + increment) % len(items)
-            except ValueError:
-                pass
+    try:
+        index = (items.index(selected_item) + increment) % len(items)
+        return items[index]
+    except ValueError:
+        return selected_item
 
-    return index if return_index else items[index]
+
+def find_if(predicate, seq):
+    # type: (Callable[[T], bool], List[T]) -> Optional[T]
+    for x in seq:
+        if predicate(x):
+            return x
+    return None
 
 
 def find_where(predicate, seq):
+    # type: (Callable[[T], bool], List[T]) -> List[T]
     return [x for x in seq if predicate(x)]
 
 
 def find_last(predicate, seq):
+    # type: (Callable[[T], bool], List[T]) -> Optional[T]
     items = find_where(predicate, seq)
     return items[-1] if len(items) else None
 
 
 def is_equal(val1, val2, delta=0.00001):
-    if isinstance(val1, (int, long, float)) and isinstance(val2, (int, long, float)):
+    # type: (StringOrNumber, StringOrNumber, float) -> bool
+    if isinstance(val1, (int, float)) and isinstance(val2, (int, float)):
         return abs(val1 - val2) < delta
     else:
         return val1 == val2
 
 
 def have_equal_properties(obj1, obj2, properties):
+    # type: (AbstractObject, AbstractObject, List[str]) -> bool
     for property in properties:
         if (
             not hasattr(obj1, property)
@@ -90,6 +101,11 @@ def have_equal_properties(obj1, obj2, properties):
         ):
             return False
     return True
+
+
+def clamp(val, minv, maxv):
+    # type: (int, int, int) -> int
+    return max(minv, min(val, maxv))
 
 
 def get_frame_info(frame_count=1):
@@ -166,13 +182,14 @@ def get_class_name_from_method(func):
 
 
 def get_callable_name(func, obj=None):
+    # type: (Callable, object) -> str
     if func is None:
         return "None"
 
     from a_protocol_0.sequence.Sequence import Sequence
 
     if isinstance(func, Sequence):
-        return str(func.name)
+        return func.name
 
     decorated_func = get_inner_func(func)
     if obj:

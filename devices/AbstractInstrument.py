@@ -43,7 +43,7 @@ class AbstractInstrument(AbstractObject):
         super(AbstractInstrument, self).__init__(*a, **k)
         self.track = track  # this could be a group track
         self.device_track = track  # this will always be the track of the device
-        self.device = device  # type: Device
+        self.device = device
         if device:
             self.can_be_shown = True
             self.activated = False

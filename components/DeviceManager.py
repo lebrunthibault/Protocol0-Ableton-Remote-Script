@@ -3,7 +3,6 @@ from functools import partial
 import Live
 from typing import TYPE_CHECKING, Optional, Tuple
 
-from _Framework.Util import find_if
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
@@ -11,6 +10,7 @@ from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.sequence.Sequence import Sequence
+from a_protocol_0.utils.utils import find_if
 
 if TYPE_CHECKING:
     from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -41,7 +41,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
         if not len(track.all_devices):
             return None
 
-        simpler_device = find_if(lambda d: d.is_simpler, track.all_devices)  # type: Device
+        simpler_device = find_if(lambda d: d.is_simpler, track.all_devices)
         if simpler_device:
             # simpler devices can change, other
             if track.instrument and track.instrument.device == simpler_device:
@@ -51,7 +51,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
         instrument_device = find_if(
             lambda d: d.is_plugin and d.name.lower() in AbstractInstrument.INSTRUMENT_NAME_MAPPINGS,
             track.all_devices,
-        )
+        )  # type: Optional[Device]
         if not instrument_device:
             if InstrumentMinitaur.NAME.lower() in track.name.lower():
                 return (
@@ -226,16 +226,14 @@ class DeviceManager(AbstractControlSurfaceComponent):
 
     def get_device_and_parameter_from_name(self, track, device_name, parameter_name):
         # type: (AbstractTrack, str, str) -> Tuple[Device, DeviceParameter]
-        device = find_if(lambda d: d.name.lower() == device_name.lower(), track.devices)  # type: Device
+        device = find_if(lambda d: d.name.lower() == device_name.lower(), track.devices)
 
         if device is None:
             raise Protocol0Error("Couldn't find device name %s for track %s" % (device_name, track))
 
-        parameter = find_if(
-            lambda p: parameter_name.lower() == p.name.lower(), device.parameters
-        )  # type: DeviceParameter
+        parameter = find_if(lambda p: parameter_name.lower() == p.name.lower(), device.parameters)
 
-        if device is None:
+        if parameter is None:
             raise Protocol0Error(
                 "Couldn't find parameter name %s for device %s in track %s" % (parameter_name, device, track)
             )

@@ -1,11 +1,13 @@
 from functools import partial
 
+from typing import Callable, Optional
+
 from ClyphX_Pro.clyphx_pro.actions.BrowserActions import BrowserActions
-from _Framework.Util import find_if
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.device.DeviceType import DeviceType
 from a_protocol_0.sequence.Sequence import Sequence
+from a_protocol_0.utils.utils import find_if
 
 
 class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
@@ -13,7 +15,7 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
         # type: (DeviceType, str) -> Sequence
         seq = Sequence()
         if device_type == DeviceType.RACK_DEVICE:
-            load_func = partial(self._load_rack_device, device_name)
+            load_func = partial(self._load_rack_device, device_name)  # type: Callable[[str], Optional[Sequence]]
         elif device_type == DeviceType.PLUGIN_DEVICE:
             load_func = partial(self._load_plugin, device_name)
         elif device_type == DeviceType.ABLETON_DEVICE:
@@ -25,8 +27,8 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
 
         return seq.done()
 
-    def _load_rack_device(self, rack_name, hide=False):
-        # type: (str, bool) -> Sequence
+    def _load_rack_device(self, rack_name):
+        # type: (str) -> Sequence
         seq = Sequence()
         seq.add(
             partial(self.load_from_user_library, None, "'%s.adg'" % rack_name),
@@ -34,8 +36,6 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
             check_timeout=10,
             silent=True,
         )
-        if hide:
-            seq.add(self.parent.keyboardShortcutManager.hide_plugins, wait=1, silent=True)
         return seq.done()
 
     def load_sample(self, sample_name):

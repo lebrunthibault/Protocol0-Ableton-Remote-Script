@@ -19,7 +19,7 @@ def get_code_filenames():
         ):
             continue
         for file in files:
-            if file.endswith(".pyc") or file in ("Protocol0.py", "__init__.py"):
+            if file.endswith(".pyc") or file in ("Protocol0.py", "__init__.py", "callback_descriptor.py"):
                 continue
             yield os.path.join(current_path, file)
 

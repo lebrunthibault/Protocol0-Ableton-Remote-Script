@@ -44,13 +44,15 @@ class AutomationCurveGenerator(AbstractObject):
             return
 
         for note in cls.generate_step_notes(start_note, end_note):
-            note.velocity = exp_curve(
-                x1=start_note.start,
-                y1=start_note.velocity,
-                x2=end_note.start,
-                y2=end_note.velocity,
-                x=note.start,
-                alpha=ramp_mode.exp_coeff,
+            note.velocity = int(
+                exp_curve(
+                    x1=start_note.start,
+                    y1=start_note.velocity,
+                    x2=end_note.start,
+                    y2=end_note.velocity,
+                    x=note.start,
+                    alpha=ramp_mode.exp_coeff,
+                )
             )
             yield note
 

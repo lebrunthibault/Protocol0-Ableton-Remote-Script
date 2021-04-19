@@ -9,3 +9,7 @@ lint:
 	cls
 	flake8 .
 	mypy .
+
+check:
+	make test
+	make lint

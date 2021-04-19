@@ -2,7 +2,6 @@ from typing import Optional, cast
 
 from _Framework.SubjectSlot import subject_slot, subject_slot_group
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.consts import PUSH2_BEAT_QUANTIZATION_STEPS
 from a_protocol_0.lom.clip.MidiClip import MidiClip
 from a_protocol_0.utils.decorators import push2_method
 from a_push2.push2 import Push2  # type: ignore
@@ -66,9 +65,8 @@ class Push2Manager(AbstractControlSurfaceComponent):
             return
         clip = cast(MidiClip, self.song.selected_clip)
         self._update_selected_modes()
-        index = PUSH2_BEAT_QUANTIZATION_STEPS.index(clip.min_note_quantization_start)
-        self.push2._grid_resolution.index = index
-        self.push2._grid_resolution.quantization_buttons[index].is_checked = True
+        self.push2._grid_resolution.index = clip.quantization_index
+        self.push2._grid_resolution.quantization_buttons[clip.quantization_index].is_checked = True
 
     @push2_method()
     def _update_selected_modes(self, reselect=False):
