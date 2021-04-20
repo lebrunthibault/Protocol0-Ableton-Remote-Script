@@ -160,7 +160,7 @@ refreshLogs()
     }
     Send {LWin up}
     Sleep 100
-    Send tailAbleton
+    Send tailAbletonLogs.ps1
     Sleep 500
     Send {Enter}
 }

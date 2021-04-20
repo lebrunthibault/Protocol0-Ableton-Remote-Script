@@ -1,9 +1,9 @@
 import sys
 
-from typing import Literal, Any, Iterator, Tuple
-
 sys.path.insert(0, "C:\\Python27\\Lib\\site-packages")
 live_environment_loaded = "Live" in sys.modules
+
+from typing import Literal, Any, Iterator, Tuple  # noqa: E402
 
 
 class EmptyModule(object):

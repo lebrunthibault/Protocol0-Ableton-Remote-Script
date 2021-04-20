@@ -40,7 +40,7 @@ class Song(SongActionMixin, AbstractObject):
         self.solo_playing_tracks = []  # type: List[AbstractTrack]
         self.solo_stopped_tracks = []  # type: List[AbstractTrack]
         self.clip_slots = []  # type: List[ClipSlot]
-        self.clip_slots_by_live_live_clip_slot = {}  # type: Dict[int, Live.ClipSlot.ClipSlot]
+        self.clip_slots_by_live_live_clip_slot = {}  # type: Dict[Live.ClipSlot.ClipSlot, ClipSlot]
         self.errored = False
         # only one scene can be set to looping : it should be the scene we are working on ("soloing")
         self.looping_scene = None  # type: Optional[Scene]

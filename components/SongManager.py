@@ -1,9 +1,9 @@
 import collections
 
+import Live
 from typing import Optional, Any, Dict
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.Scene import Scene
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
@@ -140,28 +140,22 @@ class SongManager(AbstractControlSurfaceComponent):
         self.update_highlighted_clip_slot = True
 
     def _get_simple_track(self, track, default=None):
-        # type: (Any, Optional[SimpleTrack]) -> Optional[SimpleTrack]
+        # type: (Optional[Live.Track.Track], Optional[SimpleTrack]) -> Optional[SimpleTrack]
         """ default is useful when the _ableton_track_to_simple_track is not built yet """
-        if not track:
+        if track is None:
             return None
-        if isinstance(track, AbstractTrack):
-            raise Protocol0Error("Expected Live track, got AbstractTrack instead")
-
         if track == self.song._song.master_track or track in self.song._song.return_tracks:
+            assert default
             return default
-        if track not in self._live_track_to_simple_track.keys():
-            if default:
-                return default
-            else:
-                self.parent.log_error("_get_simple_track mismatch on %s" % track.name)
-                return None
+
+        assert track in self._live_track_to_simple_track.keys(), "_get_simple_track mismatch on %s" % track
 
         return self._live_track_to_simple_track[track]
 
     @retry(3)
     def _set_current_track(self):
         # type: () -> None
-        self.song.selected_track = self._get_simple_track(self.song._view.selected_track) or self.song.simple_tracks[0]
+        self.song.selected_track = self._get_simple_track(self.song._view.selected_track, self.song.simple_tracks[0])
         self.song.current_track = self.get_current_track(self.song.selected_track)
 
     def get_current_track(self, track):
