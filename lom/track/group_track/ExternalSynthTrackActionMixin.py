@@ -44,7 +44,7 @@ class ExternalSynthTrackActionMixin(object):
         # type: (ExternalSynthTrack) -> Sequence
         """ next_empty_clip_slot_index is guaranteed to be not None """
         seq = Sequence()
-        assert self.next_empty_clip_slot_index
+        assert self.next_empty_clip_slot_index is not None
         midi_clip_slot = self.midi_track.clip_slots[self.next_empty_clip_slot_index]
         audio_clip_slot = self.audio_track.clip_slots[self.next_empty_clip_slot_index]
         self.audio_track.select()

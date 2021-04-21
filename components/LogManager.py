@@ -27,7 +27,7 @@ class LogManager(AbstractObject):
         for (
             simple_track,
             abstract_group_track,
-        ) in self.parent.songManager._simple_track_to_abstract_group_track.items():
+        ) in self.parent.songManager.simple_track_to_abstract_group_track.items():
             self.parent.log_info("%s -> %s" % (simple_track, abstract_group_track))
         self.parent.log_info()
         self.parent.log_info()

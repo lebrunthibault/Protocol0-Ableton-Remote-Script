@@ -99,6 +99,11 @@ class TrackManager(AbstractControlSurfaceComponent):
 
     def instantiate_simple_track(self, track, index):
         # type: (Live.Track.Track, int) -> SimpleTrack
+        # checking first on existing tracks
+        if track in self.parent.songManager.live_track_to_simple_track:
+            simple_track = self.parent.songManager.live_track_to_simple_track[track]
+            simple_track.map_clip_slots()
+            return simple_track
         if index == self.song.AUDIO_BUS_TRACK_INDEX:
             return AudioBusTrack(track=track, index=index)
         elif track.has_midi_input:
@@ -113,18 +118,27 @@ class TrackManager(AbstractControlSurfaceComponent):
         if not group_track.is_foldable:
             raise Protocol0Error("You passed a non group_track to instantiate_abstract_group_track : %s" % group_track)
 
-        external_synth_track = self.make_external_synth_track(group_track=group_track)
-        if external_synth_track:
-            return (
-                self.make_automated_track(group_track=group_track, wrapped_track=external_synth_track)
-                or external_synth_track
+        # calling factories by most specific first
+        abstract_group_track = self.make_external_synth_track(group_track=group_track)
+        if abstract_group_track:
+            abstract_group_track = (
+                self.make_automated_track(group_track=group_track, wrapped_track=abstract_group_track)
+                or abstract_group_track
             )
+        if not abstract_group_track:
+            abstract_group_track = self.make_automated_track(group_track=group_track)
+        if not abstract_group_track:
+            abstract_group_track = SimpleGroupTrack(group_track=group_track)
 
-        automated_track = self.make_automated_track(group_track=group_track)
-        if automated_track:
-            return automated_track
+        # this should be here because as abstract_group_track creation is conditional on sub_track state
+        # we first check if the track could be created, then if it's the same type and return it if we have a match
+        if group_track in self.parent.songManager.live_track_to_simple_track:
+            previous_group_track = self.parent.songManager.live_track_to_simple_track[group_track]
+            if type(abstract_group_track) is type(previous_group_track):
+                abstract_group_track.disconnect()
+                return previous_group_track
 
-        return SimpleGroupTrack(group_track=group_track)
+        return abstract_group_track
 
     def make_external_synth_track(self, group_track):
         # type: (SimpleTrack) -> Optional[ExternalSynthTrack]

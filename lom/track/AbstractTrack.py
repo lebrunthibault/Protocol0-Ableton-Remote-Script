@@ -40,7 +40,9 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # TRACKS
         self._track = track._track  # type: Live.Track.Track
         self.base_track = track  # type: SimpleTrack
-        self.group_track = self.parent.songManager._get_simple_track(self._track.group_track)
+        self.group_track = None  # type: Optional[SimpleTrack]
+        if self._track.group_track:
+            self.group_track = self.parent.songManager._get_simple_track(self._track.group_track)
         # set in SongManager at track processing time
         self.abstract_group_track = None  # type: Optional[AbstractGroupTrack]
         # here this works because group tracks are at left of inner tracks (but for all_tracks we need a property)

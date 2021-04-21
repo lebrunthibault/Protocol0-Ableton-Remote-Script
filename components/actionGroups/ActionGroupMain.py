@@ -70,8 +70,8 @@ class ActionGroupMain(AbstractActionGroup):
             id=9,
             name="record",
             on_scroll=partial(scroll_object_property, self.song, "selected_recording_time", RECORDING_TIMES),
-            on_press=self.song.record_all,
-            on_long_press=self.song.record_audio_only,
+            on_press=lambda: partial(self.song.current_track.record, self.song.current_track.record_all),
+            on_long_press=lambda: partial(self.song.current_track.record, self.song.current_track.record_audio_only),
         )
 
         # 10: empty

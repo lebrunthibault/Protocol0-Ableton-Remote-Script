@@ -23,7 +23,6 @@ from a_protocol_0.components.Push2Manager import Push2Manager
 from a_protocol_0.components.QuantizationManager import QuantizationManager
 from a_protocol_0.components.SessionManager import SessionManager
 from a_protocol_0.components.SongManager import SongManager
-from a_protocol_0.components.SongStateManager import SongStateManager
 from a_protocol_0.components.TrackManager import TrackManager
 from a_protocol_0.components.UtilsManager import UtilsManager
 from a_protocol_0.components.actionGroups.ActionGroupMain import ActionGroupMain
@@ -58,7 +57,6 @@ class Protocol0(ControlSurface):
             self.fastScheduler = FastScheduler()
             self.deviceManager = DeviceManager()  # needs to be here first
             self.songManager = SongManager()
-            self.songStateManager = SongStateManager()
             self.sessionManager = SessionManager()
             self.mixingManager = MixingManager()
             self.push2Manager = Push2Manager()
@@ -98,7 +96,7 @@ class Protocol0(ControlSurface):
             self.log_warning(message)
 
     def log_dev(self, message="", debug=True):
-        # type: (str, bool) -> None
+        # type: (Any, bool) -> None
         self._log(level=LogLevelEnum.DEV, message=message, debug=debug)
 
     def log_debug(self, *a, **k):
@@ -122,11 +120,11 @@ class Protocol0(ControlSurface):
         self._log(message, level=LogLevelEnum.ERROR, debug=debug)
 
     def _log(self, message="", level=LogLevelEnum.INFO, debug=False):
-        # type: (str, LogLevelEnum, bool) -> None
+        # type: (Any, LogLevelEnum, bool) -> None
         if level.value < Config.LOG_LEVEL.value:
             return
         log_ableton(
-            message=message,
+            message=str(message),
             debug=bool(message) and debug,
             level=level,
             direct_call=False,

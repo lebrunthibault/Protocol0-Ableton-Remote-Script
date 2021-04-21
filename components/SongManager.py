@@ -18,8 +18,8 @@ class SongManager(AbstractControlSurfaceComponent):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(SongManager, self).__init__(*a, **k)
-        self._live_track_to_simple_track = collections.OrderedDict()  # type: Dict[Any, SimpleTrack]
-        self._simple_track_to_abstract_group_track = (
+        self.live_track_to_simple_track = collections.OrderedDict()  # type: Dict[Any, SimpleTrack]
+        self.simple_track_to_abstract_group_track = (
             collections.OrderedDict()
         )  # type: Dict[SimpleTrack, AbstractGroupTrack]
         self._tracks_listener.subject = self.song._song
@@ -61,39 +61,29 @@ class SongManager(AbstractControlSurfaceComponent):
 
         former_simple_tracks = self.song.simple_tracks
         self.song.simple_tracks = self.song.abstract_group_tracks = []
-        self._simple_track_to_abstract_group_track = {}
+        self.simple_track_to_abstract_group_track = {}
 
         # 1. Generate simple tracks and sync back previous objects
         for i, track in enumerate(list(self.song._song.tracks)):
             simple_track = self.parent.trackManager.instantiate_simple_track(track=track, index=i)
-            self._live_track_to_simple_track[track] = simple_track
             self.song.simple_tracks.append(simple_track)
 
-        self.parent.songStateManager.sync_simple_tracks_state(former_simple_tracks, self.song.simple_tracks)
-        # reset state
-        for track in former_simple_tracks:
-            track.disconnect()
+        self.live_track_to_simple_track.clear()
+        for simple_track in self.song.simple_tracks:
+            self.live_track_to_simple_track[simple_track._track] = simple_track
 
-        # 2. Generate abstract group tracks
-        abstract_group_tracks = [
+        # 2. Generate abstract group tracks and sync back previous objects
+        self.song.abstract_group_tracks = [
             self.parent.trackManager.instantiate_abstract_group_track(track) for track in self.song.simple_group_tracks
         ]
-        self.song.abstract_group_tracks = list(
-            filter(
-                None,
-                abstract_group_tracks,
-            )
-        )
 
         # 3. Creating a mapping of SimpleTrack to AbstractGroupTrack
         for abstract_group_track in self.song.abstract_group_tracks:
             for abstract_group_sub_track in abstract_group_track.selection_tracks:
-                self._simple_track_to_abstract_group_track.update({abstract_group_sub_track: abstract_group_track})
+                self.simple_track_to_abstract_group_track.update({abstract_group_sub_track: abstract_group_track})
 
         # 4. Populate abstract_tracks property
-        independent_simple_tracks = set(self.song.simple_tracks) - set(
-            self._simple_track_to_abstract_group_track.keys()
-        )
+        independent_simple_tracks = set(self.song.simple_tracks) - set(self.simple_track_to_abstract_group_track.keys())
         self.song.abstract_tracks = list(independent_simple_tracks) + self.song.abstract_group_tracks
         self.song.abstract_tracks.sort(key=lambda t: t.index)
 
@@ -140,17 +130,15 @@ class SongManager(AbstractControlSurfaceComponent):
         self.update_highlighted_clip_slot = True
 
     def _get_simple_track(self, track, default=None):
-        # type: (Optional[Live.Track.Track], Optional[SimpleTrack]) -> Optional[SimpleTrack]
+        # type: (Live.Track.Track, Optional[SimpleTrack]) -> SimpleTrack
         """ default is useful when the _ableton_track_to_simple_track is not built yet """
-        if track is None:
-            return None
         if track == self.song._song.master_track or track in self.song._song.return_tracks:
             assert default
             return default
 
-        assert track in self._live_track_to_simple_track.keys(), "_get_simple_track mismatch on %s" % track
+        assert track in self.live_track_to_simple_track.keys(), "_get_simple_track mismatch on %s" % track.name
 
-        return self._live_track_to_simple_track[track]
+        return self.live_track_to_simple_track[track]
 
     @retry(3)
     def _set_current_track(self):
@@ -160,7 +148,7 @@ class SongManager(AbstractControlSurfaceComponent):
 
     def get_current_track(self, track):
         # type: (SimpleTrack) -> AbstractTrack
-        if track in self._simple_track_to_abstract_group_track:
-            return self._simple_track_to_abstract_group_track[track]
+        if track in self.simple_track_to_abstract_group_track:
+            return self.simple_track_to_abstract_group_track[track]
         else:
             return track

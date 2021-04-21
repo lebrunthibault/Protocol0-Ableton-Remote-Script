@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, NoReturn, TypeVar
+from typing import NoReturn, TypeVar, cast
 
 T = TypeVar("T", bound=Enum)
 
@@ -16,16 +16,11 @@ class AbstractEnum(Enum):
         return hasattr(cls, key)
 
     @classmethod
-    def values(cls):
-        # type: () -> List[T]
-        return cls._value2member_map_.values()
-
-    @classmethod
     def get_from_value(cls, value):
         # type: (str) -> T
         value = value.strip()
-        for int, enum in cls._value2member_map_:  # type: ignore[attr-defined]
+        for int, enum in cls.__members__.items():
             if value == enum.value:
-                return enum
+                return cast(T, enum)
 
         return cls.default()

@@ -54,14 +54,6 @@ class SongActionMixin(object):
             if t.solo and t != (self.current_track if except_current else None):
                 t.solo = False
 
-    def record_all(self):
-        # type: (Song) -> None
-        self.current_track.record(self.current_track.record_all)
-
-    def record_audio_only(self):
-        # type: (Song) -> None
-        self.current_track.record(self.current_track.record_audio_only)
-
     @handle_error
     def reset(self, reset_tracks=True):
         # type: (Song, bool) -> None
@@ -103,6 +95,7 @@ class SongActionMixin(object):
 
     def create_scene(self, scene_index=None):
         # type: (Song, Optional[int]) -> Sequence
+        self.parent.log_dev("create scene !")
         seq = Sequence()
         seq.add(lambda: self._song.create_scene(scene_index or len(self.song.scenes)), wait=1)
         return seq.done()

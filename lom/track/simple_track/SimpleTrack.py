@@ -1,5 +1,5 @@
 import Live
-from typing import List, Optional, Any
+from typing import List, Optional, Any, Dict
 
 from _Framework.SubjectSlot import subject_slot, subject_slot_group
 from a_protocol_0.enums.ClipTypeEnum import ClipTypeEnum
@@ -29,17 +29,30 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # only used for automated tracks
         self.next_automated_audio_track = None  # type: Optional[SimpleTrack]
         self.previous_automated_audio_track = None  # type: Optional[SimpleTrack]
-        self.clip_slots = [
-            ClipSlot.make(clip_slot=clip_slot, index=i, track=self)
-            for (i, clip_slot) in enumerate(list(self._track.clip_slots))
-        ]  # type: List[ClipSlot]
-        self._map_clip_listener.replace_subjects(self.clip_slots)
+
+        self.clip_slots = []  # type: List[ClipSlot]
+        self.map_clip_slots()
 
         self.last_clip_played = None  # type: Optional[Clip]
 
     def __hash__(self):
         # type: () -> int
         return self.index
+
+    def map_clip_slots(self):
+        # type: () -> Any
+        """ create new ClipSlot objects and keep existing ones """
+        live_clip_slot_to_clip_slot = {}  # type: Dict[Live.ClipSlot.ClipSlot, ClipSlot]
+        for clip_slot in self.clip_slots:
+            live_clip_slot_to_clip_slot[clip_slot._clip_slot] = clip_slot
+        new_clip_slots = []  # type: List[ClipSlot]
+        for (i, clip_slot) in enumerate(list(self._track.clip_slots)):
+            if clip_slot in live_clip_slot_to_clip_slot:
+                new_clip_slots.append(live_clip_slot_to_clip_slot[clip_slot])
+            else:
+                new_clip_slots.append(ClipSlot.make(clip_slot=clip_slot, index=i, track=self))
+        self.clip_slots = new_clip_slots
+        self._map_clip_listener.replace_subjects(self.clip_slots)
 
     @subject_slot("playing_slot_index")
     @defer
@@ -167,7 +180,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def next_empty_clip_slot_index(self):
         # type: () -> Optional[int]
         for i in range(self.song.selected_scene.index, len(self.song.scenes)):
-            if not self.clip_slots[i].has_clip:
+            if not self.clip_slots[i].clip:
                 return i
 
         return None

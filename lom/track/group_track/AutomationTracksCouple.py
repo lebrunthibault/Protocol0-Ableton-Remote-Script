@@ -42,8 +42,8 @@ class AutomationTracksCouple(AbstractObject):
         self.song.simple_tracks[audio_simple_track.index] = self.audio_track
         self.song.simple_tracks[midi_simple_track.index] = self.midi_track
 
-        self.parent.songManager._live_track_to_simple_track[audio_simple_track._track] = self.audio_track
-        self.parent.songManager._live_track_to_simple_track[midi_simple_track._track] = self.midi_track
+        self.parent.songManager.live_track_to_simple_track[audio_simple_track._track] = self.audio_track
+        self.parent.songManager.live_track_to_simple_track[midi_simple_track._track] = self.midi_track
 
         group_track.sub_tracks[group_track.sub_tracks.index(audio_simple_track)] = self.audio_track
         group_track.sub_tracks[group_track.sub_tracks.index(midi_simple_track)] = self.midi_track

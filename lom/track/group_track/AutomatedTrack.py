@@ -90,7 +90,7 @@ class AutomatedTrack(AbstractGroupTrack):
 
     @forward_property("wrapped_track")
     def next_empty_clip_slot_index(self):
-        # type: () -> None
+        # type: () -> Optional[int]
         pass
 
     def arm_track(self):
