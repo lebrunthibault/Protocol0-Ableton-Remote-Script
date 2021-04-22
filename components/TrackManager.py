@@ -44,7 +44,8 @@ class TrackManager(AbstractControlSurfaceComponent):
     @p0_subject_slot("selected_track")
     def _selected_track_listener(self):
         # type: () -> None
-        self.parent.defer(self._update_nav_view)
+        if not self.song.selected_track.is_recording:
+            self.parent.defer(self._update_nav_view)
 
     def _update_nav_view(self):
         # type: () -> None

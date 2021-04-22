@@ -1,8 +1,9 @@
 from functools import partial
 
 import Live
-from typing import TYPE_CHECKING, Callable, Any, Optional, NoReturn
+from typing import TYPE_CHECKING, Any, Optional, NoReturn, Callable, cast
 
+from a_protocol_0.enums.RecordTypeEnum import RecordTypeEnum
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.sequence.Sequence import Sequence
@@ -79,8 +80,8 @@ class AbstractTrackActionMixin(object):
         # type: () -> NoReturn
         raise NotImplementedError()
 
-    def record(self, record_func):
-        # type: (AbstractTrack, Callable) -> Optional[Sequence]
+    def record(self, record_type):
+        # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
         """ restart audio to get a count in and recfix"""
         if not self.can_be_armed:
             return None
@@ -99,12 +100,13 @@ class AbstractTrackActionMixin(object):
         seq = Sequence()
         if not self.is_armed:
             seq.add(self.arm, silent=True)
-        if self.next_empty_clip_slot_index is None:
+        if record_type == RecordTypeEnum.NORMAL and self.next_empty_clip_slot_index is None:
             seq.add(self.song.create_scene)
             # here the tracks are mapped again ! we cannot simply call this method again on a stale object
-            seq.add(self.parent.current_action.execute)
+            seq.add(partial(self.record, record_type))
         else:
-            seq.add(record_func)
+            record_func = self.record_all if record_type == RecordTypeEnum.NORMAL else self.record_audio_only
+            seq.add(cast(Callable, record_func))
 
         return seq.done()
 

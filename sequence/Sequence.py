@@ -18,8 +18,8 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
 
     __subject_events__ = ("terminated", "errored")
 
-    DEBUG_MODE = os.getenv("DEBUG_SEQUENCE").lower() == "true"
-    SILENT_MODE = os.getenv("DEBUG_SEQUENCE").lower() != "true"
+    DEBUG_MODE = str(os.getenv("DEBUG_SEQUENCE")).lower() == "true"
+    SILENT_MODE = str(os.getenv("DEBUG_SEQUENCE")).lower() != "true"
 
     def __init__(self, bypass_errors=False, silent=False, *a, **k):
         # type: (bool, bool, Any, Any) -> None

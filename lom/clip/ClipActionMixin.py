@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING, Optional
 
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import defer
 
 if TYPE_CHECKING:
     from a_protocol_0.lom.clip.Clip import Clip
@@ -13,8 +12,8 @@ class ClipActionMixin(object):
         # type: (Clip) -> Sequence
         self.song.highlighted_clip_slot = self.clip_slot
         seq = Sequence(silent=True)
-        seq.add(wait=10)
         seq.add(self.parent.clyphxNavigationManager.show_clip_view)
+        # seq.add(wait=10)
         return seq.done()
 
     def play(self):
@@ -25,7 +24,6 @@ class ClipActionMixin(object):
         # type: (Clip) -> None
         self.is_playing = not self.is_playing
 
-    @defer
     def delete(self):
         # type: (Clip) -> Optional[Sequence]
         if not self._clip:

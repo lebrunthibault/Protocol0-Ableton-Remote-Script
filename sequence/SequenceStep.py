@@ -58,9 +58,6 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         conditions = [do_if, do_if_not, return_if, return_if_not]
         self._condition = next((c for c in conditions if c), None)  # type: Optional[Callable]
 
-        if _has_callback_queue(self._complete_on):
-            self._add_callback_on_listener(cast(CallableWithCallbacks, self._complete_on))
-
         assert callable(self._callable), "You passed a non callable (%s) to %s" % (self._callable, self)
         assert len(list(filter(None, conditions))) <= 1, "You cannot specify multiple conditions in a step"
         from a_protocol_0.sequence.Sequence import Sequence
@@ -170,6 +167,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
             return self.parent._wait(self._wait, self.terminate)
 
         if _has_callback_queue(self._complete_on):
+            self._add_callback_on_listener(cast(CallableWithCallbacks, self._complete_on))
             return
 
         try:

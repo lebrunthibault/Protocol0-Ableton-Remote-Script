@@ -14,6 +14,9 @@ class AbstractGroupTrack(AbstractTrack):
         group_track.abstract_group_track = self
         self.sub_tracks = group_track.sub_tracks
 
+        for sub_track in self.sub_tracks:
+            sub_track.group_track = self
+
         # tracks that are going to be mapped to this AbstractGroupTrack on selection
         # (that is their current track is self)
         self.selection_tracks = self.all_tracks

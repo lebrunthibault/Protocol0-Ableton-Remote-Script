@@ -95,7 +95,6 @@ class SongActionMixin(object):
 
     def create_scene(self, scene_index=None):
         # type: (Song, Optional[int]) -> Sequence
-        self.parent.log_dev("create scene !")
         seq = Sequence()
         seq.add(lambda: self._song.create_scene(scene_index or len(self.song.scenes)), wait=1)
         return seq.done()

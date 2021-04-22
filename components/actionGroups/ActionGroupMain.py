@@ -8,6 +8,7 @@ from a_protocol_0.controls.EncoderAction import EncoderAction
 from a_protocol_0.controls.EncoderModifierEnum import EncoderModifierEnum
 from a_protocol_0.controls.EncoderMoveEnum import EncoderMoveEnum
 from a_protocol_0.enums.DirectionEnum import DirectionEnum
+from a_protocol_0.enums.RecordTypeEnum import RecordTypeEnum
 from a_protocol_0.enums.TrackCategoryEnum import TrackCategoryEnum
 from a_protocol_0.utils.utils import scroll_object_property
 
@@ -70,8 +71,8 @@ class ActionGroupMain(AbstractActionGroup):
             id=9,
             name="record",
             on_scroll=partial(scroll_object_property, self.song, "selected_recording_time", RECORDING_TIMES),
-            on_press=lambda: partial(self.song.current_track.record, self.song.current_track.record_all),
-            on_long_press=lambda: partial(self.song.current_track.record, self.song.current_track.record_audio_only),
+            on_press=lambda: partial(self.song.current_track.record, RecordTypeEnum.NORMAL),
+            on_long_press=lambda: partial(self.song.current_track.record, RecordTypeEnum.AUDIO_ONLY),
         )
 
         # 10: empty

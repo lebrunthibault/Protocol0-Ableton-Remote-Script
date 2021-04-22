@@ -39,7 +39,6 @@ class SongManager(AbstractControlSurfaceComponent):
     def on_selected_track_changed(self):
         # type: () -> None
         self._set_current_track()
-        self.parent.clyphxNavigationManager.show_track_view()
         # noinspection PyUnresolvedReferences
         self.notify_selected_track()
 
@@ -63,16 +62,18 @@ class SongManager(AbstractControlSurfaceComponent):
         self.song.simple_tracks = self.song.abstract_group_tracks = []
         self.simple_track_to_abstract_group_track = {}
 
-        # 1. Generate simple tracks and sync back previous objects
+        # 1. Generate simple tracks
         for i, track in enumerate(list(self.song._song.tracks)):
             simple_track = self.parent.trackManager.instantiate_simple_track(track=track, index=i)
             self.song.simple_tracks.append(simple_track)
+            self.live_track_to_simple_track[track] = simple_track
 
-        self.live_track_to_simple_track.clear()
-        for simple_track in self.song.simple_tracks:
-            self.live_track_to_simple_track[simple_track._track] = simple_track
+        # deleted remove tracks from the map
+        for track, simple_track in self.live_track_to_simple_track.items():
+            if simple_track not in self.song.simple_tracks:
+                del self.live_track_to_simple_track[track]
 
-        # 2. Generate abstract group tracks and sync back previous objects
+        # 2. Generate abstract group tracks
         self.song.abstract_group_tracks = [
             self.parent.trackManager.instantiate_abstract_group_track(track) for track in self.song.simple_group_tracks
         ]
@@ -136,6 +137,7 @@ class SongManager(AbstractControlSurfaceComponent):
             assert default
             return default
 
+        assert len(self.live_track_to_simple_track.keys()), "live_track_to_simple_track is empty"
         assert track in self.live_track_to_simple_track.keys(), "_get_simple_track mismatch on %s" % track.name
 
         return self.live_track_to_simple_track[track]

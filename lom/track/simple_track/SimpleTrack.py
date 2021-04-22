@@ -148,17 +148,11 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             The clip preselected for playing on track play
 
             Checked in order :
-            - The clip.is_selected (selected via the scrolling the clip encoder)
             - The playing clip
             - The clip corresponding to the selected scene if it exists
         :return:
         """
-        selected_scene_clip = (
-            self.clip_slots[self.song.selected_scene.index].clip
-            if self.clip_slots[self.song.selected_scene.index].has_clip
-            else None
-        )
-        return self.playing_clip or selected_scene_clip
+        return self.playing_clip or self.clip_slots[self.song.selected_scene.index].clip
 
     @property
     def is_armed(self):

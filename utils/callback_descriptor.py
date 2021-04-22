@@ -144,4 +144,5 @@ class CallableWithCallbacks(object):
         if self.DEBUG_MODE:
             log_ableton("_execute_callbacks of %s : %s" % (self, self._callbacks))
         while len(self._callbacks):
-            self._callbacks.popleft()()
+            callback = self._callbacks.popleft()
+            callback()

@@ -103,8 +103,9 @@ class ClipSlot(AbstractObject):
 
     def record(self):
         # type: () -> Sequence
-        seq = Sequence()
         self.parent.show_message("Starting recording of %d bars" % self.song.recording_bar_count)
+        seq = Sequence()
+        seq.add(wait=1)  # necessary so that _has_clip_listener triggers on has_clip == True
         seq.add(
             partial(self.fire, record_length=self.parent.utilsManager.get_beat_time(self.song.recording_bar_count)),
             complete_on=self._has_clip_listener,
