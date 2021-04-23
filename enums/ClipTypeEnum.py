@@ -9,5 +9,5 @@ class ClipTypeEnum(AbstractEnum):
 
     @classmethod
     def default(cls):
-        # type: () -> ClipTypeEnum
+        # type: (ClipTypeEnum) -> ClipTypeEnum
         return cast(ClipTypeEnum, ClipTypeEnum.NORMAL)

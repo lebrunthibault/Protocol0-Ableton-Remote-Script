@@ -1,12 +1,13 @@
 from functools import partial
 
 import Live
-from typing import TYPE_CHECKING, Optional, Any
+from typing import TYPE_CHECKING, Optional, Any, List
 
 from a_protocol_0.enums.ClipTypeEnum import ClipTypeEnum
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.clip.ClipActionMixin import ClipActionMixin
 from a_protocol_0.lom.clip.ClipName import ClipName
+from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.utils.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
@@ -34,6 +35,7 @@ class Clip(ClipActionMixin, AbstractObject):
         self._is_recording_listener.subject = self._clip
         self.parent.defer(partial(setattr, self, "color", self.track.base_color))
         self.clip_name = ClipName(self) if set_clip_name else None
+        self.displayed_automated_parameter = None  # type: Optional[DeviceParameter]
 
     def _on_selected(self):
         # type: () -> None
@@ -186,17 +188,6 @@ class Clip(ClipActionMixin, AbstractObject):
             self._clip.color_index = int(self.track.base_color)
 
     @property
-    def is_playing(self):
-        # type: () -> bool
-        return self._clip and self._clip.is_playing
-
-    @is_playing.setter
-    def is_playing(self, is_playing):
-        # type: (bool) -> None
-        if self._clip and is_playing != self.is_playing:
-            self._clip.is_playing = is_playing
-
-    @property
     def is_triggered(self):
         # type: () -> bool
         return self._clip and self._clip.is_triggered
@@ -211,6 +202,11 @@ class Clip(ClipActionMixin, AbstractObject):
     def is_recording(self):
         # type: () -> bool
         return self._clip and self._clip.is_recording
+
+    @property
+    def automated_parameters(self):
+        # type: () -> List[DeviceParameter]
+        return [parameter for parameter in self.track.device_parameters if self.automation_envelope(parameter)]
 
     def disconnect(self):
         # type: () -> None

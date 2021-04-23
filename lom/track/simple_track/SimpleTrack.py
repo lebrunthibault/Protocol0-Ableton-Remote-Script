@@ -155,17 +155,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         return self.playing_clip or self.clip_slots[self.song.selected_scene.index].clip
 
     @property
-    def is_armed(self):
-        # type: () -> bool
-        return self.can_be_armed and self._track.arm
-
-    @is_armed.setter
-    def is_armed(self, is_armed):
-        # type: (bool) -> None
-        if self.can_be_armed:
-            self._track.arm = is_armed
-
-    @property
     def _empty_clip_slots(self):
         # type: () -> List[ClipSlot]
         return [clip_slot for clip_slot in self.clip_slots if not clip_slot.has_clip]

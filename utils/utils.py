@@ -13,24 +13,20 @@ if TYPE_CHECKING:
     from a_protocol_0.lom.AbstractObject import AbstractObject
 
 
-def scroll_object_property(base_object, property, items, go_next):
-    # type: (T, str, List[T], bool) -> None
-    new_value = scroll_values(items, getattr(base_object, property), go_next)
-    setattr(base_object, property, new_value)
-    from a_protocol_0 import Protocol0
-
-    Protocol0.SELF.show_message("Selected %s" % new_value)
-
-
-def scroll_values(items, selected_item, go_next):
-    # type: (List[T], T, bool) -> T
-    if len(items) == 0:
+def scroll_values(items, selected_item, go_next, show_message=False):
+    # type: (List[T], T, bool, bool) -> T
+    if len(items) == 0 or not selected_item:
         return selected_item
     increment = 1 if go_next else -1
     index = 0
     try:
         index = (items.index(selected_item) + increment) % len(items)
-        return items[index]
+        new_item = items[index]
+        if show_message:
+            from a_protocol_0 import Protocol0
+
+            Protocol0.SELF.show_message("Selected %s" % new_item)
+        return new_item
     except ValueError:
         return selected_item
 

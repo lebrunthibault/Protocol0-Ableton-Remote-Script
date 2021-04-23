@@ -2,10 +2,10 @@ from functools import partial
 
 from typing import TYPE_CHECKING, Optional
 
-from a_protocol_0.lom.Scene import Scene
+from a_protocol_0.consts import RECORDING_TIMES
+from a_protocol_0.enums.TrackCategoryEnum import TrackCategoryEnum
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
-from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import handle_error
 from a_protocol_0.utils.utils import scroll_values
@@ -16,6 +16,17 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class SongActionMixin(object):
+    @property
+    def selected_recording_time(self):
+        # type: (Song) -> str
+        return self._selected_recording_time
+
+    @selected_recording_time.setter
+    def selected_recording_time(self, selected_recording_time):
+        # type: (Song, str) -> None
+        self.recording_bar_count = int(selected_recording_time.split()[0])
+        self._selected_recording_time = selected_recording_time
+
     def select_track(self, selected_track):
         # type: (Song, AbstractTrack) -> Optional[Sequence]
         if self.song.selected_track == selected_track.base_track:
@@ -27,15 +38,22 @@ class SongActionMixin(object):
     def scroll_tracks(self, go_next):
         # type: (Song, bool) -> None
         base_track = self.selected_track if self.selected_track.is_scrollable else self.current_track.base_track
-        track_to_select = scroll_values(self.scrollable_tracks, base_track, go_next)  # type: SimpleTrack
-        if track_to_select:
-            track_to_select.select()
+        if base_track:
+            scroll_values(self.scrollable_tracks, base_track, go_next).select()
 
     def scroll_scenes(self, go_next):
         # type: (Song, bool) -> None
-        scene_to_select = scroll_values(self.scenes, self.selected_scene, go_next)  # type: Scene
-        if scene_to_select:
-            scene_to_select.select()
+        scroll_values(self.scenes, self.selected_scene, go_next).select()
+
+    def scroll_recording_times(self, go_next):
+        # type: (Song, bool) -> None
+        self.selected_recording_time = scroll_values(RECORDING_TIMES, self.selected_recording_time, go_next, True)
+
+    def scroll_track_categories(self, go_next):
+        # type: (Song, bool) -> None
+        self.selected_track_category = scroll_values(
+            list(TrackCategoryEnum), self.selected_track_category, go_next, True
+        )
 
     def unfocus_all_tracks(self):
         # type: (Song) -> Sequence

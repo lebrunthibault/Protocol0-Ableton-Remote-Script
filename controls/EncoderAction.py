@@ -1,4 +1,4 @@
-from typing import Optional, List, Any, Callable, cast
+from typing import Optional, List, Any, Callable
 
 from a_protocol_0.controls.EncoderModifierEnum import EncoderModifierEnum
 from a_protocol_0.controls.EncoderMoveEnum import EncoderMoveEnum
@@ -17,7 +17,7 @@ class EncoderAction(AbstractObject):
         super(EncoderAction, self).__init__(*a, **k)
         assert callable(func), "func action should be callable: %s" % get_callable_name(func)
         self.func = func
-        self.move_type = cast(EncoderMoveEnum, move_type or EncoderMoveEnum.PRESS)
+        self.move_type = move_type or EncoderMoveEnum.PRESS
         self.modifier_type = modifier_type
 
     def __repr__(self):

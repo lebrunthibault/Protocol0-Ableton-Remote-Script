@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 # noinspection PyTypeHints
 class ExternalSynthTrackActionMixin(object):
     def arm_track(self):
-        # type: (ExternalSynthTrack) -> Sequence
+        # type: (ExternalSynthTrack) -> Optional[Sequence]
         self.color = Colors.ARM
         self.base_track.is_folded = False
         self.midi_track.has_monitor_in = False

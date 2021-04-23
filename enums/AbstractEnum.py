@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import NoReturn, TypeVar, cast
+from typing import TypeVar, cast
 
 T = TypeVar("T", bound=Enum)
 
@@ -7,7 +7,7 @@ T = TypeVar("T", bound=Enum)
 class AbstractEnum(Enum):
     @classmethod
     def default(cls):
-        # type: () -> NoReturn
+        # type: (T) -> T
         raise NotImplementedError
 
     @classmethod
@@ -23,4 +23,4 @@ class AbstractEnum(Enum):
             if value == enum.value:
                 return cast(T, enum)
 
-        return cls.default()
+        return cast(T, cls.default())

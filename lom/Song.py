@@ -1,7 +1,6 @@
 import Live
 from typing import List, Optional, Dict, Any
 
-from a_protocol_0.enums.AbstractEnum import AbstractEnum
 from a_protocol_0.enums.TrackCategoryEnum import TrackCategoryEnum
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
@@ -19,7 +18,7 @@ from a_protocol_0.utils.utils import find_if
 from a_protocol_0.utils.utils import flatten
 
 
-class Song(SongActionMixin, AbstractObject):
+class Song(AbstractObject, SongActionMixin):
     AUDIO_BUS_TRACK_INDEX = 0  # audio bus is supposed to be the first track
 
     def __init__(self, song, *a, **k):
@@ -31,11 +30,11 @@ class Song(SongActionMixin, AbstractObject):
         self.simple_tracks = []  # type: List[SimpleTrack]
         self.abstract_tracks = []  # type: List[AbstractTrack]
         self.abstract_group_tracks = []  # type: List[AbstractGroupTrack]
-        self.selected_track = None  # type: Optional[SimpleTrack]
-        self.current_track = None  # type: Optional[AbstractTrack]
+        self._selected_track = None  # type: Optional[SimpleTrack]
+        self._current_track = None  # type: Optional[AbstractTrack]
         self.master_track = self._song.master_track  # type: Live.Track.Track
-        self.selected_track_category = TrackCategoryEnum.ALL  # type: AbstractEnum
-        self._selected_recording_time = "1 bar"
+        self.selected_track_category = TrackCategoryEnum.ALL  # type: TrackCategoryEnum
+        self._selected_recording_time = "1 bar"  # type: str
         self.recording_bar_count = 1
         self.solo_playing_tracks = []  # type: List[AbstractTrack]
         self.solo_stopped_tracks = []  # type: List[AbstractTrack]
@@ -45,10 +44,36 @@ class Song(SongActionMixin, AbstractObject):
         # only one scene can be set to looping : it should be the scene we are working on ("soloing")
         self.looping_scene = None  # type: Optional[Scene]
 
+        # NB: for an unknown reason clip.view.show_envelope does not always show the envelope
+        # when the button was not clicked. As a workaround we click it the first time
+        self.clip_envelope_show_box_clicked = False
+
     def __call__(self):
         # type: () -> Live.Song.Song
         """ allows for self.song() behavior to extend other surface script classes """
         return self.parent.song()
+
+    @property
+    def selected_track(self):
+        # type: () -> SimpleTrack
+        assert self._selected_track
+        return self._selected_track
+
+    @selected_track.setter
+    def selected_track(self, selected_track):
+        # type: (SimpleTrack) -> None
+        self._selected_track = selected_track
+
+    @property
+    def current_track(self):
+        # type: () -> AbstractTrack
+        assert self._current_track
+        return self._current_track
+
+    @current_track.setter
+    def current_track(self, current_track):
+        # type: (AbstractTrack) -> None
+        self._current_track = current_track
 
     @property
     def selected_scene(self):
@@ -150,10 +175,8 @@ class Song(SongActionMixin, AbstractObject):
     @property
     def selected_parameter(self):
         # type: () -> Optional[DeviceParameter]
-        return find_if(
-            lambda p: p._device_parameter == self.song._view.selected_parameter,
-            [param for track in self.simple_tracks for param in track.device_parameters],
-        )
+        all_parameters = [param for track in self.simple_tracks for param in track.device_parameters]
+        return find_if(lambda p: p._device_parameter == self.song._view.selected_parameter, all_parameters)
 
     @property
     def is_playing(self):
@@ -188,17 +211,6 @@ class Song(SongActionMixin, AbstractObject):
     def get_current_beats_song_time(self):
         # type: () -> Live.Song.BeatTime
         return self._song.get_current_beats_song_time()
-
-    @property
-    def selected_recording_time(self):
-        # type: () -> str
-        return self._selected_recording_time
-
-    @selected_recording_time.setter
-    def selected_recording_time(self, selected_recording_time):
-        # type: (str) -> None
-        self.recording_bar_count = int(selected_recording_time.split()[0])
-        self._selected_recording_time = selected_recording_time
 
     @property
     def clip_trigger_quantization(self):

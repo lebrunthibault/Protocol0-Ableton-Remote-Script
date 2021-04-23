@@ -35,8 +35,9 @@ class SimpleGroupTrack(AbstractGroupTrack):
         return seq.done()
 
     def arm_track(self):
-        # type: () -> None
+        # type: () -> Optional[Sequence]
         self.is_folded = not self.is_folded
+        return None
 
     def _rename_to_sub_tracks_instrument(self):
         # type: () -> None

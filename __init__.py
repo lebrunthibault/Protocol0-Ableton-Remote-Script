@@ -12,11 +12,11 @@ class EmptyModule(object):
         self.is_false = is_false
 
     def __ne__(self, other):
-        # type: (bool) -> Literal[False]
+        # type: (object) -> Literal[False]
         return False
 
     def __eq__(self, other):
-        # type: (bool) -> Literal[False]
+        # type: (object) -> Literal[False]
         return False
 
     def __nonzero__(self):

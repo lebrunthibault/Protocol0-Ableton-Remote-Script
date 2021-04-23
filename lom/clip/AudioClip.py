@@ -3,9 +3,7 @@ from functools import partial
 import Live
 from typing import TYPE_CHECKING, Any
 
-from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.clip.Clip import Clip
-from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.utils.decorators import p0_subject_slot, defer
 
 if TYPE_CHECKING:
@@ -57,18 +55,3 @@ class AudioClip(Clip):
         if self.warping:
             # enforce looping
             self.parent.defer(partial(setattr, self._clip, "looping", True))
-
-    def automation_envelope(self, parameter):
-        # type: (DeviceParameter) -> Live.Clip.AutomationEnvelope
-        return self._clip and self._clip.automation_envelope(parameter._device_parameter)
-
-    def create_automation_envelope(self, parameter):
-        # type: (Clip, DeviceParameter) -> Live.Clip.AutomationEnvelope
-        if parameter is None:
-            raise Protocol0Error("You passed None to Clip.create_automation_envelope for clip %s" % self)
-        return self._clip.create_automation_envelope(parameter._device_parameter)
-
-    def clear_all_envelopes(self):
-        # type: (Clip) -> None
-        if self._clip:
-            return self._clip.clear_all_envelopes()

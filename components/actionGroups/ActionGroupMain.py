@@ -3,14 +3,9 @@ from functools import partial
 from typing import Any
 
 from a_protocol_0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
-from a_protocol_0.consts import RECORDING_TIMES
 from a_protocol_0.controls.EncoderAction import EncoderAction
 from a_protocol_0.controls.EncoderModifierEnum import EncoderModifierEnum
-from a_protocol_0.controls.EncoderMoveEnum import EncoderMoveEnum
-from a_protocol_0.enums.DirectionEnum import DirectionEnum
 from a_protocol_0.enums.RecordTypeEnum import RecordTypeEnum
-from a_protocol_0.enums.TrackCategoryEnum import TrackCategoryEnum
-from a_protocol_0.utils.utils import scroll_object_property
 
 
 class ActionGroupMain(AbstractActionGroup):
@@ -38,25 +33,8 @@ class ActionGroupMain(AbstractActionGroup):
         self.add_encoder(
             id=5,
             name="automation",
-            on_press=lambda: self.parent.automationTrackManager.create_automation_group,
-            on_scroll=partial(
-                self.parent.automationTrackManager.adjust_clip_automation_curve,
-                direction=DirectionEnum.UP,
-            ),
-        ).add_action(
-            EncoderAction(
-                func=partial(self.parent.automationTrackManager.adjust_clip_automation_curve, reset=True),
-                modifier_type=EncoderModifierEnum.DUPX,
-            )
-        ).add_action(
-            EncoderAction(
-                func=partial(
-                    self.parent.automationTrackManager.adjust_clip_automation_curve,
-                    direction=DirectionEnum.DOWN,
-                ),
-                modifier_type=EncoderModifierEnum.DUPX,
-                move_type=EncoderMoveEnum.SCROLL,
-            )
+            on_press=self.parent.automationTrackManager.display_selected_parameter_automation,
+            on_scroll=self.parent.automationTrackManager.scroll_automation_envelopes,
         )
 
         # 6: empty
@@ -70,7 +48,7 @@ class ActionGroupMain(AbstractActionGroup):
         self.add_encoder(
             id=9,
             name="record",
-            on_scroll=partial(scroll_object_property, self.song, "selected_recording_time", RECORDING_TIMES),
+            on_scroll=self.song.scroll_recording_times,
             on_press=lambda: partial(self.song.current_track.record, RecordTypeEnum.NORMAL),
             on_long_press=lambda: partial(self.song.current_track.record, RecordTypeEnum.AUDIO_ONLY),
         )
@@ -126,11 +104,7 @@ class ActionGroupMain(AbstractActionGroup):
         )
 
         # 14 : CATegory encoder
-        self.add_encoder(
-            id=15,
-            name="track category",
-            on_scroll=partial(scroll_object_property, self.song, "selected_track_category", list(TrackCategoryEnum)),
-        ).add_action(
+        self.add_encoder(id=15, name="track category", on_scroll=self.song.scroll_track_categories).add_action(
             EncoderAction(
                 func=lambda: self.song.selected_category_tracks.play_stop,
                 modifier_type=EncoderModifierEnum.PLAY_STOP,

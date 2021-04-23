@@ -3,7 +3,7 @@ from functools import partial
 from itertools import chain, imap  # type: ignore[attr-defined]
 
 import Live
-from typing import Any, Optional, List, Union, cast
+from typing import Any, Optional, List, Union
 from typing import TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot
@@ -139,7 +139,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         top_abstract_track = self
         while top_abstract_track.abstract_group_track:
             top_abstract_track = top_abstract_track.abstract_group_track
-        return cast(AbstractTrack, top_abstract_track)
+        return top_abstract_track
 
     @property
     def all_tracks(self):
@@ -190,31 +190,9 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         return self.base_track.track_name.selected_preset_index
 
     @property
-    def color(self):
-        # type: () -> int
-        return self._track.color_index
-
-    @color.setter
-    def color(self, color_index):
-        # type: (int) -> None
-        for track in self.all_tracks:
-            track._track.color_index = color_index
-
-    @property
     def is_selected(self):
         # type: () -> bool
         return self.song.selected_track in self.all_tracks
-
-    @property
-    def is_folded(self):
-        # type: () -> bool
-        return self._track.fold_state if self.is_foldable else False
-
-    @is_folded.setter
-    def is_folded(self, is_folded):
-        # type: (bool) -> None
-        if self.is_foldable:
-            self._track.fold_state = int(is_folded)
 
     @subject_slot("devices")
     def _devices_listener(self):
@@ -317,26 +295,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def mute(self, mute):
         # type: (bool) -> None
         self._track.mute = mute
-
-    @property
-    def solo(self):
-        # type: () -> bool
-        return self._track.solo
-
-    @solo.setter
-    def solo(self, solo):
-        # type: (bool) -> None
-        self._track.solo = solo
-
-    @property
-    def has_monitor_in(self):
-        # type: () -> bool
-        return self._track.current_monitoring_state == 0
-
-    @has_monitor_in.setter
-    def has_monitor_in(self, has_monitor_in):
-        # type: (bool) -> None
-        self._track.current_monitoring_state = int(not has_monitor_in)
 
     @property
     def is_hearable(self):

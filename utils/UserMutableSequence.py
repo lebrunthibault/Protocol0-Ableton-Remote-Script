@@ -1,7 +1,7 @@
 import abc
 from collections import MutableSequence
 
-from typing import List, Any, Iterator
+from typing import List, Any, Iterator, Union
 
 from _Framework.SubjectSlot import SubjectMeta
 from a_protocol_0.lom.AbstractObject import AbstractObject
@@ -30,18 +30,18 @@ class UserMutableSequence(MutableSequence, AbstractObject):
         self._list = list
 
     def __getitem__(self, value):
-        # type: (int) -> T
+        # type: (Union[int, slice]) -> Union[T, List[T]]
         return self._list[value]
 
     def __delitem__(self, value):
         # type: (T) -> None
         self._list.remove(value)
 
-    def __setitem__(self, value):
-        # type: (T) -> None
-        if value in self:
+    def __setitem__(self, index, value):
+        # type: (Union[int, slice], T) -> None
+        if value in self or not isinstance(index, int):
             return None
-        self._list.append(value)
+        self._list[index] = value
 
     def insert(self, index, value):
         # type: (int, T) -> None

@@ -1,12 +1,12 @@
 import itertools
 
-from typing import TYPE_CHECKING, Optional, Any, Literal
+from typing import TYPE_CHECKING, Optional, Any, Literal, cast
 
-from _Framework.Util import forward_property
 from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
 from a_protocol_0.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.group_track.ExternalSynthTrackActionMixin import ExternalSynthTrackActionMixin
+from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.lom.track.simple_track.TrackSynchronizer import TrackSynchronizer
 from a_protocol_0.utils.utils import find_last
 
@@ -18,8 +18,8 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(ExternalSynthTrack, self).__init__(*a, **k)
-        self.midi_track = find_last(lambda t: t.is_midi, self.sub_tracks)
-        self.audio_track = find_last(lambda t: t.is_audio, self.sub_tracks)
+        self.midi_track = cast(SimpleTrack, find_last(lambda t: t.is_midi, self.sub_tracks))
+        self.audio_track = cast(SimpleTrack, find_last(lambda t: t.is_audio, self.sub_tracks))
         assert self.midi_track and self.audio_track
         self.instrument_track = self.midi_track
         self.midi_track.abstract_group_track = self.audio_track.abstract_group_track = self
@@ -85,10 +85,9 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
                 return i
         return None
 
-    @forward_property("audio_track")
-    def set_output_routing_to(self):
-        # type: () -> None
-        pass
+    def set_output_routing_to(self, *a, **k):
+        # type: (Any, Any) -> None
+        self.audio_track.set_output_routing_to(*a, **k)
 
     def disconnect(self):
         # type: () -> None

@@ -44,9 +44,10 @@ class AutomationMidiClipNoteMixin(AbstractObject):
             self._consolidate_notes,
         ]  # type: List[Callable[[List[Note]], Union[List[Note], Iterator[Note]]]]
 
+        notes = cast(List[Note], notes)  # type: ignore[redundant-cast]  # make mypy happy
         for note_transform in note_transforms:
             notes.sort(key=lambda x: x.start)
-            notes = list(set(note_transform(cast(List[Note], notes))))
+            notes = list(set(note_transform(notes)))
             if len(notes) == 0:
                 raise Protocol0Error("Problem after transform %s, no notes left" % note_transform.__name__)
 
@@ -56,7 +57,7 @@ class AutomationMidiClipNoteMixin(AbstractObject):
 
         self._added_note = None
 
-        return self.replace_all_notes(cast(List[Note], notes))
+        return self.replace_all_notes(notes)
 
     def _map_single_notes(self, notes_change):
         # type: (AutomationMidiClip, List[Tuple[Note, Note]]) -> Sequence

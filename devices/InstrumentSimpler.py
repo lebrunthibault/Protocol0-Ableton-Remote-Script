@@ -2,7 +2,7 @@ import os
 from os import listdir
 from os.path import join
 
-from typing import List, Any
+from typing import List, Any, Optional
 
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.devices.presets.InstrumentPreset import InstrumentPreset
@@ -10,6 +10,7 @@ from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.MidiClip import MidiClip
+from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.utils import find_if
 from a_protocol_0.utils.utils import scroll_values
 
@@ -44,9 +45,10 @@ class InstrumentSimpler(AbstractInstrument):
         return join(self.PRESETS_PATH, self.selected_category)
 
     def _load_preset(self, preset):
-        # type: (InstrumentPreset) -> None
+        # type: (InstrumentPreset) -> Optional[Sequence]
         self.parent.browserManager.load_sample(preset.original_name)
         self.parent._wait(400, self.track._devices_listener)
+        return None
 
     def scroll_preset_categories(self, go_next):
         # type: (bool) -> None

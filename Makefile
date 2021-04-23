@@ -5,11 +5,15 @@ test:
 pretty:
 	black .
 
-lint:
+flake8:
 	cls
 	flake8 .
+
+mypy:
+	cls
 	mypy .
 
 check:
 	make test
-	make lint
+	make flake8
+	make mypy

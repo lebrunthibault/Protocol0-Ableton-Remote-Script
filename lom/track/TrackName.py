@@ -58,7 +58,7 @@ class TrackName(AbstractObject):
         self._name_listener.add_subject(track._track)
 
     def update(self, base_name=None, playing_slot_index=None, selected_preset_index=None):
-        # type: (Optional[str], Optional[int], Optional[int]) -> Sequence
+        # type: (Optional[str], Optional[int], Optional[int]) -> Optional[Sequence]
         self.base_name = base_name if base_name else self.base_name
 
         selected_preset_index = (

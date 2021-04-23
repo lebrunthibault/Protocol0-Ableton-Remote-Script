@@ -21,7 +21,7 @@ class MidiClip(Clip):
         # NOTES
         # storing notes for note change comparison
         self._muted_notes = []  # type: List[Note]  # keeping this separate
-        self._prev_notes = self.get_notes()  # type: List[Note]
+        self._prev_notes = self.get_notes()
         self._added_note = None  # type: Optional[Note]
         self._is_updating_notes = False
 
@@ -126,7 +126,7 @@ class MidiClip(Clip):
         seq.add(partial(self.replace_all_notes, self.generate_base_notes()))
         seq.add(self.view.hide_envelope, silent=True)
         seq.add(wait=10, silent=True)
-        seq.add(self.parent.keyboardShortcutManager.click_clip_fold)
+        seq.add(self.parent.keyboardShortcutManager.click_clip_fold_notes)
         return seq.done()
 
     def generate_base_notes(self):

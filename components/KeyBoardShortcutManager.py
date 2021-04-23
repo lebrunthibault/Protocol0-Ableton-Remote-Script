@@ -79,10 +79,15 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
         # type: () -> None
         self.send_keys("^{F2}", repeat=True)
 
-    def click_clip_fold(self):
+    def click_clip_fold_notes(self):
         # type: () -> None
         self.send_click(418, 686)
         self.send_click(418, 686)
+
+    def double_click_envelopes_show_box(self):
+        # type: () -> None
+        self.send_click(86, 1014)
+        self.send_click(86, 1014)
 
     def toggle_device_button(self, x, y, activate=True):
         # type: (int, int, bool) -> None

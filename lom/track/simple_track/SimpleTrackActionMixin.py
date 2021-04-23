@@ -11,6 +11,17 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class SimpleTrackActionMixin(object):
+    @property
+    def is_armed(self):
+        # type: (SimpleTrack) -> bool
+        return self.can_be_armed and self._track.arm
+
+    @is_armed.setter
+    def is_armed(self, is_armed):
+        # type: (SimpleTrack, bool) -> None
+        if self.can_be_armed:
+            self._track.arm = is_armed
+
     def arm_track(self):
         # type: (SimpleTrack) -> Optional[Sequence]
         if self.is_foldable:
@@ -75,4 +86,5 @@ class SimpleTrackActionMixin(object):
         if self.song.highlighted_clip_slot == self.clips[0] and not go_next:
             return self.parent.keyboardShortcutManager.up()
 
-        self.song.selected_clip = scroll_values(self.clips, self.song.selected_clip or self.playable_clip, go_next)
+        if self.song.selected_clip or self.playable_clip:
+            self.song.selected_clip = scroll_values(self.clips, self.song.selected_clip or self.playable_clip, go_next)

@@ -28,8 +28,8 @@ class Device(AbstractObject):
         self.device_type = DeviceType.ABLETON_DEVICE
 
     def __eq__(self, device):
-        # type: (Device) -> bool
-        return device and self._device == device._device
+        # type: (object) -> bool
+        return isinstance(device, Device) and self._device == device._device
 
     @staticmethod
     def make(device, track, index):
@@ -48,8 +48,8 @@ class Device(AbstractObject):
         # type: () -> None
         self.song.select_device(self)
 
-    def scroll_presets(self):
-        # type: () -> None
+    def scroll_presets(self, go_next):
+        # type: (bool) -> None
         self.parent.show_message("Presets scrolling is only available for plugin devices")
 
     @property

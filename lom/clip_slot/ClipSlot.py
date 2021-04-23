@@ -32,8 +32,8 @@ class ClipSlot(AbstractObject):
         return self._clip_slot is not None
 
     def __eq__(self, clip_slot):
-        # type: (ClipSlot) -> bool
-        return clip_slot and self._clip_slot == clip_slot._clip_slot
+        # type: (object) -> bool
+        return isinstance(clip_slot, ClipSlot) and self._clip_slot == clip_slot._clip_slot
 
     def __repr__(self):
         # type: () -> str

@@ -29,7 +29,7 @@ class Note(AbstractObject):
         self.clip = cast("MidiClip", clip)
 
     def __eq__(self, other):
-        # type: (Note) -> bool
+        # type: (object) -> bool
         return (
             isinstance(other, Note)
             and self.pitch == other.pitch
@@ -135,7 +135,7 @@ class Note(AbstractObject):
 
     @staticmethod
     def copy_notes(notes):
-        # type: (List[Note]) -> (List[Note])
+        # type: (List[Note]) -> List[Note]
         return [copy(note) for note in notes]
 
     @staticmethod

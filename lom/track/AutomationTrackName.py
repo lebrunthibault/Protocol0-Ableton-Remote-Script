@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any, Optional
 from _Framework.SubjectSlot import subject_slot_group
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.track.TrackName import TrackName
+from a_protocol_0.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
     from a_protocol_0.lom.track.simple_track.AbstractAutomationTrack import AbstractAutomationTrack
@@ -29,6 +30,6 @@ class AutomationTrackName(TrackName):
         self.automated_parameter_name = match.group("automated_parameter_name").strip()
 
     def update(self, *a, **k):
-        # type: (Any, Any) -> None
+        # type: (Any, Any) -> Optional[Sequence]
         """ Not necessary for AbstractAutomationTrack """
         pass

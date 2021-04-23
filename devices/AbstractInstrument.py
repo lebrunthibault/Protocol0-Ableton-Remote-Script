@@ -86,7 +86,7 @@ class AbstractInstrument(AbstractObject):
         return False
 
     def exclusive_activate(self):
-        # type: () -> None
+        # type: () -> Optional[Sequence]
         pass
 
     @property
@@ -169,7 +169,7 @@ class AbstractInstrument(AbstractObject):
         return seq.done()
 
     def _load_preset(self, preset):
-        # type: (InstrumentPreset) -> Sequence
+        # type: (InstrumentPreset) -> Optional[Sequence]
         """ Overridden default is send program change """
         seq = Sequence()
         seq.add(self.track.top_abstract_track.arm)

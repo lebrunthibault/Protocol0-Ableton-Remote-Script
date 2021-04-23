@@ -1,6 +1,6 @@
 import time
 
-from typing import TYPE_CHECKING, List, Optional, Any, cast
+from typing import TYPE_CHECKING, List, Optional, Any
 
 from _Framework.ButtonElement import ButtonElement
 from _Framework.InputControlElement import MIDI_NOTE_TYPE, MIDI_CC_TYPE
@@ -64,9 +64,7 @@ class MultiEncoder(AbstractObject):
             self._pressed_at = time.time()
             return
 
-        move_type = cast(
-            EncoderMoveEnum, EncoderMoveEnum.LONG_PRESS if self._is_long_pressed else EncoderMoveEnum.PRESS
-        )
+        move_type = EncoderMoveEnum.LONG_PRESS if self._is_long_pressed else EncoderMoveEnum.PRESS
         action = self._find_matching_action(move_type=move_type)
         self._pressed_at = None
         if action:

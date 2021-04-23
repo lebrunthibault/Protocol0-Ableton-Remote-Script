@@ -16,6 +16,48 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class AbstractTrackActionMixin(object):
+    @property
+    def color(self):
+        # type: (AbstractTrack) -> int
+        return self._track.color_index
+
+    @color.setter
+    def color(self, color_index):
+        # type: (AbstractTrack, int) -> None
+        for track in self.all_tracks:
+            track._track.color_index = color_index
+
+    @property
+    def is_folded(self):
+        # type: (AbstractTrack) -> bool
+        return self._track.fold_state if self.is_foldable else False
+
+    @is_folded.setter
+    def is_folded(self, is_folded):
+        # type: (AbstractTrack, bool) -> None
+        if self.is_foldable:
+            self._track.fold_state = int(is_folded)
+
+    @property
+    def solo(self):
+        # type: (AbstractTrack) -> bool
+        return self._track.solo
+
+    @solo.setter
+    def solo(self, solo):
+        # type: (AbstractTrack, bool) -> None
+        self._track.solo = solo
+
+    @property
+    def has_monitor_in(self):
+        # type: (AbstractTrack) -> bool
+        return self._track.current_monitoring_state == 0
+
+    @has_monitor_in.setter
+    def has_monitor_in(self, has_monitor_in):
+        # type: (AbstractTrack, bool) -> None
+        self._track.current_monitoring_state = int(not has_monitor_in)
+
     def select(self):
         # type: (AbstractTrack) -> None
         self.song.select_track(self)
@@ -37,7 +79,7 @@ class AbstractTrackActionMixin(object):
         return self.arm_track()
 
     def arm_track(self):
-        # type: () -> NoReturn
+        # type: () -> Optional[Sequence]
         raise NotImplementedError()
 
     def unarm(self):
@@ -106,7 +148,7 @@ class AbstractTrackActionMixin(object):
             seq.add(partial(self.record, record_type))
         else:
             record_func = self.record_all if record_type == RecordTypeEnum.NORMAL else self.record_audio_only
-            seq.add(cast(Callable, record_func))
+            seq.add(cast(Callable[..., Any], record_func))
 
         return seq.done()
 

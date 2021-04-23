@@ -1,5 +1,3 @@
-from typing import cast
-
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.clip.AutomationAudioClip import AutomationAudioClip
 
@@ -102,7 +100,7 @@ class LogManager(AbstractObject):
         self.parent.log_info()
         self.parent.log_info("song.highlighted_clip: %s" % self.song.selected_clip)
         if self.song.selected_clip:
-            if isinstance(self.song.selected_clip, AutomationAudioClip):
-                clip = cast(AutomationAudioClip, self.song.selected_clip)
+            clip = self.song.selected_clip
+            if isinstance(clip, AutomationAudioClip):
                 self.parent.log_info("song.highlighted_clip.automation_ramp_up: %s" % clip.automation_ramp_up)
                 self.parent.log_info("song.highlighted_clip.automation_ramp_down: %s" % clip.automation_ramp_down)

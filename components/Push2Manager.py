@@ -59,6 +59,7 @@ class Push2Manager(AbstractControlSurfaceComponent):
     @push2_method()
     def _update_session_ring(self):
         # type: () -> None
+        assert self.push2
         if self.update_session_ring:
             self.push2._session_ring.set_offsets(
                 self.parent.sessionManager.session.track_offset(), self.push2._session_ring.scene_offset
@@ -68,6 +69,7 @@ class Push2Manager(AbstractControlSurfaceComponent):
     @push2_method()
     def update_clip_grid_quantization(self):
         # type: () -> None
+        assert self.push2
         if not self.song.selected_clip.is_midi:
             return
         clip = cast(MidiClip, self.song.selected_clip)
@@ -78,6 +80,7 @@ class Push2Manager(AbstractControlSurfaceComponent):
     @push2_method()
     def _update_selected_modes(self, reselect=False):
         # type: (bool) -> None
+        assert self.push2
         if self.update_selected_modes:
             self.push2._main_modes.selected_mode = self.song.selected_track.push2_selected_main_mode
             self.push2._matrix_modes.selected_mode = self.song.selected_track.push2_selected_matrix_mode

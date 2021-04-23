@@ -40,9 +40,7 @@ class AutomationAudioClip(AbstractAutomationClip, AudioClip):
 
     def _on_selected(self):
         # type: () -> None
-        self.view.show_envelope()
-        self.view.select_envelope_parameter(self.track.automated_parameter._device_parameter)
-        self.view.show_loop()
+        self.displayed_automated_parameter(self.track.automated_parameter)
 
     @subject_slot_group("ramp_change")
     def _ramp_change_listener(self, ramp_mode):

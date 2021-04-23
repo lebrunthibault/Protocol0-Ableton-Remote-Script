@@ -58,7 +58,6 @@ class SongManager(AbstractControlSurfaceComponent):
 
         added_track = len(self.song.simple_tracks) and len(self.song._song.tracks) > len(self.song.simple_tracks)
 
-        former_simple_tracks = self.song.simple_tracks
         self.song.simple_tracks = self.song.abstract_group_tracks = []
         self.simple_track_to_abstract_group_track = {}
 

@@ -1,5 +1,8 @@
+import Live
+import deprecation
 from typing import TYPE_CHECKING, Optional
 
+from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -8,6 +11,17 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class ClipActionMixin(object):
+    @property
+    def is_playing(self):
+        # type: (Clip) -> bool
+        return self._clip and self._clip.is_playing
+
+    @is_playing.setter
+    def is_playing(self, is_playing):
+        # type: (Clip, bool) -> None
+        if self._clip and is_playing != self.is_playing:
+            self._clip.is_playing = is_playing
+
     def select(self):
         # type: (Clip) -> Sequence
         self.song.highlighted_clip_slot = self.clip_slot
@@ -32,7 +46,31 @@ class ClipActionMixin(object):
         seq.add(self.clip_slot.delete_clip, complete_on=self.clip_slot._has_clip_listener)
         return seq.done()
 
-    def configure_new_clip(self):
+    def automation_envelope(self, parameter):
+        # type: (Clip, DeviceParameter) -> Live.Clip.AutomationEnvelope
+        return self._clip and self._clip.automation_envelope(parameter._device_parameter)
+
+    def show_envelope_parameter(self, parameter):
+        # type: (Clip, DeviceParameter) -> None
+        self.parent.clyphxNavigationManager.show_clip_view()
+        self.view.show_envelope()
+        self.view.select_envelope_parameter(parameter._device_parameter)
+        if not self.song.clip_envelope_show_box_clicked:
+            self.parent.keyboardShortcutManager.double_click_envelopes_show_box()
+            self.song.clip_envelope_show_box_clicked = True
+        self.displayed_automated_parameter = parameter  # type: Optional[DeviceParameter]
+
+    def create_automation_envelope(self, parameter):
+        # type: (Clip, DeviceParameter) -> Live.Clip.AutomationEnvelope
+        return self._clip.create_automation_envelope(parameter._device_parameter)
+
+    @deprecation.deprecated()
+    def clear_all_envelopes(self):
         # type: (Clip) -> None
+        if self._clip:
+            return self._clip.clear_all_envelopes()
+
+    def configure_new_clip(self):
+        # type: (Clip) -> Optional[Sequence]
         """ extended """
         pass
