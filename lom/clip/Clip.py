@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 class Clip(ClipActionMixin, AbstractObject):
-    __subject_events__ = ("notes", "linked")
+    __subject_events__ = ("notes", "linked", "length")
 
     def __init__(self, clip_slot, set_clip_name=True, *a, **k):
         # type: (ClipSlot, bool, Any, Any) -> None
@@ -29,10 +29,15 @@ class Clip(ClipActionMixin, AbstractObject):
         self.index = clip_slot.index
         self.track = clip_slot.track  # type: SimpleTrack
         self._previous_name = self._clip.name
-        self._notes_listener.subject = self._clip
+
+        # listeners
         self._color_listener.subject = self._clip
-        self._looping_listener.subject = self._clip
+        self._notes_listener.subject = self._clip
         self._is_recording_listener.subject = self._clip
+        self._looping_listener.subject = self._clip
+        self._loop_start_listener.subject = self._clip
+        self._loop_end_listener.subject = self._clip
+
         self.parent.defer(partial(setattr, self, "color", self.track.base_color))
         self.clip_name = ClipName(self) if set_clip_name else None
         self.displayed_automated_parameter = None  # type: Optional[DeviceParameter]
@@ -40,6 +45,11 @@ class Clip(ClipActionMixin, AbstractObject):
     def _on_selected(self):
         # type: () -> None
         pass
+
+    @p0_subject_slot("color")
+    def _color_listener(self):
+        # type: () -> None
+        self.parent.defer(partial(setattr, self, "color", int(self.track.base_color)))
 
     @p0_subject_slot("notes")
     def _notes_listener(self):
@@ -50,6 +60,24 @@ class Clip(ClipActionMixin, AbstractObject):
     def _is_recording_listener(self):
         # type: () -> None
         pass
+
+    @p0_subject_slot("looping")
+    def _looping_listener(self):
+        # type: () -> None
+        # enforce looping
+        self.looping = True
+
+    @p0_subject_slot("loop_start")
+    def _loop_start_listener(self):
+        # type: () -> None
+        # noinspection PyUnresolvedReferences
+        self.notify_length()
+
+    @p0_subject_slot("loop_end")
+    def _loop_end_listener(self):
+        # type: () -> None
+        # noinspection PyUnresolvedReferences
+        self.notify_length()
 
     @staticmethod
     def make(clip_slot, is_new=False):
@@ -110,12 +138,6 @@ class Clip(ClipActionMixin, AbstractObject):
         # type: (float) -> None
         self.loop_end = self.loop_start + length
 
-    @p0_subject_slot("looping")
-    def _looping_listener(self):
-        # type: () -> None
-        # enforce looping
-        self.looping = True
-
     @property
     def looping(self):
         # type: () -> float
@@ -170,11 +192,6 @@ class Clip(ClipActionMixin, AbstractObject):
         # type: (float) -> None
         if self._clip:
             self._clip.end_marker = end_marker
-
-    @p0_subject_slot("color")
-    def _color_listener(self):
-        # type: () -> None
-        self.parent.defer(partial(setattr, self, "color", int(self.track.base_color)))
 
     @property
     def color(self):

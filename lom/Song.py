@@ -14,6 +14,7 @@ from a_protocol_0.lom.track.AbstractTrackList import AbstractTrackList
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.simple_track.AudioBusTrack import AudioBusTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
+from a_protocol_0.utils.decorators import p0_subject_slot
 from a_protocol_0.utils.utils import find_if
 from a_protocol_0.utils.utils import flatten
 
@@ -48,10 +49,18 @@ class Song(AbstractObject, SongActionMixin):
         # when the button was not clicked. As a workaround we click it the first time
         self.clip_envelope_show_box_clicked = False
 
+        self._is_playing_listener.subject = self._song
+
     def __call__(self):
         # type: () -> Live.Song.Song
         """ allows for self.song() behavior to extend other surface script classes """
         return self.parent.song()
+
+    @p0_subject_slot("is_playing")
+    def _is_playing_listener(self):
+        # type: () -> None
+        if len(self.scenes) and self.is_playing:
+            self.selected_scene.schedule_next_scene_launch()
 
     @property
     def selected_track(self):

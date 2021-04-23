@@ -1,12 +1,13 @@
 import Live
 from typing import List, Any, Optional
 
+from _Framework.SubjectSlot import subject_slot_group
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.SceneName import SceneName
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.track.simple_track.AudioBusTrack import AudioBusTrack
-from a_protocol_0.utils.decorators import p0_subject_slot
+from a_protocol_0.utils.decorators import p0_subject_slot, defer
 
 
 class Scene(AbstractObject):
@@ -16,10 +17,14 @@ class Scene(AbstractObject):
         self.index = index
         self._scene = scene
         self.scene_name = SceneName(self)
-        self._is_triggered_listener.subject = self._scene
         self.clip_slots = [
             self.song.clip_slots_by_live_live_clip_slot[clip_slot] for clip_slot in self._scene.clip_slots
         ]  # type: List[ClipSlot]
+
+        # listeners
+        self._is_triggered_listener.subject = self._scene
+        self._clip_slots_map_clip_listener.replace_subjects(self.clip_slots)
+        self._clips_length_listener.replace_subjects(self.clips)
 
     @p0_subject_slot("is_triggered")
     def _is_triggered_listener(self):
@@ -36,12 +41,28 @@ class Scene(AbstractObject):
         if self.is_triggered:
             self.parent.sceneBeatScheduler.clear()
         # doing this when scene starts playing
-        elif not self.looping:
-            self._schedule_next_scene_launch()
+        self.schedule_next_scene_launch()
 
-    def _schedule_next_scene_launch(self):
+    @subject_slot_group("length")
+    def _clips_length_listener(self, clip):
+        # type: (Clip) -> None
+        self.check_scene_length()
+
+    @subject_slot_group("map_clip")
+    def _clip_slots_map_clip_listener(self, clip_slot):
+        # type: (ClipSlot) -> None
+        self._clips_length_listener.replace_subjects(self.clips)
+        self.check_scene_length()
+
+    @defer
+    def check_scene_length(self):
         # type: () -> None
-        if self.index == len(self.song.scenes) - 1:
+        self.scene_name.update()
+        self.schedule_next_scene_launch()
+
+    def schedule_next_scene_launch(self):
+        # type: () -> None
+        if self.index == len(self.song.scenes) - 1 or self.looping:
             return
         next_scene = self.song.scenes[self.index + 1]
         self.parent.sceneBeatScheduler.wait_beats(self.length - self.playing_position, next_scene.fire)
@@ -71,7 +92,7 @@ class Scene(AbstractObject):
             self.parent.sceneBeatScheduler.clear()  # clearing scene scheduling
         else:  # solo inactivation
             self.song.looping_scene = None
-            self._schedule_next_scene_launch()  # restore previous behavior of follow action
+            self.schedule_next_scene_launch()  # restore previous behavior of follow action
         self.scene_name.update()
 
     @property

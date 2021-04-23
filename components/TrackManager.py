@@ -2,6 +2,7 @@ import itertools
 from functools import partial
 
 import Live
+import deprecation
 from typing import Optional, Callable, Any
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
@@ -45,8 +46,10 @@ class TrackManager(AbstractControlSurfaceComponent):
     def _selected_track_listener(self):
         # type: () -> None
         if not self.song.selected_track.is_recording:
-            self.parent.defer(self._update_nav_view)
+            pass
+            # self.parent.defer(self._update_nav_view)
 
+    @deprecation.deprecated
     def _update_nav_view(self):
         # type: () -> None
         if self.song.selected_track.nav_view == "clip":

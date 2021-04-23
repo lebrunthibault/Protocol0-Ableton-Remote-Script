@@ -22,8 +22,7 @@ class AutomationMidiClip(AbstractAutomationClip, MidiClip, AutomationMidiClipNot
         self.clip_slot = self.clip_slot  # type: AutomationMidiClipSlot
         self.linked_clip = None  # type: Optional[AutomationAudioClip]
         self._name_listener.subject = self._clip
-        self._loop_start_listener.subject = self._clip
-        self._loop_end_listener.subject = self._clip
+        self._length_listener.subject = self
         self._notes_listener.subject = self._clip
 
     def _on_selected(self):
@@ -31,13 +30,8 @@ class AutomationMidiClip(AbstractAutomationClip, MidiClip, AutomationMidiClipNot
         self.view.hide_envelope()
         self.view.show_loop()
 
-    @p0_subject_slot("loop_start")
-    def _loop_start_listener(self):
-        # type: () -> None
-        self._refresh_notes()
-
-    @p0_subject_slot("loop_end")
-    def _loop_end_listener(self):
+    @p0_subject_slot("length")
+    def _length_listener(self):
         # type: () -> None
         self._refresh_notes()
 

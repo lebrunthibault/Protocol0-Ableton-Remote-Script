@@ -54,13 +54,14 @@ The bigger part of the script is dedicated to the handling of external synths an
 - Midi and audio clips are linked (start / end / looping, suppression ..)
 
 ### Automation
+> This is going to be dropped very soon. it's too complicated and not so useful.
+
 > This is by far the most complex part of the script
 > The goal is to manage chained dummy clips to play with them in session.
 > 2nd goal is to handle automation via midi clip notes without using the very boring red automation curves
 
 So : for each parameter we want to automate in a track 2 tracks are going to be created : one audio and one midi. (They will be grouped in a group track with the main track).
 That's a lot of clutter on the interface but the best way to achieve what I wanted.
-
 
 #### Automation audio tracks
 - It handles creating dummy tracks for each mapped parameter of a track at a button click.

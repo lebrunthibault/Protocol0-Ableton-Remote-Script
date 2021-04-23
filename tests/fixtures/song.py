@@ -1,12 +1,15 @@
 from typing import List
 
+from _Framework.SubjectSlot import Subject
 from a_protocol_0.lom.Song import Song
 from a_protocol_0.tests.fixtures.group_track import make_external_synth_track
 from a_protocol_0.tests.fixtures.simple_track import make_simpler_track, AbletonTrack
 from a_protocol_0.tests.fixtures.song_view import AbletonSongView
 
 
-class AbletonSong(object):
+class AbletonSong(Subject):
+    __subject_events__ = ("is_playing",)
+
     def __init__(self, tracks, view):
         # type: (List[AbletonTrack], AbletonSongView) -> None
         self.tracks = tracks if tracks else []
