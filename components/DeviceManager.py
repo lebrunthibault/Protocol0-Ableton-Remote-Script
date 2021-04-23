@@ -9,6 +9,7 @@ from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.device.RackDevice import RackDevice
+from a_protocol_0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.utils import find_if
 
@@ -39,6 +40,8 @@ class DeviceManager(AbstractControlSurfaceComponent):
         from a_protocol_0.devices.InstrumentMinitaur import InstrumentMinitaur
 
         if not len(track.all_devices):
+            if isinstance(track, SimpleMidiTrack):
+                raise Protocol0Error("a midi track should always have an instrument : failed on %s" % repr(track))
             return None
 
         simpler_device = find_if(lambda d: d.is_simpler, track.all_devices)
@@ -67,8 +70,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
         try:
             mod = __import__("a_protocol_0.devices." + class_name, fromlist=[class_name])
         except ImportError:
-            self.parent.log_info("Import Error on instrument %s" % class_name)
-            return None
+            raise Protocol0Error("Import Error on instrument %s" % class_name)
 
         class_ = getattr(mod, class_name)
         return (

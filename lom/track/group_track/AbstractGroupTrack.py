@@ -25,4 +25,5 @@ class AbstractGroupTrack(AbstractTrack):
     def _instrument_listener(self):
         # type: () -> None
         self.instrument = self.instrument_track.instrument or self.base_track.instrument
+        assert self.instrument, "no instrument on abstract group track %s (%s:%s)" % (self, self.name, self.index)
         self.instrument.sync_presets()

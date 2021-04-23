@@ -1,3 +1,5 @@
+import os
+
 import Live
 from typing import List, Optional, Dict, Any
 
@@ -50,6 +52,9 @@ class Song(AbstractObject, SongActionMixin):
         self.clip_envelope_show_box_clicked = False
 
         self._is_playing_listener.subject = self._song
+
+        # with this set to True, the script is going to rename more aggressively
+        self.fix_outdated_sets = str(os.getenv("FIX_OUTDATED_SETS")).lower() == "true"
 
     def __call__(self):
         # type: () -> Live.Song.Song

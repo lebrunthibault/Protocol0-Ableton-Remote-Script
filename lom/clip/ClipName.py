@@ -30,6 +30,8 @@ class ClipName(AbstractObject):
         """ overridden """
         match = re.match("^(?P<base_name>[^()[\].]*).*$", self.clip.name or "")
         self.base_name = match.group("base_name").strip() if match else ""
+        if self.song.fix_outdated_sets:
+            self.base_name = self.base_name.split("-")[0].strip()
         if re.match("^%s( \d+)?" % self.clip.track.base_name.strip(), self.base_name):
             self.base_name = ""
         self.update()

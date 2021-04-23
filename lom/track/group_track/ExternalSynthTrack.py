@@ -20,7 +20,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         super(ExternalSynthTrack, self).__init__(*a, **k)
         self.midi_track = cast(SimpleTrack, find_last(lambda t: t.is_midi, self.sub_tracks))
         self.audio_track = cast(SimpleTrack, find_last(lambda t: t.is_audio, self.sub_tracks))
-        assert self.midi_track and self.audio_track
+        assert self.midi_track and self.audio_track, "invalid external synth track %s" % self
         self.instrument_track = self.midi_track
         self.midi_track.abstract_group_track = self.audio_track.abstract_group_track = self
 

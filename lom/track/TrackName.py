@@ -45,6 +45,8 @@ class TrackName(AbstractObject):
         match = re.match("^(?P<base_name>[^()]*)[()]*(\((?P<selected_preset_index>\d+)\))?$", self.track.name)
         # _ is a reserved character for track names
         self.base_name = match.group("base_name").strip().replace("_", " ") if match else ""
+        if self.song.fix_outdated_sets:
+            self.base_name = self.base_name.split("-")[0].strip()
         if match and match.group("selected_preset_index"):
             self.selected_preset_index = int(match.group("selected_preset_index")) - 1
 

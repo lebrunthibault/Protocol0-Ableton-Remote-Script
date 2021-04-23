@@ -6,7 +6,6 @@ import deprecation
 from typing import Optional, Callable, Any
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.devices.InstrumentMinitaur import InstrumentMinitaur
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
@@ -150,12 +149,17 @@ class TrackManager(AbstractControlSurfaceComponent):
         if len([sub_track for sub_track in group_track.sub_tracks if not self._is_automated_sub_track(sub_track)]) != 2:
             return None
 
+        if not isinstance(group_track.sub_tracks[0], SimpleMidiTrack) or not isinstance(
+            group_track.sub_tracks[0], SimpleAudioTrack
+        ):
+            return None
+
         is_external_synth_track = False
         if any(sub_track.instrument and sub_track.instrument.IS_EXTERNAL_SYNTH for sub_track in group_track.sub_tracks):
             is_external_synth_track = True
         # minitaur is a special case as it doesn't have a vst
-        elif group_track.track_name.base_name.lower() == InstrumentMinitaur.NAME:
-            is_external_synth_track = True
+        # elif group_track.track_name.base_name.lower() == InstrumentMinitaur.NAME:
+        #     is_external_synth_track = True
 
         return ExternalSynthTrack(group_track=group_track) if is_external_synth_track else None
 

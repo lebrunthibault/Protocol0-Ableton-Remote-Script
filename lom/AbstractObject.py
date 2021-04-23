@@ -1,4 +1,3 @@
-import Live
 from traitlets import Any
 from typing import TYPE_CHECKING
 
@@ -24,12 +23,10 @@ class AbstractObject(SlotManager, Subject):
     def __repr__(self):
         # type: () -> str
         repr = "P0 %s" % self.__class__.__name__
-        if hasattr(self, "name") and isinstance(self.name, str):
-            repr = "%s: %s" % (repr, self.name)
-        if hasattr(self, "index") and isinstance(self.index, str):
-            repr = "%s (%s)" % (repr, self.index)
-        if hasattr(self, "_device") and isinstance(self._device, Live.Device.Device):
-            repr = "%s (dev %s)" % (repr, self._device)
+        if hasattr(self, "name"):
+            repr += ": %s" % self.name
+        if hasattr(self, "index"):
+            repr += " (%s)" % self.index
 
         return repr
 
