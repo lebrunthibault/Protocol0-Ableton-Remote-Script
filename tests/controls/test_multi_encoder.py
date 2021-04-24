@@ -100,7 +100,9 @@ def test_multi_encoder_shift_press():
     with p0.component_guard():
         action_group = ActionGroupTest()
         action_group.add_modifier(id=1, modifier_type=EncoderModifierEnum.SHIFT)
-        multi_encoder = action_group.add_encoder(id=2, name="pytest", on_shift_press=shift_press)
+        multi_encoder = action_group.add_encoder(id=2, name="pytest").add_action(
+            EncoderAction(func=shift_press, modifier_type=EncoderModifierEnum.SHIFT)
+        )
 
     press_encoder(multi_encoder)
     assert res["shift_pressed"] is False

@@ -2,7 +2,7 @@ from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.lom.Colors import Colors
 
 
-class InstrumentSerum(AbstractInstrument):
+class InstrumentSerum(AbstractInstrument):  # noqa
     NAME = "Serum"
     TRACK_COLOR = Colors.SERUM
     PRESETS_PATH = "C:\\Users\\thiba\\OneDrive\\Documents\\Xfer\\Serum Presets\\System\\ProgramChanges.txt"

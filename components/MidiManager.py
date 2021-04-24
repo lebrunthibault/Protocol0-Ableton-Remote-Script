@@ -11,10 +11,6 @@ class MidiManager(AbstractControlSurfaceComponent):
         # type: (int, int) -> None
         self._send_formatted_midi_message("pc", channel, value)
 
-    def send_control_change(self, cc_number, value=127, channel=0):
-        # type: (int, int, int) -> None
-        self._send_formatted_midi_message("cc", channel, cc_number, value)
-
     def _send_formatted_midi_message(self, message_type, channel, value, value2=None):
         # type: (str, int, int, Optional[int]) -> None
         status = MIDI_STATUS_BYTES[message_type]

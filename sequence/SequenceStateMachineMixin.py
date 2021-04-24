@@ -35,11 +35,6 @@ class SequenceStateMachineMixin(object):
         return str(self._state_machine.state)
 
     @property
-    def un_started(self):
-        # type: () -> bool
-        return self.state == str(SequenceState.UN_STARTED)
-
-    @property
     def started(self):
         # type: () -> bool
         return self.state == str(SequenceState.STARTED)

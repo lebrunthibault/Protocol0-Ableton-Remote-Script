@@ -1,7 +1,6 @@
 import Live
-from typing import TYPE_CHECKING, List, Optional, Any
+from typing import TYPE_CHECKING, Optional, Any
 
-from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.AbstractAutomationClip import AbstractAutomationClip
 from a_protocol_0.lom.clip.AutomationMidiClipNoteMixin import AutomationMidiClipNoteMixin
 from a_protocol_0.lom.clip.MidiClip import MidiClip
@@ -11,7 +10,6 @@ from a_protocol_0.utils.decorators import debounce, p0_subject_slot
 if TYPE_CHECKING:
     from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMidiTrack
     from a_protocol_0.lom.clip_slot.AutomationMidiClipSlot import AutomationMidiClipSlot
-    from a_protocol_0.lom.clip.AutomationAudioClip import AutomationAudioClip
 
 
 class AutomationMidiClip(AbstractAutomationClip, MidiClip, AutomationMidiClipNoteMixin):
@@ -20,7 +18,6 @@ class AutomationMidiClip(AbstractAutomationClip, MidiClip, AutomationMidiClipNot
         super(AutomationMidiClip, self).__init__(*a, **k)
         self.track = self.track  # type: AutomationMidiTrack
         self.clip_slot = self.clip_slot  # type: AutomationMidiClipSlot
-        self.linked_clip = None  # type: Optional[AutomationAudioClip]
         self._name_listener.subject = self._clip
         self._length_listener.subject = self
         self._notes_listener.subject = self._clip
@@ -58,25 +55,6 @@ class AutomationMidiClip(AbstractAutomationClip, MidiClip, AutomationMidiClipNot
         if self.song.is_playing:
             seq.add(self.play)
         return seq.done()
-
-    def generate_base_notes(self):
-        # type: () -> List[Note]
-        base_velocity = self.track.linked_track.automated_parameter.get_midi_value_from_value()
-        base_note = Note(pitch=base_velocity, velocity=base_velocity, start=0, duration=self.length, clip=self)
-        muted_start_note_velocities = [
-            self.track.linked_track.automated_parameter.get_midi_value_from_value(velo)
-            for velo in [
-                self.track.linked_track.automated_parameter.min,
-                self.track.linked_track.automated_parameter.max,
-            ]
-            if velo != base_velocity
-        ]
-
-        self._muted_notes = [
-            Note(pitch=vel, velocity=vel, start=0, duration=min(1, int(self.length)), muted=True, clip=self)
-            for vel in muted_start_note_velocities
-        ]
-        return self._muted_notes + [base_note]
 
     def _refresh_notes(self):
         # type: () -> None

@@ -16,7 +16,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def __init__(self, track, index, *a, **k):
         # type: (Live.Track.Track, int, Any, Any) -> None
         self._track = track  # type: Live.Track.Track
-        self.index = index  # type: int
         super(SimpleTrack, self).__init__(track=self, *a, **k)
         if self.group_track:
             self.group_track.sub_tracks.append(self)
@@ -25,10 +24,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self._fired_slot_index_listener.subject = self._track
         self.instrument = self.parent.deviceManager.make_instrument_from_simple_track(track=self)
         self._instrument_listener.subject = self
-
-        # only used for automated tracks
-        self.next_automated_audio_track = None  # type: Optional[SimpleTrack]
-        self.previous_automated_audio_track = None  # type: Optional[SimpleTrack]
 
         self.clip_slots = []  # type: List[ClipSlot]
         self.map_clip_slots()
@@ -92,6 +87,11 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         pass
 
     @property
+    def index(self):
+        # type: () -> int
+        return self.song.simple_tracks.index(self)
+
+    @property
     def playing_slot_index(self):
         # type: () -> int
         return self._track.playing_slot_index
@@ -100,11 +100,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def fired_slot_index(self):
         # type: () -> int
         return self._track.fired_slot_index
-
-    @property
-    def live_id(self):
-        # type: () -> int
-        return self._track._live_ptr
 
     @property
     def is_audio(self):
@@ -153,11 +148,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         :return:
         """
         return self.playing_clip or self.clip_slots[self.song.selected_scene.index].clip
-
-    @property
-    def _empty_clip_slots(self):
-        # type: () -> List[ClipSlot]
-        return [clip_slot for clip_slot in self.clip_slots if not clip_slot.has_clip]
 
     @property
     def next_empty_clip_slot_index(self):

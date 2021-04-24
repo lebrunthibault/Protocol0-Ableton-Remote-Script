@@ -28,5 +28,4 @@ class ParallelSequence(Sequence):
     def check_for_parallel_step_completion(self):
         # type: () -> None
         if self._steps_terminated_count == len(self._steps):
-            self._res = True
             self.terminate()

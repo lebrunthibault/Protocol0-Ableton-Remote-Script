@@ -1,29 +1,27 @@
 from functools import partial
 
-from typing import List, TYPE_CHECKING, Optional, Any
+from typing import List, Any
 
+from a_protocol_0.enums.Push2InstrumentModeEnum import Push2InstrumentModeEnum
+from a_protocol_0.enums.Push2MainModeEnum import Push2MainModeEnum
+from a_protocol_0.enums.Push2MatrixModeEnum import Push2MatrixModeEnum
 from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
 from a_protocol_0.lom.clip_slot.AutomationMidiClipSlot import AutomationMidiClipSlot
-from a_protocol_0.lom.track.simple_track.AbstractAutomationTrack import AbstractAutomationTrack
+from a_protocol_0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from a_protocol_0.sequence.Sequence import Sequence
 
-if TYPE_CHECKING:
-    from a_protocol_0.lom.track.simple_track.AutomationAudioTrack import AutomationAudioTrack
 
-
-class AutomationMidiTrack(AbstractAutomationTrack):
+class AutomationMidiTrack(SimpleMidiTrack):
     CLIP_CLASS = AutomationMidiClip
 
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(AutomationMidiTrack, self).__init__(*a, **k)
         # this works here because the tracks are built left to right
-        self.linked_track = None  # type: Optional[AutomationAudioTrack]
-
         self.clip_slots = self.clip_slots  # type: List[AutomationMidiClipSlot]
-        self.push2_selected_main_mode = "clip"
-        self.push2_selected_matrix_mode = "note"
-        self.push2_selected_instrument_mode = "split_melodic_sequencer"
+        self.push2_selected_main_mode = Push2MainModeEnum.CLIP
+        self.push2_selected_matrix_mode = Push2MatrixModeEnum.NOTE
+        self.push2_selected_instrument_mode = str(Push2InstrumentModeEnum.SPLIT_MELODIC_SEQUENCER)
 
     def _added_track_init(self):
         # type: () -> Sequence

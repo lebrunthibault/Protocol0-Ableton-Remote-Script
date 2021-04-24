@@ -33,7 +33,6 @@ class AbletonTrack(Subject):
         self.has_audio_input = False
         self.has_audio_output = True
         self.has_midi_input = False
-        self.has_midi_output = False
 
         if track_type == TrackType.GROUP:
             self.is_foldable = True

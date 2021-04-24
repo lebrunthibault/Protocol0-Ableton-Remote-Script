@@ -39,17 +39,6 @@ def find_if(predicate, seq):
     return None
 
 
-def find_where(predicate, seq):
-    # type: (Callable[[T], bool], List[T]) -> List[T]
-    return [x for x in seq if predicate(x)]
-
-
-def find_last(predicate, seq):
-    # type: (Callable[[T], bool], List[T]) -> Optional[T]
-    items = find_where(predicate, seq)
-    return items[-1] if len(items) else None
-
-
 def is_equal(val1, val2, delta=0.00001):
     # type: (StringOrNumber, StringOrNumber, float) -> bool
     if isinstance(val1, (int, float)) and isinstance(val2, (int, float)):
@@ -174,25 +163,6 @@ def get_callable_name(func, obj=None):
         return "%s.%s" % (class_name, decorated_func.__name__)
     else:
         return decorated_func.__name__
-
-
-def _arg_count(func):
-    # type: (Any) -> int
-    """Note : this is not ideal because we cannot know if the defaults are already set by e.g a partial function
-    Thus we could be subtracting twice a parameter,
-    but that's better than to have an outer function setting a mismatched parameter
-    """
-    if is_partial(func):
-        spec = inspect.getargspec(func.func)
-        arg_len = len(spec.args) - len(func.args) - len(func.keywords)
-        if "self" in spec.args:
-            arg_len -= 1
-    else:
-        spec = inspect.getargspec(func)
-        arg_len = len(spec.args)
-    arg_len -= len(spec.defaults) if spec.defaults else 0
-    arg_count = arg_len if (isinstance(func, types.FunctionType) or is_partial(func)) else arg_len - 1
-    return max(arg_count, 0)
 
 
 def nop():

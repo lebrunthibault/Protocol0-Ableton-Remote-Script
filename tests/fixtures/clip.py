@@ -3,7 +3,6 @@ from typing import List, Optional, Tuple, Dict, Any, cast
 
 from _Framework.SubjectSlot import Subject
 from a_protocol_0.lom.Note import Note
-from a_protocol_0.lom.clip.AutomationAudioClip import AutomationAudioClip
 from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.tests.fixtures.clip_slot import make_clip_slot
@@ -50,7 +49,6 @@ def create_automation_midi_clip_with_notes(notes, prev_notes=[], clip_length=Non
     length = clip_length or notes[-1].end - loop_start
     cs = make_clip_slot(track=track, clip_length=length, clip_loop_start=loop_start)
     clip = AutomationMidiClip(clip_slot=cs)
-    clip.linked_clip = AutomationAudioClip(clip_slot=cs)
     clip._prev_notes = Note.copy_notes(prev_notes)
     for note in notes:
         note.clip = clip

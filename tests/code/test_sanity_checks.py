@@ -10,7 +10,7 @@ from a_protocol_0.tests.windows import focus_pycharm
 
 def get_code_filenames(exclude_folder_list=[]):
     # type: (List[str]) -> Iterator[str]
-    for current_path, folders, files in os.walk(ROOT_DIR):
+    for current_path, _, files in os.walk(ROOT_DIR):
         if any(
             folder_name in current_path
             for folder_name in [

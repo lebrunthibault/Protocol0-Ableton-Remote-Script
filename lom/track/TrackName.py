@@ -24,6 +24,7 @@ class TrackName(AbstractObject):
         self._instrument_listener.subject = self.track
         self._name_listener.add_subject(self.track._track)
         self._name_listener(self.track._track)
+        self.parent.defer(self.update)
 
     @p0_subject_slot("instrument")
     def _instrument_listener(self):
@@ -53,11 +54,6 @@ class TrackName(AbstractObject):
         for track in [track for track in self.tracks if track._track != changed_track]:
             if track.base_track.name != changed_track.name:
                 self.parent.defer(lambda: setattr(track.base_track, "name", changed_track.name))
-
-    def link_track(self, track):
-        # type: (AbstractTrack) -> None
-        self.tracks.append(track)
-        self._name_listener.add_subject(track._track)
 
     def update(self, base_name=None, playing_slot_index=None, selected_preset_index=None):
         # type: (Optional[str], Optional[int], Optional[int]) -> Optional[Sequence]

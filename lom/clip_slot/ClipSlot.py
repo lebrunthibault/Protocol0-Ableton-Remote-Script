@@ -15,12 +15,11 @@ if TYPE_CHECKING:
 class ClipSlot(AbstractObject):
     __subject_events__ = ("map_clip", "is_triggered")
 
-    def __init__(self, clip_slot, index, track, *a, **k):
-        # type: (Live.ClipSlot.ClipSlot, int, SimpleTrack, Any, Any) -> None
+    def __init__(self, clip_slot, track, *a, **k):
+        # type: (Live.ClipSlot.ClipSlot, SimpleTrack, Any, Any) -> None
         super(ClipSlot, self).__init__(*a, **k)
         self._clip_slot = clip_slot
         self.track = track
-        self.index = index
         self._has_clip_listener.subject = self._clip_slot
         self._is_triggered_listener.subject = self._clip_slot
         self.linked_clip_slot = None  # type: Optional[ClipSlot]
@@ -47,9 +46,9 @@ class ClipSlot(AbstractObject):
         from a_protocol_0.lom.clip_slot.AutomationMidiClipSlot import AutomationMidiClipSlot
 
         if isinstance(track, AutomationMidiTrack):
-            return AutomationMidiClipSlot(clip_slot=clip_slot, index=index, track=track)
+            return AutomationMidiClipSlot(clip_slot=clip_slot, track=track)
         else:
-            return ClipSlot(clip_slot=clip_slot, index=index, track=track)
+            return ClipSlot(clip_slot=clip_slot, track=track)
 
     @p0_subject_slot("has_clip")
     def _has_clip_listener(self):
@@ -83,9 +82,9 @@ class ClipSlot(AbstractObject):
             self._clip_slot.delete_clip()
 
     @property
-    def is_selected(self):
-        # type: () -> bool
-        return self == self.song.highlighted_clip_slot
+    def index(self):
+        # type: () -> int
+        return self.track.clip_slots.index(self)
 
     @property
     def is_triggered(self):
@@ -131,21 +130,6 @@ class ClipSlot(AbstractObject):
             partial(self._clip_slot.duplicate_clip_to, clip_slot._clip_slot),
             complete_on=clip_slot._has_clip_listener,
         )
-        return seq.done()
-
-    def insert_dummy_clip(self, name):
-        # type: (str) -> Sequence
-        seq = Sequence()
-        seq.add(
-            partial(self.song.simple_tracks[self.song.AUDIO_BUS_TRACK_INDEX].clip_slots[0].duplicate_clip_to, self),
-            complete_on=self._has_clip_listener,
-        )
-        seq.add(lambda: setattr(self.clip, "warping", True), name="enable clip warping", silent=True)
-        seq.add(lambda: setattr(self.clip, "looping", True), name="enable clip looping", silent=True)
-        seq.add(wait=10)  # because the created dummy clip name syncs to the midi clip
-        seq.add(lambda: setattr(self.clip, "name", name), silent=True)
-        if self.song.is_playing:
-            seq.add(lambda: self.clip.play())
         return seq.done()
 
     def disconnect(self):

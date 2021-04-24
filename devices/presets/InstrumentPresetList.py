@@ -48,7 +48,7 @@ class InstrumentPresetList(AbstractObject):
                 for i, name in enumerate(open(presets_path).readlines())
             ]
         elif isdir(presets_path):
-            for root, sub_dirs, files in os.walk(presets_path):
+            for _, _, files in os.walk(presets_path):
                 for file in [file for file in files if file.endswith(self.instrument.PRESET_EXTENSION)]:
                     self.presets.append(
                         InstrumentPreset(instrument=self.instrument, index=len(self.presets), name=file)

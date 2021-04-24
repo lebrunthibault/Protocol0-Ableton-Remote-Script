@@ -1,20 +1,14 @@
-import itertools
 from functools import partial
 
 import Live
-import deprecation
 from typing import Optional, Callable, Any
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.device.Device import Device
-from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
-from a_protocol_0.lom.track.group_track.AutomatedTrack import AutomatedTrack
-from a_protocol_0.lom.track.group_track.AutomationTracksCouple import AutomationTracksCouple
 from a_protocol_0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from a_protocol_0.lom.track.group_track.SimpleGroupTrack import SimpleGroupTrack
-from a_protocol_0.lom.track.simple_track.AudioBusTrack import AudioBusTrack
 from a_protocol_0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from a_protocol_0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -26,10 +20,7 @@ class TrackManager(AbstractControlSurfaceComponent):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(TrackManager, self).__init__(*a, **k)
-        self.tracks_added = False
-        self.automation_track_color = None
         self._added_track_listener.subject = self.parent.songManager
-        self._selected_track_listener.subject = self.parent.songManager
 
     @p0_subject_slot("added_track")
     @defer
@@ -40,21 +31,6 @@ class TrackManager(AbstractControlSurfaceComponent):
         seq.add(self.song.current_track._added_track_init)
         seq.add(self.song.end_undo_step)
         return seq.done()
-
-    @p0_subject_slot("selected_track")
-    def _selected_track_listener(self):
-        # type: () -> None
-        if not self.song.selected_track.is_recording:
-            pass
-            # self.parent.defer(self._update_nav_view)
-
-    @deprecation.deprecated
-    def _update_nav_view(self):
-        # type: () -> None
-        if self.song.selected_track.nav_view == "clip":
-            self.parent.clyphxNavigationManager.show_clip_view()
-        elif self.song.selected_track.nav_view == "track":
-            self.parent.clyphxNavigationManager.show_track_view()
 
     def group_track(self):
         # type: () -> Sequence
@@ -107,9 +83,9 @@ class TrackManager(AbstractControlSurfaceComponent):
             simple_track = self.parent.songManager.live_track_to_simple_track[track]
             simple_track.map_clip_slots()
             return simple_track
-        if index == self.song.AUDIO_BUS_TRACK_INDEX:
-            return AudioBusTrack(track=track, index=index)
-        elif track.has_midi_input:
+        # if index == self.song.AUDIO_BUS_TRACK_INDEX:
+        #     return AudioBusTrack(track=track, index=index)
+        if track.has_midi_input:
             return SimpleMidiTrack(track=track, index=index)
         elif track.has_audio_input:
             return SimpleAudioTrack(track=track, index=index)
@@ -123,13 +99,6 @@ class TrackManager(AbstractControlSurfaceComponent):
 
         # calling factories by most specific first
         abstract_group_track = self.make_external_synth_track(group_track=group_track)
-        if abstract_group_track:
-            abstract_group_track = (
-                self.make_automated_track(group_track=group_track, wrapped_track=abstract_group_track)
-                or abstract_group_track
-            )
-        if not abstract_group_track:
-            abstract_group_track = self.make_automated_track(group_track=group_track)
         if not abstract_group_track:
             abstract_group_track = SimpleGroupTrack(group_track=group_track)
 
@@ -146,11 +115,11 @@ class TrackManager(AbstractControlSurfaceComponent):
     def make_external_synth_track(self, group_track):
         # type: (SimpleTrack) -> Optional[ExternalSynthTrack]
         """ discarding automated tracks in creation / suppression """
-        if len([sub_track for sub_track in group_track.sub_tracks if not self._is_automated_sub_track(sub_track)]) != 2:
+        if len(group_track.sub_tracks) != 2:
             return None
 
         if not isinstance(group_track.sub_tracks[0], SimpleMidiTrack) or not isinstance(
-            group_track.sub_tracks[0], SimpleAudioTrack
+            group_track.sub_tracks[1], SimpleAudioTrack
         ):
             return None
 
@@ -162,45 +131,3 @@ class TrackManager(AbstractControlSurfaceComponent):
         #     is_external_synth_track = True
 
         return ExternalSynthTrack(group_track=group_track) if is_external_synth_track else None
-
-    def make_automated_track(self, group_track, wrapped_track=None):
-        # type: (SimpleTrack, AbstractTrack) -> Optional[AutomatedTrack]
-        automation_audio_tracks = [
-            track for track in group_track.sub_tracks if self._is_automated_sub_track(track) and track.is_audio
-        ]
-        automation_midi_tracks = [
-            track for track in group_track.sub_tracks if self._is_automated_sub_track(track) and track.is_midi
-        ]
-
-        if len(automation_audio_tracks) == 0 and len(automation_midi_tracks) == 0:
-            return None
-        main_tracks = [t for t in group_track.sub_tracks if t not in automation_audio_tracks + automation_midi_tracks]
-
-        if wrapped_track is None:
-            if len(main_tracks) != 1:
-                return None
-            wrapped_track = main_tracks[0]
-            if wrapped_track != group_track.sub_tracks[-1]:
-                raise Protocol0Error("The main track of a AutomatedTrack track should always be the last of the group")
-
-        if len(automation_audio_tracks) != len(automation_midi_tracks):
-            return None  # inconsistent state, happens on creation or when tracks are deleted
-
-        # at this point we should have a consistent state with audio - midi * n and main track at this end
-        # any other state is a bug and raises in AutomationTracksCouple __init__
-        automation_tracks_couples = [
-            AutomationTracksCouple(group_track, audio_track, midi_track)
-            for audio_track, midi_track in itertools.izip(automation_audio_tracks, automation_midi_tracks)  # type: ignore[attr-defined]
-        ]
-
-        return AutomatedTrack(
-            group_track=group_track,
-            automation_tracks_couples=automation_tracks_couples,
-            wrapped_track=wrapped_track,
-        )
-
-    def _is_automated_sub_track(self, track):
-        # type: (SimpleTrack) -> bool
-        if track.index in self.parent.automationTrackManager.created_tracks_indexes:
-            return True
-        return track.name.startswith("_")

@@ -1,15 +1,12 @@
 import os
 import subprocess
 from functools import partial
-from os.path import expanduser
 
 from typing import Any
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import ROOT_DIR
 from a_protocol_0.sequence.Sequence import Sequence
-
-home = expanduser("~")
 
 
 class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
@@ -75,10 +72,6 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
         # type: () -> None
         self.send_keys("^{F1}", repeat=True)
 
-    def hide_plugins(self):
-        # type: () -> None
-        self.send_keys("^{F2}", repeat=True)
-
     def click_clip_fold_notes(self):
         # type: () -> None
         self.send_click(418, 686)
@@ -109,7 +102,3 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
     def up(self):
         # type: () -> None
         self.send_keys("^{F5}", repeat=True)
-
-    def duplicate(self):
-        # type: () -> None
-        self.send_keys("^d")

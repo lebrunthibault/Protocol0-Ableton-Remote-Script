@@ -17,13 +17,6 @@ class AbletonSong(Subject):
         self.master_track = None
 
 
-def select_song_track(song, index):
-    # type: (Song, int) -> None
-    if index < 1 or index > len(song.simple_tracks):
-        raise Exception("invalid index for select_song_track")
-    song._view.selected_track = song.simple_tracks[index - 1]._track
-
-
 def make_song(count_group_tracks=0, count_simple_tracks=0):
     # type: (int, int) -> Song
     # noinspection PyTypeChecker
@@ -33,7 +26,5 @@ def make_song(count_group_tracks=0, count_simple_tracks=0):
 
     if len(song.simple_tracks):
         song._view.selected_track = song.simple_tracks[0]._track
-
-    song.set_selected_track = select_song_track
 
     return song

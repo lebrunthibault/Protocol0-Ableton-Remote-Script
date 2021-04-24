@@ -1,5 +1,4 @@
 class Colors(object):
-    SELECTED = 7
     ARM = 14
     DISABLED = 13
     SIMPLER = 2

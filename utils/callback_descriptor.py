@@ -79,7 +79,6 @@ class CallableWithCallbacks(object):
     def __init__(self, decorated, obj, immediate):
         # type: (Callable, object, bool) -> None
         super(CallableWithCallbacks, self).__init__()
-        self._real_name = None
         self._decorated = decorated  # type: Any
         self._obj = obj
         self._immediate = immediate

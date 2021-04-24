@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import List, Set, Optional, Any
+from typing import List, Optional, Any
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
@@ -28,7 +28,6 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
         self.listenable_properties = listenable_properties or properties
         # sync is two way but the master clip defines start values
         self.properties = properties
-        self.updating_properties = set()  # type: Set[str]
 
         for property in self.listenable_properties:
             self.register_slot(getattr(master, subject_name), partial(self._sync_properties, master, slave), property)
@@ -36,7 +35,7 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
 
         self._sync_properties(master, slave)
 
-    def get_syncable_properties(self, changed_object):
+    def get_syncable_properties(self, _):
         # type: (AbstractObject) -> List[str]
         """ getter allows dynamic syncing configurable in child classes """
         return self.properties

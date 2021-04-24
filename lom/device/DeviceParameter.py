@@ -26,11 +26,6 @@ class DeviceParameter(AbstractObject):
         return self._device_parameter.name
 
     @property
-    def full_name(self):
-        # type: () -> str
-        return "%s.%s" % (self._device_parameter.name, self.device.name)
-
-    @property
     def original_name(self):
         # type: () -> str
         return self._device_parameter.original_name

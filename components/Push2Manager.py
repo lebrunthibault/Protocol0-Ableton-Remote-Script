@@ -34,16 +34,14 @@ class Push2Manager(AbstractControlSurfaceComponent):
     def _session_pad_press_listener(self, value, *a, **k):
         # type: (Any, Any, Any) -> None
         if value:
-            self.update_session_ring = (
-                self.update_selected_modes
-            ) = self.parent.songManager.update_highlighted_clip_slot = False
+            self.update_session_ring = self.update_selected_modes = False
 
     @subject_slot("value")
     def _track_select_button_press_listener(self, value, *a, **k):
         # type: (Any, Any, Any) -> None
         if value:
             self.update_session_ring = False
-            self.parent.defer(lambda: self._update_selected_modes(reselect=True))
+            self.parent.defer(lambda: self._update_selected_modes())
 
     @subject_slot_group("value")
     def _nav_button_press_listener(self, value, *a, **k):
@@ -78,12 +76,12 @@ class Push2Manager(AbstractControlSurfaceComponent):
         self.push2._grid_resolution.quantization_buttons[clip.quantization_index].is_checked = True
 
     @push2_method()
-    def _update_selected_modes(self, reselect=False):
-        # type: (bool) -> None
+    def _update_selected_modes(self):
+        # type: () -> None
         assert self.push2
         if self.update_selected_modes:
-            self.push2._main_modes.selected_mode = self.song.selected_track.push2_selected_main_mode
-            self.push2._matrix_modes.selected_mode = self.song.selected_track.push2_selected_matrix_mode
+            self.push2._main_modes.selected_mode = self.song.selected_track.push2_selected_main_mode  # type: ignore
+            self.push2._matrix_modes.selected_mode = self.song.selected_track.push2_selected_matrix_mode  # type: ignore
             self.push2._instrument.selected_mode = (
                 self.song.selected_track.push2_selected_instrument_mode or self.push2._instrument.selected_mode
             )

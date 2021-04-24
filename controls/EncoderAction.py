@@ -51,10 +51,7 @@ class EncoderAction(AbstractObject):
     def make_actions(
         on_press=None,  # type: Optional[Callable]
         on_long_press=None,  # type: Optional[Callable]
-        on_shift_press=None,  # type: Optional[Callable]
-        on_shift_long_press=None,  # type: Optional[Callable]
         on_scroll=None,  # type: Optional[Callable]
-        on_shift_scroll=None,  # type: Optional[Callable]
     ):
         # type: (...) -> List[EncoderAction]
         """ This is not necessary but makes it more convenient to define most encoder actions. """
@@ -63,23 +60,7 @@ class EncoderAction(AbstractObject):
             actions.append(EncoderAction(on_press))
         if on_long_press:
             actions.append(EncoderAction(on_long_press, move_type=EncoderMoveEnum.LONG_PRESS))
-        if on_shift_press:
-            actions.append(EncoderAction(on_shift_press, modifier_type=EncoderModifierEnum.SHIFT))
-        if on_shift_long_press:
-            actions.append(
-                EncoderAction(
-                    on_shift_long_press,
-                    move_type=EncoderMoveEnum.LONG_PRESS,
-                    modifier_type=EncoderModifierEnum.SHIFT,
-                )
-            )
         if on_scroll:
             actions.append(EncoderAction(on_scroll, move_type=EncoderMoveEnum.SCROLL))
-        if on_shift_scroll:
-            actions.append(
-                EncoderAction(
-                    on_shift_scroll, move_type=EncoderMoveEnum.SCROLL, modifier_type=EncoderModifierEnum.SHIFT
-                )
-            )
 
         return actions

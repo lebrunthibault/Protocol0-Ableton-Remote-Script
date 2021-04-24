@@ -7,7 +7,6 @@ from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceC
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.device.Device import Device
-from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from a_protocol_0.sequence.Sequence import Sequence
@@ -228,19 +227,3 @@ class DeviceManager(AbstractControlSurfaceComponent):
                 return rack_device
 
         raise Protocol0Error("Couldn't find device %s (may be too nested to be detected)" % device.name)
-
-    def get_device_and_parameter_from_name(self, track, device_name, parameter_name):
-        # type: (AbstractTrack, str, str) -> Tuple[Device, DeviceParameter]
-        device = find_if(lambda d: d.name.lower() == device_name.lower(), track.devices)
-
-        if device is None:
-            raise Protocol0Error("Couldn't find device name %s for track %s" % (device_name, track))
-
-        parameter = find_if(lambda p: parameter_name.lower() == p.name.lower(), device.parameters)
-
-        if parameter is None:
-            raise Protocol0Error(
-                "Couldn't find parameter name %s for device %s in track %s" % (parameter_name, device, track)
-            )
-
-        return (device, parameter)

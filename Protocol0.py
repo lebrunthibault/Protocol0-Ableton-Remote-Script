@@ -46,7 +46,8 @@ class Protocol0(ControlSurface):
         # noinspection PyProtectedMember
         Protocol0.SELF = self
         self.song().stop_playing()  # doing this early because the set often loads playing
-        self._c_instance.log_message = MethodType(lambda s, message: None, self._c_instance)  # stop log duplication
+        # stop log duplication
+        self._c_instance.log_message = MethodType(lambda s, message: None, self._c_instance)  # noqa
 
         self.load_dotenv()  # loading env file
         self._is_dev_booted = False
@@ -58,7 +59,7 @@ class Protocol0(ControlSurface):
             self.deviceManager = DeviceManager()  # needs to be here first
             self.songManager = SongManager()
             self.sessionManager = SessionManager()
-            self.mixingManager = MixingManager()
+            MixingManager()
             self.push2Manager = Push2Manager()
             self.trackManager = TrackManager()
             self.automationTrackManager = AutomationTrackManager()
@@ -67,7 +68,7 @@ class Protocol0(ControlSurface):
             self.midiManager = MidiManager()
             self.browserManager = BrowserManager()
             self.clyphxNavigationManager = NavAndViewActions()
-            self.clyphxGlobalManager = GlobalActions()
+            GlobalActions()
             self.globalBeatScheduler = BeatScheduler()
             self.sceneBeatScheduler = BeatScheduler()
             ClyphXComponentBase.start_scheduler()
@@ -78,7 +79,7 @@ class Protocol0(ControlSurface):
                 ActionGroupSet()
                 ActionGroupTest()
                 if init_song:
-                    self.songManager.init_song()
+                    self.defer(self.songManager.init_song)
                     self.dev_boot()
             except Exception as e:
                 self.errorManager.handle_error(e)
@@ -181,6 +182,6 @@ class Protocol0(ControlSurface):
 
     def disconnect(self):
         # type: () -> None
-        ParseUtils._midi_message_registry = {}
+        ParseUtils._midi_message_registry = {}  # noqa
         super(Protocol0, self).disconnect()
         self.fastScheduler.stop()

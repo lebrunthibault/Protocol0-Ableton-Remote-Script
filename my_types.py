@@ -1,6 +1,5 @@
-from typing import TypeVar, Callable, Any
+from typing import TypeVar
 
 T = TypeVar("T")
-F = TypeVar("F", bound=Callable[..., Any])
 
 StringOrNumber = TypeVar("StringOrNumber", str, float)

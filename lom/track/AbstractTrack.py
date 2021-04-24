@@ -8,6 +8,9 @@ from typing import TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
+from a_protocol_0.devices.InstrumentSimpler import InstrumentSimpler
+from a_protocol_0.enums.Push2MainModeEnum import Push2MainModeEnum
+from a_protocol_0.enums.Push2MatrixModeEnum import Push2MatrixModeEnum
 from a_protocol_0.enums.TrackCategoryEnum import TrackCategoryEnum
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.clip.Clip import Clip
@@ -30,13 +33,9 @@ if TYPE_CHECKING:
 class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     __subject_events__ = ("instrument", "fired_slot_index")
 
-    ADDED_TRACK_INIT_ENABLED = True
-
     def __init__(self, track, *a, **k):
         # type: (SimpleTrack, Any, Any) -> None
         super(AbstractTrack, self).__init__(*a, **k)
-        self.index = track.index
-
         # TRACKS
         self._track = track._track  # type: Live.Track.Track
         self.base_track = track  # type: SimpleTrack
@@ -61,7 +60,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self.instrument_track = self.base_track  # type: AbstractTrack
         self.devices = []  # type: List[Device]
         self.all_devices = []  # type: List[Device]
-        self.all_visible_devices = []  # type: List[Device]
         self._devices_listener.subject = self._track
         self._devices_listener()
 
@@ -73,16 +71,13 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self._is_duplicated = False  # allows different init when duplicated or when created from e.g. the browser
 
         # DISPLAY
-        self.nav_view = "track"
-        self.push2_selected_main_mode = "device"
-        self.push2_selected_matrix_mode = "session"
+        self.push2_selected_main_mode = Push2MainModeEnum.DEVICE
+        self.push2_selected_matrix_mode = Push2MatrixModeEnum.SESSION
         self.push2_selected_instrument_mode = None  # type: Optional[str]
 
     def _added_track_init(self):
         # type: () -> Optional[Sequence]
         """ this should be be called once, when the Live track is created, overridden by some child classes """
-        if self.parent.songManager.abstract_group_track_creation_in_progress:
-            return None
         self.song.current_track.arm()
         self.song.current_track.stop()
 
@@ -96,6 +91,11 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         [seq.add(clip.delete) for clip in self.song.current_track.all_clips]
 
         return seq.done()
+
+    @property
+    def index(self):
+        # type: () -> int
+        return self.base_track.index
 
     @property
     def name(self):
@@ -128,10 +128,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self._instrument = instrument
         # noinspection PyUnresolvedReferences
         self.notify_instrument()
-
-    def is_parent(self, track):
-        # type: (AbstractTrack) -> bool
-        return track in self.all_tracks
 
     @property
     def top_abstract_track(self):
@@ -173,7 +169,9 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def category(self):
         # type: () -> TrackCategoryEnum
-        for track_category in TrackCategoryEnum:
+        if self.instrument and isinstance(self.instrument, InstrumentSimpler):
+            return TrackCategoryEnum.DRUMS
+        for track_category in list(TrackCategoryEnum):
             if any(t for t in [self] + self.group_tracks if track_category.value.lower() in t.name):
                 return track_category
 
@@ -189,11 +187,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # type: () -> int
         return self.base_track.track_name.selected_preset_index
 
-    @property
-    def is_selected(self):
-        # type: () -> bool
-        return self.song.selected_track in self.all_tracks
-
     @subject_slot("devices")
     def _devices_listener(self):
         # type: () -> None
@@ -201,7 +194,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
             device.disconnect()
         self.devices = [Device.make(device, self.base_track, index) for index, device in enumerate(self._track.devices)]
         self.all_devices = self._find_all_devices(self.base_track)
-        self.all_visible_devices = self._find_all_devices(self.base_track, only_visible=True)
 
         # here we need to refresh the instrument so that it doesn't point to an outdated device
         self.instrument_track.instrument = self.parent.deviceManager.make_instrument_from_simple_track(track=self)

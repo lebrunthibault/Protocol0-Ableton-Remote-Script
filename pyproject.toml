@@ -1,2 +1,12 @@
 [tool.black]
 line-length = 120
+
+[tool.vulture]
+#exclude = ["file*.py", "dir/"]
+#ignore_decorators = ["@app.route", "@require_*"]
+ignore_names = ["subject", "grid_quantization", "is_collapsed", "clip_slots_by_live_live_clip_slot"]
+make_whitelist = true
+min_confidence = 60
+#paths = ["myscript.py", "mydir"]
+sort_by_size = true
+verbose = false

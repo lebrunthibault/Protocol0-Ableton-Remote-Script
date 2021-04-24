@@ -18,17 +18,14 @@ if TYPE_CHECKING:
 class Clip(ClipActionMixin, AbstractObject):
     __subject_events__ = ("notes", "linked", "length")
 
-    def __init__(self, clip_slot, set_clip_name=True, *a, **k):
-        # type: (ClipSlot, bool, Any, Any) -> None
+    def __init__(self, clip_slot, *a, **k):
+        # type: (ClipSlot, Any, Any) -> None
         super(Clip, self).__init__(*a, **k)
         self.clip_slot = clip_slot
         self._clip_slot = clip_slot._clip_slot
         self._clip = self._clip_slot.clip  # type: Live.Clip.Clip
-        self.linked_clip = None  # type: Optional[Clip]
         self.view = self._clip.view  # type: Live.Clip.Clip.View
-        self.index = clip_slot.index
         self.track = clip_slot.track  # type: SimpleTrack
-        self._previous_name = self._clip.name
 
         # listeners
         self._color_listener.subject = self._clip
@@ -39,12 +36,17 @@ class Clip(ClipActionMixin, AbstractObject):
         self._loop_end_listener.subject = self._clip
 
         self.parent.defer(partial(setattr, self, "color", self.track.base_color))
-        self.clip_name = ClipName(self) if set_clip_name else None
+        self.clip_name = ClipName(self)
         self.displayed_automated_parameter = None  # type: Optional[DeviceParameter]
 
     def _on_selected(self):
         # type: () -> None
         pass
+
+    @property
+    def index(self):
+        # type: () -> int
+        return self.clip_slot.index
 
     @p0_subject_slot("color")
     def _color_listener(self):

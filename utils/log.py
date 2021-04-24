@@ -2,8 +2,6 @@ import logging
 
 from a_protocol_0.enums.LogLevelEnum import LogLevelEnum
 
-logger = logging.getLogger(__name__)
-
 
 def log_ableton(message, debug=True, level=LogLevelEnum.DEV, direct_call=True):
     # type: (str, bool, LogLevelEnum, bool) -> None

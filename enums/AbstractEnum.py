@@ -11,11 +11,6 @@ class AbstractEnum(Enum):
         raise NotImplementedError
 
     @classmethod
-    def has_key(cls, key):
-        # type: (str) -> bool
-        return hasattr(cls, key)
-
-    @classmethod
     def get_from_value(cls, value):
         # type: (str) -> T
         value = value.strip()

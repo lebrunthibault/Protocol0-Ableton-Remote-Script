@@ -4,7 +4,6 @@ import Live
 from typing import List, Optional, Dict, Any
 
 from a_protocol_0.enums.TrackCategoryEnum import TrackCategoryEnum
-from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.Scene import Scene
 from a_protocol_0.lom.SongActionMixin import SongActionMixin
@@ -39,13 +38,12 @@ class Song(AbstractObject, SongActionMixin):
         self.selected_track_category = TrackCategoryEnum.ALL  # type: TrackCategoryEnum
         self._selected_recording_time = "1 bar"  # type: str
         self.recording_bar_count = 1
-        self.solo_playing_tracks = []  # type: List[AbstractTrack]
-        self.solo_stopped_tracks = []  # type: List[AbstractTrack]
         self.clip_slots = []  # type: List[ClipSlot]
         self.clip_slots_by_live_live_clip_slot = {}  # type: Dict[Live.ClipSlot.ClipSlot, ClipSlot]
         self.errored = False
         # only one scene can be set to looping : it should be the scene we are working on ("soloing")
         self.looping_scene = None  # type: Optional[Scene]
+        self.playing_scene = None  # type: Optional[Scene]
 
         # NB: for an unknown reason clip.view.show_envelope does not always show the envelope
         # when the button was not clicked. As a workaround we click it the first time
@@ -54,7 +52,7 @@ class Song(AbstractObject, SongActionMixin):
         self._is_playing_listener.subject = self._song
 
         # with this set to True, the script is going to rename more aggressively
-        self.fix_outdated_sets = str(os.getenv("FIX_OUTDATED_SETS")).lower() == "true"
+        self.fix_outdated_sets = str(os.getenv("FIX_OUTDATED_SETS")).lower() == "true"  # type: bool
 
     def __call__(self):
         # type: () -> Live.Song.Song
@@ -65,7 +63,7 @@ class Song(AbstractObject, SongActionMixin):
     def _is_playing_listener(self):
         # type: () -> None
         if len(self.scenes) and self.is_playing:
-            self.selected_scene.schedule_next_scene_launch()
+            self.selected_scene.notify_play()  # type: ignore
 
     @property
     def selected_track(self):
@@ -100,13 +98,6 @@ class Song(AbstractObject, SongActionMixin):
     def selected_scene(self, scene):
         # type: (Scene) -> None
         self.song._view.selected_scene = scene._scene
-
-    def next_track(self, increment=1, base_track=None):
-        # type: (int, SimpleTrack) -> SimpleTrack
-        base_track = base_track or self.selected_track
-        if base_track is None:
-            raise Protocol0Error("You called next_track before selected_track computation")
-        return self.simple_tracks[(base_track.index + increment) % len(self.simple_tracks)]
 
     @property
     def scrollable_tracks(self):
@@ -241,17 +232,3 @@ class Song(AbstractObject, SongActionMixin):
         # type: () -> List[Clip]
         """ All clips of the set flattened """
         return flatten([t.clips for t in self.simple_tracks])
-
-    @property
-    def playing_clips(self):
-        # type: () -> List[Clip]
-        return [
-            t.playable_clip
-            for t in self.simple_tracks
-            if t.is_playing and t.playable_clip and t.playable_clip.is_playing
-        ]
-
-    @property
-    def has_solo_selection(self):
-        # type: () -> bool
-        return len(self.solo_playing_tracks) != 0

@@ -10,7 +10,7 @@ from a_protocol_0.enums.RecordTypeEnum import RecordTypeEnum
 
 class ActionGroupMain(AbstractActionGroup):
     """
-    Main manager: gathering most the functionnalities. My faithful companion when producing on Live !
+    Main manager: gathering most the functionalities. My faithful companion when producing on Live !
     """
 
     def __init__(self, *a, **k):
@@ -60,6 +60,8 @@ class ActionGroupMain(AbstractActionGroup):
             EncoderAction(func=self.song.play_stop, modifier_type=EncoderModifierEnum.PLAY_STOP)
         ).add_action(
             EncoderAction(func=lambda: self.song.root_tracks.toggle_fold, modifier_type=EncoderModifierEnum.FOLD)
+        ).add_action(
+            EncoderAction(func=self.song.unsolo_all_tracks, modifier_type=EncoderModifierEnum.SOLO)
         )
 
         # 12 : CLIP encoder

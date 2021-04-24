@@ -2,6 +2,7 @@ from functools import partial
 
 from typing import Any, Optional
 
+from a_protocol_0.enums.Push2MainModeEnum import Push2MainModeEnum
 from a_protocol_0.lom.device.DeviceType import DeviceType
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.sequence.Sequence import Sequence
@@ -18,7 +19,7 @@ class SimpleGroupTrack(AbstractGroupTrack):
         # enforce this (e.g. when deleting automation tracks)
         [sub_track.set_output_routing_to(self) for sub_track in self.sub_tracks]
 
-        self.push2_selected_main_mode = "mix"
+        self.push2_selected_main_mode = Push2MainModeEnum.MIX
         self.selection_tracks = [self.base_track]  # sub tracks are independent
 
     def _added_track_init(self):

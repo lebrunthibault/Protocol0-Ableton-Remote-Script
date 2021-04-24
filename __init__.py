@@ -53,6 +53,6 @@ from .Protocol0 import Protocol0  # noqa: E402
 Protocol0.LIVE_ENVIRONMENT_LOADED = live_environment_loaded
 
 
-def create_instance(c_instance):
+def create_instance(c_instance):  # noqa
     # type: (Any) -> Protocol0
     return Protocol0(c_instance)

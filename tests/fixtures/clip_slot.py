@@ -19,10 +19,11 @@ def make_clip_slot(track, clip_length, clip_loop_start):
     # type: (SimpleTrack, float, float) -> ClipSlot
     from a_protocol_0.tests.fixtures.clip import AbletonClip
 
-    return ClipSlot(
+    clip_slot = ClipSlot(
         clip_slot=cast(
             Live.ClipSlot.ClipSlot, AbletonClipSlot(AbletonClip(length=clip_length, loop_start=clip_loop_start))
         ),
-        index=0,
         track=track,
     )
+    track.clip_slots = [clip_slot]
+    return clip_slot

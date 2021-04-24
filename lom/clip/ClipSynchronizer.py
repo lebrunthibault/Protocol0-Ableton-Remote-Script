@@ -22,9 +22,6 @@ class ClipSynchronizer(ObjectSynchronizer):
         self.master = self.master  # type: Clip
         self.slave = self.slave  # type: Clip
 
-        master.linked_clip = slave
-        slave.linked_clip = master
-
         # noinspection PyUnresolvedReferences
         master.notify_linked()
         # noinspection PyUnresolvedReferences
@@ -36,8 +33,3 @@ class ClipSynchronizer(ObjectSynchronizer):
             return ["base_name"]
         else:
             return self.properties
-
-    def disconnect(self):
-        # type: () -> None
-        super(ClipSynchronizer, self).disconnect()
-        self.master.linked_clip = self.slave.linked_clip = None

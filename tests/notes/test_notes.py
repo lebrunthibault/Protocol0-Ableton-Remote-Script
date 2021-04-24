@@ -1,9 +1,9 @@
 from typing import List, Dict
 
-from a_protocol_0.automation.AutomationCurveGenerator import AutomationCurveGenerator
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
 from a_protocol_0.tests.fixtures.clip import create_automation_midi_clip_with_notes
+from a_protocol_0.tests.test_all import p0  # type: ignore
 
 
 def assert_note(note, expected):
@@ -121,29 +121,6 @@ def test_consolidate_notes_3():
     clip._map_notes(notes)
 
 
-def test_ramp_notes():
-    # type: () -> None
-
-    notes = [
-        Note(start=0, duration=2, pitch=80, velocity=80),
-        Note(start=2, duration=2, pitch=100, velocity=100),
-    ]
-    (clip, _) = create_automation_midi_clip_with_notes(notes, prev_notes=notes)
-
-    def check_notes(notes, expected_count):
-        # type: (List[Note], int) -> None
-        assert len(notes) == expected_count
-        assert notes[0].start == 0
-        assert notes[0].duration < 2
-        assert notes[3].velocity != notes[-1].velocity
-
-    check_notes(AutomationCurveGenerator.automation_notes(clip), 40)
-
-    # change note velocity
-    clip._prev_notes[1].velocity = 90
-    check_notes(AutomationCurveGenerator.automation_notes(clip), 20)
-
-
 def test_add_note():
     # type: () -> None
     notes = [
@@ -166,6 +143,7 @@ def test_add_note():
     assert_note(clip._prev_notes[2], {"start": 1.25, "pitch": 95, "velocity": 95})
 
 
+# noinspection DuplicatedCode
 def test_modify_note_pitch():
     # type: () -> None
     prev_notes = [
@@ -189,6 +167,7 @@ def test_modify_note_pitch():
     check_res(clip, res)
 
 
+# noinspection DuplicatedCode
 def test_modify_note_velocity():
     # type: () -> None
     prev_notes = [

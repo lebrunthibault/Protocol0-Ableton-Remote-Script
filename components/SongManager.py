@@ -8,7 +8,7 @@ from a_protocol_0.lom.Scene import Scene
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
-from a_protocol_0.utils.decorators import p0_subject_slot, has_callback_queue, retry, defer, handle_error
+from a_protocol_0.utils.decorators import p0_subject_slot, has_callback_queue, retry, handle_error
 from a_protocol_0.utils.utils import flatten
 
 
@@ -23,10 +23,7 @@ class SongManager(AbstractControlSurfaceComponent):
             collections.OrderedDict()
         )  # type: Dict[SimpleTrack, AbstractGroupTrack]
         self._tracks_listener.subject = self.song._song
-        self.update_highlighted_clip_slot = True  # type: bool
-        self.abstract_group_track_creation_in_progress = False  # type: bool
 
-    @defer
     def init_song(self):
         # type: () -> None
         self.on_scene_list_changed()
@@ -48,7 +45,7 @@ class SongManager(AbstractControlSurfaceComponent):
         self._tracks_listener()
         # noinspection PyUnresolvedReferences
         self.notify_scene_list()
-        self.song.scenes = [Scene(scene, index) for index, scene in enumerate(list(self.song._song.scenes))]
+        self.song.scenes = [Scene(scene) for scene in list(self.song._song.scenes)]
 
     @p0_subject_slot("tracks")
     @handle_error
@@ -118,16 +115,6 @@ class SongManager(AbstractControlSurfaceComponent):
                 self.parent.push2Manager.update_clip_grid_quantization()
                 self._highlighted_clip_slot.clip._on_selected()
         self.parent.schedule_message(1, self._highlighted_clip_slot_poller)
-
-    def _update_highlighted_clip_slot(self):
-        # type: () -> None
-        """ auto_update highlighted clip slot to match the playable clip """
-        if self.update_highlighted_clip_slot:
-            track = self.song.selected_track
-            if track and track.is_visible and track.playable_clip and track.clip_slots[0].is_selected:
-                pass
-                # self.song.highlighted_clip_slot = track.playable_clip.clip_slot
-        self.update_highlighted_clip_slot = True
 
     def _get_simple_track(self, track, default=None):
         # type: (Live.Track.Track, Optional[SimpleTrack]) -> SimpleTrack

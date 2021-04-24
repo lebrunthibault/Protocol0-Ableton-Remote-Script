@@ -18,8 +18,8 @@ class AbstractActionGroup(AbstractControlSurfaceComponent):
     def __init__(self, channel, record_actions_as_global=False, *a, **k):
         # type: (int, bool, Any, Any) -> None
         super(AbstractActionGroup, self).__init__(*a, **k)
-        self.available_modifiers = [
-            EncoderModifier(type) for type in EncoderModifierEnum
+        self.available_modifiers = [  # noqa
+            EncoderModifier(type) for type in list(EncoderModifierEnum)
         ]  # type: List[EncoderModifier]
         self.channel = channel
         self.multi_encoders = []  # type: List[MultiEncoder]
@@ -41,17 +41,16 @@ class AbstractActionGroup(AbstractControlSurfaceComponent):
         name,  # type: str
         on_press=None,  # type: Optional[Callable]
         on_long_press=None,  # type: Optional[Callable]
-        on_shift_press=None,  # type: Optional[Callable]
-        on_shift_long_press=None,  # type: Optional[Callable]
         on_scroll=None,  # type: Optional[Callable]
-        on_shift_scroll=None,  # type: Optional[Callable]
     ):
         # type: (...) -> MultiEncoder
-        k = locals()
         encoder = MultiEncoder(group=self, channel=self.channel, identifier=id, name=name)
-        for name in ["self", "id", "name"]:
-            del k[name]
-        [encoder.add_action(action) for action in EncoderAction.make_actions(**k)]
+        [
+            encoder.add_action(action)
+            for action in EncoderAction.make_actions(
+                on_press=on_press, on_long_press=on_long_press, on_scroll=on_scroll
+            )
+        ]
         return self._add_multi_encoder(encoder)
 
     def add_modifier(self, id, modifier_type, *a, **k):

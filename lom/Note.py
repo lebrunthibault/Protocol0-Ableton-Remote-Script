@@ -16,7 +16,6 @@ if TYPE_CHECKING:
 
 class Note(AbstractObject):
     MIN_DURATION = 1 / 128
-    notes_to_synchronize = set()  # type: [Note]
 
     def __init__(self, pitch=127, start=0, duration=1, velocity=127, muted=False, clip=None, *a, **k):
         # type: (int, float, float, int, bool, MidiClip, Any, Any) -> None
