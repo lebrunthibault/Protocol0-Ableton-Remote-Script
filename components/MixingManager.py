@@ -28,5 +28,5 @@ class MixingManager(AbstractControlSurfaceComponent):
         if self.should_activate_mix_volume_follower:
             return
         if self.song.master_track.output_meter_level >= 0.87:
-            for track in self.song.root_tracks:  # type: AbstractTrack
+            for track in self.song.abstract_tracks:  # type: AbstractTrack
                 track.volume *= 0.95

@@ -38,10 +38,6 @@ class Note(AbstractObject):
             and self.muted == other.muted
         )
 
-    def __hash__(self):
-        # type: () -> int
-        return hash((self.pitch, self.start, self.duration, self.velocity, self.muted))
-
     def __repr__(self):
         # type: () -> str
         return "{start:%.2f, duration:%.2f, pitch:%s, vel:%s, muted: %s}" % (

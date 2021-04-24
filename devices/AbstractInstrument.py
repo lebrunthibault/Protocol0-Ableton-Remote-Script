@@ -33,7 +33,6 @@ class AbstractInstrument(AbstractObject):
     IS_EXTERNAL_SYNTH = False
     SHOULD_DISPLAY_SELECTED_PRESET_NAME = True
     SHOULD_DISPLAY_SELECTED_PRESET_INDEX = False
-    SHOULD_UPDATE_TRACK_NAME = True
     PROGRAM_CHANGE_OFFSET = 0  # if we store presets not at the beginning of the list
 
     _active_instance = None  # type: AbstractInstrument
@@ -54,11 +53,6 @@ class AbstractInstrument(AbstractObject):
             self.name = self.__class__.__name__
 
         self._preset_list = InstrumentPresetList(self)  # type: InstrumentPresetList
-
-    def sync_presets(self):
-        # type: () -> None
-        """ allows syncing using the abstract_group_track name (where the preset index / name is stored) """
-        self._preset_list.sync_presets()
 
     @property
     def selected_preset(self):
@@ -172,7 +166,7 @@ class AbstractInstrument(AbstractObject):
         # type: (InstrumentPreset) -> Optional[Sequence]
         """ Overridden default is send program change """
         seq = Sequence()
-        seq.add(self.track.top_abstract_track.arm)
+        seq.add(self.track.abstract_track.arm)
         seq.add(partial(self.parent.midiManager.send_program_change, preset.index + self.PROGRAM_CHANGE_OFFSET))
         return seq.done()
 

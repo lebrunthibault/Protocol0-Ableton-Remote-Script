@@ -42,13 +42,7 @@ class ClipSlot(AbstractObject):
     @staticmethod
     def make(clip_slot, index, track):
         # type: (Live.ClipSlot.ClipSlot, int, SimpleTrack) -> ClipSlot
-        from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMidiTrack
-        from a_protocol_0.lom.clip_slot.AutomationMidiClipSlot import AutomationMidiClipSlot
-
-        if isinstance(track, AutomationMidiTrack):
-            return AutomationMidiClipSlot(clip_slot=clip_slot, track=track)
-        else:
-            return ClipSlot(clip_slot=clip_slot, track=track)
+        return ClipSlot(clip_slot=clip_slot, track=track)
 
     @p0_subject_slot("has_clip")
     def _has_clip_listener(self):

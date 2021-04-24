@@ -3,7 +3,7 @@ from a_protocol_0.lom.Colors import Colors
 
 
 class InstrumentMinitaur(AbstractInstrument):
-    NAME = "minitaur"
+    NAME = "Minitaur"
     TRACK_COLOR = Colors.MINITAUR
     IS_EXTERNAL_SYNTH = True
     PRESETS_PATH = "C:\\Users\\thiba\\AppData\\Roaming\\Moog Music Inc\\Minitaur\\Presets Library\\User"

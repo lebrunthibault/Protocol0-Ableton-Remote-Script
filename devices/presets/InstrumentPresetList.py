@@ -61,10 +61,11 @@ class InstrumentPresetList(AbstractObject):
         then the track name (Serum or Minitaur)
         then the track selected index (prophet)
         """
+        track = self.instrument.track.group_track if self.instrument.track.group_track else self.instrument.track
         return (
             self._find_by_name(self.instrument.name)
-            or self._find_by_name(self.instrument.track.top_abstract_track.name)
-            or self.presets[self.instrument.track.top_abstract_track.selected_preset_index]
+            or self._find_by_name(track.name)
+            or self.presets[track.selected_preset_index]
         )
 
     def _find_by_name(self, name):

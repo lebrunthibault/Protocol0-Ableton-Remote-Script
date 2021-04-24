@@ -28,6 +28,8 @@ class AbstractTrackList(UserMutableSequence):
 
     def toggle_fold(self):
         # type: () -> None
-        fold = any(not abstract_track.is_folded for abstract_track in self._abstract_tracks)
+        should_fold = any(
+            abstract_track.is_foldable and not abstract_track.is_folded for abstract_track in self._abstract_tracks
+        )
         for abstract_track in self._abstract_tracks:
-            abstract_track.is_folded = fold
+            abstract_track.is_folded = should_fold

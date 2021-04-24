@@ -22,7 +22,7 @@ class RackDevice(Device):
     @subject_slot("chains")
     def _chains_listener(self):
         # type: () -> None
-        self.chains = [DeviceChain(self, chain, index) for index, chain in enumerate(self._device.chains)]
+        self.chains = [DeviceChain(self, chain) for chain in self._device.chains]
 
     @property
     def selected_chain(self):

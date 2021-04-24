@@ -1,10 +1,15 @@
+from itertools import chain
+
 import Live
 from typing import List, Optional, Any, Dict
 
 from _Framework.SubjectSlot import subject_slot, subject_slot_group
+from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.enums.ClipTypeEnum import ClipTypeEnum
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
+from a_protocol_0.lom.device.Device import Device
+from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrackActionMixin import SimpleTrackActionMixin
 from a_protocol_0.utils.decorators import defer, p0_subject_slot
@@ -17,22 +22,27 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # type: (Live.Track.Track, int, Any, Any) -> None
         self._track = track  # type: Live.Track.Track
         super(SimpleTrack, self).__init__(track=self, *a, **k)
+
+        # Note : SimpleTracks represent the first layer of abstraction and know nothing about
+        # AbstractGroupTracks except with self.abstract_group_track which links both layers
+        self.sub_tracks = self.sub_tracks  # type: List[SimpleTrack]
         if self.group_track:
             self.group_track.sub_tracks.append(self)
         self.linked_track = None  # type: Optional[SimpleTrack]
         self._playing_slot_index_listener.subject = self._track
         self._fired_slot_index_listener.subject = self._track
-        self.instrument = self.parent.deviceManager.make_instrument_from_simple_track(track=self)
-        self._instrument_listener.subject = self
+
+        # Devices
+        self.devices = []  # type: List[Device]
+        self.all_devices = []  # type: List[Device]
+        self.instrument = None  # type: Optional[AbstractInstrument]
+        self._devices_listener.subject = self._track
+        self._devices_listener()
 
         self.clip_slots = []  # type: List[ClipSlot]
         self.map_clip_slots()
 
         self.last_clip_played = None  # type: Optional[Clip]
-
-    def __hash__(self):
-        # type: () -> int
-        return self.index
 
     def map_clip_slots(self):
         # type: () -> Any
@@ -72,24 +82,23 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # noinspection PyUnresolvedReferences
         self.parent.defer(self.notify_fired_slot_index)
 
-    @p0_subject_slot("instrument")
-    @defer
-    def _instrument_listener(self):
+    @subject_slot("devices")
+    def _devices_listener(self):
         # type: () -> None
-        if self.instrument:
-            self.color = self.instrument.TRACK_COLOR
-            if self.instrument.SHOULD_UPDATE_TRACK_NAME:
-                self.track_name.update(base_name=self.instrument.NAME)
+        for device in self.devices:
+            device.disconnect()
+        self.devices = [Device.make(device, self.base_track) for device in self._track.devices]
+        self.all_devices = self._find_all_devices(self.base_track)
+
+        # here we need to refresh the instrument so that it doesn't point to an outdated device
+        self.instrument = self.parent.deviceManager.make_instrument_from_simple_track(track=self)
+        # noinspection PyUnresolvedReferences
+        self.notify_instrument()
 
     @subject_slot_group("map_clip")
     def _map_clip_listener(self, clip_slot):
         # type: (ClipSlot) -> None
         pass
-
-    @property
-    def index(self):
-        # type: () -> int
-        return self.song.simple_tracks.index(self)
 
     @property
     def playing_slot_index(self):
@@ -100,6 +109,26 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def fired_slot_index(self):
         # type: () -> int
         return self._track.fired_slot_index
+
+    @property
+    def active_tracks(self):
+        # type: () -> List[AbstractTrack]
+        raise [self]
+
+    @property
+    def device_parameters(self):
+        # type: () -> List[DeviceParameter]
+        return list(chain(*[device.parameters for device in self.all_devices]))
+
+    @property
+    def instrument(self):
+        # type: () -> Optional[AbstractInstrument]
+        return self._instrument
+
+    @instrument.setter
+    def instrument(self, instrument):
+        # type: (AbstractInstrument) -> None
+        self._instrument = instrument
 
     @property
     def is_audio(self):
@@ -161,6 +190,8 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def disconnect(self):
         # type: () -> None
         super(SimpleTrack, self).disconnect()
+        for device in self.devices:
+            device.disconnect()
         for clip_slot in self.clip_slots:
             clip_slot.disconnect()
         if self.instrument:

@@ -21,7 +21,6 @@ class InstrumentSimpler(AbstractInstrument):
     PRESET_EXTENSION = ".wav"
     PRESETS_PATH = str(os.getenv("SAMPLE_PATH"))
     SHOULD_DISPLAY_SELECTED_PRESET_NAME = False
-    SHOULD_UPDATE_TRACK_NAME = False
 
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None

@@ -6,6 +6,7 @@ from a_protocol_0.components.actionGroups.AbstractActionGroup import AbstractAct
 from a_protocol_0.controls.EncoderAction import EncoderAction
 from a_protocol_0.controls.EncoderModifierEnum import EncoderModifierEnum
 from a_protocol_0.enums.RecordTypeEnum import RecordTypeEnum
+from a_protocol_0.lom.track.AbstractTrackList import AbstractTrackList
 
 
 class ActionGroupMain(AbstractActionGroup):
@@ -59,7 +60,10 @@ class ActionGroupMain(AbstractActionGroup):
         self.add_encoder(id=11, name="song").add_action(
             EncoderAction(func=self.song.play_stop, modifier_type=EncoderModifierEnum.PLAY_STOP)
         ).add_action(
-            EncoderAction(func=lambda: self.song.root_tracks.toggle_fold, modifier_type=EncoderModifierEnum.FOLD)
+            EncoderAction(
+                func=lambda: AbstractTrackList(self.song.abstract_tracks).toggle_fold,
+                modifier_type=EncoderModifierEnum.FOLD,
+            )
         ).add_action(
             EncoderAction(func=self.song.unsolo_all_tracks, modifier_type=EncoderModifierEnum.SOLO)
         )

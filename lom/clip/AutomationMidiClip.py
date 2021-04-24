@@ -1,5 +1,5 @@
 import Live
-from typing import TYPE_CHECKING, Optional, Any
+from typing import Optional, Any
 
 from a_protocol_0.lom.clip.AbstractAutomationClip import AbstractAutomationClip
 from a_protocol_0.lom.clip.AutomationMidiClipNoteMixin import AutomationMidiClipNoteMixin
@@ -7,17 +7,13 @@ from a_protocol_0.lom.clip.MidiClip import MidiClip
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import debounce, p0_subject_slot
 
-if TYPE_CHECKING:
-    from a_protocol_0.lom.track.simple_track.AutomationMidiTrack import AutomationMidiTrack
-    from a_protocol_0.lom.clip_slot.AutomationMidiClipSlot import AutomationMidiClipSlot
-
 
 class AutomationMidiClip(AbstractAutomationClip, MidiClip, AutomationMidiClipNoteMixin):
+    """ not used anymore but could be useful in the future """
+
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(AutomationMidiClip, self).__init__(*a, **k)
-        self.track = self.track  # type: AutomationMidiTrack
-        self.clip_slot = self.clip_slot  # type: AutomationMidiClipSlot
         self._name_listener.subject = self._clip
         self._length_listener.subject = self
         self._notes_listener.subject = self._clip

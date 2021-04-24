@@ -93,8 +93,8 @@ class DeviceManager(AbstractControlSurfaceComponent):
             if param and param.is_enabled:
                 param.value = value
 
-    def _scroll_current_track_selected_device_presets(self, track, go_next):
-        # type: (AbstractTrack, bool) -> None
+    def _scroll_track_selected_device_presets(self, track, go_next):
+        # type: (SimpleTrack, bool) -> None
         """ deprecated for now """
         device = self._get_device_to_scroll(track)
         if device is None:
@@ -107,7 +107,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
             self.parent.log_info("is plugin")
 
     def _get_device_to_scroll(self, track):
-        # type: (AbstractTrack) -> Optional[Device]
+        # type: (SimpleTrack) -> Optional[Device]
         """
         deprecated for now
         on selection of a the first rack either on simple or group track,

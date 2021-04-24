@@ -1,9 +1,15 @@
 from functools import partial
+from itertools import chain, imap  # type: ignore[attr-defined]
 
-from typing import TYPE_CHECKING, Optional
+import Live
+from typing import Optional, List, Union
+from typing import TYPE_CHECKING
 
+from a_protocol_0.lom.device.Device import Device
+from a_protocol_0.lom.device.DeviceChain import DeviceChain
+from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.utils import scroll_values
+from a_protocol_0.utils.utils import scroll_values, find_if
 
 if TYPE_CHECKING:
     from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -88,3 +94,50 @@ class SimpleTrackActionMixin(object):
 
         if self.song.selected_clip or self.playable_clip:
             self.song.selected_clip = scroll_values(self.clips, self.song.selected_clip or self.playable_clip, go_next)
+
+    def delete_device(self, device):
+        # type: (SimpleTrack, Device) -> None
+        device.disconnect()
+        self._track.delete_device(self.devices.index(device))
+        self._devices_listener()  # this should be called by Live
+
+    def clear_devices(self):
+        # type: (SimpleTrack) -> None
+        for device in self.devices:
+            self.delete_device(self.devices[0])
+
+    def get_device(self, device):
+        # type: (SimpleTrack, Live.Device.Device) -> Optional[Device]
+        return find_if(lambda d: d._device == device, self.base_track.all_devices)
+
+    def has_device(self, device_name):
+        # type: (SimpleTrack, str) -> bool
+        return find_if(lambda d: d.name == device_name, self.base_track.all_devices) is not None
+
+    @property
+    def selected_device(self):
+        # type: (SimpleTrack) -> Optional[Device]
+        return self.get_device(self._track.view.selected_device)
+
+    def _find_all_devices(self, track_or_chain, only_visible=False):
+        # type: (SimpleTrack, Optional[Union[SimpleTrack, DeviceChain]], bool) -> List[Device]
+        u""" Returns a list with all devices from a track or chain """
+        devices = []
+        if track_or_chain is None:
+            return []
+        for device in filter(None, track_or_chain.devices):  # type: Device
+            if not isinstance(device, RackDevice):
+                devices += [device]
+                continue
+
+            if device.can_have_drum_pads and device.can_have_chains and device._view.is_showing_chain_devices:
+                devices += chain([device], self._find_all_devices(device.selected_chain))
+            elif not device.can_have_drum_pads and isinstance(device, RackDevice):
+                devices += chain(
+                    [device],
+                    *imap(
+                        partial(self._find_all_devices, only_visible=only_visible),
+                        filter(None, device.chains),
+                    )
+                )
+        return devices

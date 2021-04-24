@@ -6,26 +6,12 @@ class LogManager(AbstractObject):
         # type: () -> None
         self.parent.keyboardShortcutManager.focus_logs()
         self.parent.log_notice("********* SONG *************")
-        self.parent.log_info()
-        self.parent.log_info()
-        self.parent.log_info("current action: %s" % self.parent.current_action)
-        self.parent.log_info()
-        self.parent.log_info("song position: %s" % self.song.get_current_beats_song_time())
-        self.parent.log_info()
         self.parent.log_info("song.errored: %s" % self.song.errored)
         self.parent.log_info()
         self.parent.log_notice("********* SONG TRACKS *************")
         self.parent.log_info("simple_tracks : %s" % self.song.simple_tracks)
         self.parent.log_info()
-        self.parent.log_info("abstract_group_tracks : %s" % self.song.abstract_group_tracks)
-        self.parent.log_info()
         self.parent.log_info("abstract_tracks : %s" % self.song.abstract_tracks)
-        self.parent.log_info()
-        for (
-            simple_track,
-            abstract_group_track,
-        ) in self.parent.songManager.simple_track_to_abstract_group_track.items():
-            self.parent.log_info("%s -> %s" % (simple_track, abstract_group_track))
         self.parent.log_info()
         self.parent.log_info()
         self.parent.log_notice("********* CURRENT_TRACK *************")
@@ -34,8 +20,6 @@ class LogManager(AbstractObject):
         self.parent.log_info("current_track.abstract_group_track: %s" % self.song.current_track.abstract_group_track)
         self.parent.log_info()
         self.parent.log_info("current_track.sub_tracks: %s" % self.song.current_track.sub_tracks)
-        self.parent.log_info()
-        self.parent.log_info("current_track.all_tracks: %s" % self.song.current_track.all_tracks)
         self.parent.log_info()
         self.parent.log_info("current_track.instrument: %s" % self.song.current_track.instrument)
         self.parent.log_info()

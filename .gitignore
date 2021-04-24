@@ -143,3 +143,4 @@ logs/
 
 # Pycharm
 .idea
+InspectionProfile.xml

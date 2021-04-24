@@ -13,19 +13,16 @@ def log_ableton(message, debug=True, level=LogLevelEnum.DEV, direct_call=True):
         direct_call = True
         message = str(locals().values())
     if debug:
-        try:
-            from a_protocol_0.utils.utils import get_frame_info
+        from a_protocol_0.utils.utils import get_frame_info
 
-            frame_info = get_frame_info(2 if direct_call else 4)
-            if frame_info:
-                message = "%s (%s:%s in %s)" % (
-                    message,
-                    frame_info.filename,
-                    frame_info.line,
-                    frame_info.method_name,
-                )
-        except Exception:
-            pass
+        frame_info = get_frame_info(2 if direct_call else 4)
+        if frame_info:
+            message = "%s (%s:%s in %s)" % (
+                message,
+                frame_info.filename,
+                frame_info.line,
+                frame_info.method_name,
+            )
     for line in message.splitlines():
         line = "P0 - %s" % str(line)
         logging.info(line)

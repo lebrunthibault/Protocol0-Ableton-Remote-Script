@@ -2,6 +2,7 @@ import itertools
 
 from typing import Optional, Any, Literal
 
+from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
 from a_protocol_0.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
@@ -20,13 +21,6 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         assert isinstance(self.midi_track, SimpleMidiTrack) and isinstance(self.audio_track, SimpleAudioTrack), (
             "invalid external synth track %s" % self
         )
-        self.instrument_track = self.midi_track
-        self.midi_track.abstract_group_track = self.audio_track.abstract_group_track = self
-
-        self.midi_track.is_scrollable = self.audio_track.is_scrollable = False
-
-        self._instrument_listener.subject = self.instrument_track
-        self._instrument_listener()
 
         with self.parent.component_guard():
             self._midi_audio_synchronizer = TrackSynchronizer(self.audio_track, self.midi_track)
@@ -39,22 +33,16 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
                 )
             ]
 
+        for sub_track in self.sub_tracks:
+            sub_track.abstract_group_track = self
+            sub_track.abstract_track = self
+
         self.audio_track.set_output_routing_to(self.base_track)
-        self.selection_tracks = [self.base_track, self.midi_track, self.audio_track]
 
     @property
-    def solo(self):
-        # type: () -> bool
-        return any(track.solo for track in self.all_tracks)
-
-    @solo.setter
-    def solo(self, solo):
-        # type: (bool) -> None
-        if not solo:
-            for track in self.all_tracks:
-                track.solo = False
-        else:
-            self.midi_track.solo = self.audio._track.toggle_solo = True
+    def instrument(self):
+        # type: () -> Optional[AbstractInstrument]
+        return self.midi_track.instrument
 
     @property
     def can_be_armed(self):
@@ -65,6 +53,12 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     def is_armed(self):
         # type: () -> bool
         return self.midi_track.is_armed or self.audio_track.is_armed
+
+    @is_armed.setter
+    def is_armed(self, is_armed):
+        # type: (bool) -> None
+        for track in self.active_tracks:
+            track.is_armed = is_armed
 
     @property
     def is_playing(self):

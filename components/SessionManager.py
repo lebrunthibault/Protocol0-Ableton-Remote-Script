@@ -1,7 +1,8 @@
-from typing import Optional, Any
+from typing import Optional, Any, List
 
 from _Framework.SessionComponent import SessionComponent
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
 class SessionManager(AbstractControlSurfaceComponent):
@@ -19,7 +20,16 @@ class SessionManager(AbstractControlSurfaceComponent):
         session_track_offset = self.session_track_offset
         if self.session:
             self.session.disconnect()
-        num_tracks = len([track for track in self.song.current_track.all_tracks if track.is_visible])
+
+        def get_all_sub_tracks_inclusive(track):
+            # type: (SimpleTrack) -> List[SimpleTrack]
+            sub_tracks = [track]
+            for sub_track in track.sub_tracks:
+                sub_tracks.extend(get_all_sub_tracks_inclusive(sub_track))
+            return sub_tracks
+
+        total_tracks = get_all_sub_tracks_inclusive(self.song.selected_track)
+        num_tracks = len([track for track in total_tracks if track.is_visible])
         with self.parent.component_guard():
             self.session = SessionComponent(num_tracks=num_tracks, num_scenes=len(self.song.scenes))
         self.session.set_offsets(track_offset=session_track_offset, scene_offset=0)

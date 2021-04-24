@@ -6,7 +6,6 @@ from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.SceneName import SceneName
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
-from a_protocol_0.lom.track.simple_track.AudioBusTrack import AudioBusTrack
 from a_protocol_0.utils.decorators import p0_subject_slot, defer
 
 
@@ -63,7 +62,7 @@ class Scene(AbstractObject):
     def schedule_next_scene_launch(self):
         # type: () -> None
         self.parent.sceneBeatScheduler.clear()
-        if self.index == len(self.song.scenes) - 1 or self.looping:
+        if self == self.song.scenes[-1] or self.looping:
             return
         next_scene = self.song.scenes[self.index + 1]
         self.parent.sceneBeatScheduler.wait_beats(self.length - self.playing_position, next_scene.fire)
@@ -151,11 +150,7 @@ class Scene(AbstractObject):
     @property
     def clips(self):
         # type: () -> List[Clip]
-        return [
-            clip_slot.clip
-            for clip_slot in self.clip_slots
-            if clip_slot.has_clip and not isinstance(clip_slot.track, AudioBusTrack)
-        ]
+        return [clip_slot.clip for clip_slot in self.clip_slots if clip_slot.has_clip]
 
     @property
     def any_clip_playing(self):

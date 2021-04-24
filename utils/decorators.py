@@ -58,6 +58,7 @@ def retry(retry_count=3, interval=3):
             # type: (Any, Any) -> None
             from a_protocol_0 import Protocol0
 
+            # noinspection PyBroadException
             try:
                 func(*a, **k)
             except Exception:

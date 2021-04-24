@@ -37,9 +37,7 @@ class SongActionMixin(object):
 
     def scroll_tracks(self, go_next):
         # type: (Song, bool) -> None
-        base_track = self.selected_track if self.selected_track.is_scrollable else self.current_track.base_track
-        if base_track:
-            scroll_values(self.scrollable_tracks, base_track, go_next).select()
+        scroll_values(self.scrollable_tracks, self.current_track, go_next).select()
 
     def scroll_scenes(self, go_next):
         # type: (Song, bool) -> None

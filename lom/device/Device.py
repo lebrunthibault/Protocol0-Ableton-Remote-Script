@@ -11,12 +11,11 @@ if TYPE_CHECKING:
 
 
 class Device(AbstractObject):
-    def __init__(self, device, track, index, *a, **k):
-        # type: (Live.Device.Device, SimpleTrack, int, Any, Any) -> None
+    def __init__(self, device, track, *a, **k):
+        # type: (Live.Device.Device, SimpleTrack, Any, Any) -> None
         super(Device, self).__init__(*a, **k)
         self._device = device
         self.track = track
-        self.index = index
         self._view = self._device.view  # type: Live.Device.Device.View
         self.parameters = []  # type: (List[DeviceParameter])
         self._parameters_listener.subject = self._device
@@ -32,17 +31,17 @@ class Device(AbstractObject):
         return isinstance(device, Device) and self._device == device._device
 
     @staticmethod
-    def make(device, track, index):
-        # type: (Live.Device.Device, SimpleTrack, int) -> Device
+    def make(device, track):
+        # type: (Live.Device.Device, SimpleTrack) -> Device
         from a_protocol_0.lom.device.RackDevice import RackDevice
         from a_protocol_0.lom.device.PluginDevice import PluginDevice
 
         if isinstance(device, Live.RackDevice.RackDevice):
-            return RackDevice(device=device, track=track, index=index)
+            return RackDevice(device=device, track=track)
         elif isinstance(device, Live.PluginDevice.PluginDevice):
-            return PluginDevice(device=device, track=track, index=index)
+            return PluginDevice(device=device, track=track)
         else:
-            return Device(device=device, track=track, index=index)
+            return Device(device=device, track=track)
 
     def select(self):
         # type: () -> None

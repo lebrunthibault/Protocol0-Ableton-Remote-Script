@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, Any, Optional, NoReturn, Callable, cast
 
 from a_protocol_0.enums.RecordTypeEnum import RecordTypeEnum
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
-from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import retry
 from a_protocol_0.utils.utils import find_if
@@ -24,13 +23,15 @@ class AbstractTrackActionMixin(object):
     @color.setter
     def color(self, color_index):
         # type: (AbstractTrack, int) -> None
-        for track in self.all_tracks:
+        for track in [self] + self.sub_tracks:
             track._track.color_index = color_index
+        for clip in self.clips:
+            clip.color = color_index
 
     @property
     def is_folded(self):
         # type: (AbstractTrack) -> bool
-        return self._track.fold_state if self.is_foldable else False
+        return bool(self._track.fold_state) if self.is_foldable else True
 
     @is_folded.setter
     def is_folded(self, is_folded):
@@ -47,6 +48,17 @@ class AbstractTrackActionMixin(object):
     def solo(self, solo):
         # type: (AbstractTrack, bool) -> None
         self._track.solo = solo
+
+    @property
+    def is_armed(self):
+        # type: () -> bool
+        return False
+
+    @is_armed.setter
+    def is_armed(self, is_armed):
+        # type: (AbstractTrack, bool) -> None
+        for track in self.active_tracks:
+            track.is_armed = is_armed
 
     @property
     def has_monitor_in(self):
@@ -74,7 +86,6 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> Optional[Sequence]
         if self.is_armed:
             return None
-        self.base_track.collapse_devices()
         self.song.unfocus_all_tracks()
         return self.arm_track()
 
@@ -85,10 +96,7 @@ class AbstractTrackActionMixin(object):
     def unarm(self):
         # type: (AbstractTrack) -> None
         self.color = self.base_color
-        for track in self.all_tracks:
-            track.is_armed = False
-        for clip in self.all_clips:
-            clip.color = self.base_color
+        self.is_armed = False
         self.unarm_track()
 
     def unarm_track(self):
@@ -97,11 +105,6 @@ class AbstractTrackActionMixin(object):
 
     def show_hide_instrument(self):
         # type: (AbstractTrack) -> None
-        if not self.instrument:
-            self.instrument_track.instrument = self.parent.deviceManager.make_instrument_from_simple_track(
-                track=self.instrument_track
-            )
-
         if not self.instrument or not self.instrument.can_be_shown:
             return None
         self.parent.clyphxNavigationManager.show_track_view()
@@ -212,7 +215,6 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         self.solo = False
         self.unarm()
-        self.collapse_devices()
 
     def load_any_device(self, device_type, device_name):
         # type: (AbstractTrack, str, str) -> Sequence
@@ -220,13 +222,6 @@ class AbstractTrackActionMixin(object):
         seq.add(self.select)
         seq.add(partial(self.parent.browserManager.load_any_device, device_type, device_name))
         return seq.done()
-
-    def collapse_devices(self):
-        # type: (AbstractTrack) -> None
-        for device in self.all_devices:
-            device.is_collapsed = not (
-                isinstance(device, RackDevice) or self.parent.deviceManager.is_track_instrument(self, device)
-            )
 
     @retry(3, 8)
     def set_output_routing_to(self, track):

@@ -12,8 +12,6 @@ from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.AbstractTrackList import AbstractTrackList
-from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
-from a_protocol_0.lom.track.simple_track.AudioBusTrack import AudioBusTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.utils.decorators import p0_subject_slot
 from a_protocol_0.utils.utils import find_if
@@ -21,8 +19,6 @@ from a_protocol_0.utils.utils import flatten
 
 
 class Song(AbstractObject, SongActionMixin):
-    AUDIO_BUS_TRACK_INDEX = 0  # audio bus is supposed to be the first track
-
     def __init__(self, song, *a, **k):
         # type: (Live.Song.Song, Any, Any) -> None
         super(Song, self).__init__(*a, **k)
@@ -30,10 +26,6 @@ class Song(AbstractObject, SongActionMixin):
         self._view = self._song.view  # type: Live.Song.Song.View
         self.scenes = []  # type: List[Scene]
         self.simple_tracks = []  # type: List[SimpleTrack]
-        self.abstract_tracks = []  # type: List[AbstractTrack]
-        self.abstract_group_tracks = []  # type: List[AbstractGroupTrack]
-        self._selected_track = None  # type: Optional[SimpleTrack]
-        self._current_track = None  # type: Optional[AbstractTrack]
         self.master_track = self._song.master_track  # type: Live.Track.Track
         self.selected_track_category = TrackCategoryEnum.ALL  # type: TrackCategoryEnum
         self._selected_recording_time = "1 bar"  # type: str
@@ -68,24 +60,22 @@ class Song(AbstractObject, SongActionMixin):
     @property
     def selected_track(self):
         # type: () -> SimpleTrack
-        assert self._selected_track
-        return self._selected_track
-
-    @selected_track.setter
-    def selected_track(self, selected_track):
-        # type: (SimpleTrack) -> None
-        self._selected_track = selected_track
+        assert len(self.song.simple_tracks), "You try to access the object before the track mapping is done"
+        return self.parent.songManager._get_simple_track(self.song._view.selected_track, self.song.simple_tracks[0])
 
     @property
     def current_track(self):
         # type: () -> AbstractTrack
-        assert self._current_track
-        return self._current_track
+        return self.song.selected_track.abstract_track
 
-    @current_track.setter
-    def current_track(self, current_track):
-        # type: (AbstractTrack) -> None
-        self._current_track = current_track
+    @property
+    def abstract_tracks(self):
+        # type: () -> List[AbstractTrack]
+        abstract_tracks = []
+        for track in self.simple_tracks:
+            if track.abstract_track not in abstract_tracks:
+                abstract_tracks.append(track.abstract_track)
+        return abstract_tracks
 
     @property
     def selected_scene(self):
@@ -101,29 +91,14 @@ class Song(AbstractObject, SongActionMixin):
 
     @property
     def scrollable_tracks(self):
-        # type: () -> List[SimpleTrack]
-        return [track for track in self.simple_tracks if track.is_visible and track.is_scrollable]
-
-    @property
-    def root_tracks(self):
-        # type: () -> AbstractTrackList
-        """ top tracks """
-        return AbstractTrackList([track for track in self.simple_tracks if not track.group_track])
-
-    @property
-    def simple_group_tracks(self):
-        # type: () -> List[SimpleTrack]
-        return [track for track in self.simple_tracks if len(track.sub_tracks)]
+        # type: () -> List[AbstractTrack]
+        return [track for track in self.abstract_tracks if track.is_visible]
 
     @property
     def selected_abstract_tracks(self):
         # type: () -> AbstractTrackList
         return AbstractTrackList(
-            [
-                self.parent.songManager.get_current_track(track)
-                for track in self.simple_tracks
-                if track._track.is_part_of_selection
-            ]
+            [track.abstract_track for track in self.simple_tracks if track._track.is_part_of_selection]
         )
 
     @property
@@ -136,16 +111,6 @@ class Song(AbstractObject, SongActionMixin):
                 if track.category.value.lower() == self.selected_track_category.value.lower()
             ]
         )
-
-    @property
-    def audio_bus_track(self):
-        # type: () -> AudioBusTrack
-        audio_bus_index = self.song.AUDIO_BUS_TRACK_INDEX
-        audio_bus_track = self.song.simple_tracks[audio_bus_index]
-        assert isinstance(audio_bus_track, AudioBusTrack), (
-            "set should contain an audio bus track at index %d" % audio_bus_index
-        )
-        return audio_bus_track
 
     @property
     def highlighted_clip_slot(self):
