@@ -1,7 +1,7 @@
 import os
 
 import Live
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Generator
 
 from a_protocol_0.enums.TrackCategoryEnum import TrackCategoryEnum
 from a_protocol_0.lom.AbstractObject import AbstractObject
@@ -25,7 +25,6 @@ class Song(AbstractObject, SongActionMixin):
         self._song = song
         self._view = self._song.view  # type: Live.Song.Song.View
         self.scenes = []  # type: List[Scene]
-        self.simple_tracks = []  # type: List[SimpleTrack]
         self.selected_track_category = TrackCategoryEnum.ALL  # type: TrackCategoryEnum
         self._selected_recording_time = "1 bar"  # type: str
         self.recording_bar_count = 1
@@ -68,11 +67,16 @@ class Song(AbstractObject, SongActionMixin):
         return self.song.selected_track.abstract_track
 
     @property
+    def simple_tracks(self):
+        # type: () -> Generator[SimpleTrack, Any, Any]
+        return (track for track in self.parent.songManager.live_track_to_simple_track.values() if track.is_active)
+
+    @property
     def abstract_tracks(self):
         # type: () -> List[AbstractTrack]
-        abstract_tracks = []
+        abstract_tracks = []  # type: List[AbstractTrack]
         for track in self.simple_tracks:
-            if track.abstract_track not in abstract_tracks:
+            if len(abstract_tracks) == 0 or track.abstract_track != abstract_tracks[-1]:
                 abstract_tracks.append(track.abstract_track)
         return abstract_tracks
 
@@ -90,37 +94,30 @@ class Song(AbstractObject, SongActionMixin):
 
     @property
     def scrollable_tracks(self):
-        # type: () -> List[AbstractTrack]
-        return [track for track in self.abstract_tracks if track.is_visible]
+        # type: () -> Generator[AbstractTrack, Any, Any]
+        return (track for track in self.abstract_tracks if track.is_visible)
 
     @property
     def selected_abstract_tracks(self):
         # type: () -> AbstractTrackList
         return AbstractTrackList(
-            [track.abstract_track for track in self.simple_tracks if track._track.is_part_of_selection]
+            track.abstract_track for track in self.simple_tracks if track._track.is_part_of_selection
         )
 
     @property
     def selected_category_tracks(self):
         # type: () -> AbstractTrackList
         return AbstractTrackList(
-            [
-                track
-                for track in self.abstract_tracks
-                if track.category.value.lower() == self.selected_track_category.value.lower()
-            ]
+            track
+            for track in self.abstract_tracks
+            if track.category.value.lower() == self.selected_track_category.value.lower()
         )
 
     @property
     def highlighted_clip_slot(self):
-        # type: () -> Optional[ClipSlot]
+        # type: () -> ClipSlot
         """ first look in track then in song """
-        return find_if(
-            lambda cs: cs._clip_slot == self.song._view.highlighted_clip_slot, self.selected_track.clip_slots
-        ) or find_if(
-            lambda cs: cs._clip_slot == self.song._view.highlighted_clip_slot,
-            [cs for track in self.song.simple_tracks for cs in track.clip_slots],
-        )
+        return self.clip_slots_by_live_live_clip_slot[self.song._view.highlighted_clip_slot]
 
     @highlighted_clip_slot.setter
     def highlighted_clip_slot(self, clip_slot):
@@ -130,11 +127,7 @@ class Song(AbstractObject, SongActionMixin):
     @property
     def selected_clip(self):
         # type: () -> Optional[Clip]
-        return (
-            self.highlighted_clip_slot.clip
-            if self.highlighted_clip_slot and self.highlighted_clip_slot.has_clip
-            else None
-        )
+        return self.highlighted_clip_slot.clip
 
     @selected_clip.setter
     def selected_clip(self, selected_clip):

@@ -16,7 +16,7 @@ class ActionGroupMain(AbstractActionGroup):
 
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
-        super(ActionGroupMain, self).__init__(channel=15, record_actions_as_global=True, *a, **k)
+        super(ActionGroupMain, self).__init__(channel=15, *a, **k)
 
         # DUPX modifier (both duplicate and shift)
         self.add_modifier(id=1, modifier_type=EncoderModifierEnum.DUPX)

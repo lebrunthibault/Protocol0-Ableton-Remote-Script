@@ -23,6 +23,10 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self._track = track  # type: Live.Track.Track
         super(SimpleTrack, self).__init__(track=self, *a, **k)
 
+        # is_active is used to differentiate set tracks for return / master
+        # we act only on active tracks
+        self.is_active = track not in list(self.song._song.return_tracks) + [self.song._song.master_track]  # type: bool
+
         # Note : SimpleTracks represent the first layer of abstraction and know nothing about
         # AbstractGroupTracks except with self.abstract_group_track which links both layers
         self.group_track = self.group_track  # type: Optional[SimpleTrack]

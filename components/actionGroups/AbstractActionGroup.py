@@ -15,16 +15,14 @@ class AbstractActionGroup(AbstractControlSurfaceComponent):
     See MultiEncoder to configure an encoder
     """
 
-    def __init__(self, channel, record_actions_as_global=False, *a, **k):
-        # type: (int, bool, Any, Any) -> None
+    def __init__(self, channel, *a, **k):
+        # type: (int, Any, Any) -> None
         super(AbstractActionGroup, self).__init__(*a, **k)
         self.available_modifiers = [  # noqa
             EncoderModifier(type) for type in list(EncoderModifierEnum)
         ]  # type: List[EncoderModifier]
         self.channel = channel
         self.multi_encoders = []  # type: List[MultiEncoder]
-        # allows recording actions at the top script level allowing last action re execution in very specific cases
-        self.record_actions_as_global = record_actions_as_global
 
     def _add_multi_encoder(self, multi_encoder):
         # type: (MultiEncoder) -> MultiEncoder

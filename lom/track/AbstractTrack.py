@@ -62,7 +62,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def index(self):
         # type: () -> int
-        return self.song.simple_tracks.index(self.base_track)
+        return list(self.song.simple_tracks).index(self.base_track)
 
     @property
     def abstract_track(self):

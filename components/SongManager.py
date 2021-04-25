@@ -1,5 +1,6 @@
 import collections
 
+import Live
 from typing import Any, Dict
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
@@ -15,7 +16,7 @@ class SongManager(AbstractControlSurfaceComponent):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(SongManager, self).__init__(*a, **k)
-        self.live_track_to_simple_track = collections.OrderedDict()  # type: Dict[Any, SimpleTrack]
+        self.live_track_to_simple_track = collections.OrderedDict()  # type: Dict[Live.Track.Track, SimpleTrack]
         self._tracks_listener.subject = self.song._song
 
     def init_song(self):
@@ -51,20 +52,21 @@ class SongManager(AbstractControlSurfaceComponent):
         # type: () -> None
         self.parent.log_debug("SongManager : start mapping tracks")
 
+        has_added_tracks = len(list(self.song.simple_tracks)) and len(self.song._song.tracks) > len(
+            list(self.song.simple_tracks)
+        )
+
+        # 1. Instantiate SimpleTracks (including return / master, that are marked as inactive)
         song_tracks = (
             list(self.song._song.tracks) + list(self.song._song.return_tracks) + [self.song._song.master_track]
         )
-        has_added_tracks = len(self.song.simple_tracks) and len(song_tracks) > len(self.song.simple_tracks)
-
-        # 1. Instantiate SimpleTracks
         for track in song_tracks:
             simple_track = self.parent.trackManager.instantiate_simple_track(track=track)
-            self.song.simple_tracks.append(simple_track)
             self.live_track_to_simple_track[track] = simple_track
 
-        # 2. Remove deleted tracks from the map
-        for track, simple_track in self.live_track_to_simple_track.items():
-            if simple_track not in self.song.simple_tracks:
+        # 2. Remove deleted tracks from the map by checking stale live tracks
+        for track in self.live_track_to_simple_track.keys():
+            if track not in song_tracks:
                 del self.live_track_to_simple_track[track]
 
         # 3. Instantiate AbstractGroupTracks
@@ -90,7 +92,7 @@ class SongManager(AbstractControlSurfaceComponent):
         # type: () -> None
         if self.song.highlighted_clip_slot != self._highlighted_clip_slot:
             self._highlighted_clip_slot = self.song.highlighted_clip_slot
-            if self.song.highlighted_clip_slot and self.song.highlighted_clip_slot.clip:
+            if self.song.highlighted_clip_slot.clip:
                 self.parent.push2Manager.update_clip_grid_quantization()
                 self._highlighted_clip_slot.clip._on_selected()
         self.parent.schedule_message(1, self._highlighted_clip_slot_poller)

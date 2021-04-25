@@ -1,4 +1,4 @@
-from typing import List, Any
+from typing import Any, Iterable
 
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.utils.UserMutableSequence import UserMutableSequence
@@ -8,8 +8,8 @@ class AbstractTrackList(UserMutableSequence):
     """ Manipulate a track list as an object """
 
     def __init__(self, abstract_tracks, *a, **k):
-        # type: (List[AbstractTrack], Any, Any) -> None
-        super(AbstractTrackList, self).__init__(list=abstract_tracks, *a, **k)
+        # type: (Iterable[AbstractTrack], Any, Any) -> None
+        super(AbstractTrackList, self).__init__(list=list(abstract_tracks), *a, **k)
         self._abstract_tracks = abstract_tracks
 
     def play_stop(self):

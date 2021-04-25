@@ -4,7 +4,7 @@ from collections import namedtuple
 from types import FrameType
 
 from qualname import qualname
-from typing import Optional, Any, List, cast, Callable, TYPE_CHECKING
+from typing import Optional, Any, List, cast, Callable, TYPE_CHECKING, Iterable
 
 from a_protocol_0.consts import ROOT_DIR, REMOTE_SCRIPTS_DIR
 from a_protocol_0.my_types import StringOrNumber, T
@@ -14,14 +14,13 @@ if TYPE_CHECKING:
 
 
 def scroll_values(items, selected_item, go_next, show_message=False):
-    # type: (List[T], T, bool, bool) -> T
-    if len(items) == 0 or not selected_item:
-        return selected_item
+    # type: (Iterable[T], T, bool, bool) -> T
+    items_list = list(items)
     increment = 1 if go_next else -1
     index = 0
     try:
-        index = (items.index(selected_item) + increment) % len(items)
-        new_item = items[index]
+        index = (items_list.index(selected_item) + increment) % len(items_list)
+        new_item = items_list[index]
         if show_message:
             from a_protocol_0 import Protocol0
 

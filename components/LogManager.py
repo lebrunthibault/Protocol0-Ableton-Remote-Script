@@ -69,10 +69,7 @@ class LogManager(AbstractObject):
         self.parent.log_notice("********* HIGHLIGHTED_CLIP_SLOT *************")
         self.parent.log_info()
         self.parent.log_info("song.highlighted_clip_slot: %s" % self.song.highlighted_clip_slot)
-        if self.song.highlighted_clip_slot:
-            self.parent.log_info(
-                "song.highlighted_clip_slot._clip_slot: %s" % self.song.highlighted_clip_slot._clip_slot
-            )
+        self.parent.log_info("song.highlighted_clip_slot._clip_slot: %s" % self.song.highlighted_clip_slot._clip_slot)
 
         self.parent.log_info()
         self.parent.log_info()

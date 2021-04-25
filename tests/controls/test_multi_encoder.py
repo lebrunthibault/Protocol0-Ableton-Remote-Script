@@ -5,13 +5,14 @@ from a_protocol_0.components.actionGroups.AbstractActionGroup import AbstractAct
 from a_protocol_0.controls.EncoderAction import EncoderAction
 from a_protocol_0.controls.EncoderModifierEnum import EncoderModifierEnum
 from a_protocol_0.controls.MultiEncoder import MultiEncoder
+from a_protocol_0.tests.fixtures import make_song
 from a_protocol_0.tests.test_all import p0
 
 
 class ActionGroupTest(AbstractActionGroup):
     def __init__(self, channel=0, *a, **k):
         # type: (int, Any, Any) -> None
-        super(ActionGroupTest, self).__init__(channel=channel, record_actions_as_global=False, *a, **k)
+        super(ActionGroupTest, self).__init__(channel=channel, *a, **k)
 
 
 def press_encoder(encoder):
@@ -28,6 +29,7 @@ def scroll_encoder(encoder):
 def make_multi_encoder(identifier=1):
     # type: (int) -> MultiEncoder
     with p0.component_guard():
+        p0.protocol0_song = make_song(count_simple_tracks=1)
         return ActionGroupTest().add_encoder(id=identifier, name="pytest")
 
 
@@ -39,9 +41,12 @@ def test_multi_encoder_press():
         # type: () -> None
         res["pressed"] = True
 
-    with p0.component_guard():
-        action_group = ActionGroupTest()
-        multi_encoder = action_group.add_encoder(id=2, name="pytest", on_press=press)
+    multi_encoder = make_multi_encoder()
+    # multi_encoder = make_multi_encoder().add_action(EncoderAction(on_press=press))
+    print(multi_encoder.song)
+    print(multi_encoder.song._song)
+    return
+    multi_encoder = make_multi_encoder().add_action(EncoderAction(on_press=press))
 
     with pytest.raises(Exception):
         multi_encoder.add_action(EncoderAction(func=lambda: None))

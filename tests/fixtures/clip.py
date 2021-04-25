@@ -1,12 +1,10 @@
-import Live
-from typing import List, Optional, Tuple, Dict, Any, cast
+from typing import List, Optional, Tuple, Dict, Any
 
 from _Framework.SubjectSlot import Subject
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.AutomationMidiClip import AutomationMidiClip
-from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
+from a_protocol_0.tests.fixtures import make_song
 from a_protocol_0.tests.fixtures.clip_slot import make_clip_slot
-from a_protocol_0.tests.fixtures.simple_track import AbletonTrack, TrackType
 
 
 class AbletonClip(Subject):
@@ -44,7 +42,8 @@ class AbletonClip(Subject):
 
 def create_automation_midi_clip_with_notes(notes, prev_notes=[], clip_length=None, loop_start=None):
     # type: (List[Note], List[Note], Optional[float], Optional[float]) -> Tuple[AutomationMidiClip, Dict[str, List[Note]]]
-    track = SimpleTrack(cast(Live.Track.Track, AbletonTrack(name="midi", track_type=TrackType.MIDI)), 0)
+    song = make_song(count_simple_tracks=1)
+    track = next(song.simple_tracks)
     loop_start = loop_start if loop_start is not None else notes[0].start
     length = clip_length or notes[-1].end - loop_start
     cs = make_clip_slot(track=track, clip_length=length, clip_loop_start=loop_start)

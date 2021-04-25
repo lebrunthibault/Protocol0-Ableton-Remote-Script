@@ -38,7 +38,7 @@ class EmptyModule(object):
 
     def __iter__(self):
         # type: () -> Iterator[Tuple[int, int]]
-        # that's for push2 checking scales
+        # that's for push2 scales check
         return iter([(0, 0)])
 
 

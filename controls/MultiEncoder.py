@@ -66,13 +66,11 @@ class MultiEncoder(AbstractObject):
 
         move_type = EncoderMoveEnum.LONG_PRESS if self._is_long_pressed else EncoderMoveEnum.PRESS
         action = self._find_matching_action(move_type=move_type)
+        print(action)
         self._pressed_at = None
         if action:
-            try:
-                _ = self.song.selected_track
-            except KeyError:
+            if not self.song.selected_track.is_active:
                 self.parent.log_error("actions are not dispatched for master / return tracks")
-                return
             action.execute(encoder_name=self.name)
 
     @subject_slot("value")
