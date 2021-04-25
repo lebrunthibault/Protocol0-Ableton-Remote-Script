@@ -12,6 +12,9 @@ from a_protocol_0.utils.decorators import p0_subject_slot, defer
 class Scene(AbstractObject):
     __subject_events__ = ("play",)
 
+    PLAYING_SCENE = None  # type: Optional[Scene]
+    LOOPING_SCENE = None  # type: Optional[Scene]
+
     def __init__(self, scene, *a, **k):
         # type: (Live.Scene.Scene, Any, Any) -> None
         super(Scene, self).__init__(*a, **k)
@@ -39,7 +42,7 @@ class Scene(AbstractObject):
         # type: () -> None
         """ implements a next scene follow action """
         # doing this when scene starts playing
-        self.song.playing_scene = self
+        self.PLAYING_SCENE = self
         self.schedule_next_scene_launch()
 
     @subject_slot_group("length")
@@ -84,15 +87,15 @@ class Scene(AbstractObject):
         # type: () -> None
         """ for a scene solo means looped """
         if not self.looping:  # solo activation
-            previous_looping_scene = self.song.looping_scene
-            self.song.looping_scene = self
-            if self.song.playing_scene != self:
+            previous_looping_scene = self.LOOPING_SCENE
+            self.LOOPING_SCENE = self
+            if self.PLAYING_SCENE != self:
                 self.fire()
             if previous_looping_scene:
                 previous_looping_scene.scene_name.update()
             self.parent.sceneBeatScheduler.clear()  # clearing scene scheduling
         else:  # solo inactivation
-            self.song.looping_scene = None
+            self.LOOPING_SCENE = None
             self.schedule_next_scene_launch()  # restore previous behavior of follow action
         self.scene_name.update()
 
@@ -145,7 +148,7 @@ class Scene(AbstractObject):
     @property
     def looping(self):
         # type: () -> bool
-        return self == self.song.looping_scene
+        return self == self.LOOPING_SCENE
 
     @property
     def clips(self):

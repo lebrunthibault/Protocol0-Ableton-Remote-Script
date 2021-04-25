@@ -5,6 +5,7 @@ import Live
 from typing import TYPE_CHECKING, Optional, Any
 
 from _Framework.SubjectSlot import subject_slot_group
+from a_protocol_0.config import Config
 from a_protocol_0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.sequence.Sequence import Sequence
@@ -44,7 +45,7 @@ class TrackName(AbstractObject):
         match = re.match("^(?P<base_name>[^()]*)[()]*(\((?P<selected_preset_index>\d+)\))?$", self.track.name)
         # _ is a reserved character for track names
         self.base_name = match.group("base_name").strip().replace("_", " ") if match else ""
-        if self.song.fix_outdated_sets:
+        if Config.FIX_OUTDATED_SETS:
             self.base_name = self.base_name.split("-")[0].strip()
         if match and match.group("selected_preset_index"):
             self.selected_preset_index = int(match.group("selected_preset_index")) - 1

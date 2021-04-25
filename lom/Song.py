@@ -1,9 +1,9 @@
-import os
+import collections
 
 import Live
-from typing import List, Optional, Dict, Any, Generator
+from typing import List, Optional, Dict, Any, Generator, Iterable
 
-from a_protocol_0.enums.TrackCategoryEnum import TrackCategoryEnum
+from a_protocol_0.interface.InterfaceState import InterfaceState
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.Scene import Scene
 from a_protocol_0.lom.SongActionMixin import SongActionMixin
@@ -15,7 +15,6 @@ from a_protocol_0.lom.track.AbstractTrackList import AbstractTrackList
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.utils.decorators import p0_subject_slot
 from a_protocol_0.utils.utils import find_if
-from a_protocol_0.utils.utils import flatten
 
 
 class Song(AbstractObject, SongActionMixin):
@@ -24,25 +23,14 @@ class Song(AbstractObject, SongActionMixin):
         super(Song, self).__init__(*a, **k)
         self._song = song
         self._view = self._song.view  # type: Live.Song.Song.View
+
+        # Global accessible objects / object mappings
         self.scenes = []  # type: List[Scene]
-        self.selected_track_category = TrackCategoryEnum.ALL  # type: TrackCategoryEnum
-        self._selected_recording_time = "1 bar"  # type: str
-        self.recording_bar_count = 1
-        self.clip_slots = []  # type: List[ClipSlot]
+        self.live_track_to_simple_track = collections.OrderedDict()  # type: Dict[Live.Track.Track, SimpleTrack]
         self.clip_slots_by_live_live_clip_slot = {}  # type: Dict[Live.ClipSlot.ClipSlot, ClipSlot]
+
         self.errored = False
-        # only one scene can be set to looping : it should be the scene we are working on ("soloing")
-        self.looping_scene = None  # type: Optional[Scene]
-        self.playing_scene = None  # type: Optional[Scene]
-
-        # NB: for an unknown reason clip.view.show_envelope does not always show the envelope
-        # when the button was not clicked. As a workaround we click it the first time
-        self.clip_envelope_show_box_clicked = False
-
         self._is_playing_listener.subject = self._song
-
-        # with this set to True, the script is going to rename more aggressively
-        self.fix_outdated_sets = str(os.getenv("FIX_OUTDATED_SETS")).lower() == "true"  # type: bool
 
     def __call__(self):
         # type: () -> Live.Song.Song
@@ -55,11 +43,25 @@ class Song(AbstractObject, SongActionMixin):
         if len(self.scenes) and self.is_playing:
             self.selected_scene.notify_play()  # type: ignore
 
+    # TRACKS
+
+    @property
+    def simple_tracks(self):
+        # type: () -> Generator[SimpleTrack, Any, Any]
+        return (track for track in self.live_track_to_simple_track.values() if track.is_active)
+
+    @property
+    def abstract_tracks(self):
+        # type: () -> Iterable[AbstractTrack]
+        for track in self.simple_tracks:
+            if track == track.abstract_track.base_track:
+                yield track.abstract_track
+
     @property
     def selected_track(self):
         # type: () -> SimpleTrack
         """ returns the SimpleTrack of the selected track, raises for master / return tracks """
-        return self.parent.songManager.live_track_to_simple_track[self.song._view.selected_track]
+        return self.live_track_to_simple_track[self.song._view.selected_track]
 
     @property
     def current_track(self):
@@ -67,34 +69,8 @@ class Song(AbstractObject, SongActionMixin):
         return self.song.selected_track.abstract_track
 
     @property
-    def simple_tracks(self):
-        # type: () -> Generator[SimpleTrack, Any, Any]
-        return (track for track in self.parent.songManager.live_track_to_simple_track.values() if track.is_active)
-
-    @property
-    def abstract_tracks(self):
-        # type: () -> List[AbstractTrack]
-        abstract_tracks = []  # type: List[AbstractTrack]
-        for track in self.simple_tracks:
-            if len(abstract_tracks) == 0 or track.abstract_track != abstract_tracks[-1]:
-                abstract_tracks.append(track.abstract_track)
-        return abstract_tracks
-
-    @property
-    def selected_scene(self):
-        # type: () -> Scene
-        scene = find_if(lambda scene: scene._scene == self.song._view.selected_scene, self.scenes)
-        assert scene
-        return scene
-
-    @selected_scene.setter
-    def selected_scene(self, scene):
-        # type: (Scene) -> None
-        self.song._view.selected_scene = scene._scene
-
-    @property
     def scrollable_tracks(self):
-        # type: () -> Generator[AbstractTrack, Any, Any]
+        # type: () -> Iterable[AbstractTrack]
         return (track for track in self.abstract_tracks if track.is_visible)
 
     @property
@@ -110,24 +86,45 @@ class Song(AbstractObject, SongActionMixin):
         return AbstractTrackList(
             track
             for track in self.abstract_tracks
-            if track.category.value.lower() == self.selected_track_category.value.lower()
+            if track.category.value.lower() == InterfaceState.SELECTED_TRACK_CATEGORY.value.lower()
         )
+
+    # SCENES
+
+    @property
+    def selected_scene(self):
+        # type: () -> Scene
+        scene = find_if(lambda scene: scene._scene == self.song._view.selected_scene, self.scenes)
+        assert scene
+        return scene
+
+    @selected_scene.setter
+    def selected_scene(self, scene):
+        # type: (Scene) -> None
+        self.song._view.selected_scene = scene._scene
+
+    # CLIP SLOTS
 
     @property
     def highlighted_clip_slot(self):
-        # type: () -> ClipSlot
+        # type: () -> Optional[ClipSlot]
         """ first look in track then in song """
-        return self.clip_slots_by_live_live_clip_slot[self.song._view.highlighted_clip_slot]
+        if self.song._view.highlighted_clip_slot in self.clip_slots_by_live_live_clip_slot:
+            return self.clip_slots_by_live_live_clip_slot[self.song._view.highlighted_clip_slot]
+        else:
+            return None
 
     @highlighted_clip_slot.setter
     def highlighted_clip_slot(self, clip_slot):
         # type: (ClipSlot) -> None
         self.song._view.highlighted_clip_slot = clip_slot._clip_slot
 
+    # CLIPS
+
     @property
     def selected_clip(self):
         # type: () -> Optional[Clip]
-        return self.highlighted_clip_slot.clip
+        return self.highlighted_clip_slot and self.highlighted_clip_slot.clip
 
     @selected_clip.setter
     def selected_clip(self, selected_clip):
@@ -183,9 +180,3 @@ class Song(AbstractObject, SongActionMixin):
     def clip_trigger_quantization(self, clip_trigger_quantization):
         # type: (int) -> None
         self._song.clip_trigger_quantization = clip_trigger_quantization
-
-    @property
-    def clips(self):
-        # type: () -> List[Clip]
-        """ All clips of the set flattened """
-        return flatten([t.clips for t in self.simple_tracks])

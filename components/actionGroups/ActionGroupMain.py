@@ -3,9 +3,10 @@ from functools import partial
 from typing import Any
 
 from a_protocol_0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
-from a_protocol_0.controls.EncoderAction import EncoderAction
-from a_protocol_0.controls.EncoderModifierEnum import EncoderModifierEnum
 from a_protocol_0.enums.RecordTypeEnum import RecordTypeEnum
+from a_protocol_0.interface.EncoderAction import EncoderAction
+from a_protocol_0.interface.EncoderModifierEnum import EncoderModifierEnum
+from a_protocol_0.interface.InterfaceState import InterfaceState
 from a_protocol_0.lom.track.AbstractTrackList import AbstractTrackList
 
 
@@ -49,7 +50,7 @@ class ActionGroupMain(AbstractActionGroup):
         self.add_encoder(
             id=9,
             name="record",
-            on_scroll=self.song.scroll_recording_times,
+            on_scroll=InterfaceState.scroll_recording_times,
             on_press=lambda: partial(self.song.current_track.record, RecordTypeEnum.NORMAL),
             on_long_press=lambda: partial(self.song.current_track.record, RecordTypeEnum.AUDIO_ONLY),
         )
@@ -110,7 +111,7 @@ class ActionGroupMain(AbstractActionGroup):
         )
 
         # 14 : CATegory encoder
-        self.add_encoder(id=15, name="track category", on_scroll=self.song.scroll_track_categories).add_action(
+        self.add_encoder(id=15, name="track category", on_scroll=InterfaceState.scroll_track_categories).add_action(
             EncoderAction(
                 func=lambda: self.song.selected_category_tracks.play_stop,
                 modifier_type=EncoderModifierEnum.PLAY_STOP,

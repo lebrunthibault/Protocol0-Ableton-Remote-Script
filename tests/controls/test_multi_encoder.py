@@ -2,9 +2,10 @@ import pytest
 from typing import Any
 
 from a_protocol_0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
-from a_protocol_0.controls.EncoderAction import EncoderAction
-from a_protocol_0.controls.EncoderModifierEnum import EncoderModifierEnum
-from a_protocol_0.controls.MultiEncoder import MultiEncoder
+from a_protocol_0.interface.EncoderAction import EncoderAction
+from a_protocol_0.interface.EncoderModifierEnum import EncoderModifierEnum
+from a_protocol_0.interface.EncoderMoveEnum import EncoderMoveEnum
+from a_protocol_0.interface.MultiEncoder import MultiEncoder
 from a_protocol_0.tests.fixtures import make_song
 from a_protocol_0.tests.test_all import p0
 
@@ -41,12 +42,7 @@ def test_multi_encoder_press():
         # type: () -> None
         res["pressed"] = True
 
-    multi_encoder = make_multi_encoder()
-    # multi_encoder = make_multi_encoder().add_action(EncoderAction(on_press=press))
-    print(multi_encoder.song)
-    print(multi_encoder.song._song)
-    return
-    multi_encoder = make_multi_encoder().add_action(EncoderAction(on_press=press))
+    multi_encoder = make_multi_encoder().add_action(EncoderAction(press))
 
     with pytest.raises(Exception):
         multi_encoder.add_action(EncoderAction(func=lambda: None))
@@ -63,10 +59,7 @@ def test_multi_encoder_scroll():
         # type: (bool) -> None
         res["scrolled"] = True
 
-    with p0.component_guard():
-        action_group = ActionGroupTest()
-        multi_encoder = action_group.add_encoder(id=2, name="pytest", on_scroll=scroll)
-
+    multi_encoder = make_multi_encoder().add_action(EncoderAction(scroll, move_type=EncoderMoveEnum.SCROLL))
     scroll_encoder(multi_encoder)
     assert res["scrolled"] is True
 
@@ -83,10 +76,11 @@ def test_multi_encoder_press_and_scroll():
         # type: () -> None
         res["pressed"] = True
 
-    with p0.component_guard():
-        action_group = ActionGroupTest()
-        multi_encoder = action_group.add_encoder(id=2, name="pytest", on_press=press, on_scroll=scroll)
-
+    multi_encoder = (
+        make_multi_encoder()
+        .add_action(EncoderAction(press))
+        .add_action(EncoderAction(scroll, move_type=EncoderMoveEnum.SCROLL))
+    )
     scroll_encoder(multi_encoder)
     assert res["scrolled"] is True
     assert res["pressed"] is False
@@ -103,11 +97,9 @@ def test_multi_encoder_shift_press():
         res["shift_pressed"] = True
 
     with p0.component_guard():
-        action_group = ActionGroupTest()
-        action_group.add_modifier(id=1, modifier_type=EncoderModifierEnum.SHIFT)
-        multi_encoder = action_group.add_encoder(id=2, name="pytest").add_action(
-            EncoderAction(func=shift_press, modifier_type=EncoderModifierEnum.SHIFT)
-        )
+        multi_encoder = make_multi_encoder()
+        multi_encoder.add_action(EncoderAction(func=shift_press, modifier_type=EncoderModifierEnum.SHIFT))
+        multi_encoder._group.add_modifier(id=2, modifier_type=EncoderModifierEnum.SHIFT)
 
     press_encoder(multi_encoder)
     assert res["shift_pressed"] is False

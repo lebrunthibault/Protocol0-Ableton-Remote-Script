@@ -3,6 +3,7 @@ from functools import partial
 import Live
 from typing import Any, TYPE_CHECKING, Optional
 
+from a_protocol_0.interface.InterfaceState import InterfaceState
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.sequence.Sequence import Sequence
@@ -90,17 +91,14 @@ class ClipSlot(AbstractObject):
         # type: () -> bool
         return self._clip_slot and self._clip_slot.is_playing
 
-    def select(self):
-        # type: () -> None
-        self.song.highlighted_clip_slot = self
-
-    def record(self):
-        # type: () -> Sequence
-        self.parent.show_message("Starting recording of %d bars" % self.song.recording_bar_count)
+    def record(self, recording_bar_count=None):
+        # type: (Optional[int]) -> Sequence
+        recording_bar_count = recording_bar_count or InterfaceState.SELECTED_RECORDING_TIME
+        self.parent.show_message("Starting recording of %d bars" % recording_bar_count)
         seq = Sequence()
         seq.add(wait=1)  # necessary so that _has_clip_listener triggers on has_clip == True
         seq.add(
-            partial(self.fire, record_length=self.parent.utilsManager.get_beat_time(self.song.recording_bar_count)),
+            partial(self.fire, record_length=self.parent.utilsManager.get_beat_time(recording_bar_count)),
             complete_on=self._has_clip_listener,
         )
         # this is a convenience to see right away if there is a problem with the audio recording

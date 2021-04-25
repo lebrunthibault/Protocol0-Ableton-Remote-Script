@@ -5,9 +5,9 @@ from typing import TYPE_CHECKING, List, Optional, Any
 from _Framework.ButtonElement import ButtonElement
 from _Framework.InputControlElement import MIDI_NOTE_TYPE, MIDI_CC_TYPE
 from _Framework.SubjectSlot import subject_slot
-from a_protocol_0.controls.EncoderAction import EncoderAction, EncoderMoveEnum
-from a_protocol_0.controls.EncoderModifier import EncoderModifier
-from a_protocol_0.controls.EncoderModifierEnum import EncoderModifierEnum
+from a_protocol_0.interface.EncoderAction import EncoderAction, EncoderMoveEnum
+from a_protocol_0.interface.EncoderModifier import EncoderModifier
+from a_protocol_0.interface.EncoderModifierEnum import EncoderModifierEnum
 from a_protocol_0.lom.AbstractObject import AbstractObject
 
 if TYPE_CHECKING:
@@ -66,11 +66,11 @@ class MultiEncoder(AbstractObject):
 
         move_type = EncoderMoveEnum.LONG_PRESS if self._is_long_pressed else EncoderMoveEnum.PRESS
         action = self._find_matching_action(move_type=move_type)
-        print(action)
         self._pressed_at = None
         if action:
             if not self.song.selected_track.is_active:
-                self.parent.log_error("actions are not dispatched for master / return tracks")
+                self.parent.show_message("actions are not dispatched for master / return tracks")
+                return
             action.execute(encoder_name=self.name)
 
     @subject_slot("value")

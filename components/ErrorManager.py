@@ -1,4 +1,5 @@
 import sys
+from functools import partial
 from traceback import extract_tb
 from types import TracebackType
 
@@ -40,6 +41,8 @@ class ErrorManager(AbstractControlSurfaceComponent):
         self.song.errored = True
         self.parent.fastScheduler.restart()
         self.parent.defer(self.song.reset)
+
+        self.parent._wait(100, partial(setattr, self.song, "errored", False))
 
     def _check_file(self, name):
         # type: (str) -> bool

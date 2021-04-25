@@ -10,7 +10,7 @@ class AbstractTrackList(UserMutableSequence):
     def __init__(self, abstract_tracks, *a, **k):
         # type: (Iterable[AbstractTrack], Any, Any) -> None
         super(AbstractTrackList, self).__init__(list=list(abstract_tracks), *a, **k)
-        self._abstract_tracks = abstract_tracks
+        self._abstract_tracks = list(abstract_tracks)
 
     def play_stop(self):
         # type: () -> None

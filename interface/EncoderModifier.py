@@ -1,6 +1,6 @@
 from typing import Any
 
-from a_protocol_0.controls.EncoderModifierEnum import EncoderModifierEnum
+from a_protocol_0.interface.EncoderModifierEnum import EncoderModifierEnum
 from a_protocol_0.lom.AbstractObject import AbstractObject
 
 

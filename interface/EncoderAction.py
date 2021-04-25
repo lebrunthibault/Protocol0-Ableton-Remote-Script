@@ -1,15 +1,15 @@
 from typing import Optional, List, Any, Callable
 
-from a_protocol_0.controls.EncoderModifierEnum import EncoderModifierEnum
-from a_protocol_0.controls.EncoderMoveEnum import EncoderMoveEnum
+from a_protocol_0.interface.EncoderModifierEnum import EncoderModifierEnum
+from a_protocol_0.interface.EncoderMoveEnum import EncoderMoveEnum
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.utils.decorators import handle_error
 from a_protocol_0.utils.utils import get_callable_name, is_lambda
 
 
 class EncoderAction(AbstractObject):
-    def __init__(self, func, move_type=None, modifier_type=None, *a, **k):
-        # type: (Callable, Optional[EncoderMoveEnum], Optional[EncoderModifierEnum], Any, Any) -> None
+    def __init__(self, func, move_type=EncoderMoveEnum.PRESS, modifier_type=None, *a, **k):
+        # type: (Callable, EncoderMoveEnum, Optional[EncoderModifierEnum], Any, Any) -> None
         """
         base moves are listed in the enum. press is the default choice
         Any modifier can be applied to a press or long_press but only shift is available for scrolling for now
@@ -17,7 +17,7 @@ class EncoderAction(AbstractObject):
         super(EncoderAction, self).__init__(*a, **k)
         assert callable(func), "func action should be callable: %s" % get_callable_name(func)
         self.func = func
-        self.move_type = move_type or EncoderMoveEnum.PRESS
+        self.move_type = move_type
         self.modifier_type = modifier_type
 
     def __repr__(self):

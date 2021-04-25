@@ -37,7 +37,7 @@ class ActionGroupSet(AbstractActionGroup):
 
     def set_clip_names(self):
         # type: () -> None
-        for clip in self.song.clips:
+        for clip in (clip for track in self.song.simple_tracks for clip in track.clips):
             clip.clip_name.update()
 
     def set_track_appearance(self):

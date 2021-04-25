@@ -31,25 +31,26 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # AbstractGroupTracks except with self.abstract_group_track which links both layers
         self.group_track = self.group_track  # type: Optional[SimpleTrack]
         self.sub_tracks = self.sub_tracks  # type: List[SimpleTrack]
-        # register to the group track
-        if self._track.group_track:
-            self.group_track = self.parent.songManager.live_track_to_simple_track[self._track.group_track]
-            self.group_track.sub_tracks.append(self)
-        self.linked_track = None  # type: Optional[SimpleTrack]
-        self._playing_slot_index_listener.subject = self._track
-        self._fired_slot_index_listener.subject = self._track
 
-        # Devices
+        self.linked_track = None  # type: Optional[SimpleTrack]
         self.devices = []  # type: List[Device]
         self.all_devices = []  # type: List[Device]
         self.instrument = None  # type: Optional[AbstractInstrument]
-        self._devices_listener.subject = self._track
-        self._devices_listener()
-
         self.clip_slots = []  # type: List[ClipSlot]
-        self.map_clip_slots()
-
         self.last_clip_played = None  # type: Optional[Clip]
+
+        if self.is_active:
+            # register to the group track
+            if self._track.group_track:
+                self.group_track = self.song.live_track_to_simple_track[self._track.group_track]
+                self.group_track.sub_tracks.append(self)
+            self._playing_slot_index_listener.subject = self._track
+            self._fired_slot_index_listener.subject = self._track
+
+            self._devices_listener.subject = self._track
+            self._devices_listener()
+
+            self.map_clip_slots()
 
     def map_clip_slots(self):
         # type: () -> Any

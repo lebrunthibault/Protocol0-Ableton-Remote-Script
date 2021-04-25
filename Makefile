@@ -19,9 +19,9 @@ vulture:
 	cls
 	vulture . .\vulture_whitelist.py
 
-pycharm:
-	# not working
-	pycharm64.exe inspect .. .\InspectionProfile.xml .\InspectionResults -d .
+#pycharm:
+#	# not working
+#	pycharm64.exe inspect .. .\InspectionProfile.xml .\InspectionResults -d .
 
 check:
 	make test

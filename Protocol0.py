@@ -129,10 +129,9 @@ class Protocol0(ControlSurface):
             direct_call=False,
         )
 
-    @staticmethod
-    def defer(callback):
+    def defer(self, callback):
         # type: (Callable) -> None
-        Protocol0.SELF.fastScheduler.schedule_next(callback)
+        self.fastScheduler.schedule_next(callback)
 
     def wait_beats(self, beats, callback):
         # type: (float, Callable) -> None

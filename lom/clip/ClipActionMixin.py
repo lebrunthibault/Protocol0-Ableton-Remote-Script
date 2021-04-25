@@ -2,6 +2,7 @@ import Live
 import deprecation
 from typing import TYPE_CHECKING, Optional
 
+from a_protocol_0.interface.InterfaceState import InterfaceState
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.sequence.Sequence import Sequence
 
@@ -55,9 +56,9 @@ class ClipActionMixin(object):
         self.parent.clyphxNavigationManager.show_clip_view()
         self.view.show_envelope()
         self.view.select_envelope_parameter(parameter._device_parameter)
-        if not self.song.clip_envelope_show_box_clicked:
+        if not InterfaceState.CLIP_ENVELOPE_SHOW_BOX_CLICKED:
             self.parent.keyboardShortcutManager.double_click_envelopes_show_box()
-            self.song.clip_envelope_show_box_clicked = True
+            InterfaceState.CLIP_ENVELOPE_SHOW_BOX_CLICKED = True
         self.displayed_automated_parameter = parameter  # type: Optional[DeviceParameter]
 
     def create_automation_envelope(self, parameter):

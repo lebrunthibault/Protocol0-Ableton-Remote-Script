@@ -1,7 +1,7 @@
 from typing import Any
 
-from a_protocol_0.controls.EncoderModifierEnum import EncoderModifierEnum
-from a_protocol_0.controls.MultiEncoder import MultiEncoder
+from a_protocol_0.interface.EncoderModifierEnum import EncoderModifierEnum
+from a_protocol_0.interface.MultiEncoder import MultiEncoder
 from a_protocol_0.utils.decorators import p0_subject_slot
 
 

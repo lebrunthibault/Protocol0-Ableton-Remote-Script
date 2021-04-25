@@ -63,15 +63,13 @@ class ExternalSynthTrackActionMixin(object):
         self.song.metronome = False
 
         seq = Sequence()
-        self.song.recording_bar_count = int(
-            round((self.midi_track.playable_clip.length + 1) / self.song.signature_denominator)
-        )
+        recording_bar_count = int(round((self.midi_track.playable_clip.length + 1) / self.song.signature_denominator))
         audio_clip_slot = self.audio_track.clip_slots[midi_clip.index]
         if audio_clip_slot.clip:
             seq.add(audio_clip_slot.clip.delete)
         seq.add(partial(setattr, midi_clip, "start_marker", 0))
         seq.add(partial(self.parent._wait, 80, midi_clip.play))  # launching the midi clip after the record has started
-        seq.add(self.audio_track.clip_slots[midi_clip.index].record)
+        seq.add(partial(self.audio_track.clip_slots[midi_clip.index].record, recording_bar_count=recording_bar_count))
         seq.add(self._post_record)
         return seq.done()
 

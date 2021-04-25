@@ -166,11 +166,6 @@ def nop():
     pass
 
 
-def flatten(t):
-    # type: (List[List[T]]) -> List[T]
-    return [item for sublist in t for item in sublist]
-
-
 def scale_from_value(value, min_a, max_a, min_b, max_b):
     # type: (float, float, float, float, float) -> float
     return float(float((max_b - min_b) * (value - min_a)) / (max_a - min_a)) + min_b

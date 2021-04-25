@@ -2,10 +2,8 @@ import Live
 from typing import cast, List
 
 from _Framework.SubjectSlot import Subject
-from a_protocol_0.devices.InstrumentProphet import InstrumentProphet
 from a_protocol_0.lom.Song import Song
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
-from a_protocol_0.tests.fixtures.device import AbletonDevice
 
 
 class TrackType(object):
@@ -17,10 +15,10 @@ class TrackType(object):
 class AbletonTrack(Subject):
     __subject_events__ = ("name", "devices", "clip_slots", "playing_slot_index", "fired_slot_index")
 
-    def __init__(self, name="track", device=None, track_type=TrackType.MIDI):
-        # type: (str, AbletonDevice, int) -> None
+    def __init__(self, name="test_track", track_type=TrackType.MIDI):
+        # type: (str, int) -> None
         self.name = name
-        self.devices = [device] if device else []
+        self.devices = []  # type: List[Live.Device.Device]
         self.can_be_armed = True
         self.is_armed = False
         self.fold_state = False
@@ -43,25 +41,8 @@ class AbletonTrack(Subject):
             self.has_audio_input = True
 
 
-def _make_simple_track()
-
-
-def make_group_track(song, name=InstrumentProphet.NAME):
-    # type: (Song, str) -> SimpleTrack
-    simple_track = SimpleTrack(cast(Live.Track.Track, AbletonTrack(name=name, track_type=TrackType.GROUP)))
-    song.parent.songManager.live_track_to_simple_track[simple_track._track] = simple_track
-    return simple_track
-
-
-def make_midi_track(song, name="midi"):
-    # type: (Song, str) -> SimpleTrack
-    simple_track = SimpleTrack(cast(Live.Track.Track, AbletonTrack(name=name, track_type=TrackType.MIDI)))
-    song.parent.songManager.live_track_to_simple_track[simple_track._track] = simple_track
-    return simple_track
-
-
-def make_audio_track(song, name="audio"):
-    # type: (Song, str) -> SimpleTrack
-    simple_track = SimpleTrack(cast(Live.Track.Track, AbletonTrack(name=name, track_type=TrackType.AUDIO)))
-    song.parent.songManager.live_track_to_simple_track[simple_track._track] = simple_track
+def make_simple_track(song, track_type):
+    # type: (Song, int) -> SimpleTrack
+    simple_track = SimpleTrack(cast(Live.Track.Track, AbletonTrack(track_type=TrackType.GROUP)))
+    song.live_track_to_simple_track[simple_track._track] = simple_track
     return simple_track

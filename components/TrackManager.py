@@ -79,8 +79,8 @@ class TrackManager(AbstractControlSurfaceComponent):
     def instantiate_simple_track(self, track):
         # type: (Live.Track.Track) -> SimpleTrack
         # checking first on existing tracks
-        if track in self.parent.songManager.live_track_to_simple_track:
-            simple_track = self.parent.songManager.live_track_to_simple_track[track]
+        if track in self.song.live_track_to_simple_track:
+            simple_track = self.song.live_track_to_simple_track[track]
             simple_track.map_clip_slots()
             return simple_track
         if track.has_midi_input:

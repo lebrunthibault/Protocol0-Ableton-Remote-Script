@@ -1,13 +1,8 @@
-import collections
-
-import Live
-from typing import Any, Dict
+from typing import Any
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.lom.Scene import Scene
-from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.utils.decorators import p0_subject_slot, has_callback_queue, handle_error
-from a_protocol_0.utils.utils import flatten
 
 
 class SongManager(AbstractControlSurfaceComponent):
@@ -16,7 +11,6 @@ class SongManager(AbstractControlSurfaceComponent):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(SongManager, self).__init__(*a, **k)
-        self.live_track_to_simple_track = collections.OrderedDict()  # type: Dict[Live.Track.Track, SimpleTrack]
         self._tracks_listener.subject = self.song._song
 
     def init_song(self):
@@ -31,12 +25,8 @@ class SongManager(AbstractControlSurfaceComponent):
     def on_selected_track_changed(self):
         # type: () -> None
         """ not for master and return tracks """
-        try:
-            _ = self.song.selected_track
-            # noinspection PyUnresolvedReferences
-            self.notify_selected_track()
-        except KeyError:
-            pass
+        # noinspection PyUnresolvedReferences
+        self.notify_selected_track()
 
     @handle_error
     def on_scene_list_changed(self):
@@ -62,25 +52,24 @@ class SongManager(AbstractControlSurfaceComponent):
         )
         for track in song_tracks:
             simple_track = self.parent.trackManager.instantiate_simple_track(track=track)
-            self.live_track_to_simple_track[track] = simple_track
+            self.song.live_track_to_simple_track[track] = simple_track
 
         # 2. Remove deleted tracks from the map by checking stale live tracks
-        for track in self.live_track_to_simple_track.keys():
+        for track in self.song.live_track_to_simple_track.keys():
             if track not in song_tracks:
-                del self.live_track_to_simple_track[track]
+                del self.song.live_track_to_simple_track[track]
 
         # 3. Instantiate AbstractGroupTracks
         for track in self.song.simple_tracks:
             if track.is_foldable:
                 self.parent.trackManager.instantiate_abstract_group_track(track)
 
-        # 4. Store clip_slots. track and scene changes trigger a song remapping so it's fine
-        self.song.clip_slots = flatten([track.clip_slots for track in self.song.simple_tracks])
+        # 4. Store clip_slots mapping. track and scene changes trigger a song remapping so it's fine
         self.song.clip_slots_by_live_live_clip_slot = {
-            clip_slot._clip_slot: clip_slot for clip_slot in self.song.clip_slots
+            clip_slot._clip_slot: clip_slot for track in self.song.simple_tracks for clip_slot in track.clip_slots
         }
 
-        # 5. handle added tracks
+        # 5. Handle added tracks
         if has_added_tracks and self.song.selected_track:
             # noinspection PyUnresolvedReferences
             self.notify_added_track()
@@ -90,7 +79,7 @@ class SongManager(AbstractControlSurfaceComponent):
 
     def _highlighted_clip_slot_poller(self):
         # type: () -> None
-        if self.song.highlighted_clip_slot != self._highlighted_clip_slot:
+        if self.song.highlighted_clip_slot and self.song.highlighted_clip_slot != self._highlighted_clip_slot:
             self._highlighted_clip_slot = self.song.highlighted_clip_slot
             if self.song.highlighted_clip_slot.clip:
                 self.parent.push2Manager.update_clip_grid_quantization()

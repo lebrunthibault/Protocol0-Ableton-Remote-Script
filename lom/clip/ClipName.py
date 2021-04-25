@@ -2,6 +2,7 @@ import re
 
 from typing import TYPE_CHECKING, Any, Optional
 
+from a_protocol_0.config import Config
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.utils.decorators import p0_subject_slot, defer
 
@@ -30,7 +31,7 @@ class ClipName(AbstractObject):
         """ overridden """
         match = re.match("^(?P<base_name>[^()[\].]*).*$", self.clip.name or "")
         self.base_name = match.group("base_name").strip() if match else ""
-        if self.song.fix_outdated_sets:
+        if Config.FIX_OUTDATED_SETS:
             self.base_name = self.base_name.split("-")[0].strip()
         if re.match("^%s( \d+)?" % self.clip.track.base_name.strip(), self.base_name):
             self.base_name = ""
