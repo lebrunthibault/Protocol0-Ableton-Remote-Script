@@ -1,7 +1,6 @@
 from functools import partial
 from itertools import chain, imap  # type: ignore[attr-defined]
 
-import Live
 from typing import Optional, List, Union
 from typing import TYPE_CHECKING
 
@@ -106,10 +105,6 @@ class SimpleTrackActionMixin(object):
         for device in self.devices:
             self.delete_device(self.devices[0])
 
-    def get_device(self, device):
-        # type: (SimpleTrack, Live.Device.Device) -> Optional[Device]
-        return find_if(lambda d: d._device == device, self.base_track.all_devices)
-
     def has_device(self, device_name):
         # type: (SimpleTrack, str) -> bool
         return find_if(lambda d: d.name == device_name, self.base_track.all_devices) is not None
@@ -117,7 +112,12 @@ class SimpleTrackActionMixin(object):
     @property
     def selected_device(self):
         # type: (SimpleTrack) -> Optional[Device]
-        return self.get_device(self._track.view.selected_device)
+        if self._track.view.selected_device:
+            device = find_if(lambda d: d._device == device, self.base_track.all_devices)
+            assert device
+            return device
+        else:
+            return None
 
     def _find_all_devices(self, track_or_chain, only_visible=False):
         # type: (SimpleTrack, Optional[Union[SimpleTrack, DeviceChain]], bool) -> List[Device]

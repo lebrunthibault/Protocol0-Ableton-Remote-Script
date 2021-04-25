@@ -37,8 +37,9 @@ class LogManager(AbstractObject):
             % [clip for clip in self.song.selected_track.clips if clip._clip.is_arrangement_clip]
         )
         self.parent.log_info()
-        self.parent.log_info("selected_track.playable_clip: %s" % self.song.selected_track.playable_clip)
-        self.parent.log_info()
+        if self.song.selected_track.is_active:
+            self.parent.log_info("selected_track.playable_clip: %s" % self.song.selected_track.playable_clip)
+            self.parent.log_info()
         self.parent.log_info("selected_track.last_clip_played: %s" % self.song.selected_track.last_clip_played)
         self.parent.log_info()
         self.parent.log_info()
@@ -69,7 +70,10 @@ class LogManager(AbstractObject):
         self.parent.log_notice("********* HIGHLIGHTED_CLIP_SLOT *************")
         self.parent.log_info()
         self.parent.log_info("song.highlighted_clip_slot: %s" % self.song.highlighted_clip_slot)
-        self.parent.log_info("song.highlighted_clip_slot._clip_slot: %s" % self.song.highlighted_clip_slot._clip_slot)
+        if self.song.highlighted_clip_slot:
+            self.parent.log_info(
+                "song.highlighted_clip_slot._clip_slot: %s" % self.song.highlighted_clip_slot._clip_slot
+            )
 
         self.parent.log_info()
         self.parent.log_info()

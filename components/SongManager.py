@@ -6,7 +6,7 @@ from a_protocol_0.utils.decorators import p0_subject_slot, has_callback_queue, h
 
 
 class SongManager(AbstractControlSurfaceComponent):
-    __subject_events__ = ("selected_track", "scene_list", "added_track")
+    __subject_events__ = ("selected_track", "added_track")
 
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
@@ -32,9 +32,6 @@ class SongManager(AbstractControlSurfaceComponent):
     def on_scene_list_changed(self):
         # type: () -> None
         self._tracks_listener()
-        # noinspection PyUnresolvedReferences
-        self.notify_scene_list()
-        self.song.scenes = [Scene(scene) for scene in list(self.song._song.scenes)]
 
     @p0_subject_slot("tracks")
     @handle_error
@@ -69,12 +66,17 @@ class SongManager(AbstractControlSurfaceComponent):
             clip_slot._clip_slot: clip_slot for track in self.song.simple_tracks for clip_slot in track.clip_slots
         }
 
+        # 5. Create Scenes
+        self.song.scenes = [Scene(scene) for scene in list(self.song._song.scenes)]
+
         # 5. Handle added tracks
         if has_added_tracks and self.song.selected_track:
             # noinspection PyUnresolvedReferences
             self.notify_added_track()
 
         self.parent.log_debug("SongManager : mapped tracks")
+        # noinspection PyUnresolvedReferences
+        self.notify_selected_track()
         self.parent.log_debug("")
 
     def _highlighted_clip_slot_poller(self):

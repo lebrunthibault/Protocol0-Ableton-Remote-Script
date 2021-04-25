@@ -15,7 +15,7 @@ class ActionGroupSet(AbstractActionGroup):
         # type: (Any, Any) -> None
         super(ActionGroupSet, self).__init__(channel=14, *a, **k)
         # LOG encoder
-        self.add_encoder(id=1, name="log", on_press=self.parent.logManager.log_set)
+        self.add_encoder(id=1, name="log", filter_active_tracks=False, on_press=self.parent.logManager.log_set)
 
         # RACK encoder
         self.add_encoder(id=2, name="racks", on_press=self.update_racks)

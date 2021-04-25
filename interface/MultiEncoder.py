@@ -17,8 +17,8 @@ if TYPE_CHECKING:
 class MultiEncoder(AbstractObject):
     PRESS_MAX_TIME = 0.25  # maximum time in seconds we consider a simple press
 
-    def __init__(self, group, identifier, name, *a, **k):
-        # type: (AbstractActionGroup, int, str, Any, Any) -> None
+    def __init__(self, group, identifier, name, filter_active_tracks=True, *a, **k):
+        # type: (AbstractActionGroup, int, str, bool, Any, Any) -> None
         """
         Actions are triggered at the end of the press not the start. Allows press vs long_press (Note) vs scroll (CC)
         Also possible to define modifiers to duplicate the number of actions possible.
@@ -29,6 +29,7 @@ class MultiEncoder(AbstractObject):
         self._group = group  # type: AbstractActionGroup
         self.identifier = identifier
         self.name = name[0].upper() + name[1:].lower()
+        self._filter_active_tracks = filter_active_tracks
         self._press_listener.subject = ButtonElement(True, MIDI_NOTE_TYPE, group.channel, identifier)
         self._scroll_listener.subject = ButtonElement(True, MIDI_CC_TYPE, group.channel, identifier)
         self._pressed_at = None  # type: Optional[float]
@@ -68,7 +69,7 @@ class MultiEncoder(AbstractObject):
         action = self._find_matching_action(move_type=move_type)
         self._pressed_at = None
         if action:
-            if not self.song.selected_track.is_active:
+            if self._filter_active_tracks and not self.song.selected_track.is_active:
                 self.parent.show_message("actions are not dispatched for master / return tracks")
                 return
             action.execute(encoder_name=self.name)
