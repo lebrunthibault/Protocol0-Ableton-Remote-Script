@@ -36,7 +36,7 @@ class ClipSlotSynchronizer(ObjectSynchronizer):
         if not clip_slot.clip and clip_slot.linked_clip_slot.clip:
             from a_protocol_0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 
-            if isinstance(clip_slot.track.abstract_group_track, ExternalSynthTrack) and clip_slot.track.is_audio:
+            if isinstance(clip_slot.track.abstract_track, ExternalSynthTrack) and clip_slot.track.is_audio:
                 return
             clip_slot.linked_clip_slot.clip.delete()
 

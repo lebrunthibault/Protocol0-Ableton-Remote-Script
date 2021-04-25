@@ -3,7 +3,7 @@ import os
 import threading
 from types import MethodType
 
-from typing import Callable, Optional, Any
+from typing import Callable, Any
 
 from ClyphX_Pro import ClyphXComponentBase, ParseUtils
 from ClyphX_Pro.clyphx_pro.actions.GlobalActions import GlobalActions
@@ -30,7 +30,6 @@ from a_protocol_0.components.actionGroups.ActionGroupSet import ActionGroupSet
 from a_protocol_0.components.actionGroups.ActionGroupTest import ActionGroupTest
 from a_protocol_0.config import Config
 from a_protocol_0.consts import ROOT_DIR
-from a_protocol_0.controls.EncoderAction import EncoderAction
 from a_protocol_0.enums.LogLevelEnum import LogLevelEnum
 from a_protocol_0.lom.Song import Song
 from a_protocol_0.utils.log import log_ableton
@@ -51,7 +50,6 @@ class Protocol0(ControlSurface):
 
         self.load_dotenv()  # loading env file
         self._is_dev_booted = False
-        self.current_action = None  # type: Optional[EncoderAction]
         with self.component_guard():
             self.errorManager = ErrorManager()
             self.protocol0_song = Song(song=self.song())

@@ -9,13 +9,14 @@ from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupT
 from a_protocol_0.lom.track.group_track.ExternalSynthTrackActionMixin import ExternalSynthTrackActionMixin
 from a_protocol_0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from a_protocol_0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
+from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.lom.track.simple_track.TrackSynchronizer import TrackSynchronizer
 
 
 class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
-    def __init__(self, *a, **k):
-        # type: (Any, Any) -> None
-        super(ExternalSynthTrack, self).__init__(*a, **k)
+    def __init__(self, base_group_track, *a, **k):
+        # type: (SimpleTrack, Any, Any) -> None
+        super(ExternalSynthTrack, self).__init__(base_group_track=base_group_track, *a, **k)
         self.midi_track = self.sub_tracks[0]
         self.audio_track = self.sub_tracks[1]
         assert isinstance(self.midi_track, SimpleMidiTrack) and isinstance(self.audio_track, SimpleAudioTrack), (
@@ -33,9 +34,9 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
                 )
             ]
 
+        # audio and midi tracks are now handled by self
         for sub_track in self.sub_tracks:
             sub_track.abstract_group_track = self
-            sub_track.abstract_track = self
 
         self.audio_track.set_output_routing_to(self.base_track)
 

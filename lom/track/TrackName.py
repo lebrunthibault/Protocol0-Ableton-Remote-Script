@@ -5,6 +5,7 @@ import Live
 from typing import TYPE_CHECKING, Optional, Any
 
 from _Framework.SubjectSlot import subject_slot_group
+from a_protocol_0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import p0_subject_slot
@@ -18,7 +19,6 @@ class TrackName(AbstractObject):
         # type: (AbstractTrack, Any, Any) -> None
         super(TrackName, self).__init__(*a, **k)
         self.track = track
-        self.tracks = [self.track]
         self.base_name = ""
         self.selected_preset_index = 0
         self._instrument_listener.subject = self.track
@@ -33,14 +33,13 @@ class TrackName(AbstractObject):
     @p0_subject_slot("selected_preset")
     def _selected_preset_listener(self):
         # type: () -> None
-        track_name = self.track.abstract_track.track_name
         if self.track.instrument.should_display_selected_preset_name:
-            track_name.update(base_name=self.track.instrument.selected_preset.name)
-        elif self.track.instrument.SHOULD_DISPLAY_SELECTED_PRESET_INDEX:
-            track_name.update(selected_preset_index=self.track.instrument.selected_preset.index)
+            self.update(base_name=self.track.instrument.selected_preset.name)
+        elif self.track.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.INDEX:
+            self.update(selected_preset_index=self.track.instrument.selected_preset.index)
 
     @subject_slot_group("name")
-    def _name_listener(self, changed_track):
+    def _name_listener(self, _):
         # type: (Live.Track.Track) -> None
         match = re.match("^(?P<base_name>[^()]*)[()]*(\((?P<selected_preset_index>\d+)\))?$", self.track.name)
         # _ is a reserved character for track names
@@ -49,10 +48,6 @@ class TrackName(AbstractObject):
             self.base_name = self.base_name.split("-")[0].strip()
         if match and match.group("selected_preset_index"):
             self.selected_preset_index = int(match.group("selected_preset_index")) - 1
-
-        for track in [track for track in self.tracks if track._track != changed_track]:
-            if track.base_track.name != changed_track.name:
-                self.parent.defer(lambda: setattr(track.base_track, "name", changed_track.name))
 
     def update(self, base_name=None, playing_slot_index=None, selected_preset_index=None):
         # type: (Optional[str], Optional[int], Optional[int]) -> Optional[Sequence]
@@ -63,8 +58,15 @@ class TrackName(AbstractObject):
         )
         self.selected_preset_index = max(0, selected_preset_index)
 
+        if self.track.instrument:
+            self.parent.log_dev(self.track.instrument.PRESET_DISPLAY_OPTION)
+            self.parent.log_dev(self.track.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.INDEX)
         name = self.base_name
-        if self.track.instrument and self.track.instrument.SHOULD_DISPLAY_SELECTED_PRESET_INDEX:
+        if (
+            # self.track.abstract_track == self.track
+            self.track.instrument
+            and self.track.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.INDEX
+        ):
             name += " (%s)" % (self.selected_preset_index + 1)
 
         seq = Sequence(silent=True)

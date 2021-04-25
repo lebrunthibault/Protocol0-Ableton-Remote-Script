@@ -5,15 +5,14 @@ from typing import Any, Optional
 from a_protocol_0.enums.Push2MainModeEnum import Push2MainModeEnum
 from a_protocol_0.lom.device.DeviceType import DeviceType
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
+from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.sequence.Sequence import Sequence
 
 
 class SimpleGroupTrack(AbstractGroupTrack):
-    def __init__(self, *a, **k):
-        # type: (Any, Any) -> None
-        super(SimpleGroupTrack, self).__init__(*a, **k)
-        self.parent.log_dev("%s has sub tracks %s" % (self, self.sub_tracks))
-
+    def __init__(self, base_group_track, *a, **k):
+        # type: (SimpleTrack, Any, Any) -> None
+        super(SimpleGroupTrack, self).__init__(base_group_track=base_group_track, *a, **k)
         self._single_sub_track_routing = self._get_single_sub_track_routing()
         # enforce this (e.g. when deleting automation tracks)
         [sub_track.set_output_routing_to(self) for sub_track in self.sub_tracks]
@@ -59,8 +58,8 @@ class SimpleGroupTrack(AbstractGroupTrack):
         )
         if len(output_routing_objects) == 1 and output_routing_objects[0] not in (
             None,
-            self,
-            self.song.master_track,
+            self._track,
+            self.song._song.master_track,
         ):
             return output_routing_objects[0]
         else:

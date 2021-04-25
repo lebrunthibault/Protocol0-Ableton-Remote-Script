@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Optional, List, Any
 
 from a_protocol_0.devices.presets.InstrumentPreset import InstrumentPreset
 from a_protocol_0.devices.presets.InstrumentPresetList import InstrumentPresetList
+from a_protocol_0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.lom.Note import Note
@@ -31,8 +32,7 @@ class AbstractInstrument(AbstractObject):
     PRESET_EXTENSION = ""
     NEEDS_ACTIVATION_FOR_PRESETS_CHANGE = False
     IS_EXTERNAL_SYNTH = False
-    SHOULD_DISPLAY_SELECTED_PRESET_NAME = True
-    SHOULD_DISPLAY_SELECTED_PRESET_INDEX = False
+    PRESET_DISPLAY_OPTION = PresetDisplayOptionEnum.NAME
     PROGRAM_CHANGE_OFFSET = 0  # if we store presets not at the beginning of the list
 
     _active_instance = None  # type: AbstractInstrument
@@ -62,7 +62,7 @@ class AbstractInstrument(AbstractObject):
     @property
     def should_display_selected_preset_name(self):
         # type: () -> bool
-        return self._preset_list.has_preset_names and self.SHOULD_DISPLAY_SELECTED_PRESET_NAME
+        return self._preset_list.has_preset_names and self.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.NAME
 
     @property
     def active_instance(self):

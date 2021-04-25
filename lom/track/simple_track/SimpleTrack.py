@@ -18,15 +18,18 @@ from a_protocol_0.utils.decorators import defer, p0_subject_slot
 class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     CLIP_CLASS = Clip
 
-    def __init__(self, track, index, *a, **k):
-        # type: (Live.Track.Track, int, Any, Any) -> None
+    def __init__(self, track, *a, **k):
+        # type: (Live.Track.Track, Any, Any) -> None
         self._track = track  # type: Live.Track.Track
         super(SimpleTrack, self).__init__(track=self, *a, **k)
 
         # Note : SimpleTracks represent the first layer of abstraction and know nothing about
         # AbstractGroupTracks except with self.abstract_group_track which links both layers
+        self.group_track = self.group_track  # type: Optional[SimpleTrack]
         self.sub_tracks = self.sub_tracks  # type: List[SimpleTrack]
-        if self.group_track:
+        # register to the group track
+        if self._track.group_track:
+            self.group_track = self.parent.songManager.live_track_to_simple_track[self._track.group_track]
             self.group_track.sub_tracks.append(self)
         self.linked_track = None  # type: Optional[SimpleTrack]
         self._playing_slot_index_listener.subject = self._track

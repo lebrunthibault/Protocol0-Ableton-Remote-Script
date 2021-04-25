@@ -11,12 +11,12 @@ class MixingManager(AbstractControlSurfaceComponent):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(MixingManager, self).__init__(*a, **k)
-        self._master_track_output_meter_level_listener.subject = self.song.master_track
+        self._master_track_output_meter_level_listener.subject = self.song._song.master_track
 
     @property
     def should_activate_mix_volume_follower(self):
         # type: () -> bool
-        for device in self.song.master_track.devices:
+        for device in self.song._song.master_track.devices:
             if any([name.lower() in device.name.lower() for name in self.MIXING_PLUGIN_NAMES]) and device.is_active:
                 return True
 
@@ -27,6 +27,6 @@ class MixingManager(AbstractControlSurfaceComponent):
         # type: () -> None
         if self.should_activate_mix_volume_follower:
             return
-        if self.song.master_track.output_meter_level >= 0.87:
+        if self.song._song.master_track.output_meter_level >= 0.87:
             for track in self.song.abstract_tracks:  # type: AbstractTrack
                 track.volume *= 0.95

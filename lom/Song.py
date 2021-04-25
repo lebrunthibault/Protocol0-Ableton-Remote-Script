@@ -26,7 +26,6 @@ class Song(AbstractObject, SongActionMixin):
         self._view = self._song.view  # type: Live.Song.Song.View
         self.scenes = []  # type: List[Scene]
         self.simple_tracks = []  # type: List[SimpleTrack]
-        self.master_track = self._song.master_track  # type: Live.Track.Track
         self.selected_track_category = TrackCategoryEnum.ALL  # type: TrackCategoryEnum
         self._selected_recording_time = "1 bar"  # type: str
         self.recording_bar_count = 1
@@ -60,8 +59,8 @@ class Song(AbstractObject, SongActionMixin):
     @property
     def selected_track(self):
         # type: () -> SimpleTrack
-        assert len(self.song.simple_tracks), "You try to access the object before the track mapping is done"
-        return self.parent.songManager._get_simple_track(self.song._view.selected_track, self.song.simple_tracks[0])
+        """ returns the SimpleTrack of the selected track, raises for master / return tracks """
+        return self.parent.songManager.live_track_to_simple_track[self.song._view.selected_track]
 
     @property
     def current_track(self):

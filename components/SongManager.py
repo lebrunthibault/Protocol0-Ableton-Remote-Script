@@ -1,7 +1,6 @@
 import collections
 
-import Live
-from typing import Optional, Any, Dict
+from typing import Any, Dict
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.lom.Scene import Scene
@@ -30,8 +29,13 @@ class SongManager(AbstractControlSurfaceComponent):
     @handle_error
     def on_selected_track_changed(self):
         # type: () -> None
-        # noinspection PyUnresolvedReferences
-        self.notify_selected_track()
+        """ not for master and return tracks """
+        try:
+            _ = self.song.selected_track
+            # noinspection PyUnresolvedReferences
+            self.notify_selected_track()
+        except KeyError:
+            pass
 
     @handle_error
     def on_scene_list_changed(self):
@@ -47,11 +51,14 @@ class SongManager(AbstractControlSurfaceComponent):
         # type: () -> None
         self.parent.log_debug("SongManager : start mapping tracks")
 
-        added_track = len(self.song.simple_tracks) and len(self.song._song.tracks) > len(self.song.simple_tracks)
+        song_tracks = (
+            list(self.song._song.tracks) + list(self.song._song.return_tracks) + [self.song._song.master_track]
+        )
+        has_added_tracks = len(self.song.simple_tracks) and len(song_tracks) > len(self.song.simple_tracks)
 
         # 1. Instantiate SimpleTracks
-        for i, track in enumerate(list(self.song._song.tracks)):
-            simple_track = self.parent.trackManager.instantiate_simple_track(track=track, index=i)
+        for track in song_tracks:
+            simple_track = self.parent.trackManager.instantiate_simple_track(track=track)
             self.song.simple_tracks.append(simple_track)
             self.live_track_to_simple_track[track] = simple_track
 
@@ -72,7 +79,7 @@ class SongManager(AbstractControlSurfaceComponent):
         }
 
         # 5. handle added tracks
-        if added_track and self.song.selected_track:
+        if has_added_tracks and self.song.selected_track:
             # noinspection PyUnresolvedReferences
             self.notify_added_track()
 
@@ -87,15 +94,3 @@ class SongManager(AbstractControlSurfaceComponent):
                 self.parent.push2Manager.update_clip_grid_quantization()
                 self._highlighted_clip_slot.clip._on_selected()
         self.parent.schedule_message(1, self._highlighted_clip_slot_poller)
-
-    def _get_simple_track(self, track, default=None):
-        # type: (Live.Track.Track, Optional[SimpleTrack]) -> SimpleTrack
-        """ default is useful when the _ableton_track_to_simple_track is not built yet """
-        if track == self.song._song.master_track or track in self.song._song.return_tracks:
-            assert default
-            return default
-
-        assert len(self.live_track_to_simple_track.keys()), "live_track_to_simple_track is empty"
-        assert track in self.live_track_to_simple_track.keys(), "_get_simple_track mismatch on %s" % track.name
-
-        return self.live_track_to_simple_track[track]

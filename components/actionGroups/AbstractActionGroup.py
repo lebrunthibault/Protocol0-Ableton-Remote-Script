@@ -23,7 +23,6 @@ class AbstractActionGroup(AbstractControlSurfaceComponent):
         ]  # type: List[EncoderModifier]
         self.channel = channel
         self.multi_encoders = []  # type: List[MultiEncoder]
-        self._current_action = None  # type: Optional[EncoderAction]
         # allows recording actions at the top script level allowing last action re execution in very specific cases
         self.record_actions_as_global = record_actions_as_global
 
@@ -35,45 +34,14 @@ class AbstractActionGroup(AbstractControlSurfaceComponent):
         self.multi_encoders.append(multi_encoder)
         return multi_encoder
 
-    def add_encoder(
-        self,
-        id,  # type: int
-        name,  # type: str
-        on_press=None,  # type: Optional[Callable]
-        on_long_press=None,  # type: Optional[Callable]
-        on_scroll=None,  # type: Optional[Callable]
-    ):
-        # type: (...) -> MultiEncoder
-        encoder = MultiEncoder(group=self, channel=self.channel, identifier=id, name=name)
-        [
+    def add_encoder(self, id, name, on_press=None, on_long_press=None, on_scroll=None):
+        # type: (int, str, Optional[Callable], Optional[Callable], Optional[Callable]) -> MultiEncoder
+        encoder = MultiEncoder(group=self, identifier=id, name=name)
+        for action in EncoderAction.make_actions(on_press=on_press, on_long_press=on_long_press, on_scroll=on_scroll):
             encoder.add_action(action)
-            for action in EncoderAction.make_actions(
-                on_press=on_press, on_long_press=on_long_press, on_scroll=on_scroll
-            )
-        ]
         return self._add_multi_encoder(encoder)
 
-    def add_modifier(self, id, modifier_type, *a, **k):
-        # type: (int, EncoderModifierEnum, Any, Any) -> MultiEncoder
-        encoder = MultiEncoderModifier(
-            group=self,
-            channel=self.channel,
-            identifier=id,
-            modifier_type=modifier_type,
-            name=modifier_type.name,
-            *a,
-            **k
-        )
+    def add_modifier(self, id, modifier_type):
+        # type: (int, EncoderModifierEnum) -> MultiEncoder
+        encoder = MultiEncoderModifier(group=self, identifier=id, modifier_type=modifier_type)
         return self._add_multi_encoder(encoder)
-
-    @property
-    def current_action(self):
-        # type: () -> Optional[EncoderAction]
-        return self._current_action
-
-    @current_action.setter
-    def current_action(self, current_action):
-        # type: (EncoderAction) -> None
-        self._current_action = current_action
-        if self.record_actions_as_global:
-            self.parent.current_action = current_action

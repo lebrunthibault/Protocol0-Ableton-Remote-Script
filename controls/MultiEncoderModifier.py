@@ -7,13 +7,13 @@ from a_protocol_0.utils.decorators import p0_subject_slot
 
 class MultiEncoderModifier(MultiEncoder):
     """
-    This represent an encoder button. Pressing it will activate the configured modifier globally.
-    For now we use only single modifiers.
+    This represent an encoder button. Pressing it will activate the configured modifier for the active group.
+    Only one modifier can be pressed at a time.
     """
 
     def __init__(self, modifier_type, *a, **k):
         # type: (EncoderModifierEnum, Any, Any) -> None
-        super(MultiEncoderModifier, self).__init__(*a, **k)
+        super(MultiEncoderModifier, self).__init__(name=modifier_type.name, *a, **k)
         self.modifier_type = modifier_type
 
     @p0_subject_slot("value")

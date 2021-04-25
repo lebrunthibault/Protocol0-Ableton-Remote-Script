@@ -6,6 +6,7 @@ from typing import List, Any, Optional
 
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.devices.presets.InstrumentPreset import InstrumentPreset
+from a_protocol_0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.lom.Note import Note
@@ -20,7 +21,7 @@ class InstrumentSimpler(AbstractInstrument):
     TRACK_COLOR = Colors.SIMPLER
     PRESET_EXTENSION = ".wav"
     PRESETS_PATH = str(os.getenv("SAMPLE_PATH"))
-    SHOULD_DISPLAY_SELECTED_PRESET_NAME = False
+    PRESET_DISPLAY_OPTION = PresetDisplayOptionEnum.NONE
 
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None

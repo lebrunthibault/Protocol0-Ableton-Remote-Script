@@ -31,12 +31,8 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # TRACKS
         self._track = track._track  # type: Live.Track.Track
         self.base_track = track  # type: SimpleTrack
-        self.group_track = None  # type: Optional[SimpleTrack]
-        if self._track.group_track:
-            self.group_track = self.parent.songManager._get_simple_track(self._track.group_track)
-        # set in SongManager at track processing time
+        self.group_track = None  # type: Optional[AbstractTrack]
         self.abstract_group_track = None  # type: Optional[AbstractGroupTrack]
-        self.abstract_track = self  # type: AbstractTrack
         self.sub_tracks = []  # type: List[AbstractTrack]
 
         # MISC
@@ -69,6 +65,26 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         return self.song.simple_tracks.index(self.base_track)
 
     @property
+    def abstract_track(self):
+        # type: () -> AbstractTrack
+        """
+        For lone tracks, will return self
+        For group_tracks or sub_tracks of AbstractGroupTracks (except SimpleGroupTrack)
+        will return the AbstractGroupTrack
+        """
+        return self.abstract_group_track if self.abstract_group_track else self  # type: ignore
+
+    @property
+    def active_tracks(self):
+        # type: () -> List[AbstractTrack]
+        raise NotImplementedError
+
+    @property
+    def instrument(self):
+        # type: () -> Optional[AbstractInstrument]
+        return None
+
+    @property
     def name(self):
         # type: () -> str
         return self._track.name if self._track else ""
@@ -83,16 +99,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def base_color(self):
         # type: () -> int
         return self.abstract_track.instrument.TRACK_COLOR if self.abstract_track.instrument else self._track.color_index
-
-    @property
-    def instrument(self):
-        # type: () -> Optional[AbstractInstrument]
-        return None
-
-    @property
-    def active_tracks(self):
-        # type: () -> List[AbstractTrack]
-        raise NotImplementedError
 
     @property
     def clips(self):
@@ -120,6 +126,8 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
 
         if self.abstract_group_track:
             return self.abstract_group_track.category
+        elif self.group_track:
+            return self.group_track.category
 
         return TrackCategoryEnum.OTHER
 

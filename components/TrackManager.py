@@ -76,31 +76,32 @@ class TrackManager(AbstractControlSurfaceComponent):
 
         return seq.done()
 
-    def instantiate_simple_track(self, track, index):
-        # type: (Live.Track.Track, int) -> SimpleTrack
+    def instantiate_simple_track(self, track):
+        # type: (Live.Track.Track) -> SimpleTrack
         # checking first on existing tracks
         if track in self.parent.songManager.live_track_to_simple_track:
             simple_track = self.parent.songManager.live_track_to_simple_track[track]
             simple_track.map_clip_slots()
             return simple_track
         if track.has_midi_input:
-            return SimpleMidiTrack(track=track, index=index)
+            return SimpleMidiTrack(track=track)
         elif track.has_audio_input:
-            return SimpleAudioTrack(track=track, index=index)
+            return SimpleAudioTrack(track=track)
 
         assert False, "unknown track type %s" % track
 
-    def instantiate_abstract_group_track(self, group_track):
+    def instantiate_abstract_group_track(self, base_group_track):
         # type: (SimpleTrack) -> AbstractGroupTrack
-        if not group_track.is_foldable:
-            raise Protocol0Error("You passed a non group_track to instantiate_abstract_group_track : %s" % group_track)
+        if not base_group_track.is_foldable:
+            raise Protocol0Error(
+                "You passed a non group_track to instantiate_abstract_group_track : %s" % base_group_track
+            )
 
-        previous_abstract_group_track = group_track.abstract_group_track
+        previous_abstract_group_track = base_group_track.abstract_group_track
 
-        # calling factories by most specific first
-        abstract_group_track = self.make_external_synth_track(group_track=group_track)
+        abstract_group_track = self.make_external_synth_track(base_group_track=base_group_track)
         if not abstract_group_track:
-            abstract_group_track = SimpleGroupTrack(group_track=group_track)
+            abstract_group_track = SimpleGroupTrack(base_group_track=base_group_track)
 
         # this should be here because as abstract_group_track creation is conditional on sub_track state
         # we first check if the track could be created, then if it's the same type and return it if we have a match
@@ -109,22 +110,21 @@ class TrackManager(AbstractControlSurfaceComponent):
             return previous_abstract_group_track
         return abstract_group_track
 
-    def make_external_synth_track(self, group_track):
+    def make_external_synth_track(self, base_group_track):
         # type: (SimpleTrack) -> Optional[ExternalSynthTrack]
         """ discarding automated tracks in creation / suppression """
-        if len(group_track.sub_tracks) != 2:
+        if len(base_group_track.sub_tracks) != 2:
             return None
 
-        if not isinstance(group_track.sub_tracks[0], SimpleMidiTrack) or not isinstance(
-            group_track.sub_tracks[1], SimpleAudioTrack
+        if not isinstance(base_group_track.sub_tracks[0], SimpleMidiTrack) or not isinstance(
+            base_group_track.sub_tracks[1], SimpleAudioTrack
         ):
             return None
 
         is_external_synth_track = False
-        if any(sub_track.instrument and sub_track.instrument.IS_EXTERNAL_SYNTH for sub_track in group_track.sub_tracks):
+        if any(
+            sub_track.instrument and sub_track.instrument.IS_EXTERNAL_SYNTH for sub_track in base_group_track.sub_tracks
+        ):
             is_external_synth_track = True
-        # minitaur is a special case as it doesn't have a vst
-        # elif group_track.track_name.base_name.lower() == InstrumentMinitaur.NAME:
-        #     is_external_synth_track = True
 
-        return ExternalSynthTrack(group_track=group_track) if is_external_synth_track else None
+        return ExternalSynthTrack(base_group_track=base_group_track) if is_external_synth_track else None
