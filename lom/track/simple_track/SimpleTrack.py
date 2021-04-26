@@ -106,7 +106,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # Refreshing is only really useful from simpler devices that change when a new sample is loaded
         # We detect instruments only on SimpleMidiTrack and this raises when the midi track has no instrument
         if self.is_midi:
-            self.instrument = self.parent.deviceManager.make_instrument_from_simple_track(track=self)
+            self.instrument = self.parent.deviceManager.make_instrument_from_midi_track(track=self)
 
         # notify instrument change on both the device track and the abstract_group_track
         # noinspection PyUnresolvedReferences

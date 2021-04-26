@@ -20,8 +20,6 @@ class Device(AbstractObject):
         self.parameters = []  # type: (List[DeviceParameter])
         self._parameters_listener.subject = self._device
         self._parameters_listener()
-        self.is_simpler = isinstance(device, Live.SimplerDevice.SimplerDevice)
-        self.is_plugin = isinstance(device, Live.PluginDevice.PluginDevice)
         self.can_have_drum_pads = self._device.can_have_drum_pads
         self.can_have_chains = self._device.can_have_chains
         self.device_type = DeviceType.ABLETON_DEVICE

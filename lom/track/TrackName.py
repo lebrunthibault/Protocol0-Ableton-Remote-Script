@@ -46,7 +46,9 @@ class TrackName(AbstractObject):
     @subject_slot_group("name")
     def _name_listener(self, _):
         # type: (Live.Track.Track) -> None
-        match = re.match("^(?P<base_name>[^()]*)[()]*(\((?P<selected_preset_index>\d+)\))?$", self.track.name)
+        match = re.match(
+            "^(\d+\s*)?(#\s*)?(?P<base_name>[^()]*)[()]*(\((?P<selected_preset_index>\d+)\))?$", self.track.name
+        )
         # _ is a reserved character for track names
         self.base_name = match.group("base_name").strip().replace("_", " ") if match else ""
         if Config.FIX_OUTDATED_SETS:

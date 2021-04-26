@@ -61,9 +61,9 @@ class ActionGroupSet(AbstractActionGroup):
     def check_set(self):
         # type: () -> None
         for simple_track in self.song.simple_tracks:
-            if simple_track.is_audio:
-                assert simple_track.is_armable, "Check the input routing of %s" % simple_track
+            if simple_track.is_audio and not simple_track.is_armable:
+                self.parent.log_error("Check the input routing of %s" % simple_track)
 
         self.set_clip_names()
         self.set_track_appearance()
-        self.parent.show_message("Set OK !")
+        self.parent.show_message("Set checked !")

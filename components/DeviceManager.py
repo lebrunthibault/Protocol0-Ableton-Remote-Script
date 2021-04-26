@@ -1,10 +1,12 @@
 from functools import partial
 
 import Live
-from typing import TYPE_CHECKING, Optional, Tuple, Dict
+from typing import TYPE_CHECKING, Optional, Tuple, Dict, Any
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
+from a_protocol_0.devices.InstrumentDrumRack import InstrumentDrumRack
+from a_protocol_0.devices.InstrumentSimpler import InstrumentSimpler
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.device.RackDevice import RackDevice
@@ -14,7 +16,6 @@ from a_protocol_0.utils.utils import find_if
 
 if TYPE_CHECKING:
     from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
-    from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 
 
 class DeviceManager(AbstractControlSurfaceComponent):
@@ -24,46 +25,42 @@ class DeviceManager(AbstractControlSurfaceComponent):
     COLLAPSED_RACK_DEVICE_PIXEL_WIDTH = 28
     WIDTH_PIXEL_OFFSET = 4
 
-    def is_track_instrument(self, track, device):
-        # type: (AbstractTrack, Device) -> bool
-        # checks for simpler as device object is changing
-        return (track.instrument and device == track.instrument.device) or device.is_simpler
+    def get_device_class(self, device):
+        # type: (Live.Device.Device) -> Any
+        if isinstance(device, Live.PluginDevice.PluginDevice):
+            if device.name.lower() in AbstractInstrument.INSTRUMENT_NAME_MAPPINGS:
+                class_name = AbstractInstrument.INSTRUMENT_NAME_MAPPINGS[device.name.lower()]
+                try:
+                    mod = __import__("a_protocol_0.devices." + class_name, fromlist=[class_name])
+                except ImportError:
+                    raise Protocol0Error("Import Error on instrument %s" % class_name)
 
-    def make_instrument_from_simple_track(self, track):
-        # type: (SimpleMidiTrack) -> AbstractInstrument
+                return getattr(mod, class_name)
+        elif isinstance(device, Live.SimplerDevice.SimplerDevice):
+            return InstrumentSimpler
+        elif device.can_have_drum_pads:
+            return InstrumentDrumRack
+
+        return None
+
+    def make_instrument_from_midi_track(self, track):
+        # type: (SimpleMidiTrack) -> Optional[AbstractInstrument]
         """
         If the instrument didn't change we keep the same instrument and don't instantiate a new one
         to keep instrument state
         """
-        from a_protocol_0.devices.InstrumentSimpler import InstrumentSimpler
 
-        simpler_device = find_if(lambda d: d.is_simpler, track.all_devices)
-        if simpler_device:
-            # the underlying simpler device changes when a new sample is loaded
-            if track.instrument and track.instrument.device == simpler_device:
-                return track.instrument
-            else:
-                return InstrumentSimpler(track=track, device=simpler_device)
-
-        instrument_device = find_if(
-            lambda d: d.is_plugin and d.name.lower() in AbstractInstrument.INSTRUMENT_NAME_MAPPINGS,
-            track.all_devices,
-        )  # type: Optional[Device]
+        instrument_device = find_if(lambda d: self.get_device_class(d), track.all_devices)
         if not instrument_device:
-            raise Protocol0Error("a midi track should always have an instrument : failed on %s" % track)
+            self.parent.log_dev("Couldn't find instrument for midi track %s" % track)
+            return None
 
-        class_name = AbstractInstrument.INSTRUMENT_NAME_MAPPINGS[instrument_device.name.lower()]
+        instrument_class = self.get_device_class(instrument_device)
 
-        try:
-            mod = __import__("a_protocol_0.devices." + class_name, fromlist=[class_name])
-        except ImportError:
-            raise Protocol0Error("Import Error on instrument %s" % class_name)
-
-        class_ = getattr(mod, class_name)
-        if isinstance(track.instrument, class_):
+        if isinstance(track.instrument, instrument_class):
             return track.instrument  # maintaining state
         else:
-            return class_(track=track, device=instrument_device)
+            return instrument_class(track=track, device=instrument_device)
 
     def update_rack(self, rack_device):
         # type: (Live.RackDevice.RackDevice) -> None
@@ -81,19 +78,6 @@ class DeviceManager(AbstractControlSurfaceComponent):
             param = find_if(lambda p: p.name.lower() == name.lower(), device.parameters)
             if param and param.is_enabled:
                 param.value = value
-
-    def _scroll_track_selected_device_presets(self, track, go_next):
-        # type: (SimpleTrack, bool) -> None
-        """ deprecated for now """
-        device = self._get_device_to_scroll(track)
-        if device is None:
-            return
-        if self.is_track_instrument(track, device):
-            track.instrument.scroll_presets_or_samples(go_next)
-        elif not device.is_plugin:
-            self.parent.browserManager.swap(">" if go_next else "<")
-        elif device.is_plugin:
-            self.parent.log_info("is plugin")
 
     def _get_device_to_scroll(self, track):
         # type: (SimpleTrack) -> Optional[Device]

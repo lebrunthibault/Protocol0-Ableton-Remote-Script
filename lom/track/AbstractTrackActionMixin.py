@@ -105,7 +105,7 @@ class AbstractTrackActionMixin(object):
 
     def show_hide_instrument(self):
         # type: (AbstractTrack) -> None
-        if not self.instrument or not self.instrument.can_be_shown:
+        if not self.instrument or not self.instrument.CAN_BE_SHOWN:
             return None
         self.parent.clyphxNavigationManager.show_track_view()
         self.is_folded = False

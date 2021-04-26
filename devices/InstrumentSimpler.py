@@ -7,7 +7,6 @@ from typing import List, Any, Optional
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.devices.presets.InstrumentPreset import InstrumentPreset
 from a_protocol_0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
-from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.MidiClip import MidiClip
@@ -22,20 +21,23 @@ class InstrumentSimpler(AbstractInstrument):
     PRESET_EXTENSION = ".wav"
     PRESETS_PATH = str(os.getenv("SAMPLE_PATH"))
     PRESET_DISPLAY_OPTION = PresetDisplayOptionEnum.NONE
+    CAN_BE_SHOWN = False
 
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(InstrumentSimpler, self).__init__(*a, **k)
-        self.can_be_shown = False
         self.activated = True
 
     @property
     def selected_category(self):
         # type: () -> str
         """ the name of the track is the name of a sample sub_directory """
-        selected_category = find_if(lambda f: self.track.base_name.lower() in f.lower(), listdir(self.PRESETS_PATH))
+        selected_category = find_if(
+            lambda f: self.track.base_name.split(" ")[0].strip().lower() in f.lower(), listdir(self.PRESETS_PATH)
+        )
         if selected_category is None:
-            raise Protocol0Error("Couldn't find sample selected category for %s" % self.track)
+            self.parent.log_error("Couldn't find sample selected category for %s" % self.track)
+            selected_category = listdir(self.PRESETS_PATH)[0]
 
         return str(selected_category)
 

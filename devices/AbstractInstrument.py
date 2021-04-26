@@ -27,6 +27,7 @@ class AbstractInstrument(AbstractObject):
 
     NAME = "AbstractInstrument"
     TRACK_COLOR = Colors.DISABLED
+    CAN_BE_SHOWN = True
     NUMBER_OF_PRESETS = 128
     PRESETS_PATH = ""
     PRESET_EXTENSION = ""
@@ -42,7 +43,6 @@ class AbstractInstrument(AbstractObject):
         super(AbstractInstrument, self).__init__(*a, **k)
         self.track = track  # this could be a group track
         self.device = device
-        self.can_be_shown = True
         self.activated = False
         self.name = device.name  # type: str
         self._preset_list = InstrumentPresetList(self)  # type: InstrumentPresetList
@@ -83,7 +83,7 @@ class AbstractInstrument(AbstractObject):
     @property
     def should_be_activated(self):
         # type: () -> bool
-        if not self.can_be_shown:
+        if not self.CAN_BE_SHOWN:
             return False
         return not self.activated or (self.needs_exclusive_activation)
 
