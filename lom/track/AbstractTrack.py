@@ -137,11 +137,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         return self.base_track.track_name.base_name
 
     @property
-    def selected_preset_index(self):
-        # type: () -> int
-        return self.base_track.track_name.selected_preset_index
-
-    @property
     def is_playing(self):
         # type: () -> bool
         return any(track.is_playing for track in [self] + self.sub_tracks)

@@ -30,39 +30,27 @@ class DeviceManager(AbstractControlSurfaceComponent):
         return (track.instrument and device == track.instrument.device) or device.is_simpler
 
     def make_instrument_from_simple_track(self, track):
-        # type: (SimpleTrack) -> Optional[AbstractInstrument]
+        # type: (SimpleMidiTrack) -> AbstractInstrument
         """
         If the instrument didn't change we keep the same instrument and don't instantiate a new one
         to keep instrument state
         """
         from a_protocol_0.devices.InstrumentSimpler import InstrumentSimpler
-        from a_protocol_0.devices.InstrumentMinitaur import InstrumentMinitaur
-
-        if not len(track.all_devices):
-            if isinstance(track, SimpleMidiTrack):
-                raise Protocol0Error("a midi track should always have an instrument : failed on %s" % repr(track))
-            return None
 
         simpler_device = find_if(lambda d: d.is_simpler, track.all_devices)
         if simpler_device:
-            # simpler devices can change, other
+            # the underlying simpler device changes when a new sample is loaded
             if track.instrument and track.instrument.device == simpler_device:
                 return track.instrument
-            return InstrumentSimpler(track=track, device=simpler_device)
+            else:
+                return InstrumentSimpler(track=track, device=simpler_device)
 
         instrument_device = find_if(
             lambda d: d.is_plugin and d.name.lower() in AbstractInstrument.INSTRUMENT_NAME_MAPPINGS,
             track.all_devices,
         )  # type: Optional[Device]
         if not instrument_device:
-            if InstrumentMinitaur.NAME.lower() in track.name.lower():
-                return (
-                    track.instrument
-                    if isinstance(track.instrument, InstrumentMinitaur)
-                    else InstrumentMinitaur(track=track, device=None)
-                )
-            else:
-                return None
+            raise Protocol0Error("a midi track should always have an instrument : failed on %s" % track)
 
         class_name = AbstractInstrument.INSTRUMENT_NAME_MAPPINGS[instrument_device.name.lower()]
 
@@ -72,9 +60,10 @@ class DeviceManager(AbstractControlSurfaceComponent):
             raise Protocol0Error("Import Error on instrument %s" % class_name)
 
         class_ = getattr(mod, class_name)
-        return (
-            track.instrument if isinstance(track.instrument, class_) else class_(track=track, device=instrument_device)
-        )
+        if isinstance(track.instrument, class_):
+            return track.instrument  # maintaining state
+        else:
+            return class_(track=track, device=instrument_device)
 
     def update_rack(self, rack_device):
         # type: (Live.RackDevice.RackDevice) -> None
@@ -128,20 +117,13 @@ class DeviceManager(AbstractControlSurfaceComponent):
         # type: (int) -> int
         return self.WIDTH_PIXEL_OFFSET + device_position * self.COLLAPSED_DEVICE_PIXEL_WIDTH
 
-    def check_plugin_window_showable(self, device):
+    def make_plugin_window_showable(self, device):
         # type: (Device) -> Optional[Sequence]
-        if self.parent.keyboardShortcutManager.is_plugin_window_visible(device.name):
-            return None
-
-        self.parent.keyboardShortcutManager.show_plugins()
-        if self.parent.keyboardShortcutManager.is_plugin_window_visible(device.name):
-            return None
-
-        return self._make_device_showable(device)
-
-    def _make_device_showable(self, device):
-        # type: (Device) -> Sequence
         """ handles only one level of grouping in racks. Should be enough for now """
+        if self.parent.keyboardShortcutManager.is_plugin_window_visible(device.name):
+            return None
+        self.parent.clyphxNavigationManager.show_track_view()
+
         seq = Sequence()
         parent_rack = self._find_parent_rack(device)
 

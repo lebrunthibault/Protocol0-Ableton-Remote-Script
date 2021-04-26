@@ -13,6 +13,7 @@ from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrackActionMixin import SimpleTrackActionMixin
 from a_protocol_0.utils.decorators import defer, p0_subject_slot
+from a_protocol_0.utils.utils import find_if
 
 
 class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
@@ -29,8 +30,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
 
         # Note : SimpleTracks represent the first layer of abstraction and know nothing about
         # AbstractGroupTracks except with self.abstract_group_track which links both layers
-        self.group_track = self.group_track  # type: Optional[SimpleTrack]
-        self.sub_tracks = self.sub_tracks  # type: List[SimpleTrack]
+        self.sub_tracks = []  # type: List[SimpleTrack]
 
         self.linked_track = None  # type: Optional[SimpleTrack]
         self.devices = []  # type: List[Device]
@@ -40,10 +40,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self.last_clip_played = None  # type: Optional[Clip]
 
         if self.is_active:
-            # register to the group track
-            if self._track.group_track:
-                self.group_track = self.song.live_track_to_simple_track[self._track.group_track]
-                self.group_track.sub_tracks.append(self)
             self._playing_slot_index_listener.subject = self._track
             self._fired_slot_index_listener.subject = self._track
 
@@ -51,6 +47,15 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             self._devices_listener()
 
             self.map_clip_slots()
+
+    def link_group_track(self):
+        # type: () -> None
+        # register to the group track
+        if self._track.group_track:
+            self.group_track = self.song.live_track_to_simple_track[
+                self._track.group_track
+            ]  # type: Optional[SimpleTrack]
+            self.group_track.sub_tracks.append(self)
 
     def map_clip_slots(self):
         # type: () -> Any
@@ -98,10 +103,14 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self.devices = [Device.make(device, self.base_track) for device in self._track.devices]
         self.all_devices = self._find_all_devices(self.base_track)
 
-        # here we need to refresh the instrument so that it doesn't point to an outdated device
-        self.instrument = self.parent.deviceManager.make_instrument_from_simple_track(track=self)
+        # Refreshing is only really useful from simpler devices that change when a new sample is loaded
+        # We detect instruments only on SimpleMidiTrack and this raises when the midi track has no instrument
+        if self.is_midi:
+            self.instrument = self.parent.deviceManager.make_instrument_from_simple_track(track=self)
+
+        # notify instrument change on both the device track and the abstract_group_track
         # noinspection PyUnresolvedReferences
-        self.notify_instrument()
+        self.abstract_track.notify_instrument()
 
     @subject_slot_group("map_clip")
     def _map_clip_listener(self, clip_slot):
@@ -185,6 +194,18 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         :return:
         """
         return self.playing_clip or self.clip_slots[self.song.selected_scene.index].clip
+
+    @property
+    def selected_device(self):
+        # type: (SimpleTrack) -> Optional[Device]
+        if self._track.view.selected_device:
+            device = find_if(
+                lambda d: d._device == self._track.view.selected_device, self.base_track.all_devices
+            )  # type: Optional[Device]
+            assert device
+            return device
+        else:
+            return None
 
     @property
     def next_empty_clip_slot_index(self):

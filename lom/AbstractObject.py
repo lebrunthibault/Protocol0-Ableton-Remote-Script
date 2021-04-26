@@ -30,10 +30,6 @@ class AbstractObject(SlotManager, Subject):
 
         return repr
 
-    def __hash__(self):
-        # type: () -> int
-        return hash(repr(self))
-
     def __ne__(self, obj):
         # type: (object) -> bool
         return not obj or not self == obj

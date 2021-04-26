@@ -58,7 +58,7 @@ class ActionGroupMain(AbstractActionGroup):
         # 10: empty
 
         # SONG encoder
-        self.add_encoder(id=11, name="song").add_action(
+        self.add_encoder(id=11, name="song", filter_active_tracks=False).add_action(
             EncoderAction(func=self.song.play_stop, modifier_type=EncoderModifierEnum.PLAY_STOP)
         ).add_action(
             EncoderAction(

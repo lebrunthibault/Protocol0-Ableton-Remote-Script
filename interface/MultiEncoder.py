@@ -29,7 +29,9 @@ class MultiEncoder(AbstractObject):
         self._group = group  # type: AbstractActionGroup
         self.identifier = identifier
         self.name = name[0].upper() + name[1:].lower()
-        self._filter_active_tracks = filter_active_tracks
+        self._filter_active_tracks = (
+            group.filter_active_tracks if not group.filter_active_tracks else filter_active_tracks
+        )
         self._press_listener.subject = ButtonElement(True, MIDI_NOTE_TYPE, group.channel, identifier)
         self._scroll_listener.subject = ButtonElement(True, MIDI_CC_TYPE, group.channel, identifier)
         self._pressed_at = None  # type: Optional[float]

@@ -27,6 +27,19 @@ class SimpleTrackActionMixin(object):
         if self.can_be_armed:
             self._track.arm = is_armed
 
+    @property
+    def is_armable(self):
+        # type: (SimpleTrack) -> bool
+        """ Checks for disabled input routing """
+        if not self.can_be_armed:
+            return True
+        self.is_armed = True
+        if self.is_armed:
+            self.is_armed = False
+            return True
+        else:
+            return False
+
     def arm_track(self):
         # type: (SimpleTrack) -> Optional[Sequence]
         if self.is_foldable:
@@ -108,16 +121,6 @@ class SimpleTrackActionMixin(object):
     def has_device(self, device_name):
         # type: (SimpleTrack, str) -> bool
         return find_if(lambda d: d.name == device_name, self.base_track.all_devices) is not None
-
-    @property
-    def selected_device(self):
-        # type: (SimpleTrack) -> Optional[Device]
-        if self._track.view.selected_device:
-            device = find_if(lambda d: d._device == device, self.base_track.all_devices)
-            assert device
-            return device
-        else:
-            return None
 
     def _find_all_devices(self, track_or_chain, only_visible=False):
         # type: (SimpleTrack, Optional[Union[SimpleTrack, DeviceChain]], bool) -> List[Device]

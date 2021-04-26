@@ -213,6 +213,7 @@ class AbstractTrackActionMixin(object):
 
     def reset_track(self):
         # type: (AbstractTrack) -> None
+        self.is_folded = True
         self.solo = False
         self.unarm()
 

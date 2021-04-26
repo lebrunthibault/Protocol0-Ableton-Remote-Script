@@ -82,13 +82,14 @@ class TrackManager(AbstractControlSurfaceComponent):
         if track in self.song.live_track_to_simple_track:
             simple_track = self.song.live_track_to_simple_track[track]
             simple_track.map_clip_slots()
-            return simple_track
         if track.has_midi_input:
-            return SimpleMidiTrack(track=track)
+            simple_track = SimpleMidiTrack(track=track)
         elif track.has_audio_input:
-            return SimpleAudioTrack(track=track)
+            simple_track = SimpleAudioTrack(track=track)
 
-        assert False, "unknown track type %s" % track
+        simple_track.link_group_track()
+
+        return simple_track
 
     def instantiate_abstract_group_track(self, base_group_track):
         # type: (SimpleTrack) -> AbstractGroupTrack
@@ -107,7 +108,9 @@ class TrackManager(AbstractControlSurfaceComponent):
         # we first check if the track could be created, then if it's the same type and return it if we have a match
         if previous_abstract_group_track and type(abstract_group_track) is type(previous_abstract_group_track):
             abstract_group_track.disconnect()
-            return previous_abstract_group_track
+            abstract_group_track = previous_abstract_group_track
+
+        abstract_group_track.link_sub_tracks()
         return abstract_group_track
 
     def make_external_synth_track(self, base_group_track):
@@ -121,10 +124,9 @@ class TrackManager(AbstractControlSurfaceComponent):
         ):
             return None
 
-        is_external_synth_track = False
         if any(
             sub_track.instrument and sub_track.instrument.IS_EXTERNAL_SYNTH for sub_track in base_group_track.sub_tracks
         ):
-            is_external_synth_track = True
-
-        return ExternalSynthTrack(base_group_track=base_group_track) if is_external_synth_track else None
+            return ExternalSynthTrack(base_group_track=base_group_track)
+        else:
+            return None

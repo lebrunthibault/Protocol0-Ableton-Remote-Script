@@ -34,10 +34,14 @@ class TrackName(AbstractObject):
     @p0_subject_slot("selected_preset")
     def _selected_preset_listener(self):
         # type: () -> None
+        # abstract_group_tracks handle display
+        if self.track.abstract_group_track:
+            return
+        self.selected_preset_index = self.track.instrument.selected_preset.index
         if self.track.instrument.should_display_selected_preset_name:
-            self.update(base_name=self.track.instrument.selected_preset.name)
-        elif self.track.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.INDEX:
-            self.update(selected_preset_index=self.track.instrument.selected_preset.index)
+            self.base_name = self.track.instrument.selected_preset.name
+
+        self.update()
 
     @subject_slot_group("name")
     def _name_listener(self, _):
@@ -50,25 +54,13 @@ class TrackName(AbstractObject):
         if match and match.group("selected_preset_index"):
             self.selected_preset_index = int(match.group("selected_preset_index")) - 1
 
-    def update(self, base_name=None, playing_slot_index=None, selected_preset_index=None):
-        # type: (Optional[str], Optional[int], Optional[int]) -> Optional[Sequence]
-        self.base_name = base_name if base_name else self.base_name
-
-        selected_preset_index = (
-            selected_preset_index if selected_preset_index is not None else self.selected_preset_index
-        )
-        self.selected_preset_index = max(0, selected_preset_index)
-
-        if self.track.instrument:
-            self.parent.log_dev(self.track.instrument.PRESET_DISPLAY_OPTION)
-            self.parent.log_dev(self.track.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.INDEX)
+    def update(self, base_name=None):
+        # type: (Optional[str]) -> Optional[Sequence]
         name = self.base_name
-        if (
-            # self.track.abstract_track == self.track
-            self.track.instrument
-            and self.track.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.INDEX
-        ):
-            name += " (%s)" % (self.selected_preset_index + 1)
+
+        if self.track.instrument and self.track.abstract_group_track is None:
+            if self.track.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.INDEX:
+                name += " (%s)" % (self.selected_preset_index + 1)
 
         seq = Sequence(silent=True)
         seq.add(wait=1)

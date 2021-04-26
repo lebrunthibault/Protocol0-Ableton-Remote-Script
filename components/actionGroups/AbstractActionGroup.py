@@ -15,13 +15,14 @@ class AbstractActionGroup(AbstractControlSurfaceComponent):
     See MultiEncoder to configure an encoder
     """
 
-    def __init__(self, channel, *a, **k):
-        # type: (int, Any, Any) -> None
+    def __init__(self, channel, filter_active_tracks=False, *a, **k):
+        # type: (int, bool, Any, Any) -> None
         super(AbstractActionGroup, self).__init__(*a, **k)
         self.available_modifiers = [  # noqa
             EncoderModifier(type) for type in list(EncoderModifierEnum)
         ]  # type: List[EncoderModifier]
         self.channel = channel
+        self.filter_active_tracks = filter_active_tracks
         self.multi_encoders = []  # type: List[MultiEncoder]
 
     def _add_multi_encoder(self, multi_encoder):

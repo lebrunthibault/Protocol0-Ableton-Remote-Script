@@ -44,7 +44,6 @@ HotkeyAbleton("^!+s", "loadVst", "Serum rack", true, false, true)
 ; HotkeyAbleton("^!+s", "choosePlugins", ["Serum rack", "SynthMaster2 rack"])
 HotkeyAbleton("^F1", "ShowPlugins")
 HotkeyAbleton("^F2", "hidePlugins")
-HotkeyAbleton("^F3", "ShowAndActivateRev2Editor")
 HotkeyAbleton("^F4", "groupTrack")
 HotkeyAbleton("^F5", "up")
 ; recordLoadVstArgs("Serum rack", true, false, true)
@@ -127,14 +126,6 @@ hidePlugins()
     if WinActive("ahk_class AbletonVstPlugClass") {
         Send ^!p
     }
-}
-
-ShowAndActivateRev2Editor()
-{
-    showPlugins()
-    Sleep 50
-    MouseClick, left, 921, 550 ; click on activate in window
-    MouseClick, left, 1416, 20 ; click on nothing
 }
 
 reloadAbleton()

@@ -41,18 +41,15 @@ class AbstractInstrument(AbstractObject):
         # type: (SimpleTrack, Optional[Device], Any, Any) -> None
         super(AbstractInstrument, self).__init__(*a, **k)
         self.track = track  # this could be a group track
-        self.device_track = track  # this will always be the track of the device
         self.device = device
-        if device:
-            self.can_be_shown = True
-            self.activated = False
-            self.name = device.name
-        else:
-            self.can_be_shown = False
-            self.activated = True
-            self.name = self.__class__.__name__
-
+        self.can_be_shown = True
+        self.activated = False
+        self.name = device.name  # type: str
         self._preset_list = InstrumentPresetList(self)  # type: InstrumentPresetList
+
+    def sync_presets(self):
+        # type: () -> None
+        self._preset_list.sync_presets()
 
     @property
     def selected_preset(self):
@@ -99,7 +96,7 @@ class AbstractInstrument(AbstractObject):
 
         if not self.activated:
             seq.add(self.device.track.select)
-            seq.add(partial(self.parent.deviceManager.check_plugin_window_showable, self.device))
+            seq.add(partial(self.parent.deviceManager.make_plugin_window_showable, self.device))
             seq.add(lambda: setattr(self, "activated", True), name="mark instrument as activated")
 
         if self.needs_exclusive_activation:

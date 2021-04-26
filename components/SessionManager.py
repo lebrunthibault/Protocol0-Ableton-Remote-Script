@@ -14,13 +14,11 @@ class SessionManager(AbstractControlSurfaceComponent):
 
     def _setup_session_control(self):
         # type: () -> None
-        self.parent.log_dev("execution")
-        self.parent.log_dev(self.song.selected_track)
         if self.session:
             self.session.set_show_highlight(False)
             self.session.disconnect()
 
-        if self.song.selected_track not in list(self.song.simple_tracks):
+        if not self.song.selected_track.is_active:
             return
 
         def get_all_sub_tracks_inclusive(track):
@@ -30,11 +28,9 @@ class SessionManager(AbstractControlSurfaceComponent):
                 sub_tracks.extend(get_all_sub_tracks_inclusive(sub_track))
             return sub_tracks
 
-        total_tracks = get_all_sub_tracks_inclusive(self.song.selected_track)
+        total_tracks = get_all_sub_tracks_inclusive(self.song.current_track.base_track)
         num_tracks = len([track for track in total_tracks if track.is_visible])
-        self.parent.log_dev("num_tracks: %s" % num_tracks)
-        self.parent.log_dev("self.session_track_offset: %s" % self.session_track_offset)
-        self.parent.log_dev("len(self.song.scenes): %s" % len(self.song.scenes))
+
         with self.parent.component_guard():
             self.session = SessionComponent(num_tracks=num_tracks, num_scenes=len(self.song.scenes))
         self.session.set_offsets(track_offset=self.session_track_offset, scene_offset=0)
@@ -44,6 +40,6 @@ class SessionManager(AbstractControlSurfaceComponent):
     def session_track_offset(self):
         # type: () -> int
         try:
-            return [t for t in self.song.simple_tracks if t.is_visible].index(self.song.selected_track)
+            return [t for t in self.song.simple_tracks if t.is_visible].index(self.song.current_track.base_track)
         except ValueError:
             return self.session.track_offset() if self.session else 0

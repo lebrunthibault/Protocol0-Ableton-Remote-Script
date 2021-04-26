@@ -1,6 +1,6 @@
 import itertools
 
-from typing import Optional, Any, Literal
+from typing import Optional, Any, Literal, cast
 
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
@@ -40,10 +40,15 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
 
         self.audio_track.set_output_routing_to(self.base_track)
 
+        # the instrument handling relies on the group track
+        # noinspection PyUnresolvedReferences
+        self.notify_instrument()
+        self.instrument.sync_presets()
+
     @property
     def instrument(self):
-        # type: () -> Optional[AbstractInstrument]
-        return self.midi_track.instrument
+        # type: () -> AbstractInstrument
+        return cast(AbstractInstrument, self.midi_track.instrument)
 
     @property
     def can_be_armed(self):

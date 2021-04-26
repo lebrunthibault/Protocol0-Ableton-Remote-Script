@@ -93,7 +93,11 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
 
     def show_and_activate_rev2_editor(self):
         # type: () -> None
-        self.send_keys("^{F3}")
+        """ the activation button can be at 2 positions depending on idk what"""
+        self.show_plugins()
+        self.send_click(921, 550)  # click on activate (high position)
+        self.send_click(856, 592)  # click on activate (high position)
+        self.send_click(1416, 20)  # click on nothing (to not trigger and additional click)
 
     def group_track(self):
         # type: () -> None

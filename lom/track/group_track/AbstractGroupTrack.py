@@ -12,18 +12,36 @@ class AbstractGroupTrack(AbstractTrack):
         # type: (SimpleTrack, Any, Any) -> None
         super(AbstractGroupTrack, self).__init__(track=base_group_track, *a, **k)
         base_group_track.abstract_group_track = self
+        self.sub_tracks = self.base_track.sub_tracks  # type: List[AbstractTrack]
         # for now: List[SimpleTrack] but AbstractGroupTracks will register themselves as seen just below
-        self.sub_tracks = base_group_track.sub_tracks  # type: List[AbstractTrack]
 
-        if base_group_track.group_track:
-            self.group_track = base_group_track.group_track.abstract_group_track
+    def link_sub_tracks(self):
+        # type: () -> None
+        # leave room for AbstractGroupTracks to register
+        self.sub_tracks[:] = [sub_track for sub_track in self.sub_tracks if not sub_track.is_foldable]
+
+        if self.base_track.group_track:
+            self.group_track = self.base_track.group_track.abstract_group_track
             # creating the second layer relationship: abstract_group_tracks have List[AbstractTrack] as sub_tracks
-            self.group_track.sub_tracks[self.group_track.sub_tracks.index(self.base_track)] = self
+            if self.group_track:
+                self.group_track.sub_tracks.append(self)
 
     @property
     def active_tracks(self):
         # type: () -> List[AbstractTrack]
         return self.sub_tracks
+
+    def is_parent(self, abstract_track):
+        # type: (AbstractTrack) -> bool
+        """ checks if the given track is not itself or a possibly nested child """
+        return (
+            abstract_track == self
+            or abstract_track in self.sub_tracks
+            or any(
+                isinstance(sub_track, AbstractGroupTrack) and sub_track.is_parent(abstract_track)
+                for sub_track in self.sub_tracks
+            )
+        )
 
     @property
     def clips(self):

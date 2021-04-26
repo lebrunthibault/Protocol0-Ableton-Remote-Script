@@ -13,6 +13,8 @@ class LogManager(AbstractObject):
         self.parent.log_info()
         self.parent.log_info("abstract_tracks : %s" % list(self.song.abstract_tracks))
         self.parent.log_info()
+        self.parent.log_info("selected_abstract_tracks : %s" % list(self.song.selected_abstract_tracks))
+        self.parent.log_info()
         self.parent.log_info()
         self.parent.log_notice("********* CURRENT_TRACK *************")
         self.parent.log_info("current_track: %s" % self.song.current_track)

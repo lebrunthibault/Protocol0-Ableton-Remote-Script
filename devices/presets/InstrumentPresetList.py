@@ -64,7 +64,7 @@ class InstrumentPresetList(AbstractObject):
         return (
             self._find_by_name(self.instrument.name)
             or self._find_by_name(self.instrument.track.abstract_track.name)
-            or self.presets[self.instrument.track.abstract_track.selected_preset_index]
+            or self.presets[self.instrument.track.abstract_track.track_name.selected_preset_index]
         )
 
     def _find_by_name(self, name):

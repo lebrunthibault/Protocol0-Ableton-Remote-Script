@@ -38,6 +38,8 @@ class SimpleGroupTrack(AbstractGroupTrack):
     def arm_track(self):
         # type: () -> Optional[Sequence]
         self.is_folded = not self.is_folded
+        if not self.is_folded:
+            self.sub_tracks[0].select()
         return None
 
     def change_appearance_to_sub_tracks_instrument(self):
