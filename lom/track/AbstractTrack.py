@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.devices.InstrumentSimpler import InstrumentSimpler
+from a_protocol_0.enums.ColorEnum import ColorEnum
 from a_protocol_0.enums.Push2MainModeEnum import Push2MainModeEnum
 from a_protocol_0.enums.Push2MatrixModeEnum import Push2MatrixModeEnum
 from a_protocol_0.enums.TrackCategoryEnum import TrackCategoryEnum
@@ -15,7 +16,7 @@ from a_protocol_0.lom.device.DeviceType import DeviceType
 from a_protocol_0.lom.track.AbstractTrackActionMixin import AbstractTrackActionMixin
 from a_protocol_0.lom.track.TrackName import TrackName
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import defer
+from a_protocol_0.utils.decorators import defer, p0_subject_slot
 
 if TYPE_CHECKING:
     from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -24,6 +25,9 @@ if TYPE_CHECKING:
 
 class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     __subject_events__ = ("instrument", "fired_slot_index")
+
+    DEFAULT_NAME = "default"
+    DEFAULT_COLOR = ColorEnum.DISABLED  # when the color cannot be matched
 
     def __init__(self, track, *a, **k):
         # type: (SimpleTrack, Any, Any) -> None
@@ -44,12 +48,16 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self.push2_selected_matrix_mode = Push2MatrixModeEnum.SESSION
         self.push2_selected_instrument_mode = None  # type: Optional[str]
 
+        self._instrument_listener.subject = self
+
     def _added_track_init(self, arm=True):
         # type: (bool) -> Optional[Sequence]
         """ this should be be called once, when the Live track is created, overridden by some child classes """
         if arm:
             self.song.current_track.arm()
         self.song.current_track.stop()
+
+        self.refresh_appearance()
 
         if not self.base_track.has_device("Mix Rack"):
             self.load_any_device(DeviceType.RACK_DEVICE, "Mix Rack")
@@ -58,6 +66,13 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         [seq.add(clip.delete) for clip in self.clips]
 
         return seq.done()
+
+    @p0_subject_slot("instrument")
+    @defer
+    def _instrument_listener(self):
+        # type: () -> None
+        return
+        self.refresh_appearance()
 
     @property
     def index(self):
@@ -96,9 +111,20 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
             self._track.name = str(name).strip()
 
     @property
-    def base_color(self):
+    def default_base_name(self):
+        # type: () -> str
+        if self.instrument:
+            return self.instrument.NAME
+        else:
+            return self.DEFAULT_NAME
+
+    @property
+    def default_color(self):
         # type: () -> int
-        return self.abstract_track.instrument.TRACK_COLOR if self.abstract_track.instrument else self._track.color_index
+        if self.abstract_track.instrument:
+            return self.abstract_track.instrument.TRACK_COLOR
+        else:
+            return self.DEFAULT_COLOR
 
     @property
     def clips(self):

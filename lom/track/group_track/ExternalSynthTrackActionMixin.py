@@ -4,7 +4,7 @@ import Live
 from typing import TYPE_CHECKING, Optional
 
 from a_protocol_0.devices.InstrumentMinitaur import InstrumentMinitaur
-from a_protocol_0.lom.Colors import Colors
+from a_protocol_0.enums.ColorEnum import ColorEnum
 from a_protocol_0.lom.clip.MidiClip import MidiClip
 from a_protocol_0.sequence.Sequence import Sequence
 
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 class ExternalSynthTrackActionMixin(object):
     def arm_track(self):
         # type: (ExternalSynthTrack) -> Optional[Sequence]
-        self.color = Colors.ARM
+        self.color = ColorEnum.ARM
         self.base_track.is_folded = False
         self.midi_track.has_monitor_in = False
         self.audio_track.has_monitor_in = True

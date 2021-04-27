@@ -10,12 +10,13 @@ from a_protocol_0.sequence.Sequence import Sequence
 
 
 class SimpleGroupTrack(AbstractGroupTrack):
+    DEFAULT_NAME = "Group"
+
     def __init__(self, base_group_track, *a, **k):
         # type: (SimpleTrack, Any, Any) -> None
         super(SimpleGroupTrack, self).__init__(base_group_track=base_group_track, *a, **k)
         self._single_sub_track_routing = self._get_single_sub_track_routing()
-        # enforce this (e.g. when deleting automation tracks)
-        [sub_track.set_output_routing_to(self) for sub_track in self.sub_tracks]
+        # [sub_track.set_output_routing_to(self) for sub_track in self.sub_tracks]
 
         self.push2_selected_main_mode = Push2MainModeEnum.MIX
 
@@ -24,8 +25,8 @@ class SimpleGroupTrack(AbstractGroupTrack):
         seq = Sequence()
         self.is_folded = False
 
-        self._sync_group_output_routing()
-        self.change_appearance_to_sub_tracks_instrument()
+        # self._sync_group_output_routing()
+        self.refresh_appearance()
 
         if not self.base_track.has_device("Mix Rack"):
             seq.add(partial(self.load_any_device, DeviceType.RACK_DEVICE, "Mix Rack"))
@@ -41,17 +42,6 @@ class SimpleGroupTrack(AbstractGroupTrack):
         if not self.is_folded:
             self.sub_tracks[0].select()
         return None
-
-    def change_appearance_to_sub_tracks_instrument(self):
-        # type: () -> None
-        instrument_classes = list(
-            set([sub_track.instrument.__class__ for sub_track in self.sub_tracks if sub_track.instrument])
-        )
-
-        if len(instrument_classes) == 1:
-            instrument_class = instrument_classes[0]
-            self.track_name.update(base_name=instrument_class.NAME)
-            self.color = instrument_class.TRACK_COLOR
 
     def _get_single_sub_track_routing(self):
         # type: () -> Optional[Any]
@@ -80,3 +70,21 @@ class SimpleGroupTrack(AbstractGroupTrack):
     def record(self, *a, **k):
         # type: (Any, Any) -> None
         pass
+
+    @property
+    def default_base_name(self):
+        # type: () -> str
+        sub_tracks_base_names = [sub_track.base_name for sub_track in self.sub_tracks]
+        if len(sub_tracks_base_names) == 1 and sub_tracks_base_names[0]:
+            return sub_tracks_base_names[0]
+        else:
+            return self.DEFAULT_NAME
+
+    @property
+    def default_color(self):
+        # type: () -> int
+        sub_track_colors = [sub_track.color for sub_track in self.sub_tracks]
+        if len(sub_track_colors) == 1:
+            return sub_track_colors[0]
+        else:
+            return self.DEFAULT_COLOR

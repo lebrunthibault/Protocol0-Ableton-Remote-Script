@@ -1,8 +1,8 @@
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
-from a_protocol_0.lom.Colors import Colors
+from a_protocol_0.enums.ColorEnum import ColorEnum
 
 
 class InstrumentDrumRack(AbstractInstrument):
     NAME = "Drum Rack"
-    TRACK_COLOR = Colors.DRUM_RACK
+    TRACK_COLOR = ColorEnum.DRUM_RACK
     CAN_BE_SHOWN = False

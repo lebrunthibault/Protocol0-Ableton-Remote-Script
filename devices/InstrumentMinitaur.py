@@ -1,10 +1,10 @@
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
-from a_protocol_0.lom.Colors import Colors
+from a_protocol_0.enums.ColorEnum import ColorEnum
 
 
 class InstrumentMinitaur(AbstractInstrument):
     NAME = "Minitaur"
-    TRACK_COLOR = Colors.MINITAUR
+    TRACK_COLOR = ColorEnum.MINITAUR
     CAN_BE_SHOWN = False
     IS_EXTERNAL_SYNTH = True
     PRESETS_PATH = "C:\\Users\\thiba\\AppData\\Roaming\\Moog Music Inc\\Minitaur\\Presets Library\\User"

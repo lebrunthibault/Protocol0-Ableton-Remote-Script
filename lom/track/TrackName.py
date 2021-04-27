@@ -24,7 +24,7 @@ class TrackName(AbstractObject):
         self.selected_preset_index = 0
         self._instrument_listener.subject = self.track
         self._name_listener.add_subject(self.track._track)
-        self._name_listener(self.track._track)
+        self.parent.defer(partial(self._name_listener, self.track._track))
 
     @p0_subject_slot("instrument")
     def _instrument_listener(self):
@@ -47,19 +47,27 @@ class TrackName(AbstractObject):
     def _name_listener(self, _):
         # type: (Live.Track.Track) -> None
         match = re.match(
-            "^(\d+\s*)?(#\s*)?(?P<base_name>[^()]*)[()]*(\((?P<selected_preset_index>\d+)\))?$", self.track.name
+            "^(((\d+)|#)[\s-]*)?(?P<base_name>[^()]*)[()]*(\((?P<selected_preset_index>\d+)\))?$", self.track.name
         )
         # _ is a reserved character for track names
-        self.base_name = match.group("base_name").strip().replace("_", " ") if match else ""
+        self.base_name = match.group("base_name").strip().replace("_", " ").lower() if match else ""
+
         if Config.FIX_OUTDATED_SETS:
             self.base_name = self.base_name.split("-")[0].strip()
+
         if match and match.group("selected_preset_index"):
             self.selected_preset_index = int(match.group("selected_preset_index")) - 1
 
     def update(self, base_name=None):
         # type: (Optional[str]) -> Optional[Sequence]
-        name = self.base_name
+        self.base_name = base_name or self.base_name
 
+        if self.base_name == self.track.DEFAULT_NAME.lower() or self.track.instrument:
+            self.base_name = self.track.default_base_name
+
+        name = self.base_name.capitalize()
+
+        # displaying only on group track when track is part of an AbstractGroupTrack
         if self.track.instrument and self.track.abstract_group_track is None:
             if self.track.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.INDEX:
                 name += " (%s)" % (self.selected_preset_index + 1)

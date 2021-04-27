@@ -35,7 +35,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self.linked_track = None  # type: Optional[SimpleTrack]
         self.devices = []  # type: List[Device]
         self.all_devices = []  # type: List[Device]
-        self.instrument = None  # type: Optional[AbstractInstrument]
+        self._instrument = None  # type: Optional[AbstractInstrument]
         self.clip_slots = []  # type: List[ClipSlot]
         self.last_clip_played = None  # type: Optional[Clip]
 

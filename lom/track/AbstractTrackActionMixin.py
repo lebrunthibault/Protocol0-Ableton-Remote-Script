@@ -95,7 +95,7 @@ class AbstractTrackActionMixin(object):
 
     def unarm(self):
         # type: (AbstractTrack) -> None
-        self.color = self.base_color
+        self.color = self.default_color
         self.is_armed = False
         self.unarm_track()
 
@@ -267,3 +267,8 @@ class AbstractTrackActionMixin(object):
 
         if self.input_routing_type != input_routing_type:
             self.input_routing_type = input_routing_type
+
+    def refresh_appearance(self):
+        # type: (AbstractTrack) -> None
+        self.track_name.update()
+        self.color = self.default_color

@@ -22,6 +22,7 @@ from a_protocol_0.components.MixingManager import MixingManager
 from a_protocol_0.components.Push2Manager import Push2Manager
 from a_protocol_0.components.QuantizationManager import QuantizationManager
 from a_protocol_0.components.SessionManager import SessionManager
+from a_protocol_0.components.SetFixerManager import SetFixerManager
 from a_protocol_0.components.SongManager import SongManager
 from a_protocol_0.components.TrackManager import TrackManager
 from a_protocol_0.components.UtilsManager import UtilsManager
@@ -62,6 +63,7 @@ class Protocol0(ControlSurface):
             self.trackManager = TrackManager()
             self.automationTrackManager = AutomationTrackManager()
             self.quantizationManager = QuantizationManager()
+            self.setFixerManager = SetFixerManager()
             self.keyboardShortcutManager = KeyBoardShortcutManager()
             self.midiManager = MidiManager()
             self.browserManager = BrowserManager()

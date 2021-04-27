@@ -17,7 +17,7 @@ class SongManager(AbstractControlSurfaceComponent):
         self._tracks_listener.subject = self.song._song
         # keeping a list of instantiated tracks because we cannot access
         # song.live_track_to_simple_track when tracks are deleted
-        self.simple_tracks = []  # type: List[SimpleTrack]
+        self._simple_tracks = []  # type: List[SimpleTrack]
 
     def init_song(self):
         # type: () -> None
@@ -31,8 +31,9 @@ class SongManager(AbstractControlSurfaceComponent):
     def on_selected_track_changed(self):
         # type: () -> None
         """ not for master and return tracks """
-        # noinspection PyUnresolvedReferences
-        self.notify_selected_track()
+        if len(self.song.live_track_to_simple_track):
+            # noinspection PyUnresolvedReferences
+            self.notify_selected_track()
 
     @handle_error
     def on_scene_list_changed(self):
@@ -46,8 +47,8 @@ class SongManager(AbstractControlSurfaceComponent):
         self.parent.log_debug("SongManager : start mapping tracks")
 
         # Check if tracks were added
-        previous_simple_track_count = len(list(self.simple_tracks))
-        self.simple_tracks[:] = []
+        previous_simple_track_count = len(list(self._simple_tracks))
+        self._simple_tracks[:] = []
         has_added_tracks = previous_simple_track_count and len(self.song._song.tracks) > previous_simple_track_count
 
         # 1st pass : instantiate SimpleTracks (including return / master, that are marked as inactive)
@@ -57,11 +58,11 @@ class SongManager(AbstractControlSurfaceComponent):
         for track in song_tracks:
             simple_track = self.parent.trackManager.instantiate_simple_track(track=track)
             self.song.live_track_to_simple_track[track] = simple_track
-            self.simple_tracks.append(simple_track)
+            self._simple_tracks.append(simple_track)
 
         # Refresh mapping
         self.song.live_track_to_simple_track = collections.OrderedDict()
-        for track in self.simple_tracks:
+        for track in self._simple_tracks:
             self.song.live_track_to_simple_track[track._track] = track
 
         # 2nd pass : instantiate AbstractGroupTracks
@@ -82,7 +83,7 @@ class SongManager(AbstractControlSurfaceComponent):
             # noinspection PyUnresolvedReferences
             self.notify_added_track()
 
-        self.simple_tracks = list(self.song.simple_tracks)
+        self._simple_tracks = list(self.song.simple_tracks)
         self.parent.log_debug("SongManager : mapped tracks")
         self.parent.log_debug("")
         # noinspection PyUnresolvedReferences

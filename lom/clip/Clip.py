@@ -8,7 +8,7 @@ from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.clip.ClipActionMixin import ClipActionMixin
 from a_protocol_0.lom.clip.ClipName import ClipName
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
-from a_protocol_0.utils.decorators import p0_subject_slot
+from a_protocol_0.utils.decorators import p0_subject_slot, defer
 
 if TYPE_CHECKING:
     from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
@@ -35,7 +35,7 @@ class Clip(ClipActionMixin, AbstractObject):
         self._loop_start_listener.subject = self._clip
         self._loop_end_listener.subject = self._clip
 
-        self.parent.defer(partial(setattr, self, "color", self.track.base_color))
+        self.parent.defer(partial(setattr, self, "color", self.track.default_color))
         self.clip_name = ClipName(self)
         self.displayed_automated_parameter = None  # type: Optional[DeviceParameter]
 
@@ -49,9 +49,11 @@ class Clip(ClipActionMixin, AbstractObject):
         return self.clip_slot.index
 
     @p0_subject_slot("color")
+    @defer
     def _color_listener(self):
         # type: () -> None
-        self.parent.defer(partial(setattr, self, "color", int(self.track.base_color)))
+        """ enforcing coherent color scheme """
+        self.color = self.track.default_color
 
     @p0_subject_slot("notes")
     def _notes_listener(self):
@@ -203,8 +205,8 @@ class Clip(ClipActionMixin, AbstractObject):
     @color.setter
     def color(self, color_index):
         # type: (int) -> None
-        if self._clip and self._clip.color_index != self.track.base_color:
-            self._clip.color_index = int(self.track.base_color)
+        if self._clip and color_index == self.track.default_color:
+            self._clip.color_index = color_index
 
     @property
     def is_triggered(self):

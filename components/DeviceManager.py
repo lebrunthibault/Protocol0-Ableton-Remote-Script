@@ -9,13 +9,14 @@ from a_protocol_0.devices.InstrumentDrumRack import InstrumentDrumRack
 from a_protocol_0.devices.InstrumentSimpler import InstrumentSimpler
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.device.Device import Device
+from a_protocol_0.lom.device.PluginDevice import PluginDevice
 from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.utils import find_if
 
 if TYPE_CHECKING:
-    from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
+    pass
 
 
 class DeviceManager(AbstractControlSurfaceComponent):
@@ -26,8 +27,8 @@ class DeviceManager(AbstractControlSurfaceComponent):
     WIDTH_PIXEL_OFFSET = 4
 
     def get_device_class(self, device):
-        # type: (Live.Device.Device) -> Any
-        if isinstance(device, Live.PluginDevice.PluginDevice):
+        # type: (Device) -> Any
+        if isinstance(device, PluginDevice):
             if device.name.lower() in AbstractInstrument.INSTRUMENT_NAME_MAPPINGS:
                 class_name = AbstractInstrument.INSTRUMENT_NAME_MAPPINGS[device.name.lower()]
                 try:
@@ -36,7 +37,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
                     raise Protocol0Error("Import Error on instrument %s" % class_name)
 
                 return getattr(mod, class_name)
-        elif isinstance(device, Live.SimplerDevice.SimplerDevice):
+        elif isinstance(device._device, Live.SimplerDevice.SimplerDevice):
             return InstrumentSimpler
         elif device.can_have_drum_pads:
             return InstrumentDrumRack
@@ -52,7 +53,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
 
         instrument_device = find_if(lambda d: self.get_device_class(d), track.all_devices)
         if not instrument_device:
-            self.parent.log_dev("Couldn't find instrument for midi track %s" % track)
+            self.parent.log_error("Couldn't find instrument for midi track %s" % track)
             return None
 
         instrument_class = self.get_device_class(instrument_device)
@@ -78,24 +79,6 @@ class DeviceManager(AbstractControlSurfaceComponent):
             param = find_if(lambda p: p.name.lower() == name.lower(), device.parameters)
             if param and param.is_enabled:
                 param.value = value
-
-    def _get_device_to_scroll(self, track):
-        # type: (SimpleTrack) -> Optional[Device]
-        """
-        deprecated for now
-        on selection of a the first rack either on simple or group track,
-        we allow browsing the instrument as a shortcut
-        """
-        if (
-            isinstance(track.selected_device, RackDevice)
-            and track.all_devices.index(track.selected_device) == 0
-            and track.instrument
-        ):
-            return track.instrument.device
-        elif isinstance(track.selected_device, RackDevice):
-            return None
-
-        return track.selected_device
 
     def _get_device_click_x_position(self, device_position):
         # type: (int) -> int

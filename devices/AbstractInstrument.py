@@ -4,9 +4,9 @@ from typing import TYPE_CHECKING, Optional, List, Any
 
 from a_protocol_0.devices.presets.InstrumentPreset import InstrumentPreset
 from a_protocol_0.devices.presets.InstrumentPresetList import InstrumentPresetList
+from a_protocol_0.enums.ColorEnum import ColorEnum
 from a_protocol_0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.device.Device import Device
@@ -26,7 +26,7 @@ class AbstractInstrument(AbstractObject):
     }
 
     NAME = "AbstractInstrument"
-    TRACK_COLOR = Colors.DISABLED
+    TRACK_COLOR = ColorEnum.DISABLED
     CAN_BE_SHOWN = True
     NUMBER_OF_PRESETS = 128
     PRESETS_PATH = ""

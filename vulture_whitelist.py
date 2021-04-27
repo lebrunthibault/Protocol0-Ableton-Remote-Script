@@ -15,3 +15,5 @@ _.log_dev  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI 
 _.grid_quantization  # unused attribute (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\a_protocol_0\lom\clip\AutomationMidiClip.py:48)
 _.grid_quantization  # unused attribute (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\a_protocol_0\lom\clip\MidiClip.py:118)
 CLIP  # unused variable (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\a_protocol_0\enums\Push2MainModeEnum.py:5)
+_._update_racks  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\a_protocol_0\components\SetFixerManager.py:44)
+_._sync_group_output_routing  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\a_protocol_0\lom\track\group_track\SimpleGroupTrack.py:62)

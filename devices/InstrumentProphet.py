@@ -3,14 +3,14 @@ from functools import partial
 from typing import Any, Optional
 
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
+from a_protocol_0.enums.ColorEnum import ColorEnum
 from a_protocol_0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
-from a_protocol_0.lom.Colors import Colors
 from a_protocol_0.sequence.Sequence import Sequence
 
 
 class InstrumentProphet(AbstractInstrument):
     NAME = "Prophet"
-    TRACK_COLOR = Colors.PROPHET
+    TRACK_COLOR = ColorEnum.PROPHET
     IS_EXTERNAL_SYNTH = True
     PRESET_DISPLAY_OPTION = PresetDisplayOptionEnum.INDEX
 

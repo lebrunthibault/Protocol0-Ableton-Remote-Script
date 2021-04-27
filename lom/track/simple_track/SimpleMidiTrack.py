@@ -7,6 +7,7 @@ from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
 class SimpleMidiTrack(SimpleTrack):
+    DEFAULT_NAME = "midi"
     CLIP_CLASS = MidiClip
 
     def __init__(self, *a, **k):
