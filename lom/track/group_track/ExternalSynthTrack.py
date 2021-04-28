@@ -17,8 +17,8 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     def __init__(self, base_group_track, *a, **k):
         # type: (SimpleTrack, Any, Any) -> None
         super(ExternalSynthTrack, self).__init__(base_group_track=base_group_track, *a, **k)
-        self.midi_track = self.sub_tracks[0]
-        self.audio_track = self.sub_tracks[1]
+        self.midi_track = base_group_track.sub_tracks[0]
+        self.audio_track = base_group_track.sub_tracks[1]
         assert isinstance(self.midi_track, SimpleMidiTrack) and isinstance(self.audio_track, SimpleAudioTrack), (
             "invalid external synth track %s" % self
         )
@@ -35,8 +35,8 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
             ]
 
         # audio and midi tracks are now handled by self
-        for sub_track in self.sub_tracks:
-            sub_track.abstract_group_track = self
+        self.audio_track.abstract_group_track = self
+        self.midi_track.abstract_group_track = self
 
         self.audio_track.set_output_routing_to(self.base_track)
 

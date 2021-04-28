@@ -15,6 +15,7 @@ class SimpleGroupTrack(AbstractGroupTrack):
     def __init__(self, base_group_track, *a, **k):
         # type: (SimpleTrack, Any, Any) -> None
         super(SimpleGroupTrack, self).__init__(base_group_track=base_group_track, *a, **k)
+        self.parent.log_dev("creating SimpleGroupTrack from %s" % base_group_track)
         self._single_sub_track_routing = self._get_single_sub_track_routing()
         # [sub_track.set_output_routing_to(self) for sub_track in self.sub_tracks]
 
@@ -30,9 +31,6 @@ class SimpleGroupTrack(AbstractGroupTrack):
 
         if not self.base_track.has_device("Mix Rack"):
             seq.add(partial(self.load_any_device, DeviceType.RACK_DEVICE, "Mix Rack"))
-
-        for sub_track in self.sub_tracks:
-            sub_track._added_track_init(arm=False)
 
         return seq.done()
 
@@ -74,9 +72,17 @@ class SimpleGroupTrack(AbstractGroupTrack):
     @property
     def default_base_name(self):
         # type: () -> str
-        sub_tracks_base_names = [sub_track.base_name for sub_track in self.sub_tracks]
-        if len(sub_tracks_base_names) == 1 and sub_tracks_base_names[0]:
-            return sub_tracks_base_names[0]
+        self.parent.log_dev("calling default base name for %s" % self)
+        # checking if all sub tracks have the same instrument
+        sub_tracks_instruments = [sub_track.instrument for sub_track in self.sub_tracks if sub_track.instrument]
+        sub_tracks_instrument_classes = [instrument.__class__ for instrument in sub_tracks_instruments]
+        if len(sub_tracks_instruments) == len(self.sub_tracks) and len(set(sub_tracks_instrument_classes)) == 1:
+            return self.sub_tracks[0].instrument.NAME
+
+        # checking if all sub tracks have the same prefix
+        sub_tracks_name_prefixes = [sub_track.name_prefix for sub_track in self.sub_tracks]
+        if len(sub_tracks_name_prefixes) == 1 and sub_tracks_name_prefixes[0]:
+            return sub_tracks_name_prefixes[0]
         else:
             return self.DEFAULT_NAME
 
@@ -84,7 +90,8 @@ class SimpleGroupTrack(AbstractGroupTrack):
     def default_color(self):
         # type: () -> int
         sub_track_colors = [sub_track.color for sub_track in self.sub_tracks]
-        if len(sub_track_colors) == 1:
+        self.parent.log_warning("sub_tracks of %s - %s: %d" % (self, id(self), len(self.sub_tracks)))
+        if len(set(sub_track_colors)) == 1:
             return sub_track_colors[0]
         else:
             return self.DEFAULT_COLOR

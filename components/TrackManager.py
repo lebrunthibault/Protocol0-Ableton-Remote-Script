@@ -87,6 +87,8 @@ class TrackManager(AbstractControlSurfaceComponent):
         elif track.has_audio_input:
             simple_track = SimpleAudioTrack(track=track)
 
+        # rebuild sub_tracks
+        simple_track.sub_tracks = []
         simple_track.link_group_track()
 
         return simple_track
@@ -100,15 +102,21 @@ class TrackManager(AbstractControlSurfaceComponent):
 
         previous_abstract_group_track = base_group_track.abstract_group_track
 
+        if previous_abstract_group_track:
+            previous_abstract_group_track.link_sub_tracks()
+            return previous_abstract_group_track
+
         abstract_group_track = self.make_external_synth_track(base_group_track=base_group_track)
         if not abstract_group_track:
-            abstract_group_track = SimpleGroupTrack(base_group_track=base_group_track)
+            if isinstance(previous_abstract_group_track, SimpleGroupTrack):
+                abstract_group_track = previous_abstract_group_track
+            else:
+                abstract_group_track = SimpleGroupTrack(base_group_track=base_group_track)
 
         # this should be here because as abstract_group_track creation is conditional on sub_track state
         # we first check if the track could be created, then if it's the same type and return it if we have a match
-        if previous_abstract_group_track and type(abstract_group_track) is type(previous_abstract_group_track):
-            abstract_group_track.disconnect()
-            abstract_group_track = previous_abstract_group_track
+        if previous_abstract_group_track and previous_abstract_group_track != abstract_group_track:
+            previous_abstract_group_track.disconnect()
 
         abstract_group_track.link_sub_tracks()
         return abstract_group_track
@@ -127,6 +135,9 @@ class TrackManager(AbstractControlSurfaceComponent):
         if any(
             sub_track.instrument and sub_track.instrument.IS_EXTERNAL_SYNTH for sub_track in base_group_track.sub_tracks
         ):
-            return ExternalSynthTrack(base_group_track=base_group_track)
+            if isinstance(base_group_track.abstract_group_track, ExternalSynthTrack):
+                return base_group_track.abstract_group_track
+            else:
+                return ExternalSynthTrack(base_group_track=base_group_track)
         else:
             return None

@@ -31,7 +31,10 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
         self.res = None  # type: Optional[Any]
         self.debug = self.DEBUG_MODE or not (silent or self.SILENT_MODE)
         frame_info = get_frame_info(2)
-        self.name = "[seq %s.%s]" % (frame_info.class_name, frame_info.method_name) if frame_info else "Unknown"
+        if frame_info:
+            self.name = "[seq %s.%s]" % (frame_info.class_name, frame_info.method_name)
+        else:
+            self.name = "Unknown"
 
     def __repr__(self):
         # type: () -> str

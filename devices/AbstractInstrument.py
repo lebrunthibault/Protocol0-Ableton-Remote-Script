@@ -25,7 +25,7 @@ class AbstractInstrument(AbstractObject):
         "rev2editor": "InstrumentProphet",
     }
 
-    NAME = "AbstractInstrument"
+    NAME = ""
     TRACK_COLOR = ColorEnum.DISABLED
     CAN_BE_SHOWN = True
     NUMBER_OF_PRESETS = 128
@@ -44,8 +44,12 @@ class AbstractInstrument(AbstractObject):
         self.track = track  # this could be a group track
         self.device = device
         self.activated = False
-        self.name = device.name  # type: str
         self._preset_list = InstrumentPresetList(self)  # type: InstrumentPresetList
+
+    @property
+    def name(self):
+        # type: () -> str
+        return self.NAME if self.NAME else self.device.name
 
     def sync_presets(self):
         # type: () -> None

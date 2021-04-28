@@ -141,7 +141,7 @@ function Select-Log-Line
         Clear-Host
     }
 
-    $Filters = "P0", "ArgumentError", "RemoteScriptError"
+    $Filters = "P0", "ArgumentError", "RemoteScriptError", "Exception"
 
     foreach ($Filter in $Filters)
     {

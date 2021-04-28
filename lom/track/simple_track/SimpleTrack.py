@@ -23,6 +23,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # type: (Live.Track.Track, Any, Any) -> None
         self._track = track  # type: Live.Track.Track
         super(SimpleTrack, self).__init__(track=self, *a, **k)
+        self.parent.log_dev("creating SImpleTrack from %s" % self._track)
 
         # is_active is used to differentiate set tracks for return / master
         # we act only on active tracks
@@ -54,7 +55,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         if self._track.group_track:
             self.group_track = self.song.live_track_to_simple_track[
                 self._track.group_track
-            ]  # type: Optional[SimpleTrack]
+            ]  # type: Optional[AbstractTrack]
             self.group_track.sub_tracks.append(self)
 
     def map_clip_slots(self):

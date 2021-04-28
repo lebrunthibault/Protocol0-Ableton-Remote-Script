@@ -1,7 +1,5 @@
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.lom.device.RackDevice import RackDevice
-from a_protocol_0.lom.track.AbstractTrackList import AbstractTrackList
-from a_protocol_0.lom.track.group_track.SimpleGroupTrack import SimpleGroupTrack
 
 
 class SetFixerManager(AbstractControlSurfaceComponent):
@@ -10,11 +8,44 @@ class SetFixerManager(AbstractControlSurfaceComponent):
     def check_set(self):
         # type: () -> None
         """ Checks the set is operational """
+        self._check_input_routings()
+        self._check_tracks_tree_consistency()
+
+        self.parent.show_message("Set checked !")
+
+    def _check_input_routings(self):
+        # type: () -> None
         for simple_track in self.song.simple_tracks:
             if simple_track.is_audio and not simple_track.is_armable:
                 self.parent.log_error("Check the input routing of %s" % simple_track)
 
-        self.parent.show_message("Set checked !")
+    def _check_tracks_tree_consistency(self):
+        # type: () -> None
+        for simple_track in self.song.simple_tracks:
+            if simple_track.is_foldable:
+                assert simple_track.abstract_group_track.base_track == simple_track, "failed on %s" % simple_track
+                assert simple_track.abstract_group_track.abstract_group_track is None, "failed on %s" % simple_track
+                for sub_track in simple_track.sub_tracks:
+                    if sub_track.is_foldable:
+                        assert sub_track.abstract_group_track in simple_track.abstract_track.sub_tracks, (
+                            "failed on %s" % simple_track
+                        )
+                    else:
+                        assert sub_track in simple_track.abstract_group_track.sub_tracks, "failed on %s" % simple_track
+                assert len(simple_track.sub_tracks) == len(simple_track.abstract_group_track.sub_tracks)
+            elif simple_track.abstract_group_track:
+                assert simple_track in simple_track.abstract_group_track.sub_tracks
+
+            if simple_track.group_track:
+                assert simple_track in simple_track.group_track.sub_tracks, "failed on %s" % simple_track
+                if simple_track.is_foldable:
+                    assert simple_track.group_track.abstract_group_track, "failed on %s" % simple_track
+                    assert (
+                        simple_track.abstract_group_track in simple_track.group_track.abstract_group_track.sub_tracks  # type: ignore
+                    ), ("failed on %s" % simple_track)
+                else:
+                    assert simple_track.group_track.abstract_group_track is None, "failed on %s" % simple_track
+                    assert simple_track in simple_track.group_track.sub_tracks, "failed on %s" % simple_track
 
     def fix_set(self):
         # type: () -> None
@@ -31,15 +62,8 @@ class SetFixerManager(AbstractControlSurfaceComponent):
 
     def _fix_tracks_appearance(self):
         # type: () -> None
-        for track in self.song.simple_tracks:
-            track.refresh_appearance()
-
-        for track in AbstractTrackList(self.song.abstract_tracks).abstract_group_tracks:
-            track.refresh_appearance()
-
         for track in reversed(list(self.song.abstract_tracks)):
-            if isinstance(track, SimpleGroupTrack):
-                track.refresh_appearance()
+            track.refresh_appearance()
 
     def _update_racks(self):
         # type: () -> None

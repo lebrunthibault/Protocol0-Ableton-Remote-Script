@@ -70,7 +70,12 @@ class ActionGroupMain(AbstractActionGroup):
         )
 
         # 12 : CLIP encoder
-        self.add_encoder(id=12, name="clip", on_scroll=lambda: self.song.selected_track.scroll_clips).add_action(
+        self.add_encoder(
+            id=12,
+            name="clip",
+            on_press=lambda: self.song.selected_clip and self.song.selected_clip.play_stop,
+            on_scroll=lambda: self.song.selected_track.scroll_clips,
+        ).add_action(
             EncoderAction(
                 func=lambda: self.song.selected_clip and self.song.selected_clip.play_stop,
                 modifier_type=EncoderModifierEnum.PLAY_STOP,

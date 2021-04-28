@@ -25,6 +25,9 @@ class ErrorManager(AbstractControlSurfaceComponent):
 
     def handle_uncaught_exception(self, exc_type, exc_value, tb):
         # type: (Type[BaseException], BaseException, TracebackType) -> None
+        self.parent.log_error("unhandled exception caught !!")
+        self.parent.log_error()
+        self.parent.log_error()
         self._handle_exception(exc_type, exc_value, tb)
 
     def _handle_exception(self, exc_type, exc_value, tb, context=None):

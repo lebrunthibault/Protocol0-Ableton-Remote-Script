@@ -1,6 +1,6 @@
 import os
 from os import listdir
-from os.path import join
+from os.path import join, isdir
 
 from typing import List, Any, Optional
 
@@ -29,22 +29,34 @@ class InstrumentSimpler(AbstractInstrument):
         self.activated = True
 
     @property
-    def selected_category(self):
+    def name(self):
         # type: () -> str
+        return self.selected_category if self.selected_category else "None"
+
+    @property
+    def selected_category(self):
+        # type: () -> Optional[str]
         """ the name of the track is the name of a sample sub_directory """
+        if not isdir(self.PRESETS_PATH):
+            self.parent.log_error("Couldn't find the simpler presets path : %s" % self.PRESETS_PATH)
+            return None
+
         selected_category = find_if(
             lambda f: self.track.base_name.split(" ")[0].strip().lower() in f.lower(), listdir(self.PRESETS_PATH)
         )
         if selected_category is None:
             self.parent.log_error("Couldn't find sample selected category for %s" % self.track)
-            selected_category = listdir(self.PRESETS_PATH)[0]
+            return None
 
         return str(selected_category)
 
     @property
     def presets_path(self):
-        # type: () -> str
-        return join(self.PRESETS_PATH, self.selected_category)
+        # type: () -> Optional[str]
+        if not self.selected_category:
+            return None
+        else:
+            return join(self.PRESETS_PATH, self.selected_category)
 
     def _load_preset(self, preset):
         # type: (InstrumentPreset) -> Optional[Sequence]
@@ -54,6 +66,9 @@ class InstrumentSimpler(AbstractInstrument):
 
     def scroll_preset_categories(self, go_next):
         # type: (bool) -> None
+        if not self.selected_category:
+            self.parent.log_error("Couldn't find the selected category")
+            return
         self.parent.clyphxNavigationManager.show_track_view()
         selected_category = scroll_values(listdir(self.PRESETS_PATH), self.selected_category, go_next)
         self.track.track_name.update(base_name=selected_category)

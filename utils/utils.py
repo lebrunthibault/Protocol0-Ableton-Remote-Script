@@ -68,8 +68,10 @@ def get_frame_info(frame_count=1):
     call_frame = inspect.currentframe()
     for _ in range(frame_count):
         call_frame = call_frame.f_back
-    (filename, line, method_name, _, _) = inspect.getframeinfo(cast(FrameType, call_frame))
-
+    try:
+        (filename, line, method_name, _, _) = inspect.getframeinfo(cast(FrameType, call_frame))
+    except IndexError:
+        return None
     filename = filename.replace(ROOT_DIR + "\\", "").replace(REMOTE_SCRIPTS_DIR + "\\", "")
     class_name = filename.replace(".py", "").split("\\")[-1]
 

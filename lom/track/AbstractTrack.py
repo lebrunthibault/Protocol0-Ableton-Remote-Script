@@ -49,6 +49,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self.push2_selected_instrument_mode = None  # type: Optional[str]
 
         self._instrument_listener.subject = self
+        self._color_listener.subject = self._track
 
     def _added_track_init(self, arm=True):
         # type: (bool) -> Optional[Sequence]
@@ -71,8 +72,19 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @defer
     def _instrument_listener(self):
         # type: () -> None
-        return
-        self.refresh_appearance()
+        pass
+        # if not self.abstract_group_track:
+        #     self.refresh_appearance()
+
+    @p0_subject_slot("color")
+    @defer
+    def _color_listener(self):
+        # type: () -> None
+        """enforcing coherent color scheme"""
+        if not self.abstract_group_track:
+            self.parent.log_dev("called from color listener on %s" % self)
+            self.parent._wait(100, self.refresh_color)
+        # self.refresh_color()
 
     @property
     def index(self):
@@ -114,9 +126,20 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def default_base_name(self):
         # type: () -> str
         if self.instrument:
-            return self.instrument.NAME
+            return self.instrument.name
         else:
             return self.DEFAULT_NAME
+
+    @property
+    def color(self):
+        # type: (AbstractTrack) -> int
+        return self._track.color_index
+
+    @color.setter
+    def color(self, color_index):
+        # type: (AbstractTrack, int) -> None
+        if color_index != self._track.color_index:
+            self._track.color_index = color_index
 
     @property
     def default_color(self):
@@ -161,6 +184,11 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def base_name(self):
         # type: () -> str
         return self.base_track.track_name.base_name
+
+    @property
+    def name_prefix(self):
+        # type: () -> str
+        return self.base_track.track_name.base_name.split(" ")[0]
 
     @property
     def is_playing(self):
@@ -251,3 +279,5 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # type: () -> None
         super(AbstractTrack, self).disconnect()
         self.track_name.disconnect()
+        self._instrument_listener.subject = self
+        self._color_listener.subject = self._track

@@ -44,6 +44,7 @@ class ClipActionMixin(object):
         if not self._clip:
             return None
         seq = Sequence()
+        seq.add(wait=1)
         seq.add(self.clip_slot.delete_clip, complete_on=self.clip_slot._has_clip_listener)
         return seq.done()
 

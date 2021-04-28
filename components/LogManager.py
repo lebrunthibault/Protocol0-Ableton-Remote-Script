@@ -19,12 +19,23 @@ class LogManager(AbstractObject):
         self.parent.log_notice("********* CURRENT_TRACK *************")
         self.parent.log_info("current_track: %s" % self.song.current_track)
         self.parent.log_info()
+        self.parent.log_info(
+            "current_track._registered_disconnectables: %s" % self.song.current_track._registered_disconnectables
+        )
+        self.parent.log_info()
         self.parent.log_info("current_track.abstract_group_track: %s" % self.song.current_track.abstract_group_track)
         self.parent.log_info()
         self.parent.log_info("current_track.sub_tracks: %s" % self.song.current_track.sub_tracks)
         self.parent.log_info()
         self.parent.log_info("current_track.instrument: %s" % self.song.current_track.instrument)
         self.parent.log_info()
+        if self.song.current_track.base_track != self.song.current_track:
+            self.parent.log_info("current_track.base_track: %s" % self.song.current_track.base_track)
+            self.parent.log_info()
+            self.parent.log_info(
+                "current_track.base_track.sub_tracks: %s" % self.song.current_track.base_track.sub_tracks
+            )
+            self.parent.log_info()
         self.parent.log_info()
         self.parent.log_notice("********* SELECTED_TRACK *************")
         self.parent.log_info("selected_track: %s" % self.song.selected_track)

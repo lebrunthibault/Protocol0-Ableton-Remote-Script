@@ -16,6 +16,5 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        self.song.end_undo_step()
-        self.song.end_undo_step()
-        self.song.end_undo_step()
+        if self.song.selected_clip:
+            self.song.selected_clip.view.show_loop()

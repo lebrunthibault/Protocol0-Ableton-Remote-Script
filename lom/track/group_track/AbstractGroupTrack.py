@@ -12,19 +12,27 @@ class AbstractGroupTrack(AbstractTrack):
         # type: (SimpleTrack, Any, Any) -> None
         super(AbstractGroupTrack, self).__init__(track=base_group_track, *a, **k)
         base_group_track.abstract_group_track = self
-        self.sub_tracks = self.base_track.sub_tracks  # type: List[AbstractTrack]
+        # filled when link_sub_tracks is called
+        self.sub_tracks = []  # type: List[AbstractTrack]
         # for now: List[SimpleTrack] but AbstractGroupTracks will register themselves as seen just below
 
     def link_sub_tracks(self):
         # type: () -> None
-        # leave room for AbstractGroupTracks to register
-        self.sub_tracks[:] = [sub_track for sub_track in self.sub_tracks if not sub_track.is_foldable]
+        # only simple tracks non foldable at this point :
+        # leave room for AbstractGroupTracks to register on the sub_tracks listN
+        self.sub_tracks[:] = [sub_track for sub_track in self.base_track.sub_tracks if not sub_track.is_foldable]
 
+        # point sub tracks to self
+        for sub_track in self.sub_tracks:
+            sub_track.group_track = self
+
+        # connect to the enclosing group track is any
         if self.base_track.group_track:
             self.group_track = self.base_track.group_track.abstract_group_track
             # creating the second layer relationship: abstract_group_tracks have List[AbstractTrack] as sub_tracks
             if self.group_track:
                 self.group_track.sub_tracks.append(self)
+                self.group_track.sub_tracks.sort(key=lambda x: x.index)
 
     @property
     def active_tracks(self):

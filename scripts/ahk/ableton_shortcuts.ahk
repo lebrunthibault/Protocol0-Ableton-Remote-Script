@@ -135,7 +135,8 @@ reloadAbleton()
 
 restartAbleton()
 {
-    command = Startup "'Ableton Live 10 Suite,*logs terminal*'"
+    command = Startup "'Ableton Live 10 Suite'"
+;    command = Startup "'Ableton Live 10 Suite,*logs terminal*'"
 ;    command = Startup "'Ableton Live 10 Suite,*logs terminal*,AutoHotkey Ableton'"
     Run PowerShell.exe -Command %command%,, hide
 }

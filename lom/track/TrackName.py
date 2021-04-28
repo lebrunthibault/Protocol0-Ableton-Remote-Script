@@ -26,6 +26,11 @@ class TrackName(AbstractObject):
         self._name_listener.add_subject(self.track._track)
         self.parent.defer(partial(self._name_listener, self.track._track))
 
+    @property
+    def enabled(self):
+        # type: () -> bool
+        return not self.track.abstract_group_track
+
     @p0_subject_slot("instrument")
     def _instrument_listener(self):
         # type: () -> None
@@ -60,6 +65,9 @@ class TrackName(AbstractObject):
 
     def update(self, base_name=None):
         # type: (Optional[str]) -> Optional[Sequence]
+        if not self.enabled:
+            return None
+
         self.base_name = base_name or self.base_name
 
         if self.base_name == self.track.DEFAULT_NAME.lower() or self.track.instrument:

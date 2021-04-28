@@ -16,19 +16,6 @@ if TYPE_CHECKING:
 # noinspection PyTypeHints
 class AbstractTrackActionMixin(object):
     @property
-    def color(self):
-        # type: (AbstractTrack) -> int
-        return self._track.color_index
-
-    @color.setter
-    def color(self, color_index):
-        # type: (AbstractTrack, int) -> None
-        for track in [self] + self.sub_tracks:
-            track._track.color_index = color_index
-        for clip in self.clips:
-            clip.color = color_index
-
-    @property
     def is_folded(self):
         # type: (AbstractTrack) -> bool
         return bool(self._track.fold_state) if self.is_foldable else True
@@ -95,9 +82,11 @@ class AbstractTrackActionMixin(object):
 
     def unarm(self):
         # type: (AbstractTrack) -> None
-        self.color = self.default_color
+        if not self.is_armed:
+            return
         self.is_armed = False
         self.unarm_track()
+        # self.refresh_color()
 
     def unarm_track(self):
         # type: (AbstractTrack) -> None
@@ -215,7 +204,8 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         self.is_folded = True
         self.solo = False
-        self.unarm()
+        if self.is_armed:
+            self.unarm()
 
     def load_any_device(self, device_type, device_name):
         # type: (AbstractTrack, str, str) -> Sequence
@@ -270,5 +260,21 @@ class AbstractTrackActionMixin(object):
 
     def refresh_appearance(self):
         # type: (AbstractTrack) -> None
+        self.parent.log_dev("refresh appearance of %s" % self)
         self.track_name.update()
+        self.refresh_color()
+
+    def refresh_color(self):
+        # type: (AbstractTrack) -> None
+        if self.abstract_group_track:
+            return  # not allowed when the track is managed
+        self.parent.log_dev("refreshing color of %s from %s to %s" % (self, self.color, self.default_color))
         self.color = self.default_color
+        if self.group_track:
+            self.parent.log_warning("calling on group_track %s" % self.group_track)
+            self.parent.log_warning(
+                "default color: %s, default group color: %s" % (self.default_color, self.group_track.default_color)
+            )
+            self.parent.defer(self.group_track.refresh_color)
+        # for clip in self.clips:
+        #     clip.color = self.default_color
