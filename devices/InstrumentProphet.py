@@ -10,6 +10,7 @@ from a_protocol_0.sequence.Sequence import Sequence
 
 class InstrumentProphet(AbstractInstrument):
     NAME = "Prophet"
+    DEVICE_NAME = "rev2editor"
     TRACK_COLOR = ColorEnum.PROPHET
     IS_EXTERNAL_SYNTH = True
     PRESET_DISPLAY_OPTION = PresetDisplayOptionEnum.INDEX

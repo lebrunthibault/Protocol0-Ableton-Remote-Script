@@ -1,4 +1,5 @@
 import collections
+from functools import partial
 
 from typing import Any, List
 
@@ -84,6 +85,7 @@ class SongManager(AbstractControlSurfaceComponent):
             self.notify_added_track()
 
         self._simple_tracks = list(self.song.simple_tracks)
+        self.parent.defer(partial(self.parent.setFixerManager.refresh_set_appearance, log=False))
         self.parent.log_debug("SongManager : mapped tracks")
         self.parent.log_debug("")
         # noinspection PyUnresolvedReferences

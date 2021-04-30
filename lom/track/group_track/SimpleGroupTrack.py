@@ -15,7 +15,6 @@ class SimpleGroupTrack(AbstractGroupTrack):
     def __init__(self, base_group_track, *a, **k):
         # type: (SimpleTrack, Any, Any) -> None
         super(SimpleGroupTrack, self).__init__(base_group_track=base_group_track, *a, **k)
-        self.parent.log_dev("creating SimpleGroupTrack from %s" % base_group_track)
         self._single_sub_track_routing = self._get_single_sub_track_routing()
         # [sub_track.set_output_routing_to(self) for sub_track in self.sub_tracks]
 
@@ -27,7 +26,6 @@ class SimpleGroupTrack(AbstractGroupTrack):
         self.is_folded = False
 
         # self._sync_group_output_routing()
-        self.refresh_appearance()
 
         if not self.base_track.has_device("Mix Rack"):
             seq.add(partial(self.load_any_device, DeviceType.RACK_DEVICE, "Mix Rack"))
@@ -70,9 +68,8 @@ class SimpleGroupTrack(AbstractGroupTrack):
         pass
 
     @property
-    def default_base_name(self):
+    def computed_base_name(self):
         # type: () -> str
-        self.parent.log_dev("calling default base name for %s" % self)
         # checking if all sub tracks have the same instrument
         sub_tracks_instruments = [sub_track.instrument for sub_track in self.sub_tracks if sub_track.instrument]
         sub_tracks_instrument_classes = [instrument.__class__ for instrument in sub_tracks_instruments]
@@ -87,10 +84,9 @@ class SimpleGroupTrack(AbstractGroupTrack):
             return self.DEFAULT_NAME
 
     @property
-    def default_color(self):
+    def computed_color(self):
         # type: () -> int
         sub_track_colors = [sub_track.color for sub_track in self.sub_tracks]
-        self.parent.log_warning("sub_tracks of %s - %s: %d" % (self, id(self), len(self.sub_tracks)))
         if len(set(sub_track_colors)) == 1:
             return sub_track_colors[0]
         else:

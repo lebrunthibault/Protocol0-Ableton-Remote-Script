@@ -58,8 +58,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
             self.song.current_track.arm()
         self.song.current_track.stop()
 
-        self.refresh_appearance()
-
         if not self.base_track.has_device("Mix Rack"):
             self.load_any_device(DeviceType.RACK_DEVICE, "Mix Rack")
 
@@ -82,9 +80,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # type: () -> None
         """enforcing coherent color scheme"""
         if not self.abstract_group_track:
-            self.parent.log_dev("called from color listener on %s" % self)
-            self.parent._wait(100, self.refresh_color)
-        # self.refresh_color()
+            self.refresh_color()
 
     @property
     def index(self):
@@ -123,7 +119,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
             self._track.name = str(name).strip()
 
     @property
-    def default_base_name(self):
+    def computed_base_name(self):
         # type: () -> str
         if self.instrument:
             return self.instrument.name
@@ -138,11 +134,11 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @color.setter
     def color(self, color_index):
         # type: (AbstractTrack, int) -> None
-        if color_index != self._track.color_index:
+        if self._track and color_index != self._track.color_index:
             self._track.color_index = color_index
 
     @property
-    def default_color(self):
+    def computed_color(self):
         # type: () -> int
         if self.abstract_track.instrument:
             return self.abstract_track.instrument.TRACK_COLOR

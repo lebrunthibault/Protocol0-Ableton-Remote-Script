@@ -34,7 +34,7 @@ class Clip(ClipActionMixin, AbstractObject):
         self._loop_start_listener.subject = self._clip
         self._loop_end_listener.subject = self._clip
 
-        self.parent.defer(partial(setattr, self, "color", self.track.default_color))
+        self.parent.defer(partial(setattr, self, "color", self.track.computed_color))
         self.clip_name = ClipName(self)
         self.displayed_automated_parameter = None  # type: Optional[DeviceParameter]
 

@@ -47,20 +47,21 @@ class SetFixerManager(AbstractControlSurfaceComponent):
                     assert simple_track.group_track.abstract_group_track is None, "failed on %s" % simple_track
                     assert simple_track in simple_track.group_track.sub_tracks, "failed on %s" % simple_track
 
-    def fix_set(self):
-        # type: () -> None
+    def refresh_set_appearance(self, log=True):
+        # type: (bool) -> None
         """ Fix the current set to the current standard regarding naming / coloring etc .."""
 
-        self._fix_tracks_appearance()
-        self._fix_clips_appearance()
-        self.parent.show_message("Set fixed !")
+        self._refresh_tracks_appearance()
+        self._refresh_clips_appearance()
+        if log:
+            self.parent.show_message("Set fixed !")
 
-    def _fix_clips_appearance(self):
+    def _refresh_clips_appearance(self):
         # type: () -> None
         for clip in (clip for track in self.song.simple_tracks for clip in track.clips):
             clip.refresh_appearance()
 
-    def _fix_tracks_appearance(self):
+    def _refresh_tracks_appearance(self):
         # type: () -> None
         for track in reversed(list(self.song.abstract_tracks)):
             track.refresh_appearance()

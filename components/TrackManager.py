@@ -82,7 +82,7 @@ class TrackManager(AbstractControlSurfaceComponent):
         if track in self.song.live_track_to_simple_track:
             simple_track = self.song.live_track_to_simple_track[track]
             simple_track.map_clip_slots()
-        if track.has_midi_input:
+        elif track.has_midi_input:
             simple_track = SimpleMidiTrack(track=track)
         elif track.has_audio_input:
             simple_track = SimpleAudioTrack(track=track)
@@ -102,10 +102,6 @@ class TrackManager(AbstractControlSurfaceComponent):
 
         previous_abstract_group_track = base_group_track.abstract_group_track
 
-        if previous_abstract_group_track:
-            previous_abstract_group_track.link_sub_tracks()
-            return previous_abstract_group_track
-
         abstract_group_track = self.make_external_synth_track(base_group_track=base_group_track)
         if not abstract_group_track:
             if isinstance(previous_abstract_group_track, SimpleGroupTrack):
@@ -113,8 +109,7 @@ class TrackManager(AbstractControlSurfaceComponent):
             else:
                 abstract_group_track = SimpleGroupTrack(base_group_track=base_group_track)
 
-        # this should be here because as abstract_group_track creation is conditional on sub_track state
-        # we first check if the track could be created, then if it's the same type and return it if we have a match
+        # in case the group track changes type
         if previous_abstract_group_track and previous_abstract_group_track != abstract_group_track:
             previous_abstract_group_track.disconnect()
 

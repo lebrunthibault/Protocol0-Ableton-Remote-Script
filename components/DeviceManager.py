@@ -29,14 +29,9 @@ class DeviceManager(AbstractControlSurfaceComponent):
     def get_device_class(self, device):
         # type: (Device) -> Any
         if isinstance(device, PluginDevice):
-            if device.name.lower() in AbstractInstrument.INSTRUMENT_NAME_MAPPINGS:
-                class_name = AbstractInstrument.INSTRUMENT_NAME_MAPPINGS[device.name.lower()]
-                try:
-                    mod = __import__("a_protocol_0.devices." + class_name, fromlist=[class_name])
-                except ImportError:
-                    raise Protocol0Error("Import Error on instrument %s" % class_name)
-
-                return getattr(mod, class_name)
+            for _class in AbstractInstrument.INSTRUMENT_CLASSES:
+                if _class.DEVICE_NAME.lower() == device.name.lower():
+                    return _class
         elif isinstance(device._device, Live.SimplerDevice.SimplerDevice):
             return InstrumentSimpler
         elif device.can_have_drum_pads:

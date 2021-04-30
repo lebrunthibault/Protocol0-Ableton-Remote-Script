@@ -260,7 +260,6 @@ class AbstractTrackActionMixin(object):
 
     def refresh_appearance(self):
         # type: (AbstractTrack) -> None
-        self.parent.log_dev("refresh appearance of %s" % self)
         self.track_name.update()
         self.refresh_color()
 
@@ -268,13 +267,11 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         if self.abstract_group_track:
             return  # not allowed when the track is managed
-        self.parent.log_dev("refreshing color of %s from %s to %s" % (self, self.color, self.default_color))
-        self.color = self.default_color
+        self.color = self.computed_color
         if self.group_track:
-            self.parent.log_warning("calling on group_track %s" % self.group_track)
-            self.parent.log_warning(
-                "default color: %s, default group color: %s" % (self.default_color, self.group_track.default_color)
-            )
-            self.parent.defer(self.group_track.refresh_color)
-        # for clip in self.clips:
-        #     clip.color = self.default_color
+            self.group_track.refresh_color()
+        from a_protocol_0.lom.track.group_track.SimpleGroupTrack import SimpleGroupTrack
+
+        if not isinstance(self, SimpleGroupTrack):
+            for clip in self.clips:
+                clip.color = self.computed_color

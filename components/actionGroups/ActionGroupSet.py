@@ -21,4 +21,4 @@ class ActionGroupSet(AbstractActionGroup):
         self.add_encoder(id=3, name="check", on_press=self.parent.setFixerManager.check_set)
 
         # FIX encoder
-        self.add_encoder(id=4, name="fix", on_press=self.parent.setFixerManager.fix_set)
+        self.add_encoder(id=4, name="fix", on_press=self.parent.setFixerManager.refresh_set_appearance)

@@ -2,13 +2,13 @@ import re
 from functools import partial
 
 import Live
-from typing import TYPE_CHECKING, Optional, Any
+from typing import TYPE_CHECKING, Optional, Any, List
 
 from _Framework.SubjectSlot import subject_slot_group
 from a_protocol_0.config import Config
+from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
@@ -30,6 +30,11 @@ class TrackName(AbstractObject):
     def enabled(self):
         # type: () -> bool
         return not self.track.abstract_group_track
+
+    @property
+    def instrument_names(self):
+        # type: () -> List[str]
+        return [_class.NAME.lower() for _class in AbstractInstrument.INSTRUMENT_CLASSES if _class.NAME]
 
     @p0_subject_slot("instrument")
     def _instrument_listener(self):
@@ -63,24 +68,39 @@ class TrackName(AbstractObject):
         if match and match.group("selected_preset_index"):
             self.selected_preset_index = int(match.group("selected_preset_index")) - 1
 
+    @property
+    def should_recompute_base_name(self):
+        # type: () -> bool
+        return (
+            self.base_name == self.track.DEFAULT_NAME.lower()
+            or self.track.instrument
+            or self.base_name.lower() in self.instrument_names
+        )
+
     def update(self, base_name=None):
-        # type: (Optional[str]) -> Optional[Sequence]
+        # type: (Optional[str]) -> None
         if not self.enabled:
             return None
 
         self.base_name = base_name or self.base_name
 
-        if self.base_name == self.track.DEFAULT_NAME.lower() or self.track.instrument:
-            self.base_name = self.track.default_base_name
+        if self.should_recompute_base_name:
+            self.base_name = self.track.computed_base_name
 
         name = self.base_name.capitalize()
 
         # displaying only on group track when track is part of an AbstractGroupTrack
         if self.track.instrument and self.track.abstract_group_track is None:
             if self.track.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.INDEX:
-                name += " (%s)" % (self.selected_preset_index + 1)
+                name += " (%d)" % (self.selected_preset_index + 1)
 
-        seq = Sequence(silent=True)
-        seq.add(wait=1)
-        seq.add(partial(setattr, self.track, "name", name), complete_on=lambda: self.track.name == name)
-        return seq.done()
+        from a_protocol_0.lom.track.group_track.SimpleGroupTrack import SimpleGroupTrack
+
+        if isinstance(self.track, SimpleGroupTrack):
+            name += " (%d)" % len(self.track.sub_tracks)
+
+        self.track.name = name
+
+        # propagating upwards
+        if self.track.group_track:
+            self.track.group_track.track_name.update()

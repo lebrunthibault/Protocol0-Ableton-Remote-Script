@@ -80,4 +80,4 @@ class ClipActionMixin(object):
     def refresh_appearance(self):
         # type: (Clip) -> None
         self.clip_name.update()  # type: ignore
-        self.color = self.track.default_color
+        self.color = self.track.computed_color

@@ -23,7 +23,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # type: (Live.Track.Track, Any, Any) -> None
         self._track = track  # type: Live.Track.Track
         super(SimpleTrack, self).__init__(track=self, *a, **k)
-        self.parent.log_dev("creating SImpleTrack from %s" % self._track)
 
         # is_active is used to differentiate set tracks for return / master
         # we act only on active tracks

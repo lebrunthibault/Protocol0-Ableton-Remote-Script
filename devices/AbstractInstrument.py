@@ -1,4 +1,7 @@
+import os
+import re
 from functools import partial
+from os import listdir
 
 from typing import TYPE_CHECKING, Optional, List, Any
 
@@ -6,6 +9,7 @@ from a_protocol_0.devices.presets.InstrumentPreset import InstrumentPreset
 from a_protocol_0.devices.presets.InstrumentPresetList import InstrumentPresetList
 from a_protocol_0.enums.ColorEnum import ColorEnum
 from a_protocol_0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
+from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.Clip import Clip
@@ -19,13 +23,11 @@ if TYPE_CHECKING:
 class AbstractInstrument(AbstractObject):
     __subject_events__ = ("selected_preset",)
 
-    INSTRUMENT_NAME_MAPPINGS = {
-        "serum_x64": "InstrumentSerum",
-        "minitaur editor-vi(x64)": "InstrumentMinitaur",
-        "rev2editor": "InstrumentProphet",
-    }
+    # computed at boot time
+    INSTRUMENT_CLASSES = []  # type: List[AbstractInstrument]
 
     NAME = ""
+    DEVICE_NAME = ""
     TRACK_COLOR = ColorEnum.DISABLED
     CAN_BE_SHOWN = True
     NUMBER_OF_PRESETS = 128
@@ -50,6 +52,23 @@ class AbstractInstrument(AbstractObject):
     def name(self):
         # type: () -> str
         return self.NAME if self.NAME else self.device.name
+
+    @staticmethod
+    def get_instrument_classes():
+        # type: () -> List[AbstractInstrument]
+        files = listdir(os.path.dirname(os.path.abspath(__file__)))
+
+        class_names = []
+        for file in [file for file in files if re.match("^Instrument[a-zA-Z]*\.py$", file)]:
+            class_name = file.replace(".py", "")
+            try:
+                mod = __import__("a_protocol_0.devices." + class_name, fromlist=[class_name])
+            except ImportError:
+                raise Protocol0Error("Import Error on class %s" % class_name)
+
+            class_names.append(getattr(mod, class_name))
+
+        return class_names
 
     def sync_presets(self):
         # type: () -> None

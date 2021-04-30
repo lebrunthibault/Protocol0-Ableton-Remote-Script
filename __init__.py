@@ -48,7 +48,7 @@ if not live_environment_loaded:
     sys.modules["MidiRemoteScript"] = EmptyModule()  # type: ignore[assignment]
     sys.modules["multipledispatch"] = EmptyModule()  # type: ignore[assignment]
 
-from .Protocol0 import Protocol0  # noqa: E402
+from a_protocol_0.Protocol0 import Protocol0  # noqa: E402
 
 Protocol0.LIVE_ENVIRONMENT_LOADED = live_environment_loaded
 
