@@ -142,10 +142,6 @@ class Protocol0(ControlSurface):
         # type: (float, Callable) -> None
         self.globalBeatScheduler.wait_beats(beats, callback)
 
-    def wait_bars(self, bar_count, callback, exact=False):
-        # type: (int, Callable, bool) -> None
-        self.globalBeatScheduler.wait_bars(bar_count, callback, exact)
-
     def _wait(self, tick_count, callback):
         # type: (int, Callable) -> None
         """ tick_count (relative to fastScheduler) """

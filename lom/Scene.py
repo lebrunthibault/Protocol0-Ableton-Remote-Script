@@ -35,7 +35,7 @@ class Scene(AbstractObject):
         # type: () -> None
         if self.any_clip_playing:
             # noinspection PyUnresolvedReferences
-            self.notify_play()  # type: ignore
+            self.notify_play()
 
     @p0_subject_slot("play")
     def _play_listener(self):
@@ -68,6 +68,7 @@ class Scene(AbstractObject):
         if self == self.song.scenes[-1] or self.looping:
             return
         next_scene = self.song.scenes[self.index + 1]
+        self.parent.log_dev(self.length - self.playing_position)
         self.parent.sceneBeatScheduler.wait_beats(self.length - self.playing_position, next_scene.fire)
 
     def select(self):

@@ -39,6 +39,7 @@ class SongManager(AbstractControlSurfaceComponent):
     @handle_error
     def on_scene_list_changed(self):
         # type: () -> None
+        self.parent.sceneBeatScheduler.clear()
         self._tracks_listener()
 
     @p0_subject_slot("tracks")
@@ -106,7 +107,26 @@ class SongManager(AbstractControlSurfaceComponent):
 
     def _generate_scenes(self):
         # type: () -> None
-        self.song.scenes = [Scene(scene) for scene in list(self.song._song.scenes)]
+        live_scenes = self.song._song.scenes
+
+        # disconnect removed scenes
+        for scene in self.song.scenes:
+            if scene._scene not in live_scenes:
+                scene.disconnect()
+
+        # create a dict access from live scenes
+        scene_mapping = collections.OrderedDict()
+        for scene in self.song.scenes:
+            scene_mapping[scene._scene] = scene
+
+        self.song.scenes[:] = []
+
+        # get the right scene or instantiate new scenes
+        for live_scene in live_scenes:
+            if live_scene in scene_mapping:
+                self.song.scenes.append(scene_mapping[live_scene])
+            else:
+                self.song.scenes.append(Scene(live_scene))
 
     def _highlighted_clip_slot_poller(self):
         # type: () -> None
