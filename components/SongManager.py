@@ -49,37 +49,13 @@ class SongManager(AbstractControlSurfaceComponent):
 
         # Check if tracks were added
         previous_simple_track_count = len(list(self._simple_tracks))
-        self._simple_tracks[:] = []
         has_added_tracks = previous_simple_track_count and len(self.song._song.tracks) > previous_simple_track_count
 
-        # 1st pass : instantiate SimpleTracks (including return / master, that are marked as inactive)
-        song_tracks = (
-            list(self.song._song.tracks) + list(self.song._song.return_tracks) + [self.song._song.master_track]
-        )
-        for track in song_tracks:
-            simple_track = self.parent.trackManager.instantiate_simple_track(track=track)
-            self.song.live_track_to_simple_track[track] = simple_track
-            self._simple_tracks.append(simple_track)
+        self._generate_simple_tracks()
+        self._generate_abstract_group_tracks()
+        self._generate_scenes()
 
-        # Refresh mapping
-        self.song.live_track_to_simple_track = collections.OrderedDict()
-        for track in self._simple_tracks:
-            self.song.live_track_to_simple_track[track._track] = track
-
-        # 2nd pass : instantiate AbstractGroupTracks
-        for track in self.song.simple_tracks:
-            if track.is_foldable:
-                self.parent.trackManager.instantiate_abstract_group_track(track)
-
-        # 3. Store clip_slots mapping. track and scene changes trigger a song remapping so it's fine
-        self.song.clip_slots_by_live_live_clip_slot = {
-            clip_slot._clip_slot: clip_slot for track in self.song.simple_tracks for clip_slot in track.clip_slots
-        }
-
-        # 4. Create Scenes
-        self.song.scenes = [Scene(scene) for scene in list(self.song._song.scenes)]
-
-        # 5. Handle added tracks
+        # Notify if added track(s)
         if has_added_tracks and self.song.selected_track:
             # noinspection PyUnresolvedReferences
             self.notify_added_track()
@@ -87,9 +63,50 @@ class SongManager(AbstractControlSurfaceComponent):
         self._simple_tracks = list(self.song.simple_tracks)
         self.parent.defer(partial(self.parent.setFixerManager.refresh_set_appearance, log=False))
         self.parent.log_debug("SongManager : mapped tracks")
-        self.parent.log_debug("")
+        self.parent.log_debug()
         # noinspection PyUnresolvedReferences
-        self.notify_selected_track()
+        self.notify_selected_track()  # trigger other components
+
+    def _generate_simple_tracks(self):
+        # type: () -> None
+        """ instantiate SimpleTracks (including return / master, that are marked as inactive) """
+        self._simple_tracks[:] = []
+
+        song_tracks = (
+            list(self.song._song.tracks) + list(self.song._song.return_tracks) + [self.song._song.master_track]
+        )
+
+        # disconnect removed tracks
+        for live_track, simple_track in self.song.live_track_to_simple_track.items():
+            if live_track not in song_tracks:
+                simple_track.disconnect()
+
+        # instantiate simple tracks
+        for track in song_tracks:
+            simple_track = self.parent.trackManager.instantiate_simple_track(track=track)
+            self.song.live_track_to_simple_track[track] = simple_track
+            self._simple_tracks.append(simple_track)
+
+        # Refresh track mapping
+        self.song.live_track_to_simple_track = collections.OrderedDict()
+        for track in self._simple_tracks:
+            self.song.live_track_to_simple_track[track._track] = track
+
+        # Store clip_slots mapping. track and scene changes trigger a song remapping so it's fine
+        self.song.clip_slots_by_live_live_clip_slot = {
+            clip_slot._clip_slot: clip_slot for track in self.song.simple_tracks for clip_slot in track.clip_slots
+        }
+
+    def _generate_abstract_group_tracks(self):
+        # type: () -> None
+        # 2nd pass : instantiate AbstractGroupTracks
+        for track in self.song.simple_tracks:
+            if track.is_foldable:
+                self.parent.trackManager.instantiate_abstract_group_track(track)
+
+    def _generate_scenes(self):
+        # type: () -> None
+        self.song.scenes = [Scene(scene) for scene in list(self.song._song.scenes)]
 
     def _highlighted_clip_slot_poller(self):
         # type: () -> None

@@ -8,6 +8,7 @@ from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.enums.ClipTypeEnum import ClipTypeEnum
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
+from a_protocol_0.lom.device.AbstractDeviceList import AbstractDeviceList
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
@@ -33,7 +34,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self.sub_tracks = []  # type: List[SimpleTrack]
 
         self.linked_track = None  # type: Optional[SimpleTrack]
-        self.devices = []  # type: List[Device]
+        self.devices = AbstractDeviceList([])  # type: AbstractDeviceList
         self.all_devices = []  # type: List[Device]
         self._instrument = None  # type: Optional[AbstractInstrument]
         self.clip_slots = []  # type: List[ClipSlot]
@@ -100,7 +101,8 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # type: () -> None
         for device in self.devices:
             device.disconnect()
-        self.devices = [Device.make(device, self.base_track) for device in self._track.devices]
+
+        self.devices = AbstractDeviceList([Device.make(device, self) for device in self._track.devices])
         self.all_devices = self._find_all_devices(self.base_track)
 
         # Refreshing is only really useful from simpler devices that change when a new sample is loaded

@@ -1,11 +1,12 @@
 import abc
-from collections import MutableSequence
+from collections import MutableSequence as CollectionsMutableSequence
 
-from typing import List, Any, Iterator, Union
+from typing import Any, Iterator, Union, TypeVar, MutableSequence
 
 from _Framework.SubjectSlot import SubjectMeta
 from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.my_types import T
+
+T = TypeVar("T")
 
 
 class CombinedMeta(SubjectMeta, abc.ABCMeta):
@@ -17,20 +18,21 @@ class CombinedMeta(SubjectMeta, abc.ABCMeta):
     pass
 
 
-class UserMutableSequence(MutableSequence, AbstractObject):
+class UserMutableSequence(CollectionsMutableSequence, AbstractObject):
     __metaclass__ = CombinedMeta
 
     """
-        base class for defining custom list classes
+    base class for defining custom list classes
     """
 
     def __init__(self, list, *a, **k):
-        # type: (List[T], Any, Any) -> None
+        # type: (MutableSequence[T], Any, Any) -> None
         super(UserMutableSequence, self).__init__(*a, **k)
         self._list = list
 
     def __getitem__(self, value):
-        # type: (Union[int, slice]) -> Union[T, List[T]]
+        # type: (int) -> T
+        assert isinstance(value, int), "slice access not allowed"
         return self._list[value]
 
     def __delitem__(self, value):

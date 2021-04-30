@@ -1,6 +1,6 @@
 import inspect
 import types
-from collections import namedtuple
+from collections import namedtuple, Sequence as CollectionsSequence
 from types import FrameType
 
 from qualname import qualname
@@ -31,7 +31,7 @@ def scroll_values(items, selected_item, go_next, show_message=False):
 
 
 def find_if(predicate, seq):
-    # type: (Callable[[T], bool], List[T]) -> Optional[T]
+    # type: (Callable[[T], bool], CollectionsSequence[T]) -> Optional[T]
     for x in seq:
         if predicate(x):
             return x

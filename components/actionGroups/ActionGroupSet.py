@@ -6,7 +6,7 @@ from a_protocol_0.components.actionGroups.AbstractActionGroup import AbstractAct
 class ActionGroupSet(AbstractActionGroup):
     """
     This manager is supposed to group mundane tasks on Live like debug
-    or one shot actions on a set (like upgrading to a new naming scheme)
+    or one shot actions on a set (like upgrading to the current naming scheme)
     """
 
     def __init__(self, *a, **k):

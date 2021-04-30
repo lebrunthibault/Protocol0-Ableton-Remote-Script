@@ -3,14 +3,14 @@ import re
 from typing import TYPE_CHECKING, Any, Optional
 
 from a_protocol_0.config import Config
-from a_protocol_0.lom.AbstractObject import AbstractObject
+from a_protocol_0.lom.AbstractObjectName import AbstractObjectName
 from a_protocol_0.utils.decorators import p0_subject_slot, defer
 
 if TYPE_CHECKING:
     from a_protocol_0.lom.clip.Clip import Clip
 
 
-class ClipName(AbstractObject):
+class ClipName(AbstractObjectName):
     def __init__(self, clip, *a, **k):
         # type: (Clip, Any, Any) -> None
         super(ClipName, self).__init__(*a, **k)
@@ -29,13 +29,17 @@ class ClipName(AbstractObject):
     def _name_listener(self):
         # type: () -> None
         """ overridden """
-        match = re.match("^(?P<base_name>[^()[\].]*).*$", self.clip.name or "")
+        match = re.match("^(\d+ bars?\s?)?(?P<base_name>[^()[\].]*).*$", self.clip.name or "")
         self.base_name = match.group("base_name").strip() if match else ""
         if Config.FIX_OUTDATED_SETS:
-            self.base_name = self.base_name.split("-")[0].strip()
+            self.normalize_base_name()
+        self.update()
+
+    def normalize_base_name(self):
+        # type: () -> None
+        super(ClipName, self).normalize_base_name()
         if re.match("^%s( \d+)?" % self.clip.track.base_name.strip(), self.base_name):
             self.base_name = ""
-        self.update()
 
     @property
     def length_legend(self):

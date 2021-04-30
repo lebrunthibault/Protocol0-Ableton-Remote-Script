@@ -19,10 +19,6 @@ class LogManager(AbstractObject):
         self.parent.log_notice("********* CURRENT_TRACK *************")
         self.parent.log_info("current_track: %s" % self.song.current_track)
         self.parent.log_info()
-        self.parent.log_info(
-            "current_track._registered_disconnectables: %s" % self.song.current_track._registered_disconnectables
-        )
-        self.parent.log_info()
         self.parent.log_info("current_track.abstract_group_track: %s" % self.song.current_track.abstract_group_track)
         self.parent.log_info()
         self.parent.log_info("current_track.sub_tracks: %s" % self.song.current_track.sub_tracks)

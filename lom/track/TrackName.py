@@ -8,28 +8,22 @@ from _Framework.SubjectSlot import subject_slot_group
 from a_protocol_0.config import Config
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
-from a_protocol_0.lom.AbstractObject import AbstractObject
+from a_protocol_0.lom.AbstractObjectName import AbstractObjectName
 from a_protocol_0.utils.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
     from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 
 
-class TrackName(AbstractObject):
+class TrackName(AbstractObjectName):
     def __init__(self, track, *a, **k):
         # type: (AbstractTrack, Any, Any) -> None
         super(TrackName, self).__init__(*a, **k)
         self.track = track
-        self.base_name = ""
         self.selected_preset_index = 0
         self._instrument_listener.subject = self.track
         self._name_listener.add_subject(self.track._track)
         self.parent.defer(partial(self._name_listener, self.track._track))
-
-    @property
-    def enabled(self):
-        # type: () -> bool
-        return not self.track.abstract_group_track
 
     @property
     def instrument_names(self):
@@ -72,22 +66,22 @@ class TrackName(AbstractObject):
     def should_recompute_base_name(self):
         # type: () -> bool
         return (
-            self.base_name == self.track.DEFAULT_NAME.lower()
+            not self.base_name
+            or self.base_name == self.track.DEFAULT_NAME.lower()
             or self.track.instrument
             or self.base_name.lower() in self.instrument_names
         )
 
     def update(self, base_name=None):
         # type: (Optional[str]) -> None
-        if not self.enabled:
-            return None
-
         self.base_name = base_name or self.base_name
 
         if self.should_recompute_base_name:
             self.base_name = self.track.computed_base_name
 
-        name = self.base_name.capitalize()
+        name = self.base_name
+        if not self.track.abstract_group_track:
+            name = name.capitalize()
 
         # displaying only on group track when track is part of an AbstractGroupTrack
         if self.track.instrument and self.track.abstract_group_track is None:
@@ -102,5 +96,5 @@ class TrackName(AbstractObject):
         self.track.name = name
 
         # propagating upwards
-        if self.track.group_track:
+        if self.track.group_track and not self.track.abstract_group_track:
             self.track.group_track.track_name.update()

@@ -31,12 +31,14 @@ class Device(AbstractObject):
     @staticmethod
     def make(device, track):
         # type: (Live.Device.Device, SimpleTrack) -> Device
-        from a_protocol_0.lom.device.RackDevice import RackDevice
-        from a_protocol_0.lom.device.PluginDevice import PluginDevice
 
         if isinstance(device, Live.RackDevice.RackDevice):
+            from a_protocol_0.lom.device.RackDevice import RackDevice
+
             return RackDevice(device=device, track=track)
         elif isinstance(device, Live.PluginDevice.PluginDevice):
+            from a_protocol_0.lom.device.PluginDevice import PluginDevice
+
             return PluginDevice(device=device, track=track)
         else:
             return Device(device=device, track=track)

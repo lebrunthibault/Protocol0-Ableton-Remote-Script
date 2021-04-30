@@ -7,6 +7,7 @@ from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
 from a_protocol_0.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.group_track.ExternalSynthTrackActionMixin import ExternalSynthTrackActionMixin
+from a_protocol_0.lom.track.group_track.ExternalSynthTrackName import ExternalSynthTrackName
 from a_protocol_0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from a_protocol_0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -37,6 +38,9 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         # audio and midi tracks are now handled by self
         self.audio_track.abstract_group_track = self
         self.midi_track.abstract_group_track = self
+
+        self.track_name.disconnect()  # type: ignore[has-type]
+        self.track_name = ExternalSynthTrackName(self)
 
         self.audio_track.set_output_routing_to(self.base_track)
 
@@ -87,6 +91,18 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     def set_output_routing_to(self, *a, **k):
         # type: (Any, Any) -> None
         self.audio_track.set_output_routing_to(*a, **k)
+
+    @property
+    def color(self):
+        # type: () -> int
+        return self.base_track.color
+
+    @color.setter
+    def color(self, color_index):
+        # type: (int) -> None
+        self.base_track.color = color_index
+        self.midi_track.color = color_index
+        self.audio_track.color = color_index
 
     def disconnect(self):
         # type: () -> None

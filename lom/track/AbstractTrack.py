@@ -70,9 +70,8 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @defer
     def _instrument_listener(self):
         # type: () -> None
-        pass
-        # if not self.abstract_group_track:
-        #     self.refresh_appearance()
+        if not self.abstract_group_track:
+            self.refresh_appearance()
 
     @p0_subject_slot("color")
     @defer
@@ -121,7 +120,9 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def computed_base_name(self):
         # type: () -> str
-        if self.instrument:
+        from a_protocol_0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+
+        if self.instrument and not isinstance(self.abstract_group_track, ExternalSynthTrack):
             return self.instrument.name
         else:
             return self.DEFAULT_NAME
