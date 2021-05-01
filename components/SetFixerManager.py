@@ -1,5 +1,6 @@
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.lom.device.RackDevice import RackDevice
+from a_protocol_0.utils.decorators import defer
 
 
 class SetFixerManager(AbstractControlSurfaceComponent):
@@ -65,6 +66,12 @@ class SetFixerManager(AbstractControlSurfaceComponent):
         # type: () -> None
         for track in reversed(list(self.song.abstract_tracks)):
             track.refresh_appearance()
+
+    @defer
+    def refresh_scenes_appearance(self):
+        # type: () -> None
+        for scene in self.song.scenes:
+            scene.scene_name.update()
 
     def _update_racks(self):
         # type: () -> None

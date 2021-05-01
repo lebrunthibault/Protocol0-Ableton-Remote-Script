@@ -51,21 +51,22 @@ class SongActionMixin(object):
                 t.solo = False
 
     @handle_error
-    def reset(self):
-        # type: (Song) -> None
+    def reset(self, reset_tracks=True):
+        # type: (Song, bool) -> None
         """ stopping immediately """
         self.stop_playing()
         self._song.current_song_time = 0
         self.stop_all_clips()
-        for track in self.abstract_tracks:
-            track.reset_track()
+        if reset_tracks:
+            for track in self.abstract_tracks:
+                track.reset_track()
 
     def play_stop(self):
         # type: (Song) -> None
         if not self.is_playing:
             self.selected_scene.fire()
         else:
-            self.reset()
+            self.reset(False)
 
     def stop_playing(self):
         # type: (Song) -> None

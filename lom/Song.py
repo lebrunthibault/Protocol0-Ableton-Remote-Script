@@ -103,6 +103,11 @@ class Song(AbstractObject, SongActionMixin):
         # type: (Scene) -> None
         self.song._view.selected_scene = scene._scene
 
+    @property
+    def playing_scene(self):
+        # type: () -> Optional[Scene]
+        return find_if(lambda scene: scene.any_clip_playing, self.scenes)
+
     # CLIP SLOTS
 
     @property

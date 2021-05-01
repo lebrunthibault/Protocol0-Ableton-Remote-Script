@@ -68,7 +68,6 @@ class Scene(AbstractObject):
         if self == self.song.scenes[-1] or self.looping:
             return
         next_scene = self.song.scenes[self.index + 1]
-        self.parent.log_dev(self.length - self.playing_position)
         self.parent.sceneBeatScheduler.wait_beats(self.length - self.playing_position, next_scene.fire)
 
     def select(self):
@@ -104,6 +103,11 @@ class Scene(AbstractObject):
     def index(self):
         # type: () -> int
         return self.song.scenes.index(self)
+
+    @property
+    def base_name(self):
+        # type: () -> str
+        return self.scene_name.base_name
 
     @property
     def color(self):

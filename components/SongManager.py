@@ -41,6 +41,9 @@ class SongManager(AbstractControlSurfaceComponent):
         # type: () -> None
         self.parent.sceneBeatScheduler.clear()
         self._tracks_listener()
+        self.parent.setFixerManager.refresh_scenes_appearance()
+        if self.song.playing_scene:
+            self.song.playing_scene.schedule_next_scene_launch()
 
     @p0_subject_slot("tracks")
     @handle_error
