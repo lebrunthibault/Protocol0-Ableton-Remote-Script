@@ -11,6 +11,7 @@ from a_protocol_0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.MidiClip import MidiClip
 from a_protocol_0.sequence.Sequence import Sequence
+from a_protocol_0.utils.decorators import p0_subject_slot
 from a_protocol_0.utils.utils import find_if
 from a_protocol_0.utils.utils import scroll_values
 
@@ -27,6 +28,13 @@ class InstrumentSimpler(AbstractInstrument):
         # type: (Any, Any) -> None
         super(InstrumentSimpler, self).__init__(*a, **k)
         self.activated = True
+        self._name_listener.subject = self.track._track
+
+    @p0_subject_slot("name")
+    def _name_listener(self):
+        # type: () -> None
+        self.parent.log_dev("syncing presets for %s" % self)
+        self.sync_presets()
 
     @property
     def name(self):

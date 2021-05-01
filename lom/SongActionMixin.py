@@ -2,6 +2,7 @@ from functools import partial
 
 from typing import TYPE_CHECKING, Optional
 
+from a_protocol_0.lom.Scene import Scene
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.sequence.Sequence import Sequence
@@ -57,6 +58,9 @@ class SongActionMixin(object):
         self.stop_playing()
         self._song.current_song_time = 0
         self.stop_all_clips()
+        for scene in reversed(self.scenes):
+            if not len(scene.clips):
+                self.delete_scene(scene)
         if reset_tracks:
             for track in self.abstract_tracks:
                 track.reset_track()
@@ -94,6 +98,10 @@ class SongActionMixin(object):
         seq = Sequence()
         seq.add(lambda: self._song.create_scene(scene_index or len(self.song.scenes)), wait=1)
         return seq.done()
+
+    def delete_scene(self, scene):
+        # type: (Song, Scene) -> None
+        self._song.delete_scene(scene.index)
 
     def select_device(self, device):
         # type: (Song, Device) -> None
