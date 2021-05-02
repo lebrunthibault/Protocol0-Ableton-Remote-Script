@@ -1,5 +1,4 @@
 import re
-from functools import partial
 
 import Live
 from typing import TYPE_CHECKING, Optional, Any, List
@@ -23,7 +22,7 @@ class TrackName(AbstractObjectName):
         self.selected_preset_index = 0
         self._instrument_listener.subject = self.track
         self._name_listener.add_subject(self.track._track)
-        self.parent.defer(partial(self._name_listener, self.track._track))
+        self._name_listener(self.track._track)
 
     @property
     def instrument_names(self):

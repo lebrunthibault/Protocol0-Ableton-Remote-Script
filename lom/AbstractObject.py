@@ -23,7 +23,7 @@ class AbstractObject(SlotManager, Subject):
     def __repr__(self):
         # type: () -> str
         repr = "P0 %s" % self.__class__.__name__
-        if hasattr(self, "base_name"):
+        if hasattr(self, "base_name") and self.base_name:
             repr += ": %s" % self.base_name
         elif hasattr(self, "name"):
             repr += ": %s" % self.name

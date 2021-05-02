@@ -130,7 +130,10 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def color(self):
         # type: (AbstractTrack) -> int
-        return self._track.color_index
+        if self._track:
+            return self._track.color_index
+        else:
+            return ColorEnum.DISABLED
 
     @color.setter
     def color(self, color_index):

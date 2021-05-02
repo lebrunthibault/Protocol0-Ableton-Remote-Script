@@ -58,9 +58,6 @@ class SongActionMixin(object):
         self.stop_playing()
         self._song.current_song_time = 0
         self.stop_all_clips()
-        for scene in reversed(self.scenes):
-            if not len(scene.clips):
-                self.delete_scene(scene)
         if reset_tracks:
             for track in self.abstract_tracks:
                 track.reset_track()

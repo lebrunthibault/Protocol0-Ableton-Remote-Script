@@ -99,6 +99,11 @@ loadVst(search, vst = true, unGroupRack = false, createMidiTrack = false, positi
     return
 }
 
+; closes clink terminal window
+#IfWinActive, ahk_class ConsoleWindowClass
+    !F4::WinClose, A
+#IfWinActive
+
 groupTrack()
 {
     Send {Up}
@@ -153,7 +158,9 @@ refreshLogs()
     }
     Send {LWin up}
     Sleep 100
-    Send tailAbletonLogs.ps1
+    Send tailAbletonLogsShortcu
+    Sleep 100
+    Send t
     Sleep 500
     Send {Enter}
 }

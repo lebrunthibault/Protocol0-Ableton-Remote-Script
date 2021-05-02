@@ -33,7 +33,6 @@ class InstrumentSimpler(AbstractInstrument):
     @p0_subject_slot("name")
     def _name_listener(self):
         # type: () -> None
-        self.parent.log_dev("syncing presets for %s" % self)
         self.sync_presets()
 
     @property

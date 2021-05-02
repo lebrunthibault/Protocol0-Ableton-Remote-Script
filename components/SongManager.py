@@ -80,11 +80,6 @@ class SongManager(AbstractControlSurfaceComponent):
             list(self.song._song.tracks) + list(self.song._song.return_tracks) + [self.song._song.master_track]
         )
 
-        # disconnect removed tracks
-        for live_track, simple_track in self.song.live_track_to_simple_track.items():
-            if live_track not in song_tracks:
-                simple_track.disconnect()
-
         # instantiate simple tracks
         for track in song_tracks:
             simple_track = self.parent.trackManager.instantiate_simple_track(track=track)

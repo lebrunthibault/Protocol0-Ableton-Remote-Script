@@ -133,7 +133,7 @@ class SimpleTrackActionMixin(object):
                 devices += [device]
                 continue
 
-            if device.can_have_drum_pads and device.can_have_chains and device._view.is_showing_chain_devices:
+            if device.can_have_drum_pads and device.can_have_chains:
                 devices += chain([device], self._find_all_devices(device.selected_chain))
             elif not device.can_have_drum_pads and isinstance(device, RackDevice):
                 devices += chain(
