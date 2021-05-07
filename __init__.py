@@ -1,9 +1,25 @@
+import json
+import os
 import sys
+from os.path import dirname
 
 sys.path.insert(0, "C:\\Python27\\Lib\\site-packages")
 live_environment_loaded = "Live" in sys.modules
 
 from typing import Literal, Any, Iterator, Tuple  # noqa: E402
+
+
+def load_dotenv():
+    # type: () -> None
+    """ doing this manually because dotenv throws an encoding error """
+    root_dir = dirname(os.path.realpath(__file__))
+    with open("%s/.env.json" % root_dir) as f:
+        env_vars = json.loads(f.read())
+        for key, value in env_vars.iteritems():
+            os.environ[key] = str(value)
+
+
+load_dotenv()
 
 
 class EmptyModule(object):

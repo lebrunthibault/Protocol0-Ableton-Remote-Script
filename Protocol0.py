@@ -1,5 +1,3 @@
-import json
-import os
 import threading
 from types import MethodType
 
@@ -30,7 +28,6 @@ from a_protocol_0.components.actionGroups.ActionGroupMain import ActionGroupMain
 from a_protocol_0.components.actionGroups.ActionGroupSet import ActionGroupSet
 from a_protocol_0.components.actionGroups.ActionGroupTest import ActionGroupTest
 from a_protocol_0.config import Config
-from a_protocol_0.consts import ROOT_DIR
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.enums.LogLevelEnum import LogLevelEnum
 from a_protocol_0.lom.Song import Song
@@ -52,7 +49,6 @@ class Protocol0(ControlSurface):
 
         AbstractInstrument.INSTRUMENT_CLASSES = AbstractInstrument.get_instrument_classes()
 
-        self.load_dotenv()  # loading env file
         self._is_dev_booted = False
         with self.component_guard():
             self.errorManager = ErrorManager(set_excepthook=True)
@@ -169,14 +165,6 @@ class Protocol0(ControlSurface):
         # type: () -> None
         if self._is_dev_booted:
             return
-
-    def load_dotenv(self):
-        # type: () -> None
-        """ doing this manually because dotenv throws an encoding error """
-        with open("%s/.env.json" % ROOT_DIR) as f:
-            env_vars = json.loads(f.read())
-            for key, value in env_vars.iteritems():
-                os.environ[key] = str(value)
 
     def disconnect(self):
         # type: () -> None

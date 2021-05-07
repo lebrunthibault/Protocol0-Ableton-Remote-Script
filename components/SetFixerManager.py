@@ -1,4 +1,7 @@
+from typing import cast
+
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from a_protocol_0.devices.InstrumentSimpler import InstrumentSimpler
 from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.utils.decorators import defer
 
@@ -11,6 +14,7 @@ class SetFixerManager(AbstractControlSurfaceComponent):
         """ Checks the set is operational """
         self._check_input_routings()
         self._check_tracks_tree_consistency()
+        self._check_simpler_instruments_connected()
 
         self.parent.show_message("Set checked !")
 
@@ -48,12 +52,19 @@ class SetFixerManager(AbstractControlSurfaceComponent):
                     assert simple_track.group_track.abstract_group_track is None, "failed on %s" % simple_track
                     assert simple_track in simple_track.group_track.sub_tracks, "failed on %s" % simple_track
 
+    def _check_simpler_instruments_connected(self):
+        # type: () -> None
+        for track in self.song.simple_tracks:
+            if isinstance(track.instrument, InstrumentSimpler):
+                cast(InstrumentSimpler, track.instrument).selected_category  # property will log error if None
+
     def refresh_set_appearance(self, log=True):
         # type: (bool) -> None
         """ Fix the current set to the current standard regarding naming / coloring etc .."""
 
         self._refresh_tracks_appearance()
         self._refresh_clips_appearance()
+        self._fix_simpler_tracks_name()
         if log:
             self.parent.show_message("Set fixed !")
 
@@ -72,6 +83,13 @@ class SetFixerManager(AbstractControlSurfaceComponent):
         # type: () -> None
         for scene in self.song.scenes:
             scene.scene_name.update()
+
+    def _fix_simpler_tracks_name(self):
+        # type: () -> None
+        for track in self.song.simple_tracks:
+            if isinstance(track.instrument, InstrumentSimpler):
+                if track.base_name.endswith("s"):
+                    track.track_name.update(base_name=track.base_name[:-1])
 
     def _update_racks(self):
         # type: () -> None

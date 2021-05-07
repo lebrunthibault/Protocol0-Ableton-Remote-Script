@@ -49,8 +49,12 @@ class InstrumentSimpler(AbstractInstrument):
             return None
 
         selected_category = find_if(
-            lambda f: self.track.base_name.split(" ")[0].strip().lower() in f.lower(), listdir(self.PRESETS_PATH)
+            lambda f: self.track.base_name.strip().lower() in f.lower(), listdir(self.PRESETS_PATH)
         )
+        if not selected_category:
+            selected_category = find_if(
+                lambda f: self.track.base_name.split(" ")[0].strip().lower() in f.lower(), listdir(self.PRESETS_PATH)
+            )
         if selected_category is None:
             self.parent.log_error("Couldn't find sample selected category for %s" % self.track)
             return None
