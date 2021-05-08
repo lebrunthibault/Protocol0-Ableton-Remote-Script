@@ -24,6 +24,8 @@ class SceneName(AbstractObject):
         # type: () -> None
         match = re.match("^(?P<base_name>[^()]*[^()\s])\s*(\((?P<length>\d*)\))?(?P<looping>\*)?.*$", self.scene.name)
         self.base_name = match.group("base_name").strip() if match else ""
+        if match.group("looping"):
+            self.scene.LOOPING_SCENE = self.scene
         self.update()
 
     def update(self, base_name=None, looping=None):

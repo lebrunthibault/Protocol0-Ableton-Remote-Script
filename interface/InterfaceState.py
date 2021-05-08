@@ -12,16 +12,18 @@ class InterfaceState(object):
     # when the button was not clicked. As a workaround we click it the first time
     CLIP_ENVELOPE_SHOW_BOX_CLICKED = False
 
-    def scroll_track_categories(self, go_next):
+    @classmethod
+    def scroll_track_categories(cls, go_next):
         # type: (bool) -> None
         InterfaceState.SELECTED_TRACK_CATEGORY = scroll_values(
             list(TrackCategoryEnum), InterfaceState.SELECTED_TRACK_CATEGORY, go_next, True
         )
 
-    def scroll_recording_times(self, go_next):
+    @classmethod
+    def scroll_recording_times(cls, go_next):
         # type: (bool) -> None
-        self.SELECTED_RECORDING_TIME = scroll_values(self.RECORDING_TIMES, self.SELECTED_RECORDING_TIME, go_next)
-        bar_display_count = "%s bar%s" % (self.SELECTED_RECORDING_TIME, "s" if self.SELECTED_RECORDING_TIME > 1 else "")
+        cls.SELECTED_RECORDING_TIME = scroll_values(cls.RECORDING_TIMES, cls.SELECTED_RECORDING_TIME, go_next)
+        bar_display_count = "%s bar%s" % (cls.SELECTED_RECORDING_TIME, "s" if cls.SELECTED_RECORDING_TIME > 1 else "")
         from a_protocol_0 import Protocol0
 
         Protocol0.SELF.show_message("Selected %s" % bar_display_count)
