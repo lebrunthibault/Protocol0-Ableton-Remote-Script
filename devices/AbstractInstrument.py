@@ -3,7 +3,7 @@ import re
 from functools import partial
 from os import listdir
 
-from typing import TYPE_CHECKING, Optional, List, Any
+from typing import TYPE_CHECKING, Optional, List, Any, Type
 
 from a_protocol_0.devices.presets.InstrumentPreset import InstrumentPreset
 from a_protocol_0.devices.presets.InstrumentPresetList import InstrumentPresetList
@@ -14,6 +14,8 @@ from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.device.Device import Device
+from a_protocol_0.lom.device.PluginDevice import PluginDevice
+from a_protocol_0.lom.device.SimplerDevice import SimplerDevice
 from a_protocol_0.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -24,7 +26,7 @@ class AbstractInstrument(AbstractObject):
     __subject_events__ = ("selected_preset",)
 
     # computed at boot time
-    INSTRUMENT_CLASSES = []  # type: List[AbstractInstrument]
+    INSTRUMENT_CLASSES = []  # type: List[Type[AbstractInstrument]]
 
     NAME = ""
     DEVICE_NAME = ""
@@ -55,7 +57,7 @@ class AbstractInstrument(AbstractObject):
 
     @staticmethod
     def get_instrument_classes():
-        # type: () -> List[AbstractInstrument]
+        # type: () -> List[Type[AbstractInstrument]]
         files = listdir(os.path.dirname(os.path.abspath(__file__)))
 
         class_names = []
@@ -69,6 +71,24 @@ class AbstractInstrument(AbstractObject):
             class_names.append(getattr(mod, class_name))
 
         return class_names
+
+    @staticmethod
+    def get_instrument_class(device):
+        # type: (Device) -> Optional[Type[AbstractInstrument]]
+        if isinstance(device, PluginDevice):
+            for _class in AbstractInstrument.INSTRUMENT_CLASSES:
+                if _class.DEVICE_NAME.lower() == device.name.lower():
+                    return _class
+        elif isinstance(device, SimplerDevice):
+            from a_protocol_0.devices.InstrumentSimpler import InstrumentSimpler
+
+            return InstrumentSimpler
+        elif device.can_have_drum_pads:
+            from a_protocol_0.devices.InstrumentDrumRack import InstrumentDrumRack
+
+            return InstrumentDrumRack
+
+        return None
 
     def sync_presets(self):
         # type: () -> None
@@ -156,6 +176,12 @@ class AbstractInstrument(AbstractObject):
         # type: (str) -> str
         """ overridden """
         return preset_name
+
+    @property
+    def preset_name(self):
+        # type: () -> str
+        """ overridden """
+        return self.name
 
     def scroll_presets_or_samples(self, go_next):
         # type: (bool) -> Sequence

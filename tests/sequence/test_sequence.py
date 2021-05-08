@@ -80,7 +80,7 @@ def test_async_callback_execution_order():
 
     obj = Example()
 
-    seq = Sequence(silent=False)
+    seq = Sequence(silent=True)
     seq.add(nop, complete_on=obj.listener, name="waiting for obj.listener", check_timeout=2)
     seq.add(lambda: test_res.append(2), name="append 2")
     seq.add(nop, name="after listener step")

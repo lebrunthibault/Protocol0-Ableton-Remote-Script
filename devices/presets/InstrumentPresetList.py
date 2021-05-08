@@ -26,33 +26,34 @@ class InstrumentPresetList(AbstractObject):
 
     def sync_presets(self):
         # type: () -> None
-        self._import_presets()
+        self.presets = self._import_presets()
         self.selected_preset = self._get_selected_preset()
 
     def _import_presets(self):
-        # type: () -> None
-        self.presets = []
+        # type: () -> List[InstrumentPreset]
+        presets = []
         presets_path = self.instrument.presets_path
         if not presets_path:
-            self.presets = [
+            return [
                 InstrumentPreset(instrument=self.instrument, index=i)
                 for i in range(0, self.instrument.NUMBER_OF_PRESETS)
             ]
-            self.has_preset_names = False
-            return
 
         self.has_preset_names = True
         if isfile(presets_path):
-            self.presets = [
+            return [
                 InstrumentPreset(instrument=self.instrument, index=i, name=name)
                 for i, name in enumerate(open(presets_path).readlines())
             ]
         elif isdir(presets_path):
             for _, _, files in os.walk(presets_path):
                 for file in [file for file in files if file.endswith(self.instrument.PRESET_EXTENSION)]:
-                    self.presets.append(
-                        InstrumentPreset(instrument=self.instrument, index=len(self.presets), name=file)
-                    )
+                    presets.append(InstrumentPreset(instrument=self.instrument, index=len(presets), name=file))
+
+            return presets
+
+        self.parent.log_error("Couldn't import presets for %s" % self.instrument)
+        return []
 
     def _get_selected_preset(self):
         # type: () -> InstrumentPreset
@@ -61,19 +62,20 @@ class InstrumentPresetList(AbstractObject):
         then the track name (Serum or Minitaur)
         then the track selected index (prophet)
         """
+
+        def find_by_name(name):
+            # type: (str) -> Optional[InstrumentPreset]
+            for preset in self.presets:
+                if preset.name == name:
+                    return preset
+
+            return None
+
         return (
-            self._find_by_name(self.instrument.name)
-            or self._find_by_name(self.instrument.track.abstract_track.name)
+            find_by_name(self.instrument.preset_name)
+            or find_by_name(self.instrument.track.abstract_track.name)
             or self.presets[self.instrument.track.abstract_track.track_name.selected_preset_index]
         )
-
-    def _find_by_name(self, name):
-        # type: (str) -> Optional[InstrumentPreset]
-        for preset in self.presets:
-            if preset.name == name:
-                return preset
-
-        return None
 
     def scroll(self, go_next):
         # type: (bool) -> None

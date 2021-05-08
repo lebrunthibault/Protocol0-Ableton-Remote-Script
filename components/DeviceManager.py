@@ -1,15 +1,12 @@
 from functools import partial
 
 import Live
-from typing import TYPE_CHECKING, Optional, Tuple, Dict, Any
+from typing import TYPE_CHECKING, Optional, Tuple, Dict, Type, cast
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
-from a_protocol_0.devices.InstrumentDrumRack import InstrumentDrumRack
-from a_protocol_0.devices.InstrumentSimpler import InstrumentSimpler
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.device.Device import Device
-from a_protocol_0.lom.device.PluginDevice import PluginDevice
 from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from a_protocol_0.sequence.Sequence import Sequence
@@ -26,19 +23,6 @@ class DeviceManager(AbstractControlSurfaceComponent):
     COLLAPSED_RACK_DEVICE_PIXEL_WIDTH = 28
     WIDTH_PIXEL_OFFSET = 4
 
-    def get_device_class(self, device):
-        # type: (Device) -> Any
-        if isinstance(device, PluginDevice):
-            for _class in AbstractInstrument.INSTRUMENT_CLASSES:
-                if _class.DEVICE_NAME.lower() == device.name.lower():
-                    return _class
-        elif isinstance(device._device, Live.SimplerDevice.SimplerDevice):
-            return InstrumentSimpler
-        elif device.can_have_drum_pads:
-            return InstrumentDrumRack
-
-        return None
-
     def make_instrument_from_midi_track(self, track):
         # type: (SimpleMidiTrack) -> Optional[AbstractInstrument]
         """
@@ -46,12 +30,12 @@ class DeviceManager(AbstractControlSurfaceComponent):
         to keep instrument state
         """
 
-        instrument_device = find_if(lambda d: self.get_device_class(d), track.all_devices)
+        instrument_device = find_if(lambda d: AbstractInstrument.get_instrument_class(d), track.all_devices)  # type: ignore
         if not instrument_device:
             self.parent.log_error("Couldn't find instrument for midi track %s" % track)
             return None
 
-        instrument_class = self.get_device_class(instrument_device)
+        instrument_class = cast(Type[AbstractInstrument], AbstractInstrument.get_instrument_class(instrument_device))
 
         if isinstance(track.instrument, instrument_class):
             return track.instrument  # maintaining state

@@ -122,16 +122,18 @@ class MidiClip(Clip):
             self.parent.clyphxNavigationManager.show_clip_view()
             return None
 
-        seq = Sequence()
-        seq.add(self.view.hide_envelope, silent=True)
+        seq = Sequence(silent=True)
+        seq.add(wait=1)
+        seq.add(self.generate_base_notes)
+        seq.add(self.view.hide_envelope)
         seq.add(wait=10, silent=True)
         seq.add(self.parent.keyboardShortcutManager.click_clip_fold_notes)
         return seq.done()
 
     def generate_base_notes(self):
-        # type: (Clip) -> List[Note]
+        # type: () -> Optional[Sequence]
         """ Generate base clip notes on clip creation, overridden"""
         if self.track.instrument:
-            return self.track.instrument.generate_base_notes(self)
+            return self.set_notes(self.track.instrument.generate_base_notes(self))
         else:
-            return []
+            return None

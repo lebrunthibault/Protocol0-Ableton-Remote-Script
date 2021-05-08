@@ -76,7 +76,7 @@ class TrackName(AbstractObjectName):
         self.base_name = base_name or self.base_name
 
         if self.should_recompute_base_name:
-            self.base_name = self.track.computed_base_name
+            self.base_name = str(self.track.computed_base_name)
 
         name = self.base_name
         if not self.track.abstract_group_track:

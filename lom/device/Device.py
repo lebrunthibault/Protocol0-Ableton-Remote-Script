@@ -1,5 +1,5 @@
 import Live
-from typing import TYPE_CHECKING, List, Any
+from typing import TYPE_CHECKING, List, Any, Type
 
 from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.lom.AbstractObject import AbstractObject
@@ -29,19 +29,27 @@ class Device(AbstractObject):
         return isinstance(device, Device) and self._device == device._device
 
     @staticmethod
-    def make(device, track):
-        # type: (Live.Device.Device, SimpleTrack) -> Device
-
+    def get_class(device):
+        # type: (Any) -> Type[Device]
         if isinstance(device, Live.RackDevice.RackDevice):
             from a_protocol_0.lom.device.RackDevice import RackDevice
 
-            return RackDevice(device=device, track=track)
+            return RackDevice
         elif isinstance(device, Live.PluginDevice.PluginDevice):
             from a_protocol_0.lom.device.PluginDevice import PluginDevice
 
-            return PluginDevice(device=device, track=track)
+            return PluginDevice
+        elif isinstance(device, Live.SimplerDevice.SimplerDevice):
+            from a_protocol_0.lom.device.SimplerDevice import SimplerDevice
+
+            return SimplerDevice
         else:
-            return Device(device=device, track=track)
+            return Device
+
+    @staticmethod
+    def make(device, track):
+        # type: (Live.Device.Device, SimpleTrack) -> Device
+        return Device.get_class(device)(device=device, track=track)
 
     def select(self):
         # type: () -> None

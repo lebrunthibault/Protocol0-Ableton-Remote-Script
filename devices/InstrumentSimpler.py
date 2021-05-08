@@ -10,6 +10,7 @@ from a_protocol_0.enums.ColorEnum import ColorEnum
 from a_protocol_0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.MidiClip import MidiClip
+from a_protocol_0.lom.device.SimplerDevice import SimplerDevice
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import p0_subject_slot
 from a_protocol_0.utils.utils import find_if
@@ -28,6 +29,7 @@ class InstrumentSimpler(AbstractInstrument):
         # type: (Any, Any) -> None
         super(InstrumentSimpler, self).__init__(*a, **k)
         self.activated = True
+        self.device = self.device  # type: SimplerDevice
         self._name_listener.subject = self.track._track
 
     @p0_subject_slot("name")
@@ -68,6 +70,12 @@ class InstrumentSimpler(AbstractInstrument):
             return None
         else:
             return join(self.PRESETS_PATH, self.selected_category)
+
+    @property
+    def preset_name(self):
+        # type: () -> str
+        """ overridden """
+        return self.device.sample_name
 
     def _load_preset(self, preset):
         # type: (InstrumentPreset) -> Optional[Sequence]

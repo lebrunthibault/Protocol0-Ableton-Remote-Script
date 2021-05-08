@@ -13,8 +13,6 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(KeyBoardShortcutManager, self).__init__(*a, **k)
-        # launch the main ahk script
-        # subprocess.Popen([str(os.getenv("AHK_EXE")), ROOT_DIR + "\\scripts\\ahk\\ableton_shortcuts.ahk"])
 
     def _execute_python(self, filename, *args):
         # type: (str, Any) -> int
