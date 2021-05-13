@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, List, Optional, Any
 
 from a_protocol_0.devices.presets.InstrumentPreset import InstrumentPreset
 from a_protocol_0.lom.AbstractObject import AbstractObject
+from a_protocol_0.lom.device.RackDevice import RackDevice
 
 if TYPE_CHECKING:
     from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
@@ -36,7 +37,7 @@ class InstrumentPresetList(AbstractObject):
         if not presets_path:
             return [
                 InstrumentPreset(instrument=self.instrument, index=i)
-                for i in range(0, self.instrument.NUMBER_OF_PRESETS)
+                for i in range(0, self.instrument.number_of_presets)
             ]
 
         self.has_preset_names = True
@@ -81,3 +82,6 @@ class InstrumentPresetList(AbstractObject):
         # type: (bool) -> None
         new_preset_index = self.selected_preset.index + (1 if go_next else -1)
         self.selected_preset = self.presets[new_preset_index % len(self.presets)]
+
+        if isinstance(self.instrument.device, RackDevice):
+            self.instrument.device.scroll_chain_selector(go_next=go_next)

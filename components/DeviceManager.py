@@ -79,9 +79,9 @@ class DeviceManager(AbstractControlSurfaceComponent):
             (x_device, y_device) = self._get_device_show_button_click_coordinates(device)
             seq.add(
                 lambda: self.parent.keyboardShortcutManager.send_click(x=x_device, y=y_device),
-                wait=2,
                 name="click on device show button",
             )
+            seq.add(wait=2)
             seq.add(lambda: setattr(device, "is_collapsed", False), name="uncollapse all devices")
         else:
             for d in device.track.devices:

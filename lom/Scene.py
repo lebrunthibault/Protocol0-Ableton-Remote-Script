@@ -42,7 +42,7 @@ class Scene(AbstractObject):
         # type: () -> None
         """ implements a next scene follow action """
         # doing this when scene starts playing
-        self.PLAYING_SCENE = self
+        Scene.PLAYING_SCENE = self
         self.schedule_next_scene_launch()
 
     @subject_slot_group("length")
@@ -87,15 +87,15 @@ class Scene(AbstractObject):
         # type: () -> None
         """ for a scene solo means looped """
         if not self.looping:  # solo activation
-            previous_looping_scene = self.LOOPING_SCENE
-            self.LOOPING_SCENE = self
-            if self.PLAYING_SCENE != self:
+            previous_looping_scene = Scene.LOOPING_SCENE
+            self.looping = True
+            if Scene.PLAYING_SCENE != self:
                 self.fire()
             if previous_looping_scene:
                 previous_looping_scene.scene_name.update()
             self.parent.sceneBeatScheduler.clear()  # clearing scene scheduling
         else:  # solo inactivation
-            self.LOOPING_SCENE = None
+            self.looping = False
             self.schedule_next_scene_launch()  # restore previous behavior of follow action
         self.scene_name.update()
 
@@ -153,7 +153,12 @@ class Scene(AbstractObject):
     @property
     def looping(self):
         # type: () -> bool
-        return self == self.LOOPING_SCENE
+        return self == Scene.LOOPING_SCENE
+
+    @looping.setter
+    def looping(self, looping):
+        # type: (bool) -> None
+        Scene.LOOPING_SCENE = self if looping else None
 
     @property
     def clips(self):

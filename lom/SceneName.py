@@ -3,7 +3,7 @@ import re
 from typing import TYPE_CHECKING, Any
 
 from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.utils.decorators import p0_subject_slot, defer
+from a_protocol_0.utils.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
     from a_protocol_0.lom.Scene import Scene
@@ -19,14 +19,14 @@ class SceneName(AbstractObject):
         self._name_listener()
 
     @p0_subject_slot("name")
-    @defer
     def _name_listener(self):
         # type: () -> None
         match = re.match("^(?P<base_name>[^()]*[^()\s])\s*(\((?P<length>\d*)\))?(?P<looping>\*)?.*$", self.scene.name)
         self.base_name = match.group("base_name").strip() if match else ""
-        if match.group("looping"):
-            self.scene.LOOPING_SCENE = self.scene
-        self.update()
+        from a_protocol_0.lom.Scene import Scene
+
+        if match.group("looping") and not Scene.LOOPING_SCENE:
+            self.scene.looping = True
 
     def update(self, base_name=None, looping=None):
         # type: (str, bool) -> None

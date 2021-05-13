@@ -29,4 +29,6 @@ class MixingManager(AbstractControlSurfaceComponent):
             return
         if self.song._song.master_track.output_meter_level >= 0.87:
             for track in self.song.abstract_tracks:  # type: AbstractTrack
-                track.volume *= 0.95
+                if not track.group_track:
+                    self.parent.log_dev("volume down on %s" % track)
+                    track.volume *= 0.95

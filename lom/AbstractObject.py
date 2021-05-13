@@ -28,9 +28,6 @@ class AbstractObject(SlotManager, Subject):
         elif hasattr(self, "name"):
             repr += ": %s" % self.name
 
-        if hasattr(self, "index"):
-            repr += " (%s)" % self.index
-
         return repr
 
     def __ne__(self, obj):

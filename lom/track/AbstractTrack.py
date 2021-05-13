@@ -193,7 +193,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def is_playing(self):
         # type: () -> bool
-        return any(track.is_playing for track in [self] + self.sub_tracks)
+        return self.base_track.is_playing or any(sub_track.is_playing for sub_track in self.sub_tracks)
 
     @property
     def mute(self):

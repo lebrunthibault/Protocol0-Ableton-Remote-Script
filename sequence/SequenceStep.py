@@ -26,9 +26,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         name,  # type: str
         complete_on,  # type: Optional[Union[Callable, CallableWithCallbacks]]
         do_if,  # type: Optional[Callable]
-        do_if_not,  # type: Optional[Callable]
         return_if,  # type: Optional[Callable]
-        return_if_not,  # type: Optional[Callable]
         check_timeout,  # type: int
         silent,  # type: bool
         *a,  # type: Any
@@ -50,12 +48,10 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         self._callback_timeout = None  # type: Optional[Callable]
         self.res = None  # type: Optional[Any]
         self._do_if = do_if
-        self._do_if_not = do_if_not
         self._return_if = return_if
-        self._return_if_not = return_if_not
         self.early_returned = False
 
-        conditions = [do_if, do_if_not, return_if, return_if_not]
+        conditions = [do_if, return_if]
         self._condition = next((c for c in conditions if c), None)  # type: Optional[Callable]
 
         assert callable(self._callable), "You passed a non callable (%s) to %s" % (self._callable, self)
@@ -78,12 +74,8 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
                 output += " (and poll for %s)" % get_callable_name(self._complete_on)
         if self._do_if:
             output += " (has_if)"
-        elif self._do_if_not:
-            output += " (has_if_not)"
         elif self._return_if:
             output += " (has_return_if)"
-        elif self._return_if_not:
-            output += " (has_return_if_not)"
 
         return "[%s]" % output
 
@@ -115,11 +107,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         # type: () -> None
         terminate_callback = cast(
             CallableWithCallbacks,
-            (
-                self._terminate_if_condition
-                if self._condition in [self._do_if, self._do_if_not]
-                else self._terminate_return_condition
-            ),
+            (self._terminate_if_condition if self._condition == self._do_if else self._terminate_return_condition),
         )
         try:
             condition_res = self._execute_callable(cast(Callable, self._condition))
@@ -137,7 +125,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         if self.debug:
             self.parent.log_info("%s condition returned %s" % (self, if_res))
 
-        if (if_res and self._do_if) or (not if_res and self._do_if_not):
+        if if_res and self._do_if:
             self._execute()
         else:
             self.res = True  # Sequence is not an error
@@ -152,7 +140,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         if self.debug:
             self.parent.log_info("%s condition returned %s" % (self, return_res))
 
-        if (return_res and self._return_if) or (not return_res and self._return_if_not):
+        if return_res and self._return_if:
             self.early_returned = True
             self.terminate()
         else:

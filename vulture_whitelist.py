@@ -1,6 +1,6 @@
 # type: ignore
 _.current_song_time  # unused attribute (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\a_protocol_0\lom\SongActionMixin.py:80)
-_.session_automation_record  # unused attribute (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\a_protocol_0\lom\track\AbstractTrackActionMixin.py:135)
+_.session_record  # unused attribute (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\a_protocol_0\lom\track\AbstractTrackActionMixin.py:127)
 _.scroll_presets  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\a_protocol_0\lom\device\Device.py:51)
 _.get_value_from_midi_value  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\a_protocol_0\lom\device\DeviceParameter.py:53)
 _.has_key  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\a_protocol_0\enums\AbstractEnum.py:13)

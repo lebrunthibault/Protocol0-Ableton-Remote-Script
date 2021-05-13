@@ -1,9 +1,10 @@
 class ColorEnum(object):
-    ARM = 14
-    DISABLED = 13
-    DEFAULT = 10
     SIMPLER = 2
     DRUM_RACK = 3
-    PROPHET = 23
-    MINITAUR = 69
+    DEFAULT = 10
+    DISABLED = 13
+    ARM = 14
     SERUM = 18
+    PROPHET = 23
+    ADDICTIVE_KEYS = 26
+    MINITAUR = 69

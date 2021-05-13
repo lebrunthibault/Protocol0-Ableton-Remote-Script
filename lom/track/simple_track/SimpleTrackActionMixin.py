@@ -48,7 +48,7 @@ class SimpleTrackActionMixin(object):
             self.mute = False
             self.is_armed = True
 
-        if self.instrument and self.instrument.needs_exclusive_activation:
+        if self.instrument:
             return self.instrument.check_activated()
         else:
             return None
@@ -61,7 +61,7 @@ class SimpleTrackActionMixin(object):
         # type: (SimpleTrack) -> Sequence
         """ finishes on end of recording """
         seq = Sequence()
-        assert self.next_empty_clip_slot_index
+        assert self.next_empty_clip_slot_index is not None
         seq.add(self.clip_slots[self.next_empty_clip_slot_index].record)  # type: ignore[has-type]
         seq.add(self._post_record)
         return seq.done()

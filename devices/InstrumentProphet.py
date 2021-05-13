@@ -14,22 +14,23 @@ class InstrumentProphet(AbstractInstrument):
     TRACK_COLOR = ColorEnum.PROPHET
     IS_EXTERNAL_SYNTH = True
     PRESET_DISPLAY_OPTION = PresetDisplayOptionEnum.INDEX
+    ACTIVE_INSTANCE = None  # type: Optional[InstrumentProphet]
 
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(InstrumentProphet, self).__init__(*a, **k)
-        self.active_instance = self
 
     @property
     def needs_exclusive_activation(self):
         # type: () -> bool
-        return self.active_instance != self
+        return InstrumentProphet.ACTIVE_INSTANCE != self
 
     def exclusive_activate(self):
         # type: () -> Optional[Sequence]
+        self.parent.log_dev("exclusive activate on %s" % self)
         seq = Sequence()
-        seq.add(self.track.select)
-        seq.add(self.parent.keyboardShortcutManager.show_and_activate_rev2_editor, wait=20)
-        seq.add(partial(setattr, self, "active_instance", self))
+        if InstrumentProphet.ACTIVE_INSTANCE is not None:
+            seq.add(self.parent.keyboardShortcutManager.show_and_activate_rev2_editor, wait=300)
+        seq.add(partial(setattr, InstrumentProphet, "ACTIVE_INSTANCE", self))
 
         return seq.done()

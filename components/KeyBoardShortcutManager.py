@@ -7,6 +7,7 @@ from typing import Any
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import ROOT_DIR
 from a_protocol_0.sequence.Sequence import Sequence
+from a_protocol_0.utils.decorators import log
 
 
 class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
@@ -34,6 +35,7 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
         child.communicate()
         return child.returncode
 
+    @log
     def send_keys(self, keys, repeat=False):
         # type: (str, bool) -> Sequence
         seq = Sequence(silent=True)
@@ -41,7 +43,7 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
         seq.add(partial(self._execute_python, "send_keys.py", keys))
         if repeat:
             # here trying to mitigate shortcuts not received by Live god knows why ..
-            seq.add(wait=1)
+            seq.add(wait=5)
             seq.add(partial(self._execute_python, "send_keys.py", keys))
 
         return seq.done()
@@ -87,6 +89,7 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
     def is_plugin_window_visible(self, plugin_name=""):
         # type: (str) -> bool
         """ we cannot do ctrl alt p and recheck inside of ahk because the sleeping prevents the window to show """
+        self.parent.log_warning(plugin_name)
         return bool(self._execute_ahk("is_plugin_visible.ahk", str(plugin_name)))
 
     def show_and_activate_rev2_editor(self):

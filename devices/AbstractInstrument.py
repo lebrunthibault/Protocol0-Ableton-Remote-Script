@@ -15,6 +15,7 @@ from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.device.PluginDevice import PluginDevice
+from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.lom.device.SimplerDevice import SimplerDevice
 from a_protocol_0.sequence.Sequence import Sequence
 
@@ -32,7 +33,7 @@ class AbstractInstrument(AbstractObject):
     DEVICE_NAME = ""
     TRACK_COLOR = ColorEnum.DISABLED
     CAN_BE_SHOWN = True
-    NUMBER_OF_PRESETS = 128
+    DEFAULT_NUMBER_OF_PRESETS = 128
     PRESETS_PATH = ""
     PRESET_EXTENSION = ""
     NEEDS_ACTIVATION_FOR_PRESETS_CHANGE = False
@@ -55,8 +56,16 @@ class AbstractInstrument(AbstractObject):
         # type: () -> str
         return self.NAME if self.NAME else self.device.name
 
-    @staticmethod
-    def get_instrument_classes():
+    @property
+    def number_of_presets(self):
+        # type: () -> int
+        if isinstance(self.device, RackDevice):
+            return len(self.device.chains)
+        else:
+            return self.DEFAULT_NUMBER_OF_PRESETS
+
+    @classmethod
+    def get_instrument_classes(cls):
         # type: () -> List[Type[AbstractInstrument]]
         files = listdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -72,11 +81,27 @@ class AbstractInstrument(AbstractObject):
 
         return class_names
 
-    @staticmethod
-    def get_instrument_class(device):
+    @classmethod
+    def get_device_from_rack_device(cls, rack_device):
+        # type: (RackDevice) -> Optional[Device]
+        if len(rack_device.chains) and len(rack_device.chains[0].devices):
+            # keeping only racks containing the same device
+            device_types = list(set([type(chain.devices[0]) for chain in rack_device.chains if len(chain.devices)]))
+            device_names = list(set([chain.devices[0].name for chain in rack_device.chains if len(chain.devices)]))
+            if len(device_types) == 1 and len(device_names) == 1:
+                return rack_device.chains[0].devices[0]
+
+        return None
+
+    @classmethod
+    def get_instrument_class(cls, device):
         # type: (Device) -> Optional[Type[AbstractInstrument]]
+        # checking for grouped devices
+        if isinstance(device, RackDevice):
+            device = cls.get_device_from_rack_device(device) or device
+
         if isinstance(device, PluginDevice):
-            for _class in AbstractInstrument.INSTRUMENT_CLASSES:
+            for _class in cls.INSTRUMENT_CLASSES:
                 if _class.DEVICE_NAME.lower() == device.name.lower():
                     return _class
         elif isinstance(device, SimplerDevice):
@@ -105,66 +130,54 @@ class AbstractInstrument(AbstractObject):
         return self._preset_list.has_preset_names and self.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.NAME
 
     @property
-    def active_instance(self):
-        # type: () -> Optional[AbstractInstrument]
-        return self.__class__._active_instance
-
-    @active_instance.setter
-    def active_instance(self, instance):
-        # type: (AbstractInstrument) -> None
-        self.__class__._active_instance = instance
-
-    @property
     def needs_exclusive_activation(self):
         # type: () -> bool
+        """ overridden """
         return False
 
     def exclusive_activate(self):
         # type: () -> Optional[Sequence]
         pass
 
-    @property
-    def should_be_activated(self):
-        # type: () -> bool
-        if not self.CAN_BE_SHOWN:
-            return False
-        return not self.activated or (self.needs_exclusive_activation)
-
     def check_activated(self, select_instrument_track=False):
         # type: (bool) -> Optional[Sequence]
-        if not self.should_be_activated:
+        if not self.CAN_BE_SHOWN and self.activated and not self.needs_exclusive_activation:
             return None
 
         seq = Sequence()
 
         if not self.activated:
+            self.parent.log_dev("activation")
             seq.add(self.device.track.select)
             seq.add(partial(self.parent.deviceManager.make_plugin_window_showable, self.device))
             seq.add(lambda: setattr(self, "activated", True), name="mark instrument as activated")
 
         if self.needs_exclusive_activation:
+            self.parent.log_dev("exclusive_activate")
+            seq.add(self.device.track.select)
             seq.add(self.exclusive_activate)
 
         if not select_instrument_track:
+            self.parent.log_dev("selecting selected_track")
             seq.add(self.song.selected_track.select, silent=True)
 
         return seq.done()
 
     def show_hide(self):
-        # type: () -> None
-        is_shown = self.parent.keyboardShortcutManager.is_plugin_window_visible(self.name)
-        if not self.should_be_activated or is_shown:
-            seq = Sequence()
-            seq.add(self.device.track.select)
-            # happens when clicking from current track
-            seq.add(
-                self.parent.keyboardShortcutManager.show_hide_plugins,
-                do_if_not=lambda: self.parent.keyboardShortcutManager.is_plugin_window_visible(self.name)
-                and not is_shown,
-            )
-            seq.done()
+        # type: () -> Sequence
+        seq = Sequence()
+        seq.add(partial(self.check_activated, select_instrument_track=True))
+        seq.add(self.device.track.select)
+        if self.song.selected_track != self.device.track or not self.is_plugin_window_visible:
+            seq.add(self.parent.keyboardShortcutManager.show_plugins)
         else:
-            self.check_activated(select_instrument_track=True)
+            seq.add(self.parent.keyboardShortcutManager.show_hide_plugins)
+        return seq.done()
+
+    @property
+    def is_plugin_window_visible(self):
+        # type: () -> bool
+        return self.parent.keyboardShortcutManager.is_plugin_window_visible(self.device.name)
 
     @property
     def presets_path(self):
@@ -213,7 +226,8 @@ class AbstractInstrument(AbstractObject):
         """ Overridden default is send program change """
         seq = Sequence()
         seq.add(self.track.abstract_track.arm)
-        seq.add(partial(self.parent.midiManager.send_program_change, preset.index + self.PROGRAM_CHANGE_OFFSET))
+        if not isinstance(self.device, RackDevice):
+            seq.add(partial(self.parent.midiManager.send_program_change, preset.index + self.PROGRAM_CHANGE_OFFSET))
         return seq.done()
 
     def generate_base_notes(self, clip):

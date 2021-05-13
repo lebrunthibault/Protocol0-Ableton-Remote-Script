@@ -94,9 +94,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
         name=None,  # type: str
         complete_on=None,  # type: Callable
         do_if=None,  # type: Callable
-        do_if_not=None,  # type: Callable
         return_if=None,  # type: Callable
-        return_if_not=None,  # type: Callable
         check_timeout=4,  # type: int
         no_timeout=False,  # type: bool
         silent=False,  # type: bool
@@ -124,9 +122,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
                 name=name,
                 complete_on=complete_on,
                 do_if=do_if,
-                do_if_not=do_if_not,
                 return_if=return_if,
-                return_if_not=return_if_not,
                 check_timeout=0 if no_timeout else check_timeout,
                 silent=silent,
             )

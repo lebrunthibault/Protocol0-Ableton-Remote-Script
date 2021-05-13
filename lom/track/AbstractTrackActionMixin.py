@@ -124,7 +124,7 @@ class AbstractTrackActionMixin(object):
             return None
         if self.song._song.session_record_status != Live.Song.SessionRecordStatus.off:
             return None
-        self.song._song.session_automation_record = True
+        self.song._song.session_record = True
 
         self.song.stop_playing()
 
@@ -149,6 +149,7 @@ class AbstractTrackActionMixin(object):
         " overridden "
         self.song.metronome = False
         self.has_monitor_in = False
+        self.song._song.session_record = False
         self.base_track.playable_clip.select()
 
     def record_all(self):
