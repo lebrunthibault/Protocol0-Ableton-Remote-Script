@@ -80,6 +80,6 @@ class ExternalSynthTrackActionMixin(object):
 
     def _post_record(self):
         # type: (ExternalSynthTrack) -> None
-        self.song.metronome = False
+        super(ExternalSynthTrackActionMixin, self)._post_record()
         self.midi_track.has_monitor_in = self.audio_track.has_monitor_in = False
         self.audio_track.playable_clip.warp_mode = Live.Clip.WarpMode.tones

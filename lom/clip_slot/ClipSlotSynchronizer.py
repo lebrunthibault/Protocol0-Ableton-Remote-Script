@@ -34,10 +34,7 @@ class ClipSlotSynchronizer(ObjectSynchronizer):
             self._clip_synchronizer = None
 
         if not clip_slot.clip and clip_slot.linked_clip_slot.clip:
-            from a_protocol_0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
-
-            if isinstance(clip_slot.track.abstract_track, ExternalSynthTrack) and clip_slot.track.is_audio:
-                return
+            self.song.end_undo_step()
             clip_slot.linked_clip_slot.clip.delete()
 
     @subject_slot_group("is_triggered")

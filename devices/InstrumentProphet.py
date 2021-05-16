@@ -27,7 +27,6 @@ class InstrumentProphet(AbstractInstrument):
 
     def exclusive_activate(self):
         # type: () -> Optional[Sequence]
-        self.parent.log_dev("exclusive activate on %s" % self)
         seq = Sequence()
         if InstrumentProphet.ACTIVE_INSTANCE is not None:
             seq.add(self.parent.keyboardShortcutManager.show_and_activate_rev2_editor, wait=300)

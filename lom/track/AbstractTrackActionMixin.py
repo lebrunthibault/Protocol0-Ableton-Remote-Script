@@ -50,12 +50,15 @@ class AbstractTrackActionMixin(object):
     @property
     def has_monitor_in(self):
         # type: (AbstractTrack) -> bool
-        return self._track.current_monitoring_state == 0
+        return not self.is_foldable and self._track.current_monitoring_state == 0
 
     @has_monitor_in.setter
     def has_monitor_in(self, has_monitor_in):
         # type: (AbstractTrack, bool) -> None
-        self._track.current_monitoring_state = int(not has_monitor_in)
+        try:
+            self._track.current_monitoring_state = int(not has_monitor_in)
+        except RuntimeError as e:
+            pass  # Live throws sometimes 'Master or sendtracks have no monitoring state!'
 
     def select(self):
         # type: (AbstractTrack) -> None
@@ -150,7 +153,8 @@ class AbstractTrackActionMixin(object):
         self.song.metronome = False
         self.has_monitor_in = False
         self.song._song.session_record = False
-        self.base_track.playable_clip.select()
+        if self.base_track.playable_clip:
+            self.base_track.playable_clip.select()
 
     def record_all(self):
         # type: () -> Sequence

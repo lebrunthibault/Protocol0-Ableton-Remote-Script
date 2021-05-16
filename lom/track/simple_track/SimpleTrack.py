@@ -36,15 +36,14 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self.devices = []  # type: List[Device]
         self.all_devices = []  # type: List[Device]
         self._instrument = None  # type: Optional[AbstractInstrument]
+        self._devices_listener.subject = self._track
+        self._devices_listener()
         self.clip_slots = []  # type: List[ClipSlot]
         self.last_clip_played = None  # type: Optional[Clip]
 
         if self.is_active:
             self._playing_slot_index_listener.subject = self._track
             self._fired_slot_index_listener.subject = self._track
-
-            self._devices_listener.subject = self._track
-            self._devices_listener()
 
             self.map_clip_slots()
 
@@ -106,7 +105,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
 
         # Refreshing is only really useful from simpler devices that change when a new sample is loaded
         # We detect instruments only on SimpleMidiTrack and this raises when the midi track has no instrument
-        if self.is_midi:
+        if self.is_midi and self.is_active:
             self.instrument = self.parent.deviceManager.make_instrument_from_midi_track(track=self)
 
         # notify instrument change on both the device track and the abstract_group_track
@@ -142,6 +141,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def instrument(self):
         # type: () -> Optional[AbstractInstrument]
         return self._instrument
+        # return getattr(self, "_instrument", None)
 
     @instrument.setter
     def instrument(self, instrument):

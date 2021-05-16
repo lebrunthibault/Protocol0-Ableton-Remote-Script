@@ -1,8 +1,8 @@
 from typing import Any
 
-from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
+from a_protocol_0.utils.decorators import p0_subject_slot
 
 
 class MixingManager(AbstractControlSurfaceComponent):
@@ -16,19 +16,18 @@ class MixingManager(AbstractControlSurfaceComponent):
     @property
     def should_activate_mix_volume_follower(self):
         # type: () -> bool
-        for device in self.song._song.master_track.devices:
+        for device in self.song.master_track.all_devices:
             if any([name.lower() in device.name.lower() for name in self.MIXING_PLUGIN_NAMES]) and device.is_active:
-                return True
+                return False
 
-        return False
+        return True
 
-    @subject_slot("output_meter_level")
+    @p0_subject_slot("output_meter_level")
     def _master_track_output_meter_level_listener(self):
         # type: () -> None
-        if self.should_activate_mix_volume_follower:
+        if not self.song.master_track or not self.should_activate_mix_volume_follower:
             return
-        if self.song._song.master_track.output_meter_level >= 0.87:
+        if self.song.master_track.output_meter_level >= 0.87:
             for track in self.song.abstract_tracks:  # type: AbstractTrack
                 if not track.group_track:
-                    self.parent.log_dev("volume down on %s" % track)
                     track.volume *= 0.95

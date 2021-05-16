@@ -86,6 +86,8 @@ class SongManager(AbstractControlSurfaceComponent):
             self.song.live_track_to_simple_track[track] = simple_track
             self._simple_tracks.append(simple_track)
 
+        self.song.master_track = self._simple_tracks[-1]
+
         # Refresh track mapping
         self.song.live_track_to_simple_track = collections.OrderedDict()
         for track in self._simple_tracks:

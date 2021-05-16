@@ -147,18 +147,15 @@ class AbstractInstrument(AbstractObject):
         seq = Sequence()
 
         if not self.activated:
-            self.parent.log_dev("activation")
             seq.add(self.device.track.select)
             seq.add(partial(self.parent.deviceManager.make_plugin_window_showable, self.device))
             seq.add(lambda: setattr(self, "activated", True), name="mark instrument as activated")
 
         if self.needs_exclusive_activation:
-            self.parent.log_dev("exclusive_activate")
             seq.add(self.device.track.select)
             seq.add(self.exclusive_activate)
 
         if not select_instrument_track:
-            self.parent.log_dev("selecting selected_track")
             seq.add(self.song.selected_track.select, silent=True)
 
         return seq.done()

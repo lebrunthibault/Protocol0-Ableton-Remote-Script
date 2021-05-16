@@ -229,6 +229,11 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # type: () -> float
         return self._track.output_meter_level
 
+    @output_meter_level.setter
+    def output_meter_level(self, output_meter_level):
+        # type: (float) -> None
+        self._track.output_meter_level = output_meter_level
+
     @property
     def volume(self):
         # type: () -> float

@@ -6,7 +6,7 @@ class InstrumentMinitaur(AbstractInstrument):
     NAME = "Minitaur"
     DEVICE_NAME = "minitaur editor-vi(x64)"
     TRACK_COLOR = ColorEnum.MINITAUR
-    CAN_BE_SHOWN = False
+    CAN_BE_SHOWN = True
     IS_EXTERNAL_SYNTH = True
     PRESETS_PATH = "C:\\Users\\thiba\\AppData\\Roaming\\Moog Music Inc\\Minitaur\\Presets Library\\User"
     PROGRAM_CHANGE_OFFSET = 1
