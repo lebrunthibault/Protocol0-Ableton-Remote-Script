@@ -13,6 +13,7 @@ class AbletonClip(Subject):
         "name",
         "color",
         "is_recording",
+        "playing_status",
         "loop_start",
         "loop_end",
         "warping",

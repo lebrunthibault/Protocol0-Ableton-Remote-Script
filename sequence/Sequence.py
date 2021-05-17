@@ -1,7 +1,7 @@
 import os
 from collections import deque
 
-from typing import Deque, Optional, Iterable, Union, Callable, Any
+from typing import Deque, Optional, Iterable, Union, Callable, Any, List
 
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
@@ -20,6 +20,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
 
     DEBUG_MODE = str(os.getenv("DEBUG_SEQUENCE")).lower() == "true"
     SILENT_MODE = str(os.getenv("DEBUG_SEQUENCE")).lower() != "true"
+    RUNNING_SEQUENCES = []  # type: List[Sequence]
 
     def __init__(self, bypass_errors=False, silent=False, *a, **k):
         # type: (bool, bool, Any, Any) -> None
@@ -52,10 +53,13 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
 
     def _on_start(self):
         # type: () -> None
+        self.RUNNING_SEQUENCES.append(self)
         self._execute_next_step()
 
     def _execute_next_step(self):
         # type: () -> None
+        if self.has_final_state:
+            return
         if len(self._steps):
             self._current_step = self._steps.popleft()
             if self.debug and self._current_step.debug:
@@ -82,6 +86,10 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
 
     def _on_terminate(self):
         # type: () -> None
+        try:
+            self.RUNNING_SEQUENCES.remove(self)
+        except ValueError:
+            pass
         self.res = self._current_step.res if self._current_step else None
 
         if self.errored and self.debug:

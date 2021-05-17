@@ -30,6 +30,7 @@ class Clip(ClipActionMixin, AbstractObject):
         # listeners
         self._notes_listener.subject = self._clip
         self._is_recording_listener.subject = self._clip
+        self._playing_status_listener.subject = self._clip
         self._looping_listener.subject = self._clip
         self._loop_start_listener.subject = self._clip
         self._loop_end_listener.subject = self._clip
@@ -40,7 +41,7 @@ class Clip(ClipActionMixin, AbstractObject):
 
     def _on_selected(self):
         # type: () -> None
-        self.view.show_loop()
+        self.show_loop()
 
     @property
     def index(self):
@@ -54,6 +55,11 @@ class Clip(ClipActionMixin, AbstractObject):
 
     @p0_subject_slot("is_recording")
     def _is_recording_listener(self):
+        # type: () -> None
+        pass
+
+    @p0_subject_slot("playing_status")
+    def _playing_status_listener(self):
         # type: () -> None
         pass
 
@@ -121,7 +127,7 @@ class Clip(ClipActionMixin, AbstractObject):
 
     @property
     def length(self):
-        # type: () -> float
+        # type: () -> int
         """
         For looped clips: loop length in beats.
         Casting to int to have whole beats.
@@ -131,8 +137,19 @@ class Clip(ClipActionMixin, AbstractObject):
 
     @length.setter
     def length(self, length):
-        # type: (float) -> None
+        # type: (int) -> None
         self.loop_end = self.loop_start + length
+        self.end_marker = self.loop_end
+
+    @property
+    def bar_length(self):
+        # type: () -> int
+        return int(self.length / self.song.signature_denominator)
+
+    @bar_length.setter
+    def bar_length(self, bar_length):
+        # type: (int) -> None
+        self.length = bar_length * self.song.signature_denominator
 
     @property
     def looping(self):

@@ -77,7 +77,7 @@ class MidiClip(Clip):
             return
         self._clip.deselect_all_notes()
         self.parent.clyphxNavigationManager.show_clip_view()
-        self.view.show_loop()
+        self.show_loop()
 
     def replace_all_notes(self, notes):
         # type: (List[Note]) -> Optional[Sequence]
@@ -125,7 +125,7 @@ class MidiClip(Clip):
         seq = Sequence(silent=True)
         seq.add(wait=1)
         seq.add(self.generate_base_notes)
-        seq.add(self.view.hide_envelope)
+        seq.add(self.hide_envelope)
         seq.add(wait=10, silent=True)
         seq.add(self.parent.keyboardShortcutManager.click_clip_fold_notes)
         return seq.done()

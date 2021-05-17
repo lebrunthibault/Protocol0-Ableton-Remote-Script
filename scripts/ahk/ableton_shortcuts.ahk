@@ -120,7 +120,7 @@ up()
 
 showPlugins()
 {
-    if not WinActive("ahk_class AbletonVstPlugClass") {
+    if not WinExist("ahk_class AbletonVstPlugClass") {
         Send ^!p
     }
 }
@@ -128,7 +128,7 @@ showPlugins()
 
 hidePlugins()
 {
-    if WinActive("ahk_class AbletonVstPlugClass") {
+    if WinExist("ahk_class AbletonVstPlugClass") {
         Send ^!p
     }
 }

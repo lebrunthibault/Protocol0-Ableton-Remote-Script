@@ -39,4 +39,4 @@ class SceneName(AbstractObject):
         except ValueError:
             pass
 
-        self.scene.name = "%s (%s)%s" % (self.base_name, self.scene.bar_length, "*" if self.scene.looping else "")
+        self.scene.name = "%s (%d)%s" % (self.base_name, self.scene.bar_length, "*" if self.scene.looping else "")

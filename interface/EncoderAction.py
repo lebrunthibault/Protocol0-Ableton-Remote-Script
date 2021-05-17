@@ -35,8 +35,7 @@ class EncoderAction(AbstractObject):
         self.song.begin_undo_step()
         func = self.func() if is_lambda(self.func) else self.func
         if func is None:
-            self.parent.show_message("Action empty")
-            return
+            return  # the action is sync and is already processed
         assert callable(func), "%s : action func should be callable, got %s" % (
             encoder_name,
             get_callable_name(func),

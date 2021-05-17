@@ -57,7 +57,7 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack, bool) -> None
         try:
             self._track.current_monitoring_state = int(not has_monitor_in)
-        except RuntimeError as e:
+        except RuntimeError:
             pass  # Live throws sometimes 'Master or sendtracks have no monitoring state!'
 
     def select(self):
@@ -99,7 +99,6 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         if not self.instrument or not self.instrument.CAN_BE_SHOWN:
             return None
-        self.parent.clyphxNavigationManager.show_track_view()
         self.is_folded = False
         self.instrument.show_hide()
 
@@ -123,7 +122,7 @@ class AbstractTrackActionMixin(object):
         if not self.can_be_armed:
             return None
         if self.is_recording:
-            self.undo()
+            self._in_record()
             return None
         if self.song._song.session_record_status != Live.Song.SessionRecordStatus.off:
             return None
@@ -147,14 +146,21 @@ class AbstractTrackActionMixin(object):
 
         return seq.done()
 
-    def _post_record(self, *a, **k):
-        # type: (AbstractTrack, Any, Any) -> None
+    def _in_record(self):
+        # type: (AbstractTrack) -> None
+        """ happens when the rec button is clicked during a recording. Overridden """
+        raise NotImplementedError
+
+    def post_record(self):
+        # type: (AbstractTrack) -> None
         " overridden "
         self.song.metronome = False
         self.has_monitor_in = False
         self.song._song.session_record = False
         if self.base_track.playable_clip:
             self.base_track.playable_clip.select()
+            if self.base_track.playable_clip.is_midi:
+                self.base_track.playable_clip.show_loop()
 
     def record_all(self):
         # type: () -> Sequence
@@ -182,10 +188,9 @@ class AbstractTrackActionMixin(object):
             for sub_track in self.sub_tracks:
                 sub_track.play()
         elif isinstance(self, SimpleTrack) and self.playable_clip:
-            self.playable_clip.is_playing = True
-            self.playable_clip.start_marker = self.song.selected_scene.playing_position
-
-        return None
+            self.playable_clip.fire()
+            if not self.playable_clip.is_recording:
+                self.playable_clip.start_marker = self.song.selected_scene.playing_position
 
     def stop(self, immediate=False):
         # type: (AbstractTrack, bool) -> None

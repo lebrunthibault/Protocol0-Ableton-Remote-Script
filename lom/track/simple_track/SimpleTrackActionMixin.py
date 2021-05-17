@@ -48,10 +48,14 @@ class SimpleTrackActionMixin(object):
             self.mute = False
             self.is_armed = True
 
+        seq = Sequence()
+
         if self.instrument:
-            return self.instrument.check_activated()
-        else:
-            return None
+            seq.add(self.instrument.check_activated)
+            seq.add(wait=5)
+            seq.add(self.parent.keyboardShortcutManager.hide_plugins)
+
+        return seq.done()
 
     def switch_monitoring(self):
         # type: (SimpleTrack) -> None
@@ -63,7 +67,17 @@ class SimpleTrackActionMixin(object):
         seq = Sequence()
         assert self.next_empty_clip_slot_index is not None
         seq.add(self.clip_slots[self.next_empty_clip_slot_index].record)  # type: ignore[has-type]
-        seq.add(self._post_record)
+        seq.add(self.post_record)
+        return seq.done()
+
+    def _in_record(self):
+        # type: (SimpleTrack) -> Sequence
+        assert self.playable_clip
+        self.parent.clear_tasks()
+        seq = Sequence()
+        seq.add(self.play, complete_on=self.playable_clip._is_recording_listener)
+        seq.add(self.playable_clip.decrement_bar_length)
+        seq.add(self.post_record)
         return seq.done()
 
     def undo_track(self):

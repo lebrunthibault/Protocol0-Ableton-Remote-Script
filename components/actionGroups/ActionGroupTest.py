@@ -17,4 +17,4 @@ class ActionGroupTest(AbstractActionGroup):
     def action_test(self):
         # type: () -> None
         if self.song.selected_clip:
-            self.song.selected_clip.view.show_loop()
+            self.song.selected_clip.show_loop()

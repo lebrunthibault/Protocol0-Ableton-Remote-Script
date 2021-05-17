@@ -6,7 +6,7 @@ class InterfaceState(object):
     SELECTED_TRACK_CATEGORY = TrackCategoryEnum.ALL
 
     RECORDING_TIMES = [1, 2, 4, 8, 16, 32, 64]
-    SELECTED_RECORDING_TIME = 1
+    SELECTED_RECORDING_TIME = 4
 
     # NB: for an unknown reason clip.view.show_envelope does not always show the envelope
     # when the button was not clicked. As a workaround we click it the first time

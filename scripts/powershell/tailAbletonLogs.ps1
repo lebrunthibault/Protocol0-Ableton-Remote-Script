@@ -136,6 +136,12 @@ function Select-Log-Line
         return $true
     }
 
+    if ($LogEntry.Contains("clear_logs"))
+    {
+        Clear-Host
+        return $false
+    }
+
     if ($LogEntry.Contains("(Protocol0) Initializing") -or $LogEntry.Contains("Check :"))
     {
         Clear-Host

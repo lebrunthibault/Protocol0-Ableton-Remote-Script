@@ -33,6 +33,7 @@ class LogManager(AbstractObject):
         self.parent.log_notice("********* HIGHLIGHTED_CLIP *************")
         self.parent.log_info()
         self.parent.log_info("song.highlighted_clip: %s" % self.song.selected_clip)
+        self.parent.log_info("song.highlighted_clip.length: %s" % self.song.selected_clip.length)
 
     def log_current(self):
         # type: () -> None
@@ -66,6 +67,13 @@ class LogManager(AbstractObject):
             self.parent.log_info("selected_track.playable_clip: %s" % self.song.selected_track.playable_clip)
             self.parent.log_info()
         self.parent.log_info("selected_track.last_clip_played: %s" % self.song.selected_track.last_clip_played)
+        self.parent.log_info()
+        self.parent.log_notice("********* SELECTED_SCENE *************")
+        self.parent.log_info()
+        self.parent.log_info("selected_scene: %s" % self.song.selected_scene)
+        self.parent.log_info("selected_scene.base_name: %s" % self.song.selected_scene.base_name)
+        self.parent.log_info("selected_scene.length: %s" % self.song.selected_scene.length)
+        self.parent.log_info("selected_scene.bar_length: %s" % self.song.selected_scene.bar_length)
         self.parent.log_info()
         self.parent.log_notice("********* SELECTED_DEVICE *************")
         self.parent.log_info()

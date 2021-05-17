@@ -23,3 +23,6 @@ class ActionGroupSet(AbstractActionGroup):
 
         # FIX encoder
         self.add_encoder(id=4, name="fix", on_press=self.parent.setFixerManager.refresh_set_appearance)
+
+        # CLR encoder
+        self.add_encoder(id=5, name="clear logs", on_press=lambda: self.parent.log_notice("clear_logs"))

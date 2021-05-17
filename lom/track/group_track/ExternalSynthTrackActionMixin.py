@@ -4,7 +4,6 @@ import Live
 from typing import TYPE_CHECKING, Optional
 
 from a_protocol_0.devices.InstrumentMinitaur import InstrumentMinitaur
-from a_protocol_0.enums.ColorEnum import ColorEnum
 from a_protocol_0.lom.clip.MidiClip import MidiClip
 from a_protocol_0.sequence.Sequence import Sequence
 
@@ -16,7 +15,6 @@ if TYPE_CHECKING:
 class ExternalSynthTrackActionMixin(object):
     def arm_track(self):
         # type: (ExternalSynthTrack) -> Optional[Sequence]
-        self.color = ColorEnum.ARM
         self.base_track.is_folded = False
         self.midi_track.has_monitor_in = False
         self.audio_track.has_monitor_in = True
@@ -52,6 +50,18 @@ class ExternalSynthTrackActionMixin(object):
         seq.add(self._post_record)
         return seq.done()
 
+    def _in_record(self):
+        # type: (ExternalSynthTrack) -> Sequence
+        assert self.midi_track.playable_clip and self.audio_track.playable_clip
+        self.parent.clear_tasks()
+        seq = Sequence()
+        seq.add(self.play, complete_on=self.midi_track.playable_clip._is_recording_listener)
+        seq.add(self.audio_track.playable_clip.decrement_bar_length)
+        seq.add(self.midi_track.playable_clip.decrement_bar_length)
+        seq.add(self.audio_track.playable_clip.show_loop)
+        seq.add(self.post_record)
+        return seq.done()
+
     def record_audio_only(self):
         # type: (ExternalSynthTrack) -> Optional[Sequence]
         midi_clip = self.midi_track.playable_clip
@@ -80,6 +90,6 @@ class ExternalSynthTrackActionMixin(object):
 
     def _post_record(self):
         # type: (ExternalSynthTrack) -> None
-        super(ExternalSynthTrackActionMixin, self)._post_record()
+        super(ExternalSynthTrackActionMixin, self).post_record()
         self.midi_track.has_monitor_in = self.audio_track.has_monitor_in = False
         self.audio_track.playable_clip.warp_mode = Live.Clip.WarpMode.tones

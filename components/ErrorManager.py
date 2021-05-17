@@ -42,7 +42,7 @@ class ErrorManager(AbstractControlSurfaceComponent):
         self.parent.log_error("".join(self._format_list(show)), debug=False)
 
         self.song.errored = True
-        self.parent.fastScheduler.restart()
+        self.parent.clear_tasks()
         self.parent.defer(self.song.reset)
 
         self.parent._wait(100, partial(setattr, self.song, "errored", False))

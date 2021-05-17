@@ -70,7 +70,11 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
 
     def show_plugins(self):
         # type: () -> None
-        self.send_keys("^{F1}", repeat=True)
+        self.send_keys("^{F1}")
+
+    def hide_plugins(self):
+        # type: () -> None
+        self.send_keys("^{F2}")
 
     def click_clip_fold_notes(self):
         # type: () -> None

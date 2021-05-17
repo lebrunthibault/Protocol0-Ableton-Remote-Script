@@ -39,6 +39,11 @@ class ClipActionMixin(object):
         # type: (Clip) -> None
         self.is_playing = not self.is_playing
 
+    def fire(self):
+        # type: (Clip) -> None
+        if self._clip:
+            self._clip.fire()
+
     def delete(self):
         # type: (Clip) -> Optional[Sequence]
         if not self._clip:
@@ -47,6 +52,10 @@ class ClipActionMixin(object):
         seq.add(wait=1)
         seq.add(self.clip_slot.delete_clip, complete_on=self.clip_slot._has_clip_listener)
         return seq.done()
+
+    def decrement_bar_length(self):
+        # type: (Clip) -> None
+        self.bar_length = max(1, int(self.bar_length) - 1)
 
     def automation_envelope(self, parameter):
         # type: (Clip, DeviceParameter) -> Live.Clip.AutomationEnvelope
@@ -61,6 +70,14 @@ class ClipActionMixin(object):
             self.parent.keyboardShortcutManager.double_click_envelopes_show_box()
             InterfaceState.CLIP_ENVELOPE_SHOW_BOX_CLICKED = True
         self.displayed_automated_parameter = parameter  # type: Optional[DeviceParameter]
+
+    def show_loop(self):
+        # type: (Clip) -> None
+        self.view.show_loop()
+
+    def hide_envelope(self):
+        # type: (Clip) -> None
+        self.view.hide_envelope()
 
     def create_automation_envelope(self, parameter):
         # type: (Clip, DeviceParameter) -> Live.Clip.AutomationEnvelope

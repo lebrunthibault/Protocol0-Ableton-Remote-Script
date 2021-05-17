@@ -64,6 +64,7 @@ class SetFixerManager(AbstractControlSurfaceComponent):
 
         self._refresh_tracks_appearance()
         self._refresh_clips_appearance()
+        self.refresh_scenes_appearance()
         self._fix_simpler_tracks_name()
         if log:
             self.parent.show_message("Set fixed !")

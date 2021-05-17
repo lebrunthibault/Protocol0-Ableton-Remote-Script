@@ -20,8 +20,8 @@ class AutomationMidiClip(AbstractAutomationClip, MidiClip, AutomationMidiClipNot
 
     def _on_selected(self):
         # type: () -> None
-        self.view.hide_envelope()
-        self.view.show_loop()
+        self.hide_envelope()
+        self.show_loop()
 
     @p0_subject_slot("length")
     def _length_listener(self):

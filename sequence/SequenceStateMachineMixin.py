@@ -49,6 +49,11 @@ class SequenceStateMachineMixin(object):
         # type: () -> bool
         return self.state == str(SequenceState.TERMINATED)
 
+    @property
+    def has_final_state(self):
+        # type: () -> bool
+        return self.errored or self.terminated
+
     def dispatch(self, action):
         # type: (str) -> None
         self._state_machine.dispatch(action)
