@@ -132,6 +132,10 @@ class AbstractTrackActionMixin(object):
             seq.add(self.in_record)
             seq.add(self.post_record)
             return seq.done()
+        elif self.song.session_record:  # record started but nothing is recorded yet
+            self.stop(immediate=True)
+            return None
+
         self.song.session_record = True
 
         self.song.stop_playing()
