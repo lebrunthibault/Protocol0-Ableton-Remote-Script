@@ -100,3 +100,7 @@ class TrackManager(AbstractControlSurfaceComponent):
                 return ExternalSynthTrack(base_group_track=base_group_track)
         else:
             return None
+
+    def duplicate_current_track(self):
+        # type: () -> Sequence
+        return self.song.duplicate_track(self.song.current_track.index)

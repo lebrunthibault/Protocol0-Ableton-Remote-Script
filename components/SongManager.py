@@ -15,7 +15,7 @@ class SongManager(AbstractControlSurfaceComponent):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(SongManager, self).__init__(*a, **k)
-        self._tracks_listener.subject = self.song._song
+        self.tracks_listener.subject = self.song._song
         # keeping a list of instantiated tracks because we cannot access
         # song.live_track_to_simple_track when tracks are deleted
         self._simple_tracks = []  # type: List[SimpleTrack]
@@ -40,14 +40,14 @@ class SongManager(AbstractControlSurfaceComponent):
     def on_scene_list_changed(self):
         # type: () -> None
         self.parent.sceneBeatScheduler.clear()
-        self._tracks_listener()
+        self.tracks_listener()
         self.parent.setFixerManager.refresh_scenes_appearance()
         if self.song.playing_scene:
             self.song.playing_scene.schedule_next_scene_launch()
 
     @p0_subject_slot("tracks")
     @handle_error
-    def _tracks_listener(self):
+    def tracks_listener(self):
         # type: () -> None
         self.parent.log_debug("SongManager : start mapping tracks")
 

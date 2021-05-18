@@ -61,7 +61,7 @@ class ClipActionMixin(object):
     def quantize(self):
         # type: (Clip) -> None
         if self._clip:
-            record_quantization_index = QUANTIZATION_OPTIONS.index(self.song._song.midi_recording_quantization)
+            record_quantization_index = QUANTIZATION_OPTIONS.index(self.song.midi_recording_quantization)
             self._clip.quantize(record_quantization_index, 1)
 
     def automation_envelope(self, parameter):

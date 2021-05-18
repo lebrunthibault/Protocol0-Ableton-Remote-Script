@@ -169,6 +169,11 @@ class Song(AbstractObject, SongActionMixin):
         return self._song.tempo
 
     @property
+    def signature_numerator(self):
+        # type: () -> int
+        return self._song.signature_numerator
+
+    @property
     def signature_denominator(self):
         # type: () -> int
         return self._song.signature_denominator
@@ -186,3 +191,18 @@ class Song(AbstractObject, SongActionMixin):
     def clip_trigger_quantization(self, clip_trigger_quantization):
         # type: (int) -> None
         self._song.clip_trigger_quantization = clip_trigger_quantization
+
+    @property
+    def midi_recording_quantization(self):
+        # type: () -> int
+        return self._song.midi_recording_quantization
+
+    @property
+    def session_record(self):
+        # type: () -> bool
+        return self._song.session_record
+
+    @session_record.setter
+    def session_record(self, session_record):
+        # type: (bool) -> None
+        self._song.session_record = session_record

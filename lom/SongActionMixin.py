@@ -15,42 +15,6 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class SongActionMixin(object):
-    def select_track(self, selected_track):
-        # type: (Song, AbstractTrack) -> Optional[Sequence]
-        if self.song.selected_track == selected_track.base_track:
-            return None
-        seq = Sequence(silent=True)
-        seq.add(partial(setattr, self._view, "selected_track", selected_track._track), wait=1)
-        return seq.done()
-
-    def scroll_tracks(self, go_next):
-        # type: (Song, bool) -> None
-        if not self.song.selected_track.is_active:
-            next(self.song.simple_tracks).select()
-        else:
-            scroll_values(self.scrollable_tracks, self.current_track, go_next).select()
-
-    def scroll_scenes(self, go_next):
-        # type: (Song, bool) -> None
-        scroll_values(self.scenes, self.selected_scene, go_next).select()
-
-    def unfocus_all_tracks(self):
-        # type: (Song) -> Sequence
-        self.unsolo_all_tracks()
-        return self.unarm_all_tracks()
-
-    def unarm_all_tracks(self):
-        # type: (Song) -> Sequence
-        seq = Sequence(silent=True)
-        seq.add([t.unarm for t in self.abstract_tracks if t.is_armed])
-        return seq.done()
-
-    def unsolo_all_tracks(self, except_current=True):
-        # type: (Song, bool) -> None
-        for t in self.song.abstract_tracks:
-            if t.solo and t != (self.current_track if except_current else None):
-                t.solo = False
-
     @handle_error
     def reset(self, reset_tracks=True):
         # type: (Song, bool) -> None
@@ -89,6 +53,48 @@ class SongActionMixin(object):
     def undo(self):
         # type: (Song) -> None
         self._song.undo()
+
+    def select_track(self, selected_track):
+        # type: (Song, AbstractTrack) -> Optional[Sequence]
+        if self.song.selected_track == selected_track.base_track:
+            return None
+        seq = Sequence(silent=True)
+        seq.add(partial(setattr, self._view, "selected_track", selected_track._track), wait=1)
+        return seq.done()
+
+    def scroll_tracks(self, go_next):
+        # type: (Song, bool) -> None
+        if not self.song.selected_track.is_active:
+            next(self.song.simple_tracks).select()
+        else:
+            scroll_values(self.scrollable_tracks, self.current_track, go_next).select()
+
+    def unfocus_all_tracks(self):
+        # type: (Song) -> Sequence
+        self.unsolo_all_tracks()
+        return self.unarm_all_tracks()
+
+    def unarm_all_tracks(self):
+        # type: (Song) -> Sequence
+        seq = Sequence(silent=True)
+        seq.add([t.unarm for t in self.abstract_tracks if t.is_armed])
+        return seq.done()
+
+    def unsolo_all_tracks(self, except_current=True):
+        # type: (Song, bool) -> None
+        for t in self.song.abstract_tracks:
+            if t.solo and t != (self.current_track if except_current else None):
+                t.solo = False
+
+    def duplicate_track(self, index):
+        # type: (Song, int) -> Sequence
+        seq = Sequence()
+        seq.add(partial(self._song.duplicate_track, index), complete_on=self.parent.songManager.tracks_listener)
+        return seq.done()
+
+    def scroll_scenes(self, go_next):
+        # type: (Song, bool) -> None
+        scroll_values(self.scenes, self.selected_scene, go_next).select()
 
     def create_scene(self, scene_index=None):
         # type: (Song, Optional[int]) -> Sequence

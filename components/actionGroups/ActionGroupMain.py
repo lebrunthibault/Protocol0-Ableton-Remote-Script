@@ -93,8 +93,8 @@ class ActionGroupMain(AbstractActionGroup):
             on_press=lambda: self.song.current_track.toggle_arm,
         ).add_action(
             EncoderAction(
-                func=lambda: self.song.selected_abstract_tracks.play_stop,
-                modifier_type=EncoderModifierEnum.PLAY_STOP,
+                func=lambda: self.parent.trackManager.duplicate_current_track,
+                modifier_type=EncoderModifierEnum.DUPX,
             )
         ).add_action(
             EncoderAction(
@@ -105,6 +105,11 @@ class ActionGroupMain(AbstractActionGroup):
             EncoderAction(
                 func=lambda: self.song.selected_abstract_tracks.toggle_fold,
                 modifier_type=EncoderModifierEnum.FOLD,
+            )
+        ).add_action(
+            EncoderAction(
+                func=lambda: self.song.selected_abstract_tracks.play_stop,
+                modifier_type=EncoderModifierEnum.PLAY_STOP,
             )
         )
 

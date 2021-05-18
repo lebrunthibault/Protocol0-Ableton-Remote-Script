@@ -47,7 +47,7 @@ class SimpleGroupTrack(AbstractGroupTrack):
         if len(output_routing_objects) == 1 and output_routing_objects[0] not in (
             None,
             self._track,
-            self.song._song.master_track,
+            self.song.master_track._track,
         ):
             return output_routing_objects[0]
         else:

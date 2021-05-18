@@ -1,6 +1,5 @@
 from functools import partial
 
-import Live
 from typing import TYPE_CHECKING, Any, Optional, NoReturn, Callable, cast
 
 from a_protocol_0.enums.RecordTypeEnum import RecordTypeEnum
@@ -133,9 +132,7 @@ class AbstractTrackActionMixin(object):
             seq.add(self.in_record)
             seq.add(self.post_record)
             return seq.done()
-        if self.song._song.session_record_status != Live.Song.SessionRecordStatus.off:
-            return None
-        self.song._song.session_record = True
+        self.song.session_record = True
 
         self.song.stop_playing()
 
@@ -180,7 +177,7 @@ class AbstractTrackActionMixin(object):
         " overridden "
         self.song.metronome = False
         self.has_monitor_in = False
-        self.song._song.session_record = False
+        self.song.session_record = False
         if self.base_track.playable_clip:
             self.base_track.playable_clip.select()
             if self.base_track.playable_clip.is_midi:
