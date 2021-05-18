@@ -7,10 +7,16 @@ class InterfaceState(object):
 
     RECORDING_TIMES = [1, 2, 4, 8, 16, 32, 64]
     SELECTED_RECORDING_TIME = 4
+    PROTECTED_MODE_ACTIVE = True  # protected mode prevents certain actions to be made
 
     # NB: for an unknown reason clip.view.show_envelope does not always show the envelope
     # when the button was not clicked. As a workaround we click it the first time
     CLIP_ENVELOPE_SHOW_BOX_CLICKED = False
+
+    @classmethod
+    def toggle_protected_mode(cls):
+        # type: () -> None
+        cls.PROTECTED_MODE_ACTIVE = not cls.PROTECTED_MODE_ACTIVE
 
     @classmethod
     def scroll_track_categories(cls, go_next):

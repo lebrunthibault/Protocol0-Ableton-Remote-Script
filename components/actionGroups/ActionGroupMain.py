@@ -42,6 +42,7 @@ class ActionGroupMain(AbstractActionGroup):
         # 6: empty
 
         # 7: empty
+        self.add_encoder(id=7, name="protected mode", on_press=InterfaceState.toggle_protected_mode)
 
         # MONitor encoder
         self.add_encoder(id=8, name="monitor", on_press=lambda: self.song.current_track.switch_monitoring)

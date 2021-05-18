@@ -33,7 +33,10 @@ class EncoderAction(AbstractObject):
             like this we can display the function name
         """
         self.song.begin_undo_step()
-        func = self.func() if is_lambda(self.func) else self.func
+        if is_lambda(self.func):
+            func = self.func()  # allows delaying property lookup until execution time
+        else:
+            func = self.func
         if func is None:
             return  # the action is sync and is already processed
         assert callable(func), "%s : action func should be callable, got %s" % (

@@ -1,3 +1,4 @@
+from a_protocol_0.interface.InterfaceState import InterfaceState
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.Scene import Scene
 
@@ -6,8 +7,10 @@ class LogManager(AbstractObject):
     def log_set(self):
         # type: () -> None
         self.parent.keyboardShortcutManager.focus_logs()
-        self.parent.log_notice("********* SONG *************")
+        self.parent.log_notice("********* GLOBAL objects *************")
         self.parent.log_info("song.errored: %s" % self.song.errored)
+        self.parent.log_info()
+        self.parent.log_info("InterfaceState.PROTECTED_MODE_ACTIVE: %s" % InterfaceState.PROTECTED_MODE_ACTIVE)
         self.parent.log_info()
         self.parent.log_notice("********* SONG TRACKS *************")
         self.parent.log_info("simple_tracks : %s" % list(self.song.simple_tracks))
@@ -33,7 +36,6 @@ class LogManager(AbstractObject):
         self.parent.log_notice("********* HIGHLIGHTED_CLIP *************")
         self.parent.log_info()
         self.parent.log_info("song.highlighted_clip: %s" % self.song.selected_clip)
-        self.parent.log_info("song.highlighted_clip.length: %s" % self.song.selected_clip.length)
 
     def log_current(self):
         # type: () -> None
@@ -71,9 +73,6 @@ class LogManager(AbstractObject):
         self.parent.log_notice("********* SELECTED_SCENE *************")
         self.parent.log_info()
         self.parent.log_info("selected_scene: %s" % self.song.selected_scene)
-        self.parent.log_info("selected_scene.base_name: %s" % self.song.selected_scene.base_name)
-        self.parent.log_info("selected_scene.length: %s" % self.song.selected_scene.length)
-        self.parent.log_info("selected_scene.bar_length: %s" % self.song.selected_scene.bar_length)
         self.parent.log_info()
         self.parent.log_notice("********* SELECTED_DEVICE *************")
         self.parent.log_info()
