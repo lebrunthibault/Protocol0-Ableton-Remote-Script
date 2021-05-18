@@ -6,6 +6,7 @@ from typing import Any
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import ROOT_DIR
+from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import log
 
@@ -15,9 +16,13 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
         # type: (Any, Any) -> None
         super(KeyBoardShortcutManager, self).__init__(*a, **k)
 
-    def _execute_python(self, filename, *args):
+    def _execute_python(self, basename, *args):
         # type: (str, Any) -> int
-        parameters = [str(os.getenv("PYTHONW_EXE")), ROOT_DIR + "\\scripts\\python\\%s" % filename]
+        filename = ROOT_DIR + "\\scripts\\python\\%s" % basename
+        if not os.path.exists(filename):
+            raise Protocol0Error("incorrect python script name: %s" % filename)
+
+        parameters = [str(os.getenv("PYTHONW_EXE")), filename]
         for arg in args:
             parameters.append(str(arg))
 
@@ -25,9 +30,12 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
         child.communicate()
         return child.returncode
 
-    def _execute_ahk(self, filename, *args):
+    def _execute_ahk(self, basename, *args):
         # type: (str, Any) -> int
-        parameters = [str(os.getenv("AHK_EXE")), ROOT_DIR + "\\scripts\\ahk\\%s" % filename]
+        filename = ROOT_DIR + "\\scripts\\ahk\\%s" % basename
+        if not os.path.exists(filename):
+            raise Protocol0Error("incorrect ahk script name: %s" % filename)
+        parameters = [str(os.getenv("AHK_EXE")), filename]
         for arg in args:
             parameters.append(str(arg))
 
@@ -60,6 +68,7 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
         # type: () -> None
         self.focus_window("logs terminal")
 
+    @log
     def send_click(self, x, y):
         # type: (int, int) -> None
         self._execute_python("send_click.py", x, y)
@@ -100,9 +109,7 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
         # type: () -> None
         """ the activation button can be at 2 positions depending on idk what"""
         self.show_plugins()
-        self.send_click(921, 550)  # click on activate (high position)
-        self.send_click(856, 592)  # click on activate (high position)
-        self.send_click(1416, 20)  # click on nothing (to not trigger and additional click)
+        self._execute_python("activate_rev2_editor.py")
 
     def group_track(self):
         # type: () -> None

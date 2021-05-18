@@ -1,5 +1,3 @@
-from functools import partial
-
 from typing import Any, Optional
 
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
@@ -27,9 +25,7 @@ class InstrumentProphet(AbstractInstrument):
 
     def exclusive_activate(self):
         # type: () -> Optional[Sequence]
+        InstrumentProphet.ACTIVE_INSTANCE = self
         seq = Sequence()
-        if InstrumentProphet.ACTIVE_INSTANCE is not None:
-            seq.add(self.parent.keyboardShortcutManager.show_and_activate_rev2_editor, wait=300)
-        seq.add(partial(setattr, InstrumentProphet, "ACTIVE_INSTANCE", self))
-
+        seq.add(self.parent.keyboardShortcutManager.show_and_activate_rev2_editor, wait=5)
         return seq.done()
