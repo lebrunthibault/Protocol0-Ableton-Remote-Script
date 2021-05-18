@@ -54,6 +54,11 @@ class ActionGroupMain(AbstractActionGroup):
             on_scroll=InterfaceState.scroll_recording_times,
             on_press=lambda: partial(self.song.current_track.record, RecordTypeEnum.NORMAL),
             on_long_press=lambda: partial(self.song.current_track.record, RecordTypeEnum.AUDIO_ONLY),
+        ).add_action(
+            EncoderAction(
+                func=lambda: partial(self.song.current_track.record, RecordTypeEnum.MULTIPLE),
+                modifier_type=EncoderModifierEnum.DUPX,
+            )
         )
 
         # 10: empty
@@ -62,12 +67,12 @@ class ActionGroupMain(AbstractActionGroup):
         self.add_encoder(id=11, name="song", filter_active_tracks=False).add_action(
             EncoderAction(func=self.song.play_stop, modifier_type=EncoderModifierEnum.PLAY_STOP)
         ).add_action(
+            EncoderAction(func=self.song.unsolo_all_tracks, modifier_type=EncoderModifierEnum.SOLO)
+        ).add_action(
             EncoderAction(
                 func=lambda: AbstractTrackList(self.song.abstract_tracks).toggle_fold,
                 modifier_type=EncoderModifierEnum.FOLD,
             )
-        ).add_action(
-            EncoderAction(func=self.song.unsolo_all_tracks, modifier_type=EncoderModifierEnum.SOLO)
         )
 
         # 12 : CLIP encoder
@@ -77,12 +82,12 @@ class ActionGroupMain(AbstractActionGroup):
             on_press=lambda: self.song.selected_clip and self.song.selected_clip.play_stop,
             on_scroll=lambda: self.song.selected_track.scroll_clips,
         ).add_action(
+            EncoderAction(func=lambda: self.song.current_track.toggle_solo, modifier_type=EncoderModifierEnum.FOLD)
+        ).add_action(
             EncoderAction(
                 func=lambda: self.song.selected_clip and self.song.selected_clip.play_stop,
                 modifier_type=EncoderModifierEnum.PLAY_STOP,
             )
-        ).add_action(
-            EncoderAction(func=lambda: self.song.current_track.toggle_solo, modifier_type=EncoderModifierEnum.FOLD)
         )
 
         # 13 : TRaCK encoder

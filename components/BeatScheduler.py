@@ -24,9 +24,10 @@ class BeatScheduler(AbstractObject, SyncedScheduler):
         """
         if not self.song.is_playing:
             return
-        beat_offset = 0 if exact else self.song.get_current_beats_song_time().beats
-        beat_count = (self.song.signature_denominator * bar_count) - beat_offset
+        delay_shortening = 0 if exact else self.song.get_current_beats_song_time().beats
+        beat_count = (self.song.signature_denominator * bar_count) - delay_shortening
         delay = 0 if exact else self.TIMER_DELAY
+        self.parent.log_dev("beat_count: %s" % beat_count)
         self.parent._wait(delay, partial(self.wait_beats, beat_count, callback))
 
     def wait_beats(self, beats, callback):

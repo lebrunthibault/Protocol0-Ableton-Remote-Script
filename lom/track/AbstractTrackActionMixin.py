@@ -148,17 +148,23 @@ class AbstractTrackActionMixin(object):
             seq.add(self.arm, silent=True)
         if record_type == RecordTypeEnum.NORMAL and self.next_empty_clip_slot_index is None:
             seq.add(self.song.create_scene)
-            # here the tracks are mapped again ! we cannot simply call this method again on a stale object
             seq.add(partial(self.record, record_type))
-        else:
-            record_func = self.record_all if record_type == RecordTypeEnum.NORMAL else self.record_audio_only
-            seq.add(cast(Callable[..., Any], record_func))
-            seq.add(self.post_record)
+            return seq.done()
+
+        if record_type == RecordTypeEnum.MULTIPLE:
+            seq.add(cast(Callable[..., Any], self.record_multiple))
+            return seq.done()
+
+        if record_type == RecordTypeEnum.NORMAL:
+            seq.add(cast(Callable[..., Any], self.record_all))
+        elif record_type == RecordTypeEnum.AUDIO_ONLY:
+            seq.add(cast(Callable[..., Any], self.record_audio_only))
+        seq.add(self.post_record)
 
         return seq.done()
 
     def record_all(self):
-        # type: () -> Sequence
+        # type: (AbstractTrack) -> Sequence
         """ this records normally on a simple track and both midi and audio on a group track """
         raise NotImplementedError
 
@@ -171,6 +177,22 @@ class AbstractTrackActionMixin(object):
         """
         return self.record_all()
 
+    def record_multiple(self):
+        # type: (AbstractTrack) -> None
+        self.parent.log_dev("multiple !!")
+        self.parent.log_dev("track.is_recording: %s" % self.is_recording)
+        self.parent.log_dev("self.song.is_playing: %s" % self.song.is_playing)
+        seq = Sequence()
+        if not self.song.is_playing:
+            seq.add(complete_on=self.song._is_playing_listener)
+        self.record_all()
+        if not self.next_empty_clip_slot_index:
+            self.song.create_scene()
+
+        seq.add(lambda: self.parent.log_dev("playing !!"))
+        wait_bars = self.parent.globalBeatScheduler.wait_bars
+        seq.add(partial(wait_bars, InterfaceState.SELECTED_RECORDING_TIME, self.record_multiple))
+
     def in_record(self):
         # type: (AbstractTrack) -> None
         """ happens when the rec button is clicked during a recording. Overridden """
@@ -179,6 +201,7 @@ class AbstractTrackActionMixin(object):
     def post_record(self):
         # type: (AbstractTrack) -> None
         " overridden "
+        self.parent.log_dev("post record")
         self.song.metronome = False
         self.has_monitor_in = False
         self.song.session_record = False
