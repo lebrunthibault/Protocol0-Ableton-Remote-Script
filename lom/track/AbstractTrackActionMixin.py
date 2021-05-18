@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any, Optional, NoReturn, Callable, cast
 
 from a_protocol_0.enums.RecordTypeEnum import RecordTypeEnum
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
+from a_protocol_0.interface.InterfaceState import InterfaceState
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import retry
 from a_protocol_0.utils.utils import find_if
@@ -105,12 +106,18 @@ class AbstractTrackActionMixin(object):
     def scroll_presets_or_samples(self, go_next):
         # type: (AbstractTrack, bool) -> None
         if self.instrument:
-            self.instrument.scroll_presets_or_samples(go_next)
+            if len(self.clips) and InterfaceState.PROTECTED_MODE_ACTIVE:
+                self.parent.show_message("Cannot change preset when a clip is already recorded")
+            else:
+                self.instrument.scroll_presets_or_samples(go_next)
 
     def scroll_preset_categories(self, go_next):
         # type: (AbstractTrack, bool) -> None
         if self.instrument:
-            self.instrument.scroll_preset_categories(go_next=go_next)
+            if len(self.clips) and InterfaceState.PROTECTED_MODE_ACTIVE:
+                self.parent.show_message("Cannot change preset category when a clip is already recorded")
+            else:
+                self.instrument.scroll_preset_categories(go_next=go_next)
 
     def switch_monitoring(self):
         # type: () -> NoReturn
