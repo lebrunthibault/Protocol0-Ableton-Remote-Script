@@ -26,7 +26,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
 
         # is_active is used to differentiate set tracks for return / master
         # we act only on active tracks
-        self.is_active = track not in list(self.song._song.return_tracks) + [self.song._song.master_track]  # type: bool
 
         # Note : SimpleTracks represent the first layer of abstraction and know nothing about
         # AbstractGroupTracks except with self.abstract_group_track which links both layers
@@ -46,6 +45,11 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             self._fired_slot_index_listener.subject = self._track
 
             self.map_clip_slots()
+
+    @property
+    def is_active(self):
+        # type: () -> bool
+        return self._track not in list(self.song._song.return_tracks) + [self.song._song.master_track]
 
     def link_group_track(self):
         # type: () -> None
@@ -107,10 +111,9 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # We detect instruments only on SimpleMidiTrack and this raises when the midi track has no instrument
         if self.is_midi and self.is_active:
             self.instrument = self.parent.deviceManager.make_instrument_from_midi_track(track=self)
-
-        # notify instrument change on both the device track and the abstract_group_track
-        # noinspection PyUnresolvedReferences
-        self.abstract_track.notify_instrument()
+            # notify instrument change on both the device track and the abstract_group_track
+            # noinspection PyUnresolvedReferences
+            self.abstract_track.notify_instrument()
 
     @subject_slot_group("map_clip")
     def _map_clip_listener(self, clip_slot):

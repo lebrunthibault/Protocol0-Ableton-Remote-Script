@@ -1,6 +1,7 @@
 import collections
 from functools import partial
 
+import Live
 from typing import Any, List
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
@@ -76,17 +77,11 @@ class SongManager(AbstractControlSurfaceComponent):
         """ instantiate SimpleTracks (including return / master, that are marked as inactive) """
         self._simple_tracks[:] = []
 
-        song_tracks = (
-            list(self.song._song.tracks) + list(self.song._song.return_tracks) + [self.song._song.master_track]
-        )
+        # instantiate set tracks
+        for track in list(self.song._song.tracks) + list(self.song._song.return_tracks):
+            self._generate_simple_track(track=track)
 
-        # instantiate simple tracks
-        for track in song_tracks:
-            simple_track = self.parent.trackManager.instantiate_simple_track(track=track)
-            self.song.live_track_to_simple_track[track] = simple_track
-            self._simple_tracks.append(simple_track)
-
-        self.song.master_track = self._simple_tracks[-1]
+        self.song.master_track = self._generate_simple_track(track=self.song._song.master_track)
 
         # Refresh track mapping
         self.song.live_track_to_simple_track = collections.OrderedDict()
@@ -97,6 +92,13 @@ class SongManager(AbstractControlSurfaceComponent):
         self.song.clip_slots_by_live_live_clip_slot = {
             clip_slot._clip_slot: clip_slot for track in self.song.simple_tracks for clip_slot in track.clip_slots
         }
+
+    def _generate_simple_track(self, track):
+        # type: (Live.Track.Track) -> SimpleTrack
+        simple_track = self.parent.trackManager.instantiate_simple_track(track=track)
+        self.song.live_track_to_simple_track[track] = simple_track
+        self._simple_tracks.append(simple_track)
+        return simple_track
 
     def _generate_abstract_group_tracks(self):
         # type: () -> None

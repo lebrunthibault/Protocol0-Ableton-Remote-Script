@@ -14,7 +14,7 @@ from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.device.DeviceType import DeviceType
 from a_protocol_0.lom.track.AbstractTrackActionMixin import AbstractTrackActionMixin
-from a_protocol_0.lom.track.TrackName import TrackName
+from a_protocol_0.lom.track.AbstractTrackName import AbstractTrackName
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import defer, p0_subject_slot
 
@@ -39,8 +39,11 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self.abstract_group_track = None  # type: Optional[AbstractGroupTrack]
         self.sub_tracks = []  # type: List[AbstractTrack]
 
+        if not self.base_track.is_active:
+            return
+
         # MISC
-        self.track_name = TrackName(self)  # type: TrackName
+        self.track_name = AbstractTrackName(self)  # type: AbstractTrackName
         self.is_foldable = self._track.is_foldable  # type: bool
 
         # DISPLAY

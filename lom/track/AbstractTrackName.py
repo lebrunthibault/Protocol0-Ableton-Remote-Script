@@ -14,10 +14,10 @@ if TYPE_CHECKING:
     from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 
 
-class TrackName(AbstractObjectName):
+class AbstractTrackName(AbstractObjectName):
     def __init__(self, track, *a, **k):
         # type: (AbstractTrack, Any, Any) -> None
-        super(TrackName, self).__init__(*a, **k)
+        super(AbstractTrackName, self).__init__(*a, **k)
         self.track = track
         self.selected_preset_index = 0
         self._instrument_listener.subject = self.track
