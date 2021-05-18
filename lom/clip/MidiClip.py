@@ -1,13 +1,11 @@
-import itertools
 from functools import partial
 
 import Live
-from typing import List, TYPE_CHECKING, Optional, Callable, Tuple, Any
+from typing import List, TYPE_CHECKING, Optional, Callable, Any
 
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.utils import have_equal_properties
 
 if TYPE_CHECKING:
     from a_protocol_0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
@@ -21,9 +19,6 @@ class MidiClip(Clip):
         # NOTES
         # storing notes for note change comparison
         self._muted_notes = []  # type: List[Note]  # keeping this separate
-        self._prev_notes = self.get_notes()
-        self._added_note = None  # type: Optional[Note]
-        self._is_updating_notes = False
 
     def get_notes(self, exclude_muted=True):
         # type: (bool) -> List[Note]
@@ -37,76 +32,23 @@ class MidiClip(Clip):
         notes.sort(key=lambda x: x.start)
         return notes
 
-    def _change_clip_notes(self, method, notes, cache=True):
-        # type: (Callable, List[Note], bool) -> Optional[Sequence]
+    def _change_clip_notes(self, method, notes):
+        # type: (Callable, List[Note]) -> Optional[Sequence]
         if not self._clip:
             return None
-        self._is_updating_notes = True
-        if cache:
-            self._prev_notes = [note for note in notes if not note.muted]
         notes += [note for note in self._muted_notes if note.start == 0]  # reintegrating muted notes
         seq = Sequence(silent=True)
         seq.add(partial(method, tuple(note.to_data() for note in notes)))
         # noinspection PyUnresolvedReferences
         seq.add(self.notify_notes)  # for automation audio track to be notified
         seq.add(wait=1)
-        seq.add(lambda: setattr(self, "_is_updating_notes", False))
         return seq.done()
-
-    def _replace_selected_notes(self, notes):
-        # type: (List[Note]) -> Optional[Sequence]
-        if not self._clip:
-            return None
-        return self._change_clip_notes(self._clip.replace_selected_notes, notes)
 
     def set_notes(self, notes):
         # type: (List[Note]) -> Optional[Sequence]
         if not self._clip:
             return None
-        return self._change_clip_notes(self._clip.set_notes, notes, cache=False)
-
-    def _select_all_notes(self):
-        # type: () -> None
-        if not self._clip:
-            return None
-        self._clip.select_all_notes()
-
-    def _deselect_all_notes(self):
-        # type: () -> None
-        if not self._clip:
-            return
-        self._clip.deselect_all_notes()
-        self.parent.clyphxNavigationManager.show_clip_view()
-        self.show_loop()
-
-    def replace_all_notes(self, notes):
-        # type: (List[Note]) -> Optional[Sequence]
-        if not self._clip:
-            return None
-        self._select_all_notes()
-        seq = Sequence(silent=True)
-        seq.add(wait=1)
-        seq.add(partial(self._replace_selected_notes, notes))
-        seq.add(self._deselect_all_notes)
-        return seq.done()
-
-    def notes_changed(self, notes, checked_properties, prev_notes=None):
-        # type: (List[Note], List[str], List[Note]) -> List[Tuple[Note, Note]]
-        prev_notes = prev_notes or self._prev_notes
-        all_properties = ["start", "duration", "pitch", "velocity"]
-        excluded_properties = list(set(all_properties) - set(checked_properties))
-        if len(prev_notes) != len(notes):
-            return []
-
-        changed_notes = []  # type: List[Tuple[Note, Note]]
-        # keeping only those who have the same excluded properties and at least one checked_property change
-        for prev_note, note in itertools.izip(prev_notes, notes):  # type: ignore[attr-defined]
-            if have_equal_properties(prev_note, note, excluded_properties) and not have_equal_properties(
-                prev_note, note, checked_properties
-            ):
-                changed_notes.append((prev_note, note))
-
-        return changed_notes
+        return self._change_clip_notes(self._clip.set_notes, notes)
 
     @property
     def quantization_index(self):

@@ -1,8 +1,7 @@
 import Live
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.utils.utils import scale_from_value
 
 if TYPE_CHECKING:
     from a_protocol_0.lom.device.Device import Device
@@ -44,15 +43,6 @@ class DeviceParameter(AbstractObject):
     def default_value(self):
         # type: () -> float
         return self._device_parameter.default_value
-
-    def get_value_from_midi_value(self, midi_value):
-        # type: (int) -> float
-        return scale_from_value(midi_value, 0, 127, self.min, self.max)
-
-    def get_midi_value_from_value(self, value=None):
-        # type: (Optional[float]) -> int
-        value = value if value is not None else self.value
-        return int(scale_from_value(value, self.min, self.max, 0, 127))
 
     @property
     def min(self):

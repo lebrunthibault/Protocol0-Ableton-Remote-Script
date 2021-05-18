@@ -1,4 +1,3 @@
-from collections import defaultdict
 from functools import partial, wraps
 
 from typing import TYPE_CHECKING, Any, Callable
@@ -69,39 +68,6 @@ def retry(retry_count=3, interval=3):
 
         decorate.count = 0  # type: ignore[attr-defined]
         decorate.retry_count = retry_count  # type: ignore[attr-defined]
-
-        return decorate
-
-    return wrap
-
-
-def debounce(wait_time=200):
-    # type: (int) -> Callable
-    """ here we make the method dynamic """
-
-    def wrap(func):
-        # type: (Callable) -> Callable
-        @wraps(func)
-        def decorate(*a, **k):
-            # type: (Any, Any) -> None
-            index = a[0] if is_method(func) else decorate
-            wait_time = 0 if k.get("disable_debounce", False) else decorate.wait_time[index]  # type: ignore[attr-defined]
-            k.pop("disable_debounce", None)
-            decorate.count[index] += 1  # type: ignore[attr-defined]
-            from a_protocol_0 import Protocol0
-
-            Protocol0.SELF._wait(wait_time, partial(execute, func, *a, **k))
-
-        decorate.count = defaultdict(int)  # type: ignore[attr-defined]
-        decorate.wait_time = defaultdict(lambda: wait_time)  # type: ignore[attr-defined]
-        decorate.func = func  # type: ignore[attr-defined]
-
-        def execute(func, *a, **k):
-            # type: (Callable, Any, Any) -> None
-            index = a[0] if is_method(func) else decorate
-            decorate.count[index] -= 1  # type: ignore[attr-defined]
-            if decorate.count[index] == 0:  # type: ignore[attr-defined]
-                func(*a, **k)
 
         return decorate
 

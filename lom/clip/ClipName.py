@@ -22,7 +22,6 @@ class ClipName(AbstractObjectName):
         self.register_slot(self.clip._clip, self.update, "start_marker")
         self.register_slot(self.clip._clip, self.update, "end_marker")
         self._name_listener.subject = clip._clip
-        self.prev_name = ""
         self.parent.defer(self._name_listener)  # type: ignore[arg-type]
 
     @p0_subject_slot("name")
@@ -61,4 +60,3 @@ class ClipName(AbstractObjectName):
             return None
         self.base_name = base_name if base_name is not None else self.base_name
         self.clip.name = "%s (%s)" % (self.base_name, self.length_legend)
-        self.prev_name = self.clip.name

@@ -1,14 +1,9 @@
-from copy import copy
-from functools import partial
-
-from typing import TYPE_CHECKING, List, Any, cast, Optional, Tuple
+from typing import TYPE_CHECKING, Any, cast, Tuple
 
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.utils import clamp
 from a_protocol_0.utils.utils import is_equal
-from pushbase.note_editor_component import TimeStep
 
 if TYPE_CHECKING:
     from a_protocol_0.lom.clip.MidiClip import MidiClip
@@ -53,15 +48,6 @@ class Note(AbstractObject):
         return (self.pitch, self.start, self.duration, self.velocity, self.muted)
 
     @property
-    def time_step(self):
-        # type: () -> TimeStep
-        """
-        this is totally undocumented behavior
-        but the TimeStep offset is important for removing specific notes ..
-        """
-        return TimeStep(self.start, self.duration)
-
-    @property
     def pitch(self):
         # type: () -> int
         return clamp(self._pitch, 0, 127)
@@ -80,11 +66,6 @@ class Note(AbstractObject):
     def start(self, start):
         # type: (float) -> None
         self._start = max(float(0), start)
-
-    @property
-    def end(self):
-        # type: () -> float
-        return self.start + self.duration
 
     @property
     def duration(self):
@@ -123,26 +104,3 @@ class Note(AbstractObject):
     def muted(self, muted):
         # type: (bool) -> None
         self._muted = muted
-
-    def overlaps(self, note):
-        # type: (Note) -> bool
-        return note.start < self.end and note.end > self.start
-
-    @staticmethod
-    def copy_notes(notes):
-        # type: (List[Note]) -> List[Note]
-        return [copy(note) for note in notes]
-
-    @staticmethod
-    def _synchronize(notes, set_notes=True):
-        # type: (List[Note], bool) -> Optional[Sequence]
-        for note in notes:
-            [(time, length)] = note.time_step.connected_time_ranges()
-            note.clip._clip.remove_notes(time, 0, length, 128)
-
-        if set_notes:
-            seq = Sequence()
-            seq.add(partial(note.clip.set_notes, notes))
-            return seq.done()
-        else:
-            return None

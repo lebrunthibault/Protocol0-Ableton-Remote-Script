@@ -4,13 +4,13 @@ from collections import namedtuple, Sequence as CollectionsSequence
 from types import FrameType
 
 from qualname import qualname
-from typing import Optional, Any, List, cast, Callable, TYPE_CHECKING, Iterable
+from typing import Optional, Any, cast, Callable, TYPE_CHECKING, Iterable
 
 from a_protocol_0.consts import ROOT_DIR, REMOTE_SCRIPTS_DIR
 from a_protocol_0.my_types import StringOrNumber, T
 
 if TYPE_CHECKING:
-    from a_protocol_0.lom.AbstractObject import AbstractObject
+    pass
 
 
 def scroll_values(items, selected_item, go_next, show_message=False):
@@ -44,18 +44,6 @@ def is_equal(val1, val2, delta=0.00001):
         return abs(val1 - val2) < delta
     else:
         return val1 == val2
-
-
-def have_equal_properties(obj1, obj2, properties):
-    # type: (AbstractObject, AbstractObject, List[str]) -> bool
-    for property in properties:
-        if (
-            not hasattr(obj1, property)
-            or not hasattr(obj2, property)
-            or not is_equal(getattr(obj1, property), getattr(obj2, property))
-        ):
-            return False
-    return True
 
 
 def clamp(val, minv, maxv):
@@ -166,8 +154,3 @@ def get_callable_name(func, obj=None):
 def nop():
     # type: () -> None
     pass
-
-
-def scale_from_value(value, min_a, max_a, min_b, max_b):
-    # type: (float, float, float, float, float) -> float
-    return float(float((max_b - min_b) * (value - min_a)) / (max_a - min_a)) + min_b
