@@ -67,7 +67,7 @@ class TrackName(AbstractObjectName):
         return (
             not self.base_name
             or self.base_name == self.track.DEFAULT_NAME.lower()
-            or self.track.instrument
+            or (self.track.instrument and not self.track.instrument.should_display_selected_preset_name)
             or self.base_name.lower() in self.instrument_names
         )
 
