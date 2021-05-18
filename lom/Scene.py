@@ -38,11 +38,16 @@ class Scene(AbstractObject):
             self.notify_play()
 
     @p0_subject_slot("play")
+    @defer
     def _play_listener(self):
         # type: () -> None
         """ implements a next scene follow action """
         # doing this when scene starts playing
         Scene.PLAYING_SCENE = self
+        if Scene.LOOPING_SCENE and Scene.LOOPING_SCENE != self:
+            previous_looping_scene = Scene.LOOPING_SCENE
+            Scene.LOOPING_SCENE = None
+            previous_looping_scene.scene_name.update()
         self.schedule_next_scene_launch()
 
     @subject_slot_group("length")

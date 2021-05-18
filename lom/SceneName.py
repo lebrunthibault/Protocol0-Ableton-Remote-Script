@@ -28,8 +28,8 @@ class SceneName(AbstractObject):
         if match.group("looping") and not Scene.LOOPING_SCENE:
             self.scene.looping = True
 
-    def update(self, base_name=None, looping=None):
-        # type: (str, bool) -> None
+    def update(self, base_name=None):
+        # type: (str) -> None
         self.base_name = base_name if base_name is not None else self.base_name
         # renaming numeric named scenes
         try:
