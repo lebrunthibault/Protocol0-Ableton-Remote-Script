@@ -2,6 +2,7 @@ import Live
 import deprecation
 from typing import TYPE_CHECKING, Optional
 
+from a_protocol_0.consts import QUANTIZATION_OPTIONS
 from a_protocol_0.interface.InterfaceState import InterfaceState
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.sequence.Sequence import Sequence
@@ -56,6 +57,12 @@ class ClipActionMixin(object):
     def decrement_bar_length(self):
         # type: (Clip) -> None
         self.bar_length = max(1, int(self.bar_length) - 1)
+
+    def quantize(self):
+        # type: (Clip) -> None
+        if self._clip:
+            record_quantization_index = QUANTIZATION_OPTIONS.index(self.song._song.midi_recording_quantization)
+            self._clip.quantize(record_quantization_index, 1)
 
     def automation_envelope(self, parameter):
         # type: (Clip, DeviceParameter) -> Live.Clip.AutomationEnvelope

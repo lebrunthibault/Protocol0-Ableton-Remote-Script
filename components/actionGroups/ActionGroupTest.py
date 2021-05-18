@@ -16,5 +16,6 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
+        self.parent.log_dev(self.song._song.midi_recording_quantization)
         if self.song.selected_clip:
-            self.song.selected_clip.show_loop()
+            self.song.selected_clip.quantize()

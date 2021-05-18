@@ -61,54 +61,32 @@ class SimpleTrackActionMixin(object):
         # type: (SimpleTrack) -> None
         self.has_monitor_in = not self.has_monitor_in  # type: ignore[has-type]
 
+    def undo_track(self):
+        # type: (SimpleTrack) -> None
+        if self.is_recording:
+            self.song.metronome = False
+            self.playable_clip.delete()
+        elif self.is_triggered:
+            self.stop()
+        else:
+            self.song.undo()
+
     def record_all(self):
         # type: (SimpleTrack) -> Sequence
         """ finishes on end of recording """
         seq = Sequence()
         assert self.next_empty_clip_slot_index is not None
         seq.add(self.clip_slots[self.next_empty_clip_slot_index].record)  # type: ignore[has-type]
-        seq.add(self.post_record)
         return seq.done()
 
-    def _in_record(self):
+    def in_record(self):
         # type: (SimpleTrack) -> Sequence
         assert self.playable_clip
         self.parent.clear_tasks()
         seq = Sequence()
         seq.add(self.play, complete_on=self.playable_clip._is_recording_listener)
         seq.add(self.playable_clip.decrement_bar_length)
-        seq.add(self.post_record)
         return seq.done()
-
-    def undo_track(self):
-        # type: (SimpleTrack) -> None
-        if self.is_recording:
-            self.delete_current_clip()
-        elif self.is_triggered:
-            self.stop()
-        else:
-            self.song.undo()
-
-    def create_clip(self, clip_slot_index=0, name=None, bar_count=1):
-        # type: (SimpleTrack, int, str, int) -> Optional[Sequence]
-        clip_slot = self.clip_slots[clip_slot_index]  # type: ignore[has-type]
-        if clip_slot.has_clip:
-            return None
-
-        seq = Sequence()
-        seq.add(
-            partial(clip_slot._clip_slot.create_clip, self.parent.utilsManager.get_beat_time(bar_count)),
-            complete_on=clip_slot._has_clip_listener,
-        )
-        if name:
-            seq.add(lambda: setattr(self.clip_slots[clip_slot_index].clip, "name", name), name="set clip name")  # type: ignore[has-type]
-
-        return seq.done()
-
-    def delete_current_clip(self):
-        # type: (SimpleTrack) -> None
-        self.song.metronome = False
-        self.playable_clip.delete()
 
     def scroll_clips(self, go_next):
         # type: (SimpleTrack, bool) -> None
@@ -121,22 +99,11 @@ class SimpleTrackActionMixin(object):
         if self.song.selected_clip or self.playable_clip:
             self.song.selected_clip = scroll_values(self.clips, self.song.selected_clip or self.playable_clip, go_next)
 
-    def delete_device(self, device):
-        # type: (SimpleTrack, Device) -> None
-        device.disconnect()
-        self._track.delete_device(self.devices.index(device))
-        self._devices_listener()  # this should be called by Live
-
-    def clear_devices(self):
-        # type: (SimpleTrack) -> None
-        for device in self.devices:
-            self.delete_device(self.devices[0])
-
     def has_device(self, device_name):
         # type: (SimpleTrack, str) -> bool
         return find_if(lambda d: d.name == device_name, self.base_track.all_devices) is not None
 
-    def _find_all_devices(self, track_or_chain, only_visible=False):
+    def find_all_devices(self, track_or_chain, only_visible=False):
         # type: (SimpleTrack, Optional[Union[SimpleTrack, DeviceChain]], bool) -> List[Device]
         u""" Returns a list with all devices from a track or chain """
         devices = []
@@ -148,12 +115,12 @@ class SimpleTrackActionMixin(object):
                 continue
 
             if device.can_have_drum_pads and device.can_have_chains:
-                devices += chain([device], self._find_all_devices(device.selected_chain))
+                devices += chain([device], self.find_all_devices(device.selected_chain))
             elif not device.can_have_drum_pads and isinstance(device, RackDevice):
                 devices += chain(
                     [device],
                     *imap(
-                        partial(self._find_all_devices, only_visible=only_visible),
+                        partial(self.find_all_devices, only_visible=only_visible),
                         filter(None, device.chains),
                     )
                 )

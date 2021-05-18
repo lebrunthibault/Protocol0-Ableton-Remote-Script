@@ -1,11 +1,8 @@
-from functools import partial
-
 import Live
-from typing import Optional, Callable, Any
+from typing import Optional, Any
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
-from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from a_protocol_0.lom.track.group_track.SimpleGroupTrack import SimpleGroupTrack
@@ -41,39 +38,6 @@ class TrackManager(AbstractControlSurfaceComponent):
             complete_on=self._added_track_listener,
             check_timeout=4,
         )
-        return seq.done()
-
-    def create_midi_track(self, index, name, device=None):
-        # type: (int, str, Device) -> Sequence
-        return self._create_track(
-            track_creator=partial(self.song._song.create_midi_track, index), name=name, device=device
-        )
-
-    def create_audio_track(self, index, name, device=None):
-        # type: (int, str, Device) -> Sequence
-        return self._create_track(
-            track_creator=partial(self.song._song.create_audio_track, index), name=name, device=device
-        )
-
-    def _create_track(self, track_creator, name, device):
-        # type: (Callable, str, Optional[Device]) -> Sequence
-        seq = Sequence().add(wait=1, silent=True)  # defer change
-        seq.add(track_creator, complete_on=self.parent.songManager._tracks_listener)
-        seq.add(
-            lambda: self.song.selected_track.track_name.update(base_name=name),
-            name="set track name to %s" % name,
-        )
-        if device:
-            seq.add(lambda: self.song.selected_track.clear_devices(), name="clear devices")
-            seq.add(
-                partial(
-                    self.parent.browserManager.load_any_device,
-                    device_type=device.device_type,
-                    device_name=device.name,
-                ),
-                silent=True,
-            )
-
         return seq.done()
 
     def instantiate_simple_track(self, track):

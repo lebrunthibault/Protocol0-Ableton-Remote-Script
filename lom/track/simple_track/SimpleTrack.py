@@ -101,7 +101,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             device.disconnect()
 
         self.devices = [Device.make(device, self) for device in self._track.devices]
-        self.all_devices = self._find_all_devices(self.base_track)
+        self.all_devices = self.find_all_devices(self.base_track)
 
         # Refreshing is only really useful from simpler devices that change when a new sample is loaded
         # We detect instruments only on SimpleMidiTrack and this raises when the midi track has no instrument

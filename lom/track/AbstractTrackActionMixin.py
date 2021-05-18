@@ -122,8 +122,10 @@ class AbstractTrackActionMixin(object):
         if not self.can_be_armed:
             return None
         if self.is_recording:
-            self._in_record()
-            return None
+            seq = Sequence()
+            seq.add(self.in_record)
+            seq.add(self.post_record)
+            return seq.done()
         if self.song._song.session_record_status != Live.Song.SessionRecordStatus.off:
             return None
         self.song._song.session_record = True
@@ -143,24 +145,9 @@ class AbstractTrackActionMixin(object):
         else:
             record_func = self.record_all if record_type == RecordTypeEnum.NORMAL else self.record_audio_only
             seq.add(cast(Callable[..., Any], record_func))
+            seq.add(self.post_record)
 
         return seq.done()
-
-    def _in_record(self):
-        # type: (AbstractTrack) -> None
-        """ happens when the rec button is clicked during a recording. Overridden """
-        raise NotImplementedError
-
-    def post_record(self):
-        # type: (AbstractTrack) -> None
-        " overridden "
-        self.song.metronome = False
-        self.has_monitor_in = False
-        self.song._song.session_record = False
-        if self.base_track.playable_clip:
-            self.base_track.playable_clip.select()
-            if self.base_track.playable_clip.is_midi:
-                self.base_track.playable_clip.show_loop()
 
     def record_all(self):
         # type: () -> Sequence
@@ -175,6 +162,23 @@ class AbstractTrackActionMixin(object):
         is is available on other tracks just for ease of use
         """
         return self.record_all()
+
+    def in_record(self):
+        # type: (AbstractTrack) -> None
+        """ happens when the rec button is clicked during a recording. Overridden """
+        raise NotImplementedError
+
+    def post_record(self):
+        # type: (AbstractTrack) -> None
+        " overridden "
+        self.song.metronome = False
+        self.has_monitor_in = False
+        self.song._song.session_record = False
+        if self.base_track.playable_clip:
+            self.base_track.playable_clip.select()
+            if self.base_track.playable_clip.is_midi:
+                self.base_track.playable_clip.show_loop()
+                self.base_track.playable_clip.quantize()
 
     def play_stop(self):
         # type: (AbstractTrack) -> None
