@@ -115,7 +115,6 @@ class Clip(ClipActionMixin, AbstractObject):
     @base_name.setter
     def base_name(self, base_name):
         # type: (str) -> None
-        self.parent.log_warning("calling base_name on clip %s : %s" % (self, base_name))
         self.clip_name.update(base_name=base_name)
 
     @property

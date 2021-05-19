@@ -19,8 +19,12 @@ class ActionGroupMain(AbstractActionGroup):
         # type: (Any, Any) -> None
         super(ActionGroupMain, self).__init__(channel=15, *a, **k)
 
-        # DUPX modifier (both duplicate and shift)
-        self.add_modifier(id=1, modifier_type=EncoderModifierEnum.DUPX)
+        # DUPlicate modifier
+        self.add_modifier(
+            id=1,
+            modifier_type=EncoderModifierEnum.DUP,
+            on_scroll=InterfaceState.scroll_duplicate_bar_lengths,
+        )
 
         # SOLO modifier
         self.add_modifier(id=2, modifier_type=EncoderModifierEnum.SOLO)
@@ -51,13 +55,13 @@ class ActionGroupMain(AbstractActionGroup):
         self.add_encoder(
             id=9,
             name="record",
-            on_scroll=InterfaceState.scroll_recording_times,
+            on_scroll=InterfaceState.scroll_recording_bar_lengths,
             on_press=lambda: partial(self.song.current_track.record, RecordTypeEnum.NORMAL),
             on_long_press=lambda: partial(self.song.current_track.record, RecordTypeEnum.AUDIO_ONLY),
         ).add_action(
             EncoderAction(
+                modifier_type=EncoderModifierEnum.DUP,
                 func=lambda: partial(self.song.current_track.record, RecordTypeEnum.MULTIPLE),
-                modifier_type=EncoderModifierEnum.DUPX,
             )
         )
 
@@ -65,13 +69,13 @@ class ActionGroupMain(AbstractActionGroup):
 
         # SONG encoder
         self.add_encoder(id=11, name="song", filter_active_tracks=False).add_action(
-            EncoderAction(func=self.song.play_stop, modifier_type=EncoderModifierEnum.PLAY_STOP)
+            EncoderAction(modifier_type=EncoderModifierEnum.PLAY_STOP, func=self.song.play_stop)
         ).add_action(
-            EncoderAction(func=self.song.unsolo_all_tracks, modifier_type=EncoderModifierEnum.SOLO)
+            EncoderAction(modifier_type=EncoderModifierEnum.SOLO, func=self.song.unsolo_all_tracks)
         ).add_action(
             EncoderAction(
-                func=lambda: AbstractTrackList(self.song.abstract_tracks).toggle_fold,
                 modifier_type=EncoderModifierEnum.FOLD,
+                func=lambda: AbstractTrackList(self.song.abstract_tracks).toggle_fold,
             )
         )
 
@@ -82,11 +86,11 @@ class ActionGroupMain(AbstractActionGroup):
             on_press=lambda: self.song.selected_clip and self.song.selected_clip.play_stop,
             on_scroll=lambda: self.song.selected_track.scroll_clips,
         ).add_action(
-            EncoderAction(func=lambda: self.song.current_track.toggle_solo, modifier_type=EncoderModifierEnum.FOLD)
+            EncoderAction(modifier_type=EncoderModifierEnum.FOLD, func=lambda: self.song.current_track.toggle_solo)
         ).add_action(
             EncoderAction(
-                func=lambda: self.song.selected_clip and self.song.selected_clip.play_stop,
                 modifier_type=EncoderModifierEnum.PLAY_STOP,
+                func=lambda: self.song.selected_clip and self.song.selected_clip.play_stop,
             )
         )
 
@@ -98,23 +102,23 @@ class ActionGroupMain(AbstractActionGroup):
             on_press=lambda: self.song.current_track.toggle_arm,
         ).add_action(
             EncoderAction(
+                modifier_type=EncoderModifierEnum.DUP,
                 func=lambda: self.parent.trackManager.duplicate_current_track,
-                modifier_type=EncoderModifierEnum.DUPX,
             )
         ).add_action(
             EncoderAction(
-                func=lambda: self.song.current_track.toggle_solo,
                 modifier_type=EncoderModifierEnum.SOLO,
+                func=lambda: self.song.current_track.toggle_solo,
             )
         ).add_action(
             EncoderAction(
-                func=lambda: self.song.selected_abstract_tracks.toggle_fold,
                 modifier_type=EncoderModifierEnum.FOLD,
+                func=lambda: self.song.selected_abstract_tracks.toggle_fold,
             )
         ).add_action(
             EncoderAction(
-                func=lambda: self.song.selected_abstract_tracks.play_stop,
                 modifier_type=EncoderModifierEnum.PLAY_STOP,
+                func=lambda: self.song.selected_abstract_tracks.play_stop,
             )
         )
 
@@ -129,13 +133,13 @@ class ActionGroupMain(AbstractActionGroup):
         # 14 : CATegory encoder
         self.add_encoder(id=15, name="track category", on_scroll=InterfaceState.scroll_track_categories).add_action(
             EncoderAction(
-                func=lambda: self.song.selected_category_tracks.play_stop,
-                modifier_type=EncoderModifierEnum.PLAY_STOP,
+                modifier_type=EncoderModifierEnum.SOLO,
+                func=lambda: self.song.selected_category_tracks.toggle_solo,
             )
         ).add_action(
             EncoderAction(
-                func=lambda: self.song.selected_category_tracks.toggle_solo,
-                modifier_type=EncoderModifierEnum.SOLO,
+                modifier_type=EncoderModifierEnum.PLAY_STOP,
+                func=lambda: self.song.selected_category_tracks.play_stop,
             )
         )
 
@@ -143,10 +147,14 @@ class ActionGroupMain(AbstractActionGroup):
         self.add_encoder(
             id=16,
             name="scene",
-            on_press=lambda: self.song.selected_scene.play_stop,
+            on_press=lambda: self.song.selected_scene.fire,
             on_scroll=self.song.scroll_scenes,
         ).add_action(
-            EncoderAction(func=lambda: self.song.selected_scene.play_stop, modifier_type=EncoderModifierEnum.PLAY_STOP)
+            EncoderAction(
+                modifier_type=EncoderModifierEnum.DUP, func=lambda: self.song.selected_scene.partial_duplicate
+            )
         ).add_action(
-            EncoderAction(func=lambda: self.song.selected_scene.toggle_solo, modifier_type=EncoderModifierEnum.SOLO)
+            EncoderAction(modifier_type=EncoderModifierEnum.SOLO, func=lambda: self.song.selected_scene.toggle_solo)
+        ).add_action(
+            EncoderAction(modifier_type=EncoderModifierEnum.PLAY_STOP, func=lambda: self.song.selected_scene.fire)
         )

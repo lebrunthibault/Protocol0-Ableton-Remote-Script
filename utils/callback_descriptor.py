@@ -1,7 +1,7 @@
 from collections import deque
 from functools import partial
 
-from typing import Callable, Deque, Optional, Any, cast, Type
+from typing import Callable, Deque, Optional, Any, cast, Type, Union
 
 from a_protocol_0.utils.log import log_ableton
 from a_protocol_0.utils.utils import is_partial, get_callable_name
@@ -37,7 +37,7 @@ class CallbackDescriptor(object):
         self.__doc__ = func.__doc__
         self._func = func  # type: Any
         self._immediate = immediate
-        self._wrapped = None  # type: Optional[CallableWithCallbacks]
+        self._wrapped = None  # type: Optional[Union[Any, CallableWithCallbacks]]
 
     def __repr__(self):
         # type: () -> str
@@ -54,10 +54,8 @@ class CallbackDescriptor(object):
             return obj.__dict__[id(self)]
         except KeyError:
             # checking if we are on top of a subject_slot decorator
-            if bool(
-                getattr(self._func, "_data_name", None)
-            ):  # here we cannot do isinstance() as the Decorator class is in a closure
-                # calling inner descriptor. self._decorated is a SubjectSlot
+            if bool(getattr(self._func, "_data_name", None)):
+                # calling inner descriptor. self._wrapped is a SubjectSlot
                 # noinspection PyUnresolvedReferences
                 self._wrapped = self._func.__get__(obj)
                 self._wrapped.listener = CallableWithCallbacks(cast(Callable, self._wrapped), obj, self._immediate)
@@ -68,6 +66,9 @@ class CallbackDescriptor(object):
                 self._wrapped.clear_callbacks = self._wrapped.listener.clear_callbacks  # type: ignore[assignment]
             else:
                 self._wrapped = CallableWithCallbacks(partial(self._func, obj), obj, self._immediate)
+
+            if "tracks" in get_callable_name(self._wrapped):
+                log_ableton("self._wrapped: %s" % get_callable_name(self._wrapped))
 
             obj.__dict__[id(self)] = self._wrapped  # caching self._wrapped
             return self._wrapped  # Outer most function replacing the decorated method
@@ -90,6 +91,11 @@ class CallableWithCallbacks(object):
 
     def __call__(self, *a, **k):
         # type: (Any, Any) -> Any
+        self.DEBUG_MODE = get_callable_name(self._decorated) == "SongManager.tracks_listener"
+        if "Mixing" not in get_callable_name(self._decorated):
+            log_ableton("self._decorated: %s" % get_callable_name(self._decorated))
+        if self.DEBUG_MODE:
+            log_ableton("is_partial(self._decorated): %s" % is_partial(self._decorated))
         if is_partial(self._decorated):  # has_callback_queue on a stock method (only decorator set)
             res = self._decorated(*a, **k)
         else:
@@ -99,6 +105,9 @@ class CallableWithCallbacks(object):
             res = self._decorated.function.func.original_func(self._obj, *a, **k)
 
         from a_protocol_0.sequence.Sequence import Sequence
+
+        if self.DEBUG_MODE:
+            log_ableton("res: %s" % res)
 
         if isinstance(res, Sequence) and not res.terminated:
             if res.errored:
@@ -129,6 +138,9 @@ class CallableWithCallbacks(object):
     def _execute_callback_queue(self):
         # type: () -> None
         """ execute callbacks and check if we defer this or not """
+        if self.DEBUG_MODE:
+            log_ableton("self._callbacks: %s" % self._callbacks)
+
         if len(self._callbacks) == 0:
             return
         from a_protocol_0 import Protocol0

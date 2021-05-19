@@ -5,8 +5,13 @@ from a_protocol_0.utils.utils import scroll_values
 class InterfaceState(object):
     SELECTED_TRACK_CATEGORY = TrackCategoryEnum.ALL
 
-    RECORDING_TIMES = [1, 2, 4, 8, 16, 32, 64]
-    SELECTED_RECORDING_TIME = 1
+    _RECORDING_BAR_LENGTHS = [1, 2, 4, 8, 16, 32, 64]
+    SELECTED_RECORDING_BAR_LENGTH = 1
+
+    # used only for partial scene duplication
+    _DUPLICATE_BAR_LENGTHS = [1, -1, 2, -2, 4, -4, 8, -8]
+    SELECTED_DUPLICATE_BAR_LENGTH = 1
+
     PROTECTED_MODE_ACTIVE = True  # protected mode prevents certain actions to be made
 
     # NB: for an unknown reason clip.view.show_envelope does not always show the envelope
@@ -26,10 +31,25 @@ class InterfaceState(object):
         )
 
     @classmethod
-    def scroll_recording_times(cls, go_next):
+    def scroll_recording_bar_lengths(cls, go_next):
         # type: (bool) -> None
-        cls.SELECTED_RECORDING_TIME = scroll_values(cls.RECORDING_TIMES, cls.SELECTED_RECORDING_TIME, go_next)
-        bar_display_count = "%s bar%s" % (cls.SELECTED_RECORDING_TIME, "s" if cls.SELECTED_RECORDING_TIME > 1 else "")
+        cls.SELECTED_RECORDING_BAR_LENGTH = scroll_values(
+            cls._RECORDING_BAR_LENGTHS, cls.SELECTED_RECORDING_BAR_LENGTH, go_next
+        )
+        cls._show_selected_bar_length(cls.SELECTED_RECORDING_BAR_LENGTH)
+
+    @classmethod
+    def scroll_duplicate_bar_lengths(cls, go_next):
+        # type: (bool) -> None
+        cls.SELECTED_DUPLICATE_BAR_LENGTH = scroll_values(
+            cls._DUPLICATE_BAR_LENGTHS, cls.SELECTED_DUPLICATE_BAR_LENGTH, go_next
+        )
+        cls._show_selected_bar_length(cls.SELECTED_DUPLICATE_BAR_LENGTH)
+
+    @classmethod
+    def _show_selected_bar_length(cls, bar_length):
+        # type: (int) -> None
+        bar_display_count = "%s bar%s" % (bar_length, "s" if abs(bar_length) != 1 else "")
         from a_protocol_0 import Protocol0
 
         Protocol0.SELF.show_message("Selected %s" % bar_display_count)

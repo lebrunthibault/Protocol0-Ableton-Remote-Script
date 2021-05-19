@@ -3,13 +3,14 @@ from typing import List, Any, Optional
 
 from _Framework.SubjectSlot import subject_slot_group
 from a_protocol_0.lom.AbstractObject import AbstractObject
+from a_protocol_0.lom.SceneActionMixin import SceneActionMixin
 from a_protocol_0.lom.SceneName import SceneName
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
 from a_protocol_0.utils.decorators import p0_subject_slot, defer
 
 
-class Scene(AbstractObject):
+class Scene(AbstractObject, SceneActionMixin):
     __subject_events__ = ("play",)
 
     PLAYING_SCENE = None  # type: Optional[Scene]
@@ -53,56 +54,13 @@ class Scene(AbstractObject):
     @subject_slot_group("length")
     def _clips_length_listener(self, clip):
         # type: (Clip) -> None
-        self.check_scene_length()
+        self._check_scene_length()
 
     @subject_slot_group("has_clip")
     def _clip_slots_has_clip_listener(self, clip_slot):
         # type: (ClipSlot) -> None
         self._clips_length_listener.replace_subjects(self.clips)
-        self.check_scene_length()
-
-    @defer
-    def check_scene_length(self):
-        # type: () -> None
-        self.scene_name.update()
-        self.schedule_next_scene_launch()
-
-    def schedule_next_scene_launch(self):
-        # type: () -> None
-        self.parent.sceneBeatScheduler.clear()
-        if self == self.song.scenes[-1] or self.looping or self.song.scenes[self.index + 1].bar_length == 0:
-            return
-        next_scene = self.song.scenes[self.index + 1]
-        self.parent.sceneBeatScheduler.wait_beats(self.length - self.playing_position, next_scene.fire)
-
-    def select(self):
-        # type: () -> None
-        self.song.selected_scene = self
-
-    def fire(self):
-        # type: () -> None
-        if self._scene:
-            self._scene.fire()
-
-    def play_stop(self):
-        # type: () -> None
-        self.fire()
-
-    def toggle_solo(self):
-        # type: () -> None
-        """ for a scene solo means looped """
-        if not self.looping:  # solo activation
-            previous_looping_scene = Scene.LOOPING_SCENE
-            self.looping = True
-            if Scene.PLAYING_SCENE != self:
-                self.fire()
-            if previous_looping_scene:
-                previous_looping_scene.scene_name.update()
-            self.parent.sceneBeatScheduler.clear()  # clearing scene scheduling
-        else:  # solo inactivation
-            self.looping = False
-            self.schedule_next_scene_launch()  # restore previous behavior of follow action
-        self.scene_name.update()
+        self._check_scene_length()
 
     @property
     def index(self):

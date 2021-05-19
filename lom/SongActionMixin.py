@@ -13,7 +13,6 @@ if TYPE_CHECKING:
     from a_protocol_0.lom.Song import Song
 
 
-# noinspection PyTypeHints
 class SongActionMixin(object):
     @handle_error
     def reset(self, reset_tracks=True):
@@ -90,6 +89,14 @@ class SongActionMixin(object):
         # type: (Song, int) -> Sequence
         seq = Sequence()
         seq.add(partial(self._song.duplicate_track, index), complete_on=self.parent.songManager.tracks_listener)
+        return seq.done()
+
+    def duplicate_scene(self, index):
+        # type: (Song, int) -> Sequence
+        seq = Sequence()
+        # seq.add(partial(self._song.duplicate_scene, index))
+        seq.add(partial(self._song.duplicate_scene, index), complete_on=self.parent.songManager.tracks_listener)
+        seq.add(lambda: self.parent.log_dev("scene duplicated in song"))
         return seq.done()
 
     def scroll_scenes(self, go_next):

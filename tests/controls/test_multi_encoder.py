@@ -118,11 +118,11 @@ def test_multi_encoder_dup_press():
         res["dup_pressed"] = True
 
     multi_encoder = make_multi_encoder()
-    multi_encoder.add_action(EncoderAction(func=dup_press, modifier_type=EncoderModifierEnum.DUPX))
+    multi_encoder.add_action(EncoderAction(func=dup_press, modifier_type=EncoderModifierEnum.DUP))
 
     press_encoder(multi_encoder)
     assert res["dup_pressed"] is False
 
-    multi_encoder.get_modifier_from_enum(EncoderModifierEnum.DUPX).pressed = True
+    multi_encoder.get_modifier_from_enum(EncoderModifierEnum.DUP).pressed = True
     press_encoder(multi_encoder)
     assert res["dup_pressed"] is True

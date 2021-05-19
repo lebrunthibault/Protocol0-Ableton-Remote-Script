@@ -155,8 +155,6 @@ class AbstractInstrument(AbstractObject):
             seq.add(self.device.track.select)
             seq.add(self.exclusive_activate)
 
-        seq.add(partial(self.parent.log_warning, "activation done"))
-
         if not select_instrument_track:
             seq.add(self.song.selected_track.select, silent=True)
 

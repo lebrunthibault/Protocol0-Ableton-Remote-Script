@@ -7,7 +7,7 @@ from typing import Any, List
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.lom.Scene import Scene
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
-from a_protocol_0.utils.decorators import p0_subject_slot, has_callback_queue, handle_error
+from a_protocol_0.utils.decorators import handle_error, has_callback_queue
 
 
 class SongManager(AbstractControlSurfaceComponent):
@@ -16,7 +16,7 @@ class SongManager(AbstractControlSurfaceComponent):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(SongManager, self).__init__(*a, **k)
-        self.tracks_listener.subject = self.song._song
+        # self.tracks_listener.subject = self.song._song
         # keeping a list of instantiated tracks because we cannot access
         # song.live_track_to_simple_track when tracks are deleted
         self._simple_tracks = []  # type: List[SimpleTrack]
@@ -28,14 +28,10 @@ class SongManager(AbstractControlSurfaceComponent):
         self._highlighted_clip_slot_poller()
         self.song.reset()
 
-    @has_callback_queue()
     @handle_error
-    def on_selected_track_changed(self):
+    def on_track_list_changed(self):
         # type: () -> None
-        """ not for master and return tracks """
-        if len(self.song.live_track_to_simple_track):
-            # noinspection PyUnresolvedReferences
-            self.notify_selected_track()
+        self.tracks_listener()
 
     @handle_error
     def on_scene_list_changed(self):
@@ -46,8 +42,17 @@ class SongManager(AbstractControlSurfaceComponent):
         if self.song.playing_scene:
             self.song.playing_scene.schedule_next_scene_launch()
 
-    @p0_subject_slot("tracks")
     @handle_error
+    def on_selected_track_changed(self):
+        # type: () -> None
+        """ not for master and return tracks """
+        if len(self.song.live_track_to_simple_track):
+            # noinspection PyUnresolvedReferences
+            self.notify_selected_track()
+
+    # @p0_subject_slot("tracks")
+    # @handle_error
+    @has_callback_queue()
     def tracks_listener(self):
         # type: () -> None
         self.parent.log_debug("SongManager : start mapping tracks")

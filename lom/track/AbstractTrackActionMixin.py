@@ -192,7 +192,7 @@ class AbstractTrackActionMixin(object):
         seq.add(complete_on=self._has_clip_listener)
         self.record_all()
         seq.add(partial(self.parent.wait_beats, 1, self.create_scene_if_needed))
-        seq.add(partial(self.parent.wait_bars, InterfaceState.SELECTED_RECORDING_TIME, self.record_multiple))
+        seq.add(partial(self.parent.wait_bars, InterfaceState.SELECTED_RECORDING_BAR_LENGTH, self.record_multiple))
         return seq.done()
 
     def in_record(self):

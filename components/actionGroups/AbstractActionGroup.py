@@ -40,7 +40,9 @@ class AbstractActionGroup(AbstractControlSurfaceComponent):
             encoder.add_action(action)
         return self._add_multi_encoder(encoder)
 
-    def add_modifier(self, id, modifier_type):
-        # type: (int, EncoderModifierEnum) -> MultiEncoder
+    def add_modifier(self, id, modifier_type, on_scroll=None):
+        # type: (int, EncoderModifierEnum, Optional[Callable]) -> MultiEncoder
         encoder = MultiEncoderModifier(group=self, identifier=id, modifier_type=modifier_type)
+        if on_scroll:
+            encoder.add_action(EncoderAction.make_actions(on_scroll=on_scroll)[0])
         return self._add_multi_encoder(encoder)
