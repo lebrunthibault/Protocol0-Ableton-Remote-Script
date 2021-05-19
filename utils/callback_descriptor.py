@@ -4,7 +4,7 @@ from functools import partial
 from typing import Callable, Deque, Optional, Any, cast, Type, Union
 
 from a_protocol_0.utils.log import log_ableton
-from a_protocol_0.utils.utils import is_partial, get_callable_name
+from a_protocol_0.utils.utils import get_callable_name
 
 
 class CallbackDescriptor(object):
@@ -55,20 +55,22 @@ class CallbackDescriptor(object):
         except KeyError:
             # checking if we are on top of a subject_slot decorator
             if bool(getattr(self._func, "_data_name", None)):
-                # calling inner descriptor. self._wrapped is a SubjectSlot
+                # calling inner descriptor. self._wrapped is a SubjectSlot instance descriptor
                 # noinspection PyUnresolvedReferences
                 self._wrapped = self._func.__get__(obj)
-                self._wrapped.listener = CallableWithCallbacks(cast(Callable, self._wrapped), obj, self._immediate)
+                # noinspection PyUnresolvedReferences
+                cwc = CallableWithCallbacks(
+                    cast(Callable, partial(self._wrapped.function.func.original_func, obj)), self._immediate
+                )
+                self._wrapped.listener = cwc  # replacing the listener called by Live
+                self._wrapped.function = cwc  # replacing the CallableSlotMixin.function for direct execution
 
                 # patching the wrapped function to have a coherent interface
-                self._wrapped.add_callback = self._wrapped.listener.add_callback  # type: ignore[assignment]
-                self._wrapped._callbacks = self._wrapped.listener._callbacks
-                self._wrapped.clear_callbacks = self._wrapped.listener.clear_callbacks  # type: ignore[assignment]
+                self._wrapped.add_callback = cwc.add_callback  # type: ignore[assignment]
+                self._wrapped._callbacks = cwc._callbacks
+                self._wrapped.clear_callbacks = cwc.clear_callbacks  # type: ignore[assignment]
             else:
-                self._wrapped = CallableWithCallbacks(partial(self._func, obj), obj, self._immediate)
-
-            if "tracks" in get_callable_name(self._wrapped):
-                log_ableton("self._wrapped: %s" % get_callable_name(self._wrapped))
+                self._wrapped = CallableWithCallbacks(partial(self._func, obj), self._immediate)
 
             obj.__dict__[id(self)] = self._wrapped  # caching self._wrapped
             return self._wrapped  # Outer most function replacing the decorated method
@@ -77,37 +79,22 @@ class CallbackDescriptor(object):
 class CallableWithCallbacks(object):
     DEBUG_MODE = False
 
-    def __init__(self, decorated, obj, immediate):
-        # type: (Callable, object, bool) -> None
+    def __init__(self, function, immediate):
+        # type: (Callable, bool) -> None
         super(CallableWithCallbacks, self).__init__()
-        self._decorated = decorated  # type: Any
-        self._obj = obj
+        self._function = function  # type: Any
         self._immediate = immediate
         self._callbacks = deque()  # type: Deque[Callable]
 
     def __repr__(self):
         # type: () -> str
-        return "%s (cwc %d)" % (get_callable_name(self._decorated, self._obj), id(self))
+        return "%s (cwc %d)" % (get_callable_name(self._function), id(self))
 
     def __call__(self, *a, **k):
         # type: (Any, Any) -> Any
-        self.DEBUG_MODE = get_callable_name(self._decorated) == "SongManager.tracks_listener"
-        if "Mixing" not in get_callable_name(self._decorated):
-            log_ableton("self._decorated: %s" % get_callable_name(self._decorated))
-        if self.DEBUG_MODE:
-            log_ableton("is_partial(self._decorated): %s" % is_partial(self._decorated))
-        if is_partial(self._decorated):  # has_callback_queue on a stock method (only decorator set)
-            res = self._decorated(*a, **k)
-        else:
-            # has_callback_queue on top of Framework's @subject_slot
-            # let's fetch the inner function (bypass _Framework logic) to get the response
-            # noinspection PyUnresolvedReferences
-            res = self._decorated.function.func.original_func(self._obj, *a, **k)
+        res = self._function(*a, **k)
 
         from a_protocol_0.sequence.Sequence import Sequence
-
-        if self.DEBUG_MODE:
-            log_ableton("res: %s" % res)
 
         if isinstance(res, Sequence) and not res.terminated:
             if res.errored:
@@ -128,8 +115,6 @@ class CallableWithCallbacks(object):
         if callback in self._callbacks:
             return
         self._callbacks.append(callback)
-        if self.DEBUG_MODE:
-            log_ableton("adding_callback to %s : %s" % (self, self._callbacks))
 
     def clear_callbacks(self):
         # type: () -> None

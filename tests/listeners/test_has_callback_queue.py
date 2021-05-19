@@ -155,3 +155,35 @@ def test_async_callback():
     seq.add(obj2.callback_listener)  # type: ignore[arg-type]
     seq.add(partial(check_res, test_res_callbacks))
     seq.done()
+
+
+def test_p0_subject_slot_sequence():
+    # type: () -> None
+    class Example(AbstractObject):
+        __subject_events__ = ("test",)
+
+        def __init__(self, val, test_res, *a, **k):
+            # type: (int, List[int], Any, Any) -> None
+            super(Example, self).__init__(*a, **k)
+            self.val = val
+            self.test_res = test_res
+            self.subject_slot_listener.subject = self
+
+        @p0_subject_slot("test")
+        def subject_slot_listener(self):
+            # type: () -> None
+            return None
+
+    test_res_callbacks = []  # type: List[int]
+    example = Example(0, test_res_callbacks)
+    seq = Sequence()
+    seq.add(complete_on=example.subject_slot_listener)
+    seq.add(lambda: test_res_callbacks.append(1))
+    seq.done()
+    example.subject_slot_listener()
+
+    def check_res():
+        # type: () -> None
+        assert test_res_callbacks == [1]
+
+    p0._wait(3, check_res)

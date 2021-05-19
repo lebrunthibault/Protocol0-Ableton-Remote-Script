@@ -86,11 +86,6 @@ def is_method(func):
     return bool(spec.args and spec.args[0] == "self")
 
 
-def is_partial(func):
-    # type: (Callable) -> bool
-    return "functools.partial" in str(type(func))
-
-
 def is_lambda(func):
     # type: (Callable) -> bool
     return isinstance(func, types.LambdaType) and func.__name__ == "<lambda>"

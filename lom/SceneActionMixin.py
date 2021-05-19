@@ -54,14 +54,11 @@ class SceneActionMixin(object):
         # type: (Scene) -> Sequence
         seq = Sequence()
         seq.add(partial(self.song.duplicate_scene, self.index))
-        seq.add(lambda: self.parent.log_dev("scene duplicated"))
         seq.add(lambda: self.song.selected_scene._crop_clips_to_duplicate_bar_length())
         return seq.done()
 
     def _crop_clips_to_duplicate_bar_length(self):
         # type: (Scene) -> None
-        self.parent.log_dev("_crop_clips_to_duplicate_bar_length")
         bar_length = abs(InterfaceState.SELECTED_DUPLICATE_BAR_LENGTH)
-        self.parent.log_dev("bar_length: %s" % bar_length)
         for clip in self.clips:
             clip.bar_length = min(clip.bar_length, bar_length)

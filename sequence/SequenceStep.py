@@ -155,9 +155,6 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
             return self.parent._wait(self._wait, self.terminate)
 
         if _has_callback_queue(self._complete_on):
-            self.parent.log_dev(
-                "self._complete_on: %s, name: %s" % (self._complete_on, get_callable_name(self._complete_on))
-            )
             self._add_callback_on_listener(cast(CallableWithCallbacks, self._complete_on))
             return
 

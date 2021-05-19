@@ -3,7 +3,6 @@ from transitions import MachineError
 
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import has_callback_queue
-from a_protocol_0.utils.log import log_ableton
 from a_protocol_0.utils.utils import nop
 
 
@@ -38,7 +37,7 @@ def test_error_no_timeout():
     # type: () -> None
     seq = Sequence(silent=True)
     seq.add(nop, complete_on=lambda: False, name="timeout step", check_timeout=0)
-    seq.add(lambda: log_ableton("toto"), name="unreachable step")
+    seq.add(lambda: 1, name="unreachable step")
     seq.done()
 
     assert seq.errored

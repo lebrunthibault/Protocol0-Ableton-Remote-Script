@@ -96,7 +96,6 @@ class SongActionMixin(object):
         seq = Sequence()
         # seq.add(partial(self._song.duplicate_scene, index))
         seq.add(partial(self._song.duplicate_scene, index), complete_on=self.parent.songManager.tracks_listener)
-        seq.add(lambda: self.parent.log_dev("scene duplicated in song"))
         return seq.done()
 
     def scroll_scenes(self, go_next):
