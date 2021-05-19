@@ -6,7 +6,7 @@ class InterfaceState(object):
     SELECTED_TRACK_CATEGORY = TrackCategoryEnum.ALL
 
     RECORDING_TIMES = [1, 2, 4, 8, 16, 32, 64]
-    SELECTED_RECORDING_TIME = 2
+    SELECTED_RECORDING_TIME = 1
     PROTECTED_MODE_ACTIVE = True  # protected mode prevents certain actions to be made
 
     # NB: for an unknown reason clip.view.show_envelope does not always show the envelope

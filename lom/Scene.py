@@ -70,7 +70,7 @@ class Scene(AbstractObject):
     def schedule_next_scene_launch(self):
         # type: () -> None
         self.parent.sceneBeatScheduler.clear()
-        if self == self.song.scenes[-1] or self.looping or self.bar_length == 0:
+        if self == self.song.scenes[-1] or self.looping or self.song.scenes[self.index + 1].bar_length == 0:
             return
         next_scene = self.song.scenes[self.index + 1]
         self.parent.sceneBeatScheduler.wait_beats(self.length - self.playing_position, next_scene.fire)
