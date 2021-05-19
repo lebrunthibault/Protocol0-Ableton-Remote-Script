@@ -33,6 +33,7 @@ class SchedulerEvent(AbstractObject):
     def execute(self):
         # type: () -> None
         assert not self._executed
+        self.parent.log_warning("executing scheduler event %s" % self)
         if self.song.errored:
             return
         self._executed = True

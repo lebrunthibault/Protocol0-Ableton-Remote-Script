@@ -135,6 +135,10 @@ class Protocol0(ControlSurface):
         # type: (Callable) -> None
         self.fastScheduler.schedule_next(callback)
 
+    def wait_bars(self, bar_length, callback):
+        # type: (int, Callable) -> None
+        self.globalBeatScheduler.wait_bars(bar_length, callback)
+
     def wait_beats(self, beats, callback):
         # type: (float, Callable) -> None
         self.globalBeatScheduler.wait_beats(beats, callback)
@@ -163,6 +167,7 @@ class Protocol0(ControlSurface):
             seq.terminate()
         self._task_group.clear()
         self.fastScheduler.restart()
+        self.globalBeatScheduler.clear()
 
     def dev_boot(self):
         # type: () -> None

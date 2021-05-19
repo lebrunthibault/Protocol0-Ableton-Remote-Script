@@ -82,7 +82,6 @@ class SimpleTrackActionMixin(object):
     def in_record(self):
         # type: (SimpleTrack) -> Sequence
         assert self.playable_clip
-        self.parent.clear_tasks()
         seq = Sequence()
         seq.add(self.play, complete_on=self.playable_clip._is_recording_listener)
         seq.add(self.playable_clip.decrement_bar_length)

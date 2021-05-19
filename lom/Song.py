@@ -198,6 +198,11 @@ class Song(AbstractObject, SongActionMixin):
         return self._song.midi_recording_quantization
 
     @property
+    def session_record_status(self):
+        # type: () -> int
+        return self._song.session_record_status
+
+    @property
     def session_record(self):
         # type: () -> bool
         return self._song.session_record

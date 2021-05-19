@@ -27,7 +27,7 @@ class Scene(AbstractObject):
         # listeners
         self._is_triggered_listener.subject = self._scene
         self._play_listener.subject = self
-        self._clip_slots_map_clip_listener.replace_subjects(self.clip_slots)
+        self._clip_slots_has_clip_listener.replace_subjects(self.clip_slots)
         self._clips_length_listener.replace_subjects(self.clips)
 
     @p0_subject_slot("is_triggered")
@@ -55,8 +55,8 @@ class Scene(AbstractObject):
         # type: (Clip) -> None
         self.check_scene_length()
 
-    @subject_slot_group("map_clip")
-    def _clip_slots_map_clip_listener(self, clip_slot):
+    @subject_slot_group("has_clip")
+    def _clip_slots_has_clip_listener(self, clip_slot):
         # type: (ClipSlot) -> None
         self._clips_length_listener.replace_subjects(self.clips)
         self.check_scene_length()
@@ -70,7 +70,7 @@ class Scene(AbstractObject):
     def schedule_next_scene_launch(self):
         # type: () -> None
         self.parent.sceneBeatScheduler.clear()
-        if self == self.song.scenes[-1] or self.looping:
+        if self == self.song.scenes[-1] or self.looping or self.bar_length == 0:
             return
         next_scene = self.song.scenes[self.index + 1]
         self.parent.sceneBeatScheduler.wait_beats(self.length - self.playing_position, next_scene.fire)

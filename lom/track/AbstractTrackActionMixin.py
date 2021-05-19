@@ -1,5 +1,6 @@
 from functools import partial
 
+import Live
 from typing import TYPE_CHECKING, Any, Optional, NoReturn, Callable, cast
 
 from a_protocol_0.enums.RecordTypeEnum import RecordTypeEnum
@@ -119,22 +120,30 @@ class AbstractTrackActionMixin(object):
                 self.instrument.scroll_preset_categories(go_next=go_next)
 
     def switch_monitoring(self):
-        # type: () -> NoReturn
+        # type: (AbstractTrack) -> NoReturn
         raise NotImplementedError()
+
+    def create_scene_if_needed(self):
+        # type: (AbstractTrack) -> None
+        if not self.next_empty_clip_slot_index:
+            self.song.create_scene()
 
     def record(self, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
         """ restart audio to get a count in and recfix"""
         if not self.can_be_armed:
             return None
-        if self.is_recording:
+        if self.song.session_record_status == Live.Song.SessionRecordStatus.transition:  # record count in
+            self.parent.clear_tasks()
+            self.stop(immediate=True)
+            self.post_record()
+            return None
+        elif self.song.session_record_status == Live.Song.SessionRecordStatus.on:  # in recording
+            self.parent.clear_tasks()
             seq = Sequence()
             seq.add(self.in_record)
             seq.add(self.post_record)
             return seq.done()
-        elif self.song.session_record:  # record started but nothing is recorded yet
-            self.stop(immediate=True)
-            return None
 
         self.song.session_record = True
 
@@ -178,20 +187,13 @@ class AbstractTrackActionMixin(object):
         return self.record_all()
 
     def record_multiple(self):
-        # type: (AbstractTrack) -> None
-        self.parent.log_dev("multiple !!")
-        self.parent.log_dev("track.is_recording: %s" % self.is_recording)
-        self.parent.log_dev("self.song.is_playing: %s" % self.song.is_playing)
+        # type: (AbstractTrack) -> Sequence
         seq = Sequence()
-        if not self.song.is_playing:
-            seq.add(complete_on=self.song._is_playing_listener)
+        seq.add(complete_on=self._has_clip_listener)
         self.record_all()
-        if not self.next_empty_clip_slot_index:
-            self.song.create_scene()
-
-        seq.add(lambda: self.parent.log_dev("playing !!"))
-        wait_bars = self.parent.globalBeatScheduler.wait_bars
-        seq.add(partial(wait_bars, InterfaceState.SELECTED_RECORDING_TIME, self.record_multiple))
+        seq.add(partial(self.parent.wait_beats, 1, self.create_scene_if_needed))
+        seq.add(partial(self.parent.wait_bars, InterfaceState.SELECTED_RECORDING_TIME, self.record_multiple))
+        return seq.done()
 
     def in_record(self):
         # type: (AbstractTrack) -> None
@@ -201,7 +203,6 @@ class AbstractTrackActionMixin(object):
     def post_record(self):
         # type: (AbstractTrack) -> None
         " overridden "
-        self.parent.log_dev("post record")
         self.song.metronome = False
         self.has_monitor_in = False
         self.song.session_record = False

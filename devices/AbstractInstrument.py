@@ -152,7 +152,6 @@ class AbstractInstrument(AbstractObject):
             seq.add(lambda: setattr(self, "activated", True), name="mark instrument as activated")
 
         if self.needs_exclusive_activation:
-            self.parent.log_dev("triggering exclusive activation for %s" % self)
             seq.add(self.device.track.select)
             seq.add(self.exclusive_activate)
 

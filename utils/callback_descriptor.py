@@ -98,9 +98,6 @@ class CallableWithCallbacks(object):
             # noinspection PyUnresolvedReferences
             res = self._decorated.function.func.original_func(self._obj, *a, **k)
 
-        if self.DEBUG_MODE:
-            log_ableton("listener res of %s : %s" % (self, res))
-
         from a_protocol_0.sequence.Sequence import Sequence
 
         if isinstance(res, Sequence) and not res.terminated:

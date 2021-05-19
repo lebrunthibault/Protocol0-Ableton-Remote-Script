@@ -77,7 +77,6 @@ class ExternalSynthTrackActionMixin(object):
     def in_record(self):
         # type: (ExternalSynthTrack) -> Sequence
         assert self.midi_track.playable_clip and self.audio_track.playable_clip
-        self.parent.clear_tasks()
         seq = Sequence()
         seq.add(self.play, complete_on=self.midi_track.playable_clip._is_recording_listener)
         seq.add(self.audio_track.playable_clip.decrement_bar_length)

@@ -17,13 +17,13 @@ class ClipSlotSynchronizer(ObjectSynchronizer):
 
         master.linked_clip_slot = slave
         slave.linked_clip_slot = master
-        self._map_clip_listener.replace_subjects([master, slave])
+        self._has_clip_listener.replace_subjects([master, slave])
         self._is_triggered_listener.replace_subjects([master, slave])
         self._clip_synchronizer = None  # type: Optional[ClipSynchronizer]
-        self._map_clip_listener(master)
+        self._has_clip_listener(master)
 
-    @subject_slot_group("map_clip")
-    def _map_clip_listener(self, clip_slot):
+    @subject_slot_group("has_clip")
+    def _has_clip_listener(self, clip_slot):
         # type: (ClipSlot) -> None
         if self._clip_synchronizer:
             self._clip_synchronizer.disconnect()

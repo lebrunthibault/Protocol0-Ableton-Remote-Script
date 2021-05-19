@@ -73,7 +73,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             else:
                 new_clip_slots.append(ClipSlot.make(clip_slot=clip_slot, index=i, track=self))
         self.clip_slots = new_clip_slots
-        self._map_clip_listener.replace_subjects(self.clip_slots)
+        self._clip_slots_has_clip_listener.replace_subjects(self.clip_slots)
 
     @subject_slot("playing_slot_index")
     @defer
@@ -115,9 +115,14 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             # noinspection PyUnresolvedReferences
             self.abstract_track.notify_instrument()
 
-    @subject_slot_group("map_clip")
-    def _map_clip_listener(self, clip_slot):
+    @subject_slot_group("has_clip")
+    def _clip_slots_has_clip_listener(self, clip_slot):
         # type: (ClipSlot) -> None
+        # noinspection PyUnresolvedReferences
+        self.notify_has_clip()
+        if self.abstract_group_track:
+            # noinspection PyUnresolvedReferences
+            self.abstract_group_track.notify_has_clip()
         pass
 
     @property

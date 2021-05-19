@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 
 class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
-    __subject_events__ = ("instrument", "fired_slot_index")
+    __subject_events__ = ("has_clip", "instrument", "fired_slot_index")
 
     DEFAULT_NAME = "default"
     DEFAULT_COLOR = ColorEnum.DISABLED  # when the color cannot be matched
@@ -52,6 +52,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self.push2_selected_instrument_mode = None  # type: Optional[str]
 
         self._instrument_listener.subject = self
+        self._has_clip_listener.subject = self
         self._color_listener.subject = self._track
 
     def _added_track_init(self, arm=True):
@@ -68,6 +69,11 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         [seq.add(clip.delete) for clip in self.clips]
 
         return seq.done()
+
+    @p0_subject_slot("has_clip")
+    def _has_clip_listener(self):
+        # type: () -> None
+        pass
 
     @p0_subject_slot("instrument")
     @defer

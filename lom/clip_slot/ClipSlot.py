@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class ClipSlot(AbstractObject):
-    __subject_events__ = ("map_clip", "is_triggered")
+    __subject_events__ = ("has_clip", "is_triggered")
 
     def __init__(self, clip_slot, track, *a, **k):
         # type: (Live.ClipSlot.ClipSlot, SimpleTrack, Any, Any) -> None
@@ -58,7 +58,7 @@ class ClipSlot(AbstractObject):
         self.clip = Clip.make(clip_slot=self, is_new=is_new) if self.has_clip else None
 
         # noinspection PyUnresolvedReferences
-        self.notify_map_clip()
+        self.notify_has_clip()
 
     @p0_subject_slot("is_triggered")
     def _is_triggered_listener(self):
