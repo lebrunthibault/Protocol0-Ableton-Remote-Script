@@ -42,9 +42,9 @@ class MultiEncoder(AbstractObject):
 
     def add_action(self, action):
         # type: (EncoderAction) -> MultiEncoder
-        assert not self._find_matching_action(action.move_type, action.modifier_type, False), (
-            "duplicate move %s" % action
-        )
+        assert not self._find_matching_action(
+            action.move_type, action.modifier_type, exact_match=True, log_not_found=False
+        ), ("duplicate move %s" % action)
         self._actions.append(action)
         return self
 
@@ -83,15 +83,24 @@ class MultiEncoder(AbstractObject):
         if action:
             action.execute(encoder_name=self.name, go_next=value == 1)
 
-    def _find_matching_action(self, move_type, modifier_type=None, log_not_found=True):
-        # type: (EncoderMoveEnum, EncoderModifierEnum, bool) -> Optional[EncoderAction]
+    def _find_matching_action(self, move_type, modifier_type=None, exact_match=False, log_not_found=True):
+        # type: (EncoderMoveEnum, Optional[EncoderModifierEnum], bool, bool) -> Optional[EncoderAction]
         modifier_type = modifier_type or self._pressed_modifier_type
-        actions = [
-            action
-            for action in self._actions
-            if action.move_type == move_type and action.modifier_type == modifier_type
-        ]
-        action = next(iter(actions), None)
+
+        def find_matching_action(move_type, modifier_type):
+            # type: (EncoderMoveEnum, EncoderModifierEnum) -> Optional[EncoderAction]
+            actions = [
+                action
+                for action in self._actions
+                if action.move_type == move_type and action.modifier_type == modifier_type
+            ]
+            return next(iter(actions), None)
+
+        action = find_matching_action(move_type=move_type, modifier_type=modifier_type)
+
+        # special case press reacts to long_press when no matching action is found
+        if move_type == EncoderMoveEnum.LONG_PRESS and not exact_match:
+            action = find_matching_action(move_type=EncoderMoveEnum.PRESS, modifier_type=modifier_type)
 
         if not action and log_not_found:
             self.parent.show_message(
