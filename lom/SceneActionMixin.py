@@ -23,6 +23,7 @@ class SceneActionMixin(object):
         if self == self.song.scenes[-1] or self.looping or self.song.scenes[self.index + 1].bar_length == 0:
             return
         next_scene = self.song.scenes[self.index + 1]
+        self.parent.log_dev("scheduling next scene launch here : %s" % next_scene)
         self.parent.sceneBeatScheduler.wait_beats(self.length - self.playing_position, next_scene.fire)
 
     def select(self):
@@ -37,6 +38,8 @@ class SceneActionMixin(object):
     def toggle_solo(self):
         # type: (Scene) -> None
         """ for a scene solo means looped """
+        from a_protocol_0.lom.Scene import Scene
+
         if not self.looping:  # solo activation
             previous_looping_scene = Scene.LOOPING_SCENE
             self.looping = True
@@ -59,6 +62,11 @@ class SceneActionMixin(object):
 
     def _crop_clips_to_duplicate_bar_length(self):
         # type: (Scene) -> None
-        bar_length = abs(InterfaceState.SELECTED_DUPLICATE_BAR_LENGTH)
+        bar_length = InterfaceState.SELECTED_DUPLICATE_BAR_LENGTH
         for clip in self.clips:
-            clip.bar_length = min(clip.bar_length, bar_length)
+            if bar_length > 0 and clip.bar_length > bar_length:
+                clip.bar_length = min(clip.bar_length, bar_length)
+            elif bar_length < 0 and clip.bar_length > abs(bar_length):
+                offset = clip.length - abs(bar_length) * self.song.signature_numerator
+                clip.start_marker += offset
+                clip.loop_start += offset

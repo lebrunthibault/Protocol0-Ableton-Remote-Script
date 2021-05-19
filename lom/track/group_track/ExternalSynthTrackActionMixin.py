@@ -65,7 +65,7 @@ class ExternalSynthTrackActionMixin(object):
         self.song.metronome = False
 
         seq = Sequence()
-        recording_bar_count = int(round((self.midi_track.playable_clip.length + 1) / self.song.signature_denominator))
+        recording_bar_count = int(round((self.midi_track.playable_clip.length + 1) / self.song.signature_numerator))
         audio_clip_slot = self.audio_track.clip_slots[midi_clip.index]
         if audio_clip_slot.clip:
             seq.add(audio_clip_slot.clip.delete)

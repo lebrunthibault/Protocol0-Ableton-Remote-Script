@@ -60,8 +60,8 @@ class EncoderAction(AbstractObject):
         actions = []  # type: List[EncoderAction]
         if on_press:
             actions.append(EncoderAction(on_press))
-        if on_long_press:
-            actions.append(EncoderAction(on_long_press, move_type=EncoderMoveEnum.LONG_PRESS))
+        if on_long_press or on_press:
+            actions.append(EncoderAction(on_long_press or on_press, move_type=EncoderMoveEnum.LONG_PRESS))
         if on_scroll:
             actions.append(EncoderAction(on_scroll, move_type=EncoderMoveEnum.SCROLL))
 

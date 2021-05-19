@@ -106,7 +106,7 @@ class Scene(AbstractObject, SceneActionMixin):
     @property
     def bar_length(self):
         # type: () -> int
-        return int(self.length / self.song.signature_denominator)
+        return int(self.length / self.song.signature_numerator)
 
     @property
     def playing_position(self):

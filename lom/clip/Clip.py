@@ -143,12 +143,12 @@ class Clip(ClipActionMixin, AbstractObject):
     @property
     def bar_length(self):
         # type: () -> int
-        return int(self.length / self.song.signature_denominator)
+        return int(self.length / self.song.signature_numerator)
 
     @bar_length.setter
     def bar_length(self, bar_length):
         # type: (int) -> None
-        self.length = bar_length * self.song.signature_denominator
+        self.length = bar_length * self.song.signature_numerator
 
     @property
     def looping(self):

@@ -9,7 +9,7 @@ class InterfaceState(object):
     SELECTED_RECORDING_BAR_LENGTH = 1
 
     # used only for partial scene duplication
-    _DUPLICATE_BAR_LENGTHS = [1, -1, 2, -2, 4, -4, 8, -8]
+    _DUPLICATE_BAR_LENGTHS = [-8, -4, -2, -1, 1, 2, 4, 8]
     SELECTED_DUPLICATE_BAR_LENGTH = 1
 
     PROTECTED_MODE_ACTIVE = True  # protected mode prevents certain actions to be made

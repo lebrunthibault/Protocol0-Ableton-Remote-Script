@@ -46,11 +46,10 @@ class ClipName(AbstractObjectName):
         if hasattr(self.clip, "warping") and not self.clip.warping:
             return "unwarped"
 
-        if int(self.clip.length) % self.song.signature_denominator != 0:
+        if int(self.clip.length) % self.song.signature_numerator != 0:
             return "%d beat%s" % (self.clip.length, "s" if self.clip.length > 1 else "")
         else:
-            bar_count = self.clip.length / self.song.signature_denominator
-            return "%d bar%s" % (bar_count, "s" if bar_count > 1 else "")
+            return "%d bar%s" % (self.clip.bar_length, "s" if self.clip.bar_length > 1 else "")
 
     @defer
     def update(self, base_name=None):
