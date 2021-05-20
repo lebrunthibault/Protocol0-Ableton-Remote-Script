@@ -34,7 +34,7 @@ class TrackManager(AbstractControlSurfaceComponent):
     def group_track(self):
         # type: () -> Sequence
         seq = Sequence()
-        seq.add(self.parent.clyphxNavigationManager.focus_main)
+        seq.add(self.parent.navigationManager.focus_main)
         seq.add(
             self.parent.keyboardShortcutManager.group_track,
             complete_on=self._added_track_listener,

@@ -28,7 +28,7 @@ class ClipActionMixin(object):
         # type: (Clip) -> Sequence
         self.song.highlighted_clip_slot = self.clip_slot
         seq = Sequence(silent=True)
-        seq.add(self.parent.clyphxNavigationManager.show_clip_view)
+        seq.add(self.parent.navigationManager.show_clip_view)
         # seq.add(wait=10)
         return seq.done()
 
@@ -71,7 +71,7 @@ class ClipActionMixin(object):
 
     def show_envelope_parameter(self, parameter):
         # type: (Clip, DeviceParameter) -> None
-        self.parent.clyphxNavigationManager.show_clip_view()
+        self.parent.navigationManager.show_clip_view()
         self.view.show_envelope()
         self.view.select_envelope_parameter(parameter._device_parameter)
         if not InterfaceState.CLIP_ENVELOPE_SHOW_BOX_CLICKED:

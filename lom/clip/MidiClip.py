@@ -61,7 +61,7 @@ class MidiClip(Clip):
 
         if len(self.get_notes()) > 0:
             self.play()
-            self.parent.clyphxNavigationManager.show_clip_view()
+            self.parent.navigationManager.show_clip_view()
             return None
 
         seq = Sequence(silent=True)

@@ -1,12 +1,35 @@
-from os import listdir
-from os.path import isfile, join
+import os
 
-serum_user_folder = "C:\\Users\\thiba\\OneDrive\\Documents\\Xfer\\Serum Presets\\Presets\\User"
-serum_program_change_file = "C:\\Users\\thiba\\OneDrive\\Documents\\Xfer\\Serum Presets\\System\\ProgramChanges.txt"
+from typing import Generator, Any
 
-serum_presets = [f for f in listdir(serum_user_folder) if isfile(join(serum_user_folder, f)) and f.endswith(".fxp")]
 
-with open(serum_program_change_file, "w") as f:
-    [f.write("User\\%s\n" % preset) for preset in serum_presets]
+class SerumPresetSynchronizer:
+    PRESET_DIRECTORY = "C:\\Users\\thiba\\OneDrive\\Documents\\Xfer\\Serum Presets\\Presets"
+    PROGRAM_CHANGE_FILENAME = "C:\\Users\\thiba\\OneDrive\\Documents\\Xfer\\Serum Presets\\System\\ProgramChanges.txt"
 
-print("%d serum presets wrote to %s" % (len(serum_presets), serum_program_change_file))
+    @classmethod
+    def get_preset_names(cls):
+        # type: () -> Generator[str, Any, Any]
+        for path, _, files in os.walk(cls.PRESET_DIRECTORY):
+            relative_path = path.replace(cls.PRESET_DIRECTORY, "")
+            if relative_path.startswith("\\_"):
+                continue
+
+            for name in files:
+                if not name.endswith(".fxp"):
+                    continue
+                yield os.path.join(relative_path, name)
+
+    @classmethod
+    def synchronize(cls):
+        # type: () -> None
+        presets = list(cls.get_preset_names())
+        with open(cls.PROGRAM_CHANGE_FILENAME, "w") as f:
+            for preset in presets:
+                f.write("%s\n" % preset)
+
+        print("%d serum presets wrote to %s" % (len(presets), cls.PROGRAM_CHANGE_FILENAME))
+
+
+if __name__ == "__main__":
+    SerumPresetSynchronizer.synchronize()

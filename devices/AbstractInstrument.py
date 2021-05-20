@@ -195,7 +195,7 @@ class AbstractInstrument(AbstractObject):
 
     def scroll_presets_or_samples(self, go_next):
         # type: (bool) -> Sequence
-        self.parent.clyphxNavigationManager.show_track_view()
+        self.parent.navigationManager.show_track_view()
 
         seq = Sequence()
         if self.NEEDS_ACTIVATION_FOR_PRESETS_CHANGE:

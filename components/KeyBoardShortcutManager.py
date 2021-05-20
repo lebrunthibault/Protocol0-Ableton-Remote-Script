@@ -47,7 +47,7 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
     def send_keys(self, keys, repeat=False):
         # type: (str, bool) -> Sequence
         seq = Sequence(silent=True)
-        seq.add(self.parent.clyphxNavigationManager.focus_main)
+        seq.add(self.parent.navigationManager.focus_main)
         seq.add(partial(self._execute_python, "send_keys.py", keys))
         if repeat:
             # here trying to mitigate shortcuts not received by Live god knows why ..
@@ -59,7 +59,7 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
     def focus_window(self, window_name):
         # type: (str) -> Sequence
         seq = Sequence(bypass_errors=True, silent=True)
-        seq.add(self.parent.clyphxNavigationManager.focus_main)
+        seq.add(self.parent.navigationManager.focus_main)
         seq.add(partial(self._execute_python, "focus_window.py", window_name))
 
         return seq.done()

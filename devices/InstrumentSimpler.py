@@ -88,7 +88,7 @@ class InstrumentSimpler(AbstractInstrument):
         if not self.selected_category:
             self.parent.log_error("Couldn't find the selected category")
             return
-        self.parent.clyphxNavigationManager.show_track_view()
+        self.parent.navigationManager.show_track_view()
         selected_category = scroll_values(listdir(self.PRESETS_PATH), self.selected_category, go_next)
         self.track.track_name.update(base_name=selected_category)
 

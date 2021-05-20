@@ -5,7 +5,6 @@ from typing import Callable, Any
 
 from ClyphX_Pro import ClyphXComponentBase, ParseUtils
 from ClyphX_Pro.clyphx_pro.actions.GlobalActions import GlobalActions
-from ClyphX_Pro.clyphx_pro.actions.NavAndViewActions import NavAndViewActions
 from _Framework.ControlSurface import ControlSurface
 from a_protocol_0.automation.AutomationTrackManager import AutomationTrackManager
 from a_protocol_0.components.BeatScheduler import BeatScheduler
@@ -17,6 +16,7 @@ from a_protocol_0.components.KeyBoardShortcutManager import KeyBoardShortcutMana
 from a_protocol_0.components.LogManager import LogManager
 from a_protocol_0.components.MidiManager import MidiManager
 from a_protocol_0.components.MixingManager import MixingManager
+from a_protocol_0.components.NavigationManager import NavigationManager
 from a_protocol_0.components.Push2Manager import Push2Manager
 from a_protocol_0.components.QuantizationManager import QuantizationManager
 from a_protocol_0.components.SessionManager import SessionManager
@@ -67,7 +67,7 @@ class Protocol0(ControlSurface):
             self.keyboardShortcutManager = KeyBoardShortcutManager()
             self.midiManager = MidiManager()
             self.browserManager = BrowserManager()
-            self.clyphxNavigationManager = NavAndViewActions()
+            self.navigationManager = NavigationManager()
             GlobalActions()
             self.globalBeatScheduler = BeatScheduler()
             self.sceneBeatScheduler = BeatScheduler()

@@ -115,5 +115,5 @@ class SongActionMixin(object):
     def select_device(self, device):
         # type: (Song, Device) -> None
         if device:
-            self.parent.clyphxNavigationManager.focus_detail()
+            self.parent.navigationManager.focus_detail()
             self._view.select_device(device._device)

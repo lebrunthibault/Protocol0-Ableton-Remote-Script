@@ -1,3 +1,4 @@
+import Live
 from typing import Any
 
 from a_protocol_0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
@@ -16,5 +17,5 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        if self.song.selected_clip:
-            self.song.selected_clip.quantize()
+        app_view = self.application().view  # type: Live.Application.Application.View
+        self.parent.log_dev(app_view.is_view_visible("Detail/DeviceChain"))

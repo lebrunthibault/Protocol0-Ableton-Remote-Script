@@ -89,7 +89,7 @@ class SimpleTrackActionMixin(object):
 
     def scroll_clips(self, go_next):
         # type: (SimpleTrack, bool) -> None
-        self.parent.clyphxNavigationManager.show_clip_view()
+        self.parent.navigationManager.show_clip_view()
         if len(self.clips) == 0:
             return
         if self.song.highlighted_clip_slot == self.clips[0] and not go_next:

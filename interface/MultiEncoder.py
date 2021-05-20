@@ -68,7 +68,7 @@ class MultiEncoder(AbstractObject):
             return
 
         move_type = EncoderMoveEnum.LONG_PRESS if self._is_long_pressed else EncoderMoveEnum.PRESS
-        action = self._find_matching_action(move_type=move_type)
+        action = self._find_matching_action(move_type=move_type)  # type: ignore[arg-type]
         self._pressed_at = None
         if action:
             if self._filter_active_tracks and not self.song.selected_track.is_active:
@@ -79,7 +79,7 @@ class MultiEncoder(AbstractObject):
     @subject_slot("value")
     def _scroll_listener(self, value):
         # type: (int) -> None
-        action = self._find_matching_action(move_type=EncoderMoveEnum.SCROLL)
+        action = self._find_matching_action(move_type=EncoderMoveEnum.SCROLL)  # type: ignore[arg-type]
         if action:
             action.execute(encoder_name=self.name, go_next=value == 1)
 
@@ -96,11 +96,11 @@ class MultiEncoder(AbstractObject):
             ]
             return next(iter(actions), None)
 
-        action = find_matching_action(move_type=move_type, modifier_type=modifier_type)
+        action = find_matching_action(move_type=move_type, modifier_type=modifier_type)  # type: ignore[arg-type]
 
         # special case : fallback long_press to press
         if move_type == EncoderMoveEnum.LONG_PRESS and not exact_match:
-            action = find_matching_action(move_type=EncoderMoveEnum.PRESS, modifier_type=modifier_type)
+            action = find_matching_action(move_type=EncoderMoveEnum.PRESS, modifier_type=modifier_type)  # type: ignore[arg-type]
 
         if not action and log_not_found:
             self.parent.show_message(

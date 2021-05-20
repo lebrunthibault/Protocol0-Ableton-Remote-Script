@@ -68,9 +68,9 @@ class DeviceManager(AbstractControlSurfaceComponent):
         """ handles only one level of grouping in racks. Should be enough for now """
         if self.parent.keyboardShortcutManager.is_plugin_window_visible(device.name):
             return None
-        self.parent.clyphxNavigationManager.show_track_view()
 
         seq = Sequence()
+        seq.add(self.parent.navigationManager.show_track_view)
         parent_rack = self._find_parent_rack(device)
 
         if not parent_rack:
