@@ -6,6 +6,8 @@ from typing import Any
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import ROOT_DIR
+from a_protocol_0.enums.ColorEnum import InterfaceColorEnum
+from a_protocol_0.enums.PixelEnum import PixelEnum
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import log
@@ -97,6 +99,11 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
     def toggle_device_button(self, x, y, activate=True):
         # type: (int, int, bool) -> None
         self._execute_python("toggle_ableton_button.py", str(x), str(y), "1" if activate else "0")
+
+    def pixel_has_color(self, pixel, color):
+        # type: (PixelEnum, InterfaceColorEnum) -> bool
+        (x, y) = pixel.value
+        return bool(self._execute_python("pixel_has_color.py", str(x), str(y), color.value))
 
     def is_plugin_window_visible(self, plugin_name=""):
         # type: (str) -> bool

@@ -32,8 +32,10 @@ class InstrumentPresetList(AbstractObject):
 
     def _import_presets(self):
         # type: () -> List[InstrumentPreset]
+        self.parent.log_dev("import preset for inst %s" % self.instrument)
         presets = []
         presets_path = self.instrument.presets_path
+        self.parent.log_dev("presets_path: %s" % presets_path)
         if not presets_path:
             return [
                 InstrumentPreset(instrument=self.instrument, index=i)
@@ -42,6 +44,7 @@ class InstrumentPresetList(AbstractObject):
 
         self.has_preset_names = True
         if isfile(presets_path):
+            self.parent.log_dev("is file")
             return [
                 InstrumentPreset(instrument=self.instrument, index=i, name=name)
                 for i, name in enumerate(open(presets_path).readlines())

@@ -1,22 +1,10 @@
 import math
 import sys
 
-# noinspection PyUnresolvedReferences
-from PIL import ImageGrab
 from typing import Tuple
 
-from send_click import click
-
-
-class Color:
-    ACTIVATED = "ACTIVATED"
-    DEACTIVATED = "DEACTIVATED"
-
-
-rgb_code_dictionary = {
-    (int("ff", 16), int("A6", 16), int("08", 16)): Color.ACTIVATED,
-    (int("2d", 16), int("2d", 16), int("2d", 16)): Color.DEACTIVATED,
-}
+from a_protocol_0.enums.ColorEnum import InterfaceColorEnum
+from utils import click_and_restore_pos, log, setup_logs, get_pixel_color
 
 
 def distance(c1, c2):
@@ -27,18 +15,20 @@ def distance(c1, c2):
 
 
 def get_closest_color_at_pixel(x, y):
-    # type: (int, int) -> str
-    image = ImageGrab.grab()
-    color = image.getpixel((x, y))
-    colors = list(rgb_code_dictionary.keys())
-    closest_colors = sorted(colors, key=lambda c: distance(c, color))
-    return rgb_code_dictionary[closest_colors[0]]
+    # type: (int, int) -> InterfaceColorEnum
+    return sorted(list(InterfaceColorEnum), key=lambda c: distance(c.get_tuple(), get_pixel_color(x, y)))[0]
 
 
 if __name__ == "__main__":
-    x = int(sys.argv[1])
-    y = int(sys.argv[2])
-    activate = bool(int(sys.argv[3]))
+    setup_logs()
+    x, y, activate = int(sys.argv[1]), int(sys.argv[2]), bool(int(sys.argv[3]))
+    log("x: %s, y: %s, activate: %s" % (x, y, activate))
     closest_color = get_closest_color_at_pixel(x, y)
-    if (activate and closest_color == Color.DEACTIVATED) or (not activate and closest_color == Color.ACTIVATED):
-        click(x, y)
+    log("closest_color: %s" % closest_color)
+    if (activate and closest_color == InterfaceColorEnum.DEACTIVATED) or (
+        not activate and closest_color == InterfaceColorEnum.ACTIVATED
+    ):
+        log("color matching expectation, dispatching click")
+        click_and_restore_pos(x, y)
+    else:
+        log("color not matching expectation, skipping" % closest_color)

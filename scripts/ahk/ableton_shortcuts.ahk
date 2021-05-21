@@ -158,7 +158,7 @@ refreshLogs()
     }
     Send {LWin up}
     Sleep 100
-    Send tailAbletonLogsShortcu
+    Send tailAbletonLogs
     Sleep 100
     Send t
     Sleep 500

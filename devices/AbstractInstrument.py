@@ -149,7 +149,7 @@ class AbstractInstrument(AbstractObject):
         if not self.activated:
             seq.add(self.device.track.select)
             seq.add(partial(self.parent.deviceManager.make_plugin_window_showable, self.device))
-            seq.add(lambda: setattr(self, "activated", True), name="mark instrument as activated")
+            # seq.add(lambda: setattr(self, "activated", True), name="mark instrument as activated")
 
         if self.needs_exclusive_activation:
             seq.add(self.device.track.select)
@@ -195,7 +195,7 @@ class AbstractInstrument(AbstractObject):
 
     def scroll_presets_or_samples(self, go_next):
         # type: (bool) -> Sequence
-        self.parent.navigationManager.show_track_view()
+        self.parent.navigationManager.show_device_view()
 
         seq = Sequence()
         if self.NEEDS_ACTIVATION_FOR_PRESETS_CHANGE:

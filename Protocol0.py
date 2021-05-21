@@ -126,7 +126,7 @@ class Protocol0(ControlSurface):
             return
         log_ableton(
             message=str(message),
-            debug=bool(message) and debug,
+            debug=message is not None and debug,
             level=level,
             direct_call=False,
         )

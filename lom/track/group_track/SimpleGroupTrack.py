@@ -90,4 +90,4 @@ class SimpleGroupTrack(AbstractGroupTrack):
         if len(set(sub_track_colors)) == 1:
             return sub_track_colors[0]
         else:
-            return self.DEFAULT_COLOR
+            return self.DEFAULT_COLOR.value

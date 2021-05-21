@@ -1,23 +1,8 @@
-import os
-import time
-
 import win32gui
 from typing import Tuple
 
 from send_click import click_and_restore_pos
-
-LOG_FILE = "C:\\Users\\thiba\\OneDrive\\Documents\\protocol0_logs\\log_activate_rev2_editor.txt"
-
-if os.path.exists(LOG_FILE):
-    os.remove(LOG_FILE)
-
-
-def log(message):
-    # type: (str) -> None
-    message = "%s : %s\n" % (time.time(), message)
-    print(message)
-    with open(LOG_FILE, "a") as f:
-        f.write(message)
+from utils import log, setup_logs
 
 
 def get_window_position(handle):
@@ -27,8 +12,8 @@ def get_window_position(handle):
     y = rect[1]
     w = rect[2] - x
     h = rect[3] - y
-    log("\tLocation: (%d, %d)" % (x, y))
-    log("\t    Size: (%d, %d)" % (w, h))
+    log("Location: (%d, %d)" % (x, y))
+    log("Size: (%d, %d)" % (w, h))
     return (int(x), int(y), int(w), int(h))
 
 
@@ -43,11 +28,14 @@ def get_button_middle_position(handle):
 def activate_rev2_editor():
     # type: () -> None
     handle = win32gui.FindWindowEx(None, None, None, "REV2Editor/midi")
-    log("handle: %s" % handle)
+    log("found handle for rev2 editor: %s" % handle)
+    if not handle:
+        return
     (x, y) = get_button_middle_position(handle)
     win32gui.SetForegroundWindow(handle)
     click_and_restore_pos(x, y)
 
 
 if __name__ == "__main__":
+    setup_logs()
     activate_rev2_editor()

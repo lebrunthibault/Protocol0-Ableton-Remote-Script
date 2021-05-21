@@ -79,7 +79,7 @@ class AbstractTrackName(AbstractObjectName):
             self.base_name = str(self.track.computed_base_name)
 
         name = self.base_name
-        if not self.track.abstract_group_track:
+        if not self.track.abstract_group_track and name[0:1].islower():
             name = name.capitalize()
 
         # displaying only on group track when track is part of an AbstractGroupTrack

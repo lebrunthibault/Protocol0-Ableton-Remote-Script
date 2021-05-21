@@ -1,6 +1,8 @@
 from typing import Optional, Any
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from a_protocol_0.enums.ColorEnum import InterfaceColorEnum
+from a_protocol_0.enums.PixelEnum import PixelEnum
 from a_protocol_0.sequence.Sequence import Sequence
 
 
@@ -20,18 +22,28 @@ class NavigationManager(AbstractControlSurfaceComponent):
             self._app_view.show_view("Detail")
             self._app_view.show_view("Detail/Clip")
             seq = Sequence()
-            seq.add(wait=1)
+            seq.add(wait=10)
             return seq.done()
 
-    def show_track_view(self):
+    @property
+    def is_device_view_visible(self):
+        # type: () -> bool
+        return self._app_view.is_view_visible(
+            "Detail/DeviceChain"
+        ) and self.parent.keyboardShortcutManager.pixel_has_color(PixelEnum.SEPARATOR, InterfaceColorEnum.SEPARATOR)
+
+    def show_device_view(self):
         # type: () -> Optional[Sequence]
-        if self._app_view.is_view_visible("Detail/DeviceChain"):
+        self.parent.log_dev(self.is_device_view_visible)
+        if self.is_device_view_visible:
             return None
         else:
             self._app_view.show_view("Detail")
             self._app_view.show_view("Detail/DeviceChain")
+            self.parent.log_dev(self.is_device_view_visible)
             seq = Sequence()
-            seq.add(wait=1)
+            seq.add(complete_on=lambda: self.is_device_view_visible)
+            seq.add(wait=1)  # apparently live interface refresh is not instant
             return seq.done()
 
     def focus_main(self):

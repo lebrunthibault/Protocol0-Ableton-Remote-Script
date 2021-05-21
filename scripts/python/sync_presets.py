@@ -2,6 +2,8 @@ import os
 
 from typing import Generator, Any
 
+from utils import setup_logs, log
+
 
 class SerumPresetSynchronizer:
     PRESET_DIRECTORY = "C:\\Users\\thiba\\OneDrive\\Documents\\Xfer\\Serum Presets\\Presets"
@@ -28,8 +30,9 @@ class SerumPresetSynchronizer:
             for preset in presets:
                 f.write("%s\n" % preset)
 
-        print("%d serum presets wrote to %s" % (len(presets), cls.PROGRAM_CHANGE_FILENAME))
+        log("%d serum presets wrote to %s" % (len(presets), cls.PROGRAM_CHANGE_FILENAME))
 
 
 if __name__ == "__main__":
+    setup_logs()
     SerumPresetSynchronizer.synchronize()

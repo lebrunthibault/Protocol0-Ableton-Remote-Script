@@ -142,7 +142,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         if self._track:
             return self._track.color_index
         else:
-            return ColorEnum.DISABLED
+            return ColorEnum.DISABLED.value
 
     @color.setter
     def color(self, color_index):
@@ -154,9 +154,9 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def computed_color(self):
         # type: () -> int
         if self.abstract_track.instrument:
-            return self.abstract_track.instrument.TRACK_COLOR
+            return self.abstract_track.instrument.TRACK_COLOR.value
         else:
-            return self.DEFAULT_COLOR
+            return self.DEFAULT_COLOR.value
 
     @property
     def clips(self):

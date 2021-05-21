@@ -1,4 +1,3 @@
-import Live
 from typing import Any
 
 from a_protocol_0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
@@ -17,5 +16,4 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        app_view = self.application().view  # type: Live.Application.Application.View
-        self.parent.log_dev(app_view.is_view_visible("Detail/DeviceChain"))
+        self.parent.log_dev(self.parent.navigationManager.is_device_view_visible)

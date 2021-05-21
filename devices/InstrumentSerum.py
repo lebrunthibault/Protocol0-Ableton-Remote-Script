@@ -1,3 +1,5 @@
+import os
+
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.enums.ColorEnum import ColorEnum
 
@@ -11,4 +13,5 @@ class InstrumentSerum(AbstractInstrument):  # noqa
 
     def format_preset_name(self, preset_name):
         # type: (str) -> str
-        return preset_name.replace("User\\", "")
+        (_, filename) = os.path.split(preset_name)
+        return filename
