@@ -1,8 +1,8 @@
-import os
 from collections import deque
 
 from typing import Deque, Optional, Iterable, Union, Callable, Any, List
 
+from a_protocol_0.config import Config
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
 from a_protocol_0.sequence.SequenceStep import SequenceStep
@@ -18,8 +18,6 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
 
     __subject_events__ = ("terminated", "errored")
 
-    DEBUG_MODE = str(os.getenv("DEBUG_SEQUENCE")).lower() == "true"
-    SILENT_MODE = str(os.getenv("DEBUG_SEQUENCE")).lower() != "true"
     RUNNING_SEQUENCES = []  # type: List[Sequence]
 
     def __init__(self, bypass_errors=False, silent=False, *a, **k):
@@ -30,7 +28,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
         self._current_step = None  # type: Optional[SequenceStep]
         self._bypass_errors = bypass_errors
         self.res = None  # type: Optional[Any]
-        self.debug = self.DEBUG_MODE or not (silent or self.SILENT_MODE)
+        self.debug = Config.SEQUENCE_DEBUG_MODE or not (silent or Config.SEQUENCE_SILENT_MODE)
         frame_info = get_frame_info(2)
         if frame_info:
             self.name = "[seq %s.%s]" % (frame_info.class_name, frame_info.method_name)

@@ -131,7 +131,9 @@ class ActionGroupMain(AbstractActionGroup):
         )
 
         # 14 : CATegory encoder
-        self.add_encoder(id=15, name="track category", on_scroll=InterfaceState.scroll_track_categories).add_action(
+        self.add_encoder(
+            id=15, name="track category", on_scroll=lambda: self.song.current_track.scroll_preset_categories
+        ).add_action(
             EncoderAction(
                 modifier_type=EncoderModifierEnum.SOLO,
                 func=lambda: self.song.selected_category_tracks.toggle_solo,

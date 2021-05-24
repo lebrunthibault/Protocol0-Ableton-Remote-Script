@@ -1,6 +1,7 @@
 import logging
 
 from a_protocol_0.enums.LogLevelEnum import LogLevelEnum
+from a_protocol_0.errors.Protocol0Error import Protocol0Error
 
 
 def log_ableton(message, debug=True, level=LogLevelEnum.DEV, direct_call=True):
@@ -8,10 +9,7 @@ def log_ableton(message, debug=True, level=LogLevelEnum.DEV, direct_call=True):
     """ a log function and not method allowing us to call this even with no access to the ControlSurface object """
     message = "%s: %s" % (LogLevelEnum(level).name.lower(), str(message))
     if any(not isinstance(param, bool) for param in [debug, direct_call]):
-        log_ableton("log_ableton: parameter mismatch, logging anyway")
-        debug = True
-        direct_call = True
-        message = str(locals().values())
+        raise Protocol0Error("log_ableton: parameter mismatch")
     if debug:
         from a_protocol_0.utils.utils import get_frame_info
 

@@ -2,7 +2,7 @@ import os
 from os.path import basename
 
 import Live
-from typing import Any
+from typing import Any, Optional
 
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.device.DeviceType import DeviceType
@@ -17,5 +17,14 @@ class SimplerDevice(Device):
 
     @property
     def sample_name(self):
-        # type: () -> str
-        return os.path.splitext(basename(self._device.sample.file_path))[0]
+        # type: () -> Optional[str]
+        # noinspection PyBroadException
+        try:
+            sample = self._device.sample
+        except Exception as e:
+            # can happen while loading a new sample
+            return None
+        if sample:
+            return os.path.splitext(basename(sample.file_path))[0]
+        else:
+            return None

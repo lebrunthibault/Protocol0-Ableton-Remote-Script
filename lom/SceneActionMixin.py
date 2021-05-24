@@ -23,7 +23,6 @@ class SceneActionMixin(object):
         if self == self.song.scenes[-1] or self.looping or self.song.scenes[self.index + 1].bar_length == 0:
             return
         next_scene = self.song.scenes[self.index + 1]
-        self.parent.log_dev("scheduling next scene launch here : %s" % next_scene)
         self.parent.sceneBeatScheduler.wait_beats(self.length - self.playing_position, next_scene.fire)
 
     def select(self):

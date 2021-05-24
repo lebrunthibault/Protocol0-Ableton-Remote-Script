@@ -16,4 +16,4 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        self.parent.log_dev(self.parent.navigationManager.is_device_view_visible)
+        self.parent.log_info(self.parent.navigationManager.is_device_view_visible)

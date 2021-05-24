@@ -50,6 +50,10 @@ class InstrumentSimpler(AbstractInstrument):
             self.parent.log_error("Couldn't find the simpler presets path : %s" % self.PRESETS_PATH)
             return None
 
+        # Loading a new simpler on empty midi track
+        if self.track.base_name == self.track.DEFAULT_NAME:
+            return None
+
         selected_category = find_if(
             lambda f: self.track.base_name.strip().lower() in f.lower(), listdir(self.PRESETS_PATH)
         )
@@ -75,7 +79,7 @@ class InstrumentSimpler(AbstractInstrument):
     def preset_name(self):
         # type: () -> str
         """ overridden """
-        return self.device.sample_name
+        return self.device.sample_name or "empty"
 
     def _load_preset(self, preset):
         # type: (InstrumentPreset) -> Optional[Sequence]

@@ -34,13 +34,11 @@ class NavigationManager(AbstractControlSurfaceComponent):
 
     def show_device_view(self):
         # type: () -> Optional[Sequence]
-        self.parent.log_dev(self.is_device_view_visible)
         if self.is_device_view_visible:
             return None
         else:
             self._app_view.show_view("Detail")
             self._app_view.show_view("Detail/DeviceChain")
-            self.parent.log_dev(self.is_device_view_visible)
             seq = Sequence()
             seq.add(complete_on=lambda: self.is_device_view_visible)
             seq.add(wait=1)  # apparently live interface refresh is not instant

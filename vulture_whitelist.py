@@ -3,6 +3,7 @@ _.current_song_time  # unused attribute (C:\ProgramData\Ableton\Live 10 Suite\Re
 _.session_record  # unused attribute (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\a_protocol_0\lom\track\AbstractTrackActionMixin.py:127)
 _.scroll_presets  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\a_protocol_0\lom\device\Device.py:51)
 _.scroll_presets  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\a_protocol_0\lom\device\PluginDevice.py:16)
+_.scroll_track_categories  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\a_protocol_0\interface\InterfaceState.py:26)
 _.set_input_routing_type  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\a_protocol_0\lom\track\AbstractTrackActionMixin.py:253)
 _.is_checked  # unused attribute (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\a_protocol_0\components\Push2Manager.py:76)
 _.on_selected_track_changed  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\a_protocol_0\components\SongManager.py:34)
