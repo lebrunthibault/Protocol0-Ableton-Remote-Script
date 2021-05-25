@@ -47,7 +47,6 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         # the instrument handling relies on the group track
         # noinspection PyUnresolvedReferences
         self.notify_instrument()
-        self.instrument.sync_presets()
 
     @property
     def instrument(self):

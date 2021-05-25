@@ -15,3 +15,8 @@ class InstrumentSerum(AbstractInstrument):  # noqa
         # type: (str) -> str
         (_, filename) = os.path.split(preset_name)
         return filename
+
+    def scroll_preset_categories(self, go_next):
+        # type: (bool) -> None
+        pass
+        # self.track.track_name.update(base_name=selected_category)

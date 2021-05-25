@@ -19,7 +19,6 @@ class InstrumentPresetList(AbstractObject):
         self.has_preset_names = False
         self.presets = []  # type: List[InstrumentPreset]
         self.selected_preset = None  # type: Optional[InstrumentPreset]
-        self.sync_presets()
 
     def __repr__(self):
         # type: () -> str
@@ -30,14 +29,23 @@ class InstrumentPresetList(AbstractObject):
         self.presets = self._import_presets()
         self.selected_preset = self._get_selected_preset()
 
+    def scroll(self, go_next):
+        # type: (bool) -> None
+        new_preset_index = self.selected_preset.index + (1 if go_next else -1)
+        self.selected_preset = self.presets[new_preset_index % len(self.presets)]
+
+        if isinstance(self.instrument.device, RackDevice):
+            self.instrument.device.scroll_chain_selector(go_next=go_next)
+
     def _import_presets(self):
         # type: () -> List[InstrumentPreset]
         presets = []
         presets_path = self.instrument.presets_path
+        self.parent.log_dev("presets_path: %s" % presets_path)
         if not presets_path:
             return [
                 InstrumentPreset(instrument=self.instrument, index=i)
-                for i in range(0, self.instrument.number_of_presets)
+                for i in range(0, self.instrument.DEFAULT_NUMBER_OF_PRESETS)
             ]
 
         self.has_preset_names = True
@@ -72,16 +80,11 @@ class InstrumentPresetList(AbstractObject):
 
             return None
 
-        return (
-            find_by_name(self.instrument.preset_name)
-            or find_by_name(self.instrument.track.abstract_track.name)
-            or self.presets[self.instrument.track.abstract_track.track_name.selected_preset_index]
-        )
+        preset = None
 
-    def scroll(self, go_next):
-        # type: (bool) -> None
-        new_preset_index = self.selected_preset.index + (1 if go_next else -1)
-        self.selected_preset = self.presets[new_preset_index % len(self.presets)]
+        if self.instrument.should_display_selected_preset_name:
+            preset = find_by_name(self.instrument.track.abstract_track.name)
+        else:
+            preset = find_by_name(self.instrument.preset_name)
 
-        if isinstance(self.instrument.device, RackDevice):
-            self.instrument.device.scroll_chain_selector(go_next=go_next)
+        return preset or self.presets[self.instrument.track.abstract_track.track_name.selected_preset_index]

@@ -13,8 +13,6 @@ from a_protocol_0.lom.clip.MidiClip import MidiClip
 from a_protocol_0.lom.device.SimplerDevice import SimplerDevice
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import p0_subject_slot
-from a_protocol_0.utils.utils import find_if
-from a_protocol_0.utils.utils import scroll_values
 
 
 class InstrumentSimpler(AbstractInstrument):
@@ -22,7 +20,7 @@ class InstrumentSimpler(AbstractInstrument):
     TRACK_COLOR = ColorEnum.SIMPLER
     PRESET_EXTENSION = ".wav"
     PRESETS_PATH = str(os.getenv("SAMPLE_PATH"))
-    PRESET_DISPLAY_OPTION = PresetDisplayOptionEnum.NONE
+    PRESET_DISPLAY_OPTION = PresetDisplayOptionEnum.CATEGORY
     CAN_BE_SHOWN = False
 
     def __init__(self, *a, **k):
@@ -35,7 +33,15 @@ class InstrumentSimpler(AbstractInstrument):
     @p0_subject_slot("name")
     def _name_listener(self):
         # type: () -> None
-        self.sync_presets()
+        self._preset_list.sync_presets()
+
+    def _import_presets(self):
+        # type: () -> None
+        if self.track.base_name.lower() in (cat.lower() for cat in self.categories):
+            self.selected_category = self.track.base_name
+        elif self.track.base_name != self.track.DEFAULT_NAME:
+            self.parent.log_error("Invalid track name, no category matched for %s" % self.track)
+        super(InstrumentSimpler, self)._import_presets()
 
     @property
     def name(self):
@@ -43,29 +49,13 @@ class InstrumentSimpler(AbstractInstrument):
         return self.selected_category if self.selected_category else "None"
 
     @property
-    def selected_category(self):
-        # type: () -> Optional[str]
-        """ the name of the track is the name of a sample sub_directory """
+    def categories(self):
+        # type: () -> List[str]
         if not isdir(self.PRESETS_PATH):
-            self.parent.log_error("Couldn't find the simpler presets path : %s" % self.PRESETS_PATH)
-            return None
-
-        # Loading a new simpler on empty midi track
-        if self.track.base_name == self.track.DEFAULT_NAME:
-            return None
-
-        selected_category = find_if(
-            lambda f: self.track.base_name.strip().lower() in f.lower(), listdir(self.PRESETS_PATH)
-        )
-        if not selected_category:
-            selected_category = find_if(
-                lambda f: self.track.base_name.split(" ")[0].strip().lower() in f.lower(), listdir(self.PRESETS_PATH)
-            )
-        if selected_category is None:
-            self.parent.log_error("Couldn't find sample selected category for %s" % self.track)
-            return None
-
-        return str(selected_category)
+            self.parent.log_error("Couldn't find the presets path : %s for instrument %s" % (self.PRESETS_PATH, self))
+            return []
+        else:
+            return listdir(self.PRESETS_PATH)
 
     @property
     def presets_path(self):
@@ -83,18 +73,15 @@ class InstrumentSimpler(AbstractInstrument):
 
     def _load_preset(self, preset):
         # type: (InstrumentPreset) -> Optional[Sequence]
+        self.parent.log_dev("preset: %s" % preset)
         self.parent.browserManager.load_sample(preset.original_name)
         self.parent._wait(400, self.track._devices_listener)
         return None
 
     def scroll_preset_categories(self, go_next):
         # type: (bool) -> None
-        if not self.selected_category:
-            self.parent.log_error("Couldn't find the selected category")
-            return
-        self.parent.navigationManager.show_device_view()
-        selected_category = scroll_values(listdir(self.PRESETS_PATH), self.selected_category, go_next)
-        self.track.track_name.update(base_name=selected_category)
+        super(InstrumentSimpler, self).scroll_preset_categories(go_next=go_next)
+        self.track.track_name.update(base_name=self.selected_category)
 
     def generate_base_notes(self, clip):
         # type: (MidiClip) -> List[Note]
