@@ -1,5 +1,3 @@
-from typing import cast
-
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.devices.InstrumentSimpler import InstrumentSimpler
 from a_protocol_0.lom.device.RackDevice import RackDevice
@@ -14,7 +12,6 @@ class SetFixerManager(AbstractControlSurfaceComponent):
         """ Checks the set is operational """
         self._check_input_routings()
         self._check_tracks_tree_consistency()
-        self._check_simpler_instruments_connected()
 
         self.parent.show_message("Set checked !")
 
@@ -51,12 +48,6 @@ class SetFixerManager(AbstractControlSurfaceComponent):
                 else:
                     assert simple_track.group_track.abstract_group_track is None, "failed on %s" % simple_track
                     assert simple_track in simple_track.group_track.sub_tracks, "failed on %s" % simple_track
-
-    def _check_simpler_instruments_connected(self):
-        # type: () -> None
-        for track in self.song.simple_tracks:
-            if isinstance(track.instrument, InstrumentSimpler):
-                cast(InstrumentSimpler, track.instrument).selected_category  # property will log error if None
 
     def refresh_set_appearance(self, log=True):
         # type: (bool) -> None

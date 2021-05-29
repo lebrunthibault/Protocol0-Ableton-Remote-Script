@@ -23,5 +23,6 @@ def log_ableton(message, debug=True, level=LogLevelEnum.DEV, direct_call=True):
             )
     for line in message.splitlines():
         line = "P0 - %s" % str(line)
+        logging.info(type(line))
         logging.info(line)
         print(line)

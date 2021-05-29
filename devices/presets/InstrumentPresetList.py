@@ -4,8 +4,10 @@ from os.path import isfile, isdir
 from typing import TYPE_CHECKING, List, Optional, Any
 
 from a_protocol_0.devices.presets.InstrumentPreset import InstrumentPreset
+from a_protocol_0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.device.RackDevice import RackDevice
+from a_protocol_0.utils.utils import find_if
 
 if TYPE_CHECKING:
     from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
@@ -16,7 +18,6 @@ class InstrumentPresetList(AbstractObject):
         # type: (AbstractInstrument, Any, Any) -> None
         super(InstrumentPresetList, self).__init__(*a, **k)
         self.instrument = instrument
-        self.has_preset_names = False
         self.presets = []  # type: List[InstrumentPreset]
         self.selected_preset = None  # type: Optional[InstrumentPreset]
 
@@ -28,36 +29,64 @@ class InstrumentPresetList(AbstractObject):
         # type: () -> None
         self.presets = self._import_presets()
         self.selected_preset = self._get_selected_preset()
+        # noinspection PyUnresolvedReferences
+        self.instrument.notify_selected_preset()
+
+    @property
+    def categories(self):
+        # type: () -> List[str]
+        """ overridden """
+        return list(set([preset.category for preset in self.presets if preset.category]))
+
+    @property
+    def selected_category(self):
+        # type: () -> Optional[str]
+        if self.selected_preset:
+            return self.selected_preset.category
+        elif len(self.categories):
+            return self.categories[0]
+        else:
+            return None
+
+    @selected_category.setter
+    def selected_category(self, selected_category):
+        # type: (Optional[str]) -> None
+        self.selected_preset = self.category_presets(selected_category)[0]
+
+    def category_presets(self, category=None):
+        # type: (Optional[str]) -> List[InstrumentPreset]
+        return list(filter(lambda p: p.category == (category or self.selected_category), self.presets))
 
     def scroll(self, go_next):
         # type: (bool) -> None
-        new_preset_index = self.selected_preset.index + (1 if go_next else -1)
-        self.selected_preset = self.presets[new_preset_index % len(self.presets)]
+        if self.selected_category and self.selected_preset.category != self.selected_category:
+            new_preset_index = 0
+        else:
+            offset = self.category_presets()[0].index
+            new_preset_index = self.selected_preset.index + (1 if go_next else -1) - offset
 
+        self.selected_preset = self.category_presets()[new_preset_index % len(self.category_presets())]
         if isinstance(self.instrument.device, RackDevice):
             self.instrument.device.scroll_chain_selector(go_next=go_next)
 
     def _import_presets(self):
         # type: () -> List[InstrumentPreset]
-        presets = []
-        presets_path = self.instrument.presets_path
-        self.parent.log_dev("presets_path: %s" % presets_path)
-        if not presets_path:
+        if not self.instrument.presets_path:
+            return [self.instrument.make_preset(index=i) for i in range(0, self.instrument.DEFAULT_NUMBER_OF_PRESETS)]
+        elif isfile(self.instrument.presets_path):
             return [
-                InstrumentPreset(instrument=self.instrument, index=i)
-                for i in range(0, self.instrument.DEFAULT_NUMBER_OF_PRESETS)
+                self.instrument.make_preset(index=i, name=name)
+                for i, name in enumerate(open(self.instrument.presets_path).readlines())
             ]
+        elif isdir(self.instrument.presets_path):
+            presets = []
+            for root, _, files in os.walk(self.instrument.presets_path):
+                if root == self.instrument.presets_path:
+                    continue
 
-        self.has_preset_names = True
-        if isfile(presets_path):
-            return [
-                InstrumentPreset(instrument=self.instrument, index=i, name=name)
-                for i, name in enumerate(open(presets_path).readlines())
-            ]
-        elif isdir(presets_path):
-            for _, _, files in os.walk(presets_path):
+                category = root.replace(self.instrument.presets_path + "\\", "").split("\\")[0]
                 for file in [file for file in files if file.endswith(self.instrument.PRESET_EXTENSION)]:
-                    presets.append(InstrumentPreset(instrument=self.instrument, index=len(presets), name=file))
+                    presets.append(self.instrument.make_preset(index=len(presets), category=category, name=file))
 
             return presets
 
@@ -65,26 +94,23 @@ class InstrumentPresetList(AbstractObject):
         return []
 
     def _get_selected_preset(self):
-        # type: () -> InstrumentPreset
+        # type: () -> Optional[InstrumentPreset]
         """
-        Checking first the device name (e.g. simpler)
-        then the track name (Serum or Minitaur)
-        then the track selected index (prophet)
+        Checking first the track name (Serum or Minitaur)
+        then the device name (e.g. simpler)
+        then the track selected index (prophet, fallback)
         """
-
-        def find_by_name(name):
-            # type: (str) -> Optional[InstrumentPreset]
-            for preset in self.presets:
-                if str(preset.name) == str(name):
-                    return preset
-
-            return None
-
         preset = None
 
-        if self.instrument.should_display_selected_preset_name:
-            preset = find_by_name(self.instrument.track.abstract_track.name)
+        if self.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.NAME:
+            preset = find_if(lambda preset: preset.name == self.instrument.track.abstract_track.name, self.presets)
         else:
-            preset = find_by_name(self.instrument.preset_name)
+            preset = find_if(lambda preset: preset.name == self.instrument.preset_name, self.presets)
 
-        return preset or self.presets[self.instrument.track.abstract_track.track_name.selected_preset_index]
+        try:
+            return preset or self.presets[self.instrument.track.abstract_track.track_name.selected_preset_index]
+        except IndexError:
+            if len(self.presets):
+                return self.presets[0]
+            else:
+                return None

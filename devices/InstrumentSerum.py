@@ -1,6 +1,9 @@
 import os
 
+from typing import Optional
+
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
+from a_protocol_0.devices.presets.InstrumentPreset import InstrumentPreset
 from a_protocol_0.enums.ColorEnum import ColorEnum
 
 
@@ -14,9 +17,10 @@ class InstrumentSerum(AbstractInstrument):  # noqa
     def format_preset_name(self, preset_name):
         # type: (str) -> str
         (_, filename) = os.path.split(preset_name)
-        return filename
+        return str(filename)
 
-    def scroll_preset_categories(self, go_next):
-        # type: (bool) -> None
-        pass
-        # self.track.track_name.update(base_name=selected_category)
+    def make_preset(self, index, name=None):
+        # type: (AbstractInstrument, int, Optional[str]) -> InstrumentPreset
+        """ overridden """
+        category, preset_name = name.split("\\")
+        return InstrumentPreset(instrument=self, index=index, name=preset_name, category=category)

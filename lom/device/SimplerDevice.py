@@ -21,7 +21,7 @@ class SimplerDevice(Device):
         # noinspection PyBroadException
         try:
             sample = self._device.sample
-        except Exception as e:
+        except Exception:
             # can happen while loading a new sample
             return None
         if sample:

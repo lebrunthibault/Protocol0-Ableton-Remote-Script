@@ -41,7 +41,7 @@ class AbstractTrackName(AbstractObjectName):
         if self.track.abstract_group_track:
             return
         self.selected_preset_index = self.track.instrument.selected_preset.index
-        if self.track.instrument.should_display_selected_preset_name:
+        if self.track.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.NAME:
             self.base_name = self.track.instrument.selected_preset.name
 
         self.update()
@@ -62,12 +62,15 @@ class AbstractTrackName(AbstractObjectName):
             self.selected_preset_index = int(match.group("selected_preset_index")) - 1
 
     @property
-    def should_recompute_base_name(self):
+    def _should_recompute_base_name(self):
         # type: () -> bool
         return (
             not self.base_name
             or self.base_name == self.track.DEFAULT_NAME.lower()
-            or (self.track.instrument and not self.track.instrument.should_display_selected_preset_name)
+            or (
+                self.track.instrument
+                and not self.track.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.NAME
+            )
             or self.base_name.lower() in self.instrument_names
         )
 
@@ -75,7 +78,7 @@ class AbstractTrackName(AbstractObjectName):
         # type: (Optional[str]) -> None
         self.base_name = base_name or self.base_name
 
-        if self.should_recompute_base_name:
+        if self._should_recompute_base_name:
             self.base_name = str(self.track.computed_base_name)
 
         name = self.base_name

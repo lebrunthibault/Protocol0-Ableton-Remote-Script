@@ -31,4 +31,4 @@ if __name__ == "__main__":
         log("color matching expectation, dispatching click")
         click_and_restore_pos(x, y)
     else:
-        log("color not matching expectation, skipping" % closest_color)
+        log("color %s not matching expectation, skipping" % closest_color)

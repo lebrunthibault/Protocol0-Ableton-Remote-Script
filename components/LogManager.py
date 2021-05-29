@@ -50,6 +50,17 @@ class LogManager(AbstractObject):
         self.parent.log_info("current_track.sub_tracks: %s" % self.song.current_track.sub_tracks)
         self.parent.log_info()
         self.parent.log_info("current_track.instrument: %s" % self.song.current_track.instrument)
+        if self.song.current_track.instrument:
+            self.parent.log_info()
+            self.parent.log_info(
+                "current_track.instrument.categories: %s" % self.song.current_track.instrument._preset_list.categories
+            )
+            self.parent.log_info()
+            self.parent.log_info(
+                "current_track.instrument.selected_category: %s"
+                % self.song.current_track.instrument._preset_list.selected_category
+            )
+
         if self.song.current_track.base_track != self.song.current_track:
             self.parent.log_info()
             self.parent.log_info("current_track.base_track: %s" % self.song.current_track.base_track)

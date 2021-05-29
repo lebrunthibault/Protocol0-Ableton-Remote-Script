@@ -6,7 +6,7 @@ from utils import setup_logs, log
 
 
 class SerumPresetSynchronizer:
-    PRESET_DIRECTORY = "C:\\Users\\thiba\\OneDrive\\Documents\\Xfer\\Serum Presets\\Presets"
+    PRESET_DIRECTORY = "C:\\Users\\thiba\\OneDrive\\Documents\\Xfer\\Serum Presets\\Presets\\"
     PROGRAM_CHANGE_FILENAME = "C:\\Users\\thiba\\OneDrive\\Documents\\Xfer\\Serum Presets\\System\\ProgramChanges.txt"
 
     @classmethod
@@ -14,7 +14,7 @@ class SerumPresetSynchronizer:
         # type: () -> Generator[str, Any, Any]
         for path, _, files in os.walk(cls.PRESET_DIRECTORY):
             relative_path = path.replace(cls.PRESET_DIRECTORY, "")
-            if relative_path.startswith("\\_"):
+            if not relative_path or relative_path.startswith("_"):
                 continue
 
             for name in files:

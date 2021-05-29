@@ -14,8 +14,9 @@ if TYPE_CHECKING:
 
 
 def scroll_values(items, selected_item, go_next, show_message=False):
-    # type: (Iterable[T], T, bool, bool) -> T
+    # type: (Iterable[T], Optional[T], bool, bool) -> T
     items_list = list(items)
+    selected_item = selected_item or items_list[0]
     increment = 1 if go_next else -1
     index = 0
     try:

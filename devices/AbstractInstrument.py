@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Optional, List, Any, Type
 
 from a_protocol_0.devices.AbstractInstrumentPresetsMixin import AbstractInstrumentPresetsMixin
 from a_protocol_0.enums.ColorEnum import ColorEnum
+from a_protocol_0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.Note import Note
@@ -41,13 +42,17 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
         self.track = track  # this could be a group track
         self.device = device
         self.activated = False
-        self._selected_category = None  # type: Optional[str]
         self._import_presets()
 
     @property
     def name(self):
         # type: () -> str
-        return self.NAME if self.NAME else self.device.name
+        if self.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.CATEGORY:
+            return self._preset_list.selected_category or "None"
+        elif self.NAME:
+            return self.NAME
+        else:
+            return self.device.name
 
     @classmethod
     def get_instrument_classes(cls):
@@ -112,7 +117,7 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
 
     def check_activated(self, select_instrument_track=False):
         # type: (bool) -> Optional[Sequence]
-        if not self.CAN_BE_SHOWN and self.activated and not self.needs_exclusive_activation:
+        if not self.CAN_BE_SHOWN or (self.activated and not self.needs_exclusive_activation):
             return None
 
         seq = Sequence()
@@ -120,7 +125,7 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
         if not self.activated:
             seq.add(self.device.track.select)
             seq.add(partial(self.parent.deviceManager.make_plugin_window_showable, self.device))
-            # seq.add(lambda: setattr(self, "activated", True), name="mark instrument as activated")
+            seq.add(lambda: setattr(self, "activated", True), name="mark instrument as activated")
 
         if self.needs_exclusive_activation:
             seq.add(self.device.track.select)
