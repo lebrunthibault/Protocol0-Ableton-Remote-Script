@@ -52,7 +52,7 @@ class Protocol0(ControlSurface):
 
         self._is_dev_booted = False
         with self.component_guard():
-            self.errorManager = ErrorManager(set_excepthook=True)
+            self.errorManager = ErrorManager(set_excepthook=False)
             self.protocol0_song = Song(song=self.song())
             self.fastScheduler = FastScheduler()
             self.deviceManager = DeviceManager()  # needs to be here first

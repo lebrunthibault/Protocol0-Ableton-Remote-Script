@@ -59,13 +59,19 @@ class InstrumentPresetList(AbstractObject):
 
     def scroll(self, go_next):
         # type: (bool) -> None
+        category_presets = self.category_presets()
+        if len(category_presets) == 0:
+            self.parent.log_warning(
+                "Didn't find category presets for cat %s in %s" % (self.selected_category, self.instrument)
+            )
+            return
         if self.selected_category and self.selected_preset.category != self.selected_category:
             new_preset_index = 0
         else:
-            offset = self.category_presets()[0].index
+            offset = category_presets[0].index
             new_preset_index = self.selected_preset.index + (1 if go_next else -1) - offset
 
-        self.selected_preset = self.category_presets()[new_preset_index % len(self.category_presets())]
+        self.selected_preset = category_presets[new_preset_index % len(category_presets)]
         if isinstance(self.instrument.device, RackDevice):
             self.instrument.device.scroll_chain_selector(go_next=go_next)
 
@@ -80,13 +86,18 @@ class InstrumentPresetList(AbstractObject):
             ]
         elif isdir(self.instrument.presets_path):
             presets = []
-            for root, _, files in os.walk(self.instrument.presets_path):
-                if root == self.instrument.presets_path:
-                    continue
+            for root, dir_names, files in os.walk(self.instrument.presets_path):
+                has_categories = len(dir_names)
+                if has_categories:
+                    if root == self.instrument.presets_path:
+                        continue
 
-                category = root.replace(self.instrument.presets_path + "\\", "").split("\\")[0]
-                for file in [file for file in files if file.endswith(self.instrument.PRESET_EXTENSION)]:
-                    presets.append(self.instrument.make_preset(index=len(presets), category=category, name=file))
+                    category = root.replace(self.instrument.presets_path + "\\", "").split("\\")[0]
+                    for file in [file for file in files if file.endswith(self.instrument.PRESET_EXTENSION)]:
+                        presets.append(self.instrument.make_preset(index=len(presets), category=category, name=file))
+                else:
+                    for file in [file for file in files if file.endswith(self.instrument.PRESET_EXTENSION)]:
+                        presets.append(self.instrument.make_preset(index=len(presets), name=file))
 
             return presets
 

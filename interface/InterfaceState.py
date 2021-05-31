@@ -22,6 +22,9 @@ class InterfaceState(object):
     def toggle_protected_mode(cls):
         # type: () -> None
         cls.PROTECTED_MODE_ACTIVE = not cls.PROTECTED_MODE_ACTIVE
+        from a_protocol_0 import Protocol0
+
+        Protocol0.SELF.show_message("Protected mode %s" % ("on" if cls.PROTECTED_MODE_ACTIVE else "off"))
 
     @classmethod
     def scroll_track_categories(cls, go_next):

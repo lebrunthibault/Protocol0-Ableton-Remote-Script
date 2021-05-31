@@ -45,7 +45,7 @@ class ActionGroupMain(AbstractActionGroup):
 
         # 6: empty
 
-        # 7: empty
+        # 7: LOCK encoder
         self.add_encoder(id=7, name="protected mode", on_press=InterfaceState.toggle_protected_mode)
 
         # MONitor encoder

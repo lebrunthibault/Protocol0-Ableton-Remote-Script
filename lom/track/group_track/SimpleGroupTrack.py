@@ -18,7 +18,7 @@ class SimpleGroupTrack(AbstractGroupTrack):
         self._single_sub_track_routing = self._get_single_sub_track_routing()
         # [sub_track.set_output_routing_to(self) for sub_track in self.sub_tracks]
 
-        self.push2_selected_main_mode = Push2MainModeEnum.MIX
+        self.push2_selected_main_mode = Push2MainModeEnum.MIX.value
 
     def _added_track_init(self, *a, **k):
         # type: (Any, Any) -> Sequence

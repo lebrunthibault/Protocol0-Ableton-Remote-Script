@@ -38,7 +38,7 @@ class AbstractTrackName(AbstractObjectName):
     def _selected_preset_listener(self):
         # type: () -> None
         # abstract_group_tracks handle display
-        if self.track.abstract_group_track:
+        if self.track.abstract_group_track or not self.track.instrument.selected_preset:
             return
         self.selected_preset_index = self.track.instrument.selected_preset.index
         if self.track.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.NAME:

@@ -47,8 +47,8 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self.is_foldable = self._track.is_foldable  # type: bool
 
         # DISPLAY
-        self.push2_selected_main_mode = Push2MainModeEnum.DEVICE
-        self.push2_selected_matrix_mode = Push2MatrixModeEnum.SESSION
+        self.push2_selected_main_mode = Push2MainModeEnum.DEVICE.value
+        self.push2_selected_matrix_mode = Push2MatrixModeEnum.SESSION.value
         self.push2_selected_instrument_mode = None  # type: Optional[str]
 
         self._instrument_listener.subject = self
