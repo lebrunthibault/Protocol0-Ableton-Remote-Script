@@ -8,7 +8,7 @@ from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.device.RackDevice import RackDevice
-from a_protocol_0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
+from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.utils import find_if
 
@@ -20,8 +20,8 @@ class DeviceManager(AbstractControlSurfaceComponent):
     COLLAPSED_RACK_DEVICE_PIXEL_WIDTH = 28
     WIDTH_PIXEL_OFFSET = 4
 
-    def make_instrument_from_midi_track(self, track):
-        # type: (SimpleMidiTrack) -> Optional[AbstractInstrument]
+    def make_instrument_from_simple_track(self, track):
+        # type: (SimpleTrack) -> Optional[AbstractInstrument]
         """
         If the instrument didn't change we keep the same instrument and don't instantiate a new one
         to keep instrument state
@@ -29,7 +29,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
 
         instrument_device = find_if(lambda d: AbstractInstrument.get_instrument_class(d), track.all_devices)  # type: ignore
         if not instrument_device:
-            self.parent.log_error("Couldn't find instrument for midi track %s" % track)
+            self.parent.log_error("Couldn't find instrument for track %s" % track)
             return None
 
         instrument_class = cast(Type[AbstractInstrument], AbstractInstrument.get_instrument_class(instrument_device))

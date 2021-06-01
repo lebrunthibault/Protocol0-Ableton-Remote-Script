@@ -108,12 +108,12 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self.all_devices = self.find_all_devices(self.base_track)
 
         # Refreshing is only really useful from simpler devices that change when a new sample is loaded
-        # We detect instruments only on SimpleMidiTrack and this raises when the midi track has no instrument
-        if self.is_midi and self.is_active:
-            self.instrument = self.parent.deviceManager.make_instrument_from_midi_track(track=self)
+        if self.is_active and not self.is_foldable:
+            self.instrument = self.parent.deviceManager.make_instrument_from_simple_track(track=self)
             # notify instrument change on both the device track and the abstract_group_track
-            # noinspection PyUnresolvedReferences
-            self.abstract_track.notify_instrument()
+            if self.instrument:
+                # noinspection PyUnresolvedReferences
+                self.abstract_track.notify_instrument()
 
     @subject_slot_group("has_clip")
     def _clip_slots_has_clip_listener(self, clip_slot):

@@ -59,8 +59,8 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # type: (bool) -> Optional[Sequence]
         """ this should be be called once, when the Live track is created, overridden by some child classes """
         if arm:
-            self.song.current_track.arm()
-        self.song.current_track.stop()
+            self.abstract_track.arm()
+        self.abstract_track.stop()
 
         if not self.base_track.has_device("Mix Rack"):
             self.load_any_device(DeviceType.RACK_DEVICE, "Mix Rack")

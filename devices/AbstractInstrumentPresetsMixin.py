@@ -28,10 +28,10 @@ class AbstractInstrumentPresetsMixin(object):
         self._preset_list = InstrumentPresetList(self)  # type: InstrumentPresetList
         self._preset_list.sync_presets()
 
-    def make_preset(self, index, category=None, name=None):
+    def make_preset(self, index, name=None, category=None):
         # type: (AbstractInstrument, int, Optional[str], Optional[str]) -> InstrumentPreset
         """ overridden """
-        return InstrumentPreset(instrument=self, index=index, category=category, name=name)
+        return InstrumentPreset(instrument=self, index=index, name=name, category=category)
 
     @forward_property("_preset_list")
     def selected_preset():

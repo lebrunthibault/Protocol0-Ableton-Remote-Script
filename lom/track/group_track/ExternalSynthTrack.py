@@ -51,7 +51,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     @property
     def instrument(self):
         # type: () -> AbstractInstrument
-        return cast(AbstractInstrument, self.midi_track.instrument)
+        return cast(AbstractInstrument, self.midi_track.instrument or self.audio_track.instrument)
 
     @property
     def can_be_armed(self):

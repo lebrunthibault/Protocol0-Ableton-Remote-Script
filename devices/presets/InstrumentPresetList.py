@@ -59,6 +59,11 @@ class InstrumentPresetList(AbstractObject):
 
     def scroll(self, go_next):
         # type: (bool) -> None
+        if isinstance(self.instrument.device, RackDevice):
+            self.instrument.device.scroll_chain_selector(go_next=go_next)
+            self.selected_preset = self.presets[int(self.instrument.device.chain_selector.value)]
+            return
+
         category_presets = self.category_presets()
         if len(category_presets) == 0:
             self.parent.log_warning(
@@ -72,8 +77,6 @@ class InstrumentPresetList(AbstractObject):
             new_preset_index = self.selected_preset.index + (1 if go_next else -1) - offset
 
         self.selected_preset = category_presets[new_preset_index % len(category_presets)]
-        if isinstance(self.instrument.device, RackDevice):
-            self.instrument.device.scroll_chain_selector(go_next=go_next)
 
     def _import_presets(self):
         # type: () -> List[InstrumentPreset]
@@ -86,8 +89,10 @@ class InstrumentPresetList(AbstractObject):
             ]
         elif isdir(self.instrument.presets_path):
             presets = []
+            has_categories = False
             for root, dir_names, files in os.walk(self.instrument.presets_path):
-                has_categories = len(dir_names)
+                if len(dir_names):
+                    has_categories = True
                 if has_categories:
                     if root == self.instrument.presets_path:
                         continue

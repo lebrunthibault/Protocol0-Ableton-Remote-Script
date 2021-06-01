@@ -20,7 +20,7 @@ class InstrumentPreset(AbstractObject):
 
     def __repr__(self):
         # type: () -> str
-        return "%s (%s)" % (self.name, self.index + 1)
+        return "%s (%s) (%s)" % (self.name, self.index + 1, self.category)
 
     def _format_name(self, name):
         # type: (Optional[str]) -> str

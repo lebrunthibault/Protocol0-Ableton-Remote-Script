@@ -108,6 +108,10 @@ class LogManager(AbstractObject):
             self.parent.log_info("current_track.instrument: %s" % self.song.current_track.instrument)
             self.parent.log_info()
             self.parent.log_info(
+                "current_track.instrument.selected_preset: %s" % self.song.current_track.instrument.selected_preset
+            )
+            self.parent.log_info()
+            self.parent.log_info(
                 "current_track.instrument.preset_list: %s" % self.song.current_track.instrument._preset_list
             )
             self.parent.log_info()

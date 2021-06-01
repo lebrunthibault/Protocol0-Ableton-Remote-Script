@@ -6,6 +6,7 @@ from os import listdir
 from typing import TYPE_CHECKING, Optional, List, Any, Type
 
 from a_protocol_0.devices.AbstractInstrumentPresetsMixin import AbstractInstrumentPresetsMixin
+from a_protocol_0.devices.presets.InstrumentPresetList import InstrumentPresetList
 from a_protocol_0.enums.ColorEnum import ColorEnum
 from a_protocol_0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
@@ -42,13 +43,14 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
         self.track = track  # this could be a group track
         self.device = device
         self.activated = False
+        self._preset_list = None  # type: Optional[InstrumentPresetList]
         self._import_presets()
 
     @property
     def name(self):
         # type: () -> str
         if self.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.CATEGORY:
-            return self._preset_list.selected_category or "None"
+            return self._preset_list.selected_category or "No category found"
         elif self.NAME:
             return self.NAME
         else:
