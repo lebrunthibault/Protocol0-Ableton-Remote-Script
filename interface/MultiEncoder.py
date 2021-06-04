@@ -28,7 +28,7 @@ class MultiEncoder(AbstractObject):
         self._actions = []  # type: List[EncoderAction]
         self._group = group  # type: AbstractActionGroup
         self.identifier = identifier
-        self.name = name[0].upper() + name[1:].lower()
+        self.name = name.title()
         self._filter_active_tracks = (
             group.filter_active_tracks if not group.filter_active_tracks else filter_active_tracks
         )
@@ -99,7 +99,7 @@ class MultiEncoder(AbstractObject):
         action = find_matching_action(move_type=move_type, modifier_type=modifier_type)  # type: ignore[arg-type]
 
         # special case : fallback long_press to press
-        if move_type == EncoderMoveEnum.LONG_PRESS and not exact_match:
+        if not action and move_type == EncoderMoveEnum.LONG_PRESS and not exact_match:
             action = find_matching_action(move_type=EncoderMoveEnum.PRESS, modifier_type=modifier_type)  # type: ignore[arg-type]
 
         if not action and log_not_found:

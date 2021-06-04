@@ -122,10 +122,12 @@ class Protocol0(ControlSurface):
 
     def _log(self, message="", level=LogLevelEnum.INFO, debug=False):
         # type: (Any, LogLevelEnum, bool) -> None
+        if not isinstance(message, basestring):
+            message = str(message)
         if level.value < Config.LOG_LEVEL.value:
             return
         log_ableton(
-            message=str(message),
+            message=message,
             debug=message is not None and debug,
             level=level,
             direct_call=False,

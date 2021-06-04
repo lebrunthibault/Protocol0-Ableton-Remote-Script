@@ -186,6 +186,16 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         return any(clip for clip in self.clips if clip.is_recording)
 
     @property
+    def device_insert_mode(self):
+        # type: () -> Live.Track.DeviceInsertMode
+        return self._track.view.device_insert_mode
+
+    @device_insert_mode.setter
+    def device_insert_mode(self, device_insert_mode):
+        # type: (Live.Track.DeviceInsertMode) -> None
+        self._track.view.device_insert_mode = device_insert_mode
+
+    @property
     def playing_clip(self):
         # type: () -> Optional[Clip]
         """ Returns the currently playing clip is any """

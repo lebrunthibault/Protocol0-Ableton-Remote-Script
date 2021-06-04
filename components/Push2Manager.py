@@ -41,7 +41,7 @@ class Push2Manager(AbstractControlSurfaceComponent):
         # type: (Any, Any, Any) -> None
         if value:
             self.update_session_ring = False
-            self.parent.defer(lambda: self._update_selected_modes())
+            self.parent.defer(self._update_selected_modes)
 
     @subject_slot_group("value")
     def _nav_button_press_listener(self, value, *a, **k):
@@ -84,7 +84,7 @@ class Push2Manager(AbstractControlSurfaceComponent):
     def _update_selected_modes(self):
         # type: () -> None
         assert self.push2
-        if self.update_selected_modes:
+        if self.update_selected_modes and self.song.selected_track.is_active:
             self.push2._main_modes.selected_mode = self.song.selected_track.push2_selected_main_mode
             self.push2._matrix_modes.selected_mode = self.song.selected_track.push2_selected_matrix_mode
             self.push2._instrument.selected_mode = (

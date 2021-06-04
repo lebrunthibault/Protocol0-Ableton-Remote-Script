@@ -25,12 +25,6 @@ class InstrumentSimpler(AbstractInstrument):
         super(InstrumentSimpler, self).__init__(*a, **k)
         self.device = self.device  # type: SimplerDevice
 
-    @property
-    def preset_name(self):
-        # type: () -> str
-        """ overridden """
-        return str(self.device.sample_name) or "empty"
-
     def _load_preset(self, preset):
         # type: (InstrumentPreset) -> Optional[Sequence]
         self.parent.browserManager.load_sample(preset.original_name)

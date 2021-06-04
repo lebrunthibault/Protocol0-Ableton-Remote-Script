@@ -15,17 +15,17 @@ if TYPE_CHECKING:
 
 
 class AbstractInstrumentPresetsMixin(object):
-    DEFAULT_NUMBER_OF_PRESETS = 128
     PRESETS_PATH = ""
     PRESET_EXTENSION = ""
     NEEDS_ACTIVATION_FOR_PRESETS_CHANGE = False
     PRESET_DISPLAY_OPTION = PresetDisplayOptionEnum.NAME
     PROGRAM_CHANGE_OFFSET = 0  # if we store presets not at the beginning of the list
+    HAS_TOTAL_RECALL = True
 
     @defer
     def _import_presets(self):
         # type: (AbstractInstrument) -> None
-        self._preset_list = InstrumentPresetList(self)  # type: InstrumentPresetList
+        self._preset_list = InstrumentPresetList(self)  # type: Optional[InstrumentPresetList]
         self._preset_list.sync_presets()
 
     def make_preset(self, index, name=None, category=None):
@@ -79,7 +79,7 @@ class AbstractInstrumentPresetsMixin(object):
         if self.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.CATEGORY:
             self.track.track_name.update(base_name=self._preset_list.selected_category)
         else:
-            self.parent.show_message("selected preset category %s" % self._preset_list.selected_category.capitalize())
+            self.parent.show_message("selected preset category %s" % self._preset_list.selected_category.title())
 
     def _sync_selected_preset(self):
         # type: (AbstractInstrument) -> Sequence

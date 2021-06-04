@@ -3,6 +3,7 @@ import os
 from typing import TYPE_CHECKING, Any, Optional
 
 from a_protocol_0.lom.AbstractObject import AbstractObject
+from a_protocol_0.utils.utils import smart_string
 
 if TYPE_CHECKING:
     from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
@@ -14,6 +15,7 @@ class InstrumentPreset(AbstractObject):
         super(InstrumentPreset, self).__init__(*a, **k)
         self.instrument = instrument
         self.index = index
+        name = smart_string(name)
         self.original_name = name
         self.name = self._format_name(name)
         self.category = category.lower() if category else None

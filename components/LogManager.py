@@ -1,6 +1,7 @@
 from a_protocol_0.interface.InterfaceState import InterfaceState
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.Scene import Scene
+from a_protocol_0.lom.device.PluginDevice import PluginDevice
 
 
 class LogManager(AbstractObject):
@@ -107,12 +108,36 @@ class LogManager(AbstractObject):
             self.parent.log_info()
             self.parent.log_info("current_track.instrument: %s" % self.song.current_track.instrument)
             self.parent.log_info()
+            if isinstance(self.song.current_track.instrument.device, PluginDevice):
+                self.parent.log_info(
+                    "current_track.instrument.device.presets: %s" % self.song.current_track.instrument.device.presets
+                )
+                self.parent.log_info(
+                    "current_track.instrument.device.selected_preset: %s"
+                    % self.song.current_track.instrument.device.selected_preset
+                )
+                self.parent.log_info(
+                    "current_track.instrument.device.selected_preset_index: %s"
+                    % self.song.current_track.instrument.device.selected_preset_index
+                )
+                self.parent.log_info(
+                    "current_track.instrument.device.selected_preset: %s"
+                    % self.song.current_track.instrument.device.selected_preset
+                )
+                self.parent.log_info()
+            self.parent.log_info("current_track.instrument: %s" % self.song.current_track.instrument)
+            self.parent.log_info()
             self.parent.log_info(
                 "current_track.instrument.selected_preset: %s" % self.song.current_track.instrument.selected_preset
             )
             self.parent.log_info()
             self.parent.log_info(
                 "current_track.instrument.preset_list: %s" % self.song.current_track.instrument._preset_list
+            )
+            self.parent.log_info()
+            self.parent.log_info(
+                "current_track.instrument.preset_list.presets: %s"
+                % self.song.current_track.instrument._preset_list.presets
             )
             self.parent.log_info()
             self.parent.log_info(

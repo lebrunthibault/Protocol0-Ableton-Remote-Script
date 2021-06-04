@@ -68,6 +68,10 @@ class ExternalSynthTrackActionMixin(object):
         recording_bar_count = int(round((self.midi_track.playable_clip.length + 1) / self.song.signature_numerator))
         audio_clip_slot = self.audio_track.clip_slots[midi_clip.index]
         if audio_clip_slot.clip:
+            try:
+                seq.add(self._clip_slot_synchronizers[audio_clip_slot.index].disconnect)
+            except (IndexError, AttributeError):
+                pass
             seq.add(audio_clip_slot.clip.delete)
         seq.add(partial(setattr, midi_clip, "start_marker", 0))
         seq.add(partial(self.parent._wait, 80, midi_clip.play))  # launching the midi clip after the record has started
@@ -86,9 +90,8 @@ class ExternalSynthTrackActionMixin(object):
 
     def post_record(self):
         # type: (ExternalSynthTrack) -> None
-        assert self.midi_track.playable_clip
-
         super(ExternalSynthTrackActionMixin, self).post_record()
         self.midi_track.has_monitor_in = self.audio_track.has_monitor_in = False
-        self.midi_track.playable_clip.quantize()
-        self.audio_track.playable_clip.warp_mode = Live.Clip.WarpMode.tones
+        if self.midi_track.playable_clip and self.audio_track.playable_clip:
+            self.midi_track.playable_clip.quantize()
+            self.audio_track.playable_clip.warp_mode = Live.Clip.WarpMode.tones

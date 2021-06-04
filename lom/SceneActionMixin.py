@@ -62,6 +62,8 @@ class SceneActionMixin(object):
     def _crop_clips_to_duplicate_bar_length(self):
         # type: (Scene) -> None
         bar_length = InterfaceState.SELECTED_DUPLICATE_BAR_LENGTH
+        if bar_length == 0:
+            return
         for clip in self.clips:
             if bar_length > 0 and clip.bar_length > bar_length:
                 clip.bar_length = min(clip.bar_length, bar_length)

@@ -51,6 +51,8 @@ class SimpleTrackActionMixin(object):
         seq = Sequence()
 
         if self.instrument:
+            if not self.instrument.HAS_TOTAL_RECALL and self.instrument.selected_preset:
+                seq.add(self.instrument._sync_selected_preset)
             seq.add(self.instrument.check_activated)
             seq.add(wait=5)
             seq.add(self.parent.keyboardShortcutManager.hide_plugins)
@@ -97,6 +99,8 @@ class SimpleTrackActionMixin(object):
 
         if self.song.selected_clip or self.playable_clip:
             self.song.selected_clip = scroll_values(self.clips, self.song.selected_clip or self.playable_clip, go_next)
+        else:
+            return self.parent.keyboardShortcutManager.down() if go_next else self.parent.keyboardShortcutManager.up()
 
     def has_device(self, device_name):
         # type: (SimpleTrack, str) -> bool

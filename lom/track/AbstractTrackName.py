@@ -19,7 +19,7 @@ class AbstractTrackName(AbstractObjectName):
         # type: (AbstractTrack, Any, Any) -> None
         super(AbstractTrackName, self).__init__(*a, **k)
         self.track = track
-        self.selected_preset_index = 0
+        self.selected_preset_index = None  # type: Optional[int]
         self._instrument_listener.subject = self.track
         self._name_listener.add_subject(self.track._track)
         self._name_listener(self.track._track)
@@ -37,12 +37,20 @@ class AbstractTrackName(AbstractObjectName):
     @p0_subject_slot("selected_preset")
     def _selected_preset_listener(self):
         # type: () -> None
+        """ Called once at track instantiation time """
         # abstract_group_tracks handle display
-        if self.track.abstract_group_track or not self.track.instrument.selected_preset:
+        if self.track.abstract_group_track:
             return
-        self.selected_preset_index = self.track.instrument.selected_preset.index
+
+        if self.track.instrument.selected_preset:
+            self.selected_preset_index = self.track.instrument.selected_preset.index
+
         if self.track.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.NAME:
-            self.base_name = self.track.instrument.selected_preset.name
+            if self.track.instrument.selected_preset:
+                self.base_name = self.track.instrument.selected_preset.name
+            else:
+                if not self.base_name.startswith("!!") and not self.base_name == self.track.DEFAULT_NAME:
+                    self.base_name = "!! %s !!" % self.base_name  # notify missing preset
 
         self.update()
 
@@ -53,7 +61,7 @@ class AbstractTrackName(AbstractObjectName):
             "^(((\d+)|#)[\s-]*)?(?P<base_name>[^()]*)[()]*(\((?P<selected_preset_index>\d+)\))?$", self.track.name
         )
         # _ is a reserved character for track names
-        self.base_name = match.group("base_name").strip().replace("_", " ").lower() if match else ""
+        self.base_name = match.group("base_name").strip().replace("_", " ") if match else ""
 
         if Config.FIX_OUTDATED_SETS:
             self.base_name = self.base_name.split("-")[0].strip()
@@ -83,10 +91,10 @@ class AbstractTrackName(AbstractObjectName):
 
         name = self.base_name
         if not self.track.abstract_group_track and name[0:1].islower():
-            name = name.capitalize()
+            name = name.title()
 
         # displaying only on group track when track is part of an AbstractGroupTrack
-        if self.track.instrument and self.track.abstract_group_track is None:
+        if self.track.instrument and self.selected_preset_index is not None and self.track.abstract_group_track is None:
             if self.track.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.INDEX:
                 name += " (%d)" % (self.selected_preset_index + 1)
 

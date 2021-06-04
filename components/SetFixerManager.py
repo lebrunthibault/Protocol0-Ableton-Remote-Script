@@ -12,6 +12,7 @@ class SetFixerManager(AbstractControlSurfaceComponent):
         """ Checks the set is operational """
         self._check_input_routings()
         self._check_tracks_tree_consistency()
+        self._check_instruments()
 
         self.parent.show_message("Set checked !")
 
@@ -48,6 +49,15 @@ class SetFixerManager(AbstractControlSurfaceComponent):
                 else:
                     assert simple_track.group_track.abstract_group_track is None, "failed on %s" % simple_track
                     assert simple_track in simple_track.group_track.sub_tracks, "failed on %s" % simple_track
+
+    def _check_instruments(self):
+        # type: () -> None
+        for simple_track in self.song.simple_tracks:
+            if simple_track.instrument and not simple_track.instrument.selected_preset:
+                self.parent.log_error(
+                    "Couldn't find selected preset of %s (instrument %s)"
+                    % (simple_track.abstract_track, simple_track.instrument)
+                )
 
     def refresh_set_appearance(self, log=True):
         # type: (bool) -> None

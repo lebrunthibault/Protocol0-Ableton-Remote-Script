@@ -11,3 +11,4 @@ class InstrumentMinitaur(AbstractInstrument):
     IS_EXTERNAL_SYNTH = True
     PRESETS_PATH = "C:\\Users\\thiba\\AppData\\Roaming\\Moog Music Inc\\Minitaur\\Presets Library\\User"
     PROGRAM_CHANGE_OFFSET = 1
+    HAS_TOTAL_RECALL = False

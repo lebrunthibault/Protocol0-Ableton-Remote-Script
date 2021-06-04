@@ -2,7 +2,6 @@ from typing import Any, Optional
 
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.enums.ColorEnum import ColorEnum
-from a_protocol_0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from a_protocol_0.sequence.Sequence import Sequence
 
 
@@ -11,7 +10,6 @@ class InstrumentProphet(AbstractInstrument):
     DEVICE_NAME = "rev2editor"
     TRACK_COLOR = ColorEnum.PROPHET
     IS_EXTERNAL_SYNTH = True
-    PRESET_DISPLAY_OPTION = PresetDisplayOptionEnum.INDEX
     ACTIVE_INSTANCE = None  # type: Optional[InstrumentProphet]
 
     def __init__(self, *a, **k):

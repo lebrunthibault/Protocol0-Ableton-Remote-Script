@@ -40,7 +40,11 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
 
     def load_sample(self, sample_name):
         # type: (str) -> None
-        super(BrowserManager, self).load_sample(None, "'%s'" % sample_name)
+        self._cache_category("samples")
+        item = self._cached_browser_items["samples"].get(sample_name.decode("utf-8"), None)
+        if item and item.is_loadable:
+            self.song.selected_track.device_insert_mode = self._insert_mode
+            self.parent.defer(partial(self._browser.load_item, item))
 
     def _load_device(self, device_name):
         # type: (str) -> None

@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, List, Optional, Any
 from a_protocol_0.devices.presets.InstrumentPreset import InstrumentPreset
 from a_protocol_0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from a_protocol_0.lom.AbstractObject import AbstractObject
+from a_protocol_0.lom.device.PluginDevice import PluginDevice
 from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.utils.utils import find_if
 
@@ -29,6 +30,7 @@ class InstrumentPresetList(AbstractObject):
         # type: () -> None
         self.presets = self._import_presets()
         self.selected_preset = self._get_selected_preset()
+
         # noinspection PyUnresolvedReferences
         self.instrument.notify_selected_preset()
 
@@ -36,7 +38,7 @@ class InstrumentPresetList(AbstractObject):
     def categories(self):
         # type: () -> List[str]
         """ overridden """
-        return list(set([preset.category for preset in self.presets if preset.category]))
+        return sorted(list(set([preset.category for preset in self.presets if preset.category])))
 
     @property
     def selected_category(self):
@@ -70,23 +72,37 @@ class InstrumentPresetList(AbstractObject):
                 "Didn't find category presets for cat %s in %s" % (self.selected_category, self.instrument)
             )
             return
-        if self.selected_category and self.selected_preset.category != self.selected_category:
+        if self.selected_preset and self.selected_category and self.selected_preset.category != self.selected_category:
             new_preset_index = 0
         else:
             offset = category_presets[0].index
-            new_preset_index = self.selected_preset.index + (1 if go_next else -1) - offset
+            selected_preset_index = self.selected_preset.index if self.selected_preset else 0
+            new_preset_index = selected_preset_index + (1 if go_next else -1) - offset
 
         self.selected_preset = category_presets[new_preset_index % len(category_presets)]
 
     def _import_presets(self):
         # type: () -> List[InstrumentPreset]
         if not self.instrument.presets_path:
-            return [self.instrument.make_preset(index=i) for i in range(0, self.instrument.DEFAULT_NUMBER_OF_PRESETS)]
+            # Addictive keys or any other multi instrument rack
+            if isinstance(self.instrument.device, RackDevice):
+                return [
+                    self.instrument.make_preset(index=i, name=chain.name)
+                    for i, chain in enumerate(self.instrument.device.chains)
+                ]
+            # Prophet rev2 other vst with accessible presets list
+            elif isinstance(self.instrument.device, PluginDevice) and len(self.instrument.device.presets):
+                return [
+                    self.instrument.make_preset(index=i, name=preset)
+                    for i, preset in enumerate(self.instrument.device.presets[0:128])
+                ]
+        # Serum or any other vst storing presets in a text file
         elif isfile(self.instrument.presets_path):
             return [
                 self.instrument.make_preset(index=i, name=name)
-                for i, name in enumerate(open(self.instrument.presets_path).readlines())
+                for i, name in enumerate(open(self.instrument.presets_path).readlines()[0:128])
             ]
+        # Simpler or Minitaur or any instrument storing presets as files in a directory
         elif isdir(self.instrument.presets_path):
             presets = []
             has_categories = False
@@ -118,15 +134,20 @@ class InstrumentPresetList(AbstractObject):
         """
         preset = None
 
-        if self.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.NAME:
-            preset = find_if(lambda preset: preset.name == self.instrument.track.abstract_track.name, self.presets)
-        else:
-            preset = find_if(lambda preset: preset.name == self.instrument.preset_name, self.presets)
+        if len(self.presets) == 0:
+            return None
 
-        try:
-            return preset or self.presets[self.instrument.track.abstract_track.track_name.selected_preset_index]
-        except IndexError:
-            if len(self.presets):
-                return self.presets[0]
-            else:
-                return None
+        if self.instrument.device.preset_name:
+            preset = find_if(lambda preset: preset.name == self.instrument.device.preset_name, self.presets)
+        elif self.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.NAME:
+            preset = find_if(lambda preset: preset.name == self.instrument.track.abstract_track.name, self.presets)
+
+        if preset:
+            return preset
+        elif self.instrument.track.abstract_track.track_name.selected_preset_index:
+            try:
+                return preset or self.presets[self.instrument.track.abstract_track.track_name.selected_preset_index]
+            except IndexError:
+                pass
+
+        return None

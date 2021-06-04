@@ -92,6 +92,13 @@ def is_lambda(func):
     return isinstance(func, types.LambdaType) and func.__name__ == "<lambda>"
 
 
+def smart_string(s):
+    # type: (basestring) -> str
+    if isinstance(s, str):
+        s = s.decode("utf-8")
+    return s.encode("utf-8")  # type: ignore
+
+
 def get_inner_func(func):
     # type: (Any) -> Callable
     if hasattr(func, "function"):

@@ -12,8 +12,8 @@ class ExternalSynthTrackName(AbstractTrackName):
         super(ExternalSynthTrackName, self).__init__(track, *a, **k)
         self.track = track
 
-    def update(self, base_name=None):
-        # type: (Optional[str]) -> None
-        super(ExternalSynthTrackName, self).update(base_name=base_name)
-        self.track.midi_track.track_name.update(base_name="midi")
-        self.track.audio_track.track_name.update(base_name="audio")
+    def update(self, base_name=None, *a, **k):
+        # type: (Optional[str], Any, Any) -> None
+        super(ExternalSynthTrackName, self).update(base_name=base_name, *a, **k)
+        self.track.midi_track.track_name.update(base_name="midi", *a, **k)
+        self.track.audio_track.track_name.update(base_name="audio", *a, **k)

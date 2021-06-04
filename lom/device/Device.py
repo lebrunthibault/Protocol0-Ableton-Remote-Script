@@ -1,5 +1,5 @@
 import Live
-from typing import TYPE_CHECKING, List, Any, Type
+from typing import TYPE_CHECKING, List, Any, Type, Optional
 
 from _Framework.SubjectSlot import subject_slot
 from a_protocol_0.lom.AbstractObject import AbstractObject
@@ -63,6 +63,12 @@ class Device(AbstractObject):
     def name(self):
         # type: () -> str
         return self._device.name
+
+    @property
+    def preset_name(self):
+        # type: () -> Optional[str]
+        """ overridden """
+        return None
 
     @property
     def is_active(self):

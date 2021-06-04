@@ -1,5 +1,5 @@
 import Live
-from typing import List, Any
+from typing import List, Any, Optional
 
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.device.DeviceType import DeviceType
@@ -24,23 +24,25 @@ class PluginDevice(Device):
     @property
     def presets(self):
         # type: () -> List[str]
-        """" unused atm """
-        return [preset for preset in list(self._device.presets) if not preset == "empty"]
+        return [str(preset) for preset in list(self._device.presets) if not str(preset) == "empty"]
 
     @property
     def selected_preset_index(self):
         # type: () -> int
-        """" unused atm """
         return self._device.selected_preset_index
 
     @selected_preset_index.setter
     def selected_preset_index(self, selected_preset_index):
         # type: (int) -> None
-        """" unused atm """
         self._device.selected_preset_index = selected_preset_index
 
     @property
     def selected_preset(self):
         # type: () -> str
-        """" unused atm """
         return self.presets[self.selected_preset_index]
+
+    @property
+    def preset_name(self):
+        # type: () -> Optional[str]
+        """ overridden """
+        return self.selected_preset

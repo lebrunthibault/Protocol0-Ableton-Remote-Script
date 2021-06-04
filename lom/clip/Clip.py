@@ -233,6 +233,17 @@ class Clip(ClipActionMixin, AbstractObject):
         return self._clip and self._clip.is_recording
 
     @property
+    def muted(self):
+        # type: () -> bool
+        return self._clip and self._clip.muted
+
+    @muted.setter
+    def muted(self, muted):
+        # type: (bool) -> None
+        if self._clip:
+            self._clip.muted = muted
+
+    @property
     def automated_parameters(self):
         # type: () -> List[DeviceParameter]
         return [parameter for parameter in self.track.device_parameters if self.automation_envelope(parameter)]
