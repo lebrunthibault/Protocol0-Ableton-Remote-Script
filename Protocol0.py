@@ -85,6 +85,8 @@ class Protocol0(ControlSurface):
                 self.errorManager.handle_error(e)
             self.log_info("Protocol0 script loaded")
 
+            # Server().poll()
+
     def post_init(self):
         # type: () -> None
         self.protocol0_song.reset()
