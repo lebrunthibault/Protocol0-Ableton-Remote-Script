@@ -48,6 +48,19 @@ def defer(func):
     return decorate
 
 
+def poll(func):
+    # type: (Callable) -> Callable
+    @wraps(func)
+    def decorate(*a, **k):
+        # type: (Any, Any) -> None
+        from a_protocol_0 import Protocol0
+
+        func(*a, **k)
+        Protocol0.SELF.defer(partial(decorate, *a, **k))
+
+    return decorate
+
+
 def retry(retry_count=3, interval=3):
     # type: (int, int) -> Callable
     def wrap(func):

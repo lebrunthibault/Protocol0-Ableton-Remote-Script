@@ -15,7 +15,7 @@ class InstrumentPreset(AbstractObject):
         super(InstrumentPreset, self).__init__(*a, **k)
         self.instrument = instrument
         self.index = index
-        name = smart_string(name)
+        name = smart_string(name) if name else None
         self.original_name = name
         self.name = self._format_name(name)
         self.category = category.lower() if category else None

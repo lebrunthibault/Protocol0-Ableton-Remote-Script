@@ -94,7 +94,7 @@ class Clip(ClipActionMixin, AbstractObject):
     @property
     def type(self):
         # type: () -> ClipTypeEnum
-        return ClipTypeEnum.get_from_value(self.clip_name.base_name.split(" ")[0])
+        return ClipTypeEnum.get_from_value(self.clip_name.base_name.split(" ")[0], ClipTypeEnum.NORMAL)
 
     @property
     def name(self):

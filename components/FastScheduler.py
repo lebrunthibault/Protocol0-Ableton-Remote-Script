@@ -89,4 +89,4 @@ class FastScheduler(AbstractControlSurfaceComponent):
 
     def schedule_next(self, callback):
         # type: (Callable) -> None
-        self.schedule(self.TICK_MS_DURATION, callback)
+        self.schedule(1, callback)

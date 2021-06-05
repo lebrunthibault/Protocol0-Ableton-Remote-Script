@@ -1,13 +1,26 @@
 import os
+import subprocess
 import sys
 from datetime import datetime
 
 import win32api
 import win32con
+import win32gui
+import win32process
+import wmi
 
 # noinspection PyUnresolvedReferences
 from PIL import ImageGrab
+from search_set import create_gui
+from typing import Optional
 from typing import Tuple
+from utils import log
+
+from a_protocol_0.consts import SERVER_DIR
+
+c = wmi.WMI()
+
+SEARCH_WINDOW_HANDLE = {"hwnd": None}
 
 from a_protocol_0.enums.ColorEnum import InterfaceColorEnum
 
@@ -54,3 +67,53 @@ def log(message):
     print(message)
     with open(_get_log_filename(), "a") as f:
         f.write(message)
+
+
+def get_app_path(hwnd):
+    # type: (int) -> Optional[str]
+    """Get application path given hwnd."""
+    try:
+        _, pid = win32process.GetWindowThreadProcessId(hwnd)
+        for p in c.query("SELECT ExecutablePath FROM Win32_Process WHERE ProcessId = %s" % str(pid)):
+            exe = p.ExecutablePath
+            break
+    except:
+        return None
+    else:
+        return exe
+
+
+def get_app_name(hwnd):
+    # type: (int) -> Optional[str]
+    """Get applicatin filename given hwnd."""
+    try:
+        _, pid = win32process.GetWindowThreadProcessId(hwnd)
+        for p in c.query("SELECT Name FROM Win32_Process WHERE ProcessId = %s" % str(pid)):
+            exe = p.Name
+            break
+    except:
+        return None
+    else:
+        return exe
+
+
+def find_search_window_handle(class_name=None, app_name=None):
+    # type: (Optional[str], Optional[str]) -> None
+    def winEnumHandler(hwnd, _):
+        if (
+            win32gui.IsWindowVisible(hwnd)
+            and (not class_name or win32gui.GetClassName(hwnd) == class_name)
+            and (not app_name or get_app_name(hwnd) == app_name)
+        ):
+            SEARCH_WINDOW_HANDLE["hwnd"] = hwnd
+
+    win32gui.EnumWindows(winEnumHandler, None)
+
+    if SEARCH_WINDOW_HANDLE["hwnd"]:
+        log("found search set window, focusing")
+        win32gui.SetForegroundWindow(SEARCH_WINDOW_HANDLE["hwnd"])
+    else:
+        log("didn't find search set window, creating gui")
+        create_gui()
+        subprocess.Popen([SERVER_DIR + "\\gui\\protocol0_search.bat"], shell=True)
+        # KeyBoardShortcutManager.execute_batch(SERVER_DIR + "\\gui\\protocol0_search.bat")

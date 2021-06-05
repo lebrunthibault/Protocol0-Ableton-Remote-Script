@@ -28,6 +28,7 @@ Hotkey("", "^#+n", "reloadAbleton")
 Hotkey("", "^#+a", "restartAbleton")
 Hotkey("", "^#+l", "refreshLogs")
 ; ableton hotkeys
+HotkeyAbleton("^+f", "searchSet")
 HotkeyAbleton("^#+s", "saveAndSetAsTemplate")
 HotkeyAbleton("^!+c", 	 "loadVst", "H-Comp")
 HotkeyAbleton("^!+d", 	 "loadVst", "Delay", false, false, false, 3)
@@ -163,6 +164,11 @@ refreshLogs()
     Send 1
     Sleep 500
     Send {Enter}
+}
+
+searchSet()
+{
+    Run locate_search.bat, %A_ScriptDir%\..\python\search, hide
 }
 
 

@@ -1,5 +1,4 @@
 import sys
-from functools import partial
 from traceback import extract_tb
 from types import TracebackType
 
@@ -45,7 +44,12 @@ class ErrorManager(AbstractControlSurfaceComponent):
         self.parent.clear_tasks()
         self.parent.defer(self.song.reset)
 
-        self.parent._wait(100, partial(setattr, self.song, "errored", False))
+        self.parent._wait(100, self._restart)
+
+    def _restart(self):
+        # type: () -> None
+        self.song.errored = False
+        self.parent.start()
 
     def _check_file(self, name):
         # type: (str) -> bool

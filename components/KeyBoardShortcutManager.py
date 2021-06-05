@@ -2,7 +2,7 @@ import os
 import subprocess
 from functools import partial
 
-from typing import Any
+from typing import Any, Optional
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.consts import ROOT_DIR
@@ -18,32 +18,39 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
         # type: (Any, Any) -> None
         super(KeyBoardShortcutManager, self).__init__(*a, **k)
 
+    @classmethod
     def _execute_python(self, basename, *args):
         # type: (str, Any) -> int
         filename = ROOT_DIR + "\\scripts\\python\\%s" % basename
-        if not os.path.exists(filename):
-            raise Protocol0Error("incorrect python script name: %s" % filename)
+        return self.execute(str(os.getenv("PYTHONW_EXE")), filename, *args)
 
-        parameters = [str(os.getenv("PYTHONW_EXE")), filename]
-        for arg in args:
-            parameters.append(str(arg))
-
-        child = subprocess.Popen(parameters)
-        child.communicate()
-        return child.returncode
+    @classmethod
+    def execute_batch(self, filename, *args):
+        # type: (str) -> int
+        return self.execute(None, filename, *args)
 
     def _execute_ahk(self, basename, *args):
         # type: (str, Any) -> int
         filename = ROOT_DIR + "\\scripts\\ahk\\%s" % basename
-        if not os.path.exists(filename):
-            raise Protocol0Error("incorrect ahk script name: %s" % filename)
-        parameters = [str(os.getenv("AHK_EXE")), filename]
-        for arg in args:
-            parameters.append(str(arg))
+        return self.execute(str(os.getenv("AHK_EXE")), filename, *args)
 
-        child = subprocess.Popen(parameters)
-        child.communicate()
-        return child.returncode
+    @staticmethod
+    def execute(program, filename, *args):
+        # type: (Optional[str], str, Any) -> int
+        if not os.path.exists(filename):
+            raise Protocol0Error("incorrect script path: %s" % filename)
+
+        if program is None:
+            subprocess.Popen(filename, shell=True, close_fds=True)
+            return 0
+        else:
+            parameters = [program, filename]
+            for arg in args:
+                parameters.append(str(arg))
+
+            child = subprocess.Popen(parameters)
+            child.communicate()
+            return child.returncode
 
     @log
     def send_keys(self, keys, repeat=False):

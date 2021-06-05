@@ -5,6 +5,7 @@ from os.path import dirname
 import Live
 
 ROOT_DIR = dirname(os.path.realpath(__file__))
+SERVER_DIR = str(os.getenv("SERVER_PATH"))
 REMOTE_SCRIPTS_DIR = dirname(ROOT_DIR)
 
 MIDI_STATUS_BYTES = {"note": 144, "cc": 176, "pc": 192}

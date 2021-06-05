@@ -19,6 +19,7 @@ from a_protocol_0.components.MixingManager import MixingManager
 from a_protocol_0.components.NavigationManager import NavigationManager
 from a_protocol_0.components.Push2Manager import Push2Manager
 from a_protocol_0.components.QuantizationManager import QuantizationManager
+from a_protocol_0.components.SearchManager import SearchManager
 from a_protocol_0.components.SessionManager import SessionManager
 from a_protocol_0.components.SetFixerManager import SetFixerManager
 from a_protocol_0.components.SongManager import SongManager
@@ -30,6 +31,7 @@ from a_protocol_0.components.actionGroups.ActionGroupTest import ActionGroupTest
 from a_protocol_0.config import Config
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.enums.LogLevelEnum import LogLevelEnum
+from a_protocol_0.http_client.HttpClient import HttpClient
 from a_protocol_0.lom.Song import Song
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.log import log_ableton
@@ -44,13 +46,13 @@ class Protocol0(ControlSurface):
         super(Protocol0, self).__init__(c_instance=c_instance)
         # noinspection PyProtectedMember
         Protocol0.SELF = self
+        self.started = False
         self.song().stop_playing()  # doing this early because the set often loads playing
         # stop log duplication
         self._c_instance.log_message = MethodType(lambda s, message: None, self._c_instance)  # noqa
 
         AbstractInstrument.INSTRUMENT_CLASSES = AbstractInstrument.get_instrument_classes()
 
-        self._is_dev_booted = False
         with self.component_guard():
             self.errorManager = ErrorManager(set_excepthook=False)
             self.protocol0_song = Song(song=self.song())
@@ -71,26 +73,30 @@ class Protocol0(ControlSurface):
             GlobalActions()
             self.globalBeatScheduler = BeatScheduler()
             self.sceneBeatScheduler = BeatScheduler()
-            ClyphXComponentBase.start_scheduler()
             self.utilsManager = UtilsManager()
             self.logManager = LogManager()
-            try:
-                ActionGroupMain()
-                ActionGroupSet()
-                ActionGroupTest()
-                if init_song:
-                    self.defer(self.songManager.init_song)
-                    self.dev_boot()
-            except Exception as e:
-                self.errorManager.handle_error(e)
-            self.log_info("Protocol0 script loaded")
+            self.searchManager = SearchManager()
+            ActionGroupMain()
+            ActionGroupSet()
+            ActionGroupTest()
 
-            # Server().poll()
+            self.start()
+
+            if init_song:
+                self.defer(self.songManager.init_song)
+
+            self.log_info("Protocol0 script loaded")
+            self.started = True
+
+    def start(self):
+        # type: () -> None
+        ClyphXComponentBase.start_scheduler()
+        self.fastScheduler.restart()
+        HttpClient().poll()
 
     def post_init(self):
         # type: () -> None
         self.protocol0_song.reset()
-        self.defer(self.dev_boot)
 
     def show_message(self, message, log=True):
         # type: (str, bool) -> None
@@ -172,11 +178,6 @@ class Protocol0(ControlSurface):
         self._task_group.clear()
         self.fastScheduler.restart()
         self.globalBeatScheduler.clear()
-
-    def dev_boot(self):
-        # type: () -> None
-        if self._is_dev_booted:
-            return
 
     def disconnect(self):
         # type: () -> None
