@@ -29,7 +29,7 @@ class AbstractInstrumentPresetsMixin(object):
         self._preset_list.sync_presets()
 
     def make_preset(self, index, name=None, category=None):
-        # type: (AbstractInstrument, int, Optional[str], Optional[str]) -> InstrumentPreset
+        # type: (AbstractInstrument, int, Optional[basestring], Optional[str]) -> InstrumentPreset
         """ overridden """
         return InstrumentPreset(instrument=self, index=index, name=name, category=category)
 

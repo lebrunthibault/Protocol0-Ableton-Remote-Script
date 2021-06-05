@@ -88,4 +88,4 @@ def focus_window(name, search_type):
 
 def focus_ableton():
     # type: () -> None
-    focus_window(ABLETON_EXE, SearchType.EXE)
+    focus_window(ABLETON_EXE, SearchType.EXE)  # type: ignore

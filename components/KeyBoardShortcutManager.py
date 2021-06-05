@@ -41,7 +41,7 @@ class KeyBoardShortcutManager(AbstractControlSurfaceComponent):
             raise Protocol0Error("incorrect script path: %s" % filename)
 
         if program is None:
-            subprocess.Popen(filename, shell=True, close_fds=True)
+            subprocess.Popen(filename, shell=True)
             return 0
         else:
             parameters = [program, filename]

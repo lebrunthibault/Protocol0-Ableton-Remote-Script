@@ -29,6 +29,7 @@ from a_protocol_0.components.actionGroups.ActionGroupMain import ActionGroupMain
 from a_protocol_0.components.actionGroups.ActionGroupSet import ActionGroupSet
 from a_protocol_0.components.actionGroups.ActionGroupTest import ActionGroupTest
 from a_protocol_0.config import Config
+from a_protocol_0.consts import SERVER_DIR
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.enums.LogLevelEnum import LogLevelEnum
 from a_protocol_0.http_client.HttpClient import HttpClient
@@ -92,6 +93,7 @@ class Protocol0(ControlSurface):
         # type: () -> None
         ClyphXComponentBase.start_scheduler()
         self.fastScheduler.restart()
+        self.keyboardShortcutManager.execute_batch(SERVER_DIR + "\\start.bat")
         HttpClient().poll()
 
     def post_init(self):

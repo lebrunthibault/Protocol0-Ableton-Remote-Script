@@ -1,11 +1,5 @@
-from a_protocol_0.sequence.Sequence import Sequence
+import subprocess
 
+from a_protocol_0.consts import SERVER_DIR
 
-def main():
-    # type: () -> None
-    seq = Sequence(silent=True)
-    seq.done()
-
-
-if __name__ == "__main__":
-    main()
+subprocess.Popen(SERVER_DIR + "\\start.bat", shell=True)

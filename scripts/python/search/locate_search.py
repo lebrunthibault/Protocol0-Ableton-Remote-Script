@@ -13,7 +13,6 @@ def display_search():
     else:
         log("didn't find search set window, creating gui")
         create_gui()
-        # subprocess.Popen([SERVER_DIR + "\\gui\\protocol0_search.bat"], shell=True)
 
 
 if __name__ == "__main__":

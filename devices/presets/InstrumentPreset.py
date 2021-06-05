@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 class InstrumentPreset(AbstractObject):
     def __init__(self, instrument, index, name, category=None, *a, **k):
-        # type: (AbstractInstrument, int, Optional[str], Optional[str], Any, Any) -> None
+        # type: (AbstractInstrument, int, Optional[basestring], Optional[str], Any, Any) -> None
         super(InstrumentPreset, self).__init__(*a, **k)
         self.instrument = instrument
         self.index = index
