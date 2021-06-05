@@ -2,9 +2,10 @@ import math
 import sys
 
 from typing import Tuple
+from utils.click import click_and_restore_pos, get_pixel_color
+from utils.log import setup_logs, log
 
 from a_protocol_0.enums.ColorEnum import InterfaceColorEnum
-from utils import click_and_restore_pos, log, setup_logs, get_pixel_color
 
 
 def distance(c1, c2):

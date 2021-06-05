@@ -1,8 +1,7 @@
 import win32gui
-from typing import Tuple
-
 from send_click import click_and_restore_pos
-from utils import log, setup_logs
+from typing import Tuple
+from utils.log import log, setup_logs
 
 
 def get_window_position(handle):

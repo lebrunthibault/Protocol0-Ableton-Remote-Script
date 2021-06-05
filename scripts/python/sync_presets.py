@@ -1,8 +1,7 @@
 import os
 
 from typing import Generator, Any
-
-from utils import setup_logs, log
+from utils.log import setup_logs, log
 
 
 class SerumPresetSynchronizer:

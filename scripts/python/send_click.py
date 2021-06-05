@@ -1,6 +1,7 @@
 import sys
 
-from utils import click_and_restore_pos, setup_logs, log
+from utils.click import click_and_restore_pos
+from utils.log import setup_logs, log
 
 if __name__ == "__main__":
     setup_logs()

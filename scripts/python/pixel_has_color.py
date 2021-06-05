@@ -1,7 +1,9 @@
 import sys
 
+from utils.click import get_pixel_color
+from utils.log import log, setup_logs
+
 from a_protocol_0.enums.ColorEnum import InterfaceColorEnum
-from utils import log, setup_logs, get_pixel_color
 
 
 def pixel_has_color(x, y, color):

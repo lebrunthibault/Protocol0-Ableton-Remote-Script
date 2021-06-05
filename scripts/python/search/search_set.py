@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import PySimpleGUI as sg
 import requests
-from utils import log
+from utils.log import log
+from utils.window import focus_ableton
 
 
 def send_search(search):
@@ -22,9 +23,9 @@ def create_gui():
             break
 
         if len(event) == 1 and ord(event) == 13:
-            log("Enter pressed, clearing")
+            log("Enter pressed, clearing and focusing ableton")
             window["input"].update("")
-            window.Minimize()
+            focus_ableton()
             continue
 
         if len(event) == 1:

@@ -1,10 +1,7 @@
-import subprocess
-
 import win32gui
 from search_set import create_gui
-from utils import setup_logs, log, find_search_window_handle
-
-from a_protocol_0.consts import SERVER_DIR
+from utils.log import setup_logs, log
+from utils.window import find_search_window_handle
 
 
 def display_search():
@@ -16,8 +13,7 @@ def display_search():
     else:
         log("didn't find search set window, creating gui")
         create_gui()
-        subprocess.Popen([SERVER_DIR + "\\gui\\protocol0_search.bat"], shell=True)
-        # KeyBoardShortcutManager.execute_batch(SERVER_DIR + "\\gui\\protocol0_search.bat")
+        # subprocess.Popen([SERVER_DIR + "\\gui\\protocol0_search.bat"], shell=True)
 
 
 if __name__ == "__main__":
