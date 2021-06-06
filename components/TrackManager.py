@@ -1,6 +1,4 @@
 import Live
-from typing import Optional, Any
-
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
@@ -11,6 +9,7 @@ from a_protocol_0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import p0_subject_slot, defer
+from typing import Optional, Any
 
 
 class TrackManager(AbstractControlSurfaceComponent):
@@ -36,7 +35,7 @@ class TrackManager(AbstractControlSurfaceComponent):
         seq = Sequence()
         seq.add(self.parent.navigationManager.focus_main)
         seq.add(
-            self.parent.keyboardShortcutManager.group_track,
+            self.parent.commandManager.group_track,
             complete_on=self._added_track_listener,
             check_timeout=4,
         )

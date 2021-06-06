@@ -1,19 +1,9 @@
-import win32gui
-from send_click import click_and_restore_pos
+import logging
 from typing import Tuple
-from utils.log import log, setup_logs
 
-
-def get_window_position(handle):
-    # type: (int) -> Tuple[int, int, int, int]
-    rect = win32gui.GetWindowRect(handle)
-    x = rect[0]
-    y = rect[1]
-    w = rect[2] - x
-    h = rect[3] - y
-    log("Location: (%d, %d)" % (x, y))
-    log("Size: (%d, %d)" % (w, h))
-    return (int(x), int(y), int(w), int(h))
+import win32gui
+from lib.click import click_and_restore_pos
+from lib.window.window import get_window_position
 
 
 def get_button_middle_position(handle):
@@ -27,7 +17,7 @@ def get_button_middle_position(handle):
 def activate_rev2_editor():
     # type: () -> None
     handle = win32gui.FindWindowEx(None, None, None, "REV2Editor/midi")
-    log("found handle for rev2 editor: %s" % handle)
+    logging.info("found handle for rev2 editor: %s" % handle)
     if not handle:
         return
     (x, y) = get_button_middle_position(handle)
@@ -36,5 +26,4 @@ def activate_rev2_editor():
 
 
 if __name__ == "__main__":
-    setup_logs()
     activate_rev2_editor()

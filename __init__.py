@@ -3,7 +3,7 @@ import os
 import sys
 from os.path import dirname
 
-sys.path.insert(0, "C:\\Python27\\Lib\\site-packages")
+sys.path.append("C:\\Python27\\Lib\\site-packages")
 live_environment_loaded = "Live" in sys.modules
 
 from typing import Literal, Any, Iterator, Tuple  # noqa: E402

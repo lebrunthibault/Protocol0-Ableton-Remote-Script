@@ -1,18 +1,15 @@
 import threading
 from types import MethodType
 
-from typing import Callable, Any
-
 from ClyphX_Pro import ClyphXComponentBase, ParseUtils
 from ClyphX_Pro.clyphx_pro.actions.GlobalActions import GlobalActions
-from _Framework.ControlSurface import ControlSurface
 from a_protocol_0.automation.AutomationTrackManager import AutomationTrackManager
 from a_protocol_0.components.BeatScheduler import BeatScheduler
 from a_protocol_0.components.BrowserManager import BrowserManager
+from a_protocol_0.components.CommandManager import CommandManager
 from a_protocol_0.components.DeviceManager import DeviceManager
 from a_protocol_0.components.ErrorManager import ErrorManager
 from a_protocol_0.components.FastScheduler import FastScheduler
-from a_protocol_0.components.KeyBoardShortcutManager import KeyBoardShortcutManager
 from a_protocol_0.components.LogManager import LogManager
 from a_protocol_0.components.MidiManager import MidiManager
 from a_protocol_0.components.MixingManager import MixingManager
@@ -29,13 +26,15 @@ from a_protocol_0.components.actionGroups.ActionGroupMain import ActionGroupMain
 from a_protocol_0.components.actionGroups.ActionGroupSet import ActionGroupSet
 from a_protocol_0.components.actionGroups.ActionGroupTest import ActionGroupTest
 from a_protocol_0.config import Config
-from a_protocol_0.consts import SERVER_DIR
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.enums.LogLevelEnum import LogLevelEnum
 from a_protocol_0.http_client.HttpClient import HttpClient
 from a_protocol_0.lom.Song import Song
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.log import log_ableton
+from typing import Callable, Any
+
+from _Framework.ControlSurface import ControlSurface
 
 
 class Protocol0(ControlSurface):
@@ -67,7 +66,7 @@ class Protocol0(ControlSurface):
             self.automationTrackManager = AutomationTrackManager()
             self.quantizationManager = QuantizationManager()
             self.setFixerManager = SetFixerManager()
-            self.keyboardShortcutManager = KeyBoardShortcutManager()
+            self.commandManager = CommandManager()
             self.midiManager = MidiManager()
             self.browserManager = BrowserManager()
             self.navigationManager = NavigationManager()
@@ -77,6 +76,7 @@ class Protocol0(ControlSurface):
             self.utilsManager = UtilsManager()
             self.logManager = LogManager()
             self.searchManager = SearchManager()
+            self.httpClient = HttpClient()
             ActionGroupMain()
             ActionGroupSet()
             ActionGroupTest()
@@ -93,8 +93,8 @@ class Protocol0(ControlSurface):
         # type: () -> None
         ClyphXComponentBase.start_scheduler()
         self.fastScheduler.restart()
-        self.keyboardShortcutManager.execute_batch(SERVER_DIR + "\\start.bat")
-        HttpClient().poll()
+        self.httpClient.start_server()
+        self.httpClient.poll()
 
     def post_init(self):
         # type: () -> None

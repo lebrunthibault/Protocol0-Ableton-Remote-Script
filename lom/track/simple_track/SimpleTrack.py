@@ -1,9 +1,6 @@
 from itertools import chain
 
 import Live
-from typing import List, Optional, Any, Dict
-
-from _Framework.SubjectSlot import subject_slot, subject_slot_group
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.enums.ClipTypeEnum import ClipTypeEnum
 from a_protocol_0.lom.clip.Clip import Clip
@@ -14,6 +11,9 @@ from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrackActionMixin import SimpleTrackActionMixin
 from a_protocol_0.utils.decorators import defer, p0_subject_slot
 from a_protocol_0.utils.utils import find_if
+from typing import List, Optional, Any, Dict
+
+from _Framework.SubjectSlot import subject_slot, subject_slot_group
 
 
 class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
@@ -204,14 +204,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def playable_clip(self):
         # type: () -> Optional[Clip]
-        """
-            The clip preselected for playing on track play
-
-            Checked in order :
-            - The playing clip
-            - The clip corresponding to the selected scene if it exists
-        :return:
-        """
         return self.playing_clip or self.clip_slots[self.song.selected_scene.index].clip
 
     @property

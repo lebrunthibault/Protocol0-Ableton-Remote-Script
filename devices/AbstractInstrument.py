@@ -3,8 +3,6 @@ import re
 from functools import partial
 from os import listdir
 
-from typing import TYPE_CHECKING, Optional, List, Any, Type
-
 from a_protocol_0.devices.AbstractInstrumentPresetsMixin import AbstractInstrumentPresetsMixin
 from a_protocol_0.devices.presets.InstrumentPresetList import InstrumentPresetList
 from a_protocol_0.enums.ColorEnum import ColorEnum
@@ -18,6 +16,7 @@ from a_protocol_0.lom.device.PluginDevice import PluginDevice
 from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.lom.device.SimplerDevice import SimplerDevice
 from a_protocol_0.sequence.Sequence import Sequence
+from typing import TYPE_CHECKING, Optional, List, Any, Type
 
 if TYPE_CHECKING:
     from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -144,15 +143,15 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
         seq.add(partial(self.check_activated, select_instrument_track=True))
         seq.add(self.device.track.select)
         if self.song.selected_track != self.device.track or not self.is_plugin_window_visible:
-            seq.add(self.parent.keyboardShortcutManager.show_plugins)
+            seq.add(self.parent.commandManager.show_plugins)
         else:
-            seq.add(self.parent.keyboardShortcutManager.show_hide_plugins)
+            seq.add(self.parent.commandManager.show_hide_plugins)
         return seq.done()
 
     @property
     def is_plugin_window_visible(self):
         # type: () -> bool
-        return self.parent.keyboardShortcutManager.is_plugin_window_visible(self.device.name)
+        return self.parent.commandManager.is_plugin_window_visible(self.device.name)
 
     def generate_base_notes(self, clip):
         # type: (Clip) -> List[Note]

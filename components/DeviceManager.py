@@ -1,8 +1,6 @@
 from functools import partial
 
 import Live
-from typing import Optional, Tuple, Dict, Type, cast, List
-
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
@@ -11,6 +9,7 @@ from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.utils import find_if
+from typing import Optional, Tuple, Dict, Type, cast, List
 
 
 class DeviceManager(AbstractControlSurfaceComponent):
@@ -63,7 +62,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
     def make_plugin_window_showable(self, device):
         # type: (Device) -> Optional[Sequence]
         """ handles only one level of grouping in racks. Should be enough for now """
-        if self.parent.keyboardShortcutManager.is_plugin_window_visible(device.name):
+        if self.parent.commandManager.is_plugin_window_visible(device.name):
             return None
 
         parent_rack = self._find_parent_rack(device)
@@ -75,7 +74,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
         else:
             seq.add(partial(self._make_nested_device_window_showable, device, parent_rack))
 
-        seq.add(self.parent.keyboardShortcutManager.show_plugins)
+        seq.add(self.parent.commandManager.show_plugins)
 
         return seq.done()
 
@@ -90,7 +89,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
         (x_device, y_device) = self._get_device_show_button_click_coordinates(device)
         seq = Sequence()
         seq.add(
-            lambda: self.parent.keyboardShortcutManager.send_click(x=x_device, y=y_device),
+            lambda: self.parent.commandManager.send_click(x=x_device, y=y_device),
             wait=2,
             name="click on device show button",
         )
@@ -116,17 +115,17 @@ class DeviceManager(AbstractControlSurfaceComponent):
 
         seq = Sequence()
         seq.add(
-            lambda: self.parent.keyboardShortcutManager.toggle_device_button(x=x_rack, y=y_rack, activate=False),
+            lambda: self.parent.commandManager.toggle_device_button(x=x_rack, y=y_rack, activate=False),
             wait=1,
             name="hide rack macro controls",
         )
         seq.add(
-            lambda: self.parent.keyboardShortcutManager.send_click(x=x_device, y=y_device),
+            lambda: self.parent.commandManager.send_click(x=x_device, y=y_device),
             wait=5,
             name="click on device show button",
         )
         seq.add(
-            lambda: self.parent.keyboardShortcutManager.toggle_device_button(x=x_rack, y=y_rack, activate=True),
+            lambda: self.parent.commandManager.toggle_device_button(x=x_rack, y=y_rack, activate=True),
             name="show rack macro controls",
         )
         # at this point the rack macro controls could still be hidden if the plugin window masks the button

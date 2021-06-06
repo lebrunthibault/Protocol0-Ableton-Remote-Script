@@ -1,14 +1,13 @@
 from functools import partial
 
 import Live
-from typing import TYPE_CHECKING, Optional, Any, List
-
 from a_protocol_0.enums.ClipTypeEnum import ClipTypeEnum
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.clip.ClipActionMixin import ClipActionMixin
 from a_protocol_0.lom.clip.ClipName import ClipName
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
 from a_protocol_0.utils.decorators import p0_subject_slot
+from typing import TYPE_CHECKING, Optional, Any, List, cast
 
 if TYPE_CHECKING:
     from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
@@ -94,7 +93,9 @@ class Clip(ClipActionMixin, AbstractObject):
     @property
     def type(self):
         # type: () -> ClipTypeEnum
-        return ClipTypeEnum.get_from_value(self.clip_name.base_name.split(" ")[0], ClipTypeEnum.NORMAL)
+        return cast(
+            ClipTypeEnum, ClipTypeEnum.get_from_value(self.clip_name.base_name.split(" ")[0], ClipTypeEnum.NORMAL)
+        )
 
     @property
     def name(self):

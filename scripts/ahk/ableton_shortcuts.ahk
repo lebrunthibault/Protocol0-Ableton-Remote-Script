@@ -168,7 +168,7 @@ refreshLogs()
 
 searchSet()
 {
-    Run locate_search.bat, %A_ScriptDir%\..\python\search, hide
+    Run search_set.bat, %A_ScriptDir%\..\python\commands, hide
 }
 
 

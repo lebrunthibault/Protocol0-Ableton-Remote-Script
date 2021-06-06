@@ -1,7 +1,6 @@
+import logging
 import os
-
 from typing import Generator, Any
-from utils.log import setup_logs, log
 
 
 class SerumPresetSynchronizer:
@@ -29,9 +28,8 @@ class SerumPresetSynchronizer:
             for preset in presets:
                 f.write("%s\n" % preset)
 
-        log("%d serum presets wrote to %s" % (len(presets), cls.PROGRAM_CHANGE_FILENAME))
+        logging.info("%d serum presets wrote to %s" % (len(presets), cls.PROGRAM_CHANGE_FILENAME))
 
 
-if __name__ == "__main__":
-    setup_logs()
+def sync_presets() -> None:
     SerumPresetSynchronizer.synchronize()

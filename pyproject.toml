@@ -2,11 +2,10 @@
 line-length = 120
 
 [tool.vulture]
-#exclude = ["file*.py", "dir/"]
+exclude = ["scripts/"]
 #ignore_decorators = ["@app.route", "@require_*"]
 ignore_names = []
 make_whitelist = true
 min_confidence = 60
-#paths = ["myscript.py", "mydir"]
 sort_by_size = true
 verbose = false

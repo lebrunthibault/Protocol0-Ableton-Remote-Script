@@ -1,13 +1,12 @@
 from functools import partial
 
-from typing import TYPE_CHECKING, Optional
-
 from a_protocol_0.lom.Scene import Scene
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import handle_error
 from a_protocol_0.utils.utils import scroll_values
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from a_protocol_0.lom.Song import Song
@@ -57,6 +56,10 @@ class SongActionMixin(object):
         # type: (Song, AbstractTrack) -> Optional[Sequence]
         if self.song.selected_track == selected_track.base_track:
             return None
+        group_track = selected_track.group_track
+        while group_track:
+            group_track.is_folded = False
+            group_track = group_track.group_track
         seq = Sequence(silent=True)
         seq.add(partial(setattr, self._view, "selected_track", selected_track._track), wait=1)
         return seq.done()

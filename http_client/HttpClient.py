@@ -1,15 +1,22 @@
 import json
 import urllib2
 
-from typing import Dict, Optional
-
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from a_protocol_0.consts import SERVER_DIR
 from a_protocol_0.enums.ServerActionEnum import ServerActionEnum
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.utils.decorators import poll
+from typing import Dict, Optional
 
 
 class HttpClient(AbstractControlSurfaceComponent):
+    def start_server(self):
+        # type: () -> None
+        try:
+            urllib2.urlopen("http://127.0.0.1:8000/action").read()
+        except urllib2.URLError:
+            self.parent.commandManager.execute_batch(SERVER_DIR + "\\start.bat")
+
     @poll
     def poll(self):
         # type: () -> None
@@ -35,8 +42,6 @@ class HttpClient(AbstractControlSurfaceComponent):
 
             self.dispatch_action(json_content)
             self.parent.log_dev("got json action %s" % json_content)
-        else:
-            print("No action")
 
     def dispatch_action(self, json_content):
         # type: (Dict) -> None
@@ -45,10 +50,10 @@ class HttpClient(AbstractControlSurfaceComponent):
         if action is None:
             raise Protocol0Error("invalid action received from server : %s" % json_content)
 
-        args = ()
+        args = []
 
         if "arg" in json_content:
-            args = (json_content["arg"],)
+            args.append(json_content["arg"])
 
         func = getattr(self.parent.searchManager, action.get_method_name())
 
