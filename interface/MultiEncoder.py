@@ -35,6 +35,7 @@ class MultiEncoder(AbstractObject):
         self._press_listener.subject = ButtonElement(True, MIDI_NOTE_TYPE, group.channel, identifier)
         self._scroll_listener.subject = ButtonElement(True, MIDI_CC_TYPE, group.channel, identifier)
         self._pressed_at = None  # type: Optional[float]
+        self._has_long_press = False
 
     def get_modifier_from_enum(self, modifier_type):
         # type: (EncoderModifierEnum) -> EncoderModifier
@@ -45,6 +46,8 @@ class MultiEncoder(AbstractObject):
         assert not self._find_matching_action(
             action.move_type, action.modifier_type, exact_match=True, log_not_found=False
         ), ("duplicate move %s" % action)
+        if action.move_type == EncoderMoveEnum.LONG_PRESS:
+            self._has_long_press = True
         self._actions.append(action)
         return self
 
@@ -64,9 +67,17 @@ class MultiEncoder(AbstractObject):
     def _press_listener(self, value):
         # type: (int) -> None
         if value:
-            self._pressed_at = time.time()
-            return
+            if self._has_long_press:
+                self._pressed_at = time.time()
+            else:
+                self._find_and_execute_action()
+        else:
+            if self._has_long_press:
+                # action executed on press and not release when only press defined
+                self._find_and_execute_action()
 
+    def _find_and_execute_action(self):
+        # type: () -> None
         move_type = EncoderMoveEnum.LONG_PRESS if self._is_long_pressed else EncoderMoveEnum.PRESS
         action = self._find_matching_action(move_type=move_type)  # type: ignore[arg-type]
         self._pressed_at = None

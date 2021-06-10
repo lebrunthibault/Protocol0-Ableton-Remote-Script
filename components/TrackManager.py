@@ -1,4 +1,6 @@
 import Live
+from typing import Optional, Any
+
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
@@ -9,7 +11,6 @@ from a_protocol_0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import p0_subject_slot, defer
-from typing import Optional, Any
 
 
 class TrackManager(AbstractControlSurfaceComponent):
@@ -28,17 +29,6 @@ class TrackManager(AbstractControlSurfaceComponent):
         seq = Sequence()
         seq.add(self.song.current_track._added_track_init)
         seq.add(self.song.end_undo_step)
-        return seq.done()
-
-    def group_track(self):
-        # type: () -> Sequence
-        seq = Sequence()
-        seq.add(self.parent.navigationManager.focus_main)
-        seq.add(
-            self.parent.commandManager.group_track,
-            complete_on=self._added_track_listener,
-            check_timeout=4,
-        )
         return seq.done()
 
     def instantiate_simple_track(self, track):

@@ -1,12 +1,11 @@
 from typing import Any
 
 from a_protocol_0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
+from a_protocol_0.enums.CommandEnum import CommandEnum
 
 
 class ActionGroupTest(AbstractActionGroup):
-    """
-    Just a playground to launch test actions
-    """
+    """ Just a playground to launch test actions """
 
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
@@ -16,4 +15,5 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        self.parent.log_info(self.parent.navigationManager.is_device_view_visible)
+        res = self.parent.commandManager.execute(CommandEnum.RELOAD_ABLETON)
+        self.parent.log_dev(res)

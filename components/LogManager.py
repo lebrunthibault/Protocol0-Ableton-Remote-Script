@@ -1,3 +1,4 @@
+from a_protocol_0.enums.CommandEnum import CommandEnum
 from a_protocol_0.interface.InterfaceState import InterfaceState
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.Scene import Scene
@@ -5,9 +6,13 @@ from a_protocol_0.lom.device.PluginDevice import PluginDevice
 
 
 class LogManager(AbstractObject):
+    def focus_window(self):
+        # type: () -> None
+        self.parent.commandManager.execute(CommandEnum.FOCUS_WINDOW, name="logs terminal")
+
     def log_set(self):
         # type: () -> None
-        self.parent.commandManager.focus_logs()
+        self.focus_window()
         self.parent.log_notice("********* GLOBAL objects *************")
         self.parent.log_info("song.errored: %s" % self.song.errored)
         self.parent.log_info("song.is_playing: %s" % self.song.is_playing)
@@ -42,7 +47,7 @@ class LogManager(AbstractObject):
 
     def log_current(self):
         # type: () -> None
-        self.parent.commandManager.focus_logs()
+        self.focus_window()
         self.parent.log_notice("********* CURRENT_TRACK *************")
         self.parent.log_info("current_track: %s" % self.song.current_track)
         self.parent.log_info()

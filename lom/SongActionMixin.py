@@ -1,11 +1,12 @@
-from functools import partial
-
+from a_protocol_0.enums.FoldActionEnum import FoldActionEnum
 from a_protocol_0.lom.Scene import Scene
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
+from a_protocol_0.lom.track.AbstractTrackList import AbstractTrackList
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.decorators import handle_error
 from a_protocol_0.utils.utils import scroll_values
+from functools import partial
 from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
@@ -52,10 +53,12 @@ class SongActionMixin(object):
         # type: (Song) -> None
         self._song.undo()
 
-    def select_track(self, selected_track):
-        # type: (Song, AbstractTrack) -> Optional[Sequence]
+    def select_track(self, selected_track, fold_set=False):
+        # type: (Song, AbstractTrack, bool) -> Optional[Sequence]
         if self.song.selected_track == selected_track.base_track:
             return None
+        if fold_set:
+            AbstractTrackList(self.song.abstract_tracks).toggle_fold(fold_action=FoldActionEnum.FOLD_ALL)
         group_track = selected_track.group_track
         while group_track:
             group_track.is_folded = False

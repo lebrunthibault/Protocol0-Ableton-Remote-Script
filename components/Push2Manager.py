@@ -1,13 +1,14 @@
-from typing import Optional, cast, Any
-
 from _Framework.SubjectSlot import subject_slot, subject_slot_group
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.lom.clip.MidiClip import MidiClip
 from a_protocol_0.utils.decorators import push2_method
 from a_push2.push2 import Push2
+from typing import Optional, cast, Any
 
 
 class Push2Manager(AbstractControlSurfaceComponent):
+    ENABLE_AUTO_SELECTED_MODE = False
+
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(Push2Manager, self).__init__(*a, **k)
@@ -83,6 +84,8 @@ class Push2Manager(AbstractControlSurfaceComponent):
     @push2_method()
     def _update_selected_modes(self):
         # type: () -> None
+        if not self.ENABLE_AUTO_SELECTED_MODE:
+            return
         assert self.push2
         if self.update_selected_modes and self.song.selected_track.is_active:
             self.push2._main_modes.selected_mode = self.song.selected_track.push2_selected_main_mode

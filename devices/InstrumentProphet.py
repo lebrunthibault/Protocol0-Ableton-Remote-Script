@@ -1,7 +1,9 @@
+from typing import Any, Optional
+
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.enums.ColorEnum import ColorEnum
+from a_protocol_0.enums.CommandEnum import CommandEnum
 from a_protocol_0.sequence.Sequence import Sequence
-from typing import Any, Optional
 
 
 class InstrumentProphet(AbstractInstrument):
@@ -24,5 +26,5 @@ class InstrumentProphet(AbstractInstrument):
         # type: () -> Optional[Sequence]
         InstrumentProphet.ACTIVE_INSTANCE = self
         seq = Sequence()
-        seq.add(self.parent.commandManager.show_and_activate_rev2_editor, wait=5)
+        seq.add(self.parent.commandManager.execute(CommandEnum.ACTIVATE_REV2_EDITOR), wait=5)
         return seq.done()

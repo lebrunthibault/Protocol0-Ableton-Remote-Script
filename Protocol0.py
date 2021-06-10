@@ -1,8 +1,11 @@
 import threading
 from types import MethodType
 
+from typing import Callable, Any
+
 from ClyphX_Pro import ClyphXComponentBase, ParseUtils
 from ClyphX_Pro.clyphx_pro.actions.GlobalActions import GlobalActions
+from _Framework.ControlSurface import ControlSurface
 from a_protocol_0.automation.AutomationTrackManager import AutomationTrackManager
 from a_protocol_0.components.BeatScheduler import BeatScheduler
 from a_protocol_0.components.BrowserManager import BrowserManager
@@ -32,9 +35,6 @@ from a_protocol_0.http_client.HttpClient import HttpClient
 from a_protocol_0.lom.Song import Song
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.log import log_ableton
-from typing import Callable, Any
-
-from _Framework.ControlSurface import ControlSurface
 
 
 class Protocol0(ControlSurface):
@@ -94,7 +94,7 @@ class Protocol0(ControlSurface):
         ClyphXComponentBase.start_scheduler()
         self.fastScheduler.restart()
         self.httpClient.start_server()
-        self.httpClient.poll()
+        self.httpClient.poll_for_actions()
 
     def post_init(self):
         # type: () -> None

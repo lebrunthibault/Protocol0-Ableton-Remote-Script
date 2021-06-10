@@ -11,4 +11,4 @@ class SearchManager(AbstractControlSurfaceComponent):
             match = track.name.lower().strip().startswith(search.lower().strip())
             self.parent.log_dev("name: %s, search: %s, match: %s" % (track.name.lower(), search.lower(), match))
             if match:
-                self.song.select_track(track)
+                self.song.select_track(track, fold_set=True)

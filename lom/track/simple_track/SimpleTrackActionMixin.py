@@ -1,13 +1,15 @@
 from functools import partial
 from itertools import chain, imap  # type: ignore[attr-defined]
 
+from typing import Optional, List, Union
+from typing import TYPE_CHECKING
+
+from a_protocol_0.enums.CommandEnum import CommandEnum
 from a_protocol_0.lom.device.Device import Device
 from a_protocol_0.lom.device.DeviceChain import DeviceChain
 from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.utils import scroll_values, find_if
-from typing import Optional, List, Union
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -54,7 +56,7 @@ class SimpleTrackActionMixin(object):
                 seq.add(self.instrument._sync_selected_preset)
             seq.add(self.instrument.check_activated)
             seq.add(wait=5)
-            seq.add(self.parent.commandManager.hide_plugins)
+            seq.add(partial(self.parent.commandManager.execute, CommandEnum.HIDE_PLUGINS))
 
         return seq.done()
 
@@ -94,12 +96,16 @@ class SimpleTrackActionMixin(object):
             return
         self.parent.navigationManager.show_clip_view()
         if self.song.highlighted_clip_slot == self.clips[0] and not go_next:
-            return self.parent.commandManager.up()
+            return self.parent.commandManager.execute(CommandEnum.ARROW_UP)
 
         if self.song.selected_clip or self.playable_clip:
             self.song.selected_clip = scroll_values(self.clips, self.song.selected_clip or self.playable_clip, go_next)
         else:
-            return self.parent.commandManager.down() if go_next else self.parent.commandManager.up()
+            return (
+                self.parent.commandManager.down()
+                if go_next
+                else self.parent.commandManager.execute(CommandEnum.ARROW_UP)
+            )
 
     def has_device(self, device_name):
         # type: (SimpleTrack, str) -> bool

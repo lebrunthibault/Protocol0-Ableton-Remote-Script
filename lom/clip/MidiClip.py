@@ -1,10 +1,12 @@
 from functools import partial
 
 import Live
+from typing import List, TYPE_CHECKING, Optional, Callable, Any
+
+from a_protocol_0.enums.PixelEnum import PixelEnum
 from a_protocol_0.lom.Note import Note
 from a_protocol_0.lom.clip.Clip import Clip
 from a_protocol_0.sequence.Sequence import Sequence
-from typing import List, TYPE_CHECKING, Optional, Callable, Any
 
 if TYPE_CHECKING:
     from a_protocol_0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
@@ -68,7 +70,7 @@ class MidiClip(Clip):
         seq.add(self.generate_base_notes)
         seq.add(self.hide_envelope)
         seq.add(wait=10, silent=True)
-        seq.add(self.parent.commandManager.click_clip_fold_notes)
+        seq.add(self.parent.commandManager.double_click(PixelEnum.FOLD_CLIP_NOTES))
         return seq.done()
 
     def generate_base_notes(self):

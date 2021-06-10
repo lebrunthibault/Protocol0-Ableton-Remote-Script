@@ -1,9 +1,8 @@
-from typing import Any, Iterable
-
 from a_protocol_0.enums.FoldActionEnum import FoldActionEnum
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from a_protocol_0.utils.UserMutableSequence import UserMutableSequence
+from typing import Any, Iterable, Optional
 
 
 class AbstractTrackList(UserMutableSequence):
@@ -39,9 +38,9 @@ class AbstractTrackList(UserMutableSequence):
         for t in self._abstract_tracks:
             t.solo = not t.solo
 
-    def toggle_fold(self):
-        # type: () -> None
-        fold_action = self._get_fold_action()
+    def toggle_fold(self, fold_action=None):
+        # type: (Optional[FoldActionEnum]) -> None
+        fold_action = fold_action or self._get_fold_action()
         if fold_action == FoldActionEnum.FOLD_ALL:
             for abg in self.abstract_group_tracks:
                 abg.is_folded = True
