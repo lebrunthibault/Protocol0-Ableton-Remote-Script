@@ -7,6 +7,7 @@ from ClyphX_Pro import ClyphXComponentBase, ParseUtils
 from ClyphX_Pro.clyphx_pro.actions.GlobalActions import GlobalActions
 from _Framework.ControlSurface import ControlSurface
 from a_protocol_0.automation.AutomationTrackManager import AutomationTrackManager
+from a_protocol_0.components.ApiManager import ApiManager
 from a_protocol_0.components.BeatScheduler import BeatScheduler
 from a_protocol_0.components.BrowserManager import BrowserManager
 from a_protocol_0.components.CommandManager import CommandManager
@@ -31,7 +32,6 @@ from a_protocol_0.components.actionGroups.ActionGroupTest import ActionGroupTest
 from a_protocol_0.config import Config
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.enums.LogLevelEnum import LogLevelEnum
-from a_protocol_0.http_client.HttpClient import HttpClient
 from a_protocol_0.lom.Song import Song
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.log import log_ableton
@@ -76,7 +76,8 @@ class Protocol0(ControlSurface):
             self.utilsManager = UtilsManager()
             self.logManager = LogManager()
             self.searchManager = SearchManager()
-            self.httpClient = HttpClient()
+            self.apiManager = ApiManager()
+            self.apiClient = self.apiManager.client
             ActionGroupMain()
             ActionGroupSet()
             ActionGroupTest()
@@ -93,8 +94,8 @@ class Protocol0(ControlSurface):
         # type: () -> None
         ClyphXComponentBase.start_scheduler()
         self.fastScheduler.restart()
-        self.httpClient.start_server()
-        self.httpClient.poll_for_actions()
+        self.apiManager.start_server()
+        self.apiManager.poll_for_actions()
 
     def post_init(self):
         # type: () -> None

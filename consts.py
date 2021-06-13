@@ -7,7 +7,8 @@ import Live
 ROOT_DIR = dirname(os.path.realpath(__file__))
 CLI_PATH = ROOT_DIR + "\\scripts\\python\\cli.py"
 ABLETON_EXE = "Ableton Live 10 Suite.exe"
-SERVER_DIR = str(os.getenv("SERVER_PATH"))
+P0_SYSTEM_DIR = str(os.getenv("P0_SYSTEM_DIR"))
+SERVER_DIR = P0_SYSTEM_DIR + "\\server"
 REMOTE_SCRIPTS_DIR = dirname(ROOT_DIR)
 
 MIDI_STATUS_BYTES = {"note": 144, "cc": 176, "pc": 192}

@@ -13,7 +13,7 @@ from a_protocol_0.errors.Protocol0Error import Protocol0Error
 class CommandManager(AbstractControlSurfaceComponent):
     def execute(self, command, **k):
         # type: (CommandEnum, Any) -> Any
-        return self.parent.httpClient.get(command.name.lower(), **k)
+        return self.parent.apiManager.get(command.name.lower(), **k)
 
     @classmethod
     def execute_batch(self, filename):
