@@ -1,4 +1,3 @@
-from a_protocol_0.enums.CommandEnum import CommandEnum
 from a_protocol_0.interface.InterfaceState import InterfaceState
 from a_protocol_0.lom.AbstractObject import AbstractObject
 from a_protocol_0.lom.Scene import Scene
@@ -8,7 +7,7 @@ from a_protocol_0.lom.device.PluginDevice import PluginDevice
 class LogManager(AbstractObject):
     def focus_window(self):
         # type: () -> None
-        self.parent.commandManager.execute(CommandEnum.FOCUS_WINDOW, name="logs terminal")
+        self.parent.api_client.focus_window(window_name="logs terminal")
 
     def log_set(self):
         # type: () -> None

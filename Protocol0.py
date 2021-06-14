@@ -1,6 +1,7 @@
 import threading
 from types import MethodType
 
+from openapi_client import DefaultApi
 from typing import Callable, Any
 
 from ClyphX_Pro import ClyphXComponentBase, ParseUtils
@@ -78,7 +79,7 @@ class Protocol0(ControlSurface):
             self.logManager = LogManager()
             self.searchManager = SearchManager()
             self.apiManager = ApiManager()
-            self.apiClient = self.apiManager.client
+            self.api_client = self.apiManager.client  # type: DefaultApi
             ActionGroupMain()
             ActionGroupSet()
             ActionGroupTest()

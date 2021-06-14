@@ -95,7 +95,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
 
     def add(
         self,
-        func=nop,  # type: Union[Iterable, Callable]
+        func=nop,  # type: Union[Iterable, Callable, object]
         wait=None,  # type: int
         name=None,  # type: str
         complete_on=None,  # type: Callable

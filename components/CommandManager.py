@@ -1,12 +1,11 @@
 import os
 import subprocess
 
-from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.enums.ColorEnum import InterfaceColorEnum
-from a_protocol_0.enums.CommandEnum import CommandEnum
-from a_protocol_0.enums.PixelEnum import PixelEnum
-from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from typing import Any, Optional
+
+from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from a_protocol_0.enums.CommandEnum import CommandEnum
+from a_protocol_0.errors.Protocol0Error import Protocol0Error
 
 
 class CommandManager(AbstractControlSurfaceComponent):
@@ -36,16 +35,3 @@ class CommandManager(AbstractControlSurfaceComponent):
             child = subprocess.Popen(parameters)
             child.communicate()
             return child.returncode
-
-    def click(self, x, y):
-        # type: (int, int) -> None
-        self.parent.apiClient.(CommandEnum.CLICK, x=x, y=y)
-
-    def double_click(self, pixel):
-        # type: (PixelEnum) -> None
-        self.execute(CommandEnum.DOUBLE_CLICK, x=pixel.value[0], y=pixel.value[1])
-
-    def pixel_has_color(self, pixel, color):
-        # type: (PixelEnum, InterfaceColorEnum) -> bool
-        (x, y) = pixel.value
-        return bool(self.execute(CommandEnum.PIXEL_HAS_COLOR, x=x, y=y, color=color))

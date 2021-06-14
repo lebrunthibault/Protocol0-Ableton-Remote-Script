@@ -1,7 +1,6 @@
 from typing import Any
 
 from a_protocol_0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
-from a_protocol_0.enums.CommandEnum import CommandEnum
 
 
 class ActionGroupTest(AbstractActionGroup):
@@ -15,5 +14,5 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        res = self.parent.commandManager.execute(CommandEnum.RELOAD_ABLETON)
+        res = self.parent.api_client.reload_ableton()
         self.parent.log_dev(res)

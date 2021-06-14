@@ -3,7 +3,6 @@ import deprecation
 from typing import TYPE_CHECKING, Optional
 
 from a_protocol_0.consts import QUANTIZATION_OPTIONS
-from a_protocol_0.enums.CommandEnum import CommandEnum
 from a_protocol_0.enums.PixelEnum import PixelEnum
 from a_protocol_0.interface.InterfaceState import InterfaceState
 from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
@@ -79,7 +78,9 @@ class ClipActionMixin(object):
         self.view.show_envelope()
         self.view.select_envelope_parameter(parameter._device_parameter)
         if not InterfaceState.CLIP_ENVELOPE_SHOW_BOX_CLICKED:
-            self.parent.commandManager.execute(CommandEnum.DOUBLE_CLICK, PixelEnum.SHOW_CLIP_ENVELOPE)
+            self.parent.api_client.double_click(
+                PixelEnum.SHOW_CLIP_ENVELOPE.value[0], PixelEnum.SHOW_CLIP_ENVELOPE.value[1]
+            )
             InterfaceState.CLIP_ENVELOPE_SHOW_BOX_CLICKED = True
         self.displayed_automated_parameter = parameter  # type: Optional[DeviceParameter]
 

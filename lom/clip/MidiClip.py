@@ -70,7 +70,9 @@ class MidiClip(Clip):
         seq.add(self.generate_base_notes)
         seq.add(self.hide_envelope)
         seq.add(wait=10, silent=True)
-        seq.add(self.parent.commandManager.double_click(PixelEnum.FOLD_CLIP_NOTES))
+        seq.add(
+            self.parent.api_client.double_click(PixelEnum.FOLD_CLIP_NOTES.value[0], PixelEnum.FOLD_CLIP_NOTES.value[1])
+        )
         return seq.done()
 
     def generate_base_notes(self):

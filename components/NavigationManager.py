@@ -1,8 +1,9 @@
+from typing import Optional, Any
+
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.enums.ColorEnum import InterfaceColorEnum
 from a_protocol_0.enums.PixelEnum import PixelEnum
 from a_protocol_0.sequence.Sequence import Sequence
-from typing import Optional, Any
 
 
 class NavigationManager(AbstractControlSurfaceComponent):
@@ -27,8 +28,8 @@ class NavigationManager(AbstractControlSurfaceComponent):
     @property
     def is_device_view_visible(self):
         # type: () -> bool
-        return self._app_view.is_view_visible("Detail/DeviceChain") and self.parent.commandManager.pixel_has_color(
-            PixelEnum.SEPARATOR, InterfaceColorEnum.SEPARATOR
+        return self._app_view.is_view_visible("Detail/DeviceChain") and self.parent.api_client.pixel_has_color(
+            PixelEnum.SEPARATOR.value[0], PixelEnum.SEPARATOR.value[1], InterfaceColorEnum.SEPARATOR.value
         )
 
     def show_device_view(self):
