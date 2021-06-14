@@ -7,7 +7,7 @@ from a_protocol_0.lom.device.PluginDevice import PluginDevice
 class LogManager(AbstractObject):
     def focus_window(self):
         # type: () -> None
-        self.parent.api_client.focus_window(window_name="logs terminal")
+        self.system.focus_window(window_name="logs terminal")
 
     def log_set(self):
         # type: () -> None

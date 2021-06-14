@@ -28,7 +28,7 @@ class NavigationManager(AbstractControlSurfaceComponent):
     @property
     def is_device_view_visible(self):
         # type: () -> bool
-        return self._app_view.is_view_visible("Detail/DeviceChain") and self.parent.api_client.pixel_has_color(
+        return self._app_view.is_view_visible("Detail/DeviceChain") and self.system.pixel_has_color(
             PixelEnum.SEPARATOR.value[0], PixelEnum.SEPARATOR.value[1], InterfaceColorEnum.SEPARATOR.value
         )
 

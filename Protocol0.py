@@ -11,7 +11,6 @@ from a_protocol_0.automation.AutomationTrackManager import AutomationTrackManage
 from a_protocol_0.components.Api.ApiManager import ApiManager
 from a_protocol_0.components.BeatScheduler import BeatScheduler
 from a_protocol_0.components.BrowserManager import BrowserManager
-from a_protocol_0.components.CommandManager import CommandManager
 from a_protocol_0.components.DeviceManager import DeviceManager
 from a_protocol_0.components.ErrorManager import ErrorManager
 from a_protocol_0.components.FastScheduler import FastScheduler
@@ -68,7 +67,6 @@ class Protocol0(ControlSurface):
             self.automationTrackManager = AutomationTrackManager()
             self.quantizationManager = QuantizationManager()
             self.setFixerManager = SetFixerManager()
-            self.commandManager = CommandManager()
             self.midiManager = MidiManager()
             self.browserManager = BrowserManager()
             self.navigationManager = NavigationManager()

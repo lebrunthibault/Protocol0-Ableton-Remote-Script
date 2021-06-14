@@ -1,3 +1,4 @@
+from openapi_client import DefaultApi
 from traitlets import Any
 from typing import TYPE_CHECKING
 
@@ -33,6 +34,12 @@ class AbstractObject(SlotManager, Subject):
     def __ne__(self, obj):
         # type: (object) -> bool
         return not obj or not self == obj
+
+    @property
+    def system(self):
+        # type: () -> DefaultApi
+        """ non restricted python scripts access via local API """
+        return self._parent.api_client
 
     @property
     def parent(self):
