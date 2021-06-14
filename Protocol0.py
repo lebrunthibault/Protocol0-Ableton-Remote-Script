@@ -7,7 +7,7 @@ from ClyphX_Pro import ClyphXComponentBase, ParseUtils
 from ClyphX_Pro.clyphx_pro.actions.GlobalActions import GlobalActions
 from _Framework.ControlSurface import ControlSurface
 from a_protocol_0.automation.AutomationTrackManager import AutomationTrackManager
-from a_protocol_0.components.ApiManager import ApiManager
+from a_protocol_0.components.Api.ApiManager import ApiManager
 from a_protocol_0.components.BeatScheduler import BeatScheduler
 from a_protocol_0.components.BrowserManager import BrowserManager
 from a_protocol_0.components.CommandManager import CommandManager
@@ -41,11 +41,12 @@ class Protocol0(ControlSurface):
     SELF = None  # type: Protocol0
     LIVE_ENVIRONMENT_LOADED = True
 
-    def __init__(self, c_instance=None, init_song=True):
+    def __init__(self, c_instance=None, test_mode=False):
         # type: (Any, bool) -> None
         super(Protocol0, self).__init__(c_instance=c_instance)
         # noinspection PyProtectedMember
         Protocol0.SELF = self
+        self.test_mode = test_mode
         self.started = False
         self.song().stop_playing()  # doing this early because the set often loads playing
         # stop log duplication
@@ -84,18 +85,16 @@ class Protocol0(ControlSurface):
 
             self.start()
 
-            if init_song:
-                self.defer(self.songManager.init_song)
-
             self.log_info("Protocol0 script loaded")
-            self.started = True
 
     def start(self):
         # type: () -> None
         ClyphXComponentBase.start_scheduler()
         self.fastScheduler.restart()
-        self.apiManager.start_server()
-        self.apiManager.poll_for_actions()
+        if not self.test_mode:
+            self.defer(self.songManager.init_song)
+            self.apiManager.initiate_connection()
+        self.started = True
 
     def post_init(self):
         # type: () -> None

@@ -1,10 +1,21 @@
 import json
+import logging
 import os
 import sys
 from os.path import dirname
 
-sys.path.append("C:\\Python27\\Lib\\site-packages")
+# noinspection PyBroadException
+try:
+    import make_path
+except Exception:
+    logging.info("here use your own script to append your system python site-packages folder to sys.path")
+
 live_environment_loaded = "Live" in sys.modules
+
+try:
+    sys.path += os.environ["PYTHONPATH"].split(os.pathsep)
+except KeyError:
+    pass
 
 from typing import Literal, Any, Iterator, Tuple  # noqa: E402
 

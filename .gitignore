@@ -143,3 +143,5 @@ logs/
 # Pycharm
 .idea
 InspectionProfile.xml
+
+make_path.py

@@ -3,14 +3,14 @@ import urllib
 import urllib2
 
 import openapi_client
-from openapi_client.api.default_api import DefaultApi
-from typing import Dict, Optional, Any
-
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.consts import SERVER_DIR
-from a_protocol_0.enums.ServerActionEnum import ServerActionEnum
+from a_protocol_0.components.Api.ActionMapper import ActionMapper
+from a_protocol_0.consts import P0_SYSTEM_DIR
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
 from a_protocol_0.utils.decorators import poll
+from openapi_client.api.default_api import DefaultApi
+from typing import Dict, Optional, Any
+from urllib3.exceptions import MaxRetryError
 
 
 class ApiManager(AbstractControlSurfaceComponent):
@@ -19,12 +19,13 @@ class ApiManager(AbstractControlSurfaceComponent):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(ApiManager, self).__init__(*a, **k)
-        self._started = False
+        self._server_started = False
         self.client = DefaultApi(openapi_client.ApiClient())
+        self.action_mapper = ActionMapper()
 
     def get(self, path, **params):
         # type: (str, Dict) -> Optional[Any]
-        if not self._started or not self.parent.started:
+        if not self._server_started or not self.parent.started:
             return None
 
         try:
@@ -45,34 +46,30 @@ class ApiManager(AbstractControlSurfaceComponent):
         except urllib2.URLError as e:
             raise Protocol0Error("GET %s, error: %s" % (path, e))
 
-    def start_server(self):
+    def initiate_connection(self):
         # type: () -> None
-        try:
-            urllib2.urlopen(self.client.index())
-        except urllib2.URLError:
-            self.parent.commandManager.execute_batch(SERVER_DIR + "\\start.bat")
+        if not self._server_up():
+            self.parent.log_info("launching server")
+            self.parent.commandManager.execute_batch(P0_SYSTEM_DIR + "\\start.bat")
+        self._server_started = True
 
-        self._started = True
+        self._poll_for_actions()
+
+        return None
 
     @poll
-    def poll_for_actions(self):
+    def _poll_for_actions(self):
         # type: () -> None
-        response = self.client.action()
-        if not response["action"]:
-            return None
+        """ Channel for server -> script communication via polling """
+        action = self.client.action()
+        self.action_mapper.execute(action)
 
-        action = ServerActionEnum.get_from_value(response["action"])  # type: Optional[ServerActionEnum]
+        return None
 
-        if action is None:
-            raise Protocol0Error("invalid action received from server : %s" % response)
-
-        args = []
-
-        if "arg" in response:
-            args.append(response["arg"])
-
-        # func = getattr(self.parent.searchManager, action.get_method_name())
-        func = action.value
-
-        self.parent.log_notice("executing method %s with args %s" % (func, args))
-        func(*args)
+    def _server_up(self):
+        # type: () -> bool
+        try:
+            self.client.health(_request_timeout=1)
+        except MaxRetryError:
+            self.parent.log_error("Server is not up")
+            return False

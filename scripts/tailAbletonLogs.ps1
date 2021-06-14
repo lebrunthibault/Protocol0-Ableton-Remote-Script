@@ -8,7 +8,7 @@ $logFile = "$env:userprofile\AppData\Roaming\Ableton\Live $version\Preferences\L
 #$logFile = "C:\Users\thiba\AppData\Roaming\Ableton\Live 11.0.5b1\Preferences\Log.txt"
 
 $startSize = 70
-$processLogFile = $true
+$processLogFile = $false
 $debug = $false
 $filterLogs = $true
 $showDateTime = $true
