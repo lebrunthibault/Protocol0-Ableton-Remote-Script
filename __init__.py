@@ -1,14 +1,13 @@
 import json
-import logging
 import os
 import sys
 from os.path import dirname
 
 # noinspection PyBroadException
 try:
-    import make_path
+    import make_path  # here use your own script to append your system python site-packages folder to sys.path
 except Exception:
-    logging.info("here use your own script to append your system python site-packages folder to sys.path")
+    pass
 
 live_environment_loaded = "Live" in sys.modules
 
