@@ -99,6 +99,11 @@ def smart_string(s):
     return s.encode("utf-8")  # type: ignore
 
 
+def normalize_string(s):
+    # type: (basestring) -> str
+    return smart_string(s).strip().lower()
+
+
 def get_inner_func(func):
     # type: (Any) -> Callable
     if hasattr(func, "function"):

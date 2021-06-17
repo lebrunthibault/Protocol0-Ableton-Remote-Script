@@ -1,4 +1,8 @@
+from typing import Callable, Optional
+
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
+from a_protocol_0.utils.utils import normalize_string
 
 
 class SearchManager(AbstractControlSurfaceComponent):
@@ -7,8 +11,29 @@ class SearchManager(AbstractControlSurfaceComponent):
         if len(search) < 3:
             return
 
+        search = search.lower().strip()
+
+        criterias = [
+            lambda track, search: normalize_string(track.name).startswith(search),
+            lambda track, search: search in normalize_string(track.name),
+            lambda track, search: track.instrument and search in normalize_string(track.instrument.name),
+        ]
+
+        for criteria in criterias:
+            matching_track = self._search_by_criteria(search, criteria)
+            if matching_track:
+                self.parent.log_info("Found track %s for search: %s" % (matching_track.name.lower(), search.lower()))
+                self.song.select_track(matching_track, fold_set=True)
+                return
+
+        self.parent.log_info("Didn't find track for search: %s" % search.lower())
+        return None
+
+    def _search_by_criteria(self, search, criteria):
+        # type: (str, Callable) -> Optional[AbstractTrack]
         for track in self.song.abstract_tracks:
-            match = track.name.lower().strip().startswith(search.lower().strip())
-            if match:
-                self.parent.log_dev("name: %s, search: %s, match: %s" % (track.name.lower(), search.lower(), match))
-                self.song.select_track(track, fold_set=True)
+            self.parent.log_dev(track.name)
+            if criteria(track, search):
+                return track
+
+        return None

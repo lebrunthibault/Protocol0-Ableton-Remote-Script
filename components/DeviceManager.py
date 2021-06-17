@@ -91,7 +91,8 @@ class DeviceManager(AbstractControlSurfaceComponent):
         seq = Sequence()
         seq.add(
             lambda: self.system.click(x=x_device, y=y_device),
-            wait=2,
+            # wait=2,
+            wait=100,
             name="click on device show button",
         )
         seq.add(partial(self.uncollapse_devices, devices_to_uncollapse), name="restore device collapse state")
