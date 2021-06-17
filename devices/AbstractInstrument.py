@@ -144,9 +144,9 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
         seq.add(partial(self.check_activated, select_instrument_track=True))
         seq.add(self.device.track.select)
         if self.song.selected_track != self.device.track or not self.is_plugin_window_visible:
-            seq.add(self.system.show_plugins())
+            seq.add(self.system.show_plugins)
         else:
-            seq.add(self.system.show_hide_plugins())
+            seq.add(self.system.show_hide_plugins)
         return seq.done()
 
     @property

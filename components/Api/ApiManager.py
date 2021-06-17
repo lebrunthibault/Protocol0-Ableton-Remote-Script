@@ -45,6 +45,7 @@ class ApiManager(AbstractControlSurfaceComponent):
         # type: () -> bool
         try:
             self.client.health(_request_timeout=1)
+            return True
         except MaxRetryError:
             self.parent.log_error("Server is not up")
             return False

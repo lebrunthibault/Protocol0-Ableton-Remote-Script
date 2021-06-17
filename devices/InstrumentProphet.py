@@ -25,5 +25,5 @@ class InstrumentProphet(AbstractInstrument):
         # type: () -> Optional[Sequence]
         InstrumentProphet.ACTIVE_INSTANCE = self
         seq = Sequence()
-        seq.add(self.system.activate_rev2_editor(), wait=5)
+        seq.add(self.system.activate_rev2_editor, wait=5)
         return seq.done()
