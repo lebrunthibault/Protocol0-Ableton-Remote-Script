@@ -1,5 +1,3 @@
-import os
-
 from typing import Any
 
 from a_protocol_0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
@@ -16,13 +14,5 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        from websocket import create_connection
-
-        ws = create_connection(os.getenv("WEBSOCKET_URL"))
-        self.parent.log_dev("Sending 'Hello, World'...")
-        ws.send("Hello, World")
-        self.parent.log_dev("Sent")
-        self.parent.log_dev("Receiving...")
-        result = ws.recv()
-        self.parent.log_dev("Received '%s'" % result)
-        ws.close()
+        self.system.wait(10)
+        self.parent.log_dev("waited 10")

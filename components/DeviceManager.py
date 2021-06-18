@@ -1,8 +1,6 @@
 from functools import partial
 
 import Live
-from typing import Optional, Tuple, Dict, Type, cast, List
-
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.errors.Protocol0Error import Protocol0Error
@@ -11,6 +9,7 @@ from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.utils import find_if
+from typing import Optional, Tuple, Dict, Type, cast, List
 
 
 class DeviceManager(AbstractControlSurfaceComponent):
@@ -91,8 +90,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
         seq = Sequence()
         seq.add(
             lambda: self.system.click(x=x_device, y=y_device),
-            # wait=2,
-            wait=100,
+            wait=2,
             name="click on device show button",
         )
         seq.add(partial(self.uncollapse_devices, devices_to_uncollapse), name="restore device collapse state")

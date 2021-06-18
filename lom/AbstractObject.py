@@ -38,7 +38,13 @@ class AbstractObject(SlotManager, Subject):
     @property
     def system(self):
         # type: () -> DefaultApi
-        """ non restricted python scripts access via local API """
+        """
+        Access to non restricted python environment via local API
+        Only polling seem to be working for server to client communication.
+        Web socket and anything related to creating threads make Live hang/crash.
+        Asyncio does not work obviously.
+        The only way to do async / long living stuff is by leveraging the internal tick.
+        """
         return self._parent.api_client
 
     @property
