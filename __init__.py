@@ -11,11 +11,6 @@ except Exception:
 
 live_environment_loaded = "Live" in sys.modules
 
-try:
-    sys.path += os.environ["PYTHONPATH"].split(os.pathsep)
-except KeyError:
-    pass
-
 from typing import Literal, Any, Iterator, Tuple  # noqa: E402
 
 

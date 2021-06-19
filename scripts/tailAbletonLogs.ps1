@@ -2,13 +2,13 @@ KillProcess (GetProcessFromNameOrTitle "*logs terminal*") -force
 $host.ui.RawUI.WindowTitle = "logs terminal"
 
 $version = $Env:abletonVersion
-#$version = "11.0.2"
+$version = "11.0.2"
 
 $logFile = "$env:userprofile\AppData\Roaming\Ableton\Live $version\Preferences\Log.txt"
 #$logFile = "C:\Users\thiba\AppData\Roaming\Ableton\Live 11.0.5b1\Preferences\Log.txt"
 
 $startSize = 70
-$processLogFile = $true
+$processLogFile = $false
 $debug = $false
 $filterLogs = $true
 $showDateTime = $true
