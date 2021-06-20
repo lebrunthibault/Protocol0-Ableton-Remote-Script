@@ -24,11 +24,12 @@ class ApiManager(AbstractControlSurfaceComponent):
     def initiate_connection(self):
         # type: () -> None
         if not self._server_up():
-            self.parent.log_info("launching server")
-            subprocess.Popen(P0_SYSTEM_DIR + "\\start_server.bat", shell=True)
+            pass
+            # self.parent.log_info("launching server")
+            # subprocess.Popen(P0_SYSTEM_DIR + "\\start_server.bat", shell=True)
         self._server_started = True
 
-        self._poll_for_actions()
+        # self._poll_for_actions()
 
         return None
 

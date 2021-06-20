@@ -1,9 +1,10 @@
+from typing import Optional, cast, Any
+
 from _Framework.SubjectSlot import subject_slot, subject_slot_group
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.lom.clip.MidiClip import MidiClip
 from a_protocol_0.utils.decorators import push2_method
 from a_push2.push2 import Push2
-from typing import Optional, cast, Any
 
 
 class Push2Manager(AbstractControlSurfaceComponent):
@@ -29,7 +30,6 @@ class Push2Manager(AbstractControlSurfaceComponent):
             [self.push2.elements.nav_left_button, self.push2.elements.nav_right_button]
         )
         self.parent.log_info("Push2 connected to Protocol0")
-        self.parent.post_init()
 
     @subject_slot("value")
     def _session_pad_press_listener(self, value, *a, **k):
@@ -91,7 +91,7 @@ class Push2Manager(AbstractControlSurfaceComponent):
             self.push2._main_modes.selected_mode = self.song.selected_track.push2_selected_main_mode
             self.push2._matrix_modes.selected_mode = self.song.selected_track.push2_selected_matrix_mode
             self.push2._instrument.selected_mode = (
-                self.song.selected_track.push2_selected_instrument_mode or self.push2._instrument.selected_mode
+                    self.song.selected_track.push2_selected_instrument_mode or self.push2._instrument.selected_mode
             )
 
         self.update_selected_modes = True

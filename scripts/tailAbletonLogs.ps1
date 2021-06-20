@@ -2,7 +2,7 @@ KillProcess (GetProcessFromNameOrTitle "*logs terminal*") -force
 $host.ui.RawUI.WindowTitle = "logs terminal"
 
 $version = $Env:abletonVersion
-$version = "11.0.2"
+#$version = "11.0.2"
 
 $logFile = "$env:userprofile\AppData\Roaming\Ableton\Live $version\Preferences\Log.txt"
 #$logFile = "C:\Users\thiba\AppData\Roaming\Ableton\Live 11.0.5b1\Preferences\Log.txt"
@@ -17,7 +17,8 @@ $global:write_next_n_lines = 0
 $host.ui.RawUI.WindowTitle = 'logs terminal'
 Get-Process -Id $pid | Set-WindowState -State SHOWMAXIMIZED
 
-if ($debug) {
+if ($debug)
+{
     $startSize *= 5
 }
 
@@ -25,7 +26,8 @@ if ($debug) {
 $focusLogStopWatch = New-Object System.Diagnostics.Stopwatch
 function FocusLogs()
 {
-    if ($focusLogStopWatch.IsRunning -and $focusLogStopWatch.ElapsedMilliseconds -lt 1000) {
+    if ($focusLogStopWatch.IsRunning -and $focusLogStopWatch.ElapsedMilliseconds -lt 1000)
+    {
         return;
     }
     $focusLogStopWatch.Restart()
@@ -109,7 +111,8 @@ function Format-LogLine
         {
             $parts = $LogEntry.Split(" ")  # keeping indentation
 
-            if (-not ($parts[2..($parts.Count - 1)] -join " ").Trim()) {
+            if (-not ($parts[2..($parts.Count - 1)] -join " ").Trim())
+            {
                 return ""
             }
             if ($showDateTime)
@@ -131,12 +134,12 @@ function Select-Log-Line
     Param([Parameter(Position = 0)]
         [String]$LogEntry)
 
-    if (-not $filterLogs)
+    if (-not$filterLogs)
     {
         return $true
     }
 
-    if ($LogEntry.Contains("clear_logs"))
+    if ( $LogEntry.Contains("clear_logs"))
     {
         Clear-Host
         return $false
@@ -147,13 +150,14 @@ function Select-Log-Line
         Clear-Host
     }
 
-    $Filters = "P0", "ArgumentError", "RemoteScriptError", "Exception"
+    # contains is case insensitive
+    $Filters = "P0", "Protocol0", "ArgumentError", "RemoteScriptError", "Exception"
 
     foreach ($Filter in $Filters)
     {
         if ( $LogEntry.Contains($Filter))
         {
-            if ( $LogEntry.Contains("ArgumentError") -or $LogEntry.Contains("Pythonargument"))
+            if ($LogEntry.Contains("ArgumentError") -or $LogEntry.Contains("Pythonargument"))
             {
                 $global:write_next_n_lines = 3
             }

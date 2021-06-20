@@ -14,5 +14,4 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        self.system.wait(10)
-        self.parent.log_dev("waited 10")
+        self.parent.midiManager.send_string("/search/toto")

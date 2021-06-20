@@ -95,10 +95,6 @@ class Protocol0(ControlSurface):
             self.apiManager.initiate_connection()
         self.started = True
 
-    def post_init(self):
-        # type: () -> None
-        self.protocol0_song.reset()
-
     def show_message(self, message, log=True):
         # type: (str, bool) -> None
         super(Protocol0, self).show_message(message)
