@@ -8,7 +8,7 @@ $logFile = "$env:userprofile\AppData\Roaming\Ableton\Live $version\Preferences\L
 #$logFile = "C:\Users\thiba\AppData\Roaming\Ableton\Live 11.0.5b1\Preferences\Log.txt"
 
 $startSize = 70
-$processLogFile = $false
+$processLogFile = $true
 $debug = $false
 $filterLogs = $true
 $showDateTime = $true
@@ -77,6 +77,12 @@ function Get-LogColor
                 Return "Red"
             }
         }
+
+        if ($LogEntry.Contains("P0") -or $LogEntry.Contains("Protocol0"))
+        {
+            return "Green"
+        }
+
 
         if ($LogEntry -like ("*error*") -or $LogEntry -like ("*exception*"))
         {
