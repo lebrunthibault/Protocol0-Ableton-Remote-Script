@@ -1,6 +1,6 @@
 import itertools
 
-from typing import Optional, Any, Literal, cast
+from typing import Optional, Any, cast
 
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
 from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
@@ -21,7 +21,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self.midi_track = base_group_track.sub_tracks[0]
         self.audio_track = base_group_track.sub_tracks[1]
         assert isinstance(self.midi_track, SimpleMidiTrack) and isinstance(self.audio_track, SimpleAudioTrack), (
-            "invalid external synth track %s" % self
+                "invalid external synth track %s" % self
         )
 
         with self.parent.component_guard():
@@ -55,7 +55,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
 
     @property
     def can_be_armed(self):
-        # type: () -> Literal[True]
+        # type: () -> bool
         return True
 
     @property

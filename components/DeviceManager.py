@@ -1,5 +1,7 @@
 from functools import partial
 
+from typing import Optional, Tuple, Dict, Type, cast, List
+
 import Live
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
@@ -9,7 +11,6 @@ from a_protocol_0.lom.device.RackDevice import RackDevice
 from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.utils import find_if
-from typing import Optional, Tuple, Dict, Type, cast, List
 
 
 class DeviceManager(AbstractControlSurfaceComponent):
@@ -26,7 +27,8 @@ class DeviceManager(AbstractControlSurfaceComponent):
         to keep instrument state
         """
 
-        instrument_device = find_if(lambda d: AbstractInstrument.get_instrument_class(d), track.all_devices)  # type: ignore
+        instrument_device = find_if(lambda d: AbstractInstrument.get_instrument_class(d),  # type: ignore
+                                    track.all_devices)
         if not instrument_device:
             self.parent.log_error("Couldn't find instrument for track %s" % track)
             return None
@@ -60,11 +62,8 @@ class DeviceManager(AbstractControlSurfaceComponent):
         return self.WIDTH_PIXEL_OFFSET + device_position * self.COLLAPSED_DEVICE_PIXEL_WIDTH
 
     def make_plugin_window_showable(self, device):
-        # type: (Device) -> Optional[Sequence]
+        # type: (Device) -> Sequence
         """ handles only one level of grouping in racks. Should be enough for now """
-        if self.system.is_plugin_window_visible(name=device.name):
-            return None
-
         parent_rack = self._find_parent_rack(device)
         seq = Sequence()
         seq.add(self.parent.navigationManager.show_device_view)

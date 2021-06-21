@@ -143,16 +143,11 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
         seq = Sequence()
         seq.add(partial(self.check_activated, select_instrument_track=True))
         seq.add(self.device.track.select)
-        if self.song.selected_track != self.device.track or not self.is_plugin_window_visible:
+        if self.song.selected_track != self.device.track:
             seq.add(self.system.show_plugins)
         else:
             seq.add(self.system.show_hide_plugins)
         return seq.done()
-
-    @property
-    def is_plugin_window_visible(self):
-        # type: () -> bool
-        return self.system.is_plugin_window_visible(name=self.device.name)
 
     def generate_base_notes(self, clip):
         # type: (Clip) -> List[Note]

@@ -1,6 +1,5 @@
-from typing import Any
-
 from a_protocol_0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
+from typing import Any
 
 
 class ActionGroupTest(AbstractActionGroup):
@@ -14,4 +13,4 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        self.parent.midiManager.send_string("/search/toto")
+        self.system.health()

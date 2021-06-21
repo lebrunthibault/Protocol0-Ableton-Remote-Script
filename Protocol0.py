@@ -1,12 +1,8 @@
 import threading
 from types import MethodType
 
-from openapi_client import DefaultApi
-from typing import Callable, Any
-
 from ClyphX_Pro import ClyphXComponentBase, ParseUtils
 from ClyphX_Pro.clyphx_pro.actions.GlobalActions import GlobalActions
-from _Framework.ControlSurface import ControlSurface
 from a_protocol_0.automation.AutomationTrackManager import AutomationTrackManager
 from a_protocol_0.components.Api.ApiManager import ApiManager
 from a_protocol_0.components.BeatScheduler import BeatScheduler
@@ -35,6 +31,10 @@ from a_protocol_0.enums.LogLevelEnum import LogLevelEnum
 from a_protocol_0.lom.Song import Song
 from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.log import log_ableton
+from p0_system_api import DefaultApi
+from typing import Callable, Any
+
+from _Framework.ControlSurface import ControlSurface
 
 
 class Protocol0(ControlSurface):
@@ -77,7 +77,7 @@ class Protocol0(ControlSurface):
             self.logManager = LogManager()
             self.searchManager = SearchManager()
             self.apiManager = ApiManager()
-            self.api_client = self.apiManager.client  # type: DefaultApi
+            self.p0_system_api_client = DefaultApi()
             ActionGroupMain()
             ActionGroupSet()
             ActionGroupTest()
@@ -92,7 +92,6 @@ class Protocol0(ControlSurface):
         self.fastScheduler.restart()
         if not self.test_mode:
             self.defer(self.songManager.init_song)
-            self.apiManager.initiate_connection()
         self.started = True
 
     def show_message(self, message, log=True):

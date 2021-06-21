@@ -11,7 +11,7 @@ except Exception:
 
 live_environment_loaded = "Live" in sys.modules
 
-from typing import Literal, Any, Iterator, Tuple  # noqa: E402
+from typing import Any, Iterator, Tuple  # noqa: E402
 
 
 def load_dotenv():
@@ -34,11 +34,11 @@ class EmptyModule(object):
         self.is_false = is_false
 
     def __ne__(self, other):
-        # type: (object) -> Literal[False]
+        # type: (object) -> bool
         return False
 
     def __eq__(self, other):
-        # type: (object) -> Literal[False]
+        # type: (object) -> bool
         return False
 
     def __nonzero__(self):

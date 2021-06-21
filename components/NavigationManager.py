@@ -1,8 +1,6 @@
 from typing import Optional, Any
 
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.enums.ColorEnum import InterfaceColorEnum
-from a_protocol_0.enums.PixelEnum import PixelEnum
 from a_protocol_0.sequence.Sequence import Sequence
 
 
@@ -25,24 +23,12 @@ class NavigationManager(AbstractControlSurfaceComponent):
             seq.add(wait=10)
             return seq.done()
 
-    @property
-    def is_device_view_visible(self):
-        # type: () -> bool
-        return self._app_view.is_view_visible("Detail/DeviceChain") and self.system.pixel_has_color(
-            PixelEnum.SEPARATOR.value[0], PixelEnum.SEPARATOR.value[1], InterfaceColorEnum.SEPARATOR.value
-        )
-
     def show_device_view(self):
         # type: () -> Optional[Sequence]
-        if self.is_device_view_visible:
-            return None
-        else:
-            self._app_view.show_view("Detail")
-            self._app_view.show_view("Detail/DeviceChain")
-            seq = Sequence()
-            seq.add(complete_on=lambda: self.is_device_view_visible)
-            seq.add(wait=1)  # apparently live interface refresh is not instant
-            return seq.done()
+        self.system.show_device_view()
+        seq = Sequence()
+        seq.add(wait=2)  # apparently live interface refresh is not instant
+        return seq.done()
 
     def focus_main(self):
         # type: () -> None
