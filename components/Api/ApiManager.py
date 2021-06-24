@@ -1,9 +1,12 @@
+from typing import Any, Dict
+
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.enums.ServerActionEnum import ServerActionEnum
-from typing import Any, Dict
 
 
 class ApiManager(AbstractControlSurfaceComponent):
+    EXPOSED_METHODS = []
+    
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(ApiManager, self).__init__(*a, **k)

@@ -48,6 +48,15 @@ def defer(func):
     return decorate
 
 
+EXPOSED_P0_METHODS = set()
+
+
+def api_exposed(func):
+    # type: (Callable) -> Callable
+    EXPOSED_P0_METHODS.add(func)
+    return func
+
+
 def poll(func):
     # type: (Callable) -> Callable
     @wraps(func)
@@ -76,7 +85,8 @@ def retry(retry_count=3, interval=3):
             except Exception:
                 if decorate.count == decorate.retry_count:  # type: ignore[attr-defined]
                     return
-                Protocol0.SELF._wait(pow(2, decorate.count) * interval, partial(func, *a, **k))  # type: ignore[attr-defined]
+                Protocol0.SELF._wait(pow(2, decorate.count) * interval,
+                                     partial(func, *a, **k))  # type: ignore[attr-defined]
                 decorate.count += 1  # type: ignore[attr-defined]
 
         decorate.count = 0  # type: ignore[attr-defined]
