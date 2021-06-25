@@ -46,6 +46,11 @@ class EmptyModule(object):
         """ allows Live environment check """
         return not self.is_false
 
+    def __ge__(self, other):
+        # type: () -> bool
+        """ allows Live environment check """
+        return False
+
     def __call__(self, *a, **k):
         # type: (Any, Any) -> EmptyModule
         return self

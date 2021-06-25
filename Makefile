@@ -1,9 +1,5 @@
 .PHONY: test pretty flake8 mypy vulture pycharm check
 
-sdk:
-	cls
-	python ./scripts/generate_api_spec.py
-
 test:
 	cls
 	pytest -s .

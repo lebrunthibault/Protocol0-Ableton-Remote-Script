@@ -1,14 +1,18 @@
-from typing import Callable, Optional
-
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.utils.decorators import api_exposed
 from a_protocol_0.utils.utils import normalize_string
+from typing import Callable, Optional
 
 
 class SearchManager(AbstractControlSurfaceComponent):
     @api_exposed
-    def search_track(self, search):
+    def test(self):
+        # type: () -> None
+        self.parent.log_dev("test API called successful")
+
+    @api_exposed
+    def search_track(self, search, toto=4242):
         # type: (str) -> None
         if len(search) < 3:
             return

@@ -3,8 +3,8 @@ from types import MethodType
 
 from ClyphX_Pro import ClyphXComponentBase, ParseUtils
 from ClyphX_Pro.clyphx_pro.actions.GlobalActions import GlobalActions
+from _Framework.ControlSurface import ControlSurface
 from a_protocol_0.automation.AutomationTrackManager import AutomationTrackManager
-from a_protocol_0.components.Api.ApiManager import ApiManager
 from a_protocol_0.components.BeatScheduler import BeatScheduler
 from a_protocol_0.components.BrowserManager import BrowserManager
 from a_protocol_0.components.DeviceManager import DeviceManager
@@ -33,8 +33,6 @@ from a_protocol_0.sequence.Sequence import Sequence
 from a_protocol_0.utils.log import log_ableton
 from p0_system_api import DefaultApi
 from typing import Callable, Any
-
-from _Framework.ControlSurface import ControlSurface
 
 
 class Protocol0(ControlSurface):
@@ -76,7 +74,6 @@ class Protocol0(ControlSurface):
             self.utilsManager = UtilsManager()
             self.logManager = LogManager()
             self.searchManager = SearchManager()
-            self.apiManager = ApiManager()
             self.p0_system_api_client = DefaultApi()
             ActionGroupMain()
             ActionGroupSet()

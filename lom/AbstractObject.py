@@ -1,10 +1,9 @@
+from _Framework.ControlSurface import get_control_surfaces
+from _Framework.SubjectSlot import SlotManager, Subject
 from a_protocol_0.utils.utils import find_if
 from p0_system_api import DefaultApi
 from traitlets import Any
 from typing import TYPE_CHECKING
-
-from _Framework.ControlSurface import get_control_surfaces
-from _Framework.SubjectSlot import SlotManager, Subject
 
 if TYPE_CHECKING:
     from a_protocol_0.lom.Song import Song
@@ -39,11 +38,7 @@ class AbstractObject(SlotManager, Subject):
     def system(self):
         # type: () -> DefaultApi
         """
-        Access to non restricted python environment via local API
-        Only polling seem to be working for server to client communication.
-        Web socket and anything related to creating threads make Live hang/crash.
-        Asyncio does not work obviously.
-        The only way to do async / long living stuff is by leveraging the internal tick.
+        Access to non restricted (system) python environment over MIDI
         """
         return self._parent.p0_system_api_client
 
