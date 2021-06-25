@@ -1,9 +1,8 @@
 from functools import partial, wraps
 
-from typing import TYPE_CHECKING, Any, Callable
-
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
 from a_protocol_0.utils.utils import is_method
+from typing import TYPE_CHECKING, Any, Callable
 
 if TYPE_CHECKING:
     from a_protocol_0.components.Push2Manager import Push2Manager
@@ -48,12 +47,20 @@ def defer(func):
     return decorate
 
 
-EXPOSED_P0_METHODS = set()
+EXPOSED_P0_METHODS = {}
+
+
+def api_exposable_class(cls):
+    for name, method in cls.__dict__.iteritems():
+        if hasattr(method, "api_exposed"):
+            # do something with the method and class
+            EXPOSED_P0_METHODS[name] = cls
+    return cls
 
 
 def api_exposed(func):
     # type: (Callable) -> Callable
-    EXPOSED_P0_METHODS.add(func)
+    func.api_exposed = True
     return func
 
 

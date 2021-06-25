@@ -1,19 +1,22 @@
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
-from a_protocol_0.utils.decorators import api_exposed
+from a_protocol_0.utils.decorators import api_exposed, api_exposable_class
+from a_protocol_0.utils.log import log_ableton
 from a_protocol_0.utils.utils import normalize_string
 from typing import Callable, Optional
 
 
+@api_exposable_class
 class SearchManager(AbstractControlSurfaceComponent):
     @api_exposed
     def test(self):
         # type: () -> None
-        self.parent.log_dev("test API called successful")
+        log_ableton("test API called successful")
 
     @api_exposed
-    def search_track(self, search, toto=4242):
+    def search_track(self, search):
         # type: (str) -> None
+        self.parent.log_dev(search)
         if len(search) < 3:
             return
 

@@ -5,6 +5,7 @@ from ClyphX_Pro import ClyphXComponentBase, ParseUtils
 from ClyphX_Pro.clyphx_pro.actions.GlobalActions import GlobalActions
 from _Framework.ControlSurface import ControlSurface
 from a_protocol_0.automation.AutomationTrackManager import AutomationTrackManager
+from a_protocol_0.components.Api.ApiAction import ApiAction
 from a_protocol_0.components.BeatScheduler import BeatScheduler
 from a_protocol_0.components.BrowserManager import BrowserManager
 from a_protocol_0.components.DeviceManager import DeviceManager
@@ -80,6 +81,7 @@ class Protocol0(ControlSurface):
             ActionGroupTest()
 
             self.start()
+            ApiAction.create_method_mapping()
 
             self.log_info("Protocol0 script loaded")
 

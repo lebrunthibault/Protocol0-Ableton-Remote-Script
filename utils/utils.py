@@ -3,11 +3,10 @@ import types
 from collections import namedtuple, Sequence as CollectionsSequence
 from types import FrameType
 
-from qualname import qualname
-from typing import Optional, Any, cast, Callable, TYPE_CHECKING, Iterable
-
 from a_protocol_0.consts import ROOT_DIR, REMOTE_SCRIPTS_DIR
 from a_protocol_0.my_types import StringOrNumber, T
+from qualname import qualname
+from typing import Optional, Any, cast, Callable, TYPE_CHECKING, Iterable
 
 if TYPE_CHECKING:
     pass
@@ -75,9 +74,9 @@ def _has_callback_queue(func):
     from _Framework.SubjectSlot import CallableSlotMixin
 
     return (
-        func
-        and hasattr(func, "add_callback")
-        and (isinstance(func, CallableWithCallbacks) or isinstance(func, CallableSlotMixin))
+            func
+            and hasattr(func, "add_callback")
+            and (isinstance(func, CallableWithCallbacks) or isinstance(func, CallableSlotMixin))
     )
 
 
@@ -94,6 +93,8 @@ def is_lambda(func):
 
 def smart_string(s):
     # type: (basestring) -> str
+    if not isinstance(s, basestring):
+        s = str(s)
     if isinstance(s, str):
         s = s.decode("utf-8")
     return s.encode("utf-8")  # type: ignore

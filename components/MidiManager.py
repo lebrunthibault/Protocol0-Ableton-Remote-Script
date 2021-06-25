@@ -9,29 +9,13 @@ from typing import Optional, Tuple
 
 class MidiManager(AbstractControlSurfaceComponent):
     @staticmethod
-    def string_to_sysex(message):
-        # type: (str) -> Tuple
-        b = bytearray(message.encode())
-        b.insert(0, 0xF0)
-        b.append(0xF7)
-        return tuple(b)
-
-    @staticmethod
-    def sysex_to_string(sysex):
+    def _sysex_to_string(sysex):
         # type: (Tuple) -> str
         return bytearray(sysex[1:-1]).decode()
 
     def send_program_change(self, value, channel=0):
         # type: (int, int) -> None
         self._send_formatted_midi_message("pc", channel, value)
-
-    def send_string(self, message):
-        # type: (str) -> None
-        self.parent.log_dev("Sending string to midi output : %s" % message)
-        b = bytearray(message.encode())
-        b.insert(0, 0xF0)
-        b.append(0xF7)
-        self.parent._send_midi(tuple(b))
 
     def _send_formatted_midi_message(self, message_type, channel, value, value2=None):
         # type: (str, int, int, Optional[int]) -> None
@@ -50,12 +34,12 @@ class MidiManager(AbstractControlSurfaceComponent):
 
     def receive_midi(self, midi_bytes):
         # type: (Tuple) -> None
-        message = self.sysex_to_string(sysex=midi_bytes)
-        self.parent.log_dev("P0 received message from sysex: %s" % message)
+        message = self._sysex_to_string(sysex=midi_bytes)
+        self.parent.log_info("P0 received message from sysex: %s" % message)
         try:
             api_action = ApiAction.make_from_string(payload=message)
         except ApiError as e:
-            self.parent.log_error(e.message)
+            self.parent.log_error("ApiAction generation error : %s" % e.message)
             return
 
         api_action.execute()

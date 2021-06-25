@@ -14,4 +14,3 @@ CLIP  # unused variable (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Rem
 _._update_racks  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\a_protocol_0\components\SetFixerManager.py:44)
 _._sync_group_output_routing  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\a_protocol_0\lom\track\group_track\SimpleGroupTrack.py:62)
 _.wait_bars  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\a_protocol_0\components\BeatScheduler.py:18)
-SEARCH_TRACK  # unused variable (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\a_protocol_0\enums\ServerActionEnum.py:19)
