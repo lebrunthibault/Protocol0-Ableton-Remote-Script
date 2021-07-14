@@ -145,3 +145,6 @@ make_path.py
 # Jupyter Notebook
 jupyter/
 !jupyter/*.ipynb
+
+*.wav
+*.flac
