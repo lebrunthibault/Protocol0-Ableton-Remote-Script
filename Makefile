@@ -1,10 +1,10 @@
-.PHONY: test pretty flake8 mypy vulture pycharm check
+.PHONY: test black flake8 mypy vulture pycharm check
 
 test:
 	cls
 	pytest -s .
 
-pretty:
+black:
 	black .
 
 flake8:
