@@ -1,9 +1,10 @@
+from typing import Callable, Optional
+
 from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
 from a_protocol_0.utils.decorators import api_exposed, api_exposable_class
 from a_protocol_0.utils.log import log_ableton
 from a_protocol_0.utils.utils import normalize_string
-from typing import Callable, Optional
 
 
 @api_exposable_class
@@ -22,6 +23,7 @@ class SearchManager(AbstractControlSurfaceComponent):
 
         search = search.lower().strip()
 
+        self.parent.log_dev(search)
         criterias = [
             lambda track, search: normalize_string(track.name).startswith(search),
             lambda track, search: search in normalize_string(track.name),
