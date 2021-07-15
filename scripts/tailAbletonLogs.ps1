@@ -31,7 +31,7 @@ function FocusLogs()
         return;
     }
     $focusLogStopWatch.Restart()
-    python3 "$system\scripts\cli.py" "focus_window" "logs terminal"
+    python "$system\scripts\cli.py" "focus_window" "logs terminal" 2> $nul
 }
 
 function Get-LogColor
