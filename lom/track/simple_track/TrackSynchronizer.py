@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING, Any
 
 from _Framework.CompoundElement import subject_slot_group
-from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
+from protocol0.lom.ObjectSynchronizer import ObjectSynchronizer
 
 if TYPE_CHECKING:
-    from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
+    from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
 class TrackSynchronizer(ObjectSynchronizer):

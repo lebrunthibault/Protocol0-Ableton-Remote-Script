@@ -1,7 +1,7 @@
 from transitions import Machine, State
 from typing import Any
 
-from a_protocol_0.enums.AbstractEnum import AbstractEnum
+from protocol0.enums.AbstractEnum import AbstractEnum
 
 
 class SequenceState(AbstractEnum):

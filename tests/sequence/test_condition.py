@@ -1,4 +1,4 @@
-from a_protocol_0.sequence.Sequence import Sequence
+from protocol0.sequence.Sequence import Sequence
 
 
 def test_do_if():

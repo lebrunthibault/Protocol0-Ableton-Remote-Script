@@ -5,13 +5,13 @@ from typing import TYPE_CHECKING, List, Optional, Any
 from _Framework.ButtonElement import ButtonElement
 from _Framework.InputControlElement import MIDI_NOTE_TYPE, MIDI_CC_TYPE
 from _Framework.SubjectSlot import subject_slot
-from a_protocol_0.interface.EncoderAction import EncoderAction, EncoderMoveEnum
-from a_protocol_0.interface.EncoderModifier import EncoderModifier
-from a_protocol_0.interface.EncoderModifierEnum import EncoderModifierEnum
-from a_protocol_0.lom.AbstractObject import AbstractObject
+from protocol0.interface.EncoderAction import EncoderAction, EncoderMoveEnum
+from protocol0.interface.EncoderModifier import EncoderModifier
+from protocol0.interface.EncoderModifierEnum import EncoderModifierEnum
+from protocol0.lom.AbstractObject import AbstractObject
 
 if TYPE_CHECKING:
-    from a_protocol_0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
+    from protocol0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
 
 
 class MultiEncoder(AbstractObject):

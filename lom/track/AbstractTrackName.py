@@ -1,17 +1,16 @@
 import re
-
-import Live
 from typing import TYPE_CHECKING, Optional, Any, List
 
+import Live
 from _Framework.SubjectSlot import subject_slot_group
-from a_protocol_0.config import Config
-from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
-from a_protocol_0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
-from a_protocol_0.lom.AbstractObjectName import AbstractObjectName
-from a_protocol_0.utils.decorators import p0_subject_slot
+from protocol0.config import Config
+from protocol0.devices.AbstractInstrument import AbstractInstrument
+from protocol0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
+from protocol0.lom.AbstractObjectName import AbstractObjectName
+from protocol0.utils.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
-    from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
+    from protocol0.lom.track.AbstractTrack import AbstractTrack
 
 
 class AbstractTrackName(AbstractObjectName):
@@ -73,13 +72,13 @@ class AbstractTrackName(AbstractObjectName):
     def _should_recompute_base_name(self):
         # type: () -> bool
         return (
-            not self.base_name
-            or self.base_name == self.track.DEFAULT_NAME.lower()
-            or (
-                self.track.instrument
-                and not self.track.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.NAME
-            )
-            or self.base_name.lower() in self.instrument_names
+                not self.base_name
+                or self.base_name == self.track.DEFAULT_NAME.lower()
+                or (
+                        self.track.instrument
+                        and not self.track.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.NAME
+                )
+                or self.base_name.lower() in self.instrument_names
         )
 
     def update(self, base_name=None):
@@ -98,7 +97,7 @@ class AbstractTrackName(AbstractObjectName):
             if self.track.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.INDEX:
                 name += " (%d)" % (self.selected_preset_index + 1)
 
-        from a_protocol_0.lom.track.group_track.SimpleGroupTrack import SimpleGroupTrack
+        from protocol0.lom.track.group_track.SimpleGroupTrack import SimpleGroupTrack
 
         if isinstance(self.track, SimpleGroupTrack):
             name += " (%d)" % len(self.track.sub_tracks)

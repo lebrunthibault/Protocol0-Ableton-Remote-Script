@@ -1,10 +1,10 @@
 from typing import Optional, cast, Any
 
 from _Framework.SubjectSlot import subject_slot, subject_slot_group
-from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.lom.clip.MidiClip import MidiClip
-from a_protocol_0.utils.decorators import push2_method
-from a_push2.push2 import Push2
+from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.lom.clip.MidiClip import MidiClip
+from protocol0.utils.decorators import push2_method
+from protocol0_push2.push2 import Push2
 
 
 class Push2Manager(AbstractControlSurfaceComponent):

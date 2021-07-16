@@ -1,5 +1,5 @@
-from a_protocol_0.enums.TrackCategoryEnum import TrackCategoryEnum
-from a_protocol_0.utils.utils import scroll_values
+from protocol0.enums.TrackCategoryEnum import TrackCategoryEnum
+from protocol0.utils.utils import scroll_values
 
 
 class InterfaceState(object):
@@ -22,7 +22,7 @@ class InterfaceState(object):
     def toggle_protected_mode(cls):
         # type: () -> None
         cls.PROTECTED_MODE_ACTIVE = not cls.PROTECTED_MODE_ACTIVE
-        from a_protocol_0 import Protocol0
+        from protocol0 import Protocol0
 
         Protocol0.SELF.show_message("Protected mode %s" % ("on" if cls.PROTECTED_MODE_ACTIVE else "off"))
 
@@ -53,6 +53,6 @@ class InterfaceState(object):
     def _show_selected_bar_length(cls, bar_length):
         # type: (int) -> None
         bar_display_count = "%s bar%s" % (bar_length, "s" if abs(bar_length) != 1 else "")
-        from a_protocol_0 import Protocol0
+        from protocol0 import Protocol0
 
         Protocol0.SELF.show_message("Selected %s" % bar_display_count)

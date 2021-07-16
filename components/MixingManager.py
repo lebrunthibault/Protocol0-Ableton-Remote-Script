@@ -1,8 +1,8 @@
 from typing import Any
 
-from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
-from a_protocol_0.utils.decorators import p0_subject_slot
+from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.lom.track.AbstractTrack import AbstractTrack
+from protocol0.utils.decorators import p0_subject_slot
 
 
 class MixingManager(AbstractControlSurfaceComponent):

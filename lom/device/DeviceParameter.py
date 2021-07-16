@@ -1,10 +1,10 @@
-import Live
 from typing import TYPE_CHECKING, Any
 
-from a_protocol_0.lom.AbstractObject import AbstractObject
+import Live
+from protocol0.lom.AbstractObject import AbstractObject
 
 if TYPE_CHECKING:
-    from a_protocol_0.lom.device.Device import Device
+    from protocol0.lom.device.Device import Device
 
 
 class DeviceParameter(AbstractObject):

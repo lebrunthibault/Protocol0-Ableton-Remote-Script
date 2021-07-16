@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING, List, Any
 
-from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
+from protocol0.lom.ObjectSynchronizer import ObjectSynchronizer
 
 if TYPE_CHECKING:
-    from a_protocol_0.lom.clip.Clip import Clip
+    from protocol0.lom.clip.Clip import Clip
 
 
 class ClipSynchronizer(ObjectSynchronizer):

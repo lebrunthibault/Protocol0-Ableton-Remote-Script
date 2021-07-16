@@ -3,7 +3,7 @@ from __future__ import print_function
 from _Framework.SubjectSlot import Subject, SlotManager, subject_slot
 
 # noinspection PyUnresolvedReferences
-from a_protocol_0.tests.test_all import p0
+from protocol0.tests.test_all import p0
 
 
 def test_subject_slot_inheritance():

@@ -1,10 +1,10 @@
 from typing import Callable, Optional
 
-from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
-from a_protocol_0.utils.decorators import api_exposed, api_exposable_class
-from a_protocol_0.utils.log import log_ableton
-from a_protocol_0.utils.utils import normalize_string
+from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.lom.track.AbstractTrack import AbstractTrack
+from protocol0.utils.decorators import api_exposed, api_exposable_class
+from protocol0.utils.log import log_ableton
+from protocol0.utils.utils import normalize_string
 
 
 @api_exposable_class

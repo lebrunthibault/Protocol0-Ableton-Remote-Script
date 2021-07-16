@@ -1,4 +1,4 @@
-from a_protocol_0.utils.math_utils import linear, exp_curve
+from protocol0.utils.math_utils import linear, exp_curve
 
 
 def test_linear():

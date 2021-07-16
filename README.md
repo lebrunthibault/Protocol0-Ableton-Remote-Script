@@ -7,7 +7,7 @@ faderfox EC4). It is specifically targeted to working in session view and aims t
 
 ### The backend
 
-THis script executes in the context of ableton's bundled python interpreter and with a lot of limitations (e.g. sending
+This script executes in the context of ableton's bundled python interpreter and with a lot of limitations (e.g. sending
 a simple keystroke or click is not possible from the script).  
 To make these kind of things possible the script is supported by a backend that you can find
 in [this repo](https://github.com/lebrunthibault/Protocol-0-backend).
@@ -70,14 +70,12 @@ If you want to try the script try the following :
 
 - clone the repo in your remote scripts directory
 - create a .env.json file by duplicating the .env.example.json and fill it
-- Try using a controller with configurable note, CC and midi channels or modify the mappings in
-  ./components/actionGroups. The bulk of the script uses the midi channel 15 and notes / CCs from 1 to 16.
-- Open up ableton
+- Try using a configurable midi controller to match the mappings in ./components/actionGroups. The bulk of the script
+  uses the midi channel 15 and notes / CCs from 1 to 16.
 
 ### Installation with backend (longer)
 
-- Setup 2 loopback midi ports with loopMidi (in windows) named: P0_IN and P0_OUT (for script <-> backend communication)
-- clone and install the [backend](https://github.com/lebrunthibault/Protocol-0-backend)
+- clone and follow the README install section of the [backend](https://github.com/lebrunthibault/Protocol-0-backend).
 
 ## Development
 

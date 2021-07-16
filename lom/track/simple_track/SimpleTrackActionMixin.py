@@ -4,14 +4,14 @@ from itertools import chain, imap  # type: ignore[attr-defined]
 from typing import Optional, List, Union
 from typing import TYPE_CHECKING
 
-from a_protocol_0.lom.device.Device import Device
-from a_protocol_0.lom.device.DeviceChain import DeviceChain
-from a_protocol_0.lom.device.RackDevice import RackDevice
-from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.utils import scroll_values, find_if
+from protocol0.lom.device.Device import Device
+from protocol0.lom.device.DeviceChain import DeviceChain
+from protocol0.lom.device.RackDevice import RackDevice
+from protocol0.sequence.Sequence import Sequence
+from protocol0.utils.utils import scroll_values, find_if
 
 if TYPE_CHECKING:
-    from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
+    from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
 # noinspection PyTypeHints

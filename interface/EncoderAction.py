@@ -1,10 +1,10 @@
 from typing import Optional, List, Any, Callable
 
-from a_protocol_0.interface.EncoderModifierEnum import EncoderModifierEnum
-from a_protocol_0.interface.EncoderMoveEnum import EncoderMoveEnum
-from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.utils.decorators import handle_error
-from a_protocol_0.utils.utils import get_callable_name, is_lambda
+from protocol0.interface.EncoderModifierEnum import EncoderModifierEnum
+from protocol0.interface.EncoderMoveEnum import EncoderMoveEnum
+from protocol0.lom.AbstractObject import AbstractObject
+from protocol0.utils.decorators import handle_error
+from protocol0.utils.utils import get_callable_name, is_lambda
 
 
 class EncoderAction(AbstractObject):

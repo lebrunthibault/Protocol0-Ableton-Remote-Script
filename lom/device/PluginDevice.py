@@ -1,9 +1,9 @@
-import Live
 from typing import List, Any, Optional
 
-from a_protocol_0.lom.device.Device import Device
-from a_protocol_0.lom.device.DeviceType import DeviceType
-from a_protocol_0.utils.utils import scroll_values
+import Live
+from protocol0.lom.device.Device import Device
+from protocol0.lom.device.DeviceType import DeviceType
+from protocol0.utils.utils import scroll_values
 
 
 class PluginDevice(Device):

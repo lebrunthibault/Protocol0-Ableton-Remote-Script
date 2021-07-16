@@ -1,8 +1,8 @@
 from typing import Any
 
 from _Framework.SubjectSlot import subject_slot_group
-from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.sequence.SequenceStep import SequenceStep
+from protocol0.sequence.Sequence import Sequence
+from protocol0.sequence.SequenceStep import SequenceStep
 
 
 class ParallelSequence(Sequence):

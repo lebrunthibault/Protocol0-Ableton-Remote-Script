@@ -1,12 +1,12 @@
 from collections import deque
 from typing import Deque, Optional, Iterable, Union, Callable, Any, List
 
-from a_protocol_0.config import Config
-from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
-from a_protocol_0.sequence.SequenceStep import SequenceStep
-from a_protocol_0.utils.decorators import p0_subject_slot
-from a_protocol_0.utils.utils import get_frame_info, nop
+from protocol0.config import Config
+from protocol0.lom.AbstractObject import AbstractObject
+from protocol0.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
+from protocol0.sequence.SequenceStep import SequenceStep
+from protocol0.utils.decorators import p0_subject_slot
+from protocol0.utils.utils import get_frame_info, nop
 
 
 class Sequence(AbstractObject, SequenceStateMachineMixin):

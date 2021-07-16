@@ -4,23 +4,23 @@ import Live
 from typing import Any, Optional, List
 from typing import TYPE_CHECKING
 
-from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
-from a_protocol_0.devices.InstrumentSimpler import InstrumentSimpler
-from a_protocol_0.enums.ColorEnum import ColorEnum
-from a_protocol_0.enums.Push2MainModeEnum import Push2MainModeEnum
-from a_protocol_0.enums.Push2MatrixModeEnum import Push2MatrixModeEnum
-from a_protocol_0.enums.TrackCategoryEnum import TrackCategoryEnum
-from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.lom.clip.Clip import Clip
-from a_protocol_0.lom.device.DeviceType import DeviceType
-from a_protocol_0.lom.track.AbstractTrackActionMixin import AbstractTrackActionMixin
-from a_protocol_0.lom.track.AbstractTrackName import AbstractTrackName
-from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import defer, p0_subject_slot
+from protocol0.devices.AbstractInstrument import AbstractInstrument
+from protocol0.devices.InstrumentSimpler import InstrumentSimpler
+from protocol0.enums.ColorEnum import ColorEnum
+from protocol0.enums.Push2MainModeEnum import Push2MainModeEnum
+from protocol0.enums.Push2MatrixModeEnum import Push2MatrixModeEnum
+from protocol0.enums.TrackCategoryEnum import TrackCategoryEnum
+from protocol0.lom.AbstractObject import AbstractObject
+from protocol0.lom.clip.Clip import Clip
+from protocol0.lom.device.DeviceType import DeviceType
+from protocol0.lom.track.AbstractTrackActionMixin import AbstractTrackActionMixin
+from protocol0.lom.track.AbstractTrackName import AbstractTrackName
+from protocol0.sequence.Sequence import Sequence
+from protocol0.utils.decorators import defer, p0_subject_slot
 
 if TYPE_CHECKING:
-    from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
-    from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
+    from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
+    from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 
 
 class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
@@ -129,7 +129,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def computed_base_name(self):
         # type: () -> str
-        from a_protocol_0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+        from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 
         if self.instrument and not isinstance(self.abstract_group_track, ExternalSynthTrack):
             return self.instrument.name

@@ -5,22 +5,22 @@ from os import listdir
 
 from typing import TYPE_CHECKING, Optional, List, Any, Type
 
-from a_protocol_0.devices.AbstractInstrumentPresetsMixin import AbstractInstrumentPresetsMixin
-from a_protocol_0.devices.presets.InstrumentPresetList import InstrumentPresetList
-from a_protocol_0.enums.ColorEnum import ColorEnum
-from a_protocol_0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
-from a_protocol_0.errors.Protocol0Error import Protocol0Error
-from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.lom.Note import Note
-from a_protocol_0.lom.clip.Clip import Clip
-from a_protocol_0.lom.device.Device import Device
-from a_protocol_0.lom.device.PluginDevice import PluginDevice
-from a_protocol_0.lom.device.RackDevice import RackDevice
-from a_protocol_0.lom.device.SimplerDevice import SimplerDevice
-from a_protocol_0.sequence.Sequence import Sequence
+from protocol0.devices.AbstractInstrumentPresetsMixin import AbstractInstrumentPresetsMixin
+from protocol0.devices.presets.InstrumentPresetList import InstrumentPresetList
+from protocol0.enums.ColorEnum import ColorEnum
+from protocol0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
+from protocol0.errors.Protocol0Error import Protocol0Error
+from protocol0.lom.AbstractObject import AbstractObject
+from protocol0.lom.Note import Note
+from protocol0.lom.clip.Clip import Clip
+from protocol0.lom.device.Device import Device
+from protocol0.lom.device.PluginDevice import PluginDevice
+from protocol0.lom.device.RackDevice import RackDevice
+from protocol0.lom.device.SimplerDevice import SimplerDevice
+from protocol0.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
-    from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
+    from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
 class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
@@ -65,7 +65,7 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
         for file in [file for file in files if re.match("^Instrument[a-zA-Z]*\.py$", file)]:
             class_name = file.replace(".py", "")
             try:
-                mod = __import__("a_protocol_0.devices." + class_name, fromlist=[class_name])
+                mod = __import__("protocol0.devices." + class_name, fromlist=[class_name])
             except ImportError:
                 raise Protocol0Error("Import Error on class %s" % class_name)
 
@@ -97,11 +97,11 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
                 if _class.DEVICE_NAME.lower() == device.name.lower():
                     return _class
         elif isinstance(device, SimplerDevice):
-            from a_protocol_0.devices.InstrumentSimpler import InstrumentSimpler
+            from protocol0.devices.InstrumentSimpler import InstrumentSimpler
 
             return InstrumentSimpler
         elif device.can_have_drum_pads:
-            from a_protocol_0.devices.InstrumentDrumRack import InstrumentDrumRack
+            from protocol0.devices.InstrumentDrumRack import InstrumentDrumRack
 
             return InstrumentDrumRack
 

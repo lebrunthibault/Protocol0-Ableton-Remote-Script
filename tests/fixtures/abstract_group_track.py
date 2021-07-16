@@ -1,6 +1,6 @@
-from a_protocol_0.lom.Song import Song
-from a_protocol_0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
-from a_protocol_0.tests.fixtures.simple_track import make_simple_track, TrackType
+from protocol0.lom.Song import Song
+from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+from protocol0.tests.fixtures.simple_track import make_simple_track, TrackType
 
 
 def make_external_synth_track(song):

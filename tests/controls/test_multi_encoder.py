@@ -1,13 +1,13 @@
 import pytest
 from typing import Any
 
-from a_protocol_0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
-from a_protocol_0.interface.EncoderAction import EncoderAction
-from a_protocol_0.interface.EncoderModifierEnum import EncoderModifierEnum
-from a_protocol_0.interface.EncoderMoveEnum import EncoderMoveEnum
-from a_protocol_0.interface.MultiEncoder import MultiEncoder
-from a_protocol_0.tests.fixtures import make_song
-from a_protocol_0.tests.test_all import p0
+from protocol0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
+from protocol0.interface.EncoderAction import EncoderAction
+from protocol0.interface.EncoderModifierEnum import EncoderModifierEnum
+from protocol0.interface.EncoderMoveEnum import EncoderMoveEnum
+from protocol0.interface.MultiEncoder import MultiEncoder
+from protocol0.tests.fixtures import make_song
+from protocol0.tests.test_all import p0
 
 
 class ActionGroupTest(AbstractActionGroup):
@@ -78,8 +78,8 @@ def test_multi_encoder_press_and_scroll():
 
     multi_encoder = (
         make_multi_encoder()
-        .add_action(EncoderAction(press))
-        .add_action(EncoderAction(scroll, move_type=EncoderMoveEnum.SCROLL))
+            .add_action(EncoderAction(press))
+            .add_action(EncoderAction(scroll, move_type=EncoderMoveEnum.SCROLL))
     )
     scroll_encoder(multi_encoder)
     assert res["scrolled"] is True

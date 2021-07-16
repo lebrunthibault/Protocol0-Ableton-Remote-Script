@@ -1,20 +1,20 @@
 from _Framework.ControlSurface import get_control_surfaces
 from _Framework.SubjectSlot import SlotManager, Subject
-from a_protocol_0.utils.utils import find_if
+from protocol0.utils.utils import find_if
 from p0_system_api import DefaultApi
 from traitlets import Any
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from a_protocol_0.lom.Song import Song
-    from a_protocol_0.Protocol0 import Protocol0
+    from protocol0.lom.Song import Song
+    from protocol0.Protocol0 import Protocol0
 
 
 class AbstractObject(SlotManager, Subject):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(AbstractObject, self).__init__(*a, **k)
-        from a_protocol_0 import Protocol0
+        from protocol0 import Protocol0
 
         parent = find_if(lambda cs: isinstance(cs, Protocol0), get_control_surfaces())
         assert parent

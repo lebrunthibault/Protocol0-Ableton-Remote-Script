@@ -3,18 +3,18 @@ import collections
 import Live
 from typing import List, Optional, Dict, Any, Generator, Iterable
 
-from a_protocol_0.interface.InterfaceState import InterfaceState
-from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.lom.Scene import Scene
-from a_protocol_0.lom.SongActionMixin import SongActionMixin
-from a_protocol_0.lom.clip.Clip import Clip
-from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
-from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
-from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
-from a_protocol_0.lom.track.AbstractTrackList import AbstractTrackList
-from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
-from a_protocol_0.utils.decorators import p0_subject_slot
-from a_protocol_0.utils.utils import find_if
+from protocol0.interface.InterfaceState import InterfaceState
+from protocol0.lom.AbstractObject import AbstractObject
+from protocol0.lom.Scene import Scene
+from protocol0.lom.SongActionMixin import SongActionMixin
+from protocol0.lom.clip.Clip import Clip
+from protocol0.lom.clip_slot.ClipSlot import ClipSlot
+from protocol0.lom.device.DeviceParameter import DeviceParameter
+from protocol0.lom.track.AbstractTrack import AbstractTrack
+from protocol0.lom.track.AbstractTrackList import AbstractTrackList
+from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.utils.decorators import p0_subject_slot
+from protocol0.utils.utils import find_if
 
 
 class Song(AbstractObject, SongActionMixin):

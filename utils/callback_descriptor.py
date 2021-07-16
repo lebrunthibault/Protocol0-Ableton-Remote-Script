@@ -1,10 +1,9 @@
 from collections import deque
 from functools import partial
-
 from typing import Callable, Deque, Optional, Any, cast, Type, Union
 
-from a_protocol_0.utils.log import log_ableton
-from a_protocol_0.utils.utils import get_callable_name
+from protocol0.utils.log import log_ableton
+from protocol0.utils.utils import get_callable_name
 
 
 class CallbackDescriptor(object):
@@ -94,7 +93,7 @@ class CallableWithCallbacks(object):
         # type: (Any, Any) -> Any
         res = self._function(*a, **k)
 
-        from a_protocol_0.sequence.Sequence import Sequence
+        from protocol0.sequence.Sequence import Sequence
 
         if isinstance(res, Sequence) and not res.terminated:
             if res.errored:
@@ -128,7 +127,7 @@ class CallableWithCallbacks(object):
 
         if len(self._callbacks) == 0:
             return
-        from a_protocol_0 import Protocol0
+        from protocol0 import Protocol0
 
         Protocol0.SELF._wait(0 if self._immediate else 1, self._execute_callbacks)
 

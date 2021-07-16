@@ -1,5 +1,5 @@
-from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
-from a_protocol_0.enums.ColorEnum import ColorEnum
+from protocol0.devices.AbstractInstrument import AbstractInstrument
+from protocol0.enums.ColorEnum import ColorEnum
 
 
 class InstrumentAddictiveKeys(AbstractInstrument):  # noqa

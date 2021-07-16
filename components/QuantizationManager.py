@@ -1,8 +1,8 @@
 from typing import List, Optional, cast, Any
 
-from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.consts import PUSH2_BEAT_QUANTIZATION_STEPS
-from a_protocol_0.lom.Note import Note
+from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.config import PUSH2_BEAT_QUANTIZATION_STEPS
+from protocol0.lom.Note import Note
 
 
 class QuantizationManager(AbstractControlSurfaceComponent):

@@ -1,16 +1,16 @@
-from a_protocol_0.enums.FoldActionEnum import FoldActionEnum
-from a_protocol_0.lom.Scene import Scene
-from a_protocol_0.lom.device.Device import Device
-from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
-from a_protocol_0.lom.track.AbstractTrackList import AbstractTrackList
-from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import handle_error
-from a_protocol_0.utils.utils import scroll_values
+from protocol0.enums.FoldActionEnum import FoldActionEnum
+from protocol0.lom.Scene import Scene
+from protocol0.lom.device.Device import Device
+from protocol0.lom.track.AbstractTrack import AbstractTrack
+from protocol0.lom.track.AbstractTrackList import AbstractTrackList
+from protocol0.sequence.Sequence import Sequence
+from protocol0.utils.decorators import handle_error
+from protocol0.utils.utils import scroll_values
 from functools import partial
 from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
-    from a_protocol_0.lom.Song import Song
+    from protocol0.lom.Song import Song
 
 
 class SongActionMixin(object):

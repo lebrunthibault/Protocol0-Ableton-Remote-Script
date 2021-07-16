@@ -76,7 +76,7 @@ if not live_environment_loaded:
     sys.modules["multipledispatch"] = EmptyModule()  # type: ignore[assignment]
 
 if sys.version_info.major == 2:
-    from a_protocol_0.Protocol0 import Protocol0  # noqa: E402
+    from protocol0.Protocol0 import Protocol0  # noqa: E402
 
     Protocol0.LIVE_ENVIRONMENT_LOADED = live_environment_loaded
 

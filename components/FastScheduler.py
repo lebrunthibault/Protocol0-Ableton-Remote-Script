@@ -1,9 +1,9 @@
 import Live
 from typing import List, Any, Callable
 
-from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.utils.utils import get_callable_name
+from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.lom.AbstractObject import AbstractObject
+from protocol0.utils.utils import get_callable_name
 
 
 class SchedulerEvent(AbstractObject):

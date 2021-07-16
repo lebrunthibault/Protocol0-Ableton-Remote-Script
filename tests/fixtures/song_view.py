@@ -1,7 +1,7 @@
 from typing import Optional
 
 from _Framework.SubjectSlot import Subject
-from a_protocol_0.tests.fixtures.simple_track import AbletonTrack
+from protocol0.tests.fixtures.simple_track import AbletonTrack
 
 
 class AbletonSongView(Subject):

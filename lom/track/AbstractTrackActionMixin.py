@@ -3,15 +3,15 @@ from functools import partial
 import Live
 from typing import TYPE_CHECKING, Any, Optional, NoReturn, Callable, cast
 
-from a_protocol_0.enums.RecordTypeEnum import RecordTypeEnum
-from a_protocol_0.errors.Protocol0Error import Protocol0Error
-from a_protocol_0.interface.InterfaceState import InterfaceState
-from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import retry
-from a_protocol_0.utils.utils import find_if
+from protocol0.enums.RecordTypeEnum import RecordTypeEnum
+from protocol0.errors.Protocol0Error import Protocol0Error
+from protocol0.interface.InterfaceState import InterfaceState
+from protocol0.sequence.Sequence import Sequence
+from protocol0.utils.decorators import retry
+from protocol0.utils.utils import find_if
 
 if TYPE_CHECKING:
-    from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
+    from protocol0.lom.track.AbstractTrack import AbstractTrack
 
 
 # noinspection PyTypeHints
@@ -218,7 +218,7 @@ class AbstractTrackActionMixin(object):
 
     def play(self):
         # type: (AbstractTrack) -> None
-        from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
+        from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
         if self.is_foldable:
             for sub_track in self.sub_tracks:
@@ -265,7 +265,7 @@ class AbstractTrackActionMixin(object):
         if track is None:
             raise Protocol0Error("You passed None to %s" % self.set_output_routing_to.__name__)
 
-        from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
+        from protocol0.lom.track.AbstractTrack import AbstractTrack
 
         track = track._track if isinstance(track, AbstractTrack) else track
         output_routing_type = find_if(lambda r: r.attached_object == track, self.available_output_routing_types)
@@ -283,7 +283,7 @@ class AbstractTrackActionMixin(object):
 
     def set_input_routing_type(self, track):
         # type: (AbstractTrack, Any) -> None
-        from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
+        from protocol0.lom.track.AbstractTrack import AbstractTrack
 
         track = track._track if isinstance(track, AbstractTrack) else track
 
@@ -315,7 +315,7 @@ class AbstractTrackActionMixin(object):
         self.color = self.computed_color
         if self.group_track:
             self.group_track.refresh_color()
-        from a_protocol_0.lom.track.group_track.SimpleGroupTrack import SimpleGroupTrack
+        from protocol0.lom.track.group_track.SimpleGroupTrack import SimpleGroupTrack
 
         if not isinstance(self, SimpleGroupTrack):
             for clip in self.clips:

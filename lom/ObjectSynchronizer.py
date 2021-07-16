@@ -2,10 +2,10 @@ from functools import partial
 
 from typing import List, Optional, Any
 
-from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.errors.Protocol0Error import Protocol0Error
-from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.utils.decorators import defer
+from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.errors.Protocol0Error import Protocol0Error
+from protocol0.lom.AbstractObject import AbstractObject
+from protocol0.utils.decorators import defer
 
 
 class ObjectSynchronizer(AbstractControlSurfaceComponent):

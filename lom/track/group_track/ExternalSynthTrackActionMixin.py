@@ -3,12 +3,12 @@ from functools import partial
 import Live
 from typing import TYPE_CHECKING, Optional
 
-from a_protocol_0.devices.InstrumentMinitaur import InstrumentMinitaur
-from a_protocol_0.lom.clip.MidiClip import MidiClip
-from a_protocol_0.sequence.Sequence import Sequence
+from protocol0.devices.InstrumentMinitaur import InstrumentMinitaur
+from protocol0.lom.clip.MidiClip import MidiClip
+from protocol0.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
-    from a_protocol_0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+    from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 
 
 # noinspection PyTypeHints

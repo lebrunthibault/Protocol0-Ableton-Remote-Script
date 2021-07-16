@@ -1,9 +1,9 @@
 import pytest
 from transitions import MachineError
 
-from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import has_callback_queue
-from a_protocol_0.utils.utils import nop
+from protocol0.sequence.Sequence import Sequence
+from protocol0.utils.decorators import has_callback_queue
+from protocol0.utils.utils import nop
 
 
 def test_sanity_checks():

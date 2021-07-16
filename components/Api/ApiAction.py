@@ -1,9 +1,9 @@
 import json
 
-from a_protocol_0.errors.ApiError import ApiError
-from a_protocol_0.utils.decorators import EXPOSED_P0_METHODS
-from a_protocol_0.utils.log import log_ableton
-from a_protocol_0.utils.utils import find_if
+from protocol0.errors.ApiError import ApiError
+from protocol0.utils.decorators import EXPOSED_P0_METHODS
+from protocol0.utils.log import log_ableton
+from protocol0.utils.utils import find_if
 from typing import List, Optional, Dict
 
 
@@ -37,7 +37,7 @@ class ApiAction():
 
     @classmethod
     def _get_method_from_method_name_and_class(cls, class_instance, method_name):
-        from a_protocol_0 import Protocol0
+        from protocol0 import Protocol0
         component = find_if(lambda c: c.__class__ == class_instance, Protocol0.SELF.components)
         if component:
             return getattr(component, method_name)
@@ -60,6 +60,6 @@ class ApiAction():
             raise ApiError("Invalid string payload %s (%s)" % (payload, e))
 
     def execute(self):
-        from a_protocol_0 import Protocol0
+        from protocol0 import Protocol0
         Protocol0.SELF.log_info("Executing method %s from Api call" % self.method)
         self.method(**self.args)

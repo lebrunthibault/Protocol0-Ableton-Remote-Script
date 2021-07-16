@@ -1,8 +1,8 @@
 from typing import Any, Optional
 
-from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
-from a_protocol_0.enums.ColorEnum import ColorEnum
-from a_protocol_0.sequence.Sequence import Sequence
+from protocol0.devices.AbstractInstrument import AbstractInstrument
+from protocol0.enums.ColorEnum import ColorEnum
+from protocol0.sequence.Sequence import Sequence
 
 
 class InstrumentProphet(AbstractInstrument):

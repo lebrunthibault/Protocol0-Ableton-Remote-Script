@@ -1,5 +1,5 @@
-from a_protocol_0.lom.track.AbstractTrackList import AbstractTrackList
-from a_protocol_0.tests.fixtures import make_song
+from protocol0.lom.track.AbstractTrackList import AbstractTrackList
+from protocol0.tests.fixtures import make_song
 
 
 def test_abstract_track_list():

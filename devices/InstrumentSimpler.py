@@ -2,14 +2,14 @@ import os
 
 from typing import List, Any, Optional
 
-from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
-from a_protocol_0.devices.presets.InstrumentPreset import InstrumentPreset
-from a_protocol_0.enums.ColorEnum import ColorEnum
-from a_protocol_0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
-from a_protocol_0.lom.Note import Note
-from a_protocol_0.lom.clip.MidiClip import MidiClip
-from a_protocol_0.lom.device.SimplerDevice import SimplerDevice
-from a_protocol_0.sequence.Sequence import Sequence
+from protocol0.devices.AbstractInstrument import AbstractInstrument
+from protocol0.devices.presets.InstrumentPreset import InstrumentPreset
+from protocol0.enums.ColorEnum import ColorEnum
+from protocol0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
+from protocol0.lom.Note import Note
+from protocol0.lom.clip.MidiClip import MidiClip
+from protocol0.lom.device.SimplerDevice import SimplerDevice
+from protocol0.sequence.Sequence import Sequence
 
 
 class InstrumentSimpler(AbstractInstrument):

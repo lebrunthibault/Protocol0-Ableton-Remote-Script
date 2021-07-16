@@ -1,11 +1,11 @@
 from typing import Optional, TYPE_CHECKING, Any
 
 from _Framework.CompoundElement import subject_slot_group
-from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
-from a_protocol_0.lom.clip.ClipSynchronizer import ClipSynchronizer
+from protocol0.lom.ObjectSynchronizer import ObjectSynchronizer
+from protocol0.lom.clip.ClipSynchronizer import ClipSynchronizer
 
 if TYPE_CHECKING:
-    from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
+    from protocol0.lom.clip_slot.ClipSlot import ClipSlot
 
 
 class ClipSlotSynchronizer(ObjectSynchronizer):

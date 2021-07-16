@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING, Any, List
 
-from a_protocol_0.lom.clip.Clip import Clip
-from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
+from protocol0.lom.clip.Clip import Clip
+from protocol0.lom.track.AbstractTrack import AbstractTrack
 
 if TYPE_CHECKING:
-    from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
+    from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
 class AbstractGroupTrack(AbstractTrack):

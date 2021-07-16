@@ -3,14 +3,14 @@ from functools import partial
 from typing import Optional, Tuple, Dict, Type, cast, List
 
 import Live
-from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
-from a_protocol_0.errors.Protocol0Error import Protocol0Error
-from a_protocol_0.lom.device.Device import Device
-from a_protocol_0.lom.device.RackDevice import RackDevice
-from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
-from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.utils import find_if
+from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.devices.AbstractInstrument import AbstractInstrument
+from protocol0.errors.Protocol0Error import Protocol0Error
+from protocol0.lom.device.Device import Device
+from protocol0.lom.device.RackDevice import RackDevice
+from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.sequence.Sequence import Sequence
+from protocol0.utils.utils import find_if
 
 
 class DeviceManager(AbstractControlSurfaceComponent):

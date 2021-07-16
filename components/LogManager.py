@@ -1,7 +1,7 @@
-from a_protocol_0.interface.InterfaceState import InterfaceState
-from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.lom.Scene import Scene
-from a_protocol_0.lom.device.PluginDevice import PluginDevice
+from protocol0.interface.InterfaceState import InterfaceState
+from protocol0.lom.AbstractObject import AbstractObject
+from protocol0.lom.Scene import Scene
+from protocol0.lom.device.PluginDevice import PluginDevice
 
 
 class LogManager(AbstractObject):

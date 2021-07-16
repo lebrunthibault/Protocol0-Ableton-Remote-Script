@@ -1,8 +1,8 @@
 from typing import Optional, Any, List
 
 from _Framework.SessionComponent import SessionComponent
-from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
 class SessionManager(AbstractControlSurfaceComponent):

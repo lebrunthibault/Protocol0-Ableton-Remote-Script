@@ -1,16 +1,16 @@
-import Live
 from typing import Optional, Any
 
-from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.errors.Protocol0Error import Protocol0Error
-from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
-from a_protocol_0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
-from a_protocol_0.lom.track.group_track.SimpleGroupTrack import SimpleGroupTrack
-from a_protocol_0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
-from a_protocol_0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
-from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
-from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import p0_subject_slot, defer
+import Live
+from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.errors.Protocol0Error import Protocol0Error
+from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
+from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+from protocol0.lom.track.group_track.SimpleGroupTrack import SimpleGroupTrack
+from protocol0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+from protocol0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
+from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.sequence.Sequence import Sequence
+from protocol0.utils.decorators import p0_subject_slot, defer
 
 
 class TrackManager(AbstractControlSurfaceComponent):
@@ -78,12 +78,13 @@ class TrackManager(AbstractControlSurfaceComponent):
             return None
 
         if not isinstance(base_group_track.sub_tracks[0], SimpleMidiTrack) or not isinstance(
-            base_group_track.sub_tracks[1], SimpleAudioTrack
+                base_group_track.sub_tracks[1], SimpleAudioTrack
         ):
             return None
 
         if any(
-            sub_track.instrument and sub_track.instrument.IS_EXTERNAL_SYNTH for sub_track in base_group_track.sub_tracks
+                sub_track.instrument and sub_track.instrument.IS_EXTERNAL_SYNTH for sub_track in
+                base_group_track.sub_tracks
         ):
             if isinstance(base_group_track.abstract_group_track, ExternalSynthTrack):
                 return base_group_track.abstract_group_track

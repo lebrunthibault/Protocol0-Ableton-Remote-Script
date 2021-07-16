@@ -1,7 +1,7 @@
-from a_protocol_0.enums.FoldActionEnum import FoldActionEnum
-from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
-from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
-from a_protocol_0.utils.UserMutableSequence import UserMutableSequence
+from protocol0.enums.FoldActionEnum import FoldActionEnum
+from protocol0.lom.track.AbstractTrack import AbstractTrack
+from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
+from protocol0.utils.UserMutableSequence import UserMutableSequence
 from typing import Any, Iterable, Optional
 
 

@@ -1,4 +1,4 @@
-from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 
 
 class UtilsManager(AbstractControlSurfaceComponent):

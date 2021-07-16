@@ -2,12 +2,12 @@ from functools import partial
 
 from typing import Any
 
-from a_protocol_0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
-from a_protocol_0.enums.RecordTypeEnum import RecordTypeEnum
-from a_protocol_0.interface.EncoderAction import EncoderAction
-from a_protocol_0.interface.EncoderModifierEnum import EncoderModifierEnum
-from a_protocol_0.interface.InterfaceState import InterfaceState
-from a_protocol_0.lom.track.AbstractTrackList import AbstractTrackList
+from protocol0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
+from protocol0.enums.RecordTypeEnum import RecordTypeEnum
+from protocol0.interface.EncoderAction import EncoderAction
+from protocol0.interface.EncoderModifierEnum import EncoderModifierEnum
+from protocol0.interface.InterfaceState import InterfaceState
+from protocol0.lom.track.AbstractTrackList import AbstractTrackList
 
 
 class ActionGroupMain(AbstractActionGroup):

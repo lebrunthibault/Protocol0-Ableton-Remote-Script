@@ -1,12 +1,12 @@
 import inspect
 import types
 from collections import namedtuple, Sequence as CollectionsSequence
-from types import FrameType
-
-from a_protocol_0.consts import ROOT_DIR, REMOTE_SCRIPTS_DIR
-from a_protocol_0.my_types import StringOrNumber, T
 from qualname import qualname
+from types import FrameType
 from typing import Optional, Any, cast, Callable, TYPE_CHECKING, Iterable
+
+from protocol0.config import PROJECT_ROOT, REMOTE_SCRIPTS_ROOT
+from protocol0.my_types import StringOrNumber, T
 
 if TYPE_CHECKING:
     pass
@@ -22,7 +22,7 @@ def scroll_values(items, selected_item, go_next, show_message=False):
         index = (items_list.index(selected_item) + increment) % len(items_list)
         new_item = items_list[index]
         if show_message:
-            from a_protocol_0 import Protocol0
+            from protocol0 import Protocol0
 
             Protocol0.SELF.show_message("Selected %s" % new_item)
         return new_item
@@ -60,7 +60,7 @@ def get_frame_info(frame_count=1):
         (filename, line, method_name, _, _) = inspect.getframeinfo(cast(FrameType, call_frame))
     except IndexError:
         return None
-    filename = filename.replace(ROOT_DIR + "\\", "").replace(REMOTE_SCRIPTS_DIR + "\\", "")
+    filename = filename.replace(PROJECT_ROOT + "\\", "").replace(REMOTE_SCRIPTS_ROOT + "\\", "")
     class_name = filename.replace(".py", "").split("\\")[-1]
 
     FrameInfo = namedtuple("FrameInfo", ["filename", "class_name", "line", "method_name"])
@@ -70,7 +70,7 @@ def get_frame_info(frame_count=1):
 def _has_callback_queue(func):
     # type: (Any) -> bool
     """ mixing duck typing and isinstance to ensure we really have a callback handler object """
-    from a_protocol_0.utils.callback_descriptor import CallableWithCallbacks
+    from protocol0.utils.callback_descriptor import CallableWithCallbacks
     from _Framework.SubjectSlot import CallableSlotMixin
 
     return (
@@ -140,7 +140,7 @@ def get_class_name_from_method(func):
 
 def get_callable_name(func, obj=None):
     # type: (Callable, object) -> str
-    from a_protocol_0.sequence.Sequence import Sequence
+    from protocol0.sequence.Sequence import Sequence
 
     if isinstance(func, Sequence):
         return func.name

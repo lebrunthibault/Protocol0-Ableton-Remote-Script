@@ -1,16 +1,16 @@
 from itertools import chain
 
 import Live
-from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
-from a_protocol_0.enums.ClipTypeEnum import ClipTypeEnum
-from a_protocol_0.lom.clip.Clip import Clip
-from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
-from a_protocol_0.lom.device.Device import Device
-from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
-from a_protocol_0.lom.track.AbstractTrack import AbstractTrack
-from a_protocol_0.lom.track.simple_track.SimpleTrackActionMixin import SimpleTrackActionMixin
-from a_protocol_0.utils.decorators import defer, p0_subject_slot
-from a_protocol_0.utils.utils import find_if
+from protocol0.devices.AbstractInstrument import AbstractInstrument
+from protocol0.enums.ClipTypeEnum import ClipTypeEnum
+from protocol0.lom.clip.Clip import Clip
+from protocol0.lom.clip_slot.ClipSlot import ClipSlot
+from protocol0.lom.device.Device import Device
+from protocol0.lom.device.DeviceParameter import DeviceParameter
+from protocol0.lom.track.AbstractTrack import AbstractTrack
+from protocol0.lom.track.simple_track.SimpleTrackActionMixin import SimpleTrackActionMixin
+from protocol0.utils.decorators import defer, p0_subject_slot
+from protocol0.utils.utils import find_if
 from typing import List, Optional, Any, Dict
 
 from _Framework.SubjectSlot import subject_slot, subject_slot_group
@@ -159,14 +159,14 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def is_audio(self):
         # type: () -> bool
-        from a_protocol_0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+        from protocol0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 
         return isinstance(self, SimpleAudioTrack) and self._track.has_audio_input
 
     @property
     def is_midi(self):
         # type: () -> bool
-        from a_protocol_0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
+        from protocol0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 
         return isinstance(self, SimpleMidiTrack) and self._track.has_midi_input
 

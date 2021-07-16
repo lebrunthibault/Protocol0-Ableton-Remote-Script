@@ -4,8 +4,8 @@ from types import TracebackType
 
 from typing import Optional, Any, List, Type
 
-from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.consts import ROOT_DIR
+from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.config import PROJECT_ROOT
 
 
 class ErrorManager(AbstractControlSurfaceComponent):
@@ -53,7 +53,7 @@ class ErrorManager(AbstractControlSurfaceComponent):
 
     def _check_file(self, name):
         # type: (str) -> bool
-        return bool(name and name.startswith(ROOT_DIR))
+        return bool(name and name.startswith(PROJECT_ROOT))
 
     def _format_list(self, extracted_list, print_line=True):
         # type: (List[Any], bool) -> List[str]
@@ -69,7 +69,7 @@ class ErrorManager(AbstractControlSurfaceComponent):
         list = []
 
         for filename, lineno, name, line in extracted_list:  # type: (str, int, str, str)
-            item = "  %s, line %d, in %s\n" % (filename.replace(ROOT_DIR, "."), lineno, name)
+            item = "  %s, line %d, in %s\n" % (filename.replace(PROJECT_ROOT, "."), lineno, name)
             if line and print_line:
                 item = item + "    %s\n" % line.strip()
             list.append(item)

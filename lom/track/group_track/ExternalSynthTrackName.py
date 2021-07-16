@@ -1,9 +1,9 @@
 from typing import Optional, Any, TYPE_CHECKING
 
-from a_protocol_0.lom.track.AbstractTrackName import AbstractTrackName
+from protocol0.lom.track.AbstractTrackName import AbstractTrackName
 
 if TYPE_CHECKING:
-    from a_protocol_0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+    from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 
 
 class ExternalSynthTrackName(AbstractTrackName):

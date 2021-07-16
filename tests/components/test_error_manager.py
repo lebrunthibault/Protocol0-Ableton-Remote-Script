@@ -1,4 +1,4 @@
-from a_protocol_0.tests.test_all import p0
+from protocol0.tests.test_all import p0
 
 
 def test_error_manager_simple_exception():

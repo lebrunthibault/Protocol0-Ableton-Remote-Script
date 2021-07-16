@@ -1,7 +1,7 @@
-from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.devices.InstrumentSimpler import InstrumentSimpler
-from a_protocol_0.lom.device.RackDevice import RackDevice
-from a_protocol_0.utils.decorators import defer
+from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.devices.InstrumentSimpler import InstrumentSimpler
+from protocol0.lom.device.RackDevice import RackDevice
+from protocol0.utils.decorators import defer
 
 
 class SetFixerManager(AbstractControlSurfaceComponent):

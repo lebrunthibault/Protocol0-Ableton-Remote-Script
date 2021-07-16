@@ -1,12 +1,12 @@
 from functools import partial, wraps
 
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
-from a_protocol_0.utils.utils import is_method
+from protocol0.utils.utils import is_method
 from typing import TYPE_CHECKING, Any, Callable
 
 if TYPE_CHECKING:
-    from a_protocol_0.components.Push2Manager import Push2Manager
-    from a_protocol_0.utils.callback_descriptor import CallbackDescriptor
+    from protocol0.components.Push2Manager import Push2Manager
+    from protocol0.utils.callback_descriptor import CallbackDescriptor
 
 
 def push2_method(defer=True):
@@ -40,7 +40,7 @@ def defer(func):
     @wraps(func)
     def decorate(*a, **k):
         # type: (Any, Any) -> None
-        from a_protocol_0 import Protocol0
+        from protocol0 import Protocol0
 
         Protocol0.SELF.defer(partial(func, *a, **k))
 
@@ -69,7 +69,7 @@ def poll(func):
     @wraps(func)
     def decorate(*a, **k):
         # type: (Any, Any) -> None
-        from a_protocol_0 import Protocol0
+        from protocol0 import Protocol0
 
         func(*a, **k)
         Protocol0.SELF.defer(partial(decorate, *a, **k))
@@ -84,7 +84,7 @@ def retry(retry_count=3, interval=3):
         @wraps(func)
         def decorate(*a, **k):
             # type: (Any, Any) -> None
-            from a_protocol_0 import Protocol0
+            from protocol0 import Protocol0
 
             # noinspection PyBroadException
             try:
@@ -135,7 +135,7 @@ def has_callback_queue(immediate=False):
     # type: (bool) -> Callable[[Callable], CallbackDescriptor]
     def wrap(func):
         # type: (Callable) -> CallbackDescriptor
-        from a_protocol_0.utils.callback_descriptor import CallbackDescriptor
+        from protocol0.utils.callback_descriptor import CallbackDescriptor
 
         return CallbackDescriptor(func, immediate)
 
@@ -154,7 +154,7 @@ def log(func):
             args = args[1:]
         message = func_name + "(%s)" % (", ".join([str(arg) for arg in args]))
 
-        from a_protocol_0 import Protocol0
+        from protocol0 import Protocol0
 
         Protocol0.SELF.log_info("-- %s" % message, debug=False)
         func(*a, **k)
@@ -170,7 +170,7 @@ def handle_error(func):
         try:
             func(*a, **k)
         except Exception as e:
-            from a_protocol_0 import Protocol0
+            from protocol0 import Protocol0
 
             Protocol0.SELF.errorManager.handle_error(e)
 

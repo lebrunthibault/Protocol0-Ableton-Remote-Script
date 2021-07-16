@@ -2,14 +2,14 @@ import Live
 import deprecation
 from typing import TYPE_CHECKING, Optional
 
-from a_protocol_0.consts import QUANTIZATION_OPTIONS
-from a_protocol_0.enums.PixelEnum import PixelEnum
-from a_protocol_0.interface.InterfaceState import InterfaceState
-from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
-from a_protocol_0.sequence.Sequence import Sequence
+from protocol0.config import QUANTIZATION_OPTIONS
+from protocol0.enums.PixelEnum import PixelEnum
+from protocol0.interface.InterfaceState import InterfaceState
+from protocol0.lom.device.DeviceParameter import DeviceParameter
+from protocol0.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
-    from a_protocol_0.lom.clip.Clip import Clip
+    from protocol0.lom.clip.Clip import Clip
 
 
 # noinspection PyTypeHints

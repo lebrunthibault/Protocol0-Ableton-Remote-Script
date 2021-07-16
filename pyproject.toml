@@ -2,7 +2,7 @@
 line-length = 120
 
 [tool.vulture]
-exclude = ["scripts/"]
+exclude = []
 #ignore_decorators = ["@app.route", "@require_*"]
 ignore_names = []
 make_whitelist = true

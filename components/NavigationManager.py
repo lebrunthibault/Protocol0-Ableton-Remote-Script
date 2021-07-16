@@ -1,7 +1,7 @@
 from typing import Optional, Any
 
-from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.sequence.Sequence import Sequence
+from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.sequence.Sequence import Sequence
 
 
 class NavigationManager(AbstractControlSurfaceComponent):

@@ -1,17 +1,16 @@
 from functools import partial
-
 from typing import TYPE_CHECKING, Optional
 
 from _Framework.Util import forward_property
-from a_protocol_0.devices.presets.InstrumentPreset import InstrumentPreset
-from a_protocol_0.devices.presets.InstrumentPresetList import InstrumentPresetList
-from a_protocol_0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
-from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import defer
-from a_protocol_0.utils.utils import scroll_values
+from protocol0.devices.presets.InstrumentPreset import InstrumentPreset
+from protocol0.devices.presets.InstrumentPresetList import InstrumentPresetList
+from protocol0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
+from protocol0.sequence.Sequence import Sequence
+from protocol0.utils.decorators import defer
+from protocol0.utils.utils import scroll_values
 
 if TYPE_CHECKING:
-    from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
+    from protocol0.devices.AbstractInstrument import AbstractInstrument
 
 
 class AbstractInstrumentPresetsMixin(object):

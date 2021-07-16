@@ -3,14 +3,14 @@ from functools import partial
 import Live
 from typing import Any, TYPE_CHECKING, Optional
 
-from a_protocol_0.interface.InterfaceState import InterfaceState
-from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.lom.clip.Clip import Clip
-from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import p0_subject_slot
+from protocol0.interface.InterfaceState import InterfaceState
+from protocol0.lom.AbstractObject import AbstractObject
+from protocol0.lom.clip.Clip import Clip
+from protocol0.sequence.Sequence import Sequence
+from protocol0.utils.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
-    from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
+    from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
 class ClipSlot(AbstractObject):

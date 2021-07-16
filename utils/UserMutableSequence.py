@@ -4,7 +4,7 @@ from collections import MutableSequence as CollectionsMutableSequence
 from typing import Any, Iterator, Union, TypeVar, MutableSequence
 
 from _Framework.SubjectSlot import SubjectMeta
-from a_protocol_0.lom.AbstractObject import AbstractObject
+from protocol0.lom.AbstractObject import AbstractObject
 
 T = TypeVar("T")
 

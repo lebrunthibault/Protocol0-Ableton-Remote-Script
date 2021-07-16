@@ -2,12 +2,12 @@ from functools import partial
 
 from typing import TYPE_CHECKING
 
-from a_protocol_0.interface.InterfaceState import InterfaceState
-from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.decorators import defer
+from protocol0.interface.InterfaceState import InterfaceState
+from protocol0.sequence.Sequence import Sequence
+from protocol0.utils.decorators import defer
 
 if TYPE_CHECKING:
-    from a_protocol_0.lom.Scene import Scene
+    from protocol0.lom.Scene import Scene
 
 
 class SceneActionMixin(object):
@@ -37,7 +37,7 @@ class SceneActionMixin(object):
     def toggle_solo(self):
         # type: (Scene) -> None
         """ for a scene solo means looped """
-        from a_protocol_0.lom.Scene import Scene
+        from protocol0.lom.Scene import Scene
 
         if not self.looping:  # solo activation
             previous_looping_scene = Scene.LOOPING_SCENE

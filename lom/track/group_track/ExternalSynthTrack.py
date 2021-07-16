@@ -2,16 +2,16 @@ import itertools
 
 from typing import Optional, Any, cast
 
-from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
-from a_protocol_0.lom.ObjectSynchronizer import ObjectSynchronizer
-from a_protocol_0.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
-from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
-from a_protocol_0.lom.track.group_track.ExternalSynthTrackActionMixin import ExternalSynthTrackActionMixin
-from a_protocol_0.lom.track.group_track.ExternalSynthTrackName import ExternalSynthTrackName
-from a_protocol_0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
-from a_protocol_0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
-from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
-from a_protocol_0.lom.track.simple_track.TrackSynchronizer import TrackSynchronizer
+from protocol0.devices.AbstractInstrument import AbstractInstrument
+from protocol0.lom.ObjectSynchronizer import ObjectSynchronizer
+from protocol0.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
+from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
+from protocol0.lom.track.group_track.ExternalSynthTrackActionMixin import ExternalSynthTrackActionMixin
+from protocol0.lom.track.group_track.ExternalSynthTrackName import ExternalSynthTrackName
+from protocol0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+from protocol0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
+from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.lom.track.simple_track.TrackSynchronizer import TrackSynchronizer
 
 
 class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):

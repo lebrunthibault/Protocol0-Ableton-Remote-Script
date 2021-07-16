@@ -1,36 +1,35 @@
 from functools import partial
-
 from typing import TYPE_CHECKING, Iterable, Any, Union, Callable, Optional, cast, List
 
 from _Framework.SubjectSlot import subject_slot
-from a_protocol_0.errors.SequenceError import SequenceError
-from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
-from a_protocol_0.utils.callback_descriptor import CallableWithCallbacks
-from a_protocol_0.utils.decorators import p0_subject_slot
-from a_protocol_0.utils.timeout import TimeoutLimit
-from a_protocol_0.utils.utils import _has_callback_queue, is_lambda, get_callable_name, nop
+from protocol0.errors.SequenceError import SequenceError
+from protocol0.lom.AbstractObject import AbstractObject
+from protocol0.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
+from protocol0.utils.callback_descriptor import CallableWithCallbacks
+from protocol0.utils.decorators import p0_subject_slot
+from protocol0.utils.timeout import TimeoutLimit
+from protocol0.utils.utils import _has_callback_queue, is_lambda, get_callable_name, nop
 
 if TYPE_CHECKING:
-    from a_protocol_0.sequence.Sequence import Sequence
+    from protocol0.sequence.Sequence import Sequence
 
 
 class SequenceStep(AbstractObject, SequenceStateMachineMixin):
     __subject_events__ = ("terminated", "errored")
 
     def __init__(
-        self,
-        func,  # type: Callable
-        sequence,  # type: Sequence
-        wait,  # type: int
-        name,  # type: str
-        complete_on,  # type: Optional[Union[Callable, CallableWithCallbacks]]
-        do_if,  # type: Optional[Callable]
-        return_if,  # type: Optional[Callable]
-        check_timeout,  # type: int
-        silent,  # type: bool
-        *a,  # type: Any
-        **k  # type: Any
+            self,
+            func,  # type: Callable
+            sequence,  # type: Sequence
+            wait,  # type: int
+            name,  # type: str
+            complete_on,  # type: Optional[Union[Callable, CallableWithCallbacks]]
+            do_if,  # type: Optional[Callable]
+            return_if,  # type: Optional[Callable]
+            check_timeout,  # type: int
+            silent,  # type: bool
+            *a,  # type: Any
+            **k  # type: Any
     ):
         """ the tick is 100 ms """
         super(SequenceStep, self).__init__(*a, **k)
@@ -56,7 +55,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
 
         assert callable(self._callable), "You passed a non callable (%s) to %s" % (self._callable, self)
         assert len(list(filter(None, conditions))) <= 1, "You cannot specify multiple conditions in a step"
-        from a_protocol_0.sequence.Sequence import Sequence
+        from protocol0.sequence.Sequence import Sequence
 
         assert all(
             [not isinstance(condition, Sequence) for condition in conditions]
@@ -83,10 +82,9 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
     def make(sequence, callback, *a, **k):
         # type: (Sequence, Union[Callable, Iterable], Any, Any) -> SequenceStep
         if isinstance(callback, Iterable):
-
             def parallel_sequence_creator(callbacks):
                 # type: (List[Callable]) -> Sequence
-                from a_protocol_0.sequence.ParallelSequence import ParallelSequence
+                from protocol0.sequence.ParallelSequence import ParallelSequence
 
                 seq = ParallelSequence(silent=not sequence.debug)
                 [seq.add(func) for func in callbacks]
@@ -201,7 +199,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
 
     def _handle_return_value(self, res, listener, success_callback):
         # type: (Any, CallableWithCallbacks, Callable[Any]) -> None
-        from a_protocol_0.sequence.Sequence import Sequence
+        from protocol0.sequence.Sequence import Sequence
 
         if isinstance(res, Sequence):
             if res.errored:
@@ -222,7 +220,8 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         except SequenceError:
             return
 
-        self._handle_return_value(res, self._step_sequence_terminated_listener, self._check_for_step_completion)  # type: ignore[arg-type]
+        self._handle_return_value(res, self._step_sequence_terminated_listener,
+                                  self._check_for_step_completion)  # type: ignore[arg-type]
 
     def _step_timed_out(self):
         # type: () -> None

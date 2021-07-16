@@ -1,4 +1,4 @@
-from a_protocol_0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
+from protocol0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
 from typing import Any
 
 

@@ -1,5 +1,5 @@
-from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.utils.utils import scroll_values
+from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.utils.utils import scroll_values
 
 
 class AutomationTrackManager(AbstractControlSurfaceComponent):

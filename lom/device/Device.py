@@ -2,12 +2,12 @@ import Live
 from typing import TYPE_CHECKING, List, Any, Type, Optional
 
 from _Framework.SubjectSlot import subject_slot
-from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
-from a_protocol_0.lom.device.DeviceType import DeviceType
+from protocol0.lom.AbstractObject import AbstractObject
+from protocol0.lom.device.DeviceParameter import DeviceParameter
+from protocol0.lom.device.DeviceType import DeviceType
 
 if TYPE_CHECKING:
-    from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
+    from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
 class Device(AbstractObject):
@@ -32,15 +32,15 @@ class Device(AbstractObject):
     def get_class(device):
         # type: (Any) -> Type[Device]
         if isinstance(device, Live.RackDevice.RackDevice):
-            from a_protocol_0.lom.device.RackDevice import RackDevice
+            from protocol0.lom.device.RackDevice import RackDevice
 
             return RackDevice
         elif isinstance(device, Live.PluginDevice.PluginDevice):
-            from a_protocol_0.lom.device.PluginDevice import PluginDevice
+            from protocol0.lom.device.PluginDevice import PluginDevice
 
             return PluginDevice
         elif isinstance(device, Live.SimplerDevice.SimplerDevice):
-            from a_protocol_0.lom.device.SimplerDevice import SimplerDevice
+            from protocol0.lom.device.SimplerDevice import SimplerDevice
 
             return SimplerDevice
         else:

@@ -4,9 +4,9 @@ from os.path import basename
 import Live
 from typing import Any, Optional
 
-from a_protocol_0.lom.device.Device import Device
-from a_protocol_0.lom.device.DeviceType import DeviceType
-from a_protocol_0.utils.utils import smart_string
+from protocol0.lom.device.Device import Device
+from protocol0.lom.device.DeviceType import DeviceType
+from protocol0.utils.utils import smart_string
 
 
 class SimplerDevice(Device):

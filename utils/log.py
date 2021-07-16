@@ -1,8 +1,8 @@
 import logging
 
-from a_protocol_0.enums.LogLevelEnum import LogLevelEnum
-from a_protocol_0.errors.Protocol0Error import Protocol0Error
-from a_protocol_0.utils.utils import smart_string
+from protocol0.enums.LogLevelEnum import LogLevelEnum
+from protocol0.errors.Protocol0Error import Protocol0Error
+from protocol0.utils.utils import smart_string
 
 
 def log_ableton(message, debug=True, level=LogLevelEnum.DEV, direct_call=True):
@@ -12,7 +12,7 @@ def log_ableton(message, debug=True, level=LogLevelEnum.DEV, direct_call=True):
     if any(not isinstance(param, bool) for param in [debug, direct_call]):
         raise Protocol0Error("log_ableton: parameter mismatch")
     if debug:
-        from a_protocol_0.utils.utils import get_frame_info
+        from protocol0.utils.utils import get_frame_info
 
         frame_info = get_frame_info(2 if direct_call else 4)
         if frame_info:

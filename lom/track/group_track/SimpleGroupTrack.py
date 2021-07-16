@@ -2,11 +2,11 @@ from functools import partial
 
 from typing import Any, Optional
 
-from a_protocol_0.enums.Push2MainModeEnum import Push2MainModeEnum
-from a_protocol_0.lom.device.DeviceType import DeviceType
-from a_protocol_0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
-from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
-from a_protocol_0.sequence.Sequence import Sequence
+from protocol0.enums.Push2MainModeEnum import Push2MainModeEnum
+from protocol0.lom.device.DeviceType import DeviceType
+from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
+from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.sequence.Sequence import Sequence
 
 
 class SimpleGroupTrack(AbstractGroupTrack):

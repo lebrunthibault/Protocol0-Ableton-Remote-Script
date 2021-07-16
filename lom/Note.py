@@ -1,12 +1,12 @@
 from typing import TYPE_CHECKING, Any, cast, Tuple
 
-from a_protocol_0.errors.Protocol0Error import Protocol0Error
-from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.utils.utils import clamp
-from a_protocol_0.utils.utils import is_equal
+from protocol0.errors.Protocol0Error import Protocol0Error
+from protocol0.lom.AbstractObject import AbstractObject
+from protocol0.utils.utils import clamp
+from protocol0.utils.utils import is_equal
 
 if TYPE_CHECKING:
-    from a_protocol_0.lom.clip.MidiClip import MidiClip
+    from protocol0.lom.clip.MidiClip import MidiClip
 
 
 class Note(AbstractObject):

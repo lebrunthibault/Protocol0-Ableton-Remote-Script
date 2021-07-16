@@ -3,13 +3,13 @@ from functools import partial
 import Live
 from typing import List, TYPE_CHECKING, Optional, Callable, Any
 
-from a_protocol_0.enums.PixelEnum import PixelEnum
-from a_protocol_0.lom.Note import Note
-from a_protocol_0.lom.clip.Clip import Clip
-from a_protocol_0.sequence.Sequence import Sequence
+from protocol0.enums.PixelEnum import PixelEnum
+from protocol0.lom.Note import Note
+from protocol0.lom.clip.Clip import Clip
+from protocol0.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
-    from a_protocol_0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
+    from protocol0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 
 
 class MidiClip(Clip):

@@ -3,11 +3,11 @@ from functools import partial
 from typing import Callable, Optional
 
 from ClyphX_Pro.clyphx_pro.actions.BrowserActions import BrowserActions
-from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.errors.Protocol0Error import Protocol0Error
-from a_protocol_0.lom.device.DeviceType import DeviceType
-from a_protocol_0.sequence.Sequence import Sequence
-from a_protocol_0.utils.utils import find_if
+from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.errors.Protocol0Error import Protocol0Error
+from protocol0.lom.device.DeviceType import DeviceType
+from protocol0.sequence.Sequence import Sequence
+from protocol0.utils.utils import find_if
 
 
 class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):

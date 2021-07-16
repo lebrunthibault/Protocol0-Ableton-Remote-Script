@@ -3,15 +3,15 @@ from os.path import isfile, isdir
 
 from typing import TYPE_CHECKING, List, Optional, Any
 
-from a_protocol_0.devices.presets.InstrumentPreset import InstrumentPreset
-from a_protocol_0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
-from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.lom.device.PluginDevice import PluginDevice
-from a_protocol_0.lom.device.RackDevice import RackDevice
-from a_protocol_0.utils.utils import find_if
+from protocol0.devices.presets.InstrumentPreset import InstrumentPreset
+from protocol0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
+from protocol0.lom.AbstractObject import AbstractObject
+from protocol0.lom.device.PluginDevice import PluginDevice
+from protocol0.lom.device.RackDevice import RackDevice
+from protocol0.utils.utils import find_if
 
 if TYPE_CHECKING:
-    from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
+    from protocol0.devices.AbstractInstrument import AbstractInstrument
 
 
 class InstrumentPresetList(AbstractObject):

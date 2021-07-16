@@ -1,11 +1,11 @@
 from typing import List
 
 from _Framework.SubjectSlot import Subject
-from a_protocol_0.lom.Song import Song
-from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
-from a_protocol_0.tests.fixtures.abstract_group_track import make_external_synth_track
-from a_protocol_0.tests.fixtures.simple_track import AbletonTrack, TrackType, make_simple_track
-from a_protocol_0.tests.fixtures.song_view import AbletonSongView
+from protocol0.lom.Song import Song
+from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.tests.fixtures.abstract_group_track import make_external_synth_track
+from protocol0.tests.fixtures.simple_track import AbletonTrack, TrackType, make_simple_track
+from protocol0.tests.fixtures.song_view import AbletonSongView
 
 
 class AbletonSong(Subject):

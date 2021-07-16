@@ -2,11 +2,11 @@ import os
 
 from typing import TYPE_CHECKING, Any, Optional
 
-from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.utils.utils import smart_string
+from protocol0.lom.AbstractObject import AbstractObject
+from protocol0.utils.utils import smart_string
 
 if TYPE_CHECKING:
-    from a_protocol_0.devices.AbstractInstrument import AbstractInstrument
+    from protocol0.devices.AbstractInstrument import AbstractInstrument
 
 
 class InstrumentPreset(AbstractObject):

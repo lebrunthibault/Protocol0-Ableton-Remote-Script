@@ -1,17 +1,17 @@
 from functools import partial
 
 import Live
-from a_protocol_0.enums.ClipTypeEnum import ClipTypeEnum
-from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.lom.clip.ClipActionMixin import ClipActionMixin
-from a_protocol_0.lom.clip.ClipName import ClipName
-from a_protocol_0.lom.device.DeviceParameter import DeviceParameter
-from a_protocol_0.utils.decorators import p0_subject_slot
+from protocol0.enums.ClipTypeEnum import ClipTypeEnum
+from protocol0.lom.AbstractObject import AbstractObject
+from protocol0.lom.clip.ClipActionMixin import ClipActionMixin
+from protocol0.lom.clip.ClipName import ClipName
+from protocol0.lom.device.DeviceParameter import DeviceParameter
+from protocol0.utils.decorators import p0_subject_slot
 from typing import TYPE_CHECKING, Optional, Any, List, cast
 
 if TYPE_CHECKING:
-    from a_protocol_0.lom.clip_slot.ClipSlot import ClipSlot
-    from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
+    from protocol0.lom.clip_slot.ClipSlot import ClipSlot
+    from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
 class Clip(ClipActionMixin, AbstractObject):
@@ -121,7 +121,7 @@ class Clip(ClipActionMixin, AbstractObject):
     @property
     def is_midi(self):
         # type: () -> bool
-        from a_protocol_0.lom.clip.MidiClip import MidiClip
+        from protocol0.lom.clip.MidiClip import MidiClip
 
         return isinstance(self, MidiClip)
 

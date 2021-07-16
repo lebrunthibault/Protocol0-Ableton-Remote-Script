@@ -4,7 +4,7 @@ from math import floor
 from typing import Callable, Any, Dict
 
 from ClyphX_Pro.SyncedScheduler import SyncedScheduler
-from a_protocol_0.lom.AbstractObject import AbstractObject
+from protocol0.lom.AbstractObject import AbstractObject
 
 
 class BeatScheduler(AbstractObject, SyncedScheduler):

@@ -2,8 +2,8 @@ import Live
 from typing import cast, List
 
 from _Framework.SubjectSlot import Subject
-from a_protocol_0.lom.Song import Song
-from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.lom.Song import Song
+from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
 class TrackType(object):

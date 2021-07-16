@@ -2,10 +2,10 @@ import Live
 from typing import List, Optional, Any
 
 from _Framework.SubjectSlot import subject_slot
-from a_protocol_0.lom.device.Device import Device
-from a_protocol_0.lom.device.DeviceChain import DeviceChain
-from a_protocol_0.lom.device.DeviceType import DeviceType
-from a_protocol_0.utils.utils import find_if
+from protocol0.lom.device.Device import Device
+from protocol0.lom.device.DeviceChain import DeviceChain
+from protocol0.lom.device.DeviceType import DeviceType
+from protocol0.utils.utils import find_if
 
 
 class RackDevice(Device):

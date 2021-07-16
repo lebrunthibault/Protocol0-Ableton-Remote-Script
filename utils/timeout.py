@@ -1,8 +1,8 @@
 from typing import Any, Callable
 
-from a_protocol_0.errors.Protocol0Error import Protocol0Error
-from a_protocol_0.lom.AbstractObject import AbstractObject
-from a_protocol_0.utils.utils import get_callable_name
+from protocol0.errors.Protocol0Error import Protocol0Error
+from protocol0.lom.AbstractObject import AbstractObject
+from protocol0.utils.utils import get_callable_name
 
 
 class TimeoutLimit(AbstractObject):

@@ -1,9 +1,9 @@
 from typing import Any
 
-from a_protocol_0.enums.Push2InstrumentModeEnum import Push2InstrumentModeEnum
-from a_protocol_0.enums.Push2MatrixModeEnum import Push2MatrixModeEnum
-from a_protocol_0.lom.clip.MidiClip import MidiClip
-from a_protocol_0.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.enums.Push2InstrumentModeEnum import Push2InstrumentModeEnum
+from protocol0.enums.Push2MatrixModeEnum import Push2MatrixModeEnum
+from protocol0.lom.clip.MidiClip import MidiClip
+from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
 class SimpleMidiTrack(SimpleTrack):

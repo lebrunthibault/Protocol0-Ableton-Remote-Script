@@ -1,13 +1,14 @@
 from functools import partial
-
-from a_protocol_0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from a_protocol_0.components.Api.ApiAction import ApiAction
-from a_protocol_0.consts import MIDI_STATUS_BYTES
-from a_protocol_0.errors.ApiError import ApiError
 from typing import Optional, Tuple
+
+from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.components.Api.ApiAction import ApiAction
+from protocol0.errors.ApiError import ApiError
 
 
 class MidiManager(AbstractControlSurfaceComponent):
+    MIDI_STATUS_BYTES = {"note": 144, "cc": 176, "pc": 192}
+
     @staticmethod
     def _sysex_to_string(sysex):
         # type: (Tuple) -> str
@@ -19,7 +20,7 @@ class MidiManager(AbstractControlSurfaceComponent):
 
     def _send_formatted_midi_message(self, message_type, channel, value, value2=None):
         # type: (str, int, int, Optional[int]) -> None
-        status = MIDI_STATUS_BYTES[message_type]
+        status = self.MIDI_STATUS_BYTES[message_type]
         assert 0 <= channel <= 15
         assert 0 <= value <= 127
         status += channel

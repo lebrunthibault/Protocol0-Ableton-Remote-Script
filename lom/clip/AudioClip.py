@@ -3,11 +3,11 @@ from functools import partial
 import Live
 from typing import TYPE_CHECKING, Any
 
-from a_protocol_0.lom.clip.Clip import Clip
-from a_protocol_0.utils.decorators import p0_subject_slot, defer
+from protocol0.lom.clip.Clip import Clip
+from protocol0.utils.decorators import p0_subject_slot, defer
 
 if TYPE_CHECKING:
-    from a_protocol_0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+    from protocol0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 
 
 class AudioClip(Clip):

@@ -2,12 +2,12 @@ import re
 
 from typing import TYPE_CHECKING, Any, Optional
 
-from a_protocol_0.config import Config
-from a_protocol_0.lom.AbstractObjectName import AbstractObjectName
-from a_protocol_0.utils.decorators import p0_subject_slot, defer
+from protocol0.config import Config
+from protocol0.lom.AbstractObjectName import AbstractObjectName
+from protocol0.utils.decorators import p0_subject_slot, defer
 
 if TYPE_CHECKING:
-    from a_protocol_0.lom.clip.Clip import Clip
+    from protocol0.lom.clip.Clip import Clip
 
 
 class ClipName(AbstractObjectName):
