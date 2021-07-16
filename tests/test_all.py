@@ -11,8 +11,7 @@ p0 = Protocol0(EmptyModule(is_false=False), test_mode=True)
 
 debug = os.getenv("DEBUG_TESTS", "False").lower() == "true"
 
-Config.SEQUENCE_DEBUG_MODE = debug
-Config.SEQUENCE_SILENT_MODE = not debug
+Config.SEQUENCE_DEBUG = debug
 TimeoutLimit.TICKS_COUNT = 1
 
 Config.LOG_LEVEL = LogLevelEnum.DEV if debug else LogLevelEnum.DISABLED

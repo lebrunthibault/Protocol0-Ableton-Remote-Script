@@ -1,5 +1,4 @@
 from collections import deque
-
 from typing import Deque, Optional, Iterable, Union, Callable, Any, List
 
 from a_protocol_0.config import Config
@@ -28,7 +27,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
         self._current_step = None  # type: Optional[SequenceStep]
         self._bypass_errors = bypass_errors
         self.res = None  # type: Optional[Any]
-        self.debug = Config.SEQUENCE_DEBUG_MODE or not (silent or Config.SEQUENCE_SILENT_MODE)
+        self.debug = Config.SEQUENCE_DEBUG or not (silent)
         frame_info = get_frame_info(2)
         if frame_info:
             self.name = "[seq %s.%s]" % (frame_info.class_name, frame_info.method_name)
@@ -94,16 +93,16 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
             self.parent.log_error(self.debug_str, debug=False)
 
     def add(
-        self,
-        func=nop,  # type: Union[Iterable, Callable, object]
-        wait=None,  # type: int
-        name=None,  # type: str
-        complete_on=None,  # type: Callable
-        do_if=None,  # type: Callable
-        return_if=None,  # type: Callable
-        check_timeout=4,  # type: int
-        no_timeout=False,  # type: bool
-        silent=False,  # type: bool
+            self,
+            func=nop,  # type: Union[Iterable, Callable, object]
+            wait=None,  # type: int
+            name=None,  # type: str
+            complete_on=None,  # type: Callable
+            do_if=None,  # type: Callable
+            return_if=None,  # type: Callable
+            check_timeout=4,  # type: int
+            no_timeout=False,  # type: bool
+            silent=False,  # type: bool
     ):
         # type: (...) -> Sequence
         """
