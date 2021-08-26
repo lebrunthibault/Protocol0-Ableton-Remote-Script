@@ -13,7 +13,7 @@ class Config(object):
     # with this set to True, the script is going to rename more aggressively
     FIX_OUTDATED_SETS = True
 
-    SEQUENCE_DEBUG = True
+    SEQUENCE_DEBUG = False
 
 
 PROJECT_ROOT = dirname(os.path.realpath(__file__))
