@@ -84,6 +84,7 @@ class Protocol0(ControlSurface):
             ApiAction.create_method_mapping()
 
             self.log_info("Protocol0 script loaded")
+            self._wait(100, self.push2Manager.connect_push2)
 
     def start(self):
         # type: () -> None

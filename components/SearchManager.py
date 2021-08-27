@@ -1,7 +1,9 @@
 from typing import Callable, Optional
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.enums.CommandEnum import CommandEnum
 from protocol0.lom.track.AbstractTrack import AbstractTrack
+from protocol0.lom.track.AbstractTrackList import AbstractTrackList
 from protocol0.utils.decorators import api_exposed, api_exposable_class
 from protocol0.utils.log import log_ableton
 from protocol0.utils.utils import normalize_string
@@ -15,15 +17,24 @@ class SearchManager(AbstractControlSurfaceComponent):
         log_ableton("test API called successful")
 
     @api_exposed
+    def execute_command(self, command):
+        # type: (str) -> None
+        if CommandEnum.get_from_value(command):
+            self._execute_command(command=command)
+        else:
+            self.search_track(search=command)
+
+    def _execute_command(self, command):
+        if command == CommandEnum.FOLD.name:
+            AbstractTrackList(self.song.abstract_tracks).toggle_fold()
+
     def search_track(self, search):
         # type: (str) -> None
-        self.parent.log_dev(search)
         if len(search) < 3:
             return
 
         search = search.lower().strip()
 
-        self.parent.log_dev(search)
         criterias = [
             lambda track, search: normalize_string(track.name).startswith(search),
             lambda track, search: search in normalize_string(track.name),
@@ -43,7 +54,6 @@ class SearchManager(AbstractControlSurfaceComponent):
     def _search_by_criteria(self, search, criteria):
         # type: (str, Callable) -> Optional[AbstractTrack]
         for track in self.song.abstract_tracks:
-            self.parent.log_dev(track.name)
             if criteria(track, search):
                 return track
 

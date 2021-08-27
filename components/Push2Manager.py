@@ -1,10 +1,13 @@
 from typing import Optional, cast, Any
 
+from _Framework.ControlSurface import get_control_surfaces
 from _Framework.SubjectSlot import subject_slot, subject_slot_group
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.lom.clip.MidiClip import MidiClip
-from protocol0.utils.decorators import push2_method
-from protocol0_push2.push2 import Push2
+from protocol0.utils.decorators import push2_method, defer
+from Push2.push2 import Push2
+
+from protocol0.utils.utils import find_if
 
 
 class Push2Manager(AbstractControlSurfaceComponent):
@@ -18,17 +21,23 @@ class Push2Manager(AbstractControlSurfaceComponent):
         self.update_selected_modes = True
         self._selected_track_listener.subject = self.parent.songManager
 
-    def connect_push2(self, push2):
-        # type: (Push2) -> None
+    def connect_push2(self):
+        # type: () -> None
         """ object modification, push2 registers itself after protocol0 instantiation """
-        self.push2 = push2
-        self.push2._session_ring.set_enabled(False)
-        self.push2._matrix_modes.selected_mode = "session"
-        self._session_pad_press_listener.subject = self.push2.elements.matrix
-        self._track_select_button_press_listener.subject = self.push2.elements.select_buttons
-        self._nav_button_press_listener.replace_subjects(
-            [self.push2.elements.nav_left_button, self.push2.elements.nav_right_button]
-        )
+        push2 = find_if(lambda cs: isinstance(cs, Push2), get_control_surfaces())
+        self.parent.log_info("Got push2 %s" % push2)
+        if not push2:
+            return
+
+        self.push2 = push2  # type: Push2
+        with push2.component_guard():
+            self.push2._session_ring.set_enabled(False)
+            self.push2._matrix_modes.selected_mode = "session"
+            self._session_pad_press_listener.subject = self.push2.elements.matrix
+            self._track_select_button_press_listener.subject = self.push2.elements.select_buttons
+            self._nav_button_press_listener.replace_subjects(
+                [self.push2.elements.nav_left_button, self.push2.elements.nav_right_button]
+            )
         self.parent.log_info("Push2 connected to Protocol0")
 
     @subject_slot("value")

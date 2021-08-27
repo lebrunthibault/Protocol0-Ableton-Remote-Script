@@ -3,11 +3,7 @@ import os
 import sys
 from os.path import dirname
 
-# noinspection PyBroadException
-try:
-    import make_path  # here use your own script to append your system python site-packages folder to sys.path
-except Exception:
-    pass
+sys.path.insert(0, "C:\\Python27\\Lib\\site-packages")
 
 live_environment_loaded = "Live" in sys.modules
 
