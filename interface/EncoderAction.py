@@ -1,10 +1,9 @@
-from typing import Optional, List, Any, Callable
-
 from protocol0.interface.EncoderModifierEnum import EncoderModifierEnum
 from protocol0.interface.EncoderMoveEnum import EncoderMoveEnum
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.utils.decorators import handle_error
 from protocol0.utils.utils import get_callable_name, is_lambda
+from typing import Optional, List, Any, Callable
 
 
 class EncoderAction(AbstractObject):
@@ -51,9 +50,9 @@ class EncoderAction(AbstractObject):
 
     @staticmethod
     def make_actions(
-        on_press=None,  # type: Optional[Callable]
-        on_long_press=None,  # type: Optional[Callable]
-        on_scroll=None,  # type: Optional[Callable]
+            on_press=None,  # type: Optional[Callable]
+            on_long_press=None,  # type: Optional[Callable]
+            on_scroll=None,  # type: Optional[Callable]
     ):
         # type: (...) -> List[EncoderAction]
         """ This is not necessary but makes it more convenient to define most encoder actions. """

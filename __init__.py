@@ -3,7 +3,8 @@ import os
 import sys
 from os.path import dirname
 
-sys.path.insert(0, "C:\\Python27\\Lib\\site-packages")
+if sys.version_info.major == 2:
+    sys.path.insert(0, "C:\\Python27\\Lib\\site-packages")
 
 live_environment_loaded = "Live" in sys.modules
 

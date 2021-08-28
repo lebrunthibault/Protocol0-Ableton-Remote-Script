@@ -1,14 +1,14 @@
 from functools import partial
 
-import Live
-from typing import TYPE_CHECKING, Any, Optional, NoReturn, Callable, cast
-
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import retry
 from protocol0.utils.utils import find_if
+from typing import TYPE_CHECKING, Any, Optional, NoReturn, Callable, cast
+
+import Live
 
 if TYPE_CHECKING:
     from protocol0.lom.track.AbstractTrack import AbstractTrack

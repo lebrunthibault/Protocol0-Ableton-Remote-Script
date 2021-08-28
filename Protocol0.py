@@ -1,12 +1,9 @@
 import threading
 from types import MethodType
 
-from p0_system_api import DefaultApi
-from typing import Callable, Any
-
 from ClyphX_Pro import ClyphXComponentBase, ParseUtils
 from ClyphX_Pro.clyphx_pro.actions.GlobalActions import GlobalActions
-from _Framework.ControlSurface import ControlSurface
+from p0_system_api import DefaultApi
 from protocol0.automation.AutomationTrackManager import AutomationTrackManager
 from protocol0.components.Api.ApiAction import ApiAction
 from protocol0.components.BeatScheduler import BeatScheduler
@@ -25,7 +22,6 @@ from protocol0.components.SetFixerManager import SetFixerManager
 from protocol0.components.SongManager import SongManager
 from protocol0.components.TrackManager import TrackManager
 from protocol0.components.UtilsManager import UtilsManager
-from protocol0.components.VocalCommand.KeywordActionManager import KeywordActionManager
 from protocol0.components.VocalCommand.KeywordSearchManager import KeywordSearchManager
 from protocol0.components.VocalCommand.VocalCommandManager import VocalCommandManager
 from protocol0.components.actionGroups.ActionGroupMain import ActionGroupMain
@@ -37,6 +33,9 @@ from protocol0.enums.LogLevelEnum import LogLevelEnum
 from protocol0.lom.Song import Song
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.log import log_ableton
+from typing import Callable, Any
+
+from _Framework.ControlSurface import ControlSurface
 
 
 class Protocol0(ControlSurface):
@@ -87,7 +86,6 @@ class Protocol0(ControlSurface):
             # vocal command
             self.keywordSearchManager = KeywordSearchManager()
             self.vocalCommandManager = VocalCommandManager()
-            self.keywordActionManager = KeywordActionManager()
 
             self.start()
             ApiAction.create_method_mapping()
