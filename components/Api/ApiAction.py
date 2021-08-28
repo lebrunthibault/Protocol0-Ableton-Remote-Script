@@ -1,13 +1,14 @@
 import json
 
+from typing import List, Optional, Dict
+
 from protocol0.errors.ApiError import ApiError
 from protocol0.utils.decorators import EXPOSED_P0_METHODS
 from protocol0.utils.log import log_ableton
 from protocol0.utils.utils import find_if
-from typing import List, Optional, Dict
 
 
-class ApiAction():
+class ApiAction(object):
     EXPOSED_P0_CALLABLES = None  # type: Optional[Dict]
 
     def __init__(self, method_name, args):
@@ -49,13 +50,13 @@ class ApiAction():
     def make_from_string(cls, payload):
         # type: (str) -> ApiAction
         try:
-            dict = json.loads(payload)
+            data = json.loads(payload)
             log_ableton(payload)
         except ValueError:
             raise ApiError("json decode error on string : %s" % payload)
 
         try:
-            return ApiAction(method_name=dict["method"], args=dict["args"])
+            return ApiAction(method_name=data["method"], args=data["args"])
         except (KeyError, TypeError) as e:
             raise ApiError("Invalid string payload %s (%s)" % (payload, e))
 

@@ -30,7 +30,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
         instrument_device = find_if(lambda d: AbstractInstrument.get_instrument_class(d),  # type: ignore
                                     track.all_devices)
         if not instrument_device:
-            self.parent.log_error("Couldn't find instrument for track %s" % track)
+            self.parent.log_warning("Couldn't find instrument for track %s" % track)
             return None
 
         instrument_class = cast(Type[AbstractInstrument], AbstractInstrument.get_instrument_class(instrument_device))

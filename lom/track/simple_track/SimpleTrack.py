@@ -236,3 +236,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             clip_slot.disconnect()
         if self.instrument:
             self.instrument.disconnect()
+
+    @property
+    def track(self):
+        return self._track

@@ -32,6 +32,7 @@ class AbstractInstrumentPresetsMixin(object):
         """ overridden """
         return InstrumentPreset(instrument=self, index=index, name=name, category=category)
 
+    # noinspection PyMethodParameters
     @forward_property("_preset_list")
     def selected_preset():
         # type: () -> Optional[InstrumentPreset]

@@ -33,7 +33,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # type: (SimpleTrack, Any, Any) -> None
         super(AbstractTrack, self).__init__(*a, **k)
         # TRACKS
-        self._track = track._track  # type: Live.Track.Track
+        self._track = track.track  # type: Live.Track.Track
         self.base_track = track  # type: SimpleTrack
         self.group_track = None  # type: Optional[AbstractTrack]
         self.abstract_group_track = None  # type: Optional[AbstractGroupTrack]
@@ -194,10 +194,20 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # type: () -> str
         return self.base_track.track_name.base_name
 
-    @property
     def name_prefix(self):
         # type: () -> str
         return self.base_track.track_name.base_name.split(" ")[0]
+
+    @property
+    def search_keywords(self):
+        # type: () -> List[str]
+        keywords = [self.name]
+        if self.instrument:
+            keywords += [self.instrument.name, self.instrument.preset_name]
+            if self.instrument.selected_preset:
+                keywords += [self.instrument.selected_preset.name]
+        unique_keywords = list(set(" ".join(keywords).lower().split(" ")))
+        return [kw for kw in unique_keywords if len(kw) >= 3]
 
     @property
     def is_playing(self):

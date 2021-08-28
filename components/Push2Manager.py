@@ -4,7 +4,7 @@ from _Framework.ControlSurface import get_control_surfaces
 from _Framework.SubjectSlot import subject_slot, subject_slot_group
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.lom.clip.MidiClip import MidiClip
-from protocol0.utils.decorators import push2_method, defer
+from protocol0.utils.decorators import push2_method
 from Push2.push2 import Push2
 
 from protocol0.utils.utils import find_if
@@ -26,7 +26,8 @@ class Push2Manager(AbstractControlSurfaceComponent):
         """ object modification, push2 registers itself after protocol0 instantiation """
         push2 = find_if(lambda cs: isinstance(cs, Push2), get_control_surfaces())
         self.parent.log_info("Got push2 %s" % push2)
-        if not push2:
+        if not push2 or not hasattr(push2, "_session_ring"):
+            self.parent.log_warning("Cannot connect to push2")
             return
 
         self.push2 = push2  # type: Push2

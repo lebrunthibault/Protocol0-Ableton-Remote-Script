@@ -202,7 +202,7 @@ class AbstractTrackActionMixin(object):
 
     def post_record(self):
         # type: (AbstractTrack) -> None
-        " overridden "
+        """ overridden """
         self.song.metronome = False
         self.has_monitor_in = False
         self.song.session_record = False

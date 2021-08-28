@@ -55,6 +55,8 @@ class LogManager(AbstractObject):
         self.parent.log_info("current_track.sub_tracks: %s" % self.song.current_track.sub_tracks)
         self.parent.log_info()
         self.parent.log_info("current_track.instrument: %s" % self.song.current_track.instrument)
+        self.parent.log_info()
+        self.parent.log_info("current_track.search_keywords: %s" % self.song.current_track.search_keywords)
         if self.song.current_track.instrument:
             self.parent.log_info()
             self.parent.log_info(
@@ -139,10 +141,10 @@ class LogManager(AbstractObject):
                 "current_track.instrument.preset_list: %s" % self.song.current_track.instrument._preset_list
             )
             self.parent.log_info()
-            self.parent.log_info(
-                "current_track.instrument.preset_list.presets: %s"
-                % self.song.current_track.instrument._preset_list.presets
-            )
+            # self.parent.log_info(
+            #     "current_track.instrument.preset_list.presets: %s"
+            #     % self.song.current_track.instrument._preset_list.presets
+            # )
             self.parent.log_info()
             self.parent.log_info(
                 "current_track.instrument.presets_path: %s" % self.song.current_track.instrument.presets_path

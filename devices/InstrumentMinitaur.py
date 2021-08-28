@@ -3,7 +3,7 @@ from protocol0.enums.ColorEnum import ColorEnum
 
 
 class InstrumentMinitaur(AbstractInstrument):
-    NAME = "Minitaur"
+    NAME = "Minitaur Bass"
     DEVICE_NAME = "minitaur editor(x64)"
     PRESET_EXTENSION = ".syx"
     TRACK_COLOR = ColorEnum.MINITAUR
