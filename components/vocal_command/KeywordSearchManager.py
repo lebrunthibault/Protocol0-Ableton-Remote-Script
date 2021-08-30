@@ -1,5 +1,5 @@
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.enums.TrackSearchKeywordEnum import TrackSearchKeywordEnum
+from protocol0.enums.vocal_command.TrackSearchKeywordEnum import TrackSearchKeywordEnum
 from protocol0.lom.track.AbstractTrack import AbstractTrack
 from protocol0.utils.utils import normalize_string
 

@@ -11,7 +11,7 @@ from protocol0.interface.EncoderModifierEnum import EncoderModifierEnum
 from protocol0.lom.AbstractObject import AbstractObject
 
 if TYPE_CHECKING:
-    from protocol0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
+    from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
 
 
 class MultiEncoder(AbstractObject):

@@ -2,7 +2,7 @@ from functools import partial
 
 from typing import Any
 
-from protocol0.components.actionGroups.AbstractActionGroup import AbstractActionGroup
+from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.interface.EncoderAction import EncoderAction
 from protocol0.interface.EncoderModifierEnum import EncoderModifierEnum

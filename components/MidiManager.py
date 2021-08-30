@@ -2,7 +2,7 @@ from functools import partial
 from typing import Optional, Tuple
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.components.Api.ApiAction import ApiAction
+from protocol0.components.api.ApiAction import ApiAction
 from protocol0.errors.ApiError import ApiError
 
 

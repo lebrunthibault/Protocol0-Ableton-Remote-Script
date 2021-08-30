@@ -1,5 +1,6 @@
 from functools import partial
 
+from protocol0.devices.InstrumentSimpler import InstrumentSimpler
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.interface.InterfaceState import InterfaceState
@@ -106,7 +107,7 @@ class AbstractTrackActionMixin(object):
     def scroll_presets_or_samples(self, go_next):
         # type: (AbstractTrack, bool) -> None
         if self.instrument:
-            if len(self.clips) and InterfaceState.PROTECTED_MODE_ACTIVE:
+            if len(self.clips) and InterfaceState.PROTECTED_MODE_ACTIVE and not(isinstance(self.instrument, InstrumentSimpler)):
                 self.parent.show_message("Cannot change preset when a clip is already recorded")
             else:
                 self.instrument.scroll_presets_or_samples(go_next)
