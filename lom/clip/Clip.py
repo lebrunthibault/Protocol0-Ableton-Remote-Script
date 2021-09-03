@@ -66,6 +66,9 @@ class Clip(ClipActionMixin, AbstractObject):
     def _looping_listener(self):
         # type: () -> None
         # enforce looping
+        if not self.looping:
+            self.parent.show_message("looping is mandatory")
+            self.parent.defer(partial(setattr, "looping", True))
         self.looping = True
 
     @p0_subject_slot("loop_start")

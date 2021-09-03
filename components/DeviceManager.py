@@ -117,16 +117,19 @@ class DeviceManager(AbstractControlSurfaceComponent):
         seq = Sequence()
         seq.add(
             lambda: self.system.toggle_ableton_button(x=x_rack, y=y_rack, activate=False),
-            wait=1,
+            # wait=1,
+            wait=20,
             name="hide rack macro controls",
         )
         seq.add(
             lambda: self.system.click(x=x_device, y=y_device),
-            wait=5,
+            # wait=5,
+            wait=20,
             name="click on device show button",
         )
         seq.add(
             lambda: self.system.toggle_ableton_button(x=x_rack, y=y_rack, activate=True),
+            wait=20, # no wait
             name="show rack macro controls",
         )
         # at this point the rack macro controls could still be hidden if the plugin window masks the button

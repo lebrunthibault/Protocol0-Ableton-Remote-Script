@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
-# noinspection PyTypeHints
+# noinspection PyTypeHints,PyArgumentList
 class SimpleTrackActionMixin(object):
     @property
     def is_armed(self):
@@ -54,8 +54,6 @@ class SimpleTrackActionMixin(object):
             if not self.instrument.HAS_TOTAL_RECALL and self.instrument.selected_preset:
                 seq.add(self.instrument._sync_selected_preset)
             seq.add(self.instrument.check_activated)
-            seq.add(wait=5)
-            seq.add(partial(self.system.hide_plugins))
 
         return seq.done()
 

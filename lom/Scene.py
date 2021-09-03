@@ -111,7 +111,10 @@ class Scene(AbstractObject, SceneActionMixin):
     @property
     def playing_position(self):
         # type: () -> float
-        return self.longest_clip.playing_position if self.longest_clip else 0
+        if self.longest_clip:
+            return self.longest_clip.playing_position - self.longest_clip.start_marker
+        else:
+            return 0
 
     @property
     def looping(self):
