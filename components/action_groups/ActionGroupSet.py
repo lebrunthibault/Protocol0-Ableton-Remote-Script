@@ -27,5 +27,9 @@ class ActionGroupSet(AbstractActionGroup):
         # CLR encoder
         self.add_encoder(id=5, name="clear logs", on_press=lambda: self.parent.log_notice("clear_logs"))
 
+        # RACK encoder
+        self.add_encoder(id=6, name="update rack devices",
+                         on_press=self.parent.setFixerManager.update_audio_effect_racks)
+
         # PUSH encoder
         self.add_encoder(id=13, name="connect push2", on_press=self.parent.push2Manager.connect_push2)

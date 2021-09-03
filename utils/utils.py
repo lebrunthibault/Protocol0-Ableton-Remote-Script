@@ -97,7 +97,8 @@ def smart_string(s):
         s = str(s)
     if isinstance(s, str):
         s = s.decode("utf-8")
-    return s.encode("utf-8")  # type: ignore
+    # return s.encode("utf-8")  # type: ignore
+    return s.encode("ascii", "replace")  # type: ignore
 
 
 def normalize_string(s):

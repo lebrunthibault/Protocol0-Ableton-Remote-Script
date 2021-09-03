@@ -27,13 +27,13 @@ class VocalCommandManager(AbstractControlSurfaceComponent):
         command = smart_string(command)
         command_enum = getattr(ActionEnum, command, None)
         if command_enum:
-            self.parent.show_message("SR received action %s" % command)
-            self._keywordActionManager.execute_from_enum(command=command_enum)
+            self.parent.show_message(command)
+            self.parent.show_message("SR received action")
             return
 
         track_search_keyword_enum = getattr(TrackSearchKeywordEnum, command, None)
         if track_search_keyword_enum:
-            self.parent.show_message("SR received search %s" % command)
+            self.parent.show_message("SR received search")
             self.parent.keywordSearchManager.search_track(keyword_enum=track_search_keyword_enum)
             return
 

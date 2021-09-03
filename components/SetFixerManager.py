@@ -1,6 +1,10 @@
+from functools import partial
+
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.devices.InstrumentSimpler import InstrumentSimpler
+from protocol0.enums.SynchronizableDeviceEnum import SynchronizableDeviceEnum
 from protocol0.lom.device.RackDevice import RackDevice
+from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import defer
 
 
@@ -31,7 +35,7 @@ class SetFixerManager(AbstractControlSurfaceComponent):
                 for sub_track in simple_track.sub_tracks:
                     if sub_track.is_foldable:
                         assert sub_track.abstract_group_track in simple_track.abstract_track.sub_tracks, (
-                            "failed on %s" % simple_track
+                                "failed on %s" % simple_track
                         )
                     else:
                         assert sub_track in simple_track.abstract_group_track.sub_tracks, "failed on %s" % simple_track
@@ -44,7 +48,8 @@ class SetFixerManager(AbstractControlSurfaceComponent):
                 if simple_track.is_foldable:
                     assert simple_track.group_track.abstract_group_track, "failed on %s" % simple_track
                     assert (
-                        simple_track.abstract_group_track in simple_track.group_track.abstract_group_track.sub_tracks  # type: ignore
+                            simple_track.abstract_group_track in simple_track.group_track.abstract_group_track.sub_tracks
+                        # type: ignore
                     ), ("failed on %s" % simple_track)
                 else:
                     assert simple_track.group_track.abstract_group_track is None, "failed on %s" % simple_track
@@ -93,12 +98,13 @@ class SetFixerManager(AbstractControlSurfaceComponent):
                 if track.base_name.endswith("s"):
                     track.track_name.update(base_name=track.base_name[:-1])
 
-    def _update_racks(self):
-        # type: () -> None
-        """ not used atm """
+    def update_audio_effect_racks(self):
+        # type: () -> Sequence
+        seq = Sequence()
         for track in self.song.simple_tracks:
-            [
-                self.parent.deviceManager.update_rack(rack_device=device._device)
-                for device in track.all_devices
-                if isinstance(device, RackDevice)
-            ]
+            for device in track.all_devices:
+                if isinstance(device, RackDevice) and any(
+                        device.name == enum.value for enum in SynchronizableDeviceEnum):
+                    seq.add(partial(self.parent.deviceManager.update_audio_effect_rack, device=device))
+
+        return seq.done()

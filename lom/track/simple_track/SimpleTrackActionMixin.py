@@ -73,6 +73,16 @@ class SimpleTrackActionMixin(object):
         else:
             self.song.undo()
 
+    def delete_device(self, device):
+        # type: (SimpleTrack, Device) -> Sequence
+        seq = Sequence()
+        if device not in self.devices:
+            return seq.done()
+
+        device_index = self.devices.index(device)
+        self._track.delete_device(device_index)
+        return seq.done()
+
     def record_all(self):
         # type: (SimpleTrack) -> Sequence
         """ finishes on end of recording """

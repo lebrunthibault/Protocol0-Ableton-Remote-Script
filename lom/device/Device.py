@@ -1,6 +1,6 @@
-import Live
 from typing import TYPE_CHECKING, List, Any, Type, Optional
 
+import Live
 from _Framework.SubjectSlot import subject_slot
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.device.DeviceParameter import DeviceParameter
@@ -50,10 +50,6 @@ class Device(AbstractObject):
     def make(device, track):
         # type: (Live.Device.Device, SimpleTrack) -> Device
         return Device.get_class(device)(device=device, track=track)
-
-    def select(self):
-        # type: () -> None
-        self.song.select_device(self)
 
     def scroll_presets(self, go_next):
         # type: (bool) -> None

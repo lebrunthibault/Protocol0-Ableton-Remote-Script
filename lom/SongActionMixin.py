@@ -1,3 +1,7 @@
+from functools import partial
+
+from typing import TYPE_CHECKING, Optional
+
 from protocol0.enums.FoldActionEnum import FoldActionEnum
 from protocol0.lom.Scene import Scene
 from protocol0.lom.device.Device import Device
@@ -6,8 +10,6 @@ from protocol0.lom.track.AbstractTrackList import AbstractTrackList
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import handle_error
 from protocol0.utils.utils import scroll_values
-from functools import partial
-from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from protocol0.lom.Song import Song
@@ -119,7 +121,9 @@ class SongActionMixin(object):
         self._song.delete_scene(scene.index)
 
     def select_device(self, device):
-        # type: (Song, Device) -> None
-        if device:
-            self.parent.navigationManager.focus_detail()
-            self._view.select_device(device._device)
+        # type: (Song, Device) -> Sequence
+        seq = Sequence()
+        seq.add(partial(self.song.select_track, device.track))
+        seq.add(partial(self._view.select_device, device._device))
+        seq.add(self.parent.navigationManager.focus_detail)
+        return seq.done()

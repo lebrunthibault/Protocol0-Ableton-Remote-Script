@@ -2,7 +2,6 @@ from functools import partial
 
 from typing import Optional, Tuple, Dict, Type, cast, List
 
-import Live
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.errors.Protocol0Error import Protocol0Error
@@ -40,18 +39,21 @@ class DeviceManager(AbstractControlSurfaceComponent):
         else:
             return instrument_class(track=track, device=instrument_device)
 
-    def update_rack(self, rack_device):
-        # type: (Live.RackDevice.RackDevice) -> None
+    def update_audio_effect_rack(self, device):
+        # type: (RackDevice) -> Sequence
         """ update rack with the version stored in browser, keeping old values for identical parameters """
-        parameters = {param.name: param.value for param in rack_device.parameters if "macro" not in param.name.lower()}
-        self.song._view.select_device(rack_device)
-        self.parent.browserManager.swap(rack_device.name)
-        # restore values : this means we cannot dispatch values, only mappings
-        # here 100ms is not enough
-        self.parent._wait(1000, partial(self._update_device_params, rack_device, parameters))
+        self.parent.log_info("selecting and updating device %s (track %s)" % (device, device.track))
+        parameters = {param.name: param.value for param in device.parameters if "macro" not in param.name.lower()}
+        device_name = device.name
+        seq = Sequence()
+        seq.add(partial(self.song.select_device, device))
+        seq.add(partial(self.parent.browserManager.update_audio_effect_preset, device))
+        seq.add(partial(self._update_device_params, device.track, device.name, parameters))
+        return seq.done()
 
-    def _update_device_params(self, device, parameters):
-        # type: (Device, Dict[str, float]) -> None
+    def _update_device_params(self, track, device_name, parameters):
+        # type: (SimpleTrack, str, Dict[str, float]) -> None
+        device = find_if(lambda d: d.name == device_name, track.devices)
         for name, value in parameters.items():
             param = find_if(lambda p: p.name.lower() == name.lower(), device.parameters)
             if param and param.is_enabled:
