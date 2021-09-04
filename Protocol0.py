@@ -33,7 +33,7 @@ from protocol0.enums.LogLevelEnum import LogLevelEnum
 from protocol0.lom.Song import Song
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.log import log_ableton
-from typing import Callable, Any
+from typing import Callable, Any, Optional
 
 from _Framework.ControlSurface import ControlSurface
 
@@ -88,17 +88,18 @@ class Protocol0(ControlSurface):
             self.vocalCommandManager = VocalCommandManager()
 
             self.start()
-            ApiAction.create_method_mapping()
-
-            self.log_info("Protocol0 script loaded")
-            self.wait(300, self.push2Manager.connect_push2)
 
     def start(self):
         # type: () -> None
-        ClyphXComponentBase.start_scheduler()
-        self.fastScheduler.restart()
+        # self.fastScheduler.restart()
+        ApiAction.create_method_mapping()
+
         if not self.test_mode:
             self.defer(self.songManager.init_song)
+
+        self.wait(200, self.push2Manager.connect_push2)
+
+        self.log_info("Protocol0 script loaded")
         self.started = True
 
     def show_message(self, message, log=True):
@@ -157,11 +158,12 @@ class Protocol0(ControlSurface):
         self.globalBeatScheduler.wait_beats(beats, callback)
 
     def wait(self, tick_count, callback):
-        # type: (int, Callable) -> SchedulerEvent
+        # type: (int, Callable) -> Optional[SchedulerEvent]
         """ tick_count (relative to fastScheduler) """
         assert callable(callback)
         if tick_count == 0:
             callback()
+            return None
         else:
             # for ticks_count > 1 we use the 100ms timer losing some speed but it's easier for now
             if Protocol0.LIVE_ENVIRONMENT_LOADED:
@@ -172,6 +174,7 @@ class Protocol0(ControlSurface):
                     float(tick_count) * self.fastScheduler.TICK_MS_DURATION / 1000,
                     callback,
                 ).start()
+                return None
 
     def clear_tasks(self):
         # type: () -> None

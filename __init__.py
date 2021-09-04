@@ -44,7 +44,7 @@ class EmptyModule(object):
         return not self.is_false
 
     def __ge__(self, other):
-        # type: () -> bool
+        # type: (Any) -> bool
         """ allows Live environment check """
         return False
 

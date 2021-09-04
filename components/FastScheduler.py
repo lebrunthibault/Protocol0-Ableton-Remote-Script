@@ -1,6 +1,7 @@
 import Live
 from typing import List, Any, Callable
 
+from ClyphX_Pro import ClyphXComponentBase
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.utils.utils import get_callable_name
@@ -57,6 +58,7 @@ class FastScheduler(AbstractControlSurfaceComponent):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(FastScheduler, self).__init__(*a, **k)
+        ClyphXComponentBase.start_scheduler()
         self._scheduler = Live.Base.Timer(callback=self._on_tick, interval=1, repeat=True)
         self._scheduler.start()
         self._scheduled_events = []  # type: List[SchedulerEvent]

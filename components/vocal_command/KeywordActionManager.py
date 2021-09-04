@@ -34,7 +34,7 @@ class KeywordActionManager(AbstractControlSurfaceComponent):
             self.MAPPING[enum] = EncoderAction(func)
 
     def execute_from_enum(self, command):
-        # type: (ActionEnum) -> Optional[Callable]
+        # type: (ActionEnum) -> None
         if command not in self.MAPPING:
             self.parent.log_error("Couldn't find %s in mapping" % command)
             return None

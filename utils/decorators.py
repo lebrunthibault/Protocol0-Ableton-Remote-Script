@@ -52,6 +52,7 @@ EXPOSED_P0_METHODS = {}
 
 
 def api_exposable_class(cls):
+    # type: (object) -> object
     for name, method in cls.__dict__.iteritems():
         if hasattr(method, "api_exposed"):
             EXPOSED_P0_METHODS[name] = cls
@@ -60,7 +61,7 @@ def api_exposable_class(cls):
 
 def api_exposed(func):
     # type: (Callable) -> Callable
-    func.api_exposed = True
+    func.api_exposed = True  # type: ignore
     return func
 
 
@@ -92,7 +93,7 @@ def retry(retry_count=3, interval=3):
             except Exception:
                 if decorate.count == decorate.retry_count:  # type: ignore[attr-defined]
                     return
-                Protocol0.SELF.wait(pow(2, decorate.count) * interval,
+                Protocol0.SELF.wait(pow(2, decorate.count) * interval,  # type: ignore[attr-defined]
                                     partial(func, *a, **k))  # type: ignore[attr-defined]
                 decorate.count += 1  # type: ignore[attr-defined]
 

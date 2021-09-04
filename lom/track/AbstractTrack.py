@@ -33,7 +33,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # type: (SimpleTrack, Any, Any) -> None
         super(AbstractTrack, self).__init__(*a, **k)
         # TRACKS
-        self._track = track.track  # type: Live.Track.Track
+        self._track = track._track  # type: Live.Track.Track
         self.base_track = track  # type: SimpleTrack
         self.group_track = None  # type: Optional[AbstractTrack]
         self.abstract_group_track = None  # type: Optional[AbstractGroupTrack]
@@ -194,6 +194,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # type: () -> str
         return self.base_track.track_name.base_name
 
+    @property
     def name_prefix(self):
         # type: () -> str
         return self.base_track.track_name.base_name.split(" ")[0]

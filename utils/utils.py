@@ -3,7 +3,7 @@ import types
 from collections import namedtuple, Sequence as CollectionsSequence
 from qualname import qualname
 from types import FrameType
-from typing import Optional, Any, cast, Callable, TYPE_CHECKING, Iterable
+from typing import Optional, Any, cast, Callable, TYPE_CHECKING, Iterable, Union
 
 from protocol0.config import PROJECT_ROOT, REMOTE_SCRIPTS_ROOT
 from protocol0.my_types import StringOrNumber, T
@@ -92,13 +92,11 @@ def is_lambda(func):
 
 
 def smart_string(s):
-    # type: (basestring) -> str
+    # type: (Any) -> str
     if not isinstance(s, basestring):
         s = str(s)
-    if isinstance(s, str):
-        s = s.decode("utf-8")
     # return s.encode("utf-8")  # type: ignore
-    return s.encode("ascii", "replace")  # type: ignore
+    return s.decode("utf-8").encode("ascii", "replace")  # type: ignore
 
 
 def normalize_string(s):

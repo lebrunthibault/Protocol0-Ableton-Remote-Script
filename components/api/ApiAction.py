@@ -1,6 +1,6 @@
 import json
 
-from typing import List, Optional, Dict
+from typing import Optional, Dict, Any
 
 from protocol0.errors.ApiError import ApiError
 from protocol0.utils.decorators import EXPOSED_P0_METHODS
@@ -12,7 +12,7 @@ class ApiAction(object):
     EXPOSED_P0_CALLABLES = None  # type: Optional[Dict]
 
     def __init__(self, method_name, args):
-        # type: (str, List) -> None
+        # type: (str, Dict) -> None
         if not self.EXPOSED_P0_CALLABLES:
             raise ApiError("The method mapping is not done")
         if not isinstance(method_name, basestring):
@@ -27,6 +27,7 @@ class ApiAction(object):
 
     @classmethod
     def create_method_mapping(cls):
+        # type: () -> None
         """ moving from method names to real methods by looking up components or instantiating them"""
         if cls.EXPOSED_P0_CALLABLES:
             return
@@ -38,6 +39,7 @@ class ApiAction(object):
 
     @classmethod
     def _get_method_from_method_name_and_class(cls, class_instance, method_name):
+        # type: (Any, str) -> Any
         from protocol0 import Protocol0
         component = find_if(lambda c: c.__class__ == class_instance, Protocol0.SELF.components)
         if component:
@@ -61,6 +63,7 @@ class ApiAction(object):
             raise ApiError("Invalid string payload %s (%s)" % (payload, e))
 
     def execute(self):
+        # type: () -> None
         from protocol0 import Protocol0
         Protocol0.SELF.log_info("Executing method %s from Api call" % self.method)
         self.method(**self.args)

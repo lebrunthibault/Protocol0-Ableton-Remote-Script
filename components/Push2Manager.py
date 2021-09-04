@@ -16,7 +16,7 @@ class Push2Manager(AbstractControlSurfaceComponent):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(Push2Manager, self).__init__(*a, **k)
-        self.push2 = None  # type: Optional[Push2]
+        self.push2 = None  # type: Push2
         self.update_session_ring = True
         self.update_selected_modes = True
         self._selected_track_listener.subject = self.parent.songManager
@@ -30,7 +30,7 @@ class Push2Manager(AbstractControlSurfaceComponent):
             self.parent.log_warning("Cannot connect to push2")
             return
 
-        self.push2 = push2  # type: Push2
+        self.push2 = push2
         with push2.component_guard():
             self.push2._session_ring.set_enabled(False)
             self.push2._matrix_modes.selected_mode = "session"

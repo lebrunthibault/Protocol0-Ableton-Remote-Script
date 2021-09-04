@@ -155,7 +155,8 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
             return self.terminate()
 
         if not self._complete_on and self._wait:
-            return self.parent.wait(self._wait, self.terminate)
+            self.parent.wait(self._wait, self.terminate)
+            return
 
         if _has_callback_queue(self._complete_on):
             self._add_callback_on_listener(cast(CallableWithCallbacks, self._complete_on))
@@ -225,8 +226,8 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         except SequenceError:
             return
 
-        self._handle_return_value(res, self._step_sequence_terminated_listener,
-                                  self._check_for_step_completion)  # type: ignore[arg-type]
+        self._handle_return_value(res, self._step_sequence_terminated_listener,  # type: ignore[arg-type]
+                                  self._check_for_step_completion)
 
     def _step_timed_out(self):
         # type: () -> None

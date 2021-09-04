@@ -1,5 +1,7 @@
 from functools import partial
 
+import Live
+
 from ClyphX_Pro.clyphx_pro.actions.BrowserActions import BrowserActions
 from typing import Callable, Optional, Any
 
@@ -46,7 +48,7 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
         return seq.done()
 
     def load_sample(self, sample_name, **k):
-        # type: (str) -> None
+        # type: (str, Any) -> None
         self._cache_category("samples")
         item = self._cached_browser_items["samples"].get(sample_name.decode("utf-8"), None)
         if item and item.is_loadable:
@@ -62,7 +64,7 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
         super(BrowserManager, self).load_plugin(None, "'%s'" % plugin_name)
 
     def swap(self, value, **k):
-        # type: (str) -> None
+        # type: (str, Any) -> None
         if value == ">" or value == "<":
             super(BrowserManager, self).swap(None, value)
         else:

@@ -3,6 +3,7 @@ from protocol0.components.FastScheduler import SchedulerEvent
 from protocol0.components.vocal_command.KeywordActionManager import KeywordActionManager
 from protocol0.enums.vocal_command.ActionEnum import ActionEnum
 from protocol0.enums.vocal_command.TrackSearchKeywordEnum import TrackSearchKeywordEnum
+from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import api_exposed, api_exposable_class
 from typing import Any, Optional
 
@@ -16,18 +17,22 @@ class VocalCommandManager(AbstractControlSurfaceComponent):
         super(VocalCommandManager, self).__init__(*a, **k)
         self._keywordActionManager = KeywordActionManager()
         self._midi_server_check_timeout_scheduler_event = None  # type: Optional[SchedulerEvent]
-        self._check_midi_server_is_running()
+        self.parent.wait(20, self._check_midi_server_is_running)  # waiting for Protocol0_midi to boot
 
     def _check_midi_server_is_running(self):
-        def no_server_found():
-            self.parent.log_error("Midi server is not running.")
-        self._midi_server_check_timeout_scheduler_event = self.parent.wait(100, no_server_found)
+        # type: () -> None
+        self.parent.log_info("checking midi server")
+        self._midi_server_check_timeout_scheduler_event = self.parent.wait(20, self._no_midi_server_found)
         self.system.ping()
+
+    def _no_midi_server_found(self):
+        # type: () -> None
+        self.parent.log_error("Midi server is not running.")
 
     @api_exposed
     def ping(self):
         # type: () -> None
-        self.parent.log_info("test API called successful")
+        self.parent.log_info("Midi server is running")
         self._midi_server_check_timeout_scheduler_event.cancel()
 
     @api_exposed
@@ -36,7 +41,7 @@ class VocalCommandManager(AbstractControlSurfaceComponent):
         command = smart_string(command)
         command_enum = getattr(ActionEnum, command, None)
         if command_enum:
-            self.parent.show_message(command)
+            self.parent.show_messagse(command)
             self.parent.show_message("SR received action")
             return
 
