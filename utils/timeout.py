@@ -15,7 +15,7 @@ class TimeoutLimit(AbstractObject):
         self.func = func
         self.awaited_listener = awaited_listener
         self.on_timeout = on_timeout
-        self.parent._wait(timeout_limit * self.TICKS_COUNT, self._after_timeout)
+        self.parent.wait(timeout_limit * self.TICKS_COUNT, self._after_timeout)
         self.executed = False
         self.timed_out = False
 

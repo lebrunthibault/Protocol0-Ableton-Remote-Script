@@ -11,6 +11,7 @@ class SchedulerEvent(AbstractObject):
         # type: (Callable, int, Any, Any) -> None
         super(SchedulerEvent, self).__init__(*a, **k)
         self._executed = False
+        self._cancelled = False
         self._callback = callback
         self._tick_count = tick_count
         self._ticks_left = tick_count
@@ -30,8 +31,16 @@ class SchedulerEvent(AbstractObject):
         assert self._ticks_left > 0
         self._ticks_left -= 1
 
+    def cancel(self):
+        # type: () -> None
+        self._cancelled = True
+
     def execute(self):
         # type: () -> None
+        if self._cancelled:
+            self.parent.log_info("%s was cancelled" % self)
+            return
+
         assert not self._executed
         if self.song.errored:
             return
@@ -80,12 +89,14 @@ class FastScheduler(AbstractControlSurfaceComponent):
             pass
 
     def schedule(self, tick_count, callback):
-        # type: (int, Callable) -> None
+        # type: (int, Callable) -> SchedulerEvent
         """ timeout_duration in ms """
         scheduled_event = SchedulerEvent(callback=callback, tick_count=tick_count)
         self._scheduled_events.append(scheduled_event)
         if scheduled_event.is_timeout_elapsed:
             self._execute_event(scheduled_event)
+
+        return scheduled_event
 
     def schedule_next(self, callback):
         # type: (Callable) -> None

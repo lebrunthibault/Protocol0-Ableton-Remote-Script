@@ -10,7 +10,6 @@ class ClipSynchronizer(ObjectSynchronizer):
     def __init__(self, master, slave, *a, **k):
         # type: (Clip, Clip, Any, Any) -> None
         properties = ["loop_start", "loop_end", "start_marker", "end_marker"]
-        properties = ["loop_start", "start_marker"]
         super(ClipSynchronizer, self).__init__(
             master,
             slave,

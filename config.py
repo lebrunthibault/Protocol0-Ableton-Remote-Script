@@ -14,6 +14,7 @@ class Config(object):
     FIX_OUTDATED_SETS = True
 
     SEQUENCE_DEBUG = False
+    SEQUENCE_SLOW_MO = True
 
 
 PROJECT_ROOT = dirname(os.path.realpath(__file__))

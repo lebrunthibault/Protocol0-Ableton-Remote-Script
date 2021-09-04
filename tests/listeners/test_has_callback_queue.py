@@ -186,4 +186,4 @@ def test_p0_subject_slot_sequence():
         # type: () -> None
         assert test_res_callbacks == [1]
 
-    p0._wait(3, check_res)
+    p0.wait(3, check_res)

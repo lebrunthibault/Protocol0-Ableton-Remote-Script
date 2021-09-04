@@ -10,7 +10,7 @@ from protocol0.components.BeatScheduler import BeatScheduler
 from protocol0.components.BrowserManager import BrowserManager
 from protocol0.components.DeviceManager import DeviceManager
 from protocol0.components.ErrorManager import ErrorManager
-from protocol0.components.FastScheduler import FastScheduler
+from protocol0.components.FastScheduler import FastScheduler, SchedulerEvent
 from protocol0.components.LogManager import LogManager
 from protocol0.components.MidiManager import MidiManager
 from protocol0.components.MixingManager import MixingManager
@@ -56,6 +56,7 @@ class Protocol0(ControlSurface):
         AbstractInstrument.INSTRUMENT_CLASSES = AbstractInstrument.get_instrument_classes()
 
         with self.component_guard():
+            self.p0_system_api_client = DefaultApi()
             self.errorManager = ErrorManager(set_excepthook=False)
             self.protocol0_song = Song(song=self.song())
             self.fastScheduler = FastScheduler()
@@ -76,7 +77,6 @@ class Protocol0(ControlSurface):
             self.sceneBeatScheduler = BeatScheduler()
             self.utilsManager = UtilsManager()
             self.logManager = LogManager()
-            self.p0_system_api_client = DefaultApi()
 
             # action groups
             ActionGroupMain()
@@ -91,7 +91,7 @@ class Protocol0(ControlSurface):
             ApiAction.create_method_mapping()
 
             self.log_info("Protocol0 script loaded")
-            self._wait(100, self.push2Manager.connect_push2)
+            self.wait(300, self.push2Manager.connect_push2)
 
     def start(self):
         # type: () -> None
@@ -156,8 +156,8 @@ class Protocol0(ControlSurface):
         # type: (float, Callable) -> None
         self.globalBeatScheduler.wait_beats(beats, callback)
 
-    def _wait(self, tick_count, callback):
-        # type: (int, Callable) -> None
+    def wait(self, tick_count, callback):
+        # type: (int, Callable) -> SchedulerEvent
         """ tick_count (relative to fastScheduler) """
         assert callable(callback)
         if tick_count == 0:
@@ -165,7 +165,7 @@ class Protocol0(ControlSurface):
         else:
             # for ticks_count > 1 we use the 100ms timer losing some speed but it's easier for now
             if Protocol0.LIVE_ENVIRONMENT_LOADED:
-                self.fastScheduler.schedule(tick_count=tick_count, callback=callback)
+                return self.fastScheduler.schedule(tick_count=tick_count, callback=callback)
             else:
                 # emulate schedule_message
                 threading.Timer(

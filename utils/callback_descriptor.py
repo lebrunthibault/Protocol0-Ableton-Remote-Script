@@ -129,7 +129,7 @@ class CallableWithCallbacks(object):
             return
         from protocol0 import Protocol0
 
-        Protocol0.SELF._wait(0 if self._immediate else 1, self._execute_callbacks)
+        Protocol0.SELF.wait(0 if self._immediate else 1, self._execute_callbacks)
 
     def _execute_callbacks(self):
         # type: () -> None

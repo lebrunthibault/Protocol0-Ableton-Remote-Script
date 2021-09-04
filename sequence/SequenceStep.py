@@ -2,6 +2,7 @@ from functools import partial
 from typing import TYPE_CHECKING, Iterable, Any, Union, Callable, Optional, cast, List
 
 from _Framework.SubjectSlot import subject_slot
+from protocol0.config import Config
 from protocol0.errors.SequenceError import SequenceError
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
@@ -60,6 +61,10 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         assert all(
             [not isinstance(condition, Sequence) for condition in conditions]
         ), "You passed a Sequence object instead of a Sequence factory for a condition"
+
+        if Config.SEQUENCE_SLOW_MO:
+            self._wait = min(20, self._wait * 5)
+            self._check_timeout *= 5
 
     def __repr__(self):
         # type: () -> str
@@ -150,7 +155,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
             return self.terminate()
 
         if not self._complete_on and self._wait:
-            return self.parent._wait(self._wait, self.terminate)
+            return self.parent.wait(self._wait, self.terminate)
 
         if _has_callback_queue(self._complete_on):
             self._add_callback_on_listener(cast(CallableWithCallbacks, self._complete_on))
@@ -169,7 +174,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         else:
             if self._check_count == self._check_timeout:
                 return self._step_timed_out()
-            self.parent._wait(pow(2, self._check_count), self._check_for_step_completion)
+            self.parent.wait(pow(2, self._check_count), self._check_for_step_completion)
             self._check_count += 1
 
     def _add_callback_on_listener(self, listener):

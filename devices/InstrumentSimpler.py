@@ -28,7 +28,7 @@ class InstrumentSimpler(AbstractInstrument):
     def _load_preset(self, preset):
         # type: (InstrumentPreset) -> Optional[Sequence]
         self.parent.browserManager.load_sample(preset.original_name, )
-        self.parent._wait(400, self.track._devices_listener)
+        self.parent.wait(400, self.track._devices_listener)
         return None
 
     def generate_base_notes(self, clip):

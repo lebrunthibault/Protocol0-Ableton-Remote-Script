@@ -31,7 +31,7 @@ def make_multi_encoder(identifier=1):
     # type: (int) -> MultiEncoder
     with p0.component_guard():
         p0.protocol0_song = make_song(count_simple_tracks=1)
-        return ActionGroupTest().add_encoder(id=identifier, name="pytest")
+        return ActionGroupTest().add_encoder(identifier=identifier, name="pytest")
 
 
 def test_multi_encoder_press():
