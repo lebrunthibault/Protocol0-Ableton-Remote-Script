@@ -35,6 +35,7 @@ class SchedulerEvent(AbstractObject):
     def cancel(self):
         # type: () -> None
         self._cancelled = True
+        self.parent.log_info("cancelling %s" % self)
 
     def execute(self):
         # type: () -> None

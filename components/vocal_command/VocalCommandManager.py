@@ -3,7 +3,6 @@ from protocol0.components.FastScheduler import SchedulerEvent
 from protocol0.components.vocal_command.KeywordActionManager import KeywordActionManager
 from protocol0.enums.vocal_command.ActionEnum import ActionEnum
 from protocol0.enums.vocal_command.TrackSearchKeywordEnum import TrackSearchKeywordEnum
-from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import api_exposed, api_exposable_class
 from typing import Any, Optional
 
@@ -22,7 +21,8 @@ class VocalCommandManager(AbstractControlSurfaceComponent):
     def _check_midi_server_is_running(self):
         # type: () -> None
         self.parent.log_info("checking midi server")
-        self._midi_server_check_timeout_scheduler_event = self.parent.wait(20, self._no_midi_server_found)
+        self._midi_server_check_timeout_scheduler_event = self.parent.wait(50, self._no_midi_server_found)
+        self.parent.log_info("self._midi_server_check_timeout_scheduler_event: %s" % self._midi_server_check_timeout_scheduler_event)
         self.system.ping()
 
     def _no_midi_server_found(self):

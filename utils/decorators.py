@@ -52,7 +52,7 @@ EXPOSED_P0_METHODS = {}
 
 
 def api_exposable_class(cls):
-    # type: (object) -> object
+    # type: (object) -> Any
     for name, method in cls.__dict__.iteritems():
         if hasattr(method, "api_exposed"):
             EXPOSED_P0_METHODS[name] = cls

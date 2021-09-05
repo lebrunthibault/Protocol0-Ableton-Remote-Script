@@ -117,11 +117,12 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
         # type: () -> Optional[Sequence]
         pass
 
-    def check_activated(self, select_instrument_track=False):
-        # type: (bool) -> Optional[Sequence]
-        if not self.CAN_BE_SHOWN or (self.activated and not self.needs_exclusive_activation):
-            return None
+    @property
+    def needs_activation(self):
+        return self.CAN_BE_SHOWN and (not self.activated or self.needs_exclusive_activation)
 
+    def activate_plugin_window(self, select_instrument_track=False, hide=True):
+        # type: (bool) -> Optional[Sequence]
         seq = Sequence()
 
         if not self.activated:
@@ -136,17 +137,22 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
         if not select_instrument_track:
             seq.add(self.song.selected_track.select, silent=True)
 
+        if hide:
+            seq.add(self.system.hide_plugins)
+
         return seq.done()
 
     def show_hide(self):
         # type: () -> Sequence
         seq = Sequence()
-        seq.add(partial(self.check_activated, select_instrument_track=True))
-        seq.add(self.device.track.select)
-        if self.song.selected_track != self.device.track:
-            seq.add(self.system.show_plugins)
+        if self.needs_activation:
+            seq.add(partial(self.activate_plugin_window, select_instrument_track=True, hide=False))
         else:
-            seq.add(self.system.show_hide_plugins)
+            seq.add(self.device.track.select)
+            if self.song.selected_track != self.device.track:
+                seq.add(self.system.show_plugins)
+            else:
+                seq.add(self.system.show_hide_plugins)
         return seq.done()
 
     def generate_base_notes(self, clip):

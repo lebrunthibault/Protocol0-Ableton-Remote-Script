@@ -97,7 +97,7 @@ class Protocol0(ControlSurface):
         if not self.test_mode:
             self.defer(self.songManager.init_song)
 
-        self.wait(200, self.push2Manager.connect_push2)
+        self.wait(100, self.push2Manager.connect_push2)
 
         self.log_info("Protocol0 script loaded")
         self.started = True

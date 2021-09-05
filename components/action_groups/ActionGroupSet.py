@@ -31,9 +31,14 @@ class ActionGroupSet(AbstractActionGroup):
         self.add_encoder(identifier=6, name="update rack devices",
                          on_press=self.parent.setFixerManager.update_audio_effect_racks)
 
-        # RACK encoder
+        # ACTV encoder
         self.add_encoder(identifier=7, name="deactivate current instrument",
-                         on_press=lambda: setattr(self.song.current_track.instrument, "activated", False))
+                         on_press=self.deactivate_instrument)
 
         # PUSH encoder
         self.add_encoder(identifier=13, name="connect push2", on_press=self.parent.push2Manager.connect_push2)
+
+    def deactivate_instrument(self):
+        # type: () -> None
+        self.song.current_track.instrument.activated = False
+        self.parent.log_info("Manually deactivated instrument")

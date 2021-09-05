@@ -60,8 +60,8 @@ class AbstractInstrumentPresetsMixin(object):
         self.parent.navigationManager.show_device_view()
 
         seq = Sequence()
-        if self.NEEDS_ACTIVATION_FOR_PRESETS_CHANGE:
-            seq.add(self.check_activated)
+        if self.NEEDS_ACTIVATION_FOR_PRESETS_CHANGE and self.needs_activation:
+            seq.add(self.activate_plugin_window)
 
         seq.add(partial(self._preset_list.scroll, go_next=go_next))
         seq.add(partial(self._sync_selected_preset))
