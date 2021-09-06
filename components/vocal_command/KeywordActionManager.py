@@ -33,12 +33,11 @@ class KeywordActionManager(AbstractControlSurfaceComponent):
         for enum, func in callable_dict.items():
             self.MAPPING[enum] = EncoderAction(func)
 
-    def execute_from_enum(self, command):
+    def execute_from_enum(self, action_enum):
         # type: (ActionEnum) -> None
-        if command not in self.MAPPING:
-            self.parent.log_error("Couldn't find %s in mapping" % command)
+        if action_enum not in self.MAPPING:
+            self.parent.log_error("Couldn't find %s in mapping" % action_enum)
             return None
 
-        self.parent.log_info("Executing %s" % command)
-        encoder_action = self.MAPPING[command]
+        encoder_action = self.MAPPING[action_enum]
         encoder_action.execute(encoder_name="speech")

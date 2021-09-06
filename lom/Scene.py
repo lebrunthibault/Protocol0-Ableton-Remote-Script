@@ -20,14 +20,18 @@ class Scene(AbstractObject, SceneActionMixin):
         # type: (Live.Scene.Scene, Any, Any) -> None
         super(Scene, self).__init__(*a, **k)
         self._scene = scene
+        self.clip_slots = []  # type: List[ClipSlot]
         self.scene_name = SceneName(self)
-        self.clip_slots = [
-            self.song.clip_slots_by_live_live_clip_slot[clip_slot] for clip_slot in self._scene.clip_slots
-        ]  # type: List[ClipSlot]
-
         # listeners
         self._is_triggered_listener.subject = self._scene
         self._play_listener.subject = self
+
+    def link_clip_slots_and_clips(self):
+        self.clip_slots = [
+            self.song.clip_slots_by_live_live_clip_slot[clip_slot] for clip_slot in self._scene.clip_slots
+        ]
+
+        # listeners
         self._clip_slots_has_clip_listener.replace_subjects(self.clip_slots)
         self._clips_length_listener.replace_subjects(self.clips)
 
@@ -52,12 +56,13 @@ class Scene(AbstractObject, SceneActionMixin):
         self.schedule_next_scene_launch()
 
     @subject_slot_group("length")
-    def _clips_length_listener(self, clip):
+    def _clips_length_listener(self, _):
         # type: (Clip) -> None
+        self.parent.log_info("length notification from %s" % _)
         self._check_scene_length()
 
     @subject_slot_group("has_clip")
-    def _clip_slots_has_clip_listener(self, clip_slot):
+    def _clip_slots_has_clip_listener(self, _):
         # type: (ClipSlot) -> None
         self._clips_length_listener.replace_subjects(self.clips)
         self._check_scene_length()

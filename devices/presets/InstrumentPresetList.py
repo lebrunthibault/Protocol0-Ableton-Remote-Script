@@ -51,9 +51,9 @@ class InstrumentPresetList(AbstractObject):
     @selected_category.setter
     def selected_category(self, selected_category):
         # type: (Optional[str]) -> None
-        self.selected_preset = self.category_presets(selected_category)[0]
+        self.selected_preset = self._category_presets(selected_category)[0]
 
-    def category_presets(self, category=None):
+    def _category_presets(self, category=None):
         # type: (Optional[str]) -> List[InstrumentPreset]
         return list(filter(lambda p: p.category == (category or self.selected_category), self.presets))
 
@@ -64,12 +64,18 @@ class InstrumentPresetList(AbstractObject):
             self.selected_preset = self.presets[int(self.instrument.device.chain_selector.value)]
             return
 
-        category_presets = self.category_presets()
+        category_presets = self._category_presets()
         if len(category_presets) == 0:
             self.parent.log_warning(
                 "Didn't find category presets for cat %s in %s" % (self.selected_category, self.instrument)
             )
-            return
+            if len(self.categories) == 0:
+                self.parent.log_error("Didn't find categories for %s" % self)
+                return
+
+            self.selected_category = self.categories[0]
+            return self.scroll(go_next=go_next)
+
         if self.selected_preset and self.selected_category and self.selected_preset.category != self.selected_category:
             new_preset_index = 0
         else:

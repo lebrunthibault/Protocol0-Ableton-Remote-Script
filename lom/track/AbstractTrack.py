@@ -66,7 +66,8 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
             self.load_any_device(DeviceType.RACK_DEVICE, "Mix Rack")
 
         seq = Sequence()
-        [seq.add(clip.delete) for clip in self.clips]
+        [seq.add(clip.delete) for clip in self.clips if clip.clip_name.is_valid]
+        [seq.add(clip.clip_name.normalize_base_name) for clip in self.clips if not clip.clip_name.is_valid]
 
         return seq.done()
 

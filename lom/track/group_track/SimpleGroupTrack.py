@@ -4,6 +4,7 @@ from typing import Any, Optional
 
 from protocol0.enums.Push2MainModeEnum import Push2MainModeEnum
 from protocol0.lom.device.DeviceType import DeviceType
+from protocol0.lom.track.AbstractTrack import AbstractTrack
 from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.sequence.Sequence import Sequence
@@ -77,8 +78,15 @@ class SimpleGroupTrack(AbstractGroupTrack):
         if len(sub_tracks_instruments) == len(self.sub_tracks) and len(sub_tracks_instrument_classes) == 1:
             return self.sub_tracks[0].instrument.NAME
 
+        def name_prefix(track):
+            # type: (AbstractTrack) -> str
+            if track.instrument:
+                return track.instrument.name
+            else:
+                return track.base_track.track_name.base_name.split(" ")[0]
+
         # checking if all sub tracks have the same prefix
-        sub_tracks_name_prefixes = list(set([sub_track.name_prefix for sub_track in self.sub_tracks]))
+        sub_tracks_name_prefixes = list(set([name_prefix(sub_track) for sub_track in self.sub_tracks]))
         if len(sub_tracks_name_prefixes) == 1 and sub_tracks_name_prefixes[0]:
             return sub_tracks_name_prefixes[0]
         else:

@@ -14,6 +14,7 @@ class AbstractObjectName(AbstractObject):
     def normalize_base_name(self):
         # type: () -> None
         self.base_name = self.base_name.split("-")[0].strip()
+        self.base_name = self.base_name.replace("_", " ")
         if self.base_name.lower() in self.NAME_BLACKLIST:
             self.base_name = ""
         try:

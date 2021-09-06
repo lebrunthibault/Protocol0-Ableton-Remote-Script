@@ -125,9 +125,11 @@ class SongManager(AbstractControlSurfaceComponent):
         # get the right scene or instantiate new scenes
         for live_scene in live_scenes:
             if live_scene in scene_mapping:
-                self.song.scenes.append(scene_mapping[live_scene])
+                scene = scene_mapping[live_scene]
             else:
-                self.song.scenes.append(Scene(live_scene))
+                scene = Scene(live_scene)
+            scene.link_clip_slots_and_clips()
+            self.song.scenes.append(scene)
 
         if Scene.LOOPING_SCENE:
             Scene.LOOPING_SCENE.schedule_next_scene_launch()

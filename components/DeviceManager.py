@@ -117,12 +117,12 @@ class DeviceManager(AbstractControlSurfaceComponent):
         seq = Sequence()
         seq.add(
             lambda: self.system.toggle_ableton_button(x=x_rack, y=y_rack, activate=False),
-            wait=3,
+            wait=5,
             name="hide rack macro controls",
         )
         seq.add(
             lambda: self.system.click(x=x_device, y=y_device),
-            wait=5,
+            wait=10,
             name="click on device show button",
         )
         seq.add(

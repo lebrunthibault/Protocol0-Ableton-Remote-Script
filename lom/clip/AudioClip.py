@@ -21,11 +21,13 @@ class AudioClip(Clip):
     @defer
     def _warping_listener(self):
         # type: () -> None
-        """ neither dummy clip on """
         if not self.warping and self.track.CLIP_WARPING_MANDATORY:
             self.warping = True
         if self.warping:
             self.looping = True
+        self.parent.log_info("notifying length on %s" % self)
+        # noinspection PyUnresolvedReferences
+        self.notify_length()
 
     @property
     def warping(self):

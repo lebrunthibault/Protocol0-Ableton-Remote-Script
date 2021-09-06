@@ -68,7 +68,6 @@ class AbstractTrackName(AbstractObjectName):
     @property
     def _should_recompute_base_name(self):
         # type: () -> bool
-        self.parent.log_info("%s, %s" % (self, self.base_name))
         return (
                 not self.base_name
                 or self.base_name.lower() == self.track.DEFAULT_NAME.lower()

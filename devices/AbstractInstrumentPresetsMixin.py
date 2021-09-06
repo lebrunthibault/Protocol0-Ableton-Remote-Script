@@ -84,9 +84,10 @@ class AbstractInstrumentPresetsMixin(object):
     def _sync_selected_preset(self):
         # type: (AbstractInstrument) -> Sequence
         seq = Sequence()
-        seq.add(partial(self._load_preset, self.selected_preset))
-        # noinspection PyUnresolvedReferences
-        seq.add(self.notify_selected_preset)
+        if self.selected_preset:
+            seq.add(partial(self._load_preset, self.selected_preset))
+            # noinspection PyUnresolvedReferences
+            seq.add(self.notify_selected_preset)
         return seq.done()
 
     def _load_preset(self, preset):

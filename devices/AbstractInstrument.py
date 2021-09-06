@@ -49,8 +49,8 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
     @property
     def name(self):
         # type: () -> str
-        if self.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.CATEGORY:
-            return self._preset_list.selected_category or "No category found"
+        if self.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.CATEGORY and self._preset_list.selected_category:
+            return self._preset_list.selected_category
         elif self.NAME:
             return self.NAME
         else:

@@ -20,9 +20,9 @@ class VocalCommandManager(AbstractControlSurfaceComponent):
 
     def _check_midi_server_is_running(self):
         # type: () -> None
-        self.parent.log_info("checking midi server")
+        self.parent.log_debug("checking midi server")
         self._midi_server_check_timeout_scheduler_event = self.parent.wait(50, self._no_midi_server_found)
-        self.parent.log_info("self._midi_server_check_timeout_scheduler_event: %s" % self._midi_server_check_timeout_scheduler_event)
+        self.parent.log_debug("self._midi_server_check_timeout_scheduler_event: %s" % self._midi_server_check_timeout_scheduler_event)
         self.system.ping()
 
     def _no_midi_server_found(self):
@@ -33,21 +33,22 @@ class VocalCommandManager(AbstractControlSurfaceComponent):
     def ping(self):
         # type: () -> None
         self.parent.log_info("Midi server is running")
-        self._midi_server_check_timeout_scheduler_event.cancel()
+        if self._midi_server_check_timeout_scheduler_event:
+            self._midi_server_check_timeout_scheduler_event.cancel()
 
     @api_exposed
     def execute_command(self, command):
         # type: (str) -> None
         command = smart_string(command)
-        command_enum = getattr(ActionEnum, command, None)
-        if command_enum:
-            self.parent.show_messagse(command)
-            self.parent.show_message("SR received action")
+        action_enum = getattr(ActionEnum, command, None)  # type: ActionEnum
+        if action_enum:
+            self.parent.show_message("SR received action: %s" % action_enum.name)
+            self._keywordActionManager.execute_from_enum(action_enum=action_enum)
             return
 
-        track_search_keyword_enum = getattr(TrackSearchKeywordEnum, command, None)
+        track_search_keyword_enum = getattr(TrackSearchKeywordEnum, command, None)  # type: TrackSearchKeywordEnum
         if track_search_keyword_enum:
-            self.parent.show_message("SR received search")
+            self.parent.show_message("SR received search: %s" % track_search_keyword_enum.name)
             self.parent.keywordSearchManager.search_track(keyword_enum=track_search_keyword_enum)
             return
 

@@ -27,7 +27,7 @@ class Push2Manager(AbstractControlSurfaceComponent):
         if self.push2:
             return
         push2 = find_if(lambda cs: isinstance(cs, Push2), get_control_surfaces())
-        self.parent.log_info("Got push2 %s" % push2)
+        self.parent.log_debug("Got push2 %s" % push2)
         if not push2 or not hasattr(push2, "_session_ring"):
             self.parent.log_warning("Cannot connect to push2")
             return

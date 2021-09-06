@@ -137,8 +137,6 @@ class Protocol0(ControlSurface):
         # type: (Any, LogLevelEnum, bool) -> None
         if not isinstance(message, basestring):
             message = str(message)
-        if level.value < Config.LOG_LEVEL.value:
-            return
         log_ableton(
             message=message,
             debug=message is not None and debug,

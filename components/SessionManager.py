@@ -3,6 +3,7 @@ from typing import Optional, Any, List
 from _Framework.SessionComponent import SessionComponent
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.utils.decorators import defer
 
 
 class SessionManager(AbstractControlSurfaceComponent):
@@ -12,6 +13,7 @@ class SessionManager(AbstractControlSurfaceComponent):
         self.session = None  # type: Optional[SessionComponent]
         self.register_slot(self.parent.songManager, self._setup_session_control, "selected_track")
 
+    @defer
     def _setup_session_control(self):
         # type: () -> None
         if self.session:

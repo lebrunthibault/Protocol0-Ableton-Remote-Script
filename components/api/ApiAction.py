@@ -2,6 +2,7 @@ import json
 
 from typing import Optional, Dict, Any
 
+from protocol0.enums.LogLevelEnum import LogLevelEnum
 from protocol0.errors.ApiError import ApiError
 from protocol0.utils.decorators import EXPOSED_P0_METHODS
 from protocol0.utils.log import log_ableton
@@ -53,7 +54,7 @@ class ApiAction(object):
         # type: (str) -> ApiAction
         try:
             data = json.loads(payload)
-            log_ableton(payload)
+            log_ableton(payload, level=LogLevelEnum.DEBUG)
         except ValueError:
             raise ApiError("json decode error on string : %s" % payload)
 
@@ -65,5 +66,5 @@ class ApiAction(object):
     def execute(self):
         # type: () -> None
         from protocol0 import Protocol0
-        Protocol0.SELF.log_info("Executing method %s from Api call" % self.method)
+        Protocol0.SELF.log_debug("Executing method %s from Api call" % self.method)
         self.method(**self.args)
