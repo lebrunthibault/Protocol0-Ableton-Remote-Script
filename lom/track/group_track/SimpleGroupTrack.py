@@ -72,12 +72,13 @@ class SimpleGroupTrack(AbstractGroupTrack):
         # type: () -> str
         # checking if all sub tracks have the same instrument
         sub_tracks_instruments = [sub_track.instrument for sub_track in self.sub_tracks if sub_track.instrument]
-        sub_tracks_instrument_classes = [instrument.__class__ for instrument in sub_tracks_instruments]
-        if len(sub_tracks_instruments) == len(self.sub_tracks) and len(set(sub_tracks_instrument_classes)) == 1:
+        sub_tracks_instrument_classes = list(set([instrument.__class__ for instrument in sub_tracks_instruments]))
+        self.parent.log_info("%s, sub_tracks_instrument_classes: %s" % (self, sub_tracks_instrument_classes))
+        if len(sub_tracks_instruments) == len(self.sub_tracks) and len(sub_tracks_instrument_classes) == 1:
             return self.sub_tracks[0].instrument.NAME
 
         # checking if all sub tracks have the same prefix
-        sub_tracks_name_prefixes = [sub_track.name_prefix for sub_track in self.sub_tracks]
+        sub_tracks_name_prefixes = list(set([sub_track.name_prefix for sub_track in self.sub_tracks]))
         if len(sub_tracks_name_prefixes) == 1 and sub_tracks_name_prefixes[0]:
             return sub_tracks_name_prefixes[0]
         else:

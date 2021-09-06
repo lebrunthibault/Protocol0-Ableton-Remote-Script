@@ -7,7 +7,6 @@ _.scroll_track_categories  # unused method (C:\ProgramData\Ableton\Live 10 Suite
 _.set_input_routing_type  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\lom\track\AbstractTrackActionMixin.py:253)
 _.is_checked  # unused attribute (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\components\Push2Manager.py:76)
 _.on_selected_track_changed  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\components\SongManager.py:34)
-_.connect_push2  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\components\Push2Manager.py:19)
 _.log_dev  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\Protocol0.py:99)
 _.grid_quantization  # unused attribute (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\lom\clip\MidiClip.py:118)
 CLIP  # unused variable (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\enums\Push2MainModeEnum.py:5)

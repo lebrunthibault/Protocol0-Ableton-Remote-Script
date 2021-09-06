@@ -47,9 +47,6 @@ class AbstractTrackName(AbstractObjectName):
         if self.track.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.NAME:
             if self.track.instrument.selected_preset:
                 self.base_name = self.track.instrument.selected_preset.name
-            else:
-                if not self.base_name.startswith("!!") and not self.base_name == self.track.DEFAULT_NAME:
-                    self.base_name = "!! %s !!" % self.base_name  # notify missing preset
 
         self.update()
 
@@ -71,9 +68,10 @@ class AbstractTrackName(AbstractObjectName):
     @property
     def _should_recompute_base_name(self):
         # type: () -> bool
+        self.parent.log_info("%s, %s" % (self, self.base_name))
         return (
                 not self.base_name
-                or self.base_name == self.track.DEFAULT_NAME.lower()
+                or self.base_name.lower() == self.track.DEFAULT_NAME.lower()
                 or (
                         self.track.instrument
                         and not self.track.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.NAME

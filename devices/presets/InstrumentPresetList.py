@@ -45,8 +45,6 @@ class InstrumentPresetList(AbstractObject):
         # type: () -> Optional[str]
         if self.selected_preset:
             return self.selected_preset.category
-        elif len(self.categories):
-            return self.categories[0]
         else:
             return None
 

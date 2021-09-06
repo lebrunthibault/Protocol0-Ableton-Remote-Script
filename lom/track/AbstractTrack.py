@@ -197,7 +197,10 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def name_prefix(self):
         # type: () -> str
-        return self.base_track.track_name.base_name.split(" ")[0]
+        if self.instrument:
+            return self.instrument.name
+        else:
+            return self.base_track.track_name.base_name.split(" ")[0]
 
     @property
     def search_keywords(self):

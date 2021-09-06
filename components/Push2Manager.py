@@ -24,6 +24,8 @@ class Push2Manager(AbstractControlSurfaceComponent):
     def connect_push2(self):
         # type: () -> None
         """ object modification, push2 registers itself after protocol0 instantiation """
+        if self.push2:
+            return
         push2 = find_if(lambda cs: isinstance(cs, Push2), get_control_surfaces())
         self.parent.log_info("Got push2 %s" % push2)
         if not push2 or not hasattr(push2, "_session_ring"):
