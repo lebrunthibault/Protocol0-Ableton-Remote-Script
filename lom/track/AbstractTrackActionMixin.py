@@ -133,17 +133,8 @@ class AbstractTrackActionMixin(object):
         """ restart audio to get a count in and recfix"""
         if not self.can_be_armed:
             return None
-        if self.song.session_record_status == Live.Song.SessionRecordStatus.transition:  # record count in
-            self.parent.clear_tasks()
-            self.stop(immediate=True)
-            self.post_record()
-            return None
-        elif self.song.session_record_status == Live.Song.SessionRecordStatus.on:  # in recording
-            self.parent.clear_tasks()
-            seq = Sequence()
-            seq.add(self.in_record)
-            seq.add(self.post_record)
-            return seq.done()
+        if self.song.session_record_status != Live.Song.SessionRecordStatus.off:  # record count in
+            return self.cancel_record()
 
         self.song.session_record = True
 
@@ -195,10 +186,15 @@ class AbstractTrackActionMixin(object):
         seq.add(partial(self.parent.wait_bars, InterfaceState.SELECTED_RECORDING_BAR_LENGTH, self.record_multiple))
         return seq.done()
 
-    def in_record(self):
-        # type: (AbstractTrack) -> None
-        """ happens when the rec button is clicked during a recording. Overridden """
-        raise NotImplementedError
+    def cancel_record(self):
+        # type: (AbstractTrack) -> Sequence
+        self.parent.clear_tasks()
+        seq = Sequence()
+        seq.add(self.delete_playable_clip)
+        seq.add(partial(self.stop, immediate=True))
+        seq.add(self.post_record)
+        seq.add(self.song.stop_playing)
+        return seq.done()
 
     def post_record(self):
         # type: (AbstractTrack) -> None
@@ -211,6 +207,14 @@ class AbstractTrackActionMixin(object):
             if self.base_track.playable_clip.is_midi:
                 self.base_track.playable_clip.show_loop()
                 self.base_track.playable_clip.quantize()
+
+    def delete_playable_clip(self):
+        # type: (AbstractTrack) -> Sequence
+        """ overridden """
+        seq = Sequence()
+        if self.base_track.playable_clip:
+            seq.add(self.base_track.playable_clip.delete)
+        return seq.done()
 
     def play_stop(self):
         # type: (AbstractTrack) -> None

@@ -173,7 +173,7 @@ class Clip(ClipActionMixin, AbstractObject):
     @loop_start.setter
     def loop_start(self, loop_start):
         # type: (float) -> None
-        if self._clip:
+        if self._clip and loop_start < self.loop_end:
             self._clip.loop_start = loop_start
 
     @property
@@ -184,7 +184,7 @@ class Clip(ClipActionMixin, AbstractObject):
     @loop_end.setter
     def loop_end(self, loop_end):
         # type: (float) -> None
-        if self._clip:
+        if self._clip and loop_end > self.loop_start:
             self._clip.loop_end = loop_end
 
     @property
@@ -195,7 +195,7 @@ class Clip(ClipActionMixin, AbstractObject):
     @start_marker.setter
     def start_marker(self, start_marker):
         # type: (float) -> None
-        if self._clip:
+        if self._clip and start_marker > self.end_marker:
             self._clip.start_marker = start_marker
 
     @property
@@ -206,7 +206,7 @@ class Clip(ClipActionMixin, AbstractObject):
     @end_marker.setter
     def end_marker(self, end_marker):
         # type: (float) -> None
-        if self._clip:
+        if self._clip and end_marker < self.start_marker:
             self._clip.end_marker = end_marker
 
     @property

@@ -13,14 +13,16 @@ class SessionManager(AbstractControlSurfaceComponent):
         self.session = None  # type: Optional[SessionComponent]
         self.register_slot(self.parent.songManager, self._setup_session_control, "selected_track")
 
-    @defer
     def _setup_session_control(self):
         # type: () -> None
         if self.session:
             self.session.set_show_highlight(False)
             self.session.disconnect()
 
-        if not self.song.selected_track.is_active:
+        try:
+            if not self.song.selected_track.is_active:
+                return
+        except IndexError:
             return
 
         def get_all_sub_tracks_inclusive(track):

@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from protocol0.lom.Song import Song
 
 
+# noinspection PyTypeHints,PyArgumentList
 class SongActionMixin(object):
     @handle_error
     def reset(self, reset_tracks=True):
@@ -26,6 +27,8 @@ class SongActionMixin(object):
         if reset_tracks:
             for track in self.abstract_tracks:
                 track.reset_track()
+        if self.song.selected_track == self.song.master_track:
+            self.song.select_track(next(self.song.abstract_tracks))
 
     def play_stop(self):
         # type: (Song) -> None

@@ -2,10 +2,11 @@ import collections
 from functools import partial
 
 import Live
-from typing import Any, List
+from typing import Any, List, Optional
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.lom.Scene import Scene
+from protocol0.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.utils.decorators import handle_error, p0_subject_slot
 
@@ -20,6 +21,7 @@ class SongManager(AbstractControlSurfaceComponent):
         # keeping a list of instantiated tracks because we cannot access
         # song.live_track_to_simple_track when tracks are deleted
         self._simple_tracks = []  # type: List[SimpleTrack]
+        self._highlighted_clip_slot = None  # type: Optional[ClipSlot]
 
     def init_song(self):
         # type: () -> None

@@ -78,16 +78,6 @@ class ExternalSynthTrackActionMixin(object):
         seq.add(partial(self.audio_track.clip_slots[midi_clip.index].record, recording_bar_count=recording_bar_count))
         return seq.done()
 
-    def in_record(self):
-        # type: (ExternalSynthTrack) -> Sequence
-        assert self.midi_track.playable_clip and self.audio_track.playable_clip
-        seq = Sequence()
-        seq.add(self.play, complete_on=self.midi_track.playable_clip._is_recording_listener)
-        seq.add(self.audio_track.playable_clip.decrement_bar_length)
-        seq.add(self.midi_track.playable_clip.decrement_bar_length)
-        seq.add(self.audio_track.playable_clip.show_loop)
-        return seq.done()
-
     def post_record(self):
         # type: (ExternalSynthTrack) -> None
         super(ExternalSynthTrackActionMixin, self).post_record()
@@ -95,3 +85,12 @@ class ExternalSynthTrackActionMixin(object):
         if self.midi_track.playable_clip and self.audio_track.playable_clip:
             self.midi_track.playable_clip.quantize()
             self.audio_track.playable_clip.warp_mode = Live.Clip.WarpMode.tones
+
+    def delete_playable_clip(self):
+        # type: (ExternalSynthTrack) -> Sequence
+        """ only midi clip is needed as clips are sync """
+        seq = Sequence()
+        self.midi_track.playable_clip.clip_slot
+        if self.midi_track.playable_clip:
+            seq.add(self.midi_track.playable_clip.delete)
+        return seq.done()

@@ -90,14 +90,6 @@ class SimpleTrackActionMixin(object):
         seq.add(self.clip_slots[self.next_empty_clip_slot_index].record)  # type: ignore[has-type]
         return seq.done()
 
-    def in_record(self):
-        # type: (SimpleTrack) -> Sequence
-        assert self.playable_clip
-        seq = Sequence()
-        seq.add(self.play, complete_on=self.playable_clip._is_recording_listener)
-        seq.add(self.playable_clip.decrement_bar_length)
-        return seq.done()
-
     def scroll_clips(self, go_next):
         # type: (SimpleTrack, bool) -> None
         if len(self.clips) == 0:

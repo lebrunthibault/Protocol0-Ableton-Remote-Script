@@ -1,7 +1,7 @@
 import collections
 
 import Live
-from typing import List, Optional, Dict, Any, Generator, Iterable
+from typing import List, Optional, Dict, Any, Generator, Iterable, Iterator
 
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.AbstractObject import AbstractObject
@@ -53,7 +53,7 @@ class Song(AbstractObject, SongActionMixin):
 
     @property
     def abstract_tracks(self):
-        # type: () -> Iterable[AbstractTrack]
+        # type: () -> Iterator[AbstractTrack]
         for track in self.simple_tracks:
             if track == track.abstract_track.base_track:
                 yield track.abstract_track

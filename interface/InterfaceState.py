@@ -6,7 +6,7 @@ class InterfaceState(object):
     SELECTED_TRACK_CATEGORY = TrackCategoryEnum.ALL
 
     _RECORDING_BAR_LENGTHS = [1, 2, 4, 8, 16, 32, 64]
-    SELECTED_RECORDING_BAR_LENGTH = 1
+    SELECTED_RECORDING_BAR_LENGTH = 4
 
     # used only for partial scene duplication
     _DUPLICATE_BAR_LENGTHS = [-8, -4, -2, -1, 0, 1, 2, 4, 8]

@@ -57,10 +57,6 @@ class ClipActionMixin(object):
         seq.add(self.clip_slot.delete_clip, complete_on=self.clip_slot._has_clip_listener)
         return seq.done()
 
-    def decrement_bar_length(self):
-        # type: (Clip) -> None
-        self.bar_length = max(1, int(self.bar_length) - 1)
-
     def quantize(self):
         # type: (Clip) -> None
         if self._clip:
