@@ -1,8 +1,8 @@
 from functools import partial
 
-import Live
 from typing import TYPE_CHECKING, Any
 
+import Live
 from protocol0.lom.clip.Clip import Clip
 from protocol0.utils.decorators import p0_subject_slot, defer
 
@@ -25,7 +25,6 @@ class AudioClip(Clip):
             self.warping = True
         if self.warping:
             self.looping = True
-        self.parent.log_info("notifying length on %s" % self)
         # noinspection PyUnresolvedReferences
         self.notify_length()
 

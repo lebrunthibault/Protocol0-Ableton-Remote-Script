@@ -1,8 +1,8 @@
 import collections
 
-import Live
 from typing import List, Optional, Dict, Any, Generator, Iterable, Iterator
 
+import Live
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.Scene import Scene
@@ -59,6 +59,13 @@ class Song(AbstractObject, SongActionMixin):
                 yield track.abstract_track
 
     @property
+    def armed_tracks(self):
+        # type: () -> Iterator[AbstractTrack]
+        for track in self.abstract_tracks:
+            if track.is_armed:
+                yield track
+
+    @property
     def selected_track(self):
         # type: () -> SimpleTrack
         """ returns the SimpleTrack of the selected track, raises for master / return tracks """
@@ -95,7 +102,7 @@ class Song(AbstractObject, SongActionMixin):
     @property
     def selected_scene(self):
         # type: () -> Scene
-        scene = find_if(lambda scene: scene._scene == self.song._view.selected_scene, self.scenes)
+        scene = find_if(lambda s: s._scene == self.song._view.selected_scene, self.scenes)
         assert scene
         return scene
 

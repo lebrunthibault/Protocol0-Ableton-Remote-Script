@@ -1,8 +1,10 @@
+from typing import Any, Iterable, Optional
+
 from protocol0.enums.FoldActionEnum import FoldActionEnum
+from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.lom.track.AbstractTrack import AbstractTrack
 from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.utils.UserMutableSequence import UserMutableSequence
-from typing import Any, Iterable, Optional
 
 
 class AbstractTrackList(UserMutableSequence):
@@ -33,6 +35,12 @@ class AbstractTrackList(UserMutableSequence):
             for t in self._abstract_tracks:
                 t.play()
 
+    def record(self, record_type):
+        # type: (RecordTypeEnum) -> None
+        for abstract_track in self._abstract_tracks:
+            assert abstract_track.is_armed
+            abstract_track.record(record_type=record_type)
+
     def toggle_solo(self):
         # type: () -> None
         for t in self._abstract_tracks:
@@ -47,6 +55,12 @@ class AbstractTrackList(UserMutableSequence):
         elif fold_action == FoldActionEnum.FOLD_ALL_EXCEPT_CURRENT:
             for abg in self.other_abstract_group_tracks:
                 abg.is_folded = True
+
+            self.song.current_track.is_folded = False
+            group_track = self.song.selected_track.group_track
+            while group_track:
+                group_track.is_folded = False
+                group_track = group_track.group_track
         elif fold_action == FoldActionEnum.UNFOLD_ALL:
             for abg in self.abstract_group_tracks:
                 abg.is_folded = False

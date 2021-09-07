@@ -46,9 +46,9 @@ class SimpleGroupTrack(AbstractGroupTrack):
             set([sub_track.output_routing_type.attached_object for sub_track in self.sub_tracks])
         )
         if len(output_routing_objects) == 1 and output_routing_objects[0] not in (
-            None,
-            self._track,
-            self.song.master_track._track,
+                None,
+                self._track,
+                self.song.master_track._track,
         ):
             return output_routing_objects[0]
         else:
@@ -74,7 +74,6 @@ class SimpleGroupTrack(AbstractGroupTrack):
         # checking if all sub tracks have the same instrument
         sub_tracks_instruments = [sub_track.instrument for sub_track in self.sub_tracks if sub_track.instrument]
         sub_tracks_instrument_classes = list(set([instrument.__class__ for instrument in sub_tracks_instruments]))
-        self.parent.log_info("%s, sub_tracks_instrument_classes: %s" % (self, sub_tracks_instrument_classes))
         if len(sub_tracks_instruments) == len(self.sub_tracks) and len(sub_tracks_instrument_classes) == 1:
             return self.sub_tracks[0].instrument.NAME
 

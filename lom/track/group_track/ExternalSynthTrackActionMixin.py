@@ -1,8 +1,8 @@
 from functools import partial
 
-import Live
 from typing import TYPE_CHECKING, Optional
 
+import Live
 from protocol0.devices.InstrumentMinitaur import InstrumentMinitaur
 from protocol0.lom.clip.MidiClip import MidiClip
 from protocol0.sequence.Sequence import Sequence
@@ -90,7 +90,13 @@ class ExternalSynthTrackActionMixin(object):
         # type: (ExternalSynthTrack) -> Sequence
         """ only midi clip is needed as clips are sync """
         seq = Sequence()
-        self.midi_track.playable_clip.clip_slot
         if self.midi_track.playable_clip:
             seq.add(self.midi_track.playable_clip.delete)
         return seq.done()
+
+    @property
+    def can_change_presets(self):
+        # type: (ExternalSynthTrack) -> bool
+        """ overridden """
+        assert self.instrument
+        return super(ExternalSynthTrackActionMixin, self).can_change_presets or len(self.audio_track.clips) == 0

@@ -10,12 +10,12 @@ class ClipSynchronizer(ObjectSynchronizer):
     def __init__(self, master, slave, *a, **k):
         # type: (Clip, Clip, Any, Any) -> None
         properties = ["loop_start", "loop_end", "start_marker", "end_marker"]
+        self._syncable_properties = ["base_name"] + properties
         super(ClipSynchronizer, self).__init__(
             master,
             slave,
             "_clip",
             listenable_properties=["name"] + properties,
-            properties=["base_name"] + properties,
             *a,
             **k
         )
@@ -32,4 +32,4 @@ class ClipSynchronizer(ObjectSynchronizer):
         if hasattr(changed_clip, "warping") and not changed_clip.warping:
             return ["base_name"]
         else:
-            return self.properties
+            return self._syncable_properties

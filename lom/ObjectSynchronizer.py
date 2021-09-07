@@ -15,8 +15,8 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
     properties are properties effectively synced
     """
 
-    def __init__(self, master, slave, subject_name, listenable_properties=None, properties=None, *a, **k):
-        # type: (AbstractObject, AbstractObject, str, Optional[List[str]], List[str], Any, Any) -> None
+    def __init__(self, master, slave, subject_name, listenable_properties=None, *a, **k):
+        # type: (AbstractObject, AbstractObject, str, Optional[List[str]], Any, Any) -> None
         super(ObjectSynchronizer, self).__init__(*a, **k)
 
         if not master or not slave:
@@ -26,8 +26,7 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
         self.slave = slave
 
         # sync is two way but the master clip defines start values
-        self.properties = properties or []
-        self.listenable_properties = listenable_properties or self.properties
+        self.listenable_properties = listenable_properties or []
 
         for property_name in self.listenable_properties:
             self.register_slot(getattr(master, subject_name), partial(self._sync_properties, master, slave),
@@ -39,16 +38,16 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
 
     def get_syncable_properties(self, _):
         # type: (AbstractObject) -> List[str]
-        """ getter allows dynamic syncing configurable in child classes """
-        return self.properties
+        """ overridden """
+        return self.listenable_properties
 
     @defer
     def _sync_properties(self, master, slave):
         # type: (AbstractObject, AbstractObject) -> None
         for property_name in self.get_syncable_properties(master):
-            self.sync_property(master, slave, property_name)
+            self._sync_property(master, slave, property_name)
 
-    def sync_property(self, master, slave, property_name):
+    def _sync_property(self, master, slave, property_name):
         # type: (AbstractObject, AbstractObject, str) -> None
         master_value = getattr(master, property_name)
         slave_value = getattr(slave, property_name)

@@ -1,7 +1,7 @@
+from _Framework.SubjectSlot import subject_slot_group
 from typing import List, Any, Optional
 
 import Live
-from _Framework.SubjectSlot import subject_slot_group
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.SceneActionMixin import SceneActionMixin
 from protocol0.lom.SceneName import SceneName
@@ -58,7 +58,6 @@ class Scene(AbstractObject, SceneActionMixin):
     @subject_slot_group("length")
     def _clips_length_listener(self, _):
         # type: (Clip) -> None
-        self.parent.log_info("length notification from %s" % _)
         self._check_scene_length()
 
     @subject_slot_group("has_clip")

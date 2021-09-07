@@ -9,6 +9,10 @@ class LogManager(AbstractObject):
         # type: () -> None
         self.system.focus_window(window_name="logs terminal")
 
+    def clear(self):
+        # type: () -> None
+        self.parent.log_notice("clear_logs")
+
     def log_set(self):
         # type: () -> None
         self.focus_window()

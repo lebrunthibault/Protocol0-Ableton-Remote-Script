@@ -56,8 +56,8 @@ class ActionGroupMain(AbstractActionGroup):
             identifier=9,
             name="record",
             on_scroll=InterfaceState.scroll_recording_bar_lengths,
-            on_press=lambda: partial(self.song.current_track.record, RecordTypeEnum.NORMAL),
-            on_long_press=lambda: partial(self.song.current_track.record, RecordTypeEnum.AUDIO_ONLY),
+            on_press=lambda: partial(AbstractTrackList(self.song.armed_tracks).record, RecordTypeEnum.NORMAL),
+            on_long_press=lambda: partial(AbstractTrackList(self.song.armed_tracks).record, RecordTypeEnum.AUDIO_ONLY)
         ).add_action(
             EncoderAction(
                 modifier_type=EncoderModifierEnum.DUP,

@@ -32,7 +32,7 @@ class ErrorManager(AbstractControlSurfaceComponent):
     def _handle_exception(self, exc_type, exc_value, tb, context=None):
         # type: (Type[BaseException], BaseException, TracebackType, Optional[str]) -> None
         show = [fs for fs in extract_tb(tb) if self._check_file(fs[0])]
-        self.parent.log_error("----- %s -----" % exc_value, debug=False)
+        self.parent.log_error("----- %s (%s) -----" % (exc_value, exc_type), debug=False)
         if context:
             self.parent.log_error(context, debug=False)
         self.parent.log_error("at " + "".join(self._format_list(show[-1:], print_line=False)).strip(), debug=False)

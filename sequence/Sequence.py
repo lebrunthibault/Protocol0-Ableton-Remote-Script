@@ -1,4 +1,5 @@
 from collections import deque
+
 from typing import Deque, Optional, Iterable, Union, Callable, Any, List
 
 from protocol0.config import Config
@@ -60,7 +61,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
         if len(self._steps):
             self._current_step = self._steps.popleft()
             if self.debug and self._current_step.debug:
-                self.parent.log_info("%s : %s" % (self, self._current_step), debug=False)
+                self.parent.log_debug("%s : %s" % (self, self._current_step), debug=False)
             self._step_terminated.subject = self._current_step
             self._step_errored.subject = self._current_step
             self._current_step.start()

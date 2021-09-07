@@ -30,6 +30,11 @@ class SongActionMixin(object):
         if self.song.selected_track == self.song.master_track:
             self.song.select_track(next(self.song.abstract_tracks))
 
+        for scene in reversed(self.song.scenes):
+            if scene.length == 0 and len(self.song.scenes):
+                self.song.delete_scene(scene=scene)
+                self.song.scenes.remove(scene)
+
     def play_stop(self):
         # type: (Song) -> None
         if not self.is_playing:
@@ -58,18 +63,16 @@ class SongActionMixin(object):
         # type: (Song) -> None
         self._song.undo()
 
-    def select_track(self, selected_track, fold_set=False):
+    def select_track(self, abstract_track, fold_set=False):
         # type: (Song, AbstractTrack, bool) -> Optional[Sequence]
-        if self.song.selected_track == selected_track.base_track:
-            return None
-        if fold_set:
-            AbstractTrackList(self.song.abstract_tracks).toggle_fold(fold_action=FoldActionEnum.FOLD_ALL)
-        group_track = selected_track.group_track
-        while group_track:
-            group_track.is_folded = False
-            group_track = group_track.group_track
         seq = Sequence(silent=True)
-        seq.add(partial(setattr, self._view, "selected_track", selected_track._track), wait=1)
+        if self.song.selected_track != abstract_track.base_track:
+            seq.add(partial(setattr, self._view, "selected_track", abstract_track._track), wait=1)
+        if fold_set:
+            if abstract_track.is_foldable:
+                abstract_track.is_folded = False
+            seq.add(partial(AbstractTrackList(self.song.abstract_tracks).toggle_fold,
+                            fold_action=FoldActionEnum.FOLD_ALL_EXCEPT_CURRENT))
         return seq.done()
 
     def scroll_tracks(self, go_next):
@@ -121,7 +124,10 @@ class SongActionMixin(object):
 
     def delete_scene(self, scene):
         # type: (Song, Scene) -> None
-        self._song.delete_scene(scene.index)
+        try:
+            self._song.delete_scene(scene.index)
+        except RuntimeError as e:
+            self.parent.log_warning("Error while deleting %s: %s" % (scene, e))
 
     def select_device(self, device):
         # type: (Song, Device) -> Sequence

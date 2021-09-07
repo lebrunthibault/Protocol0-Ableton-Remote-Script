@@ -1,5 +1,8 @@
 from functools import partial
 
+from typing import TYPE_CHECKING, Any, Optional, NoReturn, Callable, cast
+
+import Live
 from protocol0.devices.InstrumentSimpler import InstrumentSimpler
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.errors.Protocol0Error import Protocol0Error
@@ -7,9 +10,6 @@ from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import retry
 from protocol0.utils.utils import find_if
-from typing import TYPE_CHECKING, Any, Optional, NoReturn, Callable, cast
-
-import Live
 
 if TYPE_CHECKING:
     from protocol0.lom.track.AbstractTrack import AbstractTrack
@@ -103,10 +103,18 @@ class AbstractTrackActionMixin(object):
         self.is_folded = False
         self.instrument.show_hide()
 
+    @property
+    def can_change_presets(self):
+        # type: (AbstractTrack) -> bool
+        """ overridden """
+        assert self.instrument
+        return len(self.clips) == 0 or not InterfaceState.PROTECTED_MODE_ACTIVE or isinstance(self.instrument,
+                                                                                              InstrumentSimpler)
+
     def scroll_presets_or_samples(self, go_next):
         # type: (AbstractTrack, bool) -> None
         if self.instrument:
-            if len(self.clips) and InterfaceState.PROTECTED_MODE_ACTIVE and not(isinstance(self.instrument, InstrumentSimpler)):
+            if not self.can_change_presets:
                 self.parent.show_message("Cannot change preset when a clip is already recorded")
             else:
                 self.instrument.scroll_presets_or_samples(go_next)
@@ -114,7 +122,7 @@ class AbstractTrackActionMixin(object):
     def scroll_preset_categories(self, go_next):
         # type: (AbstractTrack, bool) -> None
         if self.instrument:
-            if len(self.clips) and InterfaceState.PROTECTED_MODE_ACTIVE:
+            if not self.can_change_presets:
                 self.parent.show_message("Cannot change preset category when a clip is already recorded")
             else:
                 self.instrument.scroll_preset_categories(go_next=go_next)
@@ -131,8 +139,7 @@ class AbstractTrackActionMixin(object):
     def record(self, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
         """ restart audio to get a count in and recfix"""
-        if not self.can_be_armed:
-            return None
+        assert self.is_armed
         if self.song.session_record_status != Live.Song.SessionRecordStatus.off:  # record count in
             return self.cancel_record()
 
@@ -144,8 +151,6 @@ class AbstractTrackActionMixin(object):
             self.song.metronome = True
 
         seq = Sequence()
-        if not self.is_armed:
-            seq.add(self.arm, silent=True)
         if record_type == RecordTypeEnum.NORMAL and self.next_empty_clip_slot_index is None:
             seq.add(self.song.create_scene)
             seq.add(partial(self.record, record_type))

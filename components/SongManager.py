@@ -1,9 +1,9 @@
 import collections
 from functools import partial
 
-import Live
 from typing import Any, List, Optional
 
+import Live
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.lom.Scene import Scene
 from protocol0.lom.clip_slot.ClipSlot import ClipSlot
@@ -131,6 +131,7 @@ class SongManager(AbstractControlSurfaceComponent):
             else:
                 scene = Scene(live_scene)
             scene.link_clip_slots_and_clips()
+
             self.song.scenes.append(scene)
 
         if Scene.LOOPING_SCENE:

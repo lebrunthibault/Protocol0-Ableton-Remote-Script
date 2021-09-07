@@ -25,7 +25,7 @@ class ActionGroupSet(AbstractActionGroup):
         self.add_encoder(identifier=4, name="fix", on_press=self.parent.setFixerManager.refresh_set_appearance)
 
         # CLR encoder
-        self.add_encoder(identifier=5, name="clear logs", on_press=lambda: self.parent.log_notice("clear_logs"))
+        self.add_encoder(identifier=5, name="clear logs", on_press=self.parent.logManager.clear)
 
         # RACK encoder
         self.add_encoder(identifier=6, name="update rack devices",

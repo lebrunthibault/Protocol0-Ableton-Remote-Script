@@ -34,7 +34,6 @@ class KeywordSearchManager(AbstractControlSurfaceComponent):
 
         self.parent.log_info("Selecting track %s" % matching_track)
         self.song.select_track(matching_track, fold_set=True)
-        matching_track.toggle_arm()
 
     def _check_search_matches_track(self, search, track):
         # type: (str, AbstractTrack) -> bool

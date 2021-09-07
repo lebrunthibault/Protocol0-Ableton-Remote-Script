@@ -54,6 +54,8 @@ class DeviceManager(AbstractControlSurfaceComponent):
     def _update_device_params(self, track, device_name, parameters):
         # type: (SimpleTrack, str, Dict[str, float]) -> None
         device = find_if(lambda d: d.name == device_name, track.devices)
+        if not device:
+            self.parent.log_error("Couldn't find device with name %s in %s" % (device_name, track))
         for name, value in parameters.items():
             param = find_if(lambda p: p.name.lower() == name.lower(), device.parameters)
             if param and param.is_enabled:
