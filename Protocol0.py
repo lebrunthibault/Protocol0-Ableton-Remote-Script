@@ -1,11 +1,13 @@
 import threading
 from types import MethodType
 
-from ClyphX_Pro import ClyphXComponentBase, ParseUtils
+from ClyphX_Pro import ParseUtils
 from ClyphX_Pro.clyphx_pro.actions.GlobalActions import GlobalActions
+from _Framework.ControlSurface import ControlSurface
 from p0_system_api import DefaultApi
+from typing import Callable, Any, Optional
+
 from protocol0.automation.AutomationTrackManager import AutomationTrackManager
-from protocol0.components.api.ApiAction import ApiAction
 from protocol0.components.BeatScheduler import BeatScheduler
 from protocol0.components.BrowserManager import BrowserManager
 from protocol0.components.DeviceManager import DeviceManager
@@ -22,20 +24,16 @@ from protocol0.components.SetFixerManager import SetFixerManager
 from protocol0.components.SongManager import SongManager
 from protocol0.components.TrackManager import TrackManager
 from protocol0.components.UtilsManager import UtilsManager
-from protocol0.components.vocal_command.KeywordSearchManager import KeywordSearchManager
-from protocol0.components.vocal_command.VocalCommandManager import VocalCommandManager
 from protocol0.components.action_groups.ActionGroupMain import ActionGroupMain
 from protocol0.components.action_groups.ActionGroupSet import ActionGroupSet
 from protocol0.components.action_groups.ActionGroupTest import ActionGroupTest
-from protocol0.config import Config
+from protocol0.components.vocal_command.KeywordSearchManager import KeywordSearchManager
+from protocol0.components.vocal_command.VocalCommandManager import VocalCommandManager
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.enums.LogLevelEnum import LogLevelEnum
 from protocol0.lom.Song import Song
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.log import log_ableton
-from typing import Callable, Any, Optional
-
-from _Framework.ControlSurface import ControlSurface
 
 
 class Protocol0(ControlSurface):
@@ -91,8 +89,12 @@ class Protocol0(ControlSurface):
 
     def start(self):
         # type: () -> None
-        # self.fastScheduler.restart()
-        ApiAction.create_method_mapping()
+        if self._is_ableton_template_set():
+            self.log_info("is ableton template set")
+            self.p0_system_api_client.reload_ableton()
+            return
+
+        self.log_info("is NOT ableton template set")
 
         if not self.test_mode:
             self.defer(self.songManager.init_song)
@@ -102,6 +104,12 @@ class Protocol0(ControlSurface):
 
         self.log_info("Protocol0 script loaded")
         self.started = True
+
+    def _is_ableton_template_set(self):
+        # type: () -> bool
+        return len(self.protocol0_song.simple_tracks) == 2 and \
+               self.protocol0_song.simple_tracks[0].name == "Audio" and \
+               self.protocol0_song.simple_tracks[1].name == "Midi"
 
     def show_message(self, message, log=True):
         # type: (str, bool) -> None

@@ -1,4 +1,5 @@
 from functools import partial
+
 from typing import Optional, Tuple
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
@@ -40,7 +41,7 @@ class MidiManager(AbstractControlSurfaceComponent):
         try:
             api_action = ApiAction.make_from_string(payload=message)
         except ApiError as e:
-            self.parent.log_error("ApiAction generation error : %s" % e.message)
+            self.parent.log_error("ApiAction generation error : %s" % e)
             return
 
         api_action.execute()

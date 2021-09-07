@@ -1,9 +1,10 @@
+from typing import Optional, List, Any, Callable
+
 from protocol0.interface.EncoderModifierEnum import EncoderModifierEnum
 from protocol0.interface.EncoderMoveEnum import EncoderMoveEnum
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.utils.decorators import handle_error
 from protocol0.utils.utils import get_callable_name, is_lambda
-from typing import Optional, List, Any, Callable
 
 
 class EncoderAction(AbstractObject):
@@ -45,7 +46,8 @@ class EncoderAction(AbstractObject):
         if self.move_type != EncoderMoveEnum.SCROLL:
             self.parent.log_notice("%s : executing %s" % (encoder_name, get_callable_name(func)))
 
-        func(*a, **k)
+        with self.parent.component_guard():
+            func(*a, **k)
         self.song.end_undo_step()
 
     @staticmethod

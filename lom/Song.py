@@ -1,6 +1,6 @@
 import collections
 
-from typing import List, Optional, Dict, Any, Generator, Iterable, Iterator
+from typing import List, Optional, Dict, Any, Iterable, Iterator
 
 import Live
 from protocol0.interface.InterfaceState import InterfaceState
@@ -48,8 +48,8 @@ class Song(AbstractObject, SongActionMixin):
 
     @property
     def simple_tracks(self):
-        # type: () -> Generator[SimpleTrack, Any, Any]
-        return (track for track in self.live_track_to_simple_track.values() if track.is_active)
+        # type: () -> List[SimpleTrack]
+        return [track for track in self.live_track_to_simple_track.values() if track.is_active]
 
     @property
     def abstract_tracks(self):
