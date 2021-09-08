@@ -27,6 +27,7 @@ class Scene(AbstractObject, SceneActionMixin):
         self._play_listener.subject = self
 
     def link_clip_slots_and_clips(self):
+        # type: () -> None
         self.clip_slots = [
             self.song.clip_slots_by_live_live_clip_slot[clip_slot] for clip_slot in self._scene.clip_slots
         ]

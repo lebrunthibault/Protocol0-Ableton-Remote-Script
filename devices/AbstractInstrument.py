@@ -62,8 +62,9 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
         files = listdir(os.path.dirname(os.path.abspath(__file__)))
 
         class_names = []
-        for file in [file for file in files if re.match("^Instrument[a-zA-Z]*\.py$", file)]:
-            class_name = file.replace(".py", "")
+        for instrument_file in [instrument_file for instrument_file in files
+                                if re.match("^Instrument[a-zA-Z]*\\.py$", instrument_file)]:
+            class_name = instrument_file.replace(".py", "")
             try:
                 mod = __import__("protocol0.devices." + class_name, fromlist=[class_name])
             except ImportError:
@@ -119,10 +120,11 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
 
     @property
     def needs_activation(self):
+        # type: () -> bool
         return self.CAN_BE_SHOWN and (not self.activated or self.needs_exclusive_activation)
 
     def activate_plugin_window(self, select_instrument_track=False, hide=True):
-        # type: (bool) -> Optional[Sequence]
+        # type: (bool, bool) -> Optional[Sequence]
         seq = Sequence()
 
         if not self.activated:

@@ -3,10 +3,11 @@ from types import MethodType
 
 from ClyphX_Pro import ParseUtils
 from ClyphX_Pro.clyphx_pro.actions.GlobalActions import GlobalActions
-from _Framework.ControlSurface import ControlSurface
 from p0_system_api import DefaultApi
 from typing import Callable, Any, Optional
 
+# noinspection PyUnresolvedReferences
+from _Framework.ControlSurface import ControlSurface
 from protocol0.automation.AutomationTrackManager import AutomationTrackManager
 from protocol0.components.BeatScheduler import BeatScheduler
 from protocol0.components.BrowserManager import BrowserManager
@@ -27,6 +28,7 @@ from protocol0.components.UtilsManager import UtilsManager
 from protocol0.components.action_groups.ActionGroupMain import ActionGroupMain
 from protocol0.components.action_groups.ActionGroupSet import ActionGroupSet
 from protocol0.components.action_groups.ActionGroupTest import ActionGroupTest
+from protocol0.components.api.ApiAction import ApiAction
 from protocol0.components.vocal_command.KeywordSearchManager import KeywordSearchManager
 from protocol0.components.vocal_command.VocalCommandManager import VocalCommandManager
 from protocol0.devices.AbstractInstrument import AbstractInstrument
@@ -44,6 +46,8 @@ class Protocol0(ControlSurface):
         # type: (Any, bool) -> None
         super(Protocol0, self).__init__(c_instance=c_instance)
         # noinspection PyProtectedMember
+
+        self.log_message("P0 ********************")
         Protocol0.SELF = self
         self.test_mode = test_mode
         self.started = False
@@ -85,6 +89,8 @@ class Protocol0(ControlSurface):
             self.keywordSearchManager = KeywordSearchManager()
             self.vocalCommandManager = VocalCommandManager()
 
+            ApiAction.create_method_mapping()
+
             self.start()
 
     def start(self):
@@ -96,20 +102,19 @@ class Protocol0(ControlSurface):
 
         self.log_info("is NOT ableton template set")
 
-        if not self.test_mode:
-            self.defer(self.songManager.init_song)
-
         self.wait(100, self.push2Manager.connect_push2)
         self.wait(200, self.push2Manager.connect_push2)
+
+        if not self.test_mode:
+            self.defer(self.songManager.init_song)
 
         self.log_info("Protocol0 script loaded")
         self.started = True
 
     def _is_ableton_template_set(self):
         # type: () -> bool
-        return len(self.protocol0_song.simple_tracks) == 2 and \
-               self.protocol0_song.simple_tracks[0].name == "Audio" and \
-               self.protocol0_song.simple_tracks[1].name == "Midi"
+        live_tracks = list(self.song().tracks)
+        return len(live_tracks) == 2 and live_tracks[0].name == "audio - 0" and live_tracks[1].name == "midi - 0"
 
     def show_message(self, message, log=True):
         # type: (str, bool) -> None

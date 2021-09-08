@@ -37,6 +37,7 @@ class VocalCommandManager(AbstractControlSurfaceComponent):
         self.parent.log_info("Midi server is running")
         if self._midi_server_check_timeout_scheduler_event:
             self._midi_server_check_timeout_scheduler_event.cancel()
+        self.system.pong()  # notify midi backend that we receive well messages via Protocol0Midi
 
     @api_exposed
     def execute_command(self, command):

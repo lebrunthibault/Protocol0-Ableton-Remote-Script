@@ -3,7 +3,6 @@ from functools import partial
 from typing import TYPE_CHECKING, Optional
 
 from protocol0.enums.FoldActionEnum import FoldActionEnum
-from protocol0.lom.Scene import Scene
 from protocol0.lom.device.Device import Device
 from protocol0.lom.track.AbstractTrack import AbstractTrack
 from protocol0.lom.track.AbstractTrackList import AbstractTrackList
@@ -22,6 +21,7 @@ class SongActionMixin(object):
         # type: (Song, bool) -> None
         """ stopping immediately """
         self.stop_playing()
+        # noinspection PyPropertyAccess
         self._song.current_song_time = 0
         self.stop_all_clips()
         if reset_tracks:
@@ -29,11 +29,6 @@ class SongActionMixin(object):
                 track.reset_track()
         if self.song.selected_track == self.song.master_track:
             self.song.select_track(next(self.song.abstract_tracks))
-
-        for scene in reversed(self.song.scenes):
-            if scene.length == 0 and len(self.song.scenes):
-                self.song.delete_scene(scene=scene)
-                self.song.scenes.remove(scene)
 
     def play_stop(self):
         # type: (Song) -> None
@@ -121,13 +116,6 @@ class SongActionMixin(object):
         seq = Sequence()
         seq.add(lambda: self._song.create_scene(scene_index or len(self.song.scenes)), wait=1)
         return seq.done()
-
-    def delete_scene(self, scene):
-        # type: (Song, Scene) -> None
-        try:
-            self._song.delete_scene(scene.index)
-        except RuntimeError as e:
-            self.parent.log_warning("Error while deleting %s: %s" % (scene, e))
 
     def select_device(self, device):
         # type: (Song, Device) -> Sequence
