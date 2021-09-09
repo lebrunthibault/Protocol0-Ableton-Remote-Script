@@ -1,10 +1,10 @@
 import os
-import pytest
 from collections import Iterator
+
+import pytest
 from typing import List
 
 from protocol0.config import PROJECT_ROOT
-from protocol0.tests.windows import focus_pycharm
 
 
 def get_code_filenames(exclude_folder_list=[]):
@@ -53,7 +53,6 @@ def test_all_methods_typed():
                 if "def " in line and "):" in line:
                     if "type: " not in lines[index + 1]:
                         os.system("pycharm64.exe --line %d ./%s" % (index + 1, base_filename))
-                        focus_pycharm()
                         assert False, "untyped function in %s:%d\n%s" % (
                             filename,
                             index + 1,

@@ -1,9 +1,9 @@
+from p0_system_api import DefaultApi
+from typing import TYPE_CHECKING, Any
+
 from _Framework.ControlSurface import get_control_surfaces
 from _Framework.SubjectSlot import SlotManager, Subject
 from protocol0.utils.utils import find_if
-from p0_system_api import DefaultApi
-from traitlets import Any
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from protocol0.lom.Song import Song

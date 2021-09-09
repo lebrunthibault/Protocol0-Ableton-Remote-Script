@@ -1,7 +1,6 @@
-import Live
-import deprecation
 from typing import TYPE_CHECKING, Optional
 
+import Live
 from protocol0.config import QUANTIZATION_OPTIONS
 from protocol0.enums.PixelEnum import PixelEnum
 from protocol0.interface.InterfaceState import InterfaceState
@@ -90,7 +89,6 @@ class ClipActionMixin(object):
         # type: (Clip, DeviceParameter) -> Live.Clip.AutomationEnvelope
         return self._clip.create_automation_envelope(parameter._device_parameter)
 
-    @deprecation.deprecated()
     def clear_all_envelopes(self):
         # type: (Clip) -> None
         if self._clip:
