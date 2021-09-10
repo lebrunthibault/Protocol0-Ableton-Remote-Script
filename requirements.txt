@@ -1,3 +1,4 @@
 transitions==0.8.7
 qualname==0.1.0
 pytest==4.6.11
+virtualenv==20.7.2
