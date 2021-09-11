@@ -54,7 +54,8 @@ class AbstractTrackList(UserMutableSequence):
                 abg.is_folded = True
         elif fold_action == FoldActionEnum.FOLD_ALL_EXCEPT_CURRENT:
             for abg in self.other_abstract_group_tracks:
-                abg.is_folded = True
+                if not abg.is_armed:
+                    abg.is_folded = True
 
             self.song.current_track.is_folded = False
             group_track = self.song.selected_track.group_track

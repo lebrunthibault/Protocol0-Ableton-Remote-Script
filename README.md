@@ -66,10 +66,11 @@ The bigger part of the script is dedicated to the handling of external.
 
 ## Installation
 
-If you want to try the script try the following :
+If you want start by doing this (and then you're on your own :p) :
 
 - clone the repo in your remote scripts directory
 - create a .env.json file by duplicating the .env.example.json and fill it
+- create a python virtual env in ./venv, activate and `pip install -r .\requirements.txt`
 - Try using a configurable midi controller to match the mappings in ./components/actionGroups. The bulk of the script
   uses the midi channel 15 and notes / CCs from 1 to 16.
 

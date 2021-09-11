@@ -3,6 +3,7 @@ from functools import partial, wraps
 from typing import TYPE_CHECKING, Any, Callable
 
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
+from protocol0.my_types import Func
 from protocol0.utils.utils import is_method
 
 if TYPE_CHECKING:
@@ -13,7 +14,7 @@ if TYPE_CHECKING:
 def push2_method(defer=True):
     # type: (bool) -> Callable
     def wrap(func):
-        # type: (Callable) -> Callable
+        # type: (Func) -> Func
         @wraps(func)
         def decorate(self, *a, **k):
             # type: (Push2Manager, Any, Any) -> None
@@ -37,7 +38,7 @@ def push2_method(defer=True):
 
 
 def defer(func):
-    # type: (Callable) -> Callable
+    # type: (Func) -> Func
     @wraps(func)
     def decorate(*a, **k):
         # type: (Any, Any) -> None
@@ -60,13 +61,13 @@ def api_exposable_class(cls):
 
 
 def api_exposed(func):
-    # type: (Callable) -> Callable
+    # type: (Func) -> Func
     func.api_exposed = True  # type: ignore
     return func
 
 
 def poll(func):
-    # type: (Callable) -> Callable
+    # type: (Func) -> Func
     @wraps(func)
     def decorate(*a, **k):
         # type: (Any, Any) -> None
@@ -81,7 +82,7 @@ def poll(func):
 def retry(retry_count=3, interval=3):
     # type: (int, int) -> Callable
     def wrap(func):
-        # type: (Callable) -> Callable
+        # type: (Func) -> Func
         @wraps(func)
         def decorate(*a, **k):
             # type: (Any, Any) -> None
@@ -144,7 +145,7 @@ def has_callback_queue(immediate=False):
 
 
 def log(func):
-    # type: (Callable) -> Callable
+    # type: (Func) -> Func
     @wraps(func)
     def decorate(*a, **k):
         # type: (Any, Any) -> None
@@ -164,7 +165,7 @@ def log(func):
 
 
 def handle_error(func):
-    # type: (Callable) -> Callable
+    # type: (Func) -> Func
     @wraps(func)
     def decorate(*a, **k):
         # type: (Any, Any) -> None

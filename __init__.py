@@ -3,8 +3,10 @@ import os
 import sys
 from os.path import dirname
 
+root_dir = dirname(os.path.realpath(__file__))
+
 if sys.version_info.major == 2:
-    sys.path.insert(0, "C:\\Python27\\Lib\\site-packages")
+    sys.path.insert(0, "%s\\venv\\Lib\\site-packages" % root_dir)
 
 live_environment_loaded = "Live" in sys.modules
 
@@ -14,7 +16,6 @@ from typing import Any, Iterator, Tuple  # noqa: E402
 def load_dotenv():
     # type: () -> None
     """ doing this manually because dotenv throws an encoding error """
-    root_dir = dirname(os.path.realpath(__file__))
     with open("%s/.env.json" % root_dir) as f:
         env_vars = json.loads(f.read())
         for key, value in env_vars.iteritems():

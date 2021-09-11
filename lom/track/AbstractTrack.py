@@ -1,9 +1,9 @@
 from abc import abstractproperty
 
-import Live
 from typing import Any, Optional, List
 from typing import TYPE_CHECKING
 
+import Live
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.devices.InstrumentSimpler import InstrumentSimpler
 from protocol0.enums.ColorEnum import ColorEnum
@@ -115,6 +115,14 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def instrument(self):
         # type: () -> Optional[AbstractInstrument]
         return None
+
+    @property
+    def instrument_class(self):
+        # type: () -> Optional[AbstractInstrument]
+        if self.instrument:
+            return self.instrument.__class__
+        else:
+            return None
 
     @property
     def name(self):
@@ -233,9 +241,9 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def is_hearable(self):
         # type: () -> bool
         return (
-            self.is_playing
-            and self.output_meter_level > 0.5
-            and (not self.abstract_group_track or self.abstract_group_track.is_hearable)
+                self.is_playing
+                and self.output_meter_level > 0.5
+                and (not self.abstract_group_track or self.abstract_group_track.is_hearable)
         )
 
     @property
