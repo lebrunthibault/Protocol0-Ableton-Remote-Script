@@ -70,7 +70,7 @@ class TrackManager(AbstractControlSurfaceComponent):
         if previous_abstract_group_track and previous_abstract_group_track != abstract_group_track:
             previous_abstract_group_track.disconnect()
 
-        abstract_group_track.link_sub_tracks()
+        abstract_group_track.link_parent_and_child_objects()
         return abstract_group_track
 
     def make_external_synth_track(self, base_group_track):

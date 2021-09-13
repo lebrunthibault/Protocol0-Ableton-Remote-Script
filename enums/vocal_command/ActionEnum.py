@@ -9,6 +9,7 @@ class ActionEnum(AbstractEnum):
     NEXT = "NEXT"  # repeat previous command
     SOLO = "SOLO"  # solo/unsolo track
     ARM = "ARM"  # arm/unarm track
+    MONITOR = "MONITOR"  # change track monitoring
     REC = "REC"  # record track
     UNDO = "UNDO"  # set undo
     CLEAR = "CLEAR"  # clear logs

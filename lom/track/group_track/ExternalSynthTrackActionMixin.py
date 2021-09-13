@@ -83,6 +83,8 @@ class ExternalSynthTrackActionMixin(object):
         super(ExternalSynthTrackActionMixin, self).post_record()
         self.midi_track.has_monitor_in = self.audio_track.has_monitor_in = False
         if self.midi_track.playable_clip and self.audio_track.playable_clip:
+            self.midi_track.playable_clip.clip_name.update(base_name="")
+            self.audio_track.playable_clip.clip_name.update(base_name="")
             self.midi_track.playable_clip.quantize()
             self.audio_track.playable_clip.warp_mode = Live.Clip.WarpMode.tones
 

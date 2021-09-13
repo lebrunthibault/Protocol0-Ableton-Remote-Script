@@ -38,6 +38,7 @@ class Clip(ClipActionMixin, AbstractObject):
         self.parent.defer(partial(setattr, self, "color", self.track.computed_color))
         self.clip_name = ClipName(self)
         self.displayed_automated_parameter = None  # type: Optional[DeviceParameter]
+        self.initial_length = self.length  # type: int
 
     def _on_selected(self):
         # type: () -> None

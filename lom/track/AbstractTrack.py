@@ -1,6 +1,6 @@
 from abc import abstractproperty
 
-from typing import Any, Optional, List
+from typing import Any, Optional, List, Type
 from typing import TYPE_CHECKING
 
 import Live
@@ -118,7 +118,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
 
     @property
     def instrument_class(self):
-        # type: () -> Optional[AbstractInstrument]
+        # type: () -> Optional[Type[AbstractInstrument]]
         if self.instrument:
             return self.instrument.__class__
         else:

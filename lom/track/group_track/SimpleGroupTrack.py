@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import Any, Optional
+from typing import Any, Optional, Type
 
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.devices.InstrumentSimpler import InstrumentSimpler
@@ -38,7 +38,7 @@ class SimpleGroupTrack(AbstractGroupTrack):
 
     @property
     def instrument_class(self):
-        # type: () -> Optional[AbstractInstrument]
+        # type: () -> Optional[Type[AbstractInstrument]]
         sub_tracks_instruments = [sub_track.instrument for sub_track in self.sub_tracks if sub_track.instrument]
         sub_tracks_instrument_classes = list(set([instrument.__class__ for instrument in sub_tracks_instruments]))
         if len(sub_tracks_instruments) == len(self.sub_tracks) and len(sub_tracks_instrument_classes) == 1:
@@ -105,13 +105,15 @@ class SimpleGroupTrack(AbstractGroupTrack):
 
     @property
     def _common_subtracks_instrument_class(self):
-        # type: () -> Optional[AbstractInstrument]
+        # type: () -> Optional[Type[AbstractInstrument]]
         sub_tracks_instrument_classes = filter(None, [sub_track.instrument_class for sub_track in self.sub_tracks])
 
         unique_sub_tracks_instrument_classes = list(set(sub_tracks_instrument_classes))
         if len(sub_tracks_instrument_classes) == len(self.sub_tracks) and len(
                 unique_sub_tracks_instrument_classes) == 1:
             return unique_sub_tracks_instrument_classes[0]
+        else:
+            return None
 
     @property
     def computed_color(self):

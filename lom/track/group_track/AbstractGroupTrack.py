@@ -16,7 +16,7 @@ class AbstractGroupTrack(AbstractTrack):
         self.sub_tracks = []  # type: List[AbstractTrack]
         # for now: List[SimpleTrack] but AbstractGroupTracks will register themselves as seen just below
 
-    def link_sub_tracks(self):
+    def link_parent_and_child_objects(self):
         # type: () -> None
         # only simple tracks non foldable at this point :
         # leave room for AbstractGroupTracks to register on the sub_tracks listN
@@ -43,12 +43,12 @@ class AbstractGroupTrack(AbstractTrack):
         # type: (AbstractTrack) -> bool
         """ checks if the given track is not itself or a possibly nested child """
         return (
-            abstract_track == self
-            or abstract_track in self.sub_tracks
-            or any(
-                isinstance(sub_track, AbstractGroupTrack) and sub_track.is_parent(abstract_track)
-                for sub_track in self.sub_tracks
-            )
+                abstract_track == self
+                or abstract_track in self.sub_tracks
+                or any(
+            isinstance(sub_track, AbstractGroupTrack) and sub_track.is_parent(abstract_track)
+            for sub_track in self.sub_tracks
+        )
         )
 
     @property

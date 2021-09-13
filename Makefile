@@ -1,15 +1,12 @@
-.PHONY: test black flake8 mypy vulture pycharm check
+.PHONY: test flake8 mypy vulture pycharm check
 
 test:
 	cls
 	pytest -s .
 
-black:
-	black .
-
 flake8:
 	cls
-	flake8 .
+	.\venv\Scripts\flake8 .
 
 mypy:
 	cls
@@ -17,7 +14,7 @@ mypy:
 
 vulture:
 	cls
-	vulture . .\vulture_whitelist.py
+	vulture . .\vulture_whitelist.py --exclude=venv/
 
 #pycharm:
 #	# not working

@@ -23,7 +23,6 @@ class ClipSlot(AbstractObject):
         self.track = track
         self._has_clip_listener.subject = self._clip_slot
         self._is_triggered_listener.subject = self._clip_slot
-        self.linked_clip_slot = None  # type: Optional[ClipSlot]
         self.clip = None  # type: Optional[Clip]
         self._map_clip()
 

@@ -2,10 +2,9 @@
 line-length = 120
 
 [tool.vulture]
-exclude = []
-#ignore_decorators = ["@app.route", "@require_*"]
-ignore_names = []
+#exclude = ["venv/"]
+ignore_names = ["Optional"]
 make_whitelist = true
-min_confidence = 60
+min_confidence = 95
 sort_by_size = true
 verbose = false

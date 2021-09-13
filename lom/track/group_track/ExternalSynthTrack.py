@@ -1,6 +1,6 @@
 import itertools
 
-from typing import Optional, Any, cast
+from typing import Optional, Any, cast, List
 
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.lom.ObjectSynchronizer import ObjectSynchronizer
@@ -24,16 +24,12 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
                 "invalid external synth track %s" % self
         )
 
+        self.parent.log_info("creating synchronizers")
         with self.parent.component_guard():
             self._midi_audio_synchronizer = TrackSynchronizer(self.audio_track, self.midi_track)
-            self._midi_track_synchronizer = ObjectSynchronizer(self.base_track, self.midi_track, "_track", ["solo"])
+            self._midi_solo_synchronizer = ObjectSynchronizer(self.base_track, self.midi_track, "_track", ["solo"])
 
-            self._clip_slot_synchronizers = [
-                ClipSlotSynchronizer(midi_clip_slot, audio_clip_slot)
-                for midi_clip_slot, audio_clip_slot in itertools.izip(  # type: ignore[attr-defined]
-                    self.midi_track.clip_slots, self.audio_track.clip_slots
-                )
-            ]
+        self._clip_slot_synchronizers = []  # type: List[ClipSlotSynchronizer]
 
         # audio and midi tracks are now handled by self
         self.audio_track.abstract_group_track = self
@@ -47,6 +43,22 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         # the instrument handling relies on the group track
         # noinspection PyUnresolvedReferences
         self.notify_instrument()
+
+    def _link_clip_slots(self):
+        for clip_slot_synchronizer in self._clip_slot_synchronizers:
+            clip_slot_synchronizer.disconnect()
+            
+        with self.parent.component_guard():
+            self._clip_slot_synchronizers = [
+                ClipSlotSynchronizer(midi_clip_slot, audio_clip_slot)
+                for midi_clip_slot, audio_clip_slot in itertools.izip(  # type: ignore[attr-defined]
+                    self.midi_track.clip_slots, self.audio_track.clip_slots
+                )
+            ]
+
+    def link_parent_and_child_objects(self):
+        super(ExternalSynthTrack, self).link_parent_and_child_objects()
+        self._link_clip_slots()
 
     @property
     def instrument(self):
@@ -106,7 +118,8 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     def disconnect(self):
         # type: () -> None
         super(ExternalSynthTrack, self).disconnect()
-        self._midi_track_synchronizer.disconnect()
+        self._midi_solo_synchronizer.disconnect()
         self._midi_audio_synchronizer.disconnect()
         for clip_slot_synchronizer in self._clip_slot_synchronizers:
             clip_slot_synchronizer.disconnect()
+        self._clip_slot_synchronizers = []

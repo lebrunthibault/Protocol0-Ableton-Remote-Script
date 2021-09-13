@@ -209,6 +209,7 @@ class AbstractTrackActionMixin(object):
         self.song.session_record = False
         if self.base_track.playable_clip:
             self.base_track.playable_clip.select()
+            self.base_track.playable_clip.clip_name.update(base_name="")
             if self.base_track.playable_clip.is_midi:
                 self.base_track.playable_clip.show_loop()
                 self.base_track.playable_clip.quantize()

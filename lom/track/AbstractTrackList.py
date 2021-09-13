@@ -1,9 +1,12 @@
+from functools import partial
+
 from typing import Any, Iterable, Optional
 
 from protocol0.enums.FoldActionEnum import FoldActionEnum
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.lom.track.AbstractTrack import AbstractTrack
 from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
+from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.UserMutableSequence import UserMutableSequence
 
 
@@ -36,10 +39,17 @@ class AbstractTrackList(UserMutableSequence):
                 t.play()
 
     def record(self, record_type):
-        # type: (RecordTypeEnum) -> None
+        # type: (RecordTypeEnum) -> Optional[Sequence]
+        if len(self._abstract_tracks) == 0:
+            seq = Sequence()
+            seq.add(self.song.current_track.arm)
+            seq.add(partial(self.song.current_track.record, record_type=record_type))
+            return seq.done()
+
         for abstract_track in self._abstract_tracks:
             assert abstract_track.is_armed
             abstract_track.record(record_type=record_type)
+        return None
 
     def toggle_solo(self):
         # type: () -> None

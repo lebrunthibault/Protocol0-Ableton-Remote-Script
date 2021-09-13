@@ -77,7 +77,7 @@ class SceneActionMixin(object):
         # type: (Scene) -> Optional[Sequence]
         if self.bar_length % 2 != 0:
             self.parent.log_warning("bar length (%s) is not even, cannot split" % self.bar_length)
-            return
+            return None
         bar_length = int(self.bar_length / 2)
 
         seq = Sequence()

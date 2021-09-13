@@ -150,8 +150,8 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         else:
             self._execute()
 
-    def _check_for_step_completion(self):
-        # type: () -> None
+    def _check_for_step_completion(self, _=None):
+        # type: (Any) -> None
         if not self._complete_on and not self._wait:
             return self.terminate()
 
