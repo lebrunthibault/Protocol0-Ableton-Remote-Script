@@ -1,6 +1,6 @@
 import collections
 
-from typing import List, Optional, Dict, Any, Generator, Iterable, Iterator
+from typing import List, Optional, Dict, Any, Generator, Iterator
 
 import Live
 from protocol0.interface.InterfaceState import InterfaceState
@@ -78,7 +78,7 @@ class Song(AbstractObject, SongActionMixin):
 
     @property
     def scrollable_tracks(self):
-        # type: () -> Iterable[AbstractTrack]
+        # type: () -> Iterator[AbstractTrack]
         return (track for track in self.abstract_tracks if track.is_visible)
 
     @property

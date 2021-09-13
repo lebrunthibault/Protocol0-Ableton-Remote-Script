@@ -22,13 +22,13 @@ class AbstractObject(SlotManager, Subject):
 
     def __repr__(self):
         # type: () -> str
-        repr = "P0 %s" % self.__class__.__name__
+        out = "P0 %s" % self.__class__.__name__
         if hasattr(self, "base_name") and self.base_name:
-            repr += ": %s" % self.base_name
+            out += ": %s" % self.base_name
         elif hasattr(self, "name"):
-            repr += ": %s" % self.name
+            out += ": %s" % self.name
 
-        return repr
+        return out
 
     def __ne__(self, obj):
         # type: (object) -> bool

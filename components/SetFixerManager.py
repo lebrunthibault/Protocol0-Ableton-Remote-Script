@@ -47,10 +47,8 @@ class SetFixerManager(AbstractControlSurfaceComponent):
                 assert simple_track in simple_track.group_track.sub_tracks, "failed on %s" % simple_track
                 if simple_track.is_foldable:
                     assert simple_track.group_track.abstract_group_track, "failed on %s" % simple_track
-                    assert (
-                            simple_track.abstract_group_track in simple_track.group_track.abstract_group_track.sub_tracks
-                        # type: ignore
-                    ), ("failed on %s" % simple_track)
+                    sub_tracks = simple_track.group_track.abstract_group_track.sub_tracks  # type: ignore
+                    assert (simple_track.abstract_group_track in sub_tracks), ("failed on %s" % simple_track)
                 else:
                     assert simple_track.group_track.abstract_group_track is None, "failed on %s" % simple_track
                     assert simple_track in simple_track.group_track.sub_tracks, "failed on %s" % simple_track

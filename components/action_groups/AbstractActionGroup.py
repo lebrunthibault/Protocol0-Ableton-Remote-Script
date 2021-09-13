@@ -19,7 +19,7 @@ class AbstractActionGroup(AbstractControlSurfaceComponent):
         # type: (int, bool, Any, Any) -> None
         super(AbstractActionGroup, self).__init__(*a, **k)
         self.available_modifiers = [  # noqa
-            EncoderModifier(type) for type in list(EncoderModifierEnum)
+            EncoderModifier(modifier_type) for modifier_type in list(EncoderModifierEnum)
         ]  # type: List[EncoderModifier]
         self.channel = channel
         self.filter_active_tracks = filter_active_tracks

@@ -20,7 +20,7 @@ class ParallelSequence(Sequence):
             step.start()
 
     @subject_slot_group("terminated")
-    def _parallel_step_termination(self, value):
+    def _parallel_step_termination(self, _):
         # type: (Sequence) -> None
         self._steps_terminated_count += 1
         self.check_for_parallel_step_completion()

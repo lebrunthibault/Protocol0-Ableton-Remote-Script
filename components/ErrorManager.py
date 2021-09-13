@@ -15,8 +15,8 @@ class ErrorManager(AbstractControlSurfaceComponent):
         if set_excepthook:
             sys.excepthook = self.handle_uncaught_exception
 
-    def handle_error(self, e, context=None):
-        # type: (Exception, Optional[str]) -> None
+    def handle_error(self, context=None):
+        # type: (Optional[str]) -> None
         self.song.end_undo_step()
         exc_type, exc_value, tb = sys.exc_info()
         assert exc_type and exc_value and tb
@@ -66,11 +66,11 @@ class ErrorManager(AbstractControlSurfaceComponent):
         the strings may contain internal newlines as well, for those items
         whose source text line is not None.
         """
-        list = []
+        trace_list = []
 
         for filename, lineno, name, line in extracted_list:  # type: (str, int, str, str)
             item = "  %s, line %d, in %s\n" % (filename.replace(PROJECT_ROOT, "."), lineno, name)
             if line and print_line:
                 item = item + "    %s\n" % line.strip()
-            list.append(item)
-        return list
+            trace_list.append(item)
+        return trace_list

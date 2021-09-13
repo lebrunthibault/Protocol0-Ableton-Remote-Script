@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Any
 
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.devices.presets.InstrumentPreset import InstrumentPreset
@@ -11,14 +11,15 @@ class InstrumentSerum(AbstractInstrument):  # noqa
     TRACK_COLOR = ColorEnum.SERUM
     PRESETS_PATH = "C:\\Users\\thiba\\OneDrive\\Documents\\Xfer\\Serum Presets\\System\\ProgramChanges.txt"
     NEEDS_ACTIVATION_FOR_PRESETS_CHANGE = True
+
     #
     # def format_preset_name(self, preset_name):
     #     # type: (str) -> str
     #     (_, filename) = os.path.split(preset_name)
     #     return str(filename)
 
-    def make_preset(self, index, name=None):
-        # type: (AbstractInstrument, int, Optional[str]) -> InstrumentPreset
+    def make_preset(self, index, name=None, *_, **__):
+        # type: (AbstractInstrument, int, Optional[str], Any, Any) -> InstrumentPreset
         """ overridden """
         category, preset_name = name.split("\\")
         return InstrumentPreset(instrument=self, index=index, name=preset_name, category=category)

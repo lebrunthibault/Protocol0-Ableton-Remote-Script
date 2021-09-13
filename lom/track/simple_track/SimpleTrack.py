@@ -1,6 +1,9 @@
 from itertools import chain
 
+from typing import List, Optional, Any, Dict
+
 import Live
+from _Framework.SubjectSlot import subject_slot, subject_slot_group
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.enums.ClipTypeEnum import ClipTypeEnum
 from protocol0.lom.clip.Clip import Clip
@@ -11,9 +14,6 @@ from protocol0.lom.track.AbstractTrack import AbstractTrack
 from protocol0.lom.track.simple_track.SimpleTrackActionMixin import SimpleTrackActionMixin
 from protocol0.utils.decorators import defer, p0_subject_slot
 from protocol0.utils.utils import find_if
-from typing import List, Optional, Any, Dict
-
-from _Framework.SubjectSlot import subject_slot, subject_slot_group
 
 
 class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
@@ -71,7 +71,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             if clip_slot in live_clip_slot_to_clip_slot:
                 new_clip_slots.append(live_clip_slot_to_clip_slot[clip_slot])
             else:
-                new_clip_slots.append(ClipSlot.make(clip_slot=clip_slot, index=i, track=self))
+                new_clip_slots.append(ClipSlot.make(clip_slot=clip_slot, track=self))
         self.clip_slots = new_clip_slots
         self._clip_slots_has_clip_listener.replace_subjects(self.clip_slots)
 
@@ -116,7 +116,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
                 self.abstract_track.notify_instrument()
 
     @subject_slot_group("has_clip")
-    def _clip_slots_has_clip_listener(self, clip_slot):
+    def _clip_slots_has_clip_listener(self, _):
         # type: (ClipSlot) -> None
         # noinspection PyUnresolvedReferences
         self.notify_has_clip()

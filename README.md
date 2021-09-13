@@ -9,7 +9,7 @@ faderfox EC4). It is specifically targeted to working in session view and aims t
 
 This script executes in the context of ableton's bundled python interpreter and with a lot of limitations (e.g. sending
 a simple keystroke or click is not possible from the script).  
-To make these kind of things possible the script is supported by a backend that you can find
+To make this kind of things possible the script is supported by a backend that you can find
 in [this repo](https://github.com/lebrunthibault/Protocol-0-backend).
 > Without setting up the backend (might not be straightforward) the script will only partially work.
 
@@ -21,8 +21,8 @@ interesting to remote scripts devs !
 There is a few specificities / dependencies to bear in mind if anyone would ever want to test it :
 
 - The biggest one is on a famous remote script as I'm using a few of its classes (in particular for scheduling, using
-  Live browser and a few others, see the code). I'm not gonna give the name because I'm not so sure this kind of use of
-  the code is allowed by the EULA. Without this script in your remote script folder, protocol0 will fail miserably.
+  Live browser and a few others, see the code). I'm not going to give the name because I'm not so sure this kind of use
+  of the code is allowed by the EULA. Without this script in your remote script folder, protocol0 will fail miserably.
 - Synths targeted (Prophet rev2, Serum ..). Not blocking
 - Push2 handling code. Not blocking
 
@@ -38,11 +38,11 @@ experimenting fast without too much technical hassle and get over the 8 bars loo
 
 Specifically it aims to achieve :
 
-- An integration with my generic FaderFox EC4 midi controller (could be used by any midi configurable controllers). Uses
+- An integration with my generic FaderFox EC4 midi controller (could be used by any midi configurable controllers). Use
   presses / long presses / button scrolls and shift functionality (handled by the script, not the controller).
 - A better workflow in session view
 - A better workflow when using external synthesizers
-- A better way to show / hide vsts and change presets (specifically drums using simpler and the synths I use most :
+- A better way to show / hide vsts and change presets (specifically drums using simpler, and the synths I use most :
   Prophet Rev2, Minitaur and Serum). Mostly leveraging program change
 - A lot of little improvements in the session view including:
 
@@ -80,7 +80,7 @@ If you want start by doing this (and then you're on your own :p) :
 
 ## Development
 
-I've written a technical google doc that details important parts of the script object model and techniques. Also a few
+I've written a technical google doc that details important parts of the script object model and techniques. Also, a few
 remote scripts concepts are
 explained. [see this google doc](https://docs.google.com/document/d/1H5pxHiAWlyvTJJPb2GCb4fMy_26haCoi709zmcKMTYg/edit?usp=sharing)
 

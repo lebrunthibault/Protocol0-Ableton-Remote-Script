@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from protocol0.utils.callback_descriptor import CallbackDescriptor
 
 
-def push2_method(defer=True):
+def push2_method(defer_call=True):
     # type: (bool) -> Callable
     def wrap(func):
         # type: (Func) -> Func
@@ -27,7 +27,7 @@ def push2_method(defer=True):
                 with self.push2.component_guard():
                     func(self, *a, **k)
 
-            if defer:
+            if defer_call:
                 self.parent.defer(execute)
             else:
                 execute()
@@ -169,11 +169,12 @@ def handle_error(func):
     @wraps(func)
     def decorate(*a, **k):
         # type: (Any, Any) -> None
+        # noinspection PyBroadException
         try:
             func(*a, **k)
-        except Exception as e:
+        except Exception:
             from protocol0 import Protocol0
 
-            Protocol0.SELF.errorManager.handle_error(e)
+            Protocol0.SELF.errorManager.handle_error()
 
     return decorate

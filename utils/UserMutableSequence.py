@@ -25,10 +25,10 @@ class UserMutableSequence(CollectionsMutableSequence, AbstractObject):
     base class for defining custom list classes
     """
 
-    def __init__(self, list, *a, **k):
+    def __init__(self, object_list, *a, **k):
         # type: (MutableSequence[T], Any, Any) -> None
         super(UserMutableSequence, self).__init__(*a, **k)
-        self._list = list
+        self._list = object_list
 
     def __getitem__(self, value):
         # type: (int) -> T

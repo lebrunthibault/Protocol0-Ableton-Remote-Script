@@ -1,5 +1,6 @@
-from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
 from typing import Any
+
+from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
 
 
 class ActionGroupTest(AbstractActionGroup):

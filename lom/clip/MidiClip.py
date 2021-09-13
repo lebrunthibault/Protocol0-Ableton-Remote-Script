@@ -1,8 +1,8 @@
 from functools import partial
 
-import Live
 from typing import List, TYPE_CHECKING, Optional, Callable, Any
 
+import Live
 from protocol0.enums.PixelEnum import PixelEnum
 from protocol0.lom.Note import Note
 from protocol0.lom.clip.Clip import Clip
@@ -25,6 +25,7 @@ class MidiClip(Clip):
         # type: (bool) -> List[Note]
         if not self._clip:
             return []
+        # noinspection PyArgumentList
         notes = [Note(*note, clip=self) for note in self._clip.get_notes(self.loop_start, 0, self.length, 128)]
         self._muted_notes = [note for note in notes if note.muted]
         if exclude_muted:

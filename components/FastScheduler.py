@@ -1,7 +1,7 @@
-import Live
+from ClyphX_Pro import ClyphXComponentBase
 from typing import List, Any, Callable
 
-from ClyphX_Pro import ClyphXComponentBase
+import Live
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.utils.utils import get_callable_name
@@ -47,12 +47,14 @@ class SchedulerEvent(AbstractObject):
         if self.song.errored:
             return
         self._executed = True
+        # noinspection PyBroadException
         try:
             self._callback()
-        except Exception as e:
-            self.parent.errorManager.handle_error(e)
+        except Exception:
+            self.parent.errorManager.handle_error()
 
 
+# noinspection PyArgumentList
 class FastScheduler(AbstractControlSurfaceComponent):
     TICK_MS_DURATION = 17  # average 17 ms
 

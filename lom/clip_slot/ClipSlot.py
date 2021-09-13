@@ -1,8 +1,8 @@
 from functools import partial
 
-import Live
 from typing import Any, TYPE_CHECKING, Optional
 
+import Live
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.clip.Clip import Clip
@@ -37,12 +37,12 @@ class ClipSlot(AbstractObject):
 
     def __repr__(self):
         # type: () -> str
-        repr = super(ClipSlot, self).__repr__()
-        return "%s (%s)" % (repr, self.clip.name if self.clip else "empty (of %s)" % self.track.base_name)
+        out = super(ClipSlot, self).__repr__()
+        return "%s (%s)" % (out, self.clip.name if self.clip else "empty (of %s)" % self.track.base_name)
 
     @staticmethod
-    def make(clip_slot, index, track):
-        # type: (Live.ClipSlot.ClipSlot, int, SimpleTrack) -> ClipSlot
+    def make(clip_slot, track):
+        # type: (Live.ClipSlot.ClipSlot, SimpleTrack) -> ClipSlot
         return ClipSlot(clip_slot=clip_slot, track=track)
 
     @p0_subject_slot("has_clip")

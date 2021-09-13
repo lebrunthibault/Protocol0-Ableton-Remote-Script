@@ -32,8 +32,6 @@ class ActionGroupMain(AbstractActionGroup):
         # FOLD modifier
         self.add_modifier(identifier=3, modifier_type=EncoderModifierEnum.FOLD)
 
-        # PLAY_stop modifier
-        # self.add_modifier(id=4, modifier_type=EncoderModifierEnum.PLAY_STOP)
         # SPLiT encoder
         self.add_encoder(identifier=4, name="split scene", on_press=lambda: self.song.selected_scene.split)
 
@@ -71,8 +69,6 @@ class ActionGroupMain(AbstractActionGroup):
 
         # SONG encoder
         self.add_encoder(identifier=11, name="song", filter_active_tracks=False).add_action(
-            EncoderAction(modifier_type=EncoderModifierEnum.PLAY_STOP, func=self.song.play_stop)
-        ).add_action(
             EncoderAction(modifier_type=EncoderModifierEnum.SOLO, func=self.song.unsolo_all_tracks)
         ).add_action(
             EncoderAction(
@@ -89,11 +85,6 @@ class ActionGroupMain(AbstractActionGroup):
             on_scroll=lambda: self.song.selected_track.scroll_clips,
         ).add_action(
             EncoderAction(modifier_type=EncoderModifierEnum.FOLD, func=lambda: self.song.current_track.toggle_solo)
-        ).add_action(
-            EncoderAction(
-                modifier_type=EncoderModifierEnum.PLAY_STOP,
-                func=lambda: self.song.selected_clip and self.song.selected_clip.play_stop,
-            )
         )
 
         # 13 : TRaCK encoder
@@ -117,11 +108,6 @@ class ActionGroupMain(AbstractActionGroup):
                 modifier_type=EncoderModifierEnum.FOLD,
                 func=lambda: self.song.selected_abstract_tracks.toggle_fold,
             )
-        ).add_action(
-            EncoderAction(
-                modifier_type=EncoderModifierEnum.PLAY_STOP,
-                func=lambda: self.song.selected_abstract_tracks.play_stop,
-            )
         )
 
         # INSTrument encoder
@@ -139,11 +125,6 @@ class ActionGroupMain(AbstractActionGroup):
             EncoderAction(
                 modifier_type=EncoderModifierEnum.SOLO,
                 func=lambda: self.song.selected_category_tracks.toggle_solo,
-            )
-        ).add_action(
-            EncoderAction(
-                modifier_type=EncoderModifierEnum.PLAY_STOP,
-                func=lambda: self.song.selected_category_tracks.play_stop,
             )
         )
 

@@ -106,6 +106,7 @@ class Clip(ClipActionMixin, AbstractObject):
         # type: () -> str
         return self._clip.name if getattr(self, "_clip", None) else None
 
+    # noinspection PyPropertyAccess
     @name.setter
     def name(self, name):
         # type: (str) -> None
@@ -160,6 +161,7 @@ class Clip(ClipActionMixin, AbstractObject):
         # type: () -> float
         return self._clip.looping if self._clip else 0
 
+    # noinspection PyPropertyAccess
     @looping.setter
     def looping(self, looping):
         # type: (bool) -> None
@@ -171,6 +173,7 @@ class Clip(ClipActionMixin, AbstractObject):
         # type: () -> float
         return self._clip.loop_start if self._clip else 0
 
+    # noinspection PyPropertyAccess
     @loop_start.setter
     def loop_start(self, loop_start):
         # type: (float) -> None
@@ -182,6 +185,7 @@ class Clip(ClipActionMixin, AbstractObject):
         # type: () -> float
         return self._clip.loop_end if self._clip else 0
 
+    # noinspection PyPropertyAccess
     @loop_end.setter
     def loop_end(self, loop_end):
         # type: (float) -> None
@@ -193,6 +197,7 @@ class Clip(ClipActionMixin, AbstractObject):
         # type: () -> float
         return self._clip.start_marker if self._clip else 0
 
+    # noinspection PyPropertyAccess
     @start_marker.setter
     def start_marker(self, start_marker):
         # type: (float) -> None
@@ -204,6 +209,7 @@ class Clip(ClipActionMixin, AbstractObject):
         # type: () -> float
         return self._clip.end_marker if self._clip else 0
 
+    # noinspection PyPropertyAccess
     @end_marker.setter
     def end_marker(self, end_marker):
         # type: (float) -> None
@@ -215,6 +221,7 @@ class Clip(ClipActionMixin, AbstractObject):
         # type: () -> int
         return self._clip.color_index if self._clip else 0
 
+    # noinspection PyPropertyAccess
     @color.setter
     def color(self, color_index):
         # type: (int) -> None
@@ -242,6 +249,7 @@ class Clip(ClipActionMixin, AbstractObject):
         # type: () -> bool
         return self._clip and self._clip.muted
 
+    # noinspection PyPropertyAccess
     @muted.setter
     def muted(self, muted):
         # type: (bool) -> None

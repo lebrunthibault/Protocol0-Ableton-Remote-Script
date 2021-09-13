@@ -22,6 +22,7 @@ class ClipActionMixin(object):
     def is_playing(self, is_playing):
         # type: (Clip, bool) -> None
         if self._clip and is_playing != self.is_playing:
+            # noinspection PyPropertyAccess
             self._clip.is_playing = is_playing
 
     def select(self):

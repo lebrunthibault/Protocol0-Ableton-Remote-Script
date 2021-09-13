@@ -44,7 +44,6 @@ class DeviceManager(AbstractControlSurfaceComponent):
         """ update rack with the version stored in browser, keeping old values for identical parameters """
         self.parent.log_info("selecting and updating device %s (track %s)" % (device, device.track))
         parameters = {param.name: param.value for param in device.parameters if "macro" not in param.name.lower()}
-        device_name = device.name
         seq = Sequence()
         seq.add(partial(self.song.select_device, device))
         seq.add(partial(self.parent.browserManager.update_audio_effect_preset, device))
@@ -154,7 +153,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
             x = x_rack + device_position * self.COLLAPSED_RACK_DEVICE_PIXEL_WIDTH
             y = self.SHOW_HIDE_PLUGIN_BUTTON_PIXEL_HEIGHT
 
-        return (x, y)
+        return x, y
 
     def _get_rack_show_macros_button_click_coordinates(self, rack_device):
         # type: (Device) -> Tuple[int, int]
@@ -163,7 +162,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
         x = self._get_device_click_x_position(parent_rack_position)
         y = self.SHOW_HIDE_MACRO_BUTTON_PIXEL_HEIGHT
 
-        return (x, y)
+        return x, y
 
     def _find_parent_rack(self, device):
         # type: (Device) -> Optional[RackDevice]

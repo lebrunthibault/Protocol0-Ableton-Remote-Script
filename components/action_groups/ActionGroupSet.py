@@ -31,7 +31,7 @@ class ActionGroupSet(AbstractActionGroup):
         self.add_encoder(identifier=6, name="update rack devices",
                          on_press=self.parent.setFixerManager.update_audio_effect_racks)
 
-        # ACTV encoder
+        # ACTiVate encoder
         self.add_encoder(identifier=7, name="deactivate current instrument",
                          on_press=self.deactivate_instrument)
 

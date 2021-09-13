@@ -41,6 +41,8 @@ class TrackManager(AbstractControlSurfaceComponent):
             simple_track = SimpleMidiTrack(track=track)
         elif track.has_audio_input:
             simple_track = SimpleAudioTrack(track=track)
+        else:
+            raise Protocol0Error("Unknown track type")
 
         # rebuild sub_tracks
         simple_track.sub_tracks = []

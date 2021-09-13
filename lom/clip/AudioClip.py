@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from protocol0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 
 
+# noinspection PyPropertyAccess
 class AudioClip(Clip):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None

@@ -1,6 +1,5 @@
 import logging
 
-from protocol0.config import Config
 from protocol0.enums.LogLevelEnum import LogLevelEnum
 from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.utils.utils import smart_string

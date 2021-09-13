@@ -13,7 +13,7 @@ class AbstractTrackList(UserMutableSequence):
     def __init__(self, abstract_tracks, *a, **k):
         # type: (Iterable[AbstractTrack], Any, Any) -> None
         tracks = list(dict.fromkeys(abstract_tracks))
-        super(AbstractTrackList, self).__init__(list=tracks, *a, **k)
+        super(AbstractTrackList, self).__init__(object_list=tracks, *a, **k)
         self._abstract_tracks = tracks
 
     @property

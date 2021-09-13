@@ -1,4 +1,5 @@
 from functools import partial
+
 from typing import TYPE_CHECKING, Iterable, Any, Union, Callable, Optional, cast, List
 
 from _Framework.SubjectSlot import subject_slot
@@ -149,8 +150,8 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         else:
             self._execute()
 
-    def _check_for_step_completion(self, res=None):
-        # type: (Optional[Any]) -> None
+    def _check_for_step_completion(self):
+        # type: () -> None
         if not self._complete_on and not self._wait:
             return self.terminate()
 
@@ -198,13 +199,13 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         except SequenceError:
             self.parent.log_notice("caught sequence error !!!!!")
             raise
-        except Exception as e:
+        except Exception:
             self.error()
-            self.parent.errorManager.handle_error(e, "%s : %s" % (self._sequence_name, self))
+            self.parent.errorManager.handle_error("%s : %s" % (self._sequence_name, self))
             raise SequenceError()  # will stop sequence processing
 
     def _handle_return_value(self, res, listener, success_callback):
-        # type: (Any, CallableWithCallbacks, Callable[Any]) -> None
+        # type: (Any, CallableWithCallbacks, Callable) -> None
         from protocol0.sequence.Sequence import Sequence
 
         if isinstance(res, Sequence):

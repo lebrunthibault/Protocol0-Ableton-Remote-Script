@@ -1,11 +1,13 @@
 import inspect
 import types
 from collections import namedtuple, Sequence as CollectionsSequence
-from qualname import qualname
 from types import FrameType
-from typing import Optional, Any, cast, Callable, TYPE_CHECKING, Iterable, Union
+
+from qualname import qualname
+from typing import Optional, Any, cast, Callable, TYPE_CHECKING, Iterator, List
 
 from protocol0.config import PROJECT_ROOT, REMOTE_SCRIPTS_ROOT
+from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.my_types import StringOrNumber, T
 
 if TYPE_CHECKING:
@@ -13,11 +15,10 @@ if TYPE_CHECKING:
 
 
 def scroll_values(items, selected_item, go_next, show_message=False):
-    # type: (Iterable[T], Optional[T], bool, bool) -> T
-    items_list = list(items)
+    # type: (Iterator[T], Optional[T], bool, bool) -> T
+    items_list = list(items)  # type: List[T]
     selected_item = selected_item or items_list[0]
     increment = 1 if go_next else -1
-    index = 0
     try:
         index = (items_list.index(selected_item) + increment) % len(items_list)
         new_item = items_list[index]
@@ -122,9 +123,10 @@ def get_class_name_from_method(func):
     # type: (Any) -> str
     if hasattr(func, "__self__"):
         class_name = func.__self__.__class__.__name__
-
     elif hasattr(func, "__class__"):
         class_name = func.__class__.__name__
+    else:
+        raise Protocol0Error("Cannot get class_name from func")
 
     if class_name and all(word not in class_name for word in ["function", "None"]):
         return class_name

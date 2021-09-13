@@ -28,7 +28,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
         self._current_step = None  # type: Optional[SequenceStep]
         self._bypass_errors = bypass_errors
         self.res = None  # type: Optional[Any]
-        self.debug = Config.SEQUENCE_DEBUG or not (silent)
+        self.debug = Config.SEQUENCE_DEBUG or not silent
         frame_info = get_frame_info(2)
         if frame_info:
             self.name = "[seq %s.%s]" % (frame_info.class_name, frame_info.method_name)

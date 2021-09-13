@@ -25,12 +25,12 @@ class Note(AbstractObject):
     def __eq__(self, other):
         # type: (object) -> bool
         return (
-            isinstance(other, Note)
-            and self.pitch == other.pitch
-            and is_equal(self.start, other.start)
-            and is_equal(self.duration, other.duration)
-            and self.velocity == other.velocity
-            and self.muted == other.muted
+                isinstance(other, Note)
+                and self.pitch == other.pitch
+                and is_equal(self.start, other.start)
+                and is_equal(self.duration, other.duration)
+                and self.velocity == other.velocity
+                and self.muted == other.muted
         )
 
     def __repr__(self):
@@ -45,7 +45,7 @@ class Note(AbstractObject):
 
     def to_data(self):
         # type: () -> Tuple[int, float, float, int, bool]
-        return (self.pitch, self.start, self.duration, self.velocity, self.muted)
+        return self.pitch, self.start, self.duration, self.velocity, self.muted
 
     @property
     def pitch(self):

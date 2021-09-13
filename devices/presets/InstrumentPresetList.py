@@ -118,11 +118,14 @@ class InstrumentPresetList(AbstractObject):
                         continue
 
                     category = root.replace(self.instrument.presets_path + "\\", "").split("\\")[0]
-                    for file in [file for file in files if file.endswith(self.instrument.PRESET_EXTENSION)]:
-                        presets.append(self.instrument.make_preset(index=len(presets), category=category, name=file))
+                    for filename in [filename for filename in files if
+                                     filename.endswith(self.instrument.PRESET_EXTENSION)]:
+                        presets.append(
+                            self.instrument.make_preset(index=len(presets), category=category, name=filename))
                 else:
-                    for file in [file for file in files if file.endswith(self.instrument.PRESET_EXTENSION)]:
-                        presets.append(self.instrument.make_preset(index=len(presets), name=file))
+                    for filename in [filename for filename in files if
+                                     filename.endswith(self.instrument.PRESET_EXTENSION)]:
+                        presets.append(self.instrument.make_preset(index=len(presets), name=filename))
 
             return presets
 
@@ -142,9 +145,9 @@ class InstrumentPresetList(AbstractObject):
             return None
 
         if self.instrument.device.preset_name:
-            preset = find_if(lambda preset: preset.name == self.instrument.device.preset_name, self.presets)
+            preset = find_if(lambda p: p.name == self.instrument.device.preset_name, self.presets)
         elif self.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.NAME:
-            preset = find_if(lambda preset: preset.name == self.instrument.track.abstract_track.name, self.presets)
+            preset = find_if(lambda p: p.name == self.instrument.track.abstract_track.name, self.presets)
 
         if preset:
             return preset

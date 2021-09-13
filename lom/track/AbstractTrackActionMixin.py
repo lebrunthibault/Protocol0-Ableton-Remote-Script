@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from protocol0.lom.track.AbstractTrack import AbstractTrack
 
 
-# noinspection PyTypeHints
+# noinspection PyTypeHints,PyAttributeOutsideInit
 class AbstractTrackActionMixin(object):
     @property
     def is_folded(self):
@@ -173,7 +173,7 @@ class AbstractTrackActionMixin(object):
         """ this records normally on a simple track and both midi and audio on a group track """
         raise NotImplementedError
 
-    def record_audio_only(self, *a, **k):
+    def record_audio_only(self, *_, **__):
         # type: (AbstractTrack, Any, Any) -> Sequence
         """
         overridden

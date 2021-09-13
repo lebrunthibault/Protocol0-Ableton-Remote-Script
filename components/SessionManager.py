@@ -3,7 +3,6 @@ from typing import Optional, Any, List
 from _Framework.SessionComponent import SessionComponent
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.utils.decorators import defer
 
 
 class SessionManager(AbstractControlSurfaceComponent):
@@ -25,10 +24,10 @@ class SessionManager(AbstractControlSurfaceComponent):
         except IndexError:
             return
 
-        def get_all_sub_tracks_inclusive(track):
+        def get_all_sub_tracks_inclusive(parent_track):
             # type: (SimpleTrack) -> List[SimpleTrack]
-            sub_tracks = [track]
-            for sub_track in track.sub_tracks:
+            sub_tracks = [parent_track]
+            for sub_track in parent_track.sub_tracks:
                 sub_tracks.extend(get_all_sub_tracks_inclusive(sub_track))
             return sub_tracks
 

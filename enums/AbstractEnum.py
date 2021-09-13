@@ -12,7 +12,7 @@ class AbstractEnum(Enum):
             return default
 
         value = value.strip()
-        for int, enum in cls.__members__.items():
+        for _, enum in cls.__members__.items():
             if value == enum.name:
                 return cast(T, enum)
 
