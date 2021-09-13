@@ -1,7 +1,7 @@
-from _Framework.SubjectSlot import subject_slot_group
 from typing import List, Any, Optional
 
 import Live
+from _Framework.SubjectSlot import subject_slot_group
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.SceneActionMixin import SceneActionMixin
 from protocol0.lom.SceneName import SceneName
@@ -15,6 +15,7 @@ class Scene(AbstractObject, SceneActionMixin):
 
     PLAYING_SCENE = None  # type: Optional[Scene]
     LOOPING_SCENE = None  # type: Optional[Scene]
+    SELECTED_DUPLICATE_BAR_LENGTH = 1
 
     def __init__(self, scene, *a, **k):
         # type: (Live.Scene.Scene, Any, Any) -> None

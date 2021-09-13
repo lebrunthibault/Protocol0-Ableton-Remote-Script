@@ -1,5 +1,7 @@
 from functools import partial
 
+from typing import TYPE_CHECKING, Optional, Any, List, cast
+
 import Live
 from protocol0.enums.ClipTypeEnum import ClipTypeEnum
 from protocol0.lom.AbstractObject import AbstractObject
@@ -7,7 +9,6 @@ from protocol0.lom.clip.ClipActionMixin import ClipActionMixin
 from protocol0.lom.clip.ClipName import ClipName
 from protocol0.lom.device.DeviceParameter import DeviceParameter
 from protocol0.utils.decorators import p0_subject_slot
-from typing import TYPE_CHECKING, Optional, Any, List, cast
 
 if TYPE_CHECKING:
     from protocol0.lom.clip_slot.ClipSlot import ClipSlot
@@ -195,7 +196,7 @@ class Clip(ClipActionMixin, AbstractObject):
     @start_marker.setter
     def start_marker(self, start_marker):
         # type: (float) -> None
-        if self._clip and start_marker > self.end_marker:
+        if self._clip and start_marker < self.end_marker:
             self._clip.start_marker = start_marker
 
     @property

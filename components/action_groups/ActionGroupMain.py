@@ -21,19 +21,21 @@ class ActionGroupMain(AbstractActionGroup):
 
         # DUPlicate modifier
         self.add_modifier(
-            id=1,
+            identifier=1,
             modifier_type=EncoderModifierEnum.DUP,
-            on_scroll=InterfaceState.scroll_duplicate_bar_lengths,
+            on_scroll=lambda: self.song.selected_scene.scroll_duplicate_bar_lengths,
         )
 
         # SOLO modifier
-        self.add_modifier(id=2, modifier_type=EncoderModifierEnum.SOLO)
+        self.add_modifier(identifier=2, modifier_type=EncoderModifierEnum.SOLO)
 
         # FOLD modifier
-        self.add_modifier(id=3, modifier_type=EncoderModifierEnum.FOLD)
+        self.add_modifier(identifier=3, modifier_type=EncoderModifierEnum.FOLD)
 
         # PLAY_stop modifier
-        self.add_modifier(id=4, modifier_type=EncoderModifierEnum.PLAY_STOP)
+        # self.add_modifier(id=4, modifier_type=EncoderModifierEnum.PLAY_STOP)
+        # SPLiT encoder
+        self.add_encoder(identifier=4, name="split scene", on_press=lambda: self.song.selected_scene.split)
 
         # 5 AUTOmation encoder
         self.add_encoder(
