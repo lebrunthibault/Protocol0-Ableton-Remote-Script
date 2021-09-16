@@ -141,7 +141,7 @@ class AbstractTrackActionMixin(object):
         """ restart audio to get a count in and recfix"""
         assert self.is_armed
         if self.song.session_record_status != Live.Song.SessionRecordStatus.off:  # record count in
-            return self.cancel_record()
+            return self.cancel_record(record_type=record_type)
 
         self.song.session_record = True
 
@@ -191,11 +191,12 @@ class AbstractTrackActionMixin(object):
         seq.add(partial(self.parent.wait_bars, InterfaceState.SELECTED_RECORDING_BAR_LENGTH, self.record_multiple))
         return seq.done()
 
-    def cancel_record(self):
-        # type: (AbstractTrack) -> Sequence
+    def cancel_record(self, record_type):
+        # type: (AbstractTrack, RecordTypeEnum) -> Sequence
         self.parent.clear_tasks()
         seq = Sequence()
-        seq.add(self.delete_playable_clip)
+        if record_type == RecordTypeEnum.NORMAL:
+            seq.add(self.delete_playable_clip)
         seq.add(partial(self.stop, immediate=True))
         seq.add(self.post_record)
         seq.add(self.song.stop_playing)
