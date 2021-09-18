@@ -55,6 +55,7 @@ def test_multi_encoder_scroll():
     # type: () -> None
     res = {"scrolled": False}
 
+    # noinspection PyUnusedLocal
     def scroll(go_next):
         # type: (bool) -> None
         res["scrolled"] = True
@@ -68,6 +69,7 @@ def test_multi_encoder_press_and_scroll():
     # type: () -> None
     res = {"pressed": False, "scrolled": False}
 
+    # noinspection PyUnusedLocal
     def scroll(go_next):
         # type: (bool) -> None
         res["scrolled"] = True
@@ -78,8 +80,8 @@ def test_multi_encoder_press_and_scroll():
 
     multi_encoder = (
         make_multi_encoder()
-            .add_action(EncoderAction(press))
-            .add_action(EncoderAction(scroll, move_type=EncoderMoveEnum.SCROLL))
+        .add_action(EncoderAction(press))
+        .add_action(EncoderAction(scroll, move_type=EncoderMoveEnum.SCROLL))
     )
     scroll_encoder(multi_encoder)
     assert res["scrolled"] is True

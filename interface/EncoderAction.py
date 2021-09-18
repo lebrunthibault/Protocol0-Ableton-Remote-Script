@@ -45,6 +45,8 @@ class EncoderAction(AbstractObject):
         )
         if self.move_type != EncoderMoveEnum.SCROLL:
             self.parent.log_notice("%s : executing %s" % (encoder_name, get_callable_name(func)))
+        else:
+            self.parent.log_notice("%s : scrolling %s" % (encoder_name, get_callable_name(func)))
 
         with self.parent.component_guard():
             func(*a, **k)

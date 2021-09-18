@@ -45,9 +45,10 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self.notify_instrument()
 
     def _link_clip_slots(self):
+        # type: () -> None
         for clip_slot_synchronizer in self._clip_slot_synchronizers:
             clip_slot_synchronizer.disconnect()
-            
+
         with self.parent.component_guard():
             self._clip_slot_synchronizers = [
                 ClipSlotSynchronizer(midi_clip_slot, audio_clip_slot)
@@ -57,6 +58,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
             ]
 
     def link_parent_and_child_objects(self):
+        # type: () -> None
         super(ExternalSynthTrack, self).link_parent_and_child_objects()
         self._link_clip_slots()
 

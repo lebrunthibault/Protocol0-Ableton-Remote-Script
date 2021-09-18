@@ -22,8 +22,8 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
         if not master or not slave:
             raise Protocol0Error("Master and slave should be objects")
 
-        self.master = master
-        self.slave = slave
+        self.master = master   # type: Optional[AbstractObject]
+        self.slave = slave   # type: Optional[AbstractObject]
 
         # sync is two way but the master clip defines start values
         self.listenable_properties = listenable_properties or []

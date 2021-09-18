@@ -45,6 +45,7 @@ def test_error_no_timeout():
 
 def test_callback_timeout():
     # type: () -> None
+    # noinspection PyClassHasNoInit
     class Example:
         @has_callback_queue()
         def listener(self):
@@ -67,10 +68,12 @@ def test_async_callback_execution_order():
     # type: () -> None
     test_res = []
 
+    # noinspection PyClassHasNoInit
     class Example:
         @has_callback_queue()
         def listener(self):
             # type: () -> Sequence
+            # noinspection PyShadowingNames
             seq = Sequence(silent=True)
             seq.add(lambda: test_res.append(0), name="append 0")
             seq.add(wait=1)

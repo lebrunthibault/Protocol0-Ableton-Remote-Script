@@ -100,8 +100,13 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         if not self.instrument or not self.instrument.CAN_BE_SHOWN:
             return None
-        self.is_folded = False
         self.instrument.show_hide()
+
+    def activate_instrument_plugin_window(self):
+        # type: (AbstractTrack) -> None
+        if not self.instrument or not self.instrument.CAN_BE_SHOWN:
+            return None
+        self.instrument.activate_plugin_window(select_instrument_track=False, hide=False, force_activate=True)
 
     @property
     def can_change_presets(self):

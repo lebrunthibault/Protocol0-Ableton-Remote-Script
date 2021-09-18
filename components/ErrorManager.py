@@ -44,7 +44,8 @@ class ErrorManager(AbstractControlSurfaceComponent):
         self.parent.clear_tasks()
         self.parent.defer(self.song.reset)
 
-        self.parent.wait(100, self._restart)
+        if not self.parent.test_mode:
+            self.parent.wait(100, self._restart)
 
     def _restart(self):
         # type: () -> None

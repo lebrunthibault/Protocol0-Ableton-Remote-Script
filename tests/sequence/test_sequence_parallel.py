@@ -1,7 +1,5 @@
 from __future__ import print_function
 
-from functools import partial
-
 from typing import List, Any
 
 from protocol0.lom.AbstractObject import AbstractObject
@@ -30,6 +28,7 @@ def test_parallel_listeners():
         @has_callback_queue()
         def callback_listener(self):
             # type: () -> Sequence
+            # noinspection PyShadowingNames
             seq = Sequence(silent=True)
 
             self.test_res.append(self.val)
@@ -41,6 +40,7 @@ def test_parallel_listeners():
         @p0_subject_slot("test")
         def subject_slot_listener(self):
             # type: () -> Sequence
+            # noinspection PyShadowingNames
             seq = Sequence(silent=True)
 
             self.test_res.append(self.val)
@@ -53,13 +53,13 @@ def test_parallel_listeners():
     obj1 = Example(0, test_res_callbacks)
     obj2 = Example(2, test_res_callbacks)
 
-    def check_res(test_res):
-        # type: (List[int]) -> None
+    def check_res():
+        # type: () -> None
         assert test_res_callbacks == [0, 2, 1, 3]
 
     seq = Sequence(silent=True)
     seq.add([obj1.callback_listener, obj2.callback_listener])
-    seq.add(partial(check_res, test_res_callbacks))
+    seq.add(check_res)
     seq.done()
 
     # subject_slot
@@ -68,13 +68,13 @@ def test_parallel_listeners():
     obj1 = Example(0, test_res_subject_slot)
     obj2 = Example(2, test_res_subject_slot)
 
-    def check_res_2(test_res):
-        # type: (List[int]) -> None
+    def check_res_2():
+        # type: () -> None
         assert test_res_subject_slot == [0, 2, 1, 3] or test_res_subject_slot == [0, 2, 3, 1]
 
     seq = Sequence(silent=True)
     p0.defer(obj1.test)
     p0.defer(obj2.test)
     seq.add([obj1.subject_slot_listener.listener, obj2.subject_slot_listener.listener])
-    seq.add(partial(check_res_2, test_res_subject_slot))
+    seq.add(check_res_2)
     seq.done()

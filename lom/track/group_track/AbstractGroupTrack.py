@@ -45,10 +45,8 @@ class AbstractGroupTrack(AbstractTrack):
         return (
                 abstract_track == self
                 or abstract_track in self.sub_tracks
-                or any(
-            isinstance(sub_track, AbstractGroupTrack) and sub_track.is_parent(abstract_track)
-            for sub_track in self.sub_tracks
-        )
+                or any(isinstance(sub_track, AbstractGroupTrack) and sub_track.is_parent(abstract_track)
+                       for sub_track in self.sub_tracks)
         )
 
     @property

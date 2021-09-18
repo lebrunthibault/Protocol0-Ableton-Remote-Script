@@ -2,7 +2,7 @@
 
 test:
 	cls
-	pytest -s .
+	.\venv\Scripts\pytest -s .
 
 flake8:
 	cls
@@ -14,7 +14,7 @@ mypy:
 
 vulture:
 	cls
-	vulture . .\vulture_whitelist.py --exclude=venv/
+	.\venv\Scripts\vulture . .\vulture_whitelist.py --exclude=venv/
 
 #pycharm:
 #	# not working
@@ -24,4 +24,3 @@ check:
 	make test
 	make flake8
 	make mypy
-	make vulture

@@ -1,13 +1,10 @@
 from __future__ import print_function
 
-from functools import partial
-
 from typing import List, Any
 
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.sequence.Sequence import Sequence
 
-# noinspection PyUnresolvedReferences
 from protocol0.tests.test_all import p0
 from protocol0.utils.decorators import has_callback_queue, p0_subject_slot, defer
 
@@ -16,6 +13,7 @@ def test_has_callback_queue_1():
     # type: () -> None
     res = []
 
+    # noinspection PyClassHasNoInit
     class Example:
         @has_callback_queue(immediate=True)
         def example(self):
@@ -35,12 +33,7 @@ def test_has_callback_queue_2():
     # type: () -> None
     res = []
 
-    class Parent:
-        @has_callback_queue()
-        def example(self):
-            # type: () -> None
-            res.append("parent")
-
+    # noinspection PyClassHasNoInit
     class Child:
         @has_callback_queue(immediate=True)
         def example(self):
@@ -84,8 +77,6 @@ def test_has_callback_queue_result():
             # type: () -> Sequence
             return Sequence().done()
 
-    test_res = {"callback_called": False}
-
     # 'normal' listener
     obj = Example()
     seq = Sequence()
@@ -100,7 +91,6 @@ def test_has_callback_queue_result():
     seq.done()
 
     # listener returning sequence
-    test_res = {"callback_called": False}
     seq = Sequence()
     seq.add(obj.test, complete_on=obj.listener_sequence)
     seq.add(lambda: setattr(obj, "callback_called", True))
@@ -123,6 +113,7 @@ def test_async_callback():
         @has_callback_queue()
         def callback_listener(self):
             # type: () -> Sequence
+            # noinspection PyShadowingNames
             seq = Sequence(silent=True)
 
             self.test_res.append(self.val)
@@ -134,6 +125,7 @@ def test_async_callback():
         @p0_subject_slot("test")
         def subject_slot_listener(self):
             # type: () -> Sequence
+            # noinspection PyShadowingNames
             seq = Sequence(silent=True)
 
             self.test_res.append(self.val)
@@ -146,14 +138,14 @@ def test_async_callback():
     obj1 = Example(0, test_res_callbacks)
     obj2 = Example(2, test_res_callbacks)
 
-    def check_res(test_res):
-        # type: (List[int]) -> None
+    def check_res():
+        # type: () -> None
         assert test_res_callbacks == [0, 1, 2, 3]
 
     seq = Sequence(silent=True)
     seq.add(obj1.callback_listener)  # type: ignore[arg-type]
     seq.add(obj2.callback_listener)  # type: ignore[arg-type]
-    seq.add(partial(check_res, test_res_callbacks))
+    seq.add(check_res)
     seq.done()
 
 

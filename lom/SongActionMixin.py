@@ -60,6 +60,8 @@ class SongActionMixin(object):
 
     def select_track(self, abstract_track, fold_set=False):
         # type: (Song, AbstractTrack, bool) -> Optional[Sequence]
+        if abstract_track.group_track:
+            abstract_track.group_track.is_folded = False
         seq = Sequence(silent=True)
         if self.song.selected_track != abstract_track.base_track:
             seq.add(partial(setattr, self._view, "selected_track", abstract_track._track), wait=1)

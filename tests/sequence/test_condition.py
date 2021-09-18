@@ -3,6 +3,7 @@ from protocol0.sequence.Sequence import Sequence
 
 def test_do_if():
     # type: () -> None
+    # noinspection PyClassHasNoInit
     class Obj:
         a = 2
 
@@ -17,6 +18,7 @@ def test_do_if():
 
 def test_return_if():
     # type: () -> None
+    # noinspection PyClassHasNoInit
     class Obj:
         a = 2
 

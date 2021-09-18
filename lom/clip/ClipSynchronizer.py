@@ -1,8 +1,5 @@
-from functools import partial
+from typing import TYPE_CHECKING, List, Any, Optional
 
-from typing import TYPE_CHECKING, List, Any
-
-from _Framework.SubjectSlot import subject_slot_group
 from protocol0.lom.ObjectSynchronizer import ObjectSynchronizer
 
 if TYPE_CHECKING:
@@ -24,8 +21,8 @@ class ClipSynchronizer(ObjectSynchronizer):
             *a,
             **k
         )
-        self.master = self.master  # type: Clip
-        self.slave = self.slave  # type: Clip
+        self.master = self.master  # type: Optional[Clip]
+        self.slave = self.slave  # type: Optional[Clip]
 
         # noinspection PyUnresolvedReferences
         master.notify_linked()
@@ -40,5 +37,6 @@ class ClipSynchronizer(ObjectSynchronizer):
             return self._syncable_properties
 
     def disconnect(self):
+        # type: () -> None
         super(ClipSynchronizer, self).disconnect()
         self.master = self.slave = None

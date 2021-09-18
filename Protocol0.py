@@ -40,7 +40,6 @@ from protocol0.utils.log import log_ableton
 
 class Protocol0(ControlSurface):
     SELF = None  # type: Protocol0
-    LIVE_ENVIRONMENT_LOADED = True
 
     def __init__(self, c_instance=None, test_mode=False):
         # type: (Any, bool) -> None
@@ -66,7 +65,8 @@ class Protocol0(ControlSurface):
             self.songManager = SongManager()
             self.sessionManager = SessionManager()
             MixingManager()
-            self.push2Manager = Push2Manager()
+            if not test_mode:
+                self.push2Manager = Push2Manager()
             self.trackManager = TrackManager()
             self.automationTrackManager = AutomationTrackManager()
             self.quantizationManager = QuantizationManager()
@@ -80,21 +80,24 @@ class Protocol0(ControlSurface):
             self.utilsManager = UtilsManager()
             self.logManager = LogManager()
 
-            # action groups
-            ActionGroupMain()
-            ActionGroupSet()
-            ActionGroupTest()
+            if not test_mode:
+                # action groups
+                ActionGroupMain()
+                ActionGroupSet()
+                ActionGroupTest()
 
-            # vocal command
-            self.keywordSearchManager = KeywordSearchManager()
-            self.vocalCommandManager = VocalCommandManager()
+                # vocal command
+                self.keywordSearchManager = KeywordSearchManager()
+                self.vocalCommandManager = VocalCommandManager()
 
-            ApiAction.create_method_mapping()
+                ApiAction.create_method_mapping()
 
-            self.start()
+                self.start()
 
     def start(self):
         # type: () -> None
+        if self.test_mode:
+            return
         if self._is_ableton_template_set():
             self.log_info("is ableton template set")
             self.p0_system_api_client.reload_ableton()
@@ -178,9 +181,10 @@ class Protocol0(ControlSurface):
             return None
         else:
             # for ticks_count > 1 we use the 100ms timer losing some speed but it's easier for now
-            if Protocol0.LIVE_ENVIRONMENT_LOADED:
+            if not self.test_mode:
                 return self.fastScheduler.schedule(tick_count=tick_count, callback=callback)
             else:
+                # callback()  # no scheduling when testing
                 # emulate schedule_message
                 threading.Timer(
                     float(tick_count) * self.fastScheduler.TICK_MS_DURATION / 1000,

@@ -76,9 +76,6 @@ if not live_environment_loaded:
 if sys.version_info.major == 2:
     from protocol0.Protocol0 import Protocol0  # noqa: E402
 
-    Protocol0.LIVE_ENVIRONMENT_LOADED = live_environment_loaded
-
-
 def create_instance(c_instance):  # noqa
     # type: (Any) -> Protocol0
-    return Protocol0(c_instance)
+    return Protocol0(c_instance, test_mode=not live_environment_loaded)
