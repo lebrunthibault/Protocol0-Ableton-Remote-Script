@@ -16,6 +16,7 @@ class VocalCommandManager(AbstractControlSurfaceComponent):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(VocalCommandManager, self).__init__(*a, **k)
+        self.parent.log_info("creating VocalCommand Manager")
         self._keywordActionManager = KeywordActionManager()
         self._midi_server_check_timeout_scheduler_event = None  # type: Optional[SchedulerEvent]
         self.parent.wait(20, self._check_midi_server_is_running)  # waiting for Protocol0_midi to boot
@@ -50,13 +51,13 @@ class VocalCommandManager(AbstractControlSurfaceComponent):
         command = smart_string(command)
         action_enum = getattr(ActionEnum, command, None)  # type: ActionEnum
         if action_enum:
-            self.parent.show_message("SR received action: %s" % action_enum.value)
+            self.parent.show_message("SR received action: %s" % smart_string(action_enum.value))
             self._keywordActionManager.execute_from_enum(action_enum=action_enum)
             return
 
         track_search_keyword_enum = getattr(TrackSearchKeywordEnum, command, None)  # type: TrackSearchKeywordEnum
         if track_search_keyword_enum:
-            self.parent.show_message("SR received search: %s" % track_search_keyword_enum.value)
+            self.parent.show_message("SR received search: %s" % smart_string(track_search_keyword_enum.value))
             self.parent.keywordSearchManager.search_track(keyword_enum=track_search_keyword_enum)
             return
 

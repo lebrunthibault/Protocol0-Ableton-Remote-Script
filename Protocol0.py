@@ -88,6 +88,7 @@ class Protocol0(ControlSurface):
 
                 # vocal command
                 self.keywordSearchManager = KeywordSearchManager()
+                self.log_dev("Protocol0 init going toc create vocalCommandManager")
                 self.vocalCommandManager = VocalCommandManager()
 
                 ApiAction.create_method_mapping()
@@ -116,8 +117,7 @@ class Protocol0(ControlSurface):
 
     def _is_ableton_template_set(self):
         # type: () -> bool
-        live_tracks = list(self.song().tracks)
-        return len(live_tracks) == 2 and live_tracks[0].name == "audio - 0" and live_tracks[1].name == "midi - 0"
+        return self.song().tracks[0].name == "audio - 0"
 
     def show_message(self, message, log=True):
         # type: (str, bool) -> None

@@ -24,7 +24,6 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
                 "invalid external synth track %s" % self
         )
 
-        self.parent.log_info("creating synchronizers")
         with self.parent.component_guard():
             self._midi_audio_synchronizer = TrackSynchronizer(self.audio_track, self.midi_track)
             self._midi_solo_synchronizer = ObjectSynchronizer(self.base_track, self.midi_track, "_track", ["solo"])

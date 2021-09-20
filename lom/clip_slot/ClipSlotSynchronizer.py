@@ -14,7 +14,6 @@ class ClipSlotSynchronizer(AbstractControlSurfaceComponent):
     def __init__(self, midi_cs, audio_cs, *a, **k):
         # type: (ClipSlot, ClipSlot, Any, Any) -> None
         super(ClipSlotSynchronizer, self).__init__(*a, **k)
-        self.parent.log_info("creating clip slot sync for %s and %s" % (midi_cs, audio_cs))
         self.midi_cs = midi_cs
         self.audio_cs = audio_cs
 
