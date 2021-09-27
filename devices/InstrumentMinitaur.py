@@ -1,5 +1,6 @@
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.enums.ColorEnum import ColorEnum
+from protocol0.sequence.Sequence import Sequence
 
 
 class InstrumentMinitaur(AbstractInstrument):
@@ -12,3 +13,18 @@ class InstrumentMinitaur(AbstractInstrument):
     PRESETS_PATH = "C:\\Users\\thiba\\AppData\\Roaming\\Moog Music Inc\\Minitaur\\Presets Library\\User"
     PROGRAM_CHANGE_OFFSET = 1
     HAS_TOTAL_RECALL = False
+
+    def show_hide(self):
+        # type: () -> Sequence
+        """ Only one vst instance of minitaur active: the last one """
+        minitaur_tracks = [abt for abt in self.song.abstract_tracks if isinstance(abt.instrument, InstrumentMinitaur)]
+        if self.track.abstract_track != minitaur_tracks[-1]:
+            return minitaur_tracks[-1].instrument.show_hide()
+        else:
+            armed_track = next(self.song.armed_tracks)
+            if isinstance(armed_track.instrument, InstrumentMinitaur) and armed_track != self.track.abstract_track and self.track.abstract_track == self.song.current_track:
+                self.system.show_hide_plugins()
+                return armed_track.select()
+            else:
+                return super(InstrumentMinitaur, self).show_hide()
+

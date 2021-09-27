@@ -30,7 +30,6 @@ class InstrumentPresetList(AbstractObject):
         # type: () -> None
         self.presets = self._import_presets()
         self.selected_preset = self._get_selected_preset()
-
         # noinspection PyUnresolvedReferences
         self.instrument.notify_selected_preset()
 
@@ -137,7 +136,6 @@ class InstrumentPresetList(AbstractObject):
         """
         Checking first the track name (Serum or Minitaur)
         then the device name (e.g. simpler)
-        then the track selected index (prophet, fallback)
         """
         preset = None
 
@@ -149,12 +147,7 @@ class InstrumentPresetList(AbstractObject):
         elif self.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.NAME:
             preset = find_if(lambda p: p.name == self.instrument.track.abstract_track.name, self.presets)
 
-        if preset:
-            return preset
-        elif self.instrument.track.abstract_track.track_name.selected_preset_index:
-            try:
-                return preset or self.presets[self.instrument.track.abstract_track.track_name.selected_preset_index]
-            except IndexError:
-                pass
+        if preset is None and not self.instrument.HAS_TOTAL_RECALL:
+            self.parent.log_error("Couldn't find selected preset for not HAS_TOTAL_RECALL instrument of %s" % self.instrument.track.abstract_track)
 
-        return None
+        return preset

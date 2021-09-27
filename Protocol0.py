@@ -46,7 +46,7 @@ class Protocol0(ControlSurface):
         super(Protocol0, self).__init__(c_instance=c_instance)
         # noinspection PyProtectedMember
 
-        self.log_message("P0 ********************")
+        self.log_message("P0 ******************** start __init__")
         Protocol0.SELF = self
         self.test_mode = test_mode
         self.started = False
@@ -88,7 +88,6 @@ class Protocol0(ControlSurface):
 
                 # vocal command
                 self.keywordSearchManager = KeywordSearchManager()
-                self.log_dev("Protocol0 init going toc create vocalCommandManager")
                 self.vocalCommandManager = VocalCommandManager()
 
                 ApiAction.create_method_mapping()
@@ -99,15 +98,12 @@ class Protocol0(ControlSurface):
         # type: () -> None
         if self.test_mode:
             return
-        if self._is_ableton_template_set():
-            self.log_info("is ableton template set")
-            self.p0_system_api_client.reload_ableton()
-            return
 
-        self.log_info("is NOT ableton template set")
+        self._reload_if_ableton_template_set()
 
         self.wait(100, self.push2Manager.connect_push2)
         self.wait(200, self.push2Manager.connect_push2)
+        self.wait(400, self.push2Manager.connect_push2)
 
         if not self.test_mode:
             self.defer(self.songManager.init_song)
@@ -115,13 +111,18 @@ class Protocol0(ControlSurface):
         self.log_info("Protocol0 script loaded")
         self.started = True
 
-    def _is_ableton_template_set(self):
-        # type: () -> bool
-        return self.song().tracks[0].name == "audio - 0"
+    def _reload_if_ableton_template_set(self):
+        # type: () -> None
+        if len(list(self.song().tracks)) == 2 and len(self.song().scenes) == 20:
+            self.p0_system_api_client.reload_ableton()
 
     def show_message(self, message, log=True):
         # type: (str, bool) -> None
-        super(Protocol0, self).show_message(message)
+        # noinspection PyBroadException
+        try:
+            super(Protocol0, self).show_message(message)
+        except Exception:
+            self.log_warning("Couldn't show message")
         if log:
             self.log_warning(message)
 

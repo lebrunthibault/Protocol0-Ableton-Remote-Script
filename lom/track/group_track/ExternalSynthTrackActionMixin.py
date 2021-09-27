@@ -48,10 +48,9 @@ class ExternalSynthTrackActionMixin(object):
         """ next_empty_clip_slot_index is guaranteed to be not None """
         seq = Sequence()
         assert self.next_empty_clip_slot_index is not None
-        midi_clip_slot = self.midi_track.clip_slots[self.next_empty_clip_slot_index]
         audio_clip_slot = self.audio_track.clip_slots[self.next_empty_clip_slot_index]
         self.audio_track.select()
-        seq.add([midi_clip_slot.record, audio_clip_slot.record])
+        seq.add([self._record_midi_and_post_record, audio_clip_slot.record])
         return seq.done()
 
     def record_audio_only(self):
@@ -59,6 +58,9 @@ class ExternalSynthTrackActionMixin(object):
         midi_clip = self.midi_track.playable_clip
         if not midi_clip:
             self.parent.show_message("No midi clip selected")
+            return None
+        if midi_clip != self.midi_track.clip_slots[self.song.selected_scene.index].clip:
+            self.parent.show_message("Playable clip is not on the selected scene")
             return None
         assert isinstance(midi_clip, MidiClip)
 
@@ -75,7 +77,15 @@ class ExternalSynthTrackActionMixin(object):
             seq.add(audio_clip_slot.clip.delete)
         seq.add(partial(setattr, midi_clip, "start_marker", 0))
         seq.add(partial(self.parent.wait, 80, midi_clip.play))  # launching the midi clip after the record has started
-        seq.add(partial(self.audio_track.clip_slots[midi_clip.index].record, recording_bar_count=recording_bar_count))
+        seq.add(partial(self.audio_track.clip_slots[midi_clip.index].record, bar_count=recording_bar_count))
+        return seq.done()
+
+    def _record_midi_and_post_record(self):
+        # type: (ExternalSynthTrack) -> Sequence
+        seq = Sequence()
+        midi_clip_slot = self.midi_track.clip_slots[self.next_empty_clip_slot_index]
+        seq.add(midi_clip_slot.record)
+        seq.add(self.post_record)
         return seq.done()
 
     def post_record(self):

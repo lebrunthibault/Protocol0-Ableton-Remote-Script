@@ -49,7 +49,7 @@ class ActionGroupMain(AbstractActionGroup):
         self.add_encoder(identifier=7, name="protected mode", on_press=InterfaceState.toggle_protected_mode)
 
         # MONitor encoder
-        self.add_encoder(identifier=8, name="monitor", on_press=lambda: self.song.current_track.switch_monitoring)
+        self.add_encoder(identifier=8, name="monitor", on_press=lambda: AbstractTrackList(self.song.armed_tracks).switch_monitoring)
 
         # RECord encoder
         self.add_encoder(
@@ -75,16 +75,6 @@ class ActionGroupMain(AbstractActionGroup):
                 modifier_type=EncoderModifierEnum.FOLD,
                 func=lambda: AbstractTrackList(self.song.abstract_tracks).toggle_fold,
             )
-        )
-
-        # 12 : CLIP encoder
-        self.add_encoder(
-            identifier=12,
-            name="clip",
-            on_press=lambda: self.song.selected_clip and self.song.selected_clip.play_stop,
-            on_scroll=lambda: self.song.selected_track.scroll_clips,
-        ).add_action(
-            EncoderAction(modifier_type=EncoderModifierEnum.FOLD, func=lambda: self.song.current_track.toggle_solo)
         )
 
         # 13 : TRaCK encoder

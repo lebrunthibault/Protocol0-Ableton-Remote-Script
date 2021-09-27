@@ -63,8 +63,8 @@ class AbstractTrackActionMixin(object):
             pass  # Live throws sometimes 'Master or sendtracks have no monitoring state!'
 
     def select(self):
-        # type: (AbstractTrack) -> None
-        self.song.select_track(self)
+        # type: (AbstractTrack) -> Sequence
+        return self.song.select_track(self)
 
     def toggle_arm(self):
         # type: (AbstractTrack) -> None

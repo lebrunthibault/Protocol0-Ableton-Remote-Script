@@ -52,7 +52,7 @@ class SimpleTrackActionMixin(object):
 
         if self.instrument:
             if not self.instrument.HAS_TOTAL_RECALL and self.instrument.selected_preset:
-                seq.add(self.instrument._sync_selected_preset)
+                seq.add(self.instrument.sync_selected_preset)
             if self.instrument.needs_activation:
                 seq.add(partial(self.instrument.activate_plugin_window))
 
@@ -92,6 +92,7 @@ class SimpleTrackActionMixin(object):
 
     def scroll_clips(self, go_next):
         # type: (SimpleTrack, bool) -> None
+        """ deprecated. Use Push. Not used in ec4 anymore """
         if len(self.clips) == 0:
             return
         self.parent.navigationManager.show_clip_view()

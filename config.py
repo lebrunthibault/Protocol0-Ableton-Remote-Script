@@ -9,8 +9,7 @@ from protocol0.enums.LogLevelEnum import LogLevelEnum
 class Config(object):
     LOG_LEVEL = LogLevelEnum.DEV
 
-    # with this set to True, the script is going to rename more aggressively
-    FIX_OUTDATED_SETS = True
+    RECORD_AUDIO_CLIP_TAILS = True  # records one more bar of audio to make editing easier
 
     SEQUENCE_DEBUG = False
     SEQUENCE_SLOW_MO = False

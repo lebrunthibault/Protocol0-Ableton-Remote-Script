@@ -30,8 +30,7 @@ class ClipName(AbstractObjectName):
         """ overridden """
         match = re.match("^(?P<base_name>[^()[\\].]*).*$", self.clip.name or "")
         self.base_name = match.group("base_name").strip() if match else ""
-        if Config.FIX_OUTDATED_SETS:
-            self.normalize_base_name()
+        self.normalize_base_name()
         self.update()
 
     @property

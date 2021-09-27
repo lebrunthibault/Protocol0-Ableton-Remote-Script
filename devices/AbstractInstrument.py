@@ -129,12 +129,12 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
         # type: (bool, bool, bool) -> Optional[Sequence]
         seq = Sequence()
 
-        if not self.activated or force_activate:
+        if force_activate or not self.activated:
             seq.add(self.device.track.select)
             seq.add(partial(self.parent.deviceManager.make_plugin_window_showable, self.device))
             seq.add(lambda: setattr(self, "activated", True), name="mark instrument as activated")
 
-        if self.needs_exclusive_activation:
+        if force_activate or self.needs_exclusive_activation:
             seq.add(self.device.track.select)
             seq.add(self.exclusive_activate)
 

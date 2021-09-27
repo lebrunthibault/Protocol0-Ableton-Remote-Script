@@ -7,6 +7,7 @@ from typing import List, Optional
 from protocol0.config import PROJECT_ROOT
 
 
+@pytest.mark.skip(reason="slow")
 def get_code_filenames(exclude_folder_list=None):
     # type: (Optional[List[str]]) -> Iterator[str]
     exclude_folder_list = (exclude_folder_list or []) + [
@@ -28,7 +29,7 @@ def get_code_filenames(exclude_folder_list=None):
             yield os.path.join(current_path, filename)
 
 
-# @pytest.mark.skip(reason="slow")
+@pytest.mark.skip(reason="slow")
 def test_sequence_pattern():
     # type: () -> None
     """ test sequence pattern is respected """

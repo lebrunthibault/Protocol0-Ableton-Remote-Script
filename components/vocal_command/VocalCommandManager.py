@@ -49,15 +49,14 @@ class VocalCommandManager(AbstractControlSurfaceComponent):
         # type: (str) -> None
         """ Called by the speech recognition script """
         command = smart_string(command)
+        self.parent.show_message(command)
         action_enum = getattr(ActionEnum, command, None)  # type: ActionEnum
         if action_enum:
-            self.parent.show_message("SR received action: %s" % smart_string(action_enum.value))
             self._keywordActionManager.execute_from_enum(action_enum=action_enum)
             return
 
         track_search_keyword_enum = getattr(TrackSearchKeywordEnum, command, None)  # type: TrackSearchKeywordEnum
         if track_search_keyword_enum:
-            self.parent.show_message("SR received search: %s" % smart_string(track_search_keyword_enum.value))
             self.parent.keywordSearchManager.search_track(keyword_enum=track_search_keyword_enum)
             return
 

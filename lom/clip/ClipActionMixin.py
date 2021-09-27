@@ -39,6 +39,7 @@ class ClipActionMixin(object):
 
     def play_stop(self):
         # type: (Clip) -> None
+        """ deprecated. Use Push. Not used in ec4 anymore """
         if self.muted:
             self.muted = False
         self.is_playing = not self.is_playing
@@ -97,10 +98,15 @@ class ClipActionMixin(object):
 
     def configure_new_clip(self):
         # type: (Clip) -> Optional[Sequence]
-        """ extended """
+        """ overridden """
         pass
 
     def refresh_appearance(self):
         # type: (Clip) -> None
         self.clip_name.update()  # type: ignore
         self.color = self.track.computed_color
+
+    def post_record(self, recording_bar_count):
+        # type: (int) -> None
+        """ overridden """
+        pass

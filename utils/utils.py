@@ -94,8 +94,8 @@ def is_lambda(func):
 
 def smart_string(s):
     # type: (Any) -> str
-    s = str(s)
-    # return s.encode("utf-8")  # type: ignore
+    if not isinstance(s, basestring):
+        s = str(s)
     return s.decode("utf-8").encode("ascii", "replace")  # type: ignore
 
 

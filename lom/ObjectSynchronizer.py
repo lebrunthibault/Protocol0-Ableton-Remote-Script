@@ -41,9 +41,15 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
         """ overridden """
         return self.listenable_properties
 
+    def is_syncable(self, _):
+        # type: (AbstractObject) -> bool
+        return True
+
     @defer
     def _sync_properties(self, master, slave):
         # type: (AbstractObject, AbstractObject) -> None
+        if not self.is_syncable(slave):
+            return
         for property_name in self.get_syncable_properties(master):
             self._sync_property(master, slave, property_name)
 

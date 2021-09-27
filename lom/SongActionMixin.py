@@ -59,7 +59,7 @@ class SongActionMixin(object):
         self._song.undo()
 
     def select_track(self, abstract_track, fold_set=False):
-        # type: (Song, AbstractTrack, bool) -> Optional[Sequence]
+        # type: (Song, AbstractTrack, bool) -> Sequence
         if abstract_track.group_track:
             abstract_track.group_track.is_folded = False
         seq = Sequence(silent=True)

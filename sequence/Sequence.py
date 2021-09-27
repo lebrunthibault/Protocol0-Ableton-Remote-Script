@@ -20,7 +20,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
 
     RUNNING_SEQUENCES = []  # type: List[Sequence]
 
-    def __init__(self, bypass_errors=False, silent=False, *a, **k):
+    def __init__(self, bypass_errors=False, silent=True, *a, **k):
         # type: (bool, bool, Any, Any) -> None
         super(Sequence, self).__init__(*a, **k)
 

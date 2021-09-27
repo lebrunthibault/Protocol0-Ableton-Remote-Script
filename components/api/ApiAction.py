@@ -54,7 +54,6 @@ class ApiAction(object):
         # type: (str) -> ApiAction
         try:
             data = json.loads(payload)
-            log_ableton(payload, level=LogLevelEnum.DEBUG)
         except ValueError:
             raise ApiError("json decode error on string : %s" % payload)
 

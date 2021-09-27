@@ -23,10 +23,9 @@ class Push2Manager(AbstractControlSurfaceComponent):
     def connect_push2(self):
         # type: () -> None
         """ object modification, push2 registers itself after protocol0 instantiation """
-        if self.push2:
-            return
         push2 = find_if(lambda cs: isinstance(cs, Push2), get_control_surfaces())
-        self.parent.log_debug("Got push2 %s" % push2)
+        if not self.push2:
+            self.parent.log_debug("Got push2 %s" % push2)
         if not push2 or not hasattr(push2, "_session_ring"):
             self.parent.log_warning("Cannot connect to push2")
             return
@@ -40,7 +39,9 @@ class Push2Manager(AbstractControlSurfaceComponent):
             self._nav_button_press_listener.replace_subjects(
                 [self.push2.elements.nav_left_button, self.push2.elements.nav_right_button]
             )
-        self.parent.log_info("Push2 connected to Protocol0")
+
+        if not self.push2:
+            self.parent.log_info("Push2 connected to Protocol0")
 
     @subject_slot("value")
     def _session_pad_press_listener(self, value, *_, **__):

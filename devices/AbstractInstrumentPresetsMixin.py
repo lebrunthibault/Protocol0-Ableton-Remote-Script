@@ -64,7 +64,7 @@ class AbstractInstrumentPresetsMixin(object):
             seq.add(self.activate_plugin_window)
 
         seq.add(partial(self._preset_list.scroll, go_next=go_next))
-        seq.add(partial(self._sync_selected_preset))
+        seq.add(partial(self.sync_selected_preset))
         return seq.done()
 
     def scroll_preset_categories(self, go_next):
@@ -81,7 +81,7 @@ class AbstractInstrumentPresetsMixin(object):
         else:
             self.parent.show_message("selected preset category %s" % self._preset_list.selected_category.title())
 
-    def _sync_selected_preset(self):
+    def sync_selected_preset(self):
         # type: (AbstractInstrument) -> Sequence
         seq = Sequence()
         if self.selected_preset:

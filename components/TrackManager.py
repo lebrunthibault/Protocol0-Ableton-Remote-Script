@@ -25,7 +25,7 @@ class TrackManager(AbstractControlSurfaceComponent):
         # type: () -> Optional[Sequence]
         if not self.song.selected_track.is_active:
             return None
-        self.song.begin_undo_step()  # Live crashes on undo without this
+        # self.song.begin_undo_step()  # Live crashes on undo without this
         seq = Sequence()
         seq.add(self.song.current_track._added_track_init)
         seq.add(self.song.end_undo_step)

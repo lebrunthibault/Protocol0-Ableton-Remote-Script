@@ -57,3 +57,10 @@ class AudioClip(Clip):
         if self.warping:
             # enforce looping
             self.parent.defer(partial(setattr, self._clip, "looping", True))
+
+    def post_record(self, recording_bar_count):
+        # type: (int) -> None
+        self.start_marker = 0
+        self.loop_start = 1
+        self.loop_end = (recording_bar_count * self.song.signature_numerator) + 1
+        self.end_marker = recording_bar_count * self.song.signature_numerator

@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, List, Any, Optional
 
+from protocol0.config import Config
+from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.ObjectSynchronizer import ObjectSynchronizer
 
 if TYPE_CHECKING:
@@ -11,7 +13,10 @@ class ClipSynchronizer(ObjectSynchronizer):
 
     def __init__(self, master, slave, *a, **k):
         # type: (Clip, Clip, Any, Any) -> None
-        properties = ["loop_start", "loop_end", "start_marker", "end_marker"]
+        properties = []
+        if not Config.RECORD_AUDIO_CLIP_TAILS:
+            properties = ["loop_start", "loop_end", "start_marker", "end_marker"]
+
         self._syncable_properties = ["base_name"] + properties
         super(ClipSynchronizer, self).__init__(
             master,
@@ -28,6 +33,10 @@ class ClipSynchronizer(ObjectSynchronizer):
         master.notify_linked()
         # noinspection PyUnresolvedReferences
         slave.notify_linked()
+
+    def is_syncable(self, clip):
+        # type: (Clip) -> bool
+        return not clip.track.is_recording
 
     def get_syncable_properties(self, changed_clip):
         # type: (Clip) -> List[str]

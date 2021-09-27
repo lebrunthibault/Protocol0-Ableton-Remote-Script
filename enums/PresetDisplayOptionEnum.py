@@ -5,4 +5,3 @@ class PresetDisplayOptionEnum(AbstractEnum):
     NONE = "NONE"
     NAME = "NAME"
     CATEGORY = "CATEGORY"
-    INDEX = "INDEX"  # not used atm

@@ -3,6 +3,7 @@ from functools import partial
 from typing import Any, TYPE_CHECKING, Optional
 
 import Live
+from protocol0.config import Config
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.clip.Clip import Clip
@@ -90,9 +91,11 @@ class ClipSlot(AbstractObject):
         # type: () -> bool
         return self._clip_slot and self._clip_slot.is_playing
 
-    def record(self, recording_bar_count=None):
+    def record(self, bar_count=None):
         # type: (Optional[int]) -> Sequence
-        recording_bar_count = recording_bar_count or InterfaceState.SELECTED_RECORDING_BAR_LENGTH
+        recording_bar_count = bar_count or InterfaceState.SELECTED_RECORDING_BAR_LENGTH   # type: int
+        if self.track.is_audio and Config.RECORD_AUDIO_CLIP_TAILS:
+            recording_bar_count += 1
         self.parent.show_message("Starting recording of %d bars" % recording_bar_count)
         seq = Sequence()
         seq.add(wait=1)  # necessary so that _has_clip_listener triggers on has_clip == True
@@ -108,6 +111,24 @@ class ClipSlot(AbstractObject):
             name="awaiting clip recording end",
             no_timeout=True,
         )
+
+        if Config.RECORD_AUDIO_CLIP_TAILS:
+            seq.add(partial(self.handle_audio_clip_tails, recording_bar_count))
+
+        return seq.done()
+
+    def handle_audio_clip_tails(self, recording_bar_count):
+        # type: (int) -> Sequence
+        seq = Sequence()
+        if self.track.is_audio:
+            # handling recording the tail
+            seq.add(lambda: self.clip.post_record(recording_bar_count=recording_bar_count - 1))
+        else:
+            # when midi clip is recorded, we schedule a scene launch to resync the track
+            seq.add(wait=10)
+            self.parent.log_dev("scheduling scene fire !")
+            seq.add(self.song.selected_scene.fire)
+
         return seq.done()
 
     def fire(self, record_length):
