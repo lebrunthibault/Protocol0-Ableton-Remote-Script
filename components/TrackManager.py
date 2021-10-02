@@ -98,3 +98,17 @@ class TrackManager(AbstractControlSurfaceComponent):
     def duplicate_current_track(self):
         # type: () -> Sequence
         return self.song.duplicate_track(self.song.current_track.index)
+
+    def scroll_all_tracks_volume(self, go_next):
+        # type: (bool) -> None
+        abs_factor = 1.01
+        factor = abs_factor if go_next else (1 / abs_factor)
+        self.parent.log_dev("factor: %s" % factor)
+        for track in self.song.abstract_tracks:
+            if isinstance(track, SimpleGroupTrack):
+                continue
+            if track.top_group_track.base_name == "Drums":
+                continue
+
+            track.volume *= factor
+

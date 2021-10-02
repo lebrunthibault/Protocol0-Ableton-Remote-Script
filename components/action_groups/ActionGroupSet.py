@@ -38,6 +38,9 @@ class ActionGroupSet(AbstractActionGroup):
         # PUSH encoder
         self.add_encoder(identifier=13, name="connect push2", on_press=self.parent.push2Manager.connect_push2)
 
+        # PUSH encoder
+        self.add_encoder(identifier=14, name="scroll all tracks volume", on_scroll=self.parent.trackManager.scroll_all_tracks_volume)
+
     def deactivate_instrument(self):
         # type: () -> None
         self.song.current_track.instrument.activated = False

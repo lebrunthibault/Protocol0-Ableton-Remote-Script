@@ -49,20 +49,18 @@ class ActionGroupMain(AbstractActionGroup):
         self.add_encoder(identifier=7, name="protected mode", on_press=InterfaceState.toggle_protected_mode)
 
         # MONitor encoder
-        self.add_encoder(identifier=8, name="monitor", on_press=lambda: AbstractTrackList(self.song.armed_tracks).switch_monitoring)
+        self.add_encoder(
+            identifier=8,
+            name="monitor",
+            on_press=lambda: AbstractTrackList(self.song.armed_tracks, self.song.selected_abstract_tracks).switch_monitoring)
 
         # RECord encoder
         self.add_encoder(
             identifier=9,
             name="record",
             on_scroll=InterfaceState.scroll_recording_bar_lengths,
-            on_press=lambda: partial(AbstractTrackList(self.song.armed_tracks).record, RecordTypeEnum.NORMAL),
-            on_long_press=lambda: partial(AbstractTrackList(self.song.armed_tracks).record, RecordTypeEnum.AUDIO_ONLY)
-        ).add_action(
-            EncoderAction(
-                modifier_type=EncoderModifierEnum.DUP,
-                func=lambda: partial(self.song.current_track.record, RecordTypeEnum.MULTIPLE),
-            )
+            on_press=lambda: partial(self.song.armed_tracks.record, RecordTypeEnum.NORMAL),
+            on_long_press=lambda: partial(self.song.armed_tracks.record, RecordTypeEnum.AUDIO_ONLY)
         )
 
         # 10: empty

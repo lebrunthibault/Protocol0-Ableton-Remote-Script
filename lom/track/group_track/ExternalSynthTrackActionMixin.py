@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Optional
 
 import Live
 from protocol0.devices.InstrumentMinitaur import InstrumentMinitaur
+from protocol0.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.lom.clip.MidiClip import MidiClip
 from protocol0.sequence.Sequence import Sequence
 
@@ -16,27 +17,36 @@ class ExternalSynthTrackActionMixin(object):
     def arm_track(self):
         # type: (ExternalSynthTrack) -> Optional[Sequence]
         self.base_track.is_folded = False
-        self.midi_track.has_monitor_in = False
-        self.audio_track.has_monitor_in = True
+        self.base_track.mute = False
         seq = Sequence(silent=True)
         seq.add([self.midi_track.arm_track, self.audio_track.arm_track])
+        seq.add(partial(setattr, self, "has_monitor_in", False))
         return seq.done()
 
     def unarm_track(self):
         # type: (ExternalSynthTrack) -> None
-        self.midi_track.has_monitor_in = self.audio_track.has_monitor_in = False
-        if isinstance(self.instrument, InstrumentMinitaur):
-            # needed when we have multiple minitaur tracks so that other midi clips are not sent to minitaur
+        self.has_monitor_in = True
+
+    @property
+    def has_monitor_in(self):
+        # type: (ExternalSynthTrack) -> bool
+        return self.midi_track.has_monitor_in
+
+    @has_monitor_in.setter
+    def has_monitor_in(self, has_monitor_in):
+        # type: (ExternalSynthTrack, bool) -> None
+        if has_monitor_in:
             self.midi_track.has_monitor_in = True
+            self.audio_track._track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO.value
+            self.audio_track.mute = False
+        else:
+            self.midi_track.has_monitor_in = False
+            self.audio_track._track.current_monitoring_state = CurrentMonitoringStateEnum.OFF.value
+            self.audio_track.mute = True
 
     def switch_monitoring(self):
         # type: (ExternalSynthTrack) -> None
-        if self.midi_track.has_monitor_in and self.audio_track.has_monitor_in:
-            self.midi_track.has_monitor_in = self.audio_track.has_monitor_in = False
-        elif self.audio_track.has_monitor_in:
-            self.midi_track.has_monitor_in = True
-        else:
-            self.audio_track.has_monitor_in = True
+        self.has_monitor_in = not self.has_monitor_in
 
     def undo_track(self):
         # type: (ExternalSynthTrack) -> None
@@ -48,6 +58,7 @@ class ExternalSynthTrackActionMixin(object):
         """ next_empty_clip_slot_index is guaranteed to be not None """
         seq = Sequence()
         assert self.next_empty_clip_slot_index is not None
+        self.has_monitor_in = False
         audio_clip_slot = self.audio_track.clip_slots[self.next_empty_clip_slot_index]
         self.audio_track.select()
         seq.add([self._record_midi_and_post_record, audio_clip_slot.record])
@@ -65,6 +76,7 @@ class ExternalSynthTrackActionMixin(object):
         assert isinstance(midi_clip, MidiClip)
 
         self.song.metronome = False
+        self.has_monitor_in = False
 
         seq = Sequence()
         recording_bar_count = int(round((self.midi_track.playable_clip.length + 1) / self.song.signature_numerator))
@@ -91,12 +103,12 @@ class ExternalSynthTrackActionMixin(object):
     def post_record(self):
         # type: (ExternalSynthTrack) -> None
         super(ExternalSynthTrackActionMixin, self).post_record()
-        self.midi_track.has_monitor_in = self.audio_track.has_monitor_in = False
+        self.has_monitor_in = True
         if self.midi_track.playable_clip and self.audio_track.playable_clip:
             self.midi_track.playable_clip.clip_name.update(base_name="")
             self.audio_track.playable_clip.clip_name.update(base_name="")
             self.midi_track.playable_clip.quantize()
-            self.audio_track.playable_clip.warp_mode = Live.Clip.WarpMode.tones
+            self.audio_track.playable_clip.warp_mode = Live.Clip.WarpMode.complex
 
     def delete_playable_clip(self):
         # type: (ExternalSynthTrack) -> Sequence

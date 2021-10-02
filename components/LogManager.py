@@ -56,6 +56,9 @@ class LogManager(AbstractObject):
         self.parent.log_info()
         self.parent.log_info("current_track.abstract_group_track: %s" % self.song.current_track.abstract_group_track)
         self.parent.log_info()
+        self.parent.log_info("current_track.top_group_track: %s" % self.song.current_track.top_group_track)
+        self.parent.log_info("current_track.top_group_track.base_name: %s" % self.song.current_track.top_group_track.base_name)
+        self.parent.log_info()
         self.parent.log_info("current_track.sub_tracks: %s" % self.song.current_track.sub_tracks)
         self.parent.log_info()
         self.parent.log_info("current_track.instrument: %s" % self.song.current_track.instrument)
@@ -119,9 +122,6 @@ class LogManager(AbstractObject):
             self.parent.log_info("current_track.instrument: %s" % self.song.current_track.instrument)
             self.parent.log_info()
             if isinstance(self.song.current_track.instrument.device, PluginDevice):
-                self.parent.log_info(
-                    "current_track.instrument.device.presets: %s" % self.song.current_track.instrument.device.presets
-                )
                 self.parent.log_info(
                     "current_track.instrument.device.selected_preset: %s"
                     % self.song.current_track.instrument.device.selected_preset

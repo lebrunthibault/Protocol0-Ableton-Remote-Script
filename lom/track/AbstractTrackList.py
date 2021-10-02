@@ -13,9 +13,11 @@ from protocol0.utils.UserMutableSequence import UserMutableSequence
 class AbstractTrackList(UserMutableSequence):
     """ Manipulate a track list as an object """
 
-    def __init__(self, abstract_tracks, *a, **k):
-        # type: (Iterable[AbstractTrack], Any, Any) -> None
+    def __init__(self, abstract_tracks, default_abstract_tracks=None, *a, **k):
+        # type: (Iterable[AbstractTrack], Optional[Iterable[AbstractTrack]], Any, Any) -> None
         tracks = list(dict.fromkeys(abstract_tracks))
+        if not len(tracks) and default_abstract_tracks is not None:
+            tracks = list(dict.fromkeys(default_abstract_tracks))
         super(AbstractTrackList, self).__init__(object_list=tracks, *a, **k)
         self._abstract_tracks = tracks
 

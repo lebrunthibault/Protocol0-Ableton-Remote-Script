@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any, Optional, NoReturn, Callable, cast
 
 import Live
 from protocol0.devices.InstrumentSimpler import InstrumentSimpler
+from protocol0.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.interface.InterfaceState import InterfaceState
@@ -17,6 +18,11 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints,PyAttributeOutsideInit
 class AbstractTrackActionMixin(object):
+    @property
+    def is_foldable(self):
+        # type: (AbstractTrack) -> bool
+        return self._track.is_foldable
+
     @property
     def is_folded(self):
         # type: (AbstractTrack) -> bool
@@ -52,13 +58,16 @@ class AbstractTrackActionMixin(object):
     @property
     def has_monitor_in(self):
         # type: (AbstractTrack) -> bool
-        return not self.is_foldable and self._track.current_monitoring_state == 0
+        return not self.is_foldable and self._track.current_monitoring_state == CurrentMonitoringStateEnum.IN.value
 
     @has_monitor_in.setter
     def has_monitor_in(self, has_monitor_in):
         # type: (AbstractTrack, bool) -> None
         try:
-            self._track.current_monitoring_state = int(not has_monitor_in)
+            if has_monitor_in:
+                self._track.current_monitoring_state = CurrentMonitoringStateEnum.IN.value
+            else:
+                self._track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO.value
         except RuntimeError:
             pass  # Live throws sometimes 'Master or sendtracks have no monitoring state!'
 
@@ -113,8 +122,10 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> bool
         """ overridden """
         assert self.instrument
-        return len(self.clips) == 0 or not InterfaceState.PROTECTED_MODE_ACTIVE or isinstance(self.instrument,
-                                                                                              InstrumentSimpler)
+        return len(
+            self.clips) == 0 or not InterfaceState.PROTECTED_MODE_ACTIVE or not self.instrument.HAS_TOTAL_RECALL or isinstance(
+            self.instrument,
+            InstrumentSimpler)
 
     def scroll_presets_or_samples(self, go_next):
         # type: (AbstractTrack, bool) -> None
@@ -143,27 +154,9 @@ class AbstractTrackActionMixin(object):
 
     def record(self, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
-        """ restart audio to get a count in and recfix"""
-        assert self.is_armed
-        if self.song.session_record_status != Live.Song.SessionRecordStatus.off:  # record count in
-            return self.cancel_record(record_type=record_type)
-
-        self.song.session_record = True
-
-        self.song.stop_playing()
-
-        if len(list(filter(None, [t.is_hearable for t in self.song.simple_tracks]))) <= 1:
-            self.song.metronome = True
 
         seq = Sequence()
-        if record_type == RecordTypeEnum.NORMAL and self.next_empty_clip_slot_index is None:
-            seq.add(self.song.create_scene)
-            seq.add(partial(self.record, record_type))
-            return seq.done()
-
-        if record_type == RecordTypeEnum.MULTIPLE:
-            seq.add(cast(Callable[..., Any], self.record_multiple))
-            return seq.done()
+        seq.add(partial(self._prepare_record, record_type))
 
         if record_type == RecordTypeEnum.NORMAL:
             seq.add(cast(Callable[..., Any], self.record_all))
@@ -187,16 +180,27 @@ class AbstractTrackActionMixin(object):
         """
         return self.record_all()
 
-    def record_multiple(self):
-        # type: (AbstractTrack) -> Sequence
+    def _prepare_record(self, record_type):
+        # type: (AbstractTrack, RecordTypeEnum) -> Sequence
+        """ restart audio to get a count in and recfix"""
+        assert self.is_armed
+        if self.song.session_record_status != Live.Song.SessionRecordStatus.off:  # record count in
+            return self._cancel_record(record_type=record_type)
+
+        self.song.session_record = True
+
+        self.song.stop_playing()
+
+        if len(list(filter(None, [t.is_hearable for t in self.song.simple_tracks]))) <= 1:
+            self.song.metronome = True
+
         seq = Sequence()
-        seq.add(complete_on=self._has_clip_listener)
-        self.record_all()
-        seq.add(partial(self.parent.wait_beats, 1, self.create_scene_if_needed))
-        seq.add(partial(self.parent.wait_bars, InterfaceState.SELECTED_RECORDING_BAR_LENGTH, self.record_multiple))
+        if record_type == RecordTypeEnum.NORMAL and self.next_empty_clip_slot_index is None:
+            seq.add(self.song.create_scene)
+            seq.add(partial(self.record, record_type))
         return seq.done()
 
-    def cancel_record(self, record_type):
+    def _cancel_record(self, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Sequence
         self.parent.clear_tasks()
         seq = Sequence()
@@ -267,6 +271,7 @@ class AbstractTrackActionMixin(object):
         self.solo = False
         if self.is_armed:
             self.unarm()
+        self.has_monitor_in = False
 
     def load_any_device(self, device_type, device_name):
         # type: (AbstractTrack, str, str) -> Sequence

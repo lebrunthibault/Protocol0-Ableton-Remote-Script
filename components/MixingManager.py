@@ -16,6 +16,8 @@ class MixingManager(AbstractControlSurfaceComponent):
     @property
     def should_activate_mix_volume_follower(self):
         # type: () -> bool
+        """ deprecated """
+        return False
         if not self.song.is_playing:
             return False
         for device in self.song.master_track.all_devices:

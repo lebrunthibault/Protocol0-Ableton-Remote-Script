@@ -9,7 +9,7 @@ from typing import Optional, Any, cast, Callable, TYPE_CHECKING, Iterator, List
 from protocol0.config import PROJECT_ROOT, REMOTE_SCRIPTS_ROOT
 from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.my_types import StringOrNumber, T
-
+import Live
 if TYPE_CHECKING:
     pass
 
@@ -163,3 +163,13 @@ def get_callable_name(func, obj=None):
 def nop():
     # type: () -> None
     pass
+
+
+def set_device_parameter(param, value):
+    # type: (Live.DeviceParameter.DeviceParameter, float) -> None
+    if not param.is_enabled:
+        return None
+    value = max(param.min, value)
+    value = min(param.max, value)
+    # noinspection PyPropertyAccess
+    param.value = value

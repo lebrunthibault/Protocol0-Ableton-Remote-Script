@@ -51,7 +51,7 @@ class AbstractTrackName(AbstractObjectName):
     def _name_listener(self, _):
         # type: (Live.Track.Track) -> None
         match = re.match(
-            "^(((\\d+)|#)[\\s-]*)?(?P<base_name>[^()]*)[()]*$", self.track.name
+            "^(((\\d+)|#)[\\s-]*)?(?P<base_name>[^()]*).*$", self.track.name
         )
         self.base_name = match.group("base_name").strip() if match else ""
 

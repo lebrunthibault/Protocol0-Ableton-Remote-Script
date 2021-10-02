@@ -21,7 +21,10 @@ class InstrumentMinitaur(AbstractInstrument):
         if self.track.abstract_track != minitaur_tracks[-1]:
             return minitaur_tracks[-1].instrument.show_hide()
         else:
-            armed_track = next(self.song.armed_tracks)
+            if not len(self.song.armed_tracks):
+                return super(InstrumentMinitaur, self).show_hide()
+
+            armed_track = self.song.armed_tracks[0]
             if isinstance(armed_track.instrument, InstrumentMinitaur) and armed_track != self.track.abstract_track and self.track.abstract_track == self.song.current_track:
                 self.system.show_hide_plugins()
                 return armed_track.select()

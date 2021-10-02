@@ -60,10 +60,8 @@ class Song(AbstractObject, SongActionMixin):
 
     @property
     def armed_tracks(self):
-        # type: () -> Iterator[AbstractTrack]
-        for track in self.abstract_tracks:
-            if track.is_armed:
-                yield track
+        # type: () -> AbstractTrackList
+        return AbstractTrackList(track for track in self.abstract_tracks if track.is_armed)
 
     @property
     def selected_track(self):

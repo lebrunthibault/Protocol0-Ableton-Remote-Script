@@ -17,6 +17,7 @@ from protocol0.lom.track.AbstractTrackActionMixin import AbstractTrackActionMixi
 from protocol0.lom.track.AbstractTrackName import AbstractTrackName
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import defer, p0_subject_slot
+from protocol0.utils.utils import set_device_parameter
 
 if TYPE_CHECKING:
     from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -44,7 +45,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
 
         # MISC
         self.track_name = AbstractTrackName(self)  # type: AbstractTrackName
-        self.is_foldable = self._track.is_foldable  # type: bool
 
         # DISPLAY
         self.push2_selected_main_mode = Push2MainModeEnum.DEVICE.value
@@ -105,6 +105,14 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         will return the AbstractGroupTrack
         """
         return self.abstract_group_track if self.abstract_group_track else self  # type: ignore
+
+    @property
+    def top_group_track(self):
+        # type: () -> AbstractTrack
+        group_track = self
+        while group_track.group_track:
+            group_track = group_track.group_track
+        return group_track
 
     @property
     def active_tracks(self):
@@ -275,7 +283,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @defer
     def volume(self, volume):
         # type: (float) -> None
-        self._track.mixer_device.volume.value = volume
+        set_device_parameter(self._track.mixer_device.volume, volume)
 
     @property
     def has_audio_output(self):

@@ -11,7 +11,6 @@ class ActionEnum(AbstractEnum):
     ARM = "ARM"  # arm/unarm track
     MONITOR = "MONITOR"  # change track monitoring
     REC = "REC"  # record track
-    UNDO = "UNDO"  # set undo
     CLEAR = "CLEAR"  # clear logs
     DUPLICATE = "DUPLICATE"  # duplicate track
     LOOP = "LOOP"  # loop scene
