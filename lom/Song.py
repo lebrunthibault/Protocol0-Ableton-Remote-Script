@@ -13,6 +13,7 @@ from protocol0.lom.device.DeviceParameter import DeviceParameter
 from protocol0.lom.track.AbstractTrack import AbstractTrack
 from protocol0.lom.track.AbstractTrackList import AbstractTrackList
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import p0_subject_slot
 from protocol0.utils.utils import find_if
 
@@ -32,6 +33,7 @@ class Song(AbstractObject, SongActionMixin):
 
         self.errored = False
         self._is_playing_listener.subject = self._song
+        self._record_mode_listener.subject = self._song
 
     def __call__(self):
         # type: () -> Live.Song.Song
@@ -43,6 +45,11 @@ class Song(AbstractObject, SongActionMixin):
         # type: () -> None
         if len(self.scenes) and self.is_playing:
             self.selected_scene.notify_play()  # type: ignore
+
+    @p0_subject_slot("record_mode")
+    def _record_mode_listener(self):
+        # type: () -> None
+        pass
 
     # TRACKS
 
@@ -216,3 +223,31 @@ class Song(AbstractObject, SongActionMixin):
     def session_record(self, session_record):
         # type: (bool) -> None
         self._song.session_record = session_record
+
+    def global_record(self):
+        # type: () -> Sequence
+        seq = Sequence()
+        self.record_mode = True
+        seq.add(wait=1)
+        seq.add(complete_on=self._record_mode_listener, no_timeout=True)
+        return seq.done()
+
+    @property
+    def record_mode(self):
+        # type: () -> bool
+        return self._song.record_mode
+
+    @record_mode.setter
+    def record_mode(self, record_mode):
+        # type: (bool) -> None
+        self._song.record_mode = record_mode
+
+    @property
+    def back_to_arranger(self):
+        # type: () -> bool
+        return self._song.back_to_arranger
+
+    @back_to_arranger.setter
+    def back_to_arranger(self, back_to_arranger):
+        # type: (bool) -> None
+        self._song.back_to_arranger = back_to_arranger

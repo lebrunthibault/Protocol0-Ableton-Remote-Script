@@ -5,7 +5,6 @@ from _Framework.SubjectSlot import subject_slot
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.device.DeviceParameter import DeviceParameter
 from protocol0.lom.device.DeviceType import DeviceType
-from protocol0.utils.log import log_ableton
 from protocol0.utils.utils import find_if
 
 if TYPE_CHECKING:

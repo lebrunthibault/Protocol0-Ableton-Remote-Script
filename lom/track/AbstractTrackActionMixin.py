@@ -9,7 +9,7 @@ from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.decorators import retry
+from protocol0.utils.decorators import retry, session_view_only, arrangement_view_only
 from protocol0.utils.utils import find_if
 
 if TYPE_CHECKING:
@@ -147,32 +147,47 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> NoReturn
         raise NotImplementedError()
 
-    def create_scene_if_needed(self):
-        # type: (AbstractTrack) -> None
-        if not self.next_empty_clip_slot_index:
-            self.song.create_scene()
-
-    def record(self, record_type):
+    @session_view_only
+    def session_record(self, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
-
         seq = Sequence()
-        seq.add(partial(self._prepare_record, record_type))
+        seq.add(partial(self._prepare_session_record, record_type))
 
         if record_type == RecordTypeEnum.NORMAL:
-            seq.add(self.record_all)
+            seq.add(self.session_record_all)
         elif record_type == RecordTypeEnum.AUDIO_ONLY:
-            seq.add(self.record_audio_only)
-        seq.add(partial(self.post_record, record_type))
+            seq.add(self.session_record_audio_only)
+
+        seq.add(partial(self.post_session_record, record_type))
 
         return seq.done()
 
-    def record_all(self):
+    @arrangement_view_only
+    def arrangement_record(self, record_type):
+        # type: (AbstractTrack, RecordTypeEnum) -> Sequence
+        assert self.is_armed
+        self.song.back_to_arranger = False
+        seq = Sequence()
+        if self.song.record_mode:
+            self.song.record_mode = False
+            return seq.done()
+
+        self.has_monitor_in = False
+
+        if record_type == RecordTypeEnum.NORMAL:
+            seq.add(self.arrangement_record_all)
+        elif record_type == RecordTypeEnum.AUDIO_ONLY:
+            seq.add(self.arrangement_record_audio_only)
+        seq.add(self.post_arrangement_record)
+        return seq.done()
+
+    def session_record_all(self):
         # type: (AbstractTrack) -> Sequence
         """ this records normally on a simple track and both midi and audio on a group track """
         raise NotImplementedError
 
-    def record_audio_only(self, *_, **__):
-        # type: (AbstractTrack, Any, Any) -> None
+    def session_record_audio_only(self):
+        # type: (AbstractTrack) -> None
         """
         overridden
         this records normally on a simple track and only audio on a group track
@@ -180,13 +195,22 @@ class AbstractTrackActionMixin(object):
         """
         self.parent.log_warning("audio only recording not available on this track")
 
-    def _prepare_record(self, record_type):
+    def arrangement_record_all(self):
+        # type: (AbstractTrack) -> Sequence
+        return self.song.global_record()
+
+    def arrangement_record_audio_only(self):
+        # type: (AbstractTrack) -> None
+        self.parent.log_warning("audio only recording not available on this track")
+
+    def _prepare_session_record(self, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Sequence
         """ restart audio to get a count in and recfix"""
         assert self.is_armed
         if self.song.session_record_status != Live.Song.SessionRecordStatus.off:  # record count in
             return self._cancel_record(record_type=record_type)
 
+        self.song.record_mode = False
         self.song.session_record = True
 
         self.song.stop_playing()
@@ -197,7 +221,7 @@ class AbstractTrackActionMixin(object):
         seq = Sequence()
         if record_type == RecordTypeEnum.NORMAL and self.next_empty_clip_slot_index is None:
             seq.add(self.song.create_scene)
-            seq.add(partial(self.record, record_type))
+            seq.add(partial(self.session_record, record_type))
         return seq.done()
 
     def _cancel_record(self, record_type):
@@ -207,11 +231,11 @@ class AbstractTrackActionMixin(object):
         if record_type == RecordTypeEnum.NORMAL:
             seq.add(self.delete_playable_clip)
         seq.add(partial(self.stop, immediate=True))
-        seq.add(partial(self.post_record, record_type))
+        seq.add(partial(self.post_session_record, record_type))
         seq.add(self.song.stop_playing)
         return seq.done()
 
-    def post_record(self, *_, **__):
+    def post_session_record(self, *_, **__):
         # type: (AbstractTrack, Any, Any) -> None
         """ overridden """
         self.song.metronome = False
@@ -224,6 +248,11 @@ class AbstractTrackActionMixin(object):
                 self.base_track.playable_clip.view.grid_quantization = Live.Clip.GridQuantization.g_sixteenth
                 self.base_track.playable_clip.show_loop()
                 self.base_track.playable_clip.quantize()
+
+    def post_arrangement_record(self):
+        # type: (AbstractTrack) -> None
+        self.song.stop_playing()
+        self.has_monitor_in = False
 
     def delete_playable_clip(self):
         # type: (AbstractTrack) -> Sequence

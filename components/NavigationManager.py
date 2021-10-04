@@ -12,6 +12,16 @@ class NavigationManager(AbstractControlSurfaceComponent):
         super(NavigationManager, self).__init__(*a, **k)
         self._app_view = self.application().view
 
+    @property
+    def is_session_visible(self):
+        # type: () -> bool
+        return self._app_view.is_view_visible('Session')
+
+    @property
+    def is_arrangement_visible(self):
+        # type: () -> bool
+        return not self.is_session_visible
+
     def show_clip_view(self):
         # type: () -> Optional[Sequence]
         if self._app_view.is_view_visible("Detail/Clip"):

@@ -103,7 +103,6 @@ class TrackManager(AbstractControlSurfaceComponent):
         # type: (bool) -> None
         abs_factor = 1.01
         factor = abs_factor if go_next else (1 / abs_factor)
-        self.parent.log_dev("factor: %s" % factor)
         for track in self.song.abstract_tracks:
             if isinstance(track, SimpleGroupTrack):
                 continue

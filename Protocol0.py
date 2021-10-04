@@ -206,4 +206,5 @@ class Protocol0(ControlSurface):
         # type: () -> None
         ParseUtils._midi_message_registry = {}  # noqa
         super(Protocol0, self).disconnect()
+        self.errorManager.disconnect()
         self.fastScheduler.stop()

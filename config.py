@@ -12,7 +12,7 @@ class Config(object):
     SEQUENCE_DEBUG = False
     SEQUENCE_SLOW_MO = False
 
-    SET_EXCEPTHOOK = True
+    SET_EXCEPTHOOK = False
     MIX_VOLUME_FOLLOWER = False
 
 

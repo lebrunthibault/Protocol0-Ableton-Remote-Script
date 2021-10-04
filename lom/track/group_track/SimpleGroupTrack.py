@@ -77,7 +77,7 @@ class SimpleGroupTrack(AbstractGroupTrack):
         if self._single_sub_track_routing:
             self.set_output_routing_to(self._single_sub_track_routing)
 
-    def record(self, *a, **k):
+    def session_record(self, *a, **k):
         # type: (Any, Any) -> None
         pass
 

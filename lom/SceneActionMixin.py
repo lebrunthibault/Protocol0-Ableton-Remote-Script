@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Optional
 
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.decorators import defer
+from protocol0.utils.decorators import defer, session_view_only
 from protocol0.utils.utils import scroll_values
 
 if TYPE_CHECKING:
@@ -19,6 +19,7 @@ class SceneActionMixin(object):
         self.scene_name.update()
         self.schedule_next_scene_launch()
 
+    @session_view_only
     def schedule_next_scene_launch(self):
         # type: (Scene) -> None
         self.parent.sceneBeatScheduler.clear()

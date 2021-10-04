@@ -9,7 +9,7 @@ from protocol0.tests.fixtures.song_view import AbletonSongView
 
 
 class AbletonSong(Subject):
-    __subject_events__ = ("is_playing",)
+    __subject_events__ = ("is_playing", "record_mode")
 
     def __init__(self, tracks, view):
         # type: (List[AbletonTrack], AbletonSongView) -> None

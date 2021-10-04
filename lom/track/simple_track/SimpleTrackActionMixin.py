@@ -82,7 +82,7 @@ class SimpleTrackActionMixin(object):
         self._track.delete_device(device_index)
         return seq.done()
 
-    def record_all(self):
+    def session_record_all(self):
         # type: (SimpleTrack) -> Sequence
         """ finishes on end of recording """
         seq = Sequence()

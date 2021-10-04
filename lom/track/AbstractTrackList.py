@@ -42,16 +42,22 @@ class AbstractTrackList(UserMutableSequence):
 
     def record(self, record_type):
         # type: (RecordTypeEnum) -> Optional[Sequence]
+        seq = Sequence()
         if len(self._abstract_tracks) == 0:
-            seq = Sequence()
             seq.add(self.song.current_track.arm)
-            seq.add(partial(self.song.current_track.record, record_type=record_type))
+            if self.parent.navigationManager.is_session_visible:
+                seq.add(partial(self.song.current_track.session_record, record_type=record_type))
+            else:
+                seq.add(partial(self.song.current_track.arrangement_record, record_type=record_type))
             return seq.done()
 
         for abstract_track in self._abstract_tracks:
             assert abstract_track.is_armed
-            abstract_track.record(record_type=record_type)
-        return None
+            if self.parent.navigationManager.is_session_visible:
+                seq.add(partial(abstract_track.session_record, record_type=record_type))
+            else:
+                seq.add(partial(abstract_track.arrangement_record, record_type=record_type))
+        return seq.done()
 
     def toggle_solo(self):
         # type: () -> None

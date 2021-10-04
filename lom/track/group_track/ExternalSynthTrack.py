@@ -86,7 +86,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     @property
     def is_armed(self):
         # type: () -> bool
-        return self.midi_track.is_armed or self.audio_track.is_armed
+        return self.audio_track.is_armed
 
     @is_armed.setter
     def is_armed(self, is_armed):

@@ -12,6 +12,7 @@ class ErrorManager(AbstractControlSurfaceComponent):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(ErrorManager, self).__init__(*a, **k)
+        self._original_excepthook = sys.excepthook
         if Config.SET_EXCEPTHOOK:
             sys.excepthook = self.handle_uncaught_exception
 
@@ -76,3 +77,9 @@ class ErrorManager(AbstractControlSurfaceComponent):
                 item = item + "    %s\n" % line.strip()
             trace_list.append(item)
         return trace_list
+
+    def disconnect(self):
+        # type: () -> None
+        super(ErrorManager, self).disconnect()
+        if Config.SET_EXCEPTHOOK:
+            sys.excepthook = self._original_excepthook

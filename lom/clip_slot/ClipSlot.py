@@ -125,7 +125,6 @@ class ClipSlot(AbstractObject):
         else:
             # when midi clip is recorded, we schedule a scene launch to resync the track
             seq.add(wait=10)
-            self.parent.log_dev("scheduling scene fire !")
             seq.add(self.song.selected_scene.fire)
 
         return seq.done()

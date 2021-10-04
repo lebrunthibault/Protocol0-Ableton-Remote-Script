@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, Callable
 
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
 from protocol0.my_types import Func
-from protocol0.utils.utils import is_method
+from protocol0.utils.utils import is_method, get_callable_name
 
 if TYPE_CHECKING:
     from protocol0.components.Push2Manager import Push2Manager
@@ -49,6 +49,36 @@ def defer(func):
     return decorate
 
 
+def session_view_only(func):
+    # type: (Func) -> Func
+    @wraps(func)
+    def decorate(*a, **k):
+        # type: (Any, Any) -> None
+        from protocol0 import Protocol0
+
+        if Protocol0.SELF.navigationManager.is_session_visible:
+            func(*a, **k)
+        else:
+            Protocol0.SELF.log_warning("%s is session view only" % get_callable_name(func))
+
+    return decorate
+
+
+def arrangement_view_only(func):
+    # type: (Func) -> Func
+    @wraps(func)
+    def decorate(*a, **k):
+        # type: (Any, Any) -> None
+        from protocol0 import Protocol0
+
+        if Protocol0.SELF.navigationManager.is_arrangement_visible:
+            func(*a, **k)
+        else:
+            Protocol0.SELF.log_warning("%s is arrangement view only" % get_callable_name(func))
+
+    return decorate
+
+
 EXPOSED_P0_METHODS = {}
 
 
@@ -64,19 +94,6 @@ def api_exposed(func):
     # type: (Func) -> Func
     func.api_exposed = True  # type: ignore
     return func
-
-
-def poll(func):
-    # type: (Func) -> Func
-    @wraps(func)
-    def decorate(*a, **k):
-        # type: (Any, Any) -> None
-        from protocol0 import Protocol0
-
-        func(*a, **k)
-        Protocol0.SELF.defer(partial(decorate, *a, **k))
-
-    return decorate
 
 
 def retry(retry_count=3, interval=3):
