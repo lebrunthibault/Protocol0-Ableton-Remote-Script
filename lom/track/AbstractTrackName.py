@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, Optional, Any, List
 
 import Live
 from _Framework.SubjectSlot import subject_slot_group
-from protocol0.config import Config
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from protocol0.lom.AbstractObjectName import AbstractObjectName

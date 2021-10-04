@@ -111,4 +111,3 @@ class TrackManager(AbstractControlSurfaceComponent):
                 continue
 
             track.volume *= factor
-

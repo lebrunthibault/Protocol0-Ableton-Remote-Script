@@ -8,11 +8,20 @@ class InterfaceState(object):
     _RECORDING_BAR_LENGTHS = [1, 2, 4, 8, 16, 32, 64]
     SELECTED_RECORDING_BAR_LENGTH = 4
 
+    RECORD_AUDIO_CLIP_TAILS = False  # records one more bar of audio to make editing easier
     PROTECTED_MODE_ACTIVE = True  # protected mode prevents certain actions to be made
 
     # NB: for an unknown reason clip.view.show_envelope does not always show the envelope
     # when the button was not clicked. As a workaround we click it the first time
     CLIP_ENVELOPE_SHOW_BOX_CLICKED = False
+
+    @classmethod
+    def toggle_record_audio_clip_tails(cls):
+        # type: () -> None
+        cls.RECORD_AUDIO_CLIP_TAILS = not cls.RECORD_AUDIO_CLIP_TAILS
+        from protocol0 import Protocol0
+
+        Protocol0.SELF.show_message("Record clip tails %s" % ("on" if cls.RECORD_AUDIO_CLIP_TAILS else "off"))
 
     @classmethod
     def toggle_protected_mode(cls):

@@ -40,7 +40,7 @@ class ClipSlotSynchronizer(AbstractControlSurfaceComponent):
         linked_clip_slot = self.linked_clip_slot(clip_slot=changed_clip_slot)
 
         if not changed_clip_slot.clip and linked_clip_slot.clip:
-            self.song.end_undo_step()
+            # self.song.end_undo_step()
             linked_clip_slot.clip.delete()
 
     @subject_slot_group("is_triggered")

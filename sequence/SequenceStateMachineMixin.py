@@ -1,7 +1,8 @@
-from transitions import Machine, State
+from transitions import Machine, State, MachineError
 from typing import Any
 
 from protocol0.enums.AbstractEnum import AbstractEnum
+from protocol0.utils.log import log_ableton
 
 
 class SequenceState(AbstractEnum):
@@ -56,7 +57,10 @@ class SequenceStateMachineMixin(object):
 
     def dispatch(self, action):
         # type: (str) -> None
-        self._state_machine.dispatch(action)
+        try:
+            self._state_machine.dispatch(action)
+        except MachineError as e:
+            log_ableton("SequenceState error: %s" % e)
 
     def start(self):
         # type: () -> None

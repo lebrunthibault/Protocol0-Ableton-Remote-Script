@@ -24,13 +24,13 @@ def test_state_machine():
     seq = Sequence(silent=True)
     seq.dispatch("start")
 
-    with pytest.raises(MachineError):
-        seq.dispatch("start")
+    # no error only log
+    seq.dispatch("start")
 
-    with pytest.raises(MachineError):
-        seq = Sequence(silent=True)
-        seq.terminate()
-        seq.dispatch("start")
+    # no error only log
+    seq = Sequence(silent=True)
+    seq.terminate()
+    seq.dispatch("start")
 
 
 def test_error_no_timeout():

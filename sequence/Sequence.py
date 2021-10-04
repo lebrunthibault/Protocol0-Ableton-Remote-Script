@@ -3,8 +3,9 @@ from collections import deque
 from typing import Deque, Optional, Iterable, Union, Callable, Any, List
 
 from protocol0.config import Config
+from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.lom.AbstractObject import AbstractObject
-from protocol0.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
+from protocol0.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin, SequenceState
 from protocol0.sequence.SequenceStep import SequenceStep
 from protocol0.utils.decorators import p0_subject_slot
 from protocol0.utils.utils import get_frame_info, nop
@@ -138,5 +139,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
 
     def done(self):
         # type: () -> Sequence
+        if self.state != str(SequenceState.UN_STARTED):
+            raise Protocol0Error("Sequence done alreay called")
         self.start()
         return self

@@ -3,8 +3,8 @@ from functools import partial
 from typing import TYPE_CHECKING, Optional
 
 import Live
-from protocol0.devices.InstrumentMinitaur import InstrumentMinitaur
 from protocol0.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
+from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.lom.clip.MidiClip import MidiClip
 from protocol0.sequence.Sequence import Sequence
 
@@ -30,19 +30,24 @@ class ExternalSynthTrackActionMixin(object):
     @property
     def has_monitor_in(self):
         # type: (ExternalSynthTrack) -> bool
-        return self.midi_track.has_monitor_in
+        return self.midi_track.mute is True
 
     @has_monitor_in.setter
     def has_monitor_in(self, has_monitor_in):
         # type: (ExternalSynthTrack, bool) -> None
+        self.audio_track._track.current_monitoring_state = CurrentMonitoringStateEnum.OFF.value
         if has_monitor_in:
-            self.midi_track.has_monitor_in = True
-            self.audio_track._track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO.value
+            self.midi_track._track.current_monitoring_state = CurrentMonitoringStateEnum.OFF.value
+            self.midi_track.mute = True
             self.audio_track.mute = False
+            if self._external_device:
+                self._external_device.mute = True
         else:
-            self.midi_track.has_monitor_in = False
-            self.audio_track._track.current_monitoring_state = CurrentMonitoringStateEnum.OFF.value
+            self.midi_track._track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO.value
+            self.midi_track.mute = False
             self.audio_track.mute = True
+            if self._external_device:
+                self._external_device.mute = False
 
     def switch_monitoring(self):
         # type: (ExternalSynthTrack) -> None
@@ -57,7 +62,10 @@ class ExternalSynthTrackActionMixin(object):
         # type: (ExternalSynthTrack) -> Sequence
         """ next_empty_clip_slot_index is guaranteed to be not None """
         seq = Sequence()
-        assert self.next_empty_clip_slot_index is not None
+
+        if self.next_empty_clip_slot_index is None:
+            return seq.done()
+
         self.has_monitor_in = False
         audio_clip_slot = self.audio_track.clip_slots[self.next_empty_clip_slot_index]
         self.audio_track.select()
@@ -95,20 +103,25 @@ class ExternalSynthTrackActionMixin(object):
     def _record_midi_and_post_record(self):
         # type: (ExternalSynthTrack) -> Sequence
         seq = Sequence()
+        assert self.next_empty_clip_slot_index
         midi_clip_slot = self.midi_track.clip_slots[self.next_empty_clip_slot_index]
         seq.add(midi_clip_slot.record)
-        seq.add(self.post_record)
+        seq.add(partial(self.post_record, RecordTypeEnum.NORMAL))
         return seq.done()
 
-    def post_record(self):
-        # type: (ExternalSynthTrack) -> None
+    def post_record(self, record_type):
+        # type: (ExternalSynthTrack, RecordTypeEnum) -> None
         super(ExternalSynthTrackActionMixin, self).post_record()
         self.has_monitor_in = True
         if self.midi_track.playable_clip and self.audio_track.playable_clip:
-            self.midi_track.playable_clip.clip_name.update(base_name="")
-            self.audio_track.playable_clip.clip_name.update(base_name="")
-            self.midi_track.playable_clip.quantize()
             self.audio_track.playable_clip.warp_mode = Live.Clip.WarpMode.complex
+            self.midi_track.playable_clip.view.grid_quantization = Live.Clip.GridQuantization.g_sixteenth
+            if record_type == RecordTypeEnum.NORMAL:
+                self.midi_track.playable_clip.clip_name.update(base_name="")
+                self.audio_track.playable_clip.clip_name.update(base_name="")
+                self.midi_track.playable_clip.quantize()
+            else:
+                self._link_clip_slots()
 
     def delete_playable_clip(self):
         # type: (ExternalSynthTrack) -> Sequence

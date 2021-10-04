@@ -2,7 +2,6 @@ import re
 
 from typing import TYPE_CHECKING, Any, Optional
 
-from protocol0.config import Config
 from protocol0.lom.AbstractObjectName import AbstractObjectName
 from protocol0.utils.decorators import p0_subject_slot, defer
 

@@ -51,8 +51,8 @@ class SimpleTrackActionMixin(object):
         seq = Sequence()
 
         if self.instrument:
-            if not self.instrument.HAS_TOTAL_RECALL and self.instrument.selected_preset:
-                seq.add(self.instrument.sync_selected_preset)
+            # if not self.instrument.HAS_TOTAL_RECALL and self.instrument.selected_preset:
+            #     seq.add(self.instrument.sync_selected_preset)
             if self.instrument.needs_activation:
                 seq.add(partial(self.instrument.activate_plugin_window))
 

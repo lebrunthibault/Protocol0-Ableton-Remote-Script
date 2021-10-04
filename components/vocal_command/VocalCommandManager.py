@@ -11,8 +11,6 @@ from protocol0.utils.utils import smart_string
 
 @api_exposable_class
 class VocalCommandManager(AbstractControlSurfaceComponent):
-    MIDI_SERVER_RUNNING = False
-
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(VocalCommandManager, self).__init__(*a, **k)
@@ -31,8 +29,7 @@ class VocalCommandManager(AbstractControlSurfaceComponent):
 
     def _no_midi_server_found(self):
         # type: () -> None
-        if not self.MIDI_SERVER_RUNNING:
-            self.parent.log_error("Midi server is not running.")
+        self.parent.log_error("Midi server is not running.")
 
     @api_exposed
     def ping(self):
@@ -41,7 +38,6 @@ class VocalCommandManager(AbstractControlSurfaceComponent):
         self.parent.log_info("Midi server is running")
         if self._midi_server_check_timeout_scheduler_event:
             self._midi_server_check_timeout_scheduler_event.cancel()
-        self.MIDI_SERVER_RUNNING = True
         self.system.pong()  # notify midi backend that we receive well messages via Protocol0Midi
 
     @api_exposed

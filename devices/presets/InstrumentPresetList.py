@@ -147,7 +147,4 @@ class InstrumentPresetList(AbstractObject):
         elif self.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.NAME:
             preset = find_if(lambda p: p.name == self.instrument.track.abstract_track.name, self.presets)
 
-        if preset is None and not self.instrument.HAS_TOTAL_RECALL:
-            self.parent.log_error("Couldn't find selected preset for not HAS_TOTAL_RECALL instrument of %s" % self.instrument.track.abstract_track)
-
         return preset

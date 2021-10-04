@@ -5,14 +5,14 @@ from types import TracebackType
 from typing import Optional, Any, List, Type
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.config import PROJECT_ROOT
+from protocol0.config import PROJECT_ROOT, Config
 
 
 class ErrorManager(AbstractControlSurfaceComponent):
-    def __init__(self, set_excepthook=False, *a, **k):
-        # type: (bool, Any, Any) -> None
+    def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
         super(ErrorManager, self).__init__(*a, **k)
-        if set_excepthook:
+        if Config.SET_EXCEPTHOOK:
             sys.excepthook = self.handle_uncaught_exception
 
     def handle_error(self, context=None):
@@ -24,9 +24,10 @@ class ErrorManager(AbstractControlSurfaceComponent):
 
     def handle_uncaught_exception(self, exc_type, exc_value, tb):
         # type: (Type[BaseException], BaseException, TracebackType) -> None
+        # if "Cannot convert MIDI clip" in str(exc_value):
+        #     self.parent.log_warning(exc_value)
+        #     return
         self.parent.log_error("unhandled exception caught !!")
-        self.parent.log_error()
-        self.parent.log_error()
         self._handle_exception(exc_type, exc_value, tb)
 
     def _handle_exception(self, exc_type, exc_value, tb, context=None):

@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import TYPE_CHECKING, Any, Optional, NoReturn, Callable, cast
+from typing import TYPE_CHECKING, Any, Optional, NoReturn
 
 import Live
 from protocol0.devices.InstrumentSimpler import InstrumentSimpler
@@ -159,10 +159,10 @@ class AbstractTrackActionMixin(object):
         seq.add(partial(self._prepare_record, record_type))
 
         if record_type == RecordTypeEnum.NORMAL:
-            seq.add(cast(Callable[..., Any], self.record_all))
+            seq.add(self.record_all)
         elif record_type == RecordTypeEnum.AUDIO_ONLY:
-            seq.add(cast(Callable[..., Any], self.record_audio_only))
-        seq.add(self.post_record)
+            seq.add(self.record_audio_only)
+        seq.add(partial(self.post_record, record_type))
 
         return seq.done()
 
@@ -172,13 +172,13 @@ class AbstractTrackActionMixin(object):
         raise NotImplementedError
 
     def record_audio_only(self, *_, **__):
-        # type: (AbstractTrack, Any, Any) -> Sequence
+        # type: (AbstractTrack, Any, Any) -> None
         """
         overridden
         this records normally on a simple track and only audio on a group track
         is is available on other tracks just for ease of use
         """
-        return self.record_all()
+        self.parent.log_warning("audio only recording not available on this track")
 
     def _prepare_record(self, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Sequence
@@ -207,12 +207,12 @@ class AbstractTrackActionMixin(object):
         if record_type == RecordTypeEnum.NORMAL:
             seq.add(self.delete_playable_clip)
         seq.add(partial(self.stop, immediate=True))
-        seq.add(self.post_record)
+        seq.add(partial(self.post_record, record_type))
         seq.add(self.song.stop_playing)
         return seq.done()
 
-    def post_record(self):
-        # type: (AbstractTrack) -> None
+    def post_record(self, *_, **__):
+        # type: (AbstractTrack, Any, Any) -> None
         """ overridden """
         self.song.metronome = False
         self.has_monitor_in = False
@@ -221,6 +221,7 @@ class AbstractTrackActionMixin(object):
             self.base_track.playable_clip.select()
             self.base_track.playable_clip.clip_name.update(base_name="")
             if self.base_track.playable_clip.is_midi:
+                self.base_track.playable_clip.view.grid_quantization = Live.Clip.GridQuantization.g_sixteenth
                 self.base_track.playable_clip.show_loop()
                 self.base_track.playable_clip.quantize()
 
@@ -271,7 +272,8 @@ class AbstractTrackActionMixin(object):
         self.solo = False
         if self.is_armed:
             self.unarm()
-        self.has_monitor_in = False
+        else:
+            self.unarm_track()
 
     def load_any_device(self, device_type, device_name):
         # type: (AbstractTrack, str, str) -> Sequence

@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 
 class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
-    __subject_events__ = ("has_clip", "instrument", "fired_slot_index")
+    __subject_events__ = ("has_clip", "instrument", "devices", "fired_slot_index")
 
     DEFAULT_NAME = "default"
     DEFAULT_COLOR = ColorEnum.DISABLED  # when the color cannot be matched

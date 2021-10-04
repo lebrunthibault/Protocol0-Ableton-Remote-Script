@@ -61,6 +61,6 @@ class AudioClip(Clip):
     def post_record(self, recording_bar_count):
         # type: (int) -> None
         self.start_marker = 0
-        self.loop_start = 1
-        self.loop_end = (recording_bar_count * self.song.signature_numerator) + 1
+        self.loop_start = 2
+        self.loop_end = (recording_bar_count * self.song.signature_numerator) + 2
         self.end_marker = recording_bar_count * self.song.signature_numerator

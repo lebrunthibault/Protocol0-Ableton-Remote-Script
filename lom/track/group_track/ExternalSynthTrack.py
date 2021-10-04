@@ -5,6 +5,7 @@ from typing import Optional, Any, cast, List
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.lom.ObjectSynchronizer import ObjectSynchronizer
 from protocol0.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
+from protocol0.lom.device.Device import Device
 from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.lom.track.group_track.ExternalSynthTrackActionMixin import ExternalSynthTrackActionMixin
 from protocol0.lom.track.group_track.ExternalSynthTrackName import ExternalSynthTrackName
@@ -12,6 +13,8 @@ from protocol0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.lom.track.simple_track.TrackSynchronizer import TrackSynchronizer
+from protocol0.utils.decorators import p0_subject_slot
+from protocol0.utils.utils import find_if
 
 
 class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
@@ -23,6 +26,10 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         assert isinstance(self.midi_track, SimpleMidiTrack) and isinstance(self.audio_track, SimpleAudioTrack), (
                 "invalid external synth track %s" % self
         )
+
+        self._external_device = None  # type: Optional[Device]
+        self._devices_listener.subject = self.midi_track
+        self._devices_listener()
 
         with self.parent.component_guard():
             self._midi_audio_synchronizer = TrackSynchronizer(self.audio_track, self.midi_track)
@@ -37,7 +44,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self.track_name.disconnect()  # type: ignore[has-type]
         self.track_name = ExternalSynthTrackName(self)
 
-        self.audio_track.set_output_routing_to(self.base_track)
+        # self.audio_track.set_output_routing_to(self.base_track)
 
         # the instrument handling relies on the group track
         # noinspection PyUnresolvedReferences
@@ -60,6 +67,11 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         # type: () -> None
         super(ExternalSynthTrack, self).link_parent_and_child_objects()
         self._link_clip_slots()
+
+    @p0_subject_slot("devices")
+    def _devices_listener(self):
+        # type: () -> None
+        self._external_device = find_if(lambda d: d.is_external_device, self.midi_track.devices)
 
     @property
     def instrument(self):

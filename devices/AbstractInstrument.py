@@ -161,5 +161,5 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
 
     def generate_base_notes(self, clip):
         # type: (Clip) -> List[Note]
-        """ overridden """
-        return []
+        # add c3 note
+        return [Note(pitch=60, velocity=127, start=0, duration=min(1, int(clip.length)), clip=clip)]

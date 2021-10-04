@@ -2,6 +2,7 @@ from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.Scene import Scene
 from protocol0.lom.device.PluginDevice import PluginDevice
+from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 
 
 class LogManager(AbstractObject):
@@ -57,12 +58,16 @@ class LogManager(AbstractObject):
         self.parent.log_info("current_track.abstract_group_track: %s" % self.song.current_track.abstract_group_track)
         self.parent.log_info()
         self.parent.log_info("current_track.top_group_track: %s" % self.song.current_track.top_group_track)
+        self.parent.log_info()
         self.parent.log_info("current_track.top_group_track.base_name: %s" % self.song.current_track.top_group_track.base_name)
         self.parent.log_info()
         self.parent.log_info("current_track.sub_tracks: %s" % self.song.current_track.sub_tracks)
         self.parent.log_info()
         self.parent.log_info("current_track.instrument: %s" % self.song.current_track.instrument)
         self.parent.log_info()
+        if isinstance(self.song.current_track, ExternalSynthTrack):
+            self.parent.log_info("current_track._external_device: %s" % self.song.current_track._external_device)
+            self.parent.log_info()
         self.parent.log_info("current_track.search_keywords: %s" % self.song.current_track.search_keywords)
         if self.song.current_track.instrument:
             self.parent.log_info()
@@ -105,6 +110,8 @@ class LogManager(AbstractObject):
         self.parent.log_info()
         try:
             self.parent.log_info("selected_device: %s" % self.song.selected_track.selected_device)
+            self.parent.log_info()
+            self.parent.log_info("selected_device.is_external_device: %s" % self.song.selected_track.selected_device.is_external_device)
             self.parent.log_info()
         except AssertionError:
             pass

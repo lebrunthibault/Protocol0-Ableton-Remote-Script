@@ -5,6 +5,8 @@ from _Framework.SubjectSlot import subject_slot
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.device.DeviceParameter import DeviceParameter
 from protocol0.lom.device.DeviceType import DeviceType
+from protocol0.utils.log import log_ableton
+from protocol0.utils.utils import find_if
 
 if TYPE_CHECKING:
     from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -58,7 +60,7 @@ class Device(AbstractObject):
     @property
     def name(self):
         # type: () -> str
-        return self._device.name
+        return self._device.name if self._device else ""
 
     @property
     def preset_name(self):
@@ -72,6 +74,11 @@ class Device(AbstractObject):
         return self._device.is_active
 
     @property
+    def is_external_device(self):
+        # type: () -> bool
+        return self.name in ("Ext. Audio Effect", "Ext. Instrument")
+
+    @property
     def is_collapsed(self):
         # type: () -> bool
         return self._view.is_collapsed
@@ -80,6 +87,19 @@ class Device(AbstractObject):
     def is_collapsed(self, is_collapsed):
         # type: (bool) -> None
         self._view.is_collapsed = is_collapsed
+
+    @property
+    def mute(self):
+        # type: () -> bool
+        param = find_if(lambda p: p.original_name.startswith('Device On') and p.is_enabled, self.parameters)
+        return param is not None and param.value is True
+
+    @mute.setter
+    def mute(self, mute):
+        # type: (bool) -> None
+        param = find_if(lambda p: p.original_name.startswith('Device On') and p.is_enabled, self.parameters)
+        if param:
+            param.value = not mute
 
     @subject_slot("parameters")
     def _parameters_listener(self):

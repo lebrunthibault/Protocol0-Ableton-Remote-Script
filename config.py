@@ -9,10 +9,11 @@ from protocol0.enums.LogLevelEnum import LogLevelEnum
 class Config(object):
     LOG_LEVEL = LogLevelEnum.DEV
 
-    RECORD_AUDIO_CLIP_TAILS = False  # records one more bar of audio to make editing easier
-
     SEQUENCE_DEBUG = False
     SEQUENCE_SLOW_MO = False
+
+    SET_EXCEPTHOOK = True
+    MIX_VOLUME_FOLLOWER = False
 
 
 PROJECT_ROOT = dirname(os.path.realpath(__file__))

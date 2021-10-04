@@ -3,7 +3,6 @@ from functools import partial
 from typing import Any, TYPE_CHECKING, Optional
 
 import Live
-from protocol0.config import Config
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.clip.Clip import Clip
@@ -93,8 +92,8 @@ class ClipSlot(AbstractObject):
 
     def record(self, bar_count=None):
         # type: (Optional[int]) -> Sequence
-        recording_bar_count = bar_count or InterfaceState.SELECTED_RECORDING_BAR_LENGTH   # type: int
-        if self.track.is_audio and Config.RECORD_AUDIO_CLIP_TAILS:
+        recording_bar_count = bar_count or InterfaceState.SELECTED_RECORDING_BAR_LENGTH  # type: int
+        if self.track.is_audio and InterfaceState.RECORD_AUDIO_CLIP_TAILS:
             recording_bar_count += 1
         self.parent.show_message("Starting recording of %d bars" % recording_bar_count)
         seq = Sequence()
@@ -112,7 +111,7 @@ class ClipSlot(AbstractObject):
             no_timeout=True,
         )
 
-        if Config.RECORD_AUDIO_CLIP_TAILS:
+        if InterfaceState.RECORD_AUDIO_CLIP_TAILS:
             seq.add(partial(self.handle_audio_clip_tails, recording_bar_count))
 
         return seq.done()

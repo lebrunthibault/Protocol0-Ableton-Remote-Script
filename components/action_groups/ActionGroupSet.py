@@ -1,6 +1,7 @@
 from typing import Any
 
 from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
+from protocol0.interface.InterfaceState import InterfaceState
 
 
 class ActionGroupSet(AbstractActionGroup):
@@ -38,8 +39,11 @@ class ActionGroupSet(AbstractActionGroup):
         # PUSH encoder
         self.add_encoder(identifier=13, name="connect push2", on_press=self.parent.push2Manager.connect_push2)
 
-        # PUSH encoder
+        # MIX encoder
         self.add_encoder(identifier=14, name="scroll all tracks volume", on_scroll=self.parent.trackManager.scroll_all_tracks_volume)
+
+        # TAIL encoder
+        self.add_encoder(identifier=15, name="toggle audio clip tails recording", on_press=InterfaceState.toggle_record_audio_clip_tails)
 
     def deactivate_instrument(self):
         # type: () -> None

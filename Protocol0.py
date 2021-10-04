@@ -58,7 +58,7 @@ class Protocol0(ControlSurface):
 
         with self.component_guard():
             self.p0_system_api_client = DefaultApi()
-            self.errorManager = ErrorManager(set_excepthook=False)
+            self.errorManager = ErrorManager()
             self.protocol0_song = Song(song=self.song())
             self.fastScheduler = FastScheduler()
             self.deviceManager = DeviceManager()  # needs to be here first

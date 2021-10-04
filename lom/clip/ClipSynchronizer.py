@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING, List, Any, Optional
 
-from protocol0.config import Config
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.ObjectSynchronizer import ObjectSynchronizer
 
@@ -14,8 +13,8 @@ class ClipSynchronizer(ObjectSynchronizer):
     def __init__(self, master, slave, *a, **k):
         # type: (Clip, Clip, Any, Any) -> None
         properties = []
-        if not Config.RECORD_AUDIO_CLIP_TAILS:
-            properties = ["loop_start", "loop_end", "start_marker", "end_marker"]
+        if not InterfaceState.RECORD_AUDIO_CLIP_TAILS:
+            properties = ["loop_start", "start_marker", "end_marker"]
 
         self._syncable_properties = ["base_name"] + properties
         super(ClipSynchronizer, self).__init__(
