@@ -58,7 +58,7 @@ class AudioClip(Clip):
             # enforce looping
             self.parent.defer(partial(setattr, self._clip, "looping", True))
 
-    def post_record(self, recording_bar_count):
+    def post_record_clip_tail(self, recording_bar_count):
         # type: (int) -> None
         self.start_marker = 0
         self.loop_start = 2

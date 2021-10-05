@@ -56,7 +56,7 @@ def session_view_only(func):
         # type: (Any, Any) -> None
         from protocol0 import Protocol0
 
-        if Protocol0.SELF.navigationManager.is_session_visible:
+        if Protocol0.SELF.protocol0_song.session_view_active:
             func(*a, **k)
         else:
             Protocol0.SELF.log_warning("%s is session view only" % get_callable_name(func))
@@ -71,7 +71,8 @@ def arrangement_view_only(func):
         # type: (Any, Any) -> None
         from protocol0 import Protocol0
 
-        if Protocol0.SELF.navigationManager.is_arrangement_visible:
+        if Protocol0.SELF.protocol0_song.arrangement_view_active:
+            Protocol0.SELF.protocol0_song.activate_arrangement()
             func(*a, **k)
         else:
             Protocol0.SELF.log_warning("%s is arrangement view only" % get_callable_name(func))

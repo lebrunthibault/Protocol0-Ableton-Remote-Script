@@ -45,8 +45,17 @@ class AbstractObject(SlotManager, Subject):
     @property
     def parent(self):
         # type: () -> Protocol0
-        """ to get a working type hint """
         return self._parent
+
+    @property
+    def session_view_active(self):
+        # type: () -> bool
+        return self.parent.application().view.is_view_visible('Session')
+
+    @property
+    def arrangement_view_active(self):
+        # type: () -> bool
+        return not self.session_view_active
 
     @property
     def song(self):

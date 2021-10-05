@@ -6,7 +6,7 @@ from protocol0.lom.device.Device import Device
 from protocol0.lom.track.AbstractTrack import AbstractTrack
 from protocol0.lom.track.AbstractTrackList import AbstractTrackList
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.decorators import handle_error
+from protocol0.utils.decorators import handle_error, arrangement_view_only, session_view_only
 from protocol0.utils.utils import scroll_values
 
 if TYPE_CHECKING:
@@ -15,6 +15,11 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints,PyArgumentList
 class SongActionMixin(object):
+    def activate_arrangement(self):
+        # type: (Song) -> None
+        self.parent.navigationManager.show_arrangement()
+        self._song.back_to_arranger = False
+
     @handle_error
     def reset(self, reset_tracks=True):
         # type: (Song, bool) -> None
@@ -29,12 +34,23 @@ class SongActionMixin(object):
         if self.song.selected_track == self.song.master_track:
             self.song.select_track(next(self.song.abstract_tracks))
 
-    def play_stop(self):
+    def play(self):
         # type: (Song) -> None
-        if not self.is_playing:
-            self.selected_scene.fire()
+        if self.session_view_active:
+            self._play_session()
         else:
-            self.reset(False)
+            self._play_arrangement()
+
+    @session_view_only
+    def _play_session(self, from_beginning=False):
+        # type: (Song, bool) -> None
+        scene = self.scenes[0] if from_beginning else self.selected_scene
+        scene.fire()
+
+    @arrangement_view_only
+    def _play_arrangement(self):
+        # type: (Song) -> None
+        self.is_playing = True
 
     def stop_playing(self):
         # type: (Song) -> None
@@ -44,6 +60,22 @@ class SongActionMixin(object):
         # type: (Song, int) -> None
         # noinspection PyTypeChecker
         self._song.stop_all_clips(quantized)
+
+    def bounce_session_to_arrangement(self):
+        # type: (Song) -> Sequence
+        seq = Sequence()
+        self.parent.sceneBeatScheduler.clear()
+        self.parent.navigationManager.show_session()
+        tempo = self.tempo
+        self.tempo = 999
+        self.reset()
+        self.song.record_mode = True
+        seq.add(partial(self._play_session, from_beginning=True), complete_on=self.song.session_end_listener, no_timeout=True)
+        seq.add(partial(setattr, self.song, "record_mode", False))
+        seq.add(self.reset)
+        seq.add(partial(setattr, self.song, "tempo", tempo))
+        seq.add(self.song.activate_arrangement)
+        return seq.done()
 
     def begin_undo_step(self):
         # type: (Song) -> None

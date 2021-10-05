@@ -166,7 +166,6 @@ class AbstractTrackActionMixin(object):
     def arrangement_record(self, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Sequence
         assert self.is_armed
-        self.song.back_to_arranger = False
         seq = Sequence()
         if self.song.record_mode:
             self.song.record_mode = False
@@ -211,8 +210,6 @@ class AbstractTrackActionMixin(object):
             return self._cancel_record(record_type=record_type)
 
         self.song.record_mode = False
-        self.song.session_record = True
-
         self.song.stop_playing()
 
         if len(list(filter(None, [t.is_hearable for t in self.song.simple_tracks]))) <= 1:
@@ -240,7 +237,6 @@ class AbstractTrackActionMixin(object):
         """ overridden """
         self.song.metronome = False
         self.has_monitor_in = False
-        self.song.session_record = False
         if self.base_track.playable_clip:
             self.base_track.playable_clip.select()
             self.base_track.playable_clip.clip_name.update(base_name="")

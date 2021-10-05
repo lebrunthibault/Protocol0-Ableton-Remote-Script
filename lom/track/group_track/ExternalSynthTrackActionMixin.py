@@ -66,9 +66,11 @@ class ExternalSynthTrackActionMixin(object):
             return seq.done()
 
         self.has_monitor_in = False
+
+        midi_clip_slot = self.midi_track.clip_slots[self.next_empty_clip_slot_index]
         audio_clip_slot = self.audio_track.clip_slots[self.next_empty_clip_slot_index]
         self.audio_track.select()
-        seq.add([self._record_midi_and_post_record, audio_clip_slot.session_record])
+        seq.add([midi_clip_slot.record, audio_clip_slot.record])
         return seq.done()
 
     def session_record_audio_only(self):
@@ -96,7 +98,7 @@ class ExternalSynthTrackActionMixin(object):
             seq.add(audio_clip_slot.clip.delete)
         seq.add(partial(setattr, midi_clip, "start_marker", 0))
         seq.add(partial(self.parent.wait, 80, midi_clip.play))  # launching the midi clip after the record has started
-        seq.add(partial(self.audio_track.clip_slots[midi_clip.index].session_record, bar_count=recording_bar_count))
+        seq.add(partial(self.audio_track.clip_slots[midi_clip.index].record, bar_count=recording_bar_count))
         return seq.done()
 
     def arrangement_record_audio_only(self):
@@ -106,14 +108,14 @@ class ExternalSynthTrackActionMixin(object):
 
     def _record_midi_and_post_record(self):
         # type: (ExternalSynthTrack) -> Sequence
+        """ deprecated """
         seq = Sequence()
         assert self.next_empty_clip_slot_index
         midi_clip_slot = self.midi_track.clip_slots[self.next_empty_clip_slot_index]
-        seq.add(midi_clip_slot.session_record)
-        seq.add(partial(self.post_record, RecordTypeEnum.NORMAL))
+        seq.add(midi_clip_slot.record)
         return seq.done()
 
-    def post_record(self, record_type):
+    def post_session_record(self, record_type):
         # type: (ExternalSynthTrack, RecordTypeEnum) -> None
         super(ExternalSynthTrackActionMixin, self).post_session_record()
         self.has_monitor_in = True

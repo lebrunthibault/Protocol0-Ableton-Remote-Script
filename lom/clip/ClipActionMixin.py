@@ -106,7 +106,7 @@ class ClipActionMixin(object):
         self.clip_name.update()  # type: ignore
         self.color = self.track.computed_color
 
-    def post_record(self, recording_bar_count):
+    def post_record_clip_tail(self, recording_bar_count):
         # type: (int) -> None
         """ overridden """
         pass

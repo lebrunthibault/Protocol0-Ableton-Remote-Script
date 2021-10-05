@@ -16,7 +16,7 @@ class KeywordActionManager(AbstractControlSurfaceComponent):
         # type: (Any, Any) -> None
         super(KeywordActionManager, self).__init__(*a, **k)
         callable_dict = {
-            ActionEnum.PLAY: self.song.play_stop,
+            ActionEnum.PLAY: self.song.play,
             ActionEnum.PAUSE: self.song.stop_playing,
             ActionEnum.STOP: lambda: self.song.reset(False),
             ActionEnum.NEXT: lambda: self.parent.keywordSearchManager.search_track(

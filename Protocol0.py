@@ -105,6 +105,8 @@ class Protocol0(ControlSurface):
         self.wait(200, self.push2Manager.connect_push2)
         self.wait(400, self.push2Manager.connect_push2)
 
+        self.navigationManager.show_session()
+
         if not self.test_mode:
             self.defer(self.songManager.init_song)
 

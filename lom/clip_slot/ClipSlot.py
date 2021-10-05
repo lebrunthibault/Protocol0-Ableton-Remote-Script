@@ -105,6 +105,7 @@ class ClipSlot(AbstractObject):
         # this is a convenience to see right away if there is a problem with the audio recording
         if self.track.is_audio:
             seq.add(lambda: self.clip.select(), name="select audio clip")
+
         seq.add(
             complete_on=lambda: self.clip._is_recording_listener,
             name="awaiting clip recording end",
@@ -121,7 +122,7 @@ class ClipSlot(AbstractObject):
         seq = Sequence()
         if self.track.is_audio:
             # handling recording the tail
-            seq.add(lambda: self.clip.post_record(recording_bar_count=recording_bar_count - 1))
+            seq.add(lambda: self.clip.post_record_clip_tail(recording_bar_count=recording_bar_count - 1))
         else:
             # when midi clip is recorded, we schedule a scene launch to resync the track
             seq.add(wait=10)

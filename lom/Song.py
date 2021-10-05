@@ -19,6 +19,8 @@ from protocol0.utils.utils import find_if
 
 
 class Song(AbstractObject, SongActionMixin):
+    __subject_events__ = ("session_end",)
+
     def __init__(self, song, *a, **k):
         # type: (Live.Song.Song, Any, Any) -> None
         super(Song, self).__init__(*a, **k)
@@ -34,6 +36,7 @@ class Song(AbstractObject, SongActionMixin):
         self.errored = False
         self._is_playing_listener.subject = self._song
         self._record_mode_listener.subject = self._song
+        self.session_end_listener.subject = self
 
     def __call__(self):
         # type: () -> Live.Song.Song
@@ -45,9 +48,19 @@ class Song(AbstractObject, SongActionMixin):
         # type: () -> None
         if len(self.scenes) and self.is_playing:
             self.selected_scene.notify_play()  # type: ignore
+            return
+        if not self.is_playing:
+            # noinspection PyUnresolvedReferences
+            self.notify_session_end()
+            return
 
     @p0_subject_slot("record_mode")
     def _record_mode_listener(self):
+        # type: () -> None
+        pass
+
+    @p0_subject_slot("session_end")
+    def session_end_listener(self):
         # type: () -> None
         pass
 
@@ -180,6 +193,11 @@ class Song(AbstractObject, SongActionMixin):
         # type: () -> float
         return self._song.tempo
 
+    @tempo.setter
+    def tempo(self, tempo):
+        # type: (bool) -> None
+        self._song.tempo = tempo
+
     @property
     def signature_numerator(self):
         # type: () -> int
@@ -241,13 +259,3 @@ class Song(AbstractObject, SongActionMixin):
     def record_mode(self, record_mode):
         # type: (bool) -> None
         self._song.record_mode = record_mode
-
-    @property
-    def back_to_arranger(self):
-        # type: () -> bool
-        return self._song.back_to_arranger
-
-    @back_to_arranger.setter
-    def back_to_arranger(self, back_to_arranger):
-        # type: (bool) -> None
-        self._song.back_to_arranger = back_to_arranger

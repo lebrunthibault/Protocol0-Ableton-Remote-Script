@@ -45,6 +45,9 @@ class ActionGroupSet(AbstractActionGroup):
         # TAIL encoder
         self.add_encoder(identifier=15, name="toggle audio clip tails recording", on_press=InterfaceState.toggle_record_audio_clip_tails)
 
+        # RECord encoder
+        self.add_encoder(identifier=16, name="bounce session to arrangement", on_press=self.song.bounce_session_to_arrangement)
+
     def deactivate_instrument(self):
         # type: () -> None
         self.song.current_track.instrument.activated = False

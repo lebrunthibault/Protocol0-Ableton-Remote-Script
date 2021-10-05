@@ -45,7 +45,7 @@ class AbstractTrackList(UserMutableSequence):
         seq = Sequence()
         if len(self._abstract_tracks) == 0:
             seq.add(self.song.current_track.arm)
-            if self.parent.navigationManager.is_session_visible:
+            if self.session_view_active:
                 seq.add(partial(self.song.current_track.session_record, record_type=record_type))
             else:
                 seq.add(partial(self.song.current_track.arrangement_record, record_type=record_type))
@@ -53,7 +53,7 @@ class AbstractTrackList(UserMutableSequence):
 
         for abstract_track in self._abstract_tracks:
             assert abstract_track.is_armed
-            if self.parent.navigationManager.is_session_visible:
+            if self.session_view_active:
                 seq.add(partial(abstract_track.session_record, record_type=record_type))
             else:
                 seq.add(partial(abstract_track.arrangement_record, record_type=record_type))

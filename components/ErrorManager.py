@@ -25,9 +25,9 @@ class ErrorManager(AbstractControlSurfaceComponent):
 
     def handle_uncaught_exception(self, exc_type, exc_value, tb):
         # type: (Type[BaseException], BaseException, TracebackType) -> None
-        # if "Cannot convert MIDI clip" in str(exc_value):
-        #     self.parent.log_warning(exc_value)
-        #     return
+        if "Cannot convert MIDI clip" in str(exc_value):
+            self.parent.log_warning(exc_value)
+            return
         self.parent.log_error("unhandled exception caught !!")
         self._handle_exception(exc_type, exc_value, tb)
 
