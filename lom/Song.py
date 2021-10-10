@@ -1,4 +1,5 @@
 import collections
+from functools import partial
 
 from typing import List, Optional, Dict, Any, Generator, Iterator
 
@@ -14,7 +15,7 @@ from protocol0.lom.track.AbstractTrack import AbstractTrack
 from protocol0.lom.track.AbstractTrackList import AbstractTrackList
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.decorators import p0_subject_slot
+from protocol0.utils.decorators import p0_subject_slot, debounce
 from protocol0.utils.utils import find_if
 
 
@@ -37,6 +38,7 @@ class Song(AbstractObject, SongActionMixin):
         self._is_playing_listener.subject = self._song
         self._record_mode_listener.subject = self._song
         self.session_end_listener.subject = self
+        self._tempo_listener.subject = self._song
 
     def __call__(self):
         # type: () -> Live.Song.Song
@@ -63,6 +65,12 @@ class Song(AbstractObject, SongActionMixin):
     def session_end_listener(self):
         # type: () -> None
         pass
+
+    @p0_subject_slot("tempo")
+    @debounce(wait_time=60)  # 1 second
+    def _tempo_listener(self):
+        # type: () -> None
+        self.parent.defer(partial(setattr, self, "tempo", round(self.tempo)))
 
     # TRACKS
 

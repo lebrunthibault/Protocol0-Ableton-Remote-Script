@@ -76,8 +76,6 @@ class DeviceManager(AbstractControlSurfaceComponent):
         else:
             seq.add(partial(self._make_nested_device_window_showable, device, parent_rack))
 
-        seq.add(self.system.show_plugins)
-
         return seq.done()
 
     def _make_top_device_window_showable(self, device):

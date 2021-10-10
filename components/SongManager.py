@@ -29,6 +29,7 @@ class SongManager(AbstractControlSurfaceComponent):
         self._highlighted_clip_slot = self.song.highlighted_clip_slot
         self._highlighted_clip_slot_poller()
         self.song.reset()
+        self.parent.wait(50, self.song.reset)
 
     @handle_error
     def on_scene_list_changed(self):
@@ -51,8 +52,6 @@ class SongManager(AbstractControlSurfaceComponent):
     @handle_error
     def tracks_listener(self):
         # type: () -> None
-        self.parent.log_debug("SongManager : start mapping tracks")
-
         # Check if tracks were added
         previous_simple_track_count = len(list(self._simple_tracks))
         has_added_tracks = previous_simple_track_count and len(self.song._song.tracks) > previous_simple_track_count
@@ -69,7 +68,6 @@ class SongManager(AbstractControlSurfaceComponent):
         self._simple_tracks = list(self.song.simple_tracks)
         self.parent.defer(partial(self.parent.setFixerManager.refresh_set_appearance, log=False))
         self.parent.log_debug("SongManager : mapped tracks")
-        self.parent.log_debug()
         # noinspection PyUnresolvedReferences
         self.notify_selected_track()  # trigger other components
 

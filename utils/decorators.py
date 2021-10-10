@@ -1,6 +1,7 @@
 from functools import partial, wraps
 
 from typing import TYPE_CHECKING, Any, Callable
+from collections import defaultdict
 
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
 from protocol0.my_types import Func
@@ -196,3 +197,33 @@ def handle_error(func):
             Protocol0.SELF.errorManager.handle_error()
 
     return decorate
+
+
+def debounce(wait_time=100):
+    # type: (int) -> Callable
+    """ here we make the method dynamic """
+
+    def wrap(func):
+        # type: (Callable) -> Callable
+        @wraps(func)
+        def decorate(*a, **k):
+            # type: (Any, Any) -> None
+            object_source = a[0] if is_method(func) else decorate
+            decorate.count[object_source] += 1  # type: ignore[attr-defined]
+            from protocol0 import Protocol0
+
+            Protocol0.SELF.wait(wait_time, partial(execute, func, *a, **k))
+
+        decorate.count = defaultdict(int)  # type: ignore[attr-defined]
+        decorate.func = func  # type: ignore[attr-defined]
+
+        def execute(real_func, *a, **k):
+            # type: (Callable, Any, Any) -> None
+            object_source = a[0] if is_method(real_func) else decorate
+            decorate.count[object_source] -= 1  # type: ignore[attr-defined]
+            if decorate.count[object_source] == 0:  # type: ignore[attr-defined]
+                real_func(*a, **k)
+
+        return decorate
+
+    return wrap

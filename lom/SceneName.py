@@ -29,6 +29,14 @@ class SceneName(AbstractObject):
         if match.group("looping") and not Scene.LOOPING_SCENE:
             self.scene.looping = True
 
+    @property
+    def _length_legend(self):
+        # type: () -> str
+        if int(self.scene.length) % self.song.signature_numerator != 0:
+            return "%d beat%s" % (self.scene.length, "s" if self.scene.length > 1 else "")
+        else:
+            return "%d" % self.scene.bar_length
+
     def update(self, base_name=None):
         # type: (str) -> None
         self.base_name = base_name if base_name is not None else self.base_name
@@ -40,4 +48,4 @@ class SceneName(AbstractObject):
         except ValueError:
             pass
 
-        self.scene.name = "%s (%d)%s" % (self.base_name, self.scene.bar_length, "*" if self.scene.looping else "")
+        self.scene.name = "%s (%s)%s" % (self.base_name, self._length_legend, "*" if self.scene.looping else "")

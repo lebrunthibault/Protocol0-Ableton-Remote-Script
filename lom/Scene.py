@@ -112,6 +112,8 @@ class Scene(AbstractObject, SceneActionMixin):
     @property
     def bar_length(self):
         # type: () -> int
+        if self.length % self.song.signature_numerator != 0:
+            self.parent.log_dev("%s invalid length: %s, longest_clip track: %s" % (self, self.length, self.longest_clip.track.abstract_track))
         return int(self.length / self.song.signature_numerator)
 
     @property

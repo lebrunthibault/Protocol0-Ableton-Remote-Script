@@ -14,17 +14,13 @@ class VocalCommandManager(AbstractControlSurfaceComponent):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(VocalCommandManager, self).__init__(*a, **k)
-        self.parent.log_info("creating VocalCommand Manager")
         self._keywordActionManager = KeywordActionManager()
         self._midi_server_check_timeout_scheduler_event = None  # type: Optional[SchedulerEvent]
         self.parent.wait(20, self._check_midi_server_is_running)  # waiting for Protocol0_midi to boot
 
     def _check_midi_server_is_running(self):
         # type: () -> None
-        self.parent.log_debug("checking midi server")
         self._midi_server_check_timeout_scheduler_event = self.parent.wait(50, self._no_midi_server_found)
-        self.parent.log_debug(
-            "self._midi_server_check_timeout_scheduler_event: %s" % self._midi_server_check_timeout_scheduler_event)
         self.system.ping()
 
     def _no_midi_server_found(self):

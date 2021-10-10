@@ -5,7 +5,7 @@ from typing import Optional, Dict, Any
 from protocol0.errors.ApiError import ApiError
 from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.utils.decorators import EXPOSED_P0_METHODS
-from protocol0.utils.utils import find_if
+from protocol0.utils.utils import find_if, get_callable_name
 
 
 class ApiAction(object):
@@ -63,5 +63,5 @@ class ApiAction(object):
     def execute(self):
         # type: () -> None
         from protocol0 import Protocol0
-        Protocol0.SELF.log_debug("Executing method %s from Api call" % self.method)
+        Protocol0.SELF.log_debug("Api call, executing %s" % get_callable_name   (self.method))
         self.method(**self.args)

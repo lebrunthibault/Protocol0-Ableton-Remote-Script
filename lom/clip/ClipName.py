@@ -46,7 +46,7 @@ class ClipName(AbstractObjectName):
             self.base_name = ""
 
     @property
-    def length_legend(self):
+    def _length_legend(self):
         # type: () -> str
         if hasattr(self.clip, "warping") and not self.clip.warping:
             return "unwarped"
@@ -63,4 +63,4 @@ class ClipName(AbstractObjectName):
         if self.clip.is_recording:
             return None
         self.base_name = base_name if base_name is not None else self.base_name
-        self.clip.name = "%s (%s)" % (self.base_name, self.length_legend)
+        self.clip.name = "%s (%s)" % (self.base_name, self._length_legend)

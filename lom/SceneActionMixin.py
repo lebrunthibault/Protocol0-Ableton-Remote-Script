@@ -23,12 +23,9 @@ class SceneActionMixin(object):
     def schedule_next_scene_launch(self):
         # type: (Scene) -> None
         self.parent.sceneBeatScheduler.clear()
-        if self == self.song.scenes[-1]:
+        if self.looping or self == self.song.scenes[-1] or self.song.scenes[self.index + 1].bar_length == 0:
             # noinspection PyUnresolvedReferences
             self.parent.sceneBeatScheduler.wait_beats(self.length - self.playing_position, self.song.notify_session_end)
-            return
-
-        if self.looping or self.song.scenes[self.index + 1].bar_length == 0:
             return
         next_scene = self.song.scenes[self.index + 1]
         self.parent.sceneBeatScheduler.wait_beats(self.length - self.playing_position, next_scene.fire)
@@ -65,7 +62,6 @@ class SceneActionMixin(object):
         if self.length < 2:
             self.parent.log_warning("Cannot partial duplicate scene with length %s (min 2 bars)" % self.length)
             return
-        self.parent.log_info("self.length: %s" % self.bar_length)
         bar_lengths = []
         power = 0
         while pow(2, power) <= self.bar_length / 2:

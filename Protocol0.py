@@ -45,8 +45,6 @@ class Protocol0(ControlSurface):
         # type: (Any, bool) -> None
         super(Protocol0, self).__init__(c_instance=c_instance)
         # noinspection PyProtectedMember
-
-        self.log_message("P0 ******************** start __init__")
         Protocol0.SELF = self
         self.test_mode = test_mode
         self.started = False

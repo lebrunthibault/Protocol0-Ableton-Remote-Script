@@ -118,6 +118,12 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
 
     def exclusive_activate(self):
         # type: () -> Optional[Sequence]
+        """ overridden """
+        pass
+
+    def post_activate(self):
+        # type: () -> Optional[Sequence]
+        """ overridden """
         pass
 
     @property
@@ -138,11 +144,14 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
             seq.add(self.device.track.select)
             seq.add(self.exclusive_activate)
 
+        if force_activate or not self.activated:
+            seq.add(self.post_activate)
+
         if not select_instrument_track:
             seq.add(self.song.selected_track.select, silent=True)
-
-        if hide:
-            seq.add(self.system.hide_plugins)
+        #
+        # if hide:
+        #     seq.add(self.system.hide_plugins)
 
         return seq.done()
 
