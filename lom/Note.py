@@ -18,7 +18,7 @@ class Note(AbstractObject):
         self._pitch = int(pitch)
         self._start = start
         self._duration = duration
-        self._velocity = int(velocity)
+        self._velocity = int(velocity)  # type: float
         self._muted = muted
         self.clip = cast("MidiClip", clip)
 
@@ -29,7 +29,6 @@ class Note(AbstractObject):
                 and self.pitch == other.pitch
                 and is_equal(self.start, other.start)
                 and is_equal(self.duration, other.duration)
-                and self.velocity == other.velocity
                 and self.muted == other.muted
         )
 
@@ -45,17 +44,17 @@ class Note(AbstractObject):
 
     def to_data(self):
         # type: () -> Tuple[int, float, float, int, bool]
-        return self.pitch, self.start, self.duration, self.velocity, self.muted
+        return self.pitch, self.start, self.duration, int(self.velocity), self.muted
 
     @property
     def pitch(self):
         # type: () -> int
-        return clamp(self._pitch, 0, 127)
+        return int(clamp(self._pitch, 0, 127))
 
     @pitch.setter
     def pitch(self, pitch):
         # type: (int) -> None
-        self._pitch = clamp(pitch, 0, 127)
+        self._pitch = int(clamp(pitch, 0, 127))
 
     @property
     def start(self):
@@ -83,7 +82,7 @@ class Note(AbstractObject):
 
     @property
     def velocity(self):
-        # type: () -> int
+        # type: () -> float  # using float to make scaling precise
         if self._velocity < 0:
             return 0
         if self._velocity > 127:
@@ -92,7 +91,7 @@ class Note(AbstractObject):
 
     @velocity.setter
     def velocity(self, velocity):
-        # type: (int) -> None
+        # type: (float) -> None
         self._velocity = clamp(velocity, 0, 127)
 
     @property

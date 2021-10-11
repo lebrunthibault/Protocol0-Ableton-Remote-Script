@@ -13,7 +13,7 @@ class SetFixerManager(AbstractControlSurfaceComponent):
 
     def check_set(self):
         # type: () -> None
-        """ Checks the set is operational """
+        """ Checks the set is operational, deprecated """
         self._check_input_routings()
         self._check_tracks_tree_consistency()
         self._check_instruments()

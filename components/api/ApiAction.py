@@ -63,5 +63,5 @@ class ApiAction(object):
     def execute(self):
         # type: () -> None
         from protocol0 import Protocol0
-        Protocol0.SELF.log_debug("Api call, executing %s" % get_callable_name   (self.method))
+        Protocol0.SELF.log_debug("Api call, executing %s" % get_callable_name(self.method))
         self.method(**self.args)

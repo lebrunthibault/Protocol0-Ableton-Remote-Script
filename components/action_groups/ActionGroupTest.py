@@ -1,6 +1,8 @@
 from typing import Any
 
 from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
+from protocol0.lom.clip.MidiClip import MidiClip
+from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 
 
 class ActionGroupTest(AbstractActionGroup):
@@ -14,4 +16,9 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        self.song.session_record = False
+        track = self.song.current_track
+        self.parent.log_dev(track)
+        if isinstance(track, ExternalSynthTrack):
+            clip = track.midi_track.playable_clip  # type: MidiClip
+            self.parent.log_dev(clip)
+            clip.scale_velocities()

@@ -48,7 +48,7 @@ def is_equal(val1, val2, delta=0.00001):
 
 
 def clamp(val, minv, maxv):
-    # type: (int, int, int) -> int
+    # type: (float, float, float) -> float
     return max(minv, min(val, maxv))
 
 

@@ -2,7 +2,6 @@ from functools import partial
 
 from typing import TYPE_CHECKING, Optional
 
-import Live
 from protocol0.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.lom.clip.MidiClip import MidiClip
@@ -120,12 +119,11 @@ class ExternalSynthTrackActionMixin(object):
         super(ExternalSynthTrackActionMixin, self).post_session_record()
         self.has_monitor_in = True
         if self.midi_track.playable_clip and self.audio_track.playable_clip:
-            self.audio_track.playable_clip.warp_mode = Live.Clip.WarpMode.complex
-            self.midi_track.playable_clip.view.grid_quantization = Live.Clip.GridQuantization.g_sixteenth
+            self.audio_track.playable_clip.post_record()
             if record_type == RecordTypeEnum.NORMAL:
                 self.midi_track.playable_clip.clip_name.update(base_name="")
                 self.audio_track.playable_clip.clip_name.update(base_name="")
-                self.midi_track.playable_clip.quantize()
+                self.midi_track.playable_clip.post_record()
             else:
                 self._link_clip_slots()
 

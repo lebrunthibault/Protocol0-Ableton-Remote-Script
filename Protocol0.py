@@ -11,6 +11,7 @@ from _Framework.ControlSurface import ControlSurface
 from protocol0.automation.AutomationTrackManager import AutomationTrackManager
 from protocol0.components.BeatScheduler import BeatScheduler
 from protocol0.components.BrowserManager import BrowserManager
+from protocol0.components.ClipManager import ClipManager
 from protocol0.components.DeviceManager import DeviceManager
 from protocol0.components.ErrorManager import ErrorManager
 from protocol0.components.FastScheduler import FastScheduler, SchedulerEvent
@@ -70,6 +71,7 @@ class Protocol0(ControlSurface):
             self.quantizationManager = QuantizationManager()
             self.setFixerManager = SetFixerManager()
             self.midiManager = MidiManager()
+            self.clipManager = ClipManager()
             self.browserManager = BrowserManager()
             self.navigationManager = NavigationManager()
             GlobalActions()

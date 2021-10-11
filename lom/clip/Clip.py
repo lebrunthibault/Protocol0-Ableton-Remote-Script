@@ -90,7 +90,7 @@ class Clip(ClipActionMixin, AbstractObject):
         # type: (ClipSlot, bool) -> Clip
         clip = clip_slot.track.CLIP_CLASS(clip_slot=clip_slot)
 
-        if is_new:
+        if is_new and not clip.track.abstract_group_track:
             clip.configure_new_clip()
 
         return clip

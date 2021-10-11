@@ -1,12 +1,11 @@
 import os
 import sys
 
-from protocol0 import Protocol0, EmptyModule, create_instance
+import _Framework.ControlSurface
+from protocol0 import EmptyModule, create_instance
 from protocol0.config import Config
 from protocol0.enums.LogLevelEnum import LogLevelEnum
 from protocol0.utils.timeout import TimeoutLimit
-import _Framework.ControlSurface
-
 
 sys.dont_write_bytecode = True  # noqa
 p0 = create_instance(EmptyModule(is_false=False))

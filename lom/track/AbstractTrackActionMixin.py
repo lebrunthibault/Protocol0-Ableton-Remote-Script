@@ -115,7 +115,7 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         if not self.instrument or not self.instrument.CAN_BE_SHOWN:
             return None
-        self.instrument.activate_plugin_window(hide=False, force_activate=True)
+        self.instrument.activate_plugin_window(force_activate=True)
 
     @property
     def can_change_presets(self):
@@ -237,13 +237,11 @@ class AbstractTrackActionMixin(object):
         """ overridden """
         self.song.metronome = False
         self.has_monitor_in = False
-        if self.base_track.playable_clip:
-            self.base_track.playable_clip.select()
-            self.base_track.playable_clip.clip_name.update(base_name="")
-            if self.base_track.playable_clip.is_midi:
-                self.base_track.playable_clip.view.grid_quantization = Live.Clip.GridQuantization.g_sixteenth
-                self.base_track.playable_clip.show_loop()
-                self.base_track.playable_clip.quantize()
+        clip = self.base_track.playable_clip
+        if clip:
+            clip.select()
+            clip.clip_name.update(base_name="")
+            clip.post_record()
 
     def post_arrangement_record(self):
         # type: (AbstractTrack) -> None

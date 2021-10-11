@@ -12,7 +12,7 @@ from protocol0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.Note import Note
-from protocol0.lom.clip.Clip import Clip
+from protocol0.lom.clip.MidiClip import MidiClip
 from protocol0.lom.device.Device import Device
 from protocol0.lom.device.PluginDevice import PluginDevice
 from protocol0.lom.device.RackDevice import RackDevice
@@ -131,8 +131,8 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
         # type: () -> bool
         return self.CAN_BE_SHOWN and (not self.activated or self.needs_exclusive_activation)
 
-    def activate_plugin_window(self, select_instrument_track=False, hide=True, force_activate=False):
-        # type: (bool, bool, bool) -> Optional[Sequence]
+    def activate_plugin_window(self, select_instrument_track=False, force_activate=False):
+        # type: (bool, bool) -> Optional[Sequence]
         seq = Sequence()
 
         if force_activate or not self.activated:
@@ -147,11 +147,9 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
         if force_activate or not self.activated:
             seq.add(self.post_activate)
 
-        if not select_instrument_track:
+        if not force_activate and not select_instrument_track:
+            seq.add(self.system.hide_plugins, wait=1)
             seq.add(self.song.selected_track.select, silent=True)
-        #
-        # if hide:
-        #     seq.add(self.system.hide_plugins)
 
         return seq.done()
 
@@ -159,7 +157,7 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
         # type: () -> Sequence
         seq = Sequence()
         if self.needs_activation:
-            seq.add(partial(self.activate_plugin_window, select_instrument_track=True, hide=False))
+            seq.add(partial(self.activate_plugin_window, select_instrument_track=True))
         else:
             seq.add(self.device.track.select)
             if self.song.selected_track != self.device.track:
@@ -169,6 +167,6 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
         return seq.done()
 
     def generate_base_notes(self, clip):
-        # type: (Clip) -> List[Note]
+        # type: (MidiClip) -> List[Note]
         # add c3 note
         return [Note(pitch=60, velocity=127, start=0, duration=min(1, int(clip.length)), clip=clip)]
