@@ -3,12 +3,9 @@ from fractions import Fraction
 from os.path import dirname
 
 import Live
-from protocol0.enums.LogLevelEnum import LogLevelEnum
 
 
 class Config(object):
-    LOG_LEVEL = LogLevelEnum.DEV
-
     SEQUENCE_DEBUG = False
     SEQUENCE_SLOW_MO = False
 

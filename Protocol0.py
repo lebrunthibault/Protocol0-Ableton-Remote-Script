@@ -88,7 +88,7 @@ class Protocol0(ControlSurface):
 
                 # vocal command
                 self.keywordSearchManager = KeywordSearchManager()
-                self.vocalCommandManager = VocalCommandManager()
+                VocalCommandManager()
 
                 ApiAction.create_method_mapping()
 

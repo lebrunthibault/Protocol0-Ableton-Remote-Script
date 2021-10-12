@@ -31,15 +31,6 @@ class AbstractTrackList(UserMutableSequence):
         # type: () -> Iterable[AbstractGroupTrack]
         return (ab for ab in self.abstract_group_tracks if not ab.is_parent(self.song.current_track))
 
-    def play_stop(self):
-        # type: () -> None
-        if any(abstract_track.is_playing for abstract_track in self._abstract_tracks):
-            for t in self._abstract_tracks:
-                t.stop()
-        else:
-            for t in self._abstract_tracks:
-                t.play()
-
     def record(self, record_type):
         # type: (RecordTypeEnum) -> Optional[Sequence]
         seq = Sequence()

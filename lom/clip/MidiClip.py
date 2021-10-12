@@ -1,3 +1,5 @@
+from __future__ import division
+
 from functools import partial
 
 from typing import List, TYPE_CHECKING, Optional, Callable, Any, Iterator
@@ -89,20 +91,16 @@ class MidiClip(Clip):
         self.view.grid_quantization = Live.Clip.GridQuantization.g_sixteenth
         self.show_loop()
         self.quantize()
-        self.scale_velocities()
+        self.scale_velocities(go_next=False, scaling_factor=2)
 
-    def scale_velocities(self, go_next):
-        # type: (bool) -> None
+    def scale_velocities(self, go_next, scaling_factor):
+        # type: (bool, int) -> None
         notes = self.get_notes()
         average_velo = sum([note.velocity for note in notes]) / len(notes)
-        self.parent.log_dev("len(notes): %s" % len(notes))
-        self.parent.log_dev("average_velo: %s" % average_velo)
         for note in notes:
-            self.parent.log_dev(
-                "velo: %s, adjusted: %s" % (note.velocity, note.velocity - (note.velocity - average_velo) / 2))
             velocity_diff = note.velocity - average_velo
             if go_next:
-                note.velocity += velocity_diff
+                note.velocity += velocity_diff / (scaling_factor - 1)
             else:
-                note.velocity -= velocity_diff / 2
+                note.velocity -= velocity_diff / scaling_factor
         self.set_notes(notes)

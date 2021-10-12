@@ -37,13 +37,6 @@ class ClipActionMixin(object):
         # type: (Clip) -> None
         self.is_playing = True
 
-    def play_stop(self):
-        # type: (Clip) -> None
-        """ deprecated. Use Push. Not used in ec4 anymore """
-        if self.muted:
-            self.muted = False
-        self.is_playing = not self.is_playing
-
     def fire(self):
         # type: (Clip) -> None
         if self._clip:

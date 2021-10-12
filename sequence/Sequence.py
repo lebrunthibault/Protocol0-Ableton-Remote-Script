@@ -140,6 +140,6 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
     def done(self):
         # type: () -> Sequence
         if self.state != str(SequenceState.UN_STARTED):
-            raise Protocol0Error("Sequence done alreay called")
+            raise Protocol0Error("Sequence done already called")
         self.start()
         return self

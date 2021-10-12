@@ -107,6 +107,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self.devices = [Device.make(device, self) for device in self._track.devices]
         self.all_devices = self.find_all_devices(self.base_track)
 
+        # noinspection PyUnresolvedReferences
         self.notify_devices()
 
         # Refreshing is only really useful from simpler devices that change when a new sample is loaded

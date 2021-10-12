@@ -1,6 +1,6 @@
-import Live
 from typing import cast, List
 
+import Live
 from _Framework.SubjectSlot import Subject
 from protocol0.lom.Song import Song
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -41,8 +41,8 @@ class AbletonTrack(Subject):
             self.has_audio_input = True
 
 
-def make_simple_track(song, track_type):
-    # type: (Song, int) -> SimpleTrack
+def make_simple_track(song):
+    # type: (Song) -> SimpleTrack
     simple_track = SimpleTrack(cast(Live.Track.Track, AbletonTrack(track_type=TrackType.GROUP)))
     song.live_track_to_simple_track[simple_track._track] = simple_track
     return simple_track

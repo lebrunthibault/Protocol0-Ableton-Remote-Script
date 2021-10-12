@@ -105,15 +105,6 @@ class ExternalSynthTrackActionMixin(object):
         self.midi_track.unarm()
         return self.song.global_record()
 
-    def _record_midi_and_post_record(self):
-        # type: (ExternalSynthTrack) -> Sequence
-        """ deprecated """
-        seq = Sequence()
-        assert self.next_empty_clip_slot_index
-        midi_clip_slot = self.midi_track.clip_slots[self.next_empty_clip_slot_index]
-        seq.add(midi_clip_slot.record)
-        return seq.done()
-
     def post_session_record(self, record_type):
         # type: (ExternalSynthTrack, RecordTypeEnum) -> None
         super(ExternalSynthTrackActionMixin, self).post_session_record()

@@ -6,8 +6,7 @@ from protocol0.interface.InterfaceState import InterfaceState
 
 class ActionGroupSet(AbstractActionGroup):
     """
-    This manager is supposed to group mundane tasks on Live like debug
-    or one shot actions on a set (like upgrading to the current naming scheme)
+    This manager is for unusual tasks.
     """
 
     def __init__(self, *a, **k):
@@ -32,8 +31,11 @@ class ActionGroupSet(AbstractActionGroup):
         self.add_encoder(identifier=6, name="update rack devices",
                          on_press=self.parent.setFixerManager.update_audio_effect_racks)
 
-        # TAIL encoder
-        self.add_encoder(identifier=11, name="toggle audio clip tails recording", on_press=InterfaceState.toggle_record_audio_clip_tails)
+        # DUPScene encoder
+        self.add_encoder(identifier=7, name="partial duplicate scene",
+                         on_press=lambda: self.song.selected_scene.partial_duplicate,
+                         on_scroll=lambda: self.song.selected_scene.scroll_duplicate_bar_lengths,
+                         )
 
         # MIX encoder
         self.add_encoder(identifier=13, name="scroll all tracks volume", on_scroll=self.parent.trackManager.scroll_all_tracks_volume)
@@ -41,5 +43,5 @@ class ActionGroupSet(AbstractActionGroup):
         # VELO encoder
         self.add_encoder(identifier=14, name="scale selected clip velocities", on_scroll=self.parent.clipManager.scale_selected_clip_velocities)
 
-        # RECord encoder
+        # Session2ARrangement encoder
         self.add_encoder(identifier=16, name="bounce session to arrangement", on_press=self.song.bounce_session_to_arrangement)

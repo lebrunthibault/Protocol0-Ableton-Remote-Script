@@ -1,11 +1,10 @@
 import os
 from os.path import basename
 
-import Live
 from typing import Any, Optional
 
+import Live
 from protocol0.lom.device.Device import Device
-from protocol0.lom.device.DeviceType import DeviceType
 from protocol0.utils.utils import smart_string
 
 
@@ -14,7 +13,6 @@ class SimplerDevice(Device):
         # type: (Any, Any) -> None
         super(SimplerDevice, self).__init__(*a, **k)
         self._device = self._device  # type: Live.SimplerDevice.SimplerDevice
-        self.device_type = DeviceType.ABLETON_DEVICE
 
     @property
     def preset_name(self):

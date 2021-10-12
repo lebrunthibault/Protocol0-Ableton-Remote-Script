@@ -256,10 +256,6 @@ class AbstractTrackActionMixin(object):
             seq.add(self.base_track.playable_clip.delete)
         return seq.done()
 
-    def play_stop(self):
-        # type: (AbstractTrack) -> None
-        self.stop() if self.is_playing else self.play()
-
     def play(self):
         # type: (AbstractTrack) -> None
         from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack

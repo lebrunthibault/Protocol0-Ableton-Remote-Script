@@ -6,6 +6,7 @@ from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComp
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.enums.vocal_command.ActionEnum import ActionEnum
 from protocol0.interface.EncoderAction import EncoderAction
+from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.track.AbstractTrackList import AbstractTrackList
 
 
@@ -32,6 +33,7 @@ class KeywordActionManager(AbstractControlSurfaceComponent):
             ActionEnum.SHOW: lambda: self.song.current_track.show_hide_instrument,
             ActionEnum.PUSH: self.parent.push2Manager.connect_push2,
             ActionEnum.SPLIT: lambda: self.song.selected_scene.split,
+            ActionEnum.LOCK: InterfaceState.toggle_protected_mode,
         }
         for enum, func in callable_dict.items():
             self.MAPPING[enum] = EncoderAction(func)

@@ -8,7 +8,7 @@ from protocol0.lom.device.Device import Device
 from protocol0.lom.device.DeviceChain import DeviceChain
 from protocol0.lom.device.RackDevice import RackDevice
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.utils import scroll_values, find_if
+from protocol0.utils.utils import find_if
 
 if TYPE_CHECKING:
     from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -87,22 +87,6 @@ class SimpleTrackActionMixin(object):
         assert self.next_empty_clip_slot_index is not None
         seq.add(self.clip_slots[self.next_empty_clip_slot_index].record)  # type: ignore[has-type]
         return seq.done()
-
-    def scroll_clips(self, go_next):
-        # type: (SimpleTrack, bool) -> None
-        """ deprecated. Use Push. Not used in ec4 anymore """
-        if len(self.clips) == 0:
-            return
-        self.parent.navigationManager.show_clip_view()
-        if self.song.highlighted_clip_slot == self.clips[0] and not go_next:
-            self.system.arrow_up()
-            return
-
-        if self.song.selected_clip or self.playable_clip:
-            self.song.selected_clip = scroll_values(self.clips, self.song.selected_clip or self.playable_clip, go_next)
-        else:
-            self.system.arrow_down() if go_next else self.system.arrow_up()
-            return
 
     def has_device(self, device_name):
         # type: (SimpleTrack, str) -> bool

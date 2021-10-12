@@ -1,10 +1,7 @@
-from protocol0.enums.TrackCategoryEnum import TrackCategoryEnum
 from protocol0.utils.utils import scroll_values
 
 
 class InterfaceState(object):
-    SELECTED_TRACK_CATEGORY = TrackCategoryEnum.ALL
-
     _RECORDING_BAR_LENGTHS = [1, 2, 4, 8, 16, 32, 64]
     SELECTED_RECORDING_BAR_LENGTH = 4
 
@@ -30,14 +27,6 @@ class InterfaceState(object):
         from protocol0 import Protocol0
 
         Protocol0.SELF.show_message("Protected mode %s" % ("on" if cls.PROTECTED_MODE_ACTIVE else "off"))
-
-    @classmethod
-    def scroll_track_categories(cls, go_next):
-        # type: (bool) -> None
-        # noinspection PyTypeChecker
-        InterfaceState.SELECTED_TRACK_CATEGORY = scroll_values(
-            list(TrackCategoryEnum), InterfaceState.SELECTED_TRACK_CATEGORY, go_next, True
-        )
 
     @classmethod
     def scroll_recording_bar_lengths(cls, go_next):

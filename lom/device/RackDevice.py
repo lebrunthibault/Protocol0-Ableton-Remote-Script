@@ -4,7 +4,6 @@ from typing import List, Optional, Any
 from _Framework.SubjectSlot import subject_slot
 from protocol0.lom.device.Device import Device
 from protocol0.lom.device.DeviceChain import DeviceChain
-from protocol0.lom.device.DeviceType import DeviceType
 from protocol0.utils.utils import find_if
 
 
@@ -17,7 +16,6 @@ class RackDevice(Device):
         self._view = self._device.view  # type: Live.RackDevice.RackDevice.View
         self._chains_listener.subject = self._device
         self._chains_listener()
-        self.device_type = DeviceType.RACK_DEVICE
         self.chain_selector = find_if(
             lambda p: p.original_name.startswith("Chain Selector") and p.is_enabled, self.parameters
         )

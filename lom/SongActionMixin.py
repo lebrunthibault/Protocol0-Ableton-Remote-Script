@@ -1,4 +1,5 @@
 from functools import partial
+
 from typing import TYPE_CHECKING, Optional
 
 from protocol0.enums.FoldActionEnum import FoldActionEnum
@@ -113,7 +114,7 @@ class SongActionMixin(object):
 
     def unfocus_all_tracks(self):
         # type: (Song) -> Sequence
-        self.unsolo_all_tracks()
+        self._unsolo_all_tracks()
         return self.unarm_all_tracks()
 
     def unarm_all_tracks(self):
@@ -122,7 +123,7 @@ class SongActionMixin(object):
         seq.add([t.unarm for t in self.abstract_tracks if t.is_armed])
         return seq.done()
 
-    def unsolo_all_tracks(self, except_current=True):
+    def _unsolo_all_tracks(self, except_current=True):
         # type: (Song, bool) -> None
         for t in self.song.abstract_tracks:
             if t.solo and t != (self.current_track if except_current else None):

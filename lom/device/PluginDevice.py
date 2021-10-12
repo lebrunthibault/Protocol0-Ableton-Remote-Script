@@ -2,7 +2,6 @@ from typing import List, Any, Optional
 
 import Live
 from protocol0.lom.device.Device import Device
-from protocol0.lom.device.DeviceType import DeviceType
 from protocol0.utils.utils import scroll_values
 
 
@@ -11,7 +10,6 @@ class PluginDevice(Device):
         # type: (Any, Any) -> None
         super(PluginDevice, self).__init__(*a, **k)
         self._device = self._device  # type: Live.PluginDevice.PluginDevice
-        self.device_type = DeviceType.PLUGIN_DEVICE
 
     def scroll_presets(self, go_next):
         # type: (bool) -> None

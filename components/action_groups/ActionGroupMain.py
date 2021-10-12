@@ -4,8 +4,6 @@ from typing import Any
 
 from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
-from protocol0.interface.EncoderAction import EncoderAction
-from protocol0.interface.EncoderModifierEnum import EncoderModifierEnum
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.track.AbstractTrackList import AbstractTrackList
 
@@ -19,34 +17,22 @@ class ActionGroupMain(AbstractActionGroup):
         # type: (Any, Any) -> None
         super(ActionGroupMain, self).__init__(channel=15, *a, **k)
 
-        # DUPlicate modifier
-        self.add_modifier(
-            identifier=1,
-            modifier_type=EncoderModifierEnum.DUP,
-            on_scroll=lambda: self.song.selected_scene.scroll_duplicate_bar_lengths,
-        )
-
-        # SOLO modifier
-        self.add_modifier(identifier=2, modifier_type=EncoderModifierEnum.SOLO)
-
-        # FOLD modifier
-        self.add_modifier(identifier=3, modifier_type=EncoderModifierEnum.FOLD)
-
-        # SPLiT encoder
-        self.add_encoder(identifier=4, name="split scene", on_press=lambda: self.song.selected_scene.split)
-
-        # 5 AUTOmation encoder
+        # AUTOmation encoder
         self.add_encoder(
-            identifier=5,
+            identifier=1,
             name="automation",
             on_press=self.parent.automationTrackManager.display_selected_parameter_automation,
             on_scroll=self.parent.automationTrackManager.scroll_automation_envelopes,
         )
 
-        # 6: empty
+        # TAIL encoder
+        self.add_encoder(identifier=2, name="toggle audio clip tails recording", on_press=InterfaceState.toggle_record_audio_clip_tails)
 
-        # 7: LOCK encoder
-        self.add_encoder(identifier=7, name="protected mode", on_press=InterfaceState.toggle_protected_mode)
+        # LOCK encoder
+        self.add_encoder(identifier=3, name="protected mode", on_press=InterfaceState.toggle_protected_mode)
+
+        # SPLiT encoder
+        self.add_encoder(identifier=4, name="split scene", on_press=lambda: self.song.selected_scene.split)
 
         # MONitor encoder
         self.add_encoder(
@@ -63,39 +49,13 @@ class ActionGroupMain(AbstractActionGroup):
             on_long_press=lambda: partial(self.song.armed_tracks.record, RecordTypeEnum.AUDIO_ONLY)
         )
 
-        # 10: empty
-
-        # SONG encoder
-        self.add_encoder(identifier=11, name="song", filter_active_tracks=False).add_action(
-            EncoderAction(modifier_type=EncoderModifierEnum.SOLO, func=self.song.unsolo_all_tracks)
-        ).add_action(
-            EncoderAction(
-                modifier_type=EncoderModifierEnum.FOLD,
-                func=lambda: AbstractTrackList(self.song.abstract_tracks).toggle_fold,
-            )
-        )
-
-        # 13 : TRaCK encoder
+        # TRaCK encoder
         self.add_encoder(
             identifier=13,
             name="track",
             on_scroll=self.song.scroll_tracks,
             on_press=lambda: self.song.current_track.toggle_arm,
-        ).add_action(
-            EncoderAction(
-                modifier_type=EncoderModifierEnum.DUP,
-                func=lambda: self.parent.trackManager.duplicate_current_track,
-            )
-        ).add_action(
-            EncoderAction(
-                modifier_type=EncoderModifierEnum.SOLO,
-                func=lambda: self.song.current_track.toggle_solo,
-            )
-        ).add_action(
-            EncoderAction(
-                modifier_type=EncoderModifierEnum.FOLD,
-                func=lambda: self.song.selected_abstract_tracks.toggle_fold,
-            )
+            on_long_press=lambda: self.song.current_track.toggle_solo,
         )
 
         # INSTrument encoder
@@ -107,26 +67,16 @@ class ActionGroupMain(AbstractActionGroup):
             on_scroll=lambda: self.song.current_track.scroll_presets_or_samples,
         )
 
-        # 14 : CATegory encoder
+        # CATegory encoder
         self.add_encoder(
             identifier=15, name="track category", on_scroll=lambda: self.song.current_track.scroll_preset_categories
-        ).add_action(
-            EncoderAction(
-                modifier_type=EncoderModifierEnum.SOLO,
-                func=lambda: self.song.selected_category_tracks.toggle_solo,
-            )
         )
 
-        # 15 : SCENe encoder
+        # SCENe encoder
         self.add_encoder(
             identifier=16,
             name="scene",
             on_press=lambda: self.song.selected_scene.fire,
+            on_long_press=lambda: self.song.selected_scene.toggle_solo,
             on_scroll=self.song.scroll_scenes,
-        ).add_action(
-            EncoderAction(
-                modifier_type=EncoderModifierEnum.DUP, func=lambda: self.song.selected_scene.partial_duplicate
-            )
-        ).add_action(
-            EncoderAction(modifier_type=EncoderModifierEnum.SOLO, func=lambda: self.song.selected_scene.toggle_solo)
         )

@@ -4,7 +4,6 @@ from functools import partial
 from typing import List, Optional, Dict, Any, Generator, Iterator
 
 import Live
-from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.Scene import Scene
 from protocol0.lom.SongActionMixin import SongActionMixin
@@ -112,15 +111,6 @@ class Song(AbstractObject, SongActionMixin):
         # type: () -> AbstractTrackList
         return AbstractTrackList(
             track.abstract_track for track in self.simple_tracks if track._track.is_part_of_selection
-        )
-
-    @property
-    def selected_category_tracks(self):
-        # type: () -> AbstractTrackList
-        return AbstractTrackList(
-            track
-            for track in self.abstract_tracks
-            if track.category.value.lower() == InterfaceState.SELECTED_TRACK_CATEGORY.value.lower()
         )
 
     # SCENES

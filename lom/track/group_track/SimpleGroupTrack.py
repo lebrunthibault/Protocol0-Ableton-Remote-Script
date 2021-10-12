@@ -92,12 +92,12 @@ class SimpleGroupTrack(AbstractGroupTrack):
         if common_subtracks_instrument_class:
             return common_subtracks_instrument_class.NAME
 
-        def name_prefix(track):
+        def _name_prefix(track):
             # type: (AbstractTrack) -> str
             return track.base_track.track_name.base_name.split(" ")[0]
 
         # checking if all sub tracks have the same prefix
-        unique_sub_tracks_name_prefixes = list(set([name_prefix(sub_track) for sub_track in self.sub_tracks]))
+        unique_sub_tracks_name_prefixes = list(set([_name_prefix(sub_track) for sub_track in self.sub_tracks]))
         if len(unique_sub_tracks_name_prefixes) == 1 and unique_sub_tracks_name_prefixes[0]:
             return unique_sub_tracks_name_prefixes[0]
 

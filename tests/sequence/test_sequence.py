@@ -1,5 +1,4 @@
 import pytest
-from transitions import MachineError
 
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import has_callback_queue

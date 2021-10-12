@@ -5,11 +5,9 @@ from typing import TYPE_CHECKING
 
 import Live
 from protocol0.devices.AbstractInstrument import AbstractInstrument
-from protocol0.devices.InstrumentSimpler import InstrumentSimpler
 from protocol0.enums.ColorEnum import ColorEnum
 from protocol0.enums.Push2MainModeEnum import Push2MainModeEnum
 from protocol0.enums.Push2MatrixModeEnum import Push2MatrixModeEnum
-from protocol0.enums.TrackCategoryEnum import TrackCategoryEnum
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.clip.Clip import Clip
 from protocol0.lom.device.DeviceType import DeviceType
@@ -180,6 +178,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # type: () -> List[Clip]
         return [clip_slot.clip for clip_slot in self.base_track.clip_slots if clip_slot.has_clip]
 
+    # noinspection PyDeprecation
     @abstractproperty
     def next_empty_clip_slot_index(self):
         # type: () -> Optional[int]
@@ -191,33 +190,9 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         return self._track.is_visible
 
     @property
-    def category(self):
-        # type: () -> TrackCategoryEnum
-        if self.instrument and isinstance(self.instrument, InstrumentSimpler):
-            return TrackCategoryEnum.DRUMS
-        for track_category in list(TrackCategoryEnum):
-            if self.name in track_category.value.lower():
-                return track_category
-
-        if self.abstract_group_track:
-            return self.abstract_group_track.category
-        elif self.group_track:
-            return self.group_track.category
-
-        return TrackCategoryEnum.OTHER
-
-    @property
     def base_name(self):
         # type: () -> str
         return self.base_track.track_name.base_name
-
-    @property
-    def name_prefix(self):
-        # type: () -> str
-        if self.instrument:
-            return self.instrument.name
-        else:
-            return self.base_track.track_name.base_name.split(" ")[0]
 
     @property
     def search_keywords(self):
