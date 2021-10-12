@@ -1,7 +1,8 @@
-from typing import TYPE_CHECKING, List, Any, Type, Optional
+from typing import TYPE_CHECKING, List, Any, Type, Optional, Union
 
 import Live
 from _Framework.SubjectSlot import subject_slot
+from protocol0.enums.DeviceParameterNameEnum import DeviceParameterNameEnum
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.device.DeviceParameter import DeviceParameter
 from protocol0.utils.utils import find_if
@@ -26,6 +27,17 @@ class Device(AbstractObject):
     def __eq__(self, device):
         # type: (object) -> bool
         return isinstance(device, Device) and self._device == device._device
+
+    def update_param_value(self, param_name, param_value):
+        # type: (Union[DeviceParameterNameEnum, str], Any) -> None
+        self.parent.log_dev("parameters: %s" % self.parameters)
+        self.parent.log_dev("param_name: %s" % param_name)
+        self.parent.log_dev("str(param_name).lower(): %s" % str(param_name).lower())
+        param = find_if(lambda p: p.name.lower() == str(param_name).lower(), self.parameters)
+        self.parent.log_dev("param: %s" % param)
+        # if param and param.is_enabled:
+        if param:
+            param.value = param_value
 
     @staticmethod
     def get_class(device):

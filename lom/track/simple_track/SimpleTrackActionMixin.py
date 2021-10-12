@@ -4,6 +4,7 @@ from itertools import chain, imap  # type: ignore[attr-defined]
 from typing import Optional, List, Union
 from typing import TYPE_CHECKING
 
+from protocol0.enums.DeviceNameEnum import DeviceNameEnum
 from protocol0.lom.device.Device import Device
 from protocol0.lom.device.DeviceChain import DeviceChain
 from protocol0.lom.device.RackDevice import RackDevice
@@ -88,9 +89,9 @@ class SimpleTrackActionMixin(object):
         seq.add(self.clip_slots[self.next_empty_clip_slot_index].record)  # type: ignore[has-type]
         return seq.done()
 
-    def has_device(self, device_name):
-        # type: (SimpleTrack, str) -> bool
-        return find_if(lambda d: d.name == device_name, self.base_track.all_devices) is not None
+    def get_device_by_name(self, device_name):
+        # type: (SimpleTrack, DeviceNameEnum) -> Optional[Device]
+        return find_if(lambda d: d.name == device_name.value, self.base_track.all_devices)
 
     def find_all_devices(self, track_or_chain, only_visible=False):
         # type: (SimpleTrack, Optional[Union[SimpleTrack, DeviceChain]], bool) -> List[Device]

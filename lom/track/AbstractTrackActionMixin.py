@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any, Optional, NoReturn
 import Live
 from protocol0.devices.InstrumentSimpler import InstrumentSimpler
 from protocol0.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
+from protocol0.enums.DeviceNameEnum import DeviceNameEnum
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.interface.InterfaceState import InterfaceState
@@ -294,11 +295,11 @@ class AbstractTrackActionMixin(object):
         else:
             self.unarm_track()
 
-    def load_any_device(self, device_type, device_name):
-        # type: (AbstractTrack, str, str) -> Sequence
+    def load_rack_device(self, device_name):
+        # type: (AbstractTrack, DeviceNameEnum) -> Sequence
         seq = Sequence()
         seq.add(self.select)
-        seq.add(partial(self.parent.browserManager.load_any_device, device_type, device_name))
+        seq.add(partial(self.parent.browserManager.load_rack_device, device_name))
         return seq.done()
 
     @retry(3, 8)

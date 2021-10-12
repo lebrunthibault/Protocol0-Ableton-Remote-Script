@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING
 import Live
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.enums.ColorEnum import ColorEnum
+from protocol0.enums.DeviceNameEnum import DeviceNameEnum
+from protocol0.enums.DeviceParameterNameEnum import DeviceParameterNameEnum
 from protocol0.enums.Push2MainModeEnum import Push2MainModeEnum
 from protocol0.enums.Push2MatrixModeEnum import Push2MatrixModeEnum
 from protocol0.lom.AbstractObject import AbstractObject
@@ -53,15 +55,16 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self._has_clip_listener.subject = self
         self._color_listener.subject = self._track
 
-    def _added_track_init(self, arm=True):
-        # type: (bool) -> Optional[Sequence]
-        """ this should be be called once, when the Live track is created, overridden by some child classes """
-        if arm:
-            self.abstract_track.arm()
+    def _added_track_init(self):
+        # type: () -> Optional[Sequence]
+        self.abstract_track.arm()
         self.abstract_track.stop()
 
-        if not self.base_track.has_device("Mix Rack"):
-            self.load_any_device(DeviceType.RACK_DEVICE, "Mix Rack")
+        mix_rack = self.base_track.get_device_by_name(DeviceNameEnum.MIX_RACK)
+        if not mix_rack:
+            self.load_rack_device(DeviceNameEnum.MIX_RACK)
+        else:
+            mix_rack.update_param_value(param_name=DeviceParameterNameEnum.MIX_RACK_LFO_DEPTH, param_value=0)
 
         seq = Sequence()
         [seq.add(clip.delete) for clip in self.clips if clip.clip_name.is_valid]

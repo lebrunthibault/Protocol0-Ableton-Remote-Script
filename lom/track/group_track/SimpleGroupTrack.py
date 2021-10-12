@@ -4,6 +4,7 @@ from typing import Any, Optional, Type
 
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.devices.InstrumentSimpler import InstrumentSimpler
+from protocol0.enums.DeviceNameEnum import DeviceNameEnum
 from protocol0.enums.Push2MainModeEnum import Push2MainModeEnum
 from protocol0.lom.device.DeviceType import DeviceType
 from protocol0.lom.track.AbstractTrack import AbstractTrack
@@ -20,21 +21,7 @@ class SimpleGroupTrack(AbstractGroupTrack):
         # type: (SimpleTrack, Any, Any) -> None
         super(SimpleGroupTrack, self).__init__(base_group_track=base_group_track, *a, **k)
         self._single_sub_track_routing = self._get_single_sub_track_routing()
-        # [sub_track.set_output_routing_to(self) for sub_track in self.sub_tracks]
-
         self.push2_selected_main_mode = Push2MainModeEnum.MIX.value
-
-    def _added_track_init(self, *a, **k):
-        # type: (Any, Any) -> Sequence
-        seq = Sequence()
-        self.is_folded = False
-
-        # self._sync_group_output_routing()
-
-        if not self.base_track.has_device("Mix Rack"):
-            seq.add(partial(self.load_any_device, DeviceType.RACK_DEVICE, "Mix Rack"))
-
-        return seq.done()
 
     @property
     def instrument_class(self):

@@ -5,6 +5,9 @@ T = TypeVar("T", bound=Enum)
 
 
 class AbstractEnum(Enum):
+    def __str__(self):
+        return self.value
+
     @classmethod
     def get_from_value(cls, value, default=None):
         # type: (Optional[str], Optional[T]) -> Optional[T]

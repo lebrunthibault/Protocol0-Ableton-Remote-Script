@@ -55,10 +55,8 @@ class DeviceManager(AbstractControlSurfaceComponent):
         device = find_if(lambda d: d.name == device_name, track.devices)
         if not device:
             self.parent.log_error("Couldn't find device with name %s in %s" % (device_name, track))
-        for name, value in parameters.items():
-            param = find_if(lambda p: p.name.lower() == name.lower(), device.parameters)
-            if param and param.is_enabled:
-                param.value = value
+        for param_name, param_value in parameters.items():
+            device.update_param_value(param_name=param_name, param_value=param_value)
 
     def _get_device_click_x_position(self, device_position):
         # type: (int) -> int
