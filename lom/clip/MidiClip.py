@@ -61,13 +61,11 @@ class MidiClip(Clip):
 
     def configure_new_clip(self):
         # type: () -> Optional[Sequence]
-        self.view.grid_quantization = Live.Clip.GridQuantization.g_sixteenth
-
-        if len(self.get_notes()) > 0:
-            self.play()
+        if len(self.get_notes()) > 0 or self.is_recording:
             self.parent.navigationManager.show_clip_view()
             return None
 
+        self.view.grid_quantization = Live.Clip.GridQuantization.g_sixteenth
         seq = Sequence(silent=True)
         seq.add(wait=1)
         seq.add(self.generate_base_notes)

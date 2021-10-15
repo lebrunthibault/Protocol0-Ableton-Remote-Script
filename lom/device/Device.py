@@ -30,13 +30,8 @@ class Device(AbstractObject):
 
     def update_param_value(self, param_name, param_value):
         # type: (Union[DeviceParameterNameEnum, str], Any) -> None
-        self.parent.log_dev("parameters: %s" % self.parameters)
-        self.parent.log_dev("param_name: %s" % param_name)
-        self.parent.log_dev("str(param_name).lower(): %s" % str(param_name).lower())
         param = find_if(lambda p: p.name.lower() == str(param_name).lower(), self.parameters)
-        self.parent.log_dev("param: %s" % param)
-        # if param and param.is_enabled:
-        if param:
+        if param and param.is_enabled:
             param.value = param_value
 
     @staticmethod
