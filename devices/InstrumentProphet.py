@@ -25,11 +25,14 @@ class InstrumentProphet(AbstractInstrument):
         # type: () -> Optional[Sequence]
         InstrumentProphet.ACTIVE_INSTANCE = self
         seq = Sequence()
+        seq.add(wait=5)
         seq.add(self.system.activate_rev2_editor, wait=5)
+        self.parent.log_dev("exclusive activated !")
         return seq.done()
 
     def post_activate(self):
         # type: () -> Optional[Sequence]
         seq = Sequence()
         seq.add(self.system.post_activate_rev2_editor, wait=20)
+        self.parent.log_dev("post activated !")
         return seq.done()

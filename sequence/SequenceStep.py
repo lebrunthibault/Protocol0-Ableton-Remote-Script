@@ -64,7 +64,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         ), "You passed a Sequence object instead of a Sequence factory for a condition"
 
         if Config.SEQUENCE_SLOW_MO:
-            self._wait = min(20, self._wait * 5)
+            self._wait = min(100, self._wait * 5)
             self._check_timeout *= 5
 
     def __repr__(self):

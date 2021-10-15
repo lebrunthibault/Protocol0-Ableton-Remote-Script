@@ -57,8 +57,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
 
     def _added_track_init(self):
         # type: () -> Optional[Sequence]
-        self.abstract_track.arm()
-        self.abstract_track.stop()
 
         mix_rack = self.base_track.get_device_by_name(DeviceNameEnum.MIX_RACK)
         if not mix_rack:
@@ -69,6 +67,8 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         seq = Sequence()
         [seq.add(clip.delete) for clip in self.clips if clip.clip_name.is_valid]
         [seq.add(clip.clip_name.normalize_base_name) for clip in self.clips if not clip.clip_name.is_valid]
+        seq.add(lambda: self.parent.show_message("after clip delete"))
+        seq.add(self.abstract_track.arm)
 
         return seq.done()
 

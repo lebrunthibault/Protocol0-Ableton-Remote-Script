@@ -87,8 +87,8 @@ class DeviceManager(AbstractControlSurfaceComponent):
         (x_device, y_device) = self._get_device_show_button_click_coordinates(device)
         seq = Sequence()
         seq.add(
-            lambda: self.system.click(x=x_device, y=y_device),
-            wait=2,
+            lambda: self.system.toggle_ableton_button(x=x_device, y=y_device, activate=True),
+            wait=6,
             name="click on device show button",
         )
         seq.add(partial(self.uncollapse_devices, devices_to_uncollapse), name="restore device collapse state")
@@ -118,7 +118,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
             name="hide rack macro controls",
         )
         seq.add(
-            lambda: self.system.click(x=x_device, y=y_device),
+            lambda: self.system.toggle_ableton_button(x=x_device, y=y_device, activate=True),
             wait=10,
             name="click on device show button",
         )
@@ -149,7 +149,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
             x = x_rack + device_position * self.COLLAPSED_RACK_DEVICE_PIXEL_WIDTH
             y = self.SHOW_HIDE_PLUGIN_BUTTON_PIXEL_HEIGHT
 
-        return x, y
+        return x - 3, y - 2  # we click not exactly on the center so as to know if the button is activated or not
 
     def _get_rack_show_macros_button_click_coordinates(self, rack_device):
         # type: (Device) -> Tuple[int, int]
