@@ -132,9 +132,6 @@ class SongManager(AbstractControlSurfaceComponent):
 
             self.song.scenes.append(scene)
 
-        if Scene.LOOPING_SCENE:
-            Scene.LOOPING_SCENE.schedule_next_scene_launch()
-
     def _highlighted_clip_slot_poller(self):
         # type: () -> None
         if self.song.highlighted_clip_slot and self.song.highlighted_clip_slot != self._highlighted_clip_slot:

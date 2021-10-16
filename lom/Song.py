@@ -47,9 +47,6 @@ class Song(AbstractObject, SongActionMixin):
     @p0_subject_slot("is_playing")
     def _is_playing_listener(self):
         # type: () -> None
-        if len(self.scenes) and self.is_playing:
-            self.selected_scene.notify_play()  # type: ignore
-            return
         if not self.is_playing:
             # noinspection PyUnresolvedReferences
             self.notify_session_end()
@@ -130,7 +127,7 @@ class Song(AbstractObject, SongActionMixin):
     @property
     def playing_scene(self):
         # type: () -> Optional[Scene]
-        return find_if(lambda scene: scene.any_clip_playing, self.scenes)
+        return find_if(lambda scene: scene.is_playing, self.scenes)
 
     # CLIP SLOTS
 

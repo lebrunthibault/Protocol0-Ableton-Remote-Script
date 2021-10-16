@@ -40,7 +40,7 @@ class Scene(AbstractObject, SceneActionMixin):
     @p0_subject_slot("is_triggered")
     def _is_triggered_listener(self):
         # type: () -> None
-        if self.any_clip_playing:
+        if self.is_playing:
             # noinspection PyUnresolvedReferences
             self.notify_play()
 
@@ -140,7 +140,7 @@ class Scene(AbstractObject, SceneActionMixin):
         return [clip_slot.clip for clip_slot in self.clip_slots if clip_slot.has_clip]
 
     @property
-    def any_clip_playing(self):
+    def is_playing(self):
         # type: () -> bool
         return any(clip.is_playing for clip in self.clips)
 

@@ -31,6 +31,7 @@ class BeatScheduler(AbstractObject, SyncedScheduler):
 
     def wait_beats(self, beats, callback):
         # type: (float, Callable) -> None
+        self.clear()  # allow only one action at a time
         self.schedule_message("%d" % floor(beats - 0.1), callback)
 
     def clear(self):

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Optional
 
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.decorators import defer, session_view_only
+from protocol0.utils.decorators import defer, session_view_only, debounce, throttle
 from protocol0.utils.utils import scroll_values
 
 if TYPE_CHECKING:
@@ -13,19 +13,22 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class SceneActionMixin(object):
-    @defer
+    @throttle(wait_time=20)
     def _check_scene_length(self):
         # type: (Scene) -> None
-        self.scene_name.update()
-        self.schedule_next_scene_launch()
+        self.parent.defer(self.scene_name.update)
+        if self.is_playing:
+            self.schedule_next_scene_launch()
 
     @session_view_only
     def schedule_next_scene_launch(self):
         # type: (Scene) -> None
-        self.parent.sceneBeatScheduler.clear()
         if self.looping or self == self.song.scenes[-1] or self.song.scenes[self.index + 1].bar_length == 0:
             # noinspection PyUnresolvedReferences
             self.parent.sceneBeatScheduler.wait_beats(self.length - self.playing_position, self.song.notify_session_end)
+            return
+        # this can happen when splitting a scene
+        if self.length - self.playing_position <= 0:
             return
         next_scene = self.song.scenes[self.index + 1]
         self.parent.sceneBeatScheduler.wait_beats(self.length - self.playing_position, next_scene.fire)

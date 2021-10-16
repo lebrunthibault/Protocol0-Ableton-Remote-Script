@@ -5,6 +5,7 @@ from collections import defaultdict
 
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
 from protocol0.my_types import Func
+from protocol0.utils.log import log_ableton
 from protocol0.utils.utils import is_method, get_callable_name
 
 if TYPE_CHECKING:
@@ -215,7 +216,6 @@ def debounce(wait_time=100):
             Protocol0.SELF.wait(wait_time, partial(execute, func, *a, **k))
 
         decorate.count = defaultdict(int)  # type: ignore[attr-defined]
-        decorate.func = func  # type: ignore[attr-defined]
 
         def execute(real_func, *a, **k):
             # type: (Callable, Any, Any) -> None
@@ -223,6 +223,35 @@ def debounce(wait_time=100):
             decorate.count[object_source] -= 1  # type: ignore[attr-defined]
             if decorate.count[object_source] == 0:  # type: ignore[attr-defined]
                 real_func(*a, **k)
+
+        return decorate
+
+    return wrap
+
+
+def throttle(wait_time=100):
+    # type: (int) -> Callable
+    def wrap(func):
+        # type: (Callable) -> Callable
+        @wraps(func)
+        def decorate(*a, **k):
+            # type: (Any, Any) -> None
+            object_source = a[0] if is_method(func) else decorate
+
+            if decorate.paused[object_source]:
+                log_ableton("%s is paused" % get_callable_name(decorate))
+                return
+
+            decorate.paused[object_source] = True
+            func(*a, **k)
+
+            def activate():
+                decorate.paused[object_source] = False
+
+            from protocol0 import Protocol0
+            Protocol0.SELF.wait(wait_time, activate)
+
+        decorate.paused = defaultdict(lambda: False)  # type: ignore[attr-defined]
 
         return decorate
 

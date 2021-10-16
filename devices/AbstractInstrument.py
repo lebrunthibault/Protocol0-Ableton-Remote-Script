@@ -135,29 +135,19 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
         # type: (bool, bool) -> Optional[Sequence]
         seq = Sequence()
 
-        seq.add(lambda: self.parent.show_message("before activation"))
-
-        self.parent.log_dev("self.activated: %s" % self.activated)
         if force_activate or not self.activated:
             seq.add(self.device.track.select)
-            seq.add(lambda: self.parent.log_dev("track select !"))
             seq.add(partial(self.parent.deviceManager.make_plugin_window_showable, self.device))
             seq.add(lambda: setattr(self, "activated", True), name="mark instrument as activated")
-
-        seq.add(lambda: self.parent.show_message("before exclusive activation"))
 
         if force_activate or self.needs_exclusive_activation:
             seq.add(self.device.track.select)
             seq.add(self.exclusive_activate)
-        seq.add(lambda: self.parent.show_message("after exclusive activation"))
-
-        seq.add(lambda: self.parent.show_message("after activate_plugin_window"))
 
         if force_activate or not self.activated:
             seq.add(self.post_activate)
 
         if (not force_activate and not select_instrument_track) and self.activated:
-            seq.add(lambda: self.parent.log_dev("ready to reselect base!"))
             seq.add(self.system.hide_plugins, wait=1)
             seq.add(self.song.selected_track.select, silent=True)
 
