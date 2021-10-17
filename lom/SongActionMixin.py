@@ -47,6 +47,8 @@ class SongActionMixin(object):
         # type: (Song, bool) -> None
         scene = self.scenes[0] if from_beginning else self.selected_scene
         scene.fire()
+        # noinspection PyUnresolvedReferences
+        scene.notify_play()
 
     @arrangement_view_only
     def _play_arrangement(self):
@@ -64,13 +66,18 @@ class SongActionMixin(object):
 
     def bounce_session_to_arrangement(self):
         # type: (Song) -> Sequence
-        seq = Sequence()
-        self.parent.sceneBeatScheduler.clear()
-        self.parent.navigationManager.show_session()
         tempo = self.tempo
         self.tempo = 999
-        self.reset()
-        self.song.record_mode = True
+        self.parent.sceneBeatScheduler.clear()
+
+        self.parent.navigationManager.show_arrangement()
+
+        seq = Sequence()
+        seq.add(self.system.clear_arrangement)
+        seq.add(wait=20)
+        seq.add(self.parent.navigationManager.show_session)
+        seq.add(self.reset)
+        seq.add(partial(setattr, self.song, "record_mode", True))
         seq.add(partial(self._play_session, from_beginning=True), complete_on=self.song.session_end_listener, no_timeout=True)
         seq.add(partial(setattr, self.song, "record_mode", False))
         seq.add(self.reset)

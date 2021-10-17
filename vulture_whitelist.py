@@ -14,8 +14,6 @@ _.is_checked  # unused attribute (C:\ProgramData\Ableton\Live 10 Suite\Resources
 # noinspection PyStatementEffect
 _.on_selected_track_changed  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\components\SongManager.py:34)
 # noinspection PyStatementEffect
-_.log_dev  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\Protocol0.py:99)
-# noinspection PyStatementEffect
 _.grid_quantization  # unused attribute (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\lom\clip\MidiClip.py:118)
 # noinspection PyStatementEffect
 _._update_racks  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\components\SetFixerManager.py:44)

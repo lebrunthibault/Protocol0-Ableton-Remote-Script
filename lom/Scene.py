@@ -50,6 +50,7 @@ class Scene(AbstractObject, SceneActionMixin):
         # type: () -> None
         """ implements a next scene follow action """
         # doing this when scene starts playing
+        self.parent.log_dev("_PLAY_LISTENER: %s" % self)
         Scene.PLAYING_SCENE = self
         if Scene.LOOPING_SCENE and Scene.LOOPING_SCENE != self:
             previous_looping_scene = Scene.LOOPING_SCENE
@@ -147,4 +148,4 @@ class Scene(AbstractObject, SceneActionMixin):
     @property
     def longest_clip(self):
         # type: () -> Optional[Clip]
-        return None if not len(self.clips) else max(self.clips, key=lambda c: c.length)
+        return None if not len(self.clips) else max(self.clips, key=lambda c: c.length if c else 0)

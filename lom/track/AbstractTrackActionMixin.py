@@ -353,8 +353,8 @@ class AbstractTrackActionMixin(object):
 
     def refresh_color(self):
         # type: (AbstractTrack) -> None
-        if self.abstract_group_track:
-            return  # not allowed when the track is managed
+        # if self.abstract_group_track:
+        #     return  # not allowed when the track is managed
         self.color = self.computed_color
         if self.group_track:
             self.group_track.refresh_color()

@@ -239,7 +239,6 @@ def throttle(wait_time=100):
             object_source = a[0] if is_method(func) else decorate
 
             if decorate.paused[object_source]:
-                log_ableton("%s is paused" % get_callable_name(decorate))
                 return
 
             decorate.paused[object_source] = True
