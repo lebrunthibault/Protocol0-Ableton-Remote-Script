@@ -28,9 +28,13 @@ class Device(AbstractObject):
         # type: (object) -> bool
         return isinstance(device, Device) and self._device == device._device
 
+    def get_parameter_by_name(self, device_parameter_name):
+        # type: (DeviceParameterNameEnum) -> Optional[DeviceParameter]
+        return find_if(lambda d: d.name == device_parameter_name.value, self.parameters)
+
     def update_param_value(self, param_name, param_value):
         # type: (Union[DeviceParameterNameEnum, str], Any) -> None
-        param = find_if(lambda p: p.name.lower() == str(param_name).lower(), self.parameters)
+        param = self.get_parameter_by_name(device_parameter_name=param_name)
         if param and param.is_enabled:
             param.value = param_value
 

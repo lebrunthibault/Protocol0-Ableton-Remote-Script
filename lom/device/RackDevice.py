@@ -1,6 +1,6 @@
-import Live
 from typing import List, Optional, Any
 
+import Live
 from _Framework.SubjectSlot import subject_slot
 from protocol0.lom.device.Device import Device
 from protocol0.lom.device.DeviceChain import DeviceChain

@@ -50,7 +50,6 @@ class Scene(AbstractObject, SceneActionMixin):
         # type: () -> None
         """ implements a next scene follow action """
         # doing this when scene starts playing
-        self.parent.log_dev("_PLAY_LISTENER: %s" % self)
         Scene.PLAYING_SCENE = self
         if Scene.LOOPING_SCENE and Scene.LOOPING_SCENE != self:
             previous_looping_scene = Scene.LOOPING_SCENE

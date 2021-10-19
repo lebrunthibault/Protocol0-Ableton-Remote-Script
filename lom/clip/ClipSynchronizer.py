@@ -29,7 +29,6 @@ class ClipSynchronizer(ObjectSynchronizer):
         super(ClipSynchronizer, self).__init__(
             master,
             slave,
-            "_clip",
             listenable_properties=["name"] + properties,
             *a,
             **k

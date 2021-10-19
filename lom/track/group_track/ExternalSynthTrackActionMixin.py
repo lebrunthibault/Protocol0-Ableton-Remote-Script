@@ -47,6 +47,8 @@ class ExternalSynthTrackActionMixin(object):
             self.audio_track.mute = True
             if self._external_device:
                 self._external_device.mute = False
+        # noinspection PyUnresolvedReferences
+        self.notify_has_monitor_in()
 
     def switch_monitoring(self):
         # type: (ExternalSynthTrack) -> None

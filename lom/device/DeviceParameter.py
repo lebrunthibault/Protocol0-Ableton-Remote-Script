@@ -37,7 +37,8 @@ class DeviceParameter(AbstractObject):
     @value.setter
     def value(self, value):
         # type: (float) -> None
-        self._device_parameter.value = value
+        if self.is_enabled:
+            self._device_parameter.value = value
 
     @property
     def default_value(self):

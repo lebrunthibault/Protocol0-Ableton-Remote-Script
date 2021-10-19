@@ -152,7 +152,7 @@ class AbstractTrackActionMixin(object):
     def session_record(self, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
         seq = Sequence()
-        seq.add(partial(self._prepare_session_record, record_type))
+        seq.add(partial(self._pre_session_record, record_type))
 
         if record_type == RecordTypeEnum.NORMAL:
             seq.add(self.session_record_all)
@@ -203,7 +203,7 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         self.parent.log_warning("audio only recording not available on this track")
 
-    def _prepare_session_record(self, record_type):
+    def _pre_session_record(self, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Sequence
         """ restart audio to get a count in and recfix"""
         assert self.is_armed
@@ -212,6 +212,7 @@ class AbstractTrackActionMixin(object):
 
         self.song.record_mode = False
         self.song.stop_playing()
+        self.song.session_automation_record = True
 
         if len(list(filter(None, [t.is_hearable for t in self.song.simple_tracks]))) <= 1:
             self.song.metronome = True
@@ -238,6 +239,7 @@ class AbstractTrackActionMixin(object):
         """ overridden """
         self.song.metronome = False
         self.has_monitor_in = False
+        self.song.session_automation_record = True
         clip = self.base_track.playable_clip
         if clip:
             clip.select()

@@ -12,7 +12,8 @@ class KeywordSearchManager(AbstractControlSurfaceComponent):
         self.LAST_SEARCH = keyword_enum
 
         if keyword_enum == TrackSearchKeywordEnum.MASTER:
-            self.song.master_track.select()
+            if self.song.master_track:
+                self.song.master_track.select()
             return
 
         search = keyword_enum.value.lower().strip()

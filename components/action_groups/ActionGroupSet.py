@@ -1,7 +1,6 @@
 from typing import Any
 
 from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
-from protocol0.interface.InterfaceState import InterfaceState
 
 
 class ActionGroupSet(AbstractActionGroup):

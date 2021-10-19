@@ -245,6 +245,7 @@ def throttle(wait_time=100):
             func(*a, **k)
 
             def activate():
+                # type: () -> None
                 decorate.paused[object_source] = False
 
             from protocol0 import Protocol0

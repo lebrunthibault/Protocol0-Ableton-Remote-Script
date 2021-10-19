@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Optional
 
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.decorators import defer, session_view_only, debounce, throttle
+from protocol0.utils.decorators import session_view_only, throttle
 from protocol0.utils.utils import scroll_values
 
 if TYPE_CHECKING:
@@ -23,7 +23,6 @@ class SceneActionMixin(object):
     @session_view_only
     def schedule_next_scene_launch(self):
         # type: (Scene) -> None
-        self.parent.log_dev("SCHEDULE_NEXT_SCENE_LAUNCH checking %s" % self)
         if self.looping or self == self.song.scenes[-1] or self.song.scenes[self.index + 1].bar_length == 0:
             # noinspection PyUnresolvedReferences
             self.parent.sceneBeatScheduler.wait_beats(self.length - self.playing_position, self.song.notify_session_end)
@@ -33,7 +32,6 @@ class SceneActionMixin(object):
             return
 
         next_scene = self.song.scenes[self.index + 1]
-        self.parent.log_dev("SCHEDULE_NEXT_SCENE_LAUNCH scheduling %s -> %s" % (self, next_scene))
         self.parent.sceneBeatScheduler.wait_beats(self.length - self.playing_position - 1, next_scene.fire)
 
     def select(self):

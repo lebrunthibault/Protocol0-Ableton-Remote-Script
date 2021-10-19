@@ -1,12 +1,8 @@
-from functools import partial
-
 from typing import Any, Optional, Type
 
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.devices.InstrumentSimpler import InstrumentSimpler
-from protocol0.enums.DeviceNameEnum import DeviceNameEnum
 from protocol0.enums.Push2MainModeEnum import Push2MainModeEnum
-from protocol0.lom.device.DeviceType import DeviceType
 from protocol0.lom.track.AbstractTrack import AbstractTrack
 from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack

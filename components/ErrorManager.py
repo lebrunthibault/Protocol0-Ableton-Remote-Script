@@ -9,6 +9,14 @@ from protocol0.config import PROJECT_ROOT, Config
 
 
 class ErrorManager(AbstractControlSurfaceComponent):
+    IGNORED_ERROR_STRINGS = (
+        "Cannot convert MIDI clip",
+    )
+
+    IGNORED_ERROR_TYPES = (
+        "Push2.push2.QmlError"
+    )
+
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(ErrorManager, self).__init__(*a, **k)
@@ -25,7 +33,8 @@ class ErrorManager(AbstractControlSurfaceComponent):
 
     def handle_uncaught_exception(self, exc_type, exc_value, tb):
         # type: (Type[BaseException], BaseException, TracebackType) -> None
-        if "Cannot convert MIDI clip" in str(exc_value):
+        if any([string in str(exc_value) for string in self.IGNORED_ERROR_STRINGS]) or \
+                any([string in str(exc_type) for string in self.IGNORED_ERROR_TYPES]):
             self.parent.log_warning(exc_value)
             return
         self.parent.log_error("unhandled exception caught !!")
@@ -41,7 +50,7 @@ class ErrorManager(AbstractControlSurfaceComponent):
         self.parent.log_error()
         self.parent.log_error("----- traceback -----", debug=False)
         self.parent.log_error("".join(self._format_list(show)), debug=False)
-        self.parent.utilsManager.print_stack()
+        # self.parent.utilsManager.print_stack()
 
         self.song.errored = True
         self.parent.clear_tasks()

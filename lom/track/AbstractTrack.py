@@ -12,7 +12,6 @@ from protocol0.enums.Push2MainModeEnum import Push2MainModeEnum
 from protocol0.enums.Push2MatrixModeEnum import Push2MatrixModeEnum
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.clip.Clip import Clip
-from protocol0.lom.device.DeviceType import DeviceType
 from protocol0.lom.track.AbstractTrackActionMixin import AbstractTrackActionMixin
 from protocol0.lom.track.AbstractTrackName import AbstractTrackName
 from protocol0.sequence.Sequence import Sequence
@@ -25,7 +24,7 @@ if TYPE_CHECKING:
 
 
 class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
-    __subject_events__ = ("has_clip", "instrument", "devices", "fired_slot_index")
+    __subject_events__ = ("has_clip", "instrument", "devices", "fired_slot_index", "has_monitor_in")
 
     DEFAULT_NAME = "default"
     DEFAULT_COLOR = ColorEnum.DISABLED  # when the color cannot be matched
@@ -67,7 +66,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         seq = Sequence()
         [seq.add(clip.delete) for clip in self.clips if clip.clip_name.is_valid]
         [seq.add(clip.clip_name.normalize_base_name) for clip in self.clips if not clip.clip_name.is_valid]
-        seq.add(lambda: self.parent.show_message("after clip delete"))
         seq.add(self.abstract_track.arm)
 
         return seq.done()

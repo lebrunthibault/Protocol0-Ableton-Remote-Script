@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 class TrackSynchronizer(ObjectSynchronizer):
     def __init__(self, master, slave, *a, **k):
         # type: (SimpleTrack, SimpleTrack, Any, Any) -> None
-        super(TrackSynchronizer, self).__init__(master, slave, "_track", *a, **k)
+        super(TrackSynchronizer, self).__init__(master, slave, *a, **k)
         self.master = self.master  # type: SimpleTrack
         self.slave = self.slave  # type: SimpleTrack
 

@@ -3,9 +3,12 @@ import itertools
 from typing import Optional, Any, cast, List
 
 from protocol0.devices.AbstractInstrument import AbstractInstrument
+from protocol0.enums.DeviceNameEnum import DeviceNameEnum
+from protocol0.enums.DeviceParameterNameEnum import DeviceParameterNameEnum
 from protocol0.lom.ObjectSynchronizer import ObjectSynchronizer
 from protocol0.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
 from protocol0.lom.device.Device import Device
+from protocol0.lom.device.DeviceSynchronizer import DeviceSynchronizer
 from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.lom.track.group_track.ExternalSynthTrackActionMixin import ExternalSynthTrackActionMixin
 from protocol0.lom.track.group_track.ExternalSynthTrackName import ExternalSynthTrackName
@@ -31,18 +34,20 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self._devices_listener.subject = self.midi_track
         self._devices_listener()
 
-        with self.parent.component_guard():
-            self._midi_audio_synchronizer = TrackSynchronizer(self.audio_track, self.midi_track)
-            self._midi_solo_synchronizer = ObjectSynchronizer(self.base_track, self.midi_track, "_track", ["solo"])
-
-        self._clip_slot_synchronizers = []  # type: List[ClipSlotSynchronizer]
-
         # audio and midi tracks are now handled by self
         self.audio_track.abstract_group_track = self
         self.midi_track.abstract_group_track = self
 
         self.track_name.disconnect()  # type: ignore[has-type]
         self.track_name = ExternalSynthTrackName(self)
+
+        self._clip_slot_synchronizers = []  # type: List[ClipSlotSynchronizer]
+        self._devices_synchronizers = []  # type: List[DeviceSynchronizer]
+
+        with self.parent.component_guard():
+            self._midi_audio_synchronizer = TrackSynchronizer(self.audio_track, self.midi_track)
+            self._midi_solo_synchronizer = ObjectSynchronizer(self.base_track, self.midi_track, ["solo"])
+            self._link_group_devices_to_audio_devices()
 
         # self.audio_track.set_output_routing_to(self.base_track)
 
@@ -62,6 +67,15 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
                     self.midi_track.clip_slots, self.audio_track.clip_slots
                 )
             ]
+
+    def _link_group_devices_to_audio_devices(self):
+        # type: () -> None
+        """ allows recording session clip automation from the group track without using dummy clips """
+        lfo_tool_group = self.base_track.get_device_by_name(DeviceNameEnum.LFO_TOOL)
+        lfo_tool_audio = self.audio_track.get_device_by_name(DeviceNameEnum.LFO_TOOL)
+
+        if lfo_tool_group and lfo_tool_audio:
+            self._devices_synchronizers.append(DeviceSynchronizer(lfo_tool_group, lfo_tool_audio, [DeviceParameterNameEnum.LFO_TOOL_LFO_DEPTH]))
 
     def link_parent_and_child_objects(self):
         # type: () -> None
@@ -136,3 +150,6 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         for clip_slot_synchronizer in self._clip_slot_synchronizers:
             clip_slot_synchronizer.disconnect()
         self._clip_slot_synchronizers = []
+        for device_synchronizer in self._devices_synchronizers:
+            device_synchronizer.disconnect()
+        self._devices_synchronizers = []

@@ -6,6 +6,7 @@ T = TypeVar("T", bound=Enum)
 
 class AbstractEnum(Enum):
     def __str__(self):
+        # type: () -> str
         return self.value
 
     @classmethod

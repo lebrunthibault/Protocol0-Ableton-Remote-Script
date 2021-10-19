@@ -254,3 +254,13 @@ class Song(AbstractObject, SongActionMixin):
     def record_mode(self, record_mode):
         # type: (bool) -> None
         self._song.record_mode = record_mode
+
+    @property
+    def session_automation_record(self):
+        # type: () -> bool
+        return self._song.session_automation_record
+
+    @session_automation_record.setter
+    def session_automation_record(self, session_automation_record):
+        # type: (bool) -> None
+        self._song.session_automation_record = session_automation_record
