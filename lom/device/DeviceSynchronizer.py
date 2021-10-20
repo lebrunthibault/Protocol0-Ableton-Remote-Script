@@ -33,8 +33,6 @@ class DeviceSynchronizer(AbstractControlSurfaceComponent):
     @p0_subject_slot("has_monitor_in")
     def _abstract_track_has_monitor_in_listener(self):
         # type: () -> None
-        self.parent.log_dev("%s has_monitor_in : %s" % (self.abstract_track, self.abstract_track.has_monitor_in))
-
         self.abstract_device.mute = self.abstract_track.has_monitor_in
 
     def disconnect(self):
