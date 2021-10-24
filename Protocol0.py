@@ -94,6 +94,8 @@ class Protocol0(ControlSurface):
                 self.keywordSearchManager = KeywordSearchManager()
                 VocalCommandManager()
 
+                self.protocol0_song.restore_data()
+
                 ApiAction.create_method_mapping()
 
                 self.start()

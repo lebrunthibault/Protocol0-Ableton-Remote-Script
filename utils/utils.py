@@ -4,12 +4,13 @@ from collections import namedtuple, Sequence as CollectionsSequence
 from types import FrameType
 
 from qualname import qualname
-from typing import Optional, Any, cast, Callable, TYPE_CHECKING, Iterator, List
+from typing import Optional, Any, cast, Callable, TYPE_CHECKING, Iterator, List, Dict
 
 from protocol0.config import PROJECT_ROOT, REMOTE_SCRIPTS_ROOT
 from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.my_types import StringOrNumber, T
 import Live
+
 if TYPE_CHECKING:
     pass
 
@@ -173,3 +174,12 @@ def set_device_parameter(param, value):
     value = min(param.max, value)
     # noinspection PyPropertyAccess
     param.value = value
+
+
+def class_attributes(cls):
+    # type: (Any) -> Dict
+    attributes = {}
+    for key, value in inspect.getmembers(cls):
+        if not key.startswith('_') and not inspect.ismethod(value):
+            attributes[key] = value
+    return attributes

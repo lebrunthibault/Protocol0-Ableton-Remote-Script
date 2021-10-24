@@ -109,8 +109,3 @@ class ClipActionMixin(object):
     def post_record_clip_tail(self):
         # type: (Clip) -> None
         self.loop_start = InterfaceState.SELECTED_CLIP_TAILS_BAR_LENGTH * self.song.signature_numerator
-        self.parent.log_dev(
-            "self.loop_start: %s" % (InterfaceState.SELECTED_CLIP_TAILS_BAR_LENGTH * self.song.signature_numerator))
-        # self.loop_end = recording_bar_length * self.song.signature_numerator
-        # self.end_marker = self.loop_end
-        # self.parent.log_dev("self.loop_end: %s" % self.loop_end)

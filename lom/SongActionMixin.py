@@ -1,4 +1,5 @@
 from functools import partial
+from pydoc import locate
 
 from typing import TYPE_CHECKING, Optional, Any
 
@@ -7,7 +8,8 @@ from protocol0.lom.device.Device import Device
 from protocol0.lom.track.AbstractTrack import AbstractTrack
 from protocol0.lom.track.AbstractTrackList import AbstractTrackList
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.decorators import handle_error, arrangement_view_only, session_view_only
+from protocol0.utils.decorators import handle_error, arrangement_view_only, session_view_only, \
+    SYNCHRONIZABLE_CLASSE_NAMES
 from protocol0.utils.utils import scroll_values
 
 if TYPE_CHECKING:
@@ -23,6 +25,16 @@ class SongActionMixin(object):
     def set_data(self, key, value):
         # type: (Song, str, Any) -> None
         self._song.set_data(key, value)
+
+    def restore_data(self):
+        # type: (Song) -> None
+        if len(list(SYNCHRONIZABLE_CLASSE_NAMES)) == 0:
+            self.parent.log_error("no song synchronizable class detected")
+            return
+        for cls_fqdn in SYNCHRONIZABLE_CLASSE_NAMES:
+            cls = locate(cls_fqdn)
+            for key, value in self.get_data(cls_fqdn, {}).items():
+                setattr(cls, key, value)
 
     def activate_arrangement(self):
         # type: (Song) -> None
@@ -86,7 +98,8 @@ class SongActionMixin(object):
         seq.add(self.parent.navigationManager.show_session)
         seq.add(self.reset)
         seq.add(partial(setattr, self.song, "record_mode", True))
-        seq.add(partial(self._play_session, from_beginning=True), complete_on=self.song.session_end_listener, no_timeout=True)
+        seq.add(partial(self._play_session, from_beginning=True), complete_on=self.song.session_end_listener,
+                no_timeout=True)
         seq.add(partial(setattr, self.song, "record_mode", False))
         seq.add(self.reset)
         seq.add(partial(setattr, self.song, "tempo", tempo))

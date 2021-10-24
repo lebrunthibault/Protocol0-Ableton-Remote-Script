@@ -14,4 +14,4 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        pass
+        self.song.restore_data()

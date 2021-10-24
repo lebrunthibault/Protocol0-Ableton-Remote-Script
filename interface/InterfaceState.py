@@ -1,12 +1,14 @@
 from protocol0.config import BAR_LENGTHS
+from protocol0.utils.decorators import save_to_song_data, song_synchronizable_class
 from protocol0.utils.utils import scroll_values
 
 
+@song_synchronizable_class
 class InterfaceState(object):
-    SELECTED_RECORDING_BAR_LENGTH = 2
+    SELECTED_RECORDING_BAR_LENGTH = 4
 
-    RECORD_CLIP_TAILS = True  # records one more bar of audio to make editing easier
-    SELECTED_CLIP_TAILS_BAR_LENGTH = 2
+    RECORD_CLIP_TAILS = False  # records one more bar of audio to make editing easier
+    SELECTED_CLIP_TAILS_BAR_LENGTH = 1
 
     PROTECTED_MODE_ACTIVE = True  # protected mode prevents certain actions to be made
 
@@ -15,6 +17,7 @@ class InterfaceState(object):
     CLIP_ENVELOPE_SHOW_BOX_CLICKED = False
 
     @classmethod
+    @save_to_song_data
     def toggle_record_clip_tails(cls):
         # type: () -> None
         cls.RECORD_CLIP_TAILS = not cls.RECORD_CLIP_TAILS
@@ -23,6 +26,7 @@ class InterfaceState(object):
         Protocol0.SELF.show_message("Record clip tails %s (%s)" % ("ON" if cls.RECORD_CLIP_TAILS else "OFF", cls.SELECTED_CLIP_TAILS_BAR_LENGTH))
 
     @classmethod
+    @save_to_song_data
     def scroll_clip_tails_bar_lengths(cls, go_next):
         # type: (bool) -> None
         cls.RECORD_CLIP_TAILS = True
@@ -32,6 +36,7 @@ class InterfaceState(object):
         cls.show_selected_bar_length("CLIP TAIL", cls.SELECTED_CLIP_TAILS_BAR_LENGTH)
 
     @classmethod
+    @save_to_song_data
     def toggle_protected_mode(cls):
         # type: () -> None
         cls.PROTECTED_MODE_ACTIVE = not cls.PROTECTED_MODE_ACTIVE
@@ -40,6 +45,7 @@ class InterfaceState(object):
         Protocol0.SELF.show_message("Protected mode %s" % ("ON" if cls.PROTECTED_MODE_ACTIVE else "OFF"))
 
     @classmethod
+    @save_to_song_data
     def scroll_recording_bar_lengths(cls, go_next):
         # type: (bool) -> None
         cls.SELECTED_RECORDING_BAR_LENGTH = scroll_values(

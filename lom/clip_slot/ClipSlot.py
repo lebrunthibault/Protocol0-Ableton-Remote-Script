@@ -112,7 +112,6 @@ class ClipSlot(AbstractObject):
             no_timeout=True,
         )
 
-        self.parent.log_dev("InterfaceState.RECORD_CLIP_TAILS: %s" % InterfaceState.RECORD_CLIP_TAILS)
         if InterfaceState.RECORD_CLIP_TAILS:
             seq.add(lambda: self.clip.post_record_clip_tail())
 
