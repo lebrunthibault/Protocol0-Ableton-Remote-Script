@@ -44,7 +44,7 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
         self.device = device
         self.activated = False
         self._preset_list = None  # type: Optional[InstrumentPresetList]
-        self._import_presets()
+        self.import_presets()
 
     @property
     def name(self):

@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING, List, Any, Optional
 
 from protocol0.enums.LogLevelEnum import LogLevelEnum
-from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.ObjectSynchronizer import ObjectSynchronizer
 from protocol0.utils.log import log_ableton
 
@@ -14,12 +13,10 @@ class ClipSynchronizer(ObjectSynchronizer):
 
     def __init__(self, master, slave, *a, **k):
         # type: (Clip, Clip, Any, Any) -> None
-        properties = []
-        if not InterfaceState.RECORD_AUDIO_CLIP_TAILS:
-            properties = ["muted", "loop_start", "start_marker", "end_marker"]
+        properties = ["muted", "loop_start", "start_marker", "end_marker"]
 
         if master.length != slave.length:
-            log_ableton("clips %s of track %s cannot be synchronized because of unequal length" % (master, master.track.abstract_track), level=LogLevelEnum.WARNING)
+            log_ableton("clips %s of track %s cannot be loop synchronized because of unequal length" % (master, master.track.abstract_track), level=LogLevelEnum.WARNING)
             properties = ["muted"]
 
         if slave.start_marker != slave.loop_start:

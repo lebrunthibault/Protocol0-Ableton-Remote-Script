@@ -25,7 +25,7 @@ class VocalCommandManager(AbstractControlSurfaceComponent):
 
     def _no_midi_server_found(self):
         # type: () -> None
-        self.parent.log_error("Midi server is not running.")
+        self.parent.log_warning("Midi server is not running.")
 
     @api_exposed
     def ping(self):

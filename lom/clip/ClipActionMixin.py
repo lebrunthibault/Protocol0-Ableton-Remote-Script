@@ -6,6 +6,7 @@ from protocol0.enums.PixelEnum import PixelEnum
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.device.DeviceParameter import DeviceParameter
 from protocol0.sequence.Sequence import Sequence
+from protocol0.utils.decorators import defer
 
 if TYPE_CHECKING:
     from protocol0.lom.clip.Clip import Clip
@@ -100,11 +101,16 @@ class ClipActionMixin(object):
         self.color = self.track.computed_color
 
     def post_record(self):
-        # type: () -> None
+        # type: (Clip) -> None
         """ overridden """
         pass
 
-    def post_record_clip_tail(self, recording_bar_count):
-        # type: (int) -> None
-        """ overridden """
-        pass
+    @defer
+    def post_record_clip_tail(self):
+        # type: (Clip) -> None
+        self.loop_start = InterfaceState.SELECTED_CLIP_TAILS_BAR_LENGTH * self.song.signature_numerator
+        self.parent.log_dev(
+            "self.loop_start: %s" % (InterfaceState.SELECTED_CLIP_TAILS_BAR_LENGTH * self.song.signature_numerator))
+        # self.loop_end = recording_bar_length * self.song.signature_numerator
+        # self.end_marker = self.loop_end
+        # self.parent.log_dev("self.loop_end: %s" % self.loop_end)

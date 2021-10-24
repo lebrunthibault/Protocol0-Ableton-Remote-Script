@@ -67,6 +67,12 @@ class SimpleGroupTrack(AbstractGroupTrack):
     @property
     def computed_base_name(self):
         # type: () -> str
+        # tracks have all the same name
+        unique_sub_track_names = list(set([sub_track.name for sub_track in self.sub_tracks]))
+        if len(unique_sub_track_names) == 1:
+            return unique_sub_track_names[0]
+
+        # tracks have all the same instrument
         common_subtracks_instrument_class = self._common_subtracks_instrument_class
         if common_subtracks_instrument_class == InstrumentSimpler and \
                 find_if(lambda t: "kick" in t.name.lower(), self.sub_tracks):

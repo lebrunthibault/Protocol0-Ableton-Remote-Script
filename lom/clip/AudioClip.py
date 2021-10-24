@@ -62,10 +62,3 @@ class AudioClip(Clip):
         # type: () -> None
         super(AudioClip, self).post_record()
         self.warp_mode = Live.Clip.WarpMode.complex
-
-    def post_record_clip_tail(self, recording_bar_count):
-        # type: (int) -> None
-        self.start_marker = 0
-        self.loop_start = 2
-        self.loop_end = (recording_bar_count * self.song.signature_numerator) + 2
-        self.end_marker = recording_bar_count * self.song.signature_numerator

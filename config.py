@@ -16,6 +16,8 @@ class Config(object):
 PROJECT_ROOT = dirname(os.path.realpath(__file__))
 REMOTE_SCRIPTS_ROOT = dirname(PROJECT_ROOT)
 
+BAR_LENGTHS = [1, 2, 4, 8, 16, 32, 64]
+
 QUANTIZATION_OPTIONS = [
     Live.Song.RecordingQuantization.rec_q_no_q,
     Live.Song.RecordingQuantization.rec_q_quarter,

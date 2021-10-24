@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Optional
 
 from protocol0.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
+from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.clip.MidiClip import MidiClip
 from protocol0.sequence.Sequence import Sequence
 
@@ -72,6 +73,8 @@ class ExternalSynthTrackActionMixin(object):
         audio_clip_slot = self.audio_track.clip_slots[self.next_empty_clip_slot_index]
         self.audio_track.select()
         seq.add([midi_clip_slot.record, audio_clip_slot.record])
+        if InterfaceState.RECORD_CLIP_TAILS:
+            seq.add(self.song.selected_scene.fire)
         return seq.done()
 
     def session_record_audio_only(self):
@@ -89,7 +92,7 @@ class ExternalSynthTrackActionMixin(object):
         self.has_monitor_in = False
 
         seq = Sequence()
-        recording_bar_count = int(round((self.midi_track.playable_clip.length + 1) / self.song.signature_numerator))
+        recording_bar_length = int(round((self.midi_track.playable_clip.length + 1) / self.song.signature_numerator))
         audio_clip_slot = self.audio_track.clip_slots[midi_clip.index]
         if audio_clip_slot.clip:
             try:
@@ -99,7 +102,9 @@ class ExternalSynthTrackActionMixin(object):
             seq.add(audio_clip_slot.clip.delete)
         seq.add(partial(setattr, midi_clip, "start_marker", 0))
         seq.add(partial(self.parent.wait, 80, midi_clip.play))  # launching the midi clip after the record has started
-        seq.add(partial(self.audio_track.clip_slots[midi_clip.index].record, bar_count=recording_bar_count))
+        seq.add(partial(self.audio_track.clip_slots[midi_clip.index].record, bar_length=recording_bar_length))
+        if InterfaceState.RECORD_CLIP_TAILS:
+            seq.add(self.song.selected_scene.fire)
         return seq.done()
 
     def arrangement_record_audio_only(self):

@@ -60,7 +60,6 @@ class SongManager(AbstractControlSurfaceComponent):
         self._generate_abstract_group_tracks()
         self._generate_scenes()
 
-        # Notify if added track(s)
         if has_added_tracks and self.song.selected_track:
             # noinspection PyUnresolvedReferences
             self.notify_added_track()
@@ -109,6 +108,7 @@ class SongManager(AbstractControlSurfaceComponent):
     def _generate_scenes(self):
         # type: () -> None
         live_scenes = self.song._song.scenes
+        has_added_scene = len(self.song.scenes) and len(live_scenes) > len(self.song.scenes)
 
         # disconnect removed scenes
         for scene in self.song.scenes:
@@ -131,6 +131,10 @@ class SongManager(AbstractControlSurfaceComponent):
             scene.link_clip_slots_and_clips()
 
             self.song.scenes.append(scene)
+
+        if has_added_scene and self.song.selected_scene and self.song.is_playing:
+            # noinspection PyUnresolvedReferences
+            self.parent.defer(self.song.selected_scene.fire)
 
     def _highlighted_clip_slot_poller(self):
         # type: () -> None

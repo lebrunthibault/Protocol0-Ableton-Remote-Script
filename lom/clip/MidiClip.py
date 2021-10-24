@@ -94,6 +94,8 @@ class MidiClip(Clip):
     def scale_velocities(self, go_next, scaling_factor):
         # type: (bool, int) -> None
         notes = self.get_notes()
+        if len(notes) == 0:
+            return
         average_velo = sum([note.velocity for note in notes]) / len(notes)
         for note in notes:
             velocity_diff = note.velocity - average_velo

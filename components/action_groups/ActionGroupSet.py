@@ -4,10 +4,6 @@ from protocol0.components.action_groups.AbstractActionGroup import AbstractActio
 
 
 class ActionGroupSet(AbstractActionGroup):
-    """
-    This manager is for unusual tasks.
-    """
-
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(ActionGroupSet, self).__init__(channel=14, filter_active_tracks=False, *a, **k)

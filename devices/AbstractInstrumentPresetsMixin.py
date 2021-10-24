@@ -22,7 +22,7 @@ class AbstractInstrumentPresetsMixin(object):
     HAS_TOTAL_RECALL = True
 
     @defer
-    def _import_presets(self):
+    def import_presets(self):
         # type: (AbstractInstrument) -> None
         self._preset_list = InstrumentPresetList(self)  # type: Optional[InstrumentPresetList]
         self._preset_list.sync_presets()

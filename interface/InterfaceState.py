@@ -1,11 +1,13 @@
+from protocol0.config import BAR_LENGTHS
 from protocol0.utils.utils import scroll_values
 
 
 class InterfaceState(object):
-    _RECORDING_BAR_LENGTHS = [1, 2, 4, 8, 16, 32, 64]
-    SELECTED_RECORDING_BAR_LENGTH = 4
+    SELECTED_RECORDING_BAR_LENGTH = 2
 
-    RECORD_AUDIO_CLIP_TAILS = False  # records one more bar of audio to make editing easier
+    RECORD_CLIP_TAILS = True  # records one more bar of audio to make editing easier
+    SELECTED_CLIP_TAILS_BAR_LENGTH = 2
+
     PROTECTED_MODE_ACTIVE = True  # protected mode prevents certain actions to be made
 
     # NB: for an unknown reason clip.view.show_envelope does not always show the envelope
@@ -13,12 +15,21 @@ class InterfaceState(object):
     CLIP_ENVELOPE_SHOW_BOX_CLICKED = False
 
     @classmethod
-    def toggle_record_audio_clip_tails(cls):
+    def toggle_record_clip_tails(cls):
         # type: () -> None
-        cls.RECORD_AUDIO_CLIP_TAILS = not cls.RECORD_AUDIO_CLIP_TAILS
+        cls.RECORD_CLIP_TAILS = not cls.RECORD_CLIP_TAILS
         from protocol0 import Protocol0
 
-        Protocol0.SELF.show_message("Record clip tails %s" % ("on" if cls.RECORD_AUDIO_CLIP_TAILS else "off"))
+        Protocol0.SELF.show_message("Record clip tails %s (%s)" % ("ON" if cls.RECORD_CLIP_TAILS else "OFF", cls.SELECTED_CLIP_TAILS_BAR_LENGTH))
+
+    @classmethod
+    def scroll_clip_tails_bar_lengths(cls, go_next):
+        # type: (bool) -> None
+        cls.RECORD_CLIP_TAILS = True
+        cls.SELECTED_CLIP_TAILS_BAR_LENGTH = scroll_values(
+            BAR_LENGTHS, cls.SELECTED_CLIP_TAILS_BAR_LENGTH, go_next
+        )
+        cls.show_selected_bar_length("CLIP TAIL", cls.SELECTED_CLIP_TAILS_BAR_LENGTH)
 
     @classmethod
     def toggle_protected_mode(cls):
@@ -26,20 +37,20 @@ class InterfaceState(object):
         cls.PROTECTED_MODE_ACTIVE = not cls.PROTECTED_MODE_ACTIVE
         from protocol0 import Protocol0
 
-        Protocol0.SELF.show_message("Protected mode %s" % ("on" if cls.PROTECTED_MODE_ACTIVE else "off"))
+        Protocol0.SELF.show_message("Protected mode %s" % ("ON" if cls.PROTECTED_MODE_ACTIVE else "OFF"))
 
     @classmethod
     def scroll_recording_bar_lengths(cls, go_next):
         # type: (bool) -> None
         cls.SELECTED_RECORDING_BAR_LENGTH = scroll_values(
-            cls._RECORDING_BAR_LENGTHS, cls.SELECTED_RECORDING_BAR_LENGTH, go_next
+            BAR_LENGTHS, cls.SELECTED_RECORDING_BAR_LENGTH, go_next
         )
-        cls.show_selected_bar_length(cls.SELECTED_RECORDING_BAR_LENGTH)
+        cls.show_selected_bar_length("RECORDING", cls.SELECTED_RECORDING_BAR_LENGTH)
 
     @classmethod
-    def show_selected_bar_length(cls, bar_length):
-        # type: (int) -> None
+    def show_selected_bar_length(cls, title, bar_length):
+        # type: (str, int) -> None
         bar_display_count = "%s bar%s" % (bar_length, "s" if abs(bar_length) != 1 else "")
         from protocol0 import Protocol0
 
-        Protocol0.SELF.show_message("Selected %s" % bar_display_count)
+        Protocol0.SELF.show_message("Selected %s : %s" % (title, bar_display_count))

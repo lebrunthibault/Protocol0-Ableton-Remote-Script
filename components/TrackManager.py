@@ -23,7 +23,7 @@ class TrackManager(AbstractControlSurfaceComponent):
     @defer
     def _added_track_listener(self):
         # type: () -> Optional[Sequence]
-        if not self.song.selected_track.is_active:
+        if not self.song.selected_track.is_active or isinstance(self.song.current_track, SimpleGroupTrack):
             return None
         # self.song.begin_undo_step()  # Live crashes on undo without this
         seq = Sequence()

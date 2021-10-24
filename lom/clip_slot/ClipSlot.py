@@ -90,16 +90,16 @@ class ClipSlot(AbstractObject):
         # type: () -> bool
         return self._clip_slot and self._clip_slot.is_playing
 
-    def record(self, bar_count=None):
+    def record(self, bar_length=None):
         # type: (Optional[int]) -> Sequence
-        recording_bar_count = bar_count or InterfaceState.SELECTED_RECORDING_BAR_LENGTH  # type: int
-        if self.track.is_audio and InterfaceState.RECORD_AUDIO_CLIP_TAILS:
-            recording_bar_count += 1
-        self.parent.show_message("Starting recording of %d bars" % recording_bar_count)
+        recording_bar_length = bar_length or InterfaceState.SELECTED_RECORDING_BAR_LENGTH  # type: int
+        if InterfaceState.RECORD_CLIP_TAILS:
+            recording_bar_length += InterfaceState.SELECTED_CLIP_TAILS_BAR_LENGTH
+        self.parent.show_message("Starting recording of %d bars" % recording_bar_length)
         seq = Sequence()
         seq.add(wait=1)  # necessary so that _has_clip_listener triggers on has_clip == True
         seq.add(
-            partial(self.fire, record_length=self.parent.utilsManager.get_beat_time(recording_bar_count)),
+            partial(self.fire, record_length=self.parent.utilsManager.get_beat_time(recording_bar_length)),
             complete_on=self._has_clip_listener,
         )
         # this is a convenience to see right away if there is a problem with the audio recording
@@ -112,21 +112,9 @@ class ClipSlot(AbstractObject):
             no_timeout=True,
         )
 
-        if InterfaceState.RECORD_AUDIO_CLIP_TAILS:
-            seq.add(partial(self.handle_audio_clip_tails, recording_bar_count))
-
-        return seq.done()
-
-    def handle_audio_clip_tails(self, recording_bar_count):
-        # type: (int) -> Sequence
-        seq = Sequence()
-        if self.track.is_audio:
-            # handling recording the tail
-            seq.add(lambda: self.clip.post_record_clip_tail(recording_bar_count=recording_bar_count - 1))
-        else:
-            # when midi clip is recorded, we schedule a scene launch to resync the track
-            seq.add(wait=10)
-            seq.add(self.song.selected_scene.fire)
+        self.parent.log_dev("InterfaceState.RECORD_CLIP_TAILS: %s" % InterfaceState.RECORD_CLIP_TAILS)
+        if InterfaceState.RECORD_CLIP_TAILS:
+            seq.add(lambda: self.clip.post_record_clip_tail())
 
         return seq.done()
 

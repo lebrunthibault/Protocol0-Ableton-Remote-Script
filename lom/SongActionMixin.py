@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Any
 
 from protocol0.enums.FoldActionEnum import FoldActionEnum
 from protocol0.lom.device.Device import Device
@@ -16,6 +16,14 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints,PyArgumentList
 class SongActionMixin(object):
+    def get_data(self, key, default_value=None):
+        # type: (Song, str, Any) -> Any
+        return self._song.get_data(key, default_value)
+
+    def set_data(self, key, value):
+        # type: (Song, str, Any) -> None
+        self._song.set_data(key, value)
+
     def activate_arrangement(self):
         # type: (Song) -> None
         self.parent.navigationManager.show_arrangement()

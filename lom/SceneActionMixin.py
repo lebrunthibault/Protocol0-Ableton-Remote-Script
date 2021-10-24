@@ -77,7 +77,7 @@ class SceneActionMixin(object):
         Scene.SELECTED_DUPLICATE_BAR_LENGTH = scroll_values(
             bar_lengths, Scene.SELECTED_DUPLICATE_BAR_LENGTH, go_next
         )
-        InterfaceState.show_selected_bar_length(Scene.SELECTED_DUPLICATE_BAR_LENGTH)
+        InterfaceState.show_selected_bar_length("SCENE DUPLICATE", Scene.SELECTED_DUPLICATE_BAR_LENGTH)
 
     def split(self):
         # type: (Scene) -> Optional[Sequence]

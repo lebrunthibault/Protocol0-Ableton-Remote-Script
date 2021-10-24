@@ -26,7 +26,12 @@ class ActionGroupMain(AbstractActionGroup):
         )
 
         # TAIL encoder
-        self.add_encoder(identifier=2, name="toggle audio clip tails recording", on_press=InterfaceState.toggle_record_audio_clip_tails)
+        self.add_encoder(
+            identifier=2,
+            name="toggle audio clip tails recording",
+            on_press=InterfaceState.toggle_record_clip_tails,
+            on_scroll=InterfaceState.scroll_clip_tails_bar_lengths,
+        )
 
         # LOCK encoder
         self.add_encoder(identifier=3, name="protected mode", on_press=InterfaceState.toggle_protected_mode)

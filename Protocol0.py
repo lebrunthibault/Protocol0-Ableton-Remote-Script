@@ -19,6 +19,7 @@ from protocol0.components.LogManager import LogManager
 from protocol0.components.MidiManager import MidiManager
 from protocol0.components.MixingManager import MixingManager
 from protocol0.components.NavigationManager import NavigationManager
+from protocol0.components.PresetManager import PresetManager
 from protocol0.components.Push2Manager import Push2Manager
 from protocol0.components.QuantizationManager import QuantizationManager
 from protocol0.components.SessionManager import SessionManager
@@ -27,6 +28,7 @@ from protocol0.components.SongManager import SongManager
 from protocol0.components.TrackManager import TrackManager
 from protocol0.components.UtilsManager import UtilsManager
 from protocol0.components.action_groups.ActionGroupMain import ActionGroupMain
+from protocol0.components.action_groups.ActionGroupPreset import ActionGroupPreset
 from protocol0.components.action_groups.ActionGroupSet import ActionGroupSet
 from protocol0.components.action_groups.ActionGroupTest import ActionGroupTest
 from protocol0.components.api.ApiAction import ApiAction
@@ -74,6 +76,7 @@ class Protocol0(ControlSurface):
             self.clipManager = ClipManager()
             self.browserManager = BrowserManager()
             self.navigationManager = NavigationManager()
+            self.presetManager = PresetManager()
             GlobalActions()
             self.globalBeatScheduler = BeatScheduler()
             self.sceneBeatScheduler = BeatScheduler()
@@ -84,6 +87,7 @@ class Protocol0(ControlSurface):
                 # action groups
                 ActionGroupMain()
                 ActionGroupSet()
+                ActionGroupPreset()
                 ActionGroupTest()
 
                 # vocal command
