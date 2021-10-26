@@ -204,9 +204,11 @@ class AbstractTrackActionMixin(object):
         self.parent.log_warning("audio only recording not available on this track")
 
     def _pre_session_record(self, record_type):
-        # type: (AbstractTrack, RecordTypeEnum) -> Sequence
+        # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
         """ restart audio to get a count in and recfix"""
-        assert self.is_armed
+        if not self.is_armed:
+            self.parent.log_error("%s is not armed for recording" % self)
+            return None
         if self.song.session_record_status != Live.Song.SessionRecordStatus.off:  # record count in
             return self._cancel_record(record_type=record_type)
 

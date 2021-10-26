@@ -5,8 +5,7 @@ from pydoc import classname
 from typing import TYPE_CHECKING, Any, Callable
 
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
-from protocol0.my_types import Func
-from protocol0.utils.log import log_ableton
+from protocol0.my_types import Func, T
 from protocol0.utils.utils import is_method, get_callable_name, class_attributes
 
 if TYPE_CHECKING:
@@ -87,7 +86,7 @@ EXPOSED_P0_METHODS = {}
 
 
 def api_exposable_class(cls):
-    # type: (object) -> object
+    # type: (T) -> T
     for name, method in cls.__dict__.iteritems():
         if hasattr(method, "api_exposed"):
             EXPOSED_P0_METHODS[name] = cls
@@ -263,7 +262,7 @@ SYNCHRONIZABLE_CLASSE_NAMES = set()
 
 
 def song_synchronizable_class(cls):
-    # type: (object) -> object
+    # type: (T) -> T
     SYNCHRONIZABLE_CLASSE_NAMES.add(classname(cls, ""))
     return cls
 
@@ -276,7 +275,6 @@ def save_to_song_data(func):
         func(*a, **k)
         cls = a[0]
         attributes = class_attributes(cls)
-        log_ableton("saving %s attributes: %s" % (cls, attributes))
         from protocol0 import Protocol0
         Protocol0.SELF.protocol0_song.set_data(classname(cls, ""), attributes)
 
