@@ -90,11 +90,11 @@ class ClipSlot(AbstractObject):
         # type: () -> bool
         return self._clip_slot and self._clip_slot.is_playing
 
-    def record(self, bar_length=None):
-        # type: (Optional[int]) -> Sequence
+    def record(self, bar_length=None, bar_tail_length=None):
+        # type: (Optional[int], Optional[int]) -> Sequence
         recording_bar_length = bar_length or InterfaceState.SELECTED_RECORDING_BAR_LENGTH  # type: int
-        if InterfaceState.RECORD_CLIP_TAILS:
-            recording_bar_length += InterfaceState.SELECTED_CLIP_TAILS_BAR_LENGTH
+        recording_bar_length += bar_tail_length or InterfaceState.record_clip_tails_length()
+
         self.parent.show_message("Starting recording of %d bars" % recording_bar_length)
         seq = Sequence()
         seq.add(wait=1)  # necessary so that _has_clip_listener triggers on has_clip == True
@@ -113,6 +113,7 @@ class ClipSlot(AbstractObject):
         )
 
         if InterfaceState.RECORD_CLIP_TAILS:
+            seq.add(wait=1)
             seq.add(lambda: self.clip.post_record_clip_tail())
 
         return seq.done()

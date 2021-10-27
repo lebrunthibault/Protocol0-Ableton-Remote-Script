@@ -151,6 +151,9 @@ class AbstractTrackActionMixin(object):
     @session_view_only
     def session_record(self, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
+        if self.is_record_triggered:
+            return self._cancel_record(record_type=record_type)
+
         seq = Sequence()
         seq.add(partial(self._pre_session_record, record_type))
 
@@ -188,12 +191,8 @@ class AbstractTrackActionMixin(object):
 
     def session_record_audio_only(self):
         # type: (AbstractTrack) -> None
-        """
-        overridden
-        this records normally on a simple track and only audio on a group track
-        is is available on other tracks just for ease of use
-        """
-        self.parent.log_warning("audio only recording not available on this track")
+        """ overridden """
+        raise NotImplementedError("session_record_audio_only not available on this track")
 
     def arrangement_record_all(self):
         # type: (AbstractTrack) -> Sequence
@@ -201,7 +200,7 @@ class AbstractTrackActionMixin(object):
 
     def arrangement_record_audio_only(self):
         # type: (AbstractTrack) -> None
-        self.parent.log_warning("audio only recording not available on this track")
+        raise NotImplementedError("arrangement_record_audio_only not available on this track")
 
     def _pre_session_record(self, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
@@ -209,8 +208,6 @@ class AbstractTrackActionMixin(object):
         if not self.is_armed:
             self.parent.log_error("%s is not armed for recording" % self)
             return None
-        if self.song.session_record_status != Live.Song.SessionRecordStatus.off:  # record count in
-            return self._cancel_record(record_type=record_type)
 
         self.song.record_mode = False
         self.song.stop_playing()
@@ -294,10 +291,10 @@ class AbstractTrackActionMixin(object):
     def reset_track(self):
         # type: (AbstractTrack) -> None
         self.solo = False
-        if self.is_armed:
-            self.unarm()
-        else:
-            self.unarm_track()
+        # if self.is_armed:
+        #     self.unarm()
+        # else:
+        #     self.unarm_track()
 
     def load_rack_device(self, device_name):
         # type: (AbstractTrack, DeviceNameEnum) -> Sequence

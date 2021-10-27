@@ -17,6 +17,11 @@ class InterfaceState(object):
     CLIP_ENVELOPE_SHOW_BOX_CLICKED = False
 
     @classmethod
+    def record_clip_tails_length(cls):
+        # type: () -> int
+        return cls.SELECTED_CLIP_TAILS_BAR_LENGTH if cls.RECORD_CLIP_TAILS else 0
+
+    @classmethod
     @save_to_song_data
     def toggle_record_clip_tails(cls):
         # type: () -> None

@@ -88,23 +88,29 @@ class ExternalSynthTrackActionMixin(object):
             return None
         assert isinstance(midi_clip, MidiClip)
 
+        audio_clip_slot = self.audio_track.clip_slots[midi_clip.index]
+        audio_clip = audio_clip_slot.clip
+
         self.song.metronome = False
         self.has_monitor_in = False
 
         seq = Sequence()
-        recording_bar_length = int(round((self.midi_track.playable_clip.length + 1) / self.song.signature_numerator))
-        audio_clip_slot = self.audio_track.clip_slots[midi_clip.index]
-        if audio_clip_slot.clip:
-            try:
-                seq.add(self._clip_slot_synchronizers[audio_clip_slot.index].disconnect)
-            except (IndexError, AttributeError):
-                pass
-            seq.add(audio_clip_slot.clip.delete)
-        seq.add(partial(setattr, midi_clip, "start_marker", 0))
-        seq.add(partial(self.parent.wait, 80, midi_clip.play))  # launching the midi clip after the record has started
-        seq.add(partial(self.audio_track.clip_slots[midi_clip.index].record, bar_length=recording_bar_length))
-        if InterfaceState.RECORD_CLIP_TAILS:
+        if audio_clip:
+            seq.add(audio_clip.delete)
+
+        audio_tail_bar_length = audio_clip.tail_bar_length if audio_clip else 0
+
+        # launch the midi clip after the record has started
+        seq.add(partial(self.parent.wait, 80, midi_clip.play))
+
+        seq.add(partial(audio_clip_slot.record, bar_length=midi_clip.bar_length, bar_tail_length=audio_tail_bar_length))
+        if audio_clip and audio_clip.tail_bar_length:
+            loop_start, loop_end = audio_clip.loop_start, audio_clip.loop_end
+            seq.add(lambda: setattr(audio_clip_slot.clip, "loop_start", loop_start))
+            seq.add(lambda: setattr(audio_clip_slot.clip, "loop_end", loop_end))
+        if InterfaceState.RECORD_CLIP_TAILS or audio_tail_bar_length:
             seq.add(self.song.selected_scene.fire)
+
         return seq.done()
 
     def arrangement_record_audio_only(self):

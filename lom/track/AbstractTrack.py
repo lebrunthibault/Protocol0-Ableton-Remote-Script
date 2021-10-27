@@ -212,6 +212,11 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         return self.base_track.is_playing or any(sub_track.is_playing for sub_track in self.sub_tracks)
 
     @property
+    def is_record_triggered(self):
+        # type: () -> bool
+        return self.base_track.fired_slot_index >= 0 or any(sub_track for sub_track in self.sub_tracks if sub_track.is_record_triggered)
+
+    @property
     def mute(self):
         # type: () -> bool
         return self._track.mute

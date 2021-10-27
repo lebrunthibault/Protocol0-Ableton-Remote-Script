@@ -63,4 +63,7 @@ class ClipName(AbstractObjectName):
         if self.clip.is_recording:
             return None
         self.base_name = base_name if base_name is not None else self.base_name
-        self.clip.name = "%s (%s)" % (self.base_name, self._length_legend)
+        clip_name = "%s (%s)" % (self.base_name, self._length_legend)
+        if self.clip.tail_bar_length:
+            clip_name += " tail"
+        self.clip.name = clip_name

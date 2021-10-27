@@ -147,6 +147,12 @@ class Clip(ClipActionMixin, AbstractObject):
         self.end_marker = self.loop_end
 
     @property
+    def tail_bar_length(self):
+        # type: () -> int
+        total_length = int(self.end_marker - self.start_marker)
+        return int((total_length - self.length) / self.song.signature_numerator)
+
+    @property
     def bar_length(self):
         # type: () -> int
         return int(self.length / self.song.signature_numerator)
