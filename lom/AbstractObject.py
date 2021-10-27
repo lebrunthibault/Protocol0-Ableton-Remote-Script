@@ -27,6 +27,8 @@ class AbstractObject(SlotManager, Subject):
             out += ": %s" % self.base_name
         elif hasattr(self, "name"):
             out += ": %s" % self.name
+        if hasattr(self, "index"):
+            out += " (%s)" % (self.index + 1)
 
         return out
 

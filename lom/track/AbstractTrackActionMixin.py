@@ -2,7 +2,6 @@ from functools import partial
 
 from typing import TYPE_CHECKING, Any, Optional, NoReturn
 
-import Live
 from protocol0.devices.InstrumentSimpler import InstrumentSimpler
 from protocol0.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.enums.DeviceNameEnum import DeviceNameEnum

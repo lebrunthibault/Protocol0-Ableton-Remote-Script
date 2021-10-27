@@ -14,4 +14,10 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        self.song.restore_data()
+        self.parent.log_dev(self.song.selected_track.input_routing_type)
+        self.parent.log_dev(self.song.selected_track.input_routing_type.category)
+        self.parent.log_dev(self.song.selected_track.input_routing_type.display_name)
+        self.parent.log_dev(self.song.selected_track.input_routing_type.attached_object)
+        self.parent.log_dev(self.song.selected_track._track.current_input_sub_routing)
+        self.parent.log_dev(self.song.selected_track._track.input_routing_channel)
+        self.parent.log_dev(self.song.selected_track._track.input_routing_channel.display_name)

@@ -2,6 +2,7 @@ from typing import Optional, Any
 
 import Live
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.devices.AbstractExternalSynthTrackInstrument import AbstractExternalSynthTrackInstrument
 from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
@@ -11,6 +12,7 @@ from protocol0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import p0_subject_slot, defer
+from protocol0.utils.utils import find_if
 
 
 class TrackManager(AbstractControlSurfaceComponent):
@@ -79,21 +81,33 @@ class TrackManager(AbstractControlSurfaceComponent):
         if len(base_group_track.sub_tracks) != 2:
             return None
 
-        if not isinstance(base_group_track.sub_tracks[0], SimpleMidiTrack) or not isinstance(
-                base_group_track.sub_tracks[1], SimpleAudioTrack
-        ):
+        midi_track = base_group_track.sub_tracks[0]
+        audio_track = base_group_track.sub_tracks[1]
+        if not isinstance(midi_track, SimpleMidiTrack) or not isinstance(audio_track, SimpleAudioTrack):
             return None
 
-        if any(
-                sub_track.instrument and sub_track.instrument.IS_EXTERNAL_SYNTH for sub_track in
-                base_group_track.sub_tracks
-        ):
-            if isinstance(base_group_track.abstract_group_track, ExternalSynthTrack):
-                return base_group_track.abstract_group_track
-            else:
-                return ExternalSynthTrack(base_group_track=base_group_track)
-        else:
+        instrument = find_if(lambda i: isinstance(i, AbstractExternalSynthTrackInstrument), [midi_track.instrument, audio_track.instrument])  # type: Optional[AbstractExternalSynthTrackInstrument]
+        if not instrument:
+            self.parent.log_error("Couldn't find external instrument in %s" % base_group_track)
             return None
+
+        if not midi_track.get_device_by_name(instrument.EXTERNAL_INSTRUMENT_DEVICE):
+            self.parent.log_error("Expected to find external instrument device %s in %s" % (instrument.EXTERNAL_INSTRUMENT_DEVICE, base_group_track))
+            return None
+
+        if not audio_track.input_routing_type.attached_object == midi_track._track:
+            self.parent.log_error("The audio track input routing should be its associated midi track : %s" % base_group_track)
+            return None
+
+        if instrument.AUDIO_INPUT_ROUTING_CHANNEL.value != audio_track.input_routing_channel.display_name:
+            self.parent.log_error("Expected to find audio input routing channel to %s : %s" % (instrument.AUDIO_INPUT_ROUTING_CHANNEL.value, base_group_track))
+            self.parent.log_dev(audio_track.input_routing_channel.display_name)
+            return None
+
+        if isinstance(base_group_track.abstract_group_track, ExternalSynthTrack):
+            return base_group_track.abstract_group_track
+        else:
+            return ExternalSynthTrack(base_group_track=base_group_track)
 
     def duplicate_current_track(self):
         # type: () -> Sequence

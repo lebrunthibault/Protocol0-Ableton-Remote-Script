@@ -6,7 +6,6 @@ from protocol0.enums.PixelEnum import PixelEnum
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.device.DeviceParameter import DeviceParameter
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.decorators import defer
 
 if TYPE_CHECKING:
     from protocol0.lom.clip.Clip import Clip

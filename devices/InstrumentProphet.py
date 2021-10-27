@@ -1,15 +1,18 @@
 from typing import Any, Optional
 
-from protocol0.devices.AbstractInstrument import AbstractInstrument
+from protocol0.devices.AbstractExternalSynthTrackInstrument import AbstractExternalSynthTrackInstrument
 from protocol0.enums.ColorEnum import ColorEnum
+from protocol0.enums.DeviceNameEnum import DeviceNameEnum
+from protocol0.enums.InputRoutingChannelEnum import InputRoutingChannelEnum
 from protocol0.sequence.Sequence import Sequence
 
 
-class InstrumentProphet(AbstractInstrument):
+class InstrumentProphet(AbstractExternalSynthTrackInstrument):
     NAME = "Prophet"
     DEVICE_NAME = "rev2editor"
     TRACK_COLOR = ColorEnum.PROPHET
-    IS_EXTERNAL_SYNTH = True
+    EXTERNAL_INSTRUMENT_DEVICE = DeviceNameEnum.EXTERNAL_AUDIO_EFFECT
+    AUDIO_INPUT_ROUTING_CHANNEL = InputRoutingChannelEnum.POST_FX
     ACTIVE_INSTANCE = None  # type: Optional[InstrumentProphet]
 
     def __init__(self, *a, **k):

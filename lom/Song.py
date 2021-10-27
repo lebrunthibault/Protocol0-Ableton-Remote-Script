@@ -12,6 +12,7 @@ from protocol0.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.lom.device.DeviceParameter import DeviceParameter
 from protocol0.lom.track.AbstractTrack import AbstractTrack
 from protocol0.lom.track.AbstractTrackList import AbstractTrackList
+from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import p0_subject_slot, debounce

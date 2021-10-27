@@ -301,6 +301,11 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # type: (Live.Track.RoutingType) -> None
         self._track.input_routing_type = input_routing_type
 
+    @property
+    def input_routing_channel(self):
+        # type: () -> Live.Track.RoutingChannel
+        return self._track.input_routing_channel
+
     def disconnect(self):
         # type: () -> None
         super(AbstractTrack, self).disconnect()

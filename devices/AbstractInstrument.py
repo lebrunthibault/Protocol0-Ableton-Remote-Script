@@ -33,9 +33,6 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
     DEVICE_NAME = ""
     TRACK_COLOR = ColorEnum.DISABLED
     CAN_BE_SHOWN = True
-    IS_EXTERNAL_SYNTH = False
-
-    _active_instance = None  # type: AbstractInstrument
 
     def __init__(self, track, device, *a, **k):
         # type: (SimpleTrack, Optional[Device], Any, Any) -> None
