@@ -37,7 +37,7 @@ class ExternalSynthTrackActionMixin(object):
         # type: (ExternalSynthTrack, bool) -> None
         self.audio_track._track.current_monitoring_state = CurrentMonitoringStateEnum.OFF.value
         if has_monitor_in:
-            self.midi_track._track.current_monitoring_state = CurrentMonitoringStateEnum.OFF.value
+            self.midi_track._track.current_monitoring_state = CurrentMonitoringStateEnum.IN.value
             self.midi_track.mute = True
             self.audio_track.mute = False
             if self._external_device:
@@ -81,7 +81,7 @@ class ExternalSynthTrackActionMixin(object):
         # type: (ExternalSynthTrack) -> Optional[Sequence]
         midi_clip = self.midi_track.playable_clip
         if not midi_clip:
-            self.parent.show_message("No midi clip selected")
+            self.parent.show_message("No midi clip selected on %s" % self)
             return None
         if midi_clip != self.midi_track.clip_slots[self.song.selected_scene.index].clip:
             self.parent.show_message("Playable clip is not on the selected scene")
