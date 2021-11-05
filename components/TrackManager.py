@@ -1,3 +1,5 @@
+from functools import partial
+
 from typing import Optional, Any
 
 import Live
@@ -95,19 +97,12 @@ class TrackManager(AbstractControlSurfaceComponent):
             self.parent.log_error("Expected to find external instrument device %s in %s" % (instrument.EXTERNAL_INSTRUMENT_DEVICE, base_group_track))
             return None
 
-        if not audio_track.input_routing_type.attached_object == midi_track._track:
-            self.parent.log_error("The audio track input routing should be its associated midi track : %s" % base_group_track)
-            return None
-
-        if instrument.AUDIO_INPUT_ROUTING_CHANNEL.value != audio_track.input_routing_channel.display_name:
-            self.parent.log_error("Expected to find audio input routing channel to %s : %s" % (instrument.AUDIO_INPUT_ROUTING_CHANNEL.value, base_group_track))
-            self.parent.log_dev(audio_track.input_routing_channel.display_name)
-            return None
-
         if isinstance(base_group_track.abstract_group_track, ExternalSynthTrack):
-            return base_group_track.abstract_group_track
+            external_synth_track = base_group_track.abstract_group_track
         else:
-            return ExternalSynthTrack(base_group_track=base_group_track)
+            external_synth_track = ExternalSynthTrack(base_group_track=base_group_track)
+
+        return external_synth_track
 
     def duplicate_current_track(self):
         # type: () -> Sequence

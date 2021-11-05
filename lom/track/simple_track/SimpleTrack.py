@@ -129,6 +129,30 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         pass
 
     @property
+    def is_armed(self):
+        # type: () -> bool
+        return self.can_be_armed and self._track.arm
+
+    @is_armed.setter
+    def is_armed(self, is_armed):
+        # type: (bool) -> None
+        if self.can_be_armed:
+            self._track.arm = is_armed
+
+    @property
+    def is_armable(self):
+        # type: () -> bool
+        """ Checks for disabled input routing """
+        if not self.can_be_armed:
+            return True
+        self.is_armed = True
+        if self.is_armed:
+            self.is_armed = False
+            return True
+        else:
+            return False
+
+    @property
     def playing_slot_index(self):
         # type: () -> int
         return self._track.playing_slot_index

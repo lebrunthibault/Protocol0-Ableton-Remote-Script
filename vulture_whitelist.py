@@ -22,8 +22,6 @@ _._sync_group_output_routing  # unused method (C:\ProgramData\Ableton\Live 10 Su
 # noinspection PyStatementEffect
 _.wait_bars  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\components\BeatScheduler.py:18)
 # noinspection PyStatementEffect
-_.check_set  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\components\SetFixerManager.py:14)
-# noinspection PyStatementEffect
 _.receive_midi  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\components\MidiManager.py:37)
 # noinspection PyStatementEffect
 _.execute_command  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\components\vocal_command\VocalCommandManager.py:39)

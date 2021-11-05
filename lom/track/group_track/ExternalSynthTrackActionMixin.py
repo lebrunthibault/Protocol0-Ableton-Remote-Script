@@ -2,11 +2,13 @@ from functools import partial
 
 from typing import TYPE_CHECKING, Optional
 
+from protocol0.devices.AbstractExternalSynthTrackInstrument import AbstractExternalSynthTrackInstrument
 from protocol0.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.clip.MidiClip import MidiClip
 from protocol0.sequence.Sequence import Sequence
+from protocol0.utils.utils import find_if
 
 if TYPE_CHECKING:
     from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
@@ -14,6 +16,18 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class ExternalSynthTrackActionMixin(object):
+    def validate_configuration(self):
+        # type: (ExternalSynthTrack) -> bool
+        """ this needs to be deferred because routings are not available on the first tick """
+        instrument = find_if(lambda i: isinstance(i, AbstractExternalSynthTrackInstrument), [self.midi_track.instrument, self.audio_track.instrument])  # type: Optional[AbstractExternalSynthTrackInstrument]
+        if not self.audio_track.input_routing_type.attached_object == self.midi_track._track:
+            self.parent.log_error("The audio track input routing should be its associated midi track : %s" % self)
+            return False
+        if instrument.AUDIO_INPUT_ROUTING_CHANNEL.value != self.audio_track.input_routing_channel.display_name:
+            self.parent.log_error("Expected to find audio input routing channel to %s : %s" % (instrument.AUDIO_INPUT_ROUTING_CHANNEL.value, self))
+            return False
+        return True
+
     def arm_track(self):
         # type: (ExternalSynthTrack) -> Optional[Sequence]
         self.base_track.is_folded = False

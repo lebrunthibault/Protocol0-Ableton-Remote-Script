@@ -11,20 +11,38 @@ from protocol0.utils.decorators import defer
 class SetFixerManager(AbstractControlSurfaceComponent):
     """ Do audit and fix operations on a set """
 
-    def check_set(self):
+    def _check_set(self):
         # type: () -> None
         """ Checks the set is operational, deprecated """
         self._check_input_routings()
+        self._validate_tracks_configuration()
         self._check_tracks_tree_consistency()
         self._check_instruments()
 
         self.parent.show_message("Set checked !")
+
+    def refresh_set_appearance(self, log=True):
+        # type: (bool) -> None
+        """ Fix the current set to the current standard regarding naming / coloring etc .."""
+
+        self._check_set()
+        self._refresh_tracks_appearance()
+        self._refresh_clips_appearance()
+        self.refresh_scenes_appearance()
+        self._fix_simpler_tracks_name()
+        if log:
+            self.parent.show_message("Set fixed !")
 
     def _check_input_routings(self):
         # type: () -> None
         for simple_track in self.song.simple_tracks:
             if simple_track.is_audio and not simple_track.is_armable:
                 self.parent.log_error("Check the input routing of %s" % simple_track)
+
+    def _validate_tracks_configuration(self):
+        # type: () -> None
+        for abstract_track in self.song.abstract_tracks:
+            self.parent.validatorManager.validate_track(abstract_track)
 
     def _check_tracks_tree_consistency(self):
         # type: () -> None
@@ -58,20 +76,9 @@ class SetFixerManager(AbstractControlSurfaceComponent):
         for simple_track in self.song.simple_tracks:
             if simple_track.instrument and not simple_track.instrument.selected_preset:
                 self.parent.log_error(
-                    "Couldn't find selected preset of %s (instrument %s)"
+                    "Couldn't find the selected preset of %s (instrument %s)"
                     % (simple_track.abstract_track, simple_track.instrument)
                 )
-
-    def refresh_set_appearance(self, log=True):
-        # type: (bool) -> None
-        """ Fix the current set to the current standard regarding naming / coloring etc .."""
-
-        self._refresh_tracks_appearance()
-        self._refresh_clips_appearance()
-        self.refresh_scenes_appearance()
-        self._fix_simpler_tracks_name()
-        if log:
-            self.parent.show_message("Set fixed !")
 
     def _refresh_clips_appearance(self):
         # type: () -> None

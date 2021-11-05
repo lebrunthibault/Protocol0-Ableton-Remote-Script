@@ -3,7 +3,6 @@ from functools import partial
 from typing import TYPE_CHECKING, Any, Optional, NoReturn
 
 from protocol0.devices.InstrumentSimpler import InstrumentSimpler
-from protocol0.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.enums.DeviceNameEnum import DeviceNameEnum
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.errors.Protocol0Error import Protocol0Error
@@ -18,58 +17,9 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints,PyAttributeOutsideInit
 class AbstractTrackActionMixin(object):
-    @property
-    def is_foldable(self):
+    def validate_configuration(self):
         # type: (AbstractTrack) -> bool
-        return self._track.is_foldable
-
-    @property
-    def is_folded(self):
-        # type: (AbstractTrack) -> bool
-        return bool(self._track.fold_state) if self.is_foldable else True
-
-    @is_folded.setter
-    def is_folded(self, is_folded):
-        # type: (AbstractTrack, bool) -> None
-        if self.is_foldable:
-            self._track.fold_state = int(is_folded)
-
-    @property
-    def solo(self):
-        # type: (AbstractTrack) -> bool
-        return self._track.solo
-
-    @solo.setter
-    def solo(self, solo):
-        # type: (AbstractTrack, bool) -> None
-        self._track.solo = solo
-
-    @property
-    def is_armed(self):
-        # type: () -> bool
-        return False
-
-    @is_armed.setter
-    def is_armed(self, is_armed):
-        # type: (AbstractTrack, bool) -> None
-        for track in self.active_tracks:
-            track.is_armed = is_armed
-
-    @property
-    def has_monitor_in(self):
-        # type: (AbstractTrack) -> bool
-        return not self.is_foldable and self._track.current_monitoring_state == CurrentMonitoringStateEnum.IN.value
-
-    @has_monitor_in.setter
-    def has_monitor_in(self, has_monitor_in):
-        # type: (AbstractTrack, bool) -> None
-        try:
-            if has_monitor_in:
-                self._track.current_monitoring_state = CurrentMonitoringStateEnum.IN.value
-            else:
-                self._track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO.value
-        except RuntimeError:
-            pass  # Live throws sometimes 'Master or sendtracks have no monitoring state!'
+        return True
 
     def select(self):
         # type: (AbstractTrack) -> Sequence
@@ -353,8 +303,6 @@ class AbstractTrackActionMixin(object):
 
     def refresh_color(self):
         # type: (AbstractTrack) -> None
-        # if self.abstract_group_track:
-        #     return  # not allowed when the track is managed
         self.color = self.computed_color
         if self.group_track:
             self.group_track.refresh_color()

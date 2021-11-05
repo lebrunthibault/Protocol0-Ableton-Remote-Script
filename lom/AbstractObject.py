@@ -1,4 +1,4 @@
-from p0_system_api import DefaultApi
+from p0_system_api.api.default_api import P0SystemAPI
 from typing import TYPE_CHECKING, Any
 
 from _Framework.ControlSurface import get_control_surfaces
@@ -38,7 +38,7 @@ class AbstractObject(SlotManager, Subject):
 
     @property
     def system(self):
-        # type: () -> DefaultApi
+        # type: () -> P0SystemAPI
         """
         Access to non restricted (system) python environment over MIDI
         """

@@ -3,7 +3,7 @@ from types import MethodType
 
 from ClyphX_Pro import ParseUtils
 from ClyphX_Pro.clyphx_pro.actions.GlobalActions import GlobalActions
-from p0_system_api import DefaultApi
+from p0_system_api import P0SystemAPI
 from typing import Callable, Any, Optional
 
 # noinspection PyUnresolvedReferences
@@ -27,6 +27,7 @@ from protocol0.components.SetFixerManager import SetFixerManager
 from protocol0.components.SongManager import SongManager
 from protocol0.components.TrackManager import TrackManager
 from protocol0.components.UtilsManager import UtilsManager
+from protocol0.components.ValidatorManager import ValidatorManager
 from protocol0.components.action_groups.ActionGroupMain import ActionGroupMain
 from protocol0.components.action_groups.ActionGroupPreset import ActionGroupPreset
 from protocol0.components.action_groups.ActionGroupSet import ActionGroupSet
@@ -49,6 +50,11 @@ class Protocol0(ControlSurface):
         super(Protocol0, self).__init__(c_instance=c_instance)
         # noinspection PyProtectedMember
         Protocol0.SELF = self
+        self.log_dev("self._is_ableton_template_set: %s" % self._is_ableton_template_set)
+        if self._is_ableton_template_set:
+            P0SystemAPI().reload_ableton()
+            return
+
         self.test_mode = test_mode
         self.started = False
         self.song().stop_playing()  # doing this early because the set often loads playing
@@ -58,7 +64,7 @@ class Protocol0(ControlSurface):
         AbstractInstrument.INSTRUMENT_CLASSES = AbstractInstrument.get_instrument_classes()
 
         with self.component_guard():
-            self.p0_system_api_client = DefaultApi()
+            self.p0_system_api_client = P0SystemAPI()
             self.errorManager = ErrorManager()
             self.protocol0_song = Song(song=self.song())
             self.fastScheduler = FastScheduler()
@@ -82,6 +88,7 @@ class Protocol0(ControlSurface):
             self.sceneBeatScheduler = BeatScheduler()
             self.utilsManager = UtilsManager()
             self.logManager = LogManager()
+            self.validatorManager = ValidatorManager()
 
             if not test_mode:
                 # action groups
@@ -105,8 +112,6 @@ class Protocol0(ControlSurface):
         if self.test_mode:
             return
 
-        self._reload_if_ableton_template_set()
-
         self.wait(100, self.push2Manager.connect_push2)
         self.wait(200, self.push2Manager.connect_push2)
         self.wait(400, self.push2Manager.connect_push2)
@@ -119,10 +124,10 @@ class Protocol0(ControlSurface):
         self.log_info("Protocol0 script loaded")
         self.started = True
 
-    def _reload_if_ableton_template_set(self):
-        # type: () -> None
-        if len(list(self.song().tracks)) == 2 and len(self.song().scenes) == 20:
-            self.p0_system_api_client.reload_ableton()
+    @property
+    def _is_ableton_template_set(self):
+        # type: () -> bool
+        return len(list(self.song().tracks)) == 2 and len(self.song().scenes) == 20
 
     def show_message(self, message, log=True):
         # type: (str, bool) -> None

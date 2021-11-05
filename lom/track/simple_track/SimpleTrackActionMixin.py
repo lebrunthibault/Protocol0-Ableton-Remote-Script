@@ -17,30 +17,6 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints,PyArgumentList
 class SimpleTrackActionMixin(object):
-    @property
-    def is_armed(self):
-        # type: (SimpleTrack) -> bool
-        return self.can_be_armed and self._track.arm
-
-    @is_armed.setter
-    def is_armed(self, is_armed):
-        # type: (SimpleTrack, bool) -> None
-        if self.can_be_armed:
-            self._track.arm = is_armed
-
-    @property
-    def is_armable(self):
-        # type: (SimpleTrack) -> bool
-        """ Checks for disabled input routing """
-        if not self.can_be_armed:
-            return True
-        self.is_armed = True
-        if self.is_armed:
-            self.is_armed = False
-            return True
-        else:
-            return False
-
     def arm_track(self):
         # type: (SimpleTrack) -> Optional[Sequence]
         if self.is_foldable:

@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 import Live
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.enums.ColorEnum import ColorEnum
+from protocol0.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.enums.DeviceNameEnum import DeviceNameEnum
 from protocol0.enums.DeviceParameterNameEnum import DeviceParameterNameEnum
 from protocol0.enums.Push2MainModeEnum import Push2MainModeEnum
@@ -38,6 +39,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self.group_track = None  # type: Optional[AbstractTrack]
         self.abstract_group_track = None  # type: Optional[AbstractGroupTrack]
         self.sub_tracks = []  # type: List[AbstractTrack]
+        self.is_configuration_valid = True
 
         if not self.base_track.is_active:
             return
@@ -169,10 +171,65 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def computed_color(self):
         # type: () -> int
+        if not self.is_configuration_valid:
+            return ColorEnum.ERROR.value
         if self.abstract_track.instrument:
             return self.abstract_track.instrument.TRACK_COLOR.value
         else:
             return self.DEFAULT_COLOR.value
+
+    @property
+    def is_foldable(self):
+        # type: () -> bool
+        return self._track.is_foldable
+
+    @property
+    def is_folded(self):
+        # type: () -> bool
+        return bool(self._track.fold_state) if self.is_foldable else True
+
+    @is_folded.setter
+    def is_folded(self, is_folded):
+        # type: (bool) -> None
+        if self.is_foldable:
+            self._track.fold_state = int(is_folded)
+
+    @property
+    def solo(self):
+        # type: () -> bool
+        return self._track.solo
+
+    @solo.setter
+    def solo(self, solo):
+        # type: (bool) -> None
+        self._track.solo = solo
+
+    @property
+    def is_armed(self):
+        # type: () -> bool
+        return False
+
+    @is_armed.setter
+    def is_armed(self, is_armed):
+        # type: (bool) -> None
+        for track in self.active_tracks:
+            track.is_armed = is_armed
+
+    @property
+    def has_monitor_in(self):
+        # type: () -> bool
+        return not self.is_foldable and self._track.current_monitoring_state == CurrentMonitoringStateEnum.IN.value
+
+    @has_monitor_in.setter
+    def has_monitor_in(self, has_monitor_in):
+        # type: (bool) -> None
+        try:
+            if has_monitor_in:
+                self._track.current_monitoring_state = CurrentMonitoringStateEnum.IN.value
+            else:
+                self._track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO.value
+        except RuntimeError:
+            pass  # Live throws sometimes 'Master or sendtracks have no monitoring state!'
 
     @property
     def clips(self):
