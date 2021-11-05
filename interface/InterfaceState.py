@@ -1,11 +1,12 @@
-from protocol0.config import BAR_LENGTHS
+from protocol0.enums.RecordingTimeEnum import RecordingTimeEnum
+from protocol0.my_types import StringOrNumber
 from protocol0.utils.decorators import save_to_song_data, song_synchronizable_class
 from protocol0.utils.utils import scroll_values
 
 
 @song_synchronizable_class
 class InterfaceState(object):
-    SELECTED_RECORDING_BAR_LENGTH = 4
+    SELECTED_RECORDING_TIME = RecordingTimeEnum.FOUR
 
     RECORD_CLIP_TAILS = False  # records one more bar of audio to make editing easier
     SELECTED_CLIP_TAILS_BAR_LENGTH = 1
@@ -35,8 +36,9 @@ class InterfaceState(object):
     def scroll_clip_tails_bar_lengths(cls, go_next):
         # type: (bool) -> None
         cls.RECORD_CLIP_TAILS = True
+        enum_values = [enum for enum in list(RecordingTimeEnum) if enum != RecordingTimeEnum.UNLIMITED]
         cls.SELECTED_CLIP_TAILS_BAR_LENGTH = scroll_values(
-            BAR_LENGTHS, cls.SELECTED_CLIP_TAILS_BAR_LENGTH, go_next
+            enum_values, cls.SELECTED_CLIP_TAILS_BAR_LENGTH, go_next
         )
         cls.show_selected_bar_length("CLIP TAIL", cls.SELECTED_CLIP_TAILS_BAR_LENGTH)
 
@@ -51,17 +53,20 @@ class InterfaceState(object):
 
     @classmethod
     @save_to_song_data
-    def scroll_recording_bar_lengths(cls, go_next):
+    def scroll_recording_time(cls, go_next):
         # type: (bool) -> None
-        cls.SELECTED_RECORDING_BAR_LENGTH = scroll_values(
-            BAR_LENGTHS, cls.SELECTED_RECORDING_BAR_LENGTH, go_next
+        cls.SELECTED_RECORDING_TIME = scroll_values(
+            list(RecordingTimeEnum), cls.SELECTED_RECORDING_TIME, go_next
         )
-        cls.show_selected_bar_length("RECORDING", cls.SELECTED_RECORDING_BAR_LENGTH)
+        cls.show_selected_bar_length("RECORDING", cls.SELECTED_RECORDING_TIME.value)
 
     @classmethod
-    def show_selected_bar_length(cls, title, bar_length):
-        # type: (str, int) -> None
-        bar_display_count = "%s bar%s" % (bar_length, "s" if abs(bar_length) != 1 else "")
+    def show_selected_bar_length(cls, title, time):
+        # type: (str, StringOrNumber) -> None
+        if isinstance(time, str):
+            time_legend = time
+        else:
+            time_legend = "%s bar%s" % (time, "s" if abs(time) != 1 else "")
         from protocol0 import Protocol0
 
-        Protocol0.SELF.show_message("Selected %s : %s" % (title, bar_display_count))
+        Protocol0.SELF.show_message("Selected %s : %s" % (title, time_legend))

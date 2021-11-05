@@ -1,4 +1,5 @@
 import threading
+from json import JSONEncoder
 from types import MethodType
 
 from ClyphX_Pro import ParseUtils
@@ -37,9 +38,18 @@ from protocol0.components.vocal_command.KeywordSearchManager import KeywordSearc
 from protocol0.components.vocal_command.VocalCommandManager import VocalCommandManager
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.enums.LogLevelEnum import LogLevelEnum
+from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.Song import Song
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.log import log_ableton
+
+#
+# def _default(self, obj):
+#     return getattr(obj.__class__, "to_json_dict", _default.default)(obj)
+#
+#
+# _default.default = JSONEncoder().default
+# JSONEncoder.default = _default
 
 
 class Protocol0(ControlSurface):
@@ -50,7 +60,6 @@ class Protocol0(ControlSurface):
         super(Protocol0, self).__init__(c_instance=c_instance)
         # noinspection PyProtectedMember
         Protocol0.SELF = self
-        self.log_dev("self._is_ableton_template_set: %s" % self._is_ableton_template_set)
         if self._is_ableton_template_set:
             P0SystemAPI().reload_ableton()
             return
@@ -111,6 +120,8 @@ class Protocol0(ControlSurface):
         # type: () -> None
         if self.test_mode:
             return
+        self.log_dev(self.protocol0_song.get_data("InterfaceState"))
+        self.log_dev(InterfaceState.SELECTED_RECORDING_TIME)
 
         self.wait(100, self.push2Manager.connect_push2)
         self.wait(200, self.push2Manager.connect_push2)

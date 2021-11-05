@@ -92,7 +92,7 @@ class ClipSlot(AbstractObject):
 
     def record(self, bar_length=None, bar_tail_length=None):
         # type: (Optional[int], Optional[int]) -> Sequence
-        recording_bar_length = bar_length or InterfaceState.SELECTED_RECORDING_BAR_LENGTH  # type: int
+        recording_bar_length = bar_length or InterfaceState.SELECTED_RECORDING_TIME  # type: int
         recording_bar_length += bar_tail_length or InterfaceState.record_clip_tails_length()
 
         self.parent.show_message("Starting recording of %d bars" % recording_bar_length)

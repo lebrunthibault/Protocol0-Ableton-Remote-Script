@@ -3,6 +3,7 @@ from pydoc import locate
 
 from typing import TYPE_CHECKING, Optional, Any
 
+from protocol0.enums.AbstractEnum import AbstractEnum
 from protocol0.enums.FoldActionEnum import FoldActionEnum
 from protocol0.lom.device.Device import Device
 from protocol0.lom.track.AbstractTrack import AbstractTrack
@@ -24,6 +25,8 @@ class SongActionMixin(object):
 
     def set_data(self, key, value):
         # type: (Song, str, Any) -> None
+        if isinstance(value, AbstractEnum):
+            value = value.value
         self._song.set_data(key, value)
 
     def restore_data(self):
@@ -34,6 +37,9 @@ class SongActionMixin(object):
         for cls_fqdn in SYNCHRONIZABLE_CLASSE_NAMES:
             cls = locate(cls_fqdn)
             for key, value in self.get_data(cls_fqdn, {}).items():
+                if AbstractEnum.is_json_enum(value):
+                    value = AbstractEnum.from_json_dict(value)
+                self.parent.log_dev((cls, key, value))
                 setattr(cls, key, value)
 
     def activate_arrangement(self):

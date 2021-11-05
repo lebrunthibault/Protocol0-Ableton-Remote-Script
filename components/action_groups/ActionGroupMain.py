@@ -49,7 +49,7 @@ class ActionGroupMain(AbstractActionGroup):
         self.add_encoder(
             identifier=9,
             name="record",
-            on_scroll=InterfaceState.scroll_recording_bar_lengths,
+            on_scroll=InterfaceState.scroll_recording_time,
             on_press=lambda: partial(self.song.armed_tracks.record, RecordTypeEnum.NORMAL),
             on_long_press=lambda: partial(self.song.armed_tracks.record, RecordTypeEnum.AUDIO_ONLY)
         )
