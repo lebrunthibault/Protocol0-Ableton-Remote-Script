@@ -86,6 +86,7 @@ class ExternalSynthTrackActionMixin(object):
 
         midi_clip_slot = self.midi_track.clip_slots[self.next_empty_clip_slot_index]
         audio_clip_slot = self.audio_track.clip_slots[self.next_empty_clip_slot_index]
+        self.parent.log_dev("audio_clip_slot: %s" % audio_clip_slot)
         self.audio_track.select()
         seq.add([midi_clip_slot.record, audio_clip_slot.record])
         if InterfaceState.SELECTED_RECORDING_BAR_LENGTH == BarLengthEnum.UNLIMITED:

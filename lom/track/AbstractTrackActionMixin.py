@@ -100,8 +100,6 @@ class AbstractTrackActionMixin(object):
     @session_view_only
     def session_record(self, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
-        self.parent.log_dev("is_record_triggered: %s" % self.is_record_triggered)
-        self.parent.log_dev("record_type: %s" % record_type)
         if self.is_record_triggered:
             return self._cancel_record()
         InterfaceState.CURRENT_RECORD_TYPE = record_type
@@ -109,10 +107,10 @@ class AbstractTrackActionMixin(object):
         seq = Sequence()
         seq.add(partial(self._pre_session_record, record_type))
 
-        if record_type == RecordTypeEnum.NORMAL:
-            seq.add(self.session_record_all)
-        elif record_type == RecordTypeEnum.AUDIO_ONLY:
-            seq.add(self.session_record_audio_only)
+        # if record_type == RecordTypeEnum.NORMAL:
+        #     seq.add(self.session_record_all)
+        # elif record_type == RecordTypeEnum.AUDIO_ONLY:
+        #     seq.add(self.session_record_audio_only)
 
         seq.add(partial(self.post_session_record, record_type))
 
@@ -171,7 +169,7 @@ class AbstractTrackActionMixin(object):
         seq = Sequence()
         if record_type == RecordTypeEnum.NORMAL and self.next_empty_clip_slot_index is None:
             seq.add(self.song.create_scene)
-            seq.add(partial(self.session_record, record_type))
+            seq.add(self.arm_track)
         return seq.done()
 
     def _cancel_record(self):
