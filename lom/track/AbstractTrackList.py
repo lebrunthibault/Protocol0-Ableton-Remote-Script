@@ -4,6 +4,7 @@ from typing import Any, Iterable, Optional
 
 from protocol0.enums.FoldActionEnum import FoldActionEnum
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
+from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.track.AbstractTrack import AbstractTrack
 from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.sequence.Sequence import Sequence
@@ -34,16 +35,12 @@ class AbstractTrackList(UserMutableSequence):
     def record(self, record_type):
         # type: (RecordTypeEnum) -> Optional[Sequence]
         seq = Sequence()
+        tracks = self._abstract_tracks
         if len(self._abstract_tracks) == 0:
+            tracks = [self.song.current_track]
             seq.add(self.song.current_track.arm)
-            if self.session_view_active:
-                seq.add(partial(self.song.current_track.session_record, record_type=record_type))
-            else:
-                seq.add(partial(self.song.current_track.arrangement_record, record_type=record_type))
-            return seq.done()
 
-        for abstract_track in self._abstract_tracks:
-            assert abstract_track.is_armed
+        for abstract_track in tracks:
             if self.session_view_active:
                 seq.add(partial(abstract_track.session_record, record_type=record_type))
             else:

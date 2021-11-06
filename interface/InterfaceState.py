@@ -1,5 +1,6 @@
 from protocol0.components.SongDataManager import save_to_song_data, song_synchronizable_class
 from protocol0.enums.BarLengthEnum import BarLengthEnum
+from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.utils.utils import scroll_values
 
 
@@ -10,6 +11,8 @@ class InterfaceState(object):
 
     RECORD_CLIP_TAILS = False  # records one more bar of audio to make editing easier
     SELECTED_CLIP_TAILS_BAR_LENGTH = BarLengthEnum.ONE
+
+    CURRENT_RECORD_TYPE = RecordTypeEnum.NORMAL
 
     PROTECTED_MODE_ACTIVE = True  # protected mode prevents certain actions to be made
 

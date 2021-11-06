@@ -100,8 +100,11 @@ class AbstractTrackActionMixin(object):
     @session_view_only
     def session_record(self, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
+        self.parent.log_dev("is_record_triggered: %s" % self.is_record_triggered)
+        self.parent.log_dev("record_type: %s" % record_type)
         if self.is_record_triggered:
-            return self._cancel_record(record_type=record_type)
+            return self._cancel_record()
+        InterfaceState.CURRENT_RECORD_TYPE = record_type
 
         seq = Sequence()
         seq.add(partial(self._pre_session_record, record_type))
@@ -171,14 +174,14 @@ class AbstractTrackActionMixin(object):
             seq.add(partial(self.session_record, record_type))
         return seq.done()
 
-    def _cancel_record(self, record_type):
-        # type: (AbstractTrack, RecordTypeEnum) -> Sequence
+    def _cancel_record(self):
+        # type: (AbstractTrack) -> Sequence
         self.parent.clear_tasks()
         seq = Sequence()
-        if record_type == RecordTypeEnum.NORMAL:
-            seq.add(self.delete_playable_clip)
+        if InterfaceState.CURRENT_RECORD_TYPE == RecordTypeEnum.NORMAL:
+            seq.add(partial(self.delete_playable_clip))
         seq.add(partial(self.stop, immediate=True))
-        seq.add(partial(self.post_session_record, record_type))
+        seq.add(partial(self.post_session_record, InterfaceState.CURRENT_RECORD_TYPE))
         seq.add(self.song.stop_playing)
         return seq.done()
 
@@ -199,8 +202,8 @@ class AbstractTrackActionMixin(object):
         self.song.stop_playing()
         self.has_monitor_in = False
 
-    def delete_playable_clip(self):
-        # type: (AbstractTrack) -> Sequence
+    def delete_playable_clip(self, _):
+        # type: (AbstractTrack, RecordTypeEnum) -> Sequence
         """ overridden """
         seq = Sequence()
         if self.base_track.playable_clip:

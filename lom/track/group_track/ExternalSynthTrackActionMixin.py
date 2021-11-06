@@ -159,6 +159,7 @@ class ExternalSynthTrackActionMixin(object):
         # type: (ExternalSynthTrack) -> Sequence
         """ only midi clip is needed as clips are sync """
         seq = Sequence()
+        self.parent.log_dev("record_type: %s" % InterfaceState.CURRENT_RECORD_TYPE)
         if self.midi_track.playable_clip:
             seq.add(self.midi_track.playable_clip.delete)
         return seq.done()
