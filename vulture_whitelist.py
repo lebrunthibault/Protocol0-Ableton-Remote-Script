@@ -33,3 +33,5 @@ _.back_to_arranger  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resour
 _.get_control_surfaces  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\tests\test_all.py:11)
 # noinspection PyStatementEffect
 _.api_exposed  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\utils\decorators.py:97)
+# noinspection PyStatementEffect
+_.to_json_dict  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\enums\AbstractEnum.py:19)

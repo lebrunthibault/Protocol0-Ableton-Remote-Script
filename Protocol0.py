@@ -25,6 +25,7 @@ from protocol0.components.Push2Manager import Push2Manager
 from protocol0.components.QuantizationManager import QuantizationManager
 from protocol0.components.SessionManager import SessionManager
 from protocol0.components.SetFixerManager import SetFixerManager
+from protocol0.components.SongDataManager import SongDataManager
 from protocol0.components.SongManager import SongManager
 from protocol0.components.TrackManager import TrackManager
 from protocol0.components.UtilsManager import UtilsManager
@@ -37,19 +38,21 @@ from protocol0.components.api.ApiAction import ApiAction
 from protocol0.components.vocal_command.KeywordSearchManager import KeywordSearchManager
 from protocol0.components.vocal_command.VocalCommandManager import VocalCommandManager
 from protocol0.devices.AbstractInstrument import AbstractInstrument
+from protocol0.enums.BarLengthEnum import BarLengthEnum
 from protocol0.enums.LogLevelEnum import LogLevelEnum
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.Song import Song
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.log import log_ableton
 
-#
-# def _default(self, obj):
-#     return getattr(obj.__class__, "to_json_dict", _default.default)(obj)
-#
-#
-# _default.default = JSONEncoder().default
-# JSONEncoder.default = _default
+
+def _default(_, obj):
+    # type: (Any, Any) -> Any
+    return getattr(obj.__class__, "to_json_dict", _default.default)(obj)
+
+
+_default.default = JSONEncoder().default
+JSONEncoder.default = _default  # type: ignore[assignment]
 
 
 class Protocol0(ControlSurface):
@@ -79,6 +82,7 @@ class Protocol0(ControlSurface):
             self.fastScheduler = FastScheduler()
             self.deviceManager = DeviceManager()  # needs to be here first
             self.songManager = SongManager()
+            self.songDataManager = SongDataManager()
             self.sessionManager = SessionManager()
             MixingManager()
             if not test_mode:
@@ -110,7 +114,7 @@ class Protocol0(ControlSurface):
                 self.keywordSearchManager = KeywordSearchManager()
                 VocalCommandManager()
 
-                self.protocol0_song.restore_data()
+                self.songDataManager.restore_data()
 
                 ApiAction.create_method_mapping()
 
@@ -120,8 +124,8 @@ class Protocol0(ControlSurface):
         # type: () -> None
         if self.test_mode:
             return
-        self.log_dev(self.protocol0_song.get_data("InterfaceState"))
-        self.log_dev(InterfaceState.SELECTED_RECORDING_TIME)
+
+        InterfaceState.SELECTED_RECORDING_BAR_LENGTH = BarLengthEnum.UNLIMITED
 
         self.wait(100, self.push2Manager.connect_push2)
         self.wait(200, self.push2Manager.connect_push2)

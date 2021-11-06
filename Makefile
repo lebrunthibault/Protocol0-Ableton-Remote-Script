@@ -14,7 +14,7 @@ mypy:
 
 vulture:
 	cls
-	.\venv\Scripts\vulture . .\vulture_whitelist.py --exclude=venv/,TrackSearchKeywordEnum.py,SynchronizableDeviceEnum.py --ignore-names=Optional,Generator,Func,Tuple,Deque,Union,CollectionsSequence,NoReturn,Iterator,TracebackType,StringOrNumber,decorate
+	.\venv\Scripts\vulture . .\vulture_whitelist.py --exclude=venv/,BarLengthEnum.py,TrackSearchKeywordEnum.py,SynchronizableDeviceEnum.py --ignore-names=Optional,Generator,Func,Tuple,Deque,Union,CollectionsSequence,NoReturn,Iterator,TracebackType,StringOrNumber,decorate
 
 #pycharm:
 #	# not working

@@ -1,6 +1,7 @@
 from typing import Any
 
 from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
+from protocol0.interface.InterfaceState import InterfaceState
 
 
 class ActionGroupSet(AbstractActionGroup):
@@ -29,14 +30,20 @@ class ActionGroupSet(AbstractActionGroup):
         # DUPScene encoder
         self.add_encoder(identifier=7, name="partial duplicate scene",
                          on_press=lambda: self.song.selected_scene.partial_duplicate,
-                         on_scroll=lambda: self.song.selected_scene.scroll_duplicate_bar_lengths,
+                         on_scroll=InterfaceState.scroll_duplicate_scene_bar_lengths,
                          )
 
+        # DATA encoder
+        self.add_encoder(identifier=8, name="clear song data", on_scroll=self.parent.songDataManager.clear_data)
+
         # MIX encoder
-        self.add_encoder(identifier=13, name="scroll all tracks volume", on_scroll=self.parent.trackManager.scroll_all_tracks_volume)
+        self.add_encoder(identifier=13, name="scroll all tracks volume",
+                         on_scroll=self.parent.trackManager.scroll_all_tracks_volume)
 
         # VELO encoder
-        self.add_encoder(identifier=14, name="scale selected clip velocities", on_scroll=self.parent.clipManager.scale_selected_clip_velocities)
+        self.add_encoder(identifier=14, name="scale selected clip velocities",
+                         on_scroll=self.parent.clipManager.scale_selected_clip_velocities)
 
         # Session2ARrangement encoder
-        self.add_encoder(identifier=16, name="bounce session to arrangement", on_press=self.song.bounce_session_to_arrangement)
+        self.add_encoder(identifier=16, name="bounce session to arrangement",
+                         on_press=self.song.bounce_session_to_arrangement)

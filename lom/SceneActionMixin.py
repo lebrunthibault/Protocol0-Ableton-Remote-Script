@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, Optional
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import session_view_only, throttle
-from protocol0.utils.utils import scroll_values
 
 if TYPE_CHECKING:
     from protocol0.lom.Scene import Scene
@@ -61,24 +60,6 @@ class SceneActionMixin(object):
             self.schedule_next_scene_launch()  # restore previous behavior of follow action
         self.scene_name.update()
 
-    def scroll_duplicate_bar_lengths(self, go_next):
-        # type: (Scene, bool) -> None
-        if self.length < 2:
-            self.parent.log_warning("Cannot partial duplicate scene with length %s (min 2 bars)" % self.length)
-            return
-        bar_lengths = []
-        power = 0
-        while pow(2, power) <= self.bar_length / 2:
-            bar_lengths += [pow(2, power), -pow(2, power)]
-            power += 1
-        bar_lengths.sort()
-
-        from protocol0.lom.Scene import Scene
-        Scene.SELECTED_DUPLICATE_BAR_LENGTH = scroll_values(
-            bar_lengths, Scene.SELECTED_DUPLICATE_BAR_LENGTH, go_next
-        )
-        InterfaceState.show_selected_bar_length("SCENE DUPLICATE", Scene.SELECTED_DUPLICATE_BAR_LENGTH)
-
     def split(self):
         # type: (Scene) -> Optional[Sequence]
         if self.bar_length % 2 != 0:
@@ -94,12 +75,11 @@ class SceneActionMixin(object):
 
     def partial_duplicate(self):
         # type: (Scene) -> Sequence
-        from protocol0.lom.Scene import Scene
-
         seq = Sequence()
         seq.add(partial(self.song.duplicate_scene, self.index))
         seq.add(
-            lambda: self.song.selected_scene._crop_clips_to_bar_length(bar_length=Scene.SELECTED_DUPLICATE_BAR_LENGTH))
+            lambda: self.song.selected_scene._crop_clips_to_bar_length(
+                bar_length=InterfaceState.SELECTED_DUPLICATE_SCENE_BAR_LENGTH))
         return seq.done()
 
     def _crop_clips_to_bar_length(self, bar_length):

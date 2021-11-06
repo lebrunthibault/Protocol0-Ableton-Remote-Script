@@ -1,7 +1,9 @@
 from pydoc import classname, locate
 
 from enum import Enum
-from typing import TypeVar, cast, Optional
+from typing import TypeVar, cast, Optional, Any
+
+from protocol0.errors.Protocol0Error import Protocol0Error
 
 T = TypeVar("T", bound=Enum)
 
@@ -11,8 +13,9 @@ class AbstractEnum(Enum):
         # type: () -> str
         return self.name
 
-    def is_json_enum(self, json_value):
-        # type: (str) -> bool
+    @classmethod
+    def is_json_enum(cls, json_value):
+        # type: (Any) -> bool
         return isinstance(json_value, dict) and json_value.get("type") == "Enum"
 
     def to_json_dict(self):
@@ -25,8 +28,10 @@ class AbstractEnum(Enum):
 
     @classmethod
     def from_json_dict(cls, json_dict):
-        # type: (dict) -> AbstractEnum
+        # type: (dict) -> Optional[AbstractEnum]
         sub_class = locate(json_dict["classname"])
+        if not sub_class:
+            raise Protocol0Error("Couldn't locate %s" % json_dict["classname"])
         return getattr(sub_class, json_dict["name"])
 
     @classmethod

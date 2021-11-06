@@ -133,27 +133,26 @@ def get_class_name_from_method(func):
 
     try:
         return ".".join(qualname(func).split(".")[:-1])
-    except AttributeError:
-        pass
-
-    return ""
+    except (AttributeError, IOError):
+        return "unknown %s" % func
 
 
-def get_callable_name(func, obj=None):
-    # type: (Callable, object) -> str
+def get_callable_repr(func):
+    # type: (Callable) -> str
     from protocol0.sequence.Sequence import Sequence
-
-    if isinstance(func, Sequence):
-        return func.name
+    from protocol0.sequence.SequenceStep import SequenceStep
+    from protocol0.utils.callback_descriptor import CallableWithCallbacks
+    if isinstance(func, Sequence) or isinstance(func, SequenceStep) or isinstance(func, CallableWithCallbacks):
+        return func.__repr__()
 
     decorated_func = get_inner_func(func)
-    if obj:
-        class_name = str(obj) if hasattr(obj, "__repr__") else obj.__class__.__name__
-    else:
-        class_name = get_class_name_from_method(decorated_func)
+    class_name = get_class_name_from_method(decorated_func)
+
+    if isinstance(decorated_func, CallableWithCallbacks):
+        return decorated_func.__repr__()
 
     if not hasattr(decorated_func, "__name__"):
-        return class_name or "unknown"
+        return "only class_name %s" % class_name or "unknown"
 
     if class_name:
         return "%s.%s" % (class_name, decorated_func.__name__)

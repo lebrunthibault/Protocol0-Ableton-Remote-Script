@@ -3,7 +3,7 @@ from functools import partial
 from typing import Callable, Deque, Optional, Any, cast, Type, Union
 
 from protocol0.utils.log import log_ableton
-from protocol0.utils.utils import get_callable_name
+from protocol0.utils.utils import get_callable_repr
 
 
 class CallbackDescriptor(object):
@@ -43,7 +43,7 @@ class CallbackDescriptor(object):
         if self._wrapped:
             return str(self._wrapped)
         else:
-            return "%s_%d_%s" % (get_callable_name(self._func), id(self), self.__class__.__name__)
+            return "%s_%d_%s" % (get_callable_repr(self._func), id(self), self.__class__.__name__)
 
     def __get__(self, obj, cls=None):
         # type: (Any, Type[object]) -> Optional[Any]
@@ -87,7 +87,7 @@ class CallableWithCallbacks(object):
 
     def __repr__(self):
         # type: () -> str
-        return "%s (cwc %d)" % (get_callable_name(self._function), id(self))
+        return "cwc %s" % get_callable_repr(self._function)
 
     def __call__(self, *a, **k):
         # type: (Any, Any) -> Any

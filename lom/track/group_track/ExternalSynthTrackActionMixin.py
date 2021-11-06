@@ -3,6 +3,7 @@ from functools import partial
 from typing import TYPE_CHECKING, Optional
 
 from protocol0.devices.AbstractExternalSynthTrackInstrument import AbstractExternalSynthTrackInstrument
+from protocol0.enums.BarLengthEnum import BarLengthEnum
 from protocol0.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.interface.InterfaceState import InterfaceState
@@ -87,6 +88,9 @@ class ExternalSynthTrackActionMixin(object):
         audio_clip_slot = self.audio_track.clip_slots[self.next_empty_clip_slot_index]
         self.audio_track.select()
         seq.add([midi_clip_slot.record, audio_clip_slot.record])
+        if InterfaceState.SELECTED_RECORDING_BAR_LENGTH == BarLengthEnum.UNLIMITED:
+            return seq.done()
+
         if InterfaceState.RECORD_CLIP_TAILS:
             seq.add(self.song.selected_scene.fire)
         return seq.done()

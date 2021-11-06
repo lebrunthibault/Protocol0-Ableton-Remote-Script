@@ -10,7 +10,7 @@ from protocol0.sequence.SequenceStateMachineMixin import SequenceStateMachineMix
 from protocol0.utils.callback_descriptor import CallableWithCallbacks
 from protocol0.utils.decorators import p0_subject_slot
 from protocol0.utils.timeout import TimeoutLimit
-from protocol0.utils.utils import _has_callback_queue, is_lambda, get_callable_name, nop
+from protocol0.utils.utils import _has_callback_queue, is_lambda, get_callable_repr, nop
 
 if TYPE_CHECKING:
     from protocol0.sequence.Sequence import Sequence
@@ -39,7 +39,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         self._original_name = name
         if not name and func == nop:
             name = "wait %s" % wait if wait else "pass"
-        self.name = "step %s" % (name or get_callable_name(func))
+        self.name = "step %s" % (name or get_callable_repr(func))
         self._sequence_name = sequence.name
         self._callable = func
         self._wait = wait or 0
@@ -72,11 +72,13 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         output = self.name
         if self._complete_on:
             if _has_callback_queue(self._complete_on):
-                output += " (and wait for listener call : %s)" % get_callable_name(self._complete_on)
+                # self.parent.log_dev("self._complete_on: %s" % self._complete_on)
+                # output += " (and wait for listener call : %s)" % "toto"
+                output += " (and wait for listener call : %s)" % get_callable_repr(self._complete_on)
             elif is_lambda(self._complete_on) and not self._original_name and self.debug:
                 output += " (and poll for lambda condition)"
             else:
-                output += " (and poll for %s)" % get_callable_name(self._complete_on)
+                output += " (and poll for %s)" % get_callable_repr(self._complete_on)
         if self._do_if:
             output += " (has_if)"
         elif self._return_if:
@@ -196,8 +198,8 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         # type: (Callable) -> Any
         try:
             return func()
-        except SequenceError:
-            self.parent.log_notice("caught sequence error !!!!!")
+        except SequenceError as e:
+            self.parent.log_error("caught sequence error: %s" % e)
             raise
         except Exception:
             self.error()

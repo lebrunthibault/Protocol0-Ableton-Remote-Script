@@ -4,7 +4,7 @@ from protocol0.interface.EncoderModifierEnum import EncoderModifierEnum
 from protocol0.interface.EncoderMoveEnum import EncoderMoveEnum
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.utils.decorators import handle_error
-from protocol0.utils.utils import get_callable_name, is_lambda
+from protocol0.utils.utils import get_callable_repr, is_lambda
 
 
 class EncoderAction(AbstractObject):
@@ -15,7 +15,7 @@ class EncoderAction(AbstractObject):
         Any modifier can be applied to a press or long_press but only shift is available for scrolling for now
         """
         super(EncoderAction, self).__init__(*a, **k)
-        assert callable(func), "func action should be callable: %s" % get_callable_name(func)
+        assert callable(func), "func action should be callable: %s" % get_callable_repr(func)
         self.func = func
         self.move_type = move_type
         self.modifier_type = modifier_type
@@ -23,7 +23,7 @@ class EncoderAction(AbstractObject):
     def __repr__(self):
         # type: () -> str
         move = self.move_type.value + ("(%s)" % self.modifier_type.value if self.modifier_type else "")
-        return "%s : %s" % (move, get_callable_name(self.func))
+        return "%s : %s" % (move, get_callable_repr(self.func))
 
     @handle_error
     def execute(self, encoder_name, *a, **k):
@@ -41,12 +41,12 @@ class EncoderAction(AbstractObject):
             return  # the action is sync and is already processed
         assert callable(func), "%s : action func should be callable, got %s" % (
             encoder_name,
-            get_callable_name(func),
+            get_callable_repr(func),
         )
         if self.move_type != EncoderMoveEnum.SCROLL:
-            self.parent.log_notice("%s : executing %s" % (encoder_name, get_callable_name(func)))
+            self.parent.log_notice("%s : executing %s" % (encoder_name, get_callable_repr(func)))
         else:
-            self.parent.log_notice("%s : scrolling %s" % (encoder_name, get_callable_name(func)))
+            self.parent.log_notice("%s : scrolling %s" % (encoder_name, get_callable_repr(func)))
 
         with self.parent.component_guard():
             func(*a, **k)

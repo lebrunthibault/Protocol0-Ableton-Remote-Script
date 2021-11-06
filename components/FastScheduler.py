@@ -4,7 +4,7 @@ from typing import List, Any, Callable
 import Live
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.lom.AbstractObject import AbstractObject
-from protocol0.utils.utils import get_callable_name
+from protocol0.utils.utils import get_callable_repr
 
 
 class SchedulerEvent(AbstractObject):
@@ -16,7 +16,7 @@ class SchedulerEvent(AbstractObject):
         self._callback = callback
         self._tick_count = tick_count
         self._ticks_left = tick_count
-        self.name = get_callable_name(self._callback)
+        self.name = get_callable_repr(self._callback)
 
     def __repr__(self):
         # type: () -> str

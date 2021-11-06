@@ -3,6 +3,7 @@ from functools import partial
 from typing import Any, TYPE_CHECKING, Optional
 
 import Live
+from protocol0.enums.BarLengthEnum import BarLengthEnum
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.clip.Clip import Clip
@@ -91,17 +92,23 @@ class ClipSlot(AbstractObject):
         return self._clip_slot and self._clip_slot.is_playing
 
     def record(self, bar_length=None, bar_tail_length=None):
-        # type: (Optional[int], Optional[int]) -> Sequence
-        recording_bar_length = bar_length or InterfaceState.SELECTED_RECORDING_TIME  # type: int
-        recording_bar_length += bar_tail_length or InterfaceState.record_clip_tails_length()
-
-        self.parent.show_message("Starting recording of %d bars" % recording_bar_length)
+        # type: (Optional[int], Optional[int]) -> Optional[Sequence]
         seq = Sequence()
-        seq.add(wait=1)  # necessary so that _has_clip_listener triggers on has_clip == True
-        seq.add(
-            partial(self.fire, record_length=self.parent.utilsManager.get_beat_time(recording_bar_length)),
-            complete_on=self._has_clip_listener,
-        )
+        unlimited_recording = not bar_length and InterfaceState.SELECTED_RECORDING_BAR_LENGTH == BarLengthEnum.UNLIMITED
+
+        if unlimited_recording:
+            self.parent.show_message("Starting recording of %s" % BarLengthEnum.UNLIMITED)
+            seq.add(self.fire, complete_on=self._has_clip_listener)
+        else:
+            recording_bar_length = bar_length or InterfaceState.SELECTED_RECORDING_BAR_LENGTH.value  # type: int
+            recording_bar_length += bar_tail_length or InterfaceState.record_clip_tails_length()
+            self.parent.show_message("Starting recording of %d bars" % recording_bar_length)
+            seq.add(wait=1)  # necessary so that _has_clip_listener triggers on has_clip == True
+            seq.add(
+                partial(self.fire, record_length=self.parent.utilsManager.get_beat_time(recording_bar_length)),
+                complete_on=self._has_clip_listener,
+            )
+
         # this is a convenience to see right away if there is a problem with the audio recording
         if self.track.is_audio:
             seq.add(lambda: self.clip.select(), name="select audio clip")
@@ -112,15 +119,18 @@ class ClipSlot(AbstractObject):
             no_timeout=True,
         )
 
-        if InterfaceState.RECORD_CLIP_TAILS:
+        if InterfaceState.RECORD_CLIP_TAILS and not unlimited_recording:
             seq.add(wait=1)
             seq.add(lambda: self.clip.post_record_clip_tail())
 
         return seq.done()
 
-    def fire(self, record_length):
-        # type: (int) -> None
-        self._clip_slot.fire(record_length=record_length)
+    def fire(self, record_length=None):
+        # type: (Optional[int]) -> None
+        if record_length:
+            self._clip_slot.fire(record_length=record_length)
+        else:
+            self._clip_slot.fire()
 
     def duplicate_clip_to(self, clip_slot):
         # type: (ClipSlot) -> Sequence

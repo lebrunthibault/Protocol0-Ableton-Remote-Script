@@ -1,5 +1,4 @@
 from functools import partial
-from pydoc import locate
 
 from typing import TYPE_CHECKING, Optional, Any
 
@@ -9,8 +8,7 @@ from protocol0.lom.device.Device import Device
 from protocol0.lom.track.AbstractTrack import AbstractTrack
 from protocol0.lom.track.AbstractTrackList import AbstractTrackList
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.decorators import handle_error, arrangement_view_only, session_view_only, \
-    SYNCHRONIZABLE_CLASSE_NAMES
+from protocol0.utils.decorators import handle_error, arrangement_view_only, session_view_only
 from protocol0.utils.utils import scroll_values
 
 if TYPE_CHECKING:
@@ -28,19 +26,6 @@ class SongActionMixin(object):
         if isinstance(value, AbstractEnum):
             value = value.value
         self._song.set_data(key, value)
-
-    def restore_data(self):
-        # type: (Song) -> None
-        if len(list(SYNCHRONIZABLE_CLASSE_NAMES)) == 0:
-            self.parent.log_error("no song synchronizable class detected")
-            return
-        for cls_fqdn in SYNCHRONIZABLE_CLASSE_NAMES:
-            cls = locate(cls_fqdn)
-            for key, value in self.get_data(cls_fqdn, {}).items():
-                if AbstractEnum.is_json_enum(value):
-                    value = AbstractEnum.from_json_dict(value)
-                self.parent.log_dev((cls, key, value))
-                setattr(cls, key, value)
 
     def activate_arrangement(self):
         # type: (Song) -> None

@@ -1,15 +1,15 @@
-from protocol0.enums.RecordingTimeEnum import RecordingTimeEnum
-from protocol0.my_types import StringOrNumber
-from protocol0.utils.decorators import save_to_song_data, song_synchronizable_class
+from protocol0.components.SongDataManager import save_to_song_data, song_synchronizable_class
+from protocol0.enums.BarLengthEnum import BarLengthEnum
 from protocol0.utils.utils import scroll_values
 
 
 @song_synchronizable_class
 class InterfaceState(object):
-    SELECTED_RECORDING_TIME = RecordingTimeEnum.FOUR
+    SELECTED_RECORDING_BAR_LENGTH = BarLengthEnum.FOUR
+    SELECTED_DUPLICATE_SCENE_BAR_LENGTH = BarLengthEnum.ONE
 
     RECORD_CLIP_TAILS = False  # records one more bar of audio to make editing easier
-    SELECTED_CLIP_TAILS_BAR_LENGTH = 1
+    SELECTED_CLIP_TAILS_BAR_LENGTH = BarLengthEnum.ONE
 
     PROTECTED_MODE_ACTIVE = True  # protected mode prevents certain actions to be made
 
@@ -20,7 +20,7 @@ class InterfaceState(object):
     @classmethod
     def record_clip_tails_length(cls):
         # type: () -> int
-        return cls.SELECTED_CLIP_TAILS_BAR_LENGTH if cls.RECORD_CLIP_TAILS else 0
+        return cls.SELECTED_CLIP_TAILS_BAR_LENGTH.value if cls.RECORD_CLIP_TAILS else 0
 
     @classmethod
     @save_to_song_data
@@ -29,14 +29,15 @@ class InterfaceState(object):
         cls.RECORD_CLIP_TAILS = not cls.RECORD_CLIP_TAILS
         from protocol0 import Protocol0
 
-        Protocol0.SELF.show_message("Record clip tails %s (%s)" % ("ON" if cls.RECORD_CLIP_TAILS else "OFF", cls.SELECTED_CLIP_TAILS_BAR_LENGTH))
+        Protocol0.SELF.show_message("Record clip tails %s (%s)" % (
+            "ON" if cls.RECORD_CLIP_TAILS else "OFF", cls.SELECTED_CLIP_TAILS_BAR_LENGTH))
 
     @classmethod
     @save_to_song_data
     def scroll_clip_tails_bar_lengths(cls, go_next):
         # type: (bool) -> None
         cls.RECORD_CLIP_TAILS = True
-        enum_values = [enum for enum in list(RecordingTimeEnum) if enum != RecordingTimeEnum.UNLIMITED]
+        enum_values = [enum for enum in list(BarLengthEnum) if enum != BarLengthEnum.UNLIMITED]
         cls.SELECTED_CLIP_TAILS_BAR_LENGTH = scroll_values(
             enum_values, cls.SELECTED_CLIP_TAILS_BAR_LENGTH, go_next
         )
@@ -55,18 +56,35 @@ class InterfaceState(object):
     @save_to_song_data
     def scroll_recording_time(cls, go_next):
         # type: (bool) -> None
-        cls.SELECTED_RECORDING_TIME = scroll_values(
-            list(RecordingTimeEnum), cls.SELECTED_RECORDING_TIME, go_next
+        cls.SELECTED_RECORDING_BAR_LENGTH = scroll_values(
+            list(BarLengthEnum), cls.SELECTED_RECORDING_BAR_LENGTH, go_next
         )
-        cls.show_selected_bar_length("RECORDING", cls.SELECTED_RECORDING_TIME.value)
+        cls.show_selected_bar_length("RECORDING", cls.SELECTED_RECORDING_BAR_LENGTH)
 
     @classmethod
-    def show_selected_bar_length(cls, title, time):
-        # type: (str, StringOrNumber) -> None
-        if isinstance(time, str):
-            time_legend = time
-        else:
-            time_legend = "%s bar%s" % (time, "s" if abs(time) != 1 else "")
+    @save_to_song_data
+    def scroll_duplicate_scene_bar_lengths(cls, go_next):
+        # type: (bool) -> None
         from protocol0 import Protocol0
+        selected_scene = Protocol0.SELF.song.selected_scene
+        if selected_scene.length < 2:
+            Protocol0.SELF.log_warning(
+                "Cannot partial duplicate scene with length %s (min 2 bars)" % selected_scene.length)
+            return
+        bar_lengths = []
+        power = 0
+        while pow(2, power) <= selected_scene.bar_length / 2:
+            bar_lengths += [pow(2, power), -pow(2, power)]
+            power += 1
+        bar_lengths.sort()
 
-        Protocol0.SELF.show_message("Selected %s : %s" % (title, time_legend))
+        cls.SELECTED_DUPLICATE_SCENE_BAR_LENGTH = scroll_values(
+            bar_lengths, cls.SELECTED_DUPLICATE_SCENE_BAR_LENGTH, go_next
+        )
+        cls.show_selected_bar_length("SCENE DUPLICATE", cls.SELECTED_DUPLICATE_SCENE_BAR_LENGTH)
+
+    @classmethod
+    def show_selected_bar_length(cls, title, bar_length):
+        # type: (str, BarLengthEnum) -> None
+        from protocol0 import Protocol0
+        Protocol0.SELF.show_message("Selected %s : %s" % (title, bar_length))

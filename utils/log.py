@@ -1,14 +1,20 @@
 import logging
 
-from protocol0.enums.LogLevelEnum import LogLevelEnum
+from typing import Optional, TYPE_CHECKING
+
 from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.utils.utils import smart_string
 
+if TYPE_CHECKING:
+    from protocol0.enums.LogLevelEnum import LogLevelEnum  # noqa
 
-def log_ableton(message, debug=True, level=LogLevelEnum.DEV, direct_call=True):
-    # type: (basestring, bool, LogLevelEnum, bool) -> None
+
+def log_ableton(message, debug=True, level=None, direct_call=True):
+    # type: (basestring, bool, Optional[LogLevelEnum], bool) -> None
     """ a log function and not method allowing us to call this even with no access to the ControlSurface object """
-    message = "%s: %s" % (LogLevelEnum(level).name.lower(), smart_string(message))
+    from protocol0.enums.LogLevelEnum import LogLevelEnum  # noqa
+    level = level or LogLevelEnum.DEV
+    message = "%s: %s" % (level.name.lower(), smart_string(message))
     if any(not isinstance(param, bool) for param in [debug, direct_call]):
         raise Protocol0Error("log_ableton: parameter mismatch")
     if debug:

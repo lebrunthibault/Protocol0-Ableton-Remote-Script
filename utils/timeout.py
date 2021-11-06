@@ -2,7 +2,7 @@ from typing import Any, Callable
 
 from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.lom.AbstractObject import AbstractObject
-from protocol0.utils.utils import get_callable_name
+from protocol0.utils.utils import get_callable_repr
 
 
 class TimeoutLimit(AbstractObject):
@@ -21,9 +21,9 @@ class TimeoutLimit(AbstractObject):
 
     def __repr__(self):
         # type: () -> str
-        output = "%s: %s" % (id(self), get_callable_name(self.func))
+        output = "%s" % get_callable_repr(self.func)
         if self.awaited_listener:
-            output += " (waiting for listener call %s)" % get_callable_name(self.awaited_listener)
+            output += " (waiting for listener call %s)" % get_callable_repr(self.awaited_listener)
         return output
 
     def __call__(self, *a, **k):
