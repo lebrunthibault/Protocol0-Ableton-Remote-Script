@@ -1,3 +1,5 @@
+from functools import partial
+
 from typing import Optional, TYPE_CHECKING, Any
 
 from _Framework.CompoundElement import subject_slot_group
@@ -40,9 +42,7 @@ class ClipSlotSynchronizer(AbstractControlSurfaceComponent):
         linked_clip_slot = self.linked_clip_slot(clip_slot=changed_clip_slot)
 
         if not changed_clip_slot.clip and linked_clip_slot.clip:
-            self.parent.log_dev("ready to delete linked_clip_slot.clip: %s" % linked_clip_slot.clip)
-            self.parent.log_dev("id(linked_clip_slot.clip) %s" % id(linked_clip_slot.clip))
-            linked_clip_slot.clip.delete(title="synchronizer")
+            self.parent.defer_low(partial(linked_clip_slot.clip.delete))
 
     @subject_slot_group("is_triggered")
     def _is_triggered_listener(self, changed_clip_slot):

@@ -12,6 +12,8 @@ class Config(object):
     SET_EXCEPTHOOK = True
     MIX_VOLUME_FOLLOWER = False
 
+    DISABLE_CRASHING_METHODS = True
+
 
 PROJECT_ROOT = dirname(os.path.realpath(__file__))
 REMOTE_SCRIPTS_ROOT = dirname(PROJECT_ROOT)

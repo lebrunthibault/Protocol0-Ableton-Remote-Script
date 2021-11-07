@@ -143,4 +143,4 @@ class SongManager(AbstractControlSurfaceComponent):
             if self.song.highlighted_clip_slot.clip:
                 self.parent.push2Manager.update_clip_grid_quantization()
                 self._highlighted_clip_slot.clip._on_selected()
-        self.parent.schedule_message(1, self._highlighted_clip_slot_poller)
+        self.parent.wait(10, self._highlighted_clip_slot_poller)

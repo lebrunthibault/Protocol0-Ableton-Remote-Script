@@ -44,8 +44,10 @@ class SceneActionMixin(object):
 
     def delete(self):
         # type: (Scene) -> Optional[Sequence]
-        if self._scene:
+        if self._scene and not self.deleted:
+            self.deleted = True
             return self.song.delete_scene(self.index)
+        return None
 
     def toggle_solo(self):
         # type: (Scene) -> None

@@ -8,7 +8,7 @@ from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.decorators import retry, session_view_only, arrangement_view_only
+from protocol0.utils.decorators import retry, session_view_only, arrangement_view_only, crashes_ableton
 from protocol0.utils.utils import find_if
 
 if TYPE_CHECKING:
@@ -184,10 +184,13 @@ class AbstractTrackActionMixin(object):
         seq.add(self.song.stop_playing)
         return seq.done()
 
+    @crashes_ableton
     def _delete_scene_if_empty(self):
         # type: (AbstractTrack) -> Sequence
+        """ creates random crashes """
         seq = Sequence()
         if self.song.selected_scene.length == 0:
+            seq.add(wait=1)
             seq.add(self.song.selected_scene.delete)
             seq.add(wait=1)
             seq.add(self.arm_track)

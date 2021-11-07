@@ -42,10 +42,9 @@ class ClipActionMixin(object):
         if self._clip:
             self._clip.fire()
 
-    def delete(self, title="unknown"):
-        # type: (Clip, str) -> Optional[Sequence]
-        self.parent.log_dev("deleting %s from %s, deleted: %s" % (self, title, self.deleted))
-        if not self._clip or self.deleted:
+    def delete(self):
+        # type: (Clip) -> Optional[Sequence]
+        if not self._clip or self.deleted:  # type: ignore[has-type]
             return None
         self.deleted = True
         seq = Sequence()

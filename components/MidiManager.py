@@ -32,7 +32,7 @@ class MidiManager(AbstractControlSurfaceComponent):
         self.parent._send_midi(tuple(msg))
         if message_type == "note":
             msg[-1] = 0
-            self.canonical_parent.schedule_message(1, partial(self.parent._send_midi, tuple(msg)))
+            self.parent.defer_low(partial(self.parent._send_midi, tuple(msg)))
 
     def receive_midi(self, midi_bytes):
         # type: (Tuple) -> None

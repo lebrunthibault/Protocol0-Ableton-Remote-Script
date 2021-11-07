@@ -194,6 +194,10 @@ class Protocol0(ControlSurface):
         # type: (Callable) -> None
         self.fastScheduler.schedule_next(callback)
 
+    def defer_low(self, callback):
+        # type: (Callable) -> None
+        self.schedule_message(1, callback)
+
     def wait_bars(self, bar_length, callback):
         # type: (int, Callable) -> None
         self.globalBeatScheduler.wait_bars(bar_length, callback)
@@ -215,7 +219,7 @@ class Protocol0(ControlSurface):
                 return self.fastScheduler.schedule(tick_count=tick_count, callback=callback)
             else:
                 # callback()  # no scheduling when testing
-                # emulate schedule_message
+                # emulate scheduler
                 threading.Timer(
                     float(tick_count) * self.fastScheduler.TICK_MS_DURATION / 1000,
                     callback,
