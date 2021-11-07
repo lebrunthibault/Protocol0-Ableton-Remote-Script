@@ -161,6 +161,8 @@ class ExternalSynthTrackActionMixin(object):
         seq = Sequence()
         if self.midi_track.playable_clip:
             seq.add(partial(self.midi_track.playable_clip.delete, title="record"))
+        self.parent.log_dev("id(midi): %s" % id(self.midi_track.playable_clip))
+        self.parent.log_dev("id(audio): %s" % id(self.audio_track.playable_clip))
         # if self.audio_track.playable_clip:
         #     seq.add(partial(self.audio_track.playable_clip.delete, title="record"))
         return seq.done()

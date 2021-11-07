@@ -20,12 +20,13 @@ class Push2Manager(AbstractControlSurfaceComponent):
         self.update_selected_modes = True
         self._selected_track_listener.subject = self.parent.songManager
 
-    def connect_push2(self):
-        # type: () -> None
+    def connect_push2(self, log=False):
+        # type: (bool) -> None
         """ object modification, push2 registers itself after protocol0 instantiation """
         push2 = find_if(lambda cs: isinstance(cs, Push2), get_control_surfaces())
         if not push2 or not hasattr(push2, "_session_ring"):
-            self.parent.log_warning("Cannot connect to push2")
+            if log:
+                self.parent.log_warning("Cannot connect to push2")
             return
 
         if not self.push2:

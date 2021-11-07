@@ -1,4 +1,5 @@
 import threading
+from functools import partial
 from json import JSONEncoder
 from types import MethodType
 
@@ -129,7 +130,7 @@ class Protocol0(ControlSurface):
 
         self.wait(100, self.push2Manager.connect_push2)
         self.wait(200, self.push2Manager.connect_push2)
-        self.wait(400, self.push2Manager.connect_push2)
+        self.wait(400, partial(self.push2Manager.connect_push2, log=True))
 
         self.navigationManager.show_session()
 

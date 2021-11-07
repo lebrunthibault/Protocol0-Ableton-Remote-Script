@@ -41,6 +41,7 @@ class ClipSlotSynchronizer(AbstractControlSurfaceComponent):
 
         if not changed_clip_slot.clip and linked_clip_slot.clip:
             self.parent.log_dev("ready to delete linked_clip_slot.clip: %s" % linked_clip_slot.clip)
+            self.parent.log_dev("id(linked_clip_slot.clip) %s" % id(linked_clip_slot.clip))
             linked_clip_slot.clip.delete(title="synchronizer")
 
     @subject_slot_group("is_triggered")

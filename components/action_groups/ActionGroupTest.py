@@ -15,9 +15,11 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        self.song.selected_track.playable_clip.delete()
-        self.song.selected_track.playable_clip.delete()
+        # self.song.selected_track.playable_clip.delete()
+        # self.song.selected_track.playable_clip.delete()
         seq = Sequence()
         seq.add(wait=1)
+        seq.add(self.song.selected_track.playable_clip.delete)
+        seq.add(wait=3)
         seq.add(self.song.selected_track.playable_clip.delete)
         seq.done()
