@@ -168,7 +168,17 @@ class SongActionMixin(object):
     def create_scene(self, scene_index=None):
         # type: (Song, Optional[int]) -> Sequence
         seq = Sequence()
-        seq.add(lambda: self._song.create_scene(scene_index or len(self.song.scenes)), wait=1)
+        scenes_count = len(self.song.scenes)
+        seq.add(lambda: self._song.create_scene(scene_index or scenes_count), complete_on=lambda: len(self.song.scenes) > scenes_count)
+        seq.add(wait=1)
+        return seq.done()
+
+    def delete_scene(self, scene_index=None):
+        # type: (Song, Optional[int]) -> Sequence
+        seq = Sequence()
+        scenes_count = len(self.song.scenes)
+        seq.add(lambda: self._song.delete_scene(scene_index), complete_on=lambda: len(self.song.scenes) < scenes_count)
+        seq.add(wait=1)
         return seq.done()
 
     def select_device(self, device):

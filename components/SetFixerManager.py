@@ -11,25 +11,26 @@ from protocol0.utils.decorators import defer
 class SetFixerManager(AbstractControlSurfaceComponent):
     """ Do audit and fix operations on a set """
 
-    def _check_set(self):
-        # type: () -> None
+    def _check_set(self, log=True):
+        # type: (bool) -> None
         """ Checks the set is operational, deprecated """
         self._check_input_routings()
         self._validate_tracks_configuration()
         self._check_tracks_tree_consistency()
         self._check_instruments()
 
-        self.parent.show_message("Set checked !")
+        if log:
+            self.parent.show_message("Set checked !")
 
     def refresh_set_appearance(self, log=True):
         # type: (bool) -> None
         """ Fix the current set to the current standard regarding naming / coloring etc .."""
-
-        self._check_set()
+        self._check_set(log=log)
         self._refresh_tracks_appearance()
         self._refresh_clips_appearance()
         self.refresh_scenes_appearance()
         self._fix_simpler_tracks_name()
+
         if log:
             self.parent.show_message("Set fixed !")
 

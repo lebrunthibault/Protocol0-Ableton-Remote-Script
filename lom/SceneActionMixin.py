@@ -42,6 +42,11 @@ class SceneActionMixin(object):
         if self._scene:
             self._scene.fire()
 
+    def delete(self):
+        # type: (Scene) -> Optional[Sequence]
+        if self._scene:
+            return self.song.delete_scene(self.index)
+
     def toggle_solo(self):
         # type: (Scene) -> None
         """ for a scene solo means looped """

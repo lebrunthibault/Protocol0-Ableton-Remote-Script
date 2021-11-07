@@ -107,10 +107,10 @@ class AbstractTrackActionMixin(object):
         seq = Sequence()
         seq.add(partial(self._pre_session_record, record_type))
 
-        # if record_type == RecordTypeEnum.NORMAL:
-        #     seq.add(self.session_record_all)
-        # elif record_type == RecordTypeEnum.AUDIO_ONLY:
-        #     seq.add(self.session_record_audio_only)
+        if record_type == RecordTypeEnum.NORMAL:
+            seq.add(self.session_record_all)
+        elif record_type == RecordTypeEnum.AUDIO_ONLY:
+            seq.add(self.session_record_audio_only)
 
         seq.add(partial(self.post_session_record, record_type))
 
@@ -178,9 +178,19 @@ class AbstractTrackActionMixin(object):
         seq = Sequence()
         if InterfaceState.CURRENT_RECORD_TYPE == RecordTypeEnum.NORMAL:
             seq.add(partial(self.delete_playable_clip))
+        seq.add(self._delete_scene_if_empty)
         seq.add(partial(self.stop, immediate=True))
         seq.add(partial(self.post_session_record, InterfaceState.CURRENT_RECORD_TYPE))
         seq.add(self.song.stop_playing)
+        return seq.done()
+
+    def _delete_scene_if_empty(self):
+        # type: (AbstractTrack) -> Sequence
+        seq = Sequence()
+        if self.song.selected_scene.length == 0:
+            seq.add(self.song.selected_scene.delete)
+            seq.add(wait=1)
+            seq.add(self.arm_track)
         return seq.done()
 
     def post_session_record(self, *_, **__):

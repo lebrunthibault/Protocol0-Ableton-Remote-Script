@@ -72,8 +72,6 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         output = self.name
         if self._complete_on:
             if _has_callback_queue(self._complete_on):
-                # self.parent.log_dev("self._complete_on: %s" % self._complete_on)
-                # output += " (and wait for listener call : %s)" % "toto"
                 output += " (and wait for listener call : %s)" % get_callable_repr(self._complete_on)
             elif is_lambda(self._complete_on) and not self._original_name and self.debug:
                 output += " (and poll for lambda condition)"

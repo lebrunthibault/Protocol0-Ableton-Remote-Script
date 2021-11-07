@@ -126,6 +126,7 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
     @property
     def needs_activation(self):
         # type: () -> bool
+        return False
         return self.CAN_BE_SHOWN and (not self.activated or self.needs_exclusive_activation)
 
     def activate_plugin_window(self, select_instrument_track=False, force_activate=False):

@@ -1,7 +1,7 @@
 from typing import Any
 
 from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
-from protocol0.interface.InterfaceState import InterfaceState
+from protocol0.sequence.Sequence import Sequence
 
 
 class ActionGroupTest(AbstractActionGroup):
@@ -15,4 +15,9 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        self.parent.log_info(InterfaceState.SELECTED_RECORDING_BAR_LENGTH)
+        self.song.selected_track.playable_clip.delete()
+        self.song.selected_track.playable_clip.delete()
+        seq = Sequence()
+        seq.add(wait=1)
+        seq.add(self.song.selected_track.playable_clip.delete)
+        seq.done()

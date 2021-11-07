@@ -73,7 +73,7 @@ class ClipSlot(AbstractObject):
 
     def delete_clip(self):
         # type: () -> None
-        if self._clip_slot.has_clip:
+        if self._clip_slot and self._clip_slot.has_clip:
             self._clip_slot.delete_clip()
 
     @property

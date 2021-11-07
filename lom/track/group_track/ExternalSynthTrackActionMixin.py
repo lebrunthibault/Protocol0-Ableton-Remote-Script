@@ -86,7 +86,6 @@ class ExternalSynthTrackActionMixin(object):
 
         midi_clip_slot = self.midi_track.clip_slots[self.next_empty_clip_slot_index]
         audio_clip_slot = self.audio_track.clip_slots[self.next_empty_clip_slot_index]
-        self.parent.log_dev("audio_clip_slot: %s" % audio_clip_slot)
         self.audio_track.select()
         seq.add([midi_clip_slot.record, audio_clip_slot.record])
         if InterfaceState.SELECTED_RECORDING_BAR_LENGTH == BarLengthEnum.UNLIMITED:
@@ -160,9 +159,10 @@ class ExternalSynthTrackActionMixin(object):
         # type: (ExternalSynthTrack) -> Sequence
         """ only midi clip is needed as clips are sync """
         seq = Sequence()
-        self.parent.log_dev("record_type: %s" % InterfaceState.CURRENT_RECORD_TYPE)
         if self.midi_track.playable_clip:
-            seq.add(self.midi_track.playable_clip.delete)
+            seq.add(partial(self.midi_track.playable_clip.delete, title="record"))
+        # if self.audio_track.playable_clip:
+        #     seq.add(partial(self.audio_track.playable_clip.delete, title="record"))
         return seq.done()
 
     @property

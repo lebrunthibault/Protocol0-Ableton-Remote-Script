@@ -125,7 +125,7 @@ class Protocol0(ControlSurface):
         if self.test_mode:
             return
 
-        InterfaceState.SELECTED_RECORDING_BAR_LENGTH = BarLengthEnum.UNLIMITED
+        InterfaceState.SELECTED_RECORDING_BAR_LENGTH = BarLengthEnum.TWO
 
         self.wait(100, self.push2Manager.connect_push2)
         self.wait(200, self.push2Manager.connect_push2)
