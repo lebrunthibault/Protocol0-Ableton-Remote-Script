@@ -7,7 +7,7 @@ from protocol0.lom.SceneActionMixin import SceneActionMixin
 from protocol0.lom.SceneName import SceneName
 from protocol0.lom.clip.Clip import Clip
 from protocol0.lom.clip_slot.ClipSlot import ClipSlot
-from protocol0.utils.decorators import p0_subject_slot, defer
+from protocol0.utils.decorators import p0_subject_slot, defer, throttle
 
 
 class Scene(AbstractObject, SceneActionMixin):
@@ -57,6 +57,7 @@ class Scene(AbstractObject, SceneActionMixin):
         self.schedule_next_scene_launch()
 
     @subject_slot_group("length")
+    @throttle(wait_time=20)
     def _clips_length_listener(self, _):
         # type: (Clip) -> None
         self._check_scene_length()

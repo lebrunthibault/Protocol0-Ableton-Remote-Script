@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Optional
 
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.decorators import session_view_only, throttle
+from protocol0.utils.decorators import session_view_only
 
 if TYPE_CHECKING:
     from protocol0.lom.Scene import Scene
@@ -12,7 +12,6 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class SceneActionMixin(object):
-    @throttle(wait_time=20)
     def _check_scene_length(self):
         # type: (Scene) -> None
         self.parent.defer(self.scene_name.update)
