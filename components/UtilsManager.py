@@ -16,4 +16,4 @@ class UtilsManager(AbstractControlSurfaceComponent):
         blacklist = ["venv", "_Framework", "protocol0\\sequence", "callback_descriptor", "components\\FastScheduler"]
         for line in traceback.format_stack():
             if all([word not in line for word in blacklist]):
-                self.parent.log_dev(line.strip())
+                self.parent.log_info(line.strip())

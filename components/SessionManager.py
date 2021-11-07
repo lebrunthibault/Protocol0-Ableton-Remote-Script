@@ -11,9 +11,13 @@ class SessionManager(AbstractControlSurfaceComponent):
         super(SessionManager, self).__init__(*a, **k)
         self.session = None  # type: Optional[SessionComponent]
         self.register_slot(self.parent.songManager, self._setup_session_control, "selected_track")
+        self._currently_selected_track = None  # type: Optional[SimpleTrack]
 
     def _setup_session_control(self):
         # type: () -> None
+        if self._currently_selected_track == self.song.selected_track:
+            return None
+        self._currently_selected_track = self.song.selected_track
         if self.session:
             self.session.set_show_highlight(False)
             self.session.disconnect()
