@@ -72,7 +72,7 @@ class MidiClip(Clip):
         seq.add(self.hide_envelope)
         seq.add(wait=10, silent=True)
         seq.add(
-            partial(self.system.double_click, PixelEnum.FOLD_CLIP_NOTES.value[0], PixelEnum.FOLD_CLIP_NOTES.value[1])
+            partial(self.system.double_click, *PixelEnum.FOLD_CLIP_NOTES.coordinates)
         )
         return seq.done()
 

@@ -3,7 +3,7 @@ from functools import partial
 from typing import TYPE_CHECKING, Any, Optional, NoReturn
 
 from protocol0.devices.InstrumentSimpler import InstrumentSimpler
-from protocol0.enums.DeviceNameEnum import DeviceNameEnum
+from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.interface.InterfaceState import InterfaceState
@@ -17,9 +17,14 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints,PyAttributeOutsideInit
 class AbstractTrackActionMixin(object):
-    def validate_configuration(self):
-        # type: (AbstractTrack) -> bool
+    # noinspection PyUnusedLocal
+    def validate_configuration(self, log=True):
+        # type: (AbstractTrack, bool) -> bool
         return True
+
+    def fix_configuration(self):
+        # type: (AbstractTrack) -> None
+        return None
 
     def select(self):
         # type: (AbstractTrack) -> Sequence
@@ -254,16 +259,12 @@ class AbstractTrackActionMixin(object):
     def reset_track(self):
         # type: (AbstractTrack) -> None
         self.solo = False
-        # if self.is_armed:
-        #     self.unarm()
-        # else:
-        #     self.unarm_track()
 
-    def load_rack_device(self, device_name):
-        # type: (AbstractTrack, DeviceNameEnum) -> Sequence
+    def load_device_from_enum(self, device_enum):
+        # type: (AbstractTrack, DeviceEnum) -> Sequence
         seq = Sequence()
         seq.add(self.select)
-        seq.add(partial(self.parent.browserManager.load_rack_device, device_name))
+        seq.add(partial(self.parent.browserManager.load_device_from_enum, device_enum))
         return seq.done()
 
     @retry(3, 8)

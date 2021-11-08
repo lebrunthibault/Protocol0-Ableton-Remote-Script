@@ -2,10 +2,7 @@ from typing import List, Optional, Any, Callable
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.interface.EncoderAction import EncoderAction
-from protocol0.interface.EncoderModifier import EncoderModifier
-from protocol0.interface.EncoderModifierEnum import EncoderModifierEnum
 from protocol0.interface.MultiEncoder import MultiEncoder
-from protocol0.interface.MultiEncoderModifier import MultiEncoderModifier
 
 
 class AbstractActionGroup(AbstractControlSurfaceComponent):
@@ -17,11 +14,9 @@ class AbstractActionGroup(AbstractControlSurfaceComponent):
 
     def __init__(self, channel, filter_active_tracks=False, *a, **k):
         # type: (int, bool, Any, Any) -> None
+        assert 1 <= channel <= 16
         super(AbstractActionGroup, self).__init__(*a, **k)
-        self.available_modifiers = [  # noqa
-            EncoderModifier(modifier_type) for modifier_type in list(EncoderModifierEnum)
-        ]  # type: List[EncoderModifier]
-        self.channel = channel
+        self.channel = channel - 1  # as to match to ec4 channels going from 1 to 16
         self.filter_active_tracks = filter_active_tracks
         self.multi_encoders = []  # type: List[MultiEncoder]
 
@@ -39,11 +34,4 @@ class AbstractActionGroup(AbstractControlSurfaceComponent):
         encoder = MultiEncoder(group=self, identifier=identifier, name=name, filter_active_tracks=filter_active_tracks)
         for action in EncoderAction.make_actions(on_press=on_press, on_long_press=on_long_press, on_scroll=on_scroll):
             encoder.add_action(action)
-        return self._add_multi_encoder(encoder)
-
-    def add_modifier(self, identifier, modifier_type, on_scroll=None):
-        # type: (int, EncoderModifierEnum, Optional[Callable]) -> MultiEncoder
-        encoder = MultiEncoderModifier(group=self, identifier=identifier, modifier_type=modifier_type)
-        if on_scroll:
-            encoder.add_action(EncoderAction.make_actions(on_scroll=on_scroll)[0])
         return self._add_multi_encoder(encoder)

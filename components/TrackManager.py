@@ -91,10 +91,6 @@ class TrackManager(AbstractControlSurfaceComponent):
             self.parent.log_error("Couldn't find external instrument in %s" % base_group_track)
             return None
 
-        if not midi_track.get_device_by_name(instrument.EXTERNAL_INSTRUMENT_DEVICE):
-            self.parent.log_error("Expected to find external instrument device %s in %s" % (instrument.EXTERNAL_INSTRUMENT_DEVICE, base_group_track))
-            return None
-
         if isinstance(base_group_track.abstract_group_track, ExternalSynthTrack):
             external_synth_track = base_group_track.abstract_group_track
         else:

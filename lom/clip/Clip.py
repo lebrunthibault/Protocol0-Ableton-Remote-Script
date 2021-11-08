@@ -1,9 +1,8 @@
 from functools import partial
 
-from typing import TYPE_CHECKING, Optional, Any, List, cast
+from typing import TYPE_CHECKING, Optional, Any, List
 
 import Live
-from protocol0.enums.ClipTypeEnum import ClipTypeEnum
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.clip.ClipActionMixin import ClipActionMixin
 from protocol0.lom.clip.ClipName import ClipName
@@ -93,13 +92,6 @@ class Clip(ClipActionMixin, AbstractObject):
             clip.configure_new_clip()
 
         return clip
-
-    @property
-    def type(self):
-        # type: () -> ClipTypeEnum
-        return cast(
-            ClipTypeEnum, ClipTypeEnum.get_from_value(self.clip_name.base_name.split(" ")[0], ClipTypeEnum.NORMAL)
-        )
 
     @property
     def name(self):

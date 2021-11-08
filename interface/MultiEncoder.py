@@ -6,8 +6,6 @@ from _Framework.ButtonElement import ButtonElement
 from _Framework.InputControlElement import MIDI_NOTE_TYPE, MIDI_CC_TYPE
 from _Framework.SubjectSlot import subject_slot
 from protocol0.interface.EncoderAction import EncoderAction, EncoderMoveEnum
-from protocol0.interface.EncoderModifier import EncoderModifier
-from protocol0.interface.EncoderModifierEnum import EncoderModifierEnum
 from protocol0.lom.AbstractObject import AbstractObject
 
 if TYPE_CHECKING:
@@ -21,7 +19,6 @@ class MultiEncoder(AbstractObject):
         # type: (AbstractActionGroup, int, str, bool, Any, Any) -> None
         """
         Actions are triggered at the end of the press not the start. Allows press vs long_press (Note) vs scroll (CC)
-        Also possible to define modifiers to duplicate the number of actions possible.
         NB : for press actions the action is triggered on button release (allowing long_press)
         """
         super(MultiEncoder, self).__init__(*a, **k)
@@ -37,26 +34,15 @@ class MultiEncoder(AbstractObject):
         self._pressed_at = None  # type: Optional[float]
         self._has_long_press = False
 
-    def get_modifier_from_enum(self, modifier_type):
-        # type: (EncoderModifierEnum) -> EncoderModifier
-        return [modifier for modifier in self._group.available_modifiers if modifier.type == modifier_type][0]
-
     def add_action(self, action):
         # type: (EncoderAction) -> MultiEncoder
         assert not self._find_matching_action(
-            action.move_type, action.modifier_type, exact_match=True, log_not_found=False
+            action.move_type, exact_match=True, log_not_found=False
         ), ("duplicate move %s" % action)
         if action.move_type == EncoderMoveEnum.LONG_PRESS:
             self._has_long_press = True
         self._actions.append(action)
         return self
-
-    @property
-    def _pressed_modifier_type(self):
-        # type: () -> Optional[EncoderModifierEnum]
-        pressed_modifiers = [modifier for modifier in self._group.available_modifiers if modifier.pressed]
-        assert len(pressed_modifiers) <= 1, "Multiple modifiers pressed. Not allowed."
-        return pressed_modifiers[0].type if len(pressed_modifiers) else None
 
     @property
     def _is_long_pressed(self):
@@ -94,30 +80,27 @@ class MultiEncoder(AbstractObject):
         if action:
             action.execute(encoder_name=self.name, go_next=value == 1)
 
-    def _find_matching_action(self, move_type, modifier_type=None, exact_match=False, log_not_found=True):
-        # type: (EncoderMoveEnum, Optional[EncoderModifierEnum], bool, bool) -> Optional[EncoderAction]
-        modifier_type = modifier_type or self._pressed_modifier_type
-
-        def find_matching_action(inner_move_type, inner_modifier_type):
-            # type: (EncoderMoveEnum, EncoderModifierEnum) -> Optional[EncoderAction]
+    def _find_matching_action(self, move_type, exact_match=False, log_not_found=True):
+        # type: (EncoderMoveEnum, bool, bool) -> Optional[EncoderAction]
+        def find_matching_action(inner_move_type):
+            # type: (EncoderMoveEnum) -> Optional[EncoderAction]
             actions = [
                 encoder_action
                 for encoder_action in self._actions
-                if encoder_action.move_type == inner_move_type and encoder_action.modifier_type == inner_modifier_type
+                if encoder_action.move_type == inner_move_type
             ]
             return next(iter(actions), None)
 
-        action = find_matching_action(inner_move_type=move_type,
-                                      inner_modifier_type=modifier_type)  # type: ignore[arg-type]
+        action = find_matching_action(inner_move_type=move_type)  # type: ignore[arg-type]
 
         # special case : fallback long_press to press
         if not action and move_type == EncoderMoveEnum.LONG_PRESS and not exact_match:
             # type: ignore[arg-type]
-            action = find_matching_action(inner_move_type=EncoderMoveEnum.PRESS, inner_modifier_type=modifier_type)
+            action = find_matching_action(inner_move_type=EncoderMoveEnum.PRESS)
 
         if not action and log_not_found:
             self.parent.show_message(
-                "Press didn't trigger action, move_type: %s, modifier: %s" % (move_type, self._pressed_modifier_type)
+                "Press didn't trigger action, move_type: %s" % move_type
             )
 
         return action

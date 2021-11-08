@@ -13,3 +13,8 @@ class TrackSearchKeywordEnum(AbstractEnum):
     PROPHET = "PROPHET"
     PIANO = "PIANO"
     MASTER = "MASTER"
+
+    @property
+    def search_value(self):
+        # type: () -> str
+        return self.value.lower().strip()

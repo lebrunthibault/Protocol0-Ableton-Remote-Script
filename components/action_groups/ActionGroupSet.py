@@ -7,7 +7,7 @@ from protocol0.interface.InterfaceState import InterfaceState
 class ActionGroupSet(AbstractActionGroup):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
-        super(ActionGroupSet, self).__init__(channel=14, filter_active_tracks=False, *a, **k)
+        super(ActionGroupSet, self).__init__(channel=3, filter_active_tracks=False, *a, **k)
         # LOG encoder
         self.add_encoder(identifier=1, name="log current", on_press=self.parent.logManager.log_current)
 
@@ -17,15 +17,8 @@ class ActionGroupSet(AbstractActionGroup):
         # CLR encoder
         self.add_encoder(identifier=3, name="clear logs", on_press=self.parent.logManager.clear)
 
-        # FIX encoder
-        self.add_encoder(identifier=4, name="fix", on_press=self.parent.setFixerManager.refresh_set_appearance)
-
         # PUSH encoder
         self.add_encoder(identifier=5, name="connect push2", on_press=self.parent.push2Manager.connect_push2)
-
-        # RACK encoder
-        self.add_encoder(identifier=6, name="update rack devices",
-                         on_press=self.parent.setFixerManager.update_audio_effect_racks)
 
         # DUPScene encoder
         self.add_encoder(identifier=7, name="partial duplicate scene",
@@ -34,7 +27,7 @@ class ActionGroupSet(AbstractActionGroup):
                          )
 
         # DATA encoder
-        self.add_encoder(identifier=8, name="clear song data", on_scroll=self.parent.songDataManager.clear_data)
+        self.add_encoder(identifier=8, name="clear song data", on_press=self.parent.songDataManager.clear_data)
 
         # MIX encoder
         self.add_encoder(identifier=13, name="scroll all tracks volume",

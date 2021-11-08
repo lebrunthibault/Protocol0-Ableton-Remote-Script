@@ -17,17 +17,33 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class ExternalSynthTrackActionMixin(object):
-    def validate_configuration(self):
-        # type: (ExternalSynthTrack) -> bool
+    def validate_configuration(self, log=True):
+        # type: (ExternalSynthTrack, bool) -> bool
         """ this needs to be deferred because routings are not available on the first tick """
-        instrument = find_if(lambda i: isinstance(i, AbstractExternalSynthTrackInstrument), [self.midi_track.instrument, self.audio_track.instrument])  # type: Optional[AbstractExternalSynthTrackInstrument]
-        if not self.audio_track.input_routing_type.attached_object == self.midi_track._track:
-            self.parent.log_error("The audio track input routing should be its associated midi track : %s" % self)
+        instrument = find_if(lambda i: isinstance(i, AbstractExternalSynthTrackInstrument), [self.midi_track.instrument,
+                                                                                             self.audio_track.instrument])  # type: Optional[AbstractExternalSynthTrackInstrument]
+        if not self.midi_track.get_device_from_enum(instrument.EXTERNAL_INSTRUMENT_DEVICE):
+            if log:
+                self.parent.log_error("Expected to find external instrument device %s in %s" % (
+                    instrument.EXTERNAL_INSTRUMENT_DEVICE, self))
             return False
-        if instrument.AUDIO_INPUT_ROUTING_CHANNEL.value != self.audio_track.input_routing_channel.display_name:
-            self.parent.log_error("Expected to find audio input routing channel to %s : %s" % (instrument.AUDIO_INPUT_ROUTING_CHANNEL.value, self))
+        if not self.audio_track.input_routing_type.attached_object == self.midi_track._track:
+            if log:
+                self.parent.log_error("The audio track input routing should be its associated midi track : %s" % self)
+            return False
+        if instrument.AUDIO_INPUT_ROUTING_CHANNEL.label != self.audio_track.input_routing_channel.display_name:
+            if log:
+                self.parent.log_error("Expected to find audio input routing channel to %s : %s" % (
+                    instrument.AUDIO_INPUT_ROUTING_CHANNEL.label, self))
             return False
         return True
+
+    def fix_configuration(self):
+        # type: (ExternalSynthTrack) -> None
+        instrument = find_if(lambda i: isinstance(i, AbstractExternalSynthTrackInstrument), [self.midi_track.instrument,
+                                                                                             self.audio_track.instrument])  # type: Optional[AbstractExternalSynthTrackInstrument]
+        if not self.midi_track.get_device_from_enum(instrument.EXTERNAL_INSTRUMENT_DEVICE):
+            return
 
     def arm_track(self):
         # type: (ExternalSynthTrack) -> Optional[Sequence]
@@ -50,15 +66,15 @@ class ExternalSynthTrackActionMixin(object):
     @has_monitor_in.setter
     def has_monitor_in(self, has_monitor_in):
         # type: (ExternalSynthTrack, bool) -> None
-        self.audio_track._track.current_monitoring_state = CurrentMonitoringStateEnum.OFF.value
+        self.audio_track.current_monitoring_state = CurrentMonitoringStateEnum.OFF
         if has_monitor_in:
-            self.midi_track._track.current_monitoring_state = CurrentMonitoringStateEnum.IN.value
+            self.midi_track.current_monitoring_state = CurrentMonitoringStateEnum.IN
             self.midi_track.mute = True
             self.audio_track.mute = False
             if self._external_device:
                 self._external_device.mute = True
         else:
-            self.midi_track._track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO.value
+            self.midi_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
             self.midi_track.mute = False
             self.audio_track.mute = True
             if self._external_device:
@@ -87,7 +103,7 @@ class ExternalSynthTrackActionMixin(object):
         midi_clip_slot = self.midi_track.clip_slots[self.next_empty_clip_slot_index]
         audio_clip_slot = self.audio_track.clip_slots[self.next_empty_clip_slot_index]
         self.audio_track.select()
-        recording_bar_length = InterfaceState.SELECTED_RECORDING_BAR_LENGTH.value
+        recording_bar_length = InterfaceState.SELECTED_RECORDING_BAR_LENGTH.int_value
         bar_tail_length = InterfaceState.record_clip_tails_length()
 
         seq.add([

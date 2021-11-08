@@ -2,10 +2,10 @@ from functools import partial
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.devices.InstrumentSimpler import InstrumentSimpler
-from protocol0.enums.SynchronizableDeviceEnum import SynchronizableDeviceEnum
+from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.lom.device.RackDevice import RackDevice
+from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.decorators import defer
 
 
 class SetFixerManager(AbstractControlSurfaceComponent):
@@ -20,7 +20,7 @@ class SetFixerManager(AbstractControlSurfaceComponent):
         self._check_instruments()
 
         if log:
-            self.parent.show_message("Set checked !")
+            self.parent.show_message("Set checked")
 
     def refresh_set_appearance(self, log=True):
         # type: (bool) -> None
@@ -32,7 +32,22 @@ class SetFixerManager(AbstractControlSurfaceComponent):
         self._fix_simpler_tracks_name()
 
         if log:
-            self.parent.show_message("Set fixed !")
+            self.parent.show_message("Set appearance refreshed")
+
+    def fix_current_external_synth_track(self):
+        # type: () -> None
+        if not isinstance(self.song.current_track, ExternalSynthTrack):
+            self.parent.show_message("current track is not an ExternalSynthTrack")
+            return None
+
+        if self.song.current_track.validate_configuration(log=False):
+            self.parent.show_message("current track is a valid ExternalSynthTrack")
+            return None
+
+        # if not self.midi_track.get_device_from_enum(instrument.EXTERNAL_INSTRUMENT_DEVICE):
+        #     self.parent.log_error("Expected to find external instrument device %s in %s" % (instrument.EXTERNAL_INSTRUMENT_DEVICE, self))
+        # return False
+        self.parent.log_dev("ready to fix")
 
     def _check_input_routings(self):
         # type: () -> None
@@ -91,7 +106,6 @@ class SetFixerManager(AbstractControlSurfaceComponent):
         for track in reversed(list(self.song.abstract_tracks)):
             track.refresh_appearance()
 
-    @defer
     def refresh_scenes_appearance(self):
         # type: () -> None
         for scene in self.song.scenes:
@@ -109,8 +123,9 @@ class SetFixerManager(AbstractControlSurfaceComponent):
         seq = Sequence()
         for track in self.song.simple_tracks:
             for device in track.all_devices:
-                if isinstance(device, RackDevice) and any(
-                        device.name == enum.value for enum in SynchronizableDeviceEnum):
+                if not isinstance(device, RackDevice):
+                    continue
+                if any(enum.matches_device(device) for enum in DeviceEnum.updatable_device_enums()):
                     seq.add(partial(self.parent.deviceManager.update_audio_effect_rack, device=device))
 
         return seq.done()

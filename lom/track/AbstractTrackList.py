@@ -83,10 +83,6 @@ class AbstractTrackList(UserMutableSequence):
 
         if not self.song.current_track.is_folded:
             return FoldActionEnum.FOLD_ALL
-            # if len(other_abstract_tracks_to_fold):
-            #     return FoldActionEnum.FOLD_ALL_EXCEPT_CURRENT
-            # else:
-            #     return FoldActionEnum.FOLD_ALL
         else:
             if len(other_abstract_tracks_to_fold):
                 return FoldActionEnum.FOLD_ALL

@@ -96,8 +96,6 @@ class LogManager(AbstractObject):
         if self.song.selected_track.is_active:
             self.parent.log_info("selected_track.playable_clip: %s" % self.song.selected_track.playable_clip)
             self.parent.log_info()
-        self.parent.log_info("selected_track.last_clip_played: %s" % self.song.selected_track.last_clip_played)
-        self.parent.log_info()
         self.parent.log_notice("********* SELECTED_SCENE *************")
         self.parent.log_info()
         self.parent.log_info("selected_scene: %s" % self.song.selected_scene)

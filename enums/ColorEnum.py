@@ -11,3 +11,8 @@ class ColorEnum(AbstractEnum):
     PROPHET = 23
     ADDICTIVE_KEYS = 26
     MINITAUR = 69
+
+    @property
+    def index(self):
+        # type: () -> int
+        return self.value

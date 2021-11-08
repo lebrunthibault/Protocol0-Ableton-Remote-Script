@@ -16,7 +16,7 @@ class KeywordSearchManager(AbstractControlSurfaceComponent):
                 self.song.master_track.select()
             return
 
-        search = keyword_enum.value.lower().strip()
+        search = keyword_enum.search_value
 
         matching_tracks = []
         for track in self.song.abstract_tracks:

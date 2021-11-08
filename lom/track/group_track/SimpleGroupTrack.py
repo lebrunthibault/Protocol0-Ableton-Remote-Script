@@ -17,7 +17,7 @@ class SimpleGroupTrack(AbstractGroupTrack):
         # type: (SimpleTrack, Any, Any) -> None
         super(SimpleGroupTrack, self).__init__(base_group_track=base_group_track, *a, **k)
         self._single_sub_track_routing = self._get_single_sub_track_routing()
-        self.push2_selected_main_mode = Push2MainModeEnum.MIX.value
+        self.push2_selected_main_mode = Push2MainModeEnum.MIX
 
     @property
     def instrument_class(self):
@@ -111,4 +111,4 @@ class SimpleGroupTrack(AbstractGroupTrack):
         if len(set(sub_track_colors)) == 1:
             return sub_track_colors[0]
         else:
-            return self.DEFAULT_COLOR.value
+            return self.DEFAULT_COLOR.index

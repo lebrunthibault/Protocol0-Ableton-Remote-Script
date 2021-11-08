@@ -1,6 +1,6 @@
 from protocol0.devices.AbstractExternalSynthTrackInstrument import AbstractExternalSynthTrackInstrument
 from protocol0.enums.ColorEnum import ColorEnum
-from protocol0.enums.DeviceNameEnum import DeviceNameEnum
+from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.enums.InputRoutingChannelEnum import InputRoutingChannelEnum
 from protocol0.sequence.Sequence import Sequence
 
@@ -11,7 +11,7 @@ class InstrumentMinitaur(AbstractExternalSynthTrackInstrument):
     PRESET_EXTENSION = ".syx"
     TRACK_COLOR = ColorEnum.MINITAUR
     CAN_BE_SHOWN = True
-    EXTERNAL_INSTRUMENT_DEVICE = DeviceNameEnum.EXTERNAL_INSTRUMENT
+    EXTERNAL_INSTRUMENT_DEVICE = DeviceEnum.EXTERNAL_INSTRUMENT
     AUDIO_INPUT_ROUTING_CHANNEL = InputRoutingChannelEnum.PRE_FX
     PRESETS_PATH = "C:\\Users\\thiba\\AppData\\Roaming\\Moog Music Inc\\Minitaur\\Presets Library\\User"
     PROGRAM_CHANGE_OFFSET = 1

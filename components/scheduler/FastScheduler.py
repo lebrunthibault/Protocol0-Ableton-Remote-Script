@@ -3,8 +3,6 @@ from typing import List, Any, Callable
 
 import Live
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-
-
 from protocol0.components.scheduler.SchedulerEvent import SchedulerEvent
 
 
@@ -24,7 +22,7 @@ class FastScheduler(AbstractControlSurfaceComponent):
         # type: () -> None
         for scheduled_event in self._scheduled_events:
             scheduled_event.cancel()
-        self._scheduled_events = []  # type: List[SchedulerEvent]
+        del self._scheduled_events[:]
         # noinspection PyArgumentList
         self._scheduler.stop()
 

@@ -16,7 +16,6 @@ from protocol0.components.BrowserManager import BrowserManager
 from protocol0.components.ClipManager import ClipManager
 from protocol0.components.DeviceManager import DeviceManager
 from protocol0.components.ErrorManager import ErrorManager
-from protocol0.components.scheduler.FastScheduler import FastScheduler, SchedulerEvent
 from protocol0.components.LogManager import LogManager
 from protocol0.components.MidiManager import MidiManager
 from protocol0.components.MixingManager import MixingManager
@@ -31,11 +30,13 @@ from protocol0.components.SongManager import SongManager
 from protocol0.components.TrackManager import TrackManager
 from protocol0.components.UtilsManager import UtilsManager
 from protocol0.components.ValidatorManager import ValidatorManager
+from protocol0.components.action_groups.ActionGroupFix import ActionGroupFix
 from protocol0.components.action_groups.ActionGroupMain import ActionGroupMain
 from protocol0.components.action_groups.ActionGroupPreset import ActionGroupPreset
 from protocol0.components.action_groups.ActionGroupSet import ActionGroupSet
 from protocol0.components.action_groups.ActionGroupTest import ActionGroupTest
 from protocol0.components.api.ApiAction import ApiAction
+from protocol0.components.scheduler.FastScheduler import FastScheduler, SchedulerEvent
 from protocol0.components.vocal_command.KeywordSearchManager import KeywordSearchManager
 from protocol0.components.vocal_command.VocalCommandManager import VocalCommandManager
 from protocol0.devices.AbstractInstrument import AbstractInstrument
@@ -110,6 +111,7 @@ class Protocol0(ControlSurface):
                 ActionGroupSet()
                 ActionGroupPreset()
                 ActionGroupTest()
+                ActionGroupFix()
 
                 # vocal command
                 self.keywordSearchManager = KeywordSearchManager()

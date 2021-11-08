@@ -5,14 +5,14 @@ from typing import List, Optional, Any, Dict
 import Live
 from _Framework.SubjectSlot import subject_slot, subject_slot_group
 from protocol0.devices.AbstractInstrument import AbstractInstrument
-from protocol0.enums.ClipTypeEnum import ClipTypeEnum
+from protocol0.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.lom.clip.Clip import Clip
 from protocol0.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.lom.device.Device import Device
 from protocol0.lom.device.DeviceParameter import DeviceParameter
 from protocol0.lom.track.AbstractTrack import AbstractTrack
 from protocol0.lom.track.simple_track.SimpleTrackActionMixin import SimpleTrackActionMixin
-from protocol0.utils.decorators import defer, p0_subject_slot
+from protocol0.utils.decorators import p0_subject_slot
 from protocol0.utils.utils import find_if
 
 
@@ -38,10 +38,8 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self._devices_listener.subject = self._track
         self._devices_listener()
         self.clip_slots = []  # type: List[ClipSlot]
-        self.last_clip_played = None  # type: Optional[Clip]
 
         if self.is_active:
-            self._playing_slot_index_listener.subject = self._track
             self._fired_slot_index_listener.subject = self._track
 
             self.map_clip_slots()
@@ -74,23 +72,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
                 new_clip_slots.append(ClipSlot.make(clip_slot=clip_slot, track=self))
         self.clip_slots = new_clip_slots
         self._clip_slots_has_clip_listener.replace_subjects(self.clip_slots)
-
-    @subject_slot("playing_slot_index")
-    @defer
-    def _playing_slot_index_listener(self):
-        # type: () -> None
-        # handle one shot clips
-        if self.playable_clip and self.playable_clip.type == ClipTypeEnum.ONE_SHOT:
-            if not self.last_clip_played or self.last_clip_played == self.playable_clip:
-                self.parent.wait_beats(self.playable_clip.length - 1, self.stop)
-            else:
-                self.parent.wait_beats(self.playable_clip.length - 1, self.last_clip_played.play)
-
-        # we keep track state when the set is stopped
-        if all([not track.is_playing for track in self.song.simple_tracks]):
-            return
-
-        self.last_clip_played = self.playing_clip
 
     @p0_subject_slot("fired_slot_index")
     def _fired_slot_index_listener(self):
@@ -151,6 +132,16 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             return True
         else:
             return False
+
+    @property
+    def current_monitoring_state(self):
+        # type: () -> CurrentMonitoringStateEnum
+        return CurrentMonitoringStateEnum.get_from_value(self._track.current_monitoring_state)
+
+    @current_monitoring_state.setter
+    def current_monitoring_state(self, monitoring_state):
+        # type: (CurrentMonitoringStateEnum) -> None
+        self._track.current_monitoring_state = monitoring_state.value
 
     @property
     def playing_slot_index(self):

@@ -69,7 +69,7 @@ class ClipActionMixin(object):
         self.view.show_envelope()
         self.view.select_envelope_parameter(parameter._device_parameter)
         if not InterfaceState.CLIP_ENVELOPE_SHOW_BOX_CLICKED:
-            self.system.double_click(PixelEnum.SHOW_CLIP_ENVELOPE.value[0], PixelEnum.SHOW_CLIP_ENVELOPE.value[1])
+            self.system.double_click(*PixelEnum.SHOW_CLIP_ENVELOPE.coordinates)
             InterfaceState.CLIP_ENVELOPE_SHOW_BOX_CLICKED = True
         self.displayed_automated_parameter = parameter  # type: Optional[DeviceParameter]
 

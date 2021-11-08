@@ -7,8 +7,9 @@ import Live
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.enums.ColorEnum import ColorEnum
 from protocol0.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
-from protocol0.enums.DeviceNameEnum import DeviceNameEnum
+from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.enums.DeviceParameterNameEnum import DeviceParameterNameEnum
+from protocol0.enums.Push2InstrumentModeEnum import Push2InstrumentModeEnum
 from protocol0.enums.Push2MainModeEnum import Push2MainModeEnum
 from protocol0.enums.Push2MatrixModeEnum import Push2MatrixModeEnum
 from protocol0.lom.AbstractObject import AbstractObject
@@ -48,9 +49,9 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self.track_name = AbstractTrackName(self)  # type: AbstractTrackName
 
         # DISPLAY
-        self.push2_selected_main_mode = Push2MainModeEnum.DEVICE.value
-        self.push2_selected_matrix_mode = Push2MatrixModeEnum.SESSION.value
-        self.push2_selected_instrument_mode = None  # type: Optional[str]
+        self.push2_selected_main_mode = Push2MainModeEnum.DEVICE
+        self.push2_selected_matrix_mode = Push2MatrixModeEnum.SESSION
+        self.push2_selected_instrument_mode = None  # type: Optional[Push2InstrumentModeEnum]
 
         self._instrument_listener.subject = self
         self._has_clip_listener.subject = self
@@ -59,9 +60,9 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def _added_track_init(self):
         # type: () -> Optional[Sequence]
 
-        mix_rack = self.base_track.get_device_by_name(DeviceNameEnum.MIX_RACK)
+        mix_rack = self.base_track.get_device_from_enum(DeviceEnum.MIX_RACK)
         if not mix_rack:
-            self.load_rack_device(DeviceNameEnum.MIX_RACK)
+            self.load_device_from_enum(DeviceEnum.MIX_RACK)
         else:
             mix_rack.update_param_value(param_name=DeviceParameterNameEnum.MIX_RACK_LFO_DEPTH, param_value=0)
 
@@ -160,7 +161,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         if self._track:
             return self._track.color_index
         else:
-            return ColorEnum.DISABLED.value
+            return ColorEnum.DISABLED.index
 
     @color.setter
     def color(self, color_index):
@@ -172,11 +173,11 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def computed_color(self):
         # type: () -> int
         if not self.is_configuration_valid:
-            return ColorEnum.ERROR.value
+            return ColorEnum.ERROR.index
         if self.abstract_track.instrument:
-            return self.abstract_track.instrument.TRACK_COLOR.value
+            return self.abstract_track.instrument.TRACK_COLOR.index
         else:
-            return self.DEFAULT_COLOR.value
+            return self.DEFAULT_COLOR.index
 
     @property
     def is_foldable(self):
@@ -218,16 +219,16 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def has_monitor_in(self):
         # type: () -> bool
-        return not self.is_foldable and self._track.current_monitoring_state == CurrentMonitoringStateEnum.IN.value
+        return not self.is_foldable and self.base_track.current_monitoring_state == CurrentMonitoringStateEnum.IN
 
     @has_monitor_in.setter
     def has_monitor_in(self, has_monitor_in):
         # type: (bool) -> None
         try:
             if has_monitor_in:
-                self._track.current_monitoring_state = CurrentMonitoringStateEnum.IN.value
+                self.base_track.current_monitoring_state = CurrentMonitoringStateEnum.IN
             else:
-                self._track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO.value
+                self.base_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
         except RuntimeError:
             pass  # Live throws sometimes 'Master or sendtracks have no monitoring state!'
 

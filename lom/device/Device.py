@@ -31,7 +31,7 @@ class Device(AbstractObject):
     def get_parameter_by_name(self, device_parameter_name):
         # type: (Union[DeviceParameterNameEnum, str]) -> Optional[DeviceParameter]
         if isinstance(device_parameter_name, DeviceParameterNameEnum):
-            device_parameter_name = device_parameter_name.value
+            device_parameter_name = device_parameter_name.label
         return find_if(lambda d: d.name == device_parameter_name, self.parameters)
 
     def update_param_value(self, param_name, param_value):

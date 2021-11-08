@@ -13,6 +13,11 @@ class BarLengthEnum(AbstractEnum):
     SIXTY_FOUR = 64
     UNLIMITED = 0
 
+    @property
+    def int_value(self):
+        # type: () -> int
+        return self.value
+
     def __str__(self):
         # type: () -> str
         if self == BarLengthEnum.UNLIMITED:

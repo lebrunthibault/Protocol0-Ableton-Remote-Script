@@ -9,8 +9,8 @@ class ActionGroupTest(AbstractActionGroup):
 
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
-        super(ActionGroupTest, self).__init__(channel=0, *a, **k)
-        # 1 encoder
+        super(ActionGroupTest, self).__init__(channel=1, *a, **k)
+        # TEST encoder
         self.add_encoder(identifier=1, name="test", on_press=self.action_test)
 
     def action_test(self):

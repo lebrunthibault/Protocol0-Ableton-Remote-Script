@@ -102,10 +102,11 @@ class Push2Manager(AbstractControlSurfaceComponent):
             return
         assert self.push2
         if self.update_selected_modes and self.song.selected_track.is_active:
-            self.push2._main_modes.selected_mode = self.song.selected_track.push2_selected_main_mode
-            self.push2._matrix_modes.selected_mode = self.song.selected_track.push2_selected_matrix_mode
-            self.push2._instrument.selected_mode = (
-                    self.song.selected_track.push2_selected_instrument_mode or self.push2._instrument.selected_mode
-            )
+            self.push2._main_modes.selected_mode = self.song.selected_track.push2_selected_main_mode.label
+            self.push2._matrix_modes.selected_mode = self.song.selected_track.push2_selected_matrix_mode.label
+            if self.song.selected_track.push2_selected_instrument_mode:
+                self.push2._instrument.selected_mode = self.song.selected_track.push2_selected_instrument_mode.label
+            else:
+                self.push2._instrument.selected_mode = self.push2._instrument.selected_mode
 
         self.update_selected_modes = True

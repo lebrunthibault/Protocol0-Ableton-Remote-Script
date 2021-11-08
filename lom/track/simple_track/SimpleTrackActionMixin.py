@@ -4,7 +4,7 @@ from itertools import chain, imap  # type: ignore[attr-defined]
 from typing import Optional, List, Union
 from typing import TYPE_CHECKING
 
-from protocol0.enums.DeviceNameEnum import DeviceNameEnum
+from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.device.Device import Device
 from protocol0.lom.device.DeviceChain import DeviceChain
@@ -64,13 +64,13 @@ class SimpleTrackActionMixin(object):
         seq = Sequence()
         assert self.next_empty_clip_slot_index is not None
         recording_clip_slot = self.clip_slots[self.next_empty_clip_slot_index]
-        recording_bar_length = InterfaceState.SELECTED_RECORDING_BAR_LENGTH.value
+        recording_bar_length = InterfaceState.SELECTED_RECORDING_BAR_LENGTH.int_value
         seq.add(partial(recording_clip_slot.record, bar_length=recording_bar_length, bar_tail_length=0))
         return seq.done()
 
-    def get_device_by_name(self, device_name):
-        # type: (SimpleTrack, DeviceNameEnum) -> Optional[Device]
-        return find_if(lambda d: d.name == device_name.value, self.base_track.all_devices)
+    def get_device_from_enum(self, device_enum):
+        # type: (SimpleTrack, DeviceEnum) -> Optional[Device]
+        return find_if(lambda d: d.name == device_enum.device_name, self.base_track.all_devices)
 
     def find_all_devices(self, track_or_chain, only_visible=False):
         # type: (SimpleTrack, Optional[Union[SimpleTrack, DeviceChain]], bool) -> List[Device]

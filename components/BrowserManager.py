@@ -5,7 +5,7 @@ from typing import Optional, Any
 
 import Live
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.enums.DeviceNameEnum import DeviceNameEnum
+from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.lom.device.Device import Device
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.utils import find_if
@@ -18,12 +18,12 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
         self._audio_effect_rack_cache = {}
         super(BrowserManager, self).__init__(*a, **k)
 
-    def load_rack_device(self, rack_name):
-        # type: (DeviceNameEnum) -> Sequence
+    def load_device_from_enum(self, device_enum):
+        # type: (DeviceEnum) -> Sequence
         seq = Sequence()
         seq.add(
-            partial(self.load_from_user_library, None, "'%s.adg'" % rack_name.value),
-            complete_on=lambda: find_if(lambda d: d.name == rack_name.value, self.song.selected_track.devices),
+            partial(self.load_from_user_library, None, device_enum.browser_name),
+            complete_on=lambda: find_if(device_enum.matches_device, self.song.selected_track.devices),
             check_timeout=10,
             silent=True,
         )

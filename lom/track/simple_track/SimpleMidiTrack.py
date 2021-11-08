@@ -13,5 +13,5 @@ class SimpleMidiTrack(SimpleTrack):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(SimpleMidiTrack, self).__init__(*a, **k)
-        self.push2_selected_matrix_mode = Push2MatrixModeEnum.NOTE.value
-        self.push2_selected_instrument_mode = Push2InstrumentModeEnum.SPLIT_MELODIC_SEQUENCER.value
+        self.push2_selected_matrix_mode = Push2MatrixModeEnum.NOTE
+        self.push2_selected_instrument_mode = Push2InstrumentModeEnum.SPLIT_MELODIC_SEQUENCER

@@ -35,14 +35,10 @@ class AbstractEnum(Enum):
         return getattr(sub_class, json_dict["name"])
 
     @classmethod
-    def get_from_value(cls, value, default=None):
-        # type: (Optional[str], Optional[T]) -> Optional[T]
-        if value is None:
-            return default
-
-        value = value.strip()
+    def get_from_value(cls, value):
+        # type: (Any) -> T
         for _, enum in cls.__members__.items():
-            if value == enum.name:
+            if value == enum.value:
                 return cast(T, enum)
 
-        return cast(T, default)
+        raise Protocol0Error("Coudl'nt find matching enum for value %s" % value)

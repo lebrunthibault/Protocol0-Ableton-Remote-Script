@@ -3,7 +3,7 @@ import itertools
 from typing import Optional, Any, cast, List
 
 from protocol0.devices.AbstractInstrument import AbstractInstrument
-from protocol0.enums.DeviceNameEnum import DeviceNameEnum
+from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.enums.DeviceParameterNameEnum import DeviceParameterNameEnum
 from protocol0.lom.ObjectSynchronizer import ObjectSynchronizer
 from protocol0.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
@@ -71,11 +71,12 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     def _link_group_devices_to_audio_devices(self):
         # type: () -> None
         """ allows recording session clip automation from the group track without using dummy clips """
-        lfo_tool_group = self.base_track.get_device_by_name(DeviceNameEnum.LFO_TOOL)
-        lfo_tool_audio = self.audio_track.get_device_by_name(DeviceNameEnum.LFO_TOOL)
+        lfo_tool_group = self.base_track.get_device_from_enum(DeviceEnum.LFO_TOOL)
+        lfo_tool_audio = self.audio_track.get_device_from_enum(DeviceEnum.LFO_TOOL)
 
         if lfo_tool_group and lfo_tool_audio:
-            self._devices_synchronizers.append(DeviceSynchronizer(lfo_tool_group, lfo_tool_audio, [DeviceParameterNameEnum.LFO_TOOL_LFO_DEPTH]))
+            self._devices_synchronizers.append(
+                DeviceSynchronizer(lfo_tool_group, lfo_tool_audio, [DeviceParameterNameEnum.LFO_TOOL_LFO_DEPTH]))
 
     def link_parent_and_child_objects(self):
         # type: () -> None
