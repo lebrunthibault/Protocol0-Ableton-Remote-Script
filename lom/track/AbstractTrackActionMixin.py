@@ -213,8 +213,8 @@ class AbstractTrackActionMixin(object):
         self.song.stop_playing()
         self.has_monitor_in = False
 
-    def delete_playable_clip(self, _):
-        # type: (AbstractTrack, RecordTypeEnum) -> Sequence
+    def delete_playable_clip(self):
+        # type: (AbstractTrack) -> Sequence
         """ overridden """
         seq = Sequence()
         if self.base_track.playable_clip:

@@ -5,6 +5,7 @@ from typing import Optional, List, Union
 from typing import TYPE_CHECKING
 
 from protocol0.enums.DeviceNameEnum import DeviceNameEnum
+from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.device.Device import Device
 from protocol0.lom.device.DeviceChain import DeviceChain
 from protocol0.lom.device.RackDevice import RackDevice
@@ -62,7 +63,9 @@ class SimpleTrackActionMixin(object):
         """ finishes on end of recording """
         seq = Sequence()
         assert self.next_empty_clip_slot_index is not None
-        seq.add(self.clip_slots[self.next_empty_clip_slot_index].record)  # type: ignore[has-type]
+        recording_clip_slot = self.clip_slots[self.next_empty_clip_slot_index]
+        recording_bar_length = InterfaceState.SELECTED_RECORDING_BAR_LENGTH.value
+        seq.add(partial(recording_clip_slot.record, bar_length=recording_bar_length, bar_tail_length=0))
         return seq.done()
 
     def get_device_by_name(self, device_name):

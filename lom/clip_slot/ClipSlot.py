@@ -4,7 +4,6 @@ from typing import Any, TYPE_CHECKING, Optional
 
 import Live
 from protocol0.enums.BarLengthEnum import BarLengthEnum
-from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.clip.Clip import Clip
 from protocol0.sequence.Sequence import Sequence
@@ -91,21 +90,21 @@ class ClipSlot(AbstractObject):
         # type: () -> bool
         return self._clip_slot and self._clip_slot.is_playing
 
-    def record(self, bar_length=None, bar_tail_length=None):
-        # type: (Optional[int], Optional[int]) -> Optional[Sequence]
+    def record(self, bar_length, bar_tail_length):
+        # type: (int, int) -> Optional[Sequence]
         seq = Sequence()
-        unlimited_recording = not bar_length and InterfaceState.SELECTED_RECORDING_BAR_LENGTH == BarLengthEnum.UNLIMITED
 
-        if unlimited_recording:
+        if bar_length == 0:
             self.parent.show_message("Starting recording of %s" % BarLengthEnum.UNLIMITED)
             seq.add(self.fire, complete_on=self._has_clip_listener)
         else:
-            recording_bar_length = bar_length or InterfaceState.SELECTED_RECORDING_BAR_LENGTH.value  # type: int
-            recording_bar_length += bar_tail_length or InterfaceState.record_clip_tails_length()
-            self.parent.show_message("Starting recording of %d bars" % recording_bar_length)
+            bar_legend = "%d" % bar_length
+            if bar_tail_length:
+                bar_legend += " (+%d)" % bar_tail_length
+            self.parent.show_message("Starting recording of %s bars" % bar_legend)
             seq.add(wait=1)  # necessary so that _has_clip_listener triggers on has_clip == True
             seq.add(
-                partial(self.fire, record_length=self.parent.utilsManager.get_beat_time(recording_bar_length)),
+                partial(self.fire, record_length=self.parent.utilsManager.get_beat_time(bar_length + bar_tail_length)),
                 complete_on=self._has_clip_listener,
             )
 
@@ -119,9 +118,9 @@ class ClipSlot(AbstractObject):
             no_timeout=True,
         )
 
-        if InterfaceState.RECORD_CLIP_TAILS and not unlimited_recording:
+        if bar_tail_length:
             seq.add(wait=1)
-            seq.add(lambda: self.clip.post_record_clip_tail())
+            seq.add(lambda: self.clip.post_record_clip_tail(bar_tail_length=bar_tail_length))
 
         return seq.done()
 

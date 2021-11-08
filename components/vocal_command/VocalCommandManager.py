@@ -1,7 +1,7 @@
 from typing import Any, Optional
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.components.FastScheduler import SchedulerEvent
+from protocol0.components.scheduler.SchedulerEvent import SchedulerEvent
 from protocol0.components.vocal_command.KeywordActionManager import KeywordActionManager
 from protocol0.enums.vocal_command.ActionEnum import ActionEnum
 from protocol0.enums.vocal_command.TrackSearchKeywordEnum import TrackSearchKeywordEnum

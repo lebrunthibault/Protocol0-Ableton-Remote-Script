@@ -10,13 +10,13 @@ from typing import Callable, Any, Optional
 
 # noinspection PyUnresolvedReferences
 from _Framework.ControlSurface import ControlSurface
-from protocol0.automation.AutomationTrackManager import AutomationTrackManager
+from protocol0.components.AutomationTrackManager import AutomationTrackManager
 from protocol0.components.BeatScheduler import BeatScheduler
 from protocol0.components.BrowserManager import BrowserManager
 from protocol0.components.ClipManager import ClipManager
 from protocol0.components.DeviceManager import DeviceManager
 from protocol0.components.ErrorManager import ErrorManager
-from protocol0.components.FastScheduler import FastScheduler, SchedulerEvent
+from protocol0.components.scheduler.FastScheduler import FastScheduler, SchedulerEvent
 from protocol0.components.LogManager import LogManager
 from protocol0.components.MidiManager import MidiManager
 from protocol0.components.MixingManager import MixingManager
@@ -126,7 +126,9 @@ class Protocol0(ControlSurface):
         if self.test_mode:
             return
 
-        InterfaceState.SELECTED_RECORDING_BAR_LENGTH = BarLengthEnum.TWO
+        InterfaceState.SELECTED_RECORDING_BAR_LENGTH = BarLengthEnum.ONE
+        InterfaceState.RECORD_CLIP_TAILS = True
+        InterfaceState.SELECTED_CLIP_TAILS_BAR_LENGTH = BarLengthEnum.ONE
 
         self.wait(100, self.push2Manager.connect_push2)
         self.wait(200, self.push2Manager.connect_push2)
@@ -229,7 +231,7 @@ class Protocol0(ControlSurface):
     def clear_tasks(self):
         # type: () -> None
         del self._remaining_scheduled_messages[:]
-        for seq in Sequence.RUNNING_SEQUENCES:
+        for seq in reversed(Sequence.RUNNING_SEQUENCES):
             seq.terminate()
         self._task_group.clear()
         self.fastScheduler.restart()

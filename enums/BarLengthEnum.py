@@ -11,7 +11,7 @@ class BarLengthEnum(AbstractEnum):
     SIXTEEN = 16
     THIRTY_TWO = 32
     SIXTY_FOUR = 64
-    UNLIMITED = "UNLIMITED"
+    UNLIMITED = 0
 
     def __str__(self):
         # type: () -> str
