@@ -34,6 +34,7 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
         self._cache_category("samples")
         item = self._cached_browser_items["samples"].get(sample_name.decode("utf-8"), None)
         if item and item.is_loadable:
+            import Live
             self.song.selected_track.device_insert_mode = self._insert_mode
             self._browser.load_item(item)  # or _browser.preview_item
 
