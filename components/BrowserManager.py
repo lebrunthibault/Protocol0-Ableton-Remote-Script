@@ -35,7 +35,7 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
         item = self._cached_browser_items["samples"].get(sample_name.decode("utf-8"), None)
         if item and item.is_loadable:
             self.song.selected_track.device_insert_mode = self._insert_mode
-            self.parent.defer(partial(self._browser.load_item, item))
+            self._browser.load_item(item)  # or _browser.preview_item
 
     def update_audio_effect_preset(self, device):
         # type: (Device) -> Optional[Sequence]
