@@ -1,7 +1,7 @@
 from pydoc import classname, locate
 
 from enum import Enum
-from typing import TypeVar, cast, Optional, Any
+from typing import TypeVar, cast, Optional, Any, Dict
 
 from protocol0.errors.Protocol0Error import Protocol0Error
 
@@ -35,10 +35,16 @@ class AbstractEnum(Enum):
         return getattr(sub_class, json_dict["name"])
 
     @classmethod
-    def get_from_value(cls, value):
+    def from_value(cls, value):
         # type: (Any) -> T
         for _, enum in cls.__members__.items():
             if value == enum.value:
                 return cast(T, enum)
 
-        raise Protocol0Error("Coudl'nt find matching enum for value %s" % value)
+        raise Protocol0Error("Couldn't find matching enum for value %s" % value)
+
+    def get_value_from_mapping(self, mapping):
+        # type: (Dict[AbstractEnum, Any]) -> Any
+        if self not in mapping:
+            raise Protocol0Error("Couldn't find enum %s in mapping" % self)
+        return mapping[self]

@@ -1,7 +1,7 @@
 from typing import Any
 
 from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
-from protocol0.sequence.Sequence import Sequence
+from protocol0.enums.DeviceEnum import DeviceEnum
 
 
 class ActionGroupTest(AbstractActionGroup):
@@ -15,11 +15,5 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        # self.song.selected_track.playable_clip.delete()
-        # self.song.selected_track.playable_clip.delete()
-        seq = Sequence()
-        seq.add(wait=1)
-        seq.add(self.song.selected_track.playable_clip.delete)
-        seq.add(wait=3)
-        seq.add(self.song.selected_track.playable_clip.delete)
-        seq.done()
+        self.song.selected_track.load_device_from_enum(DeviceEnum.EXTERNAL_INSTRUMENT)
+

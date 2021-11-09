@@ -50,16 +50,6 @@ class SimpleGroupTrack(AbstractGroupTrack):
         else:
             return None
 
-    def _sync_group_output_routing(self):
-        # type: () -> None
-        """
-        if all subtracks (usually only one) are mapped to a single different track (e.g. a bus)
-        then route the group track to this track
-        Usually happens when grouping a single track routed to an audio bus
-        """
-        if self._single_sub_track_routing:
-            self.set_output_routing_to(self._single_sub_track_routing)
-
     def session_record(self, *a, **k):
         # type: (Any, Any) -> None
         pass

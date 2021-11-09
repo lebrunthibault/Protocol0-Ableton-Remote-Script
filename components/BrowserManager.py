@@ -6,6 +6,7 @@ from typing import Optional, Any
 import Live
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.enums.DeviceEnum import DeviceEnum
+from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.lom.device.Device import Device
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.utils import find_if
@@ -21,8 +22,15 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
     def load_device_from_enum(self, device_enum):
         # type: (DeviceEnum) -> Sequence
         seq = Sequence()
+        browser_name = "'%s'" % device_enum.browser_name
+        if device_enum.is_device:
+            load_func = partial(self.load_device, None, browser_name)
+        elif device_enum.is_rack:
+            load_func = partial(self.load_device, None, browser_name)
+        else:
+            raise Protocol0Error("Couldn't load device %s" % device_enum)
         seq.add(
-            partial(self.load_from_user_library, None, device_enum.browser_name),
+            load_func,
             complete_on=lambda: find_if(device_enum.matches_device, self.song.selected_track.devices),
             check_timeout=10,
             silent=True,

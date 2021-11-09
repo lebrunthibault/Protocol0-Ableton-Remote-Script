@@ -8,8 +8,6 @@ _.scroll_presets  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resource
 # noinspection PyStatementEffect
 _.scroll_presets  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\lom\device\PluginDevice.py:16)
 # noinspection PyStatementEffect
-_.set_input_routing_type  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\lom\track\AbstractTrackActionMixin.py:253)
-# noinspection PyStatementEffect
 _.is_checked  # unused attribute (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\components\Push2Manager.py:76)
 # noinspection PyStatementEffect
 _.on_selected_track_changed  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\components\SongManager.py:34)
@@ -17,8 +15,6 @@ _.on_selected_track_changed  # unused method (C:\ProgramData\Ableton\Live 10 Sui
 _.grid_quantization  # unused attribute (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\lom\clip\MidiClip.py:118)
 # noinspection PyStatementEffect
 _._update_racks  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\components\SetFixerManager.py:44)
-# noinspection PyStatementEffect
-_._sync_group_output_routing  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\lom\track\group_track\SimpleGroupTrack.py:62)
 # noinspection PyStatementEffect
 _.wait_bars  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\components\BeatScheduler.py:18)
 # noinspection PyStatementEffect

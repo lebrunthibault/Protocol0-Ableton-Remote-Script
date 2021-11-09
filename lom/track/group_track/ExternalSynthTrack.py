@@ -45,11 +45,9 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self._devices_synchronizers = []  # type: List[DeviceSynchronizer]
 
         with self.parent.component_guard():
-            self._midi_audio_synchronizer = TrackSynchronizer(self.audio_track, self.midi_track)
+            self._midi_audio_synchronizer = TrackSynchronizer(self.audio_track, self.midi_track, ["solo"])
             self._midi_solo_synchronizer = ObjectSynchronizer(self.base_track, self.midi_track, ["solo"])
             self._link_group_devices_to_audio_devices()
-
-        # self.audio_track.set_output_routing_to(self.base_track)
 
         # the instrument handling relies on the group track
         # noinspection PyUnresolvedReferences

@@ -27,11 +27,11 @@ class ExternalSynthTrackActionMixin(object):
                 self.parent.log_error("Expected to find external instrument device %s in %s" % (
                     instrument.EXTERNAL_INSTRUMENT_DEVICE, self))
             return False
-        if not self.audio_track.input_routing_type.attached_object == self.midi_track._track:
+        if not self.audio_track.input_routing_type == self.midi_track:
             if log:
                 self.parent.log_error("The audio track input routing should be its associated midi track : %s" % self)
             return False
-        if instrument.AUDIO_INPUT_ROUTING_CHANNEL.label != self.audio_track.input_routing_channel.display_name:
+        if self.audio_track.input_routing_channel != instrument.AUDIO_INPUT_ROUTING_CHANNEL:
             if log:
                 self.parent.log_error("Expected to find audio input routing channel to %s : %s" % (
                     instrument.AUDIO_INPUT_ROUTING_CHANNEL.label, self))
@@ -42,8 +42,15 @@ class ExternalSynthTrackActionMixin(object):
         # type: (ExternalSynthTrack) -> None
         instrument = find_if(lambda i: isinstance(i, AbstractExternalSynthTrackInstrument), [self.midi_track.instrument,
                                                                                              self.audio_track.instrument])  # type: Optional[AbstractExternalSynthTrackInstrument]
+        seq = Sequence()
         if not self.midi_track.get_device_from_enum(instrument.EXTERNAL_INSTRUMENT_DEVICE):
-            return
+            seq.add(partial(self.midi_track.load_device_from_enum, instrument.EXTERNAL_INSTRUMENT_DEVICE))
+        if not self.audio_track.input_routing_type == self.midi_track:
+            seq.add(partial(setattr, self.audio_track, "input_routing_type", self.midi_track))
+        if self.audio_track.input_routing_channel != instrument.AUDIO_INPUT_ROUTING_CHANNEL:
+            seq.add(partial(setattr, self.audio_track, "input_routing_channel", instrument.AUDIO_INPUT_ROUTING_CHANNEL))
+        seq.done()
+        self.parent.log_info("Fixed ExternalSynthTrack %s" % self)
 
     def arm_track(self):
         # type: (ExternalSynthTrack) -> Optional[Sequence]

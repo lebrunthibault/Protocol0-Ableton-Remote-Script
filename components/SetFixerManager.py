@@ -44,10 +44,14 @@ class SetFixerManager(AbstractControlSurfaceComponent):
             self.parent.show_message("current track is a valid ExternalSynthTrack")
             return None
 
-        # if not self.midi_track.get_device_from_enum(instrument.EXTERNAL_INSTRUMENT_DEVICE):
-        #     self.parent.log_error("Expected to find external instrument device %s in %s" % (instrument.EXTERNAL_INSTRUMENT_DEVICE, self))
-        # return False
-        self.parent.log_dev("ready to fix")
+        self.parent.log_info("fixing configuration of %s" % self.song.current_track)
+        self.parent.show_message("check external device Audio from configuration")
+        seq = Sequence()
+        seq.add(self.song.current_track.fix_configuration)
+        self.song.current_track.is_configuration_valid = True
+        seq.add(self.song.current_track.refresh_appearance)
+        seq.add(self.song.current_track.unarm)
+        seq.done()
 
     def _check_input_routings(self):
         # type: () -> None
@@ -90,10 +94,11 @@ class SetFixerManager(AbstractControlSurfaceComponent):
     def _check_instruments(self):
         # type: () -> None
         for simple_track in self.song.simple_tracks:
-            if simple_track.instrument and not simple_track.instrument.selected_preset:
+            instrument = simple_track.instrument
+            if instrument and not instrument.selected_preset and not simple_track.name == instrument.NAME:
                 self.parent.log_error(
                     "Couldn't find the selected preset of %s (instrument %s)"
-                    % (simple_track.abstract_track, simple_track.instrument)
+                    % (simple_track.abstract_track, instrument)
                 )
 
     def _refresh_clips_appearance(self):

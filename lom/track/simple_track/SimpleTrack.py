@@ -136,7 +136,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def current_monitoring_state(self):
         # type: () -> CurrentMonitoringStateEnum
-        return CurrentMonitoringStateEnum.get_from_value(self._track.current_monitoring_state)
+        return CurrentMonitoringStateEnum.from_value(self._track.current_monitoring_state)
 
     @current_monitoring_state.setter
     def current_monitoring_state(self, monitoring_state):
@@ -201,7 +201,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def is_recording(self):
         # type: () -> bool
-        return any(clip for clip in self.clips if clip.is_recording)
+        return any(clip for clip in self.clips if clip and clip.is_recording)
 
     @property
     def device_insert_mode(self):

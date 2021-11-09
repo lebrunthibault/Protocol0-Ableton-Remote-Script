@@ -267,50 +267,6 @@ class AbstractTrackActionMixin(object):
         seq.add(partial(self.parent.browserManager.load_device_from_enum, device_enum))
         return seq.done()
 
-    @retry(3, 8)
-    def set_output_routing_to(self, track):
-        # type: (AbstractTrack, AbstractTrack) -> None
-        if track is None:
-            raise Protocol0Error("You passed None to %s" % self.set_output_routing_to.__name__)
-
-        from protocol0.lom.track.AbstractTrack import AbstractTrack
-
-        track = track._track if isinstance(track, AbstractTrack) else track
-        output_routing_type = find_if(lambda r: r.attached_object == track, self.available_output_routing_types)
-
-        if not output_routing_type:
-            output_routing_type = find_if(
-                lambda r: r.display_name.lower() == track.name.lower(), self.available_output_routing_types
-            )
-
-        if not output_routing_type:
-            raise Protocol0Error("Couldn't find the output routing type of the given track")
-
-        if self.output_routing_type != output_routing_type:
-            self.output_routing_type = output_routing_type
-
-    def set_input_routing_type(self, track):
-        # type: (AbstractTrack, Any) -> None
-        from protocol0.lom.track.AbstractTrack import AbstractTrack
-
-        track = track._track if isinstance(track, AbstractTrack) else track
-
-        if track is None:
-            self.input_routing_type = self.available_input_routing_types[-1]  # No input
-            return None
-
-        input_routing_type = find_if(lambda r: r.attached_object == track, self.available_input_routing_types)
-        if not input_routing_type:
-            input_routing_type = find_if(
-                lambda r: r.display_name.lower() == track.name.lower(), self.available_input_routing_types
-            )
-
-        if not input_routing_type:
-            raise Protocol0Error("Couldn't find the input routing type of the given track")
-
-        if self.input_routing_type != input_routing_type:
-            self.input_routing_type = input_routing_type
-
     def refresh_appearance(self):
         # type: (AbstractTrack) -> None
         self.track_name.update()
