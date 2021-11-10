@@ -36,6 +36,7 @@ from protocol0.components.action_groups.ActionGroupPreset import ActionGroupPres
 from protocol0.components.action_groups.ActionGroupSet import ActionGroupSet
 from protocol0.components.action_groups.ActionGroupTest import ActionGroupTest
 from protocol0.components.api.ApiAction import ApiAction
+from protocol0.components.api.ApiRoutesManager import ApiRoutesManager
 from protocol0.components.scheduler.FastScheduler import FastScheduler, SchedulerEvent
 from protocol0.components.vocal_command.KeywordSearchManager import KeywordSearchManager
 from protocol0.components.vocal_command.VocalCommandManager import VocalCommandManager
@@ -115,11 +116,12 @@ class Protocol0(ControlSurface):
 
                 # vocal command
                 self.keywordSearchManager = KeywordSearchManager()
-                VocalCommandManager()
+                self.vocalCommandManager = VocalCommandManager()
+
+                ApiRoutesManager()
+                ApiAction.create_method_mapping()
 
                 self.songDataManager.restore_data()
-
-                ApiAction.create_method_mapping()
 
                 self.start()
 
@@ -142,6 +144,7 @@ class Protocol0(ControlSurface):
             self.defer(self.songManager.init_song)
 
         self.log_info("Protocol0 script loaded")
+        self.wait(20, self.p0_system_api_client.display_last_ableton_set_duration)  # waiting for Protocol0_midi to boot
         self.started = True
 
     @property

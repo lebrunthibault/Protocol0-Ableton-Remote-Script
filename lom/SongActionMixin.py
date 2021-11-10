@@ -141,7 +141,7 @@ class SongActionMixin(object):
     def unarm_all_tracks(self):
         # type: (Song) -> Sequence
         seq = Sequence(silent=True)
-        seq.add([t.unarm for t in self.abstract_tracks if t.is_armed])
+        seq.add([t.unarm for t in self.abstract_tracks])
         return seq.done()
 
     def _unsolo_all_tracks(self, except_current=True):

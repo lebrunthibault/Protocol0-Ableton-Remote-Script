@@ -37,8 +37,10 @@ class MidiManager(AbstractControlSurfaceComponent):
     def receive_midi(self, midi_bytes):
         # type: (Tuple) -> None
         message = self._sysex_to_string(sysex=midi_bytes)
+        self.parent.log_dev("message: %s" % message)
         try:
             api_action = ApiAction.make_from_string(payload=message)
+            self.parent.log_dev("api_action: %s" % api_action)
         except ApiError as e:
             self.parent.log_error("ApiAction generation error : %s" % e)
             return
