@@ -6,7 +6,7 @@ from protocol0.sequence.Sequence import Sequence
 
 
 class InstrumentMinitaur(AbstractExternalSynthTrackInstrument):
-    NAME = "Minitaur Bass"
+    NAME = "Minitaur"
     DEVICE_NAME = "minitaur editor(x64)"
     PRESET_EXTENSION = ".syx"
     TRACK_COLOR = ColorEnum.MINITAUR

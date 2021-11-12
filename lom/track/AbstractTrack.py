@@ -62,11 +62,11 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def _added_track_init(self):
         # type: () -> Optional[Sequence]
 
-        mix_rack = self.base_track.get_device_from_enum(DeviceEnum.MIX_RACK)
-        if not mix_rack:
-            self.load_device_from_enum(DeviceEnum.MIX_RACK)
-        else:
-            mix_rack.update_param_value(param_name=DeviceParameterNameEnum.MIX_RACK_LFO_DEPTH, param_value=0)
+        # mix_rack = self.base_track.get_device_from_enum(DeviceEnum.MIX_RACK)
+        # if not mix_rack:
+        #     self.load_device_from_enum(DeviceEnum.MIX_RACK)
+        # else:
+        #     mix_rack.update_param_value(param_name=DeviceParameterNameEnum.MIX_RACK_LFO_DEPTH, param_value=0)
 
         seq = Sequence()
         [seq.add(clip.delete) for clip in self.clips if clip.clip_name.is_valid]
