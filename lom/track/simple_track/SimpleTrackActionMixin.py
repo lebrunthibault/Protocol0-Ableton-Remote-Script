@@ -38,16 +38,6 @@ class SimpleTrackActionMixin(object):
         # type: (SimpleTrack) -> None
         self.has_monitor_in = not self.has_monitor_in  # type: ignore[has-type]
 
-    def undo_track(self):
-        # type: (SimpleTrack) -> None
-        if self.is_recording:
-            self.song.metronome = False
-            self.playable_clip.delete()
-        elif self.is_triggered:
-            self.stop()
-        else:
-            self.song.undo()
-
     def delete_device(self, device):
         # type: (SimpleTrack, Device) -> Sequence
         seq = Sequence()

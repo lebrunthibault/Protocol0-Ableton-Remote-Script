@@ -1,7 +1,7 @@
 from typing import List, Optional, cast, Any
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.config import PUSH2_BEAT_QUANTIZATION_STEPS
+from protocol0.constants import PUSH2_BEAT_QUANTIZATION_STEPS
 from protocol0.lom.Note import Note
 
 

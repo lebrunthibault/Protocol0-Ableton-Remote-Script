@@ -19,7 +19,7 @@ class KeywordActionManager(AbstractControlSurfaceComponent):
         callable_dict = {
             ActionEnum.PLAY: self.song.play,
             ActionEnum.PAUSE: self.song.stop_playing,
-            ActionEnum.STOP: lambda: self.song.reset(False),
+            ActionEnum.STOP: lambda: self.song.reset(),
             ActionEnum.NEXT: lambda: self.parent.keywordSearchManager.search_track(
                 self.parent.keywordSearchManager.LAST_SEARCH),
             ActionEnum.ARM: lambda: self.song.current_track.toggle_arm,

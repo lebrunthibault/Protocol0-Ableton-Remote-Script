@@ -5,11 +5,9 @@ from typing import TYPE_CHECKING, Any, Optional, NoReturn
 from protocol0.devices.InstrumentSimpler import InstrumentSimpler
 from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
-from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.decorators import retry, session_view_only, arrangement_view_only, crashes_ableton
-from protocol0.utils.utils import find_if
+from protocol0.utils.decorators import session_view_only, arrangement_view_only, crashes_ableton
 
 if TYPE_CHECKING:
     from protocol0.lom.track.AbstractTrack import AbstractTrack
@@ -244,19 +242,6 @@ class AbstractTrackActionMixin(object):
         self.base_track._track.stop_all_clips()
         if immediate:
             self.parent.defer(partial(setattr, self.song, "clip_trigger_quantization", qz))
-
-    def undo(self):
-        # type: (AbstractTrack) -> None
-        self.parent.clear_tasks()
-        self.undo_track()
-
-    def undo_track(self):
-        # type: () -> NoReturn
-        raise NotImplementedError()
-
-    def reset_track(self):
-        # type: (AbstractTrack) -> None
-        self.solo = False
 
     def load_device_from_enum(self, device_enum):
         # type: (AbstractTrack, DeviceEnum) -> Sequence

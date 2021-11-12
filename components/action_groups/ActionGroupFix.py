@@ -8,7 +8,7 @@ class ActionGroupFix(AbstractActionGroup):
 
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
-        super(ActionGroupFix, self).__init__(channel=5, *a, **k)
+        super(ActionGroupFix, self).__init__(channel=5, filter_active_tracks=True, *a, **k)
         # SET encoder
         self.add_encoder(identifier=1, name="refresh set appearance",
                          on_press=self.parent.setFixerManager.refresh_set_appearance)

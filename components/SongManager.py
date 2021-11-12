@@ -1,5 +1,4 @@
 import collections
-from functools import partial
 
 from typing import Any, List, Optional
 
@@ -25,11 +24,12 @@ class SongManager(AbstractControlSurfaceComponent):
 
     def init_song(self):
         # type: () -> None
-        self.on_scene_list_changed()
-        self._highlighted_clip_slot = self.song.highlighted_clip_slot
-        self._highlighted_clip_slot_poller()
-        self.song.reset()
-        self.parent.wait(50, self.song.reset)
+        # self.on_scene_list_changed()
+        self.tracks_listener()
+        # self._highlighted_clip_slot = self.song.highlighted_clip_slot
+        # self._highlighted_clip_slot_poller()
+        # self.song.reset()
+        # self.parent.wait(50, self.song.reset)
 
     @handle_error
     def on_scene_list_changed(self):
@@ -65,7 +65,7 @@ class SongManager(AbstractControlSurfaceComponent):
             self.notify_added_track()
 
         self._simple_tracks = list(self.song.simple_tracks)
-        self.parent.defer(partial(self.parent.setFixerManager.refresh_set_appearance, log=False))
+        # self.parent.defer(partial(self.parent.setFixerManager.refresh_set_appearance, log=False))
         self.parent.log_debug("SongManager : mapped tracks")
         # noinspection PyUnresolvedReferences
         self.notify_selected_track()  # trigger other components

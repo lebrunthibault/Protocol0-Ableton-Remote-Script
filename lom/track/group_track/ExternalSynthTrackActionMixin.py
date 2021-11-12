@@ -93,11 +93,6 @@ class ExternalSynthTrackActionMixin(object):
         # type: (ExternalSynthTrack) -> None
         self.has_monitor_in = not self.has_monitor_in
 
-    def undo_track(self):
-        # type: (ExternalSynthTrack) -> None
-        for sub_track in self.sub_tracks:
-            sub_track.undo_track()
-
     def session_record_all(self):
         # type: (ExternalSynthTrack) -> Sequence
         seq = Sequence()

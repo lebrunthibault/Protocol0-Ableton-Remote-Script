@@ -125,10 +125,6 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
                 return i
         return None
 
-    def set_output_routing_to(self, *a, **k):
-        # type: (Any, Any) -> None
-        self.audio_track.set_output_routing_to(*a, **k)
-
     @property
     def color(self):
         # type: () -> int

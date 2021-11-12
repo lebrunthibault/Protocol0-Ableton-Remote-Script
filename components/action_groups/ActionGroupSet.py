@@ -7,7 +7,7 @@ from protocol0.interface.InterfaceState import InterfaceState
 class ActionGroupSet(AbstractActionGroup):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
-        super(ActionGroupSet, self).__init__(channel=3, filter_active_tracks=False, *a, **k)
+        super(ActionGroupSet, self).__init__(channel=3, *a, **k)
         # LOG encoder
         self.add_encoder(identifier=1, name="log current", on_press=self.parent.logManager.log_current)
 

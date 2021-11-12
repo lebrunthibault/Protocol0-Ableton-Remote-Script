@@ -1,6 +1,4 @@
-import time
-
-from typing import Any, Optional
+from typing import Any
 
 from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
 from protocol0.enums.DeviceEnum import DeviceEnum
@@ -15,16 +13,12 @@ class ActionGroupTest(AbstractActionGroup):
         # TEST encoder
         self.add_encoder(identifier=1, name="test", on_press=self.action_test)
         # RELOad time encoder
-        self.add_encoder(identifier=2, name="set reload time", on_press=self.store_reload_time)
-
-        self.parent.log_dev("toto")
+        self.add_encoder(identifier=2, name="profile set reload time", on_press=self.start_set_profiling)
 
     def action_test(self):
         # type: () -> None
         self.song.selected_track.load_device_from_enum(DeviceEnum.EXTERNAL_INSTRUMENT)
 
-    def store_reload_time(self):
+    def start_set_profiling(self):
         # type: () -> None
-        self.system.store_ableton_set_reloaded_at()
-        self.system.reload_ableton()
-
+        self.system.start_set_profiling()

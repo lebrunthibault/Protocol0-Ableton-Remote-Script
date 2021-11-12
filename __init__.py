@@ -3,10 +3,8 @@ import os
 import sys
 from os.path import dirname
 
-root_dir = dirname(os.path.realpath(__file__))
-
 if sys.version_info.major == 2:
-    sys.path.insert(0, "%s\\venv\\Lib\\site-packages" % root_dir)
+    sys.path.insert(0, "%s\\venv\\Lib\\site-packages" % dirname(os.path.realpath(__file__)))
 
 live_environment_loaded = "Live" in sys.modules
 
@@ -16,7 +14,7 @@ from typing import Any, Iterator, Tuple  # noqa: E402
 def load_dotenv():
     # type: () -> None
     """ doing this manually because dotenv throws an encoding error """
-    with open("%s/.env.json" % root_dir) as f:
+    with open("%s/.env.json" % dirname(os.path.realpath(__file__))) as f:
         env_vars = json.loads(f.read())
         for key, value in env_vars.iteritems():
             os.environ[key] = str(value)
@@ -78,4 +76,8 @@ if sys.version_info.major == 2:
 
 def create_instance(c_instance):  # noqa
     # type: (Any) -> Protocol0
-    return Protocol0(c_instance, test_mode=not live_environment_loaded)
+    if not live_environment_loaded:
+        from protocol0.config import Config
+        from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
+        Config.ABLETON_SESSION_TYPE = AbletonSessionTypeEnum.TEST
+    return Protocol0(c_instance)

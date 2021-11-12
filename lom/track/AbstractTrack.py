@@ -7,8 +7,6 @@ import Live
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.enums.ColorEnum import ColorEnum
 from protocol0.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
-from protocol0.enums.DeviceEnum import DeviceEnum
-from protocol0.enums.DeviceParameterNameEnum import DeviceParameterNameEnum
 from protocol0.enums.InputRoutingChannelEnum import InputRoutingChannelEnum
 from protocol0.enums.Push2InstrumentModeEnum import Push2InstrumentModeEnum
 from protocol0.enums.Push2MainModeEnum import Push2MainModeEnum
@@ -61,13 +59,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
 
     def _added_track_init(self):
         # type: () -> Optional[Sequence]
-
-        # mix_rack = self.base_track.get_device_from_enum(DeviceEnum.MIX_RACK)
-        # if not mix_rack:
-        #     self.load_device_from_enum(DeviceEnum.MIX_RACK)
-        # else:
-        #     mix_rack.update_param_value(param_name=DeviceParameterNameEnum.MIX_RACK_LFO_DEPTH, param_value=0)
-
         seq = Sequence()
         [seq.add(clip.delete) for clip in self.clips if clip.clip_name.is_valid]
         [seq.add(clip.clip_name.normalize_base_name) for clip in self.clips if not clip.clip_name.is_valid]
@@ -340,16 +331,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def available_input_routing_channels(self):
         # type: () -> List[Live.Track.RoutingType]
         return list(self._track.available_input_routing_channels)
-
-    @property
-    def output_routing_type(self):
-        # type: () -> Live.Track.RoutingType
-        return self._track.output_routing_type
-
-    @output_routing_type.setter
-    def output_routing_type(self, output_routing_type):
-        # type: (Live.Track.RoutingType) -> None
-        self._track.output_routing_type = output_routing_type
 
     @property
     def input_routing_type(self):

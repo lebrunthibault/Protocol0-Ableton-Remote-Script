@@ -1,5 +1,5 @@
 from p0_system_api.api.default_api import P0SystemAPI
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Optional
 
 from _Framework.ControlSurface import get_control_surfaces
 from _Framework.SubjectSlot import SlotManager, Subject
@@ -16,7 +16,10 @@ class AbstractObject(SlotManager, Subject):
         super(AbstractObject, self).__init__(*a, **k)
         from protocol0 import Protocol0
 
-        parent = find_if(lambda cs: isinstance(cs, Protocol0), get_control_surfaces())
+        if Protocol0.SELF:
+            parent = Protocol0.SELF  # type: Optional[Protocol0]
+        else:
+            parent = find_if(lambda cs: isinstance(cs, Protocol0), get_control_surfaces())
         assert parent
         self._parent = parent  # type: Protocol0
         self.deleted = False
@@ -42,10 +45,7 @@ class AbstractObject(SlotManager, Subject):
     @property
     def system(self):
         # type: () -> P0SystemAPI
-        """
-        Access to non restricted (system) python environment over MIDI
-        """
-        return self._parent.p0_system_api_client
+        return self.parent.p0_system_api_client
 
     @property
     def parent(self):
@@ -64,5 +64,5 @@ class AbstractObject(SlotManager, Subject):
 
     @property
     def song(self):
-        # type: () -> Song
+        # type: () -> Optional[Song]
         return self.parent.protocol0_song

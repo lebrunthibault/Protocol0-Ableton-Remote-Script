@@ -10,7 +10,7 @@ class ActionGroupPreset(AbstractActionGroup):
 
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
-        super(ActionGroupPreset, self).__init__(channel=2, filter_active_tracks=False, *a, **k)
+        super(ActionGroupPreset, self).__init__(channel=2, *a, **k)
         # SCAN encoder
         self.add_encoder(identifier=1, name="scan (import) all track presets",
                          on_press=self.parent.presetManager.refresh_presets)

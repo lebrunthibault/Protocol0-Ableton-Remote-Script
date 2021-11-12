@@ -33,16 +33,13 @@ class SongActionMixin(object):
         self._song.back_to_arranger = False
 
     @handle_error
-    def reset(self, reset_tracks=True):
-        # type: (Song, bool) -> None
+    def reset(self):
+        # type: (Song) -> None
         """ stopping immediately """
         self.stop_playing()
         # noinspection PyPropertyAccess
         self._song.current_song_time = 0
         self.stop_all_clips()
-        if reset_tracks:
-            for track in self.abstract_tracks:
-                track.reset_track()
         if self.song.selected_track == self.song.master_track:
             self.song.select_track(next(self.song.abstract_tracks))
 

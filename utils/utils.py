@@ -6,10 +6,10 @@ from types import FrameType
 from qualname import qualname
 from typing import Optional, Any, cast, Callable, TYPE_CHECKING, Iterator, List, Dict
 
-from protocol0.config import PROJECT_ROOT, REMOTE_SCRIPTS_ROOT
+import Live
+from protocol0.constants import PROJECT_ROOT, REMOTE_SCRIPTS_ROOT
 from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.my_types import StringOrNumber, T
-import Live
 
 if TYPE_CHECKING:
     pass

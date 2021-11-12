@@ -16,7 +16,6 @@ class SimpleGroupTrack(AbstractGroupTrack):
     def __init__(self, base_group_track, *a, **k):
         # type: (SimpleTrack, Any, Any) -> None
         super(SimpleGroupTrack, self).__init__(base_group_track=base_group_track, *a, **k)
-        self._single_sub_track_routing = self._get_single_sub_track_routing()
         self.push2_selected_main_mode = Push2MainModeEnum.MIX
 
     @property
@@ -35,20 +34,6 @@ class SimpleGroupTrack(AbstractGroupTrack):
         if not self.is_folded:
             self.sub_tracks[0].select()
         return None
-
-    def _get_single_sub_track_routing(self):
-        # type: () -> Optional[Any]
-        output_routing_objects = list(
-            set([sub_track.output_routing_type.attached_object for sub_track in self.sub_tracks])
-        )
-        if len(output_routing_objects) == 1 and output_routing_objects[0] not in (
-                None,
-                self._track,
-                self.song.master_track._track,
-        ):
-            return output_routing_objects[0]
-        else:
-            return None
 
     def session_record(self, *a, **k):
         # type: (Any, Any) -> None

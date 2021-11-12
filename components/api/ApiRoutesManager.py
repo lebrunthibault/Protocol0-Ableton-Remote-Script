@@ -1,7 +1,6 @@
-from typing import Any, Optional
+from typing import Any
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.components.scheduler.SchedulerEvent import SchedulerEvent
 from protocol0.utils.decorators import api_exposed, api_exposable_class
 
 
@@ -10,25 +9,14 @@ class ApiRoutesManager(AbstractControlSurfaceComponent):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(ApiRoutesManager, self).__init__(*a, **k)
-        self._midi_server_check_timeout_scheduler_event = None  # type: Optional[SchedulerEvent]
-        self.parent.wait(20, self._check_midi_server_is_running)  # waiting for Protocol0_midi to boot
-
-    def _check_midi_server_is_running(self):
-        # type: () -> None
-        self._midi_server_check_timeout_scheduler_event = self.parent.wait(50, self._no_midi_server_found)
-        self.system.ping()
-
-    def _no_midi_server_found(self):
-        # type: () -> None
-        self.parent.log_warning("Midi server is not running.")
 
     @api_exposed
     def ping(self):
         # type: () -> None
         """ Called by the backend when the system api ping is called """
         self.parent.log_info("Midi server is running")
-        if self._midi_server_check_timeout_scheduler_event:
-            self._midi_server_check_timeout_scheduler_event.cancel()
+        if self.parent.midi_server_check_timeout_scheduler_event:
+            self.parent.midi_server_check_timeout_scheduler_event.cancel()
         self.system.pong()  # notify midi backend that we receive well messages via Protocol0Midi
 
     @api_exposed

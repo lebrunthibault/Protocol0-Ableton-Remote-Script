@@ -4,7 +4,6 @@ from json import JSONEncoder
 from types import MethodType
 
 from ClyphX_Pro import ParseUtils
-from ClyphX_Pro.clyphx_pro.actions.GlobalActions import GlobalActions
 from p0_system_api import P0SystemAPI
 from typing import Callable, Any, Optional
 
@@ -40,10 +39,10 @@ from protocol0.components.api.ApiRoutesManager import ApiRoutesManager
 from protocol0.components.scheduler.FastScheduler import FastScheduler, SchedulerEvent
 from protocol0.components.vocal_command.KeywordSearchManager import KeywordSearchManager
 from protocol0.components.vocal_command.VocalCommandManager import VocalCommandManager
+from protocol0.config import Config
 from protocol0.devices.AbstractInstrument import AbstractInstrument
-from protocol0.enums.BarLengthEnum import BarLengthEnum
+from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.enums.LogLevelEnum import LogLevelEnum
-from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.Song import Song
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.log import log_ableton
@@ -61,52 +60,54 @@ JSONEncoder.default = _default  # type: ignore[assignment]
 class Protocol0(ControlSurface):
     SELF = None  # type: Protocol0
 
-    def __init__(self, c_instance=None, test_mode=False):
+    def __init__(self, c_instance=None):
         # type: (Any, bool) -> None
         super(Protocol0, self).__init__(c_instance=c_instance)
         # noinspection PyProtectedMember
         Protocol0.SELF = self
-        if self._is_ableton_template_set:
-            P0SystemAPI().reload_ableton()
-            return
 
-        self.test_mode = test_mode
         self.started = False
         self.song().stop_playing()  # doing this early because the set often loads playing
         # stop log duplication
         self._c_instance.log_message = MethodType(lambda s, message: None, self._c_instance)  # noqa
-
-        AbstractInstrument.INSTRUMENT_CLASSES = AbstractInstrument.get_instrument_classes()
+        self.protocol0_song = None  # type: Optional[Song]
+        self.midi_server_check_timeout_scheduler_event = None  # type: Optional[SchedulerEvent]
 
         with self.component_guard():
-            self.p0_system_api_client = P0SystemAPI()
+            # setting up scheduler and midi communication system
             self.errorManager = ErrorManager()
-            self.protocol0_song = Song(song=self.song())
             self.fastScheduler = FastScheduler()
+            self.midiManager = MidiManager()
+            ApiRoutesManager()
+            ApiAction.create_method_mapping()
+            self.p0_system_api_client = P0SystemAPI()
+            if Config.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.PROFILING:
+                # waiting for Protocol0_midi to boot
+                self.wait(2, self.p0_system_api_client.end_measurement)
+            self.protocol0_song = Song(song=self.song())
             self.deviceManager = DeviceManager()  # needs to be here first
+            AbstractInstrument.INSTRUMENT_CLASSES = AbstractInstrument.get_instrument_classes()
             self.songManager = SongManager()
             self.songDataManager = SongDataManager()
             self.sessionManager = SessionManager()
             MixingManager()
-            if not test_mode:
+            if Config.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.TEST:
                 self.push2Manager = Push2Manager()
             self.trackManager = TrackManager()
             self.automationTrackManager = AutomationTrackManager()
             self.quantizationManager = QuantizationManager()
             self.setFixerManager = SetFixerManager()
-            self.midiManager = MidiManager()
             self.clipManager = ClipManager()
             self.browserManager = BrowserManager()
             self.navigationManager = NavigationManager()
             self.presetManager = PresetManager()
-            GlobalActions()
             self.globalBeatScheduler = BeatScheduler()
             self.sceneBeatScheduler = BeatScheduler()
             self.utilsManager = UtilsManager()
             self.logManager = LogManager()
             self.validatorManager = ValidatorManager()
 
-            if not test_mode:
+            if Config.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.TEST:
                 # action groups
                 ActionGroupMain()
                 ActionGroupSet()
@@ -118,21 +119,21 @@ class Protocol0(ControlSurface):
                 self.keywordSearchManager = KeywordSearchManager()
                 self.vocalCommandManager = VocalCommandManager()
 
-                ApiRoutesManager()
-                ApiAction.create_method_mapping()
-
-                self.songDataManager.restore_data()
-
                 self.start()
+
+    @property
+    def system(self):
+        # type: () -> P0SystemAPI
+        """
+        Access to non restricted (system) python environment over MIDI
+        """
+        return self.p0_system_api_client
 
     def start(self):
         # type: () -> None
-        if self.test_mode:
-            return
+        self.songDataManager.restore_data()
 
-        InterfaceState.SELECTED_RECORDING_BAR_LENGTH = BarLengthEnum.ONE
-        InterfaceState.RECORD_CLIP_TAILS = True
-        InterfaceState.SELECTED_CLIP_TAILS_BAR_LENGTH = BarLengthEnum.ONE
+        self.wait(20, self._check_midi_server_is_running)  # waiting for Protocol0_midi to boot
 
         self.wait(100, self.push2Manager.connect_push2)
         self.wait(200, self.push2Manager.connect_push2)
@@ -140,17 +141,19 @@ class Protocol0(ControlSurface):
 
         self.navigationManager.show_session()
 
-        if not self.test_mode:
-            self.defer(self.songManager.init_song)
+        self.defer(self.songManager.init_song)
 
         self.log_info("Protocol0 script loaded")
-        self.wait(20, self.p0_system_api_client.display_last_ableton_set_duration)  # waiting for Protocol0_midi to boot
         self.started = True
 
-    @property
-    def _is_ableton_template_set(self):
-        # type: () -> bool
-        return len(list(self.song().tracks)) == 2 and len(self.song().scenes) == 20
+    def _check_midi_server_is_running(self):
+        # type: () -> None
+        self.midi_server_check_timeout_scheduler_event = self.wait(50, self._no_midi_server_found)
+        self.system.ping()
+
+    def _no_midi_server_found(self):
+        # type: () -> None
+        self.log_warning("Midi server is not running.")
 
     def show_message(self, message, log=True):
         # type: (str, bool) -> None
@@ -222,7 +225,7 @@ class Protocol0(ControlSurface):
             return None
         else:
             # for ticks_count > 1 we use the 100ms timer losing some speed but it's easier for now
-            if not self.test_mode:
+            if not Config.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.TEST:
                 return self.fastScheduler.schedule(tick_count=tick_count, callback=callback)
             else:
                 # callback()  # no scheduling when testing

@@ -110,33 +110,6 @@ def api_exposed(func):
     return func
 
 
-def retry(retry_count=3, interval=3):
-    # type: (int, int) -> Callable
-    def wrap(func):
-        # type: (Func) -> Func
-        @wraps(func)
-        def decorate(*a, **k):
-            # type: (Any, Any) -> None
-            from protocol0 import Protocol0
-
-            # noinspection PyBroadException
-            try:
-                func(*a, **k)
-            except Exception:
-                if decorate.count == decorate.retry_count:  # type: ignore[attr-defined]
-                    return
-                Protocol0.SELF.wait(pow(2, decorate.count) * interval,  # type: ignore[attr-defined]
-                                    partial(func, *a, **k))  # type: ignore[attr-defined]
-                decorate.count += 1  # type: ignore[attr-defined]
-
-        decorate.count = 0  # type: ignore[attr-defined]
-        decorate.retry_count = retry_count  # type: ignore[attr-defined]
-
-        return decorate
-
-    return wrap
-
-
 def p0_subject_slot(event, immediate=False):
     # type: (str, bool) -> Callable[[Callable], CallbackDescriptor]
     """

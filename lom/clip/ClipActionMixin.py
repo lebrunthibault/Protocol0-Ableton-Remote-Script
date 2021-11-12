@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Optional
 
 import Live
-from protocol0.config import QUANTIZATION_OPTIONS
+from protocol0.constants import QUANTIZATION_OPTIONS
 from protocol0.enums.PixelEnum import PixelEnum
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.device.DeviceParameter import DeviceParameter

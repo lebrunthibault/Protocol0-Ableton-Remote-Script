@@ -5,7 +5,9 @@ from types import TracebackType
 from typing import Optional, Any, List, Type
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.config import PROJECT_ROOT, Config
+from protocol0.config import Config
+from protocol0.constants import PROJECT_ROOT
+from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 
 
 class ErrorManager(AbstractControlSurfaceComponent):
@@ -26,7 +28,8 @@ class ErrorManager(AbstractControlSurfaceComponent):
 
     def handle_error(self, context=None):
         # type: (Optional[str]) -> None
-        self.song.end_undo_step()
+        if self.song:
+            self.song.end_undo_step()
         exc_type, exc_value, tb = sys.exc_info()
         assert exc_type and exc_value and tb
         self._handle_exception(exc_type, exc_value, tb, context)
@@ -35,8 +38,9 @@ class ErrorManager(AbstractControlSurfaceComponent):
         # type: (Type[BaseException], BaseException, TracebackType) -> None
         if any([string in str(exc_value) for string in self.IGNORED_ERROR_STRINGS]) or \
                 any([string in str(exc_type) for string in self.IGNORED_ERROR_TYPES]):
-            self.parent.log_warning(exc_value)
-            return
+            # self.parent.log_warning(exc_value)
+            pass
+            # return
         self.parent.log_error("unhandled exception caught !!")
         self._handle_exception(exc_type, exc_value, tb)
 
@@ -56,7 +60,7 @@ class ErrorManager(AbstractControlSurfaceComponent):
         self.parent.clear_tasks()
         self.parent.defer(self.song.reset)
 
-        if not self.parent.test_mode:
+        if Config.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.TEST:
             self.parent.wait(100, self._restart)
 
     def _restart(self):

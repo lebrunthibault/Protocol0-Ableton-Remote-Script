@@ -39,7 +39,7 @@ class SchedulerEvent(AbstractObject):
             return
 
         assert not self._executed
-        if self.song.errored:
+        if self.song and self.song.errored:
             return
         self._executed = True
         # noinspection PyBroadException

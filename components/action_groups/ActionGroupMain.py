@@ -15,7 +15,7 @@ class ActionGroupMain(AbstractActionGroup):
 
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
-        super(ActionGroupMain, self).__init__(channel=4, *a, **k)
+        super(ActionGroupMain, self).__init__(channel=4, filter_active_tracks=True, *a, **k)
 
         # AUTOmation encoder
         self.add_encoder(

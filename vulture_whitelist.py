@@ -31,3 +31,7 @@ _.get_control_surfaces  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Re
 _.api_exposed  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\utils\decorators.py:97)
 # noinspection PyStatementEffect
 _.to_json_dict  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\enums\AbstractEnum.py:19)
+# noinspection PyStatementEffect
+_.execute_vocal_command  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\components\api\ApiRoutesManager.py:27)
+# noinspection PyStatementEffect
+_.on_scene_list_changed  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\components\SongManager.py:34)

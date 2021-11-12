@@ -29,7 +29,8 @@ class EncoderAction(AbstractObject):
         NB : Here lambda is just a way to act on the right objects at runtime
             like this we can display the function name
         """
-        self.song.begin_undo_step()
+        if self.song:
+            self.song.begin_undo_step()
         if is_lambda(self.func):
             func = self.func()  # allows delaying property lookup until execution time
         else:
@@ -47,7 +48,8 @@ class EncoderAction(AbstractObject):
 
         with self.parent.component_guard():
             func(*a, **k)
-        self.song.end_undo_step()
+        if self.song:
+            self.song.end_undo_step()
 
     @staticmethod
     def make_actions(
