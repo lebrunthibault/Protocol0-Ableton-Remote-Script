@@ -4,7 +4,6 @@ from protocol0.enums.AbstractEnum import AbstractEnum
 class ActionEnum(AbstractEnum):
     PLAY = "PLAY"  # play set
     PAUSE = "PAUSE"  # pause set
-    HOUSE = "HOUSE"  # pause set
     STOP = "STOP"  # stop set
     FOLD = "FOLD"  # fold set
     NEXT = "NEXT"  # repeat previous command
