@@ -17,7 +17,6 @@ class ApiRoutesManager(AbstractControlSurfaceComponent):
         self.parent.log_info("Midi server is running")
         if self.parent.midi_server_check_timeout_scheduler_event:
             self.parent.midi_server_check_timeout_scheduler_event.cancel()
-        self.system.pong()  # notify midi backend that we receive well messages via Protocol0Midi
 
     @api_exposed
     def show_message(self, message):

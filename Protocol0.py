@@ -8,7 +8,7 @@ from p0_system_api import P0SystemAPI
 from typing import Callable, Any, Optional
 
 # noinspection PyUnresolvedReferences
-from _Framework.ControlSurface import ControlSurface
+from _Framework.ControlSurface import ControlSurface, get_control_surfaces
 from protocol0.components.AutomationTrackManager import AutomationTrackManager
 from protocol0.components.BeatScheduler import BeatScheduler
 from protocol0.components.BrowserManager import BrowserManager
@@ -45,7 +45,9 @@ from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.enums.LogLevelEnum import LogLevelEnum
 from protocol0.lom.Song import Song
 from protocol0.sequence.Sequence import Sequence
+from protocol0.utils.decorators import defer
 from protocol0.utils.log import log_ableton
+from protocol0.utils.utils import find_if
 
 
 def _default(_, obj):
@@ -83,7 +85,8 @@ class Protocol0(ControlSurface):
             self.p0_system_api_client = P0SystemAPI()
             if Config.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.PROFILING:
                 # waiting for Protocol0_midi to boot
-                self.wait(2, self.p0_system_api_client.end_measurement)
+                self.p0_system_api_client.end_measurement()
+                # self.wait(1, self.p0_system_api_client.end_measurement)
             self.protocol0_song = Song(song=self.song())
             self.deviceManager = DeviceManager()  # needs to be here first
             AbstractInstrument.INSTRUMENT_CLASSES = AbstractInstrument.get_instrument_classes()
@@ -133,7 +136,8 @@ class Protocol0(ControlSurface):
         # type: () -> None
         self.songDataManager.restore_data()
 
-        self.wait(20, self._check_midi_server_is_running)  # waiting for Protocol0_midi to boot
+        self._check_midi_server_is_running()
+        self.wait(10, self._check_protocol_midi_is_up)  # waiting for Protocol0_midi to boot
 
         self.wait(100, self.push2Manager.connect_push2)
         self.wait(200, self.push2Manager.connect_push2)
@@ -151,9 +155,16 @@ class Protocol0(ControlSurface):
         self.midi_server_check_timeout_scheduler_event = self.wait(50, self._no_midi_server_found)
         self.system.ping()
 
+    def _check_protocol_midi_is_up(self):
+        # type: () -> None
+        from protocol0_midi import Protocol0Midi
+        protocol0_midi = find_if(lambda cs: isinstance(cs, Protocol0Midi), get_control_surfaces())
+        if protocol0_midi is None:
+            self.log_error("Protocol0Midi is not loaded")
+
     def _no_midi_server_found(self):
         # type: () -> None
-        self.log_warning("Midi server is not running.")
+        self.log_error("Midi server is not running.")
 
     def show_message(self, message, log=True):
         # type: (str, bool) -> None

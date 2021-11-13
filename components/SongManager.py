@@ -28,7 +28,7 @@ class SongManager(AbstractControlSurfaceComponent):
         self.tracks_listener()
         # self._highlighted_clip_slot = self.song.highlighted_clip_slot
         # self._highlighted_clip_slot_poller()
-        # self.song.reset()
+        self.song.reset()
         # self.parent.wait(50, self.song.reset)
 
     @handle_error

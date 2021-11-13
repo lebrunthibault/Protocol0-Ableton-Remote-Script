@@ -1,8 +1,10 @@
 from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
+from protocol0.enums.LogLevelEnum import LogLevelEnum
 
 
 class Config(object):
-    ABLETON_SESSION_TYPE = AbletonSessionTypeEnum.NORMAL
+    LOG_LEVEL = LogLevelEnum.DEV
+    ABLETON_SESSION_TYPE = AbletonSessionTypeEnum.PROFILING
     SEQUENCE_DEBUG = False
     SEQUENCE_SLOW_MO = False
 

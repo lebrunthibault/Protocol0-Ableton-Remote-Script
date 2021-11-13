@@ -17,7 +17,7 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        self.song.selected_track.load_device_from_enum(DeviceEnum.EXTERNAL_INSTRUMENT)
+        self.system.test()
 
     def start_set_profiling(self):
         # type: () -> None

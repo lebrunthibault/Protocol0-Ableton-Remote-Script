@@ -20,6 +20,38 @@ class InterfaceState(object):
     # when the button was not clicked. As a workaround we click it the first time
     CLIP_ENVELOPE_SHOW_BOX_CLICKED = False
 
+
+    @classmethod
+    @save_to_song_data
+    def scroll_recording_time(cls, go_next):
+        # type: (bool) -> None
+        cls.SELECTED_RECORDING_BAR_LENGTH = scroll_values(
+            list(BarLengthEnum), cls.SELECTED_RECORDING_BAR_LENGTH, go_next
+        )
+        cls.show_selected_bar_length("RECORDING", cls.SELECTED_RECORDING_BAR_LENGTH)
+
+    @classmethod
+    @save_to_song_data
+    def scroll_duplicate_scene_bar_lengths(cls, go_next):
+        # type: (bool) -> None
+        from protocol0 import Protocol0
+        selected_scene = Protocol0.SELF.song.selected_scene
+        if selected_scene.length < 2:
+            Protocol0.SELF.log_warning(
+                "Cannot partial duplicate scene with length %s (min 2 bars)" % selected_scene.length)
+            return
+        bar_lengths = []
+        power = 0
+        while pow(2, power) <= selected_scene.bar_length / 2:
+            bar_lengths += [pow(2, power), -pow(2, power)]
+            power += 1
+        bar_lengths.sort()
+
+        cls.SELECTED_DUPLICATE_SCENE_BAR_LENGTH = scroll_values(
+            bar_lengths, cls.SELECTED_DUPLICATE_SCENE_BAR_LENGTH, go_next
+        )
+        cls.show_selected_bar_length("SCENE DUPLICATE", cls.SELECTED_DUPLICATE_SCENE_BAR_LENGTH)
+
     @classmethod
     def record_clip_tails_length(cls):
         # type: () -> int
@@ -54,37 +86,6 @@ class InterfaceState(object):
         from protocol0 import Protocol0
 
         Protocol0.SELF.show_message("Protected mode %s" % ("ON" if cls.PROTECTED_MODE_ACTIVE else "OFF"))
-
-    @classmethod
-    @save_to_song_data
-    def scroll_recording_time(cls, go_next):
-        # type: (bool) -> None
-        cls.SELECTED_RECORDING_BAR_LENGTH = scroll_values(
-            list(BarLengthEnum), cls.SELECTED_RECORDING_BAR_LENGTH, go_next
-        )
-        cls.show_selected_bar_length("RECORDING", cls.SELECTED_RECORDING_BAR_LENGTH)
-
-    @classmethod
-    @save_to_song_data
-    def scroll_duplicate_scene_bar_lengths(cls, go_next):
-        # type: (bool) -> None
-        from protocol0 import Protocol0
-        selected_scene = Protocol0.SELF.song.selected_scene
-        if selected_scene.length < 2:
-            Protocol0.SELF.log_warning(
-                "Cannot partial duplicate scene with length %s (min 2 bars)" % selected_scene.length)
-            return
-        bar_lengths = []
-        power = 0
-        while pow(2, power) <= selected_scene.bar_length / 2:
-            bar_lengths += [pow(2, power), -pow(2, power)]
-            power += 1
-        bar_lengths.sort()
-
-        cls.SELECTED_DUPLICATE_SCENE_BAR_LENGTH = scroll_values(
-            bar_lengths, cls.SELECTED_DUPLICATE_SCENE_BAR_LENGTH, go_next
-        )
-        cls.show_selected_bar_length("SCENE DUPLICATE", cls.SELECTED_DUPLICATE_SCENE_BAR_LENGTH)
 
     @classmethod
     def show_selected_bar_length(cls, title, bar_length):
