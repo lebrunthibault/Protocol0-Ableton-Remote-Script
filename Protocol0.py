@@ -1,5 +1,4 @@
 import threading
-from functools import partial
 from json import JSONEncoder
 from types import MethodType
 
@@ -45,7 +44,6 @@ from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.enums.LogLevelEnum import LogLevelEnum
 from protocol0.lom.Song import Song
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.decorators import defer
 from protocol0.utils.log import log_ableton
 from protocol0.utils.utils import find_if
 
@@ -139,9 +137,9 @@ class Protocol0(ControlSurface):
         self._check_midi_server_is_running()
         self.wait(10, self._check_protocol_midi_is_up)  # waiting for Protocol0_midi to boot
 
-        self.wait(100, self.push2Manager.connect_push2)
-        self.wait(200, self.push2Manager.connect_push2)
-        self.wait(400, partial(self.push2Manager.connect_push2, log=True))
+        # self.wait(100, self.push2Manager.connect_push2)
+        # self.wait(200, self.push2Manager.connect_push2)
+        # self.wait(400, partial(self.push2Manager.connect_push2, log=True))
 
         self.navigationManager.show_session()
 
@@ -152,7 +150,7 @@ class Protocol0(ControlSurface):
 
     def _check_midi_server_is_running(self):
         # type: () -> None
-        self.midi_server_check_timeout_scheduler_event = self.wait(50, self._no_midi_server_found)
+        self.midi_server_check_timeout_scheduler_event = self.wait(300, self._no_midi_server_found)
         self.system.ping()
 
     def _check_protocol_midi_is_up(self):
@@ -164,7 +162,7 @@ class Protocol0(ControlSurface):
 
     def _no_midi_server_found(self):
         # type: () -> None
-        self.log_error("Midi server is not running.")
+        self.log_warning("Midi server is not running.")
 
     def show_message(self, message, log=True):
         # type: (str, bool) -> None
