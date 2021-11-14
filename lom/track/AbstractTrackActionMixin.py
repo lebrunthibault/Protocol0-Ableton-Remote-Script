@@ -1,7 +1,10 @@
 from functools import partial
 
+import Live
 from typing import TYPE_CHECKING, Any, Optional, NoReturn
 
+from protocol0.config import Config
+from protocol0.constants import QUANTIZATION_OPTIONS
 from protocol0.devices.InstrumentSimpler import InstrumentSimpler
 from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
@@ -35,6 +38,10 @@ class AbstractTrackActionMixin(object):
     def toggle_solo(self):
         # type: () -> None
         self.solo = not self.solo  # type: ignore[has-type]
+
+    def toggle_mute(self):
+        # type: () -> None
+        self.mute = not self.mute  # type: ignore[has-type]
 
     def arm(self):
         # type: (AbstractTrack) -> Optional[Sequence]
@@ -101,8 +108,10 @@ class AbstractTrackActionMixin(object):
     @session_view_only
     def session_record(self, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
+        self.parent.log_dev("self.is_record_triggered: %s" % self.is_record_triggered)
         if self.is_record_triggered:
             return self._cancel_record()
+        self.pre_record(record_type=record_type)
         InterfaceState.CURRENT_RECORD_TYPE = record_type
 
         seq = Sequence()
@@ -125,6 +134,8 @@ class AbstractTrackActionMixin(object):
         if self.song.record_mode:
             self.song.record_mode = False
             return seq.done()
+
+        self.pre_record(record_type=record_type)
 
         self.has_monitor_in = False
 
@@ -152,6 +163,16 @@ class AbstractTrackActionMixin(object):
     def arrangement_record_audio_only(self):
         # type: (AbstractTrack) -> None
         raise NotImplementedError("arrangement_record_audio_only not available on this track")
+
+    def pre_record(self, record_type):
+        # type: (AbstractTrack, RecordTypeEnum) -> None
+        if record_type == RecordTypeEnum.NORMAL:
+            if self.song.tempo < Config.SPLIT_QUANTIZATION_TEMPO:
+                record_quantization_index = QUANTIZATION_OPTIONS.index(self.song.midi_recording_quantization)
+                if record_quantization_index < QUANTIZATION_OPTIONS.index(
+                        Live.Song.RecordingQuantization.rec_q_sixtenth):
+                    self.parent.log_error(
+                        "You're recording midi with a quantization of %s" % self.song.midi_recording_quantization)
 
     def _pre_session_record(self, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
@@ -265,3 +286,9 @@ class AbstractTrackActionMixin(object):
         if not isinstance(self, SimpleGroupTrack):
             for clip in self.clips:
                 clip.color = self.computed_color
+
+    def scroll_volume(self, go_next):
+        # type: (AbstractTrack, bool) -> None
+        abs_factor = 1.01
+        factor = abs_factor if go_next else (1 / abs_factor)
+        self.volume *= factor

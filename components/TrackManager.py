@@ -73,7 +73,7 @@ class TrackManager(AbstractControlSurfaceComponent):
             previous_abstract_group_track.disconnect()
 
         abstract_group_track.link_parent_and_child_objects()
-        if abstract_group_track.is_armed:
+        if self.song.is_loading and abstract_group_track.is_armed:
             abstract_group_track.has_monitor_in = False
         return abstract_group_track
 
@@ -106,12 +106,9 @@ class TrackManager(AbstractControlSurfaceComponent):
 
     def scroll_all_tracks_volume(self, go_next):
         # type: (bool) -> None
-        abs_factor = 1.01
-        factor = abs_factor if go_next else (1 / abs_factor)
         for track in self.song.abstract_tracks:
             if isinstance(track, SimpleGroupTrack):
                 continue
             if track.top_group_track.base_name == "Drums":
                 continue
-
-            track.volume *= factor
+            track.scroll_volume(go_next=go_next)

@@ -60,7 +60,6 @@ class SongDataManager(AbstractControlSurfaceComponent):
                 raise SongDataError("%s song data : expected dict, got %s" % (cls_fqdn, class_data))
 
             for key, value in class_data.items():
-                self.parent.log_notice((cls_fqdn, key, value))
                 if AbstractEnum.is_json_enum(value):
                     try:
                         value = AbstractEnum.from_json_dict(value)

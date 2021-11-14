@@ -4,6 +4,8 @@ from typing import Any, List, Optional
 
 import Live
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.config import Config
+from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.lom.Scene import Scene
 from protocol0.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -24,12 +26,16 @@ class SongManager(AbstractControlSurfaceComponent):
 
     def init_song(self):
         # type: () -> None
-        # self.on_scene_list_changed()
         self.tracks_listener()
         # self._highlighted_clip_slot = self.song.highlighted_clip_slot
         # self._highlighted_clip_slot_poller()
-        self.song.reset()
-        # self.parent.wait(50, self.song.reset)
+        if Config.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.PROFILING:
+            self.song.reset()
+        self.song.is_loading = False
+        if len(self.song.armed_tracks):
+            self.song.select_track(self.song.armed_tracks[0])
+        elif self.song.selected_track == self.song.master_track:
+            self.song.select_track(next(self.song.abstract_tracks))
 
     @handle_error
     def on_scene_list_changed(self):

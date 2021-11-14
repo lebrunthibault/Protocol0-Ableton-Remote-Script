@@ -24,6 +24,11 @@ class ApiRoutesManager(AbstractControlSurfaceComponent):
         self.parent.show_message(message)
 
     @api_exposed
+    def reset_song(self):
+        # type: () -> None
+        self.song.reset()
+
+    @api_exposed
     def execute_vocal_command(self, command):
         # type: (str) -> None
         """ Called by the speech recognition script """

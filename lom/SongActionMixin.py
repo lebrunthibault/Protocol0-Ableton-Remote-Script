@@ -40,11 +40,6 @@ class SongActionMixin(object):
         # noinspection PyPropertyAccess
         self._song.current_song_time = 0
         self.stop_all_clips()
-        self.parent.log_dev(self.song.armed_tracks)
-        if len(self.song.armed_tracks):
-            self.song.select_track(self.song.armed_tracks[0])
-        elif self.song.selected_track == self.song.master_track:
-            self.song.select_track(next(self.song.abstract_tracks))
 
     def play(self):
         # type: (Song) -> None
@@ -190,3 +185,7 @@ class SongActionMixin(object):
         seq.add(partial(self._view.select_device, device._device))
         seq.add(self.parent.navigationManager.focus_detail)
         return seq.done()
+
+    def tap_tempo(self):
+        # type: (Song) -> None
+        self._song.tap_tempo()

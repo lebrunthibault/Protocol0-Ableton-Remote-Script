@@ -222,8 +222,6 @@ def throttle(wait_time=100):
             # type: (Any, Any) -> None
             object_source = a[0] if is_method(func) else decorate
 
-            from protocol0.utils.log import log_ableton
-            log_ableton(k.get("throttle"))
             if decorate.paused[object_source] and k.get("throttle", True):
                 return
 

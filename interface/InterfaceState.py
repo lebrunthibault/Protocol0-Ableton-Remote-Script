@@ -6,8 +6,8 @@ from protocol0.utils.utils import scroll_values
 
 @song_synchronizable_class
 class InterfaceState(object):
-    SELECTED_RECORDING_BAR_LENGTH = BarLengthEnum.FOUR
-    SELECTED_DUPLICATE_SCENE_BAR_LENGTH = BarLengthEnum.ONE
+    SELECTED_RECORDING_BAR_LENGTH = BarLengthEnum.UNLIMITED
+    SELECTED_DUPLICATE_SCENE_BAR_LENGTH = BarLengthEnum.FOUR
 
     RECORD_CLIP_TAILS = False  # records one more bar of audio to make editing easier
     SELECTED_CLIP_TAILS_BAR_LENGTH = BarLengthEnum.ONE

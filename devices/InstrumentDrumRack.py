@@ -5,6 +5,6 @@ from protocol0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 
 class InstrumentDrumRack(AbstractInstrument):
     NAME = "Drum Rack"
-    TRACK_COLOR = ColorEnum.DRUM_RACK
+    TRACK_COLOR = ColorEnum.SIMPLER
     CAN_BE_SHOWN = False
     PRESET_DISPLAY_OPTION = PresetDisplayOptionEnum.NONE

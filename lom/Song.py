@@ -34,6 +34,7 @@ class Song(AbstractObject, SongActionMixin):
         self.clip_slots_by_live_live_clip_slot = {}  # type: Dict[Live.ClipSlot.ClipSlot, ClipSlot]
 
         self.errored = False
+        self.is_loading = True
         self._is_playing_listener.subject = self._song
         self._record_mode_listener.subject = self._song
         self.session_end_listener.subject = self
@@ -190,7 +191,7 @@ class Song(AbstractObject, SongActionMixin):
 
     @tempo.setter
     def tempo(self, tempo):
-        # type: (bool) -> None
+        # type: (float) -> None
         try:
             self._song.tempo = tempo
         except RuntimeError:

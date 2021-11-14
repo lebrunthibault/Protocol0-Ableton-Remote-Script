@@ -265,7 +265,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def is_record_triggered(self):
         # type: () -> bool
-        return self.base_track.fired_slot_index >= 0 or any(sub_track for sub_track in self.sub_tracks if sub_track.is_record_triggered)
+        return self.base_track.fired_slot_index >= 0 or any(clip for clip in self.clips if clip.is_recording) or any(sub_track for sub_track in self.sub_tracks if sub_track.is_record_triggered)
 
     @property
     def mute(self):

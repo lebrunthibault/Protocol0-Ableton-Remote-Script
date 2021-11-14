@@ -1,6 +1,7 @@
 from typing import Any
 
 from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
+from protocol0.constants import QUANTIZATION_OPTIONS
 from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.enums.PixelEnum import PixelEnum
 
@@ -18,7 +19,7 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        self.system.double_click(*PixelEnum.FOLD_CLIP_NOTES.coordinates)
+        record_quantization_index = QUANTIZATION_OPTIONS.index(self.song.midi_recording_quantization)
 
     def start_set_profiling(self):
         # type: () -> None

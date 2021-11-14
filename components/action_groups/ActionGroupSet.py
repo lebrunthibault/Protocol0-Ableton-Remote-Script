@@ -17,8 +17,19 @@ class ActionGroupSet(AbstractActionGroup):
         # CLR encoder
         self.add_encoder(identifier=3, name="clear logs", on_press=self.parent.logManager.clear)
 
+        # AUTOmation encoder
+        self.add_encoder(
+            identifier=4,
+            name="automation",
+            on_press=self.parent.automationTrackManager.display_selected_parameter_automation,
+            on_scroll=self.parent.automationTrackManager.scroll_automation_envelopes,
+        )
+
         # PUSH encoder
         self.add_encoder(identifier=5, name="connect push2", on_press=self.parent.push2Manager.connect_push2)
+
+        # SPLiT encoder
+        self.add_encoder(identifier=6, name="split scene", on_press=lambda: self.song.selected_scene.split)
 
         # DUPScene encoder
         self.add_encoder(identifier=7, name="partial duplicate scene",

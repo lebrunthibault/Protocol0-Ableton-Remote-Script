@@ -2,8 +2,6 @@
 # noinspection PyStatementEffect
 _.current_song_time  # unused attribute (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\lom\SongActionMixin.py:80)
 # noinspection PyStatementEffect
-_.session_record  # unused attribute (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\lom\track\AbstractTrackActionMixin.py:127)
-# noinspection PyStatementEffect
 _.scroll_presets  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\lom\device\Device.py:51)
 # noinspection PyStatementEffect
 _.scroll_presets  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\lom\device\PluginDevice.py:16)

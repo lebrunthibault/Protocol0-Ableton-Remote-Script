@@ -17,13 +17,11 @@ class ActionGroupMain(AbstractActionGroup):
         # type: (Any, Any) -> None
         super(ActionGroupMain, self).__init__(channel=4, filter_active_tracks=True, *a, **k)
 
-        # AUTOmation encoder
-        self.add_encoder(
-            identifier=1,
-            name="automation",
-            on_press=self.parent.automationTrackManager.display_selected_parameter_automation,
-            on_scroll=self.parent.automationTrackManager.scroll_automation_envelopes,
-        )
+        # TAP tempo encoder
+        self.add_encoder(identifier=1, name="tap tempo",
+                         on_press=self.song.tap_tempo,
+                         on_scroll=self.parent.songManager.scroll_tempo
+                         )
 
         # TAIL encoder
         self.add_encoder(
@@ -36,17 +34,18 @@ class ActionGroupMain(AbstractActionGroup):
         # LOCK encoder
         self.add_encoder(identifier=3, name="protected mode", on_press=InterfaceState.toggle_protected_mode)
 
-        # SPLiT encoder
-        self.add_encoder(identifier=4, name="split scene", on_press=lambda: self.song.selected_scene.split)
-
-        # TAP tempo encoder
-        self.add_encoder(identifier=5, name="tap tempo", on_scroll=self.parent.songManager.scroll_tempo)
+        # VOLume tempo encoder
+        self.add_encoder(identifier=4, name="volume",
+                         on_press=lambda: self.song.current_track.toggle_mute,
+                         on_scroll=lambda: self.song.current_track.scroll_volume
+                         )
 
         # MONitor encoder
         self.add_encoder(
             identifier=8,
             name="monitor",
-            on_press=lambda: AbstractTrackList(self.song.armed_tracks, self.song.selected_abstract_tracks).switch_monitoring)
+            on_press=lambda: AbstractTrackList(self.song.armed_tracks,
+                                               self.song.selected_abstract_tracks).switch_monitoring)
 
         # RECord encoder
         self.add_encoder(
