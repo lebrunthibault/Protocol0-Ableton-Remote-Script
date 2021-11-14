@@ -20,7 +20,6 @@ class InterfaceState(object):
     # when the button was not clicked. As a workaround we click it the first time
     CLIP_ENVELOPE_SHOW_BOX_CLICKED = False
 
-
     @classmethod
     @save_to_song_data
     def scroll_recording_time(cls, go_next):

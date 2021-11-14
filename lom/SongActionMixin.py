@@ -40,7 +40,10 @@ class SongActionMixin(object):
         # noinspection PyPropertyAccess
         self._song.current_song_time = 0
         self.stop_all_clips()
-        if self.song.selected_track == self.song.master_track:
+        self.parent.log_dev(self.song.armed_tracks)
+        if len(self.song.armed_tracks):
+            self.song.select_track(self.song.armed_tracks[0])
+        elif self.song.selected_track == self.song.master_track:
             self.song.select_track(next(self.song.abstract_tracks))
 
     def play(self):

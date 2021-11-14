@@ -1,6 +1,6 @@
 import logging
 
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, Any
 
 from protocol0.config import Config
 from protocol0.errors.Protocol0Error import Protocol0Error
@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 def log_ableton(message, debug=True, level=None, direct_call=True):
-    # type: (basestring, bool, Optional[LogLevelEnum], bool) -> None
+    # type: (Any, bool, Optional[LogLevelEnum], bool) -> None
     """ a log function and not method allowing us to call this even with no access to the ControlSurface object """
     from protocol0.enums.LogLevelEnum import LogLevelEnum  # noqa
     level = level or LogLevelEnum.DEV

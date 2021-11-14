@@ -144,3 +144,8 @@ class SongManager(AbstractControlSurfaceComponent):
                 self.parent.push2Manager.update_clip_grid_quantization()
                 self._highlighted_clip_slot.clip._on_selected()
         self.parent.wait(10, self._highlighted_clip_slot_poller)
+
+    def scroll_tempo(self, go_next):
+        # type: (bool) -> None
+        increment = 1 if go_next else -1
+        self.song.tempo += increment

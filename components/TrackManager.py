@@ -73,6 +73,8 @@ class TrackManager(AbstractControlSurfaceComponent):
             previous_abstract_group_track.disconnect()
 
         abstract_group_track.link_parent_and_child_objects()
+        if abstract_group_track.is_armed:
+            abstract_group_track.has_monitor_in = False
         return abstract_group_track
 
     def make_external_synth_track(self, base_group_track):

@@ -17,9 +17,11 @@ class SessionManager(AbstractControlSurfaceComponent):
         # type: () -> None
         if self._currently_selected_track == self.song.selected_track:
             return None
-        currently_selected_track = self._currently_selected_track
+        is_set_load = self._currently_selected_track is None
+        self.parent.log_dev("is set load: %s" % is_set_load)
         self._currently_selected_track = self.song.selected_track
-        if not currently_selected_track:  # skips the session box display on set load
+
+        if is_set_load and not self._currently_selected_track.abstract_track.is_armed:  # skips the session box display on set load
             return
         if self.session:
             self.session.set_show_highlight(False)

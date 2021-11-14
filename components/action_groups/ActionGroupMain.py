@@ -39,6 +39,9 @@ class ActionGroupMain(AbstractActionGroup):
         # SPLiT encoder
         self.add_encoder(identifier=4, name="split scene", on_press=lambda: self.song.selected_scene.split)
 
+        # TAP tempo encoder
+        self.add_encoder(identifier=5, name="tap tempo", on_scroll=self.parent.songManager.scroll_tempo)
+
         # MONitor encoder
         self.add_encoder(
             identifier=8,

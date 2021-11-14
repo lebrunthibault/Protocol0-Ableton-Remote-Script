@@ -191,7 +191,10 @@ class Song(AbstractObject, SongActionMixin):
     @tempo.setter
     def tempo(self, tempo):
         # type: (bool) -> None
-        self._song.tempo = tempo
+        try:
+            self._song.tempo = tempo
+        except RuntimeError:
+            pass
 
     @property
     def signature_numerator(self):

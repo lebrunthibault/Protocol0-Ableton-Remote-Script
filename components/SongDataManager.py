@@ -58,12 +58,16 @@ class SongDataManager(AbstractControlSurfaceComponent):
             class_data = self.song.get_data(cls_fqdn, {})
             if not isinstance(class_data, dict):
                 raise SongDataError("%s song data : expected dict, got %s" % (cls_fqdn, class_data))
+
             for key, value in class_data.items():
+                self.parent.log_notice((cls_fqdn, key, value))
                 if AbstractEnum.is_json_enum(value):
                     try:
                         value = AbstractEnum.from_json_dict(value)
                     except Protocol0Error as e:
                         raise SongDataError(e)
+                if isinstance(getattr(cls, key), AbstractEnum) and not isinstance(value, AbstractEnum):
+                    raise SongDataError("inconsistent AbstractEnum value for %s.%s : got %s" % (cls_fqdn, key, value))
                 setattr(cls, key, value)
 
     def clear_data(self, save_set=True):
