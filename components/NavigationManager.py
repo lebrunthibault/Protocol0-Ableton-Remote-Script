@@ -24,11 +24,9 @@ class NavigationManager(AbstractControlSurfaceComponent):
             return seq.done()
 
     def show_device_view(self):
-        # type: () -> Optional[Sequence]
-        self.system.show_device_view()
-        seq = Sequence()
-        seq.add(wait=2)  # apparently live interface refresh is not instant
-        return seq.done()
+        """ Shows track view. """
+        self._app_view.show_view('Detail')
+        self._app_view.show_view('Detail/DeviceChain')
 
     def show_session(self):
         # type: () -> None

@@ -17,7 +17,10 @@ class SessionManager(AbstractControlSurfaceComponent):
         # type: () -> None
         if self._currently_selected_track == self.song.selected_track:
             return None
+        currently_selected_track = self._currently_selected_track
         self._currently_selected_track = self.song.selected_track
+        if not currently_selected_track:  # skips the session box display on set load
+            return
         if self.session:
             self.session.set_show_highlight(False)
             self.session.disconnect()

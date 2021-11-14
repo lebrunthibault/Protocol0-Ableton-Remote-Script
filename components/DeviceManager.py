@@ -68,6 +68,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
         parent_rack = self._find_parent_rack(device)
         seq = Sequence()
         seq.add(self.parent.navigationManager.show_device_view)
+        #     seq.add(wait=2)  # apparently live interface refresh is not instant
 
         if not parent_rack:
             seq.add(partial(self._make_top_device_window_showable, device))

@@ -28,11 +28,8 @@ class MidiManager(AbstractControlSurfaceComponent):
         msg = [status, value]
         if value2:
             msg.append(value2)
-        self.parent.log_debug("MidiManager sending : %s" % msg, debug=False)
+        self.parent.log_info("MidiManager sending : %s" % msg, debug=False)
         self.parent._send_midi(tuple(msg))
-        if message_type == "note":
-            msg[-1] = 0
-            self.parent.defer_low(partial(self.parent._send_midi, tuple(msg)))
 
     def receive_midi(self, midi_bytes):
         # type: (Tuple) -> None
