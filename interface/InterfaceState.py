@@ -1,4 +1,4 @@
-from protocol0.components.SongDataManager import save_to_song_data, song_synchronizable_class
+from protocol0.components.SongDataManager import save_song_data, song_synchronizable_class
 from protocol0.enums.BarLengthEnum import BarLengthEnum
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.utils.utils import scroll_values
@@ -19,9 +19,10 @@ class InterfaceState(object):
     # NB: for an unknown reason clip.view.show_envelope does not always show the envelope
     # when the button was not clicked. As a workaround we click it the first time
     CLIP_ENVELOPE_SHOW_BOX_CLICKED = False
+    HANDLE_TRACK_NAMES = True
 
     @classmethod
-    @save_to_song_data
+    @save_song_data
     def scroll_recording_time(cls, go_next):
         # type: (bool) -> None
         cls.SELECTED_RECORDING_BAR_LENGTH = scroll_values(
@@ -30,7 +31,7 @@ class InterfaceState(object):
         cls.show_selected_bar_length("RECORDING", cls.SELECTED_RECORDING_BAR_LENGTH)
 
     @classmethod
-    @save_to_song_data
+    @save_song_data
     def scroll_duplicate_scene_bar_lengths(cls, go_next):
         # type: (bool) -> None
         from protocol0 import Protocol0
@@ -57,7 +58,7 @@ class InterfaceState(object):
         return cls.SELECTED_CLIP_TAILS_BAR_LENGTH.value if cls.RECORD_CLIP_TAILS else 0
 
     @classmethod
-    @save_to_song_data
+    @save_song_data
     def toggle_record_clip_tails(cls):
         # type: () -> None
         cls.RECORD_CLIP_TAILS = not cls.RECORD_CLIP_TAILS
@@ -67,7 +68,7 @@ class InterfaceState(object):
             "ON" if cls.RECORD_CLIP_TAILS else "OFF", cls.SELECTED_CLIP_TAILS_BAR_LENGTH))
 
     @classmethod
-    @save_to_song_data
+    @save_song_data
     def scroll_clip_tails_bar_lengths(cls, go_next):
         # type: (bool) -> None
         cls.RECORD_CLIP_TAILS = True
@@ -78,7 +79,7 @@ class InterfaceState(object):
         cls.show_selected_bar_length("CLIP TAIL", cls.SELECTED_CLIP_TAILS_BAR_LENGTH)
 
     @classmethod
-    @save_to_song_data
+    @save_song_data
     def toggle_protected_mode(cls):
         # type: () -> None
         cls.PROTECTED_MODE_ACTIVE = not cls.PROTECTED_MODE_ACTIVE

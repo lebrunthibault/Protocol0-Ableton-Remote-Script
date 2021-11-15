@@ -60,9 +60,10 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def _added_track_init(self):
         # type: () -> Optional[Sequence]
         seq = Sequence()
-        [seq.add(clip.delete) for clip in self.clips if clip.clip_name.is_valid]
-        [seq.add(clip.clip_name.normalize_base_name) for clip in self.clips if not clip.clip_name.is_valid]
+        seq.add([clip.delete for clip in self.clips if clip.clip_name.is_valid])
+        seq.add(self.abstract_track.select)
         seq.add(self.abstract_track.arm)
+        seq.add([clip.clip_name.normalize_base_name for clip in self.clips if not clip.clip_name.is_valid])
 
         return seq.done()
 

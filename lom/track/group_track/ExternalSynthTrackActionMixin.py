@@ -163,7 +163,6 @@ class ExternalSynthTrackActionMixin(object):
     def post_session_record(self, record_type):
         # type: (ExternalSynthTrack, RecordTypeEnum) -> None
         super(ExternalSynthTrackActionMixin, self).post_session_record()
-        self.has_monitor_in = True
         if self.midi_track.playable_clip and self.audio_track.playable_clip:
             self.audio_track.playable_clip.post_record()
             if record_type == RecordTypeEnum.NORMAL:

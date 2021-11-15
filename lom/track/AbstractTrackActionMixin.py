@@ -108,7 +108,6 @@ class AbstractTrackActionMixin(object):
     @session_view_only
     def session_record(self, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
-        self.parent.log_dev("self.is_record_triggered: %s" % self.is_record_triggered)
         if self.is_record_triggered:
             return self._cancel_record()
         self.pre_record(record_type=record_type)

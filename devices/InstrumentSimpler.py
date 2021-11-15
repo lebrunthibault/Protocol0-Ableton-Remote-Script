@@ -23,7 +23,7 @@ class InstrumentSimpler(AbstractInstrument):
         super(InstrumentSimpler, self).__init__(*a, **k)
         self.device = self.device  # type: SimplerDevice
 
-    def _load_preset(self, preset):
+    def load_preset(self, preset):
         # type: (InstrumentPreset) -> Optional[Sequence]
         import Live
         self.song.selected_track.device_insert_mode = Live.Track.DeviceInsertMode.default

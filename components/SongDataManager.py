@@ -19,7 +19,7 @@ def song_synchronizable_class(cls):
     return cls
 
 
-def save_to_song_data(func):
+def save_song_data(func):
     # type: (Func) -> Func
     @wraps(func)
     def decorate(*a, **k):

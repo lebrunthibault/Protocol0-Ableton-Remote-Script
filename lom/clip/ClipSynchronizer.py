@@ -13,14 +13,14 @@ class ClipSynchronizer(ObjectSynchronizer):
 
     def __init__(self, master, slave, *a, **k):
         # type: (Clip, Clip, Any, Any) -> None
-        properties = ["muted", "loop_start", "start_marker", "end_marker"]
+        properties = ["muted", "loop_start", "loop_end", "start_marker", "end_marker"]
 
         if master.length != slave.length:
             log_ableton("clips %s of track %s cannot be loop synchronized because of unequal length" % (master, master.track.abstract_track), level=LogLevelEnum.WARNING)
             properties = ["muted"]
 
-        if slave.start_marker != slave.loop_start:
-            properties = ["muted"]
+        # if slave.start_marker != slave.loop_start:
+        #     properties = ["muted"]
 
         self._syncable_properties = ["base_name"] + properties
         super(ClipSynchronizer, self).__init__(

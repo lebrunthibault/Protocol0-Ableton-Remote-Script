@@ -1,6 +1,10 @@
+from functools import partial
+
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.enums.FoldActionEnum import FoldActionEnum
 from protocol0.enums.vocal_command.TrackSearchKeywordEnum import TrackSearchKeywordEnum
 from protocol0.lom.track.AbstractTrack import AbstractTrack
+from protocol0.lom.track.AbstractTrackList import AbstractTrackList
 from protocol0.utils.utils import normalize_string
 
 
@@ -34,7 +38,10 @@ class KeywordSearchManager(AbstractControlSurfaceComponent):
         matching_track = matching_tracks[index]
 
         self.parent.log_info("Selecting track %s" % matching_track)
-        self.song.select_track(matching_track, fold_set=True)
+        self.song.select_track(matching_track)
+        if matching_track.is_foldable:
+            matching_track.is_folded = False
+        AbstractTrackList(self.song.abstract_tracks).toggle_fold(fold_action=FoldActionEnum.FOLD_ALL_EXCEPT_CURRENT)
 
     def _check_search_matches_track(self, search, track):
         # type: (str, AbstractTrack) -> bool

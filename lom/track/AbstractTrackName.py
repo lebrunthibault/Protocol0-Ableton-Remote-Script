@@ -6,6 +6,7 @@ import Live
 from _Framework.SubjectSlot import subject_slot_group
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
+from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.AbstractObjectName import AbstractObjectName
 from protocol0.utils.decorators import p0_subject_slot
 
@@ -38,6 +39,9 @@ class AbstractTrackName(AbstractObjectName):
         """ Called once at track instantiation time """
         # abstract_group_tracks handle display
         if self.track.abstract_group_track:
+            return
+
+        if not InterfaceState.HANDLE_TRACK_NAMES:
             return
 
         if self.track.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.NAME:

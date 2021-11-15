@@ -107,18 +107,14 @@ class SongActionMixin(object):
         self.metronome = False
         self._song.undo()
 
-    def select_track(self, abstract_track, fold_set=False):
+    def select_track(self, abstract_track):
         # type: (Song, AbstractTrack, bool) -> Sequence
         if abstract_track.group_track:
             abstract_track.group_track.is_folded = False
         seq = Sequence(silent=True)
         if self.song.selected_track != abstract_track.base_track:
-            seq.add(partial(setattr, self._view, "selected_track", abstract_track._track), wait=1)
-        if fold_set:
-            if abstract_track.is_foldable:
-                abstract_track.is_folded = False
-            seq.add(partial(AbstractTrackList(self.song.abstract_tracks).toggle_fold,
-                            fold_action=FoldActionEnum.FOLD_ALL_EXCEPT_CURRENT))
+            self._view.selected_track = abstract_track._track
+            seq.add(wait=1)
         return seq.done()
 
     def scroll_tracks(self, go_next):

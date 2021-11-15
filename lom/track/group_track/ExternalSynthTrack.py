@@ -16,6 +16,7 @@ from protocol0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.lom.track.simple_track.TrackSynchronizer import TrackSynchronizer
+from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import p0_subject_slot
 from protocol0.utils.utils import find_if
 
