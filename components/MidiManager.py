@@ -1,5 +1,3 @@
-from functools import partial
-
 from typing import Optional, Tuple
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent

@@ -54,7 +54,6 @@ class ErrorManager(AbstractControlSurfaceComponent):
         self.parent.log_error()
         self.parent.log_error("----- traceback -----", debug=False)
         self.parent.log_error("".join(self._format_list(show)), debug=False)
-        # self.parent.utilsManager.print_stack()
 
         self.song.errored = True
         self.parent.clear_tasks()

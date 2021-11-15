@@ -32,4 +32,8 @@ _.to_json_dict  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\
 # noinspection PyStatementEffect
 _.execute_vocal_command  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\components\api\ApiRoutesManager.py:27)
 # noinspection PyStatementEffect
+_.reset_song  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\components\api\ApiRoutesManager.py:27)
+# noinspection PyStatementEffect
 _.on_scene_list_changed  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\components\SongManager.py:34)
+# noinspection PyStatementEffect
+_.log_dev  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\Protocol0.py:177)

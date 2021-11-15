@@ -1,5 +1,3 @@
-from functools import partial
-
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.enums.FoldActionEnum import FoldActionEnum
 from protocol0.enums.vocal_command.TrackSearchKeywordEnum import TrackSearchKeywordEnum

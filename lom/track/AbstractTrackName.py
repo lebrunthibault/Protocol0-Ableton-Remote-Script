@@ -64,7 +64,8 @@ class AbstractTrackName(AbstractObjectName):
     def _should_recompute_base_name(self):
         # type: () -> bool
         return (
-                not self.base_name
+                InterfaceState.HANDLE_TRACK_NAMES
+                and not self.base_name
                 or self.base_name.lower() == self.track.DEFAULT_NAME.lower()
                 or (
                         self.track.instrument

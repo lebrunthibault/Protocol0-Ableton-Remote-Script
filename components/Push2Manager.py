@@ -1,6 +1,6 @@
-from Push2.push2 import Push2
 from typing import Optional, cast, Any
 
+from Push2.push2 import Push2
 from _Framework.ControlSurface import get_control_surfaces
 from _Framework.SubjectSlot import subject_slot, subject_slot_group
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent

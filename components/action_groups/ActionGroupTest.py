@@ -1,6 +1,8 @@
 from typing import Any
 
 from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
+from protocol0.config import Config
+from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 
 
 class ActionGroupTest(AbstractActionGroup):
@@ -16,8 +18,11 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        self.parent.log_dev(self.application().get_document())
+        pass
 
     def start_set_profiling(self):
         # type: () -> None
+        if Config.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.PROFILING:
+            self.parent.show_message("set the config to profiling")
+            return
         self.system.start_set_profiling()

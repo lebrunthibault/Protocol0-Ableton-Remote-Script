@@ -3,10 +3,8 @@ from functools import partial
 from typing import TYPE_CHECKING, Optional, Any
 
 from protocol0.enums.AbstractEnum import AbstractEnum
-from protocol0.enums.FoldActionEnum import FoldActionEnum
 from protocol0.lom.device.Device import Device
 from protocol0.lom.track.AbstractTrack import AbstractTrack
-from protocol0.lom.track.AbstractTrackList import AbstractTrackList
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import handle_error, arrangement_view_only, session_view_only
 from protocol0.utils.utils import scroll_values
@@ -108,7 +106,7 @@ class SongActionMixin(object):
         self._song.undo()
 
     def select_track(self, abstract_track):
-        # type: (Song, AbstractTrack, bool) -> Sequence
+        # type: (Song, AbstractTrack) -> Sequence
         if abstract_track.group_track:
             abstract_track.group_track.is_folded = False
         seq = Sequence(silent=True)

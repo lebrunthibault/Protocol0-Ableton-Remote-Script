@@ -1,9 +1,9 @@
 from functools import partial
 from math import floor
 
+from ClyphX_Pro.SyncedScheduler import SyncedScheduler
 from typing import Callable, Any, Dict
 
-from ClyphX_Pro.SyncedScheduler import SyncedScheduler
 from protocol0.lom.AbstractObject import AbstractObject
 
 

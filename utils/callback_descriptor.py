@@ -1,5 +1,6 @@
 from collections import deque
 from functools import partial
+
 from typing import Callable, Deque, Optional, Any, cast, Type, Union
 
 from protocol0.utils.log import log_ableton

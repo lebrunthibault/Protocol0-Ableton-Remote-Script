@@ -1,8 +1,8 @@
 from functools import partial
 
-import Live
 from typing import TYPE_CHECKING, Any, Optional, NoReturn
 
+import Live
 from protocol0.config import Config
 from protocol0.constants import QUANTIZATION_OPTIONS
 from protocol0.devices.InstrumentSimpler import InstrumentSimpler

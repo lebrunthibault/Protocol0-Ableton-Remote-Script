@@ -24,6 +24,7 @@ class NavigationManager(AbstractControlSurfaceComponent):
             return seq.done()
 
     def show_device_view(self):
+        # type: () -> None
         """ Shows track view. """
         self._app_view.show_view('Detail')
         self._app_view.show_view('Detail/DeviceChain')

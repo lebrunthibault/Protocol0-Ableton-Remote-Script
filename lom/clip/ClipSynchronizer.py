@@ -16,7 +16,8 @@ class ClipSynchronizer(ObjectSynchronizer):
         properties = ["muted", "loop_start", "loop_end", "start_marker", "end_marker"]
 
         if master.length != slave.length:
-            log_ableton("clips %s of track %s cannot be loop synchronized because of unequal length" % (master, master.track.abstract_track), level=LogLevelEnum.WARNING)
+            log_ableton("clips %s of track %s cannot be loop synchronized because of unequal length" % (
+                master, master.track.abstract_track), level=LogLevelEnum.WARNING)
             properties = ["muted"]
 
         # if slave.start_marker != slave.loop_start:

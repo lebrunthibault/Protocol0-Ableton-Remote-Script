@@ -31,7 +31,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # AbstractGroupTracks except with self.abstract_group_track which links both layers
         self.sub_tracks = []  # type: List[SimpleTrack]
 
-        self.linked_track = None  # type: Optional[SimpleTrack]
         self.devices = []  # type: List[Device]
         self.all_devices = []  # type: List[Device]
         self._instrument = None  # type: Optional[AbstractInstrument]

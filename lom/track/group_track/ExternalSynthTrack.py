@@ -15,8 +15,6 @@ from protocol0.lom.track.group_track.ExternalSynthTrackName import ExternalSynth
 from protocol0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.lom.track.simple_track.TrackSynchronizer import TrackSynchronizer
-from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import p0_subject_slot
 from protocol0.utils.utils import find_if
 
@@ -46,7 +44,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self._devices_synchronizers = []  # type: List[DeviceSynchronizer]
 
         with self.parent.component_guard():
-            self._midi_audio_synchronizer = TrackSynchronizer(self.audio_track, self.midi_track, ["solo"])
+            self._midi_audio_synchronizer = ObjectSynchronizer(self.audio_track, self.midi_track, ["solo"])
             self._midi_solo_synchronizer = ObjectSynchronizer(self.base_track, self.midi_track, ["solo"])
             self._link_group_devices_to_audio_devices()
 
