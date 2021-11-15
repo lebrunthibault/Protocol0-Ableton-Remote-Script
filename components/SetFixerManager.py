@@ -151,3 +151,17 @@ class SetFixerManager(AbstractControlSurfaceComponent):
             if lfo_tool_depth.value == 0:
                 self.parent.log_dev("removing")
                 track.delete_device(device=lfo_tool)
+
+    def link_external_synth_track_dummy_tracks(self, track):
+        # type: (ExternalSynthTrack) -> None
+        if len(track.dummy_tracks) == 0:
+            return
+
+        dummy_track = track.dummy_tracks[0]
+        track.midi_track.output_routing_type = dummy_track
+        track.audio_track.output_routing_type = dummy_track
+        for next_dummy_track in track.dummy_tracks[1:]:
+            dummy_track.output_routing_type = next_dummy_track
+            dummy_track = next_dummy_track
+
+

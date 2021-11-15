@@ -68,11 +68,6 @@ class TrackManager(AbstractControlSurfaceComponent):
             else:
                 abstract_group_track = SimpleGroupTrack(base_group_track=base_group_track)
 
-        # in case the group track changes type
-        if previous_abstract_group_track and previous_abstract_group_track != abstract_group_track:
-            previous_abstract_group_track.disconnect()
-
-        abstract_group_track.link_parent_and_child_objects()
         if self.song.is_loading and abstract_group_track.is_armed:
             abstract_group_track.has_monitor_in = False
         return abstract_group_track
@@ -80,9 +75,6 @@ class TrackManager(AbstractControlSurfaceComponent):
     def make_external_synth_track(self, base_group_track):
         # type: (SimpleTrack) -> Optional[ExternalSynthTrack]
         """ discarding automated tracks in creation / suppression """
-        if len(base_group_track.sub_tracks) != 2:
-            return None
-
         midi_track = base_group_track.sub_tracks[0]
         audio_track = base_group_track.sub_tracks[1]
         if not isinstance(midi_track, SimpleMidiTrack) or not isinstance(audio_track, SimpleAudioTrack):
@@ -93,10 +85,13 @@ class TrackManager(AbstractControlSurfaceComponent):
             self.parent.log_error("Couldn't find external instrument in %s" % base_group_track)
             return None
 
-        if isinstance(base_group_track.abstract_group_track, ExternalSynthTrack):
+        if isinstance(base_group_track.abstract_group_track, ExternalSynthTrack) and len(base_group_track.abstract_group_track.sub_tracks) == len(base_group_track.sub_tracks):
             external_synth_track = base_group_track.abstract_group_track
+            if len(external_synth_track.base_track.clip_slots) != len(base_group_track.clip_slots):
+                external_synth_track.link_clip_slots()
         else:
             external_synth_track = ExternalSynthTrack(base_group_track=base_group_track)
+            external_synth_track.link_parent_and_child_objects()
 
         return external_synth_track
 

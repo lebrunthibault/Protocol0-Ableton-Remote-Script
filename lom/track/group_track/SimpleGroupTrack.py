@@ -1,6 +1,7 @@
 from typing import Any, Optional, Type
 
 from protocol0.devices.AbstractInstrument import AbstractInstrument
+from protocol0.devices.InstrumentMinitaur import InstrumentMinitaur
 from protocol0.devices.InstrumentSimpler import InstrumentSimpler
 from protocol0.enums.Push2MainModeEnum import Push2MainModeEnum
 from protocol0.lom.track.AbstractTrack import AbstractTrack
@@ -84,6 +85,10 @@ class SimpleGroupTrack(AbstractGroupTrack):
         # type: () -> int
         sub_track_colors = [sub_track.color for sub_track in self.sub_tracks]
         if len(set(sub_track_colors)) == 1:
-            return sub_track_colors[0]
+            color = sub_track_colors[0]
+            for cls in AbstractInstrument.get_instrument_classes():
+                if color == cls.TRACK_COLOR.index and not isinstance(self.sub_tracks[0], cls):
+                    return self.DEFAULT_COLOR.index
+            return color
         else:
             return self.DEFAULT_COLOR.index

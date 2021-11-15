@@ -25,6 +25,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         super(ExternalSynthTrack, self).__init__(base_group_track=base_group_track, *a, **k)
         self.midi_track = base_group_track.sub_tracks[0]
         self.audio_track = base_group_track.sub_tracks[1]
+        self.dummy_tracks = base_group_track.sub_tracks[2:]
         assert isinstance(self.midi_track, SimpleMidiTrack) and isinstance(self.audio_track, SimpleAudioTrack), (
                 "invalid external synth track %s" % self
         )
@@ -33,9 +34,15 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self._devices_listener.subject = self.midi_track
         self._devices_listener()
 
-        # audio and midi tracks are now handled by self
+        # sub tracks are now handled by self
         self.audio_track.abstract_group_track = self
         self.midi_track.abstract_group_track = self
+        for dummy_track in self.dummy_tracks:
+            dummy_track.abstract_group_track = self
+
+        # dummy tracks are always monitor in
+        for dummy_track in self.dummy_tracks:
+            dummy_track.has_monitor_in = True
 
         self.track_name.disconnect()  # type: ignore[has-type]
         self.track_name = ExternalSynthTrackName(self)
@@ -52,7 +59,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         # noinspection PyUnresolvedReferences
         self.notify_instrument()
 
-    def _link_clip_slots(self):
+    def link_clip_slots(self):
         # type: () -> None
         for clip_slot_synchronizer in self._clip_slot_synchronizers:
             clip_slot_synchronizer.disconnect()
@@ -78,7 +85,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     def link_parent_and_child_objects(self):
         # type: () -> None
         super(ExternalSynthTrack, self).link_parent_and_child_objects()
-        self._link_clip_slots()
+        self.link_clip_slots()
 
     @p0_subject_slot("devices")
     def _devices_listener(self):

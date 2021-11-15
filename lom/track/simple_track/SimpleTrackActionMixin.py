@@ -26,13 +26,12 @@ class SimpleTrackActionMixin(object):
             self.mute = False
             self.is_armed = True
 
-        seq = Sequence()
-
-        if self.instrument:
-            if self.instrument.needs_activation:
-                seq.add(partial(self.instrument.activate_plugin_window))
-
-        return seq.done()
+        return None
+        # seq = Sequence()
+        # if self.instrument:
+        #     if self.instrument.needs_activation:
+        #         seq.add(partial(self.instrument.activate_plugin_window))
+        # return seq.done()
 
     def switch_monitoring(self):
         # type: (SimpleTrack) -> None

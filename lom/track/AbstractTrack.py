@@ -324,14 +324,32 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         return self._track.has_audio_output
 
     @property
+    def available_output_routing_types(self):
+        # type: () -> List[Live.Track.RoutingType]
+        return list(self._track.available_output_routing_types)
+
+    @property
+    def output_routing_type(self):
+        # type: () -> Optional[SimpleTrack]
+        if self._track.output_routing_type.attached_object:
+            return self.song.live_track_to_simple_track[self._track.output_routing_type.attached_object]
+        else:
+            return None
+
+    @output_routing_type.setter
+    def output_routing_type(self, track):
+        # type: (SimpleTrack) -> None
+        output_routing_type = find_if(lambda r: r.attached_object == track._track, self.available_output_routing_types)
+
+        if not output_routing_type:
+            raise Protocol0Error("Couldn't find the input routing type of the given track")
+
+        self._track.output_routing_type = output_routing_type
+
+    @property
     def available_input_routing_types(self):
         # type: () -> List[Live.Track.RoutingType]
         return list(self._track.available_input_routing_types)
-
-    @property
-    def available_input_routing_channels(self):
-        # type: () -> List[Live.Track.RoutingType]
-        return list(self._track.available_input_routing_channels)
 
     @property
     def input_routing_type(self):

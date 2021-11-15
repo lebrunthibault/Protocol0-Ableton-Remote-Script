@@ -170,7 +170,7 @@ class ExternalSynthTrackActionMixin(object):
                 self.audio_track.playable_clip.clip_name.update(base_name="")
                 self.midi_track.playable_clip.post_record()
             else:
-                self._link_clip_slots()
+                self.link_clip_slots()
 
     def post_arrangement_record(self):
         # type: (ExternalSynthTrack) -> None
