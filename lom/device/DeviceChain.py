@@ -9,19 +9,16 @@ if TYPE_CHECKING:
 
 
 class DeviceChain(AbstractObject):
-    def __init__(self, device, chain, *a, **k):
-        # type: (Device, Live.Chain.Chain, Any, Any) -> None
+    def __init__(self, device, chain, index, *a, **k):
+        # type: (Device, Live.Chain.Chain, int, Any, Any) -> None
         super(DeviceChain, self).__init__(*a, **k)
         self.device = device
         self._chain = chain
+        self.index = index
         self.track = self.device.track
         self.devices = []  # type: List[Device]
         self._devices_listener.subject = self._chain
         self._devices_listener()
-
-    def __repr__(self):
-        # type: () -> str
-        return self.name
 
     @property
     def name(self):
@@ -33,10 +30,15 @@ class DeviceChain(AbstractObject):
         # type: () -> None
         from protocol0.lom.device.Device import Device
 
-        self.devices = [Device.make(device, self.track) for device in self._chain.devices]
+        self.devices = [Device.make(device, self.track, self) for device in self._chain.devices]
 
     def disconnect(self):
         # type: () -> None
         super(DeviceChain, self).disconnect()
         for device in self.devices:
             device.disconnect()
+
+    def delete_device(self, device):
+        # type: (Device) -> None
+        device_index = self.devices.index(device)
+        self._chain.delete_device(device_index)

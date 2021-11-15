@@ -4,7 +4,7 @@ from protocol0.enums.LogLevelEnum import LogLevelEnum
 
 class Config(object):
     LOG_LEVEL = LogLevelEnum.DEV
-    ABLETON_SESSION_TYPE = AbletonSessionTypeEnum.NORMAL
+    ABLETON_SESSION_TYPE = AbletonSessionTypeEnum.PROFILING
     SEQUENCE_DEBUG = False
     SEQUENCE_SLOW_MO = False
 

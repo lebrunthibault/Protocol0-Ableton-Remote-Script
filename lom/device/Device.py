@@ -4,6 +4,7 @@ import Live
 from _Framework.SubjectSlot import subject_slot
 from protocol0.enums.DeviceParameterNameEnum import DeviceParameterNameEnum
 from protocol0.lom.AbstractObject import AbstractObject
+from protocol0.lom.device.DeviceChain import DeviceChain
 from protocol0.lom.device.DeviceParameter import DeviceParameter
 from protocol0.utils.utils import find_if
 
@@ -12,8 +13,8 @@ if TYPE_CHECKING:
 
 
 class Device(AbstractObject):
-    def __init__(self, device, track, *a, **k):
-        # type: (Live.Device.Device, SimpleTrack, Any, Any) -> None
+    def __init__(self, device, track, chain=None, *a, **k):
+        # type: (Live.Device.Device, SimpleTrack, Optional[DeviceChain], Any, Any) -> None
         super(Device, self).__init__(*a, **k)
         self._device = device
         self.track = track
@@ -23,6 +24,7 @@ class Device(AbstractObject):
         self._parameters_listener()
         self.can_have_drum_pads = self._device.can_have_drum_pads
         self.can_have_chains = self._device.can_have_chains
+        self.device_chain = chain
 
     def __eq__(self, device):
         # type: (object) -> bool
@@ -59,9 +61,9 @@ class Device(AbstractObject):
             return Device
 
     @staticmethod
-    def make(device, track):
+    def make(device, track, chain=None):
         # type: (Live.Device.Device, SimpleTrack) -> Device
-        return Device.get_class(device)(device=device, track=track)
+        return Device.get_class(device)(device=device, track=track, chain=chain)
 
     def scroll_presets(self, go_next):
         # type: (bool) -> None

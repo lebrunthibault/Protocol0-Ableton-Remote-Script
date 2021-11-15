@@ -3,6 +3,7 @@ from functools import partial
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.devices.InstrumentSimpler import InstrumentSimpler
 from protocol0.enums.DeviceEnum import DeviceEnum
+from protocol0.enums.DeviceParameterNameEnum import DeviceParameterNameEnum
 from protocol0.lom.device.RackDevice import RackDevice
 from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.sequence.Sequence import Sequence
@@ -134,3 +135,19 @@ class SetFixerManager(AbstractControlSurfaceComponent):
                     seq.add(partial(self.parent.deviceManager.update_audio_effect_rack, device=device))
 
         return seq.done()
+
+    def delete_all_unmodified_lfo_tool(self):
+        # type: () -> None
+        for track in self.song.simple_tracks:
+            lfo_tool = track.get_device_from_enum(DeviceEnum.LFO_TOOL)
+            # self.parent.log_dev("lfo_tool: %s (%s)" % (lfo_tool, track))
+            # self.parent.log_dev(lfo_tool.device_chain)
+            # self.parent.log_dev(lfo_tool.device_chain.index)
+            if not lfo_tool:
+                return
+            lfo_tool_depth = lfo_tool.get_parameter_by_name(
+                device_parameter_name=DeviceParameterNameEnum.LFO_TOOL_LFO_DEPTH)
+            self.parent.log_dev("lfo_tool: %s" % lfo_tool_depth.value)
+            if lfo_tool_depth.value == 0:
+                self.parent.log_dev("removing")
+                track.delete_device(device=lfo_tool)
