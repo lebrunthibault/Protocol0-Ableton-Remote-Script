@@ -36,7 +36,8 @@ class ExternalSynthTrackActionMixin(object):
                 self.parent.log_error("Expected to find audio input routing channel to %s : %s" % (
                     instrument.AUDIO_INPUT_ROUTING_CHANNEL.label, self))
             return False
-        return True
+
+        return instrument.validate_configuration()
 
     def fix_configuration(self):
         # type: (ExternalSynthTrack) -> None

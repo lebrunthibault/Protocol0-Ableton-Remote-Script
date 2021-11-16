@@ -77,7 +77,7 @@ class SetFixerManager(AbstractControlSurfaceComponent):
                                 "failed on %s" % simple_track
                         )
                     else:
-                        assert sub_track in simple_track.abstract_group_track.sub_tracks, "failed on %s" % simple_track
+                        assert sub_track in simple_track.abstract_group_track.sub_tracks, "failed on %s - %s" % (simple_track, sub_track)
                 assert len(simple_track.sub_tracks) == len(simple_track.abstract_group_track.sub_tracks)
             elif simple_track.abstract_group_track:
                 assert simple_track in simple_track.abstract_group_track.sub_tracks
@@ -140,16 +140,11 @@ class SetFixerManager(AbstractControlSurfaceComponent):
         # type: () -> None
         for track in self.song.simple_tracks:
             lfo_tool = track.get_device_from_enum(DeviceEnum.LFO_TOOL)
-            # self.parent.log_dev("lfo_tool: %s (%s)" % (lfo_tool, track))
-            # self.parent.log_dev(lfo_tool.device_chain)
-            # self.parent.log_dev(lfo_tool.device_chain.index)
             if not lfo_tool:
                 return
             lfo_tool_depth = lfo_tool.get_parameter_by_name(
                 device_parameter_name=DeviceParameterNameEnum.LFO_TOOL_LFO_DEPTH)
-            self.parent.log_dev("lfo_tool: %s" % lfo_tool_depth.value)
             if lfo_tool_depth.value == 0:
-                self.parent.log_dev("removing")
                 track.delete_device(device=lfo_tool)
 
     def link_external_synth_track_dummy_tracks(self, track):

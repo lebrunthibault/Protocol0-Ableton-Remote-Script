@@ -67,6 +67,7 @@ class TrackManager(AbstractControlSurfaceComponent):
                 abstract_group_track = previous_abstract_group_track
             else:
                 abstract_group_track = SimpleGroupTrack(base_group_track=base_group_track)
+            abstract_group_track.link_parent_and_child_objects()
 
         if self.song.is_loading and abstract_group_track.is_armed:
             abstract_group_track.has_monitor_in = False

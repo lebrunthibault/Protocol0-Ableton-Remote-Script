@@ -9,6 +9,7 @@ class DeviceEnum(AbstractEnum):
     EXTERNAL_INSTRUMENT = "EXTERNAL_INSTRUMENT"
     LFO_TOOL = "LFO_TOOL"
     MIX_RACK = "MIX_RACK"
+    USAMO = "USAMO"
 
     @property
     def is_rack(self):
@@ -38,6 +39,7 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.EXTERNAL_INSTRUMENT: "Ext. Instrument",
             DeviceEnum.LFO_TOOL: "LFOTool_x64",
             DeviceEnum.MIX_RACK: "Mix Rack",
+            DeviceEnum.USAMO: "usamo_x64",
         })
 
     @property

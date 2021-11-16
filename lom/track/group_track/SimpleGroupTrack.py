@@ -85,10 +85,6 @@ class SimpleGroupTrack(AbstractGroupTrack):
         # type: () -> int
         sub_track_colors = [sub_track.color for sub_track in self.sub_tracks]
         if len(set(sub_track_colors)) == 1:
-            color = sub_track_colors[0]
-            for cls in AbstractInstrument.get_instrument_classes():
-                if color == cls.TRACK_COLOR.index and not isinstance(self.sub_tracks[0], cls):
-                    return self.DEFAULT_COLOR.index
-            return color
+            return sub_track_colors[0]
         else:
             return self.DEFAULT_COLOR.index

@@ -107,6 +107,10 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
 
         return None
 
+    def validate_configuration(self):
+        # type: () -> bool
+        return True
+
     @property
     def needs_exclusive_activation(self):
         # type: () -> bool
