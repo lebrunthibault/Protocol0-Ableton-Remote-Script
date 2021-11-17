@@ -1,6 +1,7 @@
-from typing import List
+from typing import List, Tuple
 
 from protocol0.enums.AbstractEnum import AbstractEnum
+from protocol0.enums.DeviceParameterNameEnum import DeviceParameterNameEnum
 from protocol0.lom.device.Device import Device
 
 
@@ -50,6 +51,13 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.EXTERNAL_INSTRUMENT: "External Instrument",
             DeviceEnum.LFO_TOOL: "LFOTool.adg",
             DeviceEnum.MIX_RACK: "Mix Rack.adg",
+        })
+
+    @property
+    def main_parameter_default(self):
+        # type: () -> Tuple[DeviceParameterNameEnum, int]
+        return self.get_value_from_mapping({
+            DeviceEnum.LFO_TOOL: (DeviceParameterNameEnum.LFO_TOOL_LFO_DEPTH, 0),
         })
 
     def matches_device(self, device):

@@ -84,7 +84,6 @@ class Protocol0(ControlSurface):
             if Config.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.PROFILING:
                 # waiting for Protocol0_midi to boot
                 self.p0_system_api_client.end_measurement()
-                # self.wait(1, self.p0_system_api_client.end_measurement)
             self.protocol0_song = Song(song=self.song())
             self.deviceManager = DeviceManager()  # needs to be here first
             AbstractInstrument.INSTRUMENT_CLASSES = AbstractInstrument.get_instrument_classes()

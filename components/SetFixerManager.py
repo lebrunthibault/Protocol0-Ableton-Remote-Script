@@ -4,6 +4,7 @@ from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComp
 from protocol0.devices.InstrumentSimpler import InstrumentSimpler
 from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.enums.DeviceParameterNameEnum import DeviceParameterNameEnum
+from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.lom.device.RackDevice import RackDevice
 from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.sequence.Sequence import Sequence
@@ -136,16 +137,21 @@ class SetFixerManager(AbstractControlSurfaceComponent):
 
         return seq.done()
 
-    def delete_all_unmodified_lfo_tool(self):
+    def delete_unnecessary_devices(self):
         # type: () -> None
-        for track in self.song.simple_tracks:
-            lfo_tool = track.get_device_from_enum(DeviceEnum.LFO_TOOL)
-            if not lfo_tool:
-                return
-            lfo_tool_depth = lfo_tool.get_parameter_by_name(
-                device_parameter_name=DeviceParameterNameEnum.LFO_TOOL_LFO_DEPTH)
-            if lfo_tool_depth.value == 0:
-                track.delete_device(device=lfo_tool)
+        for device_enum in DeviceEnum:  # type: DeviceEnum
+            try:
+                device_parameter_enum, default_value = device_enum.main_parameter_default
+                for track in self.song.simple_tracks:
+                    device = track.get_device_from_enum(device_enum)
+                    if not device:
+                        return
+                    device_main_parameter = device.get_parameter_by_name(device_parameter_name=device_main_parameter)
+                    if device_main_parameter.value == default_value:
+                        track.delete_device(device=device)
+                self.parent.log_dev((device_parameter_enum, default_value, device_enum))
+            except Protocol0Error:
+                continue
 
     def link_external_synth_track_dummy_tracks(self, track):
         # type: (ExternalSynthTrack) -> None

@@ -21,8 +21,7 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        self.parent.setFixerManager.link_external_synth_track_dummy_tracks(self.song.current_track)
-        # self.parent.setFixerManager.delete_all_unmodified_lfo_tool()
+        self.parent.setFixerManager.delete_unnecessary_devices()
 
     def start_set_profiling(self):
         # type: () -> None
