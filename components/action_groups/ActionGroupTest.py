@@ -2,10 +2,7 @@ from typing import Any
 
 from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
 from protocol0.config import Config
-from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
-from protocol0.enums.DeviceEnum import DeviceEnum
-from protocol0.enums.DeviceParameterNameEnum import DeviceParameterNameEnum
 
 
 class ActionGroupTest(AbstractActionGroup):
@@ -21,7 +18,7 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        self.parent.setFixerManager.delete_unnecessary_devices()
+        self.parent.log_dev(self.song.usamo_track)
 
     def start_set_profiling(self):
         # type: () -> None

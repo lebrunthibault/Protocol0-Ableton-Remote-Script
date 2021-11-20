@@ -30,6 +30,7 @@ class Song(AbstractObject, SongActionMixin):
         # Global accessible objects / object mappings
         self.scenes = []  # type: List[Scene]
         self.live_track_to_simple_track = collections.OrderedDict()  # type: Dict[Live.Track.Track, SimpleTrack]
+        self.usamo_track = None  # type: Optional[SimpleTrack]
         self.master_track = None  # type: Optional[SimpleTrack]
         self.clip_slots_by_live_live_clip_slot = {}  # type: Dict[Live.ClipSlot.ClipSlot, ClipSlot]
 

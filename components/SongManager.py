@@ -6,6 +6,7 @@ import Live
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.config import Config
 from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
+from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.lom.Scene import Scene
 from protocol0.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -85,6 +86,9 @@ class SongManager(AbstractControlSurfaceComponent):
         for track in list(self.song._song.tracks) + list(self.song._song.return_tracks):
             self._generate_simple_track(track=track)
 
+        if self.song.usamo_track is None:
+            self.parent.log_error("Usamo track is not present")
+
         self.song.master_track = self._generate_simple_track(track=self.song._song.master_track)
 
         # Refresh track mapping
@@ -100,6 +104,9 @@ class SongManager(AbstractControlSurfaceComponent):
     def _generate_simple_track(self, track):
         # type: (Live.Track.Track) -> SimpleTrack
         simple_track = self.parent.trackManager.instantiate_simple_track(track=track)
+        usamo = simple_track.get_device_from_enum(DeviceEnum.USAMO)
+        if usamo:
+            self.song.usamo_track = simple_track
         self.song.live_track_to_simple_track[track] = simple_track
         self._simple_tracks.append(simple_track)
         return simple_track

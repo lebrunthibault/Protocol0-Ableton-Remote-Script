@@ -142,7 +142,7 @@ class Scene(AbstractObject, SceneActionMixin):
     @property
     def is_playing(self):
         # type: () -> bool
-        return any(clip.is_playing for clip in self.clips)
+        return any(clip.is_playing for clip in self.clips if clip)
 
     @property
     def longest_clip(self):
