@@ -14,8 +14,6 @@ class InterfaceState(object):
 
     CURRENT_RECORD_TYPE = RecordTypeEnum.NORMAL
 
-    PROTECTED_MODE_ACTIVE = True  # protected mode prevents certain actions to be made
-
     # NB: for an unknown reason clip.view.show_envelope does not always show the envelope
     # when the button was not clicked. As a workaround we click it the first time
     CLIP_ENVELOPE_SHOW_BOX_CLICKED = False
@@ -76,16 +74,8 @@ class InterfaceState(object):
         cls.SELECTED_CLIP_TAILS_BAR_LENGTH = scroll_values(
             enum_values, cls.SELECTED_CLIP_TAILS_BAR_LENGTH, go_next
         )
-        cls.show_selected_bar_length("CLIP TAIL", cls.SELECTED_CLIP_TAILS_BAR_LENGTH)
-
-    @classmethod
-    @save_song_data
-    def toggle_protected_mode(cls):
-        # type: () -> None
-        cls.PROTECTED_MODE_ACTIVE = not cls.PROTECTED_MODE_ACTIVE
         from protocol0 import Protocol0
-
-        Protocol0.SELF.show_message("Protected mode %s" % ("ON" if cls.PROTECTED_MODE_ACTIVE else "OFF"))
+        Protocol0.SELF.show_message("Selected CLIP TAIL : %s (Activated)" % cls.SELECTED_CLIP_TAILS_BAR_LENGTH)
 
     @classmethod
     def show_selected_bar_length(cls, title, bar_length):

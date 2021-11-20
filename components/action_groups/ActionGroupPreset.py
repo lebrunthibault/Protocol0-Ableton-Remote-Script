@@ -14,3 +14,9 @@ class ActionGroupPreset(AbstractActionGroup):
         # SCAN encoder
         self.add_encoder(identifier=1, name="scan (import) all track presets",
                          on_press=self.parent.presetManager.refresh_presets)
+
+        # CATegory encoder
+        self.add_encoder(
+            identifier=2, name="scroll preset categories", on_scroll=lambda: self.song.current_track.scroll_preset_categories
+        )
+

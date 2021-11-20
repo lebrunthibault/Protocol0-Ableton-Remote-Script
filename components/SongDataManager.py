@@ -65,6 +65,8 @@ class SongDataManager(AbstractControlSurfaceComponent):
                         value = AbstractEnum.from_json_dict(value)
                     except Protocol0Error as e:
                         raise SongDataError(e)
+                if not hasattr(cls, key):
+                    raise SongDataError("Invalid song data, attribute does not exist %s.%s" % (cls_fqdn, key))
                 if isinstance(getattr(cls, key), AbstractEnum) and not isinstance(value, AbstractEnum):
                     raise SongDataError("inconsistent AbstractEnum value for %s.%s : got %s" % (cls_fqdn, key, value))
                 setattr(cls, key, value)

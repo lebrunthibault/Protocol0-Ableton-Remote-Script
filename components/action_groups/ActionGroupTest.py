@@ -18,7 +18,7 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        self.parent.log_dev(self.song.usamo_track)
+        self.system.show_protected_mode_dialog()
 
     def start_set_profiling(self):
         # type: () -> None

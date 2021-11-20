@@ -31,9 +31,6 @@ class ActionGroupMain(AbstractActionGroup):
             on_scroll=InterfaceState.scroll_clip_tails_bar_lengths,
         )
 
-        # LOCK encoder
-        self.add_encoder(identifier=3, name="protected mode", on_press=InterfaceState.toggle_protected_mode)
-
         # VOLume tempo encoder
         self.add_encoder(identifier=4, name="volume",
                          on_press=lambda: self.song.current_track.toggle_mute,
@@ -56,7 +53,7 @@ class ActionGroupMain(AbstractActionGroup):
             on_long_press=lambda: partial(self.song.armed_tracks.record, RecordTypeEnum.AUDIO_ONLY)
         )
 
-        # TRaCK encoder
+        # TRacK encoder
         self.add_encoder(
             identifier=13,
             name="track",
@@ -72,11 +69,6 @@ class ActionGroupMain(AbstractActionGroup):
             on_press=lambda: self.song.current_track.show_hide_instrument,
             on_long_press=lambda: self.song.current_track.activate_instrument_plugin_window,
             on_scroll=lambda: self.song.current_track.scroll_presets_or_samples,
-        )
-
-        # CATegory encoder
-        self.add_encoder(
-            identifier=15, name="track category", on_scroll=lambda: self.song.current_track.scroll_preset_categories
         )
 
         # SCENe encoder

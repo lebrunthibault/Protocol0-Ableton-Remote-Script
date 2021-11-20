@@ -196,6 +196,11 @@ class Protocol0(ControlSurface):
     def log_error(self, message="", debug=True):
         # type: (str, bool) -> None
         self._log(message, level=LogLevelEnum.ERROR, debug=debug)
+        # # noinspection PyBroadException
+        # try:
+        #     super(Protocol0, self).show_message(message)
+        # except Exception:
+        #     self.log_warning("Couldn't show message")
 
     def _log(self, message="", level=LogLevelEnum.INFO, debug=False):
         # type: (Any, LogLevelEnum, bool) -> None

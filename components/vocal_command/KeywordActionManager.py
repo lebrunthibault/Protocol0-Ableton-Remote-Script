@@ -33,7 +33,6 @@ class KeywordActionManager(AbstractControlSurfaceComponent):
             ActionEnum.SHOW: lambda: self.song.current_track.show_hide_instrument,
             ActionEnum.PUSH: self.parent.push2Manager.connect_push2,
             ActionEnum.SPLIT: lambda: self.song.selected_scene.split,
-            ActionEnum.LOCK: InterfaceState.toggle_protected_mode,
         }
         for enum, func in callable_dict.items():
             self.MAPPING[enum] = EncoderAction(func)

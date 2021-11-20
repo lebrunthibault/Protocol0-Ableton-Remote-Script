@@ -81,7 +81,7 @@ class SongManager(AbstractControlSurfaceComponent):
         # type: () -> None
         """ instantiate SimpleTracks (including return / master, that are marked as inactive) """
         self._simple_tracks[:] = []
-
+        self.song.usamo_track = None
         # instantiate set tracks
         for track in list(self.song._song.tracks) + list(self.song._song.return_tracks):
             self._generate_simple_track(track=track)

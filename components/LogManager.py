@@ -21,8 +21,6 @@ class LogManager(AbstractObject):
         self.parent.log_info("song.is_playing: %s" % self.song.is_playing)
         self.parent.log_info("song.current_song_time: %s" % self.song._song.current_song_time)
         self.parent.log_info()
-        self.parent.log_info("InterfaceState.PROTECTED_MODE_ACTIVE: %s" % InterfaceState.PROTECTED_MODE_ACTIVE)
-        self.parent.log_info()
         self.parent.log_notice("********* SONG TRACKS *************")
         self.parent.log_info("simple_tracks : %s" % list(self.song.simple_tracks))
         self.parent.log_info()

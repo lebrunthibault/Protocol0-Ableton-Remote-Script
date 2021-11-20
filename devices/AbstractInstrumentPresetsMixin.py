@@ -20,7 +20,6 @@ class AbstractInstrumentPresetsMixin(object):
     NEEDS_ACTIVATION_FOR_PRESETS_CHANGE = False
     PRESET_DISPLAY_OPTION = PresetDisplayOptionEnum.NAME
     PROGRAM_CHANGE_OFFSET = 0  # if we store presets not at the beginning of the list
-    HAS_TOTAL_RECALL = True
 
     @defer
     def import_presets(self):

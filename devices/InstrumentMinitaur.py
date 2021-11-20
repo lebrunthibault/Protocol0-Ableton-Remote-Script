@@ -18,7 +18,6 @@ class InstrumentMinitaur(AbstractExternalSynthTrackInstrument):
     AUDIO_INPUT_ROUTING_CHANNEL = InputRoutingChannelEnum.POST_FX
     PRESETS_PATH = "C:\\Users\\thiba\\AppData\\Roaming\\Moog Music Inc\\Minitaur\\Presets Library\\User"
     PROGRAM_CHANGE_OFFSET = 1
-    HAS_TOTAL_RECALL = False
 
     def validate_configuration(self):  # type: () -> bool
         external_synth_track = cast(ExternalSynthTrack, self.track.abstract_track)

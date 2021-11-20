@@ -192,5 +192,9 @@ class ExternalSynthTrackActionMixin(object):
     def can_change_presets(self):
         # type: (ExternalSynthTrack) -> bool
         """ overridden """
-        assert self.instrument
-        return super(ExternalSynthTrackActionMixin, self).can_change_presets or len(self.audio_track.clips) == 0
+        if len(self.audio_track.clips) == 0:
+            return True
+        if not self.protected_mode_active:
+            return True
+        else:
+            self.system.show_protected_mode_dialog()

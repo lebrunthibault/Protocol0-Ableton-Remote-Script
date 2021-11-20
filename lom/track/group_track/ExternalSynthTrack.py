@@ -55,6 +55,8 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
             self._midi_solo_synchronizer = ObjectSynchronizer(self.base_track, self.midi_track, ["solo"])
             self._link_group_devices_to_audio_devices()
 
+        self.protected_mode_active = True
+
         # the instrument handling relies on the group track
         # noinspection PyUnresolvedReferences
         self.notify_instrument()

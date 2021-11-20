@@ -79,11 +79,7 @@ class AbstractTrackActionMixin(object):
     def can_change_presets(self):
         # type: (AbstractTrack) -> bool
         """ overridden """
-        assert self.instrument
-        return len(
-            self.clips) == 0 or not InterfaceState.PROTECTED_MODE_ACTIVE or not self.instrument.HAS_TOTAL_RECALL or isinstance(
-            self.instrument,
-            InstrumentSimpler)
+        return True
 
     def scroll_presets_or_samples(self, go_next):
         # type: (AbstractTrack, bool) -> None

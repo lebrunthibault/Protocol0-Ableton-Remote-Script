@@ -1,6 +1,7 @@
-from typing import Any
+from typing import Any, cast
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.utils.decorators import api_exposed, api_exposable_class
 
 
@@ -33,3 +34,12 @@ class ApiRoutesManager(AbstractControlSurfaceComponent):
         # type: (str) -> None
         """ Called by the speech recognition script """
         self.parent.vocalCommandManager.execute_command(command)
+
+    @api_exposed
+    def deactivate_protected_mode(self):
+        # type: () -> None
+        """ Called by the speech recognition script """
+        if not isinstance(self.song.current_track, ExternalSynthTrack):
+            return
+        cast(ExternalSynthTrack, self.song.current_track).protected_mode_active = False
+        self.parent.show_message("track protected mode disabled")
