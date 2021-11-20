@@ -3,6 +3,7 @@ from typing import Optional, Any
 import Live
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.devices.AbstractExternalSynthTrackInstrument import AbstractExternalSynthTrackInstrument
+from protocol0.devices.InstrumentMinitaur import InstrumentMinitaur
 from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
@@ -61,7 +62,7 @@ class TrackManager(AbstractControlSurfaceComponent):
 
         previous_abstract_group_track = base_group_track.abstract_group_track
 
-        abstract_group_track = self.make_external_synth_track(base_group_track=base_group_track)
+        abstract_group_track = self._make_external_synth_track(base_group_track=base_group_track)
         if not abstract_group_track:
             if isinstance(previous_abstract_group_track, SimpleGroupTrack):
                 abstract_group_track = previous_abstract_group_track
@@ -73,7 +74,7 @@ class TrackManager(AbstractControlSurfaceComponent):
             abstract_group_track.has_monitor_in = False
         return abstract_group_track
 
-    def make_external_synth_track(self, base_group_track):
+    def _make_external_synth_track(self, base_group_track):
         # type: (SimpleTrack) -> Optional[ExternalSynthTrack]
         """ discarding automated tracks in creation / suppression """
         midi_track = base_group_track.sub_tracks[0]
@@ -83,8 +84,9 @@ class TrackManager(AbstractControlSurfaceComponent):
 
         instrument = find_if(lambda i: isinstance(i, AbstractExternalSynthTrackInstrument), [midi_track.instrument, audio_track.instrument])  # type: Optional[AbstractExternalSynthTrackInstrument]
         if not instrument:
-            self.parent.log_error("Couldn't find external instrument in %s" % base_group_track)
-            return None
+            midi_track.instrument = InstrumentMinitaur(track=midi_track, device=None)
+            # self.parent.log_error("Couldn't find external instrument in %s" % base_group_track)
+            # return None
 
         if isinstance(base_group_track.abstract_group_track, ExternalSynthTrack) and len(base_group_track.abstract_group_track.sub_tracks) == len(base_group_track.sub_tracks):
             external_synth_track = base_group_track.abstract_group_track

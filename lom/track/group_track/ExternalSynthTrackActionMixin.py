@@ -22,6 +22,7 @@ class ExternalSynthTrackActionMixin(object):
         """ this needs to be deferred because routings are not available on the first tick """
         instrument = find_if(lambda i: isinstance(i, AbstractExternalSynthTrackInstrument), [self.midi_track.instrument,
                                                                                              self.audio_track.instrument])  # type: Optional[AbstractExternalSynthTrackInstrument]
+        self.parent.log_dev((self, instrument))
         if not self.midi_track.get_device_from_enum(instrument.EXTERNAL_INSTRUMENT_DEVICE):
             if log:
                 self.parent.log_error("Expected to find external instrument device %s in %s" % (
@@ -37,7 +38,7 @@ class ExternalSynthTrackActionMixin(object):
                     instrument.AUDIO_INPUT_ROUTING_CHANNEL.label, self))
             return False
 
-        return instrument.validate_configuration()
+        return True
 
     def fix_configuration(self):
         # type: (ExternalSynthTrack) -> None
@@ -57,6 +58,8 @@ class ExternalSynthTrackActionMixin(object):
         # type: (ExternalSynthTrack) -> Optional[Sequence]
         self.base_track.is_folded = False
         self.base_track.mute = False
+        if self.song.usamo_track:
+            self.song.usamo_track.input_routing_type = self.midi_track
         seq = Sequence(silent=True)
         seq.add([self.midi_track.arm_track, self.audio_track.arm_track])
         seq.add(partial(setattr, self, "has_monitor_in", False))

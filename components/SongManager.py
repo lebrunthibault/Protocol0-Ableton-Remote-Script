@@ -87,7 +87,7 @@ class SongManager(AbstractControlSurfaceComponent):
             self._generate_simple_track(track=track)
 
         if self.song.usamo_track is None:
-            self.parent.log_error("Usamo track is not present")
+            self.parent.log_warning("Usamo track is not present")
 
         self.song.master_track = self._generate_simple_track(track=self.song._song.master_track)
 

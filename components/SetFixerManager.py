@@ -13,28 +13,26 @@ from protocol0.sequence.Sequence import Sequence
 class SetFixerManager(AbstractControlSurfaceComponent):
     """ Do audit and fix operations on a set """
 
-    def _check_set(self, log=True):
-        # type: (bool) -> None
+    def _check_set(self):
+        # type: () -> None
         """ Checks the set is operational, deprecated """
         self._check_input_routings()
         self._validate_tracks_configuration()
         self._check_tracks_tree_consistency()
         self._check_instruments()
 
-        if log:
-            self.parent.show_message("Set checked")
+        self.parent.show_message("Set checked")
 
-    def refresh_set_appearance(self, log=True):
-        # type: (bool) -> None
+    def refresh_set_appearance(self):
+        # type: () -> None
         """ Fix the current set to the current standard regarding naming / coloring etc .."""
-        self._check_set(log=log)
-        self._refresh_tracks_appearance()
-        self._refresh_clips_appearance()
-        self.refresh_scenes_appearance()
-        self._fix_simpler_tracks_name()
+        self._check_set()
+        # self._refresh_tracks_appearance()
+        # self._refresh_clips_appearance()
+        # self.refresh_scenes_appearance()
+        # self._fix_simpler_tracks_name()
 
-        if log:
-            self.parent.show_message("Set appearance refreshed")
+        self.parent.show_message("Set appearance refreshed")
 
     def fix_current_external_synth_track(self):
         # type: () -> None

@@ -342,7 +342,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         output_routing_type = find_if(lambda r: r.attached_object == track._track, self.available_output_routing_types)
 
         if not output_routing_type:
-            raise Protocol0Error("Couldn't find the input routing type of the given track")
+            raise Protocol0Error("Couldn't find the output routing type from %s" % track)
 
         self._track.output_routing_type = output_routing_type
 
@@ -365,7 +365,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         input_routing_type = find_if(lambda r: r.attached_object == track._track, self.available_input_routing_types)
 
         if not input_routing_type:
-            raise Protocol0Error("Couldn't find the input routing type of the given track")
+            raise Protocol0Error("Couldn't find the output routing type from %s" % track)
 
         self._track.input_routing_type = input_routing_type
 

@@ -84,6 +84,8 @@ class Protocol0(ControlSurface):
             if Config.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.PROFILING:
                 # waiting for Protocol0_midi to boot
                 self.p0_system_api_client.end_measurement()
+                ActionGroupTest()
+                return
             self.protocol0_song = Song(song=self.song())
             self.deviceManager = DeviceManager()  # needs to be here first
             AbstractInstrument.INSTRUMENT_CLASSES = AbstractInstrument.get_instrument_classes()
@@ -106,6 +108,8 @@ class Protocol0(ControlSurface):
             self.utilsManager = UtilsManager()
             self.logManager = LogManager()
             self.validatorManager = ValidatorManager()
+
+            # ActionGroupTest()
 
             if Config.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.TEST:
                 # action groups
@@ -196,11 +200,11 @@ class Protocol0(ControlSurface):
     def log_error(self, message="", debug=True):
         # type: (str, bool) -> None
         self._log(message, level=LogLevelEnum.ERROR, debug=debug)
-        # # noinspection PyBroadException
-        # try:
-        #     super(Protocol0, self).show_message(message)
-        # except Exception:
-        #     self.log_warning("Couldn't show message")
+        # noinspection PyBroadException
+        try:
+            super(Protocol0, self).show_message(message)
+        except Exception:
+            self.log_warning("Couldn't show message")
 
     def _log(self, message="", level=LogLevelEnum.INFO, debug=False):
         # type: (Any, LogLevelEnum, bool) -> None

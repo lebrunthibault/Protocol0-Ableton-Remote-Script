@@ -108,9 +108,9 @@ class ClipSlot(AbstractObject):
                 complete_on=self._has_clip_listener,
             )
 
-        # this is a convenience to see right away if there is a problem with the audio recording
-        if self.track.is_audio:
-            seq.add(lambda: self.clip.select(), name="select audio clip")
+        # # this is a convenience to see right away if there is a problem with the audio recording
+        # if self.track.is_audio:
+        #     seq.add(lambda: self.clip.select(), name="select audio clip")
 
         seq.add(
             complete_on=lambda: self.clip._is_recording_listener,

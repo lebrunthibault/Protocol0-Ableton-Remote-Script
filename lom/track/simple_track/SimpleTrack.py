@@ -166,7 +166,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def instrument(self):
         # type: () -> Optional[AbstractInstrument]
         return self._instrument
-        # return getattr(self, "_instrument", None)
 
     @instrument.setter
     def instrument(self, instrument):
