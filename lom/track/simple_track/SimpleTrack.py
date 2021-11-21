@@ -48,14 +48,19 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # type: () -> bool
         return self._track not in list(self.song._song.return_tracks) + [self.song._song.master_track]
 
-    def link_group_track(self):
+    def link_parent_and_child_tracks(self):
         # type: () -> None
-        # register to the group track
+        """
+            NB : out of init because this needs to be done every rebuild
+            1st layer linking
+        """
+        # register to the group track (SimpleTrack)
         if self._track.group_track:
             self.group_track = self.song.live_track_to_simple_track[
                 self._track.group_track
-            ]  # type: Optional[AbstractTrack]
-            self.group_track.sub_tracks.append(self)
+            ]  # type: SimpleTrack
+            if self not in self.group_track.sub_tracks:
+                self.group_track.sub_tracks.append(self)
 
     def map_clip_slots(self):
         # type: () -> Any

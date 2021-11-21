@@ -1,4 +1,4 @@
-from typing import Optional, Any
+from typing import Optional, Any, Type
 
 import Live
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
@@ -29,30 +29,32 @@ class TrackManager(AbstractControlSurfaceComponent):
         if not self.song.selected_track.is_active or isinstance(self.song.current_track, SimpleGroupTrack):
             return None
         self.song.begin_undo_step()  # Live crashes on undo without this
-        # if self
         seq = Sequence()
-        seq.add(self.song.current_track._added_track_init)
+        added_track = self.song.selected_track
+        if self.song.selected_track == self.song.current_track.base_track:
+            added_track = self.song.current_track
+        seq.add(added_track._added_track_init)
         seq.add(self.song.end_undo_step)
         return seq.done()
 
-    def instantiate_simple_track(self, track):
-        # type: (Live.Track.Track) -> SimpleTrack
+    def instantiate_simple_track(self, track, cls=None):
+        # type: (Live.Track.Track, Optional[Type[SimpleTrack]]) -> SimpleTrack
         # checking first on existing tracks
         if track in self.song.live_track_to_simple_track:
             simple_track = self.song.live_track_to_simple_track[track]
-            simple_track.map_clip_slots()
-        elif track.has_midi_input:
-            simple_track = SimpleMidiTrack(track=track)
-        elif track.has_audio_input:
-            simple_track = SimpleAudioTrack(track=track)
-        else:
-            raise Protocol0Error("Unknown track type")
+            if cls is None or isinstance(simple_track, cls):
+                simple_track.map_clip_slots()
+                return simple_track
 
-        # rebuild sub_tracks
-        simple_track.sub_tracks = []
-        simple_track.link_group_track()
+        if cls is None:
+            if track.has_midi_input:
+                cls = SimpleMidiTrack
+            elif track.has_audio_input:
+                cls = SimpleAudioTrack
+            else:
+                raise Protocol0Error("Unknown track type")
 
-        return simple_track
+        return cls(track=track)
 
     def instantiate_abstract_group_track(self, base_group_track):
         # type: (SimpleTrack) -> AbstractGroupTrack
@@ -69,7 +71,7 @@ class TrackManager(AbstractControlSurfaceComponent):
                 abstract_group_track = previous_abstract_group_track
             else:
                 abstract_group_track = SimpleGroupTrack(base_group_track=base_group_track)
-            abstract_group_track.link_parent_and_child_objects()
+        # abstract_group_track.link_parent_and_child_objects()
 
         if self.song.is_loading and abstract_group_track.is_armed:
             abstract_group_track.has_monitor_in = False
@@ -86,16 +88,16 @@ class TrackManager(AbstractControlSurfaceComponent):
         instrument = find_if(lambda i: isinstance(i, AbstractExternalSynthTrackInstrument), [midi_track.instrument, audio_track.instrument])  # type: Optional[AbstractExternalSynthTrackInstrument]
         if not instrument:
             midi_track.instrument = InstrumentMinitaur(track=midi_track, device=None)
-            # self.parent.log_error("Couldn't find external instrument in %s" % base_group_track)
-            # return None
 
         if isinstance(base_group_track.abstract_group_track, ExternalSynthTrack) and len(base_group_track.abstract_group_track.sub_tracks) == len(base_group_track.sub_tracks):
+            # no track structure change, only rebuilding clip slots
             external_synth_track = base_group_track.abstract_group_track
             if len(external_synth_track.base_track.clip_slots) != len(base_group_track.clip_slots):
                 external_synth_track.link_clip_slots()
         else:
             external_synth_track = ExternalSynthTrack(base_group_track=base_group_track)
-            external_synth_track.link_parent_and_child_objects()
+            external_synth_track.link_parent_and_child_tracks()
+            external_synth_track.link_clip_slots()
 
         return external_synth_track
 

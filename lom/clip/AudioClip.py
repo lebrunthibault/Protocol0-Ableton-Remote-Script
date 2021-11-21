@@ -22,8 +22,6 @@ class AudioClip(Clip):
     @defer
     def _warping_listener(self):
         # type: () -> None
-        if not self.warping and self.track.CLIP_WARPING_MANDATORY:
-            self.warping = True
         if self.warping:
             self.looping = True
         # noinspection PyUnresolvedReferences

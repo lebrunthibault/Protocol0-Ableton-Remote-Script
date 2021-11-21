@@ -29,6 +29,7 @@ from protocol0.components.TrackManager import TrackManager
 from protocol0.components.UtilsManager import UtilsManager
 from protocol0.components.ValidatorManager import ValidatorManager
 from protocol0.components.action_groups.ActionGroupFix import ActionGroupFix
+from protocol0.components.action_groups.ActionGroupLog import ActionGroupLog
 from protocol0.components.action_groups.ActionGroupMain import ActionGroupMain
 from protocol0.components.action_groups.ActionGroupPreset import ActionGroupPreset
 from protocol0.components.action_groups.ActionGroupSet import ActionGroupSet
@@ -118,6 +119,7 @@ class Protocol0(ControlSurface):
                 ActionGroupPreset()
                 ActionGroupTest()
                 ActionGroupFix()
+                ActionGroupLog()
 
                 # vocal command
                 self.keywordSearchManager = KeywordSearchManager()

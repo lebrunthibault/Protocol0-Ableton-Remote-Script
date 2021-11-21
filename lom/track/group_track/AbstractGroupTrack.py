@@ -16,15 +16,16 @@ class AbstractGroupTrack(AbstractTrack):
         self.sub_tracks = []  # type: List[AbstractTrack]
         # for now: List[SimpleTrack] but AbstractGroupTracks will register themselves as seen just below
 
-    def link_parent_and_child_objects(self):
+    def link_parent_and_child_tracks(self):
         # type: () -> None
+        """
+            NB : out of init because this needs to be done every rebuild
+            2nd layer linking
+        """
         # only simple tracks non foldable at this point :
-        # leave room for AbstractGroupTracks to register on the sub_tracks listN
-        self.sub_tracks[:] = [sub_track for sub_track in self.base_track.sub_tracks if not sub_track.is_foldable]
-
-        # point sub tracks to self
-        for sub_track in self.sub_tracks:
-            sub_track.group_track = self
+        # leave room for AbstractGroupTracks to register on the sub_tracks list
+        simple_sub_tracks = self.base_track.sub_tracks
+        self.sub_tracks[:] = [sub_track for sub_track in simple_sub_tracks if not sub_track.is_foldable]
 
         # connect to the enclosing group track is any
         if self.base_track.group_track:

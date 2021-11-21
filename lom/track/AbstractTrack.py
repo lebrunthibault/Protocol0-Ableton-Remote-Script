@@ -4,6 +4,7 @@ from typing import Any, Optional, List, Type
 from typing import TYPE_CHECKING
 
 import Live
+from protocol0.config import Config
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.enums.ColorEnum import ColorEnum
 from protocol0.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
@@ -58,14 +59,10 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self._color_listener.subject = self._track
 
     def _added_track_init(self):
-        # type: () -> Optional[Sequence]
-        self.parent.log_dev((self, self.abstract_track))
+        # type: () -> Sequence
         seq = Sequence()
-        seq.add([clip.delete for clip in self.clips if clip.clip_name.is_valid])
-        seq.add(self.abstract_track.select)
-        seq.add(self.abstract_track.arm)
-        seq.add([clip.clip_name.normalize_base_name for clip in self.clips if not clip.clip_name.is_valid])
-
+        if self.name != Config.INSTRUMENT_BUS_TRACK_NAME:
+            seq.add([clip.delete for clip in self.clips])
         return seq.done()
 
     @p0_subject_slot("has_clip")
@@ -230,7 +227,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def clips(self):
         # type: () -> List[Clip]
-        return [clip_slot.clip for clip_slot in self.base_track.clip_slots if clip_slot.has_clip]
+        return [clip_slot.clip for clip_slot in self.base_track.clip_slots if clip_slot.has_clip and clip_slot.clip]
 
     # noinspection PyDeprecation
     @abstractproperty
@@ -267,7 +264,8 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def is_record_triggered(self):
         # type: () -> bool
-        return self.base_track.fired_slot_index >= 0 or any(clip for clip in self.clips if clip.is_recording) or any(sub_track for sub_track in self.sub_tracks if sub_track.is_record_triggered)
+        return self.base_track.fired_slot_index >= 0 or any(clip for clip in self.clips if clip.is_recording) or any(
+            sub_track for sub_track in self.sub_tracks if sub_track.is_record_triggered)
 
     @property
     def mute(self):
@@ -378,10 +376,16 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         except Protocol0Error:
             return None
 
+    @property
+    def available_input_routing_channels(self):
+        # type: () -> List[Live.Track.RoutingChannel]
+        return list(self._track.available_input_routing_channels)
+
     @input_routing_channel.setter
     def input_routing_channel(self, input_routing_channel):
         # type: (InputRoutingChannelEnum) -> None
-        channel = find_if(lambda r: r.display_name == input_routing_channel.label, self.available_input_routing_channels)
+        channel = find_if(lambda r: r.display_name == input_routing_channel.label,
+                          self.available_input_routing_channels)
         if not channel:
             raise Protocol0Error("couldn't find channel matching %s for %s" % (input_routing_channel, self))
         self._track.input_routing_channel = channel

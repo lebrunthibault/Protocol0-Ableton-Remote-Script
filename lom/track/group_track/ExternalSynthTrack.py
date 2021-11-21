@@ -3,18 +3,17 @@ import itertools
 from typing import Optional, Any, cast, List
 
 from protocol0.devices.AbstractInstrument import AbstractInstrument
-from protocol0.enums.DeviceEnum import DeviceEnum
-from protocol0.enums.DeviceParameterNameEnum import DeviceParameterNameEnum
 from protocol0.lom.ObjectSynchronizer import ObjectSynchronizer
 from protocol0.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
 from protocol0.lom.device.Device import Device
-from protocol0.lom.device.DeviceSynchronizer import DeviceSynchronizer
 from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.lom.track.group_track.ExternalSynthTrackActionMixin import ExternalSynthTrackActionMixin
 from protocol0.lom.track.group_track.ExternalSynthTrackName import ExternalSynthTrackName
 from protocol0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+from protocol0.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import p0_subject_slot
 from protocol0.utils.utils import find_if
 
@@ -25,41 +24,64 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         super(ExternalSynthTrack, self).__init__(base_group_track=base_group_track, *a, **k)
         self.midi_track = base_group_track.sub_tracks[0]
         self.audio_track = base_group_track.sub_tracks[1]
-        self.dummy_tracks = base_group_track.sub_tracks[2:]
+        self.dummy_tracks = []  # type: List[SimpleDummyTrack]
         assert isinstance(self.midi_track, SimpleMidiTrack) and isinstance(self.audio_track, SimpleAudioTrack), (
                 "invalid external synth track %s" % self
         )
 
-        self._external_device = None  # type: Optional[Device]
-        self._devices_listener.subject = self.midi_track
-        self._devices_listener()
-
         # sub tracks are now handled by self
         self.audio_track.abstract_group_track = self
         self.midi_track.abstract_group_track = self
-        for dummy_track in self.dummy_tracks:
-            dummy_track.abstract_group_track = self
-
-        # dummy tracks are always monitor in
-        for dummy_track in self.dummy_tracks:
-            dummy_track.has_monitor_in = True
 
         self.track_name.disconnect()  # type: ignore[has-type]
         self.track_name = ExternalSynthTrackName(self)
 
         self._clip_slot_synchronizers = []  # type: List[ClipSlotSynchronizer]
-        self._devices_synchronizers = []  # type: List[DeviceSynchronizer]
 
         with self.parent.component_guard():
             self._midi_audio_synchronizer = ObjectSynchronizer(self.audio_track, self.midi_track, ["solo"])
             self._midi_solo_synchronizer = ObjectSynchronizer(self.base_track, self.midi_track, ["solo"])
-            self._link_group_devices_to_audio_devices()
+
+        self._external_device = None  # type: Optional[Device]
+        self._devices_listener.subject = self.midi_track
+        self._devices_listener()
 
         self.protected_mode_active = True
 
         # the instrument handling relies on the group track
         # noinspection PyUnresolvedReferences
         self.notify_instrument()
+
+    def _added_track_init(self):
+        # type: () -> Sequence
+        seq = Sequence()
+        seq.add(super(ExternalSynthTrack, self)._added_track_init)
+        seq.add(self.abstract_track.arm)
+
+        return seq.done()
+
+    def _map_dummy_tracks(self):
+        # type: () -> None
+        dummy_tracks = self.base_track.sub_tracks[2:]
+        self.dummy_tracks[:] = [self.parent.songManager.generate_simple_track(track=track._track, cls=SimpleDummyTrack) for track in dummy_tracks]
+
+        for dummy_track in self.dummy_tracks:
+            self.parent.log_dev("dummy_track: %s" % dummy_track)
+            dummy_track.abstract_group_track = self
+
+        self._link_dummy_tracks_routings()
+
+    def _link_dummy_tracks_routings(self):
+        # type: () -> None
+        if len(self.dummy_tracks) == 0:
+            return
+
+        dummy_track = self.dummy_tracks[0]
+        self.midi_track.output_routing_type = dummy_track
+        self.audio_track.output_routing_type = dummy_track
+        for next_dummy_track in self.dummy_tracks[1:]:
+            dummy_track.output_routing_type = next_dummy_track
+            dummy_track = next_dummy_track
 
     def link_clip_slots(self):
         # type: () -> None
@@ -74,20 +96,10 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
                 )
             ]
 
-    def _link_group_devices_to_audio_devices(self):
+    def link_parent_and_child_tracks(self):
         # type: () -> None
-        """ allows recording session clip automation from the group track without using dummy clips """
-        lfo_tool_group = self.base_track.get_device_from_enum(DeviceEnum.LFO_TOOL)
-        lfo_tool_audio = self.audio_track.get_device_from_enum(DeviceEnum.LFO_TOOL)
-
-        if lfo_tool_group and lfo_tool_audio:
-            self._devices_synchronizers.append(
-                DeviceSynchronizer(lfo_tool_group, lfo_tool_audio, [DeviceParameterNameEnum.LFO_TOOL_LFO_DEPTH]))
-
-    def link_parent_and_child_objects(self):
-        # type: () -> None
-        super(ExternalSynthTrack, self).link_parent_and_child_objects()
-        self.link_clip_slots()
+        self._map_dummy_tracks()
+        super(ExternalSynthTrack, self).link_parent_and_child_tracks()
 
     @p0_subject_slot("devices")
     def _devices_listener(self):
@@ -153,6 +165,3 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         for clip_slot_synchronizer in self._clip_slot_synchronizers:
             clip_slot_synchronizer.disconnect()
         self._clip_slot_synchronizers = []
-        for device_synchronizer in self._devices_synchronizers:
-            device_synchronizer.disconnect()
-        self._devices_synchronizers = []

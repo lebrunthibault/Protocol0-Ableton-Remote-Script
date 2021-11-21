@@ -125,18 +125,18 @@ class SongActionMixin(object):
     def unfocus_all_tracks(self):
         # type: (Song) -> Sequence
         self._unsolo_all_tracks()
-        return self.unarm_all_tracks()
+        return self._unarm_all_tracks()
 
-    def unarm_all_tracks(self):
+    def _unarm_all_tracks(self):
         # type: (Song) -> Sequence
         seq = Sequence(silent=True)
-        seq.add([t.unarm for t in self.abstract_tracks])
+        seq.add([t.unarm for t in self.armed_tracks])
         return seq.done()
 
-    def _unsolo_all_tracks(self, except_current=True):
-        # type: (Song, bool) -> None
+    def _unsolo_all_tracks(self):
+        # type: (Song) -> None
         for t in self.song.abstract_tracks:
-            if t.solo and t != (self.current_track if except_current else None):
+            if t.solo and t != self.current_track:
                 t.solo = False
 
     def duplicate_track(self, index):

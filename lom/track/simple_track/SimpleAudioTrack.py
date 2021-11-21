@@ -7,4 +7,3 @@ class SimpleAudioTrack(SimpleTrack):
     DEFAULT_NAME = "audio"
     DEFAULT_COLOR = ColorEnum.DEFAULT
     CLIP_CLASS = AudioClip
-    CLIP_WARPING_MANDATORY = False

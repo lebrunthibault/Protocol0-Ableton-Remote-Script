@@ -15,6 +15,7 @@ class LogManager(AbstractObject):
 
     def log_set(self):
         # type: () -> None
+        self.clear()
         self.focus_window()
         self.parent.log_notice("********* GLOBAL objects *************")
         self.parent.log_info("song.errored: %s" % self.song.errored)
@@ -48,6 +49,7 @@ class LogManager(AbstractObject):
 
     def log_current(self):
         # type: () -> None
+        self.clear()
         self.focus_window()
         self.parent.log_notice("********* CURRENT_TRACK *************")
         self.parent.log_info("current_track: %s" % self.song.current_track)

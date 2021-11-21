@@ -15,6 +15,9 @@ class ParallelSequence(Sequence):
 
     def _on_start(self):
         # type: () -> None
+        if len(self._steps) == 0:
+            self.check_for_parallel_step_completion()
+            return
         for step in self._steps:  # type: SequenceStep
             self._parallel_step_termination.add_subject(step)
             step.start()

@@ -8,6 +8,7 @@ from protocol0.utils.utils import nop
 def test_sanity_checks():
     # type: () -> None
     seq = Sequence(silent=True)
+    seq.add([])
     seq.done()
     assert seq.terminated
 

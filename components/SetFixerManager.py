@@ -147,20 +147,8 @@ class SetFixerManager(AbstractControlSurfaceComponent):
                     device_main_parameter = device.get_parameter_by_name(device_parameter_name=device_main_parameter)
                     if device_main_parameter.value == default_value:
                         track.delete_device(device=device)
-                self.parent.log_dev((device_parameter_enum, default_value, device_enum))
             except Protocol0Error:
                 continue
 
-    def link_external_synth_track_dummy_tracks(self, track):
-        # type: (ExternalSynthTrack) -> None
-        if len(track.dummy_tracks) == 0:
-            return
-
-        dummy_track = track.dummy_tracks[0]
-        track.midi_track.output_routing_type = dummy_track
-        track.audio_track.output_routing_type = dummy_track
-        for next_dummy_track in track.dummy_tracks[1:]:
-            dummy_track.output_routing_type = next_dummy_track
-            dummy_track = next_dummy_track
 
 

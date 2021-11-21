@@ -1,6 +1,6 @@
 import collections
 
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Type
 
 import Live
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
@@ -84,12 +84,12 @@ class SongManager(AbstractControlSurfaceComponent):
         self.song.usamo_track = None
         # instantiate set tracks
         for track in list(self.song._song.tracks) + list(self.song._song.return_tracks):
-            self._generate_simple_track(track=track)
+            self.generate_simple_track(track=track)
 
         if self.song.usamo_track is None:
             self.parent.log_warning("Usamo track is not present")
 
-        self.song.master_track = self._generate_simple_track(track=self.song._song.master_track)
+        self.song.master_track = self.generate_simple_track(track=self.song._song.master_track)
 
         # Refresh track mapping
         self.song.live_track_to_simple_track = collections.OrderedDict()
@@ -101,19 +101,49 @@ class SongManager(AbstractControlSurfaceComponent):
             clip_slot._clip_slot: clip_slot for track in self.song.simple_tracks for clip_slot in track.clip_slots
         }
 
-    def _generate_simple_track(self, track):
-        # type: (Live.Track.Track) -> SimpleTrack
-        simple_track = self.parent.trackManager.instantiate_simple_track(track=track)
-        usamo = simple_track.get_device_from_enum(DeviceEnum.USAMO)
-        if usamo:
-            self.song.usamo_track = simple_track
+    def generate_simple_track(self, track, cls=None):
+        # type: (Live.Track.Track, Optional[Type[SimpleTrack]]) -> SimpleTrack
+        simple_track = self.parent.trackManager.instantiate_simple_track(track=track, cls=cls)
+        self._register_simple_track(simple_track)
 
-        if simple_track.name == Config.INSTRUMENT_BUS_TRACK_NAME and len(simple_track.clips):
-            self.song.template_dummy_clip = simple_track.clips[0]
+        if self.song.usamo_track is None:
+            if simple_track.get_device_from_enum(DeviceEnum.USAMO):
+                self.song.usamo_track = simple_track
 
-        self.song.live_track_to_simple_track[track] = simple_track
-        self._simple_tracks.append(simple_track)
+        if self.song.template_dummy_clip is None:
+            if simple_track.name == Config.INSTRUMENT_BUS_TRACK_NAME and len(simple_track.clips):
+                self.song.template_dummy_clip = simple_track.clips[0]
+
         return simple_track
+
+    def _register_simple_track(self, simple_track):
+        # type: (SimpleTrack) -> None
+        # rebuild sub_tracks
+        simple_track.sub_tracks = []
+
+        # handling replacement of a SimpleTrack by another
+        if simple_track._track in self.song.live_track_to_simple_track:
+            previous_simple_track = self.song.live_track_to_simple_track[simple_track._track]
+            if previous_simple_track != simple_track:
+                self.parent.log_dev("swapping %s for %s" % (previous_simple_track, simple_track))
+
+                # disconnecting and removing from SimpleTrack group track and abstract_group_track
+                previous_simple_track.disconnect()
+                group_track = previous_simple_track.group_track
+                if group_track and previous_simple_track in group_track.sub_tracks:
+                    group_track.sub_tracks.remove(previous_simple_track)
+                abstract_group_track = previous_simple_track.abstract_group_track
+                if abstract_group_track and previous_simple_track in abstract_group_track.sub_tracks:
+                    abstract_group_track.sub_tracks.remove(previous_simple_track)
+
+                # deferred dummy track instantiation
+                if previous_simple_track in self._simple_tracks:
+                    self._simple_tracks.remove(previous_simple_track)
+
+        # registering
+        simple_track.link_parent_and_child_tracks()
+        self.song.live_track_to_simple_track[simple_track._track] = simple_track
+        self._simple_tracks.append(simple_track)
 
     def _generate_abstract_group_tracks(self):
         # type: () -> None
