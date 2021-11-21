@@ -7,6 +7,7 @@ import Live
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.Scene import Scene
 from protocol0.lom.SongActionMixin import SongActionMixin
+from protocol0.lom.clip.AudioClip import AudioClip
 from protocol0.lom.clip.Clip import Clip
 from protocol0.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.lom.device.DeviceParameter import DeviceParameter
@@ -33,6 +34,7 @@ class Song(AbstractObject, SongActionMixin):
         self.usamo_track = None  # type: Optional[SimpleTrack]
         self.master_track = None  # type: Optional[SimpleTrack]
         self.clip_slots_by_live_live_clip_slot = {}  # type: Dict[Live.ClipSlot.ClipSlot, ClipSlot]
+        self.template_dummy_clip = None  # type: Optional[AudioClip]
 
         self.errored = False
         self.is_loading = True

@@ -29,6 +29,7 @@ class TrackManager(AbstractControlSurfaceComponent):
         if not self.song.selected_track.is_active or isinstance(self.song.current_track, SimpleGroupTrack):
             return None
         self.song.begin_undo_step()  # Live crashes on undo without this
+        # if self
         seq = Sequence()
         seq.add(self.song.current_track._added_track_init)
         seq.add(self.song.end_undo_step)

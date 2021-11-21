@@ -107,6 +107,10 @@ class SongManager(AbstractControlSurfaceComponent):
         usamo = simple_track.get_device_from_enum(DeviceEnum.USAMO)
         if usamo:
             self.song.usamo_track = simple_track
+
+        if simple_track.name == Config.INSTRUMENT_BUS_TRACK_NAME and len(simple_track.clips):
+            self.song.template_dummy_clip = simple_track.clips[0]
+
         self.song.live_track_to_simple_track[track] = simple_track
         self._simple_tracks.append(simple_track)
         return simple_track
