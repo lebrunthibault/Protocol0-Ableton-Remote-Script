@@ -8,14 +8,15 @@ from protocol0.lom.device.Device import Device
 class DeviceEnum(AbstractEnum):
     EXTERNAL_AUDIO_EFFECT = "EXTERNAL_AUDIO_EFFECT"
     EXTERNAL_INSTRUMENT = "EXTERNAL_INSTRUMENT"
-    LFO_TOOL = "LFO_TOOL"
     MIX_RACK = "MIX_RACK"
+    DUMMY_RACK = "DUMMY_RACK"
+    LFO_TOOL = "LFO_TOOL"
     USAMO = "USAMO"
 
     @property
     def is_rack(self):
         # type: () -> bool
-        return self in [DeviceEnum.MIX_RACK]
+        return self in [DeviceEnum.MIX_RACK, DeviceEnum.DUMMY_RACK]
 
     @property
     def is_device(self):
@@ -38,8 +39,9 @@ class DeviceEnum(AbstractEnum):
         return self.get_value_from_mapping({
             DeviceEnum.EXTERNAL_AUDIO_EFFECT: "Ext. Audio Effect",
             DeviceEnum.EXTERNAL_INSTRUMENT: "Ext. Instrument",
-            DeviceEnum.LFO_TOOL: "LFOTool_x64",
             DeviceEnum.MIX_RACK: "Mix Rack",
+            DeviceEnum.DUMMY_RACK: "Dummy Rack",
+            DeviceEnum.LFO_TOOL: "LFOTool_x64",
             DeviceEnum.USAMO: "usamo_x64",
         })
 
@@ -49,8 +51,9 @@ class DeviceEnum(AbstractEnum):
         return self.get_value_from_mapping({
             DeviceEnum.EXTERNAL_AUDIO_EFFECT: "External Audio Effect",
             DeviceEnum.EXTERNAL_INSTRUMENT: "External Instrument",
-            DeviceEnum.LFO_TOOL: "LFOTool.adg",
             DeviceEnum.MIX_RACK: "Mix Rack.adg",
+            DeviceEnum.DUMMY_RACK: "Dummy Rack.adg",
+            DeviceEnum.LFO_TOOL: "LFOTool.adg",
         })
 
     @property

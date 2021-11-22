@@ -65,7 +65,7 @@ class ClipActionMixin(object):
     def show_envelope_parameter(self, parameter):
         # type: (Clip, DeviceParameter) -> None
         self.parent.navigationManager.show_clip_view()
-        self.view.show_envelope()
+        self.show_envelope()
         self.view.select_envelope_parameter(parameter._device_parameter)
         if not InterfaceState.CLIP_ENVELOPE_SHOW_BOX_CLICKED:
             self.system.double_click(*PixelEnum.SHOW_CLIP_ENVELOPE.coordinates)
@@ -75,6 +75,10 @@ class ClipActionMixin(object):
     def show_loop(self):
         # type: (Clip) -> None
         self.view.show_loop()
+
+    def show_envelope(self):
+        # type: (Clip) -> None
+        self.view.show_envelope()
 
     def hide_envelope(self):
         # type: (Clip) -> None

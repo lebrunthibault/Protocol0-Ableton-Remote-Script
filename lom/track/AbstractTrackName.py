@@ -1,4 +1,5 @@
 import re
+import traceback
 
 from typing import TYPE_CHECKING, Optional, Any, List
 
@@ -63,9 +64,11 @@ class AbstractTrackName(AbstractObjectName):
     @property
     def _should_recompute_base_name(self):
         # type: () -> bool
+        if not InterfaceState.HANDLE_TRACK_NAMES:
+            return False
+
         return (
-                InterfaceState.HANDLE_TRACK_NAMES
-                and not self.base_name
+                not self.base_name
                 or self.base_name.lower() == self.track.DEFAULT_NAME.lower()
                 or (
                         self.track.instrument

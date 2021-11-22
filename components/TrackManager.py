@@ -43,7 +43,6 @@ class TrackManager(AbstractControlSurfaceComponent):
         if track in self.song.live_track_to_simple_track:
             simple_track = self.song.live_track_to_simple_track[track]
             if cls is None or isinstance(simple_track, cls):
-                simple_track.map_clip_slots()
                 return simple_track
 
         if cls is None:
@@ -58,20 +57,19 @@ class TrackManager(AbstractControlSurfaceComponent):
 
     def instantiate_abstract_group_track(self, base_group_track):
         # type: (SimpleTrack) -> AbstractGroupTrack
-        if not base_group_track.is_foldable:
-            raise Protocol0Error(
-                "You passed a non group_track to instantiate_abstract_group_track : %s" % base_group_track
-            )
-
         previous_abstract_group_track = base_group_track.abstract_group_track
 
         abstract_group_track = self._make_external_synth_track(base_group_track=base_group_track)
         if not abstract_group_track:
+            if previous_abstract_group_track and isinstance(previous_abstract_group_track, ExternalSynthTrack):
+                self.parent.log_error("An ExternalSynthTrack is changed to a SimpleGroupTrack")
+
             if isinstance(previous_abstract_group_track, SimpleGroupTrack):
                 abstract_group_track = previous_abstract_group_track
             else:
                 abstract_group_track = SimpleGroupTrack(base_group_track=base_group_track)
-        # abstract_group_track.link_parent_and_child_objects()
+
+        abstract_group_track.post_init()
 
         if self.song.is_loading and abstract_group_track.is_armed:
             abstract_group_track.has_monitor_in = False
@@ -80,26 +78,26 @@ class TrackManager(AbstractControlSurfaceComponent):
     def _make_external_synth_track(self, base_group_track):
         # type: (SimpleTrack) -> Optional[ExternalSynthTrack]
         """ discarding automated tracks in creation / suppression """
+        if len(base_group_track.sub_tracks) < 2:
+            return None
+
         midi_track = base_group_track.sub_tracks[0]
         audio_track = base_group_track.sub_tracks[1]
         if not isinstance(midi_track, SimpleMidiTrack) or not isinstance(audio_track, SimpleAudioTrack):
+            return None
+
+        if any(isinstance(dummy_track, SimpleMidiTrack) for dummy_track in base_group_track.sub_tracks[2:]):
             return None
 
         instrument = find_if(lambda i: isinstance(i, AbstractExternalSynthTrackInstrument), [midi_track.instrument, audio_track.instrument])  # type: Optional[AbstractExternalSynthTrackInstrument]
         if not instrument:
             midi_track.instrument = InstrumentMinitaur(track=midi_track, device=None)
 
-        if isinstance(base_group_track.abstract_group_track, ExternalSynthTrack) and len(base_group_track.abstract_group_track.sub_tracks) == len(base_group_track.sub_tracks):
-            # no track structure change, only rebuilding clip slots
-            external_synth_track = base_group_track.abstract_group_track
-            if len(external_synth_track.base_track.clip_slots) != len(base_group_track.clip_slots):
-                external_synth_track.link_clip_slots()
+        if isinstance(base_group_track.abstract_group_track, ExternalSynthTrack):
+            # no track structure change, we can reuse the track
+            return base_group_track.abstract_group_track
         else:
-            external_synth_track = ExternalSynthTrack(base_group_track=base_group_track)
-            external_synth_track.link_parent_and_child_tracks()
-            external_synth_track.link_clip_slots()
-
-        return external_synth_track
+            return ExternalSynthTrack(base_group_track=base_group_track)
 
     def duplicate_current_track(self):
         # type: () -> Sequence
@@ -109,7 +107,5 @@ class TrackManager(AbstractControlSurfaceComponent):
         # type: (bool) -> None
         for track in self.song.abstract_tracks:
             if isinstance(track, SimpleGroupTrack):
-                continue
-            if track.top_group_track.base_name == "Drums":
                 continue
             track.scroll_volume(go_next=go_next)

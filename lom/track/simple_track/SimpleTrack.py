@@ -1,6 +1,6 @@
 from itertools import chain
 
-from typing import List, Optional, Any, Dict
+from typing import List, Optional, Any
 
 import Live
 from _Framework.SubjectSlot import subject_slot, subject_slot_group
@@ -41,19 +41,20 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         if self.is_active:
             self._fired_slot_index_listener.subject = self._track
 
-            self.map_clip_slots()
-
     @property
     def is_active(self):
         # type: () -> bool
         return self._track not in list(self.song._song.return_tracks) + [self.song._song.master_track]
 
-    def link_parent_and_child_tracks(self):
+    def post_init(self):
         # type: () -> None
-        """
-            NB : out of init because this needs to be done every rebuild
-            1st layer linking
-        """
+        """ NB : out of init because this needs to be done every rebuild """
+        self._link_to_group_track()
+        self._map_clip_slots()
+
+    def _link_to_group_track(self):
+        # type: () -> None
+        """ 1st layer linking """
         # register to the group track (SimpleTrack)
         if self._track.group_track:
             self.group_track = self.song.live_track_to_simple_track[
@@ -62,19 +63,20 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             if self not in self.group_track.sub_tracks:
                 self.group_track.sub_tracks.append(self)
 
-    def map_clip_slots(self):
-        # type: () -> Any
+    def _map_clip_slots(self):
+        # type: () -> None
         """ create new ClipSlot objects and keep existing ones """
-        live_clip_slot_to_clip_slot = {}  # type: Dict[Live.ClipSlot.ClipSlot, ClipSlot]
-        for clip_slot in self.clip_slots:
-            live_clip_slot_to_clip_slot[clip_slot._clip_slot] = clip_slot
-        new_clip_slots = []  # type: List[ClipSlot]
+        if len(self.clip_slots) == len(list(self._track.clip_slots)):
+            return
+
+        live_cs_to_cs = {cs._clip_slot: cs for cs in self.clip_slots}
+
+        self.clip_slots[:] = []  # type: List[ClipSlot]
         for (i, clip_slot) in enumerate(list(self._track.clip_slots)):
-            if clip_slot in live_clip_slot_to_clip_slot:
-                new_clip_slots.append(live_clip_slot_to_clip_slot[clip_slot])
+            if clip_slot in live_cs_to_cs:
+                self.clip_slots.append(live_cs_to_cs[clip_slot])
             else:
-                new_clip_slots.append(ClipSlot.make(clip_slot=clip_slot, track=self))
-        self.clip_slots = new_clip_slots
+                self.clip_slots.append(ClipSlot.make(clip_slot=clip_slot, track=self))
         self._clip_slots_has_clip_listener.replace_subjects(self.clip_slots)
 
     @p0_subject_slot("fired_slot_index")

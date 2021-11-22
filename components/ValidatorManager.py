@@ -6,4 +6,5 @@ class ValidatorManager(AbstractControlSurfaceComponent):
     def validate_track(self, abstract_track):
         # type: (AbstractTrack) -> None
         abstract_track.is_configuration_valid = abstract_track.validate_configuration()
-        abstract_track.refresh_appearance()
+        if not abstract_track.is_configuration_valid:
+            abstract_track.refresh_appearance()

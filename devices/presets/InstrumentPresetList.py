@@ -30,8 +30,6 @@ class InstrumentPresetList(AbstractObject):
         # type: () -> None
         self.presets = self._import_presets()
         self.selected_preset = self._get_selected_preset()
-        # noinspection PyUnresolvedReferences
-        self.instrument.notify_selected_preset()
 
     @property
     def categories(self):

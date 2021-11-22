@@ -31,6 +31,14 @@ class ActionGroupMain(AbstractActionGroup):
             on_scroll=InterfaceState.scroll_clip_tails_bar_lengths,
         )
 
+        # AUTOmation encoder
+        self.add_encoder(
+            identifier=3,
+            name="automation",
+            on_press=self.parent.automationTrackManager.display_selected_parameter_automation,
+            on_scroll=self.parent.automationTrackManager.scroll_automation_envelopes,
+        )
+
         # VOLume tempo encoder
         self.add_encoder(identifier=4, name="volume",
                          on_press=lambda: self.song.current_track.toggle_mute,

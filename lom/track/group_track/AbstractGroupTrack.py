@@ -14,9 +14,13 @@ class AbstractGroupTrack(AbstractTrack):
         base_group_track.abstract_group_track = self
         # filled when link_sub_tracks is called
         self.sub_tracks = []  # type: List[AbstractTrack]
-        # for now: List[SimpleTrack] but AbstractGroupTracks will register themselves as seen just below
+        # for now: List[SimpleTrack] but AbstractGroupTracks will register themselves in post_init
 
-    def link_parent_and_child_tracks(self):
+    def post_init(self):
+        # type: () -> None
+        self._link_group_track_and_subtracks()
+
+    def _link_group_track_and_subtracks(self):
         # type: () -> None
         """
             NB : out of init because this needs to be done every rebuild

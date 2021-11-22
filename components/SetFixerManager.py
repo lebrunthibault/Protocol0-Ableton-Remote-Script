@@ -3,9 +3,9 @@ from functools import partial
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.devices.InstrumentSimpler import InstrumentSimpler
 from protocol0.enums.DeviceEnum import DeviceEnum
-from protocol0.enums.DeviceParameterNameEnum import DeviceParameterNameEnum
 from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.lom.device.RackDevice import RackDevice
+from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.sequence.Sequence import Sequence
 
@@ -26,11 +26,12 @@ class SetFixerManager(AbstractControlSurfaceComponent):
     def refresh_set_appearance(self):
         # type: () -> None
         """ Fix the current set to the current standard regarding naming / coloring etc .."""
+        self.parent.logManager.clear()
         self._check_set()
-        # self._refresh_tracks_appearance()
-        # self._refresh_clips_appearance()
-        # self.refresh_scenes_appearance()
-        # self._fix_simpler_tracks_name()
+        self._refresh_tracks_appearance()
+        self._refresh_clips_appearance()
+        self.refresh_scenes_appearance()
+        self._fix_simpler_tracks_name()
 
         self.parent.show_message("Set appearance refreshed")
 
@@ -67,29 +68,22 @@ class SetFixerManager(AbstractControlSurfaceComponent):
     def _check_tracks_tree_consistency(self):
         # type: () -> None
         for simple_track in self.song.simple_tracks:
-            if simple_track.is_foldable:
-                assert simple_track.abstract_group_track.base_track == simple_track, "failed on %s" % simple_track
-                assert simple_track.abstract_group_track.abstract_group_track is None, "failed on %s" % simple_track
-                for sub_track in simple_track.sub_tracks:
-                    if sub_track.is_foldable:
-                        assert sub_track.abstract_group_track in simple_track.abstract_track.sub_tracks, (
-                                "failed on %s" % simple_track
-                        )
-                    else:
-                        assert sub_track in simple_track.abstract_group_track.sub_tracks, "failed on %s - %s" % (simple_track, sub_track)
-                assert len(simple_track.sub_tracks) == len(simple_track.abstract_group_track.sub_tracks)
-            elif simple_track.abstract_group_track:
-                assert simple_track in simple_track.abstract_group_track.sub_tracks
-
+            # 1st layer checks
             if simple_track.group_track:
                 assert simple_track in simple_track.group_track.sub_tracks, "failed on %s" % simple_track
-                if simple_track.is_foldable:
-                    assert simple_track.group_track.abstract_group_track, "failed on %s" % simple_track
-                    sub_tracks = simple_track.group_track.abstract_group_track.sub_tracks  # type: ignore
-                    assert (simple_track.abstract_group_track in sub_tracks), ("failed on %s" % simple_track)
-                else:
-                    assert simple_track.group_track.abstract_group_track is None, "failed on %s" % simple_track
-                    assert simple_track in simple_track.group_track.sub_tracks, "failed on %s" % simple_track
+
+            if simple_track.is_foldable:
+                for sub_track in simple_track.sub_tracks:
+                    assert sub_track.group_track == simple_track, "failed on %s" % simple_track
+
+            # 2nd layer checks
+            abstract_group_track = simple_track.abstract_group_track
+            if simple_track.is_foldable:
+                assert abstract_group_track.base_track == simple_track, "failed on %s" % simple_track
+                assert len(abstract_group_track.sub_tracks) == len(simple_track.sub_tracks)
+                for sub_track in abstract_group_track.sub_tracks:
+                    if isinstance(sub_track, AbstractGroupTrack):
+                        assert sub_track.group_track == abstract_group_track, "failed on %s" % simple_track
 
     def _check_instruments(self):
         # type: () -> None
@@ -144,11 +138,8 @@ class SetFixerManager(AbstractControlSurfaceComponent):
                     device = track.get_device_from_enum(device_enum)
                     if not device:
                         return
-                    device_main_parameter = device.get_parameter_by_name(device_parameter_name=device_main_parameter)
+                    device_main_parameter = device.get_parameter_by_name(device_parameter_name=device_parameter_enum)
                     if device_main_parameter.value == default_value:
                         track.delete_device(device=device)
             except Protocol0Error:
                 continue
-
-
-

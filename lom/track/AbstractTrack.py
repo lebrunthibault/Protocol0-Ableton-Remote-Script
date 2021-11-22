@@ -54,7 +54,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self.push2_selected_matrix_mode = Push2MatrixModeEnum.SESSION
         self.push2_selected_instrument_mode = None  # type: Optional[Push2InstrumentModeEnum]
 
-        self._instrument_listener.subject = self
         self._has_clip_listener.subject = self
         self._color_listener.subject = self._track
 
@@ -69,13 +68,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def _has_clip_listener(self):
         # type: () -> None
         pass
-
-    @p0_subject_slot("instrument")
-    @defer
-    def _instrument_listener(self):
-        # type: () -> None
-        if not self.abstract_group_track:
-            self.refresh_appearance()
 
     @p0_subject_slot("color")
     @defer
@@ -99,14 +91,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         will return the AbstractGroupTrack
         """
         return self.abstract_group_track if self.abstract_group_track else self  # type: ignore
-
-    @property
-    def top_group_track(self):
-        # type: () -> AbstractTrack
-        group_track = self
-        while group_track.group_track:
-            group_track = group_track.group_track
-        return group_track
 
     @property
     def active_tracks(self):
@@ -341,6 +325,9 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         output_routing_type = find_if(lambda r: r.attached_object == track._track, self.available_output_routing_types)
 
         if not output_routing_type:
+            output_routing_type = find_if(lambda r: r.display_name == track.name,  self.available_output_routing_types)
+
+        if not output_routing_type:
             raise Protocol0Error("Couldn't find the output routing type from %s" % track)
 
         self._track.output_routing_type = output_routing_type
@@ -360,8 +347,11 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
 
     @input_routing_type.setter
     def input_routing_type(self, track):
-        # type: (SimpleTrack) -> None
-        input_routing_type = find_if(lambda r: r.attached_object == track._track, self.available_input_routing_types)
+        # type: (Optional[SimpleTrack]) -> None
+        if track is None:
+            input_routing_type = self.available_input_routing_types[-1]
+        else:
+            input_routing_type = find_if(lambda r: r.attached_object == track._track, self.available_input_routing_types)
 
         if not input_routing_type:
             raise Protocol0Error("Couldn't find the output routing type from %s" % track)
@@ -394,5 +384,3 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # type: () -> None
         super(AbstractTrack, self).disconnect()
         self.track_name.disconnect()
-        self._instrument_listener.subject = self
-        self._color_listener.subject = self._track

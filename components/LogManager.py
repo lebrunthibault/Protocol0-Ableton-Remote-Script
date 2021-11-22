@@ -13,40 +13,6 @@ class LogManager(AbstractObject):
         # type: () -> None
         self.parent.log_notice("clear_logs")
 
-    def log_set(self):
-        # type: () -> None
-        self.clear()
-        self.focus_window()
-        self.parent.log_notice("********* GLOBAL objects *************")
-        self.parent.log_info("song.errored: %s" % self.song.errored)
-        self.parent.log_info("song.is_playing: %s" % self.song.is_playing)
-        self.parent.log_info("song.current_song_time: %s" % self.song._song.current_song_time)
-        self.parent.log_info()
-        self.parent.log_notice("********* SONG TRACKS *************")
-        self.parent.log_info("simple_tracks : %s" % list(self.song.simple_tracks))
-        self.parent.log_info()
-        self.parent.log_info("abstract_tracks : %s" % list(self.song.abstract_tracks))
-        self.parent.log_info()
-        self.parent.log_info("selected_abstract_tracks : %s" % list(self.song.selected_abstract_tracks))
-        self.parent.log_info()
-        self.parent.log_notice("********* SONG SCENES *************")
-        self.parent.log_info("scenes : %s" % list(self.song.scenes))
-        self.parent.log_info()
-        self.parent.log_info("looping_scene: %s" % Scene.LOOPING_SCENE)
-        self.parent.log_info()
-        self.parent.log_notice("********* HIGHLIGHTED_CLIP_SLOT *************")
-        self.parent.log_info()
-        self.parent.log_info("song.highlighted_clip_slot: %s" % self.song.highlighted_clip_slot)
-        if self.song.highlighted_clip_slot:
-            self.parent.log_info(
-                "song.highlighted_clip_slot._clip_slot: %s" % self.song.highlighted_clip_slot._clip_slot
-            )
-
-        self.parent.log_info()
-        self.parent.log_notice("********* HIGHLIGHTED_CLIP *************")
-        self.parent.log_info()
-        self.parent.log_info("song.highlighted_clip: %s" % self.song.selected_clip)
-
     def log_current(self):
         # type: () -> None
         self.clear()
@@ -55,10 +21,6 @@ class LogManager(AbstractObject):
         self.parent.log_info("current_track: %s" % self.song.current_track)
         self.parent.log_info()
         self.parent.log_info("current_track.abstract_group_track: %s" % self.song.current_track.abstract_group_track)
-        self.parent.log_info()
-        self.parent.log_info("current_track.top_group_track: %s" % self.song.current_track.top_group_track)
-        self.parent.log_info()
-        self.parent.log_info("current_track.top_group_track.base_name: %s" % self.song.current_track.top_group_track.base_name)
         self.parent.log_info()
         self.parent.log_info("current_track.sub_tracks: %s" % self.song.current_track.sub_tracks)
         self.parent.log_info()
@@ -87,6 +49,11 @@ class LogManager(AbstractObject):
         self.parent.log_notice("********* SELECTED_TRACK *************")
         self.parent.log_info("selected_track: %s" % self.song.selected_track)
         self.parent.log_info()
+        self.parent.log_info("selected_track.group_track: %s" % self.song.selected_track.group_track)
+        self.parent.log_info()
+        if self.song.selected_track.group_track:
+            self.parent.log_info("selected_track.group_track.abstract_group_track: %s" % self.song.selected_track.group_track.abstract_group_track)
+            self.parent.log_info()
         self.parent.log_info("selected_track.abstract_group_track: %s" % self.song.selected_track.abstract_group_track)
         self.parent.log_info()
         self.parent.log_info("selected_track.clip_slots: %s" % self.song.selected_track.clip_slots)
@@ -146,12 +113,41 @@ class LogManager(AbstractObject):
                 "current_track.instrument.preset_list: %s" % self.song.current_track.instrument._preset_list
             )
             self.parent.log_info()
-            # self.parent.log_info(
-            #     "current_track.instrument.preset_list.presets: %s"
-            #     % self.song.current_track.instrument._preset_list.presets
-            # )
-            self.parent.log_info()
             self.parent.log_info(
                 "current_track.instrument.presets_path: %s" % self.song.current_track.instrument.presets_path
             )
             self.parent.log_info()
+
+    def log_set(self):
+        # type: () -> None
+        self.clear()
+        self.focus_window()
+        self.parent.log_notice("********* GLOBAL objects *************")
+        self.parent.log_info("song.errored: %s" % self.song.errored)
+        self.parent.log_info("song.is_playing: %s" % self.song.is_playing)
+        self.parent.log_info("song.current_song_time: %s" % self.song._song.current_song_time)
+        self.parent.log_info()
+        self.parent.log_notice("********* SONG TRACKS *************")
+        self.parent.log_info("simple_tracks : %s" % list(self.song.simple_tracks))
+        self.parent.log_info()
+        self.parent.log_info("abstract_tracks : %s" % list(self.song.abstract_tracks))
+        self.parent.log_info()
+        self.parent.log_info("selected_abstract_tracks : %s" % list(self.song.selected_abstract_tracks))
+        self.parent.log_info()
+        self.parent.log_notice("********* SONG SCENES *************")
+        self.parent.log_info("scenes : %s" % list(self.song.scenes))
+        self.parent.log_info()
+        self.parent.log_info("looping_scene: %s" % Scene.LOOPING_SCENE)
+        self.parent.log_info()
+        self.parent.log_notice("********* HIGHLIGHTED_CLIP_SLOT *************")
+        self.parent.log_info()
+        self.parent.log_info("song.highlighted_clip_slot: %s" % self.song.highlighted_clip_slot)
+        if self.song.highlighted_clip_slot:
+            self.parent.log_info(
+                "song.highlighted_clip_slot._clip_slot: %s" % self.song.highlighted_clip_slot._clip_slot
+            )
+
+        self.parent.log_info()
+        self.parent.log_notice("********* HIGHLIGHTED_CLIP *************")
+        self.parent.log_info()
+        self.parent.log_info("song.highlighted_clip: %s" % self.song.selected_clip)

@@ -26,7 +26,7 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
         if device_enum.is_device:
             load_func = partial(self.load_device, None, browser_name)
         elif device_enum.is_rack:
-            load_func = partial(self.load_device, None, browser_name)
+            load_func = partial(self.load_from_user_library, None, browser_name)
         else:
             raise Protocol0Error("Couldn't load device %s" % device_enum)
         seq.add(

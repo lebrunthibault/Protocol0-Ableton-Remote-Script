@@ -8,6 +8,7 @@ from protocol0.config import Config
 from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.lom.Scene import Scene
+from protocol0.lom.clip.AudioClip import AudioClip
 from protocol0.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.utils.decorators import handle_error, p0_subject_slot
@@ -82,7 +83,9 @@ class SongManager(AbstractControlSurfaceComponent):
         """ instantiate SimpleTracks (including return / master, that are marked as inactive) """
         self._simple_tracks[:] = []
         self.song.usamo_track = None
+        self.template_dummy_clip = None  # type: Optional[AudioClip]
         # instantiate set tracks
+
         for track in list(self.song._song.tracks) + list(self.song._song.return_tracks):
             self.generate_simple_track(track=track)
 
@@ -105,14 +108,15 @@ class SongManager(AbstractControlSurfaceComponent):
         # type: (Live.Track.Track, Optional[Type[SimpleTrack]]) -> SimpleTrack
         simple_track = self.parent.trackManager.instantiate_simple_track(track=track, cls=cls)
         self._register_simple_track(simple_track)
+        if cls is None:
+            simple_track.post_init()
 
         if self.song.usamo_track is None:
             if simple_track.get_device_from_enum(DeviceEnum.USAMO):
                 self.song.usamo_track = simple_track
 
-        if self.song.template_dummy_clip is None:
-            if simple_track.name == Config.INSTRUMENT_BUS_TRACK_NAME and len(simple_track.clips):
-                self.song.template_dummy_clip = simple_track.clips[0]
+        if simple_track.name == Config.INSTRUMENT_BUS_TRACK_NAME and len(simple_track.clips):
+            self.song.template_dummy_clip = simple_track.clips[0]
 
         return simple_track
 
@@ -125,8 +129,6 @@ class SongManager(AbstractControlSurfaceComponent):
         if simple_track._track in self.song.live_track_to_simple_track:
             previous_simple_track = self.song.live_track_to_simple_track[simple_track._track]
             if previous_simple_track != simple_track:
-                self.parent.log_dev("swapping %s for %s" % (previous_simple_track, simple_track))
-
                 # disconnecting and removing from SimpleTrack group track and abstract_group_track
                 previous_simple_track.disconnect()
                 group_track = previous_simple_track.group_track
@@ -141,7 +143,6 @@ class SongManager(AbstractControlSurfaceComponent):
                     self._simple_tracks.remove(previous_simple_track)
 
         # registering
-        simple_track.link_parent_and_child_tracks()
         self.song.live_track_to_simple_track[simple_track._track] = simple_track
         self._simple_tracks.append(simple_track)
 

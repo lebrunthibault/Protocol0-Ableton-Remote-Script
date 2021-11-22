@@ -8,14 +8,6 @@ class ActionGroupSet(AbstractActionGroup):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(ActionGroupSet, self).__init__(channel=3, *a, **k)
-        # AUTOmation encoder
-        self.add_encoder(
-            identifier=4,
-            name="automation",
-            on_press=self.parent.automationTrackManager.display_selected_parameter_automation,
-            on_scroll=self.parent.automationTrackManager.scroll_automation_envelopes,
-        )
-
         # PUSH encoder
         self.add_encoder(identifier=5, name="connect push2", on_press=self.parent.push2Manager.connect_push2)
 

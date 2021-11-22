@@ -3,6 +3,7 @@ from typing import Any
 from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
 from protocol0.config import Config
 from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
+from protocol0.enums.DeviceEnum import DeviceEnum
 
 
 class ActionGroupTest(AbstractActionGroup):
@@ -18,7 +19,7 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        self.system.show_protected_mode_dialog()
+        pass
 
     def start_set_profiling(self):
         # type: () -> None

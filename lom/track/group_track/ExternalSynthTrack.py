@@ -8,7 +8,6 @@ from protocol0.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
 from protocol0.lom.device.Device import Device
 from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.lom.track.group_track.ExternalSynthTrackActionMixin import ExternalSynthTrackActionMixin
-from protocol0.lom.track.group_track.ExternalSynthTrackName import ExternalSynthTrackName
 from protocol0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
@@ -32,9 +31,6 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         # sub tracks are now handled by self
         self.audio_track.abstract_group_track = self
         self.midi_track.abstract_group_track = self
-
-        self.track_name.disconnect()  # type: ignore[has-type]
-        self.track_name = ExternalSynthTrackName(self)
 
         self._clip_slot_synchronizers = []  # type: List[ClipSlotSynchronizer]
 
@@ -63,17 +59,22 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     def _map_dummy_tracks(self):
         # type: () -> None
         dummy_tracks = self.base_track.sub_tracks[2:]
+        if len(self.dummy_tracks) == len(dummy_tracks):
+            return
+
         self.dummy_tracks[:] = [self.parent.songManager.generate_simple_track(track=track._track, cls=SimpleDummyTrack) for track in dummy_tracks]
 
         for dummy_track in self.dummy_tracks:
-            self.parent.log_dev("dummy_track: %s" % dummy_track)
             dummy_track.abstract_group_track = self
+            dummy_track.post_init()
 
-        self._link_dummy_tracks_routings()
+        self.parent.defer(self._link_dummy_tracks_routings)
 
     def _link_dummy_tracks_routings(self):
         # type: () -> None
         if len(self.dummy_tracks) == 0:
+            self.midi_track.output_routing_type = self.base_track
+            self.audio_track.output_routing_type = self.base_track
             return
 
         dummy_track = self.dummy_tracks[0]
@@ -85,6 +86,9 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
 
     def link_clip_slots(self):
         # type: () -> None
+        if len(self._clip_slot_synchronizers) == len(self.midi_track.clip_slots):
+            return
+
         for clip_slot_synchronizer in self._clip_slot_synchronizers:
             clip_slot_synchronizer.disconnect()
 
@@ -96,10 +100,11 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
                 )
             ]
 
-    def link_parent_and_child_tracks(self):
+    def post_init(self):
         # type: () -> None
         self._map_dummy_tracks()
-        super(ExternalSynthTrack, self).link_parent_and_child_tracks()
+        super(ExternalSynthTrack, self).post_init()
+        self.link_clip_slots()
 
     @p0_subject_slot("devices")
     def _devices_listener(self):
