@@ -5,11 +5,14 @@ from typing import Any, List, Optional, Type
 import Live
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.config import Config
+from protocol0.devices.InstrumentProphet import InstrumentProphet
 from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.enums.DeviceEnum import DeviceEnum
+from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.Scene import Scene
 from protocol0.lom.clip.AudioClip import AudioClip
 from protocol0.lom.clip_slot.ClipSlot import ClipSlot
+from protocol0.lom.track.AbstractTrack import AbstractTrack
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.utils.decorators import handle_error, p0_subject_slot
 
@@ -34,9 +37,24 @@ class SongManager(AbstractControlSurfaceComponent):
         if Config.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.PROFILING:
             self.song.reset()
         self.song.is_loading = False
+
+        self._select_startup_track()
+
+    def _select_startup_track(self):
+        # type: () -> None
+        if InterfaceState.FOCUS_PROPHET_ON_STARTUP:
+            first_prophet_track = next((abt for abt in self.song.abstract_tracks if isinstance(abt.instrument, InstrumentProphet)), None)
+            if first_prophet_track:
+                self.song.select_track(first_prophet_track)
+                first_prophet_track.arm()
+                return None
+            else:
+                self.parent.show_message("Couldn't find prophet track")
+
         if len(self.song.armed_tracks):
             self.song.select_track(self.song.armed_tracks[0])
-        elif self.song.selected_track == self.song.master_track:
+
+        if self.song.selected_track == self.song.master_track:
             self.song.select_track(next(self.song.abstract_tracks))
 
     @handle_error

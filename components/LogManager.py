@@ -1,3 +1,4 @@
+from protocol0.components.SongDataManager import SYNCHRONIZABLE_CLASSE_NAMES
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.Scene import Scene
@@ -126,6 +127,9 @@ class LogManager(AbstractObject):
         self.parent.log_info("song.errored: %s" % self.song.errored)
         self.parent.log_info("song.is_playing: %s" % self.song.is_playing)
         self.parent.log_info("song.current_song_time: %s" % self.song._song.current_song_time)
+        self.parent.log_info()
+        self.parent.log_notice("********* SONG DATA *************")
+        self.parent.log_notice(self.song.get_data(SYNCHRONIZABLE_CLASSE_NAMES[0]))
         self.parent.log_info()
         self.parent.log_notice("********* SONG TRACKS *************")
         self.parent.log_info("simple_tracks : %s" % list(self.song.simple_tracks))

@@ -18,6 +18,7 @@ class InterfaceState(object):
     # when the button was not clicked. As a workaround we click it the first time
     CLIP_ENVELOPE_SHOW_BOX_CLICKED = False
     HANDLE_TRACK_NAMES = True
+    FOCUS_PROPHET_ON_STARTUP = False
 
     @classmethod
     @save_song_data

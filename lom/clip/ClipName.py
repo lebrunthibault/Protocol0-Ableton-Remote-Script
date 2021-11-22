@@ -57,6 +57,6 @@ class ClipName(AbstractObjectName):
             return None
         self.base_name = base_name if base_name is not None else self.base_name
         clip_name = "%s (%s)" % (self.base_name, self._length_legend)
-        if self.clip.tail_bar_length:
+        if self.clip != self.song.template_dummy_clip and self.clip.tail_bar_length:
             clip_name += " tail"
         self.clip.name = clip_name

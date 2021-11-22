@@ -4,6 +4,7 @@ from protocol0.components.action_groups.AbstractActionGroup import AbstractActio
 from protocol0.config import Config
 from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.enums.DeviceEnum import DeviceEnum
+from protocol0.interface.InterfaceState import InterfaceState
 
 
 class ActionGroupTest(AbstractActionGroup):

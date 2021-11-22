@@ -25,15 +25,18 @@ def save_song_data(func):
     def decorate(*a, **k):
         # type: (Any, Any) -> None
         func(*a, **k)
-        cls = a[0]
-        attributes = class_attributes(cls)
         from protocol0 import Protocol0
-        Protocol0.SELF.protocol0_song.set_data(classname(cls, ""), attributes)
+        Protocol0.SELF.songDataManager.store_class_data(a[0])
 
     return decorate
 
 
 class SongDataManager(AbstractControlSurfaceComponent):
+    def store_class_data(self, cls):
+        # type: (Any) -> None
+        attributes = class_attributes(cls)
+        self.song.set_data(classname(cls, ""), attributes)
+
     def restore_data(self):
         # type: () -> None
         try:
