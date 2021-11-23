@@ -71,8 +71,6 @@ class TrackManager(AbstractControlSurfaceComponent):
 
         abstract_group_track.post_init()
 
-        if self.song.is_loading and abstract_group_track.is_armed:
-            abstract_group_track.has_monitor_in = False
         return abstract_group_track
 
     def _make_external_synth_track(self, base_group_track):

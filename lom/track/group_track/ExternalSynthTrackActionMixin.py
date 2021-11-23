@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Optional
 from protocol0.devices.AbstractExternalSynthTrackInstrument import AbstractExternalSynthTrackInstrument
 from protocol0.enums.BarLengthEnum import BarLengthEnum
 from protocol0.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
+from protocol0.enums.InputRoutingChannelEnum import InputRoutingChannelEnum
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.clip.MidiClip import MidiClip
@@ -27,6 +28,10 @@ class ExternalSynthTrackActionMixin(object):
                 self.parent.log_error("Expected to find external instrument device %s in %s" % (
                     instrument.EXTERNAL_INSTRUMENT_DEVICE, self))
             return False
+        if self.midi_track.instrument != InputRoutingChannelEnum.CHANNEL_1:
+            if log:
+                self.parent.log_error("Midi track should listen only on channel 1, in %s" % self)
+            return False
         if not self.audio_track.input_routing_type == self.midi_track:
             if log:
                 self.parent.log_error("The audio track input routing should be its associated midi track : %s" % self)
@@ -46,10 +51,12 @@ class ExternalSynthTrackActionMixin(object):
         seq = Sequence()
         if not self.midi_track.get_device_from_enum(instrument.EXTERNAL_INSTRUMENT_DEVICE):
             seq.add(partial(self.midi_track.load_device_from_enum, instrument.EXTERNAL_INSTRUMENT_DEVICE))
+        if self.midi_track.instrument != InputRoutingChannelEnum.CHANNEL_1:
+            self.midi_track.input_routing_channel = InputRoutingChannelEnum.CHANNEL_1
         if not self.audio_track.input_routing_type == self.midi_track:
-            seq.add(partial(setattr, self.audio_track, "input_routing_type", self.midi_track))
+            self.audio_track.input_routing_type = self.midi_track
         if self.audio_track.input_routing_channel != instrument.AUDIO_INPUT_ROUTING_CHANNEL:
-            seq.add(partial(setattr, self.audio_track, "input_routing_channel", instrument.AUDIO_INPUT_ROUTING_CHANNEL))
+            self.audio_track.input_routing_channel = instrument.AUDIO_INPUT_ROUTING_CHANNEL
         seq.done()
         self.parent.log_info("Fixed ExternalSynthTrack %s" % self)
 

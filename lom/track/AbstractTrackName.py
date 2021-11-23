@@ -1,5 +1,4 @@
 import re
-import traceback
 
 from typing import TYPE_CHECKING, Optional, Any, List
 

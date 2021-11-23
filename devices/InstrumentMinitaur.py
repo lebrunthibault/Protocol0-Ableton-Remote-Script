@@ -1,11 +1,7 @@
-from typing import cast
-
 from protocol0.devices.AbstractExternalSynthTrackInstrument import AbstractExternalSynthTrackInstrument
 from protocol0.enums.ColorEnum import ColorEnum
 from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.enums.InputRoutingChannelEnum import InputRoutingChannelEnum
-from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
-from protocol0.sequence.Sequence import Sequence
 
 
 class InstrumentMinitaur(AbstractExternalSynthTrackInstrument):

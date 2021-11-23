@@ -1,7 +1,6 @@
 from typing import Any, Optional, Type
 
 from protocol0.devices.AbstractInstrument import AbstractInstrument
-from protocol0.devices.InstrumentMinitaur import InstrumentMinitaur
 from protocol0.devices.InstrumentSimpler import InstrumentSimpler
 from protocol0.enums.Push2MainModeEnum import Push2MainModeEnum
 from protocol0.lom.track.AbstractTrack import AbstractTrack

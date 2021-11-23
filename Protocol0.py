@@ -43,7 +43,6 @@ from protocol0.config import Config
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.enums.LogLevelEnum import LogLevelEnum
-from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.Song import Song
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.log import log_ableton
@@ -87,8 +86,11 @@ class Protocol0(ControlSurface):
                 # waiting for Protocol0_midi to boot
                 self.p0_system_api_client.end_measurement()
                 ActionGroupTest()
-                return
+
             self.protocol0_song = Song(song=self.song())
+            if Config.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.PROFILING:
+                return
+
             self.deviceManager = DeviceManager()  # needs to be here first
             AbstractInstrument.INSTRUMENT_CLASSES = AbstractInstrument.get_instrument_classes()
             self.songManager = SongManager()
@@ -110,6 +112,7 @@ class Protocol0(ControlSurface):
             self.utilsManager = UtilsManager()
             self.logManager = LogManager()
             self.validatorManager = ValidatorManager()
+            # return
 
             if Config.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.TEST:
                 # action groups

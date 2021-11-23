@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, Any, Optional, NoReturn
 import Live
 from protocol0.config import Config
 from protocol0.constants import QUANTIZATION_OPTIONS
-from protocol0.devices.InstrumentSimpler import InstrumentSimpler
 from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.interface.InterfaceState import InterfaceState

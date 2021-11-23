@@ -1,5 +1,4 @@
 from protocol0.components.SongDataManager import SYNCHRONIZABLE_CLASSE_NAMES
-from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.Scene import Scene
 from protocol0.lom.device.PluginDevice import PluginDevice
@@ -53,7 +52,8 @@ class LogManager(AbstractObject):
         self.parent.log_info("selected_track.group_track: %s" % self.song.selected_track.group_track)
         self.parent.log_info()
         if self.song.selected_track.group_track:
-            self.parent.log_info("selected_track.group_track.abstract_group_track: %s" % self.song.selected_track.group_track.abstract_group_track)
+            self.parent.log_info(
+                "selected_track.group_track.abstract_group_track: %s" % self.song.selected_track.group_track.abstract_group_track)
             self.parent.log_info()
         self.parent.log_info("selected_track.abstract_group_track: %s" % self.song.selected_track.abstract_group_track)
         self.parent.log_info()

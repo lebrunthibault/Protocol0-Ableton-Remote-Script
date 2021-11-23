@@ -85,6 +85,7 @@ class AbstractInstrumentPresetsMixin(object):
         # type: (AbstractInstrument) -> Sequence
         seq = Sequence()
         if self.selected_preset:
+            self.parent.log_dev("loading %s" % self.selected_preset)
             seq.add(partial(self.load_preset, self.selected_preset))
             # noinspection PyUnresolvedReferences
             seq.add(self.notify_selected_preset)

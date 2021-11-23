@@ -12,7 +12,6 @@ from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.Scene import Scene
 from protocol0.lom.clip.AudioClip import AudioClip
 from protocol0.lom.clip_slot.ClipSlot import ClipSlot
-from protocol0.lom.track.AbstractTrack import AbstractTrack
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.utils.decorators import handle_error, p0_subject_slot
 

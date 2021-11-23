@@ -6,7 +6,6 @@ from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComp
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.enums.vocal_command.ActionEnum import ActionEnum
 from protocol0.interface.EncoderAction import EncoderAction
-from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.track.AbstractTrackList import AbstractTrackList
 
 
