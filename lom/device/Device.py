@@ -30,6 +30,17 @@ class Device(AbstractObject):
         # type: (object) -> bool
         return isinstance(device, Device) and self._device == device._device
 
+    def toggle_off(self):
+        # type: () -> None
+        device_on = self.get_parameter_by_name(DeviceParameterNameEnum.DEVICE_ON)
+        if device_on is None:
+            self.parent.log_error("Couldn't find Device On parameter for %s" % self)
+            return None
+
+        self.parent.log_dev(device_on)
+
+        device_on.value = False
+
     def get_parameter_by_name(self, device_parameter_name):
         # type: (Union[DeviceParameterNameEnum, str]) -> Optional[DeviceParameter]
         if isinstance(device_parameter_name, DeviceParameterNameEnum):

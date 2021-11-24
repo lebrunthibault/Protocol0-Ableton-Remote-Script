@@ -21,12 +21,10 @@ class ExternalSynthTrackActionMixin(object):
     def validate_configuration(self, log=True):
         # type: (ExternalSynthTrack, bool) -> bool
         """ this needs to be deferred because routings are not available on the first tick """
-        instrument = find_if(lambda i: isinstance(i, AbstractExternalSynthTrackInstrument), [self.midi_track.instrument,
-                                                                                             self.audio_track.instrument])  # type: Optional[AbstractExternalSynthTrackInstrument]
-        if not self.midi_track.get_device_from_enum(instrument.EXTERNAL_INSTRUMENT_DEVICE):
+        if not self.midi_track.get_device_from_enum(self.instrument.EXTERNAL_INSTRUMENT_DEVICE):
             if log:
                 self.parent.log_error("Expected to find external instrument device %s in %s" % (
-                    instrument.EXTERNAL_INSTRUMENT_DEVICE, self))
+                    self.instrument.EXTERNAL_INSTRUMENT_DEVICE, self))
             return False
         if self.midi_track.instrument != InputRoutingChannelEnum.CHANNEL_1:
             if log:
@@ -36,10 +34,10 @@ class ExternalSynthTrackActionMixin(object):
             if log:
                 self.parent.log_error("The audio track input routing should be its associated midi track : %s" % self)
             return False
-        if self.audio_track.input_routing_channel != instrument.AUDIO_INPUT_ROUTING_CHANNEL:
+        if self.audio_track.input_routing_channel != self.instrument.AUDIO_INPUT_ROUTING_CHANNEL:
             if log:
                 self.parent.log_error("Expected to find audio input routing channel to %s : %s" % (
-                    instrument.AUDIO_INPUT_ROUTING_CHANNEL.label, self))
+                    self.instrument.AUDIO_INPUT_ROUTING_CHANNEL.label, self))
             return False
 
         return True
@@ -59,6 +57,7 @@ class ExternalSynthTrackActionMixin(object):
             self.audio_track.input_routing_channel = instrument.AUDIO_INPUT_ROUTING_CHANNEL
         seq.done()
         self.parent.log_info("Fixed ExternalSynthTrack %s" % self)
+        self.parent.show_message("Check Hardware Latency is %s" % self.instrument.EXTERNAL_INSTRUMENT_DEVICE_HARDWARE_LATENCY)
 
     def arm_track(self):
         # type: (ExternalSynthTrack) -> Optional[Sequence]

@@ -10,12 +10,12 @@ class InstrumentMinitaur(AbstractExternalSynthTrackInstrument):
     PRESET_EXTENSION = ".syx"
     TRACK_COLOR = ColorEnum.MINITAUR
     CAN_BE_SHOWN = False
-    EXTERNAL_INSTRUMENT_DEVICE = DeviceEnum.EXTERNAL_AUDIO_EFFECT
-    AUDIO_INPUT_ROUTING_CHANNEL = InputRoutingChannelEnum.POST_FX
     PRESETS_PATH = "C:\\Users\\thiba\\AppData\\Roaming\\Moog Music Inc\\Minitaur\\Presets Library\\User"
     PROGRAM_CHANGE_OFFSET = 1
 
-    # def show_hide(self):
+    EXTERNAL_INSTRUMENT_DEVICE_HARDWARE_LATENCY = 2
+
+# def show_hide(self):
     #     # type: () -> Sequence
     #     """ Only one vst instance of minitaur active: the last one """
     #     minitaur_tracks = [abt for abt in self.song.abstract_tracks if isinstance(abt.instrument, InstrumentMinitaur)]

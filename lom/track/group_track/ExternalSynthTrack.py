@@ -2,6 +2,7 @@ import itertools
 
 from typing import Optional, Any, cast, List
 
+from protocol0.devices.AbstractExternalSynthTrackInstrument import AbstractExternalSynthTrackInstrument
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.lom.ObjectSynchronizer import ObjectSynchronizer
 from protocol0.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
@@ -43,6 +44,9 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self._devices_listener()
 
         self.protected_mode_active = True
+
+        if self.instrument.device:
+            self.instrument.device.toggle_off()
 
         # the instrument handling relies on the group track
         # noinspection PyUnresolvedReferences
@@ -113,8 +117,8 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
 
     @property
     def instrument(self):
-        # type: () -> AbstractInstrument
-        return cast(AbstractInstrument, self.midi_track.instrument or self.audio_track.instrument)
+        # type: () -> AbstractExternalSynthTrackInstrument
+        return cast(AbstractExternalSynthTrackInstrument, self.midi_track.instrument or self.audio_track.instrument)
 
     @property
     def can_be_armed(self):
