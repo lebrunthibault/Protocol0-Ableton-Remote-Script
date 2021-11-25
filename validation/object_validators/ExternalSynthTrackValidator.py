@@ -2,9 +2,9 @@ from protocol0.enums.InputRoutingChannelEnum import InputRoutingChannelEnum
 from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.utils.log import log_ableton
 from protocol0.validation.AbstractObjectValidator import AbstractObjectValidator
-from protocol0.validation.AggregateValidator import AggregateValidator
-from protocol0.validation.PropertyValidator import PropertyValidator
-from protocol0.validation.SimpleTrackHasDeviceValidator import SimpleTrackHasDeviceValidator
+from protocol0.validation.sub_validators.AggregateValidator import AggregateValidator
+from protocol0.validation.sub_validators.PropertyValidator import PropertyValidator
+from protocol0.validation.sub_validators.SimpleTrackHasDeviceValidator import SimpleTrackHasDeviceValidator
 
 
 class ExternalSynthTrackValidator(AbstractObjectValidator, AggregateValidator):

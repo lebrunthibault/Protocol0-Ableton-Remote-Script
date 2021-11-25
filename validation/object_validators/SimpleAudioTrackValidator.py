@@ -1,0 +1,15 @@
+from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.validation.AbstractObjectValidator import AbstractObjectValidator
+from protocol0.validation.sub_validators.AggregateValidator import AggregateValidator
+from protocol0.validation.sub_validators.CallbackValidator import CallbackValidator
+
+
+class SimpleAudioTrackValidator(AbstractObjectValidator, AggregateValidator):
+    def __init__(self, track):
+        # type: (SimpleTrack) -> None
+        self._track = track
+        validators = [
+            CallbackValidator(track, lambda t: t.is_armable, None, "track should be armable"),
+        ]
+        self._validators = validators
+        super(SimpleAudioTrackValidator, self).__init__(track)

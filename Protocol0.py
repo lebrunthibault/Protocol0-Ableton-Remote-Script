@@ -22,7 +22,7 @@ from protocol0.components.PresetManager import PresetManager
 from protocol0.components.Push2Manager import Push2Manager
 from protocol0.components.QuantizationManager import QuantizationManager
 from protocol0.components.SessionManager import SessionManager
-from protocol0.components.SetFixerManager import SetFixerManager
+from protocol0.components.audit.SetFixerManager import SetFixerManager
 from protocol0.components.SongDataManager import SongDataManager
 from protocol0.components.SongManager import SongManager
 from protocol0.components.TrackManager import TrackManager

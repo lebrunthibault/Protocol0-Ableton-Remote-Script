@@ -1,6 +1,6 @@
-from protocol0.validation.AggregateValidator import AggregateValidator
-from protocol0.validation.CallbackValidator import CallbackValidator
-from protocol0.validation.PropertyValidator import PropertyValidator
+from protocol0.validation.sub_validators.AggregateValidator import AggregateValidator
+from protocol0.validation.sub_validators.CallbackValidator import CallbackValidator
+from protocol0.validation.sub_validators.PropertyValidator import PropertyValidator
 
 
 def test_callback_validator():

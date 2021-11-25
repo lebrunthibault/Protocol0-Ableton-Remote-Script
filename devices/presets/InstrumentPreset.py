@@ -32,5 +32,5 @@ class InstrumentPreset(AbstractObject):
         if not name:
             return "empty"
 
-        base_preset_name = os.path.splitext(name)[0]  # remove file extension
+        base_preset_name = name.replace(".fxp", "")  # remove file extension
         return self.instrument.format_preset_name(str(base_preset_name))  # calling subclass formatting

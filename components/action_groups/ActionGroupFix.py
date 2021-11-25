@@ -11,12 +11,8 @@ class ActionGroupFix(AbstractActionGroup):
         super(ActionGroupFix, self).__init__(channel=5, filter_active_tracks=True, *a, **k)
         # SET encoder
         self.add_encoder(identifier=1, name="refresh set appearance",
-                         on_press=self.parent.setFixerManager.refresh_set_appearance)
+                         on_press=self.parent.setFixerManager.fix)
 
-        # EXTernalSynthTrack encoder
-        self.add_encoder(identifier=2, name="fix current ExternalSynthTrack",
+        # TRaCK encoder
+        self.add_encoder(identifier=2, name="fix current track",
                          on_press=lambda: self.parent.validatorManager.fix_object(self.song.current_track))
-
-        # RACK encoder
-        self.add_encoder(identifier=3, name="update rack devices",
-                         on_press=self.parent.setFixerManager.update_audio_effect_racks)

@@ -46,6 +46,7 @@ class AbstractTrackName(AbstractObjectName):
 
         if self.track.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.NAME:
             if self.track.instrument.selected_preset:
+                self.parent.log_dev(self.track.instrument.selected_preset.name)
                 self.base_name = self.track.instrument.selected_preset.name
             else:
                 self.base_name = self.track.instrument.name
@@ -56,7 +57,7 @@ class AbstractTrackName(AbstractObjectName):
     def _name_listener(self, _):
         # type: (Live.Track.Track) -> None
         match = re.match(
-            "^(((\\d+)|#)[\\s-]*)?(?P<base_name>[^()]*).*$", self.track.name
+            "^(?P<base_name>[^()]*).*$", self.track.name
         )
         self.base_name = match.group("base_name").strip() if match else ""
 

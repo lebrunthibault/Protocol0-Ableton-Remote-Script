@@ -1,4 +1,4 @@
-from protocol0.validation.CallbackValidator import CallbackValidator
+from protocol0.validation.sub_validators.CallbackValidator import CallbackValidator
 
 
 def test_callback_validator():
