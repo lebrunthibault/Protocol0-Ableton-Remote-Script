@@ -18,14 +18,6 @@ if TYPE_CHECKING:
 # noinspection PyTypeHints,PyAttributeOutsideInit
 class AbstractTrackActionMixin(object):
     # noinspection PyUnusedLocal
-    def validate_configuration(self, log=True):
-        # type: (AbstractTrack, bool) -> bool
-        return True
-
-    def fix_configuration(self):
-        # type: (AbstractTrack) -> None
-        return None
-
     def select(self):
         # type: (AbstractTrack) -> Sequence
         return self.song.select_track(self)
@@ -221,7 +213,7 @@ class AbstractTrackActionMixin(object):
         clip = self.base_track.playable_clip
         if clip:
             clip.select()
-            clip.clip_name.update(base_name="")
+            clip.clip_name.update(base_name="")  # type: ignore[has-type]
             clip.post_record()
 
     def post_arrangement_record(self):

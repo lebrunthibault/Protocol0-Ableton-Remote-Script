@@ -87,7 +87,8 @@ class TrackManager(AbstractControlSurfaceComponent):
         if any(isinstance(dummy_track, SimpleMidiTrack) for dummy_track in base_group_track.sub_tracks[2:]):
             return None
 
-        instrument = find_if(lambda i: isinstance(i, AbstractExternalSynthTrackInstrument), [midi_track.instrument, audio_track.instrument])  # type: Optional[AbstractExternalSynthTrackInstrument]
+        instrument = find_if(lambda i: isinstance(i, AbstractExternalSynthTrackInstrument), [midi_track.instrument,
+                                                                                             audio_track.instrument])  # type: Optional[AbstractExternalSynthTrackInstrument]
         if not instrument:
             midi_track.instrument = InstrumentMinitaur(track=midi_track, device=None)
 

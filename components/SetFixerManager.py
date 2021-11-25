@@ -6,7 +6,6 @@ from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.lom.device.RackDevice import RackDevice
 from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
-from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.sequence.Sequence import Sequence
 
 
@@ -35,25 +34,6 @@ class SetFixerManager(AbstractControlSurfaceComponent):
 
         self.parent.show_message("Set appearance refreshed")
 
-    def fix_current_external_synth_track(self):
-        # type: () -> None
-        if not isinstance(self.song.current_track, ExternalSynthTrack):
-            self.parent.show_message("current track is not an ExternalSynthTrack")
-            return None
-
-        if self.song.current_track.validate_configuration(log=False):
-            self.parent.show_message("current track is a valid ExternalSynthTrack")
-            return None
-
-        self.parent.log_info("fixing configuration of %s" % self.song.current_track)
-        self.parent.show_message("check external device Audio from configuration")
-        seq = Sequence()
-        seq.add(self.song.current_track.fix_configuration)
-        self.song.current_track.is_configuration_valid = True
-        seq.add(self.song.current_track.refresh_appearance)
-        seq.add(self.song.current_track.unarm)
-        seq.done()
-
     def _check_input_routings(self):
         # type: () -> None
         for simple_track in self.song.simple_tracks:
@@ -63,7 +43,7 @@ class SetFixerManager(AbstractControlSurfaceComponent):
     def _validate_tracks_configuration(self):
         # type: () -> None
         for abstract_track in self.song.abstract_tracks:
-            self.parent.validatorManager.validate_track(abstract_track)
+            self.parent.validatorManager.validate_object(abstract_track)
 
     def _check_tracks_tree_consistency(self):
         # type: () -> None

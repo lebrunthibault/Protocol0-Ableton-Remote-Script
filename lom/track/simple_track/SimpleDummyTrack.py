@@ -1,3 +1,5 @@
+import Live
+
 from functools import partial
 
 from typing import Any, Optional, TYPE_CHECKING
@@ -50,6 +52,7 @@ class SimpleDummyTrack(SimpleAudioTrack):
         return seq.done()
 
     def _create_dummy_automation(self):
+        # type: () -> None
         clip = self.clip_slots[self.song.selected_scene.index].clip
         dummy_rack = self.get_device_from_enum(DeviceEnum.DUMMY_RACK)
         dummy_rack_gain = dummy_rack.get_parameter_by_name(DeviceParameterNameEnum.DUMMY_RACK_GAIN)

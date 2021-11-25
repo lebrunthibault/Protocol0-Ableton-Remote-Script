@@ -41,7 +41,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self.group_track = None  # type: Optional[AbstractTrack]
         self.abstract_group_track = None  # type: Optional[AbstractGroupTrack]
         self.sub_tracks = []  # type: List[AbstractTrack]
-        self.is_configuration_valid = True
 
         if not self.base_track.is_active:
             return
@@ -148,7 +147,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def computed_color(self):
         # type: () -> int
-        if not self.is_configuration_valid:
+        if not self.is_valid:
             return ColorEnum.ERROR.index
         if self.abstract_track.instrument:
             return self.abstract_track.instrument.TRACK_COLOR.index
@@ -325,7 +324,8 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         if track is None:
             input_routing_type = self.available_input_routing_types[-1]
         else:
-            input_routing_type = find_if(lambda r: r.attached_object == track._track, self.available_input_routing_types)
+            input_routing_type = find_if(lambda r: r.attached_object == track._track,
+                                         self.available_input_routing_types)
 
         if not input_routing_type:
             raise Protocol0Error("Couldn't find the output routing type from %s" % track)
@@ -373,7 +373,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         output_routing_type = find_if(lambda r: r.attached_object == track._track, self.available_output_routing_types)
 
         if not output_routing_type:
-            output_routing_type = find_if(lambda r: r.display_name == track.name,  self.available_output_routing_types)
+            output_routing_type = find_if(lambda r: r.display_name == track.name, self.available_output_routing_types)
 
         if not output_routing_type:
             raise Protocol0Error("Couldn't find the output routing type from %s" % track)

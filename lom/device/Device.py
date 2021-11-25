@@ -37,8 +37,6 @@ class Device(AbstractObject):
             self.parent.log_error("Couldn't find Device On parameter for %s" % self)
             return None
 
-        self.parent.log_dev(device_on)
-
         device_on.value = False
 
     def get_parameter_by_name(self, device_parameter_name):

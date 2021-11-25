@@ -19,7 +19,8 @@ class DeviceSynchronizer(AbstractControlSurfaceComponent):
             slave_parameter = slave.get_parameter_by_name(device_parameter_name=parameter_name)
 
             if not master_parameter or not slave_parameter:
-                self.parent.show_message("Couldn't find parameter name %s in (%s, %s)" % (parameter_name, master, slave))
+                self.parent.show_message(
+                    "Couldn't find parameter name %s in (%s, %s)" % (parameter_name, master, slave))
                 return
 
             self._parameter_synchronizers.append(ObjectSynchronizer(

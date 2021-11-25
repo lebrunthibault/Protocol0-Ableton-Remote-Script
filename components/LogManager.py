@@ -129,7 +129,7 @@ class LogManager(AbstractObject):
         self.parent.log_info("song.current_song_time: %s" % self.song._song.current_song_time)
         self.parent.log_info()
         self.parent.log_notice("********* SONG DATA *************")
-        self.parent.log_notice(self.song.get_data(SYNCHRONIZABLE_CLASSE_NAMES[0]))
+        self.parent.log_notice(self.song.get_data(list(SYNCHRONIZABLE_CLASSE_NAMES)[0]))
         self.parent.log_info()
         self.parent.log_notice("********* SONG TRACKS *************")
         self.parent.log_info("simple_tracks : %s" % list(self.song.simple_tracks))

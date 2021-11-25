@@ -3,7 +3,6 @@ import itertools
 from typing import Optional, Any, cast, List
 
 from protocol0.devices.AbstractExternalSynthTrackInstrument import AbstractExternalSynthTrackInstrument
-from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.lom.ObjectSynchronizer import ObjectSynchronizer
 from protocol0.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
 from protocol0.lom.device.Device import Device
@@ -43,7 +42,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self._devices_listener.subject = self.midi_track
         self._devices_listener()
 
-        self.protected_mode_active = True
+        self.protected_mode_active = True   # type: bool
 
         if self.instrument.device:
             self.instrument.device.toggle_off()
@@ -66,7 +65,8 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         if len(self.dummy_tracks) == len(dummy_tracks):
             return
 
-        self.dummy_tracks[:] = [self.parent.songManager.generate_simple_track(track=track._track, cls=SimpleDummyTrack) for track in dummy_tracks]
+        self.dummy_tracks[:] = [self.parent.songManager.generate_simple_track(track=track._track, cls=SimpleDummyTrack)
+                                for track in dummy_tracks]
 
         for dummy_track in self.dummy_tracks:
             dummy_track.abstract_group_track = self

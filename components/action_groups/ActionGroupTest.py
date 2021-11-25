@@ -3,7 +3,6 @@ from typing import Any, cast
 from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
 from protocol0.config import Config
 from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
-from protocol0.enums.DeviceParameterNameEnum import DeviceParameterNameEnum
 from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 
 

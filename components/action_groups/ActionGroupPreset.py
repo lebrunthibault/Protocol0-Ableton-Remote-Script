@@ -17,6 +17,6 @@ class ActionGroupPreset(AbstractActionGroup):
 
         # CATegory encoder
         self.add_encoder(
-            identifier=2, name="scroll preset categories", on_scroll=lambda: self.song.current_track.scroll_preset_categories
+            identifier=2, name="scroll preset categories",
+            on_scroll=lambda: self.song.current_track.scroll_preset_categories
         )
-

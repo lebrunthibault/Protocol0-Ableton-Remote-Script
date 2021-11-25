@@ -15,7 +15,7 @@ class ActionGroupFix(AbstractActionGroup):
 
         # EXTernalSynthTrack encoder
         self.add_encoder(identifier=2, name="fix current ExternalSynthTrack",
-                         on_press=self.parent.setFixerManager.fix_current_external_synth_track)
+                         on_press=lambda: self.parent.validatorManager.fix_object(self.song.current_track))
 
         # RACK encoder
         self.add_encoder(identifier=3, name="update rack devices",

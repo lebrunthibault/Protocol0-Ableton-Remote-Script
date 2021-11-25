@@ -42,7 +42,8 @@ class SongManager(AbstractControlSurfaceComponent):
     def _select_startup_track(self):
         # type: () -> None
         if InterfaceState.FOCUS_PROPHET_ON_STARTUP:
-            first_prophet_track = next((abt for abt in self.song.abstract_tracks if isinstance(abt.instrument, InstrumentProphet)), None)
+            first_prophet_track = next(
+                (abt for abt in self.song.abstract_tracks if isinstance(abt.instrument, InstrumentProphet)), None)
             if first_prophet_track:
                 self.song.select_track(first_prophet_track)
                 first_prophet_track.arm()

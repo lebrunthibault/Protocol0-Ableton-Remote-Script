@@ -17,4 +17,3 @@ class ActionEnum(AbstractEnum):
     SHOW = "SHOW"  # show/hide instrument
     PUSH = "PUSH"  # show/hide instrument
     SPLIT = "SPLIT"  # split scene
-    LOCK = "LOCK"  # lock/unlock protected mode
