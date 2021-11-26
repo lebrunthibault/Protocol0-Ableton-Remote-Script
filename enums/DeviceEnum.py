@@ -21,7 +21,7 @@ class DeviceEnum(AbstractEnum):
     @property
     def is_rack(self):
         # type: () -> bool
-        return self in [DeviceEnum.MIX_RACK, DeviceEnum.DUMMY_RACK]
+        return self in [DeviceEnum.ARPEGGIATOR_RACK, DeviceEnum.MIX_RACK, DeviceEnum.DUMMY_RACK]
 
     @property
     def is_device(self):
@@ -42,7 +42,7 @@ class DeviceEnum(AbstractEnum):
     def device_name(self):
         # type: () -> str
         return self.get_value_from_mapping({
-            DeviceEnum.ARPEGGIATOR_RACK: "Arpeggiator Rack",
+            DeviceEnum.ARPEGGIATOR_RACK: "Arpeggiator rack",
             DeviceEnum.COMPRESSOR: "Compressor",
             DeviceEnum.DUMMY_RACK: "Dummy Rack",
             DeviceEnum.EQ_EIGHT: "EQ Eight",

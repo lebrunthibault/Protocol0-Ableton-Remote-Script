@@ -36,6 +36,10 @@ class SceneActionMixin(object):
         # type: (Scene) -> None
         self.song.selected_scene = self
 
+    def refresh_appearance(self):
+        # type: (Scene) -> None
+        self.scene_name.update()
+
     def fire(self):
         # type: (Scene) -> None
         if self._scene:

@@ -44,6 +44,8 @@ class SetUpgradeManager(AbstractControlSurfaceComponent):
         seq = Sequence()
         seq.add(partial(self.system.prompt, "%s devices to delete,\n\n%s\n\nproceed ?" % (len(devices_to_delete), info)), wait_for_system=True)
         seq.add([device.delete for device in devices_to_delete])
+        seq.add(lambda: self.parent.show_message("Devices deleted"))
+        seq.add(self.delete_unnecessary_devices)  # now delete enclosing racks if empty
         seq.done()
 
     def _get_devices_to_delete(self):
@@ -56,6 +58,7 @@ class SetUpgradeManager(AbstractControlSurfaceComponent):
 
             for track in self.song.simple_tracks:
                 device = track.get_device_from_enum(device_enum)
+                self.parent.log_dev("%s -> %s" % (device_enum, device))
                 if not device:
                     continue
                 if all([parameter_value.matches(device) for parameter_value in default_parameter_values]):

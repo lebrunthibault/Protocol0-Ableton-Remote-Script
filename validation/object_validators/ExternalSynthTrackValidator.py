@@ -1,3 +1,5 @@
+from typing import Any
+
 from protocol0.enums.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.enums.InputRoutingChannelEnum import InputRoutingChannelEnum
 from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
@@ -12,8 +14,8 @@ from protocol0.validation.sub_validators.SimpleTrackHasDeviceValidator import Si
 
 
 class ExternalSynthTrackValidator(AbstractObjectValidator, AggregateValidator):
-    def __init__(self, track):
-        # type: (ExternalSynthTrack) -> None
+    def __init__(self, track, *a, **k):
+        # type: (ExternalSynthTrack, Any, Any) -> None
         self._track = track
         validators = [
             CallbackValidator(track, lambda t: t.instrument is not None, None, "track should have an instrument"),
@@ -25,12 +27,12 @@ class ExternalSynthTrackValidator(AbstractObjectValidator, AggregateValidator):
         if track.instrument.device:
             validators.append(DeviceParameterValidator(track.instrument.device, DeviceParameterEnum.DEVICE_ON, False))
         self._validators = validators
-        super(ExternalSynthTrackValidator, self).__init__(track)
+        super(ExternalSynthTrackValidator, self).__init__(track, *a, **k)
 
     def is_valid(self):
         # type: () -> bool
         is_valid = super(ExternalSynthTrackValidator, self).is_valid()
-        log_ableton(
+        self.log(
             "External instrument hardware latency should be %s" % self._track.instrument.EXTERNAL_INSTRUMENT_DEVICE_HARDWARE_LATENCY)
         return is_valid
 
@@ -38,7 +40,3 @@ class ExternalSynthTrackValidator(AbstractObjectValidator, AggregateValidator):
         # type: () -> Sequence
         self._track.has_monitor_in = False
         return super(ExternalSynthTrackValidator, self).fix()
-
-    def notify_valid(self):
-        # type: () -> None
-        self._track.refresh_appearance()

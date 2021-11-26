@@ -15,18 +15,17 @@ class ValidatorManager(AbstractControlSurfaceComponent):
         SimpleAudioTrack: SimpleAudioTrackValidator
     }  # type: Dict[Type[AbstractObject], Type[AbstractObjectValidator]]
 
-    def _get_object_validator(self, obj):
-        # type: (AbstractObject) -> Optional[AbstractObjectValidator]
+    def _get_object_validator(self, obj, log=True):
+        # type: (AbstractObject, Optional[bool]) -> Optional[AbstractObjectValidator]
         cls = obj.__class__
         if cls not in self.VALIDATOR_MAPPING:
-            self.parent.log_info("No validator configured for object of class %s" % cls.__name__)
             return None
 
-        return self.VALIDATOR_MAPPING[cls](obj)
+        return self.VALIDATOR_MAPPING[cls](obj, log=log)
 
     def validate_object(self, obj, log=False):
         # type: (AbstractObject, bool) -> bool
-        validator = self._get_object_validator(obj)
+        validator = self._get_object_validator(obj, log=log)
         if not validator or validator.is_valid():
             if log:
                 self.parent.show_message("%s is valid" % obj)
@@ -34,7 +33,7 @@ class ValidatorManager(AbstractControlSurfaceComponent):
 
         obj.is_valid = False
         self.parent.log_error(validator.get_error_message())
-        validator.notify_valid()
+        obj.refresh_appearance()
         return False
 
     def fix_object(self, obj):
@@ -45,4 +44,4 @@ class ValidatorManager(AbstractControlSurfaceComponent):
         validator = self._get_object_validator(obj)
         validator.fix()
         obj.is_valid = True
-        validator.notify_valid()
+        obj.refresh_appearance()

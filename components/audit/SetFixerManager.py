@@ -1,4 +1,7 @@
+from typing import List
+
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.lom.AbstractObject import AbstractObject
 
 
 class SetFixerManager(AbstractControlSurfaceComponent):
@@ -6,32 +9,21 @@ class SetFixerManager(AbstractControlSurfaceComponent):
         # type: () -> None
         """ Fix the current set to the current standard regarding naming / coloring etc .."""
         self.parent.logManager.clear()
-        self._validate_tracks()
+        for obj in self._objects_to_validate:
+            self.parent.validatorManager.validate_object(obj)
 
-        self._refresh_tracks_appearance()
-        self._refresh_clips_appearance()
-        self.refresh_scenes_appearance()
+        for obj in self._objects_to_refresh_appearance:
+            obj.refresh_appearance()
 
         self.parent.show_message("Set fixed")
 
-    def _validate_tracks(self):
-        # type: () -> None
-        for abstract_track in self.song.abstract_tracks:
-            self.parent.validatorManager.validate_object(abstract_track)
-        for simple_track in self.song.simple_tracks:
-            self.parent.validatorManager.validate_object(simple_track)
+    @property
+    def _objects_to_validate(self):
+        # type: () -> List[AbstractObject]
+        return list(self.song.abstract_tracks) + list(self.song.simple_tracks)
 
-    def _refresh_clips_appearance(self):
-        # type: () -> None
-        for clip in (clip for track in self.song.simple_tracks for clip in track.clips):
-            clip.refresh_appearance()
-
-    def _refresh_tracks_appearance(self):
-        # type: () -> None
-        for track in reversed(list(self.song.abstract_tracks)):
-            track.refresh_appearance()
-
-    def refresh_scenes_appearance(self):
-        # type: () -> None
-        for scene in self.song.scenes:
-            scene.scene_name.update()
+    @property
+    def _objects_to_refresh_appearance(self):
+        # type: () -> List[AbstractObject]
+        # noinspection PyTypeChecker
+        return [clip for track in self.song.simple_tracks for clip in track.clips] + self.song.scenes

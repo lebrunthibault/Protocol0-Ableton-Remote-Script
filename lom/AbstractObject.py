@@ -67,3 +67,7 @@ class AbstractObject(SlotManager, Subject):
     def song(self):
         # type: () -> Optional[Song]
         return self.parent.protocol0_song
+
+    def refresh_appearance(self):
+        # type: () -> None
+        pass

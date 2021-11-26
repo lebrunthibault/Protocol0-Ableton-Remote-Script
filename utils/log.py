@@ -14,7 +14,7 @@ def log_ableton(message, debug=True, level=None, direct_call=True):
     # type: (Any, bool, Optional[LogLevelEnum], bool) -> None
     """ a log function and not method allowing us to call this even with no access to the ControlSurface object """
     from protocol0.enums.LogLevelEnum import LogLevelEnum  # noqa
-    level = level or LogLevelEnum.DEV
+    level = level or LogLevelEnum.INFO
     if level.value < Config.LOG_LEVEL.value:
         return
     message = "%s: %s" % (level.name.lower(), smart_string(message))

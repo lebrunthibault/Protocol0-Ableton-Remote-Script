@@ -3,7 +3,6 @@ from functools import partial
 
 from typing import Callable, Deque, Optional, Any, cast, Type, Union
 
-from protocol0.utils.log import log_ableton
 from protocol0.utils.utils import get_callable_repr
 
 
@@ -123,9 +122,6 @@ class CallableWithCallbacks(object):
     def _execute_callback_queue(self):
         # type: () -> None
         """ execute callbacks and check if we defer this or not """
-        if self.DEBUG_MODE:
-            log_ableton("self._callbacks: %s" % self._callbacks)
-
         if len(self._callbacks) == 0:
             return
         from protocol0 import Protocol0
@@ -134,8 +130,6 @@ class CallableWithCallbacks(object):
 
     def _execute_callbacks(self):
         # type: () -> None
-        if self.DEBUG_MODE:
-            log_ableton("_execute_callbacks of %s : %s" % (self, self._callbacks))
         while len(self._callbacks):
             callback = self._callbacks.popleft()
             callback()
