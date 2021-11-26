@@ -1,3 +1,5 @@
+from functools import partial
+
 from typing import Optional
 
 from protocol0.enums.DeviceEnum import DeviceEnum
@@ -24,4 +26,7 @@ class SimpleTrackHasDeviceValidator(AbstractValidator):
 
     def fix(self):
         # type: () -> Sequence
-        return self._track.load_device_from_enum(self._device_enum)
+        seq = Sequence()
+        seq.add(partial(self._track.load_device_from_enum, self._device_enum))
+        seq.add(wait=5)
+        return seq.done()

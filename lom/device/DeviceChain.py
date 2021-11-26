@@ -42,3 +42,4 @@ class DeviceChain(AbstractObject):
         # type: (Device) -> None
         device_index = self.devices.index(device)
         self._chain.delete_device(device_index)
+        self._devices_listener()

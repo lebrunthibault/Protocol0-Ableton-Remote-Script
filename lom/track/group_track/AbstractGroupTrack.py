@@ -37,7 +37,7 @@ class AbstractGroupTrack(AbstractTrack):
             # creating the second layer relationship: abstract_group_tracks have List[AbstractTrack] as sub_tracks
             if self.group_track:
                 self.group_track.sub_tracks.append(self)
-                self.group_track.sub_tracks.sort(key=lambda x: x.index)
+                # self.group_track.sub_tracks.sort(key=lambda x: x.index)
 
     @property
     def active_tracks(self):

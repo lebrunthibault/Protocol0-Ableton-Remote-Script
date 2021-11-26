@@ -44,9 +44,6 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
 
         self.protected_mode_active = True   # type: bool
 
-        if self.instrument.device:
-            self.instrument.device.toggle_off()
-
         # the instrument handling relies on the group track
         # noinspection PyUnresolvedReferences
         self.notify_instrument()

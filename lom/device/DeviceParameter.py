@@ -22,45 +22,53 @@ class DeviceParameter(AbstractObject):
     @property
     def name(self):
         # type: () -> str
-        return self._device_parameter.name
+        if self._device_parameter:
+            return self._device_parameter.name
 
     @property
     def original_name(self):
         # type: () -> str
-        return self._device_parameter.original_name
+        if self._device_parameter:
+            return self._device_parameter.original_name
 
     @property
     def value(self):
         # type: () -> float
-        return self._device_parameter.value
+        if self._device_parameter:
+            return self._device_parameter.value
 
     @value.setter
     def value(self, value):
         # type: (float) -> None
-        if self.is_enabled:
+        if self.is_enabled and self._device_parameter:
             self._device_parameter.value = value
 
     @property
     def default_value(self):
         # type: () -> float
-        return self._device_parameter.default_value
+        if self._device_parameter:
+            return self._device_parameter.default_value
 
     @property
     def min(self):
         # type: () -> float
-        return self._device_parameter.min
+        if self._device_parameter:
+            return self._device_parameter.min
 
     @property
     def max(self):
         # type: () -> float
-        return self._device_parameter.max
+        if self._device_parameter:
+            return self._device_parameter.max
 
     @property
     def is_quantized(self):
         # type: () -> bool
-        return self._device_parameter.is_quantized
+        if self._device_parameter:
+            return self._device_parameter.is_quantized
 
     @property
     def is_enabled(self):
         # type: () -> bool
-        return self._device_parameter.is_enabled
+        if self._device_parameter:
+            return self._device_parameter.is_enabled

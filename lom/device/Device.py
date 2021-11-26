@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, List, Any, Type, Optional, Union
 
 import Live
 from _Framework.SubjectSlot import subject_slot
-from protocol0.enums.DeviceParameterNameEnum import DeviceParameterNameEnum
+from protocol0.enums.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.device.DeviceChain import DeviceChain
 from protocol0.lom.device.DeviceParameter import DeviceParameter
@@ -30,27 +30,6 @@ class Device(AbstractObject):
         # type: (object) -> bool
         return isinstance(device, Device) and self._device == device._device
 
-    def toggle_off(self):
-        # type: () -> None
-        device_on = self.get_parameter_by_name(DeviceParameterNameEnum.DEVICE_ON)
-        if device_on is None:
-            self.parent.log_error("Couldn't find Device On parameter for %s" % self)
-            return None
-
-        device_on.value = False
-
-    def get_parameter_by_name(self, device_parameter_name):
-        # type: (Union[DeviceParameterNameEnum, str]) -> Optional[DeviceParameter]
-        if isinstance(device_parameter_name, DeviceParameterNameEnum):
-            device_parameter_name = device_parameter_name.label
-        return find_if(lambda d: d.name == device_parameter_name, self.parameters)
-
-    def update_param_value(self, param_name, param_value):
-        # type: (Union[DeviceParameterNameEnum, str], Any) -> None
-        param = self.get_parameter_by_name(device_parameter_name=param_name)
-        if param and param.is_enabled:
-            param.value = param_value
-
     @staticmethod
     def get_class(device):
         # type: (Any) -> Type[Device]
@@ -73,6 +52,38 @@ class Device(AbstractObject):
     def make(device, track, chain=None):
         # type: (Live.Device.Device, SimpleTrack) -> Device
         return Device.get_class(device)(device=device, track=track, chain=chain)
+
+    def delete(self):
+        # type: () -> None
+        if self not in self.track.all_devices:
+            return None
+
+        if self.device_chain:
+            self.device_chain.delete_device(self)
+        else:
+            device_index = self.track.devices.index(self)
+            self.track.delete_device(device_index)
+
+    def toggle_off(self):
+        # type: () -> None
+        device_on = self.get_parameter_by_name(DeviceParameterEnum.DEVICE_ON)
+        if device_on is None:
+            self.parent.log_error("Couldn't find Device On parameter for %s" % self)
+            return None
+
+        device_on.value = False
+
+    def get_parameter_by_name(self, device_parameter_name):
+        # type: (Union[DeviceParameterEnum, str]) -> Optional[DeviceParameter]
+        if isinstance(device_parameter_name, DeviceParameterEnum):
+            device_parameter_name = device_parameter_name.label
+        return find_if(lambda d: d.name == device_parameter_name, self.parameters)
+
+    def update_param_value(self, param_name, param_value):
+        # type: (Union[DeviceParameterEnum, str], Any) -> None
+        param = self.get_parameter_by_name(device_parameter_name=param_name)
+        if param and param.is_enabled:
+            param.value = param_value
 
     def scroll_presets(self, go_next):
         # type: (bool) -> None

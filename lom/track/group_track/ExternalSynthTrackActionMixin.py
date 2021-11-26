@@ -8,6 +8,7 @@ from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.clip.MidiClip import MidiClip
 from protocol0.sequence.Sequence import Sequence
+from protocol0.utils.decorators import prompt
 
 if TYPE_CHECKING:
     from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
@@ -161,5 +162,11 @@ class ExternalSynthTrackActionMixin(object):
         if not self.protected_mode_active:
             return True
         else:
-            self.system.show_protected_mode_dialog()
+            self.disable_protected_mode()
             return False
+
+    @prompt("Disable protected mode ?")
+    def disable_protected_mode(self):
+        # type: (ExternalSynthTrack) -> None
+        self.protected_mode_active = False
+        self.parent.show_message("track protected mode disabled")

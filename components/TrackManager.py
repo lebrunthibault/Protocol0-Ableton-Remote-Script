@@ -84,6 +84,9 @@ class TrackManager(AbstractControlSurfaceComponent):
         if not isinstance(midi_track, SimpleMidiTrack) or not isinstance(audio_track, SimpleAudioTrack):
             return None
 
+        if midi_track.name != SimpleMidiTrack.DEFAULT_NAME or audio_track.name != SimpleAudioTrack.DEFAULT_NAME:
+            return None
+
         if any(isinstance(dummy_track, SimpleMidiTrack) for dummy_track in base_group_track.sub_tracks[2:]):
             return None
 

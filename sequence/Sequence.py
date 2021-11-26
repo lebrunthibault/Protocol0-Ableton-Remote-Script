@@ -50,6 +50,11 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
             message += " (res %s)" % self.res
         return message
 
+    @property
+    def waiting_for_system(self):
+        # type: () -> bool
+        return self._current_step and self._current_step.wait_for_system
+
     def _on_start(self):
         # type: () -> None
         self.RUNNING_SEQUENCES.append(self)
@@ -69,13 +74,21 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
         else:
             self.terminate()
 
+    def on_system_response(self, res):
+        # type: (bool) -> None
+        if res:
+            self._execute_next_step()
+
     @p0_subject_slot("terminated")
     def _step_terminated(self):
         # type: () -> None
-        if self._current_step.early_returned:
-            self.terminate()
-        else:
-            self._execute_next_step()
+        if self._current_step and self._current_step.wait_for_system:
+            # allowing only one running sequence to wait for system response
+            for seq in Sequence.RUNNING_SEQUENCES:
+                if seq.waiting_for_system and seq != self:
+                    seq.terminate()
+            return  # waiting for system response
+        self._execute_next_step()
 
     @p0_subject_slot("errored")
     def _step_errored(self):
@@ -90,6 +103,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
         except ValueError:
             pass
         self.res = self._current_step.res if self._current_step else None
+        self._current_step = None
 
         if self.errored and self.debug:
             self.parent.log_error(self.debug_str, debug=False)
@@ -97,11 +111,11 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
     def add(
             self,
             func=nop,  # type: Union[Iterable, Callable, object]
-            wait=None,  # type: int
             name=None,  # type: str
+            wait=None,  # type: int
+            wait_for_system=False,  # type: bool
             complete_on=None,  # type: Callable
             do_if=None,  # type: Callable
-            return_if=None,  # type: Callable
             check_timeout=4,  # type: int
             no_timeout=False,  # type: bool
             silent=False,  # type: bool
@@ -125,11 +139,11 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
             SequenceStep.make(
                 self,
                 func,
-                wait=wait,
                 name=name,
+                wait=wait,
+                wait_for_system=wait_for_system,
                 complete_on=complete_on,
                 do_if=do_if,
-                return_if=return_if,
                 check_timeout=0 if no_timeout else check_timeout,
                 silent=silent,
             )

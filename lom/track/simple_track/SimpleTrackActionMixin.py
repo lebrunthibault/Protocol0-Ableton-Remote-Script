@@ -37,16 +37,10 @@ class SimpleTrackActionMixin(object):
         # type: (SimpleTrack) -> None
         self.has_monitor_in = not self.has_monitor_in  # type: ignore[has-type]
 
-    def delete_device(self, device):
-        # type: (SimpleTrack, Device) -> None
-        if device not in self.all_devices:
-            return None
-
-        if device.device_chain:
-            device.device_chain.delete_device(device)
-        else:
-            device_index = self.devices.index(device)
-            self._track.delete_device(device_index)
+    def delete_device(self, device_index):
+        # type: (SimpleTrack, int) -> None
+        self._track.delete_device(device_index)
+        self._devices_listener()
 
     def session_record_all(self):
         # type: (SimpleTrack) -> Sequence

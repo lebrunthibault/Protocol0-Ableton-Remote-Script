@@ -23,11 +23,11 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
             self,
             func,  # type: Callable
             sequence,  # type: Sequence
-            wait,  # type: int
             name,  # type: str
+            wait,  # type: int
+            wait_for_system,  # type: bool
             complete_on,  # type: Optional[Union[Callable, CallableWithCallbacks]]
             do_if,  # type: Optional[Callable]
-            return_if,  # type: Optional[Callable]
             check_timeout,  # type: int
             silent,  # type: bool
             *a,  # type: Any
@@ -43,25 +43,23 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         self._sequence_name = sequence.name
         self._callable = func
         self._wait = wait or 0
+        self.wait_for_system = wait_for_system
         self._complete_on = complete_on
         self._check_timeout = check_timeout
         self._check_count = 0
         self._callback_timeout = None  # type: Optional[Callable]
         self.res = None  # type: Optional[Any]
         self._do_if = do_if
-        self._return_if = return_if
-        self.early_returned = False
+        self._condition = do_if
 
-        conditions = [do_if, return_if]
-        self._condition = next((c for c in conditions if c), None)  # type: Optional[Callable]
-
+        if self.wait_for_system:
+            assert self._wait == 0 and self._complete_on is None, "waiting for system excludes wait and complete_on"
+        if self._complete_on:
+            assert self._wait == 0, "complete_on excludes wait"
         assert callable(self._callable), "You passed a non callable (%s) to %s" % (self._callable, self)
-        assert len(list(filter(None, conditions))) <= 1, "You cannot specify multiple conditions in a step"
         from protocol0.sequence.Sequence import Sequence
 
-        assert all(
-            [not isinstance(condition, Sequence) for condition in conditions]
-        ), "You passed a Sequence object instead of a Sequence factory for a condition"
+        assert not isinstance(self._condition, Sequence), "You passed a Sequence object instead of a Sequence factory for a condition"
 
         if Config.SEQUENCE_SLOW_MO:
             self._wait = min(100, self._wait * 5)
@@ -70,7 +68,9 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
     def __repr__(self):
         # type: () -> str
         output = self.name
-        if self._complete_on:
+        if self.wait_for_system:
+            output += " (and wait for system)"
+        elif self._complete_on:
             if _has_callback_queue(self._complete_on):
                 output += " (and wait for listener call : %s)" % get_callable_repr(self._complete_on)
             elif is_lambda(self._complete_on) and not self._original_name and self.debug:
@@ -79,8 +79,6 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
                 output += " (and poll for %s)" % get_callable_repr(self._complete_on)
         if self._do_if:
             output += " (has_if)"
-        elif self._return_if:
-            output += " (has_return_if)"
 
         return "[%s]" % output
 
@@ -144,21 +142,19 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         if self.debug:
             self.parent.log_info("%s condition returned %s" % (self, return_res))
 
-        if return_res and self._return_if:
-            self.early_returned = True
-            self.terminate()
-        else:
-            self._execute()
+        self._execute()
 
     def _check_for_step_completion(self, _=None):
         # type: (Any) -> None
         if not self._complete_on and not self._wait:
-            return self.terminate()
+            self.terminate()
+            return
 
-        if not self._complete_on and self._wait:
+        if self._wait:
             self.parent.wait(self._wait, self.terminate)
             return
 
+        # we have complete_on
         if _has_callback_queue(self._complete_on):
             self._add_callback_on_listener(cast(CallableWithCallbacks, self._complete_on))
             return
@@ -174,10 +170,14 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         if check_res:
             self.terminate()
         else:
-            if self._check_count == self._check_timeout:
-                return self._step_timed_out()
-            self.parent.wait(pow(2, self._check_count), self._check_for_step_completion)
-            self._check_count += 1
+            self._exponential_check()
+
+    def _exponential_check(self):
+        if self._check_count == self._check_timeout:
+            self._step_timed_out()
+            return
+        self.parent.wait(pow(2, self._check_count), self._check_for_step_completion)
+        self._check_count += 1
 
     def _add_callback_on_listener(self, listener):
         # type: (CallableWithCallbacks) -> None

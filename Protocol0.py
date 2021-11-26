@@ -36,6 +36,7 @@ from protocol0.components.action_groups.ActionGroupSet import ActionGroupSet
 from protocol0.components.action_groups.ActionGroupTest import ActionGroupTest
 from protocol0.components.api.ApiAction import ApiAction
 from protocol0.components.api.ApiRoutesManager import ApiRoutesManager
+from protocol0.components.audit.SetUpgradeManager import SetUpgradeManager
 from protocol0.components.scheduler.FastScheduler import FastScheduler, SchedulerEvent
 from protocol0.components.vocal_command.KeywordSearchManager import KeywordSearchManager
 from protocol0.components.vocal_command.VocalCommandManager import VocalCommandManager
@@ -91,6 +92,9 @@ class Protocol0(ControlSurface):
             if Config.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.PROFILING:
                 return
 
+            if Config.SHOW_RELOAD_TIME:
+                self.p0_system_api_client.end_measurement()
+
             self.deviceManager = DeviceManager()  # needs to be here first
             AbstractInstrument.INSTRUMENT_CLASSES = AbstractInstrument.get_instrument_classes()
             self.songManager = SongManager()
@@ -103,6 +107,7 @@ class Protocol0(ControlSurface):
             self.automationTrackManager = AutomationTrackManager()
             self.quantizationManager = QuantizationManager()
             self.setFixerManager = SetFixerManager()
+            self.setUpgradeManager = SetUpgradeManager()
             self.clipManager = ClipManager()
             self.browserManager = BrowserManager()
             self.navigationManager = NavigationManager()
@@ -262,6 +267,7 @@ class Protocol0(ControlSurface):
         del self._remaining_scheduled_messages[:]
         for seq in reversed(Sequence.RUNNING_SEQUENCES):
             seq.terminate()
+        Sequence.RUNNING_SEQUENCES = []
         self._task_group.clear()
         self.fastScheduler.restart()
         self.globalBeatScheduler.clear()

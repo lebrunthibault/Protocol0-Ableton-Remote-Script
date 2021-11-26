@@ -24,5 +24,7 @@ class AggregateValidator(AbstractValidator):
     def fix(self):
         # type: () -> Sequence
         seq = Sequence()
-        seq.add([validator.fix for validator in self._validators])
+        for validator in self._validators:
+            if not validator.is_valid():
+                seq.add(validator.fix)
         return seq.done()

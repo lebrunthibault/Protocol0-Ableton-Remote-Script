@@ -34,7 +34,6 @@ class Clip(ClipActionMixin, AbstractObject):
         self._loop_start_listener.subject = self._clip
         self._loop_end_listener.subject = self._clip
 
-        self.parent.defer(partial(setattr, self, "color", self.track.computed_color))
         self.clip_name = ClipName(self)
         self.displayed_automated_parameter = None  # type: Optional[DeviceParameter]
 
@@ -223,6 +222,9 @@ class Clip(ClipActionMixin, AbstractObject):
     @color.setter
     def color(self, color_index):
         # type: (int) -> None
+        # self.parent.log_dev(Sequence.RUNNING_SEQUENCES)
+        # import traceback
+        # traceback.print_stack()
         if self._clip:
             self._clip.color_index = color_index
 

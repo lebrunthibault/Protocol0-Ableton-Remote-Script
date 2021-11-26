@@ -240,3 +240,23 @@ def throttle(wait_time=100):
         return decorate
 
     return wrap
+
+
+def prompt(question):
+    # type: (str) -> Callable
+    def wrap(func):
+        # type: (Callable) -> Callable
+        @wraps(func)
+        def decorate(*a, **k):
+            # type: (Any, Any) -> None
+            from protocol0.sequence.Sequence import Sequence
+            from protocol0 import Protocol0
+
+            seq = Sequence()
+            seq.add(partial(Protocol0.SELF.system.prompt, question), wait_for_system=True)
+            seq.add(partial(func, *a, **k))
+            seq.done()
+
+        return decorate
+
+    return wrap

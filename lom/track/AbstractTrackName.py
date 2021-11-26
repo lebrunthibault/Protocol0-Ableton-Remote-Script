@@ -46,7 +46,6 @@ class AbstractTrackName(AbstractObjectName):
 
         if self.track.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.NAME:
             if self.track.instrument.selected_preset:
-                self.parent.log_dev(self.track.instrument.selected_preset.name)
                 self.base_name = self.track.instrument.selected_preset.name
             else:
                 self.base_name = self.track.instrument.name

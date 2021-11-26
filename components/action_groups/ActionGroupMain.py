@@ -15,7 +15,7 @@ class ActionGroupMain(AbstractActionGroup):
 
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
-        super(ActionGroupMain, self).__init__(channel=4, filter_active_tracks=True, *a, **k)
+        super(ActionGroupMain, self).__init__(channel=4, *a, **k)
 
         # TAP tempo encoder
         self.add_encoder(identifier=1, name="tap tempo",
@@ -41,6 +41,7 @@ class ActionGroupMain(AbstractActionGroup):
 
         # VOLume tempo encoder
         self.add_encoder(identifier=4, name="volume",
+                         filter_active_tracks=True,
                          on_press=lambda: self.song.current_track.toggle_mute,
                          on_scroll=lambda: self.song.current_track.scroll_volume
                          )
@@ -49,6 +50,7 @@ class ActionGroupMain(AbstractActionGroup):
         self.add_encoder(
             identifier=8,
             name="monitor",
+            filter_active_tracks=True,
             on_press=lambda: AbstractTrackList(self.song.armed_tracks,
                                                self.song.selected_abstract_tracks).switch_monitoring)
 
@@ -56,6 +58,7 @@ class ActionGroupMain(AbstractActionGroup):
         self.add_encoder(
             identifier=9,
             name="record",
+            filter_active_tracks=True,
             on_scroll=InterfaceState.scroll_recording_time,
             on_press=lambda: partial(self.song.armed_tracks.record, RecordTypeEnum.NORMAL),
             on_long_press=lambda: partial(self.song.armed_tracks.record, RecordTypeEnum.AUDIO_ONLY)
@@ -65,6 +68,7 @@ class ActionGroupMain(AbstractActionGroup):
         self.add_encoder(
             identifier=13,
             name="track",
+            filter_active_tracks=True,
             on_scroll=self.song.scroll_tracks,
             on_press=lambda: self.song.current_track.toggle_arm,
             on_long_press=lambda: self.song.current_track.toggle_solo,
@@ -74,6 +78,7 @@ class ActionGroupMain(AbstractActionGroup):
         self.add_encoder(
             identifier=14,
             name="instrument",
+            filter_active_tracks=True,
             on_press=lambda: self.song.current_track.show_hide_instrument,
             on_long_press=lambda: self.song.current_track.activate_instrument_plugin_window,
             on_scroll=lambda: self.song.current_track.scroll_presets_or_samples,

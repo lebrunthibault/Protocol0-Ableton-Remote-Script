@@ -7,7 +7,6 @@ class SetFixerManager(AbstractControlSurfaceComponent):
         """ Fix the current set to the current standard regarding naming / coloring etc .."""
         self.parent.logManager.clear()
         self._validate_tracks()
-        self._validate_instruments()
 
         self._refresh_tracks_appearance()
         self._refresh_clips_appearance()
@@ -21,16 +20,6 @@ class SetFixerManager(AbstractControlSurfaceComponent):
             self.parent.validatorManager.validate_object(abstract_track)
         for simple_track in self.song.simple_tracks:
             self.parent.validatorManager.validate_object(simple_track)
-
-    def _validate_instruments(self):
-        # type: () -> None
-        for simple_track in self.song.simple_tracks:
-            instrument = simple_track.instrument
-            if instrument and not instrument.selected_preset and not simple_track.name == instrument.NAME:
-                self.parent.log_error(
-                    "Couldn't find the selected preset of %s (instrument %s)"
-                    % (simple_track.abstract_track, instrument)
-                )
 
     def _refresh_clips_appearance(self):
         # type: () -> None

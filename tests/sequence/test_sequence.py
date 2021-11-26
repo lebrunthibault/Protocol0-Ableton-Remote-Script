@@ -18,6 +18,12 @@ def test_sanity_checks():
     with pytest.raises(Exception):
         Sequence(silent=True).done().done()
 
+    with pytest.raises(Exception):
+        Sequence(silent=True).add(wait=1, complete_on=lambda: True).done()
+
+    with pytest.raises(Exception):
+        Sequence(silent=True).add(wait_for_system=True, wait=1).done()
+
 
 def test_state_machine():
     # type: () -> None

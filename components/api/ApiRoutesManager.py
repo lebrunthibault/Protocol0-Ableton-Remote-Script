@@ -2,6 +2,7 @@ from typing import Any, cast
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import api_exposed, api_exposable_class
 
 
@@ -39,10 +40,12 @@ class ApiRoutesManager(AbstractControlSurfaceComponent):
         self.parent.vocalCommandManager.execute_command(command)
 
     @api_exposed
-    def deactivate_protected_mode(self):
-        # type: () -> None
+    def system_response(self, res):
+        # type: (bool) -> None
         """ Called by the speech recognition script """
-        if not isinstance(self.song.current_track, ExternalSynthTrack):
+        waiting_sequence = next((seq for seq in Sequence.RUNNING_SEQUENCES if seq.waiting_for_system), None)
+        if waiting_sequence is None:
+            self.parent.log_error("Response (%s) received from system but couldn't find a waiting sequence" % res)
             return
-        cast(ExternalSynthTrack, self.song.current_track).protected_mode_active = False
-        self.parent.show_message("track protected mode disabled")
+
+        waiting_sequence.on_system_response(res=res)

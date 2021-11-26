@@ -49,7 +49,7 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
         # type: (Device) -> Optional[Sequence]
         seq = Sequence()
         device_name = device.name
-        device.track.delete_device(device=device)
+        device.delete()
         preset_item = self._get_audio_effect_preset_item(device_name)
         if not preset_item:
             self.parent.log_warning("Couldn't find preset item")

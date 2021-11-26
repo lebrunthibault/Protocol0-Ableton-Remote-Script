@@ -1,17 +1,22 @@
-from typing import List, Tuple
+from typing import List
 
 from protocol0.enums.AbstractEnum import AbstractEnum
-from protocol0.enums.DeviceParameterNameEnum import DeviceParameterNameEnum
+from protocol0.enums.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.lom.device.Device import Device
+from protocol0.lom.device.DeviceParameterValue import DeviceParameterValue
 
 
 class DeviceEnum(AbstractEnum):
+    ARPEGGIATOR_RACK = "ARPEGGIATOR_RACK"
+    COMPRESSOR = "COMPRESSOR"
+    DUMMY_RACK = "DUMMY_RACK"
+    EQ_EIGHT = "EQ_EIGHT"
     EXTERNAL_AUDIO_EFFECT = "EXTERNAL_AUDIO_EFFECT"
     EXTERNAL_INSTRUMENT = "EXTERNAL_INSTRUMENT"
-    MIX_RACK = "MIX_RACK"
-    DUMMY_RACK = "DUMMY_RACK"
     LFO_TOOL = "LFO_TOOL"
+    MIX_RACK = "MIX_RACK"
     USAMO = "USAMO"
+    UTILITY = "UTILITY"
 
     @property
     def is_rack(self):
@@ -37,12 +42,16 @@ class DeviceEnum(AbstractEnum):
     def device_name(self):
         # type: () -> str
         return self.get_value_from_mapping({
+            DeviceEnum.ARPEGGIATOR_RACK: "Arpeggiator Rack",
+            DeviceEnum.COMPRESSOR: "Compressor",
+            DeviceEnum.DUMMY_RACK: "Dummy Rack",
+            DeviceEnum.EQ_EIGHT: "EQ Eight",
             DeviceEnum.EXTERNAL_AUDIO_EFFECT: "Ext. Audio Effect",
             DeviceEnum.EXTERNAL_INSTRUMENT: "Ext. Instrument",
-            DeviceEnum.MIX_RACK: "Mix Rack",
-            DeviceEnum.DUMMY_RACK: "Dummy Rack",
             DeviceEnum.LFO_TOOL: "LFOTool_x64",
+            DeviceEnum.MIX_RACK: "Mix Rack",
             DeviceEnum.USAMO: "usamo_x64",
+            DeviceEnum.UTILITY: "Utility",
         })
 
     @property
@@ -51,16 +60,26 @@ class DeviceEnum(AbstractEnum):
         return self.get_value_from_mapping({
             DeviceEnum.EXTERNAL_AUDIO_EFFECT: "External Audio Effect",
             DeviceEnum.EXTERNAL_INSTRUMENT: "External Instrument",
-            DeviceEnum.MIX_RACK: "Mix Rack.adg",
             DeviceEnum.DUMMY_RACK: "Dummy Rack.adg",
             DeviceEnum.LFO_TOOL: "LFOTool.adg",
+            DeviceEnum.MIX_RACK: "Mix Rack.adg",
         })
 
     @property
-    def main_parameter_default(self):
-        # type: () -> Tuple[DeviceParameterNameEnum, int]
+    def main_parameters_default(self):
+        # type: () -> List[DeviceParameterValue]
         return self.get_value_from_mapping({
-            DeviceEnum.LFO_TOOL: (DeviceParameterNameEnum.LFO_TOOL_LFO_DEPTH, 0),
+            DeviceEnum.ARPEGGIATOR_RACK: [DeviceParameterValue(DeviceParameterEnum.CHAIN_SELECTOR, 0)],
+            DeviceEnum.COMPRESSOR: [
+                DeviceParameterValue(DeviceParameterEnum.COMPRESSOR_OUTPUT_GAIN, 0),
+                DeviceParameterValue(DeviceParameterEnum.COMPRESSOR_THRESHOLD, 0.850000023842),  # 0db
+            ],
+            DeviceEnum.EQ_EIGHT: [
+                DeviceParameterValue(DeviceParameterEnum.EQ_EIGHT_FREQUENCY_1_A, 0.285494267941),
+                DeviceParameterValue(DeviceParameterEnum.EQ_EIGHT_FREQUENCY_8_A, 1),
+            ],  # 90 Hz
+            DeviceEnum.LFO_TOOL: [DeviceParameterValue(DeviceParameterEnum.LFO_TOOL_LFO_DEPTH, 0)],
+            DeviceEnum.UTILITY: [DeviceParameterValue(DeviceParameterEnum.UTILITY_GAIN, 0)],
         })
 
     def matches_device(self, device):

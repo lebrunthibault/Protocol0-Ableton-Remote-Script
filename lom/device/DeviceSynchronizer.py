@@ -1,7 +1,7 @@
 from typing import Any, List
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.enums.DeviceParameterNameEnum import DeviceParameterNameEnum
+from protocol0.enums.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.lom.ObjectSynchronizer import ObjectSynchronizer
 from protocol0.lom.device.Device import Device
 from protocol0.utils.decorators import p0_subject_slot
@@ -9,7 +9,7 @@ from protocol0.utils.decorators import p0_subject_slot
 
 class DeviceSynchronizer(AbstractControlSurfaceComponent):
     def __init__(self, master, slave, parameter_names, *a, **k):
-        # type: (Device, Device, List[DeviceParameterNameEnum], Any, Any) -> None
+        # type: (Device, Device, List[DeviceParameterEnum], Any, Any) -> None
         super(DeviceSynchronizer, self).__init__(*a, **k)
 
         self._parameter_synchronizers = []  # type: List[ObjectSynchronizer]

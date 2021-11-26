@@ -1,9 +1,8 @@
-from typing import Any, cast
+from typing import Any
 
 from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
 from protocol0.config import Config
 from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
-from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 
 
 class ActionGroupTest(AbstractActionGroup):
@@ -21,8 +20,7 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        track = cast(ExternalSynthTrack, self.song.current_track)
-        track.instrument.device.toggle_off()
+        self.parent.log_dev(self.song.selected_track.selected_device.parameters)
 
     def start_set_profiling(self):
         # type: () -> None

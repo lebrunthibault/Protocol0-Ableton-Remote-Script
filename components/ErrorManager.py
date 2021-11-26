@@ -60,7 +60,7 @@ class ErrorManager(AbstractControlSurfaceComponent):
         self.parent.defer(self.song.reset)
 
         if Config.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.TEST:
-            self.parent.wait(100, self._restart)
+            self.parent.wait(10, self._restart)
 
     def _restart(self):
         # type: () -> None
