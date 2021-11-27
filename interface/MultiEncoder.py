@@ -16,7 +16,7 @@ class MultiEncoder(AbstractObject):
     PRESS_MAX_TIME = 0.25  # maximum time in seconds we consider a simple press
 
     def __init__(self, group, identifier, name, filter_active_tracks, *a, **k):
-        # type: (AbstractActionGroup, int, str, Any, Any) -> None
+        # type: (AbstractActionGroup, int, str, bool, Any, Any) -> None
         """
         Actions are triggered at the end of the press not the start. Allows press vs long_press (Note) vs scroll (CC)
         NB : for press actions the action is triggered on button release (allowing long_press)

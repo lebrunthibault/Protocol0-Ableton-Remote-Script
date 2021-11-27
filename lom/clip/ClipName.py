@@ -3,7 +3,7 @@ import re
 from typing import TYPE_CHECKING, Any, Optional
 
 from protocol0.lom.AbstractObjectName import AbstractObjectName
-from protocol0.utils.decorators import p0_subject_slot, defer
+from protocol0.utils.decorators import defer
 
 if TYPE_CHECKING:
     from protocol0.lom.clip.Clip import Clip
@@ -12,30 +12,24 @@ if TYPE_CHECKING:
 class ClipName(AbstractObjectName):
     def __init__(self, clip, *a, **k):
         # type: (Clip, Any, Any) -> None
-        super(ClipName, self).__init__(*a, **k)
+        super(ClipName, self).__init__(clip, *a, **k)
         self.clip = clip
-        self.clips = [self.clip]
-        self.base_name = ""
         self.register_slot(self.clip._clip, self.update, "loop_start")
         self.register_slot(self.clip._clip, self.update, "loop_end")
         self.register_slot(self.clip._clip, self.update, "start_marker")
         self.register_slot(self.clip._clip, self.update, "end_marker")
-        self._name_listener.subject = clip._clip
-        self.parent.defer(self._name_listener)  # type: ignore[arg-type]
+        self._name_listener.subject = self.clip._clip
 
-    @p0_subject_slot("name")
-    def _name_listener(self):
-        # type: () -> None
-        """ overridden """
+    def _get_base_name(self):
+        # type: () -> str
         match = re.match("^(?P<base_name>[^()[\\].]*).*$", self.clip.name or "")
-        self.base_name = match.group("base_name").strip() if match else ""
-        self.normalize_base_name()
-        self.update()
+        return match.group("base_name").strip() if match else ""
 
     def normalize_base_name(self):
         # type: () -> None
         super(ClipName, self).normalize_base_name()
-        if re.match("^%s( \\d+)?" % self.clip.track.base_name.strip(), self.base_name):
+        track_base_name = self.clip.track.base_name.strip()
+        if track_base_name and re.match("^%s( \\d+)?" % track_base_name, self.base_name):
             self.base_name = ""
 
     @property
@@ -57,6 +51,6 @@ class ClipName(AbstractObjectName):
             return None
         self.base_name = base_name if base_name is not None else self.base_name
         clip_name = "%s (%s)" % (self.base_name, self._length_legend)
-        if self.clip != self.song.template_dummy_clip and self.clip.tail_bar_length:
+        if not self.clip.is_dummy and self.clip.tail_bar_length:
             clip_name += " tail"
         self.clip.name = clip_name

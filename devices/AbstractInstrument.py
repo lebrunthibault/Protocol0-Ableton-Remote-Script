@@ -40,8 +40,7 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
         self.track = track  # this could be a group track
         self.device = device
         self.activated = False
-        self._preset_list = None  # type: Optional[InstrumentPresetList]
-        self.import_presets()
+        self._preset_list = InstrumentPresetList(self)  # type: Optional[InstrumentPresetList]
 
     @property
     def name(self):

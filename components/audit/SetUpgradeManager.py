@@ -58,7 +58,6 @@ class SetUpgradeManager(AbstractControlSurfaceComponent):
 
             for track in self.song.simple_tracks:
                 device = track.get_device_from_enum(device_enum)
-                self.parent.log_dev("%s -> %s" % (device_enum, device))
                 if not device:
                     continue
                 if all([parameter_value.matches(device) for parameter_value in default_parameter_values]):

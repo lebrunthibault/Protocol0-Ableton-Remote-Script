@@ -7,4 +7,4 @@ class PresetManager(AbstractControlSurfaceComponent):
         for instrument in [abstract_track.instrument for abstract_track in self.song.abstract_tracks if
                            abstract_track.instrument]:
             self.parent.log_info("syncing presets for %s" % instrument)
-            instrument.import_presets()
+            instrument._preset_list.sync_presets()

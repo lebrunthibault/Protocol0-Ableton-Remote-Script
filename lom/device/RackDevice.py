@@ -4,6 +4,7 @@ import Live
 from _Framework.SubjectSlot import subject_slot
 from protocol0.lom.device.Device import Device
 from protocol0.lom.device.DeviceChain import DeviceChain
+from protocol0.lom.device.DeviceParameter import DeviceParameter
 from protocol0.utils.utils import find_if
 
 
@@ -16,9 +17,7 @@ class RackDevice(Device):
         self._view = self._device.view  # type: Live.RackDevice.RackDevice.View
         self._chains_listener.subject = self._device
         self._chains_listener()
-        self.chain_selector = find_if(
-            lambda p: p.original_name.startswith("Chain Selector") and p.is_enabled, self.parameters
-        )
+        self.chain_selector = None  # type: Optional[DeviceParameter]
 
     @subject_slot("chains")
     def _chains_listener(self):
@@ -28,7 +27,9 @@ class RackDevice(Device):
     def scroll_chain_selector(self, go_next):
         # type: (bool) -> None
         if not self.chain_selector:
-            return
+            self.chain_selector = find_if(
+                lambda p: p.original_name.startswith("Chain Selector") and p.is_enabled, self.parameters
+            )
         increment = 1 if go_next else -1
         self.chain_selector.value = (self.chain_selector.value + increment) % len(self.chains)
         self.selected_chain = self.chains[int(self.chain_selector.value)]

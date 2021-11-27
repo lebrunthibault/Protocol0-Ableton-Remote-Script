@@ -37,7 +37,7 @@ class Song(AbstractObject, SongActionMixin):
         self.template_dummy_clip = None  # type: Optional[AudioClip]
 
         self.errored = False
-        self.is_loading = True
+        self.is_loading = False
         self._is_playing_listener.subject = self._song
         self._record_mode_listener.subject = self._song
         self.session_end_listener.subject = self

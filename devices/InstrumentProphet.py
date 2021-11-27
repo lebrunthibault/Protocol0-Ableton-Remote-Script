@@ -13,10 +13,6 @@ class InstrumentProphet(AbstractExternalSynthTrackInstrument):
 
     EXTERNAL_INSTRUMENT_DEVICE_HARDWARE_LATENCY = 20
 
-    def __init__(self, *a, **k):
-        # type: (Any, Any) -> None
-        super(InstrumentProphet, self).__init__(*a, **k)
-
     @property
     def needs_exclusive_activation(self):
         # type: () -> bool

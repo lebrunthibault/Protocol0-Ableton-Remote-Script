@@ -9,7 +9,7 @@ class ActionGroupSet(AbstractActionGroup):
         # type: (Any, Any) -> None
         super(ActionGroupSet, self).__init__(channel=3, *a, **k)
         # PUSH encoder
-        self.add_encoder(identifier=5, name="connect push2", on_press=self.parent.push2Manager.connect_push2)
+        # self.add_encoder(identifier=5, name="connect push2", on_press=self.parent.push2Manager.connect_push2)
 
         # SPLiT encoder
         self.add_encoder(identifier=6, name="split scene", on_press=lambda: self.song.selected_scene.split)

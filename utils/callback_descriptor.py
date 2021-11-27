@@ -3,6 +3,7 @@ from functools import partial
 
 from typing import Callable, Deque, Optional, Any, cast, Type, Union
 
+from protocol0.utils.log import log_ableton
 from protocol0.utils.utils import get_callable_repr
 
 
@@ -91,6 +92,9 @@ class CallableWithCallbacks(object):
 
     def __call__(self, *a, **k):
         # type: (Any, Any) -> Any
+        from protocol0 import Protocol0
+        if Protocol0.SELF.protocol0_song.is_loading and "listener" in str(self):
+            return
         res = self._function(*a, **k)
 
         from protocol0.sequence.Sequence import Sequence

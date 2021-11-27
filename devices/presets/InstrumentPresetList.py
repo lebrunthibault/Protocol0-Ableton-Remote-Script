@@ -19,12 +19,41 @@ class InstrumentPresetList(AbstractObject):
         # type: (AbstractInstrument, Any, Any) -> None
         super(InstrumentPresetList, self).__init__(*a, **k)
         self.instrument = instrument
-        self.presets = []  # type: List[InstrumentPreset]
-        self.selected_preset = None  # type: Optional[InstrumentPreset]
+        self._presets = None  # type: Optional[List[InstrumentPreset]]
+        self._selected_preset = None  # type: Optional[InstrumentPreset]
 
     def __repr__(self):
         # type: () -> str
         return "preset count: %d, selected preset: %s" % (len(self.presets), self.selected_preset)
+
+    @property
+    def presets(self):
+        # type: () -> List[InstrumentPreset]
+        """ lazy loading """
+        if self._presets is None:
+            self.sync_presets()
+
+        return self._presets
+
+    @presets.setter
+    def presets(self, presets):
+        # type: (List[InstrumentPreset]) -> None
+        self._presets = presets
+
+    @property
+    def selected_preset(self):
+        # type: () -> Optional[InstrumentPreset]
+        """ lazy loading """
+        if self._presets is None:
+            self.sync_presets()
+
+        return self._selected_preset
+
+    @selected_preset.setter
+    def selected_preset(self, selected_preset):
+        # type: (Optional[InstrumentPreset]) -> None
+        """ lazy loading """
+        self._selected_preset = selected_preset
 
     def sync_presets(self):
         # type: () -> None

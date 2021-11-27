@@ -38,8 +38,6 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
             self.register_slot(getattr(slave, lom_property_name), partial(self._sync_properties, slave, master),
                                property_name)
 
-        self._sync_properties(master, slave)
-
     def _get_lom_property_name_from_object(self, obj):
         # type: (AbstractObject) -> str
         if isinstance(obj, AbstractTrack):

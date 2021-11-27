@@ -19,10 +19,8 @@ from protocol0.components.MidiManager import MidiManager
 from protocol0.components.MixingManager import MixingManager
 from protocol0.components.NavigationManager import NavigationManager
 from protocol0.components.PresetManager import PresetManager
-from protocol0.components.Push2Manager import Push2Manager
 from protocol0.components.QuantizationManager import QuantizationManager
 from protocol0.components.SessionManager import SessionManager
-from protocol0.components.audit.SetFixerManager import SetFixerManager
 from protocol0.components.SongDataManager import SongDataManager
 from protocol0.components.SongManager import SongManager
 from protocol0.components.TrackManager import TrackManager
@@ -36,6 +34,7 @@ from protocol0.components.action_groups.ActionGroupSet import ActionGroupSet
 from protocol0.components.action_groups.ActionGroupTest import ActionGroupTest
 from protocol0.components.api.ApiAction import ApiAction
 from protocol0.components.api.ApiRoutesManager import ApiRoutesManager
+from protocol0.components.audit.SetFixerManager import SetFixerManager
 from protocol0.components.audit.SetUpgradeManager import SetUpgradeManager
 from protocol0.components.scheduler.FastScheduler import FastScheduler, SchedulerEvent
 from protocol0.components.vocal_command.KeywordSearchManager import KeywordSearchManager
@@ -101,8 +100,6 @@ class Protocol0(ControlSurface):
             self.songDataManager = SongDataManager()
             self.sessionManager = SessionManager()
             MixingManager()
-            if Config.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.TEST:
-                self.push2Manager = Push2Manager()
             self.trackManager = TrackManager()
             self.automationTrackManager = AutomationTrackManager()
             self.quantizationManager = QuantizationManager()
@@ -155,7 +152,7 @@ class Protocol0(ControlSurface):
 
         self.navigationManager.show_session()
 
-        self.defer(self.songManager.init_song)
+        self.songManager.init_song()
 
         self.log_info("Protocol0 script loaded")
         self.started = True
@@ -215,7 +212,7 @@ class Protocol0(ControlSurface):
         except Exception:
             self.log_warning("Couldn't show message")
 
-    def _log(self, message="", level=LogLevelEnum.INFO, debug=False):
+    def _log(self, message="", level=LogLevelEnum.INFO, debug=True):
         # type: (Any, LogLevelEnum, bool) -> None
         if not isinstance(message, basestring):
             message = str(message)

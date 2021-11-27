@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 class Clip(ClipActionMixin, AbstractObject):
-    __subject_events__ = ("notes", "linked", "length")
+    __subject_events__ = ("notes", "length")
 
     def __init__(self, clip_slot, *a, **k):
         # type: (ClipSlot, Any, Any) -> None
@@ -115,11 +115,10 @@ class Clip(ClipActionMixin, AbstractObject):
         self.clip_name.update(base_name=base_name)
 
     @property
-    def is_midi(self):
+    def is_dummy(self):
         # type: () -> bool
-        from protocol0.lom.clip.MidiClip import MidiClip
-
-        return isinstance(self, MidiClip)
+        from protocol0.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
+        return self == self.song.template_dummy_clip or isinstance(self.track, SimpleDummyTrack)
 
     @property
     def length(self):
@@ -222,9 +221,6 @@ class Clip(ClipActionMixin, AbstractObject):
     @color.setter
     def color(self, color_index):
         # type: (int) -> None
-        # self.parent.log_dev(Sequence.RUNNING_SEQUENCES)
-        # import traceback
-        # traceback.print_stack()
         if self._clip:
             self._clip.color_index = color_index
 

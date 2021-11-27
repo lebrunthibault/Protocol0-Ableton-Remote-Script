@@ -21,12 +21,6 @@ class AbstractInstrumentPresetsMixin(object):
     PRESET_DISPLAY_OPTION = PresetDisplayOptionEnum.NAME
     PROGRAM_CHANGE_OFFSET = 0  # if we store presets not at the beginning of the list
 
-    @defer
-    def import_presets(self):
-        # type: (AbstractInstrument) -> None
-        self._preset_list = InstrumentPresetList(self)  # type: Optional[InstrumentPresetList]
-        self._preset_list.sync_presets()
-
     def make_preset(self, index, name=None, category=None):
         # type: (AbstractInstrument, int, Optional[basestring], Optional[str]) -> InstrumentPreset
         """ overridden """

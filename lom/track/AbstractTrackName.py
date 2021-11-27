@@ -2,8 +2,6 @@ import re
 
 from typing import TYPE_CHECKING, Optional, Any, List
 
-import Live
-from _Framework.SubjectSlot import subject_slot_group
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from protocol0.interface.InterfaceState import InterfaceState
@@ -17,11 +15,10 @@ if TYPE_CHECKING:
 class AbstractTrackName(AbstractObjectName):
     def __init__(self, track, *a, **k):
         # type: (AbstractTrack, Any, Any) -> None
-        super(AbstractTrackName, self).__init__(*a, **k)
+        super(AbstractTrackName, self).__init__(track, *a, **k)
         self.track = track
         self._instrument_listener.subject = self.track
-        self._name_listener.add_subject(self.track._track)
-        self._name_listener(self.track._track)
+        # self._name_listener.subject = self.track._track
 
     @property
     def instrument_names(self):
@@ -52,13 +49,12 @@ class AbstractTrackName(AbstractObjectName):
 
         self.update()
 
-    @subject_slot_group("name")
-    def _name_listener(self, _):
-        # type: (Live.Track.Track) -> None
+    def _get_base_name(self):
+        # type: () -> str
         match = re.match(
             "^(?P<base_name>[^()]*).*$", self.track.name
         )
-        self.base_name = match.group("base_name").strip() if match else ""
+        return match.group("base_name").strip() if match else ""
 
     @property
     def _should_recompute_base_name(self):

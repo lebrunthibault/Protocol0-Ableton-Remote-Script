@@ -33,11 +33,10 @@ class SongManager(AbstractControlSurfaceComponent):
         self.tracks_listener()
         # self._highlighted_clip_slot = self.song.highlighted_clip_slot
         # self._highlighted_clip_slot_poller()
-        if Config.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.PROFILING:
-            self.song.reset()
-        self.song.is_loading = False
-
+        self.song.is_loading = True
         self._select_startup_track()
+        if Config.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.PROFILING:
+            self.parent.wait(2, self.song.reset)
 
     def _select_startup_track(self):
         # type: () -> None
@@ -46,7 +45,7 @@ class SongManager(AbstractControlSurfaceComponent):
                 (abt for abt in self.song.abstract_tracks if isinstance(abt.instrument, InstrumentProphet)), None)
             if first_prophet_track:
                 self.song.select_track(first_prophet_track)
-                first_prophet_track.arm()
+                self.parent.wait(2, first_prophet_track.arm)
                 return None
             else:
                 self.parent.show_message("Couldn't find prophet track")
@@ -207,7 +206,7 @@ class SongManager(AbstractControlSurfaceComponent):
         if self.song.highlighted_clip_slot and self.song.highlighted_clip_slot != self._highlighted_clip_slot:
             self._highlighted_clip_slot = self.song.highlighted_clip_slot
             if self.song.highlighted_clip_slot.clip:
-                self.parent.push2Manager.update_clip_grid_quantization()
+                # self.parent.push2Manager.update_clip_grid_quantization()
                 self._highlighted_clip_slot.clip._on_selected()
         self.parent.wait(10, self._highlighted_clip_slot_poller)
 

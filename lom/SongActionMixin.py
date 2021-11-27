@@ -38,6 +38,7 @@ class SongActionMixin(object):
         # noinspection PyPropertyAccess
         self._song.current_song_time = 0
         self.stop_all_clips()
+        self.parent.wait(3, partial(setattr, self.song, "is_loading", False))
 
     def play(self):
         # type: (Song) -> None

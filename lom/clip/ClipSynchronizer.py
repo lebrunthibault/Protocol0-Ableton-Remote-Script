@@ -20,9 +20,6 @@ class ClipSynchronizer(ObjectSynchronizer):
                 master, master.track.abstract_track), level=LogLevelEnum.WARNING)
             properties = ["muted"]
 
-        # if slave.start_marker != slave.loop_start:
-        #     properties = ["muted"]
-
         self._syncable_properties = ["base_name"] + properties
         super(ClipSynchronizer, self).__init__(
             master,
@@ -34,10 +31,6 @@ class ClipSynchronizer(ObjectSynchronizer):
         self.master = self.master  # type: Optional[Clip]
         self.slave = self.slave  # type: Optional[Clip]
 
-        # noinspection PyUnresolvedReferences
-        master.notify_linked()
-        # noinspection PyUnresolvedReferences
-        slave.notify_linked()
 
     def is_syncable(self, clip):
         # type: (Clip) -> bool

@@ -30,7 +30,7 @@ class KeywordActionManager(AbstractControlSurfaceComponent):
             ActionEnum.DUPLICATE: self.parent.trackManager.duplicate_current_track,
             ActionEnum.LOOP: lambda: self.song.selected_scene.toggle_solo,
             ActionEnum.SHOW: lambda: self.song.current_track.show_hide_instrument,
-            ActionEnum.PUSH: self.parent.push2Manager.connect_push2,
+            # ActionEnum.PUSH: self.parent.push2Manager.connect_push2,
             ActionEnum.SPLIT: lambda: self.song.selected_scene.split,
         }
         for enum, func in callable_dict.items():
