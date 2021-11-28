@@ -84,9 +84,9 @@ class Scene(AbstractObject, SceneActionMixin):
         return self._scene.color
 
     @color.setter
-    def color(self, color):
+    def color(self, color_index):
         # type: (int) -> None
-        self._scene.color = color
+        self._scene.color = color_index
 
     @property
     def is_triggered(self):

@@ -23,7 +23,6 @@ class AbstractObject(SlotManager, Subject):
         assert parent
         self._parent = parent  # type: Protocol0
         self.deleted = False
-        self.is_valid = True
 
     def __repr__(self):
         # type: () -> str

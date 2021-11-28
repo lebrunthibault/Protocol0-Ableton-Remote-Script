@@ -1,18 +1,22 @@
 from typing import Dict, Type, Optional
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.enums.ColorEnum import ColorEnum
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+from protocol0.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
 from protocol0.validation.AbstractObjectValidator import AbstractObjectValidator
 from protocol0.validation.object_validators.ExternalSynthTrackValidator import ExternalSynthTrackValidator
 from protocol0.validation.object_validators.SimpleAudioTrackValidator import SimpleAudioTrackValidator
+from protocol0.validation.object_validators.SimpleInstrumentBusTrackValidator import SimpleInstrumentBusTrackValidator
 
 
 class ValidatorManager(AbstractControlSurfaceComponent):
     VALIDATOR_MAPPING = {
         ExternalSynthTrack: ExternalSynthTrackValidator,
-        SimpleAudioTrack: SimpleAudioTrackValidator
+        SimpleAudioTrack: SimpleAudioTrackValidator,
+        SimpleInstrumentBusTrack: SimpleInstrumentBusTrackValidator
     }  # type: Dict[Type[AbstractObject], Type[AbstractObjectValidator]]
 
     def _get_object_validator(self, obj, log=True):
@@ -29,11 +33,12 @@ class ValidatorManager(AbstractControlSurfaceComponent):
         if not validator or validator.is_valid():
             if log:
                 self.parent.show_message("%s is valid" % obj)
+            obj.refresh_appearance()
             return True
 
-        obj.is_valid = False
-        self.parent.log_error(validator.get_error_message())
-        obj.refresh_appearance()
+        self.parent.log_error(validator.get_error_message(), show_message=False)
+        if hasattr(obj, "color"):
+            obj.color = ColorEnum.ERROR.index
         return False
 
     def fix_object(self, obj):
@@ -43,5 +48,4 @@ class ValidatorManager(AbstractControlSurfaceComponent):
 
         validator = self._get_object_validator(obj)
         validator.fix()
-        obj.is_valid = True
         obj.refresh_appearance()

@@ -9,6 +9,7 @@ from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrac
 from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.lom.track.group_track.SimpleGroupTrack import SimpleGroupTrack
 from protocol0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+from protocol0.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
 from protocol0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.sequence.Sequence import Sequence
@@ -46,7 +47,9 @@ class TrackManager(AbstractControlSurfaceComponent):
                 return simple_track
 
         if cls is None:
-            if track.has_midi_input:
+            if track.name == SimpleInstrumentBusTrack.DEFAULT_NAME:
+                cls = SimpleInstrumentBusTrack
+            elif track.has_midi_input:
                 cls = SimpleMidiTrack
             elif track.has_audio_input:
                 cls = SimpleAudioTrack

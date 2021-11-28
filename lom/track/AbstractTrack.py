@@ -4,11 +4,11 @@ from typing import Any, Optional, List, Type
 from typing import TYPE_CHECKING
 
 import Live
-from protocol0.config import Config
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.enums.ColorEnum import ColorEnum
 from protocol0.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.enums.InputRoutingChannelEnum import InputRoutingChannelEnum
+from protocol0.enums.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.enums.Push2InstrumentModeEnum import Push2InstrumentModeEnum
 from protocol0.enums.Push2MainModeEnum import Push2MainModeEnum
 from protocol0.enums.Push2MatrixModeEnum import Push2MatrixModeEnum
@@ -59,8 +59,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def _added_track_init(self):
         # type: () -> Sequence
         seq = Sequence()
-        if self.name != Config.INSTRUMENT_BUS_TRACK_NAME:
-            seq.add([clip.delete for clip in self.clips])
+        seq.add([clip.delete for clip in self.clips])
         return seq.done()
 
     @p0_subject_slot("has_clip")
@@ -73,7 +72,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def _color_listener(self):
         # type: () -> None
         """enforcing coherent color scheme"""
-        if not self.abstract_group_track:
+        if not self.abstract_group_track and self.color != ColorEnum.ERROR.index:
             self.refresh_color()
 
     @property
@@ -147,8 +146,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def computed_color(self):
         # type: () -> int
-        if not self.is_valid:
-            return ColorEnum.ERROR.index
         if self.abstract_track.instrument:
             return self.abstract_track.instrument.TRACK_COLOR.index
         else:
@@ -311,15 +308,15 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         return list(self._track.available_input_routing_types)
 
     @property
-    def input_routing_type(self):
+    def input_routing_track(self):
         # type: () -> Optional[SimpleTrack]
         if self._track.input_routing_type.attached_object:
             return self.song.live_track_to_simple_track[self._track.input_routing_type.attached_object]
         else:
             return None
 
-    @input_routing_type.setter
-    def input_routing_type(self, track):
+    @input_routing_track.setter
+    def input_routing_track(self, track):
         # type: (Optional[SimpleTrack]) -> None
         if track is None:
             input_routing_type = self.available_input_routing_types[-1]
@@ -330,6 +327,23 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         if not input_routing_type:
             raise Protocol0Error("Couldn't find the output routing type from %s" % track)
 
+        self._track.input_routing_type = input_routing_type
+
+    @property
+    def input_routing_type(self):
+        # type: () -> Optional[InputRoutingTypeEnum]
+        try:
+            return InputRoutingTypeEnum.from_value(self._track.input_routing_type.display_name)
+        except Protocol0Error:
+            return None
+
+    @input_routing_type.setter
+    def input_routing_type(self, input_routing_type_enum):
+        # type: (InputRoutingTypeEnum) -> None
+        input_routing_type = find_if(lambda i: i.display_name == input_routing_type_enum.label,
+                                     self.available_input_routing_types)
+        if input_routing_type is None:
+            raise Protocol0Error("Couldn't find input routing type from %s for %s" % (input_routing_type_enum, self))
         self._track.input_routing_type = input_routing_type
 
     @property

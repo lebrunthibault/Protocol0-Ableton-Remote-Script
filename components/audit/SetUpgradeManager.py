@@ -1,9 +1,10 @@
 from functools import partial
 
-from typing import Iterator, List, Dict, Type, Optional
+from typing import Iterator, List, Dict, Optional
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.enums.DeviceEnum import DeviceEnum
+from protocol0.enums.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.lom.device.Device import Device
 from protocol0.lom.device.RackDevice import RackDevice
@@ -20,7 +21,7 @@ class SetUpgradeManager(AbstractControlSurfaceComponent):
             for device in track.all_devices:
                 if not isinstance(device, RackDevice):
                     continue
-                if any(enum.matches_device(device) for enum in DeviceEnum.updatable_device_enums()):
+                if any(enum.matches_device(device) for enum in DeviceEnum.updatable_devices()):
                     seq.add(partial(self.parent.deviceManager.update_audio_effect_rack, device=device))
 
         return seq.done()
@@ -42,7 +43,9 @@ class SetUpgradeManager(AbstractControlSurfaceComponent):
         info = "\n".join(("%s %s" % (len(devices), cls) for cls, devices in devices_by_name.items()))
 
         seq = Sequence()
-        seq.add(partial(self.system.prompt, "%s devices to delete,\n\n%s\n\nproceed ?" % (len(devices_to_delete), info)), wait_for_system=True)
+        seq.add(
+            partial(self.system.prompt, "%s devices to delete,\n\n%s\n\nproceed ?" % (len(devices_to_delete), info)),
+            wait_for_system=True)
         seq.add([device.delete for device in devices_to_delete])
         seq.add(lambda: self.parent.show_message("Devices deleted"))
         seq.add(self.delete_unnecessary_devices)  # now delete enclosing racks if empty
@@ -50,6 +53,12 @@ class SetUpgradeManager(AbstractControlSurfaceComponent):
 
     def _get_devices_to_delete(self):
         # type: () -> Iterator[Device]
+        for device_enum in DeviceEnum.deprecated_devices():
+            for track in self.song.simple_tracks:
+                device = track.get_device_from_enum(device_enum)
+                if device:
+                    yield device
+
         for device_enum in DeviceEnum:  # type: DeviceEnum
             try:
                 default_parameter_values = device_enum.main_parameters_default
@@ -60,6 +69,9 @@ class SetUpgradeManager(AbstractControlSurfaceComponent):
                 device = track.get_device_from_enum(device_enum)
                 if not device:
                     continue
+                device_on = device.get_parameter_by_name(DeviceParameterEnum.DEVICE_ON)
+                if device_on.value is False and not device_on.is_automated:
+                    yield device
                 if all([parameter_value.matches(device) for parameter_value in default_parameter_values]):
                     yield device
 

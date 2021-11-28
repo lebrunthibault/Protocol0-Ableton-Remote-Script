@@ -4,7 +4,6 @@ from typing import Any, List, Optional, Type
 
 import Live
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.config import Config
 from protocol0.devices.InstrumentProphet import InstrumentProphet
 from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.enums.DeviceEnum import DeviceEnum
@@ -12,6 +11,7 @@ from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.Scene import Scene
 from protocol0.lom.clip.AudioClip import AudioClip
 from protocol0.lom.clip_slot.ClipSlot import ClipSlot
+from protocol0.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.utils.decorators import handle_error, p0_subject_slot
 
@@ -35,7 +35,7 @@ class SongManager(AbstractControlSurfaceComponent):
         # self._highlighted_clip_slot_poller()
         self.song.is_loading = True
         self._select_startup_track()
-        if Config.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.PROFILING:
+        if InterfaceState.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.PROFILING:
             self.parent.wait(2, self.song.reset)
 
     def _select_startup_track(self):
@@ -61,7 +61,7 @@ class SongManager(AbstractControlSurfaceComponent):
         # type: () -> None
         self.parent.sceneBeatScheduler.clear()
         self.tracks_listener()
-        self.parent.defer(self.parent.setFixerManager.refresh_scenes_appearance)
+        self.parent.defer(lambda: [scene.refresh_appearance() for scene in self.song.scenes])
         if self.song.playing_scene:
             self.song.playing_scene.schedule_next_scene_launch()
 
@@ -132,7 +132,7 @@ class SongManager(AbstractControlSurfaceComponent):
             if simple_track.get_device_from_enum(DeviceEnum.USAMO):
                 self.song.usamo_track = simple_track
 
-        if simple_track.name == Config.INSTRUMENT_BUS_TRACK_NAME and len(simple_track.clips):
+        if simple_track.name == SimpleInstrumentBusTrack.DEFAULT_NAME and len(simple_track.clips):
             self.song.template_dummy_clip = simple_track.clips[0]
 
         return simple_track

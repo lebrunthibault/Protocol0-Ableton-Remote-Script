@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, Optional, Any, List
 
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
-from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.AbstractObjectName import AbstractObjectName
 from protocol0.utils.decorators import p0_subject_slot
 
@@ -38,9 +37,6 @@ class AbstractTrackName(AbstractObjectName):
         if self.track.abstract_group_track:
             return
 
-        if not InterfaceState.HANDLE_TRACK_NAMES:
-            return
-
         if self.track.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.NAME:
             if self.track.instrument.selected_preset:
                 self.base_name = self.track.instrument.selected_preset.name
@@ -59,9 +55,6 @@ class AbstractTrackName(AbstractObjectName):
     @property
     def _should_recompute_base_name(self):
         # type: () -> bool
-        if not InterfaceState.HANDLE_TRACK_NAMES:
-            return False
-
         return (
                 not self.base_name
                 or self.base_name.lower() == self.track.DEFAULT_NAME.lower()

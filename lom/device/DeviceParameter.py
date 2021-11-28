@@ -50,6 +50,16 @@ class DeviceParameter(AbstractObject):
             return self._device_parameter.default_value
 
     @property
+    def automation_state(self):
+        # type: () -> float
+        if self._device_parameter:
+            return self._device_parameter.automation_state
+
+    @property
+    def is_automated(self):
+        return self.automation_state != Live.DeviceParameter.AutomationState.none
+
+    @property
     def min(self):
         # type: () -> float
         if self._device_parameter:

@@ -11,7 +11,7 @@ class DeviceParameterValue(object):
     def matches(self, device):
         # type: (Device) -> bool
         device_parameter = device.get_parameter_by_name(device_parameter_name=self._device_parameter_enum)
-        return self._compare_values(device_parameter.value, self._value)
+        return self._compare_values(device_parameter.value, self._value) and not device_parameter.is_automated
 
     @classmethod
     def _compare_values(cls, value, expected_value):

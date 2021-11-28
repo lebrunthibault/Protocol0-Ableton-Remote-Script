@@ -4,6 +4,7 @@ from types import TracebackType
 
 from typing import Optional, Any, List, Type
 
+from protocol0 import InterfaceState
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.config import Config
 from protocol0.constants import PROJECT_ROOT
@@ -59,7 +60,7 @@ class ErrorManager(AbstractControlSurfaceComponent):
         self.parent.clear_tasks()
         self.parent.defer(self.song.reset)
 
-        if Config.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.TEST:
+        if InterfaceState.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.TEST:
             self.parent.wait(10, self._restart)
 
     def _restart(self):

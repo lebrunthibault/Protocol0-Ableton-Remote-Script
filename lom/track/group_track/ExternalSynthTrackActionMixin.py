@@ -21,7 +21,7 @@ class ExternalSynthTrackActionMixin(object):
         self.base_track.is_folded = False
         self.base_track.mute = False
         if self.song.usamo_track:
-            self.song.usamo_track.input_routing_type = self.midi_track
+            self.song.usamo_track.input_routing_track = self.midi_track
         seq = Sequence(silent=True)
         seq.add([self.midi_track.arm_track, self.audio_track.arm_track])
         seq.add(partial(setattr, self, "has_monitor_in", False))

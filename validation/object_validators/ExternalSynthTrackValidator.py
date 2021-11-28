@@ -1,10 +1,10 @@
 from typing import Any
 
+from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.enums.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.enums.InputRoutingChannelEnum import InputRoutingChannelEnum
 from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.log import log_ableton
 from protocol0.validation.AbstractObjectValidator import AbstractObjectValidator
 from protocol0.validation.sub_validators.AggregateValidator import AggregateValidator
 from protocol0.validation.sub_validators.CallbackValidator import CallbackValidator
@@ -20,8 +20,11 @@ class ExternalSynthTrackValidator(AbstractObjectValidator, AggregateValidator):
         validators = [
             CallbackValidator(track, lambda t: t.instrument is not None, None, "track should have an instrument"),
             SimpleTrackHasDeviceValidator(track.midi_track, track.instrument.EXTERNAL_INSTRUMENT_DEVICE),
+            CallbackValidator(track.midi_track,
+                              lambda t: t.get_device_from_enum(DeviceEnum.EXTERNAL_INSTRUMENT) is None,
+                              lambda t: t.get_device_from_enum(DeviceEnum.EXTERNAL_INSTRUMENT).delete),
             PropertyValidator(track.midi_track, "input_routing_channel", InputRoutingChannelEnum.CHANNEL_1),
-            PropertyValidator(track.audio_track, "input_routing_type", track.midi_track),
+            PropertyValidator(track.audio_track, "input_routing_track", track.midi_track),
             PropertyValidator(track.audio_track, "input_routing_channel", track.instrument.AUDIO_INPUT_ROUTING_CHANNEL),
         ]
         if track.instrument.device:
@@ -38,5 +41,8 @@ class ExternalSynthTrackValidator(AbstractObjectValidator, AggregateValidator):
 
     def fix(self):
         # type: () -> Sequence
-        self._track.has_monitor_in = False
-        return super(ExternalSynthTrackValidator, self).fix()
+        self._track.has_monitor_in = True
+        seq = Sequence()
+        seq.add(super(ExternalSynthTrackValidator, self).fix)
+        seq.add(self._track.midi_track.select)
+        return seq.done()

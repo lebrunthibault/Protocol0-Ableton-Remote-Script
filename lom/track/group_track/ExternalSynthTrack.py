@@ -42,7 +42,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self._devices_listener.subject = self.midi_track
         self._devices_listener()
 
-        self.protected_mode_active = True   # type: bool
+        self.protected_mode_active = True  # type: bool
 
         # the instrument handling relies on the group track
         # noinspection PyUnresolvedReferences

@@ -43,6 +43,7 @@ from protocol0.config import Config
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.enums.LogLevelEnum import LogLevelEnum
+from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.Song import Song
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.log import log_ableton
@@ -82,13 +83,13 @@ class Protocol0(ControlSurface):
             ApiRoutesManager()
             ApiAction.create_method_mapping()
             self.p0_system_api_client = P0SystemAPI()
-            if Config.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.PROFILING:
+            self.protocol0_song = Song(song=self.song())
+            self.songDataManager = SongDataManager()
+            self.songDataManager.restore_data()
+            if InterfaceState.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.PROFILING:
                 # waiting for Protocol0_midi to boot
                 self.p0_system_api_client.end_measurement()
                 ActionGroupTest()
-
-            self.protocol0_song = Song(song=self.song())
-            if Config.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.PROFILING:
                 return
 
             if Config.SHOW_RELOAD_TIME:
@@ -97,7 +98,6 @@ class Protocol0(ControlSurface):
             self.deviceManager = DeviceManager()  # needs to be here first
             AbstractInstrument.INSTRUMENT_CLASSES = AbstractInstrument.get_instrument_classes()
             self.songManager = SongManager()
-            self.songDataManager = SongDataManager()
             self.sessionManager = SessionManager()
             MixingManager()
             self.trackManager = TrackManager()
@@ -116,7 +116,7 @@ class Protocol0(ControlSurface):
             self.validatorManager = ValidatorManager()
             # return
 
-            if Config.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.TEST:
+            if InterfaceState.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.TEST:
                 # action groups
                 ActionGroupMain()
                 ActionGroupSet()
@@ -141,8 +141,6 @@ class Protocol0(ControlSurface):
 
     def start(self):
         # type: () -> None
-        self.songDataManager.restore_data()
-
         self._check_midi_server_is_running()
         self.wait(10, self._check_protocol_midi_is_up)  # waiting for Protocol0_midi to boot
 
@@ -203,16 +201,17 @@ class Protocol0(ControlSurface):
         # type: (Any, Any) -> None
         self._log(level=LogLevelEnum.WARNING, *a, **k)
 
-    def log_error(self, message="", debug=True):
-        # type: (str, bool) -> None
+    def log_error(self, message="", debug=True, show_message=True):
+        # type: (str, bool, bool) -> None
         self._log(message, level=LogLevelEnum.ERROR, debug=debug)
-        # noinspection PyBroadException
-        try:
-            super(Protocol0, self).show_message(message)
-        except Exception:
-            self.log_warning("Couldn't show message")
+        if show_message:
+            # noinspection PyBroadException
+            try:
+                super(Protocol0, self).show_message(message)
+            except Exception:
+                self.log_warning("Couldn't show message")
 
-    def _log(self, message="", level=LogLevelEnum.INFO, debug=True):
+    def _log(self, message="", level=LogLevelEnum.INFO, debug=False):
         # type: (Any, LogLevelEnum, bool) -> None
         if not isinstance(message, basestring):
             message = str(message)
@@ -248,7 +247,7 @@ class Protocol0(ControlSurface):
             return None
         else:
             # for ticks_count > 1 we use the 100ms timer losing some speed but it's easier for now
-            if not Config.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.TEST:
+            if not InterfaceState.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.TEST:
                 return self.fastScheduler.schedule(tick_count=tick_count, callback=callback)
             else:
                 # callback()  # no scheduling when testing

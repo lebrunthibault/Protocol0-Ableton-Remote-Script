@@ -1,11 +1,11 @@
-import Live
-
 from functools import partial
 
 from typing import Any, Optional, TYPE_CHECKING
 
+import Live
 from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.enums.DeviceParameterEnum import DeviceParameterEnum
+from protocol0.enums.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.sequence.Sequence import Sequence
 
@@ -28,7 +28,7 @@ class SimpleDummyTrack(SimpleAudioTrack):
     def _added_track_init(self):
         # type: () -> Sequence
         self.has_monitor_in = True
-        self.input_routing_type = None
+        self.input_routing_type = InputRoutingTypeEnum.NO_INPUT
         seq = Sequence()
         seq.add(super(SimpleDummyTrack, self)._added_track_init)
         seq.add(self._insert_dummy_rack)

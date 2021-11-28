@@ -1,4 +1,4 @@
-import os
+import re
 
 from typing import TYPE_CHECKING, Any, Optional
 
@@ -32,5 +32,5 @@ class InstrumentPreset(AbstractObject):
         if not name:
             return "empty"
 
-        base_preset_name = name.replace(".fxp", "")  # remove file extension
+        base_preset_name = re.sub('\\.[a-z0-9]{2,4}', '', name)  # remove file extension
         return self.instrument.format_preset_name(str(base_preset_name))  # calling subclass formatting

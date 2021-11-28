@@ -31,7 +31,6 @@ class ClipSynchronizer(ObjectSynchronizer):
         self.master = self.master  # type: Optional[Clip]
         self.slave = self.slave  # type: Optional[Clip]
 
-
     def is_syncable(self, clip):
         # type: (Clip) -> bool
         return not clip.track.is_recording

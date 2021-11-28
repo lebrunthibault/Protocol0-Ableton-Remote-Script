@@ -14,6 +14,7 @@ class DeviceEnum(AbstractEnum):
     EXTERNAL_AUDIO_EFFECT = "EXTERNAL_AUDIO_EFFECT"
     EXTERNAL_INSTRUMENT = "EXTERNAL_INSTRUMENT"
     LFO_TOOL = "LFO_TOOL"
+    MINITAUR_EDITOR = "MINITAUR_EDITOR"
     MIX_RACK = "MIX_RACK"
     USAMO = "USAMO"
     UTILITY = "UTILITY"
@@ -28,15 +29,10 @@ class DeviceEnum(AbstractEnum):
         # type: () -> bool
         return self in [DeviceEnum.EXTERNAL_AUDIO_EFFECT, DeviceEnum.EXTERNAL_INSTRUMENT]
 
-    @property
-    def is_updatable(self):
-        # type: () -> bool
-        return self in [DeviceEnum.MIX_RACK, DeviceEnum.LFO_TOOL]
-
     @classmethod
-    def updatable_device_enums(cls):
+    def updatable_devices(cls):
         # type: () -> List[DeviceEnum]
-        return [enum for enum in list(DeviceEnum) if enum.is_updatable]
+        return [cls.MIX_RACK, cls.LFO_TOOL]
 
     @property
     def device_name(self):
@@ -49,6 +45,7 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.EXTERNAL_AUDIO_EFFECT: "Ext. Audio Effect",
             DeviceEnum.EXTERNAL_INSTRUMENT: "Ext. Instrument",
             DeviceEnum.LFO_TOOL: "LFOTool_x64",
+            DeviceEnum.MINITAUR_EDITOR: "Minitaur Editor(x64)",
             DeviceEnum.MIX_RACK: "Mix Rack",
             DeviceEnum.USAMO: "usamo_x64",
             DeviceEnum.UTILITY: "Utility",
@@ -64,6 +61,11 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.LFO_TOOL: "LFOTool.adg",
             DeviceEnum.MIX_RACK: "Mix Rack.adg",
         })
+
+    @classmethod
+    def deprecated_devices(cls):
+        # type: () -> List[DeviceEnum]
+        return [cls.MINITAUR_EDITOR]
 
     @property
     def main_parameters_default(self):
