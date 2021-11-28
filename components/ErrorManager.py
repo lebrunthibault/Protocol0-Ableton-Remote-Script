@@ -4,7 +4,7 @@ from types import TracebackType
 
 from typing import Optional, Any, List, Type
 
-from protocol0 import InterfaceState
+from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.config import Config
 from protocol0.constants import PROJECT_ROOT

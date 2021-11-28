@@ -5,7 +5,7 @@ from protocol0.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInst
 from protocol0.validation.AbstractObjectValidator import AbstractObjectValidator
 from protocol0.validation.sub_validators.AggregateValidator import AggregateValidator
 from protocol0.validation.sub_validators.CallbackValidator import CallbackValidator
-from protocol0.validation.sub_validators.PropertyValidator import PropertyValidator
+from protocol0.validation.sub_validators.PropertyValueValidator import PropertyValueValidator
 
 
 class SimpleInstrumentBusTrackValidator(AbstractObjectValidator, AggregateValidator):
@@ -14,7 +14,7 @@ class SimpleInstrumentBusTrackValidator(AbstractObjectValidator, AggregateValida
         from protocol0.utils.log import log_ableton
         log_ableton("checking bus track %s" % track)
         validators = [
-            PropertyValidator(track, "input_routing_type", InputRoutingTypeEnum.NO_INPUT),
+            PropertyValueValidator(track, "input_routing_type", InputRoutingTypeEnum.NO_INPUT),
             CallbackValidator(track, lambda t: len(t.clips) == 1, None, "track should have one empty dummy clip"),
             CallbackValidator(track, lambda t: len(t.clips) == 1 and t.clips[0].muted, None,
                               "dummy clip should be muted"),

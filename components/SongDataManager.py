@@ -32,6 +32,11 @@ def save_song_data(func):
 
 
 class SongDataManager(AbstractControlSurfaceComponent):
+    def save(self):
+        # type: () -> None
+        from protocol0.interface.InterfaceState import InterfaceState
+        self.store_class_data(InterfaceState)
+
     def store_class_data(self, cls):
         # type: (Any) -> None
         attributes = class_attributes(cls)

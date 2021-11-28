@@ -4,7 +4,7 @@ from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.validation.AbstractValidator import AbstractValidator
 
 
-class PropertyValidator(AbstractValidator):
+class PropertyValueValidator(AbstractValidator):
     def __init__(self, obj, attribute, expected_value):
         # type: (Any, str, Any) -> None
         self._obj = obj

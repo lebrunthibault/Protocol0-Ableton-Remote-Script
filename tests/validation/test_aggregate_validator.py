@@ -1,6 +1,6 @@
 from protocol0.validation.sub_validators.AggregateValidator import AggregateValidator
 from protocol0.validation.sub_validators.CallbackValidator import CallbackValidator
-from protocol0.validation.sub_validators.PropertyValidator import PropertyValidator
+from protocol0.validation.sub_validators.PropertyValueValidator import PropertyValueValidator
 
 
 def test_callback_validator():
@@ -19,7 +19,7 @@ def test_callback_validator():
     obj = Test()
     validator = AggregateValidator([
         CallbackValidator(obj, lambda t: t.test == "test", lambda t: setattr(t, "test", "test")),
-        PropertyValidator(obj, "test", "test")
+        PropertyValueValidator(obj, "test", "test")
     ])
 
     assert validator.is_valid()
@@ -27,7 +27,7 @@ def test_callback_validator():
 
     validator = AggregateValidator([
         CallbackValidator(obj, lambda t: t.test == "toto", lambda t: setattr(t, "test", "toto")),
-        PropertyValidator(obj, "test", "toto")
+        PropertyValueValidator(obj, "test", "toto")
     ])
 
     assert not validator.is_valid()

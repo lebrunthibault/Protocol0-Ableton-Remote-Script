@@ -1,6 +1,6 @@
 from typing import Any
 
-from protocol0 import InterfaceState
+from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
 from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 
@@ -24,11 +24,10 @@ class ActionGroupTest(AbstractActionGroup):
 
     def start_set_profiling(self):
         # type: () -> None
-        self.parent.log_dev(InterfaceState.ABLETON_SESSION_TYPE)
-        return
-        if InterfaceState.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.PROFILING:
-            self.parent.show_message("set the config to profiling")
-            InterfaceState.ABLETON_SESSION_TYPE = AbletonSessionTypeEnum.PROFILING
-            self.system.save_set_as_template()
-            return
+        # if InterfaceState.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.PROFILING:
+        #     self.parent.show_message("set the config to profiling")
+        #     InterfaceState.ABLETON_SESSION_TYPE = AbletonSessionTypeEnum.PROFILING
+        #     self.parent.songDataManager.save()
+        #     self.system.save_set_as_template()
+        #     return
         self.system.start_set_profiling()

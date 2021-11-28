@@ -13,13 +13,6 @@ class SetFixerManager(AbstractControlSurfaceComponent):
         for obj in self._objects_to_refresh_appearance:
             obj.refresh_appearance()
 
-        if self.song.usamo_track is None:
-            self.parent.show_message("Add usamo track")
-            return
-        if self.song.template_dummy_clip is None:
-            self.parent.show_message("Couldn't find template dummy clip")
-            return
-
         invalid_objects = []
 
         for obj in self._objects_to_validate:
@@ -27,15 +20,24 @@ class SetFixerManager(AbstractControlSurfaceComponent):
             if not is_valid:
                 invalid_objects.append(obj)
 
-        if len(invalid_objects) == 0:
+        devices_to_remove = list(self.parent.setUpgradeManager.get_deletable_devices())
+
+        if len(invalid_objects) == 0 and len(devices_to_remove) == 0:
             self.parent.show_message("Set is valid")
         else:
-            self.parent.show_message("%s invalid objects in set" % (len(invalid_objects)))
+            message = "Invalid set."
+            if len(invalid_objects):
+                message += " Invalid objects: %s." % (len(invalid_objects))
+            if len(devices_to_remove):
+                message += " devices to remove: %s." % (len(devices_to_remove))
+            self.parent.show_message(message)
+
 
     @property
     def _objects_to_validate(self):
         # type: () -> List[AbstractObject]
-        return list(self.song.abstract_tracks)
+        # noinspection PyTypeChecker
+        return list(self.song.abstract_tracks) + [self.song]
 
     @property
     def _objects_to_refresh_appearance(self):

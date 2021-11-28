@@ -3,6 +3,7 @@ from typing import Dict, Type, Optional
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.enums.ColorEnum import ColorEnum
 from protocol0.lom.AbstractObject import AbstractObject
+from protocol0.lom.Song import Song
 from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
@@ -10,13 +11,15 @@ from protocol0.validation.AbstractObjectValidator import AbstractObjectValidator
 from protocol0.validation.object_validators.ExternalSynthTrackValidator import ExternalSynthTrackValidator
 from protocol0.validation.object_validators.SimpleAudioTrackValidator import SimpleAudioTrackValidator
 from protocol0.validation.object_validators.SimpleInstrumentBusTrackValidator import SimpleInstrumentBusTrackValidator
+from protocol0.validation.object_validators.SongValidator import SongValidator
 
 
 class ValidatorManager(AbstractControlSurfaceComponent):
     VALIDATOR_MAPPING = {
         ExternalSynthTrack: ExternalSynthTrackValidator,
         SimpleAudioTrack: SimpleAudioTrackValidator,
-        SimpleInstrumentBusTrack: SimpleInstrumentBusTrackValidator
+        SimpleInstrumentBusTrack: SimpleInstrumentBusTrackValidator,
+        Song: SongValidator
     }  # type: Dict[Type[AbstractObject], Type[AbstractObjectValidator]]
 
     def _get_object_validator(self, obj, log=True):

@@ -9,7 +9,7 @@ from protocol0.validation.AbstractObjectValidator import AbstractObjectValidator
 from protocol0.validation.sub_validators.AggregateValidator import AggregateValidator
 from protocol0.validation.sub_validators.CallbackValidator import CallbackValidator
 from protocol0.validation.sub_validators.DeviceParameterValidator import DeviceParameterValidator
-from protocol0.validation.sub_validators.PropertyValidator import PropertyValidator
+from protocol0.validation.sub_validators.PropertyValueValidator import PropertyValueValidator
 from protocol0.validation.sub_validators.SimpleTrackHasDeviceValidator import SimpleTrackHasDeviceValidator
 
 
@@ -23,9 +23,9 @@ class ExternalSynthTrackValidator(AbstractObjectValidator, AggregateValidator):
             CallbackValidator(track.midi_track,
                               lambda t: t.get_device_from_enum(DeviceEnum.EXTERNAL_INSTRUMENT) is None,
                               lambda t: t.get_device_from_enum(DeviceEnum.EXTERNAL_INSTRUMENT).delete),
-            PropertyValidator(track.midi_track, "input_routing_channel", InputRoutingChannelEnum.CHANNEL_1),
-            PropertyValidator(track.audio_track, "input_routing_track", track.midi_track),
-            PropertyValidator(track.audio_track, "input_routing_channel", track.instrument.AUDIO_INPUT_ROUTING_CHANNEL),
+            PropertyValueValidator(track.midi_track, "input_routing_channel", InputRoutingChannelEnum.CHANNEL_1),
+            PropertyValueValidator(track.audio_track, "input_routing_track", track.midi_track),
+            PropertyValueValidator(track.audio_track, "input_routing_channel", track.instrument.AUDIO_INPUT_ROUTING_CHANNEL),
         ]
         if track.instrument.device:
             validators.append(DeviceParameterValidator(track.instrument.device, DeviceParameterEnum.DEVICE_ON, False))

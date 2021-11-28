@@ -28,7 +28,7 @@ class SetUpgradeManager(AbstractControlSurfaceComponent):
 
     def delete_unnecessary_devices(self):
         # type: () -> None
-        devices_to_delete = list(self._get_devices_to_delete())
+        devices_to_delete = list(self.get_deletable_devices())
         if len(devices_to_delete) == 0:
             self.parent.show_message("No devices to delete")
             return
@@ -51,7 +51,7 @@ class SetUpgradeManager(AbstractControlSurfaceComponent):
         seq.add(self.delete_unnecessary_devices)  # now delete enclosing racks if empty
         seq.done()
 
-    def _get_devices_to_delete(self):
+    def get_deletable_devices(self):
         # type: () -> Iterator[Device]
         for device_enum in DeviceEnum.deprecated_devices():
             for track in self.song.simple_tracks:
