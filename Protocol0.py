@@ -95,7 +95,7 @@ class Protocol0(ControlSurface):
             self.deviceManager = DeviceManager()  # needs to be here first
             AbstractInstrument.INSTRUMENT_CLASSES = AbstractInstrument.get_instrument_classes()
             self.songManager = SongManager()
-            self.sessionManager = SessionManager()
+            # self.sessionManager = SessionManager()
             self.mixingManager = MixingManager()
             self.trackManager = TrackManager()
             self.automationTrackManager = AutomationTrackManager()

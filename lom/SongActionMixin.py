@@ -121,7 +121,9 @@ class SongActionMixin(object):
         if not self.song.selected_track.is_active:
             next(self.song.simple_tracks).select()
         else:
-            scroll_values(self.scrollable_tracks, self.current_track, go_next).select()
+            next_track = scroll_values(self.scrollable_tracks, self.current_track, go_next, rotate=False)
+            if next_track:
+                next_track.select()
 
     def unfocus_all_tracks(self):
         # type: (Song) -> Sequence

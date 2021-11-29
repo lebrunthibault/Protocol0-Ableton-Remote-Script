@@ -104,6 +104,11 @@ class Song(AbstractObject, SongActionMixin):
         return self.song.selected_track.abstract_track
 
     @property
+    def visible_tracks(self):
+        # type: () -> Iterator[SimpleTrack]
+        return (t for t in self.simple_tracks if t.is_visible)
+
+    @property
     def scrollable_tracks(self):
         # type: () -> Iterator[AbstractTrack]
         return (track for track in self.abstract_tracks if track.is_visible)

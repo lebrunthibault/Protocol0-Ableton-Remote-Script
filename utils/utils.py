@@ -15,11 +15,15 @@ if TYPE_CHECKING:
     pass
 
 
-def scroll_values(items, selected_item, go_next, show_message=False):
-    # type: (Iterator[T], Optional[T], bool, bool) -> T
+def scroll_values(items, selected_item, go_next, show_message=False, rotate=True):
+    # type: (Iterator[T], Optional[T], bool, bool, bool) -> Optional[T]
     items_list = list(items)  # type: List[T]
     selected_item = selected_item or items_list[0]
     increment = 1 if go_next else -1
+    if rotate is False:
+        if (selected_item == items_list[0] and increment == -1) \
+           or (selected_item == items_list[-1] and increment == 1):
+            return None
     try:
         index = (items_list.index(selected_item) + increment) % len(items_list)
         new_item = items_list[index]
