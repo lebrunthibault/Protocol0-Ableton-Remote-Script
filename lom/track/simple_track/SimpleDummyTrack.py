@@ -1,31 +1,16 @@
 from functools import partial
 
-from typing import Any, Optional, TYPE_CHECKING
+from typing import Optional
 
-import Live
 from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.enums.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.enums.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.sequence.Sequence import Sequence
 
-if TYPE_CHECKING:
-    from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
-
 
 class SimpleDummyTrack(SimpleAudioTrack):
     KEEP_CLIPS_ON_ADDED = True
-
-    def __init__(self, track, *a, **k):
-        # type: (Live.Track.Track, Any, Any) -> None
-        super(SimpleDummyTrack, self).__init__(track=track, *a, **k)
-
-        self.abstract_group_track = None  # type: Optional[ExternalSynthTrack]
-
-    def post_init(self):
-        # type: () -> None
-        super(SimpleDummyTrack, self).post_init()
-        self.parent.defer(self._rename_track)
 
     def _added_track_init(self):
         # type: () -> Sequence
@@ -37,6 +22,16 @@ class SimpleDummyTrack(SimpleAudioTrack):
         seq.add(self._insert_dummy_clip)
 
         return seq.done()
+
+    @property
+    def computed_base_name(self):
+        # type: () -> str
+        return "dummy %d" % (self.abstract_group_track.dummy_tracks.index(self) + 1)
+
+    @property
+    def computed_color(self):
+        # type: () -> int
+        return self.group_track.color
 
     def _insert_dummy_rack(self):
         # type: () -> Optional[Sequence]
@@ -66,7 +61,3 @@ class SimpleDummyTrack(SimpleAudioTrack):
         envelope.insert_step(clip.loop_end, 0, 1)
         clip.show_envelope_parameter(dummy_rack_gain)
         clip.play()
-
-    def _rename_track(self):
-        # type: () -> None
-        self.name = "dummy %d" % (self.abstract_group_track.dummy_tracks.index(self) + 1)

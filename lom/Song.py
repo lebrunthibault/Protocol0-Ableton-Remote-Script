@@ -4,6 +4,7 @@ from functools import partial
 from typing import List, Optional, Dict, Any, Generator, Iterator
 
 import Live
+from protocol0.enums.SongLoadStateEnum import SongLoadStateEnum
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.Scene import Scene
 from protocol0.lom.SongActionMixin import SongActionMixin
@@ -37,7 +38,7 @@ class Song(AbstractObject, SongActionMixin):
         self.template_dummy_clip = None  # type: Optional[AudioClip]
 
         self.errored = False
-        self.is_loading = False
+        self.song_load_state = SongLoadStateEnum.PRE_LOAD
         self._is_playing_listener.subject = self._song
         self._record_mode_listener.subject = self._song
         self.session_end_listener.subject = self

@@ -3,6 +3,7 @@ from functools import partial
 from typing import TYPE_CHECKING, Optional, Any
 
 from protocol0.enums.AbstractEnum import AbstractEnum
+from protocol0.enums.SongLoadStateEnum import SongLoadStateEnum
 from protocol0.lom.device.Device import Device
 from protocol0.lom.track.AbstractTrack import AbstractTrack
 from protocol0.sequence.Sequence import Sequence
@@ -38,11 +39,11 @@ class SongActionMixin(object):
         # noinspection PyPropertyAccess
         self._song.current_song_time = 0
         self.stop_all_clips()
-        self.parent.wait(3, partial(setattr, self.song, "is_loading", False))
+        self.parent.wait(3, partial(setattr, self.song, "song_load_state", SongLoadStateEnum.LOADED))
 
     def play(self):
         # type: (Song) -> None
-        if self.session_view_active:
+        if self.application.session_view_active:
             self._play_session()
         else:
             self._play_arrangement()

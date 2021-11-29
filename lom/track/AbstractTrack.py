@@ -159,28 +159,29 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def is_foldable(self):
         # type: () -> bool
-        return self._track.is_foldable
+        return self._track and self._track.is_foldable
 
     @property
     def is_folded(self):
         # type: () -> bool
-        return bool(self._track.fold_state) if self.is_foldable else True
+        return bool(self._track.fold_state) if self.is_foldable and self._track else True
 
     @is_folded.setter
     def is_folded(self, is_folded):
         # type: (bool) -> None
-        if self.is_foldable:
+        if self.is_foldable and self._track:
             self._track.fold_state = int(is_folded)
 
     @property
     def solo(self):
         # type: () -> bool
-        return self._track.solo
+        return self._track and self._track.solo
 
     @solo.setter
     def solo(self, solo):
         # type: (bool) -> None
-        self._track.solo = solo
+        if self._track:
+            self._track.solo = solo
 
     @property
     def is_armed(self):
@@ -223,7 +224,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def is_visible(self):
         # type: () -> bool
-        return self._track.is_visible
+        return self._track and self._track.is_visible
 
     @property
     def base_name(self):
@@ -255,12 +256,13 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def mute(self):
         # type: () -> bool
-        return self._track.mute
+        return self._track and self._track.mute
 
     @mute.setter
     def mute(self, mute):
         # type: (bool) -> None
-        self._track.mute = mute
+        if self._track:
+            self._track.mute = mute
 
     @property
     def is_hearable(self):
@@ -279,43 +281,48 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def can_be_armed(self):
         # type: () -> bool
-        return self._track.can_be_armed
+        return self._track and self._track.can_be_armed
 
     @property
     def output_meter_level(self):
         # type: () -> float
-        return self._track.output_meter_level
+        return self._track.output_meter_level if self._track else 0
 
     @output_meter_level.setter
     def output_meter_level(self, output_meter_level):
         # type: (float) -> None
-        self._track.output_meter_level = output_meter_level
+        if self._track:
+            self._track.output_meter_level = output_meter_level
 
     @property
     def volume(self):
         # type: () -> float
-        return self._track.mixer_device.volume.value
+        return self._track.mixer_device.volume.value if self._track else 0
 
     @volume.setter
     @defer
     def volume(self, volume):
         # type: (float) -> None
-        set_device_parameter(self._track.mixer_device.volume, volume)
+        if self._track:
+            set_device_parameter(self._track.mixer_device.volume, volume)
 
     @property
     def has_audio_output(self):
         # type: () -> bool
-        return self._track.has_audio_output
+        return self._track and self._track.has_audio_output
 
     @property
     def available_input_routing_types(self):
         # type: () -> List[Live.Track.RoutingType]
-        return list(self._track.available_input_routing_types)
+        if self._track:
+            return list(self._track.available_input_routing_types)
+        else:
+            return []
 
     @property
     def input_routing_track(self):
         # type: () -> Optional[SimpleTrack]
-        if self._track.input_routing_type.attached_object:
+        if self._track and self._track.input_routing_type.attached_object:
             return self.song.live_track_to_simple_track[self._track.input_routing_type.attached_object]
         else:
             return None
@@ -323,6 +330,8 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @input_routing_track.setter
     def input_routing_track(self, track):
         # type: (Optional[SimpleTrack]) -> None
+        if self._track is None:
+            return
         if track is None:
             input_routing_type = self.available_input_routing_types[-1]
         else:
@@ -330,7 +339,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
                                          self.available_input_routing_types)
 
         if not input_routing_type:
-            raise Protocol0Error("Couldn't find the output routing type from %s" % track)
+            raise Protocol0Error("Couldn't find the output routing type %s for %s" % (track, self))
 
         self._track.input_routing_type = input_routing_type
 
@@ -338,13 +347,15 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def input_routing_type(self):
         # type: () -> Optional[InputRoutingTypeEnum]
         try:
-            return InputRoutingTypeEnum.from_value(self._track.input_routing_type.display_name)
+            return self._track and InputRoutingTypeEnum.from_value(self._track.input_routing_type.display_name)
         except Protocol0Error:
             return None
 
     @input_routing_type.setter
     def input_routing_type(self, input_routing_type_enum):
         # type: (InputRoutingTypeEnum) -> None
+        if self._track is None:
+            return
         input_routing_type = find_if(lambda i: i.display_name == input_routing_type_enum.label,
                                      self.available_input_routing_types)
         if input_routing_type is None:
@@ -354,19 +365,21 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def available_input_routing_channels(self):
         # type: () -> List[Live.Track.RoutingChannel]
-        return list(self._track.available_input_routing_channels)
+        return self._track and list(self._track.available_input_routing_channels)
 
     @property
     def input_routing_channel(self):
         # type: () -> Optional[InputRoutingChannelEnum]
         try:
-            return InputRoutingChannelEnum.from_value(self._track.input_routing_channel.display_name)
+            return self._track and InputRoutingChannelEnum.from_value(self._track.input_routing_channel.display_name)
         except Protocol0Error:
             return None
 
     @input_routing_channel.setter
     def input_routing_channel(self, input_routing_channel):
         # type: (InputRoutingChannelEnum) -> None
+        if self._track is None:
+            return
         channel = find_if(lambda r: r.display_name == input_routing_channel.label,
                           self.available_input_routing_channels)
         if not channel:
@@ -376,12 +389,12 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def available_output_routing_types(self):
         # type: () -> List[Live.Track.RoutingType]
-        return list(self._track.available_output_routing_types)
+        return self._track and list(self._track.available_output_routing_types)
 
     @property
     def output_routing_type(self):
         # type: () -> Optional[SimpleTrack]
-        if self._track.output_routing_type.attached_object:
+        if self._track and self._track.output_routing_type.attached_object:
             return self.song.live_track_to_simple_track[self._track.output_routing_type.attached_object]
         else:
             return None
@@ -389,13 +402,15 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @output_routing_type.setter
     def output_routing_type(self, track):
         # type: (SimpleTrack) -> None
+        if self._track is None:
+            return
         output_routing_type = find_if(lambda r: r.attached_object == track._track, self.available_output_routing_types)
 
         if not output_routing_type:
             output_routing_type = find_if(lambda r: r.display_name == track.name, self.available_output_routing_types)
 
         if not output_routing_type:
-            raise Protocol0Error("Couldn't find the output routing type from %s" % track)
+            raise Protocol0Error("Couldn't find the output routing type %s for %s" % (track, self))
 
         self._track.output_routing_type = output_routing_type
 

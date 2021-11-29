@@ -18,6 +18,10 @@ class SimpleGroupTrack(AbstractGroupTrack):
         super(SimpleGroupTrack, self).__init__(base_group_track=base_group_track, *a, **k)
         self.push2_selected_main_mode = Push2MainModeEnum.MIX
 
+    def _added_track_init(self):
+        # type: () -> None
+        pass
+
     @property
     def instrument_class(self):
         # type: () -> Optional[Type[AbstractInstrument]]

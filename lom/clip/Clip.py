@@ -158,7 +158,8 @@ class Clip(ClipActionMixin, AbstractObject):
     def looping(self, looping):
         # type: (bool) -> None
         assert looping, "looping cannot be disabled"
-        self._clip.looping = True
+        if self._clip:
+            self._clip.looping = True
 
     @property
     def loop_start(self):

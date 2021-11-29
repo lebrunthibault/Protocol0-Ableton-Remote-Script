@@ -38,6 +38,6 @@ _.on_scene_list_changed  # unused method (C:\ProgramData\Ableton\Live 10 Suite\R
 # noinspection PyStatementEffect
 _.log_dev  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\Protocol0.py:177)
 # noinspection PyStatementEffect
-_.is_loading  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\components\SongManager.py:38)
+_.song_load_state  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\components\SongManager.py:38)
 # noinspection PyStatementEffect
-_.is_loading  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\lom\Song.py:40)
+_.song_load_state  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\lom\Song.py:40)

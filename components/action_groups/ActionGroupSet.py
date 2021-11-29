@@ -9,23 +9,19 @@ class ActionGroupSet(AbstractActionGroup):
         # type: (Any, Any) -> None
         super(ActionGroupSet, self).__init__(channel=3, *a, **k)
         # PUSH encoder
-        # self.add_encoder(identifier=5, name="connect push2", on_press=self.parent.push2Manager.connect_push2)
+        # self.add_encoder(identifier=1, name="connect push2", on_press=self.parent.push2Manager.connect_push2)
 
         # SPLiT encoder
-        self.add_encoder(identifier=6, name="split scene", on_press=lambda: self.song.selected_scene.split)
+        self.add_encoder(identifier=2, name="split scene", on_press=lambda: self.song.selected_scene.split)
 
         # DUPScene encoder
-        self.add_encoder(identifier=7, name="partial duplicate scene",
+        self.add_encoder(identifier=3, name="partial duplicate scene",
                          on_press=lambda: self.song.selected_scene.partial_duplicate,
                          on_scroll=InterfaceState.scroll_duplicate_scene_bar_lengths,
                          )
 
         # DATA encoder
-        self.add_encoder(identifier=8, name="clear song data", on_press=self.parent.songDataManager.clear_data)
-
-        # MIX encoder
-        self.add_encoder(identifier=13, name="scroll all tracks volume",
-                         on_scroll=self.parent.trackManager.scroll_all_tracks_volume)
+        self.add_encoder(identifier=4, name="clear song data", on_press=self.parent.songDataManager.clear_data)
 
         # VELO encoder
         self.add_encoder(identifier=14, name="scale selected clip velocities",

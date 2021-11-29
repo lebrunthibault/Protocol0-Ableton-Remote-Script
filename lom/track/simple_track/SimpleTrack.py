@@ -62,6 +62,14 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             ]  # type: SimpleTrack
             if self not in self.group_track.sub_tracks:
                 self.group_track.sub_tracks.append(self)
+            if self.is_foldable:
+                # abstract_group_track is then the 2nd layer
+                return
+            abstract_group_track = self.group_track.abstract_group_track
+            if abstract_group_track and self not in abstract_group_track.sub_tracks:
+                abstract_group_track.sub_tracks.append(self)
+            if abstract_group_track:
+                self.abstract_group_track = abstract_group_track
 
     def _map_clip_slots(self):
         # type: () -> None
@@ -125,12 +133,12 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def is_armed(self):
         # type: () -> bool
-        return self.can_be_armed and self._track.arm
+        return self._track and self.can_be_armed and self._track.arm
 
     @is_armed.setter
     def is_armed(self, is_armed):
         # type: (bool) -> None
-        if self.can_be_armed:
+        if self.can_be_armed and self._track:
             self._track.arm = is_armed
 
     @property
@@ -149,22 +157,25 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def current_monitoring_state(self):
         # type: () -> CurrentMonitoringStateEnum
+        if self._track is None:
+            return CurrentMonitoringStateEnum.AUTO
         return CurrentMonitoringStateEnum.from_value(self._track.current_monitoring_state)
 
     @current_monitoring_state.setter
     def current_monitoring_state(self, monitoring_state):
         # type: (CurrentMonitoringStateEnum) -> None
-        self._track.current_monitoring_state = monitoring_state.value
+        if self._track:
+            self._track.current_monitoring_state = monitoring_state.value
 
     @property
     def playing_slot_index(self):
         # type: () -> int
-        return self._track.playing_slot_index
+        return self._track.playing_slot_index if self._track else 0
 
     @property
     def fired_slot_index(self):
         # type: () -> int
-        return self._track.fired_slot_index
+        return self._track.fired_slot_index if self._track else 0
 
     @property
     def active_tracks(self):
@@ -191,14 +202,14 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # type: () -> bool
         from protocol0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 
-        return isinstance(self, SimpleAudioTrack) and self._track.has_audio_input
+        return self._track and isinstance(self, SimpleAudioTrack) and self._track.has_audio_input
 
     @property
     def is_midi(self):
         # type: () -> bool
         from protocol0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 
-        return isinstance(self, SimpleMidiTrack) and self._track.has_midi_input
+        return self._track and isinstance(self, SimpleMidiTrack) and self._track.has_midi_input
 
     @property
     def is_playing(self):
@@ -215,15 +226,19 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # type: () -> bool
         return any(clip for clip in self.clips if clip and clip.is_recording)
 
+    # noinspection PyTypeChecker
     @property
     def device_insert_mode(self):
         # type: () -> Live.Track.DeviceInsertMode
+        if self._track is None:
+            return Live.Track.DeviceInsertMode.default
         return self._track.view.device_insert_mode
 
     @device_insert_mode.setter
     def device_insert_mode(self, device_insert_mode):
         # type: (Live.Track.DeviceInsertMode) -> None
-        self._track.view.device_insert_mode = device_insert_mode
+        if self._track:
+            self._track.view.device_insert_mode = device_insert_mode
 
     @property
     def playing_clip(self):
@@ -239,7 +254,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def selected_device(self):
         # type: (SimpleTrack) -> Optional[Device]
-        if self._track.view.selected_device:
+        if self._track and self._track.view.selected_device:
             device = find_if(
                 lambda d: d._device == self._track.view.selected_device, self.base_track.all_devices
             )  # type: Optional[Device]

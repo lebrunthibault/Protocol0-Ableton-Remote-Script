@@ -15,9 +15,13 @@ from protocol0.utils.utils import find_if
 class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
-        self._browser = self.application().browser
-        self._audio_effect_rack_cache = {}
         super(BrowserManager, self).__init__(*a, **k)
+        self._audio_effect_rack_cache = {}
+
+    def application(self):
+        # type: () -> Live.Application.Application
+        """ Clyphx code using self.application() """
+        return self.parent.protocol0_application
 
     def load_device_from_enum(self, device_enum):
         # type: (DeviceEnum) -> Sequence
@@ -43,6 +47,7 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
         item = self._cached_browser_items["samples"].get(sample_name.decode("utf-8"), None)
         if item and item.is_loadable:
             self.song.selected_track.device_insert_mode = self._insert_mode
+            # noinspection PyArgumentList
             self._browser.load_item(item)  # or _browser.preview_item
 
     def update_audio_effect_preset(self, device):

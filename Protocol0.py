@@ -29,6 +29,7 @@ from protocol0.components.ValidatorManager import ValidatorManager
 from protocol0.components.action_groups.ActionGroupFix import ActionGroupFix
 from protocol0.components.action_groups.ActionGroupLog import ActionGroupLog
 from protocol0.components.action_groups.ActionGroupMain import ActionGroupMain
+from protocol0.components.action_groups.ActionGroupMix import ActionGroupMix
 from protocol0.components.action_groups.ActionGroupPreset import ActionGroupPreset
 from protocol0.components.action_groups.ActionGroupSet import ActionGroupSet
 from protocol0.components.action_groups.ActionGroupTest import ActionGroupTest
@@ -44,6 +45,7 @@ from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.enums.LogLevelEnum import LogLevelEnum
 from protocol0.interface.InterfaceState import InterfaceState
+from protocol0.lom.Application import Application
 from protocol0.lom.Song import Song
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.log import log_ableton
@@ -83,6 +85,7 @@ class Protocol0(ControlSurface):
             ApiRoutesManager()
             ApiAction.create_method_mapping()
             self.p0_system_api_client = P0SystemAPI()
+            self.protocol0_application = Application()
             self.protocol0_song = Song(song=self.song())
             self.songDataManager = SongDataManager()
             self.songDataManager.restore_data()
@@ -93,7 +96,7 @@ class Protocol0(ControlSurface):
             AbstractInstrument.INSTRUMENT_CLASSES = AbstractInstrument.get_instrument_classes()
             self.songManager = SongManager()
             self.sessionManager = SessionManager()
-            MixingManager()
+            self.mixingManager = MixingManager()
             self.trackManager = TrackManager()
             self.automationTrackManager = AutomationTrackManager()
             self.quantizationManager = QuantizationManager()
@@ -112,12 +115,13 @@ class Protocol0(ControlSurface):
 
             if InterfaceState.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.TEST:
                 # action groups
-                ActionGroupMain()
-                ActionGroupSet()
-                ActionGroupPreset()
-                ActionGroupTest()
                 ActionGroupFix()
                 ActionGroupLog()
+                ActionGroupMain()
+                ActionGroupMix()
+                ActionGroupPreset()
+                ActionGroupSet()
+                ActionGroupTest()
 
                 # vocal command
                 self.keywordSearchManager = KeywordSearchManager()

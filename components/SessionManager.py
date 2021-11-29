@@ -41,10 +41,13 @@ class SessionManager(AbstractControlSurfaceComponent):
         total_tracks = get_all_sub_tracks_inclusive(self.song.current_track.base_track)
         num_tracks = len([track for track in total_tracks if track.is_visible])
 
+        self.parent.log_dev("num_tracks: %s" % num_tracks)
+        self.parent.log_dev("self.session_track_offset: %s" % self.session_track_offset)
+
         with self.parent.component_guard():
             self.session = SessionComponent(num_tracks=num_tracks, num_scenes=len(self.song.scenes))
         self.session.set_offsets(track_offset=self.session_track_offset, scene_offset=0)
-        self.parent.set_highlighting_session_component(self.session)
+        # self.parent.set_highlighting_session_component(self.session)
 
     @property
     def session_track_offset(self):

@@ -27,7 +27,7 @@ class TrackManager(AbstractControlSurfaceComponent):
     @defer
     def _added_track_listener(self):
         # type: () -> Optional[Sequence]
-        if not self.song.selected_track.is_active or isinstance(self.song.current_track, SimpleGroupTrack):
+        if not self.song.selected_track.is_active:
             return None
         self.song.begin_undo_step()  # Live crashes on undo without this
         seq = Sequence()
@@ -62,11 +62,13 @@ class TrackManager(AbstractControlSurfaceComponent):
         # type: (SimpleTrack) -> AbstractGroupTrack
         previous_abstract_group_track = base_group_track.abstract_group_track
 
-        abstract_group_track = self._make_external_synth_track(base_group_track=base_group_track)
-        if not abstract_group_track:
-            if previous_abstract_group_track and isinstance(previous_abstract_group_track, ExternalSynthTrack):
-                self.parent.log_error("An ExternalSynthTrack is changed to a SimpleGroupTrack")
+        ext_synth_track = self._make_external_synth_track(base_group_track=base_group_track)
 
+        if ext_synth_track:
+            abstract_group_track = ext_synth_track
+        else:
+            if isinstance(previous_abstract_group_track, ExternalSynthTrack):
+                self.parent.log_error("An ExternalSynthTrack is changed to a SimpleGroupTrack")
             if isinstance(previous_abstract_group_track, SimpleGroupTrack):
                 abstract_group_track = previous_abstract_group_track
             else:

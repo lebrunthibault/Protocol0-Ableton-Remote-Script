@@ -8,6 +8,7 @@ from protocol0.utils.utils import find_if
 if TYPE_CHECKING:
     from protocol0.lom.Song import Song
     from protocol0.Protocol0 import Protocol0
+    from protocol0.lom.Application import Application
 
 
 class AbstractObject(SlotManager, Subject):
@@ -53,19 +54,14 @@ class AbstractObject(SlotManager, Subject):
         return self._parent
 
     @property
-    def session_view_active(self):
-        # type: () -> bool
-        return self.parent.application().view.is_view_visible('Session')
-
-    @property
-    def arrangement_view_active(self):
-        # type: () -> bool
-        return not self.session_view_active
-
-    @property
     def song(self):
         # type: () -> Optional[Song]
         return self.parent.protocol0_song
+
+    @property
+    def application(self):
+        # type: () -> Optional[Application]
+        return self.parent.protocol0_application
 
     def refresh_appearance(self):
         # type: () -> None

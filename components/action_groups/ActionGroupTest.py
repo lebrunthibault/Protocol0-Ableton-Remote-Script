@@ -15,19 +15,13 @@ class ActionGroupTest(AbstractActionGroup):
         super(ActionGroupTest, self).__init__(channel=16, *a, **k)
         # TEST encoder
         self.add_encoder(identifier=1, name="test", on_press=self.action_test)
-        # RELOad time encoder
-        self.add_encoder(identifier=2, name="profile set reload time", on_press=self.start_set_profiling)
+        # PROFiling encoder
+        self.add_encoder(identifier=2, name="start set launch time profiling", on_press=self.start_set_profiling)
 
     def action_test(self):
         # type: () -> None
-        self.parent.log_dev(self.song.selected_track._track.output_meter_level)
+        pass
 
     def start_set_profiling(self):
         # type: () -> None
-        # if InterfaceState.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.PROFILING:
-        #     self.parent.show_message("set the config to profiling")
-        #     InterfaceState.ABLETON_SESSION_TYPE = AbletonSessionTypeEnum.PROFILING
-        #     self.parent.songDataManager.save()
-        #     self.system.save_set_as_template()
-        #     return
         self.system.start_set_profiling()

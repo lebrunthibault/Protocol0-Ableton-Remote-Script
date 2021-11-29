@@ -140,6 +140,9 @@ class ClipSlot(AbstractObject):
 
     def fire(self, record_length=None):
         # type: (Optional[int]) -> None
+        if self._clip_slot is None:
+            return None
+
         if record_length:
             self._clip_slot.fire(record_length=record_length)
         else:
@@ -148,10 +151,11 @@ class ClipSlot(AbstractObject):
     def duplicate_clip_to(self, clip_slot):
         # type: (ClipSlot) -> Sequence
         seq = Sequence()
-        seq.add(
-            partial(self._clip_slot.duplicate_clip_to, clip_slot._clip_slot),
-            complete_on=clip_slot._has_clip_listener,
-        )
+        if self._clip_slot:
+            seq.add(
+                partial(self._clip_slot.duplicate_clip_to, clip_slot._clip_slot),
+                complete_on=clip_slot._has_clip_listener,
+            )
         return seq.done()
 
     def disconnect(self):

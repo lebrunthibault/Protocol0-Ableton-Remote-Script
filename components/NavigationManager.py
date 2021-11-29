@@ -4,13 +4,14 @@ from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComp
 from protocol0.sequence.Sequence import Sequence
 
 
+# noinspection PyArgumentList
 class NavigationManager(AbstractControlSurfaceComponent):
     """ NavAndViewActions provides navigation and view-related methods. """
 
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(NavigationManager, self).__init__(*a, **k)
-        self._app_view = self.application().view
+        self._app_view = self.application.view
 
     def show_clip_view(self):
         # type: () -> Optional[Sequence]

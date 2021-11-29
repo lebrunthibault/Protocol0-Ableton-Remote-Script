@@ -88,22 +88,24 @@ class Scene(AbstractObject, SceneActionMixin):
     @property
     def color(self):
         # type: () -> int
-        return self._scene.color
+        return self._scene and self._scene.color
 
     @color.setter
     def color(self, color_index):
         # type: (int) -> None
-        self._scene.color = color_index
+        if self._scene:
+            self._scene.color = color_index
 
     @property
     def is_triggered(self):
         # type: () -> bool
-        return bool(self._scene.is_triggered)
+        if self._scene:
+            return bool(self._scene.is_triggered)
 
     @property
     def name(self):
         # type: () -> str
-        return self._scene.name
+        return self._scene and self._scene.name
 
     @name.setter
     def name(self, name):

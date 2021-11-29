@@ -7,6 +7,7 @@ from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComp
 from protocol0.devices.InstrumentProphet import InstrumentProphet
 from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.enums.DeviceEnum import DeviceEnum
+from protocol0.enums.SongLoadStateEnum import SongLoadStateEnum
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.Scene import Scene
 from protocol0.lom.clip.AudioClip import AudioClip
@@ -33,7 +34,7 @@ class SongManager(AbstractControlSurfaceComponent):
         self.tracks_listener()
         # self._highlighted_clip_slot = self.song.highlighted_clip_slot
         # self._highlighted_clip_slot_poller()
-        self.song.is_loading = True
+        self.song.song_load_state = SongLoadStateEnum.LOADING
         self._select_startup_track()
         if InterfaceState.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.PROFILING:
             self.parent.wait(2, self.song.reset)
@@ -79,7 +80,7 @@ class SongManager(AbstractControlSurfaceComponent):
         # type: () -> None
         # Check if tracks were added
         previous_simple_track_count = len(list(self._simple_tracks))
-        has_added_tracks = previous_simple_track_count and len(self.song._song.tracks) > previous_simple_track_count
+        has_added_tracks = 0 < previous_simple_track_count < len(self.song._song.tracks)
 
         self._generate_simple_tracks()
         self._generate_abstract_group_tracks()
@@ -106,7 +107,7 @@ class SongManager(AbstractControlSurfaceComponent):
         for track in list(self.song._song.tracks) + list(self.song._song.return_tracks):
             self.generate_simple_track(track=track)
 
-        if self.song.usamo_track is None:
+        if self.song.usamo_track is None and self.song.song_load_state != SongLoadStateEnum.LOADED:
             self.parent.log_warning("Usamo track is not present")
 
         self.song.master_track = self.generate_simple_track(track=self.song._song.master_track)
@@ -125,8 +126,7 @@ class SongManager(AbstractControlSurfaceComponent):
         # type: (Live.Track.Track, Optional[Type[SimpleTrack]]) -> SimpleTrack
         simple_track = self.parent.trackManager.instantiate_simple_track(track=track, cls=cls)
         self._register_simple_track(simple_track)
-        if cls is None:
-            simple_track.post_init()
+        simple_track.post_init()
 
         if self.song.usamo_track is None:
             if simple_track.get_device_from_enum(DeviceEnum.USAMO):
@@ -146,22 +146,30 @@ class SongManager(AbstractControlSurfaceComponent):
         if simple_track._track in self.song.live_track_to_simple_track:
             previous_simple_track = self.song.live_track_to_simple_track[simple_track._track]
             if previous_simple_track != simple_track:
-                # disconnecting and removing from SimpleTrack group track and abstract_group_track
-                previous_simple_track.disconnect()
-                group_track = previous_simple_track.group_track
-                if group_track and previous_simple_track in group_track.sub_tracks:
-                    group_track.sub_tracks.remove(previous_simple_track)
-                abstract_group_track = previous_simple_track.abstract_group_track
-                if abstract_group_track and previous_simple_track in abstract_group_track.sub_tracks:
-                    abstract_group_track.sub_tracks.remove(previous_simple_track)
-
-                # deferred dummy track instantiation
-                if previous_simple_track in self._simple_tracks:
-                    self._simple_tracks.remove(previous_simple_track)
+                self._remove_outdated_simple_track(previous_simple_track, simple_track)
 
         # registering
         self.song.live_track_to_simple_track[simple_track._track] = simple_track
         self._simple_tracks.append(simple_track)
+
+    def _remove_outdated_simple_track(self, previous_simple_track, new_simple_track):
+        # type: (SimpleTrack, SimpleTrack) -> None
+        """ disconnecting and removing from SimpleTrack group track and abstract_group_track """
+        previous_simple_track.disconnect()
+
+        # group_track
+        group_track = previous_simple_track.group_track
+        if previous_simple_track in group_track.sub_tracks:
+            group_track.sub_tracks.remove(previous_simple_track)
+
+        # abstract_group_track
+        abstract_group_track = group_track.abstract_group_track
+        if abstract_group_track and previous_simple_track in abstract_group_track.sub_tracks:
+            abstract_group_track.sub_tracks.remove(previous_simple_track)
+
+        # deferred dummy track instantiation
+        if previous_simple_track in self._simple_tracks:
+            self._simple_tracks.remove(previous_simple_track)
 
     def _generate_abstract_group_tracks(self):
         # type: () -> None

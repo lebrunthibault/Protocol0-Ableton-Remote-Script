@@ -40,7 +40,7 @@ class AbstractTrackList(UserMutableSequence):
             seq.add(self.song.current_track.arm)
 
         for abstract_track in tracks:
-            if self.session_view_active:
+            if self.application.session_view_active:
                 seq.add(partial(abstract_track.session_record, record_type=record_type))
             else:
                 seq.add(partial(abstract_track.arrangement_record, record_type=record_type))
