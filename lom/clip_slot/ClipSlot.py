@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class ClipSlot(AbstractObject):
-    __subject_events__ = ("has_clip", "is_triggered")
+    __subject_events__ = ("has_clip", "is_triggered", "stopped")
 
     def __init__(self, clip_slot, track, *a, **k):
         # type: (Live.ClipSlot.ClipSlot, SimpleTrack, Any, Any) -> None
@@ -65,10 +65,25 @@ class ClipSlot(AbstractObject):
         # noinspection PyUnresolvedReferences
         self.notify_is_triggered()
 
+    def refresh_appearance(self):
+        # type: () -> None
+        self.has_stop_button = False
+
     @property
     def has_clip(self):
         # type: () -> bool
         return self._clip_slot and self._clip_slot.has_clip
+
+    @property
+    def has_stop_button(self):
+        # type: () -> bool
+        return self._clip_slot and self._clip_slot.has_stop_button
+
+    @has_stop_button.setter
+    def has_stop_button(self, has_stop_button):
+        # type: (bool) -> None
+        if self._clip_slot:
+            self._clip_slot.has_stop_button = has_stop_button
 
     def delete_clip(self):
         # type: () -> None
@@ -93,6 +108,9 @@ class ClipSlot(AbstractObject):
     def record(self, bar_length, bar_tail_length):
         # type: (int, int) -> Optional[Sequence]
         seq = Sequence()
+        if not self.has_stop_button:
+            self.has_stop_button = True
+            seq.add(wait=1)
 
         if bar_length == 0:
             self.parent.show_message("Starting recording of %s" % BarLengthEnum.UNLIMITED)
@@ -107,10 +125,6 @@ class ClipSlot(AbstractObject):
                 partial(self.fire, record_length=self.parent.utilsManager.get_beat_time(bar_length + bar_tail_length)),
                 complete_on=self._has_clip_listener,
             )
-
-        # # this is a convenience to see right away if there is a problem with the audio recording
-        # if self.track.is_audio:
-        #     seq.add(lambda: self.clip.select(), name="select audio clip")
 
         seq.add(
             complete_on=lambda: self.clip._is_recording_listener,

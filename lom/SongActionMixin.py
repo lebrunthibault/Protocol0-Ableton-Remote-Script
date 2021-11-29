@@ -72,8 +72,7 @@ class SongActionMixin(object):
     def bounce_session_to_arrangement(self):
         # type: (Song) -> Sequence
         tempo = self.tempo
-        for armed_track in self.armed_tracks:  # type: AbstractTrack
-            armed_track.unarm()
+        self.song.unfocus_all_tracks()
         self.tempo = 999
         self.parent.sceneBeatScheduler.clear()
 

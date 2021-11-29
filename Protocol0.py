@@ -86,7 +86,6 @@ class Protocol0(ControlSurface):
             self.protocol0_song = Song(song=self.song())
             self.songDataManager = SongDataManager()
             self.songDataManager.restore_data()
-            
             if Config.SHOW_RELOAD_TIME or InterfaceState.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.PROFILING:
                 self.p0_system_api_client.end_measurement()
 

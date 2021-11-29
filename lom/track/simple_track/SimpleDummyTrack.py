@@ -14,6 +14,8 @@ if TYPE_CHECKING:
 
 
 class SimpleDummyTrack(SimpleAudioTrack):
+    KEEP_CLIPS_ON_ADDED = True
+
     def __init__(self, track, *a, **k):
         # type: (Live.Track.Track, Any, Any) -> None
         super(SimpleDummyTrack, self).__init__(track=track, *a, **k)
@@ -37,12 +39,15 @@ class SimpleDummyTrack(SimpleAudioTrack):
         return seq.done()
 
     def _insert_dummy_rack(self):
-        # type: () -> Sequence
-        return self.parent.browserManager.load_device_from_enum(DeviceEnum.DUMMY_RACK)
+        # type: () -> Optional[Sequence]
+        if not self.load_device_from_enum(DeviceEnum.DUMMY_RACK):
+            return self.parent.browserManager.load_device_from_enum(DeviceEnum.DUMMY_RACK)
+        else:
+            return None
 
     def _insert_dummy_clip(self):
         # type: () -> Optional[Sequence]
-        if not self.song.template_dummy_clip:
+        if not self.song.template_dummy_clip or len(self.clips):
             return None
 
         cs = self.clip_slots[self.song.selected_scene.index]

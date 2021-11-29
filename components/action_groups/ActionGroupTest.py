@@ -20,7 +20,7 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        pass
+        self.parent.log_dev(self.song.selected_track._track.output_meter_level)
 
     def start_set_profiling(self):
         # type: () -> None

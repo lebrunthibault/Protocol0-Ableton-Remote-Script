@@ -41,5 +41,3 @@ _.log_dev  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI 
 _.is_loading  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\components\SongManager.py:38)
 # noinspection PyStatementEffect
 _.is_loading  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\lom\Song.py:40)
-# noinspection PyStatementEffect
-_.delete_unnecessary_devices  # unused method (C:\ProgramData\Ableton\Live 10 Suite\Resources\MIDI Remote Scripts\protocol0\components\SetFixerManager.py:116)

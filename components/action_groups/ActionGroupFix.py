@@ -20,7 +20,7 @@ class ActionGroupFix(AbstractActionGroup):
 
         # DEVice encoder
         self.add_encoder(identifier=3, name="Delete unnecessary devices",
-                         on_press=lambda: self.parent.setUpgradeManager.delete_unnecessary_devices)
+                         on_press=self.parent.setUpgradeManager.delete_unnecessary_devices)
 
         # CLR encoder
         self.add_encoder(identifier=4, name="clear logs", on_press=self.parent.logManager.clear)

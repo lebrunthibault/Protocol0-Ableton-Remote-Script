@@ -34,6 +34,7 @@ class Scene(AbstractObject, SceneActionMixin):
 
         # listeners
         self._clip_slots_has_clip_listener.replace_subjects(self.clip_slots)
+        self._clip_slots_stopped_listener.replace_subjects(self.clip_slots)
         self._clips_length_listener.replace_subjects(self.clips)
 
     @p0_subject_slot("is_triggered")
@@ -67,6 +68,12 @@ class Scene(AbstractObject, SceneActionMixin):
         # type: (ClipSlot) -> None
         self._clips_length_listener.replace_subjects(self.clips)
         self._check_scene_length()
+
+    @subject_slot_group("stopped")
+    def _clip_slots_stopped_listener(self, _):
+        # type: (ClipSlot) -> None
+        """ Stopping all clips cancels the next scene launch"""
+        self.parent.sceneBeatScheduler.clear()
 
     @property
     def index(self):

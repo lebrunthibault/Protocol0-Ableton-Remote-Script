@@ -27,7 +27,6 @@ class Clip(ClipActionMixin, AbstractObject):
         self.track = clip_slot.track  # type: SimpleTrack
 
         # listeners
-        self._notes_listener.subject = self._clip
         self._is_recording_listener.subject = self._clip
         self._playing_status_listener.subject = self._clip
         self._looping_listener.subject = self._clip
@@ -46,11 +45,6 @@ class Clip(ClipActionMixin, AbstractObject):
         # type: () -> int
         return self.clip_slot.index
 
-    @p0_subject_slot("notes")
-    def _notes_listener(self):
-        # type: () -> None
-        pass
-
     @p0_subject_slot("is_recording")
     def _is_recording_listener(self):
         # type: () -> None
@@ -59,7 +53,9 @@ class Clip(ClipActionMixin, AbstractObject):
     @p0_subject_slot("playing_status")
     def _playing_status_listener(self):
         # type: () -> None
-        pass
+        if not self.is_playing:
+            # noinspection PyUnresolvedReferences
+            self.clip_slot.notify_stopped()
 
     @p0_subject_slot("looping")
     def _looping_listener(self):

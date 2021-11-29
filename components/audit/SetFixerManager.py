@@ -5,8 +5,8 @@ from protocol0.lom.AbstractObject import AbstractObject
 
 
 class SetFixerManager(AbstractControlSurfaceComponent):
-    def fix(self):
-        # type: () -> None
+    def fix(self, full_scan=False):
+        # type: (bool) -> None
         """ Fix the current set to the current standard regarding naming / coloring etc .."""
         self.parent.logManager.clear()
 
@@ -20,7 +20,7 @@ class SetFixerManager(AbstractControlSurfaceComponent):
             if not is_valid:
                 invalid_objects.append(obj)
 
-        devices_to_remove = list(self.parent.setUpgradeManager.get_deletable_devices())
+        devices_to_remove = list(self.parent.setUpgradeManager.get_deletable_devices(full_scan=True))
 
         if len(invalid_objects) == 0 and len(devices_to_remove) == 0:
             self.parent.show_message("Set is valid")
@@ -32,7 +32,6 @@ class SetFixerManager(AbstractControlSurfaceComponent):
                 message += " devices to remove: %s." % (len(devices_to_remove))
             self.parent.show_message(message)
 
-
     @property
     def _objects_to_validate(self):
         # type: () -> List[AbstractObject]
@@ -43,5 +42,6 @@ class SetFixerManager(AbstractControlSurfaceComponent):
     def _objects_to_refresh_appearance(self):
         # type: () -> List[AbstractObject]
         # noinspection PyTypeChecker
-        return [clip for track in self.song.simple_tracks for clip in track.clips] + self.song.scenes + list(
-            self.song.abstract_tracks)
+        return [clip for track in self.song.simple_tracks for clip in track.clips] + \
+               self.song.scenes + \
+               list(self.song.abstract_tracks)

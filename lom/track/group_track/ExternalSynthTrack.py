@@ -4,6 +4,7 @@ from typing import Optional, Any, cast, List
 
 from protocol0.devices.AbstractExternalSynthTrackInstrument import AbstractExternalSynthTrackInstrument
 from protocol0.lom.ObjectSynchronizer import ObjectSynchronizer
+from protocol0.lom.clip.Clip import Clip
 from protocol0.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
 from protocol0.lom.device.Device import Device
 from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
@@ -116,6 +117,12 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     def instrument(self):
         # type: () -> AbstractExternalSynthTrackInstrument
         return cast(AbstractExternalSynthTrackInstrument, self.midi_track.instrument or self.audio_track.instrument)
+
+    @property
+    def clips(self):
+        # type: () -> List[Clip]
+        clip_slots = self.midi_track.clip_slots + self.audio_track.clip_slots
+        return [clip_slot.clip for clip_slot in clip_slots if clip_slot.has_clip and clip_slot.clip]
 
     @property
     def can_be_armed(self):

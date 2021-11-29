@@ -16,6 +16,7 @@ class DeviceEnum(AbstractEnum):
     LFO_TOOL = "LFO_TOOL"
     MINITAUR_EDITOR = "MINITAUR_EDITOR"
     MIX_RACK = "MIX_RACK"
+    REV2_EDITOR = "REV2_EDITOR"
     USAMO = "USAMO"
     UTILITY = "UTILITY"
 
@@ -34,6 +35,14 @@ class DeviceEnum(AbstractEnum):
         # type: () -> List[DeviceEnum]
         return [cls.MIX_RACK, cls.LFO_TOOL]
 
+    @classmethod
+    def plugin_white_list(cls):
+        # type: () -> List[DeviceEnum]
+        return [
+            cls.REV2_EDITOR,
+            cls.USAMO
+        ]
+
     @property
     def device_name(self):
         # type: () -> str
@@ -47,6 +56,7 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.LFO_TOOL: "LFOTool_x64",
             DeviceEnum.MINITAUR_EDITOR: "Minitaur Editor(x64)",
             DeviceEnum.MIX_RACK: "Mix Rack",
+            DeviceEnum.REV2_EDITOR: "REV2Editor",
             DeviceEnum.USAMO: "usamo_x64",
             DeviceEnum.UTILITY: "Utility",
         })

@@ -31,6 +31,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
 
     DEFAULT_NAME = "default"
     DEFAULT_COLOR = ColorEnum.DISABLED  # when the color cannot be matched
+    KEEP_CLIPS_ON_ADDED = False
 
     def __init__(self, track, *a, **k):
         # type: (SimpleTrack, Any, Any) -> None
@@ -57,7 +58,11 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self._color_listener.subject = self._track
 
     def _added_track_init(self):
-        # type: () -> Sequence
+        # type: () -> Optional[Sequence]
+        self.refresh_appearance()
+        if self.KEEP_CLIPS_ON_ADDED:
+            return None
+
         seq = Sequence()
         seq.add([clip.delete for clip in self.clips])
         return seq.done()

@@ -79,6 +79,13 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
                 self.clip_slots.append(ClipSlot.make(clip_slot=clip_slot, track=self))
         self._clip_slots_has_clip_listener.replace_subjects(self.clip_slots)
 
+    def refresh_appearance(self):
+        # type: (SimpleTrack) -> None
+        self.track_name.update()
+        self.refresh_color()
+        for clip_slot in self.clip_slots:
+            clip_slot.refresh_appearance()
+
     @p0_subject_slot("fired_slot_index")
     def _fired_slot_index_listener(self):
         # type: () -> None
