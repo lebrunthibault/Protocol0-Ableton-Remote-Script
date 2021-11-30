@@ -24,4 +24,3 @@ class ActionGroupFix(AbstractActionGroup):
 
         # CLR encoder
         self.add_encoder(identifier=4, name="clear logs", on_press=self.parent.logManager.clear)
-

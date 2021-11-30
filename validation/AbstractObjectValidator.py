@@ -1,3 +1,4 @@
+from protocol0.enums.LogLevelEnum import LogLevelEnum
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.utils.log import log_ableton
 from protocol0.validation.AbstractValidator import AbstractValidator
@@ -11,4 +12,4 @@ class AbstractObjectValidator(AbstractValidator):
     def log(self, message):
         # type: (str) -> None
         if self._log:
-            log_ableton(message)
+            log_ableton(message, level=LogLevelEnum.WARNING)

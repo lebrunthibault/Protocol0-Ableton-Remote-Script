@@ -4,7 +4,6 @@ from _Framework.SubjectSlot import subject_slot_group
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.config import Config
 from protocol0.lom.track.AbstractTrack import AbstractTrack
-from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.utils.decorators import p0_subject_slot
 
 

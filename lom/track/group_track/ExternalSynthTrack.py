@@ -10,7 +10,6 @@ from protocol0.lom.device.Device import Device
 from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.lom.track.group_track.ExternalSynthTrackActionMixin import ExternalSynthTrackActionMixin
 from protocol0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
-from protocol0.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.sequence.Sequence import Sequence

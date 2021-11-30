@@ -37,6 +37,11 @@ class ClipActionMixin(object):
         # type: (Clip) -> None
         self.is_playing = True
 
+    def stop(self):
+        # type: (Clip) -> None
+        if self._clip:
+            self._clip.stop()
+
     def fire(self):
         # type: (Clip) -> None
         if self._clip:

@@ -20,7 +20,6 @@ from protocol0.components.MixingManager import MixingManager
 from protocol0.components.NavigationManager import NavigationManager
 from protocol0.components.PresetManager import PresetManager
 from protocol0.components.QuantizationManager import QuantizationManager
-from protocol0.components.SessionManager import SessionManager
 from protocol0.components.SongDataManager import SongDataManager
 from protocol0.components.SongManager import SongManager
 from protocol0.components.TrackManager import TrackManager

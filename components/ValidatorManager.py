@@ -39,7 +39,7 @@ class ValidatorManager(AbstractControlSurfaceComponent):
             obj.refresh_appearance()
             return True
 
-        self.parent.log_error(validator.get_error_message(), show_message=False)
+        self.parent.log_warning(validator.get_error_message())
         if hasattr(obj, "color"):
             obj.color = ColorEnum.ERROR.index
         return False

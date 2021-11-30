@@ -1,8 +1,6 @@
 from typing import Any
 
-from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
-from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 
 
 class ActionGroupTest(AbstractActionGroup):
@@ -20,7 +18,7 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        self.parent.log_dev(list(self.song.abstract_tracks))
+        self.song.selected_clip.refresh_appearance()
 
     def start_set_profiling(self):
         # type: () -> None

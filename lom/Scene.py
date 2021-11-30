@@ -7,10 +7,11 @@ from protocol0.lom.SceneActionMixin import SceneActionMixin
 from protocol0.lom.SceneName import SceneName
 from protocol0.lom.clip.Clip import Clip
 from protocol0.lom.clip_slot.ClipSlot import ClipSlot
+from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.utils.decorators import p0_subject_slot, defer, throttle
 
 
-class Scene(AbstractObject, SceneActionMixin):
+class Scene(SceneActionMixin, AbstractObject):
     __subject_events__ = ("play",)
 
     PLAYING_SCENE = None  # type: Optional[Scene]
@@ -21,6 +22,8 @@ class Scene(AbstractObject, SceneActionMixin):
         super(Scene, self).__init__(*a, **k)
         self._scene = scene
         self.clip_slots = []  # type: List[ClipSlot]
+        self.clips = []  # type: List[Clip]
+        self.tracks = []  # type: List[SimpleTrack]
         self.scene_name = SceneName(self)
         # listeners
         self._is_triggered_listener.subject = self._scene
@@ -36,13 +39,35 @@ class Scene(AbstractObject, SceneActionMixin):
         self._clip_slots_has_clip_listener.replace_subjects(self.clip_slots)
         self._clip_slots_stopped_listener.replace_subjects(self.clip_slots)
         self._clips_length_listener.replace_subjects(self.clips)
+        self._map_clips()
+
+    def _map_clips(self):
+        # type: () -> None
+        self.clips = [clip_slot.clip for clip_slot in self.clip_slots if clip_slot.has_clip and clip_slot.clip]
+        self.tracks = [clip.track for clip in self.clips]
+        self._clips_length_listener.replace_subjects(self.clips)
+        self._check_scene_length()
+
+    def refresh_appearance(self):
+        # type: (Scene) -> None
+        self.scene_name.update()
 
     @p0_subject_slot("is_triggered")
     def _is_triggered_listener(self):
         # type: () -> None
         if self.is_playing:
+            Scene.PLAYING_SCENE = self
             # noinspection PyUnresolvedReferences
             self.notify_play()
+            return
+
+        # Scene is triggered but not yet playing
+
+        if Scene.PLAYING_SCENE and Scene.PLAYING_SCENE != self:
+            # manually stopping previous scene because we don't display clip slot stop buttons
+            for clip in Scene.PLAYING_SCENE.clips:
+                if clip.track not in self.tracks:
+                    clip.stop()
 
     @p0_subject_slot("play")
     @defer
@@ -50,7 +75,6 @@ class Scene(AbstractObject, SceneActionMixin):
         # type: () -> None
         """ implements a next scene follow action """
         # doing this when scene starts playing
-        Scene.PLAYING_SCENE = self
         if Scene.LOOPING_SCENE and Scene.LOOPING_SCENE != self:
             previous_looping_scene = Scene.LOOPING_SCENE
             Scene.LOOPING_SCENE = None
@@ -66,7 +90,7 @@ class Scene(AbstractObject, SceneActionMixin):
     @subject_slot_group("has_clip")
     def _clip_slots_has_clip_listener(self, _):
         # type: (ClipSlot) -> None
-        self._clips_length_listener.replace_subjects(self.clips)
+        self._map_clips()
         self._check_scene_length()
 
     @subject_slot_group("stopped")
@@ -143,11 +167,6 @@ class Scene(AbstractObject, SceneActionMixin):
     def looping(self, looping):
         # type: (bool) -> None
         Scene.LOOPING_SCENE = self if looping else None
-
-    @property
-    def clips(self):
-        # type: () -> List[Clip]
-        return [clip_slot.clip for clip_slot in self.clip_slots if clip_slot.has_clip]
 
     @property
     def is_playing(self):

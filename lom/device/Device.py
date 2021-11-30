@@ -95,6 +95,11 @@ class Device(AbstractObject):
         return self._device.name if self._device else ""
 
     @property
+    def class_name(self):
+        # type: () -> str
+        return self._device.class_name if self._device else ""
+
+    @property
     def preset_name(self):
         # type: () -> Optional[str]
         """ overridden """
@@ -123,13 +128,13 @@ class Device(AbstractObject):
     @property
     def mute(self):
         # type: () -> bool
-        param = find_if(lambda p: p.original_name.startswith('Device On') and p.is_enabled, self.parameters)
+        param = find_if(lambda p: p.original_name and p.original_name.startswith('Device On') and p.is_enabled, self.parameters)
         return param is not None and param.value is True
 
     @mute.setter
     def mute(self, mute):
         # type: (bool) -> None
-        param = find_if(lambda p: p.original_name.startswith('Device On') and p.is_enabled, self.parameters)
+        param = find_if(lambda p: p.original_name and p.original_name.startswith('Device On') and p.is_enabled, self.parameters)
         if param:
             param.value = not mute
 

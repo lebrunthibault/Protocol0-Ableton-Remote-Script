@@ -4,10 +4,8 @@ from typing import TYPE_CHECKING, Optional
 
 from _Framework.Util import forward_property
 from protocol0.devices.presets.InstrumentPreset import InstrumentPreset
-from protocol0.devices.presets.InstrumentPresetList import InstrumentPresetList
 from protocol0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.decorators import defer
 from protocol0.utils.utils import scroll_values
 
 if TYPE_CHECKING:

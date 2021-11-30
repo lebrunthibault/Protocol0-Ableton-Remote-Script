@@ -20,7 +20,7 @@ from protocol0.utils.decorators import p0_subject_slot, debounce
 from protocol0.utils.utils import find_if
 
 
-class Song(AbstractObject, SongActionMixin):
+class Song(SongActionMixin, AbstractObject):
     __subject_events__ = ("session_end",)
 
     def __init__(self, song, *a, **k):

@@ -59,7 +59,8 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         assert callable(self._callable), "You passed a non callable (%s) to %s" % (self._callable, self)
         from protocol0.sequence.Sequence import Sequence
 
-        assert not isinstance(self._condition, Sequence), "You passed a Sequence object instead of a Sequence factory for a condition"
+        assert not isinstance(self._condition,
+                              Sequence), "You passed a Sequence object instead of a Sequence factory for a condition"
 
         if Config.SEQUENCE_SLOW_MO:
             self._wait = min(100, self._wait * 5)

@@ -25,7 +25,8 @@ class ExternalSynthTrackValidator(AbstractObjectValidator, AggregateValidator):
                               lambda t: t.get_device_from_enum(DeviceEnum.EXTERNAL_INSTRUMENT).delete),
             PropertyValueValidator(track.midi_track, "input_routing_channel", InputRoutingChannelEnum.CHANNEL_1),
             PropertyValueValidator(track.audio_track, "input_routing_track", track.midi_track),
-            PropertyValueValidator(track.audio_track, "input_routing_channel", track.instrument.AUDIO_INPUT_ROUTING_CHANNEL),
+            PropertyValueValidator(track.audio_track, "input_routing_channel",
+                                   track.instrument.AUDIO_INPUT_ROUTING_CHANNEL),
         ]
         if track.instrument.device:
             validators.append(DeviceParameterValidator(track.instrument.device, DeviceParameterEnum.DEVICE_ON, False))

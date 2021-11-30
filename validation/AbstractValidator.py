@@ -2,7 +2,6 @@ from abc import ABCMeta, abstractmethod
 
 from typing import Optional
 
-from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.sequence.Sequence import Sequence
 
 

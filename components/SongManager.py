@@ -193,7 +193,7 @@ class SongManager(AbstractControlSurfaceComponent):
         for scene in self.song.scenes:
             scene_mapping[scene._scene] = scene
 
-        self.song.scenes[:] = []
+        new_scenes = []
 
         # get the right scene or instantiate new scenes
         for live_scene in live_scenes:
@@ -203,7 +203,9 @@ class SongManager(AbstractControlSurfaceComponent):
                 scene = Scene(live_scene)
             scene.link_clip_slots_and_clips()
 
-            self.song.scenes.append(scene)
+            new_scenes.append(scene)
+
+        self.song.scenes[:] = new_scenes
 
         if has_added_scene and self.song.selected_scene and self.song.is_playing:
             # noinspection PyUnresolvedReferences

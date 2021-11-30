@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Optional
 
 from protocol0.devices.AbstractExternalSynthTrackInstrument import AbstractExternalSynthTrackInstrument
 from protocol0.enums.ColorEnum import ColorEnum

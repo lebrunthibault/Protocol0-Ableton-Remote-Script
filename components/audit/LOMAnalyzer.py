@@ -1,16 +1,10 @@
-from functools import partial
-
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.devices.InstrumentSimpler import InstrumentSimpler
-from protocol0.enums.DeviceEnum import DeviceEnum
-from protocol0.errors.Protocol0Error import Protocol0Error
-from protocol0.lom.device.RackDevice import RackDevice
 from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
-from protocol0.sequence.Sequence import Sequence
 
 
 class LOMAnalyzer(AbstractControlSurfaceComponent):
     """ Audit object model """
+
     def check_tracks_tree_consistency(self):
         # type: () -> None
         for simple_track in self.song.simple_tracks:

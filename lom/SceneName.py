@@ -2,9 +2,7 @@ import re
 
 from typing import TYPE_CHECKING, Any
 
-from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.AbstractObjectName import AbstractObjectName
-from protocol0.utils.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
     from protocol0.lom.Scene import Scene
@@ -24,7 +22,7 @@ class SceneName(AbstractObjectName):
         base_name = match.group("base_name").strip() if match else ""
         from protocol0.lom.Scene import Scene
 
-        if match.group("looping") and not Scene.LOOPING_SCENE:
+        if match and match.group("looping") and not Scene.LOOPING_SCENE:
             self.scene.looping = True
         return base_name
 
@@ -46,5 +44,8 @@ class SceneName(AbstractObjectName):
                 self.base_name = str(self.scene.index)
         except ValueError:
             pass
+
+        if not self.base_name:
+            self.base_name = self.song.scenes.index(self.scene)
 
         self.scene.name = "%s (%s)%s" % (self.base_name, self._length_legend, "*" if self.scene.looping else "")

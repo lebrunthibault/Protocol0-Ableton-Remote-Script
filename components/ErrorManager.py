@@ -4,11 +4,11 @@ from types import TracebackType
 
 from typing import Optional, Any, List, Type
 
-from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.config import Config
 from protocol0.constants import PROJECT_ROOT
 from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
+from protocol0.interface.InterfaceState import InterfaceState
 
 
 class ErrorManager(AbstractControlSurfaceComponent):
@@ -52,7 +52,7 @@ class ErrorManager(AbstractControlSurfaceComponent):
         if context:
             self.parent.log_error(context, debug=False)
         self.parent.log_error("at " + "".join(self._format_list(show[-1:], print_line=False)).strip(), debug=False)
-        self.parent.log_error()
+        self.parent.log_error(debug=False)
         self.parent.log_error("----- traceback -----", debug=False)
         self.parent.log_error("".join(self._format_list(show)), debug=False)
 

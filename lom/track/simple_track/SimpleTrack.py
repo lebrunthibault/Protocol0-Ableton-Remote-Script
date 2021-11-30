@@ -79,12 +79,13 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
 
         live_cs_to_cs = {cs._clip_slot: cs for cs in self.clip_slots}
 
-        self.clip_slots[:] = []  # type: List[ClipSlot]
+        new_clip_slots = []  # type: List[ClipSlot]
         for (i, clip_slot) in enumerate(list(self._track.clip_slots)):
             if clip_slot in live_cs_to_cs:
-                self.clip_slots.append(live_cs_to_cs[clip_slot])
+                new_clip_slots.append(live_cs_to_cs[clip_slot])
             else:
-                self.clip_slots.append(ClipSlot.make(clip_slot=clip_slot, track=self))
+                new_clip_slots.append(ClipSlot.make(clip_slot=clip_slot, track=self))
+        self.clip_slots[:] = new_clip_slots  # type: List[ClipSlot]
         self._clip_slots_has_clip_listener.replace_subjects(self.clip_slots)
 
     def refresh_appearance(self):

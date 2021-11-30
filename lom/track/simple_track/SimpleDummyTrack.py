@@ -20,6 +20,7 @@ class SimpleDummyTrack(SimpleAudioTrack):
         seq.add(super(SimpleDummyTrack, self)._added_track_init)
         seq.add(self._insert_dummy_rack)
         seq.add(self._insert_dummy_clip)
+        seq.add(self._create_dummy_automation)
 
         return seq.done()
 
@@ -37,8 +38,6 @@ class SimpleDummyTrack(SimpleAudioTrack):
         # type: () -> Optional[Sequence]
         if not self.load_device_from_enum(DeviceEnum.DUMMY_RACK):
             return self.parent.browserManager.load_device_from_enum(DeviceEnum.DUMMY_RACK)
-        else:
-            return None
 
     def _insert_dummy_clip(self):
         # type: () -> Optional[Sequence]
@@ -46,18 +45,17 @@ class SimpleDummyTrack(SimpleAudioTrack):
             return None
 
         cs = self.clip_slots[self.song.selected_scene.index]
-        seq = Sequence()
-        seq.add(partial(self.song.template_dummy_clip.clip_slot.duplicate_clip_to, cs))
-        seq.add(self._create_dummy_automation)
-        return seq.done()
+        return self.song.template_dummy_clip.clip_slot.duplicate_clip_to(cs)
 
     def _create_dummy_automation(self):
         # type: () -> None
         clip = self.clip_slots[self.song.selected_scene.index].clip
         dummy_rack = self.get_device_from_enum(DeviceEnum.DUMMY_RACK)
         dummy_rack_gain = dummy_rack.get_parameter_by_name(DeviceParameterEnum.DUMMY_RACK_GAIN)
-        envelope = clip.create_automation_envelope(parameter=dummy_rack_gain)
-        # envelope.insert_step(0, 0, 1)
-        envelope.insert_step(clip.loop_end, 0, 1)
+        existing_envelope = clip.automation_envelope(dummy_rack_gain)
+        if not existing_envelope:
+            envelope = clip.create_automation_envelope(parameter=dummy_rack_gain)
+            # envelope.insert_step(0, 0, 1)
+            envelope.insert_step(clip.loop_end, 0, 1)
         clip.show_envelope_parameter(dummy_rack_gain)
         clip.play()

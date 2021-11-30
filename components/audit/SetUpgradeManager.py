@@ -40,7 +40,7 @@ class SetUpgradeManager(AbstractControlSurfaceComponent):
 
         devices_by_name = {}  # type: Dict[str, List[Device]]
         for device in devices_to_delete:
-            name = device.name
+            name = device.name or device.class_name
             if name not in devices_by_name:
                 devices_by_name[name] = []
             devices_by_name[name].append(device)
@@ -99,5 +99,3 @@ class SetUpgradeManager(AbstractControlSurfaceComponent):
             for device in track.all_devices:
                 if isinstance(device, PluginDevice) and device.name not in white_list_names:
                     yield device
-
-

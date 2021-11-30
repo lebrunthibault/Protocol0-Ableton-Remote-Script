@@ -1,7 +1,6 @@
-from typing import Any, cast
+from typing import Any
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import api_exposed, api_exposable_class
 
