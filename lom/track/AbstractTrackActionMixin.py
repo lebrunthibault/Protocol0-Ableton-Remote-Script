@@ -168,7 +168,7 @@ class AbstractTrackActionMixin(object):
             return None
 
         self.song.record_mode = False
-        self.song.stop_playing()
+        # self.song.stop_playing()
         self.song.session_automation_record = True
 
         if len(list(filter(None, [t.is_hearable for t in self.song.simple_tracks]))) <= 1:
@@ -178,6 +178,15 @@ class AbstractTrackActionMixin(object):
         if record_type == RecordTypeEnum.NORMAL and self.next_empty_clip_slot_index is None:
             seq.add(self.song.create_scene)
             seq.add(self.arm_track)
+            seq.add(partial(self._pre_session_record, record_type))
+            return
+
+
+        recording_scene = self.song.scenes[self.next_empty_clip_slot_index] if reco
+        seq.add(partial(setattr, self, "solo", True))
+        seq.add(lambda: .fire)
+        seq.add(lambda: self.song.scenes[self.next_empty_clip_slot_index].fire)
+        seq.add(lambda: self.parent.show_message("after 2nd fire"))
         return seq.done()
 
     def _cancel_record(self):
@@ -186,22 +195,9 @@ class AbstractTrackActionMixin(object):
         seq = Sequence()
         if InterfaceState.CURRENT_RECORD_TYPE == RecordTypeEnum.NORMAL:
             seq.add(partial(self.delete_playable_clip))
-        seq.add(self._delete_scene_if_empty)
         seq.add(partial(self.stop, immediate=True))
         seq.add(partial(self.post_session_record, InterfaceState.CURRENT_RECORD_TYPE))
         seq.add(self.song.stop_playing)
-        return seq.done()
-
-    @crashes_ableton
-    def _delete_scene_if_empty(self):
-        # type: (AbstractTrack) -> Sequence
-        """ creates random crashes """
-        seq = Sequence()
-        if self.song.selected_scene.length == 0:
-            seq.add(wait=1)
-            seq.add(self.song.selected_scene.delete)
-            seq.add(wait=1)
-            seq.add(self.arm_track)
         return seq.done()
 
     def post_session_record(self, *_, **__):

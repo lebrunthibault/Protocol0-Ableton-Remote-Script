@@ -39,9 +39,12 @@ class SceneActionMixin(object):
         self.song.selected_scene = self
 
     def fire(self):
-        # type: (Scene) -> None
+        # type: (Scene) -> Sequence
+        seq = Sequence()
         if self._scene:
-            self._scene.fire()
+            seq.add(self._scene.fire, complete_on=self._play_listener)
+            seq.add(wait=1)
+        return seq.done()
 
     def delete(self):
         # type: (Scene) -> Optional[Sequence]

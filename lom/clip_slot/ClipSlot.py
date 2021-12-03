@@ -126,6 +126,8 @@ class ClipSlot(AbstractObject):
                 complete_on=self._has_clip_listener,
             )
 
+        seq.add(partial(setattr, self.track.abstract_track, "solo", False))
+
         seq.add(
             complete_on=lambda: self.clip._is_recording_listener,
             name="awaiting clip recording end",

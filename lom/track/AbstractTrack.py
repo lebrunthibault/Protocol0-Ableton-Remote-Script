@@ -392,15 +392,19 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         return self._track and list(self._track.available_output_routing_types)
 
     @property
-    def output_routing_type(self):
+    def output_routing_track(self):
         # type: () -> Optional[SimpleTrack]
         if self._track and self._track.output_routing_type.attached_object:
             return self.song.live_track_to_simple_track[self._track.output_routing_type.attached_object]
+        elif self._track.output_routing_type.category == Live.Track.RoutingTypeCategory.parent_group_track:
+            return self.group_track
+        elif self._track.output_routing_type.category == Live.Track.RoutingTypeCategory.master:
+            return self.song.master_track
         else:
             return None
 
-    @output_routing_type.setter
-    def output_routing_type(self, track):
+    @output_routing_track.setter
+    def output_routing_track(self, track):
         # type: (SimpleTrack) -> None
         if self._track is None:
             return

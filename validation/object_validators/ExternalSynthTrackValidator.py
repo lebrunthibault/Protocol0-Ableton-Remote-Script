@@ -28,6 +28,12 @@ class ExternalSynthTrackValidator(AbstractObjectValidator, AggregateValidator):
             PropertyValueValidator(track.audio_track, "input_routing_channel",
                                    track.instrument.AUDIO_INPUT_ROUTING_CHANNEL),
         ]
+
+        if len(track.dummy_tracks) == 0:
+            validators += [
+                PropertyValueValidator(track.midi_track, "output_routing_track", track.base_track),
+                PropertyValueValidator(track.audio_track, "output_routing_track", track.base_track),
+            ]
         if track.instrument.device:
             validators.append(DeviceParameterValidator(track.instrument.device, DeviceParameterEnum.DEVICE_ON, False))
         self._validators = validators

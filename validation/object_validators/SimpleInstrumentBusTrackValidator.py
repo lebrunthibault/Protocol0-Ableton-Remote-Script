@@ -15,10 +15,15 @@ class SimpleInstrumentBusTrackValidator(AbstractObjectValidator, AggregateValida
         # type: (SimpleInstrumentBusTrack, Any, Any) -> None
         validators = [
             PropertyValueValidator(track, "input_routing_type", InputRoutingTypeEnum.NO_INPUT),
+            PropertyValueValidator(track, "has_monitor_in", True),
             SimpleTrackHasDeviceValidator(track, DeviceEnum.DUMMY_RACK),
             CallbackValidator(track, lambda t: len(t.clips) == 1, None, "track should have one empty dummy clip"),
-            CallbackValidator(track, lambda t: len(t.clips) == 1 and t.clips[0].muted, None,
-                              "dummy clip should be muted"),
         ]
+
+        if len(track.clips) != 0:
+            validators.append(CallbackValidator(track,
+                                                lambda t: t.clips[0].muted,
+                                                lambda t: setattr(t.clips[0], "muted", True),
+                                                "dummy clip should be muted"))
         self._validators = validators
         super(SimpleInstrumentBusTrackValidator, self).__init__(track, *a, **k)

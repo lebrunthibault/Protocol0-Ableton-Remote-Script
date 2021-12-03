@@ -57,6 +57,9 @@ class Song(SongActionMixin, AbstractObject):
             self.notify_session_end()
             return
 
+        if self.application.session_view_active and not self.song.selected_scene.is_playing:
+            self.song.selected_scene.fire()
+
     @p0_subject_slot("record_mode")
     def _record_mode_listener(self):
         # type: () -> None

@@ -62,7 +62,6 @@ class Scene(SceneActionMixin, AbstractObject):
             return
 
         # Scene is triggered but not yet playing
-
         if Scene.PLAYING_SCENE and Scene.PLAYING_SCENE != self:
             # manually stopping previous scene because we don't display clip slot stop buttons
             for clip in Scene.PLAYING_SCENE.clips:
@@ -70,7 +69,6 @@ class Scene(SceneActionMixin, AbstractObject):
                     clip.stop()
 
     @p0_subject_slot("play")
-    @defer
     def _play_listener(self):
         # type: () -> None
         """ implements a next scene follow action """

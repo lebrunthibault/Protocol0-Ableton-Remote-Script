@@ -69,17 +69,17 @@ class AbstractGroupTrack(AbstractTrack):
         if len(self.dummy_tracks) == 0:
             for track in simple_tracks:
                 if track.has_audio_output:
-                    track.output_routing_type = self.base_track
+                    track.output_routing_track = self.base_track
             return
 
         dummy_track = self.dummy_tracks[0]
         for track in simple_tracks:
             if track.has_audio_output:
-                track.output_routing_type = dummy_track
+                track.output_routing_track = dummy_track
         for next_dummy_track in self.dummy_tracks[1:]:
-            dummy_track.output_routing_type = next_dummy_track
+            dummy_track.output_routing_track = next_dummy_track
             dummy_track = next_dummy_track
-        dummy_track.output_routing_type = self.base_track
+        dummy_track.output_routing_track = self.base_track
 
     @property
     def active_tracks(self):

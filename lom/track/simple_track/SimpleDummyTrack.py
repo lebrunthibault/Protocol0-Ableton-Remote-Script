@@ -45,7 +45,10 @@ class SimpleDummyTrack(SimpleAudioTrack):
             return None
 
         cs = self.clip_slots[self.song.selected_scene.index]
-        return self.song.template_dummy_clip.clip_slot.duplicate_clip_to(cs)
+        seq = Sequence()
+        seq.add(partial(self.song.template_dummy_clip.clip_slot.duplicate_clip_to, cs))
+        seq.add(lambda: setattr(self.clips[0], "muted", False))
+        return seq.done()
 
     def _create_dummy_automation(self):
         # type: () -> None
@@ -56,6 +59,7 @@ class SimpleDummyTrack(SimpleAudioTrack):
         if not existing_envelope:
             envelope = clip.create_automation_envelope(parameter=dummy_rack_gain)
             # envelope.insert_step(0, 0, 1)
+            # envelope.insert_step(0.5, 110, 110)
             envelope.insert_step(clip.loop_end, 0, 1)
         clip.show_envelope_parameter(dummy_rack_gain)
         clip.play()
