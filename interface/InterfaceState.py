@@ -1,7 +1,6 @@
 from protocol0.components.SongDataManager import save_song_data, song_synchronizable_class
 from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.enums.BarLengthEnum import BarLengthEnum
-from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.utils.utils import scroll_values
 
 
@@ -14,7 +13,7 @@ class InterfaceState(object):
     RECORD_CLIP_TAILS = False  # records one more bar of audio to make editing easier
     SELECTED_CLIP_TAILS_BAR_LENGTH = BarLengthEnum.ONE
 
-    CURRENT_RECORD_TYPE = RecordTypeEnum.NORMAL
+    CURRENT_RECORD_TYPE = None
 
     # NB: for an unknown reason clip.view.show_envelope does not always show the envelope
     # when the button was not clicked. As a workaround we click it the first time

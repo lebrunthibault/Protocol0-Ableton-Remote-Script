@@ -113,7 +113,9 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
             func=nop,  # type: Union[Iterable, Callable, object]
             name=None,  # type: str
             wait=None,  # type: int
+            wait_bars=None,  # type: int
             wait_for_system=False,  # type: bool
+            no_wait=False,  # type: bool
             complete_on=None,  # type: Callable
             do_if=None,  # type: Callable
             check_timeout=4,  # type: int
@@ -141,7 +143,9 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
                 func,
                 name=name,
                 wait=wait,
+                wait_bars=wait_bars,
                 wait_for_system=wait_for_system,
+                no_wait=no_wait,
                 complete_on=complete_on,
                 do_if=do_if,
                 check_timeout=0 if no_timeout else check_timeout,

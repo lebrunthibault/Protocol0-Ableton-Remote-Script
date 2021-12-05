@@ -8,7 +8,7 @@ from protocol0.lom.SceneName import SceneName
 from protocol0.lom.clip.Clip import Clip
 from protocol0.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.utils.decorators import p0_subject_slot, defer, throttle
+from protocol0.utils.decorators import p0_subject_slot, throttle
 
 
 class Scene(SceneActionMixin, AbstractObject):

@@ -5,6 +5,7 @@ from typing import List, Optional, Dict, Any, Generator, Iterator
 
 import Live
 from protocol0.enums.SongLoadStateEnum import SongLoadStateEnum
+from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.Scene import Scene
 from protocol0.lom.SongActionMixin import SongActionMixin
@@ -57,7 +58,7 @@ class Song(SongActionMixin, AbstractObject):
             self.notify_session_end()
             return
 
-        if self.application.session_view_active and not self.song.selected_scene.is_playing:
+        if self.application.session_view_active and not self.song.selected_scene.is_playing and InterfaceState.CURRENT_RECORD_TYPE is None:
             self.song.selected_scene.fire()
 
     @p0_subject_slot("record_mode")
@@ -105,6 +106,14 @@ class Song(SongActionMixin, AbstractObject):
     def current_track(self):
         # type: () -> AbstractTrack
         return self.song.selected_track.abstract_track
+
+    @property
+    def armed_track_or_current_track(self):
+        # type: () -> AbstractTrack
+        if len(self.song.armed_tracks):
+            return self.song.armed_tracks[0]
+        else:
+            return self.current_track
 
     @property
     def visible_tracks(self):

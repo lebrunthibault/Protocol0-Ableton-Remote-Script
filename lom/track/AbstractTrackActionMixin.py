@@ -9,7 +9,7 @@ from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.decorators import session_view_only, arrangement_view_only, crashes_ableton
+from protocol0.utils.decorators import session_view_only, arrangement_view_only
 
 if TYPE_CHECKING:
     from protocol0.lom.track.AbstractTrack import AbstractTrack
@@ -97,11 +97,13 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
         if self.is_record_triggered:
             return self._cancel_record()
-        self.pre_record(record_type=record_type)
         InterfaceState.CURRENT_RECORD_TYPE = record_type
+        self.pre_record(record_type=record_type)
 
         seq = Sequence()
         seq.add(partial(self._pre_session_record, record_type))
+        if record_type == RecordTypeEnum.NORMAL:
+            seq.add(self._launch_count_in)
 
         if record_type == RecordTypeEnum.NORMAL:
             seq.add(self.session_record_all)
@@ -179,13 +181,27 @@ class AbstractTrackActionMixin(object):
             seq.add(self.song.create_scene)
             seq.add(self.arm_track)
             seq.add(partial(self._pre_session_record, record_type))
-            return
 
+        return seq.done()
 
-        recording_scene = self.song.scenes[self.next_empty_clip_slot_index] if reco
-        seq.add(partial(setattr, self, "solo", True))
-        seq.add(lambda: .fire)
-        seq.add(lambda: self.song.scenes[self.next_empty_clip_slot_index].fire)
+    def _launch_count_in(self):
+        # type: (AbstractTrack) -> Sequence
+        self.solo = True
+        recording_scene = self.song.scenes[self.next_empty_clip_slot_index]
+        self.parent.log_dev("recording_scene: %s" % recording_scene)
+        self.parent.log_dev("recording_scene.length: %s" % recording_scene.length)
+
+        seq = Sequence()
+        if recording_scene.length:
+            seq.add(recording_scene.fire)
+        else:
+            seq.add(partial(self.song.stop_all_clips, False))
+            seq.add(partial(setattr, self.song, "is_playing", True))
+
+        seq.add(wait_bars=self.song.signature_numerator)
+        seq.add(partial(setattr, self, "solo", False))
+        if recording_scene.length:
+            seq.add(recording_scene.fire, no_wait=True)
         seq.add(lambda: self.parent.show_message("after 2nd fire"))
         return seq.done()
 
@@ -206,6 +222,7 @@ class AbstractTrackActionMixin(object):
         self.song.metronome = False
         self.has_monitor_in = False
         self.song.session_automation_record = True
+        InterfaceState.CURRENT_RECORD_TYPE = None
         clip = self.base_track.playable_clip
         if clip:
             clip.select()

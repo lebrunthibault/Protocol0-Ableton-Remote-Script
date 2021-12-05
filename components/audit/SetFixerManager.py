@@ -5,8 +5,8 @@ from protocol0.lom.AbstractObject import AbstractObject
 
 
 class SetFixerManager(AbstractControlSurfaceComponent):
-    def fix(self, full_scan=False):
-        # type: (bool) -> None
+    def fix(self):
+        # type: () -> None
         """ Fix the current set to the current standard regarding naming / coloring etc .."""
         self.parent.logManager.clear()
 

@@ -24,7 +24,6 @@ class ActionGroupTest(AbstractActionGroup):
         seq.add(self.song.selected_scene.fire)
         seq.done()
 
-
     def start_set_profiling(self):
         # type: () -> None
         self.system.start_set_profiling()

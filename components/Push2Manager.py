@@ -66,22 +66,22 @@ class Push2Manager(AbstractControlSurfaceComponent):
     @subject_slot("selected_track")
     def _selected_track_listener(self):
         # type: () -> None
-        if self.parent.sessionManager.session:
-            self._update_session_ring()
+        # if self.parent.sessionManager.session:
+        #     self._update_session_ring()
         self._update_selected_modes()
 
     @push2_method()
     def _update_session_ring(self):
         # type: () -> None
         assert self.push2
-        if self.update_session_ring:
-            # noinspection PyBroadException
-            try:
-                self.push2._session_ring.set_offsets(
-                    self.parent.sessionManager.session.track_offset(), self.push2._session_ring.scene_offset
-                )
-            except Exception:
-                return
+        # if self.update_session_ring:
+        #     # noinspection PyBroadException
+        #     try:
+        #         # self.push2._session_ring.set_offsets(
+        #         #     self.parent.sessionManager.session.track_offset(), self.push2._session_ring.scene_offset
+        #         # )
+        #     except Exception:
+        #         return
         self.update_session_ring = True
 
     @push2_method()

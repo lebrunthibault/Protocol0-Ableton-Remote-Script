@@ -146,14 +146,14 @@ class SongManager(AbstractControlSurfaceComponent):
         if simple_track._track in self.song.live_track_to_simple_track:
             previous_simple_track = self.song.live_track_to_simple_track[simple_track._track]
             if previous_simple_track != simple_track:
-                self._remove_outdated_simple_track(previous_simple_track, simple_track)
+                self._remove_outdated_simple_track(previous_simple_track)
 
         # registering
         self.song.live_track_to_simple_track[simple_track._track] = simple_track
         self._simple_tracks.append(simple_track)
 
-    def _remove_outdated_simple_track(self, previous_simple_track, new_simple_track):
-        # type: (SimpleTrack, SimpleTrack) -> None
+    def _remove_outdated_simple_track(self, previous_simple_track):
+        # type: (SimpleTrack) -> None
         """ disconnecting and removing from SimpleTrack group track and abstract_group_track """
         previous_simple_track.disconnect()
 
