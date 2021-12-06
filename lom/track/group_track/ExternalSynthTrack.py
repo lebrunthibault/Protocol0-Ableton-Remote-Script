@@ -124,6 +124,18 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         return self.midi_track.is_recording or self.audio_track.is_recording
 
     @property
+    def solo(self):
+        # type: () -> bool
+        return self.base_track.solo
+
+    @solo.setter
+    def solo(self, solo):
+        # type: (bool) -> None
+        self.base_track.solo = solo
+        self.midi_track.solo = solo
+        self.audio_track.solo = solo
+
+    @property
     def next_empty_clip_slot_index(self):
         # type: () -> Optional[int]
         for i in range(self.song.selected_scene.index, len(self.song.scenes)):

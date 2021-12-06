@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 
 
 class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
-    __subject_events__ = ("has_clip", "instrument", "devices", "fired_slot_index", "has_monitor_in")
+    __subject_events__ = ("has_clip", "is_recording", "instrument", "devices", "fired_slot_index", "has_monitor_in")
 
     DEFAULT_NAME = "default"
     DEFAULT_COLOR = ColorEnum.DISABLED  # when the color cannot be matched
@@ -55,6 +55,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self.push2_selected_instrument_mode = None  # type: Optional[Push2InstrumentModeEnum]
 
         self._has_clip_listener.subject = self
+        self._is_recording_listener.subject = self
         self._color_listener.subject = self._track
 
     def _added_track_init(self):
@@ -71,6 +72,13 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def _has_clip_listener(self):
         # type: () -> None
         pass
+
+    @p0_subject_slot("is_recording")
+    def _is_recording_listener(self):
+        # type: () -> None
+        self.solo = False
+        if len(list(filter(None, [t.is_hearable for t in self.song.abstract_tracks]))) <= 1:
+            self.song.metronome = False
 
     @p0_subject_slot("color")
     @defer

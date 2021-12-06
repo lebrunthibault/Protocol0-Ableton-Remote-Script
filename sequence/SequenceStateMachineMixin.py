@@ -10,6 +10,7 @@ class SequenceState(AbstractEnum):
     UN_STARTED = "UN_STARTED"
     STARTED = "STARTED"
     TERMINATED = "TERMINATED"
+    CANCELLED = "CANCELLED"
     ERRORED = "ERRORED"
 
 
@@ -19,6 +20,7 @@ class SequenceStateMachineMixin(object):
         transitions = [
             ["start", SequenceState.UN_STARTED, SequenceState.STARTED],
             ["terminate", SequenceState.STARTED, SequenceState.TERMINATED],
+            ["cancel", SequenceState.STARTED, SequenceState.CANCELLED],
             ["error", SequenceState.STARTED, SequenceState.ERRORED],
         ]
 
@@ -26,6 +28,7 @@ class SequenceStateMachineMixin(object):
             State(SequenceState.UN_STARTED),
             State(SequenceState.STARTED, on_enter=[self._on_start]),
             State(SequenceState.TERMINATED, on_enter=[self._on_terminate]),
+            State(SequenceState.CANCELLED, on_enter=[self._on_cancel]),
             State(SequenceState.ERRORED, on_enter=[self._on_terminate]),
         ]
 
@@ -47,6 +50,11 @@ class SequenceStateMachineMixin(object):
         return self.state == str(SequenceState.ERRORED)
 
     @property
+    def cancelled(self):
+        # type: () -> bool
+        return self.state == str(SequenceState.CANCELLED)
+
+    @property
     def terminated(self):
         # type: () -> bool
         return self.state == str(SequenceState.TERMINATED)
@@ -54,7 +62,7 @@ class SequenceStateMachineMixin(object):
     @property
     def has_final_state(self):
         # type: () -> bool
-        return self.errored or self.terminated
+        return self.errored or self.cancelled or self.terminated
 
     def dispatch(self, action):
         # type: (str) -> None
@@ -72,12 +80,20 @@ class SequenceStateMachineMixin(object):
         self.dispatch("terminate")
         self.notify_terminated()  # type: ignore[attr-defined]
 
+    def cancel(self):
+        # type: () -> None
+        self.dispatch("cancel")
+
     def error(self):
         # type: () -> None
         self.dispatch("error")
         self.notify_errored()  # type: ignore[attr-defined]
 
     def _on_start(self):
+        # type: () -> None
+        pass
+
+    def _on_cancel(self):
         # type: () -> None
         pass
 

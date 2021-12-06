@@ -1,4 +1,5 @@
 from functools import partial
+from math import floor
 
 from typing import TYPE_CHECKING, Optional, Any, List
 
@@ -124,7 +125,7 @@ class Clip(ClipActionMixin, AbstractObject):
         Casting to int to have whole beats.
         not using unwarped audio clips
         """
-        return int(self._clip.length) if self._clip and getattr(self, "warping", True) else 0
+        return floor(self._clip.length) if self._clip and getattr(self, "warping", True) else 0
 
     @length.setter
     def length(self, length):
@@ -135,7 +136,7 @@ class Clip(ClipActionMixin, AbstractObject):
     @property
     def tail_bar_length(self):
         # type: () -> int
-        total_length = int(self.end_marker - self.start_marker)
+        total_length = floor(self.end_marker - self.start_marker)
         return int((total_length - self.length) / self.song.signature_numerator)
 
     @property

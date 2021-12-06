@@ -126,7 +126,8 @@ class ClipSlot(AbstractObject):
                 complete_on=self._has_clip_listener,
             )
 
-        # seq.add(partial(setattr, self.track.abstract_track, "solo", False))
+        # noinspection PyUnresolvedReferences
+        seq.add(self.track.abstract_track.notify_is_recording)
 
         seq.add(
             complete_on=lambda: self.clip._is_recording_listener,

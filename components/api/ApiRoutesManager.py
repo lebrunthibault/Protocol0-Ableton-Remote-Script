@@ -30,7 +30,7 @@ class ApiRoutesManager(AbstractControlSurfaceComponent):
         if not self.song:
             self.parent.log_error("You are still in profiling mode")
         else:
-            self.song.reset()
+            self.song.reset(save_data=True)
 
     @api_exposed
     def execute_vocal_command(self, command):

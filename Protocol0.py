@@ -87,7 +87,6 @@ class Protocol0(ControlSurface):
             self.protocol0_application = Application()
             self.protocol0_song = Song(song=self.song())
             self.songDataManager = SongDataManager()
-            self.songDataManager.restore_data()
             if Config.SHOW_RELOAD_TIME or InterfaceState.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.PROFILING:
                 self.p0_system_api_client.end_measurement()
 
@@ -106,7 +105,7 @@ class Protocol0(ControlSurface):
             self.navigationManager = NavigationManager()
             self.presetManager = PresetManager()
             self.globalBeatScheduler = BeatScheduler()
-            self.sceneBeatScheduler = BeatScheduler()
+            self.sceneBeatScheduler = BeatScheduler(exclusive=True)
             self.utilsManager = UtilsManager()
             self.logManager = LogManager()
             self.validatorManager = ValidatorManager()
@@ -259,7 +258,7 @@ class Protocol0(ControlSurface):
         # type: () -> None
         del self._remaining_scheduled_messages[:]
         for seq in reversed(Sequence.RUNNING_SEQUENCES):
-            seq.terminate()
+            seq.cancel()
         Sequence.RUNNING_SEQUENCES = []
         self._task_group.clear()
         self.fastScheduler.restart()

@@ -96,6 +96,13 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
         if not self._bypass_errors:
             self.error()
 
+    def _on_cancel(self):
+        # type: () -> None
+        try:
+            self.RUNNING_SEQUENCES.remove(self)
+        except ValueError:
+            pass
+
     def _on_terminate(self):
         # type: () -> None
         try:
@@ -113,7 +120,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
             func=nop,  # type: Union[Iterable, Callable, object]
             name=None,  # type: str
             wait=None,  # type: int
-            wait_bars=None,  # type: int
+            wait_beats=None,  # type: int
             wait_for_system=False,  # type: bool
             no_wait=False,  # type: bool
             complete_on=None,  # type: Callable
@@ -143,7 +150,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
                 func,
                 name=name,
                 wait=wait,
-                wait_bars=wait_bars,
+                wait_beats=wait_beats,
                 wait_for_system=wait_for_system,
                 no_wait=no_wait,
                 complete_on=complete_on,

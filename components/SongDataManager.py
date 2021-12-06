@@ -32,10 +32,18 @@ def save_song_data(func):
 
 
 class SongDataManager(AbstractControlSurfaceComponent):
+    DEBUG = True
+
+    def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
+        super(SongDataManager, self).__init__(*a, **k)
+        self.restore_data()
+
     def save(self):
         # type: () -> None
-        from protocol0.interface.InterfaceState import InterfaceState
-        self.store_class_data(InterfaceState)
+        for cls_fqdn in SYNCHRONIZABLE_CLASSE_NAMES:
+            cls = locate(cls_fqdn)
+            self.store_class_data(cls)
 
     def store_class_data(self, cls):
         # type: (Any) -> None
@@ -64,6 +72,8 @@ class SongDataManager(AbstractControlSurfaceComponent):
                 self.parent.log_error("Couldn't locate %s" % cls_fqdn)
                 continue
             class_data = self.song.get_data(cls_fqdn, {})
+            if self.DEBUG:
+                self.parent.log_info("class_data of %s: %s" % (cls_fqdn, class_data))
             if not isinstance(class_data, dict):
                 raise SongDataError("%s song data : expected dict, got %s" % (cls_fqdn, class_data))
 

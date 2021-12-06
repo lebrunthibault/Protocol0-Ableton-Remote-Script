@@ -1,7 +1,10 @@
+from functools import partial
+
 from typing import List, Any, Optional
 
 import Live
 from _Framework.SubjectSlot import subject_slot_group
+from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.SceneActionMixin import SceneActionMixin
 from protocol0.lom.SceneName import SceneName
@@ -72,7 +75,6 @@ class Scene(SceneActionMixin, AbstractObject):
     def _play_listener(self):
         # type: () -> None
         """ implements a next scene follow action """
-        # doing this when scene starts playing
         if Scene.LOOPING_SCENE and Scene.LOOPING_SCENE != self:
             previous_looping_scene = Scene.LOOPING_SCENE
             Scene.LOOPING_SCENE = None

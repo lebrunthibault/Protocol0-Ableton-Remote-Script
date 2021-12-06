@@ -33,9 +33,9 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
         self.listenable_properties = listenable_properties or []
 
         for property_name in self.listenable_properties:
-            self.register_slot(getattr(master, lom_property_name), partial(self._sync_properties, master, slave),
+            self.register_slot(getattr(master, lom_property_name), partial(self._sync_property, master, slave, property_name),
                                property_name)
-            self.register_slot(getattr(slave, lom_property_name), partial(self._sync_properties, slave, master),
+            self.register_slot(getattr(slave, lom_property_name), partial(self._sync_property, slave, master, property_name),
                                property_name)
 
     def _get_lom_property_name_from_object(self, obj):
@@ -59,16 +59,11 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
         return True
 
     @defer
-    def _sync_properties(self, master, slave):
-        # type: (AbstractObject, AbstractObject) -> None
-        if not self.is_syncable(slave):
-            return
-        for property_name in self.get_syncable_properties(master):
-            self._sync_property(master, slave, property_name)
-
     def _sync_property(self, master, slave, property_name):
         # type: (AbstractObject, AbstractObject, str) -> None
+        if not self.is_syncable(slave):
+            return
         master_value = getattr(master, property_name)
         slave_value = getattr(slave, property_name)
-        if master_value is not None and slave_value != master_value and slave and not slave.deleted and not master.deleted:
+        if slave and master_value is not None and slave_value != master_value and not slave.deleted and not master.deleted:
             setattr(slave, property_name, master_value)

@@ -22,7 +22,7 @@ class ClipName(AbstractObjectName):
 
     def _get_base_name(self):
         # type: () -> str
-        match = re.match("^(?P<base_name>[^()[\\].]*).*$", self.clip.name or "")
+        match = re.match("^(?P<base_name>[^().]*).*$", self.clip.name or "")
         return match.group("base_name").strip() if match else ""
 
     def normalize_base_name(self):
@@ -53,4 +53,5 @@ class ClipName(AbstractObjectName):
         clip_name = "%s (%s)" % (self.base_name, self._length_legend)
         if not self.clip.is_dummy and self.clip.tail_bar_length:
             clip_name += " tail"
+        # self.parent.log_dev("%s <-> %s <-> %s" % (self.clip, self.clip.name, clip_name))
         self.clip.name = clip_name

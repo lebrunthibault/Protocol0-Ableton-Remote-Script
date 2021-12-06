@@ -1,19 +1,20 @@
 from functools import partial
 from math import floor
 
-from ClyphX_Pro.SyncedScheduler import SyncedScheduler
 from typing import Callable, Any, Dict
 
+from protocol0.components.scheduler.SyncedScheduler import SyncedScheduler
 from protocol0.lom.AbstractObject import AbstractObject
 
 
 class BeatScheduler(AbstractObject, SyncedScheduler):
     TIMER_DELAY = 5  # mitigate not precise scheduling
 
-    def __init__(self, *a, **k):
-        # type: (Any, Any) -> None
+    def __init__(self, exclusive=False, *a, **k):
+        # type: (bool, Any, Any) -> None
         super(BeatScheduler, self).__init__(unschedule_on_stop=True, *a, **k)
         self._pending_action_lists = self._pending_action_lists  # type: Dict[Callable, Dict[str, float]]
+        self._exclusive = exclusive
 
     def wait_bars(self, bar_length, callback, exact=False):
         # type: (int, Callable, bool) -> None
@@ -31,8 +32,10 @@ class BeatScheduler(AbstractObject, SyncedScheduler):
 
     def wait_beats(self, beats, callback):
         # type: (float, Callable) -> None
-        self.clear()  # allow only one action at a time
-        self.schedule_message("%d" % floor(beats - 0.1), callback)
+        if self._exclusive:
+            self.clear()  # allow only one action at a time
+        self.schedule_message("%d" % beats, callback)
+        # self.schedule_message("%d" % floor(beats - 0.1), callback)
 
     def clear(self):
         # type: () -> None

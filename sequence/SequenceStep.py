@@ -25,7 +25,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
             sequence,  # type: Sequence
             name,  # type: str
             wait,  # type: int
-            wait_bars,  # type: int
+            wait_beats,  # type: int
             wait_for_system,  # type: bool
             no_wait,  # type: bool
             complete_on,  # type: Optional[Union[Callable, CallableWithCallbacks]]
@@ -45,7 +45,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         self._sequence_name = sequence.name
         self._callable = func
         self._wait = wait or 0
-        self._wait_bars = wait_bars or 0
+        self._wait_beats = wait_beats or 0
         self._no_wait = no_wait
         self.wait_for_system = wait_for_system
         self._complete_on = complete_on
@@ -57,11 +57,11 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         self._condition = do_if
 
         if self.wait_for_system:
-            assert self._wait == 0 and self._wait_bars == 0 and self._complete_on is None, "waiting for system excludes other waiting options"
+            assert self._wait == 0 and self._wait_beats == 0 and self._complete_on is None, "waiting for system excludes other waiting options"
         if self._complete_on:
-            assert self._wait == 0 and self._wait_bars == 0, "complete_on excludes wait and wait_bars"
+            assert self._wait == 0 and self._wait_beats == 0, "complete_on excludes wait and wait_beats"
         if self._wait:
-            assert self._wait_bars == 0, "wait excludes wait_bars"
+            assert self._wait_beats == 0, "wait excludes wait_beats"
         assert callable(self._callable), "You passed a non callable (%s) to %s" % (self._callable, self)
         from protocol0.sequence.Sequence import Sequence
 
@@ -84,9 +84,9 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
                 output += " (and poll for lambda condition)"
             else:
                 output += " (and poll for %s)" % get_callable_repr(self._complete_on)
-        elif self._wait_bars:
-            output += " (and wait_bars %s)" % self._wait_bars
-        elif self._wait_bars:
+        elif self._wait_beats:
+            output += " (and wait_beats %s)" % self._wait_beats
+        elif self._wait_beats:
             output += " (no wait)"
         if self._do_if:
             output += " (has_if)"
@@ -157,7 +157,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
 
     def _check_for_step_completion(self, _=None):
         # type: (Any) -> None
-        if not self._complete_on and not self._wait and not self._wait_bars:
+        if not self._complete_on and not self._wait and not self._wait_beats:
             self.terminate()
             return
 
@@ -165,8 +165,8 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
             self.parent.wait(self._wait, self.terminate)
             return
 
-        if self._wait_bars:
-            self.parent.wait_beats(self._wait_bars, self.terminate)
+        if self._wait_beats:
+            self.parent.wait_beats(self._wait_beats, self.terminate)
             return
 
         # we have complete_on

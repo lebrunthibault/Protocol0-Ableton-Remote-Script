@@ -31,15 +31,16 @@ class SongActionMixin(object):
         self.parent.navigationManager.show_arrangement()
         self._song.back_to_arranger = False
 
-    @handle_error
-    def reset(self):
-        # type: (Song) -> None
+    def reset(self, save_data=False):
+        # type: (Song, bool) -> None
         """ stopping immediately """
         self.stop_playing()
         # noinspection PyPropertyAccess
         self._song.current_song_time = 0
         self.stop_all_clips()
         self.parent.wait(3, partial(setattr, self.song, "song_load_state", SongLoadStateEnum.LOADED))
+        if save_data:
+            self.parent.songDataManager.save()
 
     def play(self):
         # type: (Song) -> None
