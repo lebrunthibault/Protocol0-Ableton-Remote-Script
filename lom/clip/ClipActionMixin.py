@@ -30,7 +30,6 @@ class ClipActionMixin(object):
         self.song.highlighted_clip_slot = self.clip_slot
         seq = Sequence(silent=True)
         seq.add(self.parent.navigationManager.show_clip_view)
-        # seq.add(wait=10)
         return seq.done()
 
     def play(self):

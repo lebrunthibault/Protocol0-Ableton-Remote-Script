@@ -78,7 +78,7 @@ class Scene(SceneActionMixin, AbstractObject):
         if Scene.LOOPING_SCENE and Scene.LOOPING_SCENE != self:
             previous_looping_scene = Scene.LOOPING_SCENE
             Scene.LOOPING_SCENE = None
-            previous_looping_scene.scene_name.update()
+            self.parent.defer(previous_looping_scene.scene_name.update)
         self.schedule_next_scene_launch()
 
     @subject_slot_group("length")

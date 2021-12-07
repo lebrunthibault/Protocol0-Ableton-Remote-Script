@@ -32,7 +32,7 @@ def save_song_data(func):
 
 
 class SongDataManager(AbstractControlSurfaceComponent):
-    DEBUG = True
+    DEBUG = False
 
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None

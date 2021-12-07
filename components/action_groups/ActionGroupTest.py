@@ -36,11 +36,7 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        self.parent.log_dev(self.application.browser.current_project.name)
-        self.parent.log_dev(self.application.browser.current_project.source)
-        for item in self.application.browser.current_project.iter_children:
-            self.parent.log_dev(item)
-        # self.parent.log_dev(Live.Browser.Browser.current_project.__get__())
+        self.parent.log_dev(self.song.selected_clip._clip.file_path)
 
     def start_set_profiling(self):
         # type: () -> None

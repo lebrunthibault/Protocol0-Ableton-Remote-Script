@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Optional
 from _Framework.Util import forward_property
 from protocol0.devices.presets.InstrumentPreset import InstrumentPreset
 from protocol0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
+from protocol0.lom.device.PluginDevice import PluginDevice
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.utils import scroll_values
 
@@ -77,6 +78,8 @@ class AbstractInstrumentPresetsMixin(object):
         # type: (AbstractInstrument) -> Sequence
         seq = Sequence()
         if self.selected_preset:
+            if isinstance(self.device, PluginDevice):
+                self.device.selected_preset_index = self.selected_preset.index
             seq.add(partial(self.load_preset, self.selected_preset))
             # noinspection PyUnresolvedReferences
             seq.add(self.notify_selected_preset)

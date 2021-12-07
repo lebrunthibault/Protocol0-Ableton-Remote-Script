@@ -129,14 +129,18 @@ class ExternalSynthTrackActionMixin(object):
     def post_session_record(self, record_type):
         # type: (ExternalSynthTrack, RecordTypeEnum) -> None
         super(ExternalSynthTrackActionMixin, self).post_session_record()
-        if self.midi_track.playable_clip and self.audio_track.playable_clip:
-            self.audio_track.playable_clip.post_record()
-            if record_type == RecordTypeEnum.NORMAL:
-                self.midi_track.playable_clip.clip_name.update(base_name="")
-                self.audio_track.playable_clip.clip_name.update(base_name="")
-                self.midi_track.playable_clip.post_record()
-            else:
-                self.link_clip_slots()
+        if not self.midi_track.playable_clip or not self.audio_track.playable_clip:
+            return None
+
+        self.audio_track.playable_clip.post_record()
+        if record_type == RecordTypeEnum.NORMAL:
+            self.midi_track.playable_clip.clip_name.update(base_name="")
+            self.audio_track.playable_clip.clip_name.update(base_name="")
+            self.midi_track.playable_clip.post_record()
+            self.midi_track.playable_clip.select()
+            self.parent.navigationManager.focus_main()
+        else:
+            self.link_clip_slots()
 
     def post_arrangement_record(self):
         # type: (ExternalSynthTrack) -> None

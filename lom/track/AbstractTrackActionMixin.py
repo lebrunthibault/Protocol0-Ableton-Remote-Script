@@ -186,13 +186,12 @@ class AbstractTrackActionMixin(object):
         self.song.metronome = True
 
         if record_type == RecordTypeEnum.AUDIO_ONLY:
+            self.song.selected_scene.fire()
             return None
 
         self.song.stop_all_clips(quantized=False)
         self.song.stop_playing()
         recording_scene = self.song.scenes[self.next_empty_clip_slot_index]
-
-        # self.solo = True
 
         seq = Sequence()
         seq.add(wait=1)  # removes click, solo is too slow
@@ -217,7 +216,6 @@ class AbstractTrackActionMixin(object):
     def post_session_record(self, *_, **__):
         # type: (AbstractTrack, Any, Any) -> None
         """ overridden """
-        self.parent.log_dev("in post session record")
         self.song.metronome = False
         self.has_monitor_in = False
         self.solo = False
