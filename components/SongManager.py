@@ -4,6 +4,7 @@ from typing import Any, List, Optional, Type
 
 import Live
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.components.SongDataManager import SongDataManager
 from protocol0.devices.InstrumentProphet import InstrumentProphet
 from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.enums.DeviceEnum import DeviceEnum
@@ -32,12 +33,26 @@ class SongManager(AbstractControlSurfaceComponent):
     def init_song(self):
         # type: () -> None
         self.tracks_listener()
-        # self._highlighted_clip_slot = self.song.highlighted_clip_slot
-        # self._highlighted_clip_slot_poller()
         self.song.song_load_state = SongLoadStateEnum.LOADING
+        if InterfaceState.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.PROFILING:
+            return None
+
         self._select_startup_track()
-        if InterfaceState.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.PROFILING:
-            self.parent.wait(2, self.song.reset)
+        self._restore_selected_state()
+        self.parent.wait(2, self.song.reset)
+
+    def _restore_selected_state(self):
+        # type: () -> None
+        if SongDataManager.SELECTED_SCENE_INDEX is not None and SongDataManager.SELECTED_SCENE_INDEX < len(self.song.scenes):
+            selected_scene = self.song.scenes[SongDataManager.SELECTED_SCENE_INDEX]
+            selected_scene.select()
+        selected_track = None
+        if SongDataManager.SELECTED_TRACK_INDEX is not None and SongDataManager.SELECTED_TRACK_INDEX < len(list(self.song.simple_tracks)):
+            selected_track = list(self.song.simple_tracks)[SongDataManager.SELECTED_TRACK_INDEX]
+            selected_track.select()
+        if selected_track and SongDataManager.SELECTED_CLIP_INDEX is not None and SongDataManager.SELECTED_CLIP_INDEX < len(selected_track.clips):
+            clip = selected_track.clips[SongDataManager.SELECTED_CLIP_INDEX]
+            self.parent.defer(clip.select)
 
     def _select_startup_track(self):
         # type: () -> None
@@ -74,11 +89,26 @@ class SongManager(AbstractControlSurfaceComponent):
             # noinspection PyUnresolvedReferences
             self.notify_selected_track()
 
+    def purge(self):
+        # type: () -> None
+        for track in self.song.abstract_tracks:
+            track.disconnect()
+        for track in self.song.simple_tracks:
+            track.disconnect()
+        self.song.live_track_to_simple_track = collections.OrderedDict()
+        self.song.live_clip_slot_to_clip_slot = {}
+        for scene in self.song.scenes:
+            scene.disconnect()
+        self.song.scenes = []
+
     @p0_subject_slot("tracks")
     @handle_error
-    def tracks_listener(self):
-        # type: () -> None
+    def tracks_listener(self, purge=False):
+        # type: (bool) -> None
         # Check if tracks were added
+        if purge:
+            self.purge()
+
         previous_simple_track_count = len(list(self._simple_tracks))
         has_added_tracks = 0 < previous_simple_track_count < len(self.song._song.tracks)
 
@@ -99,12 +129,14 @@ class SongManager(AbstractControlSurfaceComponent):
     def _generate_simple_tracks(self):
         # type: () -> None
         """ instantiate SimpleTracks (including return / master, that are marked as inactive) """
-        self._simple_tracks[:] = []
         self.song.usamo_track = None
         self.template_dummy_clip = None  # type: Optional[AudioClip]
         # instantiate set tracks
+        live_tracks = list(self.song._song.tracks) + list(self.song._song.return_tracks)
 
-        for track in list(self.song._song.tracks) + list(self.song._song.return_tracks):
+        self._simple_tracks[:] = []
+
+        for track in live_tracks:
             self.generate_simple_track(track=track)
 
         if self.song.usamo_track is None and self.song.song_load_state != SongLoadStateEnum.LOADED:
@@ -118,7 +150,7 @@ class SongManager(AbstractControlSurfaceComponent):
             self.song.live_track_to_simple_track[track._track] = track
 
         # Store clip_slots mapping. track and scene changes trigger a song remapping so it's fine
-        self.song.clip_slots_by_live_live_clip_slot = {
+        self.song.live_clip_slot_to_clip_slot = {
             clip_slot._clip_slot: clip_slot for track in self.song.simple_tracks for clip_slot in track.clip_slots
         }
 
@@ -187,6 +219,10 @@ class SongManager(AbstractControlSurfaceComponent):
         for scene in self.song.scenes:
             if scene._scene not in live_scenes:
                 scene.disconnect()
+            # when moving scenes around
+            elif list(live_scenes).index(scene._scene) != scene.index:
+                scene.disconnect()
+                self.song.scenes.remove(scene)
 
         # create a dict access from live scenes
         scene_mapping = collections.OrderedDict()
@@ -210,15 +246,6 @@ class SongManager(AbstractControlSurfaceComponent):
         if has_added_scene and self.song.selected_scene and self.song.is_playing:
             # noinspection PyUnresolvedReferences
             self.parent.defer(self.song.selected_scene.fire)
-
-    def _highlighted_clip_slot_poller(self):
-        # type: () -> None
-        if self.song.highlighted_clip_slot and self.song.highlighted_clip_slot != self._highlighted_clip_slot:
-            self._highlighted_clip_slot = self.song.highlighted_clip_slot
-            if self.song.highlighted_clip_slot.clip:
-                # self.parent.push2Manager.update_clip_grid_quantization()
-                self._highlighted_clip_slot.clip._on_selected()
-        self.parent.wait(10, self._highlighted_clip_slot_poller)
 
     def scroll_tempo(self, go_next):
         # type: (bool) -> None

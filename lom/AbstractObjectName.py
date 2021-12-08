@@ -53,7 +53,6 @@ class AbstractObjectName(AbstractObject):
         # type: (bool) -> None
         """ overridden """
         base_name = self._get_base_name()
-        self.parent.log_dev((force, self.base_name, base_name))
         # noinspection PyUnresolvedReferences
         if not force and base_name == self.base_name and self._obj.name != base_name:
             return

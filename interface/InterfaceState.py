@@ -1,3 +1,5 @@
+from typing import Union
+
 from protocol0.components.SongDataManager import save_song_data, song_synchronizable_class
 from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.enums.BarLengthEnum import BarLengthEnum
@@ -7,7 +9,7 @@ from protocol0.utils.utils import scroll_values
 @song_synchronizable_class
 class InterfaceState(object):
     SELECTED_RECORDING_BAR_LENGTH = BarLengthEnum.UNLIMITED
-    SELECTED_DUPLICATE_SCENE_BAR_LENGTH = BarLengthEnum.FOUR
+    SELECTED_DUPLICATE_SCENE_BAR_LENGTH = 4
     ABLETON_SESSION_TYPE = AbletonSessionTypeEnum.NORMAL
 
     RECORD_CLIP_TAILS = False  # records one more bar of audio to make editing easier
@@ -15,9 +17,6 @@ class InterfaceState(object):
 
     CURRENT_RECORD_TYPE = None
 
-    # NB: for an unknown reason clip.view.show_envelope does not always show the envelope
-    # when the button was not clicked. As a workaround we click it the first time
-    CLIP_ENVELOPE_SHOW_BOX_CLICKED = False
     FOCUS_PROPHET_ON_STARTUP = False
 
     @classmethod
@@ -34,7 +33,7 @@ class InterfaceState(object):
     def scroll_duplicate_scene_bar_lengths(cls, go_next):
         # type: (bool) -> None
         from protocol0 import Protocol0
-        selected_scene = Protocol0.SELF.song.selected_scene
+        selected_scene = Protocol0.SELF.protocol0_song.selected_scene
         if selected_scene.length < 2:
             Protocol0.SELF.log_warning(
                 "Cannot partial duplicate scene with length %s (min 2 bars)" % selected_scene.length)
@@ -46,10 +45,11 @@ class InterfaceState(object):
             power += 1
         bar_lengths.sort()
 
-        cls.SELECTED_DUPLICATE_SCENE_BAR_LENGTH = scroll_values(
-            bar_lengths, cls.SELECTED_DUPLICATE_SCENE_BAR_LENGTH, go_next
+        from protocol0.lom.Scene import Scene
+        Scene.SELECTED_DUPLICATE_SCENE_BAR_LENGTH = scroll_values(
+            bar_lengths, Scene.SELECTED_DUPLICATE_SCENE_BAR_LENGTH, go_next
         )
-        cls.show_selected_bar_length("SCENE DUPLICATE", cls.SELECTED_DUPLICATE_SCENE_BAR_LENGTH)
+        cls.show_selected_bar_length("SCENE DUPLICATE", Scene.SELECTED_DUPLICATE_SCENE_BAR_LENGTH)
 
     @classmethod
     def record_clip_tails_length(cls):
@@ -80,6 +80,6 @@ class InterfaceState(object):
 
     @classmethod
     def show_selected_bar_length(cls, title, bar_length):
-        # type: (str, BarLengthEnum) -> None
+        # type: (str, Union[int, BarLengthEnum]) -> None
         from protocol0 import Protocol0
         Protocol0.SELF.show_message("Selected %s : %s" % (title, bar_length))

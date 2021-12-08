@@ -89,7 +89,7 @@ class SceneActionMixin(object):
         seq.add(partial(self.song.duplicate_scene, self.index))
         seq.add(
             lambda: self.song.selected_scene._crop_clips_to_bar_length(
-                bar_length=InterfaceState.SELECTED_DUPLICATE_SCENE_BAR_LENGTH))
+                bar_length=self.SELECTED_DUPLICATE_SCENE_BAR_LENGTH))
         return seq.done()
 
     def _crop_clips_to_bar_length(self, bar_length):

@@ -1,10 +1,7 @@
-from functools import partial
-
 from typing import List, Any, Optional
 
 import Live
 from _Framework.SubjectSlot import subject_slot_group
-from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.SceneActionMixin import SceneActionMixin
 from protocol0.lom.SceneName import SceneName
@@ -19,6 +16,7 @@ class Scene(SceneActionMixin, AbstractObject):
 
     PLAYING_SCENE = None  # type: Optional[Scene]
     LOOPING_SCENE = None  # type: Optional[Scene]
+    SELECTED_DUPLICATE_SCENE_BAR_LENGTH = 4
 
     def __init__(self, scene, *a, **k):
         # type: (Live.Scene.Scene, Any, Any) -> None
@@ -34,9 +32,13 @@ class Scene(SceneActionMixin, AbstractObject):
 
     def link_clip_slots_and_clips(self):
         # type: () -> None
-        self.clip_slots = [
-            self.song.clip_slots_by_live_live_clip_slot[clip_slot] for clip_slot in self._scene.clip_slots
-        ]
+        try:
+            self.clip_slots = [
+                self.song.live_clip_slot_to_clip_slot[clip_slot] for clip_slot in self._scene.clip_slots
+            ]
+        except KeyError:
+            self.parent.songManager.tracks_listener(purge=True)
+            return
 
         # listeners
         self._clip_slots_has_clip_listener.replace_subjects(self.clip_slots)

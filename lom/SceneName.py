@@ -46,6 +46,9 @@ class SceneName(AbstractObjectName):
             pass
 
         if not self.base_name:
-            self.base_name = self.song.scenes.index(self.scene)
+            try:
+                self.base_name = self.song.scenes.index(self.scene)
+            except ValueError:
+                return
 
         self.scene.name = "%s (%s)%s" % (self.base_name, self._length_legend, "*" if self.scene.looping else "")

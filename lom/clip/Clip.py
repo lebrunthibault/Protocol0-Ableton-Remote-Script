@@ -18,6 +18,10 @@ if TYPE_CHECKING:
 class Clip(ClipActionMixin, AbstractObject):
     __subject_events__ = ("notes", "length")
 
+    # NB: for an unknown reason clip.view.show_envelope does not always show the envelope
+    # when the button was not clicked. As a workaround we click it the first time
+    CLIP_ENVELOPE_SHOW_BOX_CLICKED = False
+
     def __init__(self, clip_slot, *a, **k):
         # type: (ClipSlot, Any, Any) -> None
         super(Clip, self).__init__(*a, **k)

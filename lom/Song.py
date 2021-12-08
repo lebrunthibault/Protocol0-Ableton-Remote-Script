@@ -17,7 +17,7 @@ from protocol0.lom.track.AbstractTrack import AbstractTrack
 from protocol0.lom.track.AbstractTrackList import AbstractTrackList
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.decorators import p0_subject_slot, debounce
+from protocol0.utils.decorators import p0_subject_slot, debounce, throttle
 from protocol0.utils.utils import find_if
 
 
@@ -35,7 +35,7 @@ class Song(SongActionMixin, AbstractObject):
         self.live_track_to_simple_track = collections.OrderedDict()  # type: Dict[Live.Track.Track, SimpleTrack]
         self.usamo_track = None  # type: Optional[SimpleTrack]
         self.master_track = None  # type: Optional[SimpleTrack]
-        self.clip_slots_by_live_live_clip_slot = {}  # type: Dict[Live.ClipSlot.ClipSlot, ClipSlot]
+        self.live_clip_slot_to_clip_slot = {}  # type: Dict[Live.ClipSlot.ClipSlot, ClipSlot]
         self.template_dummy_clip = None  # type: Optional[AudioClip]
 
         self.errored = False
@@ -51,6 +51,7 @@ class Song(SongActionMixin, AbstractObject):
         return self.parent.song()
 
     @p0_subject_slot("is_playing")
+    @throttle(wait_time=20)
     def _is_playing_listener(self):
         # type: () -> None
         if not self.is_playing:
@@ -157,9 +158,8 @@ class Song(SongActionMixin, AbstractObject):
     @property
     def highlighted_clip_slot(self):
         # type: () -> Optional[ClipSlot]
-        """ first look in track then in song """
-        if self.song._view.highlighted_clip_slot in self.clip_slots_by_live_live_clip_slot:
-            return self.clip_slots_by_live_live_clip_slot[self.song._view.highlighted_clip_slot]
+        if self.song._view.highlighted_clip_slot in self.live_clip_slot_to_clip_slot:
+            return self.live_clip_slot_to_clip_slot[self.song._view.highlighted_clip_slot]
         else:
             return None
 
@@ -290,3 +290,8 @@ class Song(SongActionMixin, AbstractObject):
     def session_automation_record(self, session_automation_record):
         # type: (bool) -> None
         self._song.session_automation_record = session_automation_record
+
+    def disconnect(self):
+        # type: () -> None
+        super(Song, self).disconnect()
+        self.parent.songManager.purge()

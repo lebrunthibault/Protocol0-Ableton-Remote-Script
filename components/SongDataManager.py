@@ -1,10 +1,12 @@
+import json
 from functools import wraps
 from pydoc import locate, classname
 
-from typing import Any
+from typing import Any, Optional
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.enums.AbstractEnum import AbstractEnum
+from protocol0.enums.SongDataEnum import SongDataEnum
 from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.errors.SongDataError import SongDataError
 from protocol0.my_types import Func, T
@@ -34,6 +36,10 @@ def save_song_data(func):
 class SongDataManager(AbstractControlSurfaceComponent):
     DEBUG = False
 
+    SELECTED_SCENE_INDEX = None  # type: Optional[int]
+    SELECTED_TRACK_INDEX = None  # type: Optional[int]
+    SELECTED_CLIP_INDEX = None  # type: Optional[int]
+
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(SongDataManager, self).__init__(*a, **k)
@@ -44,6 +50,11 @@ class SongDataManager(AbstractControlSurfaceComponent):
         for cls_fqdn in SYNCHRONIZABLE_CLASSE_NAMES:
             cls = locate(cls_fqdn)
             self.store_class_data(cls)
+
+        self.song.set_data(SongDataEnum.SELECTED_SCENE_INDEX.name, self.song.selected_scene.index)
+        self.song.set_data(SongDataEnum.SELECTED_TRACK_INDEX.name, self.song.selected_track.index)
+        selected_clip_index = self.song.selected_track.clips.index(self.song.selected_clip) if self.song.selected_clip else None
+        self.song.set_data(SongDataEnum.SELECTED_CLIP_INDEX.name, selected_clip_index)
 
     def store_class_data(self, cls):
         # type: (Any) -> None
@@ -67,27 +78,40 @@ class SongDataManager(AbstractControlSurfaceComponent):
             return
 
         for cls_fqdn in SYNCHRONIZABLE_CLASSE_NAMES:
-            cls = locate(cls_fqdn)
-            if not cls:
-                self.parent.log_error("Couldn't locate %s" % cls_fqdn)
-                continue
-            class_data = self.song.get_data(cls_fqdn, {})
-            if self.DEBUG:
-                self.parent.log_info("class_data of %s: %s" % (cls_fqdn, class_data))
-            if not isinstance(class_data, dict):
-                raise SongDataError("%s song data : expected dict, got %s" % (cls_fqdn, class_data))
+            self._restore_synchronizable_class_data(cls_fqdn)
 
-            for key, value in class_data.items():
-                if AbstractEnum.is_json_enum(value):
-                    try:
-                        value = AbstractEnum.from_json_dict(value)
-                    except Protocol0Error as e:
-                        raise SongDataError(e)
-                if not hasattr(cls, key):
-                    raise SongDataError("Invalid song data, attribute does not exist %s.%s" % (cls_fqdn, key))
-                if isinstance(getattr(cls, key), AbstractEnum) and not isinstance(value, AbstractEnum):
-                    raise SongDataError("inconsistent AbstractEnum value for %s.%s : got %s" % (cls_fqdn, key, value))
-                setattr(cls, key, value)
+        SongDataManager.SELECTED_SCENE_INDEX = self.song.get_data(SongDataEnum.SELECTED_SCENE_INDEX.name, None)
+        SongDataManager.SELECTED_TRACK_INDEX = self.song.get_data(SongDataEnum.SELECTED_TRACK_INDEX.name, None)
+        SongDataManager.SELECTED_CLIP_INDEX = self.song.get_data(SongDataEnum.SELECTED_CLIP_INDEX.name, None)
+
+    def _restore_synchronizable_class_data(self, cls_fqdn):
+        # type: (str) -> None
+        cls = locate(cls_fqdn)
+        if not cls:
+            self.parent.log_error("Couldn't locate %s" % cls_fqdn)
+            return
+        class_data = self.song.get_data(cls_fqdn, {})
+        if self.DEBUG:
+            self._log(cls_fqdn, class_data)
+        if not isinstance(class_data, dict):
+            raise SongDataError("%s song data : expected dict, got %s" % (cls_fqdn, class_data))
+
+        for key, value in class_data.items():
+            if AbstractEnum.is_json_enum(value):
+                try:
+                    value = AbstractEnum.from_json_dict(value)
+                except Protocol0Error as e:
+                    raise SongDataError(e)
+            if not hasattr(cls, key):
+                self.parent.log_warning("Invalid song data, attribute does not exist %s.%s" % (cls.__name__, key))
+                continue
+            if isinstance(getattr(cls, key), AbstractEnum) and not isinstance(value, AbstractEnum):
+                raise SongDataError("inconsistent AbstractEnum value for %s.%s : got %s" % (cls_fqdn, key, value))
+            setattr(cls, key, value)
+
+    def _log(self, key, value):
+        # type: (str, Any) -> None
+        self.parent.log_info("song data of %s: %s" % (key, json.dumps(value, indent=4, sort_keys=True)))
 
     def clear_data(self, save_set=True):
         # type: (bool) -> None

@@ -429,4 +429,5 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def disconnect(self):
         # type: () -> None
         super(AbstractTrack, self).disconnect()
-        self.track_name.disconnect()
+        if hasattr(self, "track_name"):
+            self.track_name.disconnect()
