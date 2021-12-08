@@ -145,7 +145,7 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
 
         if (not force_activate and not select_instrument_track) and self.activated:
             seq.add(self.system.hide_plugins, wait=1)
-            seq.add(self.song.selected_track.select, silent=True)
+            seq.add(self.song.selected_track.select)
 
         return seq.done()
 

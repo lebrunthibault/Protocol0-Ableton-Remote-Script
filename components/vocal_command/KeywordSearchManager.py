@@ -36,7 +36,7 @@ class KeywordSearchManager(AbstractControlSurfaceComponent):
         matching_track = matching_tracks[index]
 
         self.parent.log_info("Selecting track %s" % matching_track)
-        self.song.select_track(matching_track)
+        matching_track.select()
         if matching_track.is_foldable:
             matching_track.is_folded = False
         AbstractTrackList(self.song.abstract_tracks).toggle_fold(fold_action=FoldActionEnum.FOLD_ALL_EXCEPT_CURRENT)

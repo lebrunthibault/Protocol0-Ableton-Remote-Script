@@ -10,20 +10,17 @@ class SessionManager(AbstractControlSurfaceComponent):
         # type: (Any, Any) -> None
         super(SessionManager, self).__init__(*a, **k)
         self.session = None  # type: Optional[SessionComponent]
-        # self.register_slot(self.parent.songManager, self._setup_session_control, "selected_track")
-        self._currently_selected_track = None  # type: Optional[SimpleTrack]
+        # self.register_slot(self.parent.songManager, self.display_session_ring, "selected_track")
 
-    def _setup_session_control(self):
+    def toggle_session_ring(self):
         # type: () -> None
-        if self._currently_selected_track == self.song.selected_track:
-            return None
-        is_set_load = self._currently_selected_track is None
-        self._currently_selected_track = self.song.selected_track
-        if is_set_load and not self._currently_selected_track.abstract_track.is_armed:  # skips the session box display on set load
-            return
+        self._display_session_ring()
+        self._hide_session_ring()
+
+    def _display_session_ring(self):
+        # type: () -> None
         if self.session:
-            self.session.set_show_highlight(False)
-            self.session.disconnect()
+            self._hide_session_ring()
 
         try:
             if not self.song.selected_track.is_active:
@@ -47,6 +44,11 @@ class SessionManager(AbstractControlSurfaceComponent):
         self.session.set_offsets(track_offset=track_offset, scene_offset=0)
         if track_offset != len(list(self.song.visible_tracks)) - 1:
             self.parent.set_highlighting_session_component(self.session)
+
+    def _hide_session_ring(self):
+        # type: () -> None
+        self.session.set_show_highlight(False)
+        self.session.disconnect()
 
     @property
     def session_track_offset(self):

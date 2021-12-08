@@ -29,4 +29,4 @@ class ActionGroupSet(AbstractActionGroup):
 
         # Session2ARrangement encoder
         self.add_encoder(identifier=16, name="bounce session to arrangement",
-                         on_press=self.song.bounce_session_to_arrangement)
+                         on_press=self.parent.sessionToArrangementManager.bounce_session_to_arrangement)

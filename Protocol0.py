@@ -20,6 +20,8 @@ from protocol0.components.MixingManager import MixingManager
 from protocol0.components.NavigationManager import NavigationManager
 from protocol0.components.PresetManager import PresetManager
 from protocol0.components.QuantizationManager import QuantizationManager
+from protocol0.components.SessionManager import SessionManager
+from protocol0.components.SessionToArrangementManager import SessionToArrangementManager
 from protocol0.components.SongDataManager import SongDataManager
 from protocol0.components.SongManager import SongManager
 from protocol0.components.TrackManager import TrackManager
@@ -93,7 +95,7 @@ class Protocol0(ControlSurface):
             self.deviceManager = DeviceManager()  # needs to be here first
             AbstractInstrument.INSTRUMENT_CLASSES = AbstractInstrument.get_instrument_classes()
             self.songManager = SongManager()
-            # self.sessionManager = SessionManager()
+            self.sessionManager = SessionManager()
             self.mixingManager = MixingManager()
             self.trackManager = TrackManager()
             self.automationTrackManager = AutomationTrackManager()
@@ -109,6 +111,7 @@ class Protocol0(ControlSurface):
             self.utilsManager = UtilsManager()
             self.logManager = LogManager()
             self.validatorManager = ValidatorManager()
+            self.sessionToArrangementManager = SessionToArrangementManager()
             # return
 
             if InterfaceState.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.TEST:

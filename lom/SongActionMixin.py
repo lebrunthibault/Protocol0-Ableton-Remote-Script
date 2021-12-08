@@ -71,29 +71,6 @@ class SongActionMixin(object):
         # noinspection PyTypeChecker
         self._song.stop_all_clips(quantized)
 
-    def bounce_session_to_arrangement(self):
-        # type: (Song) -> Sequence
-        tempo = self.tempo
-        self.song.unfocus_all_tracks()
-        self.tempo = 999
-        self.parent.sceneBeatScheduler.clear()
-
-        self.parent.navigationManager.show_arrangement()
-
-        seq = Sequence()
-        seq.add(self.system.clear_arrangement)
-        seq.add(wait=20)
-        seq.add(self.parent.navigationManager.show_session)
-        seq.add(self.reset)
-        seq.add(partial(setattr, self.song, "record_mode", True))
-        seq.add(partial(self._play_session, from_beginning=True), complete_on=self.song.session_end_listener,
-                no_timeout=True)
-        seq.add(partial(setattr, self.song, "record_mode", False))
-        seq.add(self.reset)
-        seq.add(partial(setattr, self.song, "tempo", tempo))
-        seq.add(self.song.activate_arrangement)
-        return seq.done()
-
     def begin_undo_step(self):
         # type: (Song) -> None
         self._song.begin_undo_step()
@@ -121,10 +98,13 @@ class SongActionMixin(object):
         # type: (Song, bool) -> None
         if not self.song.selected_track.is_active:
             next(self.song.simple_tracks).select()
-        else:
-            next_track = scroll_values(self.scrollable_tracks, self.current_track, go_next, rotate=False)
-            if next_track:
-                next_track.select()
+            return None
+
+        next_track = scroll_values(self.scrollable_tracks, self.current_track, go_next, rotate=False)
+        if next_track:
+            next_track.select()
+            if next_track == list(self.scrollable_tracks)[-1]:
+                self.parent.sessionManager.toggle_session_ring()
 
     def unfocus_all_tracks(self):
         # type: (Song) -> Sequence
@@ -180,7 +160,7 @@ class SongActionMixin(object):
     def select_device(self, device):
         # type: (Song, Device) -> Sequence
         seq = Sequence()
-        seq.add(partial(self.song.select_track, device.track))
+        seq.add(device.track.select)
         seq.add(partial(self._view.select_device, device._device))
         seq.add(self.parent.navigationManager.focus_detail)
         return seq.done()
