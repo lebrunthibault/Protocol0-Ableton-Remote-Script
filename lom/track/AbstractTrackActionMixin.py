@@ -186,7 +186,9 @@ class AbstractTrackActionMixin(object):
         self.song.metronome = True
 
         if record_type == RecordTypeEnum.AUDIO_ONLY:
+            # pre launch scene
             self.song.selected_scene.fire()
+            self.song.stop_playing()
             return None
 
         self.song.stop_all_clips(quantized=False)
@@ -199,7 +201,7 @@ class AbstractTrackActionMixin(object):
             seq.add(partial(setattr, self.song, "is_playing", True))
 
         if recording_scene.length:
-            seq.add(recording_scene.fire, no_wait=True)
+            seq.add(recording_scene.fire)
         return seq.done()
 
     def _cancel_record(self):
@@ -211,6 +213,15 @@ class AbstractTrackActionMixin(object):
         seq.add(partial(self.stop, immediate=True))
         seq.add(partial(self.post_session_record, InterfaceState.CURRENT_RECORD_TYPE))
         seq.add(self.song.stop_playing)
+        seq.add(self._remove_selected_scene_if_empty)
+        return seq.done()
+
+    def _remove_selected_scene_if_empty(self):
+        # type: (AbstractTrack) -> Sequence
+        seq = Sequence()
+        if self.song.selected_scene.length == 0:
+            seq.add(wait=1)
+            seq.add(self.song.selected_scene.delete)
         return seq.done()
 
     def post_session_record(self, *_, **__):

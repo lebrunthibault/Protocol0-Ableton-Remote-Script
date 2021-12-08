@@ -112,12 +112,6 @@ class Clip(ClipActionMixin, AbstractObject):
         self.clip_name.update(base_name=base_name)
 
     @property
-    def is_dummy(self):
-        # type: () -> bool
-        from protocol0.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
-        return self == self.song.template_dummy_clip or isinstance(self.track, SimpleDummyTrack)
-
-    @property
     def length(self):
         # type: () -> int
         """
@@ -136,8 +130,7 @@ class Clip(ClipActionMixin, AbstractObject):
     @property
     def tail_bar_length(self):
         # type: () -> int
-        total_length = floor(self.end_marker - self.start_marker)
-        return int((total_length - self.length) / self.song.signature_numerator)
+        return 0
 
     @property
     def bar_length(self):

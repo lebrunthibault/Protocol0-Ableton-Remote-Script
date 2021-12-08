@@ -27,7 +27,7 @@ class ClipName(AbstractObjectName):
 
     def normalize_base_name(self):
         # type: () -> None
-        super(ClipName, self).normalize_base_name()
+        # super(ClipName, self).normalize_base_name()
         track_base_name = self.clip.track.base_name.strip()
         if track_base_name and re.match("^%s( \\d+)?" % track_base_name, self.base_name):
             self.base_name = ""
@@ -51,7 +51,6 @@ class ClipName(AbstractObjectName):
             return None
         self.base_name = base_name if base_name is not None else self.base_name
         clip_name = "%s (%s)" % (self.base_name, self._length_legend)
-        if not self.clip.is_dummy and self.clip.tail_bar_length:
+        if self.clip.tail_bar_length:
             clip_name += " tail"
-        # self.parent.log_dev("%s <-> %s <-> %s" % (self.clip, self.clip.name, clip_name))
         self.clip.name = clip_name

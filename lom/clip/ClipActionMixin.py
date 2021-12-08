@@ -104,7 +104,7 @@ class ClipActionMixin(object):
 
     def refresh_appearance(self):
         # type: (Clip) -> None
-        self.clip_name.update()  # type: ignore
+        self.clip_name._name_listener(force=True)
         self.color = self.track.computed_color
 
     def post_record(self):

@@ -2,6 +2,8 @@ from functools import partial
 
 from typing import TYPE_CHECKING, Optional
 
+import Live
+
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import session_view_only
@@ -39,12 +41,9 @@ class SceneActionMixin(object):
         self.song.selected_scene = self
 
     def fire(self):
-        # type: (Scene) -> Sequence
-        seq = Sequence()
+        # type: (Scene) -> None
         if self._scene:
-            seq.add(self._scene.fire, complete_on=self._play_listener)
-            seq.add(wait=1)
-        return seq.done()
+            self._scene.fire()
 
     def delete(self):
         # type: (Scene) -> Optional[Sequence]

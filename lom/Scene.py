@@ -46,7 +46,7 @@ class Scene(SceneActionMixin, AbstractObject):
 
     def _map_clips(self):
         # type: () -> None
-        self.clips = [clip_slot.clip for clip_slot in self.clip_slots if clip_slot.has_clip and clip_slot.clip]
+        self.clips = [clip_slot.clip for clip_slot in self.clip_slots if clip_slot.has_clip and clip_slot.clip and not clip_slot.clip.muted]
         self.tracks = [clip.track for clip in self.clips]
         self._clips_length_listener.replace_subjects(self.clips)
         self._check_scene_length()

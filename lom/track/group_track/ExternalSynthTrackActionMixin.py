@@ -89,7 +89,7 @@ class ExternalSynthTrackActionMixin(object):
         # type: (ExternalSynthTrack) -> Optional[Sequence]
         midi_clip = self.midi_track.playable_clip
         if not midi_clip:
-            self.parent.show_message("No midi clip selected on %s" % self)
+            self.parent.show_message("No midi clip selected")
             return None
         if midi_clip != self.midi_track.clip_slots[self.song.selected_scene.index].clip:
             self.parent.show_message("Playable clip is not on the selected scene")
@@ -108,11 +108,8 @@ class ExternalSynthTrackActionMixin(object):
 
         audio_tail_bar_length = audio_clip.tail_bar_length if audio_clip else 0
 
-        # launch the midi clip after the record has started
-        seq.add(partial(self.parent.wait, 80, midi_clip.play))
-
         seq.add(partial(audio_clip_slot.record, bar_length=midi_clip.bar_length, bar_tail_length=audio_tail_bar_length))
-        if audio_clip and audio_clip.tail_bar_length:
+        if audio_tail_bar_length:
             loop_start, loop_end = audio_clip.loop_start, audio_clip.loop_end
             seq.add(lambda: setattr(audio_clip_slot.clip, "loop_start", loop_start))
             seq.add(lambda: setattr(audio_clip_slot.clip, "loop_end", loop_end))
@@ -140,6 +137,7 @@ class ExternalSynthTrackActionMixin(object):
             self.midi_track.playable_clip.select()
             self.parent.navigationManager.focus_main()
         else:
+            self.audio_track.playable_clip.clip_name.update(base_name="")
             self.link_clip_slots()
 
     def post_arrangement_record(self):

@@ -59,6 +59,7 @@ class Song(SongActionMixin, AbstractObject):
             return
 
         if self.application.session_view_active and not self.song.selected_scene.is_playing and InterfaceState.CURRENT_RECORD_TYPE is None:
+            self.song.is_playing = False
             self.song.selected_scene.fire()
 
     @p0_subject_slot("record_mode")

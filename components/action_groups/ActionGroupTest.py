@@ -22,21 +22,9 @@ class ActionGroupTest(AbstractActionGroup):
         # CLR encoder
         self.add_encoder(identifier=3, name="clear logs", on_press=self.parent.logManager.clear)
 
-    def _get_children_for_item(self, item, i_dict, is_drum_rack=False):
-        """ Recursively builds dict of children items for the given item. This is needed
-        to deal with children that are folders. If is_drum_rack, will only deal with
-        racks in the root (not drum hits). """
-        for i in item.iter_children:
-            if i.is_folder or not i.is_loadable:
-                if is_drum_rack:
-                    continue
-                self._get_children_for_item(i, i_dict)
-            elif not is_drum_rack or i.name.endswith('.adg'):
-                i_dict[i.name] = i
-
     def action_test(self):
         # type: () -> None
-        self.parent.log_dev(self.song.selected_clip._clip.file_path)
+        pass
 
     def start_set_profiling(self):
         # type: () -> None

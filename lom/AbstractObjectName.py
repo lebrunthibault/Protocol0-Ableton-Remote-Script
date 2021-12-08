@@ -40,8 +40,6 @@ class AbstractObjectName(AbstractObject):
 
     def normalize_base_name(self):
         # type: () -> None
-        # self.base_name = self.base_name.split("-")[0].strip()
-        # self.base_name = self.base_name.replace("_", " ")
         if self.base_name.lower() in self.NAME_BLACKLIST:
             self.base_name = ""
         try:
@@ -51,12 +49,13 @@ class AbstractObjectName(AbstractObject):
             pass
 
     @p0_subject_slot("name")
-    def _name_listener(self):
-        # type: () -> None
+    def _name_listener(self, force=False):
+        # type: (bool) -> None
         """ overridden """
         base_name = self._get_base_name()
+        self.parent.log_dev((force, self.base_name, base_name))
         # noinspection PyUnresolvedReferences
-        if base_name == self.base_name and self._obj.name != base_name:
+        if not force and base_name == self.base_name and self._obj.name != base_name:
             return
         self.base_name = base_name
         self.normalize_base_name()
