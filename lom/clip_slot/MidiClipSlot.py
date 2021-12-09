@@ -1,0 +1,14 @@
+from typing import Any, Optional
+
+from protocol0.lom.clip.MidiClip import MidiClip
+from protocol0.lom.clip_slot.ClipSlot import ClipSlot
+
+
+# noinspection PyPropertyAccess
+class MidiClipSlot(ClipSlot):
+    CLIP_CLASS = MidiClip
+
+    def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
+        super(MidiClipSlot, self).__init__(*a, **k)
+        self.clip = self.clip  # type: Optional[MidiClip]

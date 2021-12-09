@@ -17,7 +17,7 @@ from protocol0.utils.utils import find_if
 
 
 class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
-    CLIP_CLASS = Clip
+    CLIP_SLOT_CLASS = ClipSlot
 
     def __init__(self, track, *a, **k):
         # type: (Live.Track.Track, Any, Any) -> None

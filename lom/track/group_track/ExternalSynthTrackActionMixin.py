@@ -8,7 +8,6 @@ from protocol0.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnu
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.clip.AudioClip import AudioClip
-from protocol0.lom.clip.Clip import Clip
 from protocol0.lom.clip.MidiClip import MidiClip
 from protocol0.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.sequence.Sequence import Sequence
@@ -126,13 +125,11 @@ class ExternalSynthTrackActionMixin(object):
 
     def _propagate_new_audio_clip(self, audio_clip_slot):
         # type: (ExternalSynthTrack, ClipSlot) -> None
-        self.parent.log_dev("propagating")
-        source_midi_clip = self.midi_track.clip_slots[audio_clip_slot.index].clip  # type: Optional[MidiClip]
-        source_audio_clip = self.midi_track.clip_slots[audio_clip_slot.index].clip  # type: Optional[AudioClip]
+        source_midi_clip = self.midi_track.clip_slots[audio_clip_slot.index].clip
+        source_audio_clip = self.audio_track.clip_slots[audio_clip_slot.index].clip
         if source_midi_clip is None or source_audio_clip is None:
             return None
         duplicate_audio_clips = list(self._get_duplicate_audio_clips(source_midi_clip, source_audio_clip))
-        self.parent.log_dev(duplicate_audio_clips)
         if len(duplicate_audio_clips) == 0:
             return
 
@@ -140,21 +137,22 @@ class ExternalSynthTrackActionMixin(object):
         seq.add(
             partial(self.system.prompt, "Propagate to %s audio clips in track ?" % len(duplicate_audio_clips)),
             wait_for_system=True)
-        seq.add([clip.delete for clip in duplicate_audio_clips])
+        seq.add([partial(source_audio_clip.clip_slot.duplicate_clip_to, clip.clip_slot) for clip in duplicate_audio_clips])
+        seq.add(lambda: self.parent.show_message("%s audio clips duplicated" % len(duplicate_audio_clips)))
         seq.done()
 
     def _get_duplicate_audio_clips(self, source_midi_clip, source_audio_clip):
         # type: (ExternalSynthTrack, MidiClip, AudioClip) -> Iterator[AudioClip]
         source_midi_hash = source_midi_clip.hash()
-        self.parent.log_dev("source_midi_hash: %s" % source_midi_hash)
-        self.parent.log_dev("source_audio_clip.clip_slot.previous_audio_file_path: %s" % source_audio_clip.clip_slot.previous_audio_file_path)
+        source_file_path = source_audio_clip.clip_slot.previous_audio_file_path
         for midi_clip, audio_clip in itertools.izip(self.midi_track.clips, self.audio_track.clips):  # type: (MidiClip, AudioClip)
             if midi_clip == source_midi_clip:
                 continue
             if midi_clip.hash() != source_midi_hash:
                 continue
-            if audio_clip.file_path == source_audio_clip.clip_slot.previous_audio_file_path:
-                yield audio_clip
+            if audio_clip.file_path != source_file_path:
+                continue
+            yield audio_clip
 
     def arrangement_record_audio_only(self):
         # type: (ExternalSynthTrack) -> Sequence

@@ -86,7 +86,7 @@ class Clip(ClipActionMixin, AbstractObject):
     @staticmethod
     def make(clip_slot, is_new=False):
         # type: (ClipSlot, bool) -> Clip
-        clip = clip_slot.track.CLIP_CLASS(clip_slot=clip_slot)
+        clip = clip_slot.CLIP_CLASS(clip_slot=clip_slot)
 
         if is_new:
             clip.configure_new_clip()

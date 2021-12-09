@@ -5,7 +5,6 @@ from typing import Any, TYPE_CHECKING, Optional
 import Live
 from protocol0.enums.BarLengthEnum import BarLengthEnum
 from protocol0.lom.AbstractObject import AbstractObject
-from protocol0.lom.clip.AudioClip import AudioClip
 from protocol0.lom.clip.Clip import Clip
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import p0_subject_slot
@@ -17,6 +16,8 @@ if TYPE_CHECKING:
 class ClipSlot(AbstractObject):
     __subject_events__ = ("has_clip", "is_triggered", "stopped")
 
+    CLIP_CLASS = Clip
+
     def __init__(self, clip_slot, track, *a, **k):
         # type: (Live.ClipSlot.ClipSlot, SimpleTrack, Any, Any) -> None
         super(ClipSlot, self).__init__(*a, **k)
@@ -25,7 +26,6 @@ class ClipSlot(AbstractObject):
         self._has_clip_listener.subject = self._clip_slot
         self._is_triggered_listener.subject = self._clip_slot
         self.clip = None  # type: Optional[Clip]
-        self.previous_audio_file_path = None  # type: Optional[str]
         self._map_clip()
 
     def __nonzero__(self):
@@ -44,7 +44,7 @@ class ClipSlot(AbstractObject):
     @staticmethod
     def make(clip_slot, track):
         # type: (Live.ClipSlot.ClipSlot, SimpleTrack) -> ClipSlot
-        return ClipSlot(clip_slot=clip_slot, track=track)
+        return track.CLIP_SLOT_CLASS(clip_slot=clip_slot, track=track)
 
     @p0_subject_slot("has_clip")
     def _has_clip_listener(self):
@@ -57,10 +57,6 @@ class ClipSlot(AbstractObject):
     def _map_clip(self, is_new=False):
         # type: (bool) -> None
         self.clip = Clip.make(clip_slot=self, is_new=is_new) if self.has_clip else None
-
-        if self.clip and isinstance(self.clip, AudioClip):
-            self.parent.log_dev("setting previous_audio_file_path to %s" % self.clip.file_path)
-            self.previous_audio_file_path = self.clip.file_path
 
         # noinspection PyUnresolvedReferences
         self.notify_has_clip()

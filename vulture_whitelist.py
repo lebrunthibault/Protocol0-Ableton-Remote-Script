@@ -31,5 +31,4 @@ _.output_routing_track  # unused attribute (lom\track\group_track\AbstractGroupT
 _.output_routing_track  # unused attribute (lom\track\group_track\AbstractGroupTrack.py:82)
 _.input_routing_track  # unused attribute (lom\track\group_track\ExternalSynthTrackActionMixin.py:24)
 _.on_system_response  # unused method (sequence\Sequence.py:77)
-# noinspection PyUnresolvedReferences
 Push2Manager  # unused import (utils\decorators.py:12)

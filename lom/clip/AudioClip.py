@@ -9,6 +9,7 @@ from protocol0.utils.decorators import p0_subject_slot, defer
 
 if TYPE_CHECKING:
     from protocol0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+    from protocol0.lom.clip_slot.AudioClipSlot import AudioClipSlot
 
 
 # noinspection PyPropertyAccess
@@ -17,6 +18,7 @@ class AudioClip(Clip):
         # type: (Any, Any) -> None
         super(AudioClip, self).__init__(*a, **k)
         self.track = self.track  # type: SimpleAudioTrack
+        self.clip_slot = self.clip_slot  # type: AudioClipSlot
         self._warping_listener.subject = self._clip
 
     @p0_subject_slot("warping")

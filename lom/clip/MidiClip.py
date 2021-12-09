@@ -12,6 +12,7 @@ from protocol0.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
     from protocol0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
+    from protocol0.lom.clip_slot.MidiClipSlot import MidiClipSlot
 
 
 class MidiClip(Clip):
@@ -19,12 +20,13 @@ class MidiClip(Clip):
         # type: (Any, Any) -> None
         super(MidiClip, self).__init__(*a, **k)
         self.track = self.track  # type: SimpleMidiTrack
+        self.clip_slot = self.clip_slot  # type: MidiClipSlot
         # NOTES
         self._cached_notes = []
 
     def hash(self):
         # type: () -> int
-        return hash(note.to_data() for note in self.get_notes())
+        return hash(tuple(note.to_data() for note in self.get_notes()))
 
     def get_notes(self):
         # type: () -> List[Note]
