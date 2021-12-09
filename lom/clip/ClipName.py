@@ -29,7 +29,7 @@ class ClipName(AbstractObjectName):
         # type: () -> None
         # super(ClipName, self).normalize_base_name()
         track_base_name = self.clip.track.base_name.strip()
-        if track_base_name and re.match("^%s( \\d+)?" % track_base_name, self.base_name):
+        if track_base_name and re.match("^%s( \\d+)?" % track_base_name, self.base_name) is not None:
             self.base_name = ""
 
     @property

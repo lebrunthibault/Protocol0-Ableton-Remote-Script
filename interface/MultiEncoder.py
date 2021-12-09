@@ -23,7 +23,6 @@ class MultiEncoder(AbstractObject):
         """
         super(MultiEncoder, self).__init__(*a, **k)
         self._actions = []  # type: List[EncoderAction]
-        self._group = group  # type: AbstractActionGroup
         self.identifier = identifier
         self.name = name.title()
         self._filter_active_tracks = filter_active_tracks

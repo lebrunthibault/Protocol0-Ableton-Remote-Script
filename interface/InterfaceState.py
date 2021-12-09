@@ -1,8 +1,9 @@
-from typing import Union
+from typing import Union, Optional
 
 from protocol0.components.SongDataManager import save_song_data, song_synchronizable_class
 from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.enums.BarLengthEnum import BarLengthEnum
+from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.utils.utils import scroll_values
 
 
@@ -15,7 +16,7 @@ class InterfaceState(object):
     RECORD_CLIP_TAILS = False  # records one more bar of audio to make editing easier
     SELECTED_CLIP_TAILS_BAR_LENGTH = BarLengthEnum.ONE
 
-    CURRENT_RECORD_TYPE = None
+    CURRENT_RECORD_TYPE = None  # type: Optional[RecordTypeEnum]
 
     FOCUS_PROPHET_ON_STARTUP = False
 
@@ -54,7 +55,7 @@ class InterfaceState(object):
     @classmethod
     def record_clip_tails_length(cls):
         # type: () -> int
-        return cls.SELECTED_CLIP_TAILS_BAR_LENGTH.value if cls.RECORD_CLIP_TAILS else 0
+        return cls.SELECTED_CLIP_TAILS_BAR_LENGTH.int_value if cls.RECORD_CLIP_TAILS else 0
 
     @classmethod
     @save_song_data

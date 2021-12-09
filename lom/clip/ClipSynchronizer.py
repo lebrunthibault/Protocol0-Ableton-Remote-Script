@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List, Any, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from protocol0.enums.LogLevelEnum import LogLevelEnum
 from protocol0.lom.ObjectSynchronizer import ObjectSynchronizer
@@ -20,7 +20,6 @@ class ClipSynchronizer(ObjectSynchronizer):
                 master, master.track.abstract_track), level=LogLevelEnum.WARNING)
             properties = ["muted"]
 
-        self._syncable_properties = ["base_name"] + properties
         super(ClipSynchronizer, self).__init__(
             master,
             slave,
@@ -34,13 +33,6 @@ class ClipSynchronizer(ObjectSynchronizer):
     def is_syncable(self, clip):
         # type: (Clip) -> bool
         return not clip.track.is_recording
-
-    def get_syncable_properties(self, changed_clip):
-        # type: (Clip) -> List[str]
-        if hasattr(changed_clip, "warping") and not changed_clip.warping:
-            return ["base_name"]
-        else:
-            return self._syncable_properties
 
     def disconnect(self):
         # type: () -> None

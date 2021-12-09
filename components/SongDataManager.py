@@ -53,7 +53,8 @@ class SongDataManager(AbstractControlSurfaceComponent):
 
         self.song.set_data(SongDataEnum.SELECTED_SCENE_INDEX.name, self.song.selected_scene.index)
         self.song.set_data(SongDataEnum.SELECTED_TRACK_INDEX.name, self.song.selected_track.index)
-        selected_clip_index = self.song.selected_track.clips.index(self.song.selected_clip) if self.song.selected_clip else None
+        selected_clip_index = self.song.selected_track.clips.index(
+            self.song.selected_clip) if self.song.selected_clip else None
         self.song.set_data(SongDataEnum.SELECTED_CLIP_INDEX.name, selected_clip_index)
 
     def store_class_data(self, cls):

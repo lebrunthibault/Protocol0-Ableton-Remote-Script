@@ -123,7 +123,7 @@ class Clip(ClipActionMixin, AbstractObject):
         Casting to int to have whole beats.
         not using unwarped audio clips
         """
-        return floor(self._clip.length) if self._clip and getattr(self, "warping", True) else 0
+        return int(floor(self._clip.length)) if self._clip and getattr(self, "warping", True) else 0
 
     @length.setter
     def length(self, length):

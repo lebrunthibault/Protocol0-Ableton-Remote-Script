@@ -1,10 +1,12 @@
-import Live
+from typing import Any
 
+import Live
 from protocol0.lom.AbstractObject import AbstractObject
 
 
 class Application(AbstractObject):
     def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
         super(Application, self).__init__(*a, **k)
         self._application = self.parent.application()  # type: Live.Application.Application
 

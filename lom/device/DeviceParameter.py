@@ -24,18 +24,24 @@ class DeviceParameter(AbstractObject):
         # type: () -> str
         if self._device_parameter:
             return self._device_parameter.name
+        else:
+            return ""
 
     @property
     def original_name(self):
         # type: () -> str
         if self._device_parameter:
             return self._device_parameter.original_name
+        else:
+            return ""
 
     @property
     def value(self):
         # type: () -> float
         if self._device_parameter:
             return self._device_parameter.value
+        else:
+            return 0
 
     @value.setter
     def value(self, value):
@@ -48,15 +54,20 @@ class DeviceParameter(AbstractObject):
         # type: () -> float
         if self._device_parameter:
             return self._device_parameter.default_value
+        else:
+            return 0
 
     @property
     def automation_state(self):
         # type: () -> float
         if self._device_parameter:
             return self._device_parameter.automation_state
+        else:
+            return 0
 
     @property
     def is_automated(self):
+        # type: () -> bool
         return self.automation_state != Live.DeviceParameter.AutomationState.none
 
     @property
@@ -64,21 +75,29 @@ class DeviceParameter(AbstractObject):
         # type: () -> float
         if self._device_parameter:
             return self._device_parameter.min
+        else:
+            return 0
 
     @property
     def max(self):
         # type: () -> float
         if self._device_parameter:
             return self._device_parameter.max
+        else:
+            return 0
 
     @property
     def is_quantized(self):
         # type: () -> bool
         if self._device_parameter:
             return self._device_parameter.is_quantized
+        else:
+            return False
 
     @property
     def is_enabled(self):
         # type: () -> bool
         if self._device_parameter:
             return self._device_parameter.is_enabled
+        else:
+            return False

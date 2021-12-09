@@ -12,19 +12,17 @@ class ActionGroupSet(AbstractActionGroup):
         # self.add_encoder(identifier=1, name="connect push2", on_press=self.parent.push2Manager.connect_push2)
 
         # SPLiT encoder
-        self.add_encoder(identifier=2, name="split scene", on_press=lambda: self.song.selected_scene.split)
-
-        # DUPScene encoder
-        self.add_encoder(identifier=3, name="partial duplicate scene",
-                         on_press=lambda: self.song.selected_scene.partial_duplicate,
+        self.add_encoder(identifier=1,
+                         name="split scene",
                          on_scroll=InterfaceState.scroll_duplicate_scene_bar_lengths,
+                         on_press=lambda: self.song.selected_scene.split
                          )
 
         # DATA encoder
         self.add_encoder(identifier=4, name="clear song data", on_press=self.parent.songDataManager.clear_data)
 
         # VELO encoder
-        self.add_encoder(identifier=14, name="scale selected clip velocities",
+        self.add_encoder(identifier=13, name="scale selected clip velocities",
                          on_scroll=self.parent.clipManager.scale_selected_clip_velocities)
 
         # Session2ARrangement encoder

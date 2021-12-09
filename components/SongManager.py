@@ -12,9 +12,7 @@ from protocol0.enums.SongLoadStateEnum import SongLoadStateEnum
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.Scene import Scene
 from protocol0.lom.clip.AudioClip import AudioClip
-from protocol0.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.lom.track.AbstractTrack import AbstractTrack
-from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.utils.decorators import handle_error, p0_subject_slot
@@ -30,7 +28,6 @@ class SongManager(AbstractControlSurfaceComponent):
         # keeping a list of instantiated tracks because we cannot access
         # song.live_track_to_simple_track when tracks are deleted
         self._simple_tracks = []  # type: List[SimpleTrack]
-        self._highlighted_clip_slot = None  # type: Optional[ClipSlot]
 
     def init_song(self):
         # type: () -> None
@@ -51,14 +48,17 @@ class SongManager(AbstractControlSurfaceComponent):
         self.parent.log_dev("SongDataManager.SELECTED_SCENE_INDEX: %s" % SongDataManager.SELECTED_SCENE_INDEX)
         self.parent.log_dev("SongDataManager.SELECTED_TRACK_INDEX: %s" % SongDataManager.SELECTED_TRACK_INDEX)
         self.parent.log_dev("SongDataManager.SELECTED_CLIP_INDEX: %s" % SongDataManager.SELECTED_CLIP_INDEX)
-        if SongDataManager.SELECTED_SCENE_INDEX is not None and SongDataManager.SELECTED_SCENE_INDEX < len(self.song.scenes):
+        if SongDataManager.SELECTED_SCENE_INDEX is not None and SongDataManager.SELECTED_SCENE_INDEX < len(
+                self.song.scenes):
             selected_scene = self.song.scenes[SongDataManager.SELECTED_SCENE_INDEX]
             selected_scene.select()
         selected_track = None
-        if SongDataManager.SELECTED_TRACK_INDEX is not None and SongDataManager.SELECTED_TRACK_INDEX < len(list(self.song.simple_tracks)):
+        if SongDataManager.SELECTED_TRACK_INDEX is not None and SongDataManager.SELECTED_TRACK_INDEX < len(
+                list(self.song.simple_tracks)):
             selected_track = list(self.song.simple_tracks)[SongDataManager.SELECTED_TRACK_INDEX]
             selected_track.select()
-        if selected_track and SongDataManager.SELECTED_CLIP_INDEX is not None and SongDataManager.SELECTED_CLIP_INDEX < len(selected_track.clips):
+        if selected_track and SongDataManager.SELECTED_CLIP_INDEX is not None and SongDataManager.SELECTED_CLIP_INDEX < len(
+                selected_track.clips):
             clip = selected_track.clips[SongDataManager.SELECTED_CLIP_INDEX]
             self.parent.defer(clip.select)
 
@@ -77,6 +77,8 @@ class SongManager(AbstractControlSurfaceComponent):
 
         if self.song.selected_track == self.song.master_track:
             return next(self.song.abstract_tracks)
+
+        return None
 
     @handle_error
     def on_scene_list_changed(self):

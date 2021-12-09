@@ -29,7 +29,7 @@ class InstrumentPreset(AbstractObject):
 
     def _format_name(self, name):
         # type: (Optional[str]) -> str
-        if not name:
+        if name is None:
             return "empty"
 
         base_preset_name = re.sub('\\.[a-z0-9]{2,4}', '', name)  # remove file extension

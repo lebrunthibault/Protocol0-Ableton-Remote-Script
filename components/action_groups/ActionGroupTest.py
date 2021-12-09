@@ -1,8 +1,6 @@
 from typing import Any
 
-import Live
 from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
-from protocol0.lom.Scene import Scene
 
 
 class ActionGroupTest(AbstractActionGroup):

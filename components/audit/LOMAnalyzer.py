@@ -4,7 +4,6 @@ from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrac
 
 class LOMAnalyzer(AbstractControlSurfaceComponent):
     """ Audit object model """
-
     def check_tracks_tree_consistency(self):
         # type: () -> None
         for simple_track in self.song.simple_tracks:

@@ -13,5 +13,5 @@ class SongValidator(AbstractObjectValidator, AggregateValidator):
             PropertyNotNullValidator(song, "usamo_track"),
             PropertyNotNullValidator(song, "template_dummy_clip"),
         ]
-        self._validators = validators
+        self._validators = validators  # type: ignore[assignment]
         super(SongValidator, self).__init__(song, *a, **k)

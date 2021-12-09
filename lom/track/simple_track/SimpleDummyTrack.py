@@ -38,6 +38,8 @@ class SimpleDummyTrack(SimpleAudioTrack):
         # type: () -> Optional[Sequence]
         if not self.load_device_from_enum(DeviceEnum.DUMMY_RACK):
             return self.parent.browserManager.load_device_from_enum(DeviceEnum.DUMMY_RACK)
+        else:
+            return None
 
     def _insert_dummy_clip(self):
         # type: () -> Optional[Sequence]

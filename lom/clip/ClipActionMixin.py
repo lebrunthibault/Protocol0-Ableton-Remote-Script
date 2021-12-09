@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING, Optional
 import Live
 from protocol0.constants import QUANTIZATION_OPTIONS
 from protocol0.enums.PixelEnum import PixelEnum
-from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.device.DeviceParameter import DeviceParameter
 from protocol0.sequence.Sequence import Sequence
 
@@ -104,7 +103,7 @@ class ClipActionMixin(object):
 
     def refresh_appearance(self):
         # type: (Clip) -> None
-        self.clip_name._name_listener(force=True)
+        self.clip_name._name_listener(force=True)  # type: ignore[has-type]
         self.color = self.track.computed_color
 
     def post_record(self):

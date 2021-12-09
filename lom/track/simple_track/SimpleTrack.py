@@ -199,20 +199,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self._instrument = instrument
 
     @property
-    def is_audio(self):
-        # type: () -> bool
-        from protocol0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
-
-        return self._track and isinstance(self, SimpleAudioTrack) and self._track.has_audio_input
-
-    @property
-    def is_midi(self):
-        # type: () -> bool
-        from protocol0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
-
-        return self._track and isinstance(self, SimpleMidiTrack) and self._track.has_midi_input
-
-    @property
     def is_playing(self):
         # type: () -> bool
         return any(clip_slot.is_playing for clip_slot in self.clip_slots)

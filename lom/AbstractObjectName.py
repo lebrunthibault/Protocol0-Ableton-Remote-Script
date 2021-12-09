@@ -1,6 +1,6 @@
 from abc import abstractmethod
 
-from typing import Any
+from typing import Any, Optional
 
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.utils.decorators import p0_subject_slot
@@ -13,7 +13,7 @@ class AbstractObjectName(AbstractObject):
         # type: (AbstractObject, Any, Any) -> None
         super(AbstractObjectName, self).__init__(*a, **k)
         self._obj = obj
-        self._base_name = None
+        self._base_name = None  # type: Optional[str]
 
     @property
     def base_name(self):

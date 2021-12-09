@@ -4,7 +4,6 @@ from functools import partial, wraps
 from typing import TYPE_CHECKING, Any, Callable
 
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
-from protocol0.config import Config
 from protocol0.my_types import Func, T
 from protocol0.utils.utils import is_method, get_callable_repr
 
@@ -47,17 +46,6 @@ def defer(func):
         from protocol0 import Protocol0
 
         Protocol0.SELF.defer(partial(func, *a, **k))
-
-    return decorate
-
-
-def crashes_ableton(func):
-    # type: (Func) -> Func
-    @wraps(func)
-    def decorate(*a, **k):
-        # type: (Any, Any) -> None
-        if not Config.DISABLE_CRASHING_METHODS:
-            func(*a, **k)
 
     return decorate
 

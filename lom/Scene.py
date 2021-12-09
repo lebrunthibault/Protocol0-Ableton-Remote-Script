@@ -48,7 +48,8 @@ class Scene(SceneActionMixin, AbstractObject):
 
     def _map_clips(self):
         # type: () -> None
-        self.clips = [clip_slot.clip for clip_slot in self.clip_slots if clip_slot.has_clip and clip_slot.clip and not clip_slot.clip.muted]
+        self.clips = [clip_slot.clip for clip_slot in self.clip_slots if
+                      clip_slot.has_clip and clip_slot.clip and not clip_slot.clip.muted]
         self.tracks = [clip.track for clip in self.clips]
         self._clips_length_listener.replace_subjects(self.clips)
         self._check_scene_length()
@@ -125,8 +126,7 @@ class Scene(SceneActionMixin, AbstractObject):
     @property
     def is_triggered(self):
         # type: () -> bool
-        if self._scene:
-            return bool(self._scene.is_triggered)
+        return bool(self._scene.is_triggered) if self._scene else False
 
     @property
     def name(self):

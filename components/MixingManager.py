@@ -1,5 +1,6 @@
 from typing import Any
 
+import Live
 from _Framework.SubjectSlot import subject_slot_group
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.config import Config

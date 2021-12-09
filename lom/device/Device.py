@@ -64,15 +64,6 @@ class Device(AbstractObject):
             device_index = self.track.devices.index(self)
             self.track.delete_device(device_index)
 
-    def toggle_off(self):
-        # type: () -> None
-        device_on = self.get_parameter_by_name(DeviceParameterEnum.DEVICE_ON)
-        if device_on is None:
-            self.parent.log_error("Couldn't find Device On parameter for %s" % self)
-            return None
-
-        device_on.value = False
-
     def get_parameter_by_name(self, device_parameter_name):
         # type: (Union[DeviceParameterEnum, str]) -> Optional[DeviceParameter]
         if isinstance(device_parameter_name, DeviceParameterEnum):
@@ -128,13 +119,15 @@ class Device(AbstractObject):
     @property
     def mute(self):
         # type: () -> bool
-        param = find_if(lambda p: p.original_name and p.original_name.startswith('Device On') and p.is_enabled, self.parameters)
+        param = find_if(lambda p: p.original_name is not None and p.original_name.startswith('Device On') and p.is_enabled,
+                        self.parameters)
         return param is not None and param.value is True
 
     @mute.setter
     def mute(self, mute):
         # type: (bool) -> None
-        param = find_if(lambda p: p.original_name and p.original_name.startswith('Device On') and p.is_enabled, self.parameters)
+        param = find_if(lambda p: p.original_name is not None and p.original_name.startswith('Device On') and p.is_enabled,
+                        self.parameters)
         if param:
             param.value = not mute
 

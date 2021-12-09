@@ -11,5 +11,3 @@ class Config(object):
 
     SET_EXCEPTHOOK = False
     VOLUME_LISTENER_ACTIVE = False
-
-    DISABLE_CRASHING_METHODS = True

@@ -33,9 +33,11 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
         self.listenable_properties = listenable_properties or []
 
         for property_name in self.listenable_properties:
-            self.register_slot(getattr(master, lom_property_name), partial(self._sync_property, master, slave, property_name),
+            self.register_slot(getattr(master, lom_property_name),
+                               partial(self._sync_property, master, slave, property_name),
                                property_name)
-            self.register_slot(getattr(slave, lom_property_name), partial(self._sync_property, slave, master, property_name),
+            self.register_slot(getattr(slave, lom_property_name),
+                               partial(self._sync_property, slave, master, property_name),
                                property_name)
 
     def _get_lom_property_name_from_object(self, obj):
@@ -48,11 +50,6 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
             return "_device_parameter"
         else:
             raise Protocol0Error("Object of class %s is not a synchronizable object" % obj.__class__.__name__)
-
-    def get_syncable_properties(self, _):
-        # type: (AbstractObject) -> List[str]
-        """ overridden """
-        return self.listenable_properties
 
     def is_syncable(self, _):
         # type: (AbstractObject) -> bool

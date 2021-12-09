@@ -2,9 +2,6 @@ from functools import partial
 
 from typing import TYPE_CHECKING, Optional
 
-import Live
-
-from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import session_view_only
 
@@ -19,6 +16,8 @@ class SceneActionMixin(object):
         self.parent.defer(self.scene_name.update)
         if self.is_playing:
             self.schedule_next_scene_launch()
+        elif self.length == 0:
+            self.parent.defer(self.delete)
 
     @session_view_only
     def schedule_next_scene_launch(self):
@@ -47,7 +46,7 @@ class SceneActionMixin(object):
 
     def delete(self):
         # type: (Scene) -> Optional[Sequence]
-        if self._scene and not self.deleted:
+        if self._scene and not self.deleted:  # type: ignore[has-type]
             self.deleted = True
             return self.song.delete_scene(self.index)
         return None
@@ -72,24 +71,11 @@ class SceneActionMixin(object):
 
     def split(self):
         # type: (Scene) -> Optional[Sequence]
-        if self.bar_length % 2 != 0:
-            self.parent.log_warning("bar length (%s) is not even, cannot split" % self.bar_length)
-            return None
-        bar_length = int(self.bar_length / 2)
-
+        bar_length = self.SELECTED_DUPLICATE_SCENE_BAR_LENGTH
         seq = Sequence()
         seq.add(partial(self.song.duplicate_scene, self.index))
         seq.add(lambda: self.song.selected_scene._crop_clips_to_bar_length(bar_length=-bar_length))
         seq.add(partial(self._crop_clips_to_bar_length, bar_length=bar_length))
-        return seq.done()
-
-    def partial_duplicate(self):
-        # type: (Scene) -> Sequence
-        seq = Sequence()
-        seq.add(partial(self.song.duplicate_scene, self.index))
-        seq.add(
-            lambda: self.song.selected_scene._crop_clips_to_bar_length(
-                bar_length=self.SELECTED_DUPLICATE_SCENE_BAR_LENGTH))
         return seq.done()
 
     def _crop_clips_to_bar_length(self, bar_length):

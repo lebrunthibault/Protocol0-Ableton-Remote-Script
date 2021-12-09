@@ -15,5 +15,4 @@ class ActionEnum(AbstractEnum):
     DUPLICATE = "DUPLICATE"  # duplicate track
     LOOP = "LOOP"  # loop scene
     SHOW = "SHOW"  # show/hide instrument
-    PUSH = "PUSH"  # show/hide instrument
     SPLIT = "SPLIT"  # split scene

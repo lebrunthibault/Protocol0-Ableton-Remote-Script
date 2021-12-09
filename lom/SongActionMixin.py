@@ -7,7 +7,7 @@ from protocol0.enums.SongLoadStateEnum import SongLoadStateEnum
 from protocol0.lom.device.Device import Device
 from protocol0.lom.track.AbstractTrack import AbstractTrack
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.decorators import handle_error, arrangement_view_only, session_view_only
+from protocol0.utils.decorators import arrangement_view_only, session_view_only
 from protocol0.utils.utils import scroll_values
 
 if TYPE_CHECKING:

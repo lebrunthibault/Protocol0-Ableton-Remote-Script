@@ -33,7 +33,7 @@ class InstrumentPresetList(AbstractObject):
         if self._presets is None:
             self.sync_presets()
 
-        return self._presets
+        return self._presets  # type: ignore[return-value]
 
     @presets.setter
     def presets(self, presets):

@@ -68,7 +68,7 @@ class SetUpgradeManager(AbstractControlSurfaceComponent):
                     yield device
 
         # devices with default values (unchanged)
-        for device_enum in DeviceEnum:  # type: DeviceEnum
+        for device_enum in DeviceEnum:  # type: DeviceEnum  # type: ignore[no-redef]
             try:
                 default_parameter_values = device_enum.main_parameters_default
             except Protocol0Error:
@@ -94,7 +94,7 @@ class SetUpgradeManager(AbstractControlSurfaceComponent):
             return
 
         # plugin devices
-        white_list_names = [device.device_name for device in DeviceEnum.plugin_white_list()]
+        white_list_names = [d.device_name for d in DeviceEnum.plugin_white_list()]
         for track in self.song.simple_tracks:
             for device in track.all_devices:
                 if isinstance(device, PluginDevice) and device.name not in white_list_names:

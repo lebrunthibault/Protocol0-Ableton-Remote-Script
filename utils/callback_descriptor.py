@@ -77,8 +77,6 @@ class CallbackDescriptor(object):
 
 
 class CallableWithCallbacks(object):
-    DEBUG_MODE = False
-
     def __init__(self, function, immediate):
         # type: (Callable, bool) -> None
         super(CallableWithCallbacks, self).__init__()

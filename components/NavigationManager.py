@@ -44,6 +44,7 @@ class NavigationManager(AbstractControlSurfaceComponent):
         self._focus_view("Detail")
 
     def focus_main(self):
+        # type: () -> None
         """ Moves the focus to the main focus. """
         self._app_view.focus_view('')
 

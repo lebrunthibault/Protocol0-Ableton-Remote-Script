@@ -188,6 +188,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
             self._exponential_check()
 
     def _exponential_check(self):
+        # type: () -> None
         if self._check_count == self._check_timeout:
             self._step_timed_out()
             return

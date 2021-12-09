@@ -63,7 +63,8 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
 
     def _get_dummy_tracks(self):
         # type: () -> Iterator[SimpleTrack]
-        return self.base_track.sub_tracks[2:]
+        for track in self.base_track.sub_tracks[2:]:
+            yield track
 
     def link_clip_slots(self):
         # type: () -> None

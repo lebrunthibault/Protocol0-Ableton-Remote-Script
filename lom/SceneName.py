@@ -47,7 +47,7 @@ class SceneName(AbstractObjectName):
 
         if not self.base_name:
             try:
-                self.base_name = self.song.scenes.index(self.scene)
+                self.base_name = str(self.song.scenes.index(self.scene))
             except ValueError:
                 return
 

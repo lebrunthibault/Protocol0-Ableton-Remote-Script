@@ -13,5 +13,5 @@ class SimpleAudioTrackValidator(AbstractObjectValidator, AggregateValidator):
         validators = [
             CallbackValidator(track, lambda t: t.is_armable, None, "track should be armable"),
         ]
-        self._validators = validators
+        self._validators = validators  # type: ignore[assignment]
         super(SimpleAudioTrackValidator, self).__init__(track, *a, **k)

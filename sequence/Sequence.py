@@ -53,7 +53,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
     @property
     def waiting_for_system(self):
         # type: () -> bool
-        return self._current_step and self._current_step.wait_for_system
+        return self._current_step is not None and self._current_step.wait_for_system
 
     def _on_start(self):
         # type: () -> None
