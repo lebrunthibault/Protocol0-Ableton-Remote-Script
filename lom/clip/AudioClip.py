@@ -42,7 +42,7 @@ class AudioClip(Clip):
     @property
     def warp_mode(self):
         # type: () -> Live.Clip.WarpMode
-        return self._clip.warp_mode
+        return self._clip.warp_mode if self._clip else Live.Clip.WarpMode.beats
 
     @warp_mode.setter
     def warp_mode(self, warp_mode):
@@ -56,6 +56,11 @@ class AudioClip(Clip):
         if self.warping:
             # enforce looping
             self.parent.defer(partial(setattr, self._clip, "looping", True))
+
+    @property
+    def file_path(self):
+        # type: () -> str
+        return self._clip.file_path if self._clip else ""
 
     @property
     def tail_bar_length(self):

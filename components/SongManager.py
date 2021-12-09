@@ -45,9 +45,6 @@ class SongManager(AbstractControlSurfaceComponent):
 
     def _restore_selected_state(self):
         # type: () -> None
-        self.parent.log_dev("SongDataManager.SELECTED_SCENE_INDEX: %s" % SongDataManager.SELECTED_SCENE_INDEX)
-        self.parent.log_dev("SongDataManager.SELECTED_TRACK_INDEX: %s" % SongDataManager.SELECTED_TRACK_INDEX)
-        self.parent.log_dev("SongDataManager.SELECTED_CLIP_INDEX: %s" % SongDataManager.SELECTED_CLIP_INDEX)
         if SongDataManager.SELECTED_SCENE_INDEX is not None and SongDataManager.SELECTED_SCENE_INDEX < len(
                 self.song.scenes):
             selected_scene = self.song.scenes[SongDataManager.SELECTED_SCENE_INDEX]

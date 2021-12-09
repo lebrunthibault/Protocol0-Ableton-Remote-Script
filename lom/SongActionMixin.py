@@ -150,9 +150,11 @@ class SongActionMixin(object):
         return seq.done()
 
     def delete_scene(self, scene_index=None):
-        # type: (Song, Optional[int]) -> Sequence
-        seq = Sequence()
+        # type: (Song, Optional[int]) -> Optional[Sequence]
         scenes_count = len(self.song.scenes)
+        if scenes_count == 1:
+            return None
+        seq = Sequence()
         seq.add(lambda: self._song.delete_scene(scene_index), complete_on=lambda: len(self.song.scenes) < scenes_count)
         seq.add(wait=1)
         return seq.done()

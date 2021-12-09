@@ -33,7 +33,7 @@ class AbstractObject(SlotManager, Subject):
         elif hasattr(self, "name"):
             out += ": %s" % self.name
         if hasattr(self, "index"):
-            out += " (%s)" % (self.index + 1)
+            out += " (%s)" % self.index
         if self.deleted:
             out += " - DELETED"
 

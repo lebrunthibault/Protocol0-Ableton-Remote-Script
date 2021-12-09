@@ -193,7 +193,7 @@ class AbstractTrackActionMixin(object):
 
         self.song.stop_all_clips(quantized=False)
         self.song.stop_playing()
-        assert self.next_empty_clip_slot_index
+        assert self.next_empty_clip_slot_index is not None
         recording_scene = self.song.scenes[self.next_empty_clip_slot_index]
 
         seq = Sequence()

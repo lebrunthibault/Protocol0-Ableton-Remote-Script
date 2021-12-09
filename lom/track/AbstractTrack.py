@@ -49,11 +49,12 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # MISC
         self.track_name = AbstractTrackName(self)  # type: AbstractTrackName
 
-        # DISPLAY
+        # PUSH2
         self.push2_selected_main_mode = Push2MainModeEnum.DEVICE
         self.push2_selected_matrix_mode = Push2MatrixModeEnum.SESSION
         self.push2_selected_instrument_mode = None  # type: Optional[Push2InstrumentModeEnum]
 
+        # LISTENERS
         self._has_clip_listener.subject = self
         self._is_recording_listener.subject = self
         self._color_listener.subject = self._track

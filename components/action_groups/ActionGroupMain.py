@@ -70,8 +70,7 @@ class ActionGroupMain(AbstractActionGroup):
             name="track",
             filter_active_tracks=True,
             on_scroll=self.song.scroll_tracks,
-            on_press=lambda: self.song.current_track.toggle_arm,
-            on_long_press=lambda: self.song.current_track.toggle_solo,
+            on_press=lambda: self.song.current_track.toggle_arm
         )
 
         # INSTrument encoder

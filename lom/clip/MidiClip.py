@@ -22,6 +22,10 @@ class MidiClip(Clip):
         # NOTES
         self._cached_notes = []
 
+    def hash(self):
+        # type: () -> int
+        return hash(note.to_data() for note in self.get_notes())
+
     def get_notes(self):
         # type: () -> List[Note]
         if not self._clip:

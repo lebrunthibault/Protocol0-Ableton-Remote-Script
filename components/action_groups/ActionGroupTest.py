@@ -23,7 +23,8 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        pass
+        self.parent.log_dev(self.song.highlighted_clip_slot.previous_audio_file_path)
+        self.parent.log_dev(self.song.selected_clip.file_path)
 
     def start_set_profiling(self):
         # type: () -> None
