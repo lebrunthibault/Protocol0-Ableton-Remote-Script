@@ -22,6 +22,10 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> Sequence
         return self.song.select_track(self)
 
+    def duplicate(self):
+        # type: (AbstractTrack) -> Sequence
+        return self.song.duplicate_track(self.index)
+
     def toggle_arm(self):
         # type: (AbstractTrack) -> None
         self.unarm() if self.is_armed else self.arm()
@@ -105,9 +109,9 @@ class AbstractTrackActionMixin(object):
         seq.add(partial(self._launch_count_in, record_type))
 
         if record_type == RecordTypeEnum.NORMAL:
-            seq.add(self.session_record_all)
+            seq.add(self._session_record_all)
         elif record_type == RecordTypeEnum.AUDIO_ONLY:
-            seq.add(self.session_record_audio_only)
+            seq.add(self._session_record_audio_only)
 
         seq.add(partial(self.post_session_record, record_type))
 
@@ -133,12 +137,12 @@ class AbstractTrackActionMixin(object):
         seq.add(self.post_arrangement_record)
         return seq.done()
 
-    def session_record_all(self):
+    def _session_record_all(self):
         # type: (AbstractTrack) -> Sequence
         """ this records normally on a simple track and both midi and audio on a group track """
         raise NotImplementedError
 
-    def session_record_audio_only(self):
+    def _session_record_audio_only(self):
         # type: (AbstractTrack) -> None
         """ overridden """
         self.parent.log_error("session_record_audio_only not available on this track")
@@ -182,7 +186,7 @@ class AbstractTrackActionMixin(object):
         return seq.done()
 
     def _launch_count_in(self, record_type):
-        # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
+        # type: (AbstractTrack, RecordTypeEnum) -> None
         self.song.metronome = True
 
         if record_type == RecordTypeEnum.AUDIO_ONLY:
@@ -196,14 +200,11 @@ class AbstractTrackActionMixin(object):
         assert self.next_empty_clip_slot_index is not None
         recording_scene = self.song.scenes[self.next_empty_clip_slot_index]
 
-        seq = Sequence()
-        seq.add(wait=1)  # removes click, solo is too slow
         if not recording_scene.length:
-            seq.add(partial(setattr, self.song, "is_playing", True))
+            self.song.is_playing = True
 
         if recording_scene.length:
-            seq.add(recording_scene.fire)
-        return seq.done()
+            recording_scene.fire()
 
     def _cancel_record(self):
         # type: (AbstractTrack) -> Sequence
@@ -214,29 +215,22 @@ class AbstractTrackActionMixin(object):
         seq.add(partial(self.stop, immediate=True))
         seq.add(partial(self.post_session_record, InterfaceState.CURRENT_RECORD_TYPE))
         seq.add(self.song.stop_playing)
-        seq.add(self._remove_selected_scene_if_empty)
         return seq.done()
 
-    def _remove_selected_scene_if_empty(self):
-        # type: (AbstractTrack) -> Sequence
-        seq = Sequence()
-        if self.song.selected_scene.length == 0:
-            seq.add(wait=1)
-            seq.add(self.song.selected_scene.delete)
-        return seq.done()
-
-    def post_session_record(self, *_, **__):
-        # type: (AbstractTrack, Any, Any) -> None
+    def post_session_record(self, update_clip_name=True, *_, **__):
+        # type: (AbstractTrack, bool, Any, Any) -> None
         """ overridden """
         self.song.metronome = False
         self.has_monitor_in = False
         self.solo = False
         self.song.session_automation_record = True
         InterfaceState.CURRENT_RECORD_TYPE = None
+        self.song.selected_scene.check_scene_length()
         clip = self.base_track.playable_clip
         if clip:
             clip.select()
-            clip.clip_name.update(base_name="")  # type: ignore[has-type]
+            if update_clip_name:
+                clip.clip_name.update(base_name="")  # type: ignore[has-type]
             clip.post_record()
 
     def post_arrangement_record(self):

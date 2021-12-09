@@ -2,6 +2,7 @@ from functools import partial
 
 from typing import TYPE_CHECKING, Optional
 
+from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import session_view_only
 
@@ -11,12 +12,12 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class SceneActionMixin(object):
-    def _check_scene_length(self):
+    def check_scene_length(self):
         # type: (Scene) -> None
         self.parent.defer(self.scene_name.update)
         if self.is_playing:
             self.schedule_next_scene_launch()
-        elif self.length == 0:
+        elif self.length == 0 and InterfaceState.CURRENT_RECORD_TYPE is None:
             self.parent.defer(self.delete)
 
     @session_view_only

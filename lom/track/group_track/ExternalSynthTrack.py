@@ -5,6 +5,7 @@ from typing import Optional, Any, cast, List, Iterator
 from protocol0.devices.AbstractExternalSynthTrackInstrument import AbstractExternalSynthTrackInstrument
 from protocol0.lom.ObjectSynchronizer import ObjectSynchronizer
 from protocol0.lom.clip.Clip import Clip
+from protocol0.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
 from protocol0.lom.device.Device import Device
 from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
@@ -97,7 +98,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     @property
     def clips(self):
         # type: () -> List[Clip]
-        clip_slots = self.midi_track.clip_slots + self.audio_track.clip_slots
+        clip_slots = cast(List[ClipSlot], self.midi_track.clip_slots) + self.audio_track.clip_slots
         return [clip_slot.clip for clip_slot in clip_slots if clip_slot.has_clip and clip_slot.clip]
 
     @property

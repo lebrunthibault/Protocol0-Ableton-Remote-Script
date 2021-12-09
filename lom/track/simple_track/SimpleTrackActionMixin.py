@@ -27,8 +27,8 @@ class SimpleTrackActionMixin(object):
             self.is_armed = True
 
         seq = Sequence()
-        if self.instrument and self.instrument.needs_exclusive_activation:
-            seq.add(partial(self.instrument.activate_plugin_window))
+        # if self.instrument and self.instrument.needs_exclusive_activation:
+        #     seq.add(partial(self.instrument.activate_plugin_window))
         return seq.done()
 
     def switch_monitoring(self):
@@ -40,7 +40,7 @@ class SimpleTrackActionMixin(object):
         self._track.delete_device(device_index)
         self._devices_listener()
 
-    def session_record_all(self):
+    def _session_record_all(self):
         # type: (SimpleTrack) -> Sequence
         """ finishes on end of recording """
         seq = Sequence()

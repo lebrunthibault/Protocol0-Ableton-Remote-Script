@@ -1,7 +1,6 @@
 from typing import Any
 
 from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
-from protocol0.lom.clip.MidiClip import MidiClip
 
 
 class ActionGroupTest(AbstractActionGroup):
@@ -24,11 +23,7 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        if isinstance(self.song.selected_clip, MidiClip):
-            self.parent.log_dev(self.song.selected_clip.hash())
-        else:
-            self.parent.log_dev(self.song.highlighted_clip_slot.previous_audio_file_path)
-            self.parent.log_dev(self.song.selected_clip.file_path)
+        self.song.highlighted_clip_slot.create_clip()
 
     def start_set_profiling(self):
         # type: () -> None

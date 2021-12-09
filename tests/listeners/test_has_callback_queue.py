@@ -107,22 +107,9 @@ def test_async_callback():
             super(Example, self).__init__(*a, **k)
             self.val = val
             self.test_res = test_res
-            self.subject_slot_listener.subject = self
 
         @has_callback_queue()
         def callback_listener(self):
-            # type: () -> Sequence
-            # noinspection PyShadowingNames
-            seq = Sequence(silent=True)
-
-            self.test_res.append(self.val)
-            seq.add(wait=1)
-            seq.add(lambda: self.test_res.append(self.val + 1))
-
-            return seq.done()
-
-        @p0_subject_slot("test")
-        def subject_slot_listener(self):
             # type: () -> Sequence
             # noinspection PyShadowingNames
             seq = Sequence(silent=True)

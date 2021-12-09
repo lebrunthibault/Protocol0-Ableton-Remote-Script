@@ -18,20 +18,20 @@ def push2_method(defer_call=True):
         # type: (Func) -> Func
         @wraps(func)
         def decorate(self, *a, **k):
-            # type: (Push2Manager, Any, Any) -> None
+            # type: (Push2Manager, Any, Any) -> Any
             # check hasattr in case the push2 is turned off during a set
             if not self.push2 or not hasattr(self.push2, "_initialized") or not self.push2._initialized:
                 return
 
             def execute():
-                # type: () -> None
+                # type: () -> Any
                 with self.push2.component_guard():
-                    func(self, *a, **k)
+                    return func(self, *a, **k)
 
             if defer_call:
                 self.parent.defer(execute)
             else:
-                execute()
+                return execute()
 
         return decorate
 
@@ -54,11 +54,11 @@ def session_view_only(func):
     # type: (Func) -> Func
     @wraps(func)
     def decorate(*a, **k):
-        # type: (Any, Any) -> None
+        # type: (Any, Any) -> Any
         from protocol0 import Protocol0
 
         if Protocol0.SELF.protocol0_application.session_view_active:
-            func(*a, **k)
+            return func(*a, **k)
         else:
             Protocol0.SELF.log_warning("%s is session view only" % get_callable_repr(func))
 
@@ -69,12 +69,12 @@ def arrangement_view_only(func):
     # type: (Func) -> Func
     @wraps(func)
     def decorate(*a, **k):
-        # type: (Any, Any) -> None
+        # type: (Any, Any) -> Any
         from protocol0 import Protocol0
 
         if Protocol0.SELF.protocol0_application.arrangement_view_active:
             Protocol0.SELF.protocol0_song.activate_arrangement()
-            func(*a, **k)
+            return func(*a, **k)
         else:
             Protocol0.SELF.log_warning("%s is arrangement view only" % get_callable_repr(func))
 
@@ -140,7 +140,7 @@ def log(func):
     # type: (Func) -> Func
     @wraps(func)
     def decorate(*a, **k):
-        # type: (Any, Any) -> None
+        # type: (Any, Any) -> Any
         func_name = func.__name__
         args = [str(arg) for arg in a] + ["%s=%s" % (key, str(value)) for (key, value) in k.items()]
         if is_method(func):
@@ -151,7 +151,7 @@ def log(func):
         from protocol0 import Protocol0
 
         Protocol0.SELF.log_info("-- %s" % message, debug=False)
-        func(*a, **k)
+        return func(*a, **k)
 
     return decorate
 
@@ -160,10 +160,10 @@ def handle_error(func):
     # type: (Func) -> Func
     @wraps(func)
     def decorate(*a, **k):
-        # type: (Any, Any) -> None
+        # type: (Any, Any) -> Any
         # noinspection PyBroadException
         try:
-            func(*a, **k)
+            return func(*a, **k)
         except Exception:
             from protocol0 import Protocol0
 
@@ -190,11 +190,11 @@ def debounce(wait_time=100):
         decorate.count = defaultdict(int)  # type: ignore[attr-defined]
 
         def execute(real_func, *a, **k):
-            # type: (Callable, Any, Any) -> None
+            # type: (Callable, Any, Any) -> Any
             object_source = a[0] if is_method(real_func) else decorate
             decorate.count[object_source] -= 1  # type: ignore[attr-defined]
             if decorate.count[object_source] == 0:  # type: ignore[attr-defined]
-                real_func(*a, **k)
+                return real_func(*a, **k)
 
         return decorate
 
@@ -207,14 +207,14 @@ def throttle(wait_time=100):
         # type: (Callable) -> Callable
         @wraps(func)
         def decorate(*a, **k):
-            # type: (Any, Any) -> None
+            # type: (Any, Any) -> Any
             object_source = a[0] if is_method(func) else decorate
 
             if decorate.paused[object_source] and k.get("throttle", True):
                 return
 
             decorate.paused[object_source] = True
-            func(*a, **k)
+            res = func(*a, **k)
 
             def activate():
                 # type: () -> None
@@ -222,6 +222,7 @@ def throttle(wait_time=100):
 
             from protocol0 import Protocol0
             Protocol0.SELF.wait(wait_time, activate)
+            return res
 
         decorate.paused = defaultdict(lambda: False)  # type: ignore[attr-defined]
 

@@ -25,20 +25,6 @@ def test_sanity_checks():
         Sequence(silent=True).add(wait_for_system=True, wait=1).done()
 
 
-def test_state_machine():
-    # type: () -> None
-    seq = Sequence(silent=True)
-    seq.dispatch("start")
-
-    # no error only log
-    seq.dispatch("start")
-
-    # no error only log
-    seq = Sequence(silent=True)
-    seq.terminate()
-    seq.dispatch("start")
-
-
 def test_error_no_timeout():
     # type: () -> None
     seq = Sequence(silent=True)
@@ -88,8 +74,8 @@ def test_async_callback_execution_order():
 
     obj = Example()
 
-    seq = Sequence(silent=True)
-    seq.add(nop, complete_on=obj.listener, name="waiting for obj.listener", check_timeout=2)
+    seq = Sequence()
+    seq.add(nop, complete_on=obj.listener, name="waiting for obj.listener", check_timeout=3)
     seq.add(lambda: test_res.append(2), name="append 2")
     seq.add(nop, name="after listener step")
 

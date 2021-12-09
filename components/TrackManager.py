@@ -13,7 +13,7 @@ from protocol0.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInst
 from protocol0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.decorators import p0_subject_slot, defer
+from protocol0.utils.decorators import p0_subject_slot
 from protocol0.utils.utils import find_if
 
 
@@ -24,7 +24,6 @@ class TrackManager(AbstractControlSurfaceComponent):
         self._added_track_listener.subject = self.parent.songManager
 
     @p0_subject_slot("added_track")
-    @defer
     def _added_track_listener(self):
         # type: () -> Optional[Sequence]
         if not self.song.selected_track.is_active:
@@ -105,10 +104,6 @@ class TrackManager(AbstractControlSurfaceComponent):
             return base_group_track.abstract_group_track
         else:
             return ExternalSynthTrack(base_group_track=base_group_track)
-
-    def duplicate_current_track(self):
-        # type: () -> Sequence
-        return self.song.duplicate_track(self.song.current_track.index)
 
     def scroll_all_tracks_volume(self, go_next):
         # type: (bool) -> None

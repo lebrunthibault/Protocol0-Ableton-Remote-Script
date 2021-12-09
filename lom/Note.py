@@ -12,15 +12,14 @@ if TYPE_CHECKING:
 class Note(AbstractObject):
     MIN_DURATION = 1 / 128
 
-    def __init__(self, pitch=127, start=0, duration=1, velocity=127, muted=False, clip=None, *a, **k):
-        # type: (int, float, float, int, bool, MidiClip, Any, Any) -> None
+    def __init__(self, pitch=127, start=0, duration=1, velocity=127, muted=False, *a, **k):
+        # type: (int, float, float, int, bool, Any, Any) -> None
         super(Note, self).__init__(*a, **k)
         self._pitch = int(pitch)
         self._start = start
         self._duration = duration
         self._velocity = int(velocity)  # type: float
         self._muted = muted
-        self.clip = cast("MidiClip", clip)
 
     def __eq__(self, other):
         # type: (object) -> bool

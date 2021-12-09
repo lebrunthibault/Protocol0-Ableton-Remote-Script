@@ -62,7 +62,7 @@ class ExternalSynthTrackActionMixin(object):
         # type: (ExternalSynthTrack) -> None
         self.has_monitor_in = not self.has_monitor_in
 
-    def session_record_all(self):
+    def _session_record_all(self):
         # type: (ExternalSynthTrack) -> Sequence
         seq = Sequence()
 
@@ -88,7 +88,7 @@ class ExternalSynthTrackActionMixin(object):
             seq.add(self.song.selected_scene.fire)
         return seq.done()
 
-    def session_record_audio_only(self):
+    def _session_record_audio_only(self):
         # type: (ExternalSynthTrack) -> Optional[Sequence]
         midi_clip = self.midi_track.playable_clip
         if not midi_clip:
@@ -161,7 +161,7 @@ class ExternalSynthTrackActionMixin(object):
 
     def post_session_record(self, record_type):
         # type: (ExternalSynthTrack, RecordTypeEnum) -> None
-        super(ExternalSynthTrackActionMixin, self).post_session_record()
+        super(ExternalSynthTrackActionMixin, self).post_session_record(update_clip_name=False)
         if not self.midi_track.playable_clip or not self.audio_track.playable_clip:
             return None
 

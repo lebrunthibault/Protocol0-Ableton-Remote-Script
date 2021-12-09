@@ -153,6 +153,20 @@ class ClipSlot(AbstractObject):
         else:
             self._clip_slot.fire()
 
+    def create_clip(self):
+        # type: () -> Optional[Sequence]
+        """ creating one bar clip """
+        if self._clip_slot is None:
+            return None
+        if self.clip:
+            self.parent.log_error("%s has already a clip" % self)
+            return None
+
+        seq = Sequence()
+        seq.add(partial(self._clip_slot.create_clip, self.song.signature_numerator), complete_on=self._has_clip_listener)
+        seq.add(lambda: self.clip.clip_name._name_listener())
+        return seq.done()
+
     def duplicate_clip_to(self, clip_slot):
         # type: (ClipSlot) -> Sequence
         seq = Sequence()

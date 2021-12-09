@@ -33,7 +33,7 @@ class MidiClip(Clip):
         if not self._clip:
             return []
         # noinspection PyArgumentList
-        clip_notes = [Note(*note, clip=self) for note in self._clip.get_notes(self.loop_start, 0, self.length, 128)]
+        clip_notes = [Note(*note) for note in self._clip.get_notes(self.loop_start, 0, self.length, 128)]
         notes = list(self._get_notes_from_cache(notes=clip_notes))
         notes.sort(key=lambda x: x.start)
         return notes
@@ -43,22 +43,17 @@ class MidiClip(Clip):
         for note in notes:
             yield next((cached_note for cached_note in self._cached_notes if cached_note == note), note)
 
-    def _change_clip_notes(self, method, notes):
-        # type: (Callable, List[Note]) -> Optional[Sequence]
-        if not self._clip:
-            return None
-        self._cached_notes = notes
-        seq = Sequence(silent=True)
-        seq.add(partial(method, tuple(note.to_data() for note in notes)))
-        # noinspection PyUnresolvedReferences
-        seq.add(wait=1)
-        return seq.done()
-
     def set_notes(self, notes):
         # type: (List[Note]) -> Optional[Sequence]
         if not self._clip:
             return None
-        return self._change_clip_notes(self._clip.set_notes, notes)
+        self._cached_notes = notes
+        self._clip.get_selected_notes()
+        seq = Sequence(silent=True)
+        seq.add(partial(self._clip.replace_selected_notes, tuple(note.to_data() for note in notes)))
+        # noinspection PyUnresolvedReferences
+        seq.add(wait=1)
+        return seq.done()
 
     @property
     def quantization_index(self):

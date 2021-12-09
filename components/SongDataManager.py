@@ -5,6 +5,7 @@ from pydoc import locate, classname
 from typing import Any, Optional
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.enums.AbstractEnum import AbstractEnum
 from protocol0.enums.SongDataEnum import SongDataEnum
 from protocol0.errors.Protocol0Error import Protocol0Error
@@ -43,7 +44,9 @@ class SongDataManager(AbstractControlSurfaceComponent):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(SongDataManager, self).__init__(*a, **k)
-        self.restore_data()
+        from protocol0.interface.InterfaceState import InterfaceState
+        if InterfaceState.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.TEST:
+            self.restore_data()
 
     def save(self):
         # type: () -> None

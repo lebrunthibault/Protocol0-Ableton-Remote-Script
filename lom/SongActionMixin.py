@@ -108,7 +108,7 @@ class SongActionMixin(object):
 
     def unfocus_all_tracks(self):
         # type: (Song) -> Sequence
-        self._unsolo_all_tracks()
+        # self._unsolo_all_tracks()
         return self._unarm_all_tracks()
 
     def _unarm_all_tracks(self):
@@ -126,7 +126,7 @@ class SongActionMixin(object):
     def duplicate_track(self, index):
         # type: (Song, int) -> Sequence
         seq = Sequence()
-        seq.add(partial(self._song.duplicate_track, index), complete_on=self.parent.songManager.tracks_listener)
+        seq.add(partial(self._song.duplicate_track, index), complete_on=self.parent.trackManager._added_track_listener)
         return seq.done()
 
     def duplicate_scene(self, index):

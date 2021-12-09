@@ -36,6 +36,7 @@ from protocol0.components.action_groups.ActionGroupSet import ActionGroupSet
 from protocol0.components.action_groups.ActionGroupTest import ActionGroupTest
 from protocol0.components.api.ApiAction import ApiAction
 from protocol0.components.api.ApiRoutesManager import ApiRoutesManager
+from protocol0.components.audit.AudioLatencyAnalyzer import AudioLatencyAnalyzer
 from protocol0.components.audit.SetFixerManager import SetFixerManager
 from protocol0.components.audit.SetUpgradeManager import SetUpgradeManager
 from protocol0.components.scheduler.FastScheduler import FastScheduler, SchedulerEvent
@@ -102,6 +103,7 @@ class Protocol0(ControlSurface):
             self.quantizationManager = QuantizationManager()
             self.setFixerManager = SetFixerManager()
             self.setUpgradeManager = SetUpgradeManager()
+            self.audioLatencyAnalyzer = AudioLatencyAnalyzer()
             self.clipManager = ClipManager()
             self.browserManager = BrowserManager()
             self.navigationManager = NavigationManager()

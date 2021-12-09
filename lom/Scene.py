@@ -52,7 +52,7 @@ class Scene(SceneActionMixin, AbstractObject):
                       clip_slot.has_clip and clip_slot.clip and not clip_slot.clip.muted]
         self.tracks = [clip.track for clip in self.clips]
         self._clips_length_listener.replace_subjects(self.clips)
-        self._check_scene_length()
+        self.check_scene_length()
 
     def refresh_appearance(self):
         # type: (Scene) -> None
@@ -88,13 +88,13 @@ class Scene(SceneActionMixin, AbstractObject):
     @throttle(wait_time=20)
     def _clips_length_listener(self, _):
         # type: (Clip) -> None
-        self._check_scene_length()
+        self.check_scene_length()
 
     @subject_slot_group("has_clip")
     def _clip_slots_has_clip_listener(self, _):
         # type: (ClipSlot) -> None
         self._map_clips()
-        self._check_scene_length()
+        self.check_scene_length()
 
     @subject_slot_group("stopped")
     def _clip_slots_stopped_listener(self, _):
@@ -127,6 +127,11 @@ class Scene(SceneActionMixin, AbstractObject):
     def is_triggered(self):
         # type: () -> bool
         return bool(self._scene.is_triggered) if self._scene else False
+
+    @property
+    def is_recording(self):
+        # type: () -> bool
+        return any(clip for clip in self.clips if clip and clip.is_recording)
 
     @property
     def name(self):

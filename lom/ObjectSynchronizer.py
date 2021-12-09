@@ -8,7 +8,6 @@ from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.clip.Clip import Clip
 from protocol0.lom.device.DeviceParameter import DeviceParameter
 from protocol0.lom.track.AbstractTrack import AbstractTrack
-from protocol0.utils.decorators import defer
 
 
 class ObjectSynchronizer(AbstractControlSurfaceComponent):
@@ -55,7 +54,6 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
         # type: (AbstractObject) -> bool
         return True
 
-    @defer
     def _sync_property(self, master, slave, property_name):
         # type: (AbstractObject, AbstractObject, str) -> None
         if not self.is_syncable(slave):
@@ -63,4 +61,4 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
         master_value = getattr(master, property_name)
         slave_value = getattr(slave, property_name)
         if slave and master_value is not None and slave_value != master_value and not slave.deleted and not master.deleted:
-            setattr(slave, property_name, master_value)
+            self.parent.defer(partial(setattr, slave, property_name, master_value))

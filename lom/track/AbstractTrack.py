@@ -1,4 +1,5 @@
 from abc import abstractproperty
+from functools import partial
 
 from typing import Any, Optional, List, Type
 from typing import TYPE_CHECKING
@@ -18,7 +19,7 @@ from protocol0.lom.clip.Clip import Clip
 from protocol0.lom.track.AbstractTrackActionMixin import AbstractTrackActionMixin
 from protocol0.lom.track.AbstractTrackName import AbstractTrackName
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.decorators import defer, p0_subject_slot
+from protocol0.utils.decorators import p0_subject_slot
 from protocol0.utils.utils import set_device_parameter, find_if
 
 if TYPE_CHECKING:
@@ -82,12 +83,11 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
             self.song.metronome = False
 
     @p0_subject_slot("color")
-    @defer
     def _color_listener(self):
         # type: () -> None
         """enforcing coherent color scheme"""
         if not self.abstract_group_track and self.color != ColorEnum.ERROR.index:
-            self.refresh_color()
+            self.parent.defer(self.refresh_color)
 
     @property
     def index(self):
@@ -309,11 +309,10 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         return self._track.mixer_device.volume.value if self._track else 0
 
     @volume.setter
-    @defer
     def volume(self, volume):
         # type: (float) -> None
         if self._track:
-            set_device_parameter(self._track.mixer_device.volume, volume)
+            self.parent.defer(partial(set_device_parameter, self._track.mixer_device.volume, volume))
 
     @property
     def has_audio_output(self):

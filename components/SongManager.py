@@ -123,7 +123,7 @@ class SongManager(AbstractControlSurfaceComponent):
 
         if has_added_tracks and self.song.selected_track:
             # noinspection PyUnresolvedReferences
-            self.notify_added_track()
+            self.parent.defer(self.notify_added_track)
 
         self._simple_tracks = list(self.song.simple_tracks)
         # self.parent.defer(partial(self.parent.setFixerManager.refresh_set_appearance, log=False))

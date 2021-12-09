@@ -24,3 +24,6 @@ class ActionGroupFix(AbstractActionGroup):
 
         # CLR encoder
         self.add_encoder(identifier=4, name="clear logs", on_press=self.parent.logManager.clear)
+
+        # USAMo encoder
+        self.add_encoder(identifier=5, name="check usamo latency", on_press=self.parent.audioLatencyAnalyzer.test_audio_latency)

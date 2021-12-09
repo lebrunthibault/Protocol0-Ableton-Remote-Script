@@ -106,16 +106,6 @@ class Clip(ClipActionMixin, AbstractObject):
             self._clip.name = str(name).strip()
 
     @property
-    def base_name(self):
-        # type: () -> str
-        return self.clip_name.base_name
-
-    @base_name.setter
-    def base_name(self, base_name):
-        # type: (str) -> None
-        self.clip_name.update(base_name=base_name)
-
-    @property
     def length(self):
         # type: () -> int
         """
