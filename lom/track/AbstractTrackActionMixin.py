@@ -199,16 +199,19 @@ class AbstractTrackActionMixin(object):
             self.song.stop_playing()
             return None
 
+        self.solo = True
+
         self.song.stop_all_clips(quantized=False)
         self.song.stop_playing()
         assert self.next_empty_clip_slot_index is not None
         recording_scene = self.song.scenes[self.next_empty_clip_slot_index]
 
-        if not recording_scene.length:
-            self.song.is_playing = True
+        # if not recording_scene.length:
+        self.song.is_playing = True
 
         if recording_scene.length:
-            recording_scene.fire()
+            self.parent.defer(recording_scene.fire)
+            self.parent.wait_bars(1, partial(setattr, self, "solo", False))
 
     def _cancel_record(self):
         # type: (AbstractTrack) -> Sequence

@@ -79,7 +79,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def _is_recording_listener(self):
         # type: () -> None
         self.solo = False
-        if len(list(filter(None, [t.is_hearable for t in self.song.abstract_tracks]))) >= 1:
+        if len(list(filter(None, [t.is_hearable for t in self.song.abstract_tracks]))) > 1:
             self.song.metronome = False
 
     @p0_subject_slot("color")
