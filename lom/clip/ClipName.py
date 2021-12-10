@@ -1,5 +1,4 @@
 import re
-from functools import partial
 
 from typing import TYPE_CHECKING, Any, Optional
 
@@ -10,6 +9,8 @@ if TYPE_CHECKING:
 
 
 class ClipName(AbstractObjectName):
+    DEBUG = True
+
     def __init__(self, clip, *a, **k):
         # type: (Clip, Any, Any) -> None
         super(ClipName, self).__init__(clip, *a, **k)
@@ -38,18 +39,22 @@ class ClipName(AbstractObjectName):
             return "unwarped"
 
         if int(self.clip.length) % self.song.signature_numerator != 0:
-            return "%d beat%s" % (self.clip.length, "s" if self.clip.length > 1 else "")
+            legend = "%d beat%s" % (self.clip.length, "s" if self.clip.length > 1 else "")
         else:
-            return "%d bar%s" % (self.clip.bar_length, "s" if self.clip.bar_length > 1 else "")
+            legend = "%d bar%s" % (self.clip.bar_length, "s" if self.clip.bar_length > 1 else "")
+
+        if self.clip.has_tail:
+            legend += " tail"
+
+        return legend
 
     def update(self, base_name=None):
         # type: (Optional[str]) -> None
-        """ extended """
         if self.clip.is_recording:
             return None
-        self.base_name = base_name if base_name is not None else self.base_name
+        if self.DEBUG:
+            self.parent.log_info("%s : %s <-> %s <-> %s" % (self.clip, base_name, self.base_name, self.clip.name))
+        if base_name is not None:
+            self.base_name = base_name
         clip_name = "%s (%s)" % (self.base_name, self._length_legend)
-        if self.clip.tail_bar_length:
-            clip_name += " tail"
-        self.parent.defer(partial(setattr, self.clip, "name", clip_name))
         self.clip.name = clip_name

@@ -199,7 +199,9 @@ class AbstractTrackActionMixin(object):
             self.song.stop_playing()
             return None
 
+        # solo for count in
         self.solo = True
+        self.parent.wait_bars(1, partial(setattr, self, "solo", False))
 
         self.song.stop_all_clips(quantized=False)
         self.song.stop_playing()
@@ -211,7 +213,6 @@ class AbstractTrackActionMixin(object):
 
         if recording_scene.length:
             self.parent.defer(recording_scene.fire)
-            self.parent.wait_bars(1, partial(setattr, self, "solo", False))
 
     def _cancel_record(self):
         # type: (AbstractTrack) -> Sequence

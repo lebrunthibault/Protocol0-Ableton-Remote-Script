@@ -33,10 +33,10 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
 
         for property_name in self.listenable_properties:
             self.register_slot(getattr(master, lom_property_name),
-                               partial(self._sync_property, master, slave, property_name),
+                               partial(self.parent.defer, partial(self._sync_property, master, slave, property_name)),
                                property_name)
             self.register_slot(getattr(slave, lom_property_name),
-                               partial(self._sync_property, slave, master, property_name),
+                               partial(self.parent.defer, partial(self._sync_property, slave, master, property_name)),
                                property_name)
 
     def _get_lom_property_name_from_object(self, obj):
@@ -60,5 +60,8 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
             return
         master_value = getattr(master, property_name)
         slave_value = getattr(slave, property_name)
-        if slave and master_value is not None and slave_value != master_value and not slave.deleted and not master.deleted:
-            self.parent.defer(partial(setattr, slave, property_name, master_value))
+        if not slave or slave.deleted or master.deleted:
+            return None
+
+        if master_value and slave_value != master_value:
+            setattr(slave, property_name, master_value)

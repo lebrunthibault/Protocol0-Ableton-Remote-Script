@@ -22,7 +22,18 @@ class ClipSlotSynchronizer(AbstractControlSurfaceComponent):
         self._has_clip_listener.replace_subjects([midi_cs, audio_cs])
         self._is_triggered_listener.replace_subjects([midi_cs, audio_cs])
         self._clip_synchronizer = None  # type: Optional[ClipSynchronizer]
-        self._has_clip_listener(midi_cs)
+        self._init_clip_synchronizer()
+
+    def _init_clip_synchronizer(self):
+        # type: () -> None
+        if self._clip_synchronizer:
+            self._clip_synchronizer.disconnect()
+
+        if self.midi_cs.clip and self.audio_cs.clip:
+            with self.parent.component_guard():
+                self._clip_synchronizer = ClipSynchronizer(master=self.midi_cs.clip, slave=self.audio_cs.clip)
+        else:
+            self._clip_synchronizer = None
 
     def linked_clip_slot(self, clip_slot):
         # type: (ClipSlot) -> ClipSlot
@@ -31,13 +42,7 @@ class ClipSlotSynchronizer(AbstractControlSurfaceComponent):
     @subject_slot_group("has_clip")
     def _has_clip_listener(self, changed_clip_slot):
         # type: (ClipSlot) -> None
-        if self._clip_synchronizer:
-            self._clip_synchronizer.disconnect()
-        if self.midi_cs.clip and self.audio_cs.clip:
-            with self.parent.component_guard():
-                self._clip_synchronizer = ClipSynchronizer(master=self.midi_cs.clip, slave=self.audio_cs.clip)
-        else:
-            self._clip_synchronizer = None
+        self._init_clip_synchronizer()
 
         linked_clip_slot = self.linked_clip_slot(clip_slot=changed_clip_slot)
 

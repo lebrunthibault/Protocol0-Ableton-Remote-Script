@@ -111,6 +111,6 @@ class ClipActionMixin(object):
         """ overridden """
         pass
 
-    def post_record_clip_tail(self, bar_tail_length):
-        # type: (Clip, int) -> None
-        self.loop_start = bar_tail_length * self.song.signature_numerator
+    def post_record_clip_tail(self):
+        # type: (Clip) -> None
+        self.loop_start = self.song.signature_numerator

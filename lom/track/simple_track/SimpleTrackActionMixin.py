@@ -27,8 +27,8 @@ class SimpleTrackActionMixin(object):
             self.is_armed = True
 
         seq = Sequence()
-        # if self.instrument and self.instrument.needs_exclusive_activation:
-        #     seq.add(partial(self.instrument.activate_plugin_window))
+        if self.instrument and self.instrument.needs_exclusive_activation:
+            seq.add(partial(self.instrument.activate_plugin_window))
         return seq.done()
 
     def switch_monitoring(self):
@@ -47,7 +47,7 @@ class SimpleTrackActionMixin(object):
         assert self.next_empty_clip_slot_index is not None
         recording_clip_slot = self.clip_slots[self.next_empty_clip_slot_index]
         recording_bar_length = InterfaceState.SELECTED_RECORDING_BAR_LENGTH.int_value
-        seq.add(partial(recording_clip_slot.record, bar_length=recording_bar_length, bar_tail_length=0))
+        seq.add(partial(recording_clip_slot.record, bar_length=recording_bar_length))
         return seq.done()
 
     def get_device_from_enum(self, device_enum):

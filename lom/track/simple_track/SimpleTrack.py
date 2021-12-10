@@ -236,7 +236,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def playable_clip(self):
         # type: () -> Optional[Clip]
-        return self.playing_clip or self.clip_slots[self.song.selected_scene.index].clip
+        return self.clip_slots[self.song.selected_scene.index].clip
 
     @property
     def selected_device(self):

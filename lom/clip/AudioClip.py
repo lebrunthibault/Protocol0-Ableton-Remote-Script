@@ -66,14 +66,10 @@ class AudioClip(Clip):
         return self._clip.file_path if self._clip else ""
 
     @property
-    def tail_bar_length(self):
-        # type: () -> int
+    def has_tail(self):
+        # type: () -> bool
         total_length = floor(self.end_marker - self.start_marker)
-        beat_tail_length = total_length - self.length
-        # this can happen if we manually increase the linked midi clip length
-        if beat_tail_length < 0:
-            return 0
-        return int(beat_tail_length / self.song.signature_numerator)
+        return total_length > self.length
 
     def post_record(self):
         # type: () -> None

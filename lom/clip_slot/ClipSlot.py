@@ -4,6 +4,7 @@ from typing import Any, TYPE_CHECKING, Optional
 
 import Live
 from protocol0.enums.BarLengthEnum import BarLengthEnum
+from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.clip.Clip import Clip
 from protocol0.sequence.Sequence import Sequence
@@ -107,8 +108,8 @@ class ClipSlot(AbstractObject):
         # type: () -> bool
         return self._clip_slot and self._clip_slot.is_playing
 
-    def record(self, bar_length, bar_tail_length):
-        # type: (int, int) -> Optional[Sequence]
+    def record(self, bar_length):
+        # type: (int) -> Optional[Sequence]
         seq = Sequence()
         if not self.has_stop_button:
             self.has_stop_button = True
@@ -119,12 +120,13 @@ class ClipSlot(AbstractObject):
             seq.add(self.fire, complete_on=self._has_clip_listener)
         else:
             bar_legend = "%d" % bar_length
-            if bar_tail_length:
-                bar_legend += " (+%d)" % bar_tail_length
+            if InterfaceState.RECORD_CLIP_TAILS:
+                bar_legend += " (+tail)"
             self.parent.show_message("Starting recording of %s bars" % bar_legend)
             seq.add(wait=1)  # necessary so that _has_clip_listener triggers on has_clip == True
             seq.add(
-                partial(self.fire, record_length=self.parent.utilsManager.get_beat_time(bar_length + bar_tail_length)),
+                partial(self.fire, record_length=self.parent.utilsManager.get_beat_time(
+                    bar_length + (1 if InterfaceState.RECORD_CLIP_TAILS else 0))),
                 complete_on=self._has_clip_listener,
             )
 
@@ -137,9 +139,9 @@ class ClipSlot(AbstractObject):
             no_timeout=True,
         )
 
-        if bar_tail_length:
+        if InterfaceState.RECORD_CLIP_TAILS:
             seq.add(wait=1)
-            seq.add(lambda: self.clip.post_record_clip_tail(bar_tail_length=bar_tail_length))
+            seq.add(lambda: self.clip.post_record_clip_tail())
 
         return seq.done()
 

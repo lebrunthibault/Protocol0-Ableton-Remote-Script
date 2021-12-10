@@ -72,7 +72,6 @@ class AudioLatencyAnalyzer(AbstractControlSurfaceComponent):
 
     def _analyze_jitter(self):
         # type: () -> Sequence
-        self.parent.log_dev("analyzing jitter !")
         current_track = cast(ExternalSynthTrack, self.song.current_track)
         audio_clip = current_track.audio_track.clips[0]
         seq = Sequence()

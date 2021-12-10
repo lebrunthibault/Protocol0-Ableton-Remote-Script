@@ -51,7 +51,6 @@ class AbstractObjectName(AbstractObject):
     @p0_subject_slot("name")
     def _name_listener(self, force=False):
         # type: (bool) -> None
-        """ overridden """
         base_name = self._get_base_name()
         # noinspection PyUnresolvedReferences
         if not force and base_name == self.base_name and self._obj.name != base_name:

@@ -26,9 +26,8 @@ class ActionGroupMain(AbstractActionGroup):
         # TAIL encoder
         self.add_encoder(
             identifier=2,
-            name="toggle audio clip tails recording",
-            on_press=InterfaceState.toggle_record_clip_tails,
-            on_scroll=InterfaceState.scroll_clip_tails_bar_lengths,
+            name="toggle audio clip tail recording",
+            on_press=InterfaceState.toggle_record_clip_tails
         )
 
         # AUTOmation encoder

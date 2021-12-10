@@ -75,11 +75,10 @@ class ExternalSynthTrackActionMixin(object):
         audio_clip_slot = self.audio_track.clip_slots[self.next_empty_clip_slot_index]
         self.audio_track.select()
         recording_bar_length = InterfaceState.SELECTED_RECORDING_BAR_LENGTH.int_value
-        bar_tail_length = InterfaceState.record_clip_tails_length()
 
         seq.add([
-            partial(midi_clip_slot.record, bar_length=recording_bar_length, bar_tail_length=bar_tail_length),
-            partial(audio_clip_slot.record, bar_length=recording_bar_length, bar_tail_length=bar_tail_length)]
+            partial(midi_clip_slot.record, bar_length=recording_bar_length),
+            partial(audio_clip_slot.record, bar_length=recording_bar_length)]
         )
         if InterfaceState.SELECTED_RECORDING_BAR_LENGTH == BarLengthEnum.UNLIMITED:
             return seq.done()
@@ -110,15 +109,10 @@ class ExternalSynthTrackActionMixin(object):
             audio_clip_slot.previous_audio_file_path = audio_clip.file_path
             seq.add(audio_clip.delete)
 
-        audio_tail_bar_length = audio_clip.tail_bar_length if audio_clip else 0
-
-        seq.add(partial(audio_clip_slot.record, bar_length=midi_clip.bar_length, bar_tail_length=audio_tail_bar_length))
+        seq.add(partial(audio_clip_slot.record, bar_length=midi_clip.bar_length))
         seq.add(partial(self._propagate_new_audio_clip, audio_clip_slot))
-        if audio_tail_bar_length:
-            loop_start, loop_end = audio_clip.loop_start, audio_clip.loop_end
-            seq.add(lambda: setattr(audio_clip_slot.clip, "loop_start", loop_start))
-            seq.add(lambda: setattr(audio_clip_slot.clip, "loop_end", loop_end))
-        if InterfaceState.RECORD_CLIP_TAILS or audio_tail_bar_length:
+
+        if InterfaceState.RECORD_CLIP_TAILS:
             seq.add(self.song.selected_scene.fire)
 
         return seq.done()
@@ -162,18 +156,20 @@ class ExternalSynthTrackActionMixin(object):
     def post_session_record(self, record_type):
         # type: (ExternalSynthTrack, RecordTypeEnum) -> None
         super(ExternalSynthTrackActionMixin, self).post_session_record(update_clip_name=False)
-        if not self.midi_track.playable_clip or not self.audio_track.playable_clip:
+        midi_clip = self.midi_track.playable_clip
+        audio_clip = self.audio_track.playable_clip
+        if not midi_clip or not audio_clip:
             return None
 
-        self.audio_track.playable_clip.post_record()
+        audio_clip.post_record()
         if record_type == RecordTypeEnum.NORMAL:
-            self.midi_track.playable_clip.clip_name.update(base_name="")
-            self.audio_track.playable_clip.clip_name.update(base_name="")
-            self.midi_track.playable_clip.post_record()
-            self.midi_track.playable_clip.select()
+            midi_clip.clip_name.update(base_name="")
+            audio_clip.clip_name.update(base_name="")
+            midi_clip.post_record()
+            midi_clip.select()
             self.parent.navigationManager.focus_main()
         else:
-            self.audio_track.playable_clip.clip_name.update(base_name="")
+            audio_clip.clip_name.update(base_name=midi_clip.clip_name.base_name)
             self.link_clip_slots()
 
     def post_arrangement_record(self):
