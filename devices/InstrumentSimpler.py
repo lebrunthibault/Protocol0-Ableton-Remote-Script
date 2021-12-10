@@ -28,5 +28,4 @@ class InstrumentSimpler(AbstractInstrument):
         import Live
         self.song.selected_track.device_insert_mode = Live.Track.DeviceInsertMode.default
         self.parent.browserManager.load_sample(preset.original_name)  # type: ignore[arg-type]
-        # self.parent.wait(100, self.track._devices_listener)
         return None

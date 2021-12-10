@@ -129,6 +129,12 @@ class SongActionMixin(object):
         seq.add(partial(self._song.duplicate_track, index), complete_on=self.parent.trackManager._added_track_listener)
         return seq.done()
 
+    def delete_track(self, index):
+        # type: (Song, int) -> Sequence
+        seq = Sequence()
+        seq.add(partial(self._song.delete_track, index), complete_on=self.parent.songManager.tracks_listener)
+        return seq.done()
+
     def duplicate_scene(self, index):
         # type: (Song, int) -> Sequence
         seq = Sequence()

@@ -8,7 +8,6 @@ from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComp
 from protocol0.config import Config
 from protocol0.constants import PROJECT_ROOT
 from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
-from protocol0.interface.InterfaceState import InterfaceState
 
 
 class ErrorManager(AbstractControlSurfaceComponent):
@@ -60,7 +59,7 @@ class ErrorManager(AbstractControlSurfaceComponent):
         self.parent.clear_tasks()
         self.parent.defer(self.song.reset)
 
-        if InterfaceState.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.TEST:
+        if Config.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.TEST:
             self.parent.wait(10, self._restart)
 
     def _restart(self):

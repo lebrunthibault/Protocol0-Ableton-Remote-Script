@@ -4,7 +4,9 @@ from math import floor
 from typing import TYPE_CHECKING, Any
 
 import Live
+from protocol0.enums.PixelEnum import PixelEnum
 from protocol0.lom.clip.Clip import Clip
+from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
@@ -77,3 +79,15 @@ class AudioClip(Clip):
         # type: () -> None
         super(AudioClip, self).post_record()
         self.warp_mode = Live.Clip.WarpMode.complex
+
+    def crop(self):
+        # type: () -> Sequence
+        seq = Sequence()
+        seq.add(partial(self.system.right_click, 1202, 809))
+        seq.add(partial(self.system.click, 1262, 413))
+        seq.add(wait=2)
+        return seq.done()
+
+    def save_sample(self):
+        # type: () -> None
+        self.system.click_vertical_zone(*PixelEnum.SAVE_SAMPLE.coordinates)

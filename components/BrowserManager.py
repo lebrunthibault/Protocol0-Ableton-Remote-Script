@@ -23,6 +23,11 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
         """ Clyphx code using self.application() """
         return self.parent.protocol0_application
 
+    def get_sample(self, sample_name):
+        # type: (str) -> Live.Browser.BrowserItem
+        self._cache_category("samples")
+        return self._cached_browser_items["samples"].get(sample_name.decode("utf-8"), None)
+
     def load_device_from_enum(self, device_enum):
         # type: (DeviceEnum) -> Sequence
         seq = Sequence()
@@ -43,8 +48,7 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
 
     def load_sample(self, sample_name, **k):
         # type: (str, Any) -> None
-        self._cache_category("samples")
-        item = self._cached_browser_items["samples"].get(sample_name.decode("utf-8"), None)
+        item = self.get_sample(sample_name=sample_name)
         if item and item.is_loadable:
             self.song.selected_track.device_insert_mode = self._insert_mode
             # noinspection PyArgumentList

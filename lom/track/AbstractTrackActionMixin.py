@@ -26,6 +26,10 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> Sequence
         return self.song.duplicate_track(self.index)
 
+    def delete(self):
+        # type: (AbstractTrack) -> Sequence
+        return self.song.delete_track(self.index)
+
     def toggle_arm(self):
         # type: (AbstractTrack) -> None
         self.unarm() if self.is_armed else self.arm()

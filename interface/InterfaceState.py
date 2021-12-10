@@ -11,7 +11,7 @@ from protocol0.utils.utils import scroll_values
 class InterfaceState(object):
     SELECTED_RECORDING_BAR_LENGTH = BarLengthEnum.UNLIMITED
     SELECTED_DUPLICATE_SCENE_BAR_LENGTH = 4
-    ABLETON_SESSION_TYPE = AbletonSessionTypeEnum.NORMAL
+    ABLETON_SESSION_TYPE = AbletonSessionTypeEnum.PROFILING
 
     RECORD_CLIP_TAILS = False  # records one more bar of audio to make editing easier
     SELECTED_CLIP_TAILS_BAR_LENGTH = BarLengthEnum.ONE

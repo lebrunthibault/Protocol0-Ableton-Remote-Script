@@ -23,7 +23,7 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        self.song.highlighted_clip_slot.create_clip()
+        pass
 
     def start_set_profiling(self):
         # type: () -> None

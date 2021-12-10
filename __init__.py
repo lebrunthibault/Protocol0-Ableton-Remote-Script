@@ -79,6 +79,6 @@ def create_instance(c_instance):  # noqa
     # type: (Any) -> Protocol0
     if not live_environment_loaded:
         from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
-        from protocol0.interface.InterfaceState import InterfaceState
-        InterfaceState.ABLETON_SESSION_TYPE = AbletonSessionTypeEnum.TEST
+        from protocol0.config import Config
+        Config.ABLETON_SESSION_TYPE = AbletonSessionTypeEnum.TEST
     return Protocol0(c_instance)

@@ -54,12 +54,12 @@ class ClipActionMixin(object):
         seq.add(self.clip_slot.delete_clip, complete_on=self.clip_slot._has_clip_listener)
         return seq.done()
 
-    def quantize(self):
-        # type: (Clip) -> None
+    def quantize(self, depth=1):
+        # type: (Clip, float) -> None
         if self._clip:
             record_quantization_index = QUANTIZATION_OPTIONS.index(self.song.midi_recording_quantization)
             if record_quantization_index:
-                self._clip.quantize(record_quantization_index, 1)
+                self._clip.quantize(record_quantization_index, depth)
 
     def automation_envelope(self, parameter):
         # type: (Clip, DeviceParameter) -> Live.Clip.AutomationEnvelope

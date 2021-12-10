@@ -5,6 +5,7 @@ from typing import Any, List, Optional, Type
 import Live
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.components.SongDataManager import SongDataManager
+from protocol0.config import Config
 from protocol0.devices.InstrumentProphet import InstrumentProphet
 from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.enums.DeviceEnum import DeviceEnum
@@ -33,7 +34,7 @@ class SongManager(AbstractControlSurfaceComponent):
         # type: () -> None
         self.tracks_listener()
         self.song.song_load_state = SongLoadStateEnum.LOADING
-        if InterfaceState.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.PROFILING:
+        if Config.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.PROFILING:
             return None
 
         startup_track = self._get_startup_track()

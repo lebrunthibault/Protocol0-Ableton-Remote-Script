@@ -46,7 +46,6 @@ from protocol0.config import Config
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.enums.LogLevelEnum import LogLevelEnum
-from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.Application import Application
 from protocol0.lom.Song import Song
 from protocol0.sequence.Sequence import Sequence
@@ -90,7 +89,7 @@ class Protocol0(ControlSurface):
             self.protocol0_application = Application()
             self.protocol0_song = Song(song=self.song())
             self.songDataManager = SongDataManager()
-            if Config.SHOW_RELOAD_TIME or InterfaceState.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.PROFILING:
+            if Config.SHOW_RELOAD_TIME or Config.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.PROFILING:
                 self.p0_system_api_client.end_measurement()
 
             self.deviceManager = DeviceManager()  # needs to be here first
@@ -116,7 +115,7 @@ class Protocol0(ControlSurface):
             self.sessionToArrangementManager = SessionToArrangementManager()
             # return
 
-            if InterfaceState.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.TEST:
+            if Config.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.TEST:
                 # action groups
                 ActionGroupFix()
                 ActionGroupLog()
@@ -142,7 +141,9 @@ class Protocol0(ControlSurface):
 
     def start(self):
         # type: () -> None
-        self._check_midi_server_is_running()
+        if Config.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.NORMAL:
+            self._check_midi_server_is_running()
+
         self.wait(10, self._check_protocol_midi_is_up)  # waiting for Protocol0_midi to boot
 
         # self.wait(100, self.push2Manager.connect_push2)
@@ -247,8 +248,7 @@ class Protocol0(ControlSurface):
             callback()
             return None
         else:
-            # for ticks_count > 1 we use the 100ms timer losing some speed but it's easier for now
-            if not InterfaceState.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.TEST:
+            if not Config.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.TEST:
                 return self.fastScheduler.schedule(tick_count=tick_count, callback=callback)
             else:
                 # callback()  # no scheduling when testing
