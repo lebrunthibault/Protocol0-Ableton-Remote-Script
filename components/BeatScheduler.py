@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import Callable, Any, Dict
+from typing import Callable, Any
 
 from protocol0.components.scheduler.SyncedScheduler import SyncedScheduler
 from protocol0.lom.AbstractObject import AbstractObject
@@ -12,7 +12,6 @@ class BeatScheduler(AbstractObject, SyncedScheduler):
     def __init__(self, exclusive=False, *a, **k):
         # type: (bool, Any, Any) -> None
         super(BeatScheduler, self).__init__(unschedule_on_stop=True, *a, **k)
-        self._pending_action_lists = self._pending_action_lists  # type: Dict[Callable, Dict[str, float]]
         self._exclusive = exclusive
 
     def wait_bars(self, bar_length, callback, exact=False):

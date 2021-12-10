@@ -1,6 +1,7 @@
 from __future__ import print_function
 
-from _Framework.SubjectSlot import Subject, SlotManager, subject_slot
+from _Framework.SubjectSlot import Subject, SlotManager
+from protocol0.utils.decorators import p0_subject_slot
 
 
 def test_subject_slot_inheritance():
@@ -21,7 +22,7 @@ def test_subject_slot_inheritance():
             super(Parent, self).__init__()
             self.listener.subject = source_emitter
 
-        @subject_slot("test")
+        @p0_subject_slot("test")
         def listener(self):
             # type: () -> None
             res.append(1)
@@ -32,7 +33,7 @@ def test_subject_slot_inheritance():
             super(Child, self).__init__(source_emitter=source_emitter)
             self.listener.subject = source_emitter
 
-        @subject_slot("test")
+        @p0_subject_slot("test")
         def listener(self):
             # type: () -> None
             res.append(2)

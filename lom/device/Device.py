@@ -1,11 +1,11 @@
 from typing import TYPE_CHECKING, List, Any, Type, Optional, Union
 
 import Live
-from _Framework.SubjectSlot import subject_slot
 from protocol0.enums.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.device.DeviceChain import DeviceChain
 from protocol0.lom.device.DeviceParameter import DeviceParameter
+from protocol0.utils.decorators import p0_subject_slot
 from protocol0.utils.utils import find_if
 
 if TYPE_CHECKING:
@@ -131,7 +131,7 @@ class Device(AbstractObject):
         if param:
             param.value = not mute
 
-    @subject_slot("parameters")
+    @p0_subject_slot("parameters")
     def _parameters_listener(self):
         # type: () -> None
         self.parameters = [DeviceParameter(self, parameter) for parameter in self._device.parameters]

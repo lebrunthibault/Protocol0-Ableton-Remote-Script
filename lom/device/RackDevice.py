@@ -1,10 +1,10 @@
 from typing import List, Optional, Any
 
 import Live
-from _Framework.SubjectSlot import subject_slot
 from protocol0.lom.device.Device import Device
 from protocol0.lom.device.DeviceChain import DeviceChain
 from protocol0.lom.device.DeviceParameter import DeviceParameter
+from protocol0.utils.decorators import p0_subject_slot
 from protocol0.utils.utils import find_if
 
 
@@ -19,7 +19,7 @@ class RackDevice(Device):
         self._chains_listener()
         self.chain_selector = None  # type: Optional[DeviceParameter]
 
-    @subject_slot("chains")
+    @p0_subject_slot("chains")
     def _chains_listener(self):
         # type: () -> None
         self.chains = [DeviceChain(self, chain, index) for index, chain in enumerate(self._device.chains)]

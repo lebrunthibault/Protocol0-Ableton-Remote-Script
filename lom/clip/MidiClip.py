@@ -2,7 +2,7 @@ from __future__ import division
 
 from functools import partial
 
-from typing import List, TYPE_CHECKING, Optional, Callable, Any, Iterator
+from typing import List, TYPE_CHECKING, Optional, Any, Iterator
 
 import Live
 from protocol0.enums.PixelEnum import PixelEnum

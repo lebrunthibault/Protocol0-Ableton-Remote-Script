@@ -7,7 +7,7 @@ from ClyphX_Pro.ClyphXComponentBase import ClyphXComponentBase, schedule
 from ClyphX_Pro.MiscUtils import get_number_of_beats
 from typing import Any
 
-from _Framework.SubjectSlot import subject_slot
+from protocol0.utils.decorators import p0_subject_slot
 
 
 class SyncedScheduler(ClyphXComponentBase):
@@ -31,14 +31,14 @@ class SyncedScheduler(ClyphXComponentBase):
         count = int(self._song.get_current_beats_song_time().beats == self._last_beat)
         self._pending_action_lists[msg] = {'num_beats': num_beats, 'count': count}
 
-    @subject_slot('is_playing')
+    @p0_subject_slot('is_playing')
     def _on_is_playing_changed(self):
         # type: () -> None
         if not self._song.is_playing and self._unschedule_on_stop:
             self._pending_action_lists = {}
         self._last_beat = -1
 
-    @subject_slot('current_song_time')
+    @p0_subject_slot('current_song_time')
     def _on_song_time_changed(self):
         # type: () -> None
         if self._pending_action_lists and self._song.is_playing:

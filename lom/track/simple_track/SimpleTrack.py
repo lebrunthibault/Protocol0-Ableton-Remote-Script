@@ -3,7 +3,7 @@ from itertools import chain
 from typing import List, Optional, Any
 
 import Live
-from _Framework.SubjectSlot import subject_slot, subject_slot_group
+from _Framework.SubjectSlot import subject_slot_group
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.lom.clip.Clip import Clip
@@ -101,7 +101,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # noinspection PyUnresolvedReferences
         self.parent.defer(self.notify_fired_slot_index)
 
-    @subject_slot("devices")
+    @p0_subject_slot("devices")
     def _devices_listener(self):
         # type: () -> None
         for device in self.devices:

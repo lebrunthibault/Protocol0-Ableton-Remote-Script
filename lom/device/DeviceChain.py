@@ -1,8 +1,8 @@
 from typing import TYPE_CHECKING, List, Any
 
 import Live
-from _Framework.SubjectSlot import subject_slot
 from protocol0.lom.AbstractObject import AbstractObject
+from protocol0.utils.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
     from protocol0.lom.device.Device import Device
@@ -25,7 +25,7 @@ class DeviceChain(AbstractObject):
         # type: () -> str
         return self._chain.name
 
-    @subject_slot("devices")
+    @p0_subject_slot("devices")
     def _devices_listener(self):
         # type: () -> None
         from protocol0.lom.device.Device import Device

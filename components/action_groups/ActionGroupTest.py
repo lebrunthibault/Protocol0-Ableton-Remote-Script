@@ -23,7 +23,7 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        pass
+        self.system.test()
 
     def start_set_profiling(self):
         # type: () -> None

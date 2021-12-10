@@ -1,11 +1,11 @@
+from Push2.push2 import Push2
 from typing import Optional, cast, Any
 
-from Push2.push2 import Push2
 from _Framework.ControlSurface import get_control_surfaces
-from _Framework.SubjectSlot import subject_slot, subject_slot_group
+from _Framework.SubjectSlot import subject_slot_group
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.lom.clip.MidiClip import MidiClip
-from protocol0.utils.decorators import push2_method
+from protocol0.utils.decorators import push2_method, p0_subject_slot
 from protocol0.utils.utils import find_if
 
 
@@ -45,13 +45,13 @@ class Push2Manager(AbstractControlSurfaceComponent):
         if not self.push2:
             self.parent.log_info("Push2 connected to Protocol0")
 
-    @subject_slot("value")
+    @p0_subject_slot("value")
     def _session_pad_press_listener(self, value, *_, **__):
         # type: (Any, Any, Any) -> None
         if value:
             self.update_session_ring = self.update_selected_modes = False
 
-    @subject_slot("value")
+    @p0_subject_slot("value")
     def _track_select_button_press_listener(self, value, *_, **__):
         # type: (Any, Any, Any) -> None
         if value:
@@ -63,7 +63,7 @@ class Push2Manager(AbstractControlSurfaceComponent):
         # type: (Any, Any, Any) -> None
         pass
 
-    @subject_slot("selected_track")
+    @p0_subject_slot("selected_track")
     def _selected_track_listener(self):
         # type: () -> None
         # if self.parent.sessionManager.session:

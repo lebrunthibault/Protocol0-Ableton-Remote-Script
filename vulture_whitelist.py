@@ -32,3 +32,4 @@ _.output_routing_track  # unused attribute (lom\track\group_track\AbstractGroupT
 _.input_routing_track  # unused attribute (lom\track\group_track\ExternalSynthTrackActionMixin.py:24)
 _.on_system_response  # unused method (sequence\Sequence.py:77)
 Push2Manager  # unused import (utils\decorators.py:12)
+_.crop  # unused method (lom\clip\AudioClip.py:83)

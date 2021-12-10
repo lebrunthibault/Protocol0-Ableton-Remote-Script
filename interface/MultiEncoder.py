@@ -4,9 +4,9 @@ from typing import TYPE_CHECKING, List, Optional, Any
 
 from _Framework.ButtonElement import ButtonElement
 from _Framework.InputControlElement import MIDI_NOTE_TYPE, MIDI_CC_TYPE
-from _Framework.SubjectSlot import subject_slot
 from protocol0.interface.EncoderAction import EncoderAction, EncoderMoveEnum
 from protocol0.lom.AbstractObject import AbstractObject
+from protocol0.utils.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
     from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
@@ -46,7 +46,7 @@ class MultiEncoder(AbstractObject):
         # type: () -> bool
         return bool(self._pressed_at and (time.time() - self._pressed_at) > MultiEncoder.PRESS_MAX_TIME)
 
-    @subject_slot("value")
+    @p0_subject_slot("value")
     def _press_listener(self, value):
         # type: (int) -> None
         if value:
@@ -70,7 +70,7 @@ class MultiEncoder(AbstractObject):
                 return
             action.execute(encoder_name=self.name)
 
-    @subject_slot("value")
+    @p0_subject_slot("value")
     def _scroll_listener(self, value):
         # type: (int) -> None
         action = self._find_matching_action(move_type=EncoderMoveEnum.SCROLL)  # type: ignore[arg-type]

@@ -108,7 +108,7 @@ class SongActionMixin(object):
 
     def unfocus_all_tracks(self):
         # type: (Song) -> Sequence
-        # self._unsolo_all_tracks()
+        self._unsolo_all_tracks()
         return self._unarm_all_tracks()
 
     def _unarm_all_tracks(self):

@@ -2,7 +2,6 @@ from functools import partial
 
 from typing import TYPE_CHECKING, Iterable, Any, Union, Callable, Optional, cast, List
 
-from _Framework.SubjectSlot import subject_slot
 from protocol0.config import Config
 from protocol0.errors.SequenceError import SequenceError
 from protocol0.lom.AbstractObject import AbstractObject
@@ -144,7 +143,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
             self.res = True  # Sequence is not an error
             self.terminate()
 
-    @subject_slot("terminated")
+    @p0_subject_slot("terminated")
     def _terminate_return_condition(self, res=None):
         # type: (Optional[Any]) -> None
         return_res = res
