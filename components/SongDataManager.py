@@ -28,9 +28,10 @@ def save_song_data(func):
     @wraps(func)
     def decorate(*a, **k):
         # type: (Any, Any) -> None
-        func(*a, **k)
+        res = func(*a, **k)
         from protocol0 import Protocol0
         Protocol0.SELF.songDataManager.store_class_data(a[0])
+        return res
 
     return decorate
 

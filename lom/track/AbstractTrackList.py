@@ -36,14 +36,18 @@ class AbstractTrackList(UserMutableSequence):
         seq = Sequence()
         tracks = self._abstract_tracks
         if len(self._abstract_tracks) == 0:
-            tracks = [self.song.current_track]
-            seq.add(self.song.current_track.arm)
+            track = self.song.current_track
+            seq.add(track.arm)
+        else:
+            track = tracks[0]
 
-        for abstract_track in tracks:
-            if self.application.session_view_active:
-                seq.add(partial(abstract_track.session_record, record_type=record_type))
-            else:
-                seq.add(partial(abstract_track.arrangement_record, record_type=record_type))
+        if self.song.current_track != track:
+            seq.prompt("Armed track is not the current track, record ?")
+
+        if self.application.session_view_active:
+            seq.add(partial(track.session_record, record_type=record_type))
+        else:
+            seq.add(partial(track.arrangement_record, record_type=record_type))
         return seq.done()
 
     def toggle_solo(self):

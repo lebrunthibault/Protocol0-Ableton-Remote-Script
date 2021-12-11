@@ -5,6 +5,8 @@ from typing import Optional, TYPE_CHECKING, Any
 from _Framework.CompoundElement import subject_slot_group
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.lom.clip.ClipSynchronizer import ClipSynchronizer
+from protocol0.lom.clip_slot.AudioClipSlot import AudioClipSlot
+from protocol0.lom.clip_slot.MidiClipSlot import MidiClipSlot
 
 if TYPE_CHECKING:
     from protocol0.lom.clip_slot.ClipSlot import ClipSlot
@@ -14,7 +16,7 @@ class ClipSlotSynchronizer(AbstractControlSurfaceComponent):
     """ For ExternalSynthTrack """
 
     def __init__(self, midi_cs, audio_cs, *a, **k):
-        # type: (ClipSlot, ClipSlot, Any, Any) -> None
+        # type: (MidiClipSlot, AudioClipSlot, Any, Any) -> None
         super(ClipSlotSynchronizer, self).__init__(*a, **k)
         self.midi_cs = midi_cs
         self.audio_cs = audio_cs
@@ -31,7 +33,7 @@ class ClipSlotSynchronizer(AbstractControlSurfaceComponent):
 
         if self.midi_cs.clip and self.audio_cs.clip:
             with self.parent.component_guard():
-                self._clip_synchronizer = ClipSynchronizer(master=self.midi_cs.clip, slave=self.audio_cs.clip)
+                self._clip_synchronizer = ClipSynchronizer(midi_clip=self.midi_cs.clip, audio_clip=self.audio_cs.clip)
         else:
             self._clip_synchronizer = None
 

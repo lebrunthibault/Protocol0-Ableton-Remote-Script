@@ -27,7 +27,7 @@ class ActionGroupMain(AbstractActionGroup):
         self.add_encoder(
             identifier=2,
             name="toggle audio clip tail recording",
-            on_press=InterfaceState.toggle_record_clip_tails
+            on_press=lambda: self.song.current_track.toggle_record_clip_tails
         )
 
         # AUTOmation encoder

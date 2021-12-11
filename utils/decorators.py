@@ -239,10 +239,9 @@ def prompt(question):
         def decorate(*a, **k):
             # type: (Any, Any) -> None
             from protocol0.sequence.Sequence import Sequence
-            from protocol0 import Protocol0
 
             seq = Sequence()
-            seq.add(partial(Protocol0.SELF.system.prompt, question), wait_for_system=True)
+            seq.prompt(question)
             seq.add(partial(func, *a, **k))
             seq.done()
 

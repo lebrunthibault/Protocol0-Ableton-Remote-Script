@@ -5,9 +5,6 @@ from typing import List, Optional, Any
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.lom.AbstractObject import AbstractObject
-from protocol0.lom.clip.Clip import Clip
-from protocol0.lom.device.DeviceParameter import DeviceParameter
-from protocol0.lom.track.AbstractTrack import AbstractTrack
 
 
 class ObjectSynchronizer(AbstractControlSurfaceComponent):
@@ -25,8 +22,8 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
             raise Protocol0Error("Master and slave should be objects")
 
         lom_property_name = self._get_lom_property_name_from_object(obj=master)
-        self.master = master  # type: Optional[AbstractObject]
-        self.slave = slave  # type: Optional[AbstractObject]
+        self.master = master
+        self.slave = slave
 
         # sync is two way but the master object defines start values
         self.listenable_properties = listenable_properties or []
@@ -41,6 +38,10 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
 
     def _get_lom_property_name_from_object(self, obj):
         # type: (AbstractObject) -> str
+        from protocol0.lom.track.AbstractTrack import AbstractTrack
+        from protocol0.lom.clip.Clip import Clip
+        from protocol0.lom.device.DeviceParameter import DeviceParameter
+
         if isinstance(obj, AbstractTrack):
             return "_track"
         elif isinstance(obj, Clip):

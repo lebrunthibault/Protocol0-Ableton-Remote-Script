@@ -12,12 +12,6 @@ class InstrumentSerum(AbstractInstrument):  # noqa
     PRESETS_PATH = "C:\\Users\\thiba\\OneDrive\\Documents\\Xfer\\Serum Presets\\System\\ProgramChanges.txt"
     NEEDS_ACTIVATION_FOR_PRESETS_CHANGE = True
 
-    #
-    # def format_preset_name(self, preset_name):
-    #     # type: (str) -> str
-    #     (_, filename) = os.path.split(preset_name)
-    #     return str(filename)
-
     def make_preset(self, index, name=None, *_, **__):
         # type: (AbstractInstrument, int, Optional[str], Any, Any) -> InstrumentPreset
         """ overridden """

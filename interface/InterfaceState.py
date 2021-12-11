@@ -13,8 +13,6 @@ class InterfaceState(object):
     SELECTED_DUPLICATE_SCENE_BAR_LENGTH = 4
     ABLETON_SESSION_TYPE = AbletonSessionTypeEnum.PROFILING
 
-    RECORD_CLIP_TAILS = False  # records one more bar of audio to make editing easier
-
     CURRENT_RECORD_TYPE = None  # type: Optional[RecordTypeEnum]
 
     FOCUS_PROPHET_ON_STARTUP = False
@@ -50,15 +48,6 @@ class InterfaceState(object):
             bar_lengths, Scene.SELECTED_DUPLICATE_SCENE_BAR_LENGTH, go_next
         )
         cls.show_selected_bar_length("SCENE DUPLICATE", Scene.SELECTED_DUPLICATE_SCENE_BAR_LENGTH)
-
-    @classmethod
-    @save_song_data
-    def toggle_record_clip_tails(cls):
-        # type: () -> None
-        cls.RECORD_CLIP_TAILS = not cls.RECORD_CLIP_TAILS
-        from protocol0 import Protocol0
-
-        Protocol0.SELF.show_message("Record clip tails %s" % ("ON" if cls.RECORD_CLIP_TAILS else "OFF"))
 
     @classmethod
     def show_selected_bar_length(cls, title, bar_length):

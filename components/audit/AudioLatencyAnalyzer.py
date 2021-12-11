@@ -32,7 +32,9 @@ class AudioLatencyAnalyzer(AbstractControlSurfaceComponent):
 
         seq = Sequence()
         seq.add(ext_synth_track.duplicate)
+        # seq.add(wait=30)  # wait for prophet to be exclusive activated ?
         seq.add(self._create_audio_test_clip)
+        return seq.done()
         seq.add(self._record_test_clip)
         seq.add(self._analyze_jitter)
         seq.add(partial(setattr, self.song, "tempo", tempo))
@@ -45,7 +47,7 @@ class AudioLatencyAnalyzer(AbstractControlSurfaceComponent):
         self.parent.midiManager.send_program_change(127)
         seq = Sequence()
         seq.add(current_track.midi_track.clip_slots[0].create_clip)
-        seq.add(self._generate_test_notes)
+        # seq.add(self._generate_test_notes)
         return seq.done()
 
     def _generate_test_notes(self):

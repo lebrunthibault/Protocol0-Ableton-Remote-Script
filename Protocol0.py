@@ -24,6 +24,7 @@ from protocol0.components.SessionManager import SessionManager
 from protocol0.components.SessionToArrangementManager import SessionToArrangementManager
 from protocol0.components.SongDataManager import SongDataManager
 from protocol0.components.SongManager import SongManager
+from protocol0.components.TrackDataManager import TrackDataManager
 from protocol0.components.TrackManager import TrackManager
 from protocol0.components.UtilsManager import UtilsManager
 from protocol0.components.ValidatorManager import ValidatorManager
@@ -89,6 +90,7 @@ class Protocol0(ControlSurface):
             self.protocol0_application = Application()
             self.protocol0_song = Song(song=self.song())
             self.songDataManager = SongDataManager()
+            self.trackDataManager = TrackDataManager()
             if Config.SHOW_RELOAD_TIME or Config.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.PROFILING:
                 self.p0_system_api_client.end_measurement()
 

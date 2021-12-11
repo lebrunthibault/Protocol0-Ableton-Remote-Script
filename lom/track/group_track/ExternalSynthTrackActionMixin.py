@@ -44,15 +44,17 @@ class ExternalSynthTrackActionMixin(object):
         # type: (ExternalSynthTrack, bool) -> None
         self.audio_track.current_monitoring_state = CurrentMonitoringStateEnum.OFF
         if has_monitor_in:
-            self.midi_track.current_monitoring_state = CurrentMonitoringStateEnum.IN
             self.midi_track.mute = True
+            self.midi_track.current_monitoring_state = CurrentMonitoringStateEnum.IN
             self.audio_track.mute = False
+            self.audio_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
             if self._external_device:
                 self._external_device.mute = True
         else:
-            self.midi_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
             self.midi_track.mute = False
+            self.midi_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
             self.audio_track.mute = True
+            self.audio_track.current_monitoring_state = CurrentMonitoringStateEnum.IN
             if self._external_device:
                 self._external_device.mute = False
         # noinspection PyUnresolvedReferences
@@ -83,7 +85,7 @@ class ExternalSynthTrackActionMixin(object):
         if InterfaceState.SELECTED_RECORDING_BAR_LENGTH == BarLengthEnum.UNLIMITED:
             return seq.done()
 
-        if InterfaceState.RECORD_CLIP_TAILS:
+        if self.record_clip_tails:
             seq.add(self.song.selected_scene.fire)
         return seq.done()
 
@@ -112,7 +114,7 @@ class ExternalSynthTrackActionMixin(object):
         seq.add(partial(audio_clip_slot.record, bar_length=midi_clip.bar_length))
         seq.add(partial(self._propagate_new_audio_clip, audio_clip_slot))
 
-        if InterfaceState.RECORD_CLIP_TAILS:
+        if self.record_clip_tails:
             seq.add(self.song.selected_scene.fire)
 
         return seq.done()
@@ -128,10 +130,9 @@ class ExternalSynthTrackActionMixin(object):
             return
 
         seq = Sequence()
+        seq.prompt("Propagate to %s audio clips in track ?" % len(duplicate_audio_clips))
         seq.add(
-            partial(self.system.prompt, "Propagate to %s audio clips in track ?" % len(duplicate_audio_clips)),
-            wait_for_system=True)
-        seq.add([partial(source_audio_clip.clip_slot.duplicate_clip_to, clip.clip_slot) for clip in duplicate_audio_clips])
+            [partial(source_audio_clip.clip_slot.duplicate_clip_to, clip.clip_slot) for clip in duplicate_audio_clips])
         seq.add(lambda: self.parent.show_message("%s audio clips duplicated" % len(duplicate_audio_clips)))
         seq.done()
 

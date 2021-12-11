@@ -1,4 +1,5 @@
 from collections import deque
+from functools import partial
 
 from typing import Deque, Optional, Iterable, Union, Callable, Any, List
 
@@ -161,6 +162,11 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
         )
 
         return self
+
+    def prompt(self, question):
+        # type: (str) -> None
+        """ helper method from prompts """
+        self.add(partial(self.system.prompt, question), wait_for_system=True)
 
     def done(self):
         # type: () -> Sequence

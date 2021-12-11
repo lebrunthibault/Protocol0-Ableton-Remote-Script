@@ -3,6 +3,7 @@ from functools import partial
 from typing import TYPE_CHECKING, Any, Optional, NoReturn
 
 import Live
+from protocol0.components.TrackDataManager import save_track_data
 from protocol0.config import Config
 from protocol0.constants import QUANTIZATION_OPTIONS
 from protocol0.enums.DeviceEnum import DeviceEnum
@@ -246,6 +247,19 @@ class AbstractTrackActionMixin(object):
         self.song.stop_playing()
         self.has_monitor_in = False
 
+    @save_track_data
+    def toggle_record_clip_tails(self):
+        # type: (AbstractTrack) -> None
+        from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+        if not isinstance(self, ExternalSynthTrack):
+            self.parent.show_message("Recording clip tails is available only on an ExternalSynthTrack")
+            return None
+
+        self.record_clip_tails = not self.record_clip_tails
+        self.parent.show_message("Record clip tails %s" % ("ON" if self.record_clip_tails else "OFF"))
+
+        # todo: save data
+
     def delete_playable_clip(self):
         # type: (AbstractTrack) -> Sequence
         """ overridden """
@@ -309,3 +323,11 @@ class AbstractTrackActionMixin(object):
         abs_factor = 1.01
         factor = abs_factor if go_next else (1 / abs_factor)
         self.volume *= factor
+
+    def get_data(self, key, default_value=None):
+        # type: (AbstractTrack, str, Any) -> Any
+        return self._track.get_data(key, default_value)
+
+    def set_data(self, key, value):
+        # type: (AbstractTrack, str, Any) -> None
+        self._track.set_data(key, value)

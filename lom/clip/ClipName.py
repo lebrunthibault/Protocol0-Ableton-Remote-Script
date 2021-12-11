@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class ClipName(AbstractObjectName):
-    DEBUG = True
+    DEBUG = False
 
     def __init__(self, clip, *a, **k):
         # type: (Clip, Any, Any) -> None

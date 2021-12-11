@@ -48,9 +48,7 @@ class SetUpgradeManager(AbstractControlSurfaceComponent):
         info = "\n".join(("%s %s" % (len(devices), cls) for cls, devices in devices_by_name.items()))
 
         seq = Sequence()
-        seq.add(
-            partial(self.system.prompt, "%s devices to delete,\n\n%s\n\nproceed ?" % (len(devices_to_delete), info)),
-            wait_for_system=True)
+        seq.prompt("%s devices to delete,\n\n%s\n\nproceed ?" % (len(devices_to_delete), info))
         seq.add([device.delete for device in devices_to_delete])
         seq.add(lambda: self.parent.show_message("Devices deleted"))
         seq.add(self.delete_unnecessary_devices)  # now delete enclosing racks if empty

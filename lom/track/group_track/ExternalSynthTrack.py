@@ -45,8 +45,6 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self._devices_listener.subject = self.midi_track
         self._devices_listener()
 
-        self.protected_mode_active = True  # type: bool
-
         # the instrument handling relies on the group track
         # noinspection PyUnresolvedReferences
         self.notify_instrument()
@@ -55,6 +53,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         # type: () -> None
         super(ExternalSynthTrack, self).post_init()
         self.link_clip_slots()
+        self.parent.trackDataManager.restore_data(self)
 
     def _added_track_init(self):
         # type: () -> Sequence

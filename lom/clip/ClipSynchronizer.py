@@ -1,7 +1,9 @@
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 from protocol0.enums.LogLevelEnum import LogLevelEnum
 from protocol0.lom.ObjectSynchronizer import ObjectSynchronizer
+from protocol0.lom.clip.AudioClip import AudioClip
+from protocol0.lom.clip.MidiClip import MidiClip
 from protocol0.utils.log import log_ableton
 
 if TYPE_CHECKING:
@@ -11,30 +13,29 @@ if TYPE_CHECKING:
 class ClipSynchronizer(ObjectSynchronizer):
     """ For ExternalSynthTrack """
 
-    def __init__(self, master, slave, *a, **k):
-        # type: (Clip, Clip, Any, Any) -> None
-        properties = ["muted", "loop_start", "loop_end", "start_marker", "end_marker"]
+    def __init__(self, midi_clip, audio_clip, *a, **k):
+        # type: (MidiClip, AudioClip, Any, Any) -> None
+        properties = ["name", "muted"]
 
-        if master.length != slave.length:
-            log_ableton("clips %s of track %s cannot be loop synchronized because of unequal length" % (
-                master, master.track.abstract_track), level=LogLevelEnum.WARNING)
-            properties = ["muted"]
+        if midi_clip.length == audio_clip.length and not midi_clip.track.abstract_track.record_clip_tails:
+            properties += ["loop_start", "loop_end", "start_marker", "end_marker"]
+
+        # check we are not in the clip tail case
+        if not audio_clip.is_recording and midi_clip.length != audio_clip.length and audio_clip.length != midi_clip.length + 1:
+            log_ableton(
+                "Inconsistent clip lengths for clip %s of track %s (audio is %s, midi is %s)" % (
+                    audio_clip, audio_clip.track.abstract_track, audio_clip.length, midi_clip.length),
+                level=LogLevelEnum.WARNING)
 
         super(ClipSynchronizer, self).__init__(
-            master,
-            slave,
-            listenable_properties=["name"] + properties,
+            midi_clip,
+            audio_clip,
+            listenable_properties=properties,
             *a,
             **k
         )
-        self.master = self.master  # type: Optional[Clip]
-        self.slave = self.slave  # type: Optional[Clip]
 
     def is_syncable(self, clip):
         # type: (Clip) -> bool
         return not clip.track.is_recording
 
-    def disconnect(self):
-        # type: () -> None
-        super(ClipSynchronizer, self).disconnect()
-        self.master = self.slave = None
