@@ -28,9 +28,11 @@ class SetFixerManager(AbstractControlSurfaceComponent):
             message = "Invalid set."
             if len(invalid_objects):
                 message += " Invalid objects: %s." % (len(invalid_objects))
+                self.parent.log_warning("invalid_objects: %s" % invalid_objects)
             if len(devices_to_remove):
                 message += " devices to remove: %s." % (len(devices_to_remove))
             self.parent.show_message(message)
+            self.parent.log_warning("devices_to_remove: %s" % [(d, d.track) for d in devices_to_remove])
 
     @property
     def _objects_to_validate(self):
@@ -44,4 +46,4 @@ class SetFixerManager(AbstractControlSurfaceComponent):
         # noinspection PyTypeChecker
         return [clip for track in self.song.simple_tracks for clip in track.clips] + \
                self.song.scenes + \
-               list(self.song.abstract_tracks)
+               list(self.song.all_simple_tracks)

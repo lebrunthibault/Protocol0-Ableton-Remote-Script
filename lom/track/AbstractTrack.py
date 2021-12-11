@@ -44,11 +44,12 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self.abstract_group_track = None  # type: Optional[AbstractGroupTrack]
         self.sub_tracks = []  # type: List[AbstractTrack]
 
-        if not self.base_track.is_active:
-            return
-
         # MISC
         self.track_name = AbstractTrackName(self)  # type: AbstractTrackName
+
+        if not self.base_track.IS_ACTIVE:
+            return
+
         self.record_clip_tails = False  # records one more bar of audio on presets with tail
         self.protected_mode_active = True
 
@@ -60,7 +61,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # LISTENERS
         self._has_clip_listener.subject = self
         self._is_recording_listener.subject = self
-        self._color_listener.subject = self._track
 
     def _added_track_init(self):
         # type: () -> Optional[Sequence]
@@ -84,17 +84,10 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         if len(list(filter(None, [t.is_hearable for t in self.song.abstract_tracks]))) > 1:
             self.song.metronome = False
 
-    @p0_subject_slot("color")
-    def _color_listener(self):
-        # type: () -> None
-        """enforcing coherent color scheme"""
-        if not self.abstract_group_track and self.color != ColorEnum.ERROR.index:
-            self.parent.defer(self.refresh_color)
-
     @property
     def index(self):
         # type: () -> int
-        return list(self.song.simple_tracks).index(self.base_track)
+        return list(self.song.all_simple_tracks).index(self.base_track)
 
     @property
     def abstract_track(self):
@@ -162,8 +155,14 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def computed_color(self):
         # type: () -> int
-        if self.abstract_track.instrument:
-            return self.abstract_track.instrument.TRACK_COLOR.index
+        if self.is_foldable:
+            sub_track_colors = [sub_track.color for sub_track in self.sub_tracks]
+            if len(set(sub_track_colors)) == 1:
+                return sub_track_colors[0]
+
+        instrument = self.instrument or self.abstract_track.instrument
+        if instrument:
+            return instrument.TRACK_COLOR.index
         else:
             return self.DEFAULT_COLOR.index
 

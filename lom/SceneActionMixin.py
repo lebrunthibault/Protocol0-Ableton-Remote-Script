@@ -40,7 +40,20 @@ class SceneActionMixin(object):
     def fire(self):
         # type: (Scene) -> None
         if self._scene:
+            self.stop_previous_scene()
             self._scene.fire()
+
+    def stop_previous_scene(self, immediate=False):
+        # type: (Scene, bool) -> None
+        from protocol0.lom.Scene import Scene
+        if Scene.PLAYING_SCENE and Scene.PLAYING_SCENE != self:
+            # manually stopping previous scene because we don't display clip slot stop buttons
+            for clip in Scene.PLAYING_SCENE.clips:
+                if clip.track not in self.tracks:
+                    if immediate:
+                        self.parent.defer(partial(clip.track.stop, immediate=True))
+                    else:
+                        clip.track.stop()
 
     def pre_fire(self):
         # type: (Scene) -> None

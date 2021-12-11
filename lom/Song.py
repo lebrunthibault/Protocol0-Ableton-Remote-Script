@@ -92,9 +92,14 @@ class Song(SongActionMixin, AbstractObject):
     # TRACKS
 
     @property
+    def all_simple_tracks(self):
+        # type: () -> Generator[SimpleTrack, Any, Any]
+        return (track for track in self.live_track_to_simple_track.values())
+
+    @property
     def simple_tracks(self):
         # type: () -> Generator[SimpleTrack, Any, Any]
-        return (track for track in self.live_track_to_simple_track.values() if track.is_active)
+        return (track for track in self.live_track_to_simple_track.values() if track.IS_ACTIVE)
 
     @property
     def abstract_tracks(self):

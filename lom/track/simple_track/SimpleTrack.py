@@ -17,6 +17,7 @@ from protocol0.utils.utils import find_if
 
 
 class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
+    IS_ACTIVE = True
     CLIP_SLOT_CLASS = ClipSlot
 
     def __init__(self, track, *a, **k):
@@ -38,7 +39,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self._devices_listener()
         self.clip_slots = []  # type: List[ClipSlot]
 
-        if self.is_active:
+        if self.IS_ACTIVE:
             self._fired_slot_index_listener.subject = self._track
 
     @property
@@ -90,10 +91,15 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
 
     def refresh_appearance(self):
         # type: (SimpleTrack) -> None
-        self.track_name.update()
-        self.refresh_color()
+        super(SimpleTrack, self).refresh_appearance()
         for clip_slot in self.clip_slots:
             clip_slot.refresh_appearance()
+
+    def refresh_color(self):
+        # type: (SimpleTrack) -> None
+        super(SimpleTrack, self).refresh_color()
+        for clip in self.clips:
+            clip.color = self.color
 
     @p0_subject_slot("fired_slot_index")
     def _fired_slot_index_listener(self):
@@ -114,7 +120,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self.notify_devices()
 
         # Refreshing is only really useful from simpler devices that change when a new sample is loaded
-        if self.is_active and not self.is_foldable:
+        if self.IS_ACTIVE and not self.is_foldable:
             self.instrument = self.parent.deviceManager.make_instrument_from_simple_track(track=self)
             # notify instrument change on both the device track and the abstract_group_track
             if self.instrument:

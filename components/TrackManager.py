@@ -26,7 +26,7 @@ class TrackManager(AbstractControlSurfaceComponent):
     @p0_subject_slot("added_track")
     def _added_track_listener(self):
         # type: () -> Optional[Sequence]
-        if not self.song.selected_track.is_active:
+        if not self.song.selected_track.IS_ACTIVE:
             return None
         self.song.begin_undo_step()  # Live crashes on undo without this
         seq = Sequence()
@@ -37,7 +37,7 @@ class TrackManager(AbstractControlSurfaceComponent):
         seq.add(self.song.end_undo_step)
         return seq.done()
 
-    def instantiate_simple_track(self, track, cls=None):
+    def instantiate_simple_track(self, track, cls):
         # type: (Live.Track.Track, Optional[Type[SimpleTrack]]) -> SimpleTrack
         # checking first on existing tracks
         if track in self.song.live_track_to_simple_track:

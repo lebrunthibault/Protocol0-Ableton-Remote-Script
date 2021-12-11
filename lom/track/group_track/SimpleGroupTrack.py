@@ -82,12 +82,3 @@ class SimpleGroupTrack(AbstractGroupTrack):
             return unique_sub_tracks_instrument_classes[0]
         else:
             return None
-
-    @property
-    def computed_color(self):
-        # type: () -> int
-        sub_track_colors = [sub_track.color for sub_track in self.sub_tracks]
-        if len(set(sub_track_colors)) == 1:
-            return sub_track_colors[0]
-        else:
-            return self.DEFAULT_COLOR.index

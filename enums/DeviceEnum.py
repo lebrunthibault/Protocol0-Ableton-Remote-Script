@@ -7,6 +7,7 @@ from protocol0.lom.device.DeviceParameterValue import DeviceParameterValue
 
 
 class DeviceEnum(AbstractEnum):
+    ADDICTIVE_KEYS = "ADDICTIVE_KEYS"
     ARPEGGIATOR_RACK = "ARPEGGIATOR_RACK"
     COMPRESSOR = "COMPRESSOR"
     DUMMY_RACK = "DUMMY_RACK"
@@ -17,6 +18,7 @@ class DeviceEnum(AbstractEnum):
     MINITAUR_EDITOR = "MINITAUR_EDITOR"
     MIX_RACK = "MIX_RACK"
     REV2_EDITOR = "REV2_EDITOR"
+    SERUM = "SERUM"
     USAMO = "USAMO"
     UTILITY = "UTILITY"
 
@@ -39,7 +41,9 @@ class DeviceEnum(AbstractEnum):
     def plugin_white_list(cls):
         # type: () -> List[DeviceEnum]
         return [
+            cls.ADDICTIVE_KEYS,
             cls.REV2_EDITOR,
+            cls.SERUM,
             cls.USAMO
         ]
 
@@ -47,6 +51,7 @@ class DeviceEnum(AbstractEnum):
     def device_name(self):
         # type: () -> str
         return self.get_value_from_mapping({
+            DeviceEnum.ADDICTIVE_KEYS: "Addictive Keys",
             DeviceEnum.ARPEGGIATOR_RACK: "Arpeggiator rack",
             DeviceEnum.COMPRESSOR: "Compressor",
             DeviceEnum.DUMMY_RACK: "Dummy Rack",
@@ -57,6 +62,7 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.MINITAUR_EDITOR: "Minitaur Editor(x64)",
             DeviceEnum.MIX_RACK: "Mix Rack",
             DeviceEnum.REV2_EDITOR: "REV2Editor",
+            DeviceEnum.SERUM: "Serum_x64",
             DeviceEnum.USAMO: "usamo_x64",
             DeviceEnum.UTILITY: "Utility",
         })

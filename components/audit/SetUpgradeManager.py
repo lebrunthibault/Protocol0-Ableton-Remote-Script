@@ -19,7 +19,7 @@ class SetUpgradeManager(AbstractControlSurfaceComponent):
     def update_audio_effect_racks(self):
         # type: () -> Sequence
         seq = Sequence()
-        for track in self.song.simple_tracks:
+        for track in self.song.all_simple_tracks:
             for device in track.all_devices:
                 if not isinstance(device, RackDevice):
                     continue
@@ -56,7 +56,7 @@ class SetUpgradeManager(AbstractControlSurfaceComponent):
 
     def get_deletable_devices(self, full_scan):
         # type: (bool) -> Iterator[Device]
-        tracks = [track for track in self.song.simple_tracks if not isinstance(track, SimpleDummyTrack)]
+        tracks = [track for track in self.song.all_simple_tracks if not isinstance(track, SimpleDummyTrack)]
 
         # devices off
         for device_enum in DeviceEnum.deprecated_devices():
@@ -83,7 +83,7 @@ class SetUpgradeManager(AbstractControlSurfaceComponent):
                     yield device
 
         # empty mix racks
-        for track in self.song.simple_tracks:
+        for track in self.song.all_simple_tracks:
             mix_rack = track.get_device_from_enum(DeviceEnum.MIX_RACK)  # type: Optional[RackDevice]
             if mix_rack and len(mix_rack.chains[0].devices) == 0:
                 yield mix_rack
@@ -93,7 +93,7 @@ class SetUpgradeManager(AbstractControlSurfaceComponent):
 
         # plugin devices
         white_list_names = [d.device_name for d in DeviceEnum.plugin_white_list()]
-        for track in self.song.simple_tracks:
+        for track in self.song.all_simple_tracks:
             for device in track.all_devices:
                 if isinstance(device, PluginDevice) and device.name not in white_list_names:
                     yield device

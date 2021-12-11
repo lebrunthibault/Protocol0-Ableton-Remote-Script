@@ -62,17 +62,13 @@ class Scene(SceneActionMixin, AbstractObject):
     def _is_triggered_listener(self):
         # type: () -> None
         if self.is_playing:
+            self.stop_previous_scene(immediate=True)
             Scene.PLAYING_SCENE = self
             # noinspection PyUnresolvedReferences
             self.notify_play()
             return
-
-        # Scene is triggered but not yet playing
-        if Scene.PLAYING_SCENE and Scene.PLAYING_SCENE != self:
-            # manually stopping previous scene because we don't display clip slot stop buttons
-            for clip in Scene.PLAYING_SCENE.clips:
-                if clip.track not in self.tracks:
-                    clip.stop()
+        else:
+            self.stop_previous_scene()
 
     @p0_subject_slot("play")
     def _play_listener(self):

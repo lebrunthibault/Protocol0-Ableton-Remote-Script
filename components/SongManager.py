@@ -15,6 +15,8 @@ from protocol0.lom.Scene import Scene
 from protocol0.lom.clip.AudioClip import AudioClip
 from protocol0.lom.track.AbstractTrack import AbstractTrack
 from protocol0.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
+from protocol0.lom.track.simple_track.SimpleMasterTrack import SimpleMasterTrack
+from protocol0.lom.track.simple_track.SimpleReturnTrack import SimpleReturnTrack
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.utils.decorators import handle_error, p0_subject_slot
 
@@ -52,8 +54,8 @@ class SongManager(AbstractControlSurfaceComponent):
             selected_scene.select()
         selected_track = None
         if SongDataManager.SELECTED_TRACK_INDEX is not None and SongDataManager.SELECTED_TRACK_INDEX < len(
-                list(self.song.simple_tracks)):
-            selected_track = list(self.song.simple_tracks)[SongDataManager.SELECTED_TRACK_INDEX]
+                list(self.song.all_simple_tracks)):
+            selected_track = list(self.song.all_simple_tracks)[SongDataManager.SELECTED_TRACK_INDEX]
             selected_track.select()
         if selected_track and SongDataManager.SELECTED_CLIP_INDEX is not None and SongDataManager.SELECTED_CLIP_INDEX < len(
                 selected_track.clips):
@@ -142,13 +144,16 @@ class SongManager(AbstractControlSurfaceComponent):
 
         self._simple_tracks[:] = []
 
-        for track in live_tracks:
+        for track in list(self.song._song.tracks):
             self.generate_simple_track(track=track)
+
+        for track in list(self.song._song.return_tracks):
+            self.generate_simple_track(track=track, cls=SimpleReturnTrack)
 
         if self.song.usamo_track is None and self.song.song_load_state != SongLoadStateEnum.LOADED:
             self.parent.log_warning("Usamo track is not present")
 
-        self.song.master_track = self.generate_simple_track(track=self.song._song.master_track)
+        self.song.master_track = self.generate_simple_track(track=self.song._song.master_track, cls=SimpleMasterTrack)
 
         # Refresh track mapping
         self.song.live_track_to_simple_track = collections.OrderedDict()
@@ -187,8 +192,9 @@ class SongManager(AbstractControlSurfaceComponent):
                 self._remove_outdated_simple_track(previous_simple_track)
 
         # registering
-        self.song.live_track_to_simple_track[simple_track._track] = simple_track
         self._simple_tracks.append(simple_track)
+        # case for dummy tracks
+        self.song.live_track_to_simple_track[simple_track._track] = simple_track
 
     def _remove_outdated_simple_track(self, previous_simple_track):
         # type: (SimpleTrack) -> None

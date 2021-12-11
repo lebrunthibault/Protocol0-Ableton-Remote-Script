@@ -96,7 +96,7 @@ class SongActionMixin(object):
 
     def scroll_tracks(self, go_next):
         # type: (Song, bool) -> None
-        if not self.song.selected_track.is_active:
+        if not self.song.selected_track.IS_ACTIVE:
             next(self.song.simple_tracks).select()
             return None
 

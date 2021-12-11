@@ -23,7 +23,7 @@ class SessionManager(AbstractControlSurfaceComponent):
             self._hide_session_ring()
 
         try:
-            if not self.song.selected_track.is_active:
+            if not self.song.selected_track.IS_ACTIVE:
                 return
         except IndexError:
             return

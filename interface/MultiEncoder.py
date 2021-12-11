@@ -65,7 +65,7 @@ class MultiEncoder(AbstractObject):
         action = self._find_matching_action(move_type=move_type)  # type: ignore[arg-type]
         self._pressed_at = None
         if action:
-            if self._filter_active_tracks and not self.song.selected_track.is_active:
+            if self._filter_active_tracks and not self.song.selected_track.IS_ACTIVE:
                 self.parent.show_message("actions are not dispatched for master / return tracks")
                 return
             action.execute(encoder_name=self.name)

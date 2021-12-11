@@ -296,25 +296,12 @@ class AbstractTrackActionMixin(object):
 
     def refresh_appearance(self):
         # type: (AbstractTrack) -> None
-        self.base_track.refresh_appearance()
-        for track in self.sub_tracks:
-            track.refresh_appearance()
+        self.track_name.update()
+        self.refresh_color()
 
     def refresh_color(self):
         # type: (AbstractTrack) -> None
-        computed_color = self.computed_color
-        if self.color == computed_color:
-            return
-        self.color = computed_color
-        if self.abstract_group_track:
-            self.abstract_group_track.refresh_color()
-        elif self.group_track:
-            self.group_track.refresh_color()
-        from protocol0.lom.track.group_track.SimpleGroupTrack import SimpleGroupTrack
-
-        if not isinstance(self, SimpleGroupTrack):
-            for clip in self.clips:
-                clip.color = self.color
+        self.color = self.computed_color
 
     def scroll_volume(self, go_next):
         # type: (AbstractTrack, bool) -> None
