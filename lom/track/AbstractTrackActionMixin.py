@@ -165,8 +165,8 @@ class AbstractTrackActionMixin(object):
     def pre_record(self, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> None
         if record_type == RecordTypeEnum.NORMAL:
+            record_quantization_index = QUANTIZATION_OPTIONS.index(self.song.midi_recording_quantization)
             if self.song.tempo < Config.SPLIT_QUANTIZATION_TEMPO:
-                record_quantization_index = QUANTIZATION_OPTIONS.index(self.song.midi_recording_quantization)
                 if record_quantization_index < QUANTIZATION_OPTIONS.index(
                         Live.Song.RecordingQuantization.rec_q_sixtenth):
                     self.parent.log_error(
@@ -196,8 +196,7 @@ class AbstractTrackActionMixin(object):
 
         if record_type == RecordTypeEnum.AUDIO_ONLY:
             # pre launch scene
-            self.song.selected_scene.fire()
-            self.song.stop_playing()
+            self.song.selected_scene.pre_fire()
             return None
 
         # solo for count in
@@ -234,7 +233,8 @@ class AbstractTrackActionMixin(object):
         self.solo = False
         self.song.session_automation_record = True
         InterfaceState.CURRENT_RECORD_TYPE = None
-        self.song.selected_scene.check_scene_length()
+        if self.song.selected_scene.length == 0:
+            self.parent.defer(self.song.selected_scene.delete)
         clip = self.base_track.playable_clip
         if clip:
             clip.select()
@@ -257,8 +257,6 @@ class AbstractTrackActionMixin(object):
 
         self.record_clip_tails = not self.record_clip_tails
         self.parent.show_message("Record clip tails %s" % ("ON" if self.record_clip_tails else "OFF"))
-
-        # todo: save data
 
     def delete_playable_clip(self):
         # type: (AbstractTrack) -> Sequence

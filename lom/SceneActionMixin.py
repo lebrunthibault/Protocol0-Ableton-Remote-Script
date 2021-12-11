@@ -16,8 +16,6 @@ class SceneActionMixin(object):
         self.parent.defer(self.scene_name.update)
         if self.is_playing:
             self.schedule_next_scene_launch()
-        # elif self.length == 0 and InterfaceState.CURRENT_RECORD_TYPE is None:
-        #     self.parent.defer(self.delete)
 
     @session_view_only
     def schedule_next_scene_launch(self):
@@ -43,6 +41,12 @@ class SceneActionMixin(object):
         # type: (Scene) -> None
         if self._scene:
             self._scene.fire()
+
+    def pre_fire(self):
+        # type: (Scene) -> None
+        """ when a record is fired the scene will play """
+        self.fire()
+        self.song.stop_playing()
 
     def delete(self):
         # type: (Scene) -> Optional[Sequence]

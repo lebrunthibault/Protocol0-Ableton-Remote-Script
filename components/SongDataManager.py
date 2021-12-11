@@ -30,7 +30,7 @@ def save_song_data(func):
         # type: (Any, Any) -> None
         res = func(*a, **k)
         from protocol0 import Protocol0
-        Protocol0.SELF.songDataManager.store_class_data(a[0])
+        Protocol0.SELF.songDataManager.save()
         return res
 
     return decorate
@@ -61,6 +61,8 @@ class SongDataManager(AbstractControlSurfaceComponent):
             self.song.selected_clip) if self.song.selected_clip else None
         self.song.set_data(SongDataEnum.SELECTED_CLIP_INDEX.name, selected_clip_index)
 
+        self.song.set_data(SongDataEnum.MIDI_RECORDING_QUANTIZATION.name, self.song.midi_recording_quantization)
+
     def store_class_data(self, cls):
         # type: (Any) -> None
         attributes = class_attributes(cls)
@@ -88,6 +90,8 @@ class SongDataManager(AbstractControlSurfaceComponent):
         SongDataManager.SELECTED_SCENE_INDEX = self.song.get_data(SongDataEnum.SELECTED_SCENE_INDEX.name, None)
         SongDataManager.SELECTED_TRACK_INDEX = self.song.get_data(SongDataEnum.SELECTED_TRACK_INDEX.name, None)
         SongDataManager.SELECTED_CLIP_INDEX = self.song.get_data(SongDataEnum.SELECTED_CLIP_INDEX.name, None)
+
+        self.song.midi_recording_quantization = self.song.get_data(SongDataEnum.MIDI_RECORDING_QUANTIZATION.name, self.song.midi_recording_quantization)
 
     def _restore_synchronizable_class_data(self, cls_fqdn):
         # type: (str) -> None

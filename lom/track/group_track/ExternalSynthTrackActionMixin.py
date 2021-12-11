@@ -3,7 +3,6 @@ from functools import partial
 
 from typing import TYPE_CHECKING, Optional, cast, Iterator
 
-from protocol0.enums.BarLengthEnum import BarLengthEnum
 from protocol0.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.interface.InterfaceState import InterfaceState
@@ -82,11 +81,7 @@ class ExternalSynthTrackActionMixin(object):
             partial(midi_clip_slot.record, bar_length=recording_bar_length),
             partial(audio_clip_slot.record, bar_length=recording_bar_length)]
         )
-        if InterfaceState.SELECTED_RECORDING_BAR_LENGTH == BarLengthEnum.UNLIMITED:
-            return seq.done()
 
-        if self.record_clip_tails:
-            seq.add(self.song.selected_scene.fire)
         return seq.done()
 
     def _session_record_audio_only(self):
@@ -113,9 +108,6 @@ class ExternalSynthTrackActionMixin(object):
 
         seq.add(partial(audio_clip_slot.record, bar_length=midi_clip.bar_length))
         seq.add(partial(self._propagate_new_audio_clip, audio_clip_slot))
-
-        if self.record_clip_tails:
-            seq.add(self.song.selected_scene.fire)
 
         return seq.done()
 

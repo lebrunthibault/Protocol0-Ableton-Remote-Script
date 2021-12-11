@@ -45,6 +45,11 @@ class ClipActionMixin(object):
         if self._clip:
             self._clip.fire()
 
+    def move_playing_pos(self, beats):
+        # type: (Clip, float) -> None
+        if self._clip:
+            self._clip.move_playing_pos(beats)
+
     def delete(self):
         # type: (Clip) -> Optional[Sequence]
         if not self._clip or self.deleted:  # type: ignore[has-type]
@@ -52,6 +57,7 @@ class ClipActionMixin(object):
         self.deleted = True
         seq = Sequence()
         seq.add(self.clip_slot.delete_clip, complete_on=self.clip_slot._has_clip_listener)
+        seq.add(wait=1)
         return seq.done()
 
     def quantize(self, depth=1):
@@ -110,7 +116,3 @@ class ClipActionMixin(object):
         # type: (Clip) -> None
         """ overridden """
         pass
-
-    def post_record_clip_tail(self):
-        # type: (Clip) -> None
-        self.loop_start = self.song.signature_numerator

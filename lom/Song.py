@@ -4,6 +4,7 @@ from functools import partial
 from typing import List, Optional, Dict, Any, Generator, Iterator
 
 import Live
+from protocol0.components.SongDataManager import save_song_data
 from protocol0.enums.SongLoadStateEnum import SongLoadStateEnum
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.AbstractObject import AbstractObject
@@ -45,6 +46,7 @@ class Song(SongActionMixin, AbstractObject):
         self._record_mode_listener.subject = self._song
         self.session_end_listener.subject = self
         self._tempo_listener.subject = self._song
+        self._midi_recording_quantization_listener.subject = self._song
 
     def __call__(self):
         # type: () -> Live.Song.Song
@@ -60,6 +62,7 @@ class Song(SongActionMixin, AbstractObject):
             self.notify_session_end()
             return
 
+        # launch selected scene by clicking on play song
         if self.application.session_view_active and not self.song.selected_scene.is_playing and InterfaceState.CURRENT_RECORD_TYPE is None:
             self.song.is_playing = False
             self.song.selected_scene.fire()
@@ -79,6 +82,12 @@ class Song(SongActionMixin, AbstractObject):
     def _tempo_listener(self):
         # type: () -> None
         self.parent.defer(partial(setattr, self, "tempo", round(self.tempo)))
+
+    @p0_subject_slot("midi_recording_quantization")
+    @save_song_data
+    def _midi_recording_quantization_listener(self):
+        # type: () -> None
+        pass
 
     # TRACKS
 
@@ -250,6 +259,12 @@ class Song(SongActionMixin, AbstractObject):
     def midi_recording_quantization(self):
         # type: () -> int
         return self._song.midi_recording_quantization
+
+    @midi_recording_quantization.setter
+    def midi_recording_quantization(self, midi_recording_quantization):
+        # type: (int) -> None
+        if self._song:
+            self._song.midi_recording_quantization = midi_recording_quantization
 
     @property
     def session_record_status(self):

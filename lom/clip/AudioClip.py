@@ -1,7 +1,7 @@
 from functools import partial
 from math import floor
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import Live
 from protocol0.enums.PixelEnum import PixelEnum
@@ -87,3 +87,8 @@ class AudioClip(Clip):
     def save_sample(self):
         # type: () -> None
         self.system.click_vertical_zone(*PixelEnum.SAVE_SAMPLE.coordinates)
+
+    def post_record_clip_tail(self):
+        # type: (AudioClip) -> None
+        self.loop_start = self.song.signature_numerator  # offset one bar
+        self.move_playing_pos(self.song.signature_numerator)  # keep it sync with scene

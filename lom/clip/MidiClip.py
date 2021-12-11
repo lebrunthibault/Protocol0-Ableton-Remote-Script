@@ -5,7 +5,6 @@ from functools import partial
 from typing import List, TYPE_CHECKING, Optional, Any, Iterator
 
 import Live
-from protocol0.enums.PixelEnum import PixelEnum
 from protocol0.lom.Note import Note
 from protocol0.lom.clip.Clip import Clip
 from protocol0.sequence.Sequence import Sequence
@@ -72,9 +71,6 @@ class MidiClip(Clip):
         seq.add(self.generate_base_notes)
         seq.add(self.hide_envelope)
         seq.add(wait=10, silent=True)
-        seq.add(
-            partial(self.system.double_click, *PixelEnum.FOLD_CLIP_NOTES.coordinates)
-        )
         return seq.done()
 
     def generate_base_notes(self):
