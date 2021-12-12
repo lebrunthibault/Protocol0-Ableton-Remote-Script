@@ -19,7 +19,7 @@ from protocol0.lom.track.AbstractTrackList import AbstractTrackList
 from protocol0.lom.track.group_track.SimpleGroupTrack import SimpleGroupTrack
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.decorators import p0_subject_slot, debounce, throttle
+from protocol0.utils.decorators import p0_subject_slot, debounce
 from protocol0.utils.utils import find_if
 
 
@@ -54,7 +54,6 @@ class Song(SongActionMixin, AbstractObject):
         return self.parent.song()
 
     @p0_subject_slot("is_playing")
-    @throttle(wait_time=20)
     def _is_playing_listener(self):
         # type: () -> None
         if not self.is_playing:
@@ -222,6 +221,12 @@ class Song(SongActionMixin, AbstractObject):
     def metronome(self, metronome):
         # type: (bool) -> None
         self._song.metronome = metronome
+
+    @property
+    def current_song_time(self):
+        # type: () -> None
+        if self._song:
+            return self._song.current_song_time
 
     @property
     def tempo(self):

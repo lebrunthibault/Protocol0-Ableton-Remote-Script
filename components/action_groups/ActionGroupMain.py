@@ -87,6 +87,6 @@ class ActionGroupMain(AbstractActionGroup):
             identifier=16,
             name="scene",
             on_press=lambda: self.song.selected_scene.fire,
-            on_long_press=lambda: self.song.selected_scene.toggle_solo,
+            on_long_press=lambda: self.song.selected_scene.toggle_loop,
             on_scroll=self.song.scroll_scenes,
         )

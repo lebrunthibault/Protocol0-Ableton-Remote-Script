@@ -52,7 +52,6 @@ class Scene(SceneActionMixin, AbstractObject):
                       clip_slot.has_clip and clip_slot.clip and not clip_slot.clip.muted]
         self.tracks = [clip.track for clip in self.clips]
         self._clips_length_listener.replace_subjects(self.clips)
-        self.check_scene_length()
 
     def refresh_appearance(self):
         # type: (Scene) -> None
@@ -81,7 +80,7 @@ class Scene(SceneActionMixin, AbstractObject):
         self.schedule_next_scene_launch()
 
     @subject_slot_group("length")
-    @throttle(wait_time=20)
+    @throttle(wait_time=10)
     def _clips_length_listener(self, _):
         # type: (Clip) -> None
         self.check_scene_length()
@@ -162,14 +161,14 @@ class Scene(SceneActionMixin, AbstractObject):
             return 0
 
     @property
+    def current_bar(self):
+        current_beat = int(self.playing_position) % self.length
+        return (current_beat / self.song.signature_numerator) + 1
+
+    @property
     def looping(self):
         # type: () -> bool
         return self == Scene.LOOPING_SCENE
-
-    @looping.setter
-    def looping(self, looping):
-        # type: (bool) -> None
-        Scene.LOOPING_SCENE = self if looping else None
 
     @property
     def is_playing(self):

@@ -1,7 +1,7 @@
 from functools import partial
 from math import floor
 
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 import Live
 from protocol0.enums.PixelEnum import PixelEnum

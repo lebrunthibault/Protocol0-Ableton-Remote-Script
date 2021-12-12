@@ -1,4 +1,5 @@
 import re
+from functools import partial
 
 from typing import TYPE_CHECKING, Any, Optional
 
@@ -15,15 +16,19 @@ class ClipName(AbstractObjectName):
         # type: (Clip, Any, Any) -> None
         super(ClipName, self).__init__(clip, *a, **k)
         self.clip = clip
-        self.register_slot(self.clip._clip, self._name_listener, "loop_start")
-        self.register_slot(self.clip._clip, self._name_listener, "loop_end")
-        self.register_slot(self.clip._clip, self._name_listener, "start_marker")
-        self.register_slot(self.clip._clip, self._name_listener, "end_marker")
+        self.register_slot(self.clip._clip, partial(self._name_listener, force=True), "loop_start")
+        self.register_slot(self.clip._clip, partial(self._name_listener, force=True), "loop_end")
+        self.register_slot(self.clip._clip, partial(self._name_listener, force=True), "start_marker")
+        self.register_slot(self.clip._clip, partial(self._name_listener, force=True), "end_marker")
         self._name_listener.subject = self.clip._clip
 
     def _get_base_name(self):
         # type: () -> str
-        match = re.match("^(?P<base_name>[^().]*).*$", self.clip.name or "")
+        clip_name = self.clip.name or ""
+        if re.match("^\\d+\\s(bar|beat)s?", clip_name):
+            return ""
+        match = re.match("^(?P<base_name>[^(]*)", clip_name)
+
         return match.group("base_name").strip() if match else ""
 
     def normalize_base_name(self):
@@ -38,10 +43,7 @@ class ClipName(AbstractObjectName):
         if hasattr(self.clip, "warping") and not self.clip.warping:
             return "unwarped"
 
-        if int(self.clip.length) % self.song.signature_numerator != 0:
-            legend = "%d beat%s" % (self.clip.length, "s" if self.clip.length > 1 else "")
-        else:
-            legend = "%d bar%s" % (self.clip.bar_length, "s" if self.clip.bar_length > 1 else "")
+        legend = self.parent.utilsManager.get_length_legend(length=self.clip.length)
 
         if self.clip.has_tail:
             legend += " tail"
@@ -56,5 +58,8 @@ class ClipName(AbstractObjectName):
             self.parent.log_info("%s : %s <-> %s <-> %s" % (self.clip, base_name, self.base_name, self.clip.name))
         if base_name is not None:
             self.base_name = base_name
-        clip_name = "%s (%s)" % (self.base_name, self._length_legend)
+        if self.base_name:
+            clip_name = "%s (%s)" % (self.base_name, self._length_legend)
+        else:
+            clip_name = self._length_legend
         self.clip.name = clip_name

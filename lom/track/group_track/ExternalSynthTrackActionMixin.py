@@ -118,6 +118,7 @@ class ExternalSynthTrackActionMixin(object):
         if source_midi_clip is None or source_audio_clip is None:
             return None
         duplicate_audio_clips = list(self._get_duplicate_audio_clips(source_midi_clip, source_audio_clip))
+        duplicate_midi_clips = [self.midi_track.clips[audio_clip.index] for audio_clip in duplicate_audio_clips]
         if len(duplicate_audio_clips) == 0:
             return
 
@@ -125,6 +126,8 @@ class ExternalSynthTrackActionMixin(object):
         seq.prompt("Propagate to %s audio clips in track ?" % len(duplicate_audio_clips))
         seq.add(
             [partial(source_audio_clip.clip_slot.duplicate_clip_to, clip.clip_slot) for clip in duplicate_audio_clips])
+        seq.add([partial(clip.clip_name.update, base_name=source_audio_clip.clip_name.base_name) for clip in
+                 duplicate_midi_clips])
         seq.add(lambda: self.parent.show_message("%s audio clips duplicated" % len(duplicate_audio_clips)))
         seq.done()
 

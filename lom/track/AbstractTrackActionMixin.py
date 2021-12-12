@@ -285,7 +285,7 @@ class AbstractTrackActionMixin(object):
             self.song.clip_trigger_quantization = 0
         self.base_track._track.stop_all_clips()
         if immediate:
-            self.parent.defer(partial(setattr, self.song, "clip_trigger_quantization", qz))
+            self.song.clip_trigger_quantization = qz
 
     def load_device_from_enum(self, device_enum):
         # type: (AbstractTrack, DeviceEnum) -> Sequence

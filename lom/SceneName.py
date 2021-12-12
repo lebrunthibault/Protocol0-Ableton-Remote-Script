@@ -17,38 +17,23 @@ class SceneName(AbstractObjectName):
 
     def _get_base_name(self):
         # type: () -> str
-        match = re.match("^(?P<base_name>[^()]*[^()\\s])\\s*(\\((?P<length>\\d*)\\))?(?P<looping>\\*)?.*$",
+        match = re.match("^(?P<base_name>[^\\d*()]*)",
                          self.scene.name)
         base_name = match.group("base_name").strip() if match else ""
-        from protocol0.lom.Scene import Scene
 
-        if match and match.group("looping") and not Scene.LOOPING_SCENE:
-            self.scene.looping = True
         return base_name
-
-    @property
-    def _length_legend(self):
-        # type: () -> str
-        if int(self.scene.length) % self.song.signature_numerator != 0:
-            return "%d beat%s" % (self.scene.length, "s" if self.scene.length > 1 else "")
-        else:
-            return "%d" % self.scene.bar_length
 
     def update(self, base_name=None):
         # type: (str) -> None
         self.base_name = base_name if base_name is not None else self.base_name
-        # renaming numeric named scenes
-        try:
-            index = int(self.base_name)
-            if index != self.scene.index:
-                self.base_name = str(self.scene.index)
-        except ValueError:
-            pass
+        looping = "*" if self.scene.looping else ""
+        length_legend = self.parent.utilsManager.get_length_legend(length=self.scene.length)
 
-        if not self.base_name:
-            try:
-                self.base_name = str(self.song.scenes.index(self.scene))
-            except ValueError:
-                return
+        if self.scene.is_playing:
+            length_legend = "%s|%s" % (self.scene.current_bar, length_legend)
 
-        self.scene.name = "%s (%s)%s" % (self.base_name, self._length_legend, "*" if self.scene.looping else "")
+        if self.base_name:
+            scene_name = "%s (%s)%s" % (self.base_name, length_legend, looping)
+        else:
+            scene_name = "%s%s" % (length_legend, looping)
+        self.scene.name = scene_name

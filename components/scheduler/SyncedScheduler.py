@@ -1,8 +1,3 @@
-# uncompyle6 version 3.7.4
-# Python bytecode 2.7 (62211)
-# Decompiled from: Python 2.7.18 (v2.7.18:8d21aa21f2, Apr 20 2020, 13:19:08) [MSC v.1500 32 bit (Intel)]
-# Embedded file name: C:\ProgramData\Ableton\Live 9.7 Suite\Resources\MIDI Remote Scripts\ClyphX_Pro\clyphx_pro\SyncedScheduler.py
-# Compiled at: 2019-04-24 15:38:10
 from ClyphX_Pro.ClyphXComponentBase import ClyphXComponentBase, schedule
 from ClyphX_Pro.MiscUtils import get_number_of_beats
 from typing import Any
@@ -41,15 +36,24 @@ class SyncedScheduler(ClyphXComponentBase):
     @p0_subject_slot('current_song_time')
     def _on_song_time_changed(self):
         # type: () -> None
-        if self._pending_action_lists and self._song.is_playing:
-            current_beat = self._song.get_current_beats_song_time().beats
-            if self._last_beat != current_beat:
-                self._last_beat = current_beat
-                for k, v in self._pending_action_lists.items():
-                    v['count'] += 1
-                    if v['count'] > v['num_beats']:
-                        schedule(k)
-                        del self._pending_action_lists[k]
+        if not self._song.is_playing:
+            return
+
+        current_beat = self._song.get_current_beats_song_time().beats
+        if self._last_beat != current_beat:
+            self._last_beat = current_beat
+            
+            from protocol0 import Protocol0
+
+            song = Protocol0.SELF.protocol0_song
+            if song.selected_scene.is_playing:
+                self.parent.defer(song.selected_scene.scene_name.update)
+
+            for k, v in self._pending_action_lists.items():
+                v['count'] += 1
+                if v['count'] > v['num_beats']:
+                    schedule(k)
+                    del self._pending_action_lists[k]
 
     def disconnect(self):
         # type: () -> None

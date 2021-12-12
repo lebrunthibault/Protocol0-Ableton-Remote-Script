@@ -139,21 +139,19 @@ class SongManager(AbstractControlSurfaceComponent):
         """ instantiate SimpleTracks (including return / master, that are marked as inactive) """
         self.song.usamo_track = None
         self.template_dummy_clip = None  # type: Optional[AudioClip]
-        # instantiate set tracks
-        live_tracks = list(self.song._song.tracks) + list(self.song._song.return_tracks)
-
         self._simple_tracks[:] = []
 
+        # instantiate set tracks
         for track in list(self.song._song.tracks):
             self.generate_simple_track(track=track)
 
         for track in list(self.song._song.return_tracks):
             self.generate_simple_track(track=track, cls=SimpleReturnTrack)
 
+        self.song.master_track = self.generate_simple_track(track=self.song._song.master_track, cls=SimpleMasterTrack)
+
         if self.song.usamo_track is None and self.song.song_load_state != SongLoadStateEnum.LOADED:
             self.parent.log_warning("Usamo track is not present")
-
-        self.song.master_track = self.generate_simple_track(track=self.song._song.master_track, cls=SimpleMasterTrack)
 
         # Refresh track mapping
         self.song.live_track_to_simple_track = collections.OrderedDict()
@@ -255,7 +253,7 @@ class SongManager(AbstractControlSurfaceComponent):
 
         self.song.scenes[:] = new_scenes
 
-        if has_added_scene and self.song.selected_scene and self.song.is_playing:
+        if has_added_scene and self.song.selected_scene and self.song.selected_scene.length and self.song.is_playing:
             # noinspection PyUnresolvedReferences
             self.parent.defer(self.song.selected_scene.fire)
 

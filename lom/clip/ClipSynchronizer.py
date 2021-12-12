@@ -39,3 +39,11 @@ class ClipSynchronizer(ObjectSynchronizer):
         # type: (Clip) -> bool
         return not clip.track.is_recording
 
+    def _sync_property(self, master, slave, property_name):
+        # type: (Clip, Clip, str) -> None
+        if not self.is_syncable(slave):
+            return
+        if property_name == "name":
+            slave.clip_name.update(base_name=master.clip_name.base_name)
+        else:
+            super(ClipSynchronizer, self)._sync_property(master, slave, property_name)

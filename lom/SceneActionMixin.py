@@ -46,9 +46,11 @@ class SceneActionMixin(object):
     def stop_previous_scene(self, immediate=False):
         # type: (Scene, bool) -> None
         from protocol0.lom.Scene import Scene
-        if Scene.PLAYING_SCENE and Scene.PLAYING_SCENE != self:
+        previous_playing_scene = Scene.PLAYING_SCENE
+        if previous_playing_scene and previous_playing_scene != self:
+            self.parent.defer(previous_playing_scene.scene_name.update)
             # manually stopping previous scene because we don't display clip slot stop buttons
-            for clip in Scene.PLAYING_SCENE.clips:
+            for clip in previous_playing_scene.clips:
                 if clip.track not in self.tracks:
                     if immediate:
                         self.parent.defer(partial(clip.track.stop, immediate=True))
@@ -68,7 +70,7 @@ class SceneActionMixin(object):
             return self.song.delete_scene(self.index)
         return None
 
-    def toggle_solo(self):
+    def toggle_loop(self):
         # type: (Scene) -> None
         """ for a scene solo means looped """
         from protocol0.lom.Scene import Scene
