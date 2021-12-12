@@ -1,5 +1,6 @@
 from typing import Any
 
+from protocol0.config import Config
 from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.enums.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.enums.InputRoutingChannelEnum import InputRoutingChannelEnum
@@ -23,6 +24,8 @@ class ExternalSynthTrackValidator(AbstractObjectValidator, AggregateValidator):
             CallbackValidator(track.midi_track,
                               lambda t: t.get_device_from_enum(DeviceEnum.EXTERNAL_INSTRUMENT) is None,
                               lambda t: t.get_device_from_enum(DeviceEnum.EXTERNAL_INSTRUMENT).delete),
+            PropertyValueValidator(track.midi_track, "volume", Config.ZERO_DB_VOLUME),  # 0 db
+            PropertyValueValidator(track.audio_track, "volume", Config.ZERO_DB_VOLUME),
             PropertyValueValidator(track.midi_track, "input_routing_channel", InputRoutingChannelEnum.CHANNEL_1),
             PropertyValueValidator(track.audio_track, "input_routing_track", track.midi_track),
             PropertyValueValidator(track.audio_track, "input_routing_channel",
@@ -34,6 +37,10 @@ class ExternalSynthTrackValidator(AbstractObjectValidator, AggregateValidator):
                 PropertyValueValidator(track.midi_track, "output_routing_track", track.base_track),
                 PropertyValueValidator(track.audio_track, "output_routing_track", track.base_track),
             ]
+
+        for dummy_track in track.dummy_tracks:
+            validators.append(PropertyValueValidator(dummy_track, "volume", Config.ZERO_DB_VOLUME))
+
         if track.instrument.device:
             validators.append(DeviceParameterValidator(track.instrument.device, DeviceParameterEnum.DEVICE_ON, False))
         self._validators = validators

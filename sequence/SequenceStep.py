@@ -26,6 +26,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
             wait,  # type: int
             wait_beats,  # type: int
             wait_for_system,  # type: bool
+            no_cancel,  # type: bool
             no_wait,  # type: bool
             complete_on,  # type: Optional[Union[Callable, CallableWithCallbacks]]
             do_if,  # type: Optional[Callable]
@@ -47,6 +48,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         self._wait_beats = wait_beats or 0
         self._no_wait = no_wait
         self.wait_for_system = wait_for_system
+        self.no_cancel = no_cancel
         self._complete_on = complete_on
         self._check_timeout = check_timeout
         self._check_count = 0
@@ -61,6 +63,8 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
             assert self._wait == 0 and self._wait_beats == 0, "complete_on excludes wait and wait_beats"
         if self._wait:
             assert self._wait_beats == 0, "wait excludes wait_beats"
+        if self.no_cancel:
+            assert self.wait_for_system, "no cancel used without wait_for_system"
         assert callable(self._callable), "You passed a non callable (%s) to %s" % (self._callable, self)
         from protocol0.sequence.Sequence import Sequence
 
@@ -76,6 +80,8 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         output = self.name
         if self.wait_for_system:
             output += " (and wait for system)"
+        if self.no_cancel:
+            output += " - no cancel"
         elif self._complete_on:
             if _has_callback_queue(self._complete_on):
                 output += " (and wait for listener call : %s)" % get_callable_repr(self._complete_on)

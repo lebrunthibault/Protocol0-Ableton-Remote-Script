@@ -25,7 +25,7 @@ class AudioLatencyAnalyzer(AbstractControlSurfaceComponent):
 
         if ext_synth_track is None:
             self.parent.show_message("Please select an ExternalSynthTrack")
-            return
+            return None
 
         tempo = self.song.tempo
         self.song.tempo = 120  # easier to see jitter

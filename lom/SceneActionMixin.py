@@ -51,7 +51,7 @@ class SceneActionMixin(object):
             self.parent.defer(previous_playing_scene.scene_name.update)
             # manually stopping previous scene because we don't display clip slot stop buttons
             for clip in previous_playing_scene.clips:
-                if clip.track not in self.tracks:
+                if clip.is_playing and clip.track not in self.tracks:
                     if immediate:
                         self.parent.defer(partial(clip.track.stop, immediate=True))
                     else:
@@ -77,7 +77,7 @@ class SceneActionMixin(object):
 
         if not self.looping:  # solo activation
             previous_looping_scene = Scene.LOOPING_SCENE
-            self.looping = True
+            Scene.LOOPING_SCENE = self
             if Scene.PLAYING_SCENE != self:
                 self.fire()
             if previous_looping_scene:

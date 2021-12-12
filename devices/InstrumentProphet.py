@@ -11,7 +11,7 @@ class InstrumentProphet(AbstractExternalSynthTrackInstrument):
     TRACK_COLOR = ColorEnum.PROPHET
     ACTIVE_INSTANCE = None  # type: Optional[InstrumentProphet]
 
-    EXTERNAL_INSTRUMENT_DEVICE_HARDWARE_LATENCY = 20
+    EXTERNAL_INSTRUMENT_DEVICE_HARDWARE_LATENCY = 3.2
 
     @property
     def needs_exclusive_activation(self):

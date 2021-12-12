@@ -1,5 +1,6 @@
 from typing import Any, Optional
 
+from protocol0.components.UtilsManager import UtilsManager
 from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.validation.AbstractValidator import AbstractValidator
 
@@ -24,7 +25,7 @@ class PropertyValueValidator(AbstractValidator):
     def is_valid(self):
         # type: () -> bool
         try:
-            return getattr(self._obj, self._attr) == self._expected_value
+            return UtilsManager.compare_values(getattr(self._obj, self._attr), self._expected_value)
         except AttributeError:
             return False
 

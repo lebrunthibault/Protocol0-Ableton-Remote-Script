@@ -28,6 +28,7 @@ from protocol0.components.TrackDataManager import TrackDataManager
 from protocol0.components.TrackManager import TrackManager
 from protocol0.components.UtilsManager import UtilsManager
 from protocol0.components.ValidatorManager import ValidatorManager
+from protocol0.components.action_groups.ActionGroupData import ActionGroupData
 from protocol0.components.action_groups.ActionGroupFix import ActionGroupFix
 from protocol0.components.action_groups.ActionGroupLog import ActionGroupLog
 from protocol0.components.action_groups.ActionGroupMain import ActionGroupMain
@@ -119,6 +120,7 @@ class Protocol0(ControlSurface):
 
             if Config.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.TEST:
                 # action groups
+                ActionGroupData()
                 ActionGroupFix()
                 ActionGroupLog()
                 ActionGroupMain()

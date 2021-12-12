@@ -19,7 +19,7 @@ class ActionGroupSet(AbstractActionGroup):
                          )
 
         # DATA encoder
-        self.add_encoder(identifier=4, name="clear song data", on_press=self.parent.songDataManager.clear_data)
+        self.add_encoder(identifier=4, name="clear song data", on_press=self.parent.songDataManager.clear)
 
         # VELO encoder
         self.add_encoder(identifier=13, name="scale selected clip velocities",

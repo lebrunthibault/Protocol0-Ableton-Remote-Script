@@ -1,5 +1,7 @@
 import traceback
 
+from typing import Any
+
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 
 
@@ -25,3 +27,12 @@ class UtilsManager(AbstractControlSurfaceComponent):
         for line in traceback.format_stack():
             if all([word not in line for word in blacklist]):
                 self.parent.log_info(line.strip())
+
+    @classmethod
+    def compare_values(cls, value, expected_value):
+        # type: (Any, Any) -> bool
+        if isinstance(value, float):
+            value = round(value, 3)
+            expected_value = round(expected_value, 3)
+
+        return value == expected_value

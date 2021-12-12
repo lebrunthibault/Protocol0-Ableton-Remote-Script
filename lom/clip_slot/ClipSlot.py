@@ -51,6 +51,8 @@ class ClipSlot(AbstractObject):
         # type: () -> None
         if self.clip:
             self.clip.disconnect()
+        else:
+            self.parent.defer(partial(setattr, self, "has_stop_button", False))
 
         self._map_clip(is_new=True)
 

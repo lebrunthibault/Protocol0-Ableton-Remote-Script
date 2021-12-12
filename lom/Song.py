@@ -5,6 +5,7 @@ from typing import List, Optional, Dict, Any, Generator, Iterator
 
 import Live
 from protocol0.components.SongDataManager import save_song_data
+from protocol0.config import Config
 from protocol0.enums.SongLoadStateEnum import SongLoadStateEnum
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.AbstractObject import AbstractObject
@@ -39,6 +40,7 @@ class Song(SongActionMixin, AbstractObject):
         self.master_track = None  # type: Optional[SimpleTrack]
         self.live_clip_slot_to_clip_slot = {}  # type: Dict[Live.ClipSlot.ClipSlot, ClipSlot]
         self.template_dummy_clip = None  # type: Optional[AudioClip]
+        self.midi_recording_quantization_checked = False
 
         self.errored = False
         self.song_load_state = SongLoadStateEnum.PRE_LOAD
@@ -80,6 +82,8 @@ class Song(SongActionMixin, AbstractObject):
     @debounce(wait_time=60)  # 1 second
     def _tempo_listener(self):
         # type: () -> None
+        self.midi_recording_quantization_checked = False
+        self.parent.songDataManager.save()
         self.parent.defer(partial(setattr, self, "tempo", round(self.tempo)))
 
     @p0_subject_slot("midi_recording_quantization")
@@ -275,6 +279,14 @@ class Song(SongActionMixin, AbstractObject):
         # type: (int) -> None
         if self._song:
             self._song.midi_recording_quantization = midi_recording_quantization
+
+    @property
+    def tempo_default_midi_recording_quantization(self):
+        # type: () -> Any
+        if self.tempo < Config.SPLIT_QUANTIZATION_TEMPO:
+            return Live.Song.RecordingQuantization.rec_q_sixtenth
+        else:
+            return Live.Song.RecordingQuantization.rec_q_eight
 
     @property
     def session_record_status(self):

@@ -79,6 +79,11 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
         # type: (bool) -> None
         if res:
             self._execute_next_step()
+        else:
+            if self._current_step.no_cancel:
+                self.terminate()
+            else:
+                self.cancel()
 
     @p0_subject_slot("terminated")
     def _step_terminated(self):
@@ -103,6 +108,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
             self.RUNNING_SEQUENCES.remove(self)
         except ValueError:
             pass
+        self.parent.log_dev("%s cancelled" % self)
 
     def _on_terminate(self):
         # type: () -> None
@@ -123,6 +129,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
             wait=None,  # type: int
             wait_beats=None,  # type: int
             wait_for_system=False,  # type: bool
+            no_cancel=False,  # type: bool
             no_wait=False,  # type: bool
             complete_on=None,  # type: Callable
             do_if=None,  # type: Callable
@@ -153,6 +160,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
                 wait=wait,
                 wait_beats=wait_beats,
                 wait_for_system=wait_for_system,
+                no_cancel=no_cancel,
                 no_wait=no_wait,
                 complete_on=complete_on,
                 do_if=do_if,
@@ -163,10 +171,10 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
 
         return self
 
-    def prompt(self, question):
-        # type: (str) -> None
+    def prompt(self, question, *a, **k):
+        # type: (str, Any, Any) -> None
         """ helper method from prompts """
-        self.add(partial(self.system.prompt, question), wait_for_system=True)
+        self.add(partial(self.system.prompt, question), wait_for_system=True, *a, **k)
 
     def done(self):
         # type: () -> Sequence

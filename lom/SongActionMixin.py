@@ -176,3 +176,20 @@ class SongActionMixin(object):
     def tap_tempo(self):
         # type: (Song) -> None
         self._song.tap_tempo()
+
+    def check_midi_recording_quantization(self):
+        # type: (Song) -> Optional[Sequence]
+        if self.midi_recording_quantization_checked or self.midi_recording_quantization == self.tempo_default_midi_recording_quantization:
+            return None
+
+        self.midi_recording_quantization_checked = True
+        self.parent.songDataManager.save()
+        seq = Sequence()
+        seq.prompt("Midi recording quantization %s is not tempo default : %s, Set to default ?" % (
+            self.midi_recording_quantization, self.tempo_default_midi_recording_quantization), no_cancel=True)
+        seq.add(
+            partial(setattr, self, "midi_recording_quantization", self.tempo_default_midi_recording_quantization))
+        seq.add(partial(self.parent.show_message,
+                        "Quantization set to %s" % self.tempo_default_midi_recording_quantization))
+
+        return seq.done()

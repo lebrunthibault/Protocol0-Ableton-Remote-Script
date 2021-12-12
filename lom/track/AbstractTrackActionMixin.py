@@ -2,10 +2,7 @@ from functools import partial
 
 from typing import TYPE_CHECKING, Any, Optional, NoReturn
 
-import Live
 from protocol0.components.TrackDataManager import save_track_data
-from protocol0.config import Config
-from protocol0.constants import QUANTIZATION_OPTIONS
 from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.interface.InterfaceState import InterfaceState
@@ -107,7 +104,6 @@ class AbstractTrackActionMixin(object):
         if self.is_record_triggered:
             return self._cancel_record()
         InterfaceState.CURRENT_RECORD_TYPE = record_type
-        self.pre_record(record_type=record_type)
 
         seq = Sequence()
         seq.add(partial(self._pre_session_record, record_type))
@@ -130,8 +126,6 @@ class AbstractTrackActionMixin(object):
         if self.song.record_mode:
             self.song.record_mode = False
             return seq.done()
-
-        self.pre_record(record_type=record_type)
 
         self.has_monitor_in = False
 
@@ -162,16 +156,6 @@ class AbstractTrackActionMixin(object):
         self.parent.log_error("arrangement_record_audio_only not available on this track")
         return None
 
-    def pre_record(self, record_type):
-        # type: (AbstractTrack, RecordTypeEnum) -> None
-        if record_type == RecordTypeEnum.NORMAL:
-            record_quantization_index = QUANTIZATION_OPTIONS.index(self.song.midi_recording_quantization)
-            if self.song.tempo < Config.SPLIT_QUANTIZATION_TEMPO:
-                if record_quantization_index < QUANTIZATION_OPTIONS.index(
-                        Live.Song.RecordingQuantization.rec_q_sixtenth):
-                    self.parent.log_error(
-                        "You're recording midi with a quantization of %s" % self.song.midi_recording_quantization)
-
     def _pre_session_record(self, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
         """ restart audio to get a count in and recfix"""
@@ -183,15 +167,18 @@ class AbstractTrackActionMixin(object):
         self.song.session_automation_record = True
 
         seq = Sequence()
-        if record_type == RecordTypeEnum.NORMAL and self.next_empty_clip_slot_index is None:
-            seq.add(self.song.create_scene)
-            seq.add(self.arm_track)
-            seq.add(partial(self._pre_session_record, record_type))
+        if record_type == RecordTypeEnum.NORMAL:
+            if self.next_empty_clip_slot_index is None:
+                seq.add(self.song.create_scene)
+                seq.add(self.arm_track)
+                seq.add(partial(self._pre_session_record, record_type))
+            elif self.next_empty_clip_slot_index != self.song.selected_scene.index:
+                seq.add(self.song.scenes[self.next_empty_clip_slot_index].select)
 
         return seq.done()
 
     def _launch_count_in(self, record_type):
-        # type: (AbstractTrack, RecordTypeEnum) -> None
+        # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
         self.song.metronome = True
 
         if record_type == RecordTypeEnum.AUDIO_ONLY:
@@ -203,16 +190,21 @@ class AbstractTrackActionMixin(object):
         self.solo = True
         self.parent.wait_bars(1, partial(setattr, self, "solo", False))
 
-        self.song.stop_all_clips(quantized=False)
         self.song.stop_playing()
         assert self.next_empty_clip_slot_index is not None
         recording_scene = self.song.scenes[self.next_empty_clip_slot_index]
+        # recording_scene.stop_previous_scene()
+        self.song.stop_all_clips(quantized=False)  # stopping previous scene clips
 
-        # if not recording_scene.length:
         self.song.is_playing = True
 
         if recording_scene.length:
-            self.parent.defer(recording_scene.fire)
+            seq = Sequence()
+            seq.add(wait=1)
+            seq.add(recording_scene.fire)
+            return seq.done()
+        else:
+            return None
 
     def _cancel_record(self):
         # type: (AbstractTrack) -> Sequence
@@ -301,6 +293,7 @@ class AbstractTrackActionMixin(object):
 
     def refresh_color(self):
         # type: (AbstractTrack) -> None
+        self.parent.log_dev("computed color: %s" % self.computed_color)
         self.color = self.computed_color
 
     def scroll_volume(self, go_next):

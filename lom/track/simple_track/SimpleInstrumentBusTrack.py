@@ -12,3 +12,8 @@ class SimpleInstrumentBusTrack(SimpleAudioTrack):
         super(SimpleInstrumentBusTrack, self)._added_track_init()
         if len(self.clips):
             self.clips[0].muted = True
+
+    def post_init(self):  # type: () -> None
+        super(SimpleInstrumentBusTrack, self).post_init()
+        for clip in self.clips[1:]:
+            clip.delete()

@@ -42,7 +42,7 @@ class SyncedScheduler(ClyphXComponentBase):
         current_beat = self._song.get_current_beats_song_time().beats
         if self._last_beat != current_beat:
             self._last_beat = current_beat
-            
+
             from protocol0 import Protocol0
 
             song = Protocol0.SELF.protocol0_song

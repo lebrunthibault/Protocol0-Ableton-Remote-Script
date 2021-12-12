@@ -44,6 +44,8 @@ class AbstractTrackList(UserMutableSequence):
         if self.song.current_track != track:
             seq.prompt("Armed track is not the current track, record ?")
 
+        seq.add(self.song.check_midi_recording_quantization)
+
         if self.application.session_view_active:
             seq.add(partial(track.session_record, record_type=record_type))
         else:

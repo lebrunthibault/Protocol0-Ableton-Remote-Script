@@ -10,5 +10,6 @@ class InstrumentMinitaur(AbstractExternalSynthTrackInstrument):
     CAN_BE_SHOWN = False
     PRESETS_PATH = "C:\\Users\\thiba\\AppData\\Roaming\\Moog Music Inc\\Minitaur\\Presets Library\\User"
     PROGRAM_CHANGE_OFFSET = 1
+    RECORD_CLIP_TAILS = False
 
-    EXTERNAL_INSTRUMENT_DEVICE_HARDWARE_LATENCY = 18
+    EXTERNAL_INSTRUMENT_DEVICE_HARDWARE_LATENCY = 1.4

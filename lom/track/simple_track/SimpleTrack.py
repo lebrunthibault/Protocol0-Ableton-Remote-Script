@@ -4,6 +4,7 @@ from typing import List, Optional, Any
 
 import Live
 from _Framework.SubjectSlot import subject_slot_group
+from protocol0.config import Config
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.lom.clip.Clip import Clip
@@ -38,6 +39,8 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self._devices_listener.subject = self._track
         self._devices_listener()
         self.clip_slots = []  # type: List[ClipSlot]
+
+        self._output_meter_level_listener.subject = None
 
         if self.IS_ACTIVE:
             self._fired_slot_index_listener.subject = self._track
@@ -137,6 +140,12 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             self.abstract_group_track.notify_has_clip()
         pass
 
+    @p0_subject_slot("output_meter_level")
+    def _output_meter_level_listener(self):
+        # type: () -> None
+        if self.output_meter_level > Config.CLIPPING_TRACK_VOLUME:
+            self.system.prompt("%s is clipping" % self)
+
     @property
     def is_armed(self):
         # type: () -> bool
@@ -232,12 +241,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # type: (Live.Track.DeviceInsertMode) -> None
         if self._track:
             self._track.view.device_insert_mode = device_insert_mode
-
-    @property
-    def playing_clip(self):
-        # type: () -> Optional[Clip]
-        """ Returns the currently playing clip is any """
-        return self.clip_slots[self.playing_slot_index].clip if self.playing_slot_index >= 0 else None
 
     @property
     def playable_clip(self):

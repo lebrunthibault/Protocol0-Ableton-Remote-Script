@@ -162,8 +162,9 @@ class Scene(SceneActionMixin, AbstractObject):
 
     @property
     def current_bar(self):
-        current_beat = int(self.playing_position) % self.length
-        return (current_beat / self.song.signature_numerator) + 1
+        # type: () -> int
+        current_beat = self.playing_position % self.length
+        return (int(current_beat) / self.song.signature_numerator) + 1
 
     @property
     def looping(self):

@@ -21,7 +21,7 @@ class SimpleTrackActionMixin(object):
     def arm_track(self):
         # type: (SimpleTrack) -> Optional[Sequence]
         if self.is_armed:
-            return
+            return None
         if self.is_foldable:
             self.is_folded = not self.is_folded  # type: ignore[has-type]
         else:

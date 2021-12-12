@@ -1,5 +1,6 @@
 from typing import Any
 
+from protocol0.components.UtilsManager import UtilsManager
 from protocol0.enums.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.lom.device.Device import Device
 
@@ -13,14 +14,5 @@ class DeviceParameterValue(object):
     def matches(self, device):
         # type: (Device) -> bool
         device_parameter = device.get_parameter_by_name(device_parameter_name=self._device_parameter_enum)
-        return self._compare_values(device_parameter.value,
-                                    self._value) and device_parameter.is_enabled and not device_parameter.is_automated
-
-    @classmethod
-    def _compare_values(cls, value, expected_value):
-        # type: (Any, Any) -> bool
-        if isinstance(value, float):
-            value = round(value, 3)
-            expected_value = round(expected_value, 3)
-
-        return value == expected_value
+        return UtilsManager.compare_values(device_parameter.value,
+                                           self._value) and device_parameter.is_enabled and not device_parameter.is_automated

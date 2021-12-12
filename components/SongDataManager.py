@@ -49,19 +49,29 @@ class SongDataManager(AbstractControlSurfaceComponent):
         if Config.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.TEST:
             self.restore_data()
 
+    def save_song_and_tracks(self):
+        # type: () -> None
+        self.save()
+        for track in self.song.simple_tracks:
+            self.parent.trackDataManager.save(track=track)
+        self.system.save_set()
+
     def save(self):
         # type: () -> None
         for cls_fqdn in SYNCHRONIZABLE_CLASSE_NAMES:
             cls = locate(cls_fqdn)
             self.store_class_data(cls)
 
-        self.song.set_data(SongDataEnum.SELECTED_SCENE_INDEX.name, self.song.selected_scene.index)
-        self.song.set_data(SongDataEnum.SELECTED_TRACK_INDEX.name, self.song.selected_track.index)
-        selected_clip_index = self.song.selected_track.clips.index(
-            self.song.selected_clip) if self.song.selected_clip else None
-        self.song.set_data(SongDataEnum.SELECTED_CLIP_INDEX.name, selected_clip_index)
+        # can happen on record e.g.
+        if self.song.selected_scene:
+            self.song.set_data(SongDataEnum.SELECTED_SCENE_INDEX.name, self.song.selected_scene.index)
+        if self.song.selected_track:
+            self.song.set_data(SongDataEnum.SELECTED_TRACK_INDEX.name, self.song.selected_track.index)
+            if self.song.selected_clip:
+                selected_clip_index = self.song.selected_track.clips.index(self.song.selected_clip)
+                self.song.set_data(SongDataEnum.SELECTED_CLIP_INDEX.name, selected_clip_index)
 
-        self.song.set_data(SongDataEnum.MIDI_RECORDING_QUANTIZATION.name, self.song.midi_recording_quantization)
+        self.song.set_data(SongDataEnum.MIDI_RECORDING_QUANTIZATION_CHECKED.name, self.song.midi_recording_quantization_checked)
 
     def store_class_data(self, cls):
         # type: (Any) -> None
@@ -75,7 +85,7 @@ class SongDataManager(AbstractControlSurfaceComponent):
         except SongDataError as e:
             self.parent.log_error(str(e))
             self.parent.log_notice("setting %s song data to {}")
-            self.clear_data(save_set=False)
+            self.clear(save_set=False)
             self.parent.show_message("Inconsistent song data please save the set")
 
     def _restore_data(self):
@@ -91,7 +101,7 @@ class SongDataManager(AbstractControlSurfaceComponent):
         SongDataManager.SELECTED_TRACK_INDEX = self.song.get_data(SongDataEnum.SELECTED_TRACK_INDEX.name, None)
         SongDataManager.SELECTED_CLIP_INDEX = self.song.get_data(SongDataEnum.SELECTED_CLIP_INDEX.name, None)
 
-        self.song.midi_recording_quantization = self.song.get_data(SongDataEnum.MIDI_RECORDING_QUANTIZATION.name, self.song.midi_recording_quantization)
+        self.song.midi_recording_quantization_checked = self.song.get_data(SongDataEnum.MIDI_RECORDING_QUANTIZATION_CHECKED.name, False)
 
     def _restore_synchronizable_class_data(self, cls_fqdn):
         # type: (str) -> None
@@ -122,7 +132,7 @@ class SongDataManager(AbstractControlSurfaceComponent):
         # type: (str, Any) -> None
         self.parent.log_info("song data of %s: %s" % (key, json.dumps(value, indent=4, sort_keys=True)))
 
-    def clear_data(self, save_set=True):
+    def clear(self, save_set=True):
         # type: (bool) -> None
         for cls_fqdn in SYNCHRONIZABLE_CLASSE_NAMES:
             self.parent.log_notice("Clearing song data of %s" % cls_fqdn)

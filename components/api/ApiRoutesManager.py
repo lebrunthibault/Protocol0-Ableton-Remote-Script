@@ -44,7 +44,7 @@ class ApiRoutesManager(AbstractControlSurfaceComponent):
         """ Called by the speech recognition script """
         waiting_sequence = next((seq for seq in Sequence.RUNNING_SEQUENCES if seq.waiting_for_system), None)
         if waiting_sequence is None:
-            self.parent.log_error("Response (%s) received from system but couldn't find a waiting sequence" % res)
+            self.parent.log_notice("Response (%s) received from system but couldn't find a waiting sequence" % res)
             return
 
         waiting_sequence.on_system_response(res=res)

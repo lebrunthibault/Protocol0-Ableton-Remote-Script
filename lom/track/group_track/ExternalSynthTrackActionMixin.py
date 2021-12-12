@@ -10,7 +10,6 @@ from protocol0.lom.clip.AudioClip import AudioClip
 from protocol0.lom.clip.MidiClip import MidiClip
 from protocol0.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.decorators import prompt
 
 if TYPE_CHECKING:
     from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
@@ -22,6 +21,11 @@ class ExternalSynthTrackActionMixin(object):
         # type: (ExternalSynthTrack) -> Optional[Sequence]
         self.base_track.is_folded = False
         self.base_track.mute = False
+
+        # checking levels
+        self.midi_track._output_meter_level_listener.subject = self.midi_track._track
+        self.audio_track._output_meter_level_listener.subject = self.audio_track._track
+
         if self.song.usamo_track:
             self.song.usamo_track.input_routing_track = self.midi_track
         seq = Sequence(silent=True)
@@ -32,6 +36,8 @@ class ExternalSynthTrackActionMixin(object):
     def unarm_track(self):
         # type: (ExternalSynthTrack) -> None
         self.has_monitor_in = True
+        self.midi_track._output_meter_level_listener.subject = None
+        self.audio_track._output_meter_level_listener.subject = None
 
     @property
     def has_monitor_in(self):
@@ -194,8 +200,10 @@ class ExternalSynthTrackActionMixin(object):
             self.disable_protected_mode()
             return False
 
-    @prompt("Disable protected mode ?")
     def disable_protected_mode(self):
-        # type: (ExternalSynthTrack) -> None
-        self.protected_mode_active = False
-        self.parent.show_message("track protected mode disabled")
+        # type: (ExternalSynthTrack) -> Sequence
+        seq = Sequence()
+        seq.prompt("Disable protected mode on %s ?" % self)
+        seq.add(partial(setattr, self, "protected_mode_active", False))
+        seq.add(partial(self.parent.show_message, "track protected mode disabled"))
+        return seq.done()

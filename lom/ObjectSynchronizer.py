@@ -22,8 +22,6 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
             raise Protocol0Error("Master and slave should be objects")
 
         lom_property_name = self._get_lom_property_name_from_object(obj=master)
-        self.master = master
-        self.slave = slave
 
         # sync is two way but the master object defines start values
         self.listenable_properties = listenable_properties or []

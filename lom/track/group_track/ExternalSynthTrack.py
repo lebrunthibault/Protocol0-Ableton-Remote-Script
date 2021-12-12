@@ -49,6 +49,8 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         # noinspection PyUnresolvedReferences
         self.notify_instrument()
 
+        self.record_clip_tails = self.instrument.RECORD_CLIP_TAILS
+
     def post_init(self):
         # type: () -> None
         super(ExternalSynthTrack, self).post_init()
@@ -60,6 +62,10 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         seq = Sequence()
         seq.add(super(ExternalSynthTrack, self)._added_track_init)
         seq.add(self.abstract_track.arm)
+
+        if len(self.base_track.devices):
+            seq.prompt("Clear %s effects ?" % len(self.base_track.devices))
+            seq.add([device.delete for device in self.base_track.devices])
 
         return seq.done()
 
@@ -155,8 +161,15 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     def color(self, color_index):
         # type: (int) -> None
         self.base_track.color = color_index
-        self.midi_track.color = color_index
-        self.audio_track.color = color_index
+        for sub_track in self.sub_tracks:
+            sub_track.color = color_index
+            for clip in sub_track.clips:
+                clip.color = color_index
+
+    @property
+    def computed_color(self):
+        # type: () -> int
+        return self.instrument.TRACK_COLOR.index
 
     def disconnect(self):
         # type: () -> None
