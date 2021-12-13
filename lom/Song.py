@@ -7,7 +7,6 @@ import Live
 from protocol0.components.SongDataManager import save_song_data
 from protocol0.config import Config
 from protocol0.enums.SongLoadStateEnum import SongLoadStateEnum
-from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.Scene import Scene
 from protocol0.lom.SongActionMixin import SongActionMixin
@@ -61,10 +60,13 @@ class Song(SongActionMixin, AbstractObject):
         if not self.is_playing:
             # noinspection PyUnresolvedReferences
             self.notify_session_end()
+            Config.CURRENT_RECORD_TYPE = None
             return
 
         # launch selected scene by clicking on play song
-        if self.application.session_view_active and not self.song.selected_scene.is_playing and InterfaceState.CURRENT_RECORD_TYPE is None:
+        self.parent.log_dev("self.song.selected_scene.is_playing: %s" % self.song.selected_scene.is_playing)
+        self.parent.log_dev("InterfaceState.CURRENT_RECORD_TYPE: %s" % Config.CURRENT_RECORD_TYPE)
+        if self.application.session_view_active and not self.song.selected_scene.is_playing and Config.CURRENT_RECORD_TYPE is None:
             self.song.stop_playing()
             self.song.selected_scene.fire()
 

@@ -31,27 +31,6 @@ class AbstractTrackList(UserMutableSequence):
         # type: () -> Iterable[AbstractGroupTrack]
         return (ab for ab in self.abstract_group_tracks if not ab.is_parent(self.song.current_track))
 
-    def record(self, record_type):
-        # type: (RecordTypeEnum) -> Optional[Sequence]
-        seq = Sequence()
-        tracks = self._abstract_tracks
-        if len(self._abstract_tracks) == 0:
-            track = self.song.current_track
-            seq.add(track.arm)
-        else:
-            track = tracks[0]
-
-        if self.song.current_track != track:
-            seq.prompt("Armed track is not the current track, record ?")
-
-        seq.add(self.song.check_midi_recording_quantization)
-
-        if self.application.session_view_active:
-            seq.add(partial(track.session_record, record_type=record_type))
-        else:
-            seq.add(partial(track.arrangement_record, record_type=record_type))
-        return seq.done()
-
     def toggle_solo(self):
         # type: () -> None
         for t in self._abstract_tracks:

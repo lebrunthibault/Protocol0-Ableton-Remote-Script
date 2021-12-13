@@ -92,3 +92,4 @@ class AudioClip(Clip):
         # type: (AudioClip) -> None
         self.loop_start = self.song.signature_numerator  # offset one bar
         self.move_playing_pos(self.song.signature_numerator)  # keep it sync with scene
+        self.clip_name.update()

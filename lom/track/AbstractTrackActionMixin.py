@@ -3,9 +3,9 @@ from functools import partial
 from typing import TYPE_CHECKING, Any, Optional, NoReturn
 
 from protocol0.components.TrackDataManager import save_track_data
+from protocol0.config import Config
 from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
-from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import session_view_only, arrangement_view_only
 
@@ -42,9 +42,10 @@ class AbstractTrackActionMixin(object):
 
     def arm(self):
         # type: (AbstractTrack) -> Optional[Sequence]
-        if self.is_armed:
-            return None
-        self.song.unfocus_all_tracks()
+        if self.is_foldable:
+            self.is_folded = False
+        if not self.is_armed:
+            self.song.unfocus_all_tracks()
         return self.arm_track()
 
     def arm_track(self):
@@ -98,12 +99,26 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> NoReturn
         raise NotImplementedError()
 
+    def record(self, record_type):
+        # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
+        seq = Sequence()
+        if not self.is_armed:
+            seq.add(self.arm)
+
+        seq.add(self.song.check_midi_recording_quantization)
+
+        if self.application.session_view_active:
+            seq.add(partial(self.session_record, record_type=record_type))
+        else:
+            seq.add(partial(self.arrangement_record, record_type=record_type))
+        return seq.done()
+
     @session_view_only
     def session_record(self, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
         if self.is_record_triggered:
             return self._cancel_record()
-        InterfaceState.CURRENT_RECORD_TYPE = record_type
+        Config.CURRENT_RECORD_TYPE = record_type
 
         seq = Sequence()
         seq.add(partial(self._pre_session_record, record_type))
@@ -210,10 +225,10 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> Sequence
         self.parent.clear_tasks()
         seq = Sequence()
-        if InterfaceState.CURRENT_RECORD_TYPE == RecordTypeEnum.NORMAL:
+        if Config.CURRENT_RECORD_TYPE == RecordTypeEnum.NORMAL:
             seq.add(partial(self.delete_playable_clip))
         seq.add(partial(self.stop, immediate=True))
-        seq.add(partial(self.post_session_record, InterfaceState.CURRENT_RECORD_TYPE))
+        seq.add(partial(self.post_session_record, Config.CURRENT_RECORD_TYPE))
         seq.add(self.song.stop_playing)
         return seq.done()
 
@@ -224,7 +239,7 @@ class AbstractTrackActionMixin(object):
         self.has_monitor_in = False
         self.solo = False
         self.song.session_automation_record = True
-        InterfaceState.CURRENT_RECORD_TYPE = None
+        Config.CURRENT_RECORD_TYPE = None
         if self.song.selected_scene.length == 0:
             self.parent.defer(self.song.selected_scene.delete)
         clip = self.base_track.playable_clip
@@ -293,7 +308,6 @@ class AbstractTrackActionMixin(object):
 
     def refresh_color(self):
         # type: (AbstractTrack) -> None
-        self.parent.log_dev("computed color: %s" % self.computed_color)
         self.color = self.computed_color
 
     def scroll_volume(self, go_next):

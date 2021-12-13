@@ -59,8 +59,8 @@ class ActionGroupMain(AbstractActionGroup):
             name="record",
             filter_active_tracks=True,
             on_scroll=InterfaceState.scroll_recording_time,
-            on_press=lambda: partial(self.song.armed_tracks.record, RecordTypeEnum.NORMAL),
-            on_long_press=lambda: partial(self.song.armed_tracks.record, RecordTypeEnum.AUDIO_ONLY)
+            on_press=lambda: partial(self.song.current_track.record, RecordTypeEnum.NORMAL),
+            on_long_press=lambda: partial(self.song.current_track.record, RecordTypeEnum.AUDIO_ONLY)
         )
 
         # TRacK encoder

@@ -24,7 +24,7 @@ class KeywordActionManager(AbstractControlSurfaceComponent):
             ActionEnum.ARM: lambda: self.song.current_track.toggle_arm,
             ActionEnum.MONITOR: lambda: self.song.current_track.switch_monitoring,
             ActionEnum.SOLO: lambda: self.song.current_track.toggle_solo,
-            ActionEnum.REC: lambda: partial(self.song.armed_tracks.record, RecordTypeEnum.NORMAL),
+            ActionEnum.REC: lambda: partial(self.song.current_track.record, RecordTypeEnum.NORMAL),
             ActionEnum.FOLD: lambda: AbstractTrackList(self.song.abstract_tracks).toggle_fold(),
             ActionEnum.CLEAR: self.parent.logManager.clear,
             ActionEnum.DUPLICATE: lambda: self.song.current_track.duplicate,

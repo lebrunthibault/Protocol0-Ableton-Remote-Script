@@ -108,7 +108,6 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
             self.RUNNING_SEQUENCES.remove(self)
         except ValueError:
             pass
-        self.parent.log_dev("%s cancelled" % self)
 
     def _on_terminate(self):
         # type: () -> None

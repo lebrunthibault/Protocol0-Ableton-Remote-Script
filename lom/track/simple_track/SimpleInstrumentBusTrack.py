@@ -14,7 +14,6 @@ class SimpleInstrumentBusTrack(SimpleAudioTrack):
             self.clips[0].muted = True
 
     def post_init(self):  # type: () -> None
-        self.parent.log_dev("post init %s" % self)
         super(SimpleInstrumentBusTrack, self).post_init()
         for clip in self.clips[1:]:
             self.parent.defer(clip.delete)

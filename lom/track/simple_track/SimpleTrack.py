@@ -144,7 +144,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def _output_meter_level_listener(self):
         # type: () -> None
         if self.output_meter_level > Config.CLIPPING_TRACK_VOLUME:
-            self.system.prompt("%s is clipping" % self)
+            self.system.show_warning("%s is clipping (%.3f)" % (self.name, self.output_meter_level))
 
     @property
     def is_armed(self):

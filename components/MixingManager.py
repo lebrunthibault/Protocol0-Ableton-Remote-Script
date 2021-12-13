@@ -50,6 +50,6 @@ class MixingManager(AbstractControlSurfaceComponent):
     @subject_slot_group("output_meter_level")
     def _track_output_meter_level_listener(self, track):
         # type: (Live.Track.Track) -> None
-        if track.output_meter_level < 0.91:
+        if track.output_meter_level < Config.CLIPPING_TRACK_VOLUME:
             return
-        self.parent.log_error("%s is clipping" % track.name)
+        self.parent.log_error("%s is clipping (%s)" % (track.name, track.output_meter_level))

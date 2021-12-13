@@ -160,6 +160,9 @@ class LogManager(AbstractObject):
             )
 
         self.parent.log_info()
-        self.parent.log_notice("********* HIGHLIGHTED_CLIP *************")
+        self.parent.log_notice("********* SELECTED_CLIP *************")
         self.parent.log_info()
-        self.parent.log_info("song.highlighted_clip: %s" % self.song.selected_clip)
+        self.parent.log_info("song.selected_clip: %s" % self.song.selected_clip)
+        if self.song.selected_clip:
+            self.parent.log_info()
+            self.parent.log_info("song.selected_clip.length: %s" % self.song.selected_clip.length)

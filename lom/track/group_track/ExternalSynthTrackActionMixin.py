@@ -23,7 +23,6 @@ class ExternalSynthTrackActionMixin(object):
         self.base_track.mute = False
 
         # checking levels
-        self.midi_track._output_meter_level_listener.subject = self.midi_track._track
         self.audio_track._output_meter_level_listener.subject = self.audio_track._track
 
         if self.song.usamo_track:
@@ -36,7 +35,6 @@ class ExternalSynthTrackActionMixin(object):
     def unarm_track(self):
         # type: (ExternalSynthTrack) -> None
         self.has_monitor_in = True
-        self.midi_track._output_meter_level_listener.subject = None
         self.audio_track._output_meter_level_listener.subject = None
 
     @property
