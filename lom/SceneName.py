@@ -29,8 +29,8 @@ class SceneName(AbstractObjectName):
         looping = "*" if self.scene.looping else ""
         length_legend = self.parent.utilsManager.get_length_legend(length=self.scene.length)
 
-        if self.scene.is_playing:
-            length_legend = "%s|%s" % (self.scene.current_bar, length_legend)
+        if self.scene.has_playing_clips:
+            length_legend = "%s|%s" % (self.scene.current_bar + 1, length_legend)
 
         if self.base_name:
             scene_name = "%s (%s)%s" % (self.base_name, length_legend, looping)

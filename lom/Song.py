@@ -61,14 +61,19 @@ class Song(SongActionMixin, AbstractObject):
             # noinspection PyUnresolvedReferences
             self.notify_session_end()
             Config.CURRENT_RECORD_TYPE = None
+            if Scene.PLAYING_SCENE:
+                self.parent.defer(Scene.PLAYING_SCENE.mute_audio_tails)
             return
 
+        # song started playing
+        if not self.application.session_view_active or Config.CURRENT_RECORD_TYPE is not None:
+            return
         # launch selected scene by clicking on play song
-        self.parent.log_dev("self.song.selected_scene.is_playing: %s" % self.song.selected_scene.is_playing)
-        self.parent.log_dev("InterfaceState.CURRENT_RECORD_TYPE: %s" % Config.CURRENT_RECORD_TYPE)
-        if self.application.session_view_active and not self.song.selected_scene.is_playing and Config.CURRENT_RECORD_TYPE is None:
+        if not self.song.selected_scene.has_playing_clips:
             self.song.stop_playing()
             self.song.selected_scene.fire()
+        else:
+            self.song.selected_scene._is_triggered_listener()
 
     @p0_subject_slot("record_mode")
     def _record_mode_listener(self):
@@ -173,7 +178,7 @@ class Song(SongActionMixin, AbstractObject):
     @property
     def playing_scene(self):
         # type: () -> Optional[Scene]
-        return find_if(lambda scene: scene.is_playing, self.scenes)
+        return find_if(lambda scene: scene.has_playing_clips, self.scenes)
 
     # CLIP SLOTS
 

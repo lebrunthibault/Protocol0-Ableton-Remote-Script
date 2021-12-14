@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class ClipSlot(AbstractObject):
-    __subject_events__ = ("has_clip", "is_triggered", "stopped")
+    __subject_events__ = ("has_clip", "is_triggered", "stopped", "is_recording")
 
     CLIP_CLASS = Clip
 
@@ -25,6 +25,7 @@ class ClipSlot(AbstractObject):
         self.track = track
         self._has_clip_listener.subject = self._clip_slot
         self._is_triggered_listener.subject = self._clip_slot
+        self._is_recording_listener.subject = self
         self.clip = None  # type: Optional[Clip]
         self._map_clip()
 
@@ -68,6 +69,11 @@ class ClipSlot(AbstractObject):
         # type: () -> None
         # noinspection PyUnresolvedReferences
         self.notify_is_triggered()
+
+    @p0_subject_slot("is_recording")
+    def _is_recording_listener(self):
+        # type: () -> None
+        pass
 
     def refresh_appearance(self):
         # type: () -> None
@@ -140,6 +146,9 @@ class ClipSlot(AbstractObject):
             no_timeout=True,
         )
 
+        # noinspection PyUnresolvedReferences
+        seq.add(self.notify_is_recording)
+
         return seq.done()
 
     def fire(self, record_length=None):
@@ -147,10 +156,12 @@ class ClipSlot(AbstractObject):
         if self._clip_slot is None:
             return None
 
+        args = {}
+
         if record_length:
-            self._clip_slot.fire(record_length=record_length)
-        else:
-            self._clip_slot.fire()
+            args["record_length"] = record_length
+
+        self._clip_slot.fire(**args)
 
     def create_clip(self):
         # type: () -> Optional[Sequence]

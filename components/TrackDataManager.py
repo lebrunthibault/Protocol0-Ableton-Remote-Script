@@ -30,4 +30,7 @@ class TrackDataManager(AbstractControlSurfaceComponent):
 
     def restore_data(self, track):
         # type: (AbstractTrack) -> None
-        track.record_clip_tails = track.get_data(TrackDataEnum.RECORD_CLIP_TAILS.name, False)
+        from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+
+        if isinstance(track, ExternalSynthTrack) and track.has_tail_track:
+            track.record_clip_tails = track.get_data(TrackDataEnum.RECORD_CLIP_TAILS.name, False)

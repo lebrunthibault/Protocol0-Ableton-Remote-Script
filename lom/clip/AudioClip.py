@@ -53,13 +53,6 @@ class AudioClip(Clip):
         if self._clip:
             self._clip.warp_mode = warp_mode
 
-    @p0_subject_slot("looping")
-    def _looping_listener(self):
-        # type: () -> None
-        if self.warping:
-            # enforce looping
-            self.parent.defer(partial(setattr, self._clip, "looping", True))
-
     @property
     def file_path(self):
         # type: () -> str
@@ -69,7 +62,7 @@ class AudioClip(Clip):
     def has_tail(self):
         # type: () -> bool
         total_length = floor(self.end_marker - self.start_marker)
-        return total_length > self.length
+        return self.looping is False or total_length > self.length
 
     def post_record(self):
         # type: () -> None
@@ -88,8 +81,25 @@ class AudioClip(Clip):
         # type: () -> None
         self.system.click_vertical_zone(*PixelEnum.SAVE_SAMPLE.coordinates)
 
-    def post_record_clip_tail(self):
-        # type: (AudioClip) -> None
-        self.loop_start = self.song.signature_numerator  # offset one bar
-        self.move_playing_pos(self.song.signature_numerator)  # keep it sync with scene
-        self.clip_name.update()
+    def play_and_mute(self):
+        # type: () -> None
+        from protocol0.lom.Scene import Scene
+        if Scene.PLAYING_SCENE.index != self.index:
+            return
+        self.muted = False
+        seq = Sequence()
+        seq.add(wait=1)  # wait for unmute
+        seq.add(self.play)
+        seq.add(wait_bars=1)
+        seq.add(complete_on=self._playing_status_listener)  # clip has stopped
+        seq.add(self.mute_if_scene_changed)
+        seq.done()
+
+    def mute_if_scene_changed(self):
+        # type: () -> None
+        from protocol0.lom.Scene import Scene
+
+        if not self.song.is_playing:
+            self.muted = True
+        elif Scene.PLAYING_SCENE is None or Scene.PLAYING_SCENE.index != self.index:
+            self.muted = True

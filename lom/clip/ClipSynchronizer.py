@@ -4,6 +4,7 @@ from protocol0.enums.LogLevelEnum import LogLevelEnum
 from protocol0.lom.ObjectSynchronizer import ObjectSynchronizer
 from protocol0.lom.clip.AudioClip import AudioClip
 from protocol0.lom.clip.MidiClip import MidiClip
+from protocol0.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.utils.log import log_ableton
 
 if TYPE_CHECKING:
@@ -13,19 +14,23 @@ if TYPE_CHECKING:
 class ClipSynchronizer(ObjectSynchronizer):
     """ For ExternalSynthTrack """
 
-    def __init__(self, midi_clip, audio_clip, *a, **k):
-        # type: (MidiClip, AudioClip, Any, Any) -> None
-        properties = ["name", "muted"]
+    def __init__(self, midi_clip, audio_clip, no_muted, *a, **k):
+        # type: (MidiClip, AudioClip, bool, Any, Any) -> None
+        properties = ["name"]
+        if not no_muted:
+            properties.append("muted")
 
         if midi_clip.length == audio_clip.length and not midi_clip.track.abstract_track.record_clip_tails:
             properties += ["loop_start", "loop_end", "start_marker", "end_marker"]
 
         # check we are not in the clip tail case
-        if not audio_clip.is_recording and midi_clip.length != audio_clip.length and audio_clip.length != midi_clip.length + 1:
-            log_ableton(
-                "Inconsistent clip lengths for clip %s of track %s (audio is %s, midi is %s)" % (
-                    audio_clip, audio_clip.track.abstract_track, audio_clip.length, midi_clip.length),
-                level=LogLevelEnum.WARNING)
+        if not audio_clip.is_recording and audio_clip.bar_length != midi_clip.bar_length and audio_clip.bar_length != (
+                midi_clip.bar_length + 1):
+            if not isinstance(audio_clip.track, SimpleAudioTailTrack):
+                log_ableton(
+                    "Inconsistent clip lengths for clip %s of track %s (audio is %s, midi is %s)" % (
+                        audio_clip, audio_clip.track.abstract_track, audio_clip.bar_length, midi_clip.bar_length),
+                    level=LogLevelEnum.WARNING)
 
         super(ClipSynchronizer, self).__init__(
             midi_clip,

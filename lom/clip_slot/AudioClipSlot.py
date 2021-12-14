@@ -26,6 +26,20 @@ class AudioClipSlot(ClipSlot):
         seq.add(partial(super(AudioClipSlot, self).record, bar_length=bar_length, record_tail=record_tail))
         if record_tail:
             seq.add(wait=1)
-            seq.add(lambda: self.clip.post_record_clip_tail())
+            seq.add(self._post_record_clip_tail)
 
         return seq.done()
+
+    def _post_record_clip_tail(self):
+        # type: () -> None
+        clip_end = self.clip.end_marker - self.song.signature_numerator  # one bar tail
+
+        from protocol0.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
+        if isinstance(self.track, SimpleAudioTailTrack):
+            self.clip.start_marker = self.clip.loop_start = clip_end
+            self.clip.looping = False
+            self.clip.muted = True
+        else:
+            self.clip.loop_end = clip_end
+        # self.clip.move_playing_pos(self.song.signature_numerator)  # keep it sync with scene
+        self.clip.clip_name.update()

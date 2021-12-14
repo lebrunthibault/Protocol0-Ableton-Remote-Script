@@ -24,7 +24,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
             sequence,  # type: Sequence
             name,  # type: str
             wait,  # type: int
-            wait_beats,  # type: int
+            wait_beats,  # type: float
             wait_for_system,  # type: bool
             no_cancel,  # type: bool
             no_wait,  # type: bool
@@ -90,7 +90,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
             else:
                 output += " (and poll for %s)" % get_callable_repr(self._complete_on)
         elif self._wait_beats:
-            output += " (and wait_beats %s)" % self._wait_beats
+            output += " (and wait_beats %.2f)" % self._wait_beats
         elif self._wait_beats:
             output += " (no wait)"
         if self._do_if:

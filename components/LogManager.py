@@ -27,8 +27,6 @@ class LogManager(AbstractObject):
         self.parent.log_info("current_track.clips: %s" % self.song.current_track.clips)
         self.parent.log_info()
         self.parent.log_info("current_track.instrument: %s" % self.song.current_track.instrument)
-        self.parent.log_info()
-        self.parent.log_info("current_track.search_keywords: %s" % self.song.current_track.search_keywords)
         if self.song.current_track.instrument:
             self.parent.log_info()
             self.parent.log_info(
@@ -47,6 +45,9 @@ class LogManager(AbstractObject):
             self.parent.log_info(
                 "current_track.base_track.sub_tracks: %s" % self.song.current_track.base_track.sub_tracks
             )
+
+        self.parent.log_info()
+        self.parent.log_info("current_track.clips: %s" % self.song.current_track.clips)
         self.parent.log_info()
         self.parent.log_notice("********* SELECTED_TRACK *************")
         self.parent.log_info("selected_track: %s" % self.song.selected_track)
@@ -166,3 +167,7 @@ class LogManager(AbstractObject):
         if self.song.selected_clip:
             self.parent.log_info()
             self.parent.log_info("song.selected_clip.length: %s" % self.song.selected_clip.length)
+            self.parent.log_info()
+            self.parent.log_info("song.selected_clip.has_tail: %s" % self.song.selected_clip.has_tail)
+            self.parent.log_info("song.selected_clip.loop_start: %s" % self.song.selected_clip.loop_start)
+            self.parent.log_info("song.selected_clip.loop_end: %s" % self.song.selected_clip.loop_end)

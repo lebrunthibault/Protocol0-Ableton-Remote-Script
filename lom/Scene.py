@@ -1,12 +1,14 @@
-from typing import List, Any, Optional
+from typing import List, Any, Optional, cast
 
 import Live
 from _Framework.SubjectSlot import subject_slot_group
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.SceneActionMixin import SceneActionMixin
 from protocol0.lom.SceneName import SceneName
+from protocol0.lom.clip.AudioClip import AudioClip
 from protocol0.lom.clip.Clip import Clip
 from protocol0.lom.clip_slot.ClipSlot import ClipSlot
+from protocol0.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.utils.decorators import p0_subject_slot, throttle
 
@@ -49,7 +51,9 @@ class Scene(SceneActionMixin, AbstractObject):
     def _map_clips(self):
         # type: () -> None
         self.clips = [clip_slot.clip for clip_slot in self.clip_slots if
-                      clip_slot.has_clip and clip_slot.clip and not clip_slot.clip.muted]
+                      clip_slot.has_clip and clip_slot.clip]
+        self.audio_tail_clips = cast(List[AudioClip],
+                                     [clip for clip in self.clips if isinstance(clip.track, SimpleAudioTailTrack)])
         self.tracks = [clip.track for clip in self.clips]
         self._clips_length_listener.replace_subjects(self.clips)
 
@@ -58,26 +62,26 @@ class Scene(SceneActionMixin, AbstractObject):
         self.scene_name.update()
 
     @p0_subject_slot("is_triggered")
+    @throttle(wait_time=1)
     def _is_triggered_listener(self):
         # type: () -> None
-        if self.is_playing:
-            self.stop_previous_scene(immediate=True)
-            Scene.PLAYING_SCENE = self
+        if self.has_playing_clips and Scene.PLAYING_SCENE != self:
             # noinspection PyUnresolvedReferences
-            self.notify_play()
-            return
-        else:
-            self.stop_previous_scene()
+            self.parent.defer(self.notify_play)
+        if not self.has_playing_clips and Scene.PLAYING_SCENE != self.song.selected_scene:
+            Scene.PLAYING_SCENE = None
 
     @p0_subject_slot("play")
     def _play_listener(self):
         # type: () -> None
         """ implements a next scene follow action """
+        self._stop_previous_scene()
+        Scene.PLAYING_SCENE = self
+
         if Scene.LOOPING_SCENE and Scene.LOOPING_SCENE != self:
             previous_looping_scene = Scene.LOOPING_SCENE
             Scene.LOOPING_SCENE = None
-            self.parent.defer(previous_looping_scene.scene_name.update)
-        self.schedule_next_scene_launch()
+            previous_looping_scene.scene_name.update()
 
     @subject_slot_group("length")
     @throttle(wait_time=10)
@@ -95,7 +99,8 @@ class Scene(SceneActionMixin, AbstractObject):
     def _clip_slots_stopped_listener(self, _):
         # type: (ClipSlot) -> None
         """ Stopping all clips cancels the next scene launch"""
-        self.parent.sceneBeatScheduler.clear()
+        if not self.has_playing_clips:
+            self.parent.sceneBeatScheduler.clear()
 
     @property
     def index(self):
@@ -161,10 +166,17 @@ class Scene(SceneActionMixin, AbstractObject):
             return 0
 
     @property
+    def current_beat(self):
+        # type: () -> int
+        return int(self.playing_position % self.song.signature_numerator)
+
+    @property
     def current_bar(self):
         # type: () -> int
+        if self.length == 0:
+            return 0
         current_beat = self.playing_position % self.length
-        return (int(current_beat) / self.song.signature_numerator) + 1
+        return int(current_beat) / self.song.signature_numerator
 
     @property
     def looping(self):
@@ -172,11 +184,12 @@ class Scene(SceneActionMixin, AbstractObject):
         return self == Scene.LOOPING_SCENE
 
     @property
-    def is_playing(self):
+    def has_playing_clips(self):
         # type: () -> bool
         return any(clip.is_playing for clip in self.clips if clip)
 
     @property
     def longest_clip(self):
         # type: () -> Optional[Clip]
-        return None if not len(self.clips) else max(self.clips, key=lambda c: c.length if c else 0)
+        clips = [clip for clip in self.clips if not clip.is_recording]
+        return None if not len(clips) else max(clips, key=lambda c: c.length if c else 0)

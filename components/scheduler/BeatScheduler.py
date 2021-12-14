@@ -14,7 +14,7 @@ class BeatScheduler(AbstractObject, SyncedScheduler):
         super(BeatScheduler, self).__init__(unschedule_on_stop=True, *a, **k)
         self._exclusive = exclusive
 
-    def wait_bars(self, bar_length, callback, exact=False):
+    def wait_bars(self, bar_length, callback, exact=True):
         # type: (int, Callable, bool) -> None
         """
         if exact if False, wait_bars executes the callback on the last beat preceding the next <bar_length> bar
@@ -32,9 +32,10 @@ class BeatScheduler(AbstractObject, SyncedScheduler):
         # type: (float, Callable) -> None
         if self._exclusive:
             self.clear()  # allow only one action at a time
-        self.schedule_message("%d" % beats, callback)
-        # self.schedule_message("%d" % floor(beats - 0.1), callback)
+        self.schedule_message(beats, callback)
 
     def clear(self):
         # type: () -> None
+        # noinspection PyAttributeOutsideInit
         self._pending_action_lists = {}
+        self._pending_precise_action_list = {}

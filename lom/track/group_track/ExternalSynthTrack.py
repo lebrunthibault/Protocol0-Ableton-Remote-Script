@@ -10,8 +10,10 @@ from protocol0.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
 from protocol0.lom.device.Device import Device
 from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.lom.track.group_track.ExternalSynthTrackActionMixin import ExternalSynthTrackActionMixin
+from protocol0.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
+from protocol0.lom.track.simple_track.SimpleNoneTrack import SimpleNoneTrack
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import p0_subject_slot
@@ -22,23 +24,26 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     def __init__(self, base_group_track, *a, **k):
         # type: (SimpleTrack, Any, Any) -> None
         super(ExternalSynthTrack, self).__init__(base_group_track=base_group_track, *a, **k)
-        # noinspection PyTypeChecker
-        self.midi_track = base_group_track.sub_tracks[0]  # type: SimpleMidiTrack
-        # noinspection PyTypeChecker
-        self.audio_track = base_group_track.sub_tracks[1]  # type: SimpleAudioTrack
-        assert isinstance(self.midi_track, SimpleMidiTrack) and isinstance(self.audio_track, SimpleAudioTrack), (
-                "invalid external synth track %s" % self
-        )
+        self.midi_track = cast(SimpleMidiTrack, base_group_track.sub_tracks[0])
+        self.audio_track = cast(SimpleAudioTrack, base_group_track.sub_tracks[1])
+        if len(base_group_track.sub_tracks) > 2:
+            # noinspection PyTypeChecker
+            track = base_group_track.sub_tracks[2]
+            self.audio_tail_track = self.parent.songManager.generate_simple_track(track=track._track,
+                                                                                  cls=SimpleAudioTailTrack)
+        else:
+            self.audio_tail_track = SimpleNoneTrack()
 
         # sub tracks are now handled by self
         self.base_track.abstract_group_track = self
-        self.audio_track.abstract_group_track = self
-        self.midi_track.abstract_group_track = self
+        for sub_track in base_group_track.sub_tracks:
+            sub_track.abstract_group_track = self
 
         self._clip_slot_synchronizers = []  # type: List[ClipSlotSynchronizer]
 
         with self.parent.component_guard():
             self._midi_audio_synchronizer = ObjectSynchronizer(self.audio_track, self.midi_track, ["solo"])
+            self._midi_audio_tail_synchronizer = ObjectSynchronizer(self.audio_tail_track, self.midi_track, ["solo"])
             self._midi_solo_synchronizer = ObjectSynchronizer(self.base_track, self.midi_track, ["solo"])
 
         self._external_device = None  # type: Optional[Device]
@@ -49,7 +54,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         # noinspection PyUnresolvedReferences
         self.notify_instrument()
 
-        self.record_clip_tails = self.instrument.RECORD_CLIP_TAILS
+        self.record_clip_tails = self.instrument.RECORD_CLIP_TAILS and self.has_tail_track
 
     def post_init(self):
         # type: () -> None
@@ -69,9 +74,14 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
 
         return seq.done()
 
+    @property
+    def has_tail_track(self):
+        # type: () -> bool
+        return isinstance(self.audio_tail_track, SimpleAudioTailTrack)
+
     def _get_dummy_tracks(self):
         # type: () -> Iterator[SimpleTrack]
-        for track in self.base_track.sub_tracks[2:]:
+        for track in self.base_track.sub_tracks[3:]:
             yield track
 
     def link_clip_slots(self):
@@ -84,11 +94,19 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
 
         with self.parent.component_guard():
             self._clip_slot_synchronizers = [
-                ClipSlotSynchronizer(midi_clip_slot, audio_clip_slot)
-                for midi_clip_slot, audio_clip_slot in itertools.izip(  # type: ignore[attr-defined]
-                    self.midi_track.clip_slots, self.audio_track.clip_slots
-                )
-            ]
+                                                ClipSlotSynchronizer(midi_clip_slot, audio_clip_slot)
+                                                for midi_clip_slot, audio_clip_slot in
+                                                itertools.izip(  # type: ignore[attr-defined]
+                                                    self.midi_track.clip_slots, self.audio_track.clip_slots
+                                                )
+                                            ] + [
+                                                ClipSlotSynchronizer(midi_clip_slot, audio_tail_clip_slot,
+                                                                     no_muted=True)
+                                                for midi_clip_slot, audio_tail_clip_slot in
+                                                itertools.izip(  # type: ignore[attr-defined]
+                                                    self.midi_track.clip_slots, self.audio_tail_track.clip_slots
+                                                )
+                                            ]
 
     @p0_subject_slot("devices")
     def _devices_listener(self):
@@ -103,7 +121,8 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     @property
     def clips(self):
         # type: () -> List[Clip]
-        clip_slots = cast(List[ClipSlot], self.midi_track.clip_slots) + self.audio_track.clip_slots
+        clip_slots = cast(List[ClipSlot],
+                          self.midi_track.clip_slots) + self.audio_track.clip_slots + self.audio_tail_track.clip_slots
         return [clip_slot.clip for clip_slot in clip_slots if clip_slot.has_clip and clip_slot.clip]
 
     @property
@@ -119,7 +138,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     @is_armed.setter
     def is_armed(self, is_armed):
         # type: (bool) -> None
-        for track in self.active_tracks:
+        for track in self.sub_tracks:
             track.is_armed = is_armed
 
     @property
@@ -141,8 +160,8 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     def solo(self, solo):
         # type: (bool) -> None
         self.base_track.solo = solo
-        self.midi_track.solo = solo
-        self.audio_track.solo = solo
+        for sub_track in self.sub_tracks:
+            sub_track.solo = solo
 
     @property
     def next_empty_clip_slot_index(self):
@@ -176,6 +195,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         super(ExternalSynthTrack, self).disconnect()
         self._midi_solo_synchronizer.disconnect()
         self._midi_audio_synchronizer.disconnect()
+        self._midi_audio_tail_synchronizer.disconnect()
         for clip_slot_synchronizer in self._clip_slot_synchronizers:
             clip_slot_synchronizer.disconnect()
         self._clip_slot_synchronizers = []

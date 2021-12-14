@@ -4,7 +4,6 @@ from protocol0.lom.clip.MidiClip import MidiClip
 from protocol0.lom.clip_slot.ClipSlot import ClipSlot
 
 
-# noinspection PyPropertyAccess
 class MidiClipSlot(ClipSlot):
     CLIP_CLASS = MidiClip
 

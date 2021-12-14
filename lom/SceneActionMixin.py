@@ -14,24 +14,33 @@ class SceneActionMixin(object):
     def check_scene_length(self):
         # type: (Scene) -> None
         self.parent.defer(self.scene_name.update)
-        if self.is_playing:
-            self.schedule_next_scene_launch()
+
+    def on_beat_changed(self):
+        # type: (Scene) -> None
+        self.scene_name.update()
+        if self.current_bar == self.bar_length - 1 and self.current_beat == 2:
+            self._play_audio_tails()
+            self._schedule_next_scene_launch()
 
     @session_view_only
-    def schedule_next_scene_launch(self):
+    def _schedule_next_scene_launch(self):
         # type: (Scene) -> None
         if self not in self.song.scenes:
             return None
         if self.looping or self == self.song.scenes[-1] or self.song.scenes[self.index + 1].bar_length == 0:
+            self.fire()
+            seq = Sequence()
+            seq.add(complete_on=self._is_triggered_listener)
             # noinspection PyUnresolvedReferences
-            self.parent.sceneBeatScheduler.wait_beats(self.length - self.playing_position, self.song.notify_session_end)
+            seq.add(self.song.notify_session_end)
+            seq.done()
             return
         # this can happen when splitting a scene
         if self.length - self.playing_position <= 0:
             return
 
         next_scene = self.song.scenes[self.index + 1]
-        self.parent.sceneBeatScheduler.wait_beats(self.length - self.playing_position - 1, next_scene.fire)
+        next_scene.fire()
 
     def select(self):
         # type: (Scene) -> None
@@ -40,22 +49,39 @@ class SceneActionMixin(object):
     def fire(self):
         # type: (Scene) -> None
         if self._scene:
-            self.stop_previous_scene()
             self._scene.fire()
 
-    def stop_previous_scene(self, immediate=False):
-        # type: (Scene, bool) -> None
+    def _stop_previous_scene(self):
+        # type: (Scene) -> None
         from protocol0.lom.Scene import Scene
         previous_playing_scene = Scene.PLAYING_SCENE
-        if previous_playing_scene and previous_playing_scene != self:
-            self.parent.defer(previous_playing_scene.scene_name.update)
-            # manually stopping previous scene because we don't display clip slot stop buttons
-            for clip in previous_playing_scene.clips:
-                if clip.is_playing and clip.track not in self.tracks:
-                    if immediate:
-                        self.parent.defer(partial(clip.track.stop, immediate=True))
-                    else:
-                        clip.track.stop()
+        if previous_playing_scene is None or previous_playing_scene == self:
+            return
+
+        previous_playing_scene.scene_name.update()
+
+        # manually stopping previous scene because we don't display clip slot stop buttons
+        for clip in [clip for clip in previous_playing_scene.clips if clip.track not in self.tracks]:
+            if clip in previous_playing_scene.audio_tail_clips:
+                continue
+
+            clip.stop(immediate=True)
+
+    def _play_audio_tails(self):
+        # type: (Scene) -> None
+        # playing tails
+        from protocol0.lom.Scene import Scene
+        if Scene.PLAYING_SCENE:
+            for clip in Scene.PLAYING_SCENE.audio_tail_clips:
+                clip.play_and_mute()
+
+    def mute_audio_tails(self):
+        # type: (Scene) -> None
+        # playing tails
+        from protocol0.lom.Scene import Scene
+        if Scene.PLAYING_SCENE:
+            for clip in Scene.PLAYING_SCENE.audio_tail_clips:
+                clip.mute_if_scene_changed()
 
     def pre_fire(self):
         # type: (Scene) -> None
@@ -84,8 +110,8 @@ class SceneActionMixin(object):
                 previous_looping_scene.scene_name.update()
             self.parent.sceneBeatScheduler.clear()  # clearing scene scheduling
         else:  # solo inactivation
-            self.looping = False
-            self.schedule_next_scene_launch()  # restore previous behavior of follow action
+            Scene.LOOPING_SCENE = None
+
         self.scene_name.update()
 
     def split(self):

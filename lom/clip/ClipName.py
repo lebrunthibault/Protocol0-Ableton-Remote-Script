@@ -43,12 +43,7 @@ class ClipName(AbstractObjectName):
         if hasattr(self.clip, "warping") and not self.clip.warping:
             return "unwarped"
 
-        legend = self.parent.utilsManager.get_length_legend(length=self.clip.length)
-
-        if self.clip.has_tail:
-            legend += " tail"
-
-        return legend
+        return self.parent.utilsManager.get_length_legend(length=self.clip.length)
 
     def update(self, base_name=None):
         # type: (Optional[str]) -> None

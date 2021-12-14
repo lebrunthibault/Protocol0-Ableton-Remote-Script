@@ -18,6 +18,7 @@ from protocol0.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInst
 from protocol0.lom.track.simple_track.SimpleMasterTrack import SimpleMasterTrack
 from protocol0.lom.track.simple_track.SimpleReturnTrack import SimpleReturnTrack
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import handle_error, p0_subject_slot
 
 
@@ -40,10 +41,13 @@ class SongManager(AbstractControlSurfaceComponent):
             return None
 
         startup_track = self._get_startup_track()
-        if startup_track:
-            startup_track.select()
-            self.parent.wait(2, startup_track.arm)
         self._restore_selected_state()
+        if startup_track:
+            seq = Sequence()
+            seq.add(wait=2)
+            seq.add(startup_track.arm)
+            seq.add(self.parent.sessionManager.toggle_session_ring)
+            seq.done()
         self.parent.wait(2, self.song.reset)
 
     def _restore_selected_state(self):
@@ -86,8 +90,6 @@ class SongManager(AbstractControlSurfaceComponent):
         self.parent.sceneBeatScheduler.clear()
         self.tracks_listener()
         self.parent.defer(lambda: [scene.refresh_appearance() for scene in self.song.scenes])
-        if self.song.playing_scene:
-            self.song.playing_scene.schedule_next_scene_launch()
 
     @handle_error
     def on_selected_track_changed(self):
@@ -122,6 +124,11 @@ class SongManager(AbstractControlSurfaceComponent):
 
         self._generate_simple_tracks()
         self._generate_abstract_group_tracks()
+
+        # Store clip_slots mapping. track and scene changes trigger a song remapping so it's fine
+        self.song.live_clip_slot_to_clip_slot = {
+            clip_slot._clip_slot: clip_slot for track in self.song.simple_tracks for clip_slot in track.clip_slots
+        }
         self._generate_scenes()
 
         if has_added_tracks and self.song.selected_track:
@@ -157,11 +164,6 @@ class SongManager(AbstractControlSurfaceComponent):
         self.song.live_track_to_simple_track = collections.OrderedDict()
         for track in self._simple_tracks:
             self.song.live_track_to_simple_track[track._track] = track
-
-        # Store clip_slots mapping. track and scene changes trigger a song remapping so it's fine
-        self.song.live_clip_slot_to_clip_slot = {
-            clip_slot._clip_slot: clip_slot for track in self.song.simple_tracks for clip_slot in track.clip_slots
-        }
 
     def generate_simple_track(self, track, cls=None):
         # type: (Live.Track.Track, Optional[Type[SimpleTrack]]) -> SimpleTrack

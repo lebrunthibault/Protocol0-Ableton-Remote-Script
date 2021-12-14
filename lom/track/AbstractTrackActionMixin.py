@@ -46,6 +46,7 @@ class AbstractTrackActionMixin(object):
             self.is_folded = False
         if not self.is_armed:
             self.song.unfocus_all_tracks()
+        self.select()
         return self.arm_track()
 
     def arm_track(self):
@@ -116,7 +117,7 @@ class AbstractTrackActionMixin(object):
     @session_view_only
     def session_record(self, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
-        if self.is_record_triggered:
+        if self.is_record_triggered and Config.CURRENT_RECORD_TYPE is not None:
             return self._cancel_record()
         Config.CURRENT_RECORD_TYPE = record_type
 
@@ -225,8 +226,7 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> Sequence
         self.parent.clear_tasks()
         seq = Sequence()
-        if Config.CURRENT_RECORD_TYPE == RecordTypeEnum.NORMAL:
-            seq.add(partial(self.delete_playable_clip))
+        seq.add(partial(self.delete_playable_clip))
         seq.add(partial(self.stop, immediate=True))
         seq.add(partial(self.post_session_record, Config.CURRENT_RECORD_TYPE))
         seq.add(self.song.stop_playing)
@@ -260,6 +260,10 @@ class AbstractTrackActionMixin(object):
         from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
         if not isinstance(self, ExternalSynthTrack):
             self.parent.show_message("Recording clip tails is available only on an ExternalSynthTrack")
+            return None
+
+        if not self.has_tail_track:
+            self.parent.show_message("Please create a clip tail track")
             return None
 
         self.record_clip_tails = not self.record_clip_tails

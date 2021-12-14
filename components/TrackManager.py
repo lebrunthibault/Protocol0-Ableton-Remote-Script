@@ -2,7 +2,6 @@ from typing import Optional, Any, Type
 
 import Live
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.devices.AbstractExternalSynthTrackInstrument import AbstractExternalSynthTrackInstrument
 from protocol0.devices.InstrumentMinitaur import InstrumentMinitaur
 from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
@@ -14,7 +13,6 @@ from protocol0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import p0_subject_slot
-from protocol0.utils.utils import find_if
 
 
 class TrackManager(AbstractControlSurfaceComponent):
@@ -88,15 +86,14 @@ class TrackManager(AbstractControlSurfaceComponent):
         if not isinstance(midi_track, SimpleMidiTrack) or not isinstance(audio_track, SimpleAudioTrack):
             return None
 
+        for track in base_group_track.sub_tracks[2:]:
+            if not isinstance(track, SimpleAudioTrack):
+                return None
+
         if midi_track.name != SimpleMidiTrack.DEFAULT_NAME or audio_track.name != SimpleAudioTrack.DEFAULT_NAME:
             return None
 
-        if any(isinstance(dummy_track, SimpleMidiTrack) for dummy_track in base_group_track.sub_tracks[2:]):
-            return None
-
-        instrument = find_if(lambda i: isinstance(i, AbstractExternalSynthTrackInstrument), [midi_track.instrument,
-                                                                                             audio_track.instrument])  # type: Optional[AbstractExternalSynthTrackInstrument]
-        if not instrument:
+        if not midi_track.instrument:
             midi_track.instrument = InstrumentMinitaur(track=midi_track, device=None)
 
         if isinstance(base_group_track.abstract_group_track, ExternalSynthTrack):

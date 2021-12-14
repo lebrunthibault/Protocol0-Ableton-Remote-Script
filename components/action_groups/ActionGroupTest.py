@@ -23,7 +23,7 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        self.parent.log_dev(self.song.selected_track.volume)
+        pass
 
     def start_set_profiling(self):
         # type: () -> None

@@ -29,7 +29,7 @@ class TimeoutLimit(AbstractObject):
     def __call__(self, *a, **k):
         # type: (Any, Any) -> None
         if self.timed_out:
-            self.parent.log_error("Executed function after timeout: %s" % self)
+            self.parent.log_warning("Tried to execute function after timeout: %s" % self)
             return
 
         self.executed = True

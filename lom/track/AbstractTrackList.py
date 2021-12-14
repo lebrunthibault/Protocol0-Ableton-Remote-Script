@@ -1,12 +1,8 @@
-from functools import partial
-
 from typing import Any, Iterable, Optional
 
 from protocol0.enums.FoldActionEnum import FoldActionEnum
-from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.lom.track.AbstractTrack import AbstractTrack
 from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
-from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.UserMutableSequence import UserMutableSequence
 
 

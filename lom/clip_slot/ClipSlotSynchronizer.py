@@ -15,11 +15,12 @@ if TYPE_CHECKING:
 class ClipSlotSynchronizer(AbstractControlSurfaceComponent):
     """ For ExternalSynthTrack """
 
-    def __init__(self, midi_cs, audio_cs, *a, **k):
-        # type: (MidiClipSlot, AudioClipSlot, Any, Any) -> None
+    def __init__(self, midi_cs, audio_cs, no_muted=False, *a, **k):
+        # type: (MidiClipSlot, AudioClipSlot, bool, Any, Any) -> None
         super(ClipSlotSynchronizer, self).__init__(*a, **k)
         self.midi_cs = midi_cs
         self.audio_cs = audio_cs
+        self.no_muted = no_muted
 
         self._has_clip_listener.replace_subjects([midi_cs, audio_cs])
         self._is_triggered_listener.replace_subjects([midi_cs, audio_cs])
@@ -33,7 +34,8 @@ class ClipSlotSynchronizer(AbstractControlSurfaceComponent):
 
         if self.midi_cs.clip and self.audio_cs.clip:
             with self.parent.component_guard():
-                self._clip_synchronizer = ClipSynchronizer(midi_clip=self.midi_cs.clip, audio_clip=self.audio_cs.clip)
+                self._clip_synchronizer = ClipSynchronizer(midi_clip=self.midi_cs.clip, audio_clip=self.audio_cs.clip,
+                                                           no_muted=self.no_muted)
         else:
             self._clip_synchronizer = None
 

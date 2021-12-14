@@ -1,9 +1,9 @@
-from functools import partial
 from math import floor
 
 from typing import TYPE_CHECKING, Optional, Any, List
 
 import Live
+from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.clip.ClipActionMixin import ClipActionMixin
 from protocol0.lom.clip.ClipName import ClipName
@@ -34,12 +34,15 @@ class Clip(ClipActionMixin, AbstractObject):
         # listeners
         self._is_recording_listener.subject = self._clip
         self._playing_status_listener.subject = self._clip
-        self._looping_listener.subject = self._clip
         self._loop_start_listener.subject = self._clip
         self._loop_end_listener.subject = self._clip
 
         self.clip_name = ClipName(self)
         self.displayed_automated_parameter = None  # type: Optional[DeviceParameter]
+
+    def __eq__(self, clip):
+        # type: (object) -> bool
+        return isinstance(clip, Clip) and self._clip == clip._clip
 
     def _on_selected(self):
         # type: () -> None
@@ -61,15 +64,6 @@ class Clip(ClipActionMixin, AbstractObject):
         if not self.is_playing:
             # noinspection PyUnresolvedReferences
             self.clip_slot.notify_stopped()
-
-    @p0_subject_slot("looping")
-    def _looping_listener(self):
-        # type: () -> None
-        # enforce looping
-        if not self.looping:
-            self.parent.show_message("looping is mandatory")
-            self.parent.defer(partial(setattr, "looping", True))
-        self.looping = True
 
     @p0_subject_slot("loop_start")
     def _loop_start_listener(self):
@@ -113,7 +107,8 @@ class Clip(ClipActionMixin, AbstractObject):
         Casting to int to have whole beats.
         not using unwarped audio clips
         """
-        return int(floor(self._clip.length)) if self._clip and getattr(self, "warping", True) else 0
+        length = int(floor(self._clip.length)) if self._clip and getattr(self, "warping", True) else 0
+        return length
 
     @length.setter
     def length(self, length):
@@ -145,9 +140,8 @@ class Clip(ClipActionMixin, AbstractObject):
     @looping.setter
     def looping(self, looping):
         # type: (bool) -> None
-        assert looping, "looping cannot be disabled"
         if self._clip:
-            self._clip.looping = True
+            self._clip.looping = looping
 
     @property
     def loop_start(self):
@@ -224,6 +218,11 @@ class Clip(ClipActionMixin, AbstractObject):
     def is_recording(self):
         # type: () -> bool
         return self._clip and self._clip.is_recording
+
+    @property
+    def mute(self):
+        # type: () -> bool
+        raise Protocol0Error("Use clip.muted, not clip.mute")
 
     @property
     def muted(self):

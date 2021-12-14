@@ -9,7 +9,6 @@ from typing import Callable, Any, Optional
 # noinspection PyUnresolvedReferences
 from _Framework.ControlSurface import ControlSurface, get_control_surfaces
 from protocol0.components.AutomationTrackManager import AutomationTrackManager
-from protocol0.components.BeatScheduler import BeatScheduler
 from protocol0.components.BrowserManager import BrowserManager
 from protocol0.components.ClipManager import ClipManager
 from protocol0.components.DeviceManager import DeviceManager
@@ -41,7 +40,9 @@ from protocol0.components.api.ApiRoutesManager import ApiRoutesManager
 from protocol0.components.audit.AudioLatencyAnalyzer import AudioLatencyAnalyzer
 from protocol0.components.audit.SetFixerManager import SetFixerManager
 from protocol0.components.audit.SetUpgradeManager import SetUpgradeManager
+from protocol0.components.scheduler.BeatScheduler import BeatScheduler
 from protocol0.components.scheduler.FastScheduler import FastScheduler, SchedulerEvent
+from protocol0.components.scheduler.SceneScheduler import SceneScheduler
 from protocol0.components.vocal_command.KeywordSearchManager import KeywordSearchManager
 from protocol0.components.vocal_command.VocalCommandManager import VocalCommandManager
 from protocol0.config import Config
@@ -110,8 +111,8 @@ class Protocol0(ControlSurface):
             self.browserManager = BrowserManager()
             self.navigationManager = NavigationManager()
             self.presetManager = PresetManager()
-            self.globalBeatScheduler = BeatScheduler()
-            self.sceneBeatScheduler = BeatScheduler(exclusive=True)
+            self.beatScheduler = BeatScheduler()
+            self.sceneBeatScheduler = SceneScheduler(exclusive=True)
             self.utilsManager = UtilsManager()
             self.logManager = LogManager()
             self.validatorManager = ValidatorManager()
@@ -238,11 +239,11 @@ class Protocol0(ControlSurface):
 
     def wait_bars(self, bar_length, callback):
         # type: (int, Callable) -> None
-        self.globalBeatScheduler.wait_bars(bar_length, callback)
+        self.beatScheduler.wait_bars(bar_length, callback)
 
     def wait_beats(self, beats, callback):
         # type: (float, Callable) -> None
-        self.globalBeatScheduler.wait_beats(beats, callback)
+        self.beatScheduler.wait_beats(beats, callback)
 
     def wait(self, tick_count, callback):
         # type: (int, Callable) -> Optional[SchedulerEvent]
@@ -271,7 +272,7 @@ class Protocol0(ControlSurface):
         Sequence.RUNNING_SEQUENCES = []
         self._task_group.clear()
         self.fastScheduler.restart()
-        self.globalBeatScheduler.clear()
+        self.beatScheduler.clear()
 
     def disconnect(self):
         # type: () -> None
