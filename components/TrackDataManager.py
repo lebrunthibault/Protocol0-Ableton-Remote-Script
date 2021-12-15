@@ -32,5 +32,5 @@ class TrackDataManager(AbstractControlSurfaceComponent):
         # type: (AbstractTrack) -> None
         from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 
-        if isinstance(track, ExternalSynthTrack) and track.has_tail_track:
+        if isinstance(track, ExternalSynthTrack) and track.audio_tail_track:
             track.record_clip_tails = track.get_data(TrackDataEnum.RECORD_CLIP_TAILS.name, False)

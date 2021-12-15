@@ -4,6 +4,7 @@ from protocol0.config import Config
 from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.enums.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.enums.InputRoutingChannelEnum import InputRoutingChannelEnum
+from protocol0.enums.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.sequence.Sequence import Sequence
 from protocol0.validation.AbstractObjectValidator import AbstractObjectValidator
@@ -18,6 +19,8 @@ class ExternalSynthTrackValidator(AbstractObjectValidator, AggregateValidator):
     def __init__(self, track, *a, **k):
         # type: (ExternalSynthTrack, Any, Any) -> None
         self._track = track
+        from protocol0 import Protocol0
+
         validators = [
             CallbackValidator(track, lambda t: t.instrument is not None, None, "track should have an instrument"),
             SimpleTrackHasDeviceValidator(track.midi_track, track.instrument.EXTERNAL_INSTRUMENT_DEVICE),
@@ -26,6 +29,11 @@ class ExternalSynthTrackValidator(AbstractObjectValidator, AggregateValidator):
                               lambda t: t.get_device_from_enum(DeviceEnum.EXTERNAL_INSTRUMENT).delete),
             PropertyValueValidator(track.midi_track, "volume", Config.ZERO_DB_VOLUME),  # 0 db
             PropertyValueValidator(track.audio_track, "volume", Config.ZERO_DB_VOLUME),
+
+            # ROUTINGS
+
+            PropertyValueValidator(track.base_track, "output_routing_track", Protocol0.SELF.protocol0_song.master_track),
+            PropertyValueValidator(track.midi_track, "input_routing_type", InputRoutingTypeEnum.REV2_AUX),
             PropertyValueValidator(track.midi_track, "input_routing_channel", InputRoutingChannelEnum.CHANNEL_1),
             PropertyValueValidator(track.audio_track, "input_routing_track", track.midi_track),
             PropertyValueValidator(track.audio_track, "input_routing_channel",

@@ -55,6 +55,8 @@ class AbstractTrackName(AbstractObjectName):
     @property
     def _should_recompute_base_name(self):
         # type: () -> bool
+        from protocol0.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
+
         return (
                 not self.base_name
                 or self.base_name.lower() == self.track.DEFAULT_NAME.lower()
@@ -62,6 +64,7 @@ class AbstractTrackName(AbstractObjectName):
                         self.track.instrument
                         and not self.track.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.NAME
                 )
+                or isinstance(self.track, SimpleDummyTrack)
                 or self.base_name.lower() in self.instrument_names
         )
 

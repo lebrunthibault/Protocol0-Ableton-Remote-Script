@@ -65,10 +65,11 @@ class Scene(SceneActionMixin, AbstractObject):
     @throttle(wait_time=1)
     def _is_triggered_listener(self):
         # type: () -> None
-        if self.has_playing_clips and Scene.PLAYING_SCENE != self:
+        if self.has_playing_clips and self.song.playing_scene != self:
             # noinspection PyUnresolvedReferences
             self.parent.defer(self.notify_play)
-        if not self.has_playing_clips and Scene.PLAYING_SCENE != self.song.selected_scene:
+
+        if self.song.is_playing is False:
             Scene.PLAYING_SCENE = None
 
     @p0_subject_slot("play")
@@ -78,8 +79,8 @@ class Scene(SceneActionMixin, AbstractObject):
         self._stop_previous_scene()
         Scene.PLAYING_SCENE = self
 
-        if Scene.LOOPING_SCENE and Scene.LOOPING_SCENE != self:
-            previous_looping_scene = Scene.LOOPING_SCENE
+        if self.song.looping_scene and self.song.looping_scene != self:
+            previous_looping_scene = self.song.looping_scene
             Scene.LOOPING_SCENE = None
             previous_looping_scene.scene_name.update()
 
@@ -177,11 +178,6 @@ class Scene(SceneActionMixin, AbstractObject):
             return 0
         current_beat = self.playing_position % self.length
         return int(current_beat) / self.song.signature_numerator
-
-    @property
-    def looping(self):
-        # type: () -> bool
-        return self == Scene.LOOPING_SCENE
 
     @property
     def has_playing_clips(self):

@@ -9,6 +9,7 @@ from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.lom.device.Device import Device
 from protocol0.lom.device.PluginDevice import PluginDevice
 from protocol0.lom.device.RackDevice import RackDevice
+from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import prompt
@@ -26,6 +27,26 @@ class SetUpgradeManager(AbstractControlSurfaceComponent):
                 if any(enum.matches_device(device) for enum in DeviceEnum.updatable_devices()):
                     seq.add(partial(self.parent.deviceManager.update_audio_effect_rack, device=device))
 
+        return seq.done()
+
+    def update_external_synth_tracks_add_clip_tails(self):
+        # type: () -> Optional[Sequence]
+        tracks = []
+        for track in self.song.abstract_tracks:
+            if not isinstance(track, ExternalSynthTrack) or not track.instrument.RECORD_CLIP_TAILS:
+                continue
+            if not track.audio_tail_track:
+                tracks.append(track)
+
+        if not all(self.parent.validatorManager.validate_object(track) for track in tracks):
+            self.parent.log_error("invalid ExternalSynthTrack(s)")
+            return None
+
+        seq = Sequence()
+        seq.prompt("Add clip tail track to %s external synth tracks?" % len(tracks))
+        for track in tracks:
+            seq.add(track.create_tail_track)
+            seq.add(wait=10)
         return seq.done()
 
     def delete_unnecessary_devices(self, full_scan=False):

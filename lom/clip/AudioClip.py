@@ -83,8 +83,7 @@ class AudioClip(Clip):
 
     def play_and_mute(self):
         # type: () -> None
-        from protocol0.lom.Scene import Scene
-        if Scene.PLAYING_SCENE.index != self.index:
+        if self.song.playing_scene and self.song.playing_scene.index != self.index:
             return
         self.muted = False
         seq = Sequence()
@@ -97,9 +96,7 @@ class AudioClip(Clip):
 
     def mute_if_scene_changed(self):
         # type: () -> None
-        from protocol0.lom.Scene import Scene
-
         if not self.song.is_playing:
             self.muted = True
-        elif Scene.PLAYING_SCENE is None or Scene.PLAYING_SCENE.index != self.index:
+        elif self.song.playing_scene is None or self.song.playing_scene.index != self.index:
             self.muted = True

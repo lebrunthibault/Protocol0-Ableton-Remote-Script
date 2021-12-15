@@ -31,7 +31,10 @@ class ExternalSynthTrackActionMixin(object):
         if self.song.usamo_track:
             self.song.usamo_track.input_routing_track = self.midi_track
         seq = Sequence(silent=True)
-        seq.add([self.midi_track.arm_track, self.audio_track.arm_track, self.audio_tail_track.arm_track])
+        arm_step = [self.midi_track.arm_track, self.audio_track.arm_track]
+        if self.audio_tail_track:
+            arm_step.append(self.audio_tail_track.arm_track)
+        seq.add(arm_step)
         seq.add(partial(setattr, self, "has_monitor_in", False))
         return seq.done()
 
@@ -55,8 +58,12 @@ class ExternalSynthTrackActionMixin(object):
             self.audio_track.mute = False
             self.audio_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
 
-            self.audio_track.mute = self.audio_tail_track.mute = False
-            self.audio_track.current_monitoring_state = self.audio_tail_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
+            self.audio_track.mute = False
+            self.audio_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
+
+            if self.audio_tail_track:
+                self.audio_tail_track.mute = False
+                self.audio_tail_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
 
             if self._external_device:
                 self._external_device.mute = True
@@ -64,8 +71,12 @@ class ExternalSynthTrackActionMixin(object):
             self.midi_track.mute = False
             self.midi_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
 
-            self.audio_track.mute = self.audio_tail_track.mute = True
-            self.audio_track.current_monitoring_state = self.audio_tail_track.current_monitoring_state = CurrentMonitoringStateEnum.IN
+            self.audio_track.mute = True
+            self.audio_track.current_monitoring_state = CurrentMonitoringStateEnum.IN
+
+            if self.audio_tail_track:
+                self.audio_tail_track.mute = True
+                self.audio_tail_track.current_monitoring_state = CurrentMonitoringStateEnum.IN
 
             if self._external_device:
                 self._external_device.mute = False
@@ -100,7 +111,6 @@ class ExternalSynthTrackActionMixin(object):
             record_step.append(partial(audio_tail_clip_slot.record, bar_length=recording_bar_length))
             self._stop_midi_input_to_record_clip_tail(midi_clip_slot=midi_clip_slot, bar_length=recording_bar_length)
 
-        # self.parent.defer(partial(self.song._song.trigger_session_record, record_length=self.parent.utilsManager.get_beat_time(recording_bar_length)))
         seq.add(record_step)
 
         return seq.done()
@@ -138,7 +148,9 @@ class ExternalSynthTrackActionMixin(object):
                 seq.add(audio_tail_clip.delete)
 
             record_step.append(partial(audio_tail_clip_slot.record, bar_length=midi_clip.bar_length))
-            self._stop_midi_input_to_record_clip_tail(midi_clip_slot=midi_clip.clip_slot)
+            self._stop_midi_input_to_record_clip_tail(midi_clip_slot=midi_clip.clip_slot, bar_length=midi_clip.bar_length)
+
+        seq.add(record_step)
 
         # seq.add(partial(self._propagate_new_audio_clip, audio_clip_slot))
 
@@ -251,3 +263,12 @@ class ExternalSynthTrackActionMixin(object):
         seq.add(partial(setattr, self, "protected_mode_active", False))
         seq.add(partial(self.parent.show_message, "track protected mode disabled"))
         return seq.done()
+
+    def create_tail_track(self):
+        # type: (ExternalSynthTrack) -> Optional[Sequence]
+        if self.audio_tail_track:
+            return None
+
+        self.is_folded = False
+
+        return self.audio_track.duplicate()

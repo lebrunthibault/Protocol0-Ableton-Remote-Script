@@ -16,7 +16,6 @@ if TYPE_CHECKING:
 class AbstractInstrumentPresetsMixin(object):
     PRESETS_PATH = ""
     PRESET_EXTENSION = ""
-    NEEDS_ACTIVATION_FOR_PRESETS_CHANGE = False
     PRESET_DISPLAY_OPTION = PresetDisplayOptionEnum.NAME
     PROGRAM_CHANGE_OFFSET = 0  # if we store presets not at the beginning of the list
 
@@ -53,9 +52,6 @@ class AbstractInstrumentPresetsMixin(object):
         self.parent.navigationManager.show_device_view()
 
         seq = Sequence()
-        if self.NEEDS_ACTIVATION_FOR_PRESETS_CHANGE and self.needs_activation:
-            seq.add(self.activate_plugin_window)
-
         seq.add(partial(self._preset_list.scroll, go_next=go_next))
         seq.add(partial(self._sync_selected_preset))
         return seq.done()

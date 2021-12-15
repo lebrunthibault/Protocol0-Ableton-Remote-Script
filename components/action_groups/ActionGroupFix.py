@@ -22,8 +22,12 @@ class ActionGroupFix(AbstractActionGroup):
         self.add_encoder(identifier=3, name="Delete unnecessary devices",
                          on_press=self.parent.setUpgradeManager.delete_unnecessary_devices)
 
-        # CLR encoder
-        self.add_encoder(identifier=4, name="clear logs", on_press=self.parent.logManager.clear)
+        # TAIL encoder
+        self.add_encoder(identifier=4, name="add clip tail tracks",
+                         on_press=self.parent.setUpgradeManager.update_external_synth_tracks_add_clip_tails)
 
         # USAMo encoder
-        self.add_encoder(identifier=5, name="check usamo latency", on_press=self.parent.audioLatencyAnalyzer.test_audio_latency)
+        self.add_encoder(identifier=13, name="check usamo latency", on_press=self.parent.audioLatencyAnalyzer.test_audio_latency)
+
+        # CLR encoder
+        self.add_encoder(identifier=16, name="clear logs", on_press=self.parent.logManager.clear)

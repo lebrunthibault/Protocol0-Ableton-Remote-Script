@@ -46,7 +46,6 @@ class AbstractTrackActionMixin(object):
             self.is_folded = False
         if not self.is_armed:
             self.song.unfocus_all_tracks()
-        self.select()
         return self.arm_track()
 
     def arm_track(self):
@@ -262,8 +261,8 @@ class AbstractTrackActionMixin(object):
             self.parent.show_message("Recording clip tails is available only on an ExternalSynthTrack")
             return None
 
-        if not self.has_tail_track:
-            self.parent.show_message("Please create a clip tail track")
+        if not self.audio_tail_track:
+            self.system.show_warning("Please create a clip tail track")
             return None
 
         self.record_clip_tails = not self.record_clip_tails

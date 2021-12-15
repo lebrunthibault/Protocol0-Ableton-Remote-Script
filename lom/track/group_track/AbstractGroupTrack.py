@@ -60,6 +60,8 @@ class AbstractGroupTrack(AbstractTrack):
 
         self.dummy_tracks[:] = [self.parent.songManager.generate_simple_track(track=track._track, cls=SimpleDummyTrack)
                                 for track in dummy_tracks]
+        for dummy_track in self.dummy_tracks:
+            dummy_track.track_name._name_listener()
 
         self.parent.defer(self._link_dummy_tracks_routings)
 

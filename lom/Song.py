@@ -61,8 +61,8 @@ class Song(SongActionMixin, AbstractObject):
             # noinspection PyUnresolvedReferences
             self.notify_session_end()
             Config.CURRENT_RECORD_TYPE = None
-            if Scene.PLAYING_SCENE:
-                self.parent.defer(Scene.PLAYING_SCENE.mute_audio_tails)
+            if self.song.playing_scene:
+                self.parent.defer(self.song.playing_scene.mute_audio_tails)
             return
 
         # song started playing
@@ -178,7 +178,12 @@ class Song(SongActionMixin, AbstractObject):
     @property
     def playing_scene(self):
         # type: () -> Optional[Scene]
-        return find_if(lambda scene: scene.has_playing_clips, self.scenes)
+        return Scene.PLAYING_SCENE
+
+    @property
+    def looping_scene(self):
+        # type: () -> Optional[Scene]
+        return Scene.LOOPING_SCENE
 
     # CLIP SLOTS
 

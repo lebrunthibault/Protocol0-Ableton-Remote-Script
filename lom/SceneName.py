@@ -26,7 +26,7 @@ class SceneName(AbstractObjectName):
     def update(self, base_name=None):
         # type: (str) -> None
         self.base_name = base_name if base_name is not None else self.base_name
-        looping = "*" if self.scene.looping else ""
+        looping = "*" if self.scene == self.song.looping_scene else ""
         length_legend = self.parent.utilsManager.get_length_legend(length=self.scene.length)
 
         if self.scene.has_playing_clips:

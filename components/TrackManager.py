@@ -57,13 +57,12 @@ class TrackManager(AbstractControlSurfaceComponent):
 
     def instantiate_abstract_group_track(self, base_group_track):
         # type: (SimpleTrack) -> AbstractGroupTrack
-        previous_abstract_group_track = base_group_track.abstract_group_track
-
         ext_synth_track = self._make_external_synth_track(base_group_track=base_group_track)
 
         if ext_synth_track:
             abstract_group_track = ext_synth_track
         else:
+            previous_abstract_group_track = base_group_track.abstract_group_track
             if isinstance(previous_abstract_group_track, ExternalSynthTrack):
                 self.parent.log_error("An ExternalSynthTrack is changed to a SimpleGroupTrack")
             if isinstance(previous_abstract_group_track, SimpleGroupTrack):
@@ -96,7 +95,7 @@ class TrackManager(AbstractControlSurfaceComponent):
         if not midi_track.instrument:
             midi_track.instrument = InstrumentMinitaur(track=midi_track, device=None)
 
-        if isinstance(base_group_track.abstract_group_track, ExternalSynthTrack):
+        if isinstance(base_group_track.abstract_group_track, ExternalSynthTrack) and all(not isinstance(sub_track, SimpleAudioTrack) for sub_track in base_group_track.sub_tracks[2:]):
             # no track structure change, we can reuse the track
             return base_group_track.abstract_group_track
         else:

@@ -27,7 +27,7 @@ class SceneActionMixin(object):
         # type: (Scene) -> None
         if self not in self.song.scenes:
             return None
-        if self.looping or self == self.song.scenes[-1] or self.song.scenes[self.index + 1].bar_length == 0:
+        if self == self.song.looping_scene or self == self.song.scenes[-1] or self.song.scenes[self.index + 1].bar_length == 0:
             self.fire()
             seq = Sequence()
             seq.add(complete_on=self._is_triggered_listener)
@@ -53,8 +53,7 @@ class SceneActionMixin(object):
 
     def _stop_previous_scene(self):
         # type: (Scene) -> None
-        from protocol0.lom.Scene import Scene
-        previous_playing_scene = Scene.PLAYING_SCENE
+        previous_playing_scene = self.song.playing_scene
         if previous_playing_scene is None or previous_playing_scene == self:
             return
 
@@ -70,17 +69,15 @@ class SceneActionMixin(object):
     def _play_audio_tails(self):
         # type: (Scene) -> None
         # playing tails
-        from protocol0.lom.Scene import Scene
-        if Scene.PLAYING_SCENE:
-            for clip in Scene.PLAYING_SCENE.audio_tail_clips:
+        if self.song.playing_scene:
+            for clip in self.song.playing_scene.audio_tail_clips:
                 clip.play_and_mute()
 
     def mute_audio_tails(self):
         # type: (Scene) -> None
         # playing tails
-        from protocol0.lom.Scene import Scene
-        if Scene.PLAYING_SCENE:
-            for clip in Scene.PLAYING_SCENE.audio_tail_clips:
+        if self.song.playing_scene:
+            for clip in self.song.playing_scene.audio_tail_clips:
                 clip.mute_if_scene_changed()
 
     def pre_fire(self):
@@ -101,10 +98,10 @@ class SceneActionMixin(object):
         """ for a scene solo means looped """
         from protocol0.lom.Scene import Scene
 
-        if not self.looping:  # solo activation
-            previous_looping_scene = Scene.LOOPING_SCENE
+        if self != self.song.looping_scene:  # solo activation
+            previous_looping_scene = self.song.looping_scene
             Scene.LOOPING_SCENE = self
-            if Scene.PLAYING_SCENE != self:
+            if self != self.song.playing_scene:
                 self.fire()
             if previous_looping_scene:
                 previous_looping_scene.scene_name.update()

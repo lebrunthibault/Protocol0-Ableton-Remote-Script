@@ -47,8 +47,9 @@ class SessionManager(AbstractControlSurfaceComponent):
 
     def _hide_session_ring(self):
         # type: () -> None
-        self.session.set_show_highlight(False)
-        self.session.disconnect()
+        if self.session:
+            self.session.set_show_highlight(False)
+            self.session.disconnect()
 
     @property
     def session_track_offset(self):

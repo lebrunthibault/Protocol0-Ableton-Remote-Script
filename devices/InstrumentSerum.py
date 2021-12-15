@@ -10,7 +10,6 @@ class InstrumentSerum(AbstractInstrument):  # noqa
     DEVICE_NAME = "serum_x64"
     TRACK_COLOR = ColorEnum.SERUM
     PRESETS_PATH = "C:\\Users\\thiba\\OneDrive\\Documents\\Xfer\\Serum Presets\\System\\ProgramChanges.txt"
-    NEEDS_ACTIVATION_FOR_PRESETS_CHANGE = True
 
     def make_preset(self, index, name=None, *_, **__):
         # type: (AbstractInstrument, int, Optional[str], Any, Any) -> InstrumentPreset
