@@ -31,7 +31,13 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
             track = base_group_track.sub_tracks[2]
             self.audio_tail_track = self.parent.songManager.generate_simple_track(track=track._track,
                                                                                   cls=SimpleAudioTailTrack)
-            self.audio_tail_track.track_name._name_listener()
+
+        if self.midi_track.name != SimpleMidiTrack.DEFAULT_NAME:
+            self.midi_track.name = SimpleMidiTrack.DEFAULT_NAME
+        if self.audio_track.name != SimpleAudioTrack.DEFAULT_NAME:
+            self.audio_track.name = SimpleAudioTrack.DEFAULT_NAME
+        if self.audio_tail_track and self.audio_tail_track.name != SimpleAudioTailTrack.DEFAULT_NAME:
+            self.audio_tail_track.name = SimpleAudioTailTrack.DEFAULT_NAME
 
         # sub tracks are now handled by self
         self.base_track.abstract_group_track = self

@@ -126,8 +126,8 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
             func=nop,  # type: Union[Iterable, Callable, object]
             name=None,  # type: str
             wait=None,  # type: int
-            wait_beats=None,  # type: float
-            wait_bars=None,  # type: int
+            wait_beats=0,  # type: float
+            wait_bars=0,  # type: int
             wait_for_system=False,  # type: bool
             no_cancel=False,  # type: bool
             no_wait=False,  # type: bool
@@ -153,7 +153,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
         assert not isinstance(func, Sequence), "You passed a Sequence object instead of a Sequence factory to add"
 
         if wait_bars:
-            wait_beats = wait_bars * self.song.signature_numerator
+            wait_beats += wait_bars * self.song.signature_numerator
 
         self._steps.append(
             SequenceStep.make(

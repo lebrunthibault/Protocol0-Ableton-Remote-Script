@@ -32,7 +32,7 @@ class Clip(ClipActionMixin, AbstractObject):
         self.track = clip_slot.track  # type: SimpleTrack
 
         # listeners
-        self._is_recording_listener.subject = self._clip
+        self.is_recording_listener.subject = self._clip
         self._playing_status_listener.subject = self._clip
         self._loop_start_listener.subject = self._clip
         self._loop_end_listener.subject = self._clip
@@ -54,7 +54,7 @@ class Clip(ClipActionMixin, AbstractObject):
         return self.clip_slot.index
 
     @p0_subject_slot("is_recording")
-    def _is_recording_listener(self):
+    def is_recording_listener(self):
         # type: () -> None
         pass
 

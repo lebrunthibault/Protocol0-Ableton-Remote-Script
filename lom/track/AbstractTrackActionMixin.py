@@ -198,7 +198,8 @@ class AbstractTrackActionMixin(object):
 
         if record_type == RecordTypeEnum.AUDIO_ONLY:
             # pre launch scene
-            self.song.selected_scene.pre_fire()
+            # NB: activating this will break cancel record
+            # self.song.selected_scene.pre_fire()
             return None
 
         # solo for count in
@@ -239,8 +240,8 @@ class AbstractTrackActionMixin(object):
         self.solo = False
         self.song.session_automation_record = True
         Config.CURRENT_RECORD_TYPE = None
-        if self.song.selected_scene.length == 0:
-            self.parent.defer(self.song.selected_scene.delete)
+        # if self.song.selected_scene.length == 0:
+        #     self.parent.defer(self.song.selected_scene.delete)
         clip = self.base_track.playable_clip
         if clip:
             clip.select()

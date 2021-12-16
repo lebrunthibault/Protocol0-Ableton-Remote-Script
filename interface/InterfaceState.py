@@ -1,9 +1,8 @@
-from typing import Union, Optional
+from typing import Union
 
 from protocol0.components.SongDataManager import save_song_data, song_synchronizable_class
 from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.enums.BarLengthEnum import BarLengthEnum
-from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.utils.utils import scroll_values
 
 
@@ -12,8 +11,6 @@ class InterfaceState(object):
     SELECTED_RECORDING_BAR_LENGTH = BarLengthEnum.UNLIMITED
     SELECTED_DUPLICATE_SCENE_BAR_LENGTH = 4
     ABLETON_SESSION_TYPE = AbletonSessionTypeEnum.PROFILING
-
-    CURRENT_RECORD_TYPE = None  # type: Optional[RecordTypeEnum]
 
     FOCUS_PROPHET_ON_STARTUP = False
 

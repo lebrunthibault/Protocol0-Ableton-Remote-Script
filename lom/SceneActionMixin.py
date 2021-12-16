@@ -18,7 +18,11 @@ class SceneActionMixin(object):
     def on_beat_changed(self):
         # type: (Scene) -> None
         self.scene_name.update()
-        if self.current_bar == self.bar_length - 1 and self.current_beat == 2:
+        if self.is_recording:
+            return
+        # trigger on last beat
+        if self.current_bar == self.bar_length - 1 and self.current_beat == self.song.signature_numerator:
+            self.parent.log_dev("on_beat_changed")
             self._play_audio_tails()
             self._schedule_next_scene_launch()
 
@@ -40,6 +44,7 @@ class SceneActionMixin(object):
             return
 
         next_scene = self.song.scenes[self.index + 1]
+        self.parent.log_dev("next_scene: %s" % next_scene)
         next_scene.fire()
 
     def select(self):

@@ -4,7 +4,6 @@ import Live
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.devices.InstrumentMinitaur import InstrumentMinitaur
 from protocol0.errors.Protocol0Error import Protocol0Error
-from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.lom.track.group_track.SimpleGroupTrack import SimpleGroupTrack
 from protocol0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
@@ -56,13 +55,13 @@ class TrackManager(AbstractControlSurfaceComponent):
         return cls(track=track)
 
     def instantiate_abstract_group_track(self, base_group_track):
-        # type: (SimpleTrack) -> AbstractGroupTrack
+        # type: (SimpleTrack) -> None
         ext_synth_track = self._make_external_synth_track(base_group_track=base_group_track)
+        previous_abstract_group_track = base_group_track.abstract_group_track
 
         if ext_synth_track:
             abstract_group_track = ext_synth_track
         else:
-            previous_abstract_group_track = base_group_track.abstract_group_track
             if isinstance(previous_abstract_group_track, ExternalSynthTrack):
                 self.parent.log_error("An ExternalSynthTrack is changed to a SimpleGroupTrack")
             if isinstance(previous_abstract_group_track, SimpleGroupTrack):
@@ -70,9 +69,10 @@ class TrackManager(AbstractControlSurfaceComponent):
             else:
                 abstract_group_track = SimpleGroupTrack(base_group_track=base_group_track)
 
-        abstract_group_track.post_init()
+        if previous_abstract_group_track and previous_abstract_group_track != abstract_group_track:
+            previous_abstract_group_track.disconnect()
 
-        return abstract_group_track
+        abstract_group_track.post_init()
 
     def _make_external_synth_track(self, base_group_track):
         # type: (SimpleTrack) -> Optional[ExternalSynthTrack]
@@ -88,9 +88,6 @@ class TrackManager(AbstractControlSurfaceComponent):
         for track in base_group_track.sub_tracks[2:]:
             if not isinstance(track, SimpleAudioTrack):
                 return None
-
-        if midi_track.name != SimpleMidiTrack.DEFAULT_NAME or audio_track.name != SimpleAudioTrack.DEFAULT_NAME:
-            return None
 
         if not midi_track.instrument:
             midi_track.instrument = InstrumentMinitaur(track=midi_track, device=None)

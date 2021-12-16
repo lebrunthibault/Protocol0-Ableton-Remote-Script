@@ -3,7 +3,7 @@ from functools import partial
 from typing import Any, TYPE_CHECKING, Optional
 
 import Live
-from protocol0.enums.BarLengthEnum import BarLengthEnum
+from protocol0.components.UtilsManager import UtilsManager
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.clip.Clip import Clip
 from protocol0.sequence.Sequence import Sequence
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class ClipSlot(AbstractObject):
-    __subject_events__ = ("has_clip", "is_triggered", "stopped", "is_recording")
+    __subject_events__ = ("has_clip", "is_triggered", "stopped", "recording_ended")
 
     CLIP_CLASS = Clip
 
@@ -25,7 +25,6 @@ class ClipSlot(AbstractObject):
         self.track = track
         self._has_clip_listener.subject = self._clip_slot
         self._is_triggered_listener.subject = self._clip_slot
-        self._is_recording_listener.subject = self
         self.clip = None  # type: Optional[Clip]
         self._map_clip()
 
@@ -70,11 +69,6 @@ class ClipSlot(AbstractObject):
         # noinspection PyUnresolvedReferences
         self.notify_is_triggered()
 
-    @p0_subject_slot("is_recording")
-    def _is_recording_listener(self):
-        # type: () -> None
-        pass
-
     def refresh_appearance(self):
         # type: () -> None
         self.has_stop_button = False
@@ -117,37 +111,23 @@ class ClipSlot(AbstractObject):
 
     def record(self, bar_length, record_tail=False):
         # type: (int, bool) -> Optional[Sequence]
-        seq = Sequence()
-        if not self.has_stop_button:
-            self.has_stop_button = True
-            seq.add(wait=1)
+        self.parent.show_message(UtilsManager.get_recording_length_legend(bar_length, record_tail))
+        self.has_stop_button = True
 
-        if bar_length == 0:
-            self.parent.show_message("Starting recording of %s" % BarLengthEnum.UNLIMITED)
-            seq.add(self.fire, complete_on=self._has_clip_listener)
-        else:
-            bar_legend = "%d bars" % bar_length
-            if record_tail:
-                bar_length += 1
-                bar_legend += " (+tail)"
-            self.parent.show_message("Starting recording of %s" % bar_legend)
-            seq.add(wait=1)  # necessary so that _has_clip_listener triggers on has_clip == True
-            seq.add(
-                partial(self.fire, record_length=self.parent.utilsManager.get_beat_time(bar_length)),
-                complete_on=self._has_clip_listener,
-            )
+        seq = Sequence()
+        seq.add(wait=1)  # also necessary so that _has_clip_listener triggers on has_clip == True
+
+        if bar_length and record_tail:
+            bar_length += 1
+
+        record_length = self.parent.utilsManager.get_beat_time(bar_length)
+
+        seq.add(partial(self.fire, record_length=record_length), complete_on=self._has_clip_listener)
 
         # noinspection PyUnresolvedReferences
         seq.add(self.track.abstract_track.notify_is_recording)
 
-        seq.add(
-            complete_on=lambda: self.clip._is_recording_listener,
-            name="awaiting clip recording end",
-            no_timeout=True,
-        )
-
-        # noinspection PyUnresolvedReferences
-        seq.add(self.notify_is_recording)
+        seq.add(complete_on=lambda: self.clip.is_recording_listener, no_timeout=True)
 
         return seq.done()
 
@@ -173,7 +153,8 @@ class ClipSlot(AbstractObject):
             return None
 
         seq = Sequence()
-        seq.add(partial(self._clip_slot.create_clip, self.song.signature_numerator), complete_on=self._has_clip_listener)
+        seq.add(partial(self._clip_slot.create_clip, self.song.signature_numerator),
+                complete_on=self._has_clip_listener)
         seq.add(lambda: self.clip.clip_name._name_listener())
         return seq.done()
 

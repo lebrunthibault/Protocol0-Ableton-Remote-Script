@@ -26,11 +26,11 @@ class AudioClipSlot(ClipSlot):
         seq.add(partial(super(AudioClipSlot, self).record, bar_length=bar_length, record_tail=record_tail))
         if record_tail:
             seq.add(wait=1)
-            seq.add(self._post_record_clip_tail)
+            seq.add(self.post_record_clip_tail)
 
         return seq.done()
 
-    def _post_record_clip_tail(self):
+    def post_record_clip_tail(self):
         # type: () -> None
         clip_end = self.clip.end_marker - self.song.signature_numerator  # one bar tail
 
@@ -41,5 +41,5 @@ class AudioClipSlot(ClipSlot):
             self.clip.muted = True
         else:
             self.clip.loop_end = clip_end
-        # self.clip.move_playing_pos(self.song.signature_numerator)  # keep it sync with scene
+
         self.clip.clip_name.update()

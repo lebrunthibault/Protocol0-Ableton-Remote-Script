@@ -60,6 +60,7 @@ class Song(SongActionMixin, AbstractObject):
         if not self.is_playing:
             # noinspection PyUnresolvedReferences
             self.notify_session_end()
+            # if not self.song.selected_scene.is
             Config.CURRENT_RECORD_TYPE = None
             if self.song.playing_scene:
                 self.parent.defer(self.song.playing_scene.mute_audio_tails)

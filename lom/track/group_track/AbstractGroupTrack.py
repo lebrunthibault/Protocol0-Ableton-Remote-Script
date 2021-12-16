@@ -47,10 +47,17 @@ class AbstractGroupTrack(AbstractTrack):
 
     def _get_dummy_tracks(self):
         # type: () -> Iterator[SimpleTrack]
+        dummy_tracks = []
         for track in reversed(self.sub_tracks):
             if isinstance(track, SimpleAudioTrack) and not track.is_foldable and track.instrument is None:
-                yield track
-            return
+                dummy_tracks.append(track)
+
+            # checks automated tracks are all the same type to avoid triggering on wrong track layouts
+            main_tracks = self.sub_tracks[:self.sub_tracks.index(track)]
+            if len(main_tracks) == 0 or not all([isinstance(track, main_tracks[0].__class__) for track in main_tracks]):
+                return []
+
+        return reversed(dummy_tracks)
 
     def _map_dummy_tracks(self):
         # type: () -> None
