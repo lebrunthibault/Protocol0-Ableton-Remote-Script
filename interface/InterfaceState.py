@@ -3,6 +3,7 @@ from typing import Union
 from protocol0.components.SongDataManager import save_song_data, song_synchronizable_class
 from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.enums.BarLengthEnum import BarLengthEnum
+from protocol0.utils.log import log_ableton
 from protocol0.utils.utils import scroll_values
 
 
@@ -39,6 +40,7 @@ class InterfaceState(object):
             bar_lengths += [pow(2, power), -pow(2, power)]
             power += 1
         bar_lengths.sort()
+        log_ableton("bar_lengths: %s" % bar_lengths)
 
         from protocol0.lom.Scene import Scene
         Scene.SELECTED_DUPLICATE_SCENE_BAR_LENGTH = scroll_values(

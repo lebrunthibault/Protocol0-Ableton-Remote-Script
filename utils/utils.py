@@ -18,8 +18,11 @@ if TYPE_CHECKING:
 def scroll_values(items, selected_item, go_next, show_message=False, rotate=True):
     # type: (Iterator[T], Optional[T], bool, bool, bool) -> T
     items_list = list(items)  # type: List[T]
-    selected_item = selected_item or items_list[0]
+    if selected_item not in items_list:
+        selected_item = items_list[0]
+
     increment = 1 if go_next else -1
+
     if rotate is False:
         if (selected_item == items_list[0] and increment == -1) \
                 or (selected_item == items_list[-1] and increment == 1):

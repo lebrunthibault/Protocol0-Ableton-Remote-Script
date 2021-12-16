@@ -2,6 +2,8 @@ from functools import partial
 
 from typing import TYPE_CHECKING, Optional
 
+from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+from protocol0.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import session_view_only
 
@@ -21,8 +23,7 @@ class SceneActionMixin(object):
         if self.is_recording:
             return
         # trigger on last beat
-        if self.current_bar == self.bar_length - 1 and self.current_beat == self.song.signature_numerator:
-            self.parent.log_dev("on_beat_changed")
+        if self.current_bar == self.bar_length - 1 and self.current_beat == self.song.signature_numerator - 1:
             self._play_audio_tails()
             self._schedule_next_scene_launch()
 
@@ -117,17 +118,33 @@ class SceneActionMixin(object):
         self.scene_name.update()
 
     def split(self):
-        # type: (Scene) -> Optional[Sequence]
+        # type: (Scene) -> Sequence
         bar_length = self.SELECTED_DUPLICATE_SCENE_BAR_LENGTH
         seq = Sequence()
         seq.add(partial(self.song.duplicate_scene, self.index))
         seq.add(lambda: self.song.selected_scene._crop_clips_to_bar_length(bar_length=-bar_length))
         seq.add(partial(self._crop_clips_to_bar_length, bar_length=bar_length))
+        for track in self.song.abstract_tracks:
+            if isinstance(track, ExternalSynthTrack):
+                if track.audio_tail_track and track.audio_tail_track.clip_slots[self.index]:
+                    seq.add([track.audio_tail_track.clip_slots[self.index].clip.delete])
         return seq.done()
+
+    def adjust_duplicated_scene(self, bar_length):
+        # type: (Scene, int) -> None
+        self._crop_clips_to_bar_length(bar_length=-bar_length)
+        # clean tails
+        for track in self.song.abstract_tracks:
+            if isinstance(track, ExternalSynthTrack):
+                if track.audio_tail_track and track.audio_tail_track.clip_slots[self.index]:
+                    track.audio_tail_track.clip_slots[self.index].clip.delete()
 
     def _crop_clips_to_bar_length(self, bar_length):
         # type: (Scene, int) -> None
         for clip in self.clips:
+            if isinstance(clip.track, SimpleAudioTailTrack):
+                continue
+
             if 0 < bar_length < clip.bar_length:
                 clip.bar_length = min(clip.bar_length, bar_length)
             elif bar_length < 0 and clip.bar_length > abs(bar_length):
