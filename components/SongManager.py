@@ -6,7 +6,6 @@ import Live
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.components.SongDataManager import SongDataManager
 from protocol0.config import Config
-from protocol0.devices.InstrumentProphet import InstrumentProphet
 from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.enums.SongLoadStateEnum import SongLoadStateEnum
@@ -69,15 +68,15 @@ class SongManager(AbstractControlSurfaceComponent):
     def _get_startup_track(self):
         # type: () -> Optional[AbstractTrack]
         if InterfaceState.FOCUS_PROPHET_ON_STARTUP:
-            first_prophet_track = next(
-                (abt for abt in self.song.abstract_tracks if isinstance(abt.instrument, InstrumentProphet)), None)
+            first_prophet_track = next(self.song.prophet_tracks, None)
             if first_prophet_track:
                 return first_prophet_track
             else:
                 self.parent.show_message("Couldn't find prophet track")
 
-        if len(self.song.armed_tracks):
-            return self.song.armed_tracks[0]
+        armed_tracks = list(self.song.armed_tracks)
+        if len(armed_tracks):
+            return armed_tracks[0]
 
         if self.song.selected_track == self.song.master_track:
             return next(self.song.abstract_tracks)
@@ -169,7 +168,7 @@ class SongManager(AbstractControlSurfaceComponent):
         # type: (Live.Track.Track, Optional[Type[SimpleTrack]]) -> SimpleTrack
         simple_track = self.parent.trackManager.instantiate_simple_track(track=track, cls=cls)
         self._register_simple_track(simple_track)
-        simple_track.post_init()
+        simple_track.on_grid_change()
 
         if self.song.usamo_track is None:
             if simple_track.get_device_from_enum(DeviceEnum.USAMO):
@@ -189,31 +188,29 @@ class SongManager(AbstractControlSurfaceComponent):
         if simple_track._track in self.song.live_track_to_simple_track:
             previous_simple_track = self.song.live_track_to_simple_track[simple_track._track]
             if previous_simple_track != simple_track:
-                self._remove_outdated_simple_track(previous_simple_track)
+                self._replace_simple_track(previous_simple_track, simple_track)
+        else:
+            # normal registering
+            self._simple_tracks.append(simple_track)
 
-        # registering
-        self._simple_tracks.append(simple_track)
-        # case for dummy tracks
         self.song.live_track_to_simple_track[simple_track._track] = simple_track
 
-    def _remove_outdated_simple_track(self, previous_simple_track):
-        # type: (SimpleTrack) -> None
+    def _replace_simple_track(self, previous_simple_track, new_simple_track):
+        # type: (SimpleTrack, SimpleTrack) -> None
         """ disconnecting and removing from SimpleTrack group track and abstract_group_track """
         previous_simple_track.disconnect()
+        append_to_sub = self.parent.trackManager.append_to_sub_tracks
 
-        # group_track
-        group_track = previous_simple_track.group_track
-        if previous_simple_track in group_track.sub_tracks:
-            group_track.sub_tracks.remove(previous_simple_track)
+        if previous_simple_track.group_track:
+            append_to_sub(previous_simple_track.group_track, new_simple_track, previous_simple_track)
 
-        # abstract_group_track
-        abstract_group_track = group_track.abstract_group_track
-        if abstract_group_track and previous_simple_track in abstract_group_track.sub_tracks:
-            abstract_group_track.sub_tracks.remove(previous_simple_track)
+        if previous_simple_track.abstract_group_track:
+            append_to_sub(previous_simple_track.abstract_group_track, new_simple_track, previous_simple_track)
 
-        # deferred dummy track instantiation
+        # _simple_tracks list
         if previous_simple_track in self._simple_tracks:
-            self._simple_tracks.remove(previous_simple_track)
+            simple_tracks_index = self._simple_tracks.index(previous_simple_track)
+            self._simple_tracks[simple_tracks_index] = previous_simple_track
 
     def _generate_abstract_group_tracks(self):
         # type: () -> None

@@ -4,7 +4,6 @@ from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComp
 class PresetManager(AbstractControlSurfaceComponent):
     def refresh_presets(self):
         # type: () -> None
-        for instrument in [abstract_track.instrument for abstract_track in self.song.abstract_tracks if
-                           abstract_track.instrument]:
+        for instrument in filter(None, [abstract_track.instrument for abstract_track in self.song.abstract_tracks]):
             self.parent.log_info("syncing presets for %s" % instrument)
             instrument._preset_list.sync_presets()

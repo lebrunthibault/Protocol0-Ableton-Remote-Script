@@ -13,7 +13,7 @@ class SimpleInstrumentBusTrack(SimpleAudioTrack):
         if len(self.clips):
             self.clips[0].muted = True
 
-    def post_init(self):  # type: () -> None
-        super(SimpleInstrumentBusTrack, self).post_init()
+    def on_grid_change(self):  # type: () -> None
+        super(SimpleInstrumentBusTrack, self).on_grid_change()
         for clip in self.clips[1:]:
             self.parent.defer(clip.delete)

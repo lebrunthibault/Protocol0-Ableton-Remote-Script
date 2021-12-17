@@ -10,12 +10,12 @@ from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.utils import find_if
 
 
-class SimpleGroupTrack(AbstractGroupTrack):
+class NormalGroupTrack(AbstractGroupTrack):
     DEFAULT_NAME = "Group"
 
     def __init__(self, base_group_track, *a, **k):
         # type: (SimpleTrack, Any, Any) -> None
-        super(SimpleGroupTrack, self).__init__(base_group_track=base_group_track, *a, **k)
+        super(NormalGroupTrack, self).__init__(base_group_track=base_group_track, *a, **k)
         self.push2_selected_main_mode = Push2MainModeEnum.MIX
 
     def _added_track_init(self):
@@ -32,12 +32,9 @@ class SimpleGroupTrack(AbstractGroupTrack):
         else:
             return None
 
-    def arm_track(self):
-        # type: () -> Optional[Sequence]
-        self.is_folded = not self.is_folded
-        if not self.is_folded:
-            self.sub_tracks[0].select()
-        return None
+    def toggle_arm(self):
+        # type: (AbstractTrack) -> Optional[Sequence]
+        return self.toggle_fold()
 
     def session_record(self, *a, **k):
         # type: (Any, Any) -> None

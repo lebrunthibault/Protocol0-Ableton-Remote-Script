@@ -6,6 +6,7 @@ from typing import List, Optional, Dict, Any, Generator, Iterator
 import Live
 from protocol0.components.SongDataManager import save_song_data
 from protocol0.config import Config
+from protocol0.devices.InstrumentProphet import InstrumentProphet
 from protocol0.enums.SongLoadStateEnum import SongLoadStateEnum
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.Scene import Scene
@@ -15,8 +16,9 @@ from protocol0.lom.clip.Clip import Clip
 from protocol0.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.lom.device.DeviceParameter import DeviceParameter
 from protocol0.lom.track.AbstractTrack import AbstractTrack
-from protocol0.lom.track.AbstractTrackList import AbstractTrackList
-from protocol0.lom.track.group_track.SimpleGroupTrack import SimpleGroupTrack
+from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+from protocol0.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
+from protocol0.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import p0_subject_slot, debounce
@@ -116,15 +118,47 @@ class Song(SongActionMixin, AbstractObject):
     def abstract_tracks(self):
         # type: () -> Iterator[AbstractTrack]
         for track in self.simple_tracks:
-            if isinstance(track.abstract_track, SimpleGroupTrack) and track != track.abstract_track.base_track:
+            if isinstance(track, SimpleInstrumentBusTrack) or track == self.song.usamo_track:
+                continue
+            if isinstance(track.abstract_track, NormalGroupTrack) and track != track.abstract_track.base_track:
                 yield track
             elif track == track.abstract_track.base_track:
                 yield track.abstract_track
 
     @property
+    def external_synth_tracks(self):
+        # type: () -> Iterator[ExternalSynthTrack]
+        for track in self.abstract_tracks:
+            if isinstance(track, ExternalSynthTrack):
+                yield track
+
+    @property
+    def prophet_tracks(self):
+        # type: () -> Iterator[ExternalSynthTrack]
+        for track in self.external_synth_tracks:
+            if isinstance(track.instrument, InstrumentProphet):
+                yield track
+
+    @property
     def armed_tracks(self):
-        # type: () -> AbstractTrackList
-        return AbstractTrackList(track for track in self.abstract_tracks if track.is_armed)
+        # type: () -> Iterator[AbstractTrack]
+        return (track for track in self.abstract_tracks if track.is_armed)
+
+    @property
+    def visible_tracks(self):
+        # type: () -> Iterator[SimpleTrack]
+        return (t for t in self.simple_tracks if t.is_visible)
+
+    @property
+    def scrollable_tracks(self):
+        # type: () -> Iterator[AbstractTrack]
+        for track in self.abstract_tracks:
+            if not track.is_visible:
+                continue
+            # when a group track is unfolded, will directly select the first sub_trackB
+            if isinstance(track, NormalGroupTrack) and not track.is_folded:
+                continue
+            yield track
 
     @property
     def selected_track(self):
@@ -136,31 +170,6 @@ class Song(SongActionMixin, AbstractObject):
     def current_track(self):
         # type: () -> AbstractTrack
         return self.song.selected_track.abstract_track
-
-    @property
-    def armed_track_or_current_track(self):
-        # type: () -> AbstractTrack
-        if len(self.song.armed_tracks):
-            return self.song.armed_tracks[0]
-        else:
-            return self.current_track
-
-    @property
-    def visible_tracks(self):
-        # type: () -> Iterator[SimpleTrack]
-        return (t for t in self.simple_tracks if t.is_visible)
-
-    @property
-    def scrollable_tracks(self):
-        # type: () -> Iterator[AbstractTrack]
-        return (track for track in self.abstract_tracks if track.is_visible)
-
-    @property
-    def selected_abstract_tracks(self):
-        # type: () -> AbstractTrackList
-        return AbstractTrackList(
-            track.abstract_track for track in self.simple_tracks if track._track.is_part_of_selection
-        )
 
     # SCENES
 
@@ -343,6 +352,11 @@ class Song(SongActionMixin, AbstractObject):
     def session_automation_record(self, session_automation_record):
         # type: (bool) -> None
         self._song.session_automation_record = session_automation_record
+
+    def scrub_by(self, beat_offset):
+        # type: (float) -> None
+        if self._song:
+            self._song.scrub_by(beat_offset)
 
     def disconnect(self):
         # type: () -> None

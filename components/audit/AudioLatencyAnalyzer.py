@@ -4,7 +4,6 @@ from typing import Optional, cast
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.devices.InstrumentMinitaur import InstrumentMinitaur
-from protocol0.devices.InstrumentProphet import InstrumentProphet
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.lom.Note import Note
 from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
@@ -20,8 +19,7 @@ class AudioLatencyAnalyzer(AbstractControlSurfaceComponent):
 
         ext_synth_track = self.song.current_track
         if not isinstance(ext_synth_track, ExternalSynthTrack):
-            ext_synth_track = next(
-                (abt for abt in self.song.abstract_tracks if isinstance(abt.instrument, InstrumentProphet)), None)
+            ext_synth_track = next(self.song.prophet_tracks, None)
 
         if ext_synth_track is None:
             self.parent.show_message("Please select an ExternalSynthTrack")

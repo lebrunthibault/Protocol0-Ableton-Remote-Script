@@ -19,8 +19,8 @@ class TimeoutLimit(AbstractObject):
         self.executed = False
         self.timed_out = False
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self, **k):
+        # type: (Any) -> str
         output = "%s" % get_callable_repr(self.func)
         if self.awaited_listener:
             output += " (waiting for listener call %s)" % get_callable_repr(self.awaited_listener)

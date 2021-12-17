@@ -177,16 +177,14 @@ class Scene(SceneActionMixin, AbstractObject):
         # type: () -> int
         if self.length == 0:
             return 0
-        current_beat = self.playing_position % self.length
-        return int(current_beat) / self.song.signature_numerator
+        return int(self.playing_position / self.song.signature_numerator)
 
     @property
     def selected_bar(self):
         # type: () -> int
         if self.length == 0:
             return 0
-        current_beat = self.selected_playing_position % self.length
-        return int(current_beat) / self.song.signature_numerator
+        return int(self.selected_playing_position / self.song.signature_numerator)
 
     @property
     def has_playing_clips(self):

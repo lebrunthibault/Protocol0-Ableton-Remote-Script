@@ -37,8 +37,8 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
         else:
             self.name = "Unknown"
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self, **k):
+        # type: (Any) -> str
         return self.name
 
     @property

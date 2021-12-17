@@ -32,6 +32,18 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         self.unarm() if self.is_armed else self.arm()
 
+    def toggle_fold(self):
+        # type: (AbstractTrack) -> Optional[Sequence]
+        if self.is_foldable:
+            self.is_folded = not self.is_folded
+            if not self.is_folded:
+                return self.sub_tracks[0].select()
+            else:
+                return None
+
+        if self.group_track:
+            return self.group_track.toggle_fold()
+
     def toggle_solo(self):
         # type: () -> None
         self.solo = not self.solo  # type: ignore[has-type]

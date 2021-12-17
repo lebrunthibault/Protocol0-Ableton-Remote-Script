@@ -18,8 +18,9 @@ class ActionGroupSet(AbstractActionGroup):
                          on_press=lambda: self.song.selected_scene.split
                          )
 
-        # DATA encoder
-        self.add_encoder(identifier=4, name="clear song data", on_press=self.parent.songDataManager.clear)
+        # STATs encoder
+        self.add_encoder(identifier=4, name="display song stats",
+                         on_press=self.parent.songStatsManager.display_song_stats)
 
         # VELO encoder
         self.add_encoder(identifier=13, name="scale selected clip velocities",

@@ -52,11 +52,6 @@ class AbstractTrackList(UserMutableSequence):
             for abg in self.abstract_group_tracks:
                 abg.is_folded = False
 
-    def switch_monitoring(self):
-        # type: () -> None
-        for t in self._abstract_tracks:
-            t.switch_monitoring()
-
     def _get_fold_action(self):
         # type: () -> FoldActionEnum
         """ Depending on the tracks fold state we change folding strategy """

@@ -22,8 +22,8 @@ class InstrumentPresetList(AbstractObject):
         self._presets = None  # type: Optional[List[InstrumentPreset]]
         self._selected_preset = None  # type: Optional[InstrumentPreset]
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self, **k):
+        # type: (Any) -> str
         return "preset count: %d, selected preset: %s" % (len(self.presets), self.selected_preset)
 
     @property

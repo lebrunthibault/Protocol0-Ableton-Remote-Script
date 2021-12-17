@@ -15,8 +15,8 @@ class DeviceParameter(AbstractObject):
         self.track = self.device.track
         self._device_parameter = device_parameter  # type: Live.DeviceParameter.DeviceParameter
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self, **k):
+        # type: (Any) -> str
         return "%s: %s" % (self.name, self.value)
 
     @property

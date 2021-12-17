@@ -64,4 +64,5 @@ class SimpleDummyTrack(SimpleAudioTrack):
             # envelope.insert_step(0.5, 110, 110)
             envelope.insert_step(clip.loop_end, 0, 1)
         clip.show_envelope_parameter(dummy_rack_gain)
-        clip.play()
+        if self.song.is_playing:
+            clip.play()

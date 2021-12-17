@@ -4,8 +4,9 @@ import Live
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.devices.InstrumentMinitaur import InstrumentMinitaur
 from protocol0.errors.Protocol0Error import Protocol0Error
+from protocol0.lom.track.AbstractTrack import AbstractTrack
 from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
-from protocol0.lom.track.group_track.SimpleGroupTrack import SimpleGroupTrack
+from protocol0.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
 from protocol0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
 from protocol0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
@@ -63,16 +64,16 @@ class TrackManager(AbstractControlSurfaceComponent):
             abstract_group_track = ext_synth_track
         else:
             if isinstance(previous_abstract_group_track, ExternalSynthTrack):
-                self.parent.log_error("An ExternalSynthTrack is changed to a SimpleGroupTrack")
-            if isinstance(previous_abstract_group_track, SimpleGroupTrack):
+                self.parent.log_error("An ExternalSynthTrack is changed to a NormalGroupTrack")
+            if isinstance(previous_abstract_group_track, NormalGroupTrack):
                 abstract_group_track = previous_abstract_group_track
             else:
-                abstract_group_track = SimpleGroupTrack(base_group_track=base_group_track)
+                abstract_group_track = NormalGroupTrack(base_group_track=base_group_track)
 
         if previous_abstract_group_track and previous_abstract_group_track != abstract_group_track:
             previous_abstract_group_track.disconnect()
 
-        abstract_group_track.post_init()
+        abstract_group_track.on_grid_change()
 
     def _make_external_synth_track(self, base_group_track):
         # type: (SimpleTrack) -> Optional[ExternalSynthTrack]
@@ -92,15 +93,20 @@ class TrackManager(AbstractControlSurfaceComponent):
         if not midi_track.instrument:
             midi_track.instrument = InstrumentMinitaur(track=midi_track, device=None)
 
-        if isinstance(base_group_track.abstract_group_track, ExternalSynthTrack) and all(not isinstance(sub_track, SimpleAudioTrack) for sub_track in base_group_track.sub_tracks[2:]):
+        if isinstance(base_group_track.abstract_group_track, ExternalSynthTrack) and all(
+                not isinstance(sub_track, SimpleAudioTrack) for sub_track in base_group_track.sub_tracks[2:]):
             # no track structure change, we can reuse the track
             return base_group_track.abstract_group_track
         else:
             return ExternalSynthTrack(base_group_track=base_group_track)
 
-    def scroll_all_tracks_volume(self, go_next):
-        # type: (bool) -> None
-        for track in self.song.abstract_tracks:
-            if isinstance(track, SimpleGroupTrack):
-                continue
-            track.scroll_volume(go_next=go_next)
+    def append_to_sub_tracks(self, group_track, sub_track, previous_sub_track=None):
+        # type: (AbstractTrack, AbstractTrack, Optional[AbstractTrack]) -> None
+        if sub_track in group_track.sub_tracks:
+            return
+
+        if previous_sub_track is None or previous_sub_track not in group_track.sub_tracks:
+            group_track.sub_tracks.append(sub_track)
+        else:
+            sub_track_index = group_track.sub_tracks.index(previous_sub_track)
+            group_track.sub_tracks[sub_track_index] = sub_track

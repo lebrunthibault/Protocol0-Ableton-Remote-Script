@@ -75,8 +75,8 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
             self._wait = min(100, self._wait * 5)
             self._check_timeout *= 5
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self, **k):
+        # type: (Any) -> str
         output = self.name
         if self.wait_for_system:
             output += " (and wait for system)"

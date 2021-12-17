@@ -15,8 +15,8 @@ class SchedulerEvent(AbstractObject):
         self._ticks_left = tick_count
         self.name = get_callable_repr(self._callback)
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self, **k):
+        # type: (Any) -> str
         return "%s (%d / %d)" % (self.name, self._ticks_left, self._tick_count)
 
     @property

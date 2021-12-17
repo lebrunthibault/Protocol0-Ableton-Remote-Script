@@ -25,8 +25,8 @@ class UserMutableSequence(CollectionsMutableSequence, AbstractObject):
     base class for defining custom list classes
     """
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self, **k):
+        # type: (Any) -> str
         out = "P0 %s (%s)" % (self.__class__.__name__, len(self._list))
         return out
 

@@ -5,6 +5,7 @@ from _Framework.SubjectSlot import subject_slot_group
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.config import Config
 from protocol0.lom.track.AbstractTrack import AbstractTrack
+from protocol0.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
 from protocol0.utils.decorators import p0_subject_slot
 
 
@@ -53,3 +54,10 @@ class MixingManager(AbstractControlSurfaceComponent):
         if track.output_meter_level < Config.CLIPPING_TRACK_VOLUME:
             return
         self.parent.log_error("%s is clipping (%s)" % (track.name, track.output_meter_level))
+
+    def scroll_all_tracks_volume(self, go_next):
+        # type: (bool) -> None
+        for track in self.song.abstract_tracks:
+            if isinstance(track, NormalGroupTrack):
+                continue
+            track.scroll_volume(go_next=go_next)

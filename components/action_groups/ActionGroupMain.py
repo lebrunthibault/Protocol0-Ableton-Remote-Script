@@ -5,7 +5,6 @@ from typing import Any
 from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.interface.InterfaceState import InterfaceState
-from protocol0.lom.track.AbstractTrackList import AbstractTrackList
 
 
 class ActionGroupMain(AbstractActionGroup):
@@ -50,8 +49,7 @@ class ActionGroupMain(AbstractActionGroup):
             identifier=8,
             name="monitor",
             filter_active_tracks=True,
-            on_press=lambda: AbstractTrackList(self.song.armed_tracks,
-                                               self.song.selected_abstract_tracks).switch_monitoring)
+            on_press=lambda: self.song.current_track.switch_monitoring)
 
         # RECord encoder
         self.add_encoder(
@@ -77,7 +75,8 @@ class ActionGroupMain(AbstractActionGroup):
             name="track",
             filter_active_tracks=True,
             on_scroll=self.song.scroll_tracks,
-            on_press=lambda: self.song.current_track.toggle_arm
+            on_press=lambda: self.song.current_track.toggle_arm,
+            on_long_press=lambda: self.song.current_track.toggle_fold,
         )
 
         # INSTrument encoder

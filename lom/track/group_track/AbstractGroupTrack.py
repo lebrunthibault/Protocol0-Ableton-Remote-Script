@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, List, Iterator
+from typing import TYPE_CHECKING, Any, List, Iterator, Optional
 
 from protocol0.lom.clip.Clip import Clip
 from protocol0.lom.track.AbstractTrack import AbstractTrack
@@ -15,35 +15,31 @@ class AbstractGroupTrack(AbstractTrack):
         super(AbstractGroupTrack, self).__init__(track=base_group_track, *a, **k)
         base_group_track.abstract_group_track = self
         # filled when link_sub_tracks is called
-        self.sub_tracks = []  # type: List[AbstractTrack]
+        self.group_track = self.group_track  # type: Optional[AbstractGroupTrack]
+        self.sub_tracks = self.base_track.sub_tracks
+        # for now: List[SimpleTrack] but AbstractGroupTracks will register themselves on_grid_change
         self.dummy_tracks = []  # type: List[SimpleDummyTrack]
-        # for now: List[SimpleTrack] but AbstractGroupTracks will register themselves in post_init
 
-    def post_init(self):
+    def on_grid_change(self):
         # type: () -> None
-        self._link_group_track_and_subtracks()
+        self._link_to_group_track()
         self._map_dummy_tracks()
 
-    def _link_group_track_and_subtracks(self):
+    def _link_to_group_track(self):
         # type: () -> None
         """
-            NB : out of init because this needs to be done every rebuild
             2nd layer linking
+            Connect to the enclosing abg group track is any
         """
-        # only simple tracks non foldable at this point :
-        # leave room for AbstractGroupTracks to register on the sub_tracks list
-        self.sub_tracks[:] = self.base_track.sub_tracks
+        if self.base_track.group_track is None:
+            self.group_track = None
+            return
 
-        # connect to the enclosing group track is any
-        if self.base_track.group_track:
-            self.group_track = self.base_track.group_track.abstract_group_track
-            # creating the second layer relationship: abstract_group_tracks have List[AbstractTrack] as sub_tracks
-            if self.group_track:
-                self.group_track.sub_tracks.append(self)
-                if self.base_track in self.group_track.sub_tracks:
-                    self.group_track.sub_tracks.remove(self.base_track)
-                    # this is because we add first the dummy tracks and then previous abg register themselves
-                    self.group_track.sub_tracks.sort(key=lambda x: x.index)
+        # NB : self.group_track is necessarily not None here because a foldable track always has an abg
+        assert self.base_track.group_track.abstract_group_track
+        self.group_track = self.base_track.group_track.abstract_group_track
+        self.abstract_group_track = self.base_track.group_track.abstract_group_track
+        self.parent.trackManager.append_to_sub_tracks(self.group_track, self, self.base_track)
 
     def _get_dummy_tracks(self):
         # type: () -> Iterator[SimpleTrack]
@@ -68,6 +64,7 @@ class AbstractGroupTrack(AbstractTrack):
         self.dummy_tracks[:] = [self.parent.songManager.generate_simple_track(track=track._track, cls=SimpleDummyTrack)
                                 for track in dummy_tracks]
         for dummy_track in self.dummy_tracks:
+            dummy_track.abstract_group_track = self
             dummy_track.track_name._name_listener()
 
         self.parent.defer(self._link_dummy_tracks_routings)

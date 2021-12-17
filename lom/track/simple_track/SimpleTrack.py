@@ -31,6 +31,8 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
 
         # Note : SimpleTracks represent the first layer of abstraction and know nothing about
         # AbstractGroupTracks except with self.abstract_group_track which links both layers
+        # and is handled by the abg
+        self.group_track = self.group_track  # type: Optional[SimpleTrack]
         self.sub_tracks = []  # type: List[SimpleTrack]
 
         self.devices = []  # type: List[Device]
@@ -50,30 +52,24 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # type: () -> bool
         return self._track not in list(self.song._song.return_tracks) + [self.song._song.master_track]
 
-    def post_init(self):
+    def on_grid_change(self):
         # type: () -> None
-        """ NB : out of init because this needs to be done every rebuild """
+        """ NB : out of init because this needs to be done every grid change """
         self._link_to_group_track()
         self._map_clip_slots()
 
     def _link_to_group_track(self):
         # type: () -> None
-        """ 1st layer linking """
-        # register to the group track (SimpleTrack)
-        if self._track.group_track:
-            self.group_track = self.song.live_track_to_simple_track[
-                self._track.group_track
-            ]  # type: SimpleTrack
-            if self not in self.group_track.sub_tracks:
-                self.group_track.sub_tracks.append(self)
-            if self.is_foldable:
-                # abstract_group_track is then the 2nd layer
-                return
-            abstract_group_track = self.group_track.abstract_group_track
-            if abstract_group_track and self not in abstract_group_track.sub_tracks:
-                abstract_group_track.sub_tracks.append(self)
-            if abstract_group_track:
-                self.abstract_group_track = abstract_group_track
+        """
+            1st layer linking
+            Connect to the enclosing simple group track is any
+        """
+        if self._track.group_track is None:
+            self.group_track = None
+            return None
+
+        self.group_track = self.song.live_track_to_simple_track[self._track.group_track]
+        self.parent.trackManager.append_to_sub_tracks(self.group_track, self)
 
     def _map_clip_slots(self):
         # type: () -> None

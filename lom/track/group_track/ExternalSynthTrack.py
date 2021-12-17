@@ -32,12 +32,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
             self.audio_tail_track = self.parent.songManager.generate_simple_track(track=track._track,
                                                                                   cls=SimpleAudioTailTrack)
 
-        if self.midi_track.name != SimpleMidiTrack.DEFAULT_NAME:
-            self.midi_track.name = SimpleMidiTrack.DEFAULT_NAME
-        if self.audio_track.name != SimpleAudioTrack.DEFAULT_NAME:
-            self.audio_track.name = SimpleAudioTrack.DEFAULT_NAME
-        if self.audio_tail_track and self.audio_tail_track.name != SimpleAudioTailTrack.DEFAULT_NAME:
-            self.audio_tail_track.name = SimpleAudioTailTrack.DEFAULT_NAME
+        self.parent.defer(self._rename_tracks_to_default)
 
         # sub tracks are now handled by self
         self.base_track.abstract_group_track = self
@@ -63,12 +58,12 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self.notify_instrument()
 
         self.record_clip_tails = self.instrument.RECORD_CLIP_TAILS and self.audio_tail_track is not None
-
-    def post_init(self):
-        # type: () -> None
-        super(ExternalSynthTrack, self).post_init()
-        self.link_clip_slots()
         self.parent.trackDataManager.restore_data(self)
+
+    def on_grid_change(self):
+        # type: () -> None
+        super(ExternalSynthTrack, self).on_grid_change()
+        self.link_clip_slots()
 
     def _added_track_init(self):
         # type: () -> Sequence
@@ -84,9 +79,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
 
     def _get_dummy_tracks(self):
         # type: () -> Iterator[SimpleTrack]
-        main_tracks_length = 2
-        if self.audio_tail_track:
-            main_tracks_length += 1
+        main_tracks_length = 3 if self.audio_tail_track else 2
         for track in self.base_track.sub_tracks[main_tracks_length:]:
             yield track
 
@@ -115,6 +108,15 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
                         self.midi_track.clip_slots, self.audio_tail_track.clip_slots
                     )
                 ]
+
+    def _rename_tracks_to_default(self):
+        # type: () -> None
+        if self.midi_track.name != SimpleMidiTrack.DEFAULT_NAME:
+            self.midi_track.name = SimpleMidiTrack.DEFAULT_NAME
+        if self.audio_track.name != SimpleAudioTrack.DEFAULT_NAME:
+            self.audio_track.name = SimpleAudioTrack.DEFAULT_NAME
+        if self.audio_tail_track and self.audio_tail_track.name != SimpleAudioTailTrack.DEFAULT_NAME:
+            self.audio_tail_track.name = SimpleAudioTailTrack.DEFAULT_NAME
 
     @p0_subject_slot("devices")
     def _devices_listener(self):

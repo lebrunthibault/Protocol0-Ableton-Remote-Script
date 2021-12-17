@@ -1,6 +1,5 @@
 from protocol0.components.SongDataManager import SYNCHRONIZABLE_CLASSE_NAMES
 from protocol0.lom.AbstractObject import AbstractObject
-from protocol0.lom.Scene import Scene
 from protocol0.lom.device.PluginDevice import PluginDevice
 
 
@@ -52,6 +51,8 @@ class LogManager(AbstractObject):
         self.parent.log_notice("********* SELECTED_TRACK *************")
         self.parent.log_info("selected_track: %s" % self.song.selected_track)
         self.parent.log_info()
+        self.parent.log_info("selected_track.base_track: %s" % self.song.selected_track.base_track)
+        self.parent.log_info()
         self.parent.log_info("selected_track.group_track: %s" % self.song.selected_track.group_track)
         self.parent.log_info()
         if self.song.selected_track.group_track:
@@ -59,6 +60,8 @@ class LogManager(AbstractObject):
                 "selected_track.group_track.abstract_group_track: %s" % self.song.selected_track.group_track.abstract_group_track)
             self.parent.log_info()
         self.parent.log_info("selected_track.abstract_group_track: %s" % self.song.selected_track.abstract_group_track)
+        self.parent.log_info()
+        self.parent.log_info("selected_track.abstract_track: %s" % self.song.selected_track.abstract_track)
         self.parent.log_info()
         self.parent.log_info("selected_track.clip_slots: %s" % self.song.selected_track.clip_slots)
         self.parent.log_info()
@@ -140,8 +143,6 @@ class LogManager(AbstractObject):
         self.parent.log_info("simple_tracks : %s" % list(self.song.simple_tracks))
         self.parent.log_info()
         self.parent.log_info("abstract_tracks : %s" % list(self.song.abstract_tracks))
-        self.parent.log_info()
-        self.parent.log_info("selected_abstract_tracks : %s" % list(self.song.selected_abstract_tracks))
         self.parent.log_info()
         self.parent.log_info("visible_tracks : %s" % list(self.song.visible_tracks))
         self.parent.log_info()

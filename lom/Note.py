@@ -28,8 +28,8 @@ class Note(AbstractObject):
                 and self.muted == other.muted
         )
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self, **k):
+        # type: (Any) -> str
         return "{start:%.2f, duration:%.2f, pitch:%s, vel:%s, muted: %s}" % (
             self.start,
             self.duration,

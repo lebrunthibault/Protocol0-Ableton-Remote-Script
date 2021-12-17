@@ -41,6 +41,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self._track = track._track  # type: Live.Track.Track
         self.base_track = track  # type: SimpleTrack
         self.group_track = None  # type: Optional[AbstractTrack]
+        # NB : .group_track is simple for simple tracks and abg for abg tracks
         self.abstract_group_track = None  # type: Optional[AbstractGroupTrack]
         self.sub_tracks = []  # type: List[AbstractTrack]
 
@@ -61,6 +62,10 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # LISTENERS
         self._has_clip_listener.subject = self
         self._is_recording_listener.subject = self
+
+    def __repr__(self, **k):
+        # type: (Any) -> str
+        return super(AbstractTrack, self).__repr__(index=self.index + 1)
 
     def _added_track_init(self):
         # type: () -> Optional[Sequence]
@@ -94,7 +99,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # type: () -> AbstractTrack
         """
         For lone tracks, will return self
-        For group_tracks or sub_tracks of AbstractGroupTracks (except SimpleGroupTrack)
+        For group_tracks or sub_tracks of AbstractGroupTracks (except NormalGroupTrack)
         will return the AbstractGroupTrack
         """
         return self.abstract_group_track if self.abstract_group_track else self  # type: ignore

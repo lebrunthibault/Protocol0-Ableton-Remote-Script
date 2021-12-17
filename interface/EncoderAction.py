@@ -17,8 +17,8 @@ class EncoderAction(AbstractObject):
         self.func = func
         self.move_type = move_type
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self, **k):
+        # type: (Any) -> str
         move = self.move_type.name
         return "%s : %s" % (move, get_callable_repr(self.func))
 

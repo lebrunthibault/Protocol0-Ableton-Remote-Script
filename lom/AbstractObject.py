@@ -25,7 +25,7 @@ class AbstractObject(SlotManager, Subject):
         self._parent = parent  # type: Protocol0
         self.deleted = False
 
-    def __repr__(self):
+    def __repr__(self, index=None):
         # type: () -> str
         out = "P0 %s" % self.__class__.__name__
         if hasattr(self, "base_name") and self.base_name:
@@ -33,7 +33,8 @@ class AbstractObject(SlotManager, Subject):
         elif hasattr(self, "name"):
             out += ": %s" % self.name
         if hasattr(self, "index"):
-            out += " (%s)" % self.index
+            index = index if index is not None else self.index
+            out += " (%s)" % index
         if self.deleted:
             out += " - DELETED"
 

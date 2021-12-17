@@ -171,7 +171,6 @@ class ExternalSynthTrackActionMixin(object):
     def _stop_midi_input_to_record_clip_tail(self, midi_clip_slot, bar_length):
         # type: (ExternalSynthTrack, MidiClipSlot, int) -> Sequence
         """ Just before the very end of the midi clip we temporarily disable midi input and stop the midi clip """
-        self.parent.log_dev("stop midi input")
         seq = Sequence()
         if not midi_clip_slot.clip:
             seq.add(complete_on=midi_clip_slot._has_clip_listener)

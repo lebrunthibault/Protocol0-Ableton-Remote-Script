@@ -59,7 +59,6 @@ class AbstractTrackName(AbstractObjectName):
 
         return (
                 not self.base_name
-                or self.base_name.lower() == self.track.DEFAULT_NAME.lower()
                 or (
                         self.track.instrument
                         and not self.track.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.NAME
@@ -79,9 +78,9 @@ class AbstractTrackName(AbstractObjectName):
         if not self.track.abstract_group_track and name[0:1].islower():
             name = name.title()
 
-        from protocol0.lom.track.group_track.SimpleGroupTrack import SimpleGroupTrack
+        from protocol0.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
 
-        if isinstance(self.track, SimpleGroupTrack):
+        if isinstance(self.track, NormalGroupTrack):
             name += " (%d)" % len(self.track.sub_tracks)
 
         self.track.name = name

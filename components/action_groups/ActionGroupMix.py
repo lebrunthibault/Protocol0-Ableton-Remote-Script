@@ -13,4 +13,4 @@ class ActionGroupMix(AbstractActionGroup):
 
         # FIX encoder
         self.add_encoder(identifier=2, name="scroll all tracks volume",
-                         on_scroll=self.parent.trackManager.scroll_all_tracks_volume)
+                         on_scroll=self.parent.mixingManager.scroll_all_tracks_volume)

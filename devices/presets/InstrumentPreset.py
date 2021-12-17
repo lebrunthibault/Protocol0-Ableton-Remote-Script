@@ -20,8 +20,8 @@ class InstrumentPreset(AbstractObject):
         self.name = self._format_name(name)
         self.category = category.lower() if category else None
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self, **k):
+        # type: (Any) -> str
         name = "%s (%s)" % (self.name, self.index + 1)
         if self.category:
             name += "(%s)" % self.category

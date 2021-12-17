@@ -3,7 +3,6 @@ from math import floor
 
 from typing import TYPE_CHECKING, Optional
 
-from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import session_view_only
@@ -65,7 +64,6 @@ class SceneActionMixin(object):
         previous_playing_scene = self.song.playing_scene
         if previous_playing_scene is None or previous_playing_scene == self:
             return
-        self.parent.log_dev("stopping previous_playing_scene: %s" % previous_playing_scene)
 
         # manually stopping previous scene because we don't display clip slot stop buttons
         for clip in [clip for clip in previous_playing_scene.clips if clip.track not in self.tracks]:
@@ -128,20 +126,18 @@ class SceneActionMixin(object):
         seq.add(partial(self.song.duplicate_scene, self.index))
         seq.add(lambda: self.song.selected_scene._crop_clips_to_bar_length(bar_length=-bar_length))
         seq.add(partial(self._crop_clips_to_bar_length, bar_length=bar_length))
-        for track in self.song.abstract_tracks:
-            if isinstance(track, ExternalSynthTrack):
-                if track.audio_tail_track and track.audio_tail_track.clip_slots[self.index]:
-                    seq.add([track.audio_tail_track.clip_slots[self.index].clip.delete])
+        for track in self.song.external_synth_tracks:
+            if track.audio_tail_track and track.audio_tail_track.clip_slots[self.index]:
+                seq.add([track.audio_tail_track.clip_slots[self.index].clip.delete])
         return seq.done()
 
     def adjust_duplicated_scene(self, bar_length):
         # type: (Scene, int) -> None
         self._crop_clips_to_bar_length(bar_length=-bar_length)
         # clean tails
-        for track in self.song.abstract_tracks:
-            if isinstance(track, ExternalSynthTrack):
-                if track.audio_tail_track and track.audio_tail_track.clip_slots[self.index]:
-                    track.audio_tail_track.clip_slots[self.index].clip.delete()
+        for track in self.song.external_synth_tracks:
+            if track.audio_tail_track and track.audio_tail_track.clip_slots[self.index]:
+                track.audio_tail_track.clip_slots[self.index].clip.delete()
 
     def _crop_clips_to_bar_length(self, bar_length):
         # type: (Scene, int) -> None
@@ -174,7 +170,4 @@ class SceneActionMixin(object):
         # type: (Scene, float) -> None
         playing_position = self.playing_position if self.has_playing_clips else self.selected_playing_position
         beat_offset = next_position - playing_position
-
-        for clip in self.clips:
-            if clip not in self.audio_tail_clips:
-                clip.move_playing_pos(beat_offset)
+        self.song.scrub_by(beat_offset)

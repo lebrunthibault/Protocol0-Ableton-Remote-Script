@@ -40,6 +40,7 @@ from protocol0.components.api.ApiRoutesManager import ApiRoutesManager
 from protocol0.components.audit.AudioLatencyAnalyzer import AudioLatencyAnalyzer
 from protocol0.components.audit.SetFixerManager import SetFixerManager
 from protocol0.components.audit.SetUpgradeManager import SetUpgradeManager
+from protocol0.components.audit.SongStatsManager import SongStatsManager
 from protocol0.components.scheduler.BeatScheduler import BeatScheduler
 from protocol0.components.scheduler.FastScheduler import FastScheduler, SchedulerEvent
 from protocol0.components.scheduler.SceneScheduler import SceneScheduler
@@ -106,6 +107,7 @@ class Protocol0(ControlSurface):
             self.quantizationManager = QuantizationManager()
             self.setFixerManager = SetFixerManager()
             self.setUpgradeManager = SetUpgradeManager()
+            self.songStatsManager = SongStatsManager()
             self.audioLatencyAnalyzer = AudioLatencyAnalyzer()
             self.clipManager = ClipManager()
             self.browserManager = BrowserManager()
