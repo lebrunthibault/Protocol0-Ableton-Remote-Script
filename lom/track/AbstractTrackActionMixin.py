@@ -61,8 +61,9 @@ class AbstractTrackActionMixin(object):
         return self.arm_track()
 
     def arm_track(self):
-        # type: () -> Optional[Sequence]
-        raise NotImplementedError()
+        # type: (AbstractTrack) -> None
+        self.parent.log_warning("Tried arming unarmable %s" % self)
+        return None
 
     def unarm(self):
         # type: (AbstractTrack) -> None

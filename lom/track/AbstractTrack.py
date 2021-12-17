@@ -77,6 +77,14 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         seq.add([clip.delete for clip in self.clips])
         return seq.done()
 
+    def on_tracks_change(self):
+        # type: () -> None
+        pass
+
+    def on_scenes_change(self):
+        # type: () -> None
+        pass
+
     @p0_subject_slot("has_clip")
     def _has_clip_listener(self):
         # type: () -> None

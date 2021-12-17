@@ -18,7 +18,6 @@ class Push2Manager(AbstractControlSurfaceComponent):
         self.push2 = None  # type: Optional[Push2]
         self.update_session_ring = True
         self.update_selected_modes = True
-        self._selected_track_listener.subject = self.parent.songManager
 
     def connect_push2(self, log=False):
         # type: (bool) -> None
@@ -63,9 +62,9 @@ class Push2Manager(AbstractControlSurfaceComponent):
         # type: (Any, Any, Any) -> None
         pass
 
-    @p0_subject_slot("selected_track")
     def _selected_track_listener(self):
         # type: () -> None
+        # NB :  listen to this
         # if self.parent.sessionManager.session:
         #     self._update_session_ring()
         self._update_selected_modes()

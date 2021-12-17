@@ -248,7 +248,6 @@ class ExternalSynthTrackActionMixin(object):
             self.parent.navigationManager.focus_main()
         else:
             audio_clip.clip_name.update(base_name=midi_clip.clip_name.base_name)
-            self.link_clip_slots()
 
     def post_arrangement_record(self):
         # type: (ExternalSynthTrack) -> None

@@ -52,10 +52,12 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # type: () -> bool
         return self._track not in list(self.song._song.return_tracks) + [self.song._song.master_track]
 
-    def on_grid_change(self):
+    def on_tracks_change(self):
         # type: () -> None
-        """ NB : out of init because this needs to be done every grid change """
         self._link_to_group_track()
+
+    def on_scenes_change(self):
+        # type: () -> None
         self._map_clip_slots()
 
     def _link_to_group_track(self):
@@ -266,6 +268,8 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
 
     def disconnect(self):
         # type: () -> None
+        self.parent.log_dev("disconnection %s" % self)
+        return
         super(SimpleTrack, self).disconnect()
         for device in self.devices:
             device.disconnect()

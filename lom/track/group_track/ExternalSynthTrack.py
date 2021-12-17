@@ -29,7 +29,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         if len(base_group_track.sub_tracks) > 2 and len(base_group_track.sub_tracks[2].devices) == 0:
             # noinspection PyTypeChecker
             track = base_group_track.sub_tracks[2]
-            self.audio_tail_track = self.parent.songManager.generate_simple_track(track=track._track,
+            self.audio_tail_track = self.parent.songTracksManager.generate_simple_track(track=track._track,
                                                                                   cls=SimpleAudioTailTrack)
 
         self.parent.defer(self._rename_tracks_to_default)
@@ -40,6 +40,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
             sub_track.abstract_group_track = self
 
         self._clip_slot_synchronizers = []  # type: List[ClipSlotSynchronizer]
+        self._link_clip_slots()
 
         with self.parent.component_guard():
             self._midi_audio_synchronizer = ObjectSynchronizer(self.audio_track, self.midi_track, ["solo"])
@@ -60,11 +61,6 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self.record_clip_tails = self.instrument.RECORD_CLIP_TAILS and self.audio_tail_track is not None
         self.parent.trackDataManager.restore_data(self)
 
-    def on_grid_change(self):
-        # type: () -> None
-        super(ExternalSynthTrack, self).on_grid_change()
-        self.link_clip_slots()
-
     def _added_track_init(self):
         # type: () -> Sequence
         seq = Sequence()
@@ -75,7 +71,14 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
             seq.prompt("Clear %s effects ?" % len(self.base_track.devices))
             seq.add([device.delete for device in self.base_track.devices])
 
+        for dummy_track in self.dummy_tracks:
+            seq.add([clip.delete for clip in dummy_track.clips])
+
         return seq.done()
+
+    def on_scenes_change(self):
+        # type: () -> None
+        self._link_clip_slots()
 
     def _get_dummy_tracks(self):
         # type: () -> Iterator[SimpleTrack]
@@ -83,7 +86,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         for track in self.base_track.sub_tracks[main_tracks_length:]:
             yield track
 
-    def link_clip_slots(self):
+    def _link_clip_slots(self):
         # type: () -> None
         if len(self._clip_slot_synchronizers) == len(self.midi_track.clip_slots):
             return

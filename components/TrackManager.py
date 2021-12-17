@@ -1,4 +1,4 @@
-from typing import Optional, Any, Type
+from typing import Optional, Type
 
 import Live
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
@@ -12,17 +12,10 @@ from protocol0.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInst
 from protocol0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.decorators import p0_subject_slot
 
 
 class TrackManager(AbstractControlSurfaceComponent):
-    def __init__(self, *a, **k):
-        # type: (Any, Any) -> None
-        super(TrackManager, self).__init__(*a, **k)
-        self._added_track_listener.subject = self.parent.songManager
-
-    @p0_subject_slot("added_track")
-    def _added_track_listener(self):
+    def on_added_track(self):
         # type: () -> Optional[Sequence]
         if not self.song.selected_track.IS_ACTIVE:
             return None
@@ -73,7 +66,7 @@ class TrackManager(AbstractControlSurfaceComponent):
         if previous_abstract_group_track and previous_abstract_group_track != abstract_group_track:
             previous_abstract_group_track.disconnect()
 
-        abstract_group_track.on_grid_change()
+        abstract_group_track.on_tracks_change()
 
     def _make_external_synth_track(self, base_group_track):
         # type: (SimpleTrack) -> Optional[ExternalSynthTrack]

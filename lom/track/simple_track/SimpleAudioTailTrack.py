@@ -10,4 +10,4 @@ class SimpleAudioTailTrack(SimpleAudioTrack):
         # type: () -> None
         super(SimpleAudioTailTrack, self)._devices_listener()
         if len(self.devices):
-            self.parent.songManager.tracks_listener()
+            self.parent.log_error("A tail track should not have devices")

@@ -1,4 +1,5 @@
 import collections
+import datetime
 import json
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
@@ -14,7 +15,7 @@ class SongStatsManager(AbstractControlSurfaceComponent):
     def display_song_stats(self):
         # type: () -> None
         stats = self._get_stats()
-        # self.parent.logManager.clear()
+        self.parent.logManager.clear()
         self.parent.log_info(json.dumps(stats, indent=4))
 
     def _get_stats(self):
@@ -25,7 +26,11 @@ class SongStatsManager(AbstractControlSurfaceComponent):
                                 isinstance(clip, AudioClip) and clip.track.__class__ not in
                                 (SimpleInstrumentBusTrack, SimpleAudioTailTrack, SimpleDummyTrack)]
 
-        self.parent.log_dev("audio_recorded_clips: %s" % audio_recorded_clips)
+        beat_duration = float(60) / self.song.tempo
+        recorded_audio_length = sum([clip.length for clip in audio_recorded_clips])
+        recorded_audio_duration = recorded_audio_length * beat_duration
+        song_duration = sum([scene.length for scene in self.song.scenes]) * beat_duration
+
         abstract_clip_count = 0
         for track in self.song.abstract_tracks:
             if isinstance(track, ExternalSynthTrack):
@@ -43,5 +48,7 @@ class SongStatsManager(AbstractControlSurfaceComponent):
             [track for track in self.song.abstract_tracks if not isinstance(track, NormalGroupTrack)])
         stats["extSynthTrackCount"] = len(list(self.song.external_synth_tracks))
         stats["devicesCount"] = sum([len(track.devices) for track in self.song.simple_tracks])
+        stats["recordedAudioDuration"] = str(datetime.timedelta(seconds=round(recorded_audio_duration)))
+        stats["sessionSongDuration"] = str(datetime.timedelta(seconds=round(song_duration)))
 
         return stats

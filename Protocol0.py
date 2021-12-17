@@ -41,6 +41,8 @@ from protocol0.components.audit.AudioLatencyAnalyzer import AudioLatencyAnalyzer
 from protocol0.components.audit.SetFixerManager import SetFixerManager
 from protocol0.components.audit.SetUpgradeManager import SetUpgradeManager
 from protocol0.components.audit.SongStatsManager import SongStatsManager
+from protocol0.components.lom.SongScenesManager import SongScenesManager
+from protocol0.components.lom.SongTracksManager import SongTracksManager
 from protocol0.components.scheduler.BeatScheduler import BeatScheduler
 from protocol0.components.scheduler.FastScheduler import FastScheduler, SchedulerEvent
 from protocol0.components.scheduler.SceneScheduler import SceneScheduler
@@ -100,6 +102,8 @@ class Protocol0(ControlSurface):
             self.deviceManager = DeviceManager()  # needs to be here first
             AbstractInstrument.INSTRUMENT_CLASSES = AbstractInstrument.get_instrument_classes()
             self.songManager = SongManager()
+            self.songTracksManager = SongTracksManager()
+            self.songScenesManager = SongScenesManager()
             self.sessionManager = SessionManager()
             self.mixingManager = MixingManager()
             self.trackManager = TrackManager()

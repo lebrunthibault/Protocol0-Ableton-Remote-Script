@@ -33,14 +33,19 @@ class Scene(SceneActionMixin, AbstractObject):
         self._is_triggered_listener.subject = self._scene
         self._play_listener.subject = self
 
+    def on_tracks_change(self):
+        # type: () -> None
+        self.link_clip_slots_and_clips()
+
     def link_clip_slots_and_clips(self):
         # type: () -> None
         try:
             self.clip_slots = [
                 self.song.live_clip_slot_to_clip_slot[clip_slot] for clip_slot in self._scene.clip_slots
             ]
-        except KeyError:
-            self.parent.songManager.tracks_listener(purge=True)
+        except KeyError as e:
+            self.parent.log_error(str(e))
+            self.parent.songTracksManager.tracks_listener(purge=True)
             return
 
         # listeners

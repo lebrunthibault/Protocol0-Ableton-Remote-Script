@@ -126,20 +126,20 @@ class SongActionMixin(object):
     def duplicate_track(self, index):
         # type: (Song, int) -> Sequence
         seq = Sequence()
-        seq.add(partial(self._song.duplicate_track, index), complete_on=self.parent.trackManager._added_track_listener)
+        seq.add(partial(self._song.duplicate_track, index), complete_on=self.parent.songTracksManager.tracks_listener)
         return seq.done()
 
     def delete_track(self, index):
         # type: (Song, int) -> Sequence
         seq = Sequence()
-        seq.add(partial(self._song.delete_track, index), complete_on=self.parent.songManager.tracks_listener)
+        seq.add(partial(self._song.delete_track, index), complete_on=self.parent.songTracksManager.tracks_listener)
         return seq.done()
 
     def duplicate_scene(self, index):
         # type: (Song, int) -> Sequence
         seq = Sequence()
         # seq.add(partial(self._song.duplicate_scene, index))
-        seq.add(partial(self._song.duplicate_scene, index), complete_on=self.parent.songManager.tracks_listener)
+        seq.add(partial(self._song.duplicate_scene, index), complete_on=self.parent.songScenesManager.scenes_listener)
         return seq.done()
 
     def scroll_scenes(self, go_next):

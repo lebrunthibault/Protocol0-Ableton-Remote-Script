@@ -17,10 +17,10 @@ class AbstractGroupTrack(AbstractTrack):
         # filled when link_sub_tracks is called
         self.group_track = self.group_track  # type: Optional[AbstractGroupTrack]
         self.sub_tracks = self.base_track.sub_tracks
-        # for now: List[SimpleTrack] but AbstractGroupTracks will register themselves on_grid_change
+        # for now: List[SimpleTrack] but AbstractGroupTracks will register themselves on_tracks_change
         self.dummy_tracks = []  # type: List[SimpleDummyTrack]
 
-    def on_grid_change(self):
+    def on_tracks_change(self):
         # type: () -> None
         self._link_to_group_track()
         self._map_dummy_tracks()
@@ -61,7 +61,7 @@ class AbstractGroupTrack(AbstractTrack):
         if len(self.dummy_tracks) == len(dummy_tracks):
             return
 
-        self.dummy_tracks[:] = [self.parent.songManager.generate_simple_track(track=track._track, cls=SimpleDummyTrack)
+        self.dummy_tracks[:] = [self.parent.songTracksManager.generate_simple_track(track=track._track, cls=SimpleDummyTrack)
                                 for track in dummy_tracks]
         for dummy_track in self.dummy_tracks:
             dummy_track.abstract_group_track = self

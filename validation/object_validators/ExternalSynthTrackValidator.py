@@ -40,11 +40,20 @@ class ExternalSynthTrackValidator(AbstractObjectValidator, AggregateValidator):
                                    track.instrument.AUDIO_INPUT_ROUTING_CHANNEL),
         ]
 
+        if track.audio_tail_track:
+            validators += [
+                PropertyValueValidator(track.audio_tail_track, "input_routing_track", track.midi_track),
+                PropertyValueValidator(track.audio_tail_track, "input_routing_channel",
+                                       track.instrument.AUDIO_INPUT_ROUTING_CHANNEL),
+            ]
+
         if len(track.dummy_tracks) == 0:
             validators += [
                 PropertyValueValidator(track.midi_track, "output_routing_track", track.base_track),
                 PropertyValueValidator(track.audio_track, "output_routing_track", track.base_track),
             ]
+            if track.audio_tail_track:
+                validators.append(PropertyValueValidator(track.audio_tail_track, "output_routing_track", track.base_track))
 
         for dummy_track in track.dummy_tracks:
             validators.append(PropertyValueValidator(dummy_track, "volume", Config.ZERO_DB_VOLUME))
