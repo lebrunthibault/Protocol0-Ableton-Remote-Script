@@ -28,6 +28,7 @@ class Scene(SceneActionMixin, AbstractObject):
         self.clips = []  # type: List[Clip]
         self.tracks = []  # type: List[SimpleTrack]
         self.scene_name = SceneName(self)
+        self.selected_playing_position = 0
         # listeners
         self._is_triggered_listener.subject = self._scene
         self._play_listener.subject = self
@@ -180,9 +181,17 @@ class Scene(SceneActionMixin, AbstractObject):
         return int(current_beat) / self.song.signature_numerator
 
     @property
+    def selected_bar(self):
+        # type: () -> int
+        if self.length == 0:
+            return 0
+        current_beat = self.selected_playing_position % self.length
+        return int(current_beat) / self.song.signature_numerator
+
+    @property
     def has_playing_clips(self):
         # type: () -> bool
-        return any(clip.is_playing for clip in self.clips if clip)
+        return self.song.is_playing and any(clip.is_playing for clip in self.clips if clip)
 
     @property
     def longest_clip(self):

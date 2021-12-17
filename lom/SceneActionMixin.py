@@ -1,4 +1,5 @@
 from functools import partial
+from math import floor
 
 from typing import TYPE_CHECKING, Optional
 
@@ -6,6 +7,7 @@ from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrac
 from protocol0.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import session_view_only
+from protocol0.utils.utils import scroll_values
 
 if TYPE_CHECKING:
     from protocol0.lom.Scene import Scene
@@ -45,25 +47,25 @@ class SceneActionMixin(object):
             return
 
         next_scene = self.song.scenes[self.index + 1]
-        self.parent.log_dev("next_scene: %s" % next_scene)
         next_scene.fire()
 
     def select(self):
         # type: (Scene) -> None
         self.song.selected_scene = self
 
-    def fire(self):
-        # type: (Scene) -> None
+    def fire(self, move_playing_position=False):
+        # type: (Scene, bool) -> None
         if self._scene:
             self._scene.fire()
+        if move_playing_position:
+            self.parent.defer(partial(self.move_playing_pos, self.selected_playing_position))
 
     def _stop_previous_scene(self):
         # type: (Scene) -> None
         previous_playing_scene = self.song.playing_scene
         if previous_playing_scene is None or previous_playing_scene == self:
             return
-
-        previous_playing_scene.scene_name.update()
+        self.parent.log_dev("stopping previous_playing_scene: %s" % previous_playing_scene)
 
         # manually stopping previous scene because we don't display clip slot stop buttons
         for clip in [clip for clip in previous_playing_scene.clips if clip.track not in self.tracks]:
@@ -71,6 +73,8 @@ class SceneActionMixin(object):
                 continue
 
             clip.stop(immediate=True)
+
+        previous_playing_scene.scene_name.update(display_bar_count=False)
 
     def _play_audio_tails(self):
         # type: (Scene) -> None
@@ -151,3 +155,26 @@ class SceneActionMixin(object):
                 offset = clip.length - abs(bar_length) * self.song.signature_numerator
                 clip.start_marker += offset
                 clip.loop_start += offset
+
+    def scroll_position(self, go_next):
+        # type: (Scene, bool) -> None
+        playing_position = self.playing_position if self.has_playing_clips else self.selected_playing_position
+        bar_position = playing_position / self.song.signature_numerator
+        rounded_bar_position = floor(bar_position) if go_next else round(bar_position)
+        next_bar_position = scroll_values(range(0, self.bar_length), rounded_bar_position, go_next=go_next)
+
+        self.selected_playing_position = next_bar_position * self.song.signature_numerator
+
+        if self.has_playing_clips:
+            self.move_playing_pos(self.selected_playing_position)
+
+        self.scene_name.update(display_selected_bar_count=True)
+
+    def move_playing_pos(self, next_position):
+        # type: (Scene, float) -> None
+        playing_position = self.playing_position if self.has_playing_clips else self.selected_playing_position
+        beat_offset = next_position - playing_position
+
+        for clip in self.clips:
+            if clip not in self.audio_tail_clips:
+                clip.move_playing_pos(beat_offset)

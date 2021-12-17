@@ -23,14 +23,16 @@ class SceneName(AbstractObjectName):
 
         return base_name
 
-    def update(self, base_name=None):
+    def update(self, base_name=None, display_bar_count=True, display_selected_bar_count=False):
         # type: (str) -> None
         self.base_name = base_name if base_name is not None else self.base_name
         looping = "*" if self.scene == self.song.looping_scene else ""
         length_legend = self.parent.utilsManager.get_length_legend(length=self.scene.length)
 
-        if self.scene.has_playing_clips:
+        if self.scene.has_playing_clips and display_bar_count:
             length_legend = "%s|%s" % (self.scene.current_bar + 1, length_legend)
+        elif display_selected_bar_count:
+            length_legend = "%s|%s" % (self.scene.selected_bar + 1, length_legend)
 
         if self.base_name:
             scene_name = "%s (%s)%s" % (self.base_name, length_legend, looping)
