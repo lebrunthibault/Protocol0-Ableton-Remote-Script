@@ -21,9 +21,10 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     IS_ACTIVE = True
     CLIP_SLOT_CLASS = ClipSlot
 
-    def __init__(self, track, *a, **k):
-        # type: (Live.Track.Track, Any, Any) -> None
+    def __init__(self, track, index, *a, **k):
+        # type: (Live.Track.Track, int, Any, Any) -> None
         self._track = track  # type: Live.Track.Track
+        self._index = index
         super(SimpleTrack, self).__init__(track=self, *a, **k)
 
         # is_active is used to differentiate set tracks for return / master
@@ -41,11 +42,17 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self._devices_listener.subject = self._track
         self._devices_listener()
         self.clip_slots = []  # type: List[ClipSlot]
+        self._map_clip_slots()
 
         self._output_meter_level_listener.subject = None
 
         if self.IS_ACTIVE:
             self._fired_slot_index_listener.subject = self._track
+
+    @property
+    def live_id(self):
+        # type: () -> int
+        return self._track._live_ptr
 
     @property
     def is_active(self):
@@ -70,15 +77,12 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             self.group_track = None
             return None
 
-        self.group_track = self.song.live_track_to_simple_track[self._track.group_track]
+        self.group_track = self.parent.songTracksManager.get_simple_track(self._track.group_track)
         self.parent.trackManager.append_to_sub_tracks(self.group_track, self)
 
     def _map_clip_slots(self):
         # type: () -> None
         """ create new ClipSlot objects and keep existing ones """
-        if len(self.clip_slots) == len(list(self._track.clip_slots)):
-            return
-
         live_cs_to_cs = {cs._clip_slot: cs for cs in self.clip_slots}
 
         new_clip_slots = []  # type: List[ClipSlot]
@@ -268,8 +272,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
 
     def disconnect(self):
         # type: () -> None
-        self.parent.log_dev("disconnection %s" % self)
-        return
         super(SimpleTrack, self).disconnect()
         for device in self.devices:
             device.disconnect()

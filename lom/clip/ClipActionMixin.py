@@ -50,11 +50,6 @@ class ClipActionMixin(object):
         if self._clip:
             self._clip.fire()
 
-    def move_playing_pos(self, beats):
-        # type: (Clip, float) -> None
-        if self._clip:
-            self._clip.move_playing_pos(beats)
-
     def delete(self):
         # type: (Clip) -> Optional[Sequence]
         if not self._clip or self.deleted:  # type: ignore[has-type]

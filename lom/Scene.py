@@ -9,6 +9,8 @@ from protocol0.lom.clip.AudioClip import AudioClip
 from protocol0.lom.clip.Clip import Clip
 from protocol0.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
+from protocol0.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
+from protocol0.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.utils.decorators import p0_subject_slot, throttle
 
@@ -20,38 +22,42 @@ class Scene(SceneActionMixin, AbstractObject):
     LOOPING_SCENE = None  # type: Optional[Scene]
     SELECTED_DUPLICATE_SCENE_BAR_LENGTH = 4
 
-    def __init__(self, scene, *a, **k):
-        # type: (Live.Scene.Scene, Any, Any) -> None
+    def __init__(self, scene, index, *a, **k):
+        # type: (Live.Scene.Scene, int, Any, Any) -> None
         super(Scene, self).__init__(*a, **k)
         self._scene = scene
+        self.index = index
+
+        # self.selected_playing_position = 0
+        self.scene_name = SceneName(self)
+
         self.clip_slots = []  # type: List[ClipSlot]
         self.clips = []  # type: List[Clip]
         self.tracks = []  # type: List[SimpleTrack]
-        self.scene_name = SceneName(self)
-        self.selected_playing_position = 0
+        self._link_clip_slots_and_clips()
+
         # listeners
         self._is_triggered_listener.subject = self._scene
         self._play_listener.subject = self
 
+    @property
+    def live_id(self):
+        # type: () -> int
+        return self._scene._live_ptr
+
     def on_tracks_change(self):
         # type: () -> None
-        self.link_clip_slots_and_clips()
+        self._link_clip_slots_and_clips()
 
-    def link_clip_slots_and_clips(self):
+    def _link_clip_slots_and_clips(self):
         # type: () -> None
-        try:
-            self.clip_slots = [
-                self.song.live_clip_slot_to_clip_slot[clip_slot] for clip_slot in self._scene.clip_slots
-            ]
-        except KeyError as e:
-            self.parent.log_error(str(e))
-            self.parent.songTracksManager.tracks_listener(purge=True)
-            return
+        self.clip_slots = [track.clip_slots[self.index] for track in self.song.simple_tracks if
+                           track.__class__ not in (SimpleDummyTrack, SimpleInstrumentBusTrack)]
+        self.tracks = list(set([cs.track for cs in self.clip_slots]))
 
         # listeners
         self._clip_slots_has_clip_listener.replace_subjects(self.clip_slots)
         self._clip_slots_stopped_listener.replace_subjects(self.clip_slots)
-        self._clips_length_listener.replace_subjects(self.clips)
         self._map_clips()
 
     def _map_clips(self):
@@ -60,7 +66,6 @@ class Scene(SceneActionMixin, AbstractObject):
                       clip_slot.has_clip and clip_slot.clip]
         self.audio_tail_clips = cast(List[AudioClip],
                                      [clip for clip in self.clips if isinstance(clip.track, SimpleAudioTailTrack)])
-        self.tracks = [clip.track for clip in self.clips]
         self._clips_length_listener.replace_subjects(self.clips)
 
     def refresh_appearance(self):
@@ -108,11 +113,6 @@ class Scene(SceneActionMixin, AbstractObject):
         """ Stopping all clips cancels the next scene launch"""
         if not self.has_playing_clips:
             self.parent.sceneBeatScheduler.clear()
-
-    @property
-    def index(self):
-        # type: () -> int
-        return self.song.scenes.index(self)
 
     @property
     def base_name(self):

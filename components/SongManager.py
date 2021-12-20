@@ -1,5 +1,3 @@
-import collections
-
 from typing import Optional
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
@@ -64,18 +62,6 @@ class SongManager(AbstractControlSurfaceComponent):
             return next(self.song.abstract_tracks)
 
         return None
-
-    def purge(self):
-        # type: () -> None
-        for track in self.song.abstract_tracks:
-            track.disconnect()
-        for track in self.song.all_simple_tracks:
-            track.disconnect()
-        self.song.live_track_to_simple_track = collections.OrderedDict()
-        self.song.live_clip_slot_to_clip_slot = {}
-        for scene in self.song.scenes:
-            scene.disconnect()
-        self.song.scenes = []
 
     def scroll_tempo(self, go_next):
         # type: (bool) -> None

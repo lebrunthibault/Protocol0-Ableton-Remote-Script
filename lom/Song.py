@@ -1,7 +1,6 @@
-import collections
 from functools import partial
 
-from typing import List, Optional, Dict, Any, Generator, Iterator
+from typing import List, Optional, Any, Iterator
 
 import Live
 from protocol0.components.SongDataManager import save_song_data
@@ -35,11 +34,8 @@ class Song(SongActionMixin, AbstractObject):
         self._view = self._song.view  # type: Live.Song.Song.View
 
         # Global accessible objects / object mappings
-        self.scenes = []  # type: List[Scene]
-        self.live_track_to_simple_track = collections.OrderedDict()  # type: Dict[Live.Track.Track, SimpleTrack]
         self.usamo_track = None  # type: Optional[SimpleTrack]
         self.master_track = None  # type: Optional[SimpleTrack]
-        self.live_clip_slot_to_clip_slot = {}  # type: Dict[Live.ClipSlot.ClipSlot, ClipSlot]
         self.template_dummy_clip = None  # type: Optional[AudioClip]
         self.midi_recording_quantization_checked = False
 
@@ -105,18 +101,13 @@ class Song(SongActionMixin, AbstractObject):
     # TRACKS
 
     @property
-    def live_tracks(self):
-        # type: () -> Generator[SimpleTrack, Any, Any]
-        return (track for track in list(self._song.tracks) + list(self._song.return_tracks) + [self._song.master_track])
-
-    @property
     def all_simple_tracks(self):
-        # type: () -> Generator[SimpleTrack, Any, Any]
-        return (track for track in self.live_track_to_simple_track.values())
+        # type: () -> Iterator[SimpleTrack]
+        return self.parent.songTracksManager.all_simple_tracks
 
     @property
     def simple_tracks(self):
-        # type: () -> Generator[SimpleTrack, Any, Any]
+        # type: () -> Iterator[SimpleTrack]
         return (track for track in self.all_simple_tracks if track.IS_ACTIVE)
 
     @property
@@ -167,9 +158,8 @@ class Song(SongActionMixin, AbstractObject):
 
     @property
     def selected_track(self):
-        # type: () -> SimpleTrack
-        """ returns the SimpleTrack of the selected track, raises for master / return tracks """
-        return self.live_track_to_simple_track[self.song._view.selected_track]
+        # type: () -> Optional[SimpleTrack]
+        return self.parent.songTracksManager.get_optional_simple_track(self.song._view.selected_track)
 
     @property
     def current_track(self):
@@ -179,11 +169,14 @@ class Song(SongActionMixin, AbstractObject):
     # SCENES
 
     @property
+    def scenes(self):
+        # type: () -> List[Scene]
+        return self.parent.songScenesManager.scenes
+
+    @property
     def selected_scene(self):
         # type: () -> Scene
-        scene = find_if(lambda s: s._scene == self.song._view.selected_scene, self.scenes)
-        assert scene
-        return scene
+        return self.parent.songScenesManager.get_scene(self.song._view.selected_scene)
 
     @selected_scene.setter
     def selected_scene(self, scene):
@@ -205,10 +198,7 @@ class Song(SongActionMixin, AbstractObject):
     @property
     def highlighted_clip_slot(self):
         # type: () -> Optional[ClipSlot]
-        if self.song._view.highlighted_clip_slot in self.live_clip_slot_to_clip_slot:
-            return self.live_clip_slot_to_clip_slot[self.song._view.highlighted_clip_slot]
-        else:
-            return None
+        return next((cs for cs in self.song.selected_track.clip_slots if cs._clip_slot == self.song._view.highlighted_clip_slot), None)
 
     @highlighted_clip_slot.setter
     def highlighted_clip_slot(self, clip_slot):
@@ -362,8 +352,3 @@ class Song(SongActionMixin, AbstractObject):
         # type: (float) -> None
         if self._song:
             self._song.scrub_by(beat_offset)
-
-    def disconnect(self):
-        # type: () -> None
-        super(Song, self).disconnect()
-        self.parent.songManager.purge()

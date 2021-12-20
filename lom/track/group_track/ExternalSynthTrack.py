@@ -30,7 +30,8 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
             # noinspection PyTypeChecker
             track = base_group_track.sub_tracks[2]
             self.audio_tail_track = self.parent.songTracksManager.generate_simple_track(track=track._track,
-                                                                                  cls=SimpleAudioTailTrack)
+                                                                                        index=track.index,
+                                                                                        cls=SimpleAudioTailTrack)
 
         self.parent.defer(self._rename_tracks_to_default)
 

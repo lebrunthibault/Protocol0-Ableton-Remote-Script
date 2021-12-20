@@ -23,7 +23,12 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        self.parent.log_dev(self.song.live_track_to_simple_track)
+        self.parent.log_dev(self.song.selected_scene)
+        self.parent.log_dev(self.song.selected_scene.length)
+        self.parent.log_dev(self.song.selected_scene.clip_slots)
+        self.parent.log_dev(self.song.selected_scene.clips)
+        self.parent.log_dev(self.song.highlighted_clip_slot)
+        self.parent.log_dev(self.song.highlighted_clip_slot.clip)
 
     def start_set_profiling(self):
         # type: () -> None

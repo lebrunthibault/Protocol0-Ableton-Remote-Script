@@ -17,7 +17,7 @@ class AbstractTrackName(AbstractObjectName):
         super(AbstractTrackName, self).__init__(track, *a, **k)
         self.track = track
         self._instrument_listener.subject = self.track
-        # self._name_listener.subject = self.track._track
+        self._name_listener.subject = self.track._track
 
     @property
     def instrument_names(self):

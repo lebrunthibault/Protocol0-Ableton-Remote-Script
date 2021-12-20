@@ -24,17 +24,17 @@ class TrackManager(AbstractControlSurfaceComponent):
         added_track = self.song.selected_track
         if self.song.selected_track == self.song.current_track.base_track:
             added_track = self.song.current_track
+        seq.add(wait=1)
         seq.add(added_track._added_track_init)
         seq.add(self.song.end_undo_step)
         return seq.done()
 
-    def instantiate_simple_track(self, track, cls):
-        # type: (Live.Track.Track, Optional[Type[SimpleTrack]]) -> SimpleTrack
+    def instantiate_simple_track(self, track, index, cls):
+        # type: (Live.Track.Track, int, Optional[Type[SimpleTrack]]) -> SimpleTrack
         # checking first on existing tracks
-        if track in self.song.live_track_to_simple_track:
-            simple_track = self.song.live_track_to_simple_track[track]
-            if cls is None or isinstance(simple_track, cls):
-                return simple_track
+        existing_simple_track = self.parent.songTracksManager.get_optional_simple_track(track)
+        if existing_simple_track and (cls is None or isinstance(existing_simple_track, cls)):
+            return existing_simple_track
 
         if cls is None:
             if track.name == SimpleInstrumentBusTrack.DEFAULT_NAME:
@@ -46,7 +46,7 @@ class TrackManager(AbstractControlSurfaceComponent):
             else:
                 raise Protocol0Error("Unknown track type")
 
-        return cls(track=track)
+        return cls(track=track, index=index)
 
     def instantiate_abstract_group_track(self, base_group_track):
         # type: (SimpleTrack) -> None

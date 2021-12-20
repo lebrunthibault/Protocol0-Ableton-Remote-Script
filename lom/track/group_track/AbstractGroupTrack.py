@@ -61,7 +61,7 @@ class AbstractGroupTrack(AbstractTrack):
         if len(self.dummy_tracks) == len(dummy_tracks):
             return
 
-        self.dummy_tracks[:] = [self.parent.songTracksManager.generate_simple_track(track=track._track, cls=SimpleDummyTrack)
+        self.dummy_tracks[:] = [self.parent.songTracksManager.generate_simple_track(track=track._track, index=track.index, cls=SimpleDummyTrack)
                                 for track in dummy_tracks]
         for dummy_track in self.dummy_tracks:
             dummy_track.abstract_group_track = self

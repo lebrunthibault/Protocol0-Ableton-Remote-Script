@@ -21,7 +21,7 @@ class SongStatsManager(AbstractControlSurfaceComponent):
     def _get_stats(self):
         # type: () -> collections.OrderedDict
 
-        song_clips = [cs.clip for cs in self.song.live_clip_slot_to_clip_slot.values() if cs.clip]
+        song_clips = [clip for track in self.song.simple_tracks for clip in track.clips]
         audio_recorded_clips = [clip for clip in song_clips if
                                 isinstance(clip, AudioClip) and clip.track.__class__ not in
                                 (SimpleInstrumentBusTrack, SimpleAudioTailTrack, SimpleDummyTrack)]

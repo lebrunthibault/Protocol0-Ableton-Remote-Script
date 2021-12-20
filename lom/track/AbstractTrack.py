@@ -100,7 +100,8 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def index(self):
         # type: () -> int
-        return list(self.song.all_simple_tracks).index(self.base_track)
+        return self.base_track._index
+        # return list(self.song.all_simple_tracks).index(self.base_track)
 
     @property
     def abstract_track(self):
@@ -345,7 +346,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def input_routing_track(self):
         # type: () -> Optional[SimpleTrack]
         if self._track and self._track.input_routing_type.attached_object:
-            return self.song.live_track_to_simple_track[self._track.input_routing_type.attached_object]
+            return self.parent.songTracksManager.get_simple_track(self._track.input_routing_type.attached_object)
         else:
             return None
 
@@ -417,7 +418,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def output_routing_track(self):
         # type: () -> Optional[SimpleTrack]
         if self._track and self._track.output_routing_type.attached_object:
-            return self.song.live_track_to_simple_track[self._track.output_routing_type.attached_object]
+            return self.parent.songTracksManager.get_simple_track(self._track.output_routing_type.attached_object)
         elif self._track.output_routing_type.category == Live.Track.RoutingTypeCategory.parent_group_track:
             return self.group_track
         elif self._track.output_routing_type.category == Live.Track.RoutingTypeCategory.master:

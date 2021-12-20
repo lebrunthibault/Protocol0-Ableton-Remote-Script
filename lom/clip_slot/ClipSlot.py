@@ -36,8 +36,8 @@ class ClipSlot(AbstractObject):
         # type: (object) -> bool
         return isinstance(clip_slot, ClipSlot) and self._clip_slot == clip_slot._clip_slot
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self, **k):
+        # type: (Any) -> str
         out = super(ClipSlot, self).__repr__()
         return "%s (%s)" % (out, self.clip.name if self.clip else "empty (of %s)" % self.track.base_name)
 

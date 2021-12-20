@@ -57,7 +57,7 @@ class SceneActionMixin(object):
         if self._scene:
             self._scene.fire()
         if move_playing_position:
-            self.parent.defer(partial(self.move_playing_pos, self.selected_playing_position))
+            self.parent.defer(partial(self.jump_to, self.selected_playing_position))
 
     def _stop_previous_scene(self):
         # type: (Scene) -> None
@@ -162,11 +162,11 @@ class SceneActionMixin(object):
         self.selected_playing_position = next_bar_position * self.song.signature_numerator
 
         if self.has_playing_clips:
-            self.move_playing_pos(self.selected_playing_position)
+            self.jump_to(self.selected_playing_position)
 
         self.scene_name.update(display_selected_bar_count=True)
 
-    def move_playing_pos(self, next_position):
+    def jump_to(self, next_position):
         # type: (Scene, float) -> None
         playing_position = self.playing_position if self.has_playing_clips else self.selected_playing_position
         beat_offset = next_position - playing_position
