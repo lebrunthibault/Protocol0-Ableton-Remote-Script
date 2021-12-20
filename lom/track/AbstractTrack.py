@@ -65,7 +65,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
 
     def __repr__(self, **k):
         # type: (Any) -> str
-        return super(AbstractTrack, self).__repr__(index=self.index + 1)
+        return super(AbstractTrack, self).__repr__(index=self.index + 1)   # type: ignore[call-arg]
 
     def _added_track_init(self):
         # type: () -> Optional[Sequence]

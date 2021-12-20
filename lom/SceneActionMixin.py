@@ -88,12 +88,6 @@ class SceneActionMixin(object):
             for clip in self.song.playing_scene.audio_tail_clips:
                 clip.mute_if_scene_changed()
 
-    def pre_fire(self):
-        # type: (Scene) -> None
-        """ when a record is fired the scene will play """
-        self.fire()
-        self.song.stop_playing()
-
     def delete(self):
         # type: (Scene) -> Optional[Sequence]
         if self._scene and not self.deleted:  # type: ignore[has-type]
@@ -130,14 +124,6 @@ class SceneActionMixin(object):
             if track.audio_tail_track and track.audio_tail_track.clip_slots[self.index]:
                 seq.add([track.audio_tail_track.clip_slots[self.index].clip.delete])
         return seq.done()
-
-    def adjust_duplicated_scene(self, bar_length):
-        # type: (Scene, int) -> None
-        self._crop_clips_to_bar_length(bar_length=-bar_length)
-        # clean tails
-        for track in self.song.external_synth_tracks:
-            if track.audio_tail_track and track.audio_tail_track.clip_slots[self.index]:
-                track.audio_tail_track.clip_slots[self.index].clip.delete()
 
     def _crop_clips_to_bar_length(self, bar_length):
         # type: (Scene, int) -> None

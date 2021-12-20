@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, List, Iterator, Optional
+from typing import TYPE_CHECKING, Any, List, Optional
 
 from protocol0.lom.clip.Clip import Clip
 from protocol0.lom.track.AbstractTrack import AbstractTrack
@@ -42,7 +42,7 @@ class AbstractGroupTrack(AbstractTrack):
         self.parent.trackManager.append_to_sub_tracks(self.group_track, self, self.base_track)
 
     def _get_dummy_tracks(self):
-        # type: () -> Iterator[SimpleTrack]
+        # type: () -> List[SimpleTrack]
         dummy_tracks = []
         for track in reversed(self.sub_tracks):
             if isinstance(track, SimpleAudioTrack) and not track.is_foldable and track.instrument is None:
@@ -53,11 +53,11 @@ class AbstractGroupTrack(AbstractTrack):
             if len(main_tracks) == 0 or not all([isinstance(track, main_tracks[0].__class__) for track in main_tracks]):
                 return []
 
-        return reversed(dummy_tracks)
+        return list(reversed(dummy_tracks))
 
     def _map_dummy_tracks(self):
         # type: () -> None
-        dummy_tracks = list(self._get_dummy_tracks())
+        dummy_tracks = self._get_dummy_tracks()
         if len(self.dummy_tracks) == len(dummy_tracks):
             return
 

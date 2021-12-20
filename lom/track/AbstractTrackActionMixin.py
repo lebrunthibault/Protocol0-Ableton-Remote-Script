@@ -43,6 +43,8 @@ class AbstractTrackActionMixin(object):
 
         if self.group_track:
             return self.group_track.toggle_fold()
+        else:
+            return None
 
     def toggle_solo(self):
         # type: () -> None
@@ -61,7 +63,7 @@ class AbstractTrackActionMixin(object):
         return self.arm_track()
 
     def arm_track(self):
-        # type: (AbstractTrack) -> None
+        # type: (AbstractTrack) -> Optional[Sequence]
         self.parent.log_warning("Tried arming unarmable %s" % self)
         return None
 
@@ -210,9 +212,6 @@ class AbstractTrackActionMixin(object):
         self.song.metronome = True
 
         if record_type == RecordTypeEnum.AUDIO_ONLY:
-            # pre launch scene
-            # NB: activating this will break cancel record
-            # self.song.selected_scene.pre_fire()
             return None
 
         # solo for count in

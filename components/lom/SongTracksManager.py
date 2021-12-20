@@ -52,7 +52,7 @@ class SongTracksManager(AbstractControlSurfaceComponent):
     @p0_subject_slot("tracks")
     @handle_error
     def tracks_listener(self):
-        # type: () -> Optional[Sequence]
+        # type: () -> Sequence
         self._clean_deleted_tracks()
 
         previous_simple_track_count = len(list(self.all_simple_tracks))
@@ -63,10 +63,11 @@ class SongTracksManager(AbstractControlSurfaceComponent):
 
         self.parent.log_info("mapped tracks")
 
+        seq = Sequence()
         if has_added_tracks and self.song.selected_track:
-            seq = Sequence()
             seq.add(self.parent.trackManager.on_added_track)
-            return seq.done()
+
+        return seq.done()
 
     def _clean_deleted_tracks(self):
         # type: () -> None

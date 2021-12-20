@@ -1,6 +1,9 @@
 import collections
 import datetime
 import json
+from collections import OrderedDict
+
+from typing import Union
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.lom.clip.AudioClip import AudioClip
@@ -20,7 +23,6 @@ class SongStatsManager(AbstractControlSurfaceComponent):
 
     def _get_stats(self):
         # type: () -> collections.OrderedDict
-
         song_clips = [clip for track in self.song.simple_tracks for clip in track.clips]
         audio_recorded_clips = [clip for clip in song_clips if
                                 isinstance(clip, AudioClip) and clip.track.__class__ not in
@@ -38,7 +40,7 @@ class SongStatsManager(AbstractControlSurfaceComponent):
             else:
                 abstract_clip_count += len(track.clips)
 
-        stats = collections.OrderedDict()
+        stats = collections.OrderedDict()   # type: OrderedDict[str, Union[int, str]]
         stats["clipCount"] = len(song_clips)
         stats["abstractClipCount"] = abstract_clip_count
         stats["audioRecordClipCount"] = len(audio_recorded_clips)

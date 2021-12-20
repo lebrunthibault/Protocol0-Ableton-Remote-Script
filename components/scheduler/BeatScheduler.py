@@ -1,5 +1,3 @@
-from functools import partial
-
 from typing import Callable, Any
 
 from protocol0.components.scheduler.SyncedScheduler import SyncedScheduler
@@ -7,15 +5,13 @@ from protocol0.lom.AbstractObject import AbstractObject
 
 
 class BeatScheduler(AbstractObject, SyncedScheduler):
-    TIMER_DELAY = 5  # mitigate not precise scheduling
-
     def __init__(self, exclusive=False, *a, **k):
         # type: (bool, Any, Any) -> None
         super(BeatScheduler, self).__init__(unschedule_on_stop=True, *a, **k)
         self._exclusive = exclusive
 
-    def wait_bars(self, bar_length, callback, exact=True):
-        # type: (int, Callable, bool) -> None
+    def wait_bars(self, bar_length, callback):
+        # type: (int, Callable) -> None
         """
         if exact if False, wait_bars executes the callback on the last beat preceding the next <bar_length> bar
         that is if the we are on the 3rd beat in 4/4, the callback will be executed in one beat
@@ -23,10 +19,7 @@ class BeatScheduler(AbstractObject, SyncedScheduler):
         """
         if not self.song.is_playing:
             return
-        delay_shortening = 0 if exact else self.song.get_current_beats_song_time().beats
-        beat_count = (self.song.signature_numerator * bar_length) - delay_shortening
-        delay = 0 if exact else self.TIMER_DELAY
-        self.parent.wait(delay, partial(self.wait_beats, beat_count, callback))
+        self.wait_beats(self.song.signature_numerator * bar_length, callback)
 
     def wait_beats(self, beats, callback):
         # type: (float, Callable) -> None
@@ -37,5 +30,5 @@ class BeatScheduler(AbstractObject, SyncedScheduler):
     def clear(self):
         # type: () -> None
         # noinspection PyAttributeOutsideInit
-        self._pending_action_lists = {}
-        self._pending_precise_action_list = {}
+        self._pending_action_list.clear()
+        self._pending_precise_action_list.clear()

@@ -40,8 +40,8 @@ class AbletonTrack(Subject):
             self.has_audio_input = True
 
 
-def make_simple_track(song):
+def make_simple_track(song, index):
     # type: (Any) -> SimpleTrack
-    simple_track = SimpleTrack(cast(Live.Track.Track, AbletonTrack(track_type=TrackType.GROUP)))
-    song.live_track_to_simple_track[simple_track._track] = simple_track
+    simple_track = SimpleTrack(cast(Live.Track.Track, AbletonTrack(track_type=TrackType.GROUP)), index=index)
+    song.parent.songTracksManager._live_track_id_to_simple_track[simple_track._track] = simple_track
     return simple_track

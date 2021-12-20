@@ -1,8 +1,9 @@
 import collections
 from itertools import chain
 
-from typing import Any, Iterator, Optional
+from typing import Any, Optional, List
 
+import Live
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.lom.Scene import Scene
 from protocol0.utils.decorators import p0_subject_slot
@@ -32,7 +33,7 @@ class SongScenesManager(AbstractControlSurfaceComponent):
 
     @property
     def scenes(self):
-        # type: () -> Iterator[Scene]
+        # type: () -> List[Scene]
         return self._live_scene_id_to_scene.values()
 
     @p0_subject_slot("scenes")

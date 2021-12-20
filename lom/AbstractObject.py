@@ -26,7 +26,7 @@ class AbstractObject(SlotManager, Subject):
         self.deleted = False
 
     def __repr__(self, index=None):
-        # type: () -> str
+        # type: (Optional[int]) -> str
         out = "P0 %s" % self.__class__.__name__
         if hasattr(self, "base_name") and self.base_name:
             out += ": %s" % self.base_name
