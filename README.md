@@ -94,6 +94,8 @@ I've written a technical doc that details important parts of the script object m
 remote scripts concepts are
 explained. [see this google doc](https://lebrunthibault.github.io/post/protocol0-technical-overview/) (could be a bit outdated)
 
+I'm working on dev and releasing (sometimes not so often) working versions to master
+
 ### Tools
 
 - `make test` runs the test suite (pytest) I've written a few unit tests mostly related to non LOM stuff.
