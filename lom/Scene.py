@@ -53,12 +53,12 @@ class Scene(SceneActionMixin, AbstractObject):
         # type: () -> None
         self.clip_slots = [track.clip_slots[self.index] for track in self.song.simple_tracks if
                            track.__class__ not in (SimpleDummyTrack, SimpleInstrumentBusTrack)]
-        self.tracks = list(set([cs.track for cs in self.clip_slots]))
+
+        self._map_clips()
+        self.tracks = list(set([cs.track for cs in self.clips]))
 
         # listeners
         self._clip_slots_has_clip_listener.replace_subjects(self.clip_slots)
-        self._clip_slots_stopped_listener.replace_subjects(self.clip_slots)
-        self._map_clips()
 
     def _map_clips(self):
         # type: () -> None
@@ -87,7 +87,7 @@ class Scene(SceneActionMixin, AbstractObject):
     def _play_listener(self):
         # type: () -> None
         """ implements a next scene follow action """
-        self._stop_previous_scene()
+        self._stop_previous_scene(immediate=True)
         Scene.PLAYING_SCENE = self
 
         if self.song.looping_scene and self.song.looping_scene != self:
@@ -106,18 +106,6 @@ class Scene(SceneActionMixin, AbstractObject):
         # type: (ClipSlot) -> None
         self._map_clips()
         self.check_scene_length()
-
-    @subject_slot_group("stopped")
-    def _clip_slots_stopped_listener(self, _):
-        # type: (ClipSlot) -> None
-        """ Stopping all clips cancels the next scene launch"""
-        if not self.has_playing_clips:
-            self.parent.sceneBeatScheduler.clear()
-
-    @property
-    def base_name(self):
-        # type: () -> str
-        return self.scene_name.base_name
 
     @property
     def color(self):

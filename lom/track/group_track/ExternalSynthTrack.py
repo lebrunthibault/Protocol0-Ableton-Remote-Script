@@ -25,6 +25,8 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         super(ExternalSynthTrack, self).__init__(base_group_track=base_group_track, *a, **k)
         self.midi_track = cast(SimpleMidiTrack, base_group_track.sub_tracks[0])
         self.audio_track = cast(SimpleAudioTrack, base_group_track.sub_tracks[1])
+        self.midi_track.track_name.disconnect()
+        self.audio_track.track_name.disconnect()
         self.audio_tail_track = None  # type: Optional[SimpleAudioTailTrack]
         if len(base_group_track.sub_tracks) > 2 and len(base_group_track.sub_tracks[2].devices) == 0:
             # noinspection PyTypeChecker
@@ -32,7 +34,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
             self.audio_tail_track = self.parent.songTracksManager.generate_simple_track(track=track._track,
                                                                                         index=track.index,
                                                                                         cls=SimpleAudioTailTrack)
-
+            self.audio_tail_track.track_name.disconnect()
         self.parent.defer(self._rename_tracks_to_default)
 
         # sub tracks are now handled by self

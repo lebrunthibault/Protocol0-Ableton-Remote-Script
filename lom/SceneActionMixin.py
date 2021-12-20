@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, Optional
 
 from protocol0.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.decorators import session_view_only
 from protocol0.utils.utils import scroll_values
 
 if TYPE_CHECKING:
@@ -24,15 +23,13 @@ class SceneActionMixin(object):
         if self.is_recording:
             return
         # trigger on last beat
-        if self.current_bar == self.bar_length - 1 and self.current_beat == self.song.signature_numerator - 1:
-            self._play_audio_tails()
-            self._schedule_next_scene_launch()
+        if self.current_bar == self.bar_length - 1:
+            if self.current_beat == self.song.signature_numerator - 1 or self.song.tempo > 500:
+                self._play_audio_tails()
+                self._fire_next_scene()
 
-    @session_view_only
-    def _schedule_next_scene_launch(self):
+    def _fire_next_scene(self):
         # type: (Scene) -> None
-        if self not in self.song.scenes:
-            return None
         if self == self.song.looping_scene or self == self.song.scenes[-1] or self.song.scenes[self.index + 1].bar_length == 0:
             self.fire()
             seq = Sequence()
@@ -46,6 +43,7 @@ class SceneActionMixin(object):
             return
 
         next_scene = self.song.scenes[self.index + 1]
+        next_scene._stop_previous_scene()
         next_scene.fire()
 
     def select(self):
@@ -59,18 +57,19 @@ class SceneActionMixin(object):
         if move_playing_position:
             self.parent.defer(partial(self.jump_to, self.selected_playing_position))
 
-    def _stop_previous_scene(self):
-        # type: (Scene) -> None
+    def _stop_previous_scene(self, immediate=False):
+        # type: (Scene, bool) -> None
         previous_playing_scene = self.song.playing_scene
+        self.parent.log_dev("previous_playing_scene: %s" % previous_playing_scene)
         if previous_playing_scene is None or previous_playing_scene == self:
             return
 
         # manually stopping previous scene because we don't display clip slot stop buttons
-        for clip in [clip for clip in previous_playing_scene.clips if clip.track not in self.tracks]:
-            if clip in previous_playing_scene.audio_tail_clips:
+        for track in [track for track in previous_playing_scene.tracks if track not in self.tracks]:
+            if isinstance(track, SimpleAudioTailTrack):
                 continue
 
-            clip.stop(immediate=True)
+            track.stop(immediate=immediate)
 
         previous_playing_scene.scene_name.update(display_bar_count=False)
 
@@ -107,7 +106,6 @@ class SceneActionMixin(object):
                 self.fire()
             if previous_looping_scene:
                 previous_looping_scene.scene_name.update()
-            self.parent.sceneBeatScheduler.clear()  # clearing scene scheduling
         else:  # solo inactivation
             Scene.LOOPING_SCENE = None
 

@@ -45,7 +45,6 @@ from protocol0.components.lom.SongScenesManager import SongScenesManager
 from protocol0.components.lom.SongTracksManager import SongTracksManager
 from protocol0.components.scheduler.BeatScheduler import BeatScheduler
 from protocol0.components.scheduler.FastScheduler import FastScheduler, SchedulerEvent
-from protocol0.components.scheduler.SceneScheduler import SceneScheduler
 from protocol0.components.vocal_command.KeywordSearchManager import KeywordSearchManager
 from protocol0.components.vocal_command.VocalCommandManager import VocalCommandManager
 from protocol0.config import Config
@@ -117,8 +116,7 @@ class Protocol0(ControlSurface):
             self.browserManager = BrowserManager()
             self.navigationManager = NavigationManager()
             self.presetManager = PresetManager()
-            self.beatScheduler = BeatScheduler()
-            self.sceneBeatScheduler = SceneScheduler(exclusive=True)
+            self._beatScheduler = BeatScheduler()
             self.utilsManager = UtilsManager()
             self.logManager = LogManager()
             self.validatorManager = ValidatorManager()
@@ -245,11 +243,11 @@ class Protocol0(ControlSurface):
 
     def wait_bars(self, bar_length, callback):
         # type: (int, Callable) -> None
-        self.beatScheduler.wait_bars(bar_length, callback)
+        self._beatScheduler.wait_bars(bar_length, callback)
 
     def wait_beats(self, beats, callback):
         # type: (float, Callable) -> None
-        self.beatScheduler.wait_beats(beats, callback)
+        self._beatScheduler.wait_beats(beats, callback)
 
     def wait(self, tick_count, callback):
         # type: (int, Callable) -> Optional[SchedulerEvent]
@@ -278,7 +276,7 @@ class Protocol0(ControlSurface):
         Sequence.RUNNING_SEQUENCES = []
         self._task_group.clear()
         self.fastScheduler.restart()
-        self.beatScheduler.clear()
+        self._beatScheduler.clear_scheduler()
 
     def disconnect(self):
         # type: () -> None

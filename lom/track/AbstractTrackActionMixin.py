@@ -319,6 +319,9 @@ class AbstractTrackActionMixin(object):
 
     def refresh_appearance(self):
         # type: (AbstractTrack) -> None
+        if not self.base_track.IS_ACTIVE:
+            return
+
         self.track_name.update()
         self.refresh_color()
 

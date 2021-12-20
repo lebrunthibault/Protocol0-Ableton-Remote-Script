@@ -60,4 +60,6 @@ class MixingManager(AbstractControlSurfaceComponent):
         for track in self.song.abstract_tracks:
             if isinstance(track, NormalGroupTrack):
                 continue
+            if "kick" in track.name.lower():
+                continue
             track.scroll_volume(go_next=go_next)

@@ -33,7 +33,6 @@ class Clip(ClipActionMixin, AbstractObject):
 
         # listeners
         self.is_recording_listener.subject = self._clip
-        self._playing_status_listener.subject = self._clip
         self._loop_start_listener.subject = self._clip
         self._loop_end_listener.subject = self._clip
 
@@ -57,13 +56,6 @@ class Clip(ClipActionMixin, AbstractObject):
     def is_recording_listener(self):
         # type: () -> None
         pass
-
-    @p0_subject_slot("playing_status")
-    def _playing_status_listener(self):
-        # type: () -> None
-        if not self.is_playing:
-            # noinspection PyUnresolvedReferences
-            self.clip_slot.notify_stopped()
 
     @p0_subject_slot("loop_start")
     def _loop_start_listener(self):

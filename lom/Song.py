@@ -152,7 +152,7 @@ class Song(SongActionMixin, AbstractObject):
             if not track.is_visible:
                 continue
             # when a group track is unfolded, will directly select the first sub_trackB
-            if isinstance(track, NormalGroupTrack) and not track.is_folded:
+            if isinstance(track, NormalGroupTrack) and not track.is_folded and isinstance(track.sub_tracks[0], SimpleTrack):
                 continue
             yield track
 

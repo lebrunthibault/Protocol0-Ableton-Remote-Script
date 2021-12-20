@@ -4,6 +4,7 @@ from functools import partial
 from typing import TYPE_CHECKING, Any, Optional
 
 from protocol0.lom.AbstractObjectName import AbstractObjectName
+from protocol0.utils.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
     from protocol0.lom.clip.Clip import Clip
@@ -14,13 +15,38 @@ class ClipName(AbstractObjectName):
 
     def __init__(self, clip, *a, **k):
         # type: (Clip, Any, Any) -> None
-        super(ClipName, self).__init__(clip, *a, **k)
+        super(ClipName, self).__init__(*a, **k)
         self.clip = clip
         self.register_slot(self.clip._clip, partial(self._name_listener, force=True), "loop_start")
         self.register_slot(self.clip._clip, partial(self._name_listener, force=True), "loop_end")
         self.register_slot(self.clip._clip, partial(self._name_listener, force=True), "start_marker")
         self.register_slot(self.clip._clip, partial(self._name_listener, force=True), "end_marker")
         self._name_listener.subject = self.clip._clip
+        self._base_name = None  # type: Optional[str]
+
+    @property
+    def base_name(self):
+        # type: () -> str
+        """ lazy loading """
+        if self._base_name is None:
+            self._base_name = self._get_base_name()
+        return self._base_name
+
+    @base_name.setter
+    def base_name(self, base_name):
+        # type: (str) -> None
+        self._base_name = base_name
+
+    @p0_subject_slot("name")
+    def _name_listener(self, force=False):
+        # type: (bool) -> None
+        base_name = self._get_base_name()
+        # noinspection PyUnresolvedReferences
+        if not force and base_name == self.base_name and self.clip.name != base_name:
+            return
+        self.base_name = base_name
+        self.normalize_base_name()
+        self.parent.defer(self.update)
 
     def _get_base_name(self):
         # type: () -> str
@@ -33,8 +59,7 @@ class ClipName(AbstractObjectName):
 
     def normalize_base_name(self):
         # type: () -> None
-        track_base_name = self.clip.track.base_name.strip()
-        if track_base_name and re.match("^%s( \\d+)?" % track_base_name, self.base_name) is not None:
+        if re.match("^%s( \\d+)?" % self.clip.track.name, self.base_name) is not None:
             self.base_name = ""
 
     @property

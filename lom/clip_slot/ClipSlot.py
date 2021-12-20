@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class ClipSlot(AbstractObject):
-    __subject_events__ = ("has_clip", "is_triggered", "stopped", "recording_ended")
+    __subject_events__ = ("has_clip", "is_triggered", "recording_ended")
 
     CLIP_CLASS = Clip
 
@@ -39,7 +39,7 @@ class ClipSlot(AbstractObject):
     def __repr__(self, **k):
         # type: (Any) -> str
         out = super(ClipSlot, self).__repr__()
-        return "%s (%s)" % (out, self.clip.name if self.clip else "empty (of %s)" % self.track.base_name)
+        return "%s (%s)" % (out, self.clip.name if self.clip else "empty (of %s)" % self.track.name)
 
     @staticmethod
     def make(clip_slot, track):

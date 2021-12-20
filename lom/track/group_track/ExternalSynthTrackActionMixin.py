@@ -35,10 +35,7 @@ class ExternalSynthTrackActionMixin(object):
 
         self.midi_track.input_routing_type = InputRoutingTypeEnum.REV2_AUX
         seq = Sequence(silent=True)
-        arm_step = [self.midi_track.arm_track, self.audio_track.arm_track]
-        if self.audio_tail_track:
-            arm_step.append(self.audio_tail_track.arm_track)
-        seq.add(arm_step)
+        seq.add([sub_track.arm for sub_track in self.sub_tracks])
         seq.add(partial(setattr, self, "has_monitor_in", False))
         return seq.done()
 
@@ -187,9 +184,10 @@ class ExternalSynthTrackActionMixin(object):
         # type: (ExternalSynthTrack, ClipSlot) -> None
         source_midi_clip = self.midi_track.clip_slots[audio_clip_slot.index].clip
         source_audio_clip = self.audio_track.clip_slots[audio_clip_slot.index].clip
-        source_cs = source_audio_clip.clip_slot
         if source_midi_clip is None or source_audio_clip is None:
             return None
+
+        source_cs = source_audio_clip.clip_slot
 
         duplicate_audio_clip_slots = list(self._get_duplicate_audio_clip_slots(source_midi_clip, source_audio_clip))
         if len(duplicate_audio_clip_slots) == 0:

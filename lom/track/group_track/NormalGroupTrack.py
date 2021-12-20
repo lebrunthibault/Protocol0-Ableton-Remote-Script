@@ -12,15 +12,12 @@ from protocol0.utils.utils import find_if
 
 class NormalGroupTrack(AbstractGroupTrack):
     DEFAULT_NAME = "Group"
+    KEEP_CLIPS_ON_ADDED = True
 
     def __init__(self, base_group_track, *a, **k):
         # type: (SimpleTrack, Any, Any) -> None
         super(NormalGroupTrack, self).__init__(base_group_track=base_group_track, *a, **k)
         self.push2_selected_main_mode = Push2MainModeEnum.MIX
-
-    def _added_track_init(self):
-        # type: () -> None
-        pass
 
     @property
     def instrument_class(self):
@@ -59,7 +56,7 @@ class NormalGroupTrack(AbstractGroupTrack):
 
         def _name_prefix(track):
             # type: (AbstractTrack) -> str
-            return track.base_track.track_name.base_name.split(" ")[0]
+            return track.base_track.name.split(" ")[0]
 
         # checking if all sub tracks have the same prefix
         unique_sub_tracks_name_prefixes = list(set([_name_prefix(sub_track) for sub_track in self.sub_tracks]))

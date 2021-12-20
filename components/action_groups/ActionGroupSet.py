@@ -23,8 +23,12 @@ class ActionGroupSet(AbstractActionGroup):
                          on_press=self.parent.songStatsManager.display_song_stats)
 
         # VELO encoder
-        self.add_encoder(identifier=13, name="scale selected clip velocities",
-                         on_scroll=self.parent.clipManager.scale_selected_clip_velocities)
+        self.add_encoder(identifier=13, name="smooth selected clip velocities",
+                         on_scroll=self.parent.clipManager.smooth_selected_clip_velocities)
+
+        # FIX encoder
+        self.add_encoder(identifier=14, name="scroll all tracks volume",
+                         on_scroll=self.parent.mixingManager.scroll_all_tracks_volume)
 
         # Session2ARrangement encoder
         self.add_encoder(identifier=16, name="bounce session to arrangement",

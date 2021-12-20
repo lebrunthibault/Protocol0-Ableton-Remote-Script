@@ -7,6 +7,8 @@ from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComp
 from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.enums.SongLoadStateEnum import SongLoadStateEnum
 from protocol0.lom.clip.AudioClip import AudioClip
+from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+from protocol0.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
 from protocol0.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
 from protocol0.lom.track.simple_track.SimpleMasterTrack import SimpleMasterTrack
 from protocol0.lom.track.simple_track.SimpleReturnTrack import SimpleReturnTrack
@@ -161,4 +163,15 @@ class SongTracksManager(AbstractControlSurfaceComponent):
         # 2nd pass : instantiate AbstractGroupTracks
         for track in self.song.simple_tracks:
             if track.is_foldable:
-                self.parent.trackManager.instantiate_abstract_group_track(track)
+
+                abstract_group_track = self.parent.trackManager.instantiate_abstract_group_track(track)
+
+                previous_abstract_group_track = track.abstract_group_track
+                if isinstance(previous_abstract_group_track, ExternalSynthTrack) and isinstance(abstract_group_track, NormalGroupTrack):
+                    self.parent.log_error("An ExternalSynthTrack is changed to a NormalGroupTrack")
+
+                if previous_abstract_group_track and previous_abstract_group_track != abstract_group_track:
+                    previous_abstract_group_track.disconnect()
+
+                abstract_group_track.on_tracks_change()
+

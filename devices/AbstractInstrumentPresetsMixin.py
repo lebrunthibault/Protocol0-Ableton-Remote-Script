@@ -52,6 +52,8 @@ class AbstractInstrumentPresetsMixin(object):
         self.parent.navigationManager.show_device_view()
 
         seq = Sequence()
+        if self.needs_activation:
+            seq.add(self.activate_plugin_window)
         seq.add(partial(self._preset_list.scroll, go_next=go_next))
         seq.add(partial(self._sync_selected_preset))
         return seq.done()
@@ -66,7 +68,7 @@ class AbstractInstrumentPresetsMixin(object):
             self._preset_list.categories, self._preset_list.selected_category, go_next
         ).lower()
         if self.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.CATEGORY:
-            self.track.track_name.update(base_name=self._preset_list.selected_category)
+            self.track.abstract_track.track_name.update()
         else:
             self.parent.show_message("selected preset category %s" % self._preset_list.selected_category.title())
 
@@ -77,8 +79,7 @@ class AbstractInstrumentPresetsMixin(object):
             if isinstance(self.device, PluginDevice):
                 self.device.selected_preset_index = self.selected_preset.index
             seq.add(partial(self.load_preset, self.selected_preset))
-            # noinspection PyUnresolvedReferences
-            seq.add(self.notify_selected_preset)
+            seq.add(self.track.abstract_track.track_name.update)
         return seq.done()
 
     def load_preset(self, preset):

@@ -20,8 +20,6 @@ class SessionToArrangementManager(AbstractControlSurfaceComponent):
         tempo = self.song.tempo
         self.song.unfocus_all_tracks()
         self.song.tempo = 999
-        self.parent.sceneBeatScheduler.clear()
-
         self.parent.navigationManager.show_arrangement()
 
         seq = Sequence()

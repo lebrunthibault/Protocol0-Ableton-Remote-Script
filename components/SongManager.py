@@ -1,5 +1,6 @@
 from typing import Optional
 
+import Live
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.components.SongDataManager import SongDataManager
 from protocol0.config import Config
@@ -18,6 +19,9 @@ class SongManager(AbstractControlSurfaceComponent):
         self.song.song_load_state = SongLoadStateEnum.LOADING
         if Config.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.PROFILING:
             return None
+
+        if self.song.clip_trigger_quantization == Live.Song.Quantization.q_no_q:
+            self.system.show_warning("The global launch quantization is set to None")
 
         startup_track = self._get_startup_track()
         self._restore_selected_state()

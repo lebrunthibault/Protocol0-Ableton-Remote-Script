@@ -39,8 +39,6 @@ class SongScenesManager(AbstractControlSurfaceComponent):
     @p0_subject_slot("scenes")
     def scenes_listener(self):
         # type: () -> None
-        self.parent.sceneBeatScheduler.clear()
-
         self._generate_scenes()
         self.parent.defer(lambda: [scene.refresh_appearance() for scene in self.song.scenes])
         self.parent.log_info("mapped scenes")

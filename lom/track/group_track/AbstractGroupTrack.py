@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Any, List, Optional, Iterator
 
 from protocol0.lom.clip.Clip import Clip
 from protocol0.lom.track.AbstractTrack import AbstractTrack
@@ -13,7 +13,8 @@ class AbstractGroupTrack(AbstractTrack):
     def __init__(self, base_group_track, *a, **k):
         # type: (SimpleTrack, Any, Any) -> None
         super(AbstractGroupTrack, self).__init__(track=base_group_track, *a, **k)
-        base_group_track.abstract_group_track = self
+        self.base_track.abstract_group_track = self
+        base_group_track.track_name.disconnect()
         # filled when link_sub_tracks is called
         self.group_track = self.group_track  # type: Optional[AbstractGroupTrack]
         self.sub_tracks = self.base_track.sub_tracks
@@ -22,10 +23,22 @@ class AbstractGroupTrack(AbstractTrack):
 
     def on_tracks_change(self):
         # type: () -> None
-        self._link_to_group_track()
+        self._link_sub_tracks()
+        self._link_group_track()
         self._map_dummy_tracks()
 
-    def _link_to_group_track(self):
+    def _link_sub_tracks(self):
+        # type: () -> None
+        """ 2nd layer linking """
+        update_name = len(self.sub_tracks) != len(self.base_track.sub_tracks)
+        self.sub_tracks[:] = self.base_track.sub_tracks
+        # for sub_track in self.sub_tracks:
+        #     if not sub_track.is_foldable:
+        #         sub_track.abstract_group_track = self
+        if update_name:
+            self.parent.defer(self.track_name.update)
+
+    def _link_group_track(self):
         # type: () -> None
         """
             2nd layer linking
@@ -42,7 +55,7 @@ class AbstractGroupTrack(AbstractTrack):
         self.parent.trackManager.append_to_sub_tracks(self.group_track, self, self.base_track)
 
     def _get_dummy_tracks(self):
-        # type: () -> List[SimpleTrack]
+        # type: () -> Iterator[SimpleTrack]
         dummy_tracks = []
         for track in reversed(self.sub_tracks):
             if isinstance(track, SimpleAudioTrack) and not track.is_foldable and track.instrument is None:
@@ -51,21 +64,23 @@ class AbstractGroupTrack(AbstractTrack):
             # checks automated tracks are all the same type to avoid triggering on wrong track layouts
             main_tracks = self.sub_tracks[:self.sub_tracks.index(track)]
             if len(main_tracks) == 0 or not all([isinstance(track, main_tracks[0].__class__) for track in main_tracks]):
-                return []
+                return iter([])
 
-        return list(reversed(dummy_tracks))
+        return reversed(dummy_tracks)
 
     def _map_dummy_tracks(self):
         # type: () -> None
-        dummy_tracks = self._get_dummy_tracks()
+        dummy_tracks = list(self._get_dummy_tracks())
         if len(self.dummy_tracks) == len(dummy_tracks):
             return
 
-        self.dummy_tracks[:] = [self.parent.songTracksManager.generate_simple_track(track=track._track, index=track.index, cls=SimpleDummyTrack)
-                                for track in dummy_tracks]
+        self.dummy_tracks[:] = [
+            self.parent.songTracksManager.generate_simple_track(track=track._track, index=track.index,
+                                                                cls=SimpleDummyTrack)
+            for track in dummy_tracks]
         for dummy_track in self.dummy_tracks:
             dummy_track.abstract_group_track = self
-            dummy_track.track_name._name_listener()
+            self.parent.defer(dummy_track.track_name.update)
 
         self.parent.defer(self._link_dummy_tracks_routings)
 

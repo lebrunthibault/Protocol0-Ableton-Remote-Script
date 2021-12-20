@@ -3,11 +3,11 @@ from typing import Any
 from protocol0.config import Config
 from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.enums.DeviceParameterEnum import DeviceParameterEnum
-from protocol0.enums.InputRoutingChannelEnum import InputRoutingChannelEnum
 from protocol0.enums.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.sequence.Sequence import Sequence
 from protocol0.validation.AbstractObjectValidator import AbstractObjectValidator
+from protocol0.validation.object_validators.SimpleAudioTailTrackValidator import SimpleAudioTailTrackValidator
 from protocol0.validation.sub_validators.AggregateValidator import AggregateValidator
 from protocol0.validation.sub_validators.CallbackValidator import CallbackValidator
 from protocol0.validation.sub_validators.DeviceParameterValidator import DeviceParameterValidator
@@ -19,7 +19,6 @@ class ExternalSynthTrackValidator(AbstractObjectValidator, AggregateValidator):
     def __init__(self, track, *a, **k):
         # type: (ExternalSynthTrack, Any, Any) -> None
         self._track = track
-        from protocol0 import Protocol0
 
         validators = [
             CallbackValidator(track, lambda t: t.instrument is not None, None, "track should have an instrument"),
@@ -32,20 +31,16 @@ class ExternalSynthTrackValidator(AbstractObjectValidator, AggregateValidator):
 
             # ROUTINGS
 
-            PropertyValueValidator(track.base_track, "output_routing_track", Protocol0.SELF.protocol0_song.master_track),
+            # PropertyValueValidator(track.base_track, "output_routing_track", Protocol0.SELF.protocol0_song.master_track),
             PropertyValueValidator(track.midi_track, "input_routing_type", InputRoutingTypeEnum.REV2_AUX),
-            PropertyValueValidator(track.midi_track, "input_routing_channel", InputRoutingChannelEnum.CHANNEL_1),
+            # PropertyValueValidator(track.midi_track, "input_routing_channel", InputRoutingChannelEnum.CHANNEL_1),
             PropertyValueValidator(track.audio_track, "input_routing_track", track.midi_track),
             PropertyValueValidator(track.audio_track, "input_routing_channel",
                                    track.instrument.AUDIO_INPUT_ROUTING_CHANNEL),
         ]
 
         if track.audio_tail_track:
-            validators += [
-                PropertyValueValidator(track.audio_tail_track, "input_routing_track", track.midi_track),
-                PropertyValueValidator(track.audio_tail_track, "input_routing_channel",
-                                       track.instrument.AUDIO_INPUT_ROUTING_CHANNEL),
-            ]
+            validators += SimpleAudioTailTrackValidator(track.audio_tail_track, *a, **k)._validators
 
         if len(track.dummy_tracks) == 0:
             validators += [

@@ -10,7 +10,3 @@ class ActionGroupMix(AbstractActionGroup):
         # CHecK encoder
         self.add_encoder(identifier=1, name="check clipping tracks",
                          on_press=self.parent.mixingManager.toggle_volume_check)
-
-        # FIX encoder
-        self.add_encoder(identifier=2, name="scroll all tracks volume",
-                         on_scroll=self.parent.mixingManager.scroll_all_tracks_volume)

@@ -49,8 +49,6 @@ class LogManager(AbstractObject):
         self.parent.log_notice("********* SELECTED_TRACK *************")
         self.parent.log_info("selected_track: %s" % self.song.selected_track)
         self.parent.log_info()
-        self.parent.log_info("selected_track.base_track: %s" % self.song.selected_track.base_track)
-        self.parent.log_info()
         self.parent.log_info("selected_track.group_track: %s" % self.song.selected_track.group_track)
         self.parent.log_info()
         if self.song.selected_track.group_track:

@@ -24,8 +24,6 @@ if TYPE_CHECKING:
 
 
 class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
-    __subject_events__ = ("selected_preset",)
-
     # computed at boot time
     INSTRUMENT_CLASSES = []  # type: List[Type[AbstractInstrument]]
 

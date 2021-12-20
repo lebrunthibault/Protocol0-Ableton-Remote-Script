@@ -5,10 +5,9 @@ from protocol0.lom.AbstractObject import AbstractObject
 
 
 class BeatScheduler(AbstractObject, SyncedScheduler):
-    def __init__(self, exclusive=False, *a, **k):
-        # type: (bool, Any, Any) -> None
+    def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
         super(BeatScheduler, self).__init__(unschedule_on_stop=True, *a, **k)
-        self._exclusive = exclusive
 
     def wait_bars(self, bar_length, callback):
         # type: (int, Callable) -> None
@@ -23,12 +22,9 @@ class BeatScheduler(AbstractObject, SyncedScheduler):
 
     def wait_beats(self, beats, callback):
         # type: (float, Callable) -> None
-        if self._exclusive:
-            self.clear()  # allow only one action at a time
         self.schedule_message(beats, callback)
 
-    def clear(self):
+    def clear_scheduler(self):
         # type: () -> None
-        # noinspection PyAttributeOutsideInit
         self._pending_action_list.clear()
         self._pending_precise_action_list.clear()

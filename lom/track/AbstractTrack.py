@@ -10,6 +10,7 @@ from protocol0.enums.ColorEnum import ColorEnum
 from protocol0.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.enums.InputRoutingChannelEnum import InputRoutingChannelEnum
 from protocol0.enums.InputRoutingTypeEnum import InputRoutingTypeEnum
+from protocol0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from protocol0.enums.Push2InstrumentModeEnum import Push2InstrumentModeEnum
 from protocol0.enums.Push2MainModeEnum import Push2MainModeEnum
 from protocol0.enums.Push2MatrixModeEnum import Push2MatrixModeEnum
@@ -45,11 +46,11 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self.abstract_group_track = None  # type: Optional[AbstractGroupTrack]
         self.sub_tracks = []  # type: List[AbstractTrack]
 
-        # MISC
-        self.track_name = AbstractTrackName(self)  # type: AbstractTrackName
-
         if not self.base_track.IS_ACTIVE:
             return
+
+        # MISC
+        self.track_name = AbstractTrackName(self)  # type: AbstractTrackName
 
         self.record_clip_tails = False  # records one more bar of audio on presets with tail
         self.protected_mode_active = True
@@ -63,9 +64,9 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self._has_clip_listener.subject = self
         self._is_recording_listener.subject = self
 
-    def __repr__(self, **k):
-        # type: (Any) -> str
-        return super(AbstractTrack, self).__repr__(index=self.index + 1)   # type: ignore[call-arg]
+    def __repr__(self):
+        # type: () -> str
+        return "P0 %s : %s (%s)" % (self.__class__.__name__, self.name, self.index + 1)
 
     def _added_track_init(self):
         # type: () -> Optional[Sequence]
@@ -101,7 +102,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def index(self):
         # type: () -> int
         return self.base_track._index
-        # return list(self.song.all_simple_tracks).index(self.base_track)
 
     @property
     def abstract_track(self):
@@ -145,10 +145,13 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def computed_base_name(self):
         # type: () -> str
-        from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
-
-        if self.instrument and not isinstance(self.abstract_group_track, ExternalSynthTrack):
-            return self.instrument.name
+        if self.instrument and self.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.NAME:
+            if self.instrument.selected_preset:
+                return self.instrument.selected_preset.name
+            else:
+                return self.instrument.name
+        elif self.instrument and self.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.CATEGORY:
+            return self.instrument._preset_list.selected_category
         else:
             return self.DEFAULT_NAME
 
@@ -249,11 +252,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def is_visible(self):
         # type: () -> bool
         return self._track and self._track.is_visible
-
-    @property
-    def base_name(self):
-        # type: () -> str
-        return self.base_track.track_name.base_name
 
     @property
     def search_keywords(self):

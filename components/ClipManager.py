@@ -5,7 +5,7 @@ from protocol0.lom.clip.MidiClip import MidiClip
 
 
 class ClipManager(AbstractControlSurfaceComponent):
-    def scale_selected_clip_velocities(self, go_next):
+    def smooth_selected_clip_velocities(self, go_next):
         # type: (bool) -> None
         clip = self.song.selected_clip
         if not clip:

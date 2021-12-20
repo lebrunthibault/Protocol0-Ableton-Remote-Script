@@ -1,9 +1,20 @@
+from typing import Any, TYPE_CHECKING
+
 from protocol0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.utils.decorators import p0_subject_slot
+
+if TYPE_CHECKING:
+    # noinspection PyUnresolvedReferences
+    from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 
 
 class SimpleAudioTailTrack(SimpleAudioTrack):
     DEFAULT_NAME = "tail"
+
+    def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
+        super(SimpleAudioTrack, self).__init__(*a, **k)
+        self.abstract_group_track = self.abstract_group_track  # type: ExternalSynthTrack
 
     @p0_subject_slot("devices")
     def _devices_listener(self):

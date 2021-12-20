@@ -5,6 +5,7 @@ from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComp
 from protocol0.devices.InstrumentMinitaur import InstrumentMinitaur
 from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.lom.track.AbstractTrack import AbstractTrack
+from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
 from protocol0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
@@ -49,24 +50,19 @@ class TrackManager(AbstractControlSurfaceComponent):
         return cls(track=track, index=index)
 
     def instantiate_abstract_group_track(self, base_group_track):
-        # type: (SimpleTrack) -> None
+        # type: (SimpleTrack) -> AbstractGroupTrack
         ext_synth_track = self._make_external_synth_track(base_group_track=base_group_track)
-        previous_abstract_group_track = base_group_track.abstract_group_track
 
         if ext_synth_track:
-            abstract_group_track = ext_synth_track
+            return ext_synth_track
+
+        # handling normal group track
+        previous_abstract_group_track = base_group_track.abstract_group_track
+
+        if isinstance(previous_abstract_group_track, NormalGroupTrack):
+            return previous_abstract_group_track
         else:
-            if isinstance(previous_abstract_group_track, ExternalSynthTrack):
-                self.parent.log_error("An ExternalSynthTrack is changed to a NormalGroupTrack")
-            if isinstance(previous_abstract_group_track, NormalGroupTrack):
-                abstract_group_track = previous_abstract_group_track
-            else:
-                abstract_group_track = NormalGroupTrack(base_group_track=base_group_track)
-
-        if previous_abstract_group_track and previous_abstract_group_track != abstract_group_track:
-            previous_abstract_group_track.disconnect()
-
-        abstract_group_track.on_tracks_change()
+            return NormalGroupTrack(base_group_track=base_group_track)
 
     def _make_external_synth_track(self, base_group_track):
         # type: (SimpleTrack) -> Optional[ExternalSynthTrack]
