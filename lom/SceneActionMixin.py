@@ -60,7 +60,6 @@ class SceneActionMixin(object):
     def _stop_previous_scene(self, immediate=False):
         # type: (Scene, bool) -> None
         previous_playing_scene = self.song.playing_scene
-        self.parent.log_dev("previous_playing_scene: %s" % previous_playing_scene)
         if previous_playing_scene is None or previous_playing_scene == self:
             return
 

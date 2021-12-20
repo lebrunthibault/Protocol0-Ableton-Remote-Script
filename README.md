@@ -79,8 +79,6 @@ The bigger part of the script is dedicated to handling external synths.
 
 ## Installation
 
-If you want start by doing this (and then you're on your own :p) :
-
 - clone the repo in your remote scripts directory
 - create a .env.json file by duplicating the .env.example.json and fill it
 - create a python virtual env in ./venv, activate and `pip install -r .\requirements.txt`
@@ -94,7 +92,7 @@ If you want start by doing this (and then you're on your own :p) :
 
 I've written a technical doc that details important parts of the script object model and techniques. Also, a few
 remote scripts concepts are
-explained. [see this google doc](https://lebrunthibault.github.io/post/protocol0-technical-overview/)
+explained. [see this google doc](https://lebrunthibault.github.io/post/protocol0-technical-overview/) (could be a bit outdated)
 
 ### Tools
 
