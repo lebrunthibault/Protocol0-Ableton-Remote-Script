@@ -32,6 +32,7 @@ class Scene(SceneActionMixin, AbstractObject):
 
         self.selected_playing_position = 0
         self.scene_name = SceneName(self)
+        self._next_scene_fired = False
 
         self.clip_slots = []  # type: List[ClipSlot]
         self.clips = []  # type: List[Clip]
@@ -76,17 +77,26 @@ class Scene(SceneActionMixin, AbstractObject):
     @throttle(wait_time=1)
     def _is_triggered_listener(self):
         # type: () -> None
-        if self.has_playing_clips and self.song.playing_scene != self:
-            # noinspection PyUnresolvedReferences
-            self.notify_play()
-
         if self.song.is_playing is False:
             Scene.PLAYING_SCENE = None
+            return
+
+        if self.has_playing_clips:
+            if self.song.playing_scene == self:
+                self.parent.log_dev("notify end ! %s <-> %s" % (self.song.playing_scene, self))
+                # noinspection PyUnresolvedReferences
+                self.song.notify_session_end()
+            else:
+                if self.song.playing_scene:
+                    self.song.playing_scene._next_scene_fired = False
+                # noinspection PyUnresolvedReferences
+                self.notify_play()
 
     @p0_subject_slot("play")
     def _play_listener(self):
         # type: () -> None
         self.parent.defer(partial(self._stop_previous_scene, self.song.playing_scene, immediate=True))
+        self.parent.log_dev("setting to %s" % self)
         Scene.PLAYING_SCENE = self
 
         if self.song.looping_scene and self.song.looping_scene != self:

@@ -3,6 +3,7 @@ from math import floor
 
 from typing import TYPE_CHECKING, Optional, cast
 
+from protocol0.components.SessionToArrangementManager import SessionToArrangementManager
 from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.sequence.Sequence import Sequence
@@ -20,35 +21,31 @@ class SceneActionMixin(object):
 
     def on_beat_changed(self):
         # type: (Scene) -> None
-        self.parent.log_dev((self.current_bar, self.current_beat))
+        self.parent.log_dev((self.current_bar, self.current_beat), debug=False)
         if self.is_recording:
             return
         # trigger on last beat
         if self.current_bar == self.bar_length - 1:
-            if self.current_beat == self.song.signature_numerator - 1 or self.song.tempo > 500:
+            self.parent.log_dev("is last bar", debug=False)
+            if not self._next_scene_fired and (self.current_beat == self.song.signature_numerator - 1 or SessionToArrangementManager.IS_BOUNCING):
+                self.parent.log_dev("firing next !", debug=False)
                 self.parent.defer(self._play_audio_tails)
                 self._fire_next_scene()
 
-        if self.current_beat == 0:
+        if self.current_beat == 0 and not SessionToArrangementManager.IS_BOUNCING:
             self.parent.defer(self.scene_name.update)
 
     def _fire_next_scene(self):
         # type: (Scene) -> None
-        next_scene = self.next_scene
-        if self == next_scene:
-            self.fire()
-            seq = Sequence()
-            seq.add(complete_on=self._is_triggered_listener)
-            # noinspection PyUnresolvedReferences
-            seq.add(self.song.notify_session_end)
-            seq.done()
-            return
-        # # this can happen when splitting a scene
-        # if self.length - self.playing_position <= 0:
-        #     return
+        if self._next_scene_fired:
+            return None
 
-        self.parent.defer(partial(next_scene._stop_previous_scene, self))
-        next_scene.fire()
+        self._next_scene_fired = True
+
+        if self != self.next_scene:
+            self.parent.defer(partial(self.next_scene._stop_previous_scene, self))
+
+        self.next_scene.fire()
 
     def select(self):
         # type: (Scene) -> None

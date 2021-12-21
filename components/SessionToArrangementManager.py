@@ -3,6 +3,7 @@ from functools import partial
 from typing import Optional
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.lom.Scene import Scene
 from protocol0.sequence.Sequence import Sequence
 
 
@@ -17,6 +18,7 @@ class SessionToArrangementManager(AbstractControlSurfaceComponent):
             return None
 
         SessionToArrangementManager.IS_BOUNCING = True
+        Scene.PLAYING_SCENE = None
         tempo = self.song.tempo
         self.song.unfocus_all_tracks()
         self.song.tempo = 999
