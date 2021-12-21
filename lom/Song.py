@@ -176,7 +176,7 @@ class Song(SongActionMixin, AbstractObject):
     @property
     def selected_scene(self):
         # type: () -> Scene
-        return self.parent.songScenesManager.get_scene(self.song._view.selected_scene)
+        return self.parent.songScenesManager.get_optional_scene(self.song._view.selected_scene)
 
     @selected_scene.setter
     def selected_scene(self, scene):

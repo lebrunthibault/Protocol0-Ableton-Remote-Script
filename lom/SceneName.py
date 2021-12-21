@@ -3,6 +3,7 @@ import re
 from typing import TYPE_CHECKING, Any
 
 from protocol0.lom.AbstractObjectName import AbstractObjectName
+from protocol0.utils.decorators import throttle
 
 if TYPE_CHECKING:
     from protocol0.lom.Scene import Scene
@@ -26,8 +27,10 @@ class SceneName(AbstractObjectName):
 
         return base_name
 
+    @throttle(wait_time=20)
     def update(self, base_name=None, display_bar_count=True, display_selected_bar_count=False):
         # type: (str, bool, bool) -> None
+        """ throttling to avoid multiple calls due to name listener """
         base_name = base_name if base_name else self._get_base_name()
         looping = "*" if self.scene == self.song.looping_scene else ""
         length_legend = self.parent.utilsManager.get_length_legend(length=self.scene.length)

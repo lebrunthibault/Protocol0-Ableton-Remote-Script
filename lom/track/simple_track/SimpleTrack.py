@@ -3,7 +3,6 @@ from itertools import chain
 from typing import List, Optional, Any
 
 import Live
-from _Framework.SubjectSlot import subject_slot_group
 from protocol0.config import Config
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
@@ -45,9 +44,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self._map_clip_slots()
 
         self._output_meter_level_listener.subject = None
-
-        if self.IS_ACTIVE:
-            self._fired_slot_index_listener.subject = self._track
 
     @property
     def live_id(self):
@@ -92,7 +88,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             else:
                 new_clip_slots.append(ClipSlot.make(clip_slot=clip_slot, track=self))
         self.clip_slots[:] = new_clip_slots  # type: List[ClipSlot]
-        self._clip_slots_has_clip_listener.replace_subjects(self.clip_slots)
 
     def refresh_appearance(self):
         # type: (SimpleTrack) -> None
@@ -105,12 +100,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         super(SimpleTrack, self).refresh_color()
         for clip in self.clips:
             clip.color = self.color
-
-    @p0_subject_slot("fired_slot_index")
-    def _fired_slot_index_listener(self):
-        # type: () -> None
-        # noinspection PyUnresolvedReferences
-        self.parent.defer(self.notify_fired_slot_index)
 
     @p0_subject_slot("devices")
     def _devices_listener(self):
@@ -131,16 +120,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             if self.instrument:
                 # noinspection PyUnresolvedReferences
                 self.abstract_track.notify_instrument()
-
-    @subject_slot_group("has_clip")
-    def _clip_slots_has_clip_listener(self, _):
-        # type: (ClipSlot) -> None
-        # noinspection PyUnresolvedReferences
-        self.notify_has_clip()
-        if self.abstract_group_track:
-            # noinspection PyUnresolvedReferences
-            self.abstract_group_track.notify_has_clip()
-        pass
 
     @p0_subject_slot("output_meter_level")
     def _output_meter_level_listener(self):

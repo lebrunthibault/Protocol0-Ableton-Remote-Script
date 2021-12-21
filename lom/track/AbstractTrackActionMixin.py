@@ -221,7 +221,6 @@ class AbstractTrackActionMixin(object):
         self.song.stop_playing()
         assert self.next_empty_clip_slot_index is not None
         recording_scene = self.song.scenes[self.next_empty_clip_slot_index]
-        # recording_scene.stop_previous_scene()
         self.song.stop_all_clips(quantized=False)  # stopping previous scene clips
 
         self.song.is_playing = True

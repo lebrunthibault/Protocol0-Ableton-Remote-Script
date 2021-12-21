@@ -79,8 +79,6 @@ class ExternalSynthTrackActionMixin(object):
 
             if self._external_device:
                 self._external_device.mute = False
-        # noinspection PyUnresolvedReferences
-        self.notify_has_monitor_in()
 
     def switch_monitoring(self):
         # type: (ExternalSynthTrack) -> None
@@ -131,7 +129,6 @@ class ExternalSynthTrackActionMixin(object):
         audio_clip = cast(AudioClip, audio_clip_slot.clip)
 
         seq = Sequence()
-        audio_clip_slot.has_stop_button = True
         if audio_clip:
             audio_clip_slot.previous_audio_file_path = audio_clip.file_path
             seq.add(audio_clip.delete)
@@ -144,9 +141,11 @@ class ExternalSynthTrackActionMixin(object):
                 seq.add(audio_tail_clip.delete)
 
             if self.record_clip_tails:
-                audio_tail_clip_slot.has_stop_button = True
                 self._stop_midi_input_to_record_clip_tail(midi_clip_slot=midi_clip.clip_slot,
                                                           bar_length=midi_clip.bar_length)
+
+        clip_slots = [audio_clip_slot] + [audio_tail_clip_slot] if audio_tail_clip_slot else []
+        seq.add([cs.add_stop_button for cs in clip_slots])
 
         self.parent.show_message(UtilsManager.get_recording_length_legend(bar_length, self.record_clip_tails))
         seq.add(self.song.stop_playing)
@@ -198,7 +197,7 @@ class ExternalSynthTrackActionMixin(object):
 
         seq.add([partial(source_cs.duplicate_clip_to, clip) for clip in duplicate_audio_clip_slots])
 
-        duplicate_midi_clips = [self.midi_track.clips[cs.index] for cs in duplicate_audio_clip_slots]
+        duplicate_midi_clips = [self.midi_track.clip_slots[cs.index].clip for cs in duplicate_audio_clip_slots]
         seq.add([partial(clip.clip_name.update, base_name=source_audio_clip.clip_name.base_name) for clip in
                  duplicate_midi_clips])
 

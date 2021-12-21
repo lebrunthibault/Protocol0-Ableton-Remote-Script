@@ -18,7 +18,7 @@ class AbstractEnum(Enum):
         # type: (Any) -> bool
         return isinstance(json_value, dict) and json_value.get("type") == "Enum"
 
-    def to_json_dict(self):
+    def to_json(self):
         # type: () -> dict
         return {
             "type": "Enum",

@@ -63,6 +63,9 @@ class SongTracksManager(AbstractControlSurfaceComponent):
         self._generate_simple_tracks()
         self._generate_abstract_group_tracks()
 
+        for scene in self.song.scenes:
+            scene.on_tracks_change()
+
         self.parent.log_info("mapped tracks")
 
         seq = Sequence()
@@ -105,9 +108,6 @@ class SongTracksManager(AbstractControlSurfaceComponent):
         self.song.master_track = self.generate_simple_track(track=self.song._song.master_track, index=0, cls=SimpleMasterTrack)
 
         self._sort_simple_tracks()
-
-        for scene in self.song.scenes:
-            scene.on_tracks_change()
 
     def generate_simple_track(self, track, index, cls=None):
         # type: (Live.Track.Track, int, Optional[Type[SimpleTrack]]) -> SimpleTrack
@@ -162,16 +162,16 @@ class SongTracksManager(AbstractControlSurfaceComponent):
         # type: () -> None
         # 2nd pass : instantiate AbstractGroupTracks
         for track in self.song.simple_tracks:
-            if track.is_foldable:
+            if not track.is_foldable:
+                continue
 
-                abstract_group_track = self.parent.trackManager.instantiate_abstract_group_track(track)
+            previous_abstract_group_track = track.abstract_group_track
+            abstract_group_track = self.parent.trackManager.instantiate_abstract_group_track(track)
 
-                previous_abstract_group_track = track.abstract_group_track
-                if isinstance(previous_abstract_group_track, ExternalSynthTrack) and isinstance(abstract_group_track, NormalGroupTrack):
-                    self.parent.log_error("An ExternalSynthTrack is changed to a NormalGroupTrack")
+            if isinstance(previous_abstract_group_track, ExternalSynthTrack) and isinstance(abstract_group_track, NormalGroupTrack):
+                self.parent.log_error("An ExternalSynthTrack is changed to a NormalGroupTrack")
 
-                if previous_abstract_group_track and previous_abstract_group_track != abstract_group_track:
-                    previous_abstract_group_track.disconnect()
+            if previous_abstract_group_track and previous_abstract_group_track != abstract_group_track:
+                previous_abstract_group_track.disconnect()
 
-                abstract_group_track.on_tracks_change()
-
+            abstract_group_track.on_tracks_change()

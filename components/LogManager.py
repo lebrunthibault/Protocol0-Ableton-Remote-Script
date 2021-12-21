@@ -167,6 +167,5 @@ class LogManager(AbstractObject):
             self.parent.log_info()
             self.parent.log_info("song.selected_clip.length: %s" % self.song.selected_clip.length)
             self.parent.log_info()
-            self.parent.log_info("song.selected_clip.has_tail: %s" % self.song.selected_clip.has_tail)
             self.parent.log_info("song.selected_clip.loop_start: %s" % self.song.selected_clip.loop_start)
             self.parent.log_info("song.selected_clip.loop_end: %s" % self.song.selected_clip.loop_end)

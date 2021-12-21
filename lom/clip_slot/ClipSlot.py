@@ -51,10 +51,11 @@ class ClipSlot(AbstractObject):
         # type: () -> None
         if self.clip:
             self.clip.disconnect()
-        else:
-            self.parent.defer(partial(setattr, self, "has_stop_button", False))
 
         self._map_clip(is_new=True)
+
+        if not self.clip:
+            self.parent.defer(partial(setattr, self, "has_stop_button", False))
 
     def _map_clip(self, is_new=False):
         # type: (bool) -> None
@@ -89,6 +90,16 @@ class ClipSlot(AbstractObject):
         if self._clip_slot:
             self._clip_slot.has_stop_button = has_stop_button
 
+    def add_stop_button(self):
+        # type: () -> Optional[Sequence]
+        if self.has_stop_button:
+            return None
+
+        seq = Sequence()
+        self.has_stop_button = True
+        seq.add(wait=1)
+        return seq.done()
+
     def delete_clip(self):
         # type: () -> None
         if self._clip_slot and self._clip_slot.has_clip:
@@ -112,9 +123,9 @@ class ClipSlot(AbstractObject):
     def record(self, bar_length, record_tail=False):
         # type: (int, bool) -> Optional[Sequence]
         self.parent.show_message(UtilsManager.get_recording_length_legend(bar_length, record_tail))
-        self.has_stop_button = True
 
         seq = Sequence()
+        seq.add(self.add_stop_button)
         seq.add(wait=1)  # also necessary so that _has_clip_listener triggers on has_clip == True
 
         if bar_length and record_tail:

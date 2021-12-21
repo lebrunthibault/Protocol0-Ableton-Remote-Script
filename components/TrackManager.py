@@ -27,6 +27,7 @@ class TrackManager(AbstractControlSurfaceComponent):
             added_track = self.song.current_track
         seq.add(wait=1)
         seq.add(added_track._added_track_init)
+        seq.add(self.parent.songScenesManager.delete_empty_scenes)
         seq.add(self.song.end_undo_step)
         return seq.done()
 
@@ -51,10 +52,8 @@ class TrackManager(AbstractControlSurfaceComponent):
 
     def instantiate_abstract_group_track(self, base_group_track):
         # type: (SimpleTrack) -> AbstractGroupTrack
-        ext_synth_track = self._make_external_synth_track(base_group_track=base_group_track)
-
-        if ext_synth_track:
-            return ext_synth_track
+        if self._is_valid_external_synth_track(base_group_track):
+            return self._make_external_synth_track(base_group_track=base_group_track)
 
         # handling normal group track
         previous_abstract_group_track = base_group_track.abstract_group_track
@@ -67,27 +66,31 @@ class TrackManager(AbstractControlSurfaceComponent):
     def _make_external_synth_track(self, base_group_track):
         # type: (SimpleTrack) -> Optional[ExternalSynthTrack]
         """ discarding automated tracks in creation / suppression """
-        if len(base_group_track.sub_tracks) < 2:
-            return None
-
         midi_track = base_group_track.sub_tracks[0]
-        audio_track = base_group_track.sub_tracks[1]
-        if not isinstance(midi_track, SimpleMidiTrack) or not isinstance(audio_track, SimpleAudioTrack):
-            return None
-
-        for track in base_group_track.sub_tracks[2:]:
-            if not isinstance(track, SimpleAudioTrack):
-                return None
 
         if not midi_track.instrument:
             midi_track.instrument = InstrumentMinitaur(track=midi_track, device=None)
 
-        if isinstance(base_group_track.abstract_group_track, ExternalSynthTrack) and all(
-                not isinstance(sub_track, SimpleAudioTrack) for sub_track in base_group_track.sub_tracks[2:]):
-            # no track structure change, we can reuse the track
+        if isinstance(base_group_track.abstract_group_track, ExternalSynthTrack):
             return base_group_track.abstract_group_track
         else:
             return ExternalSynthTrack(base_group_track=base_group_track)
+
+    def _is_valid_external_synth_track(self, base_group_track):
+        # type: (SimpleTrack) -> bool
+        if len(base_group_track.sub_tracks) < 2:
+            return False
+
+        if not isinstance(base_group_track.sub_tracks[0], SimpleMidiTrack):
+            return False
+        if not isinstance(base_group_track.sub_tracks[1], SimpleAudioTrack):
+            return False
+
+        for track in base_group_track.sub_tracks[2:]:
+            if not isinstance(track, SimpleAudioTrack):
+                return False
+
+        return True
 
     def append_to_sub_tracks(self, group_track, sub_track, previous_sub_track=None):
         # type: (AbstractTrack, AbstractTrack, Optional[AbstractTrack]) -> None

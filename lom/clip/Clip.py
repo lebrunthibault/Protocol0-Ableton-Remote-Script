@@ -115,11 +115,6 @@ class Clip(ClipActionMixin, AbstractObject):
         self.end_marker = self.loop_end
 
     @property
-    def has_tail(self):
-        # type: () -> bool
-        return False
-
-    @property
     def bar_length(self):
         # type: () -> int
         return int(self.length / self.song.signature_numerator)

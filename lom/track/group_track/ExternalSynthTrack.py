@@ -1,9 +1,9 @@
 import itertools
+from functools import partial
 
 from typing import Optional, Any, cast, List, Iterator
 
 from protocol0.devices.AbstractExternalSynthTrackInstrument import AbstractExternalSynthTrackInstrument
-from protocol0.lom.ObjectSynchronizer import ObjectSynchronizer
 from protocol0.lom.clip.Clip import Clip
 from protocol0.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
@@ -28,30 +28,13 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self.midi_track.track_name.disconnect()
         self.audio_track.track_name.disconnect()
         self.audio_tail_track = None  # type: Optional[SimpleAudioTailTrack]
-        if len(base_group_track.sub_tracks) > 2 and len(base_group_track.sub_tracks[2].devices) == 0:
-            # noinspection PyTypeChecker
-            track = base_group_track.sub_tracks[2]
-            self.audio_tail_track = self.parent.songTracksManager.generate_simple_track(track=track._track,
-                                                                                        index=track.index,
-                                                                                        cls=SimpleAudioTailTrack)
-            self.audio_tail_track.track_name.disconnect()
-        self.parent.defer(self._rename_tracks_to_default)
 
         # sub tracks are now handled by self
-        self.base_track.abstract_group_track = self
         for sub_track in base_group_track.sub_tracks:
             sub_track.abstract_group_track = self
 
         self._clip_slot_synchronizers = []  # type: List[ClipSlotSynchronizer]
         self._link_clip_slots()
-
-        with self.parent.component_guard():
-            self._midi_audio_synchronizer = ObjectSynchronizer(self.audio_track, self.midi_track, ["solo"])
-            self._midi_audio_tail_synchronizer = None  # type: Optional[ObjectSynchronizer]
-            if self.audio_tail_track:
-                self._midi_audio_tail_synchronizer = ObjectSynchronizer(self.audio_tail_track, self.midi_track,
-                                                                        ["solo"])
-            self._midi_solo_synchronizer = ObjectSynchronizer(self.base_track, self.midi_track, ["solo"])
 
         self._external_device = None  # type: Optional[Device]
         self._devices_listener.subject = self.midi_track
@@ -78,6 +61,28 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
             seq.add([clip.delete for clip in dummy_track.clips])
 
         return seq.done()
+
+    def on_tracks_change(self):
+        # type: () -> None
+        if len(self.base_track.sub_tracks) == len(self.sub_tracks):
+            return
+
+        has_tail_track = len(self.base_track.sub_tracks) > 2 and len(self.base_track.sub_tracks[2].devices) == 0
+        if has_tail_track and not self.audio_tail_track:
+            track = self.base_track.sub_tracks[2]
+            self.audio_tail_track = cast(SimpleAudioTailTrack,
+                                         self.parent.songTracksManager.generate_simple_track(track=track._track,
+                                                                                             index=track.index,
+                                                                                             cls=SimpleAudioTailTrack))
+            self.audio_tail_track.abstract_group_track = self
+            self.parent.defer(self.audio_tail_track.configure)
+            self.audio_tail_track.track_name.disconnect()
+            self.parent.defer(partial(setattr, self.audio_tail_track, "name", SimpleAudioTailTrack.DEFAULT_NAME))
+            self.record_clip_tails = True
+        elif not has_tail_track:
+            self.audio_tail_track = None
+
+        super(ExternalSynthTrack, self).on_tracks_change()
 
     def on_scenes_change(self):
         # type: () -> None
@@ -114,15 +119,6 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
                         self.midi_track.clip_slots, self.audio_tail_track.clip_slots
                     )
                 ]
-
-    def _rename_tracks_to_default(self):
-        # type: () -> None
-        if self.midi_track.name != SimpleMidiTrack.DEFAULT_NAME:
-            self.midi_track.name = SimpleMidiTrack.DEFAULT_NAME
-        if self.audio_track.name != SimpleAudioTrack.DEFAULT_NAME:
-            self.audio_track.name = SimpleAudioTrack.DEFAULT_NAME
-        if self.audio_tail_track and self.audio_tail_track.name != SimpleAudioTailTrack.DEFAULT_NAME:
-            self.audio_tail_track.name = SimpleAudioTailTrack.DEFAULT_NAME
 
     @p0_subject_slot("devices")
     def _devices_listener(self):
@@ -212,10 +208,6 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     def disconnect(self):
         # type: () -> None
         super(ExternalSynthTrack, self).disconnect()
-        self._midi_solo_synchronizer.disconnect()
-        self._midi_audio_synchronizer.disconnect()
-        if self._midi_audio_tail_synchronizer:
-            self._midi_audio_tail_synchronizer.disconnect()
         for clip_slot_synchronizer in self._clip_slot_synchronizers:
             clip_slot_synchronizer.disconnect()
         self._clip_slot_synchronizers = []

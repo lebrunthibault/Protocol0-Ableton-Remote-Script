@@ -1,5 +1,4 @@
 from functools import partial
-from math import floor
 
 from typing import TYPE_CHECKING, Any
 
@@ -57,12 +56,6 @@ class AudioClip(Clip):
     def file_path(self):
         # type: () -> str
         return self._clip.file_path if self._clip else ""
-
-    @property
-    def has_tail(self):
-        # type: () -> bool
-        total_length = floor(self.end_marker - self.start_marker)
-        return self.looping is False or total_length > self.length
 
     def post_record(self):
         # type: () -> None

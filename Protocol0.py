@@ -60,7 +60,7 @@ from protocol0.utils.utils import find_if
 
 def _default(_, obj):
     # type: (Any, Any) -> Any
-    return getattr(obj.__class__, "to_json_dict", _default.default)(obj)
+    return getattr(obj.__class__, "to_json", _default.default)(obj)
 
 
 _default.default = JSONEncoder().default
@@ -224,13 +224,10 @@ class Protocol0(ControlSurface):
 
     def _log(self, message="", level=LogLevelEnum.INFO, debug=False):
         # type: (Any, LogLevelEnum, bool) -> None
-        if not isinstance(message, basestring):
-            message = str(message)
         log_ableton(
             message=message,
             debug=message is not None and debug,
             level=level,
-            direct_call=False,
         )
 
     def defer(self, callback):

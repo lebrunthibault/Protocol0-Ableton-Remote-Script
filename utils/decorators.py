@@ -38,18 +38,6 @@ def push2_method(defer_call=True):
     return wrap
 
 
-def defer(func):
-    # type: (Func) -> Func
-    @wraps(func)
-    def decorate(*a, **k):
-        # type: (Any, Any) -> None
-        from protocol0 import Protocol0
-
-        Protocol0.SELF.defer(partial(func, *a, **k))
-
-    return decorate
-
-
 def session_view_only(func):
     # type: (Func) -> Func
     @wraps(func)

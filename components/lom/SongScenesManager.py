@@ -6,6 +6,7 @@ from typing import Any, Optional, List
 import Live
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.lom.Scene import Scene
+from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import p0_subject_slot
 
 
@@ -20,7 +21,7 @@ class SongScenesManager(AbstractControlSurfaceComponent):
         # type: (Live.Scene.Scene) -> Scene
         return self._live_scene_id_to_scene[live_scene._live_ptr]
 
-    def _get_optional_scene(self, scene):
+    def get_optional_scene(self, scene):
         # type: (Live.Scene.Scene) -> Optional[Scene]
         try:
             return self.get_scene(scene)
@@ -77,7 +78,7 @@ class SongScenesManager(AbstractControlSurfaceComponent):
 
     def generate_scene(self, live_scene, index):
         # type: (Live.Scene.Scene, int) -> None
-        scene = self._get_optional_scene(live_scene)
+        scene = self.get_optional_scene(live_scene)
         if scene is None:
             scene = Scene(live_scene, index=index)
         else:
@@ -91,3 +92,17 @@ class SongScenesManager(AbstractControlSurfaceComponent):
         for scene in self.song._song.scenes:
             sorted_dict[scene._live_ptr] = self.get_scene(scene)
         self._live_scene_id_to_scene = sorted_dict
+
+    def delete_empty_scenes(self):
+        # type: () -> Sequence
+        empty_scenes = []
+        seq = Sequence()
+        for scene in reversed(self.song.scenes):
+            if scene.length == 0:
+                empty_scenes.append(scene)
+            else:
+                break
+
+        seq.add([scene.delete for scene in empty_scenes])
+        return seq.done()
+

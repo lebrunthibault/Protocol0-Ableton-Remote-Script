@@ -5,7 +5,7 @@ from typing import List, Any
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.sequence.Sequence import Sequence
 from protocol0.tests.test_all import p0
-from protocol0.utils.decorators import has_callback_queue, p0_subject_slot, defer
+from protocol0.utils.decorators import has_callback_queue, p0_subject_slot
 
 
 def test_has_callback_queue_1():
@@ -60,11 +60,11 @@ def test_has_callback_queue_result():
             self.listener_sequence.subject = self
             self.callback_called = False
 
-        @defer
         def test(self):
             # type: () -> None
+            from protocol0 import Protocol0
             # noinspection PyUnresolvedReferences
-            self.notify_test()
+            Protocol0.SELF.defer(self.notify_test)
 
         @p0_subject_slot("test", immediate=False)
         def listener_normal(self):

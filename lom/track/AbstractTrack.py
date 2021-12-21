@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 
 
 class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
-    __subject_events__ = ("has_clip", "is_recording", "instrument", "devices", "fired_slot_index", "has_monitor_in")
+    __subject_events__ = ("is_recording", "instrument", "devices")
 
     DEFAULT_NAME = "default"
     DEFAULT_COLOR = ColorEnum.DISABLED  # when the color cannot be matched
@@ -61,7 +61,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self.push2_selected_instrument_mode = None  # type: Optional[Push2InstrumentModeEnum]
 
         # LISTENERS
-        self._has_clip_listener.subject = self
         self._is_recording_listener.subject = self
 
     def __repr__(self):
@@ -83,11 +82,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         pass
 
     def on_scenes_change(self):
-        # type: () -> None
-        pass
-
-    @p0_subject_slot("has_clip")
-    def _has_clip_listener(self):
         # type: () -> None
         pass
 

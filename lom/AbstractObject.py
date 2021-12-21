@@ -43,6 +43,10 @@ class AbstractObject(SlotManager, Subject):
         # type: (object) -> bool
         return not obj or not self == obj
 
+    def to_json(self):
+        # type: () -> str
+        return str(self)
+
     @property
     def system(self):
         # type: () -> P0SystemAPI

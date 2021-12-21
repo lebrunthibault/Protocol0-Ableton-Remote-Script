@@ -1,6 +1,8 @@
+import collections
+import json
 import logging
 
-from typing import Optional, TYPE_CHECKING, Any
+from typing import Optional, TYPE_CHECKING, Any, List, Tuple
 
 from protocol0.config import Config
 from protocol0.errors.Protocol0Error import Protocol0Error
@@ -10,20 +12,29 @@ if TYPE_CHECKING:
     from protocol0.enums.LogLevelEnum import LogLevelEnum  # noqa
 
 
-def log_ableton(message, debug=True, level=None, direct_call=True):
-    # type: (Any, bool, Optional[LogLevelEnum], bool) -> None
+def log_ableton(message, debug=True, level=None):
+    # type: (Any, bool, Optional[LogLevelEnum]) -> None
     """ a log function and not method allowing us to call this even with no access to the ControlSurface object """
+    if hasattr(message, '__iter__'):
+        message = list(message)
+
+    if isinstance(message, List):
+        message = json.dumps(message, indent=4)
+
+    if not isinstance(message, basestring):
+        message = str(message)
+
     from protocol0.enums.LogLevelEnum import LogLevelEnum  # noqa
     level = level or LogLevelEnum.INFO
     if level.value < Config.LOG_LEVEL.value:
         return
     message = "%s: %s" % (level.name.lower(), smart_string(message))
-    if any(not isinstance(param, bool) for param in [debug, direct_call]):
+    if not isinstance(debug, bool):
         raise Protocol0Error("log_ableton: parameter mismatch")
     if debug:
         from protocol0.utils.utils import get_frame_info
 
-        frame_info = get_frame_info(2 if direct_call else 4)
+        frame_info = get_frame_info(2)
         if frame_info:
             message = "%s (%s:%s in %s)" % (
                 message,

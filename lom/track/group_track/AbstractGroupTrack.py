@@ -17,7 +17,7 @@ class AbstractGroupTrack(AbstractTrack):
         base_group_track.track_name.disconnect()
         # filled when link_sub_tracks is called
         self.group_track = self.group_track  # type: Optional[AbstractGroupTrack]
-        self.sub_tracks = self.base_track.sub_tracks
+        self.sub_tracks = []  # type: List[AbstractTrack]
         # for now: List[SimpleTrack] but AbstractGroupTracks will register themselves on_tracks_change
         self.dummy_tracks = []  # type: List[SimpleDummyTrack]
 
@@ -32,9 +32,6 @@ class AbstractGroupTrack(AbstractTrack):
         """ 2nd layer linking """
         update_name = len(self.sub_tracks) != len(self.base_track.sub_tracks)
         self.sub_tracks[:] = self.base_track.sub_tracks
-        # for sub_track in self.sub_tracks:
-        #     if not sub_track.is_foldable:
-        #         sub_track.abstract_group_track = self
         if update_name:
             self.parent.defer(self.track_name.update)
 

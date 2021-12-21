@@ -1,3 +1,5 @@
+from functools import partial
+
 from typing import List, Any, Optional, cast
 
 import Live
@@ -28,7 +30,7 @@ class Scene(SceneActionMixin, AbstractObject):
         self._scene = scene
         self.index = index
 
-        # self.selected_playing_position = 0
+        self.selected_playing_position = 0
         self.scene_name = SceneName(self)
 
         self.clip_slots = []  # type: List[ClipSlot]
@@ -51,11 +53,9 @@ class Scene(SceneActionMixin, AbstractObject):
 
     def _link_clip_slots_and_clips(self):
         # type: () -> None
-        self.clip_slots = [track.clip_slots[self.index] for track in self.song.simple_tracks if
-                           track.__class__ not in (SimpleDummyTrack, SimpleInstrumentBusTrack)]
-
+        self.clip_slots = [track.clip_slots[self.index] for track in self.song.simple_tracks]
         self._map_clips()
-        self.tracks = list(set([cs.track for cs in self.clips]))
+        self.tracks = [cs.track for cs in self.clips]
 
         # listeners
         self._clip_slots_has_clip_listener.replace_subjects(self.clip_slots)
@@ -63,7 +63,7 @@ class Scene(SceneActionMixin, AbstractObject):
     def _map_clips(self):
         # type: () -> None
         self.clips = [clip_slot.clip for clip_slot in self.clip_slots if
-                      clip_slot.has_clip and clip_slot.clip]
+                      clip_slot.has_clip and clip_slot.clip and clip_slot.track.__class__ not in (SimpleDummyTrack, SimpleInstrumentBusTrack)]
         self.audio_tail_clips = cast(List[AudioClip],
                                      [clip for clip in self.clips if isinstance(clip.track, SimpleAudioTailTrack)])
         self._clips_length_listener.replace_subjects(self.clips)
@@ -78,7 +78,7 @@ class Scene(SceneActionMixin, AbstractObject):
         # type: () -> None
         if self.has_playing_clips and self.song.playing_scene != self:
             # noinspection PyUnresolvedReferences
-            self.parent.defer(self.notify_play)
+            self.notify_play()
 
         if self.song.is_playing is False:
             Scene.PLAYING_SCENE = None
@@ -86,14 +86,13 @@ class Scene(SceneActionMixin, AbstractObject):
     @p0_subject_slot("play")
     def _play_listener(self):
         # type: () -> None
-        """ implements a next scene follow action """
-        self._stop_previous_scene(immediate=True)
+        self.parent.defer(partial(self._stop_previous_scene, self.song.playing_scene, immediate=True))
         Scene.PLAYING_SCENE = self
 
         if self.song.looping_scene and self.song.looping_scene != self:
             previous_looping_scene = self.song.looping_scene
             Scene.LOOPING_SCENE = None
-            previous_looping_scene.scene_name.update()
+            self.parent.defer(previous_looping_scene.scene_name.update)
 
     @subject_slot_group("length")
     @throttle(wait_time=10)
@@ -106,6 +105,14 @@ class Scene(SceneActionMixin, AbstractObject):
         # type: (ClipSlot) -> None
         self._map_clips()
         self.check_scene_length()
+
+    @property
+    def next_scene(self):
+        # type: () -> Scene
+        if self == self.song.looping_scene or self == self.song.scenes[-1] or self.song.scenes[self.index + 1].bar_length == 0:
+            return self
+        else:
+            return self.song.scenes[self.index + 1]
 
     @property
     def color(self):

@@ -1,8 +1,9 @@
 from functools import partial
 from math import floor
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, cast
 
+from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.utils import scroll_values
@@ -19,18 +20,22 @@ class SceneActionMixin(object):
 
     def on_beat_changed(self):
         # type: (Scene) -> None
-        self.scene_name.update()
+        self.parent.log_dev((self.current_bar, self.current_beat))
         if self.is_recording:
             return
         # trigger on last beat
         if self.current_bar == self.bar_length - 1:
             if self.current_beat == self.song.signature_numerator - 1 or self.song.tempo > 500:
-                self._play_audio_tails()
+                self.parent.defer(self._play_audio_tails)
                 self._fire_next_scene()
+
+        if self.current_beat == 0:
+            self.parent.defer(self.scene_name.update)
 
     def _fire_next_scene(self):
         # type: (Scene) -> None
-        if self == self.song.looping_scene or self == self.song.scenes[-1] or self.song.scenes[self.index + 1].bar_length == 0:
+        next_scene = self.next_scene
+        if self == next_scene:
             self.fire()
             seq = Sequence()
             seq.add(complete_on=self._is_triggered_listener)
@@ -38,12 +43,11 @@ class SceneActionMixin(object):
             seq.add(self.song.notify_session_end)
             seq.done()
             return
-        # this can happen when splitting a scene
-        if self.length - self.playing_position <= 0:
-            return
+        # # this can happen when splitting a scene
+        # if self.length - self.playing_position <= 0:
+        #     return
 
-        next_scene = self.song.scenes[self.index + 1]
-        next_scene._stop_previous_scene()
+        self.parent.defer(partial(next_scene._stop_previous_scene, self))
         next_scene.fire()
 
     def select(self):
@@ -57,15 +61,14 @@ class SceneActionMixin(object):
         if move_playing_position:
             self.parent.defer(partial(self.jump_to, self.selected_playing_position))
 
-    def _stop_previous_scene(self, immediate=False):
-        # type: (Scene, bool) -> None
-        previous_playing_scene = self.song.playing_scene
+    def _stop_previous_scene(self, previous_playing_scene, immediate=False):
+        # type: (Scene, Optional[Scene], bool) -> None
         if previous_playing_scene is None or previous_playing_scene == self:
             return
 
         # manually stopping previous scene because we don't display clip slot stop buttons
-        for track in [track for track in previous_playing_scene.tracks if track not in self.tracks]:
-            if isinstance(track, SimpleAudioTailTrack):
+        for track in previous_playing_scene.tracks:
+            if track in self.tracks or isinstance(track, SimpleAudioTailTrack):
                 continue
 
             track.stop(immediate=immediate)
@@ -75,16 +78,18 @@ class SceneActionMixin(object):
     def _play_audio_tails(self):
         # type: (Scene) -> None
         # playing tails
-        if self.song.playing_scene:
-            for clip in self.song.playing_scene.audio_tail_clips:
+        for clip in self.audio_tail_clips:
+            abstract_track = cast(ExternalSynthTrack, clip.track.abstract_track)
+            # do not trigger tail on monophonic loop
+            if abstract_track.instrument.MONOPHONIC and self.next_scene.clip_slots[clip.track.index].clip:
+                continue
+            else:
                 clip.play_and_mute()
 
     def mute_audio_tails(self):
         # type: (Scene) -> None
-        # playing tails
-        if self.song.playing_scene:
-            for clip in self.song.playing_scene.audio_tail_clips:
-                clip.mute_if_scene_changed()
+        for clip in self.audio_tail_clips:
+            clip.mute_if_scene_changed()
 
     def delete(self):
         # type: (Scene) -> Optional[Sequence]
