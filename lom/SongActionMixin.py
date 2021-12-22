@@ -2,6 +2,7 @@ from functools import partial
 
 from typing import TYPE_CHECKING, Optional, Any
 
+import Live
 from protocol0.enums.AbstractEnum import AbstractEnum
 from protocol0.enums.SongLoadStateEnum import SongLoadStateEnum
 from protocol0.lom.device.Device import Device
@@ -45,22 +46,28 @@ class SongActionMixin(object):
     def play(self):
         # type: (Song) -> None
         if self.application.session_view_active:
-            self._play_session()
+            self.play_session()
         else:
             self._play_arrangement()
 
     @session_view_only
-    def _play_session(self, from_beginning=False):
+    def play_session(self, from_beginning=False):
         # type: (Song, bool) -> None
         scene = self.scenes[0] if from_beginning else self.selected_scene
         scene.fire()
-        # noinspection PyUnresolvedReferences
-        scene.notify_play()
 
     @arrangement_view_only
     def _play_arrangement(self):
         # type: (Song) -> None
         self.is_playing = True
+
+    def enable_clip_trigger_quantization(self):
+        # type: (Song) -> None
+        self.clip_trigger_quantization = Live.Song.Quantization.q_bar
+
+    def disable_clip_trigger_quantization(self):
+        # type: (Song) -> None
+        self.clip_trigger_quantization = Live.Song.Quantization.q_no_q
 
     def stop_playing(self):
         # type: (Song) -> None

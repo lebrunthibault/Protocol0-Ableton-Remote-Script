@@ -21,14 +21,11 @@ class SceneActionMixin(object):
 
     def on_beat_changed(self):
         # type: (Scene) -> None
-        self.parent.log_dev((self.current_bar, self.current_beat), debug=False)
         if self.is_recording:
             return
         # trigger on last beat
         if self.current_bar == self.bar_length - 1:
-            self.parent.log_dev("is last bar", debug=False)
             if not self._next_scene_fired and (self.current_beat == self.song.signature_numerator - 1 or SessionToArrangementManager.IS_BOUNCING):
-                self.parent.log_dev("firing next !", debug=False)
                 self.parent.defer(self._play_audio_tails)
                 self._fire_next_scene()
 
@@ -36,27 +33,47 @@ class SceneActionMixin(object):
             self.parent.defer(self.scene_name.update)
 
     def _fire_next_scene(self):
-        # type: (Scene) -> None
+        # type: (Scene) -> Optional[Sequence]
         if self._next_scene_fired:
             return None
 
         self._next_scene_fired = True
 
-        if self != self.next_scene:
-            self.parent.defer(partial(self.next_scene._stop_previous_scene, self))
+        next_scene = self.next_scene
 
-        self.next_scene.fire()
+        if self != next_scene:
+            self.parent.defer(partial(next_scene._stop_previous_scene, self))
+
+        seq = Sequence()
+        seq.add(next_scene.fire)
+        if self == next_scene:
+            # noinspection PyUnresolvedReferences
+            seq.add(self.song.notify_session_end)
+        return seq.done()
 
     def select(self):
         # type: (Scene) -> None
         self.song.selected_scene = self
 
-    def fire(self, move_playing_position=False):
-        # type: (Scene, bool) -> None
-        if self._scene:
-            self._scene.fire()
+    def fire(self, stop_last=False, move_playing_position=False):
+        # type: (Scene, bool, bool) -> Optional[Sequence]
+        if not self._scene:
+            return None
+
         if move_playing_position:
             self.parent.defer(partial(self.jump_to, self.selected_playing_position))
+
+        seq = Sequence()
+
+        # handles click sound when the previous scene plays shortly
+        if stop_last and self.song.playing_scene and self.song.playing_scene != self:
+            seq.add(wait=1)
+            seq.add(partial(self._stop_previous_scene, self.song.playing_scene))
+
+        seq.add(self._scene.fire)
+        seq.add(complete_on=self.is_triggered_listener)
+
+        return seq.done()
 
     def _stop_previous_scene(self, previous_playing_scene, immediate=False):
         # type: (Scene, Optional[Scene], bool) -> None
@@ -70,7 +87,8 @@ class SceneActionMixin(object):
 
             track.stop(immediate=immediate)
 
-        previous_playing_scene.scene_name.update(display_bar_count=False)
+        if immediate:
+            previous_playing_scene.scene_name.update(display_bar_count=False)
 
     def _play_audio_tails(self):
         # type: (Scene) -> None

@@ -1,9 +1,8 @@
-import collections
 import json
 import logging
 import types
 
-from typing import Optional, TYPE_CHECKING, Any, List, Tuple, Dict
+from typing import Optional, TYPE_CHECKING, Any, List, Dict
 
 from protocol0.config import Config
 from protocol0.errors.Protocol0Error import Protocol0Error

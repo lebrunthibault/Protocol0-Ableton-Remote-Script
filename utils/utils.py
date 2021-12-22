@@ -64,7 +64,10 @@ def get_frame_info(frame_count=1):
     # type: (int) -> Optional[Any]
     call_frame = inspect.currentframe()
     for _ in range(frame_count):
-        call_frame = call_frame.f_back
+        next_frame = call_frame.f_back
+        if not next_frame:
+            break
+        call_frame = next_frame
     try:
         (filename, line, method_name, _, _) = inspect.getframeinfo(cast(FrameType, call_frame))
     except IndexError:

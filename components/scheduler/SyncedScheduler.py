@@ -77,8 +77,6 @@ class SyncedScheduler(ClyphXComponentBase):
                     schedule(k)
                     del self._pending_precise_action_list[k]
 
-        # self.parent.log_dev(current_beat, debug=False)
-
         if self._last_beat != current_beat:
             self._last_beat = current_beat
 

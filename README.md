@@ -1,7 +1,7 @@
 # Protocol0 Control Surface Script for Ableton 10
 
 Protocol0 is a control surface script for Ableton Live. 
-It is written in python 2.7 (not moving to python3/Live 11 because a full restart is needed to recompile the script in Live 11. It's boring.)
+It is written in python 2.7 (not moving to python3/Live 11 because a full restart is needed to recompile the script in Live 11. It's boring).
 It is a "selected track control" like script focused on working in session view with hardware synths.
 Especially it enables a simple workflow for recording both midi and audio from external synths.
 I'm triggering commands from note on / off and cc messages using a
@@ -43,8 +43,10 @@ experimenting fast without too much technical hassle.
 
 Specifically it aims to achieve :
 
-- An integration with my generic FaderFox EC4 midi controller (could be used by any midi configurable controllers). Use
-  presses / long presses (both note messages) / button scrolls (cc messages).
+- An integration with my generic FaderFox EC4 midi controller (could be used by any midi configurable controllers). 
+  - Use presses / long presses (both note messages) / button scrolls (cc messages) to trigger actions. 
+  - NB : a number of actions are relative to the selected track, and the script sees certain types of group track as one composite track (see External Synths).
+  - Other actions can be relative to the selected scene, clip, or to the song.
 - A better workflow in session view
 - A better workflow when using external synthesizers
 - A better way to show / hide vsts and change presets (specifically drums using simpler, and the synths I use most :
@@ -54,10 +56,10 @@ Specifically it aims to achieve :
 > - Fixed length recording
 > - Re recording audio from midi at a button's push
 > - Handling of audio clip tails (recording and playing) to have perfect loops
-> - Automatic detection of dummy tracks. Because dummy clips are faster than vsts.
+> - Automatic detection of dummy tracks. Because dummy clips are lighter than vsts.
 > - Automatic scenes follow action to have more of an arrangement view feeling but still being able to loop them
 > - Automatic track, clip, scene naming / coloring
-> - Validating code that can detect different kind of set configuration "errors" (routings, volumes, unused devices etc)
+> - Validator code that can detect different kind of set configuration "errors" (routings, volumes, unused devices etc)
 > - A tool to bounce session to arrangement
 > - A few other tools that can be found in the action_groups folder
 
@@ -66,13 +68,13 @@ The bigger part of the script is dedicated to handling external synths.
 
 ### External Synths
 
-- The script is able to record both midi and audio at the same time doing unlimited or fixed length recordings.
-- It activates only on a group track that has the following layout :
+- The script is able to record both midi, audio and automation at the same time doing unlimited or fixed length recordings.
+- It activates only on a group track that has the following layout (in order, any other layout will not be detected) :
   - a midi track (records midi ofc)
   - an audio track (records the synth)
   - an optional audio track with no device on it (records audio clip tails)
   - any other number of audio tracks (detects them as dummy tracks, nothing done on them)
-- the record button has 2 modes :
+- the record button has 2 press modes :
   - normal press : will record midi, audio and optional audio tail on the next scene available
   - long press : will record audio from midi on this scene
 - Midi and audio clips are linked (start / end / looping, suppression ..)

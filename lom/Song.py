@@ -3,6 +3,7 @@ from functools import partial
 from typing import List, Optional, Any, Iterator
 
 import Live
+from protocol0.components.SessionToArrangementManager import SessionToArrangementManager
 from protocol0.components.SongDataManager import save_song_data
 from protocol0.config import Config
 from protocol0.devices.InstrumentProphet import InstrumentProphet
@@ -40,6 +41,7 @@ class Song(SongActionMixin, AbstractObject):
         self.midi_recording_quantization_checked = False
 
         self.errored = False
+        self.normal_tempo = self.tempo
         self.song_load_state = SongLoadStateEnum.PRE_LOAD
         self._is_playing_listener.subject = self._song
         self._record_mode_listener.subject = self._song
@@ -65,14 +67,14 @@ class Song(SongActionMixin, AbstractObject):
             return
 
         # song started playing
-        if not self.application.session_view_active or Config.CURRENT_RECORD_TYPE is not None:
+        if not self.application.session_view_active\
+                or Config.CURRENT_RECORD_TYPE is not None \
+                or SessionToArrangementManager.IS_BOUNCING:
             return
         # launch selected scene by clicking on play song
         if not self.song.selected_scene.has_playing_clips:
             self.song.stop_playing()
-            self.song.selected_scene.fire()
-        else:
-            self.song.selected_scene._is_triggered_listener()
+            self.song.selected_scene.fire(stop_last=True)
 
     @p0_subject_slot("record_mode")
     def _record_mode_listener(self):
@@ -82,7 +84,8 @@ class Song(SongActionMixin, AbstractObject):
     @p0_subject_slot("session_end")
     def session_end_listener(self):
         # type: () -> None
-        pass
+        self.record_mode = False
+        self.tempo = self.normal_tempo
 
     @p0_subject_slot("tempo")
     @debounce(wait_time=60)  # 1 second
@@ -235,13 +238,43 @@ class Song(SongActionMixin, AbstractObject):
 
     @property
     def metronome(self):
-        # type: () -> float
+        # type: () -> bool
         return self._song.metronome
 
     @metronome.setter
     def metronome(self, metronome):
         # type: (bool) -> None
         self._song.metronome = metronome
+
+    @property
+    def loop(self):
+        # type: () -> bool
+        return self._song.loop
+
+    @loop.setter
+    def loop(self, loop):
+        # type: (bool) -> None
+        self._song.loop = loop
+
+    @property
+    def loop_start(self):
+        # type: () -> float
+        return self._song.loop_start
+
+    @loop_start.setter
+    def loop_start(self, loop_start):
+        # type: (float) -> None
+        self._song.loop_start = loop_start
+
+    @property
+    def loop_length(self):
+        # type: () -> float
+        return self._song.loop_length
+
+    @loop_length.setter
+    def loop_length(self, loop_length):
+        # type: (float) -> None
+        self._song.loop_length = loop_length
 
     @property
     def current_song_time(self):

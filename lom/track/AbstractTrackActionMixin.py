@@ -302,12 +302,11 @@ class AbstractTrackActionMixin(object):
 
     def stop(self, immediate=False):
         # type: (AbstractTrack, bool) -> None
-        qz = self.song.clip_trigger_quantization
         if immediate:
-            self.song.clip_trigger_quantization = 0
+            self.song.disable_clip_trigger_quantization()
         self.base_track._track.stop_all_clips()
         if immediate:
-            self.song.clip_trigger_quantization = qz
+            self.song.enable_clip_trigger_quantization()
 
     def load_device_from_enum(self, device_enum):
         # type: (AbstractTrack, DeviceEnum) -> Sequence

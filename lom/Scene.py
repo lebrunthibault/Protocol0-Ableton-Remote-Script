@@ -18,7 +18,7 @@ from protocol0.utils.decorators import p0_subject_slot, throttle
 
 
 class Scene(SceneActionMixin, AbstractObject):
-    __subject_events__ = ("play",)
+    __subject_events__ = ("is_playing",)
 
     PLAYING_SCENE = None  # type: Optional[Scene]
     LOOPING_SCENE = None  # type: Optional[Scene]
@@ -40,8 +40,8 @@ class Scene(SceneActionMixin, AbstractObject):
         self._link_clip_slots_and_clips()
 
         # listeners
-        self._is_triggered_listener.subject = self._scene
-        self._play_listener.subject = self
+        self.is_triggered_listener.subject = self._scene
+        self.is_playing_listener.subject = self
 
     @property
     def live_id(self):
@@ -64,7 +64,8 @@ class Scene(SceneActionMixin, AbstractObject):
     def _map_clips(self):
         # type: () -> None
         self.clips = [clip_slot.clip for clip_slot in self.clip_slots if
-                      clip_slot.has_clip and clip_slot.clip and clip_slot.track.__class__ not in (SimpleDummyTrack, SimpleInstrumentBusTrack)]
+                      clip_slot.has_clip and clip_slot.clip and clip_slot.track.__class__ not in (
+                          SimpleDummyTrack, SimpleInstrumentBusTrack)]
         self.audio_tail_clips = cast(List[AudioClip],
                                      [clip for clip in self.clips if isinstance(clip.track, SimpleAudioTailTrack)])
         self._clips_length_listener.replace_subjects(self.clips)
@@ -74,29 +75,22 @@ class Scene(SceneActionMixin, AbstractObject):
         self.scene_name.update()
 
     @p0_subject_slot("is_triggered")
-    @throttle(wait_time=1)
-    def _is_triggered_listener(self):
+    def is_triggered_listener(self):
         # type: () -> None
         if self.song.is_playing is False:
             Scene.PLAYING_SCENE = None
             return
 
-        if self.has_playing_clips:
-            if self.song.playing_scene == self:
-                self.parent.log_dev("notify end ! %s <-> %s" % (self.song.playing_scene, self))
-                # noinspection PyUnresolvedReferences
-                self.song.notify_session_end()
-            else:
-                if self.song.playing_scene:
-                    self.song.playing_scene._next_scene_fired = False
-                # noinspection PyUnresolvedReferences
-                self.notify_play()
+        if self.has_playing_clips and self.song.playing_scene != self:
+            # noinspection PyUnresolvedReferences
+            self.notify_is_playing()
 
-    @p0_subject_slot("play")
-    def _play_listener(self):
+    @p0_subject_slot("is_playing")
+    def is_playing_listener(self):
         # type: () -> None
+        if self.song.playing_scene:
+            self.song.playing_scene._next_scene_fired = False
         self.parent.defer(partial(self._stop_previous_scene, self.song.playing_scene, immediate=True))
-        self.parent.log_dev("setting to %s" % self)
         Scene.PLAYING_SCENE = self
 
         if self.song.looping_scene and self.song.looping_scene != self:
@@ -119,7 +113,9 @@ class Scene(SceneActionMixin, AbstractObject):
     @property
     def next_scene(self):
         # type: () -> Scene
-        if self == self.song.looping_scene or self == self.song.scenes[-1] or self.song.scenes[self.index + 1].bar_length == 0:
+        if self == self.song.looping_scene \
+                or self == self.song.scenes[-1] \
+                or self.song.scenes[self.index + 1].bar_length == 0:
             return self
         else:
             return self.song.scenes[self.index + 1]
@@ -199,7 +195,7 @@ class Scene(SceneActionMixin, AbstractObject):
     @property
     def has_playing_clips(self):
         # type: () -> bool
-        return self.song.is_playing and any(clip.is_playing for clip in self.clips if clip)
+        return self.song.is_playing and any(clip and clip.is_playing and clip.playing_position != 0 for clip in self.clips)
 
     @property
     def longest_clip(self):

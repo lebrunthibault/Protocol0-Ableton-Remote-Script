@@ -127,6 +127,7 @@ class LogManager(AbstractObject):
         self.focus_window()
         self.parent.log_notice("********* GLOBAL objects *************")
         self.parent.log_info("song.is_playing: %s" % self.song.is_playing)
+        self.parent.log_info("song.normal_tempo: %s" % self.song.normal_tempo)
         self.parent.log_info("song.current_song_time: %s" % self.song.current_song_time)
         self.parent.log_info("song.midi_recording_quantization: %s" % self.song.midi_recording_quantization)
         self.parent.log_info("song.midi_recording_quantization_checked: %s" % self.song.midi_recording_quantization_checked)
