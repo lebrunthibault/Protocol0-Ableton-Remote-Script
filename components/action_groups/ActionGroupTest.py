@@ -1,6 +1,9 @@
+from functools import partial
+
 from typing import Any
 
 from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
+from protocol0.sequence.Sequence import Sequence
 
 
 class ActionGroupTest(AbstractActionGroup):
@@ -23,7 +26,11 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        pass
+        seq = Sequence()
+        self.song.scenes[0].fire()
+        seq.add(wait_bars=1)
+        seq.add(partial(self.song.stop_all_clips, quantized=0))
+        seq.done()
 
     def start_set_profiling(self):
         # type: () -> None

@@ -39,6 +39,7 @@ class Song(SongActionMixin, AbstractObject):
         self.master_track = None  # type: Optional[SimpleTrack]
         self.template_dummy_clip = None  # type: Optional[AudioClip]
         self.midi_recording_quantization_checked = False
+        self._is_playing = False  # caching this because _is_playing_listener activates multiple times
 
         self.errored = False
         self.normal_tempo = self.tempo
@@ -57,13 +58,21 @@ class Song(SongActionMixin, AbstractObject):
     @p0_subject_slot("is_playing")
     def _is_playing_listener(self):
         # type: () -> None
+        # deduplicate _is_playing_listener calls with is_playing True
+        if self.is_playing == self._is_playing:
+            return
+        else:
+            self._is_playing = self.is_playing
+
         if not self.is_playing:
-            # noinspection PyUnresolvedReferences
-            self.notify_session_end()
-            # if not self.song.selected_scene.is
+            if SessionToArrangementManager.IS_BOUNCING:
+                # noinspection PyUnresolvedReferences
+                self.parent.defer(self.notify_session_end)
+            # if not self.selected_scene.is
             Config.CURRENT_RECORD_TYPE = None
-            if self.song.playing_scene:
-                self.parent.defer(self.song.playing_scene.mute_audio_tails)
+            if self.playing_scene:
+                self.playing_scene.next_scene_fired = False
+                self.parent.defer(self.playing_scene.mute_audio_tails)
             return
 
         # song started playing
@@ -72,9 +81,9 @@ class Song(SongActionMixin, AbstractObject):
                 or SessionToArrangementManager.IS_BOUNCING:
             return
         # launch selected scene by clicking on play song
-        if not self.song.selected_scene.has_playing_clips:
-            self.song.stop_playing()
-            self.song.selected_scene.fire(stop_last=True)
+        if not self.selected_scene.has_playing_clips:
+            self.stop_playing()
+            self.selected_scene.fire(stop_last=True)
 
     @p0_subject_slot("record_mode")
     def _record_mode_listener(self):
@@ -86,6 +95,7 @@ class Song(SongActionMixin, AbstractObject):
         # type: () -> None
         self.record_mode = False
         self.tempo = self.normal_tempo
+        SessionToArrangementManager.IS_BOUNCING = False
 
     @p0_subject_slot("tempo")
     @debounce(wait_time=60)  # 1 second
@@ -117,7 +127,7 @@ class Song(SongActionMixin, AbstractObject):
     def abstract_tracks(self):
         # type: () -> Iterator[AbstractTrack]
         for track in self.simple_tracks:
-            if isinstance(track, SimpleInstrumentBusTrack) or track == self.song.usamo_track:
+            if isinstance(track, SimpleInstrumentBusTrack) or track == self.usamo_track:
                 continue
             if isinstance(track.abstract_track, NormalGroupTrack) and track != track.abstract_track.base_track:
                 yield track
@@ -162,12 +172,12 @@ class Song(SongActionMixin, AbstractObject):
     @property
     def selected_track(self):
         # type: () -> Optional[SimpleTrack]
-        return self.parent.songTracksManager.get_optional_simple_track(self.song._view.selected_track)
+        return self.parent.songTracksManager.get_optional_simple_track(self._view.selected_track)
 
     @property
     def current_track(self):
         # type: () -> AbstractTrack
-        return self.song.selected_track.abstract_track
+        return self.selected_track.abstract_track
 
     # SCENES
 
@@ -179,12 +189,12 @@ class Song(SongActionMixin, AbstractObject):
     @property
     def selected_scene(self):
         # type: () -> Scene
-        return self.parent.songScenesManager.get_optional_scene(self.song._view.selected_scene)
+        return self.parent.songScenesManager.get_optional_scene(self._view.selected_scene)
 
     @selected_scene.setter
     def selected_scene(self, scene):
         # type: (Scene) -> None
-        self.song._view.selected_scene = scene._scene
+        self._view.selected_scene = scene._scene
 
     @property
     def playing_scene(self):
@@ -201,12 +211,12 @@ class Song(SongActionMixin, AbstractObject):
     @property
     def highlighted_clip_slot(self):
         # type: () -> Optional[ClipSlot]
-        return next((cs for cs in self.song.selected_track.clip_slots if cs._clip_slot == self.song._view.highlighted_clip_slot), None)
+        return next((cs for cs in self.selected_track.clip_slots if cs._clip_slot == self._view.highlighted_clip_slot), None)
 
     @highlighted_clip_slot.setter
     def highlighted_clip_slot(self, clip_slot):
         # type: (ClipSlot) -> None
-        self.song._view.highlighted_clip_slot = clip_slot._clip_slot
+        self._view.highlighted_clip_slot = clip_slot._clip_slot
 
     # CLIPS
 
@@ -224,7 +234,7 @@ class Song(SongActionMixin, AbstractObject):
     def selected_parameter(self):
         # type: () -> Optional[DeviceParameter]
         all_parameters = [param for track in self.simple_tracks for param in track.device_parameters]
-        return find_if(lambda p: p._device_parameter == self.song._view.selected_parameter, all_parameters)
+        return find_if(lambda p: p._device_parameter == self._view.selected_parameter, all_parameters)
 
     @property
     def is_playing(self):

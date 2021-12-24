@@ -38,37 +38,6 @@ def push2_method(defer_call=True):
     return wrap
 
 
-def session_view_only(func):
-    # type: (Func) -> Func
-    @wraps(func)
-    def decorate(*a, **k):
-        # type: (Any, Any) -> Any
-        from protocol0 import Protocol0
-
-        if Protocol0.SELF.protocol0_application.session_view_active:
-            return func(*a, **k)
-        else:
-            Protocol0.SELF.log_warning("%s is session view only" % get_callable_repr(func))
-
-    return decorate
-
-
-def arrangement_view_only(func):
-    # type: (Func) -> Func
-    @wraps(func)
-    def decorate(*a, **k):
-        # type: (Any, Any) -> Any
-        from protocol0 import Protocol0
-
-        if Protocol0.SELF.protocol0_application.arrangement_view_active:
-            Protocol0.SELF.protocol0_song.activate_arrangement()
-            return func(*a, **k)
-        else:
-            Protocol0.SELF.log_warning("%s is arrangement view only" % get_callable_repr(func))
-
-    return decorate
-
-
 EXPOSED_P0_METHODS = {}
 
 
@@ -90,12 +59,14 @@ def p0_subject_slot(event, immediate=False):
     # type: (str, bool) -> Callable[[Callable], CallbackDescriptor]
     """
     Drop in replacement of _Framework subject_slot decorator
-    Allows the registration of callbacks to be execute after the decorated function
-    By default the callbacks are deferred to handle the notification change error
-    immediate calls the callbacks synchronously
-    This decorator is used by the Sequence pattern and allows the sequence to wait for a change to happen
-    That is it waits for a listener to be triggered.
-    With this, a callback to continue the sequence can be automatically attached to any listener without more hassle
+    Extends its behavior to allow the registration of callbacks that will execute after the decorated function finished
+    By default the callbacks execution is deferred to prevent the dreaded "Changes cannot be triggered by notifications. You will need to defer your response"
+    immediate=True executes the callbacks immediately (synchronously)
+
+    This decorator / callback registration is mainly used by the Sequence pattern
+    It allows chaining functions by reacting to listeners being triggered and is paramount to executing asynchronous sequence of actions
+    Sequence.add(complete_on=<@p0_subject_slot<listener>> will actually registers a callback on the decorated <listener>.
+    This callback will resume the sequence when executed.
     """
 
     def wrap(func):

@@ -7,7 +7,6 @@ from protocol0.config import Config
 from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.decorators import session_view_only, arrangement_view_only
 
 if TYPE_CHECKING:
     from protocol0.lom.track.AbstractTrack import AbstractTrack
@@ -128,7 +127,6 @@ class AbstractTrackActionMixin(object):
             seq.add(partial(self.arrangement_record, record_type=record_type))
         return seq.done()
 
-    @session_view_only
     def session_record(self, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
         if self.is_record_triggered and Config.CURRENT_RECORD_TYPE is not None:
@@ -148,7 +146,6 @@ class AbstractTrackActionMixin(object):
 
         return seq.done()
 
-    @arrangement_view_only
     def arrangement_record(self, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Sequence
         assert self.is_armed

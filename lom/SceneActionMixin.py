@@ -25,8 +25,7 @@ class SceneActionMixin(object):
             return
         # trigger on last beat
         if self.current_bar == self.bar_length - 1:
-            if not self._next_scene_fired and (self.current_beat == self.song.signature_numerator - 1 or SessionToArrangementManager.IS_BOUNCING):
-                self.parent.defer(self._play_audio_tails)
+            if self.current_beat == self.song.signature_numerator - 1 or SessionToArrangementManager.IS_BOUNCING:
                 self._fire_next_scene()
 
         if self.current_beat == 0 and not SessionToArrangementManager.IS_BOUNCING:
@@ -34,10 +33,12 @@ class SceneActionMixin(object):
 
     def _fire_next_scene(self):
         # type: (Scene) -> Optional[Sequence]
-        if self._next_scene_fired:
+        if self.next_scene_fired:
             return None
 
-        self._next_scene_fired = True
+        self.next_scene_fired = True
+
+        self.parent.defer(self._play_audio_tails)
 
         next_scene = self.next_scene
 
@@ -45,10 +46,11 @@ class SceneActionMixin(object):
             self.parent.defer(partial(next_scene._stop_previous_scene, self))
 
         seq = Sequence()
-        seq.add(next_scene.fire)
-        if self == next_scene:
-            # noinspection PyUnresolvedReferences
-            seq.add(self.song.notify_session_end)
+        if self == next_scene and SessionToArrangementManager.IS_BOUNCING:
+            seq.add(self.song.stop_all_clips)
+            seq.add(partial(self.parent.wait_bars, 2, self.song.stop_playing))
+        else:
+            seq.add(next_scene.fire)
         return seq.done()
 
     def select(self):
@@ -59,6 +61,8 @@ class SceneActionMixin(object):
         # type: (Scene, bool, bool) -> Optional[Sequence]
         if not self._scene:
             return None
+
+        self.next_scene_fired = False  # when looping the same (potentially last) scene
 
         if move_playing_position:
             self.parent.defer(partial(self.jump_to, self.selected_playing_position))
@@ -73,6 +77,17 @@ class SceneActionMixin(object):
         seq.add(self._scene.fire)
         seq.add(complete_on=self.is_triggered_listener)
 
+        return seq.done()
+
+    def pre_fire(self):
+        # type: (Scene) -> Sequence
+        self.fire()
+        self.song.stop_playing()
+        from protocol0.lom.Scene import Scene
+
+        Scene.PLAYING_SCENE = self
+        seq = Sequence()
+        seq.add(wait=2)
         return seq.done()
 
     def _stop_previous_scene(self, previous_playing_scene, immediate=False):

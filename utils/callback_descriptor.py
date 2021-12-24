@@ -9,12 +9,15 @@ from protocol0.utils.utils import get_callable_repr
 
 class CallbackDescriptor(object):
     """
-    Inspired from _Framework @instance_method, adds a callback queue to any method or listener method
+    Inspired from _Framework @instance_method, adds a callback queue to any method (use mainly on listeners)
     The callback queue is going to be executed after the decorated method returns
-    if the listener executes in a sequence the callbacks are going to be executed after the sequence termination
+    if the listener executes itself a sequence the callbacks are going to be executed after the sequence termination
+    and not the listener termination.
+
     Note: there is 2 cases :
         - @has_callback_queue is dropped on a stock, undecorated method. This is the easy part.
-        - @has_callback_queue is dropped on top of _Framework subject_slot :
+            callback are just going be called after the method terminates, period.
+        - @has_callback_queue is dropped on top of _Framework subject_slot (that is we use @p0_subject_slot which does just that) :
             - We need to fetch the CallableSlotMixin from the decorated method
                 (when the method is first accessed via __get__)
                 Then we replace the listener with our own CallableWithCallbacks and

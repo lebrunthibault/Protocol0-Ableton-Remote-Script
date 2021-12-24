@@ -27,9 +27,6 @@ class SessionToArrangementManager(AbstractControlSurfaceComponent):
         seq.add(wait=20)
         seq.add(self.parent.navigationManager.show_session)
         seq.add(self.song.reset)
-        seq.add(partial(setattr, self.song, "record_mode", True))
-        seq.add(wait=1)
-
         # make recording start at 1.1.1
         seq.add(self._start_recording_on_beginning)
         seq.add(complete_on=self.song.session_end_listener, no_timeout=True)
@@ -39,21 +36,8 @@ class SessionToArrangementManager(AbstractControlSurfaceComponent):
         return seq.done()
 
     def _start_recording_on_beginning(self):
-        # type: () -> None
-        self.song.record_mode = True
-        loop_start = self.song.loop_start
-        loop_length = self.song.loop_length
-        self.song.loop_start = 0
-        self.song.loop_length = self.song.signature_numerator
-        self.song.loop = True
-        self.song.play_session(from_beginning=True)
+        # type: () -> Sequence
         seq = Sequence()
-        seq.add(complete_on=self.song.scenes[0].is_playing_listener, no_timeout=True)
-        seq.add(partial(self._restore_arrangement_loop, loop_start, loop_length))
-        seq.done()
-
-    def _restore_arrangement_loop(self, loop_start, loop_length):
-        # type: (float, float) -> None
-        self.song.loop_start = loop_start
-        self.song.loop_start = loop_length
-        self.song.loop = False
+        seq.add(self.song.scenes[0].pre_fire)
+        seq.add(partial(setattr, self.song, "record_mode", True))
+        return seq.done()

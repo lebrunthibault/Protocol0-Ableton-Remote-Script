@@ -8,7 +8,6 @@ from protocol0.enums.SongLoadStateEnum import SongLoadStateEnum
 from protocol0.lom.device.Device import Device
 from protocol0.lom.track.AbstractTrack import AbstractTrack
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.decorators import arrangement_view_only, session_view_only
 from protocol0.utils.utils import scroll_values
 
 if TYPE_CHECKING:
@@ -46,20 +45,9 @@ class SongActionMixin(object):
     def play(self):
         # type: (Song) -> None
         if self.application.session_view_active:
-            self.play_session()
+            self.selected_scene.fire()
         else:
-            self._play_arrangement()
-
-    @session_view_only
-    def play_session(self, from_beginning=False):
-        # type: (Song, bool) -> None
-        scene = self.scenes[0] if from_beginning else self.selected_scene
-        scene.fire()
-
-    @arrangement_view_only
-    def _play_arrangement(self):
-        # type: (Song) -> None
-        self.is_playing = True
+            self.is_playing = True  # play arrangement
 
     def enable_clip_trigger_quantization(self):
         # type: (Song) -> None
