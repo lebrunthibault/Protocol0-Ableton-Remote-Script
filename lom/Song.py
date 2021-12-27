@@ -71,19 +71,16 @@ class Song(SongActionMixin, AbstractObject):
             # if not self.selected_scene.is
             Config.CURRENT_RECORD_TYPE = None
             if self.playing_scene:
-                self.playing_scene.next_scene_fired = False
                 self.parent.defer(self.playing_scene.mute_audio_tails)
             return
 
         # song started playing
-        if not self.application.session_view_active\
-                or Config.CURRENT_RECORD_TYPE is not None \
-                or SessionToArrangementManager.IS_BOUNCING:
+        if Config.CURRENT_RECORD_TYPE is not None or SessionToArrangementManager.IS_BOUNCING:
             return
         # launch selected scene by clicking on play song
         if not self.selected_scene.has_playing_clips:
             self.stop_playing()
-            self.selected_scene.fire(stop_last=True)
+            self.selected_scene.fire()
 
     @p0_subject_slot("record_mode")
     def _record_mode_listener(self):
@@ -190,6 +187,11 @@ class Song(SongActionMixin, AbstractObject):
     def selected_scene(self):
         # type: () -> Scene
         return self.parent.songScenesManager.get_optional_scene(self._view.selected_scene)
+
+    @property
+    def last_manually_started_scene(self):
+        # type: () -> Scene
+        return Scene.LAST_MANUALLY_STARTED_SCENE or self.selected_scene
 
     @selected_scene.setter
     def selected_scene(self, scene):

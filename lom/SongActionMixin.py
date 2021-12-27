@@ -139,7 +139,7 @@ class SongActionMixin(object):
 
     def scroll_scenes(self, go_next):
         # type: (Song, bool) -> None
-        scroll_values(self.scenes, self.selected_scene, go_next).select()
+        scroll_values(self.scenes, self.selected_scene, go_next, rotate=False).select()
 
     def create_scene(self, scene_index=None):
         # type: (Song, Optional[int]) -> Sequence

@@ -1,13 +1,17 @@
 from functools import partial
 
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.sequence.Sequence import Sequence
 
+if TYPE_CHECKING:
+    from protocol0.lom.Scene import Scene
+
 
 class SessionToArrangementManager(AbstractControlSurfaceComponent):
     IS_BOUNCING = False
+    LAST_SCENE_FIRED = None   # type: Optional[Scene]
 
     def bounce_session_to_arrangement(self):
         # type: () -> Optional[Sequence]
@@ -33,6 +37,7 @@ class SessionToArrangementManager(AbstractControlSurfaceComponent):
         seq.add(self.song.reset)
         seq.add(self.song.activate_arrangement)
         seq.add(partial(setattr, SessionToArrangementManager, "IS_BOUNCING", False))
+        seq.add(partial(setattr, SessionToArrangementManager, "LAST_SCENE_FIRED", None))
         return seq.done()
 
     def _start_recording_on_beginning(self):

@@ -30,7 +30,7 @@ class UtilsManager(AbstractControlSurfaceComponent):
 
         bar_legend = "%d bars" % bar_length
         if record_tail:
-            bar_legend += " (+tail)"
+            bar_legend = "%d bars (+tail)" % (bar_length - 1)
         return "Starting recording of %s" % bar_legend
 
     def print_stack(self):

@@ -61,11 +61,11 @@ class ActionGroupMain(AbstractActionGroup):
             on_long_press=lambda: partial(self.song.current_track.record, RecordTypeEnum.AUDIO_ONLY)
         )
 
-        # SCENe encoder
+        # SCENe 2 encoder
         self.add_encoder(
             identifier=12,
             name="scene scroll time",
-            on_press=lambda: partial(self.song.selected_scene.fire, move_playing_position=True),
+            on_press=lambda: partial(self.song.last_manually_started_scene.fire, move_playing_position=True),
             on_scroll=lambda: self.song.selected_scene.scroll_position,
         )
 

@@ -22,6 +22,7 @@ class Scene(SceneActionMixin, AbstractObject):
 
     PLAYING_SCENE = None  # type: Optional[Scene]
     LOOPING_SCENE = None  # type: Optional[Scene]
+    LAST_MANUALLY_STARTED_SCENE = None  # type: Optional[Scene]
     SELECTED_DUPLICATE_SCENE_BAR_LENGTH = 4
 
     def __init__(self, scene, index, *a, **k):
@@ -32,7 +33,6 @@ class Scene(SceneActionMixin, AbstractObject):
 
         self.selected_playing_position = 0
         self.scene_name = SceneName(self)
-        self.next_scene_fired = False
 
         self.clip_slots = []  # type: List[ClipSlot]
         self.clips = []  # type: List[Clip]
@@ -88,8 +88,6 @@ class Scene(SceneActionMixin, AbstractObject):
     @p0_subject_slot("is_playing")
     def is_playing_listener(self):
         # type: () -> None
-        if self.song.playing_scene:
-            self.song.playing_scene.next_scene_fired = False
         self.parent.defer(partial(self._stop_previous_scene, self.song.playing_scene, immediate=True))
         Scene.PLAYING_SCENE = self
 

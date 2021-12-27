@@ -156,7 +156,6 @@ class ExternalSynthTrackActionMixin(object):
         seq.add(partial(setattr, self.song, "session_record", False))
 
         if self.record_clip_tails:
-            seq.add(complete_on=lambda: audio_clip_slot.clip.is_recording_listener)
             seq.add(audio_clip_slot.post_record_clip_tail)
             seq.add(audio_tail_clip_slot.post_record_clip_tail)
 
