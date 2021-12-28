@@ -78,7 +78,7 @@ class Song(SongActionMixin, AbstractObject):
         if Config.CURRENT_RECORD_TYPE is not None or SessionToArrangementManager.IS_BOUNCING:
             return
         # launch selected scene by clicking on play song
-        if not self.selected_scene.has_playing_clips:
+        if not self.selected_scene.has_playing_clips and self.application.session_view_active:
             self.stop_playing()
             self.selected_scene.fire()
 

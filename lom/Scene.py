@@ -33,6 +33,7 @@ class Scene(SceneActionMixin, AbstractObject):
 
         self.selected_playing_position = 0
         self.scene_name = SceneName(self)
+        self.no_fire_next = False  # handles changing scene on last bar of playing scene
 
         self.clip_slots = []  # type: List[ClipSlot]
         self.clips = []  # type: List[Clip]
@@ -41,7 +42,6 @@ class Scene(SceneActionMixin, AbstractObject):
 
         # listeners
         self.is_triggered_listener.subject = self._scene
-        self.is_playing_listener.subject = self
 
     @property
     def live_id(self):
@@ -77,24 +77,12 @@ class Scene(SceneActionMixin, AbstractObject):
     @p0_subject_slot("is_triggered")
     def is_triggered_listener(self):
         # type: () -> None
-        if self.song.is_playing is False:
-            # Scene.PLAYING_SCENE = None
+        if self.song.is_playing is False or not self.has_playing_clips:
             return
 
-        if self.has_playing_clips and self.song.playing_scene != self:
-            # noinspection PyUnresolvedReferences
-            self.notify_is_playing()
-
-    @p0_subject_slot("is_playing")
-    def is_playing_listener(self):
-        # type: () -> None
-        self.parent.defer(partial(self._stop_previous_scene, self.song.playing_scene, immediate=True))
+        if self.song.playing_scene and self.song.playing_scene != self:
+            self.parent.defer(partial(self._stop_previous_scene, self.song.playing_scene, immediate=True))
         Scene.PLAYING_SCENE = self
-
-        if self.song.looping_scene and self.song.looping_scene != self:
-            previous_looping_scene = self.song.looping_scene
-            Scene.LOOPING_SCENE = None
-            self.parent.defer(previous_looping_scene.scene_name.update)
 
     @subject_slot_group("length")
     @throttle(wait_time=10)

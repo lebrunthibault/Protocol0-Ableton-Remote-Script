@@ -270,7 +270,7 @@ class ExternalSynthTrackActionMixin(object):
             return True
         if not self.protected_mode_active:
             return True
-        else:
+        elif self.instrument.HAS_PROTECTED_MODE:
             self.disable_protected_mode()
             return False
 

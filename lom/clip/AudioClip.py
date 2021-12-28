@@ -76,20 +76,12 @@ class AudioClip(Clip):
 
     def play_and_mute(self):
         # type: () -> None
-        if self.song.playing_scene and self.song.playing_scene.index != self.index:
-            return
         self.muted = False
         seq = Sequence()
         seq.add(wait=1)  # wait for unmute
         seq.add(self.play)
-        seq.add(wait_bars=1)
+        seq.add(wait_beats=2)  # 1 is not enough for session to arrangement
         seq.add(complete_on=self._playing_status_listener)  # clip has stopped
-        seq.add(self.mute_if_scene_changed)
+        seq.add(wait_beats=1)
+        seq.add(partial(setattr, self, "muted", True))
         seq.done()
-
-    def mute_if_scene_changed(self):
-        # type: () -> None
-        if not self.song.is_playing:
-            self.muted = True
-        elif self.song.playing_scene is None or self.song.playing_scene.index != self.index:
-            self.muted = True
