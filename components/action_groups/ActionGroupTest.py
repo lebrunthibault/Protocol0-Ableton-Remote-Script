@@ -26,11 +26,7 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        seq = Sequence()
-        self.song.scenes[0].fire()
-        seq.add(wait_bars=1)
-        seq.add(partial(self.song.stop_all_clips, quantized=0))
-        seq.done()
+        pass
 
     def start_set_profiling(self):
         # type: () -> None

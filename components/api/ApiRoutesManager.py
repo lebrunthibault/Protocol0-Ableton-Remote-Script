@@ -25,6 +25,11 @@ class ApiRoutesManager(AbstractControlSurfaceComponent):
         self.parent.show_message(message)
 
     @api_exposed
+    def clear_logs(self):
+        # type: () -> None
+        self.parent.logManager.clear()
+
+    @api_exposed
     def reset_song(self):
         # type: () -> None
         if not self.song:

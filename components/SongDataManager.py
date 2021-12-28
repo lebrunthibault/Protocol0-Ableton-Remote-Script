@@ -41,7 +41,6 @@ class SongDataManager(AbstractControlSurfaceComponent):
 
     SELECTED_SCENE_INDEX = None  # type: Optional[int]
     SELECTED_TRACK_INDEX = None  # type: Optional[int]
-    SELECTED_CLIP_INDEX = None  # type: Optional[int]
 
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
@@ -67,9 +66,6 @@ class SongDataManager(AbstractControlSurfaceComponent):
             self.song.set_data(SongDataEnum.SELECTED_SCENE_INDEX.name, self.song.selected_scene.index)
         if self.song.selected_track:
             self.song.set_data(SongDataEnum.SELECTED_TRACK_INDEX.name, self.song.selected_track.index)
-            if self.song.selected_clip:
-                selected_clip_index = self.song.selected_track.clips.index(self.song.selected_clip)
-                self.song.set_data(SongDataEnum.SELECTED_CLIP_INDEX.name, selected_clip_index)
 
         self.song.set_data(SongDataEnum.MIDI_RECORDING_QUANTIZATION_CHECKED.name, self.song.midi_recording_quantization_checked)
 
@@ -99,7 +95,6 @@ class SongDataManager(AbstractControlSurfaceComponent):
 
         SongDataManager.SELECTED_SCENE_INDEX = self.song.get_data(SongDataEnum.SELECTED_SCENE_INDEX.name, None)
         SongDataManager.SELECTED_TRACK_INDEX = self.song.get_data(SongDataEnum.SELECTED_TRACK_INDEX.name, None)
-        SongDataManager.SELECTED_CLIP_INDEX = self.song.get_data(SongDataEnum.SELECTED_CLIP_INDEX.name, None)
 
         self.song.midi_recording_quantization_checked = self.song.get_data(SongDataEnum.MIDI_RECORDING_QUANTIZATION_CHECKED.name, False)
 

@@ -1,6 +1,6 @@
 import re
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Optional
 
 from protocol0.lom.AbstractObjectName import AbstractObjectName
 from protocol0.utils.decorators import throttle
@@ -27,9 +27,9 @@ class SceneName(AbstractObjectName):
 
         return base_name
 
-    @throttle(wait_time=20)
-    def update(self, base_name=None, display_bar_count=True, display_selected_bar_count=False):
-        # type: (str, bool, bool) -> None
+    @throttle(wait_time=10)
+    def update(self, base_name=None, display_bar_count=True, bar_position=None):
+        # type: (str, bool, Optional[int]) -> None
         """ throttling to avoid multiple calls due to name listener """
         base_name = base_name if base_name else self._get_base_name()
         looping = "*" if self.scene == self.song.looping_scene else ""
@@ -37,8 +37,8 @@ class SceneName(AbstractObjectName):
 
         if self.scene.has_playing_clips and display_bar_count:
             length_legend = "%s|%s" % (self.scene.current_bar + 1, length_legend)
-        elif display_selected_bar_count:
-            length_legend = "%s|%s" % (self.scene.selected_bar + 1, length_legend)
+        elif bar_position is not None:
+            length_legend = "%s|%s" % (bar_position + 1, length_legend)
 
         if base_name:
             scene_name = "%s (%s)%s" % (base_name, length_legend, looping)

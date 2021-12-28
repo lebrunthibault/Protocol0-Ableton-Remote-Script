@@ -21,6 +21,7 @@ class SessionToArrangementManager(AbstractControlSurfaceComponent):
             return None
 
         SessionToArrangementManager.IS_BOUNCING = True
+        SessionToArrangementManager.LAST_SCENE_FIRED = None
         self.song.unfocus_all_tracks()
         self.song.normal_tempo = self.song.tempo
         self.song.tempo = 999

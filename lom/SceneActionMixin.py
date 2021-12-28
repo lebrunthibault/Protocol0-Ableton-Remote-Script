@@ -7,6 +7,7 @@ from protocol0.components.SessionToArrangementManager import SessionToArrangemen
 from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.sequence.Sequence import Sequence
+from protocol0.utils.decorators import throttle
 from protocol0.utils.utils import scroll_values
 
 if TYPE_CHECKING:
@@ -15,6 +16,10 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class SceneActionMixin(object):
+    def select(self):
+        # type: (Scene) -> None
+        self.song.selected_scene = self
+
     def check_scene_length(self):
         # type: (Scene) -> None
         self.parent.defer(self.scene_name.update)
@@ -37,9 +42,7 @@ class SceneActionMixin(object):
             self.parent.defer(self.scene_name.update)
 
     def _fire_next_scene(self):
-        # type: (Scene) -> Optional[Sequence]
-        seq = Sequence()
-
+        # type: (Scene) -> None
         if SessionToArrangementManager.IS_BOUNCING:
             # unique call when bouncing
             if SessionToArrangementManager.LAST_SCENE_FIRED == self:
@@ -47,40 +50,45 @@ class SceneActionMixin(object):
             else:
                 SessionToArrangementManager.LAST_SCENE_FIRED = self
 
-        if SessionToArrangementManager.IS_BOUNCING and self == self.next_scene:
-            seq.add(self.song.stop_all_clips)
-            seq.add(partial(self.parent.wait_bars, 2, self.song.stop_playing))
-            return seq.done()
+            if self == self.next_scene:
+                self.song.stop_all_clips()
+                self.parent.wait_bars(2, self.song.stop_playing)
+                return None
 
-        seq.add(self.next_scene.fire)
+        self.next_scene.fire()
 
-        return seq.done()
-
-    def select(self):
+    def fire(self):
         # type: (Scene) -> None
-        self.song.selected_scene = self
-
-    def fire(self, move_playing_position=False):
-        # type: (Scene, bool) -> Optional[Sequence]
-        if not self._scene:
-            return None
-
-        seq = Sequence()
-
         # handles click sound when the previous scene plays shortly
         if self.song.playing_scene and self.song.playing_scene != self:
-            seq.add(wait=1)
-            seq.add(partial(self._stop_previous_scene, self.song.playing_scene))
-        else:
-            from protocol0.lom.Scene import Scene
-            Scene.PLAYING_SCENE = self
+            # seq.add(wait=1)
+            # seq.add(partial(self._stop_previous_scene, self.song.playing_scene))
+            self._stop_previous_scene(self.song.playing_scene)
 
-        seq.add(self._scene.fire)
-        seq.add(complete_on=self.is_triggered_listener)
-        if move_playing_position:
-            seq.add(wait=1)
-            seq.add(partial(self.jump_to, self.selected_playing_position))
+        from protocol0.lom.Scene import Scene
+        Scene.PLAYING_SCENE = self
 
+        self.no_fire_next = False
+        self._scene.fire()
+
+    def fire_and_move_position(self):
+        # type: (Scene) -> Sequence
+        self.song.stop_playing()
+        seq = Sequence()
+
+        # removing click when changing position
+        master_volume = self.song.master_track.volume
+        self.song.master_track.volume = 0
+        seq.add(wait=1)
+        # leveraging throttle to disable the next update (that would be 1 / *)
+        seq.add(partial(self.scene_name.update, bar_position=self.selected_playing_bar_position))
+        seq.add(self.fire)
+        seq.add(wait=1)
+        seq.add(partial(self.jump_to_bar, self.selected_playing_bar_position))
+        seq.add(self.song.stop_playing)
+        seq.add(partial(setattr, self.song.master_track, "volume", master_volume))
+        seq.add(wait=1)
+        seq.add(self.song.continue_playing)
         return seq.done()
 
     def pre_fire(self):
@@ -93,8 +101,6 @@ class SceneActionMixin(object):
 
     def _stop_previous_scene(self, previous_playing_scene, immediate=False):
         # type: (Scene, Scene, bool) -> None
-        if not previous_playing_scene.has_playing_clips:
-            return None
         previous_playing_scene.no_fire_next = True
 
         # manually stopping previous scene because we don't display clip slot stop buttons
@@ -104,8 +110,7 @@ class SceneActionMixin(object):
 
             track.stop(immediate=immediate)
 
-        if immediate:
-            previous_playing_scene.scene_name.update(display_bar_count=False)
+        self.parent.wait_beats(1, partial(previous_playing_scene.scene_name.update, display_bar_count=False))
 
     def _play_audio_tails(self):
         # type: (Scene) -> None
@@ -142,7 +147,7 @@ class SceneActionMixin(object):
             Scene.LOOPING_SCENE = self
             if self != self.song.playing_scene:
                 self.fire()
-            if previous_looping_scene:
+            if previous_looping_scene and previous_looping_scene != self:
                 previous_looping_scene.scene_name.update()
         else:  # solo inactivation
             Scene.LOOPING_SCENE = None
@@ -174,25 +179,23 @@ class SceneActionMixin(object):
                 clip.start_marker += offset
                 clip.loop_start += offset
 
+    @throttle(wait_time=20)
     def scroll_position(self, go_next):
         # type: (Scene, bool) -> None
         from protocol0.lom.Scene import Scene
 
         Scene.LAST_MANUALLY_STARTED_SCENE = self
-        playing_position = self.playing_position if self.has_playing_clips else self.selected_playing_position
-        bar_position = playing_position / self.song.signature_numerator
-        rounded_bar_position = floor(bar_position) if go_next else round(bar_position)
-        next_bar_position = scroll_values(range(0, self.bar_length), rounded_bar_position, go_next=go_next)
-
-        self.selected_playing_position = next_bar_position * self.song.signature_numerator
-
         if self.has_playing_clips:
-            self.jump_to(self.selected_playing_position)
+            bar_position = self.playing_position * self.song.signature_numerator
+            rounded_bar_position = floor(bar_position) if go_next else round(bar_position)
+            self.selected_playing_bar_position = scroll_values(range(0, self.bar_length), rounded_bar_position, go_next=go_next)
+            self.jump_to_bar(self.selected_playing_bar_position)
+        else:
+            self.selected_playing_bar_position = scroll_values(range(0, self.bar_length), self.selected_playing_bar_position, go_next=go_next)
 
-        self.scene_name.update(display_selected_bar_count=True)
+        self.scene_name.update(bar_position=self.selected_playing_bar_position)
 
-    def jump_to(self, next_position):
+    def jump_to_bar(self, bar_position):
         # type: (Scene, float) -> None
-        playing_position = self.playing_position if self.has_playing_clips else self.selected_playing_position
-        beat_offset = next_position - playing_position
+        beat_offset = (bar_position * self.song.signature_numerator) - self.playing_position
         self.song.scrub_by(beat_offset)

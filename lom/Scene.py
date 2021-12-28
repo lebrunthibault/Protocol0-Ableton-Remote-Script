@@ -31,7 +31,7 @@ class Scene(SceneActionMixin, AbstractObject):
         self._scene = scene
         self.index = index
 
-        self.selected_playing_position = 0
+        self.selected_playing_bar_position = 0
         self.scene_name = SceneName(self)
         self.no_fire_next = False  # handles changing scene on last bar of playing scene
 
@@ -170,13 +170,6 @@ class Scene(SceneActionMixin, AbstractObject):
         if self.length == 0:
             return 0
         return int(self.playing_position / self.song.signature_numerator)
-
-    @property
-    def selected_bar(self):
-        # type: () -> int
-        if self.length == 0:
-            return 0
-        return int(self.selected_playing_position / self.song.signature_numerator)
 
     @property
     def has_playing_clips(self):

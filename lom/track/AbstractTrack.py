@@ -285,7 +285,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # type: () -> bool
         return (
                 self.is_playing
-                and self.output_meter_level > 0.5
+                and self.output_meter_level > 0.2
                 and (not self.abstract_group_track or self.abstract_group_track.is_hearable)
         )
 

@@ -24,6 +24,7 @@ class SongManager(AbstractControlSurfaceComponent):
             self.system.show_warning("The global launch quantization is set to None")
 
         startup_track = self._get_startup_track()
+        self.parent.log_dev(startup_track)
         self._restore_selected_state()
         if startup_track:
             seq = Sequence()
@@ -39,15 +40,10 @@ class SongManager(AbstractControlSurfaceComponent):
                 self.song.scenes):
             selected_scene = self.song.scenes[SongDataManager.SELECTED_SCENE_INDEX]
             selected_scene.select()
-        selected_track = None
         if SongDataManager.SELECTED_TRACK_INDEX is not None and SongDataManager.SELECTED_TRACK_INDEX < len(
                 list(self.song.all_simple_tracks)):
             selected_track = list(self.song.all_simple_tracks)[SongDataManager.SELECTED_TRACK_INDEX]
             selected_track.select()
-        if selected_track and SongDataManager.SELECTED_CLIP_INDEX is not None and SongDataManager.SELECTED_CLIP_INDEX < len(
-                selected_track.clips):
-            clip = selected_track.clips[SongDataManager.SELECTED_CLIP_INDEX]
-            self.parent.defer(clip.select)
 
     def _get_startup_track(self):
         # type: () -> Optional[AbstractTrack]

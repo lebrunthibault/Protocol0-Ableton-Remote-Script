@@ -49,6 +49,11 @@ class SongActionMixin(object):
         else:
             self.is_playing = True  # play arrangement
 
+    def continue_playing(self):
+        # type: (Song) -> None
+        if self._song:
+            self._song.continue_playing()
+
     def enable_clip_trigger_quantization(self):
         # type: (Song) -> None
         self.clip_trigger_quantization = Live.Song.Quantization.q_bar
@@ -61,8 +66,8 @@ class SongActionMixin(object):
         # type: (Song) -> None
         self._song.stop_playing()
 
-    def stop_all_clips(self, quantized=1):
-        # type: (Song, int) -> None
+    def stop_all_clips(self, quantized=True):
+        # type: (Song, bool) -> None
         # noinspection PyTypeChecker
         self._song.stop_all_clips(quantized)
 

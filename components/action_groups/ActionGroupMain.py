@@ -65,7 +65,7 @@ class ActionGroupMain(AbstractActionGroup):
         self.add_encoder(
             identifier=12,
             name="scene scroll time",
-            on_press=lambda: partial(self.song.last_manually_started_scene.fire, move_playing_position=True),
+            on_press=lambda: self.song.last_manually_started_scene.fire_and_move_position,
             on_scroll=lambda: self.song.selected_scene.scroll_position,
         )
 
