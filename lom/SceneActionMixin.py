@@ -76,15 +76,20 @@ class SceneActionMixin(object):
         self.song.stop_playing()
         seq = Sequence()
 
+        from protocol0.lom.Scene import Scene
+
+        if Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION >= self.bar_length:
+            Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION = 0
+
         # removing click when changing position
         master_volume = self.song.master_track.volume
         self.song.master_track.volume = 0
         seq.add(wait=1)
         # leveraging throttle to disable the next update (that would be 1 / *)
-        seq.add(partial(self.scene_name.update, bar_position=self.selected_playing_bar_position))
+        seq.add(partial(self.scene_name.update, bar_position=Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION))
         seq.add(self.fire)
         seq.add(wait=1)
-        seq.add(partial(self.jump_to_bar, self.selected_playing_bar_position))
+        seq.add(partial(self.jump_to_bar, Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION))
         seq.add(self.song.stop_playing)
         seq.add(partial(setattr, self.song.master_track, "volume", master_volume))
         seq.add(wait=1)
@@ -120,7 +125,7 @@ class SceneActionMixin(object):
                 return None
             abstract_track = cast(ExternalSynthTrack, clip.track.abstract_track)
             # do not trigger tail on monophonic loop
-            if abstract_track.instrument.MONOPHONIC and self.next_scene.clip_slots[clip.track.index].clip:
+            if abstract_track.instrument.MONOPHONIC and self.next_scene.clip_slots[clip.track.index - 1].clip:
                 continue
             else:
                 clip.play_and_mute()
@@ -184,16 +189,21 @@ class SceneActionMixin(object):
         # type: (Scene, bool) -> None
         from protocol0.lom.Scene import Scene
 
-        Scene.LAST_MANUALLY_STARTED_SCENE = self
+        if Scene.LAST_MANUALLY_STARTED_SCENE != self:
+            Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION = 0
+            Scene.LAST_MANUALLY_STARTED_SCENE = self
+        scene_position = Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION
+
         if self.has_playing_clips:
             bar_position = self.playing_position * self.song.signature_numerator
             rounded_bar_position = floor(bar_position) if go_next else round(bar_position)
-            self.selected_playing_bar_position = scroll_values(range(0, self.bar_length), rounded_bar_position, go_next=go_next)
-            self.jump_to_bar(self.selected_playing_bar_position)
+            scene_position = scroll_values(range(0, self.bar_length), rounded_bar_position, go_next=go_next)
+            self.jump_to_bar(scene_position)
         else:
-            self.selected_playing_bar_position = scroll_values(range(0, self.bar_length), self.selected_playing_bar_position, go_next=go_next)
+            scene_position = scroll_values(range(0, self.bar_length), scene_position, go_next=go_next)
 
-        self.scene_name.update(bar_position=self.selected_playing_bar_position)
+        Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION = scene_position
+        self.scene_name.update(bar_position=scene_position)
 
     def jump_to_bar(self, bar_position):
         # type: (Scene, float) -> None

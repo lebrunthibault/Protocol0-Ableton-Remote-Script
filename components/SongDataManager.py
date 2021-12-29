@@ -41,6 +41,8 @@ class SongDataManager(AbstractControlSurfaceComponent):
 
     SELECTED_SCENE_INDEX = None  # type: Optional[int]
     SELECTED_TRACK_INDEX = None  # type: Optional[int]
+    LAST_MANUALLY_STARTED_SCENE_INDEX = None  # type: Optional[int]
+    LAST_MANUALLY_STARTED_SCENE_BAR_POSITION = None  # type: Optional[int]
 
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
@@ -69,6 +71,12 @@ class SongDataManager(AbstractControlSurfaceComponent):
 
         self.song.set_data(SongDataEnum.MIDI_RECORDING_QUANTIZATION_CHECKED.name, self.song.midi_recording_quantization_checked)
 
+        from protocol0.lom.Scene import Scene
+
+        if Scene.LAST_MANUALLY_STARTED_SCENE:
+            self.song.set_data(SongDataEnum.LAST_MANUALLY_STARTED_SCENE_INDEX.name, Scene.LAST_MANUALLY_STARTED_SCENE.index)
+            self.song.set_data(SongDataEnum.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION.name, Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION)
+
     def store_class_data(self, cls):
         # type: (Any) -> None
         attributes = class_attributes(cls)
@@ -95,6 +103,8 @@ class SongDataManager(AbstractControlSurfaceComponent):
 
         SongDataManager.SELECTED_SCENE_INDEX = self.song.get_data(SongDataEnum.SELECTED_SCENE_INDEX.name, None)
         SongDataManager.SELECTED_TRACK_INDEX = self.song.get_data(SongDataEnum.SELECTED_TRACK_INDEX.name, None)
+        SongDataManager.LAST_MANUALLY_STARTED_SCENE_INDEX = self.song.get_data(SongDataEnum.LAST_MANUALLY_STARTED_SCENE_INDEX.name, None)
+        SongDataManager.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION = self.song.get_data(SongDataEnum.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION.name, None)
 
         self.song.midi_recording_quantization_checked = self.song.get_data(SongDataEnum.MIDI_RECORDING_QUANTIZATION_CHECKED.name, False)
 

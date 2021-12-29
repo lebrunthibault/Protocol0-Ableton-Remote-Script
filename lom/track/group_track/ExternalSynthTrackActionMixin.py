@@ -106,7 +106,8 @@ class ExternalSynthTrackActionMixin(object):
         if self.record_clip_tails:
             audio_tail_clip_slot = self.audio_tail_track.clip_slots[self.next_empty_clip_slot_index]
             record_step.append(partial(audio_tail_clip_slot.record, bar_length=recording_bar_length))
-            self._stop_midi_input_to_record_clip_tail(midi_clip_slot=midi_clip_slot, bar_length=recording_bar_length)
+            if recording_bar_length:
+                self._stop_midi_input_to_record_clip_tail(midi_clip_slot=midi_clip_slot, bar_length=recording_bar_length)
 
         seq.add(record_step)
 
@@ -270,9 +271,11 @@ class ExternalSynthTrackActionMixin(object):
             return True
         if not self.protected_mode_active:
             return True
-        elif self.instrument.HAS_PROTECTED_MODE:
-            self.disable_protected_mode()
-            return False
+        if not self.instrument.HAS_PROTECTED_MODE:
+            return True
+
+        self.disable_protected_mode()
+        return False
 
     def disable_protected_mode(self):
         # type: (ExternalSynthTrack) -> Sequence

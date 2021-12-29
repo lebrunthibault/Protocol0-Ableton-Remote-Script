@@ -122,17 +122,15 @@ class ClipSlot(AbstractObject):
 
     def record(self, bar_length, record_tail=False):
         # type: (int, bool) -> Optional[Sequence]
+        if bar_length and record_tail:
+            bar_length += 1
         self.parent.show_message(UtilsManager.get_recording_length_legend(bar_length, record_tail))
 
         seq = Sequence()
         seq.add(self.add_stop_button)
         seq.add(wait=1)  # also necessary so that _has_clip_listener triggers on has_clip == True
 
-        if bar_length and record_tail:
-            bar_length += 1
-
         record_length = self.parent.utilsManager.get_beat_time(bar_length)
-
         seq.add(partial(self.fire, record_length=record_length), complete_on=self._has_clip_listener)
 
         # noinspection PyUnresolvedReferences
@@ -151,6 +149,8 @@ class ClipSlot(AbstractObject):
 
         if record_length:
             args["record_length"] = record_length
+
+        self.parent.log_dev("args: %s" % args)
 
         self._clip_slot.fire(**args)
 

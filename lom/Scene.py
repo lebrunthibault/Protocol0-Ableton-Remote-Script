@@ -23,6 +23,7 @@ class Scene(SceneActionMixin, AbstractObject):
     PLAYING_SCENE = None  # type: Optional[Scene]
     LOOPING_SCENE = None  # type: Optional[Scene]
     LAST_MANUALLY_STARTED_SCENE = None  # type: Optional[Scene]
+    LAST_MANUALLY_STARTED_SCENE_BAR_POSITION = None  # type: Optional[int]
     SELECTED_DUPLICATE_SCENE_BAR_LENGTH = 4
 
     def __init__(self, scene, index, *a, **k):
@@ -31,7 +32,6 @@ class Scene(SceneActionMixin, AbstractObject):
         self._scene = scene
         self.index = index
 
-        self.selected_playing_bar_position = 0
         self.scene_name = SceneName(self)
         self.no_fire_next = False  # handles changing scene on last bar of playing scene
 
@@ -56,7 +56,7 @@ class Scene(SceneActionMixin, AbstractObject):
         # type: () -> None
         self.clip_slots = [track.clip_slots[self.index] for track in self.song.simple_tracks]
         self._map_clips()
-        self.tracks = [cs.track for cs in self.clips]
+        self.tracks = [clip.track for clip in self.clips if not clip.muted]
 
         # listeners
         self._clip_slots_has_clip_listener.replace_subjects(self.clip_slots)
@@ -69,6 +69,7 @@ class Scene(SceneActionMixin, AbstractObject):
         self.audio_tail_clips = cast(List[AudioClip],
                                      [clip for clip in self.clips if isinstance(clip.track, SimpleAudioTailTrack)])
         self._clips_length_listener.replace_subjects(self.clips)
+        self._clips_muted_listener.replace_subjects([clip._clip for clip in self.clips])
 
     def refresh_appearance(self):
         # type: (Scene) -> None
@@ -84,15 +85,21 @@ class Scene(SceneActionMixin, AbstractObject):
             self.parent.defer(partial(self._stop_previous_scene, self.song.playing_scene, immediate=True))
         Scene.PLAYING_SCENE = self
 
+    @subject_slot_group("has_clip")
+    def _clip_slots_has_clip_listener(self, _):
+        # type: (ClipSlot) -> None
+        self._map_clips()
+        self.check_scene_length()
+
     @subject_slot_group("length")
     @throttle(wait_time=10)
     def _clips_length_listener(self, _):
         # type: (Clip) -> None
         self.check_scene_length()
 
-    @subject_slot_group("has_clip")
-    def _clip_slots_has_clip_listener(self, _):
-        # type: (ClipSlot) -> None
+    @subject_slot_group("muted")
+    def _clips_muted_listener(self, _):
+        # type: (Clip) -> None
         self._map_clips()
         self.check_scene_length()
 

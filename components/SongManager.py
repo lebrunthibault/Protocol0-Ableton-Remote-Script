@@ -7,6 +7,7 @@ from protocol0.config import Config
 from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.enums.SongLoadStateEnum import SongLoadStateEnum
 from protocol0.interface.InterfaceState import InterfaceState
+from protocol0.lom.Scene import Scene
 from protocol0.lom.track.AbstractTrack import AbstractTrack
 from protocol0.sequence.Sequence import Sequence
 
@@ -24,7 +25,6 @@ class SongManager(AbstractControlSurfaceComponent):
             self.system.show_warning("The global launch quantization is set to None")
 
         startup_track = self._get_startup_track()
-        self.parent.log_dev(startup_track)
         self._restore_selected_state()
         if startup_track:
             seq = Sequence()
@@ -44,6 +44,12 @@ class SongManager(AbstractControlSurfaceComponent):
                 list(self.song.all_simple_tracks)):
             selected_track = list(self.song.all_simple_tracks)[SongDataManager.SELECTED_TRACK_INDEX]
             selected_track.select()
+        if SongDataManager.LAST_MANUALLY_STARTED_SCENE_INDEX is not None and SongDataManager.LAST_MANUALLY_STARTED_SCENE_INDEX < len(
+                list(self.song.scenes)):
+            scene = self.song.scenes[SongDataManager.LAST_MANUALLY_STARTED_SCENE_INDEX]
+            if SongDataManager.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION < scene.bar_length:
+                Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION = SongDataManager.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION
+            Scene.LAST_MANUALLY_STARTED_SCENE = scene
 
     def _get_startup_track(self):
         # type: () -> Optional[AbstractTrack]
