@@ -150,8 +150,6 @@ class ClipSlot(AbstractObject):
         if record_length:
             args["record_length"] = record_length
 
-        self.parent.log_dev("args: %s" % args)
-
         self._clip_slot.fire(**args)
 
     def create_clip(self):

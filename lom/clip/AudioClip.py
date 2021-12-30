@@ -31,6 +31,18 @@ class AudioClip(Clip):
         self.notify_length()
 
     @property
+    def loop_end(self):
+        # type: () -> float
+        return super(AudioClip, self).loop_end
+
+    # noinspection PyPropertyAccess
+    @loop_end.setter
+    def loop_end(self, loop_end):
+        # type: (float) -> None
+        # if self._clip and self.loop_start <= loop_end <= self.end_marker:
+        self._clip.loop_end = loop_end
+
+    @property
     def warping(self):
         # type: () -> float
         return self._clip.warping if self._clip else 0

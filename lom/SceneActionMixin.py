@@ -61,8 +61,6 @@ class SceneActionMixin(object):
         # type: (Scene) -> None
         # handles click sound when the previous scene plays shortly
         if self.song.playing_scene and self.song.playing_scene != self:
-            # seq.add(wait=1)
-            # seq.add(partial(self._stop_previous_scene, self.song.playing_scene))
             self._stop_previous_scene(self.song.playing_scene)
 
         from protocol0.lom.Scene import Scene

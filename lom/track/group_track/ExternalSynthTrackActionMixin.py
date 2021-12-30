@@ -58,6 +58,9 @@ class ExternalSynthTrackActionMixin(object):
             self.midi_track.current_monitoring_state = CurrentMonitoringStateEnum.IN
 
             self.audio_track.mute = False
+            if self.midi_track.solo:
+                self.audio_track.solo = True
+                self.midi_track.solo = False
             self.audio_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
 
             if self.audio_tail_track:
@@ -68,6 +71,9 @@ class ExternalSynthTrackActionMixin(object):
                 self._external_device.mute = True
         else:
             self.midi_track.mute = False
+            if self.audio_track.solo:
+                self.midi_track.solo = True
+                self.audio_track.solo = False
             self.midi_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
 
             self.audio_track.mute = True

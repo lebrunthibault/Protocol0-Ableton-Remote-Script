@@ -126,8 +126,8 @@ class Clip(ClipActionMixin, AbstractObject):
 
     @property
     def looping(self):
-        # type: () -> float
-        return self._clip.looping if self._clip else 0
+        # type: () -> bool
+        return self._clip.looping if self._clip else False
 
     # noinspection PyPropertyAccess
     @looping.setter
@@ -181,7 +181,7 @@ class Clip(ClipActionMixin, AbstractObject):
     @end_marker.setter
     def end_marker(self, end_marker):
         # type: (float) -> None
-        if self._clip and end_marker < self.start_marker:
+        if self._clip and end_marker > self.start_marker:
             self._clip.end_marker = end_marker
 
     @property

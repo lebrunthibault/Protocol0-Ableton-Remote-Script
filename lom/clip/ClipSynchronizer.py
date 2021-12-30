@@ -14,14 +14,15 @@ if TYPE_CHECKING:
 class ClipSynchronizer(ObjectSynchronizer):
     """ For ExternalSynthTrack """
 
-    def __init__(self, midi_clip, audio_clip, no_muted, *a, **k):
-        # type: (MidiClip, AudioClip, bool, Any, Any) -> None
+    def __init__(self, midi_clip, audio_clip, *a, **k):
+        # type: (MidiClip, AudioClip, Any, Any) -> None
         properties = ["name"]
-        if not no_muted:
-            properties.append("muted")
+        if not isinstance(audio_clip.track, SimpleAudioTailTrack):
+            properties += ["looping", "muted"]
 
-        if midi_clip.length == audio_clip.length and not midi_clip.track.abstract_track.record_clip_tails:
-            properties += ["loop_start", "loop_end", "start_marker", "end_marker"]
+        # if midi_clip.length == audio_clip.length and not midi_clip.track.abstract_track.record_clip_tails:
+            if midi_clip.length == audio_clip.length:
+                properties += ["loop_start", "loop_end", "start_marker", "end_marker"]
 
         # check we are not in the clip tail case
         if not audio_clip.is_recording and audio_clip.bar_length not in (midi_clip.bar_length, midi_clip.bar_length + 1):

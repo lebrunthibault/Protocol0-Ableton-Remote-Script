@@ -57,10 +57,12 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
         # type: (AbstractObject, AbstractObject, str) -> None
         if not self.is_syncable(slave):
             return
+
         master_value = getattr(master, property_name)
         slave_value = getattr(slave, property_name)
+
         if not slave or slave.deleted or master.deleted:
             return None
 
-        if master_value and slave_value != master_value:
+        if slave_value != master_value:
             setattr(slave, property_name, master_value)

@@ -34,7 +34,6 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
             sub_track.abstract_group_track = self
 
         self._clip_slot_synchronizers = []  # type: List[ClipSlotSynchronizer]
-        self._link_clip_slots()
 
         self._external_device = None  # type: Optional[Device]
         self._devices_listener.subject = self.midi_track
@@ -44,7 +43,6 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         # noinspection PyUnresolvedReferences
         self.notify_instrument()
 
-        self.record_clip_tails = self.instrument.RECORD_CLIP_TAILS and self.audio_tail_track is not None
         self.parent.trackDataManager.restore_data(self)
 
     def _added_track_init(self):
@@ -82,6 +80,9 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         elif not has_tail_track:
             self.audio_tail_track = None
 
+        self.record_clip_tails = self.instrument.RECORD_CLIP_TAILS and self.audio_tail_track is not None
+        self._link_clip_slots()
+
         super(ExternalSynthTrack, self).on_tracks_change()
 
     def on_scenes_change(self):
@@ -112,8 +113,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
             ]
             if self.audio_tail_track:
                 self._clip_slot_synchronizers += [
-                    ClipSlotSynchronizer(midi_clip_slot, audio_tail_clip_slot,
-                                         no_muted=True)
+                    ClipSlotSynchronizer(midi_clip_slot, audio_tail_clip_slot)
                     for midi_clip_slot, audio_tail_clip_slot in
                     itertools.izip(  # type: ignore[attr-defined]
                         self.midi_track.clip_slots, self.audio_tail_track.clip_slots

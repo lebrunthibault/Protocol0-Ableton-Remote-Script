@@ -41,5 +41,6 @@ class AudioClipSlot(ClipSlot):
             self.clip.muted = True
         else:
             self.clip.loop_end = clip_end
+            self.clip.end_marker = clip_end
 
         self.clip.clip_name.update()

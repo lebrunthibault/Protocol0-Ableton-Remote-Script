@@ -56,7 +56,6 @@ class Scene(SceneActionMixin, AbstractObject):
         # type: () -> None
         self.clip_slots = [track.clip_slots[self.index] for track in self.song.simple_tracks]
         self._map_clips()
-        self.tracks = [clip.track for clip in self.clips if not clip.muted]
 
         # listeners
         self._clip_slots_has_clip_listener.replace_subjects(self.clip_slots)
@@ -70,6 +69,8 @@ class Scene(SceneActionMixin, AbstractObject):
                                      [clip for clip in self.clips if isinstance(clip.track, SimpleAudioTailTrack)])
         self._clips_length_listener.replace_subjects(self.clips)
         self._clips_muted_listener.replace_subjects([clip._clip for clip in self.clips])
+
+        self.tracks = [clip.track for clip in self.clips if not clip.muted]
 
     def refresh_appearance(self):
         # type: (Scene) -> None
@@ -181,10 +182,10 @@ class Scene(SceneActionMixin, AbstractObject):
     @property
     def has_playing_clips(self):
         # type: () -> bool
-        return self.song.is_playing and any(clip and clip.is_playing for clip in self.clips)
+        return self.song.is_playing and any(clip and clip.is_playing and not clip.muted for clip in self.clips)
 
     @property
     def longest_clip(self):
         # type: () -> Optional[Clip]
-        clips = [clip for clip in self.clips if not clip.is_recording]
+        clips = [clip for clip in self.clips if not clip.is_recording and not clip.muted]
         return None if not len(clips) else max(clips, key=lambda c: c.length if c else 0)

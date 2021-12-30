@@ -22,7 +22,8 @@ class BeatScheduler(AbstractObject, SyncedScheduler):
 
     def wait_beats(self, beats, callback):
         # type: (float, Callable) -> None
-        self.schedule_message(beats + 1, callback)
+        # self.schedule_message(beats + 1, callback)
+        self.schedule_message(beats, callback)
 
     def clear_scheduler(self):
         # type: () -> None
