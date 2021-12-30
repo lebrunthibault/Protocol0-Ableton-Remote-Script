@@ -186,17 +186,17 @@ class Song(SongActionMixin, AbstractObject):
     @property
     def selected_scene(self):
         # type: () -> Scene
-        return self.parent.songScenesManager.get_optional_scene(self._view.selected_scene)
-
-    @property
-    def last_manually_started_scene(self):
-        # type: () -> Scene
-        return Scene.LAST_MANUALLY_STARTED_SCENE or self.selected_scene
+        return self.parent.songScenesManager.get_scene(self._view.selected_scene)
 
     @selected_scene.setter
     def selected_scene(self, scene):
         # type: (Scene) -> None
         self._view.selected_scene = scene._scene
+
+    @property
+    def last_manually_started_scene(self):
+        # type: () -> Scene
+        return Scene.LAST_MANUALLY_STARTED_SCENE or self.selected_scene
 
     @property
     def playing_scene(self):

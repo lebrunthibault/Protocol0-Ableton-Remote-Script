@@ -18,7 +18,7 @@ class InstrumentPreset(AbstractObject):
         name = smart_string(name) if name else None
         self.original_name = name
         self.name = self._format_name(name)
-        self.category = category.lower() if category else None
+        self.category = category.lower() if category else ""
 
     def __repr__(self, **k):
         # type: (Any) -> str

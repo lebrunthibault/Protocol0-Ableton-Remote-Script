@@ -35,7 +35,7 @@ class AbstractTrackName(AbstractObjectName):
             return base_name
 
     def _should_recompute_base_name(self, base_name):
-        # type: () -> bool
+        # type: (unicode) -> bool
         from protocol0.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 
         return (

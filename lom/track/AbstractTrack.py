@@ -404,7 +404,10 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def available_output_routing_types(self):
         # type: () -> List[Live.Track.RoutingType]
-        return self._track and list(self._track.available_output_routing_types)
+        if self._track:
+            return list(self._track.available_output_routing_types)
+        else:
+            return []
 
     @property
     def output_routing_track(self):

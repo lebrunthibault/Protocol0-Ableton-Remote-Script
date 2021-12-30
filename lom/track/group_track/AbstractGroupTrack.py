@@ -32,6 +32,7 @@ class AbstractGroupTrack(AbstractTrack):
         """ 2nd layer linking """
         update_name = len(self.sub_tracks) != len(self.base_track.sub_tracks)
         self.sub_tracks[:] = self.base_track.sub_tracks
+        # here we don't necessarily link the sub tracks to self
         if update_name:
             self.parent.defer(self.track_name.update)
 
@@ -79,7 +80,7 @@ class AbstractGroupTrack(AbstractTrack):
             dummy_track.abstract_group_track = self
             self.parent.defer(dummy_track.track_name.update)
 
-        self.parent.defer(self._link_dummy_tracks_routings)
+        self.parent.wait(3, self._link_dummy_tracks_routings)
 
     def _link_dummy_tracks_routings(self):
         # type: () -> None

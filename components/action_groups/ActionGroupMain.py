@@ -16,25 +16,11 @@ class ActionGroupMain(AbstractActionGroup):
         # type: (Any, Any) -> None
         super(ActionGroupMain, self).__init__(channel=4, *a, **k)
 
-        # TAP tempo encoder
-        self.add_encoder(identifier=1, name="tap tempo",
-                         on_press=self.song.tap_tempo,
-                         on_scroll=self.parent.songManager.scroll_tempo
-                         )
-
         # TAIL encoder
         self.add_encoder(
             identifier=2,
             name="toggle audio clip tail recording",
             on_press=lambda: self.song.current_track.toggle_record_clip_tails
-        )
-
-        # AUTOmation encoder
-        self.add_encoder(
-            identifier=3,
-            name="automation",
-            on_press=self.parent.automationTrackManager.display_selected_parameter_automation,
-            on_scroll=self.parent.automationTrackManager.scroll_automation_envelopes,
         )
 
         # VOLume tempo encoder

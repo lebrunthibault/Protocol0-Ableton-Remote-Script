@@ -42,7 +42,7 @@ class SongDataManager(AbstractControlSurfaceComponent):
     SELECTED_SCENE_INDEX = None  # type: Optional[int]
     SELECTED_TRACK_INDEX = None  # type: Optional[int]
     LAST_MANUALLY_STARTED_SCENE_INDEX = None  # type: Optional[int]
-    LAST_MANUALLY_STARTED_SCENE_BAR_POSITION = None  # type: Optional[int]
+    LAST_MANUALLY_STARTED_SCENE_BAR_POSITION = 0
 
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None

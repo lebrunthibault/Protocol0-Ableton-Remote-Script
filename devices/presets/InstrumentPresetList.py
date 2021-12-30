@@ -68,11 +68,11 @@ class InstrumentPresetList(AbstractObject):
 
     @property
     def selected_category(self):
-        # type: () -> Optional[str]
+        # type: () -> str
         if self.selected_preset:
             return self.selected_preset.category
         else:
-            return None
+            return ""
 
     @selected_category.setter
     def selected_category(self, selected_category):

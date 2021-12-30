@@ -83,6 +83,10 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self.record_clip_tails = self.instrument.RECORD_CLIP_TAILS and self.audio_tail_track is not None
         self._link_clip_slots()
 
+        # the dummy tracks are not yet instantiated and SimpleAudioTracks should be linked to self
+        for sub_track in self.base_track.sub_tracks:
+            sub_track.abstract_group_track = self
+
         super(ExternalSynthTrack, self).on_tracks_change()
 
     def on_scenes_change(self):

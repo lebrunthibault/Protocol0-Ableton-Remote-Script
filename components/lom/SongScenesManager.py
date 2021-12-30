@@ -105,4 +105,3 @@ class SongScenesManager(AbstractControlSurfaceComponent):
 
         seq.add([scene.delete for scene in empty_scenes])
         return seq.done()
-

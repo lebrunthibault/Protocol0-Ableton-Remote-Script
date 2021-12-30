@@ -163,6 +163,7 @@ class ExternalSynthTrackActionMixin(object):
         seq.add(partial(setattr, self.song, "session_record", False))
 
         if self.record_clip_tails:
+            seq.add(wait_beats=1)  # so that end_marker is computed correctly
             seq.add(audio_clip_slot.post_record_clip_tail)
             seq.add(audio_tail_clip_slot.post_record_clip_tail)
 
@@ -182,6 +183,7 @@ class ExternalSynthTrackActionMixin(object):
         seq.add(lambda: midi_clip_slot.clip.stop())
         seq.add(complete_on=lambda: midi_clip_slot.clip._playing_status_listener)
         seq.add(self.song.selected_scene.fire)
+        seq.add(wait_bars=1)
         seq.add(partial(setattr, self.midi_track, "input_routing_type", input_routing_type))
         return seq.done()
 

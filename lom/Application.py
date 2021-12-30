@@ -24,8 +24,3 @@ class Application(AbstractObject):
     def session_view_active(self):
         # type: () -> bool
         return self.view.is_view_visible('Session')
-
-    @property
-    def arrangement_view_active(self):
-        # type: () -> bool
-        return not self.session_view_active

@@ -20,7 +20,7 @@ class SceneName(AbstractObjectName):
         # type: () -> str
         # can happen when scenes are created
         if not isinstance(self.scene.name, basestring):
-            return ""
+            return ""   # type: ignore[unreachable]
         match = re.match("^(?P<base_name>[^\\d*()]*)",
                          self.scene.name)
         base_name = match.group("base_name").strip() if match else ""

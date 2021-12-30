@@ -50,7 +50,7 @@ class SyncedScheduler(ClyphXComponentBase):
         if not self._song.is_playing and self._unschedule_on_stop:
             self._pending_action_list = {}
         self._last_beat = None
-        self._last_sixteenth = None  # type: Optional[int]
+        self._last_sixteenth = None
 
     @p0_subject_slot('current_song_time')
     def _on_song_time_changed(self):

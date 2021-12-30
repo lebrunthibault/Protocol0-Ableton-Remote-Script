@@ -5,6 +5,6 @@ from protocol0.tests.fixtures.simple_track import AbletonTrack
 
 
 class AbletonSongView(Subject):
-    def __init__(self, selected_track=None):
+    def __init__(self):
         # type: (Optional[AbletonTrack]) -> None
-        self.selected_track = selected_track
+        self.selected_track = None

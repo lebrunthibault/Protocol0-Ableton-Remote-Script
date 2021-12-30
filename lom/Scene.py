@@ -23,7 +23,7 @@ class Scene(SceneActionMixin, AbstractObject):
     PLAYING_SCENE = None  # type: Optional[Scene]
     LOOPING_SCENE = None  # type: Optional[Scene]
     LAST_MANUALLY_STARTED_SCENE = None  # type: Optional[Scene]
-    LAST_MANUALLY_STARTED_SCENE_BAR_POSITION = None  # type: Optional[int]
+    LAST_MANUALLY_STARTED_SCENE_BAR_POSITION = 0  # type: int
     SELECTED_DUPLICATE_SCENE_BAR_LENGTH = 4
 
     def __init__(self, scene, index, *a, **k):

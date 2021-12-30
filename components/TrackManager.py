@@ -64,7 +64,7 @@ class TrackManager(AbstractControlSurfaceComponent):
             return NormalGroupTrack(base_group_track=base_group_track)
 
     def _make_external_synth_track(self, base_group_track):
-        # type: (SimpleTrack) -> Optional[ExternalSynthTrack]
+        # type: (SimpleTrack) -> ExternalSynthTrack
         """ discarding automated tracks in creation / suppression """
         midi_track = base_group_track.sub_tracks[0]
 

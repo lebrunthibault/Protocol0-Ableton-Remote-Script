@@ -14,7 +14,7 @@ mypy:
 
 vulture:
 	cls
-	.\venv\Scripts\vulture . .\vulture_whitelist.py --make-whitelist --exclude=venv/,InputRoutingTypeEnum.py,InputRoutingChannelEnum.py,OutputRoutingTypeEnum.py,CurrentMonitoringStateEnum.py,BarLengthEnum.py,TrackSearchKeywordEnum.py,ApiRoutesManager.py,LOMAnalyzer.py,Push2Manager.py --ignore-names=Optional,Generator,Func,Tuple,Deque,Union,CollectionsSequence,NoReturn,Iterator,TracebackType,StringOrNumber,decorate,midi_server_check_timeout_scheduler_event,vocalCommandManager,api_exposable_class,_on_selected,*push2*
+	.\venv\Scripts\vulture . .\vulture_whitelist.py --make-whitelist --exclude=venv/,InputRoutingTypeEnum.py,InputRoutingChannelEnum.py,OutputRoutingTypeEnum.py,CurrentMonitoringStateEnum.py,BarLengthEnum.py,TrackSearchKeywordEnum.py,ApiRoutesManager.py,LOMAnalyzer.py,Push2Manager.py --ignore-names=Optional,Generator,Func,Tuple,Deque,Union,CollectionsSequence,NoReturn,Iterator,TracebackType,StringOrNumber,decorate,midi_server_check_timeout_scheduler_event,vocalCommandManager,api_exposable_class,_on_selected,*push2*,to_json
 
 #pycharm:
 #	# not working

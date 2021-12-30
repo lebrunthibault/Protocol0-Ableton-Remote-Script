@@ -29,7 +29,7 @@ def _scroll_encoder(encoder):
 def _make_multi_encoder(identifier=1):
     # type: (int) -> MultiEncoder
     with p0.component_guard():
-        p0.protocol0_song = make_song(count_simple_tracks=1)
+        p0.protocol0_song = make_song()
         return ActionGroupTest().add_encoder(identifier=identifier, name="pytest")
 
 

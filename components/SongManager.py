@@ -47,7 +47,7 @@ class SongManager(AbstractControlSurfaceComponent):
         if SongDataManager.LAST_MANUALLY_STARTED_SCENE_INDEX is not None and SongDataManager.LAST_MANUALLY_STARTED_SCENE_INDEX < len(
                 list(self.song.scenes)):
             scene = self.song.scenes[SongDataManager.LAST_MANUALLY_STARTED_SCENE_INDEX]
-            if SongDataManager.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION < scene.bar_length:
+            if not SongDataManager.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION or SongDataManager.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION < scene.bar_length:
                 Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION = SongDataManager.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION
             Scene.LAST_MANUALLY_STARTED_SCENE = scene
 

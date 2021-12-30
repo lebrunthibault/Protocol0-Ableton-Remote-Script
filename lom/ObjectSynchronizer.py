@@ -14,8 +14,8 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
     properties are properties effectively synced
     """
 
-    def __init__(self, master, slave, listenable_properties=None, *a, **k):
-        # type: (AbstractObject, AbstractObject, Optional[List[str]], Any, Any) -> None
+    def __init__(self, master, slave, listenable_properties=None, bidirectional=True, *a, **k):
+        # type: (AbstractObject, AbstractObject, Optional[List[str]], bool, Any, Any) -> None
         super(ObjectSynchronizer, self).__init__(*a, **k)
 
         if not master or not slave:
@@ -30,9 +30,10 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
             self.register_slot(getattr(master, lom_property_name),
                                partial(self.parent.defer, partial(self._sync_property, master, slave, property_name)),
                                property_name)
-            self.register_slot(getattr(slave, lom_property_name),
-                               partial(self.parent.defer, partial(self._sync_property, slave, master, property_name)),
-                               property_name)
+            if bidirectional:
+                self.register_slot(getattr(slave, lom_property_name),
+                                   partial(self.parent.defer, partial(self._sync_property, slave, master, property_name)),
+                                   property_name)
 
     def _get_lom_property_name_from_object(self, obj):
         # type: (AbstractObject) -> str

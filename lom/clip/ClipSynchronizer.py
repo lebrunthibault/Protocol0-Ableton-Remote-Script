@@ -36,13 +36,14 @@ class ClipSynchronizer(ObjectSynchronizer):
             midi_clip,
             audio_clip,
             listenable_properties=properties,
+            bidirectional=False,
             *a,
             **k
         )
 
     def is_syncable(self, clip):
         # type: (Clip) -> bool
-        return not clip.track.is_recording
+        return not clip.track.is_recording and not self.song.record_mode
 
     def _sync_property(self, master, slave, property_name):
         # type: (Clip, Clip, str) -> None

@@ -56,6 +56,9 @@ class SimpleDummyTrack(SimpleAudioTrack):
         # type: () -> None
         clip = self.clip_slots[self.song.selected_scene.index].clip
         dummy_rack = self.get_device_from_enum(DeviceEnum.DUMMY_RACK)
+        if dummy_rack is None:
+            self.parent.log_error("The dummy rack was not inserted")
+            return None
         dummy_rack_gain = dummy_rack.get_parameter_by_name(DeviceParameterEnum.DUMMY_RACK_GAIN)
         existing_envelope = clip.automation_envelope(dummy_rack_gain)
         if not existing_envelope:

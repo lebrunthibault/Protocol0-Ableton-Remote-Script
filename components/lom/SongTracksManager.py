@@ -28,7 +28,7 @@ class SongTracksManager(AbstractControlSurfaceComponent):
     @property
     def live_tracks(self):
         # type: () -> Iterator[Live.Track.Track]
-        return (track for track in list(self._song.tracks) + list(self._song.return_tracks) + [self._song.master_track])
+        return (track for track in list(self.song._song.tracks) + list(self.song._song.return_tracks) + [self.song._song.master_track])
 
     def get_simple_track(self, live_track):
         # type: (Live.Track.Track) -> SimpleTrack

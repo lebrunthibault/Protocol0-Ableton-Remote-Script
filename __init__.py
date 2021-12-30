@@ -25,8 +25,9 @@ if sys.version_info.major == 2:
 
 
 class EmptyModule(object):
-    def __init__(self, is_false=True):
-        # type: (bool) -> None
+    def __init__(self, name, is_false=True):
+        # type: (str, bool) -> None
+        self.name = name
         self.is_false = is_false
 
     def __ne__(self, other):
@@ -64,12 +65,16 @@ class EmptyModule(object):
         # that's for push2 scales check
         return iter([(0, 0)])
 
+    def to_json(self):
+        # type: () -> str
+        return self.name
+
 
 # allows accessing code from this module from outside of the Live python environment, e.g. Jupyter tests
 if not live_environment_loaded:
-    sys.modules["Live"] = EmptyModule()  # type: ignore[assignment]
-    sys.modules["MidiRemoteScript"] = EmptyModule()  # type: ignore[assignment]
-    sys.modules["multipledispatch"] = EmptyModule()  # type: ignore[assignment]
+    sys.modules["Live"] = EmptyModule("Live")  # type: ignore[assignment]
+    sys.modules["MidiRemoteScript"] = EmptyModule("MidiRemoteScript")  # type: ignore[assignment]
+    sys.modules["multipledispatch"] = EmptyModule("multipledispatch")  # type: ignore[assignment]
 
 if sys.version_info.major == 2:
     from protocol0.Protocol0 import Protocol0  # noqa: E402

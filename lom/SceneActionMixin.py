@@ -43,6 +43,7 @@ class SceneActionMixin(object):
 
     def _fire_next_scene(self):
         # type: (Scene) -> None
+        next_scene = self.next_scene
         if SessionToArrangementManager.IS_BOUNCING:
             # unique call when bouncing
             if SessionToArrangementManager.LAST_SCENE_FIRED == self:
@@ -50,12 +51,13 @@ class SceneActionMixin(object):
             else:
                 SessionToArrangementManager.LAST_SCENE_FIRED = self
 
-            if self == self.next_scene:
+            if self == next_scene:
                 self.song.stop_all_clips()
                 self.parent.wait_bars(2, self.song.stop_playing)
                 return None
 
-        self.next_scene.fire()
+        if next_scene != self:
+            next_scene.fire()  # do not fire same scene as it focus it again (can loose current parameter focus)
 
     def fire(self):
         # type: (Scene) -> None
@@ -182,7 +184,7 @@ class SceneActionMixin(object):
                 clip.start_marker += offset
                 clip.loop_start += offset
 
-    @throttle(wait_time=20)
+    @throttle(wait_time=10)
     def scroll_position(self, go_next):
         # type: (Scene, bool) -> None
         from protocol0.lom.Scene import Scene
@@ -195,7 +197,7 @@ class SceneActionMixin(object):
         if self.has_playing_clips:
             bar_position = self.playing_position * self.song.signature_numerator
             rounded_bar_position = floor(bar_position) if go_next else round(bar_position)
-            scene_position = scroll_values(range(0, self.bar_length), rounded_bar_position, go_next=go_next)
+            scene_position = int(scroll_values(range(0, self.bar_length), rounded_bar_position, go_next=go_next))
             self.jump_to_bar(scene_position)
         else:
             scene_position = scroll_values(range(0, self.bar_length), scene_position, go_next=go_next)
