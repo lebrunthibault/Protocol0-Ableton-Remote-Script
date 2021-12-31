@@ -125,7 +125,9 @@ class SceneActionMixin(object):
                 return None
             abstract_track = cast(ExternalSynthTrack, clip.track.abstract_track)
             # do not trigger tail on monophonic loop
-            if abstract_track.instrument.MONOPHONIC and self.next_scene.clip_slots[clip.track.index - 1].clip:
+            if abstract_track.instrument.MONOPHONIC and self.next_scene != self and self.next_scene.clip_slots[clip.track.index - 1].clip:
+                continue
+            if abstract_track.midi_track.clip_slots[clip.index].clip.muted:
                 continue
             else:
                 clip.play_and_mute()
