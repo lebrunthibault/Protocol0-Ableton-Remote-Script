@@ -8,6 +8,7 @@ from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.SceneActionMixin import SceneActionMixin
 from protocol0.lom.SceneName import SceneName
 from protocol0.lom.clip.AudioClip import AudioClip
+from protocol0.lom.clip.AudioTailClip import AudioTailClip
 from protocol0.lom.clip.Clip import Clip
 from protocol0.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
@@ -33,7 +34,6 @@ class Scene(SceneActionMixin, AbstractObject):
         self.index = index
 
         self.scene_name = SceneName(self)
-        self.no_fire_next = False  # handles changing scene on last bar of playing scene
 
         self.clip_slots = []  # type: List[ClipSlot]
         self.clips = []  # type: List[Clip]
@@ -65,7 +65,7 @@ class Scene(SceneActionMixin, AbstractObject):
         self.clips = [clip_slot.clip for clip_slot in self.clip_slots if
                       clip_slot.has_clip and clip_slot.clip and clip_slot.track.__class__ not in (
                           SimpleDummyTrack, SimpleInstrumentBusTrack)]
-        self.audio_tail_clips = cast(List[AudioClip],
+        self.audio_tail_clips = cast(List[AudioTailClip],
                                      [clip for clip in self.clips if isinstance(clip.track, SimpleAudioTailTrack)])
         self._clips_length_listener.replace_subjects(self.clips)
         self._clips_muted_listener.replace_subjects([clip._clip for clip in self.clips])

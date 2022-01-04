@@ -29,14 +29,10 @@ class SceneActionMixin(object):
         if self.is_recording:
             return
         # trigger on last beat
-        if self.current_bar == self.bar_length - 1:
-            if self.current_beat == self.song.signature_numerator - 1 or SessionToArrangementManager.IS_BOUNCING:
-                self.parent.defer(self._play_audio_tails)  # only call is here, at the end of the scene length
-                if self.no_fire_next:
-                    self.no_fire_next = False
-                    return None
-                else:
-                    self._fire_next_scene()
+        if self.current_beat == self.song.signature_numerator - 1:
+            self.parent.defer(self._play_audio_tails)  # only call is here, at the end of each bar
+            if self.current_bar == self.bar_length - 1 or SessionToArrangementManager.IS_BOUNCING:
+                self._fire_next_scene()
 
         if self.current_beat == 0 and not SessionToArrangementManager.IS_BOUNCING:
             self.parent.defer(self.scene_name.update)
@@ -68,7 +64,6 @@ class SceneActionMixin(object):
         from protocol0.lom.Scene import Scene
         Scene.PLAYING_SCENE = self
 
-        self.no_fire_next = False
         self._scene.fire()
 
     def fire_and_move_position(self):
@@ -106,8 +101,6 @@ class SceneActionMixin(object):
 
     def _stop_previous_scene(self, previous_playing_scene, immediate=False):
         # type: (Scene, Scene, bool) -> None
-        previous_playing_scene.no_fire_next = True
-
         # manually stopping previous scene because we don't display clip slot stop buttons
         for track in previous_playing_scene.tracks:
             if not track.is_playing or track in self.tracks or isinstance(track, SimpleAudioTailTrack):
@@ -123,6 +116,9 @@ class SceneActionMixin(object):
         for clip in self.audio_tail_clips:
             if clip.is_playing:
                 return None
+            if (self.current_bar + 1) % clip.midi_clip.bar_length != 0:
+                continue
+
             abstract_track = cast(ExternalSynthTrack, clip.track.abstract_track)
             # do not trigger tail on monophonic loop
             if abstract_track.instrument.MONOPHONIC and self.next_scene != self and self.next_scene.clip_slots[clip.track.index - 1].clip:

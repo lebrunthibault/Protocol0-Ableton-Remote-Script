@@ -17,7 +17,7 @@ class AudioClipSlot(ClipSlot):
         self.clip = self.clip  # type: Optional[AudioClip]
         self.previous_audio_file_path = None  # type: Optional[str]
         if self.clip:
-            self.previous_audio_file_path
+            self.previous_audio_file_path = self.clip.file_path
 
     def record(self, bar_length, record_tail=False):
         # type: (int, bool) -> Optional[Sequence]
