@@ -111,7 +111,7 @@ class AbstractTrackActionMixin(object):
 
     def switch_monitoring(self):
         # type: (AbstractTrack) -> NoReturn
-        raise NotImplementedError()
+        self.parent.show_message("%s cannot switch monitoring" % self)
 
     def record(self, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]

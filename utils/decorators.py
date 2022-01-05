@@ -207,3 +207,18 @@ def prompt(question):
         return decorate
 
     return wrap
+
+
+def single_undo(func):
+    # type: (Callable) -> Callable
+    @wraps(func)
+    def decorate(*a, **k):
+        # type: (Any, Any) -> None
+        from protocol0 import Protocol0
+
+        Protocol0.SELF.protocol0_song.begin_undo_step()
+        res = func(*a, **k)
+        Protocol0.SELF.protocol0_song.end_undo_step()
+        return res
+
+    return decorate

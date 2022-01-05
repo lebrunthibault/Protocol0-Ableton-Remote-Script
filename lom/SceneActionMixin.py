@@ -102,6 +102,11 @@ class SceneActionMixin(object):
 
     def _stop_previous_scene(self, previous_playing_scene, immediate=False):
         # type: (Scene, Scene, bool) -> None
+        from protocol0.lom.Scene import Scene
+
+        if previous_playing_scene == self.song.looping_scene:
+            Scene.LOOPING_SCENE = None
+
         # manually stopping previous scene because we don't display clip slot stop buttons
         for track in previous_playing_scene.tracks:
             if not track.is_playing or track in self.tracks or isinstance(track, SimpleAudioTailTrack):

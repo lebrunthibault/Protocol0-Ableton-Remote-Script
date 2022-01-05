@@ -15,6 +15,7 @@ from protocol0.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.lom.clip_slot.MidiClipSlot import MidiClipSlot
 from protocol0.sequence.Sequence import Sequence
+from protocol0.utils.decorators import single_undo
 
 if TYPE_CHECKING:
     from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
@@ -51,6 +52,7 @@ class ExternalSynthTrackActionMixin(object):
 
     # noinspection DuplicatedCode
     @has_monitor_in.setter
+    @single_undo
     def has_monitor_in(self, has_monitor_in):
         # type: (ExternalSynthTrack, bool) -> None
         if has_monitor_in:

@@ -97,7 +97,10 @@ class DeviceEnum(AbstractEnum):
                 DeviceParameterValue(DeviceParameterEnum.EQ_EIGHT_FREQUENCY_8_A, 1),
             ],  # 90 Hz
             DeviceEnum.LFO_TOOL: [DeviceParameterValue(DeviceParameterEnum.LFO_TOOL_LFO_DEPTH, 0)],
-            DeviceEnum.UTILITY: [DeviceParameterValue(DeviceParameterEnum.UTILITY_GAIN, 0)],
+            DeviceEnum.UTILITY: [
+                DeviceParameterValue(DeviceParameterEnum.UTILITY_GAIN, 0),
+                DeviceParameterValue(DeviceParameterEnum.UTILITY_MID_SIDE, 1)
+            ],
         })
 
     def matches_device(self, device):

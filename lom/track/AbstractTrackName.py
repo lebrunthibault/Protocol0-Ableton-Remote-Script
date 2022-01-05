@@ -42,10 +42,10 @@ class AbstractTrackName(AbstractObjectName):
                 not base_name
                 or base_name.lower() == self.track.DEFAULT_NAME.lower()
                 or base_name.split("-")[0].isnumeric()
-                or (
-                        self.track.instrument
-                        and self.track.instrument.PRESET_DISPLAY_OPTION != PresetDisplayOptionEnum.NONE
-                )
+                # or (
+                #         self.track.instrument
+                #         and self.track.instrument.PRESET_DISPLAY_OPTION != PresetDisplayOptionEnum.NONE
+                # )
                 or isinstance(self.track, SimpleDummyTrack)
         )
 

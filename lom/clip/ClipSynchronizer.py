@@ -20,17 +20,17 @@ class ClipSynchronizer(ObjectSynchronizer):
         if not isinstance(audio_clip.track, SimpleAudioTailTrack):
             properties += ["looping", "muted"]
 
-        # if midi_clip.length == audio_clip.length and not midi_clip.track.abstract_track.record_clip_tails:
-            if midi_clip.length == audio_clip.length:
-                properties += ["loop_start", "loop_end", "start_marker", "end_marker"]
+        if midi_clip.length == audio_clip.length:
+            properties += ["loop_start", "loop_end", "start_marker", "end_marker"]
 
         # check we are not in the clip tail case
         if not audio_clip.is_recording and audio_clip.bar_length not in (midi_clip.bar_length, midi_clip.bar_length + 1):
             if not isinstance(audio_clip.track, SimpleAudioTailTrack):
-                log_ableton(  # type: ignore[unreachable]
-                    "Inconsistent clip lengths for clip %s of track %s (audio is %s, midi is %s)" % (
-                        audio_clip, audio_clip.track.abstract_track, audio_clip.bar_length, midi_clip.bar_length),
-                    level=LogLevelEnum.WARNING)
+                pass
+                # log_ableton(  # type: ignore[unreachable]
+                #     "Inconsistent clip lengths for clip %s of track %s (audio is %s, midi is %s)" % (
+                #         audio_clip, audio_clip.track.abstract_track, audio_clip.bar_length, midi_clip.bar_length),
+                #     level=LogLevelEnum.WARNING)
 
         super(ClipSynchronizer, self).__init__(
             midi_clip,

@@ -11,6 +11,7 @@ class DeviceParameterEnum(AbstractEnum):
     EQ_EIGHT_FREQUENCY_8_A = "EQ_EIGHT_FREQUENCY_8_A"
     LFO_TOOL_LFO_DEPTH = "LFO_TOOL_LFO_DEPTH"
     UTILITY_GAIN = "UTILITY_GAIN"
+    UTILITY_MID_SIDE = "UTILITY_MID_SIDE"
 
     @property
     def label(self):
@@ -25,4 +26,5 @@ class DeviceParameterEnum(AbstractEnum):
             DeviceParameterEnum.EQ_EIGHT_FREQUENCY_8_A: "8 Frequency A",
             DeviceParameterEnum.LFO_TOOL_LFO_DEPTH: "LFO Depth",
             DeviceParameterEnum.UTILITY_GAIN: "Gain",
+            DeviceParameterEnum.UTILITY_MID_SIDE: "Mid/Side Balance",
         })

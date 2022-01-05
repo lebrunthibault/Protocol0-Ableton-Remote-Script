@@ -14,10 +14,14 @@ faderfox EC4.
 This script executes in the context of ableton's bundled python interpreter, like any script.
 Some things are not possible in this environment like spawning processes or accessing win32apis (keyboard, mouse ..)
 A simple example : clicking on a device show button is not possible from a "normal" script.
-To make this kind of things possible I've created a backend that you can find
+To make this kind of thing possible I've created a backend that you can find
 in [this repo](https://github.com/lebrunthibault/Protocol-0-backend). The backend is exposing its api over midi, and I'm using
 loopMidi virtual ports to communicate with it.
 > Without setting up the backend (might not be straightforward) the script will only partially work.
+
+> As it's not possible to listen to multiple midi ports from a surface script I'm using a "proxy" surface script that forwards messages
+> on its port to the main script. See [this repo](https://github.com/lebrunthibault/Protocol0-Midi-Surface-Script)
+> The same purpose would be achievable my external midi routing using e.g. midi ox. I like this dependency better.
 
 ## Technical Foreword
 
