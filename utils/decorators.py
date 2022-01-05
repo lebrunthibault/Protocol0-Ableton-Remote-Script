@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, Callable
 
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
 from protocol0.my_types import Func, T
-from protocol0.utils.utils import is_method, get_callable_repr
+from protocol0.utils.utils import is_method
 
 if TYPE_CHECKING:
     from protocol0.components.Push2Manager import Push2Manager
