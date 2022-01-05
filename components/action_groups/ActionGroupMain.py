@@ -20,13 +20,14 @@ class ActionGroupMain(AbstractActionGroup):
         self.add_encoder(
             identifier=2,
             name="toggle audio clip tail recording",
-            on_press=lambda: self.song.current_track.toggle_record_clip_tails
+            filter_active_tracks=True,
+            on_press=lambda: self.song.current_track.toggle_record_clip_tails,
+            on_scroll=lambda: self.song.current_track.scroll_record_clip_tails,
         )
 
         # VOLume tempo encoder
         self.add_encoder(identifier=4, name="volume",
                          filter_active_tracks=True,
-                         on_press=lambda: self.song.current_track.toggle_mute,
                          on_scroll=lambda: self.song.current_track.scroll_volume
                          )
 
@@ -59,7 +60,6 @@ class ActionGroupMain(AbstractActionGroup):
         self.add_encoder(
             identifier=13,
             name="track",
-            filter_active_tracks=True,
             on_scroll=self.song.scroll_tracks,
             on_press=lambda: self.song.current_track.toggle_arm,
             on_long_press=lambda: self.song.current_track.toggle_fold,

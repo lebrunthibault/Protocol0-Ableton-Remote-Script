@@ -1,11 +1,9 @@
 from typing import TYPE_CHECKING, Any
 
-from protocol0.enums.LogLevelEnum import LogLevelEnum
 from protocol0.lom.ObjectSynchronizer import ObjectSynchronizer
 from protocol0.lom.clip.AudioClip import AudioClip
 from protocol0.lom.clip.MidiClip import MidiClip
 from protocol0.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
-from protocol0.utils.log import log_ableton
 
 if TYPE_CHECKING:
     from protocol0.lom.clip.Clip import Clip

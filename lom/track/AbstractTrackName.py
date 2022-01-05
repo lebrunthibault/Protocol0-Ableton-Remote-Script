@@ -2,7 +2,6 @@ import re
 
 from typing import TYPE_CHECKING, Any
 
-from protocol0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from protocol0.lom.AbstractObjectName import AbstractObjectName
 
 if TYPE_CHECKING:

@@ -1,4 +1,4 @@
-from typing import Any, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING, Optional
 
 from protocol0.lom.clip.AudioClip import AudioClip
 from protocol0.lom.clip.MidiClip import MidiClip
@@ -17,5 +17,5 @@ class AudioTailClip(AudioClip):
 
     @property
     def midi_clip(self):
-        # type: () -> MidiClip
+        # type: () -> Optional[MidiClip]
         return self.track.abstract_group_track.midi_track.clip_slots[self.index].clip

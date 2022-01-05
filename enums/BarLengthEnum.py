@@ -18,9 +18,14 @@ class BarLengthEnum(AbstractEnum):
         # type: () -> int
         return self.value
 
+    @classmethod
+    def int_to_str(cls, int_value):
+        # type: (int) -> str
+        return "%s bar%s" % (int_value, "s" if abs(int_value) != 1 else "")
+
     def __str__(self):
         # type: () -> str
         if self == BarLengthEnum.UNLIMITED:
             return "unlimited bars"
         else:
-            return "%s bar%s" % (self.value, "s" if abs(self.value) != 1 else "")
+            return self.int_to_str(self.value)

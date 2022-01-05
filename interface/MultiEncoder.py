@@ -53,29 +53,30 @@ class MultiEncoder(AbstractObject):
             if self._has_long_press:
                 self._pressed_at = time.time()
             else:
-                self._find_and_execute_action()
+                self._find_and_execute_action(move_type=EncoderMoveEnum.PRESS)
         else:
             if self._has_long_press:
                 # action executed on press and not release when only press defined
-                self._find_and_execute_action()
-
-    def _find_and_execute_action(self):
-        # type: () -> None
-        move_type = EncoderMoveEnum.LONG_PRESS if self._is_long_pressed else EncoderMoveEnum.PRESS
-        action = self._find_matching_action(move_type=move_type)  # type: ignore[arg-type]
-        self._pressed_at = None
-        if action:
-            if self._filter_active_tracks and not self.song.selected_track.IS_ACTIVE:
-                self.parent.show_message("actions are not dispatched for master / return tracks")
-                return
-            action.execute(encoder_name=self.name)
+                move_type = EncoderMoveEnum.LONG_PRESS if self._is_long_pressed else EncoderMoveEnum.PRESS
+                self._find_and_execute_action(move_type=move_type)
 
     @p0_subject_slot("value")
     def _scroll_listener(self, value):
         # type: (int) -> None
-        action = self._find_matching_action(move_type=EncoderMoveEnum.SCROLL)  # type: ignore[arg-type]
+        self._find_and_execute_action(move_type=EncoderMoveEnum.SCROLL, go_next=value == 1)
+
+    def _find_and_execute_action(self, move_type, go_next=None):
+        # type: (EncoderMoveEnum, Optional[bool]) -> None
+        action = self._find_matching_action(move_type=move_type)  # type: ignore[arg-type]
+        self._pressed_at = None
         if action:
-            action.execute(encoder_name=self.name, go_next=value == 1)
+            if self._filter_active_tracks and not self.song.selected_track.IS_ACTIVE:
+                self.parent.show_message("action not dispatched for master / return tracks (%s)" % action.name)
+                return
+            params = {"encoder_name": self.name}
+            if go_next is not None:
+                params["go_next"] = go_next
+            action.execute(**params)
 
     def _find_matching_action(self, move_type, exact_match=False, log_not_found=True):
         # type: (EncoderMoveEnum, bool, bool) -> Optional[EncoderAction]
@@ -97,7 +98,7 @@ class MultiEncoder(AbstractObject):
 
         if not action and log_not_found:
             self.parent.show_message(
-                "Press didn't trigger action, move_type: %s" % move_type
+                "Action not found: %s (%s)" % (self.name, move_type)
             )
 
         return action

@@ -7,7 +7,6 @@ from _Framework.SubjectSlot import subject_slot_group
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.SceneActionMixin import SceneActionMixin
 from protocol0.lom.SceneName import SceneName
-from protocol0.lom.clip.AudioClip import AudioClip
 from protocol0.lom.clip.AudioTailClip import AudioTailClip
 from protocol0.lom.clip.Clip import Clip
 from protocol0.lom.clip_slot.ClipSlot import ClipSlot

@@ -27,10 +27,19 @@ class TrackDataManager(AbstractControlSurfaceComponent):
     def save(self, track):
         # type: (AbstractTrack) -> None
         track.set_data(TrackDataEnum.RECORD_CLIP_TAILS.name, track.record_clip_tails)
+        track.set_data(TrackDataEnum.RECORD_CLIP_TAILS_BAR_LENGTH.name, track.record_clip_tails_bar_length)
 
     def restore_data(self, track):
         # type: (AbstractTrack) -> None
         from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 
         if isinstance(track, ExternalSynthTrack) and track.audio_tail_track:
-            track.record_clip_tails = track.get_data(TrackDataEnum.RECORD_CLIP_TAILS.name, False)
+            track.record_clip_tails = track.get_data(TrackDataEnum.RECORD_CLIP_TAILS.name, track.instrument.RECORD_CLIP_TAILS)
+            track.record_clip_tails_bar_length = track.get_data(TrackDataEnum.RECORD_CLIP_TAILS_BAR_LENGTH.name, 1)
+            self.parent.log_dev(track.record_clip_tails_bar_length)
+
+    def clear(self):
+        # type: () -> None
+        for track in self.song.abstract_tracks:
+            self.parent.log_notice("Clearing track data of %s" % track)
+            track.set_data(TrackDataEnum.RECORD_CLIP_TAILS_BAR_LENGTH.name, 1)

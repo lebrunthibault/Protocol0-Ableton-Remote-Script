@@ -140,6 +140,9 @@ class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
 
         if force_activate or not self.activated:
             seq.add(self.post_activate)
+            seq.add(self.device.toggle_on)
+            seq.add(wait=1)
+            seq.add(self.device.toggle_off)
 
         if not force_activate and not select_instrument_track:
             seq.add(wait=2)

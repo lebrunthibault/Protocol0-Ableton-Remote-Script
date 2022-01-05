@@ -31,6 +31,6 @@ class AbstractActionGroup(AbstractControlSurfaceComponent):
                     on_scroll=None):
         # type: (int, str, bool, Optional[Callable], Optional[Callable], Optional[Callable]) -> MultiEncoder
         encoder = MultiEncoder(group=self, identifier=identifier, name=name, filter_active_tracks=filter_active_tracks)
-        for action in EncoderAction.make_actions(on_press=on_press, on_long_press=on_long_press, on_scroll=on_scroll):
+        for action in EncoderAction.make_actions(name=name, on_press=on_press, on_long_press=on_long_press, on_scroll=on_scroll):
             encoder.add_action(action)
         return self._add_multi_encoder(encoder)

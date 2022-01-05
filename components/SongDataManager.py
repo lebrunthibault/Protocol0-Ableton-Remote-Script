@@ -89,7 +89,7 @@ class SongDataManager(AbstractControlSurfaceComponent):
         except SongDataError as e:
             self.parent.log_error(str(e))
             self.parent.log_notice("setting %s song data to {}")
-            self.clear(save_set=False)
+            self.clear()
             self.parent.show_message("Inconsistent song data please save the set")
 
     def _restore_data(self):
@@ -137,11 +137,8 @@ class SongDataManager(AbstractControlSurfaceComponent):
         # type: (str, Any) -> None
         self.parent.log_info("song data of %s: %s" % (key, json.dumps(value, indent=4, sort_keys=True)))
 
-    def clear(self, save_set=True):
-        # type: (bool) -> None
+    def clear(self):
+        # type: () -> None
         for cls_fqdn in SYNCHRONIZABLE_CLASSE_NAMES:
             self.parent.log_notice("Clearing song data of %s" % cls_fqdn)
             self.song.set_data(cls_fqdn, {})
-
-        if save_set:
-            self.system.save_set()

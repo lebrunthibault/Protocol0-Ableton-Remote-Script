@@ -43,8 +43,6 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         # noinspection PyUnresolvedReferences
         self.notify_instrument()
 
-        self.parent.trackDataManager.restore_data(self)
-
     def _added_track_init(self):
         # type: () -> Sequence
         seq = Sequence()
@@ -80,7 +78,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         elif not has_tail_track:
             self.audio_tail_track = None
 
-        self.record_clip_tails = self.instrument.RECORD_CLIP_TAILS and self.audio_tail_track is not None
+        self.parent.trackDataManager.restore_data(self)
         self._link_clip_slots()
 
         # the dummy tracks are not yet instantiated and SimpleAudioTracks should be linked to self

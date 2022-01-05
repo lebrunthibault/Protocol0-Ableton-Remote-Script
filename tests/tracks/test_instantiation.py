@@ -1,5 +1,4 @@
 from protocol0.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
-from protocol0.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.tests.fixtures import make_song
 from protocol0.tests.fixtures.simple_track import TrackType, add_external_synth_track, add_track
 

@@ -122,9 +122,11 @@ class ClipSlot(AbstractObject):
 
     def record(self, bar_length, record_tail=False):
         # type: (int, bool) -> Optional[Sequence]
+        record_tail_bar_length = self.track.abstract_track.record_clip_tails_bar_length
+
         if bar_length and record_tail:
-            bar_length += 1
-        self.parent.show_message(UtilsManager.get_recording_length_legend(bar_length, record_tail))
+            bar_length += record_tail_bar_length
+        self.parent.show_message(UtilsManager.get_recording_length_legend(bar_length, record_tail, record_tail_bar_length))
 
         seq = Sequence()
         seq.add(self.add_stop_button)

@@ -64,6 +64,14 @@ class Device(AbstractObject):
             device_index = self.track.devices.index(self)
             self.track.delete_device(device_index)
 
+    def toggle_on(self):
+        # type: () -> None
+        self.get_parameter_by_name(DeviceParameterEnum.DEVICE_ON).value = 1
+
+    def toggle_off(self):
+        # type: () -> None
+        self.get_parameter_by_name(DeviceParameterEnum.DEVICE_ON).value = 0
+
     def get_parameter_by_name(self, device_parameter_name):
         # type: (Union[DeviceParameterEnum, str]) -> Optional[DeviceParameter]
         if isinstance(device_parameter_name, DeviceParameterEnum):
@@ -115,21 +123,6 @@ class Device(AbstractObject):
     def is_collapsed(self, is_collapsed):
         # type: (bool) -> None
         self._view.is_collapsed = is_collapsed
-
-    @property
-    def mute(self):
-        # type: () -> bool
-        param = find_if(lambda p: p.original_name is not None and p.original_name.startswith('Device On') and p.is_enabled,
-                        self.parameters)
-        return param is not None and param.value is True
-
-    @mute.setter
-    def mute(self, mute):
-        # type: (bool) -> None
-        param = find_if(lambda p: p.original_name is not None and p.original_name.startswith('Device On') and p.is_enabled,
-                        self.parameters)
-        if param:
-            param.value = not mute
 
     @p0_subject_slot("parameters")
     def _parameters_listener(self):

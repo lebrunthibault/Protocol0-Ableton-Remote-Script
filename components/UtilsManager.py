@@ -23,14 +23,17 @@ class UtilsManager(AbstractControlSurfaceComponent):
             return "%d bar%s" % (bar_length, "s" if bar_length > 1 else "")
 
     @classmethod
-    def get_recording_length_legend(cls, bar_length, record_tail):
-        # type: (int, bool) -> str
+    def get_recording_length_legend(cls, bar_length, record_tail, record_tail_bar_length):
+        # type: (int, bool, int) -> str
         if bar_length == 0:
             return "Starting recording of %s" % BarLengthEnum.UNLIMITED
 
         bar_legend = "%d bars" % bar_length
         if record_tail:
-            bar_legend = "%d bars (+tail)" % (bar_length - 1)
+            record_tail_legend = ""
+            if record_tail_bar_length != 1:
+                record_tail_legend = " %s " % BarLengthEnum.int_to_str(record_tail_bar_length)
+            bar_legend = "%d bars (+%stail)" % (bar_length, record_tail_legend)
         return "Starting recording of %s" % bar_legend
 
     def print_stack(self):

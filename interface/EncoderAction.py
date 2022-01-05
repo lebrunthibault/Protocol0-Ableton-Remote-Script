@@ -7,8 +7,8 @@ from protocol0.utils.utils import get_callable_repr, is_lambda
 
 
 class EncoderAction(AbstractObject):
-    def __init__(self, func, move_type=EncoderMoveEnum.PRESS, *a, **k):
-        # type: (Callable, EncoderMoveEnum, Any, Any) -> None
+    def __init__(self, func, move_type, name, *a, **k):
+        # type: (Callable, EncoderMoveEnum, Optional[str], Any, Any) -> None
         """
         base moves are listed in the enum. press is the default choice
         """
@@ -16,6 +16,7 @@ class EncoderAction(AbstractObject):
         assert callable(func), "func action should be callable: %s" % get_callable_repr(func)
         self.func = func
         self.move_type = move_type
+        self.name = name
 
     def __repr__(self, **k):
         # type: (Any) -> str
@@ -53,18 +54,19 @@ class EncoderAction(AbstractObject):
 
     @staticmethod
     def make_actions(
-            on_press=None,  # type: Optional[Callable]
-            on_long_press=None,  # type: Optional[Callable]
-            on_scroll=None,  # type: Optional[Callable]
+            name,  # type: str
+            on_press,  # type: Optional[Callable]
+            on_long_press,  # type: Optional[Callable]
+            on_scroll,  # type: Optional[Callable]
     ):
         # type: (...) -> List[EncoderAction]
         """ This is not necessary but makes it more convenient to define most encoder actions. """
         actions = []  # type: List[EncoderAction]
         if on_press:
-            actions.append(EncoderAction(on_press))
+            actions.append(EncoderAction(on_press, move_type=EncoderMoveEnum.PRESS, name=name))
         if on_long_press:
-            actions.append(EncoderAction(on_long_press, move_type=EncoderMoveEnum.LONG_PRESS))  # type: ignore[arg-type]
+            actions.append(EncoderAction(on_long_press, move_type=EncoderMoveEnum.LONG_PRESS, name=name))  # type: ignore[arg-type]
         if on_scroll:
-            actions.append(EncoderAction(on_scroll, move_type=EncoderMoveEnum.SCROLL))  # type: ignore[arg-type]
+            actions.append(EncoderAction(on_scroll, move_type=EncoderMoveEnum.SCROLL, name=name))  # type: ignore[arg-type]
 
         return actions
