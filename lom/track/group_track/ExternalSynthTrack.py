@@ -52,7 +52,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         seq.add(self.abstract_track.arm)
 
         if len(self.base_track.devices):
-            seq.prompt("Clear %s effects ?" % len(self.base_track.devices))
+            seq.prompt("Clear %s effects ?\n\n%s" % (len(self.base_track.devices), self.base_track.devices))
             seq.add([device.delete for device in self.base_track.devices])
 
         for dummy_track in self.dummy_tracks:

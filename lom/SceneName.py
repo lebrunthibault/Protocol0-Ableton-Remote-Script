@@ -21,7 +21,8 @@ class SceneName(AbstractObjectName):
         # can happen when scenes are created
         if not isinstance(self.scene.name, basestring):
             return ""   # type: ignore[unreachable]
-        match = re.match("^(?P<base_name>[^\\d*()]*)",
+        # catches base name with or without bar length legend
+        match = re.match("^(?P<base_name>[^()|\\d]*(?!([\\d|]+ ))[^()]*)",
                          self.scene.name)
         base_name = match.group("base_name").strip() if match else ""
 

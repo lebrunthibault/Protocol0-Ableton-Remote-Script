@@ -139,6 +139,7 @@ class ExternalSynthTrackActionMixin(object):
         if audio_clip:
             audio_clip_slot.previous_audio_file_path = audio_clip.file_path
             seq.add(audio_clip.delete)
+        seq.add(audio_clip_slot.add_stop_button)
 
         audio_tail_clip_slot = None
         if self.audio_tail_track:
@@ -146,9 +147,10 @@ class ExternalSynthTrackActionMixin(object):
             audio_tail_clip = cast(AudioClip, audio_tail_clip_slot.clip)
             if audio_tail_clip:
                 seq.add(audio_tail_clip.delete)
+            seq.add(audio_tail_clip_slot.add_stop_button)
 
-            if self.record_clip_tails:
-                self._stop_midi_input_to_record_clip_tail(midi_clip_slot=midi_clip.clip_slot,
+        if self.record_clip_tails:
+            self._stop_midi_input_to_record_clip_tail(midi_clip_slot=midi_clip.clip_slot,
                                                           bar_length=midi_clip.bar_length)
 
         clip_slots = [audio_clip_slot] + [audio_tail_clip_slot] if audio_tail_clip_slot else []

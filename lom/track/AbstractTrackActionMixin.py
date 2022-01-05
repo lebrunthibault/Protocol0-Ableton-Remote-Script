@@ -117,7 +117,11 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
         seq = Sequence()
         if not self.is_armed:
-            seq.add(self.arm)
+            if len(list(self.song.armed_tracks)) != 0:
+                self.system.show_warning("The current track is not armed and other tracks are armed")
+                return None
+            else:
+                seq.add(self.arm)
 
         seq.add(self.song.check_midi_recording_quantization)
 

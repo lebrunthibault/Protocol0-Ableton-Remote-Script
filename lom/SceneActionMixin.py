@@ -31,7 +31,8 @@ class SceneActionMixin(object):
         # trigger on last beat
         if self.current_beat == self.song.signature_numerator - 1:
             self.parent.defer(self._play_audio_tails)  # only call is here, at the end of each bar
-            if self.current_bar == self.bar_length - 1 or SessionToArrangementManager.IS_BOUNCING:
+        if self.current_bar == self.bar_length - 1:
+            if SessionToArrangementManager.IS_BOUNCING or self.current_beat == self.song.signature_numerator - 1:
                 self._fire_next_scene()
 
         if self.current_beat == 0 and not SessionToArrangementManager.IS_BOUNCING:
