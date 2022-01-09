@@ -1,8 +1,7 @@
 from typing import Any
 
 from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
-from protocol0.enums.DeviceEnum import DeviceEnum
-from protocol0.errors.Protocol0Error import Protocol0Error
+from protocol0.errors.InvalidTrackException import InvalidTrackException
 
 
 class ActionGroupTest(AbstractActionGroup):
@@ -25,7 +24,7 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        raise Protocol0Error("error !")
+        raise InvalidTrackException("error !")
 
     def start_set_profiling(self):
         # type: () -> None

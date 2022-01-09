@@ -3,7 +3,7 @@ from typing import List, TYPE_CHECKING
 from protocol0.enums.AbstractEnum import AbstractEnum
 
 if TYPE_CHECKING:
-    from protocol0.enums.DeviceEnum import DeviceEnum
+    from protocol0.enums.DeviceEnum import DeviceEnum  # noqa
 
 
 class DeviceParameterEnum(AbstractEnum):
@@ -23,7 +23,7 @@ class DeviceParameterEnum(AbstractEnum):
     @property
     def device_enum(self):
         # type: () -> DeviceEnum
-        from protocol0.enums.DeviceEnum import DeviceEnum
+        from protocol0.enums.DeviceEnum import DeviceEnum  # noqa
 
         return self.get_value_from_mapping({
             DeviceParameterEnum.AUTO_FILTER_HIGH_PASS_FREQUENCY: DeviceEnum.AUTO_FILTER_HIGH_PASS,

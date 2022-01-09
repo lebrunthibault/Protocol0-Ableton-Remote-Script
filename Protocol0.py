@@ -186,9 +186,9 @@ class Protocol0(ControlSurface):
         # type: (str, bool) -> None
         # noinspection PyBroadException
         try:
-            super(Protocol0, self).show_message(message)
-        except Exception:
-            self.log_warning("Couldn't show message")
+            super(Protocol0, self).show_message(str(message))
+        except Exception as e:
+            self.log_warning("Couldn't show message: %s" % str(e))
         if log:
             self.log_warning(message)
 
@@ -216,11 +216,7 @@ class Protocol0(ControlSurface):
         # type: (str, bool, bool) -> None
         self._log(message, level=LogLevelEnum.ERROR, debug=debug)
         if show_message:
-            # noinspection PyBroadException
-            try:
-                super(Protocol0, self).show_message(message)
-            except Exception:
-                self.log_warning("Couldn't show message")
+            self.show_message(message)
 
     def _log(self, message="", level=LogLevelEnum.INFO, debug=False):
         # type: (Any, LogLevelEnum, bool) -> None

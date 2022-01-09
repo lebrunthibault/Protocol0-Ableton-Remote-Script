@@ -132,7 +132,6 @@ class LogManager(AbstractObject):
         self.parent.log_info("song.current_song_time: %s" % self.song.current_song_time)
         self.parent.log_info("song.midi_recording_quantization: %s" % self.song.midi_recording_quantization)
         self.parent.log_info("song.midi_recording_quantization_checked: %s" % self.song.midi_recording_quantization_checked)
-        self.parent.log_info("song.errored: %s" % self.song.errored)
         self.parent.log_info()
         self.parent.log_notice("********* SONG DATA *************")
         self.parent.log_notice(self.song.get_data(list(SYNCHRONIZABLE_CLASSE_NAMES)[0]))

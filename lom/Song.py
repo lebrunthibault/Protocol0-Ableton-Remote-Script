@@ -42,7 +42,6 @@ class Song(SongActionMixin, AbstractObject):
         self.midi_recording_quantization_checked = False
         self._is_playing = False  # caching this because _is_playing_listener activates multiple times
 
-        self.errored = False
         self.normal_tempo = self.tempo
         self.song_load_state = SongLoadStateEnum.PRE_LOAD
         self._is_playing_listener.subject = self._song

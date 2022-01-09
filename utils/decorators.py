@@ -4,7 +4,6 @@ from functools import partial, wraps
 from typing import TYPE_CHECKING, Any, Callable
 
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
-from protocol0.errors.Protocol0Warning import Protocol0Warning
 from protocol0.my_types import Func, T
 from protocol0.utils.utils import is_method
 
@@ -121,13 +120,9 @@ def handle_error(func):
     @wraps(func)
     def decorate(*a, **k):
         # type: (Any, Any) -> Any
-        from protocol0 import Protocol0
-
         # noinspection PyBroadException
         try:
             return func(*a, **k)
-        except Protocol0Warning as e:
-            Protocol0.SELF.show_message(e.message)
         except Exception:
             from protocol0 import Protocol0
 

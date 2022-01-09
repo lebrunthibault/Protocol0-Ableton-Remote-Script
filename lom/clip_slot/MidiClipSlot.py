@@ -19,9 +19,8 @@ class MidiClipSlot(ClipSlot):
 
     def record(self, bar_length, record_tail=False):
         # type: (int, bool) -> Optional[Sequence]
-        record_tail = self.track.abstract_track.record_clip_tails
         seq = Sequence()
-        seq.add(partial(super(MidiClipSlot, self).record, bar_length=bar_length, record_tail=record_tail))
+        seq.add(partial(super(MidiClipSlot, self).record, bar_length=bar_length))
         if record_tail and InterfaceState.SELECTED_RECORDING_BAR_LENGTH == BarLengthEnum.UNLIMITED:
             seq.add(wait=1)
             seq.add(self.post_record_clip_tail)

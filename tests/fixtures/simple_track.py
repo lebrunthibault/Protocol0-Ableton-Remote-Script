@@ -1,4 +1,4 @@
-from typing import cast, List
+from typing import cast, List, Dict, Any
 
 import Live
 from _Framework.SubjectSlot import Subject
@@ -46,6 +46,10 @@ class AbletonTrack(Subject):
     def to_json(self):
         # type: () -> str
         return str(self)
+
+    def get_data(self, _, __):
+        # type: (str, Any) -> Dict
+        return {}
 
     def __repr__(self):
         # type: () -> str

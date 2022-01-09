@@ -75,7 +75,7 @@ class MultiEncoder(AbstractObject):
                 return
             params = {"encoder_name": self.name}
             if go_next is not None:
-                params["go_next"] = go_next
+                params["go_next"] = go_next  # type: ignore[assignment]
             action.execute(**params)
 
     def _find_matching_action(self, move_type, exact_match=False, log_not_found=True):

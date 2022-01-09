@@ -122,7 +122,13 @@ class ClipSlot(AbstractObject):
 
     def record(self, bar_length, record_tail=False):
         # type: (int, bool) -> Optional[Sequence]
-        record_tail_bar_length = self.track.abstract_track.record_clip_tails_bar_length
+        abstract_track = self.track.abstract_track
+
+        record_tail_bar_length = 0
+        from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+
+        if isinstance(abstract_track, ExternalSynthTrack):
+            record_tail_bar_length = abstract_track.record_clip_tails_bar_length
 
         if bar_length and record_tail:
             bar_length += record_tail_bar_length

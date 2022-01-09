@@ -278,11 +278,6 @@ class ExternalSynthTrackActionMixin(object):
 
     def _validate_has_record_clip_tails(self):
         # type: (ExternalSynthTrack) -> bool
-        from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
-        if not isinstance(self, ExternalSynthTrack):
-            self.parent.show_message("Recording clip tails is available only on an ExternalSynthTrack")
-            return False
-
         if not self.audio_tail_track:
             self.system.show_warning("Please create a clip tail track")
             return False

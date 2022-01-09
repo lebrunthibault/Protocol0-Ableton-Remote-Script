@@ -58,7 +58,7 @@ class SimpleDummyTrack(SimpleAudioTrack):
 
     def _insert_device(self):
         # type: () -> Optional[Sequence]
-        self.parameter_enum = DeviceParameterEnum.from_value(self.parameter_type)  # type: DeviceParameterEnum
+        self.parameter_enum = DeviceParameterEnum.from_value(self.parameter_type)
         return self.load_device_from_enum(self.parameter_enum.device_enum)
 
     def _insert_dummy_clip(self):
@@ -85,10 +85,7 @@ class SimpleDummyTrack(SimpleAudioTrack):
 
         existing_envelope = clip.automation_envelope(automated_parameter)
         if not existing_envelope:
-            envelope = clip.create_automation_envelope(parameter=automated_parameter)
-            # envelope.insert_step(0, 0, 1)
-            # envelope.insert_step(0.5, 110, 110)
-            # envelope.insert_step(clip.loop_end, 0, self.clip_bar_length)
+            clip.create_automation_envelope(parameter=automated_parameter)
 
         clip.loop_end = self.clip_bar_length
 

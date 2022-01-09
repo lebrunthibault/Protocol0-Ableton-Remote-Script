@@ -1,19 +1,19 @@
 import traceback
 
-from typing import Any, List
+from typing import Any
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.enums.BarLengthEnum import BarLengthEnum
 
 
 class UtilsManager(AbstractControlSurfaceComponent):
-    def get_bar_length_list(self, bar_length):
-        # type: (int) -> List[int]
-        bar_length_list = [v.int_value for v in list(BarLengthEnum) if 0 < v.int_value <= bar_length]
-        if bar_length not in bar_length_list:
-            bar_length_list.append(bar_length)
-
-        return bar_length_list
+    # def get_bar_length_list(self, bar_length):
+    #     # type: (int) -> List[int]
+    #     bar_length_list = [v.int_value for v in list(BarLengthEnum) if 0 < v.int_value <= bar_length]
+    #     if bar_length not in bar_length_list:
+    #         bar_length_list.append(bar_length)
+    #
+    #     return bar_length_list
 
     def get_beat_time(self, bar_length=1):
         # type: (int) -> int
@@ -39,7 +39,7 @@ class UtilsManager(AbstractControlSurfaceComponent):
         bar_legend = "%d bars" % bar_length
         if record_tail:
             record_tail_legend = ""
-            if record_tail_bar_length != 1:
+            if record_tail_bar_length > 1:
                 record_tail_legend = " %s " % BarLengthEnum.int_to_str(record_tail_bar_length)
             bar_legend = "%d bars (+%stail)" % (bar_length, record_tail_legend)
         return "Starting recording of %s" % bar_legend

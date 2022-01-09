@@ -1,6 +1,6 @@
 import re
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Optional
 
 from protocol0.lom.AbstractObjectName import AbstractObjectName
 
@@ -49,7 +49,7 @@ class AbstractTrackName(AbstractObjectName):
         )
 
     def update(self, name=None):
-        # type: () -> None
+        # type: (Optional[str]) -> None
         if self._disconnected:
             return
         name = name or self._get_base_name()

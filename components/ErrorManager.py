@@ -8,6 +8,7 @@ from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComp
 from protocol0.config import Config
 from protocol0.constants import PROJECT_ROOT
 from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
+from protocol0.errors.Protocol0Warning import Protocol0Warning
 
 
 class ErrorManager(AbstractControlSurfaceComponent):
@@ -32,22 +33,23 @@ class ErrorManager(AbstractControlSurfaceComponent):
             self.song.end_undo_step()
         exc_type, exc_value, tb = sys.exc_info()
         assert exc_type and exc_value and tb
-        self._handle_exception(exc_type, exc_value, tb, context)
+        if issubclass(exc_type, Protocol0Warning):
+            self.parent.show_message(exc_value)
+            self.system.show_warning(str(exc_value))
+        else:
+            self._handle_exception(exc_type, exc_value, tb, context)
 
     def handle_uncaught_exception(self, exc_type, exc_value, tb):
         # type: (Type[BaseException], BaseException, TracebackType) -> None
         if any([string in str(exc_value) for string in self.IGNORED_ERROR_STRINGS]) or \
                 any([string in str(exc_type) for string in self.IGNORED_ERROR_TYPES]):
-            # self.parent.log_warning(exc_value)
             pass
-            # return
         self.parent.log_error("unhandled exception caught !!")
         self._handle_exception(exc_type, exc_value, tb)
 
     def _handle_exception(self, exc_type, exc_value, tb, context=None):
         # type: (Type[BaseException], BaseException, TracebackType, Optional[str]) -> None
         show = [fs for fs in extract_tb(tb) if self._check_file(fs[0])]
-        self.parent.log_warning("Handling exception")
         self.parent.log_error("----- %s (%s) -----" % (exc_value, exc_type), debug=False)
         if context:
             self.parent.log_error(context, debug=False)
@@ -56,18 +58,15 @@ class ErrorManager(AbstractControlSurfaceComponent):
         self.parent.log_error("----- traceback -----", debug=False)
         self.parent.log_error("".join(self._format_list(show)), debug=False)
 
-        self.song.errored = True
         self.parent.clear_tasks()
-        self.parent.defer(self.song.reset)
 
         if Config.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.TEST:
             self.parent.wait(10, self._restart)
 
     def _restart(self):
         # type: () -> None
-        self.parent.log_dev("restarting !")
-        self.song.errored = False
-        self.parent.start()
+        self.parent.log_warning("Error handled: reinitializing song")
+        self.parent.songManager.init_song()
 
     def _check_file(self, name):
         # type: (str) -> bool

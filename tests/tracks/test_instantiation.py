@@ -24,7 +24,7 @@ def test_instantiation_external_synth_track():
 def test_instantiation_external_synth_track_with_tail():
     # return
     song = make_song()
-    group_track = add_external_synth_track(song, add_tail=True)
+    add_external_synth_track(song, add_tail=True)
     song.parent.songTracksManager.tracks_listener()
     assert len(list(song.simple_tracks)) == 4
     assert len(list(song.external_synth_tracks)) == 1

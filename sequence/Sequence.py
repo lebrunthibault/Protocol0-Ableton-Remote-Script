@@ -126,7 +126,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
         if self.errored and self.debug:
             self.parent.log_error(self.debug_str, debug=False)
 
-    def add(
+    def add(  # type: ignore[no-untyped-def]
             self,
             func=nop,  # type: Union[Iterable, Callable, object]
             name=None,  # type: str
@@ -142,7 +142,6 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
             no_timeout=False,  # type: bool
             silent=False,  # type: bool
     ):
-        # type: (...) -> Sequence
         """
         check_timeout is the number of (exponential duration) checks executed before step failure
         (based on the Live.Base.Timer tick)
