@@ -34,6 +34,7 @@ class SongActionMixin(object):
     def reset(self, save_data=False):
         # type: (Song, bool) -> None
         """ stopping immediately """
+        self.parent.log_dev("reset song")
         self.stop_playing()
         # noinspection PyPropertyAccess
         self._song.current_song_time = 0

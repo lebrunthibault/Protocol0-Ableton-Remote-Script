@@ -1,5 +1,5 @@
-from protocol0.errors.Protocol0Error import Protocol0Error
+from protocol0.errors.Protocol0Warning import Protocol0Warning
 
 
-class InvalidTrackException(Protocol0Error):
+class InvalidTrackException(Protocol0Warning):
     pass
