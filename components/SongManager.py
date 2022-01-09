@@ -24,6 +24,9 @@ class SongManager(AbstractControlSurfaceComponent):
         if self.song.clip_trigger_quantization == Live.Song.Quantization.q_no_q:
             self.system.show_warning("The global launch quantization is set to None")
 
+        for armed_track in self.song.armed_tracks:
+            armed_track.unarm()
+
         startup_track = self._get_startup_track()
         self._restore_selected_state()
         if startup_track:
@@ -60,7 +63,7 @@ class SongManager(AbstractControlSurfaceComponent):
             else:
                 self.parent.show_message("Couldn't find prophet track")
 
-        armed_tracks = list(self.song.armed_tracks)
+        armed_tracks = self.song.armed_tracks
         if len(armed_tracks):
             return armed_tracks[0]
 

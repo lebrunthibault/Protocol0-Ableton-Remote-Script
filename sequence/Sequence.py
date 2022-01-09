@@ -51,10 +51,6 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
             message += " (res %s)" % self.res
         return message
 
-    def response(self):
-        # type: () -> Any
-        return self.res
-
     @property
     def waiting_for_system(self):
         # type: () -> bool

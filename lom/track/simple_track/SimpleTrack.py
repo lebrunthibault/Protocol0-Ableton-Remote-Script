@@ -116,10 +116,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # Refreshing is only really useful from simpler devices that change when a new sample is loaded
         if self.IS_ACTIVE and not self.is_foldable:
             self.instrument = self.parent.deviceManager.make_instrument_from_simple_track(track=self)
-            # notify instrument change on both the device track and the abstract_group_track
-            if self.instrument:
-                # noinspection PyUnresolvedReferences
-                self.abstract_track.notify_instrument()
 
     @p0_subject_slot("output_meter_level")
     def _output_meter_level_listener(self):

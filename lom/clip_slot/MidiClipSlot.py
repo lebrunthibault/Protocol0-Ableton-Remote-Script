@@ -17,18 +17,19 @@ class MidiClipSlot(ClipSlot):
         super(MidiClipSlot, self).__init__(*a, **k)
         self.clip = self.clip  # type: Optional[MidiClip]
 
-    def record(self, bar_length, record_tail=False):
+    def record(self, bar_length, _=False):
         # type: (int, bool) -> Optional[Sequence]
         seq = Sequence()
         seq.add(partial(super(MidiClipSlot, self).record, bar_length=bar_length))
-        if record_tail and InterfaceState.SELECTED_RECORDING_BAR_LENGTH == BarLengthEnum.UNLIMITED:
-            seq.add(wait=1)
-            seq.add(self.post_record_clip_tail)
+        seq.add(wait=1)
+        seq.add(self.post_record)
 
         return seq.done()
 
-    def post_record_clip_tail(self):
+    def post_record(self):
         # type: () -> None
-        clip_end = self.clip.end_marker - self.song.signature_numerator
-        self.clip.loop_end = clip_end
-        self.clip.end_marker = clip_end
+        self.song.metronome = False
+        if InterfaceState.SELECTED_RECORDING_BAR_LENGTH == BarLengthEnum.UNLIMITED:
+            clip_end = self.clip.end_marker - self.song.signature_numerator
+            self.clip.loop_end = clip_end
+            self.clip.end_marker = clip_end

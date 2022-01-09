@@ -188,7 +188,8 @@ class Protocol0(ControlSurface):
         try:
             super(Protocol0, self).show_message(str(message))
         except Exception as e:
-            self.log_warning("Couldn't show message: %s" % str(e))
+            self.log_dev(e.__class__.__name__)
+            # self.log_warning("Couldn't show message" % str(e))
         if log:
             self.log_warning(message)
 

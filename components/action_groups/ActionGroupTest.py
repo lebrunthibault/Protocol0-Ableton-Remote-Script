@@ -24,7 +24,7 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        raise InvalidTrackException("error !")
+        self.song.selected_track.selected_device.toggle_on()
 
     def start_set_profiling(self):
         # type: () -> None

@@ -147,8 +147,8 @@ class Song(SongActionMixin, AbstractObject):
 
     @property
     def armed_tracks(self):
-        # type: () -> Iterator[AbstractTrack]
-        return (track for track in self.abstract_tracks if track.is_armed)
+        # type: () -> List[AbstractTrack]
+        return [track for track in self.abstract_tracks if track.is_armed]
 
     @property
     def visible_tracks(self):

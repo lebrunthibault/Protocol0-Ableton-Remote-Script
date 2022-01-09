@@ -49,7 +49,7 @@ class SimpleDummyTrack(SimpleAudioTrack):
         parameters = [enum.name for enum in DeviceParameterEnum.automatable_parameters()]
         seq = Sequence()
         seq.select(question="Automated parameter", options=parameters)
-        seq.add(lambda: setattr(self, "parameter_type", seq.response()))
+        seq.add(lambda: setattr(self, "parameter_type", seq.res))
         # seq.select(question="Clip bar length",
         #            options=self.parent.utilsManager.get_bar_length_list(bar_length=self.song.selected_scene.bar_length),
         #            vertical=False)

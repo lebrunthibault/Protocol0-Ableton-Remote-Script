@@ -114,9 +114,10 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
         seq = Sequence()
         if not self.is_armed:
-            if len(list(self.song.armed_tracks)) != 0:
-                self.system.show_warning("The current track is not armed and other tracks are armed")
-                return None
+            if len(self.song.armed_tracks) != 0:
+                options = ["Arm current track", "Record on armed track"]
+                seq.select("The current track is not armed", options=options)
+                seq.add(lambda: self.arm() if seq.res == options[0] else self.song.armed_tracks[0].select())
             else:
                 seq.add(self.arm)
 
@@ -194,6 +195,10 @@ class AbstractTrackActionMixin(object):
         self.song.record_mode = False
         self.song.session_automation_record = True
 
+        if self.instrument and self.instrument.device:
+            self.instrument.device.toggle_on()
+            self.parent.defer(self.instrument.device.toggle_off)
+
         seq = Sequence()
         if record_type == RecordTypeEnum.NORMAL:
             if self.next_empty_clip_slot_index is None:
@@ -244,10 +249,14 @@ class AbstractTrackActionMixin(object):
     def post_session_record(self, update_clip_name=True, *_, **__):
         # type: (AbstractTrack, bool, Any, Any) -> None
         """ overridden """
-        self.song.metronome = False
         self.has_monitor_in = False
         self.solo = False
-        self.song.session_automation_record = True
+        self.song.session_automation_record = False
+
+        if self.instrument and self.instrument.device:
+            self.instrument.device.toggle_on()
+            self.parent.defer(self.instrument.device.toggle_off)
+
         Config.CURRENT_RECORD_TYPE = None
         # if self.song.selected_scene.length == 0:
         #     self.parent.defer(self.song.selected_scene.delete)
