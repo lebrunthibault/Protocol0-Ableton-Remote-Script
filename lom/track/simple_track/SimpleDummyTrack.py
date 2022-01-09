@@ -1,8 +1,7 @@
 from functools import partial
 
-from typing import Optional
+from typing import Optional, Any
 
-from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.enums.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.enums.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
@@ -12,16 +11,27 @@ from protocol0.sequence.Sequence import Sequence
 class SimpleDummyTrack(SimpleAudioTrack):
     KEEP_CLIPS_ON_ADDED = True
 
+    def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
+        self.parameter_type = None  # type: Optional[str]
+        self.clip_bar_length = 1
+        self.parameter_enum = None  # type: Optional[DeviceParameterEnum]
+        super(SimpleDummyTrack, self).__init__(*a, **k)
+
     def _added_track_init(self):
         # type: () -> Sequence
         self.has_monitor_in = True
         self.input_routing_type = InputRoutingTypeEnum.NO_INPUT
         seq = Sequence()
         seq.add(super(SimpleDummyTrack, self)._added_track_init)
-        seq.add(self._insert_dummy_rack)
+
+        # creating automation
+        seq = Sequence()
+        seq.add(self._select_parameters)
+        seq.add(self._insert_device)
+        seq.add(wait=5)
         seq.add(self._insert_dummy_clip)
         seq.add(self._create_dummy_automation)
-
         return seq.done()
 
     @property
@@ -34,12 +44,22 @@ class SimpleDummyTrack(SimpleAudioTrack):
         # type: () -> int
         return self.group_track.color
 
-    def _insert_dummy_rack(self):
+    def _select_parameters(self):
+        # type: () -> Sequence
+        parameters = [enum.name for enum in DeviceParameterEnum.automatable_parameters()]
+        seq = Sequence()
+        seq.select(question="Automated parameter", options=parameters)
+        seq.add(lambda: setattr(self, "parameter_type", seq.response()))
+        # seq.select(question="Clip bar length",
+        #            options=self.parent.utilsManager.get_bar_length_list(bar_length=self.song.selected_scene.bar_length),
+        #            vertical=False)
+        # seq.add(lambda: setattr(self, "clip_bar_length", seq.response()))
+        return seq.done()
+
+    def _insert_device(self):
         # type: () -> Optional[Sequence]
-        if not self.load_device_from_enum(DeviceEnum.DUMMY_RACK):
-            return self.parent.browserManager.load_device_from_enum(DeviceEnum.DUMMY_RACK)
-        else:
-            return None
+        self.parameter_enum = DeviceParameterEnum.from_value(self.parameter_type)  # type: DeviceParameterEnum
+        return self.load_device_from_enum(self.parameter_enum.device_enum)
 
     def _insert_dummy_clip(self):
         # type: () -> Optional[Sequence]
@@ -50,22 +70,28 @@ class SimpleDummyTrack(SimpleAudioTrack):
         seq = Sequence()
         seq.add(partial(self.song.template_dummy_clip.clip_slot.duplicate_clip_to, cs))
         seq.add(lambda: setattr(self.clips[0], "muted", False))
+        seq.add(wait=2)
         return seq.done()
 
     def _create_dummy_automation(self):
         # type: () -> None
         clip = self.clip_slots[self.song.selected_scene.index].clip
-        dummy_rack = self.get_device_from_enum(DeviceEnum.DUMMY_RACK)
-        if dummy_rack is None:
-            self.parent.log_error("The dummy rack was not inserted")
+        automated_device = self.get_device_from_enum(self.parameter_enum.device_enum)
+        if automated_device is None:
+            self.parent.log_error("The automated device was not inserted")
             return None
-        dummy_rack_gain = dummy_rack.get_parameter_by_name(DeviceParameterEnum.DUMMY_RACK_GAIN)
-        existing_envelope = clip.automation_envelope(dummy_rack_gain)
+
+        automated_parameter = automated_device.get_parameter_by_name(self.parameter_enum)
+
+        existing_envelope = clip.automation_envelope(automated_parameter)
         if not existing_envelope:
-            envelope = clip.create_automation_envelope(parameter=dummy_rack_gain)
+            envelope = clip.create_automation_envelope(parameter=automated_parameter)
             # envelope.insert_step(0, 0, 1)
             # envelope.insert_step(0.5, 110, 110)
-            envelope.insert_step(clip.loop_end, 0, 1)
-        clip.show_envelope_parameter(dummy_rack_gain)
+            # envelope.insert_step(clip.loop_end, 0, self.clip_bar_length)
+
+        clip.loop_end = self.clip_bar_length
+
+        clip.show_envelope_parameter(automated_parameter)
         if self.song.is_playing:
             clip.play()

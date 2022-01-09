@@ -34,15 +34,13 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
         browser_name = "'%s'" % device_enum.browser_name
         if device_enum.is_device:
             load_func = partial(self.load_device, None, browser_name)
-        elif device_enum.is_rack:
+        elif device_enum.is_user:
             load_func = partial(self.load_from_user_library, None, browser_name)
         else:
-            raise Protocol0Error("Couldn't load device %s" % device_enum)
+            raise Protocol0Error("Couldn't load device %s, configure is_device or is_rack" % device_enum)
         seq.add(
             load_func,
             complete_on=lambda: find_if(device_enum.matches_device, self.song.selected_track.devices),
-            check_timeout=10,
-            silent=True,
         )
         return seq.done()
 

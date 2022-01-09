@@ -3,7 +3,6 @@ from typing import Any
 from protocol0.config import Config
 from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.enums.DeviceParameterEnum import DeviceParameterEnum
-from protocol0.enums.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.sequence.Sequence import Sequence
 from protocol0.validation.AbstractObjectValidator import AbstractObjectValidator
@@ -32,7 +31,7 @@ class ExternalSynthTrackValidator(AbstractObjectValidator, AggregateValidator):
             # ROUTINGS
 
             # PropertyValueValidator(track.base_track, "output_routing_track", Protocol0.SELF.protocol0_song.master_track),
-            PropertyValueValidator(track.midi_track, "input_routing_type", InputRoutingTypeEnum.REV2_AUX),
+            PropertyValueValidator(track.midi_track, "input_routing_type", track.instrument.MIDI_INPUT_ROUTING_TYPE),
             # PropertyValueValidator(track.midi_track, "input_routing_channel", InputRoutingChannelEnum.CHANNEL_1),
             PropertyValueValidator(track.audio_track, "input_routing_track", track.midi_track),
             PropertyValueValidator(track.audio_track, "input_routing_channel",

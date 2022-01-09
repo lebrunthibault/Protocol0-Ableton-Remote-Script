@@ -2,6 +2,7 @@ from typing import Optional
 
 from protocol0.devices.AbstractExternalSynthTrackInstrument import AbstractExternalSynthTrackInstrument
 from protocol0.enums.ColorEnum import ColorEnum
+from protocol0.enums.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.sequence.Sequence import Sequence
 
 
@@ -11,6 +12,7 @@ class InstrumentProphet(AbstractExternalSynthTrackInstrument):
     TRACK_COLOR = ColorEnum.PROPHET
     ACTIVE_INSTANCE = None  # type: Optional[InstrumentProphet]
 
+    MIDI_INPUT_ROUTING_TYPE = InputRoutingTypeEnum.REV2_AUX
     EXTERNAL_INSTRUMENT_DEVICE_HARDWARE_LATENCY = 3.2
 
     @property

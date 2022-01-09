@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import List, Optional, Any, Iterator
+from typing import List, Optional, Any, Iterator, cast
 
 import Live
 from protocol0.components.SessionToArrangementManager import SessionToArrangementManager
@@ -8,6 +8,7 @@ from protocol0.components.SongDataManager import save_song_data
 from protocol0.config import Config
 from protocol0.devices.InstrumentProphet import InstrumentProphet
 from protocol0.enums.SongLoadStateEnum import SongLoadStateEnum
+from protocol0.errors.InvalidTrackException import InvalidTrackException
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.Scene import Scene
 from protocol0.lom.SongActionMixin import SongActionMixin
@@ -175,6 +176,14 @@ class Song(SongActionMixin, AbstractObject):
     def current_track(self):
         # type: () -> AbstractTrack
         return self.selected_track.abstract_track
+
+    @property
+    def current_external_synth_track(self):
+        # type: () -> ExternalSynthTrack
+        if isinstance(self.current_track, ExternalSynthTrack):
+            return cast(ExternalSynthTrack, self.current_track)
+        else:
+            raise InvalidTrackException("current track is not an ExternalSynthTrack")
 
     # SCENES
 

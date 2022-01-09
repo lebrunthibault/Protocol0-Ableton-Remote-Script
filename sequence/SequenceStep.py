@@ -73,7 +73,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
 
         if Config.SEQUENCE_SLOW_MO:
             self._wait = min(100, self._wait * 5)
-            self._check_timeout *= 5
+            self._check_timeout += 5
 
     def __repr__(self, **k):
         # type: (Any) -> str
@@ -256,8 +256,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         if isinstance(self._complete_on, CallableWithCallbacks) and self._callback_timeout:
             self._complete_on.clear_callbacks()
 
-        if self.debug:
-            self.parent.log_error("timeout completion error on %s" % self, debug=False)
+        self.parent.log_warning("timeout completion error on %s" % self, debug=False)
 
         self.error()
 

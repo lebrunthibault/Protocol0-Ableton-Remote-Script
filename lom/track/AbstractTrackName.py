@@ -48,11 +48,11 @@ class AbstractTrackName(AbstractObjectName):
                 or isinstance(self.track, SimpleDummyTrack)
         )
 
-    def update(self):
+    def update(self, name=None):
         # type: () -> None
         if self._disconnected:
             return
-        name = self._get_base_name()
+        name = name or self._get_base_name()
 
         if name[0:1].islower():
             name = name.title()

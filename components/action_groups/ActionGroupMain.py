@@ -21,8 +21,8 @@ class ActionGroupMain(AbstractActionGroup):
             identifier=2,
             name="toggle audio clip tail recording",
             filter_active_tracks=True,
-            on_press=lambda: self.song.current_track.toggle_record_clip_tails,
-            on_scroll=lambda: self.song.current_track.scroll_record_clip_tails,
+            on_press=lambda: self.song.current_external_synth_track.toggle_record_clip_tails,
+            on_scroll=lambda: self.song.current_external_synth_track.scroll_record_clip_tails,
         )
 
         # VOLume tempo encoder

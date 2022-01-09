@@ -52,8 +52,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # MISC
         self.track_name = AbstractTrackName(self)  # type: AbstractTrackName
 
-        self.record_clip_tails = False  # records one more bar of audio on presets with tail
-        self.record_clip_tails_bar_length = 1
         self.protected_mode_active = True
 
         # PUSH2

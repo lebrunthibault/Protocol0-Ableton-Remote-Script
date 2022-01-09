@@ -9,6 +9,8 @@ from protocol0.lom.device.DeviceParameterValue import DeviceParameterValue
 class DeviceEnum(AbstractEnum):
     ADDICTIVE_KEYS = "ADDICTIVE_KEYS"
     ARPEGGIATOR_RACK = "ARPEGGIATOR_RACK"
+    AUTO_FILTER_HIGH_PASS = "AUTO_FILTER_HIGH_PASS"
+    AUTO_FILTER_LOW_PASS = "AUTO_FILTER_LOW_PASS"
     COMPRESSOR = "COMPRESSOR"
     DUMMY_RACK = "DUMMY_RACK"
     EQ_EIGHT = "EQ_EIGHT"
@@ -23,14 +25,24 @@ class DeviceEnum(AbstractEnum):
     UTILITY = "UTILITY"
 
     @property
-    def is_rack(self):
+    def is_user(self):
         # type: () -> bool
-        return self in [DeviceEnum.ARPEGGIATOR_RACK, DeviceEnum.MIX_RACK, DeviceEnum.DUMMY_RACK]
+        return self in [
+            DeviceEnum.AUTO_FILTER_HIGH_PASS,
+            DeviceEnum.AUTO_FILTER_LOW_PASS,
+            DeviceEnum.ARPEGGIATOR_RACK,
+            DeviceEnum.DUMMY_RACK,
+            DeviceEnum.MIX_RACK,
+        ]
 
     @property
     def is_device(self):
         # type: () -> bool
-        return self in [DeviceEnum.EXTERNAL_AUDIO_EFFECT, DeviceEnum.EXTERNAL_INSTRUMENT]
+        return self in [
+            DeviceEnum.EXTERNAL_INSTRUMENT,
+            DeviceEnum.EXTERNAL_INSTRUMENT,
+            DeviceEnum.UTILITY,
+        ]
 
     @classmethod
     def updatable_devices(cls):
@@ -53,6 +65,8 @@ class DeviceEnum(AbstractEnum):
         return self.get_value_from_mapping({
             DeviceEnum.ADDICTIVE_KEYS: "Addictive Keys",
             DeviceEnum.ARPEGGIATOR_RACK: "Arpeggiator rack",
+            DeviceEnum.AUTO_FILTER_HIGH_PASS: "Auto Filter High Pass",
+            DeviceEnum.AUTO_FILTER_LOW_PASS: "Auto Filter Low Pass",
             DeviceEnum.COMPRESSOR: "Compressor",
             DeviceEnum.DUMMY_RACK: "Dummy Rack",
             DeviceEnum.EQ_EIGHT: "EQ Eight",
@@ -71,11 +85,14 @@ class DeviceEnum(AbstractEnum):
     def browser_name(self):
         # type: () -> str
         return self.get_value_from_mapping({
+            DeviceEnum.AUTO_FILTER_HIGH_PASS: "Auto Filter High Pass.adv",
+            DeviceEnum.AUTO_FILTER_LOW_PASS: "Auto Filter Low Pass.adv",
             DeviceEnum.EXTERNAL_AUDIO_EFFECT: "External Audio Effect",
             DeviceEnum.EXTERNAL_INSTRUMENT: "External Instrument",
             DeviceEnum.DUMMY_RACK: "Dummy Rack.adg",
             DeviceEnum.LFO_TOOL: "LFOTool.adg",
             DeviceEnum.MIX_RACK: "Mix Rack.adg",
+            DeviceEnum.UTILITY: "Utility",
         })
 
     @classmethod

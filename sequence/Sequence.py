@@ -51,6 +51,10 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
             message += " (res %s)" % self.res
         return message
 
+    def response(self):
+        # type: () -> Any
+        return self.res
+
     @property
     def waiting_for_system(self):
         # type: () -> bool
@@ -78,6 +82,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
     def on_system_response(self, res):
         # type: (bool) -> None
         if res:
+            self.res = res
             self._execute_next_step()
         else:
             if self._current_step.no_cancel:
@@ -178,6 +183,11 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
         # type: (str, Any, Any) -> None
         """ helper method from prompts """
         self.add(partial(self.system.prompt, question), wait_for_system=True, *a, **k)
+
+    def select(self, question, options, vertical=True, *a, **k):
+        # type: (str, List[str], bool, Any, Any) -> None
+        """ helper method from selects """
+        self.add(partial(self.system.select, question, options, vertical=vertical), wait_for_system=True, *a, **k)
 
     def done(self):
         # type: () -> Sequence

@@ -77,7 +77,7 @@ class AbstractInstrumentPresetsMixin(object):
             if isinstance(self.device, PluginDevice):
                 self.device.selected_preset_index = self.selected_preset.index
             seq.add(partial(self.load_preset, self.selected_preset))
-            seq.add(self.track.abstract_track.track_name.update)
+            seq.add(partial(self.track.abstract_track.track_name.update, self.selected_preset.name))
         return seq.done()
 
     def load_preset(self, preset):

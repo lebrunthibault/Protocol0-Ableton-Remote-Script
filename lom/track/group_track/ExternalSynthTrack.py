@@ -12,6 +12,7 @@ from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrac
 from protocol0.lom.track.group_track.ExternalSynthTrackActionMixin import ExternalSynthTrackActionMixin
 from protocol0.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+from protocol0.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.sequence.Sequence import Sequence
@@ -38,6 +39,9 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self._external_device = None  # type: Optional[Device]
         self._devices_listener.subject = self.midi_track
         self._devices_listener()
+
+        self.record_clip_tails = False  # records one more bar of audio on presets with tail
+        self.record_clip_tails_bar_length = 1
 
         # the instrument handling relies on the group track
         # noinspection PyUnresolvedReferences
@@ -77,6 +81,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
             self.record_clip_tails = True
         elif not has_tail_track:
             self.audio_tail_track = None
+            self.record_clip_tails = False
 
         self.parent.trackDataManager.restore_data(self)
         self._link_clip_slots()
@@ -150,13 +155,14 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     @property
     def is_armed(self):
         # type: () -> bool
-        return all(sub_track.is_armed for sub_track in self.sub_tracks)
+        return all(sub_track.is_armed for sub_track in self.sub_tracks if not isinstance(sub_track, SimpleDummyTrack))
 
     @is_armed.setter
     def is_armed(self, is_armed):
         # type: (bool) -> None
         for track in self.sub_tracks:
-            track.is_armed = is_armed
+            if not isinstance(track, SimpleDummyTrack):
+                track.is_armed = is_armed
 
     @property
     def is_playing(self):

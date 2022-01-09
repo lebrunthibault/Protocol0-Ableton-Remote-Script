@@ -3,8 +3,10 @@ from functools import partial
 
 from typing import TYPE_CHECKING, Optional, cast, Iterator
 
+from protocol0.components.TrackDataManager import save_track_data
 from protocol0.components.UtilsManager import UtilsManager
 from protocol0.config import Config
+from protocol0.enums.BarLengthEnum import BarLengthEnum
 from protocol0.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.enums.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
@@ -14,8 +16,10 @@ from protocol0.lom.clip.MidiClip import MidiClip
 from protocol0.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.lom.clip_slot.MidiClipSlot import MidiClipSlot
+from protocol0.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import single_undo
+from protocol0.utils.utils import scroll_values
 
 if TYPE_CHECKING:
     from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
@@ -38,9 +42,9 @@ class ExternalSynthTrackActionMixin(object):
         #     self.instrument.device.toggle_on()
         #     self.parent.defer(self.instrument.device.toggle_off)
 
-        self.midi_track.input_routing_type = InputRoutingTypeEnum.REV2_AUX
+        self.midi_track.input_routing_type = self.instrument.MIDI_INPUT_ROUTING_TYPE
         seq = Sequence(silent=True)
-        seq.add([sub_track.arm for sub_track in self.sub_tracks])
+        seq.add([sub_track.arm for sub_track in self.sub_tracks if not isinstance(sub_track, SimpleDummyTrack)])
         seq.add(partial(setattr, self, "has_monitor_in", False))
         return seq.done()
 
@@ -155,20 +159,18 @@ class ExternalSynthTrackActionMixin(object):
                 seq.add(audio_tail_clip.delete)
             seq.add(audio_tail_clip_slot.add_stop_button)
 
-        # if self.record_clip_tails:
-        #     self._stop_midi_input_to_record_clip_tail(midi_clip_slot=midi_clip.clip_slot,
-        #                                               bar_length=midi_clip.bar_length)
+            if self.record_clip_tails:
+                self._stop_midi_input_to_record_clip_tail(midi_clip_slot=midi_clip.clip_slot,
+                                                          bar_length=midi_clip.bar_length)
 
         clip_slots = [audio_clip_slot] + [audio_tail_clip_slot] if audio_tail_clip_slot else []
         seq.add([cs.add_stop_button for cs in clip_slots])
 
         bar_length = midi_clip.bar_length
-        self.parent.show_message(UtilsManager.get_recording_length_legend(bar_length, self.record_clip_tails, self.record_clip_tails_bar_length))
+        self.parent.show_message(UtilsManager.get_recording_length_legend(bar_length, self.record_clip_tails,
+                                                                          self.record_clip_tails_bar_length))
         if self.record_clip_tails:
             bar_length += self.record_clip_tails_bar_length
-
-        self.parent.log_dev("bar_length: %s" % bar_length)
-        self.parent.log_dev("self.record_clip_tails_bar_length: %s" % self.record_clip_tails_bar_length)
 
         seq.add(self.song.stop_playing)
         seq.add(partial(self.stop, immediate=True))
@@ -246,6 +248,46 @@ class ExternalSynthTrackActionMixin(object):
             if audio_clip.file_path != source_file_path:
                 continue
             yield audio_clip.clip_slot
+
+    @save_track_data
+    def toggle_record_clip_tails(self):
+        # type: (ExternalSynthTrack) -> None
+        if not self._validate_has_record_clip_tails():
+            return None
+
+        self.record_clip_tails = not self.record_clip_tails
+        message = "Record clip tails"
+        if self.record_clip_tails:
+            message += " ON"
+            if self.record_clip_tails_bar_length != 1:
+                message += " (%s)" % BarLengthEnum.int_to_str(self.record_clip_tails_bar_length)
+        else:
+            message += " OFF"
+        self.parent.show_message(message)
+
+    @save_track_data
+    def scroll_record_clip_tails(self, go_next):
+        # type: (ExternalSynthTrack, bool) -> None
+        if not self._validate_has_record_clip_tails():
+            return None
+
+        self.record_clip_tails_bar_length = scroll_values(
+            range(1, 5), self.record_clip_tails_bar_length, go_next
+        )
+        self.parent.show_message("Record clip tails %s" % BarLengthEnum.int_to_str(self.record_clip_tails_bar_length))
+
+    def _validate_has_record_clip_tails(self):
+        # type: (ExternalSynthTrack) -> bool
+        from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+        if not isinstance(self, ExternalSynthTrack):
+            self.parent.show_message("Recording clip tails is available only on an ExternalSynthTrack")
+            return False
+
+        if not self.audio_tail_track:
+            self.system.show_warning("Please create a clip tail track")
+            return False
+
+        return True
 
     def arrangement_record_audio_only(self):
         # type: (ExternalSynthTrack) -> Sequence
