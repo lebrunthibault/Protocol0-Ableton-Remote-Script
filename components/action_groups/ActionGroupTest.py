@@ -1,7 +1,9 @@
+from functools import partial
+
 from typing import Any
 
 from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
-from protocol0.errors.InvalidTrackException import InvalidTrackException
+from protocol0.sequence.Sequence import Sequence
 
 
 class ActionGroupTest(AbstractActionGroup):
@@ -24,7 +26,9 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        self.song.selected_track.selected_device.toggle_on()
+        seq = Sequence()
+        seq.add(partial(self.song.delete_scene, 0))
+        seq.done()
 
     def start_set_profiling(self):
         # type: () -> None

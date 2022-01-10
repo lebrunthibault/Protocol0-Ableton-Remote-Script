@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any, Optional, NoReturn
 from protocol0.config import Config
 from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
+from protocol0.errors.InvalidTrackException import InvalidTrackException
 from protocol0.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -84,27 +85,19 @@ class AbstractTrackActionMixin(object):
             return None
         self.instrument.activate_plugin_window(force_activate=True)
 
-    @property
-    def can_change_presets(self):
-        # type: (AbstractTrack) -> bool
-        """ overridden """
-        return True
-
     def scroll_presets_or_samples(self, go_next):
-        # type: (AbstractTrack, bool) -> None
+        # type: (AbstractTrack, bool) -> Sequence
         if self.instrument:
-            if not self.can_change_presets:
-                self.parent.show_message("Cannot change preset when a clip is already recorded")
-            else:
-                self.instrument.scroll_presets_or_samples(go_next)
+            return self.instrument.scroll_presets_or_samples(go_next)
+        else:
+            raise InvalidTrackException("Cannot scroll presets without an instrument")
 
     def scroll_preset_categories(self, go_next):
         # type: (AbstractTrack, bool) -> None
         if self.instrument:
-            if not self.can_change_presets:
-                self.parent.show_message("Cannot change preset category when a clip is already recorded")
-            else:
-                self.instrument.scroll_preset_categories(go_next=go_next)
+            return self.instrument.scroll_preset_categories(go_next=go_next)
+        else:
+            raise InvalidTrackException("Cannot scroll categories without an instrument")
 
     def switch_monitoring(self):
         # type: (AbstractTrack) -> NoReturn

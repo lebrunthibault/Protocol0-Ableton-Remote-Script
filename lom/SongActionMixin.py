@@ -88,7 +88,7 @@ class SongActionMixin(object):
         # type: (Song, AbstractTrack) -> Sequence
         if abstract_track.group_track:
             abstract_track.group_track.is_folded = False
-        seq = Sequence(silent=True)
+        seq = Sequence()
         if self.song.selected_track != abstract_track.base_track:
             self._view.selected_track = abstract_track._track
             seq.add(wait=1)
@@ -113,7 +113,7 @@ class SongActionMixin(object):
 
     def _unarm_all_tracks(self):
         # type: (Song) -> Sequence
-        seq = Sequence(silent=True)
+        seq = Sequence()
         seq.add([t.unarm for t in self.armed_tracks])
         return seq.done()
 
@@ -150,18 +150,19 @@ class SongActionMixin(object):
         # type: (Song, Optional[int]) -> Sequence
         seq = Sequence()
         scenes_count = len(self.song.scenes)
-        seq.add(lambda: self._song.create_scene(scene_index or scenes_count),
-                complete_on=lambda: len(self.song.scenes) > scenes_count)
+        seq.add(partial(self._song.create_scene, scene_index or scenes_count), complete_on=self.parent.songScenesManager.scenes_listener)
         seq.add(wait=1)
+        seq.add(lambda: self.parent.show_message("created !"))
         return seq.done()
 
-    def delete_scene(self, scene_index=None):
-        # type: (Song, Optional[int]) -> Optional[Sequence]
-        scenes_count = len(self.song.scenes)
-        if scenes_count == 1:
+    def delete_scene(self, scene_index):
+        # type: (Song, Optional) -> Optional[Sequence]
+        if len(self.song.scenes) == 1:
+            self.parent.log_warning("Cannot delete last scene")
             return None
+
         seq = Sequence()
-        seq.add(lambda: self._song.delete_scene(scene_index), complete_on=lambda: len(self.song.scenes) < scenes_count)
+        seq.add(partial(self._song.delete_scene, scene_index), complete_on=self.parent.songScenesManager.scenes_listener)
         seq.add(wait=1)
         return seq.done()
 

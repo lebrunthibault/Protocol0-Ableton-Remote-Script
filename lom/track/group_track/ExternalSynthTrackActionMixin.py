@@ -41,7 +41,7 @@ class ExternalSynthTrackActionMixin(object):
         self.midi_track.input_routing_type = self.instrument.MIDI_INPUT_ROUTING_TYPE
         if self.instrument.device:
             self.instrument.device.toggle_off()
-        seq = Sequence(silent=True)
+        seq = Sequence()
         seq.add([sub_track.arm for sub_track in self.sub_tracks if not isinstance(sub_track, SimpleDummyTrack)])
         seq.add(partial(setattr, self, "has_monitor_in", False))
         return seq.done()
@@ -327,10 +327,19 @@ class ExternalSynthTrackActionMixin(object):
             seq.add(partial(self.audio_tail_track.delete_playable_clip))
         return seq.done()
 
+    def scroll_presets_or_samples(self, go_next):
+        # type: (ExternalSynthTrack, bool) -> Sequence
+        """ overridden """
+        seq = Sequence()
+        if not self.can_change_presets:
+            seq.add(self.disable_protected_mode)
+
+        seq.add(partial(super(ExternalSynthTrackActionMixin, self).scroll_presets_or_samples, go_next=go_next))
+        return seq.done()
+
     @property
     def can_change_presets(self):
         # type: (ExternalSynthTrack) -> bool
-        """ overridden """
         if len(self.audio_track.clips) == 0:
             return True
         if not self.protected_mode_active:
@@ -338,7 +347,6 @@ class ExternalSynthTrackActionMixin(object):
         if not self.instrument.HAS_PROTECTED_MODE:
             return True
 
-        self.disable_protected_mode()
         return False
 
     def disable_protected_mode(self):

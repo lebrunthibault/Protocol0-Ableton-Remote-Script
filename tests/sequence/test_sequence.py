@@ -25,37 +25,6 @@ def test_sanity_checks():
         Sequence(silent=True).add(wait_for_system=True, wait=1).done()
 
 
-def test_error_no_timeout():
-    # type: () -> None
-    seq = Sequence(silent=True)
-    seq.add(nop, complete_on=lambda: False, name="timeout step", check_timeout=0)
-    seq.add(lambda: 1, name="unreachable step")
-    seq.done()
-
-    assert seq.errored
-
-
-def test_callback_timeout():
-    # type: () -> None
-    # noinspection PyClassHasNoInit
-    class Example:
-        @has_callback_queue()
-        def listener(self):
-            # type: () -> None
-            pass
-
-    obj = Example()
-
-    seq = Sequence(silent=True)
-    seq.add(nop, complete_on=obj.listener, name="timeout step", check_timeout=1)
-    seq.add(nop, name="unreachable step")
-    seq.done()
-    obj.listener()
-
-    # because complete_on defers
-    assert not seq.terminated
-
-
 def test_async_callback_execution_order():
     # type: () -> None
     test_res = []
@@ -75,7 +44,7 @@ def test_async_callback_execution_order():
     obj = Example()
 
     seq = Sequence()
-    seq.add(nop, complete_on=obj.listener, name="waiting for obj.listener", check_timeout=3)
+    seq.add(nop, complete_on=obj.listener, name="waiting for obj.listener")
     seq.add(lambda: test_res.append(2), name="append 2")
     seq.add(nop, name="after listener step")
 
@@ -87,3 +56,32 @@ def test_async_callback_execution_order():
     seq.done()
 
     obj.listener()
+
+
+def test_sequence_cancel():
+    # type: () -> None
+    test_res = []
+
+    def inner_seq():
+        # type: () -> Sequence
+        seq = Sequence()
+        return seq.done()
+
+    def inner_seq_cancel():
+        # type: () -> Sequence
+        seq = Sequence()
+        seq.add(seq.cancel)
+        return seq.done()
+
+    seq = Sequence()
+    seq.add(inner_seq_cancel)
+    seq.add(lambda: test_res.append(True))
+    seq.done()
+    assert test_res == []
+
+    seq = Sequence()
+    seq.add(inner_seq)
+    seq.add(lambda: test_res.append(True))
+    seq.done()
+
+    assert test_res == [True]

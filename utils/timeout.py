@@ -6,7 +6,7 @@ from protocol0.utils.utils import get_callable_repr
 
 
 class TimeoutLimit(AbstractObject):
-    TICKS_COUNT = 100
+    TICKS_COUNT = 100  # around 1.7s
 
     def __init__(self, func, timeout_limit, awaited_listener=None, on_timeout=None, *a, **k):
         # type: (Callable, int, Callable, Callable, Any, Any) -> None

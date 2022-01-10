@@ -70,7 +70,7 @@ class MidiClip(Clip):
             return None
         self._cached_notes = notes
         self._clip.get_selected_notes()
-        seq = Sequence(silent=True)
+        seq = Sequence()
         seq.add(partial(self._clip.replace_selected_notes, tuple(note.to_data() for note in notes)))
         # noinspection PyUnresolvedReferences
         seq.add(wait=1)
@@ -88,11 +88,11 @@ class MidiClip(Clip):
             return None
 
         self.view.grid_quantization = Live.Clip.GridQuantization.g_sixteenth
-        seq = Sequence(silent=True)
+        seq = Sequence()
         seq.add(wait=1)
         seq.add(self.generate_base_notes)
         seq.add(self.hide_envelope)
-        seq.add(wait=10, silent=True)
+        seq.add(wait=10)
         return seq.done()
 
     def generate_base_notes(self):

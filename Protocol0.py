@@ -187,9 +187,8 @@ class Protocol0(ControlSurface):
         # noinspection PyBroadException
         try:
             super(Protocol0, self).show_message(str(message))
-        except Exception as e:
-            self.log_dev(e.__class__.__name__)
-            # self.log_warning("Couldn't show message" % str(e))
+        except Exception:
+            self.log_warning("Couldn't show message")
         if log:
             self.log_warning(message)
 

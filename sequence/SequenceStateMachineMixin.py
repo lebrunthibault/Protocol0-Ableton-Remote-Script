@@ -1,5 +1,5 @@
 from transitions import Machine, State, MachineError
-from typing import Any
+from typing import Any, Optional
 
 from protocol0.enums.AbstractEnum import AbstractEnum
 from protocol0.enums.LogLevelEnum import LogLevelEnum
@@ -83,9 +83,13 @@ class SequenceStateMachineMixin(object):
     def cancel(self):
         # type: () -> None
         self.dispatch("cancel")
+        # self.notify_cancelled()  # type: ignore[attr-defined]
 
-    def error(self):
-        # type: () -> None
+    def error(self, message=None):
+        # type: (Optional[str]) -> None
+        if message:
+            from protocol0 import Protocol0
+            Protocol0.SELF.log_error(message)
         self.dispatch("error")
         self.notify_errored()  # type: ignore[attr-defined]
 

@@ -38,10 +38,10 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
             load_func = partial(self.load_from_user_library, None, browser_name)
         else:
             raise Protocol0Error("Couldn't load device %s, configure is_device or is_rack" % device_enum)
-        seq.add(
-            load_func,
-            complete_on=lambda: find_if(device_enum.matches_device, self.song.selected_track.devices),
-        )
+
+        seq.add(load_func, complete_on=self.song.selected_track._devices_listener)
+
+        seq.add(lambda: self.parent.show_message("device !"))
         return seq.done()
 
     def load_sample(self, sample_name, **k):
