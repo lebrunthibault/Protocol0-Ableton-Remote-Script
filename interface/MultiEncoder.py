@@ -4,9 +4,10 @@ from typing import TYPE_CHECKING, List, Optional, Any
 
 from _Framework.ButtonElement import ButtonElement
 from _Framework.InputControlElement import MIDI_NOTE_TYPE, MIDI_CC_TYPE
+from protocol0.errors.InvalidTrackException import InvalidTrackException
 from protocol0.interface.EncoderAction import EncoderAction, EncoderMoveEnum
 from protocol0.lom.AbstractObject import AbstractObject
-from protocol0.utils.decorators import p0_subject_slot
+from protocol0.utils.decorators import p0_subject_slot, handle_error
 
 if TYPE_CHECKING:
     from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
@@ -47,6 +48,7 @@ class MultiEncoder(AbstractObject):
         return bool(self._pressed_at and (time.time() - self._pressed_at) > MultiEncoder.PRESS_MAX_TIME)
 
     @p0_subject_slot("value")
+    @handle_error
     def _press_listener(self, value):
         # type: (int) -> None
         if value:
@@ -61,6 +63,7 @@ class MultiEncoder(AbstractObject):
                 self._find_and_execute_action(move_type=move_type)
 
     @p0_subject_slot("value")
+    @handle_error
     def _scroll_listener(self, value):
         # type: (int) -> None
         self._find_and_execute_action(move_type=EncoderMoveEnum.SCROLL, go_next=value == 1)
@@ -71,8 +74,8 @@ class MultiEncoder(AbstractObject):
         self._pressed_at = None
         if action:
             if self._filter_active_tracks and not self.song.selected_track.IS_ACTIVE:
-                self.parent.show_message("action not dispatched for master / return tracks (%s)" % action.name)
-                return
+                raise InvalidTrackException("action not dispatched for master / return tracks (%s)" % action.name)
+                # self.parent.show_message("action not dispatched for master / return tracks (%s)" % action.name)
             params = {"encoder_name": self.name}
             if go_next is not None:
                 params["go_next"] = go_next  # type: ignore[assignment]

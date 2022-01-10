@@ -34,7 +34,6 @@ class ErrorManager(AbstractControlSurfaceComponent):
         exc_type, exc_value, tb = sys.exc_info()
         assert exc_type and exc_value and tb
         if issubclass(exc_type, Protocol0Warning):
-            self.parent.show_message(exc_value)
             self.system.show_warning(str(exc_value))
         else:
             self._handle_exception(exc_type, exc_value, tb, context)
