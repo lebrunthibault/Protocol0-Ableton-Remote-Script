@@ -5,6 +5,8 @@ from functools import partial
 from typing import List, TYPE_CHECKING, Optional, Any, Iterator, cast
 
 import Live
+from protocol0.enums.BarLengthEnum import BarLengthEnum
+from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.Note import Note
 from protocol0.lom.clip.Clip import Clip
 from protocol0.sequence.Sequence import Sequence
@@ -105,10 +107,16 @@ class MidiClip(Clip):
     def post_record(self):
         # type: () -> None
         super(MidiClip, self).post_record()
+        self.song.metronome = False
+        if InterfaceState.SELECTED_RECORDING_BAR_LENGTH == BarLengthEnum.UNLIMITED:
+            clip_end = self.end_marker - self.song.signature_numerator
+            self.loop_end = clip_end
+            self.end_marker = clip_end
+
         self.view.grid_quantization = Live.Clip.GridQuantization.g_sixteenth
-        self.show_loop()
-        self.quantize()
         self.scale_velocities(go_next=False, scaling_factor=2)
+        self.quantize()
+        self.system.hide_plugins()
 
     def scale_velocities(self, go_next, scaling_factor):
         # type: (bool, int) -> None

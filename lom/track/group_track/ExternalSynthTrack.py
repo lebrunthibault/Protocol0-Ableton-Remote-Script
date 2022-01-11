@@ -43,10 +43,6 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self.record_clip_tails = False  # records one more bar of audio on presets with tail
         self.record_clip_tails_bar_length = 1
 
-        # temporary workaround
-        if self.instrument.device:
-            self.parent.defer(self.instrument.device.toggle_on)
-
     def _added_track_init(self):
         # type: () -> Sequence
         seq = Sequence()

@@ -188,10 +188,6 @@ class AbstractTrackActionMixin(object):
         self.song.record_mode = False
         self.song.session_automation_record = True
 
-        if self.instrument and self.instrument.device:
-            self.instrument.device.toggle_on()
-            self.parent.defer(self.instrument.device.toggle_off)
-
         seq = Sequence()
         if record_type == RecordTypeEnum.NORMAL:
             if self.next_empty_clip_slot_index is None:
@@ -239,26 +235,13 @@ class AbstractTrackActionMixin(object):
         seq.add(self.song.stop_playing)
         return seq.done()
 
-    def post_session_record(self, update_clip_name=True, *_, **__):
-        # type: (AbstractTrack, bool, Any, Any) -> None
+    def post_session_record(self):
+        # type: (AbstractTrack) -> None
         """ overridden """
         self.has_monitor_in = False
         self.solo = False
-        self.song.session_automation_record = False
-
-        if self.instrument and self.instrument.device:
-            self.instrument.device.toggle_on()
-            self.parent.defer(self.instrument.device.toggle_off)
 
         Config.CURRENT_RECORD_TYPE = None
-        # if self.song.selected_scene.length == 0:
-        #     self.parent.defer(self.song.selected_scene.delete)
-        clip = self.base_track.playable_clip
-        if clip:
-            clip.select()
-            if update_clip_name:
-                clip.clip_name.update(base_name="")  # type: ignore[has-type]
-            clip.post_record()
 
     def post_arrangement_record(self):
         # type: (AbstractTrack) -> None

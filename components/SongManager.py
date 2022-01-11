@@ -25,14 +25,14 @@ class SongManager(AbstractControlSurfaceComponent):
             self.system.show_warning("The global launch quantization is set to None")
 
         for armed_track in self.song.armed_tracks:
-            armed_track.unarm()
+            self.parent.defer(armed_track.unarm)
 
         startup_track = self._get_startup_track()
         self._restore_selected_state()
         if startup_track:
             seq = Sequence()
             seq.add(wait=2)
-            seq.add(startup_track.arm)
+            seq.add(startup_track.select)
             seq.add(self.parent.sessionManager.toggle_session_ring)
             seq.done()
         self.parent.wait(2, self.song.reset)

@@ -62,6 +62,10 @@ class SongActionMixin(object):
         # type: (Song) -> None
         self.clip_trigger_quantization = Live.Song.Quantization.q_no_q
 
+    def re_enable_automation(self):
+        # type: (Song) -> None
+        self._song.re_enable_automation()
+
     def stop_playing(self):
         # type: (Song) -> None
         self._song.stop_playing()

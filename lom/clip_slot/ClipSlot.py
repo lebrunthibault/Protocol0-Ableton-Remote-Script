@@ -120,19 +120,9 @@ class ClipSlot(AbstractObject):
         # type: () -> bool
         return self._clip_slot and self._clip_slot.is_playing
 
-    def record(self, bar_length, record_tail=False):
-        # type: (int, bool) -> Optional[Sequence]
-        abstract_track = self.track.abstract_track
-
-        record_tail_bar_length = 0
-        from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
-
-        if isinstance(abstract_track, ExternalSynthTrack):
-            record_tail_bar_length = abstract_track.record_clip_tails_bar_length
-
-        if bar_length and record_tail:
-            bar_length += record_tail_bar_length
-        self.parent.show_message(UtilsManager.get_recording_length_legend(bar_length, record_tail, record_tail_bar_length))
+    def record(self, bar_length):
+        # type: (int) -> Optional[Sequence]
+        self.parent.show_message(UtilsManager.get_recording_length_legend(bar_length, False, 0))
 
         seq = Sequence()
         seq.add(self.add_stop_button)
@@ -140,11 +130,16 @@ class ClipSlot(AbstractObject):
 
         record_length = self.parent.utilsManager.get_beat_time(bar_length)
         seq.add(partial(self.fire, record_length=record_length), complete_on=self._has_clip_listener)
+        seq.add(self.parent.navigationManager.show_device_view)
+        # seq.add(self.track.abstract_track.instrument.activate_editor_automation)
 
         # noinspection PyUnresolvedReferences
         seq.add(self.track.abstract_track.notify_is_recording)
 
         seq.add(complete_on=lambda: self.clip.is_recording_listener, no_timeout=True)
+
+        seq.add(wait=1)
+        seq.add(lambda: self.clip.post_record())
 
         return seq.done()
 

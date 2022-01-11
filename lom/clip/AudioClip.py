@@ -69,11 +69,6 @@ class AudioClip(Clip):
         # type: () -> str
         return self._clip.file_path if self._clip else ""
 
-    def post_record(self):
-        # type: () -> None
-        super(AudioClip, self).post_record()
-        self.warp_mode = Live.Clip.WarpMode.complex
-
     def crop(self):
         # type: () -> Sequence
         seq = Sequence()

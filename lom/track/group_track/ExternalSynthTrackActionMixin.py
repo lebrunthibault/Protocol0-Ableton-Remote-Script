@@ -14,6 +14,7 @@ from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.clip.AudioClip import AudioClip
 from protocol0.lom.clip.MidiClip import MidiClip
 from protocol0.lom.clip_slot.AudioClipSlot import AudioClipSlot
+from protocol0.lom.clip_slot.AudioTailClipSlot import AudioTailClipSlot
 from protocol0.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.lom.clip_slot.MidiClipSlot import MidiClipSlot
 from protocol0.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
@@ -39,8 +40,7 @@ class ExternalSynthTrackActionMixin(object):
             self.song.usamo_track.input_routing_track = self.midi_track
 
         self.midi_track.input_routing_type = self.instrument.MIDI_INPUT_ROUTING_TYPE
-        if self.instrument.device:
-            self.instrument.device.toggle_off()
+
         seq = Sequence()
         seq.add([sub_track.arm for sub_track in self.sub_tracks if not isinstance(sub_track, SimpleDummyTrack)])
         seq.add(partial(setattr, self, "has_monitor_in", False))
@@ -50,8 +50,6 @@ class ExternalSynthTrackActionMixin(object):
         # type: (ExternalSynthTrack) -> None
         self.has_monitor_in = True
         self.audio_track._output_meter_level_listener.subject = None
-        if self.instrument.device:
-            self.instrument.device.toggle_on()
 
     @property
     def has_monitor_in(self):
@@ -78,8 +76,8 @@ class ExternalSynthTrackActionMixin(object):
                 self.audio_tail_track.mute = False
                 self.audio_tail_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
 
-            # if self._external_device:
-            #     self._external_device.toggle_off()
+            if self._external_device:
+                self._external_device.toggle_off()
         # arm / listen to midi
         else:
             self.midi_track.mute = False
@@ -102,6 +100,15 @@ class ExternalSynthTrackActionMixin(object):
         # type: (ExternalSynthTrack) -> None
         self.has_monitor_in = not self.has_monitor_in
 
+    def _pre_session_record(self, record_type):
+        # type: (ExternalSynthTrack, RecordTypeEnum) -> Optional[Sequence]
+        """ restart audio to get a count in and recfix"""
+        self.midi_track.select()
+        self.parent.navigationManager.show_device_view()
+        self.parent.defer(self.system.show_plugins)
+
+        return super(ExternalSynthTrackActionMixin, self)._pre_session_record(record_type=record_type)
+
     def _session_record_all(self):
         # type: (ExternalSynthTrack) -> Sequence
         seq = Sequence()
@@ -113,7 +120,6 @@ class ExternalSynthTrackActionMixin(object):
 
         midi_clip_slot = self.midi_track.clip_slots[self.next_empty_clip_slot_index]
         audio_clip_slot = self.audio_track.clip_slots[self.next_empty_clip_slot_index]
-        self.audio_track.select()
         recording_bar_length = InterfaceState.SELECTED_RECORDING_BAR_LENGTH.int_value
 
         record_step = [
@@ -123,8 +129,8 @@ class ExternalSynthTrackActionMixin(object):
 
         if self.record_clip_tails:
             audio_tail_clip_slot = self.audio_tail_track.clip_slots[self.next_empty_clip_slot_index]
-            record_step.append(partial(audio_tail_clip_slot.record, bar_length=recording_bar_length))
-            if recording_bar_length:
+            record_step.append(partial(audio_tail_clip_slot.record, bar_length=recording_bar_length + 1))
+            if recording_bar_length:  # and not unlimited
                 self._stop_midi_input_to_record_clip_tail(midi_clip_slot=midi_clip_slot,
                                                           bar_length=recording_bar_length)
 
@@ -151,17 +157,16 @@ class ExternalSynthTrackActionMixin(object):
             seq.add(audio_clip.delete)
         seq.add(audio_clip_slot.add_stop_button)
 
-        audio_tail_clip_slot = None
+        audio_tail_clip_slot = None  # type: Optional[AudioTailClipSlot]
         if self.audio_tail_track:
             audio_tail_clip_slot = self.audio_tail_track.clip_slots[midi_clip.index]
-            audio_tail_clip = cast(AudioClip, audio_tail_clip_slot.clip)
-            if audio_tail_clip:
-                seq.add(audio_tail_clip.delete)
+            if audio_tail_clip_slot.clip:
+                seq.add(audio_tail_clip_slot.clip.delete)
             seq.add(audio_tail_clip_slot.add_stop_button)
 
-            # if self.record_clip_tails:
-            #     self._stop_midi_input_to_record_clip_tail(midi_clip_slot=midi_clip.clip_slot,
-            #                                               bar_length=midi_clip.bar_length)
+            if self.record_clip_tails:
+                self._stop_midi_input_to_record_clip_tail(midi_clip_slot=midi_clip.clip_slot,
+                                                          bar_length=midi_clip.bar_length)
 
         clip_slots = [audio_clip_slot] + [audio_tail_clip_slot] if audio_tail_clip_slot else []
         seq.add([cs.add_stop_button for cs in clip_slots])
@@ -169,8 +174,6 @@ class ExternalSynthTrackActionMixin(object):
         bar_length = midi_clip.bar_length
         self.parent.show_message(UtilsManager.get_recording_length_legend(bar_length, self.record_clip_tails,
                                                                           self.record_clip_tails_bar_length))
-        # if self.record_clip_tails:
-        #     bar_length += self.record_clip_tails_bar_length
 
         seq.add(self.song.stop_playing)
         seq.add(partial(self.stop, immediate=True))
@@ -179,14 +182,18 @@ class ExternalSynthTrackActionMixin(object):
         seq.add(wait_bars=bar_length)
         if self.record_clip_tails:
             seq.add(midi_clip.stop)
-            seq.add(wait_bars=1)
+            seq.add(lambda: audio_clip_slot.clip.stop())
+            seq.add(lambda: audio_clip_slot.clip.post_record())
+            seq.add(wait_beats=2)
+            seq.add(self.system.hide_plugins)
+            seq.add(midi_clip.select)
+            seq.add(wait_beats=2)
             seq.add(self.song.selected_scene.fire)
         seq.add(partial(setattr, self.song, "session_record", False))
 
         if self.record_clip_tails:
             seq.add(wait_beats=1)  # so that end_marker is computed correctly
-            seq.add(audio_clip_slot.post_record_clip_tail)
-            seq.add(audio_tail_clip_slot.post_record_clip_tail)
+            seq.add(lambda: audio_tail_clip_slot.clip.post_record())
 
         seq.add(partial(self._propagate_new_audio_clip, audio_clip_slot))
 
@@ -295,20 +302,23 @@ class ExternalSynthTrackActionMixin(object):
 
     def post_session_record(self, record_type):
         # type: (ExternalSynthTrack, RecordTypeEnum) -> None
-        super(ExternalSynthTrackActionMixin, self).post_session_record(update_clip_name=False)
+        super(ExternalSynthTrackActionMixin, self).post_session_record()
+
+        self.instrument.activate_editor_automation()
+        self.system.hide_plugins()
+        self.parent.defer(self.song.re_enable_automation)
+
         midi_clip = self.midi_track.playable_clip
         audio_clip = self.audio_track.playable_clip
         if not midi_clip or not audio_clip:
             return None
 
-        audio_clip.post_record()
-        if record_type == RecordTypeEnum.NORMAL:
-            midi_clip.clip_name.update(base_name="")
-            midi_clip.post_record()
-            midi_clip.select()
-            self.parent.navigationManager.focus_main()
-        else:
+        if record_type == RecordTypeEnum.AUDIO_ONLY:
             audio_clip.clip_name.update(base_name=midi_clip.clip_name.base_name)
+
+        midi_clip.select()
+        midi_clip.show_loop()
+        self.parent.navigationManager.focus_main()
 
     def post_arrangement_record(self):
         # type: (ExternalSynthTrack) -> None
@@ -352,7 +362,7 @@ class ExternalSynthTrackActionMixin(object):
     def disable_protected_mode(self):
         # type: (ExternalSynthTrack) -> Sequence
         seq = Sequence()
-        seq.prompt("Disable protected mode on %s ?" % self)
+        seq.prompt("Disable protected mode ?")
         seq.add(partial(setattr, self, "protected_mode_active", False))
         seq.add(partial(self.parent.show_message, "track protected mode disabled"))
         return seq.done()

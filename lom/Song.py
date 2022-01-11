@@ -48,6 +48,7 @@ class Song(SongActionMixin, AbstractObject):
         self._record_mode_listener.subject = self._song
         self.session_end_listener.subject = self
         self._tempo_listener.subject = self._song
+        self._re_enable_automation_enabled_listener.subject = self._song
         self._midi_recording_quantization_listener.subject = self._song
 
     def __call__(self):
@@ -101,6 +102,13 @@ class Song(SongActionMixin, AbstractObject):
         self.midi_recording_quantization_checked = False
         self.parent.songDataManager.save()
         self.parent.defer(partial(setattr, self, "tempo", round(self.tempo)))
+
+    @p0_subject_slot("re_enable_automation_enabled")
+    def _re_enable_automation_enabled_listener(self):
+        # type: () -> None
+        pass
+        # we always need clean recorded automation
+        # self.re_enable_automation()
 
     @p0_subject_slot("midi_recording_quantization")
     @save_song_data
