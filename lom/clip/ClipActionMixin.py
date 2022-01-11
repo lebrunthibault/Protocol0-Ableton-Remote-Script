@@ -26,7 +26,6 @@ class ClipActionMixin(object):
 
     def select(self):
         # type: (Clip) -> Sequence
-        self.parent.log_dev("selecting %s, selected_track: %s, selected_scene: %s" % (self, self.song.selected_track, self.song.selected_scene))
         self.song.highlighted_clip_slot = self.clip_slot
         seq = Sequence()
         seq.add(self.parent.navigationManager.show_clip_view)
