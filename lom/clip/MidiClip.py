@@ -116,7 +116,7 @@ class MidiClip(Clip):
         self.view.grid_quantization = Live.Clip.GridQuantization.g_sixteenth
         self.scale_velocities(go_next=False, scaling_factor=2)
         self.quantize()
-        self.system.hide_plugins()
+        self.parent.defer(self.system.hide_plugins)
 
     def scale_velocities(self, go_next, scaling_factor):
         # type: (bool, int) -> None

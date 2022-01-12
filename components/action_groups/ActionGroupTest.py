@@ -26,9 +26,7 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        self.song.selected_clip.select()
-        self.song.selected_clip.show_loop()
-        self.song.selected_clip.hide_envelope()
+        self.parent.log_dev(self.song.current_track.record_clip_tails)
 
     def start_set_profiling(self):
         # type: () -> None

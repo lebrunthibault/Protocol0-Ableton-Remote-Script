@@ -1,6 +1,7 @@
 from typing import Any
 
 from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
+from protocol0.devices.InstrumentProphet import InstrumentProphet
 from protocol0.interface.InterfaceState import InterfaceState
 
 
@@ -35,6 +36,10 @@ class ActionGroupSet(AbstractActionGroup):
         # STATs encoder
         self.add_encoder(identifier=4, name="display song stats",
                          on_press=self.parent.songStatsManager.display_song_stats)
+
+        # REV2 encoder
+        self.add_encoder(identifier=5, name="rev2 toggle vst editor",
+                         on_press=InstrumentProphet.toggle_editor_plugin_on)
 
         # VELO encoder
         self.add_encoder(identifier=13, name="smooth selected clip velocities",

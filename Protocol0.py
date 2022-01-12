@@ -4,7 +4,7 @@ from types import MethodType
 
 from ClyphX_Pro import ParseUtils
 from p0_system_api import P0SystemAPI
-from typing import Callable, Any, Optional
+from typing import Callable, Any, Optional, Union, List
 
 # noinspection PyUnresolvedReferences
 from _Framework.ControlSurface import ControlSurface, get_control_surfaces
@@ -243,9 +243,15 @@ class Protocol0(ControlSurface):
         self._beatScheduler.wait_beats(beats, callback)
 
     def wait(self, tick_count, callback):
-        # type: (int, Callable) -> Optional[SchedulerEvent]
+        # type: (Union[int, List[int]], Callable) -> Optional[SchedulerEvent]
         """ tick_count (relative to fastScheduler) """
         assert callable(callback)
+
+        if isinstance(tick_count, List):
+            for tc in tick_count:
+                self.wait(tc, callback)
+            return None
+
         if tick_count == 0:
             callback()
             return None

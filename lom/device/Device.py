@@ -64,13 +64,16 @@ class Device(AbstractObject):
             device_index = self.track.devices.index(self)
             self.track.delete_device(device_index)
 
-    def toggle_on(self):
-        # type: () -> None
-        self.get_parameter_by_name(DeviceParameterEnum.DEVICE_ON).value = 1
+    @property
+    def device_on(self):
+        # type: () -> bool
+        return self.get_parameter_by_name(DeviceParameterEnum.DEVICE_ON).value == 1
 
-    def toggle_off(self):
-        # type: () -> None
-        self.get_parameter_by_name(DeviceParameterEnum.DEVICE_ON).value = 0
+    @device_on.setter
+    def device_on(self, on):
+        # type: (bool) -> None
+        self.get_parameter_by_name(DeviceParameterEnum.DEVICE_ON).value = 1 if on else 0
+        pass
 
     def get_parameter_by_name(self, device_parameter_name):
         # type: (Union[DeviceParameterEnum, str]) -> Optional[DeviceParameter]

@@ -104,9 +104,10 @@ class Song(SongActionMixin, AbstractObject):
         self.parent.defer(partial(setattr, self, "tempo", round(self.tempo)))
 
     @p0_subject_slot("re_enable_automation_enabled")
+    @debounce(wait_time=100)
     def _re_enable_automation_enabled_listener(self):
         # type: () -> None
-        pass
+        return None
         # we always need clean recorded automation
         # self.re_enable_automation()
 

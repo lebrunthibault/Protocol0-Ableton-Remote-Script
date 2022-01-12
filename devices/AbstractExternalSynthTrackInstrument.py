@@ -16,10 +16,5 @@ class AbstractExternalSynthTrackInstrument(AbstractInstrument):
 
     def activate_editor_automation(self):
         # type: () -> Sequence()
-        seq = Sequence()
-        if self and self.device:
-            self.device.toggle_on()
-            seq.add(wait=15)
-            seq.add(self.device.toggle_off)
-
-        return seq.done()
+        """ overridden by InstrumentProphet"""
+        pass

@@ -1,6 +1,7 @@
 from typing import Callable, Any
 
 from protocol0.components.scheduler.SyncedScheduler import SyncedScheduler
+from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.lom.AbstractObject import AbstractObject
 
 
@@ -16,12 +17,12 @@ class BeatScheduler(AbstractObject, SyncedScheduler):
         that is if the we are on the 3rd beat in 4/4, the callback will be executed in one beat
         This mode will work when global quantization is set to 1/4 or more
         """
-        if not self.song.is_playing:
-            return
         self.wait_beats(self.song.signature_numerator * bar_length, callback)
 
     def wait_beats(self, beats, callback):
         # type: (float, Callable) -> None
+        # if not self.song.is_playing:
+        #     raise Protocol0Error("Called wait_beat but song is not playing")
         # self.schedule_message(beats + 1, callback)
         self.schedule_message(beats, callback)
 

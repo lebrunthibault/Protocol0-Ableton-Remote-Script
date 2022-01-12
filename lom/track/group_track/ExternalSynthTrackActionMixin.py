@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Optional, cast, Iterator
 from protocol0.components.TrackDataManager import save_track_data
 from protocol0.components.UtilsManager import UtilsManager
 from protocol0.config import Config
+from protocol0.devices.InstrumentProphet import InstrumentProphet
 from protocol0.enums.BarLengthEnum import BarLengthEnum
 from protocol0.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.enums.InputRoutingTypeEnum import InputRoutingTypeEnum
@@ -77,7 +78,7 @@ class ExternalSynthTrackActionMixin(object):
                 self.audio_tail_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
 
             if self._external_device:
-                self._external_device.toggle_off()
+                self._external_device.device_on = False
         # arm / listen to midi
         else:
             self.midi_track.mute = False
@@ -94,7 +95,7 @@ class ExternalSynthTrackActionMixin(object):
                 self.audio_tail_track.current_monitoring_state = CurrentMonitoringStateEnum.IN
 
             if self._external_device:
-                self._external_device.toggle_on()
+                self._external_device.device_on = True
 
     def switch_monitoring(self):
         # type: (ExternalSynthTrack) -> None
@@ -105,7 +106,8 @@ class ExternalSynthTrackActionMixin(object):
         """ restart audio to get a count in and recfix"""
         self.midi_track.select()
         self.parent.navigationManager.show_device_view()
-        self.parent.defer(self.system.show_plugins)
+        if isinstance(self.instrument, InstrumentProphet) and not InstrumentProphet.EDITOR_DEVICE_ON:
+            self.parent.defer(self.system.show_plugins)
 
         return super(ExternalSynthTrackActionMixin, self)._pre_session_record(record_type=record_type)
 
@@ -177,7 +179,8 @@ class ExternalSynthTrackActionMixin(object):
 
         seq.add(self.song.stop_playing)
         seq.add(partial(self.stop, immediate=True))
-        seq.add(wait=1)
+        # seq.add(wait_beats=1)  # mini count in
+        seq.add(wait=40)  # mini count in
         seq.add(partial(setattr, self.song, "session_record", True))
         seq.add(wait_bars=bar_length)
         if self.record_clip_tails:
@@ -306,7 +309,8 @@ class ExternalSynthTrackActionMixin(object):
 
         self.instrument.activate_editor_automation()
         self.system.hide_plugins()
-        self.parent.defer(self.song.re_enable_automation)
+        # this is delayed in the case an encoder is touched after the recording is finished by mistake
+        self.parent.wait([1, 10, 100], self.song.re_enable_automation)
 
         midi_clip = self.midi_track.playable_clip
         audio_clip = self.audio_track.playable_clip
