@@ -26,7 +26,9 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        self.parent.log_dev(self.song.current_track.record_clip_tails)
+        seq = Sequence()
+        seq.add(wait_beats=1)
+        seq.done()
 
     def start_set_profiling(self):
         # type: () -> None

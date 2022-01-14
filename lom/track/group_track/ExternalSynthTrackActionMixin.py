@@ -179,7 +179,6 @@ class ExternalSynthTrackActionMixin(object):
 
         seq.add(self.song.stop_playing)
         seq.add(partial(self.stop, immediate=True))
-        # seq.add(wait_beats=1)  # mini count in
         seq.add(wait=40)  # mini count in
         seq.add(partial(setattr, self.song, "session_record", True))
         seq.add(wait_bars=bar_length)
