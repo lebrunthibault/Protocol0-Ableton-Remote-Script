@@ -20,6 +20,11 @@ class ErrorManager(AbstractControlSurfaceComponent):
         "Push2.push2.QmlError"
     )
 
+    IGNORED_ERROR_FILENAMES = (
+        "\\venv\\",
+        "\\sequence\\"
+    )
+
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(ErrorManager, self).__init__(*a, **k)
@@ -70,7 +75,14 @@ class ErrorManager(AbstractControlSurfaceComponent):
 
     def _check_file(self, name):
         # type: (str) -> bool
-        return bool(name and name.startswith(PROJECT_ROOT))
+        if not name:
+            return False
+        elif not name.startswith(PROJECT_ROOT):
+            return False
+        elif any([string in name for string in self.IGNORED_ERROR_FILENAMES]):
+            return False
+
+        return True
 
     def _format_list(self, extracted_list, print_line=True):
         # type: (List[Any], bool) -> List[str]

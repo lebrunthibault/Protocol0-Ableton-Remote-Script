@@ -216,7 +216,7 @@ class Protocol0(ControlSurface):
         # type: (str, bool, bool) -> None
         self._log(message, level=LogLevelEnum.ERROR, debug=debug)
         if show_message:
-            self.show_message(message)
+            self.show_message(message, log=False)
 
     def _log(self, message="", level=LogLevelEnum.INFO, debug=False):
         # type: (Any, LogLevelEnum, bool) -> None

@@ -26,9 +26,7 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        seq = Sequence()
-        seq.add(wait_beats=1)
-        seq.done()
+        self.system.prompt("Ok ?")
 
     def start_set_profiling(self):
         # type: () -> None
