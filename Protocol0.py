@@ -212,10 +212,11 @@ class Protocol0(ControlSurface):
         # type: (Any, Any) -> None
         self._log(level=LogLevelEnum.WARNING, *a, **k)
 
-    def log_error(self, message="", debug=True, show_message=True):
-        # type: (str, bool, bool) -> None
+    def log_error(self, message="", debug=True):
+        # type: (str, bool) -> None
         self._log(message, level=LogLevelEnum.ERROR, debug=debug)
-        if show_message:
+        self.system.show_error(message)
+        if "\n" not in message:
             self.show_message(message, log=False)
 
     def _log(self, message="", level=LogLevelEnum.INFO, debug=False):

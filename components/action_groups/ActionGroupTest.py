@@ -26,7 +26,11 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        self.system.prompt("Ok ?")
+        raise Exception("toto")
+        seq = Sequence()
+        seq.prompt("Ok ?")
+        seq.add(lambda: self.parent.log_dev("yes !"))
+        seq.done()
 
     def start_set_profiling(self):
         # type: () -> None

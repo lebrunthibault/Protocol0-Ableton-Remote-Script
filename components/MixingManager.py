@@ -53,7 +53,7 @@ class MixingManager(AbstractControlSurfaceComponent):
         # type: (Live.Track.Track) -> None
         if track.output_meter_level < Config.CLIPPING_TRACK_VOLUME:
             return
-        self.parent.log_error("%s is clipping (%s)" % (track.name, track.output_meter_level))
+        self.system.show_warning("%s is clipping (%s)" % (track.name, track.output_meter_level))
 
     def scroll_all_tracks_volume(self, go_next):
         # type: (bool) -> None

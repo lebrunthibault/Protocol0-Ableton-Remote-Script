@@ -53,15 +53,16 @@ class ErrorManager(AbstractControlSurfaceComponent):
 
     def _handle_exception(self, exc_type, exc_value, tb, context=None):
         # type: (Type[BaseException], BaseException, TracebackType, Optional[str]) -> None
-        # self.system.
         show = [fs for fs in extract_tb(tb) if self._check_file(fs[0])]
-        self.parent.log_error("----- %s (%s) -----" % (exc_value, exc_type), debug=False)
+        error_message = "----- %s (%s) -----\n" % (exc_value, exc_type)
         if context:
-            self.parent.log_error(context, debug=False)
-        self.parent.log_error("at " + "".join(self._format_list(show[-1:], print_line=False)).strip(), debug=False)
-        self.parent.log_error(debug=False)
-        self.parent.log_error("----- traceback -----", debug=False)
-        self.parent.log_error("".join(self._format_list(show)), debug=False)
+            error_message += (context + "\n")
+        error_message += "at " + "".join(self._format_list(show[-1:], print_line=False)).strip()
+        error_message += "\n\n"
+        error_message += "----- traceback -----\n"
+        error_message += "".join(self._format_list(show))
+
+        self.parent.log_error(error_message)
 
         self.parent.clear_tasks()
 
