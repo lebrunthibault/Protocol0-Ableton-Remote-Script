@@ -116,10 +116,7 @@ class AbstractTrackActionMixin(object):
 
         seq.add(self.song.check_midi_recording_quantization)
 
-        if self.application.session_view_active:
-            seq.add(partial(self.session_record, record_type=record_type))
-        else:
-            seq.add(partial(self.arrangement_record, record_type=record_type))
+        seq.add(partial(self.session_record, record_type=record_type))
         return seq.done()
 
     def session_record(self, record_type):
@@ -141,23 +138,6 @@ class AbstractTrackActionMixin(object):
 
         return seq.done()
 
-    def arrangement_record(self, record_type):
-        # type: (AbstractTrack, RecordTypeEnum) -> Sequence
-        assert self.is_armed
-        seq = Sequence()
-        if self.song.record_mode:
-            self.song.record_mode = False
-            return seq.done()
-
-        self.has_monitor_in = False
-
-        if record_type == RecordTypeEnum.NORMAL:
-            seq.add(self.arrangement_record_all)
-        elif record_type == RecordTypeEnum.AUDIO_ONLY:
-            seq.add(self.arrangement_record_audio_only)
-        seq.add(self.post_arrangement_record)
-        return seq.done()
-
     def _session_record_all(self):
         # type: (AbstractTrack) -> Sequence
         """ this records normally on a simple track and both midi and audio on a group track """
@@ -167,15 +147,6 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         """ overridden """
         self.parent.log_error("session_record_audio_only not available on this track")
-        return None
-
-    def arrangement_record_all(self):
-        # type: (AbstractTrack) -> Sequence
-        return self.song.global_record()
-
-    def arrangement_record_audio_only(self):
-        # type: (AbstractTrack) -> None
-        self.parent.log_error("arrangement_record_audio_only not available on this track")
         return None
 
     def _pre_session_record(self, record_type):
@@ -240,11 +211,6 @@ class AbstractTrackActionMixin(object):
         self.solo = False
 
         Config.CURRENT_RECORD_TYPE = None
-
-    def post_arrangement_record(self):
-        # type: (AbstractTrack) -> None
-        self.song.stop_playing()
-        self.has_monitor_in = False
 
     def delete_playable_clip(self):
         # type: (AbstractTrack) -> Sequence

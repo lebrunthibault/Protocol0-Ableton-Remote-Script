@@ -25,7 +25,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
         super(Sequence, self).__init__(*a, **k)
 
         self._steps = deque()  # type: Deque[SequenceStep]
-        self._current_step = None  # type: Optional[SequenceStep]
+        self._current_step = None  # type: Optional[SequenceStep]s
         self.res = None  # type: Optional[Any]
         frame_info = get_frame_info(2)
         if frame_info:

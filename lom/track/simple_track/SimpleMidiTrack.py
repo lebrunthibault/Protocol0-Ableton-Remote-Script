@@ -29,7 +29,7 @@ class SimpleMidiTrack(SimpleTrack):
         return super(SimpleMidiTrack, self).clips  # type: ignore
 
     def stop_midi_input_until_play(self):
-        # type: () -> Sequence
+        # type: () -> None
         """ Just before the very end of the midi clip we temporarily disable midi input and stop the midi clip """
         seq = Sequence()
         input_routing_type = self.input_routing_type
@@ -37,4 +37,4 @@ class SimpleMidiTrack(SimpleTrack):
         seq.add(self.stop)
         seq.add(complete_on=self.song.selected_scene.is_triggered_listener, no_timeout=True)
         seq.add(partial(setattr, self, "input_routing_type", input_routing_type))
-        return seq.done()
+        seq.done()

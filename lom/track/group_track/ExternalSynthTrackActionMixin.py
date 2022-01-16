@@ -113,11 +113,6 @@ class ExternalSynthTrackActionMixin(object):
 
     def _session_record_all(self):
         # type: (ExternalSynthTrack) -> Sequence
-        seq = Sequence()
-
-        if self.next_empty_clip_slot_index is None:
-            return seq.done()
-
         self.has_monitor_in = False
         self.solo = False
         if len(list(filter(None, [t.is_hearable for t in self.song.abstract_tracks]))) > 1:
@@ -127,8 +122,11 @@ class ExternalSynthTrackActionMixin(object):
         audio_clip_slot = self.audio_track.clip_slots[self.next_empty_clip_slot_index]
         recording_bar_length = InterfaceState.SELECTED_RECORDING_BAR_LENGTH.int_value
 
+        seq = Sequence()
+
+        midi_seq = Sequence().add(partial(midi_clip_slot.record, bar_length=recording_bar_length))
         record_step = [
-            partial(midi_clip_slot.record, bar_length=recording_bar_length),
+            midi_seq,
             partial(audio_clip_slot.record, bar_length=recording_bar_length),
         ]
 
@@ -136,16 +134,10 @@ class ExternalSynthTrackActionMixin(object):
             audio_tail_clip_slot = self.audio_tail_track.clip_slots[self.next_empty_clip_slot_index]
             record_step.append(partial(audio_tail_clip_slot.record, bar_length=recording_bar_length))
             if recording_bar_length:  # and not unlimited
-                midi_seq = Sequence()
-                midi_seq.add(record_step[0])
                 midi_seq.add(self.midi_track.stop_midi_input_until_play)
-                record_step[0] = midi_seq
-                # self._stop_midi_input_to_record_clip_tail(midi_clip_slot=midi_clip_slot,
-                #                                           bar_length=recording_bar_length)
 
         seq.add(record_step)
         seq.add(self.song.selected_scene.fire)
-        seq.add(lambda: self.parent.show_message("Record over"))
 
         return seq.done()
 
@@ -160,20 +152,14 @@ class ExternalSynthTrackActionMixin(object):
         self.has_monitor_in = False
 
         audio_clip_slot = self.audio_track.clip_slots[midi_clip.index]
-        audio_clip = cast(AudioClip, audio_clip_slot.clip)
+        audio_clip_slot.delete_clip()
 
         seq = Sequence()
-        if audio_clip:
-            audio_clip_slot.previous_audio_file_path = audio_clip.file_path
-            seq.add(audio_clip.delete)
-        seq.add(audio_clip_slot.add_stop_button)
 
         audio_tail_clip_slot = None  # type: Optional[AudioTailClipSlot]
         if self.audio_tail_track:
             audio_tail_clip_slot = self.audio_tail_track.clip_slots[midi_clip.index]
-            if audio_tail_clip_slot.clip:
-                seq.add(audio_tail_clip_slot.clip.delete)
-            seq.add(audio_tail_clip_slot.add_stop_button)
+            audio_tail_clip_slot.delete_clip()
 
             if self.record_clip_tails:
                 self._stop_midi_input(midi_clip_slot=midi_clip.clip_slot,
@@ -189,23 +175,17 @@ class ExternalSynthTrackActionMixin(object):
         seq.add(self.song.stop_playing)
         seq.add(partial(self.stop, immediate=True))
         seq.add(wait=40)  # mini count in
-        seq.add(partial(setattr, self.song, "session_record", True))
-        if self.record_clip_tails:
-            seq.add(midi_clip.stop)
-            # seq.add(lambda: audio_clip_slot.clip.stop())
-            # seq.add(lambda: audio_clip_slot.clip.post_record())
-            seq.add(wait_beats=2)
-            seq.add(self.system.hide_plugins)
-            seq.add(midi_clip.select)
-            seq.add(wait_beats=2)
-            seq.add(self.song.selected_scene.fire)
-        else:
-            seq.add(wait_bars=bar_length)
-        seq.add(partial(setattr, self.song, "session_record", False))
-
-        if self.record_clip_tails:
-            seq.add(wait_beats=1)  # so that end_marker is computed correctly
-            seq.add(lambda: audio_tail_clip_slot.clip.post_record())
+        # seq.add(partial(setattr, self.song, "session_record", True))
+        # if self.record_clip_tails:
+        #     seq.add(midi_clip.stop)
+        #     seq.add(wait_beats=2)
+        #     seq.add(self.system.hide_plugins)
+        #     seq.add(midi_clip.select)
+        #     seq.add(wait_beats=2)
+        #     seq.add(self.song.selected_scene.fire)
+        # else:
+        #     seq.add(wait_bars=bar_length)
+        # seq.add(partial(setattr, self.song, "session_record", False))
 
         seq.add(partial(self._propagate_new_audio_clip, audio_clip_slot))
 
@@ -302,11 +282,6 @@ class ExternalSynthTrackActionMixin(object):
 
         return True
 
-    def arrangement_record_audio_only(self):
-        # type: (ExternalSynthTrack) -> Sequence
-        self.midi_track.unarm()
-        return self.song.global_record()
-
     def post_session_record(self, record_type):
         # type: (ExternalSynthTrack, RecordTypeEnum) -> None
         super(ExternalSynthTrackActionMixin, self).post_session_record()
@@ -327,12 +302,6 @@ class ExternalSynthTrackActionMixin(object):
         midi_clip.select()
         midi_clip.show_loop()
         self.parent.navigationManager.focus_main()
-
-    def post_arrangement_record(self):
-        # type: (ExternalSynthTrack) -> None
-        self.midi_track.arm_track()
-        super(ExternalSynthTrackActionMixin, self).post_arrangement_record()
-        self.has_monitor_in = True
 
     def delete_playable_clip(self):
         # type: (ExternalSynthTrack) -> Sequence

@@ -14,3 +14,9 @@ class AudioClipSlot(ClipSlot):
         self.previous_audio_file_path = None  # type: Optional[str]
         if self.clip:
             self.previous_audio_file_path = self.clip.file_path
+
+    def delete_clip(self):
+        # type: () -> None
+        if self.clip:
+            self.previous_audio_file_path = self.clip.file_path
+        super(AudioClipSlot, self).delete_clip()
