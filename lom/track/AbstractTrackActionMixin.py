@@ -206,16 +206,14 @@ class AbstractTrackActionMixin(object):
         if record_type == RecordTypeEnum.AUDIO_ONLY:
             return None
 
-        # solo for count in
-        self.solo = True
-        self.parent.wait_bars(1, partial(setattr, self, "solo", False))
-
         self.song.stop_playing()
         assert self.next_empty_clip_slot_index is not None
         recording_scene = self.song.scenes[self.next_empty_clip_slot_index]
         self.song.stop_all_clips(quantized=False)  # stopping previous scene clips
-
+        # solo for count in
+        self.solo = True
         self.song.is_playing = True
+        self.parent.wait_bars(1, partial(setattr, self, "solo", False))
 
         if recording_scene.length:
             seq = Sequence()

@@ -303,11 +303,10 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # type: () -> float
         return self._track.output_meter_level if self._track else 0
 
-    @output_meter_level.setter
-    def output_meter_level(self, output_meter_level):
-        # type: (float) -> None
-        if self._track:
-            self._track.output_meter_level = output_meter_level
+    @property
+    def output_meter_left(self):
+        # type: () -> float
+        return self._track.output_meter_left if self._track else 0
 
     @property
     def volume(self):

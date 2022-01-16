@@ -29,27 +29,27 @@ class MidiClip(Clip):
     def hash(self):
         # type: () -> int
         return hash(tuple(note.to_data() for note in self.get_notes()))
-
-    @p0_subject_slot("loop_end")
-    def _loop_end_listener(self):
-        # type: () -> None
-        self.parent.defer(partial(setattr, self, "end_marker", self.loop_end))
-
-        from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
-        if not isinstance(self.track.abstract_track, ExternalSynthTrack):
-            return
-        track = cast(ExternalSynthTrack, self.track.abstract_track)
-        if not track.audio_tail_track:
-            return
-        tail_clip = track.audio_tail_track.clip_slots[self.index].clip
-        if tail_clip:
-            # NB: with looping off, setting the loop actually sets the markers
-            self.parent.defer(partial(setattr, tail_clip, "loop_start", self.loop_end))
-            self.parent.defer(partial(setattr, tail_clip, "start_marker", self.loop_end))
-            self.parent.defer(partial(setattr, tail_clip, "loop_end", self.loop_end + self.song.signature_numerator))
-            self.parent.defer(partial(setattr, tail_clip, "end_marker", self.loop_end + self.song.signature_numerator))
-
-        super(MidiClip, self)._loop_end_listener()
+    #
+    # @p0_subject_slot("loop_end")
+    # def _loop_end_listener(self):
+    #     # type: () -> None
+    #     self.parent.defer(partial(setattr, self, "end_marker", self.loop_end))
+    #
+    #     from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+    #     if not isinstance(self.track.abstract_track, ExternalSynthTrack):
+    #         return
+    #     track = cast(ExternalSynthTrack, self.track.abstract_track)
+    #     if not track.audio_tail_track:
+    #         return
+    #     tail_clip = track.audio_tail_track.clip_slots[self.index].clip
+    #     if tail_clip:
+    #         # NB: with looping off, setting the loop actually sets the markers
+    #         self.parent.defer(partial(setattr, tail_clip, "loop_start", self.loop_end))
+    #         self.parent.defer(partial(setattr, tail_clip, "start_marker", self.loop_end))
+    #         self.parent.defer(partial(setattr, tail_clip, "loop_end", self.loop_end + self.song.signature_numerator))
+    #         self.parent.defer(partial(setattr, tail_clip, "end_marker", self.loop_end + self.song.signature_numerator))
+    #
+    #     super(MidiClip, self)._loop_end_listener()
 
     def get_notes(self):
         # type: () -> List[Note]

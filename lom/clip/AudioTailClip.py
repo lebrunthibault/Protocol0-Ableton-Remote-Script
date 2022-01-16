@@ -19,12 +19,3 @@ class AudioTailClip(AudioClip):
     def midi_clip(self):
         # type: () -> Optional[MidiClip]
         return self.track.abstract_group_track.midi_track.clip_slots[self.index].clip
-
-    def post_record(self):
-        # type: () -> None
-        super(AudioTailClip, self).post_record()
-        clip_end = self.end_marker - self.song.signature_numerator  # one bar tail
-
-        self.start_marker = self.loop_start = clip_end
-        self.looping = False
-        self.muted = True

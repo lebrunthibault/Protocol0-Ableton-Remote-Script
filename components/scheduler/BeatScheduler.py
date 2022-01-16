@@ -21,9 +21,14 @@ class BeatScheduler(AbstractObject, SyncedScheduler):
 
     def wait_beats(self, beats, callback):
         # type: (float, Callable) -> None
+        # deferring in the case we call wait_beats just after starting the song
+        self.parent.defer(self._check_song_is_playing)
+        self.schedule_message(beats, callback)
+
+    def _check_song_is_playing(self):
+        # type: () -> None
         if not self.song.is_playing:
             raise Protocol0Error("Called wait_beat but song is not playing")
-        self.schedule_message(beats, callback)
 
     def clear_scheduler(self):
         # type: () -> None

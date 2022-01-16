@@ -1,9 +1,7 @@
-from functools import partial
-
 from typing import Any
 
 from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
-from protocol0.sequence.Sequence import Sequence
+from protocol0.utils.decorators import p0_subject_slot
 
 
 class ActionGroupTest(AbstractActionGroup):
@@ -26,11 +24,13 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        raise Exception("toto")
-        seq = Sequence()
-        seq.prompt("Ok ?")
-        seq.add(lambda: self.parent.log_dev("yes !"))
-        seq.done()
+        self.parent.log_dev(self.song.selected_track.output_meter_level)
+        self.parent.log_dev(self.song.selected_track._track.output_meter_left)
+        self.parent.log_dev(self.song.selected_track._track.output_meter_right)
+
+    @p0_subject_slot("beat_changed")
+    def beat_changed_listener(self):
+        self.parent.log_dev("beat changed")
 
     def start_set_profiling(self):
         # type: () -> None

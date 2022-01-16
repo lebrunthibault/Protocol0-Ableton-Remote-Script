@@ -131,7 +131,6 @@ class ClipSlot(AbstractObject):
         record_length = self.parent.utilsManager.get_beat_time(bar_length)
         seq.add(partial(self.fire, record_length=record_length), complete_on=self._has_clip_listener)
         seq.add(self.parent.navigationManager.show_device_view)
-        # seq.add(self.track.abstract_track.instrument.activate_editor_automation)
 
         # noinspection PyUnresolvedReferences
         seq.add(self.track.abstract_track.notify_is_recording)

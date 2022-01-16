@@ -84,6 +84,8 @@ class Scene(SceneActionMixin, AbstractObject):
         if self.song.playing_scene and self.song.playing_scene != self:
             self.parent.defer(partial(self._stop_previous_scene, self.song.playing_scene, immediate=True))
         Scene.PLAYING_SCENE = self
+        # noinspection PyUnresolvedReferences
+        self.notify_is_playing
 
     @subject_slot_group("has_clip")
     def _clip_slots_has_clip_listener(self, _):

@@ -7,6 +7,8 @@ from protocol0.utils.decorators import p0_subject_slot
 
 
 class SyncedScheduler(ClyphXComponentBase):
+    __subject_events__ = ("beat_changed",)
+
     """ SyncedScheduler schedules action lists to be triggered after a specified
     number of bars. """
 
@@ -80,7 +82,7 @@ class SyncedScheduler(ClyphXComponentBase):
         if self._last_beat != current_beat:
             self._last_beat = current_beat
 
-            self._on_beat_changed()
+            self.notify_beat_changed()
 
             for k, v in self._pending_precise_action_list.items():
                 v['beats'] -= 1

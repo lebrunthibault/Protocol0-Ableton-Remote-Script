@@ -15,6 +15,7 @@ class SongScenesManager(AbstractControlSurfaceComponent):
         # type: (Any, Any) -> None
         super(SongScenesManager, self).__init__(*a, **k)
         self.scenes_listener.subject = self.song._song
+        self._beat_changed_listener.subject = self.parent.beatScheduler
         self._live_scene_id_to_scene = collections.OrderedDict()
 
     def get_scene(self, live_scene):
@@ -43,6 +44,12 @@ class SongScenesManager(AbstractControlSurfaceComponent):
         self._generate_scenes()
         self.parent.defer(lambda: [scene.refresh_appearance() for scene in self.song.scenes])
         self.parent.log_info("mapped scenes")
+
+    @p0_subject_slot("beat_changed")
+    def _beat_changed_listener(self):
+        # type: () -> None
+        if self.song.playing_scene and self.song.playing_scene.has_playing_clips:
+            self.song.playing_scene.on_beat_changed()
 
     def _generate_scenes(self):
         # type: () -> None

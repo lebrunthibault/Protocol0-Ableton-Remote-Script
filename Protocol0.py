@@ -93,6 +93,7 @@ class Protocol0(ControlSurface):
             self.p0_system_api_client = P0SystemAPI()
             self.protocol0_application = Application()
             self.protocol0_song = Song(song=self.song())
+            self.beatScheduler = BeatScheduler()
             self.songDataManager = SongDataManager()
             self.trackDataManager = TrackDataManager()
             if Config.SHOW_RELOAD_TIME or Config.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.PROFILING:
@@ -116,7 +117,6 @@ class Protocol0(ControlSurface):
             self.browserManager = BrowserManager()
             self.navigationManager = NavigationManager()
             self.presetManager = PresetManager()
-            self._beatScheduler = BeatScheduler()
             self.utilsManager = UtilsManager()
             self.logManager = LogManager()
             self.validatorManager = ValidatorManager()
@@ -237,11 +237,11 @@ class Protocol0(ControlSurface):
 
     def wait_bars(self, bar_length, callback):
         # type: (int, Callable) -> None
-        self._beatScheduler.wait_bars(bar_length, callback)
+        self.beatScheduler.wait_bars(bar_length, callback)
 
     def wait_beats(self, beats, callback):
         # type: (float, Callable) -> None
-        self._beatScheduler.wait_beats(beats, callback)
+        self.beatScheduler.wait_beats(beats, callback)
 
     def wait(self, tick_count, callback):
         # type: (Union[int, List[int]], Callable) -> Optional[SchedulerEvent]
@@ -276,7 +276,7 @@ class Protocol0(ControlSurface):
         Sequence.RUNNING_SEQUENCES = []
         self._task_group.clear()
         self.fastScheduler.restart()
-        self._beatScheduler.clear_scheduler()
+        self.beatScheduler.clear_scheduler()
 
     def disconnect(self):
         # type: () -> None
