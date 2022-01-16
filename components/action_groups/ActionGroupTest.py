@@ -26,7 +26,6 @@ class ActionGroupTest(AbstractActionGroup):
         # type: () -> None
         self.parent.log_dev(self.song.selected_track.output_meter_level)
         self.parent.log_dev(self.song.selected_track._track.output_meter_left)
-        self.parent.log_dev(self.song.selected_track._track.output_meter_right)
 
     @p0_subject_slot("beat_changed")
     def beat_changed_listener(self):

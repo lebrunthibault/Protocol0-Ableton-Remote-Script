@@ -56,7 +56,8 @@ class Clip(ClipActionMixin, AbstractObject):
     @p0_subject_slot("is_recording")
     def is_recording_listener(self):
         # type: () -> None
-        pass
+        if not self.is_recording:
+            self.parent.defer(self.post_record)
 
     @p0_subject_slot("playing_status")
     def _playing_status_listener(self):

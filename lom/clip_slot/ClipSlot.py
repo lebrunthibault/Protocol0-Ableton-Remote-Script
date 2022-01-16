@@ -128,17 +128,20 @@ class ClipSlot(AbstractObject):
         seq.add(self.add_stop_button)
         seq.add(wait=1)  # also necessary so that _has_clip_listener triggers on has_clip == True
 
-        record_length = self.parent.utilsManager.get_beat_time(bar_length)
-        seq.add(partial(self.fire, record_length=record_length), complete_on=self._has_clip_listener)
-        seq.add(self.parent.navigationManager.show_device_view)
+        # record_length = self.parent.utilsManager.get_beat_time(bar_length)
+        seq.add(self.fire)
+        # return just before end of recording
+        self.parent.log_dev("waiting: %s" % ((bar_length * self.song.signature_numerator) - 0.1))
+        seq.add(complete_on=self._has_clip_listener)
+        seq.add(wait_beats=(bar_length * self.song.signature_numerator) - 0.1)
+        seq.add(lambda: self.parent.log_dev("finished with %s" % self.clip))
+        seq.add(lambda: self.clip.play)
 
-        # noinspection PyUnresolvedReferences
-        seq.add(self.track.abstract_track.notify_is_recording)
+        # seq.add(partial(self.fire, record_length=record_length), complete_on=self._has_clip_listener)
+        # seq.add(complete_on=lambda: self.clip.is_recording_listener, no_timeout=True)
 
-        seq.add(complete_on=lambda: self.clip.is_recording_listener, no_timeout=True)
-
-        seq.add(wait=1)
-        seq.add(lambda: self.clip.post_record())
+        # seq.add(wait=1)
+        # seq.add(lambda: self.clip.post_record())
 
         return seq.done()
 

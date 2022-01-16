@@ -20,7 +20,6 @@ from protocol0.lom.clip.Clip import Clip
 from protocol0.lom.track.AbstractTrackActionMixin import AbstractTrackActionMixin
 from protocol0.lom.track.AbstractTrackName import AbstractTrackName
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.decorators import p0_subject_slot
 from protocol0.utils.utils import set_device_parameter, find_if
 
 if TYPE_CHECKING:
@@ -59,9 +58,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         self.push2_selected_matrix_mode = Push2MatrixModeEnum.SESSION
         self.push2_selected_instrument_mode = None  # type: Optional[Push2InstrumentModeEnum]
 
-        # LISTENERS
-        self._is_recording_listener.subject = self
-
     def __repr__(self):
         # type: () -> str
         return "P0 %s : %s (%s)" % (self.__class__.__name__, self.name, self.index + 1)
@@ -83,13 +79,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def on_scenes_change(self):
         # type: () -> None
         pass
-
-    @p0_subject_slot("is_recording")
-    def _is_recording_listener(self):
-        # type: () -> None
-        self.solo = False
-        if len(list(filter(None, [t.is_hearable for t in self.song.abstract_tracks]))) > 1:
-            self.song.metronome = False
 
     @property
     def index(self):

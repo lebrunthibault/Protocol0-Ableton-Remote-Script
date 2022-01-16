@@ -1,5 +1,6 @@
 from typing import Any, TYPE_CHECKING, Optional
 
+from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.clip.AudioClip import AudioClip
 from protocol0.lom.clip.MidiClip import MidiClip
 
@@ -19,3 +20,15 @@ class AudioTailClip(AudioClip):
     def midi_clip(self):
         # type: () -> Optional[MidiClip]
         return self.track.abstract_group_track.midi_track.clip_slots[self.index].clip
+
+    def post_record(self):
+        # type: () -> None
+        bar_length = InterfaceState.SELECTED_RECORDING_BAR_LENGTH.int_value
+        if bar_length == 0:
+            return
+        self.clip_name.update(base_name="")
+        clip_end = bar_length * self.song.signature_numerator
+
+        self.start_marker = self.loop_start = clip_end
+        self.looping = False
+        self.muted = True

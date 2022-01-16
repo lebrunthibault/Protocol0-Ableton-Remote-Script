@@ -36,32 +36,33 @@ class AudioTailClipSlot(AudioClipSlot):
         seq = Sequence()
         seq.add(wait_beats=(bar_length * self.song.signature_numerator) - 1)
         seq.add(partial(setattr, self._beat_changed_listener, "subject", self.parent.beatScheduler))
-        seq.add(complete_on=self._is_silent_listener)
+        seq.add(complete_on=self._is_silent_listener, no_timeout=True)
         seq.add(partial(setattr, self._beat_changed_listener, "subject", None))
         return seq.done()
 
     def record(self, bar_length):
         # type: (int) -> Sequence
         seq = Sequence()
-        seq.add(self.add_stop_button)
-        seq.add(wait=1)
-        seq.add(self.fire)
+        seq.add(partial(super(AudioTailClipSlot, self).record, bar_length=bar_length))
+        # seq.add(self.add_stop_button)
+        # seq.add(wait=1)
+        # seq.add(self.fire)
         seq.add(partial(self.wait_for_silence, bar_length=bar_length))
-        seq.add(partial(self._call_post_record, bar_length=bar_length))
+        # seq.add(partial(self._call_post_record, bar_length=bar_length))
         return seq.done()
 
-    def _call_post_record(self, bar_length):
-        # type: (int) -> None
-        seq = Sequence()
-        seq.add(complete_on=lambda: self.clip.is_recording_listener, no_timeout=True)
-        seq.add(partial(self.post_record, bar_length=bar_length))
-        seq.done()
+    # def _call_post_record(self, bar_length):
+    #     # type: (int) -> None
+    #     seq = Sequence()
+    #     seq.add(complete_on=lambda: self.clip.is_recording_listener, no_timeout=True)
+    #     seq.add(partial(self.post_record, bar_length=bar_length))
+    #     seq.done()
 
-    def post_record(self, bar_length):
-        # type: (int) -> None
-        self.clip.clip_name.update(base_name="")
-        clip_end = bar_length * self.song.signature_numerator
-
-        self.clip.start_marker = self.clip.loop_start = clip_end
-        self.clip.looping = False
-        self.clip.muted = True
+    # def post_record(self, bar_length):
+    #     # type: (int) -> None
+    #     self.clip.clip_name.update(base_name="")
+    #     clip_end = bar_length * self.song.signature_numerator
+    #
+    #     self.clip.start_marker = self.clip.loop_start = clip_end
+    #     self.clip.looping = False
+    #     self.clip.muted = True

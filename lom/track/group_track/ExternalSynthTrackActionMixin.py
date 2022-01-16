@@ -119,6 +119,9 @@ class ExternalSynthTrackActionMixin(object):
             return seq.done()
 
         self.has_monitor_in = False
+        self.solo = False
+        if len(list(filter(None, [t.is_hearable for t in self.song.abstract_tracks]))) > 1:
+            self.song.metronome = False
 
         midi_clip_slot = self.midi_track.clip_slots[self.next_empty_clip_slot_index]
         audio_clip_slot = self.audio_track.clip_slots[self.next_empty_clip_slot_index]
@@ -133,6 +136,7 @@ class ExternalSynthTrackActionMixin(object):
             audio_tail_clip_slot = self.audio_tail_track.clip_slots[self.next_empty_clip_slot_index]
             record_step.append(partial(audio_tail_clip_slot.record, bar_length=recording_bar_length))
             if recording_bar_length:  # and not unlimited
+
                 self._stop_midi_input_to_record_clip_tail(midi_clip_slot=midi_clip_slot,
                                                           bar_length=recording_bar_length)
 
@@ -214,8 +218,7 @@ class ExternalSynthTrackActionMixin(object):
         input_routing_type = self.midi_track.input_routing_type
         seq.add(partial(setattr, self.midi_track, "input_routing_type", InputRoutingTypeEnum.NO_INPUT))
         seq.add(lambda: midi_clip_slot.clip.stop())
-        seq.add(complete_on=lambda: midi_clip_slot.clip._playing_status_listener)
-        seq.add(wait_bars=self.record_clip_tails_bar_length)
+        seq.add(complete_on=self.song.selected_scene.is_triggered_listener)
         seq.add(partial(setattr, self.midi_track, "input_routing_type", input_routing_type))
         return seq.done()
 

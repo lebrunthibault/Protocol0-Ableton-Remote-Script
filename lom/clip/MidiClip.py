@@ -2,7 +2,7 @@ from __future__ import division
 
 from functools import partial
 
-from typing import List, TYPE_CHECKING, Optional, Any, Iterator, cast
+from typing import List, TYPE_CHECKING, Optional, Any, Iterator
 
 import Live
 from protocol0.enums.BarLengthEnum import BarLengthEnum
@@ -10,7 +10,6 @@ from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.Note import Note
 from protocol0.lom.clip.Clip import Clip
 from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
     from protocol0.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
@@ -29,27 +28,6 @@ class MidiClip(Clip):
     def hash(self):
         # type: () -> int
         return hash(tuple(note.to_data() for note in self.get_notes()))
-    #
-    # @p0_subject_slot("loop_end")
-    # def _loop_end_listener(self):
-    #     # type: () -> None
-    #     self.parent.defer(partial(setattr, self, "end_marker", self.loop_end))
-    #
-    #     from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
-    #     if not isinstance(self.track.abstract_track, ExternalSynthTrack):
-    #         return
-    #     track = cast(ExternalSynthTrack, self.track.abstract_track)
-    #     if not track.audio_tail_track:
-    #         return
-    #     tail_clip = track.audio_tail_track.clip_slots[self.index].clip
-    #     if tail_clip:
-    #         # NB: with looping off, setting the loop actually sets the markers
-    #         self.parent.defer(partial(setattr, tail_clip, "loop_start", self.loop_end))
-    #         self.parent.defer(partial(setattr, tail_clip, "start_marker", self.loop_end))
-    #         self.parent.defer(partial(setattr, tail_clip, "loop_end", self.loop_end + self.song.signature_numerator))
-    #         self.parent.defer(partial(setattr, tail_clip, "end_marker", self.loop_end + self.song.signature_numerator))
-    #
-    #     super(MidiClip, self)._loop_end_listener()
 
     def get_notes(self):
         # type: () -> List[Note]
