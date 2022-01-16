@@ -31,10 +31,6 @@ class ClipActionMixin(object):
         seq.add(self.parent.navigationManager.show_clip_view)
         return seq.done()
 
-    def play(self):
-        # type: (Clip) -> None
-        self.is_playing = True
-
     def stop(self, immediate=False):
         # type: (Clip, bool) -> None
         if immediate:

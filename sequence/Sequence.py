@@ -4,9 +4,8 @@ from functools import partial
 from typing import Deque, Optional, Iterable, Union, Callable, Any, List
 
 from protocol0.config import Config
-from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.lom.AbstractObject import AbstractObject
-from protocol0.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin, SequenceState
+from protocol0.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
 from protocol0.sequence.SequenceStep import SequenceStep
 from protocol0.utils.decorators import p0_subject_slot
 from protocol0.utils.utils import get_frame_info, nop
@@ -37,6 +36,10 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
     def __repr__(self, **k):
         # type: (Any) -> str
         return self.name
+
+    def __call__(self):
+        # type: () -> Sequence
+        return self.done()
 
     @property
     def debug_str(self):
@@ -149,7 +152,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
             self,
         )
         assert not self.has_final_state
-        assert not isinstance(func, Sequence), "You passed a Sequence object instead of a Sequence factory to add"
+        # assert not isinstance(func, Sequence), "You passed a Sequence object instead of a Sequence factory to add"
 
         if wait_bars:
             wait_beats += wait_bars * self.song.signature_numerator
@@ -183,7 +186,5 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
 
     def done(self):
         # type: () -> Sequence
-        if self.state != str(SequenceState.UN_STARTED):
-            raise Protocol0Error("Sequence done already called for %s" % self)
         self.start()
         return self

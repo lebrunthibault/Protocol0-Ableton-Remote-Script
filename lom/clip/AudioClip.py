@@ -86,7 +86,7 @@ class AudioClip(Clip):
         self.muted = False
         seq = Sequence()
         seq.add(wait=1)  # wait for unmute
-        seq.add(self.play)
+        seq.add(self.fire)
         # seq.add(wait_beats=2)  # 1 is not enough for session to arrangement
         # seq.add(complete_on=self._playing_status_listener)  # clip has stopped
         # seq.add(wait_beats=1)

@@ -56,8 +56,8 @@ def api_exposed(func):
     return func
 
 
-def p0_subject_slot(event, immediate=False):
-    # type: (str, bool) -> Callable[[Callable], CallbackDescriptor]
+def p0_subject_slot(event):
+    # type: (str) -> Callable[[Callable], CallbackDescriptor]
     """
     Drop in replacement of _Framework subject_slot decorator
     Extends its behavior to allow the registration of callbacks that will execute after the decorated function finished
@@ -78,20 +78,20 @@ def p0_subject_slot(event, immediate=False):
 
         decorate.original_func = func  # type: ignore[attr-defined]
 
-        callback_descriptor = has_callback_queue(immediate)(_framework_subject_slot(event)(decorate))
+        callback_descriptor = has_callback_queue()(_framework_subject_slot(event)(decorate))
 
         return callback_descriptor
 
     return wrap
 
 
-def has_callback_queue(immediate=False):
-    # type: (bool) -> Callable[[Callable], CallbackDescriptor]
+def has_callback_queue():
+    # type: () -> Callable[[Callable], CallbackDescriptor]
     def wrap(func):
         # type: (Callable) -> CallbackDescriptor
         from protocol0.utils.callback_descriptor import CallbackDescriptor
 
-        return CallbackDescriptor(func, immediate)
+        return CallbackDescriptor(func)
 
     return wrap
 

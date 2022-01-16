@@ -14,7 +14,7 @@ def test_has_callback_queue_1():
 
     # noinspection PyClassHasNoInit
     class Example:
-        @has_callback_queue(immediate=True)
+        @has_callback_queue()
         def example(self):
             # type: () -> None
             res.append(0)
@@ -34,7 +34,7 @@ def test_has_callback_queue_2():
 
     # noinspection PyClassHasNoInit
     class Child:
-        @has_callback_queue(immediate=True)
+        @has_callback_queue()
         def example(self):
             # type: () -> None
             res.append("child")
@@ -66,12 +66,12 @@ def test_has_callback_queue_result():
             # noinspection PyUnresolvedReferences
             Protocol0.SELF.defer(self.notify_test)
 
-        @p0_subject_slot("test", immediate=False)
+        @p0_subject_slot("test")
         def listener_normal(self):
             # type: () -> None
             pass
 
-        @p0_subject_slot("test", immediate=True)
+        @p0_subject_slot("test")
         def listener_sequence(self):
             # type: () -> Sequence
             return Sequence().done()

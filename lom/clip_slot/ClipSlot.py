@@ -122,40 +122,30 @@ class ClipSlot(AbstractObject):
 
     def record(self, bar_length):
         # type: (int) -> Optional[Sequence]
+        seq = Sequence()
+        seq.add(partial(self.fire, bar_length=bar_length))
+        seq.add(lambda: self.clip.fire())
+
+        return seq.done()
+
+    def fire(self, bar_length=None):
+        # type: (Optional[int]) -> Optional[Sequence]
+        if self._clip_slot is None:
+            return None
+
         self.parent.show_message(UtilsManager.get_recording_length_legend(bar_length, False, 0))
 
         seq = Sequence()
         seq.add(self.add_stop_button)
         seq.add(wait=1)  # also necessary so that _has_clip_listener triggers on has_clip == True
 
-        # record_length = self.parent.utilsManager.get_beat_time(bar_length)
-        seq.add(self.fire)
+        seq.add(self._clip_slot.fire)
         # return just before end of recording
         self.parent.log_dev("waiting: %s" % ((bar_length * self.song.signature_numerator) - 0.1))
         seq.add(complete_on=self._has_clip_listener)
         seq.add(wait_beats=(bar_length * self.song.signature_numerator) - 0.1)
         seq.add(lambda: self.parent.log_dev("finished with %s" % self.clip))
-        seq.add(lambda: self.clip.play)
-
-        # seq.add(partial(self.fire, record_length=record_length), complete_on=self._has_clip_listener)
-        # seq.add(complete_on=lambda: self.clip.is_recording_listener, no_timeout=True)
-
-        # seq.add(wait=1)
-        # seq.add(lambda: self.clip.post_record())
-
         return seq.done()
-
-    def fire(self, record_length=None):
-        # type: (Optional[int]) -> None
-        if self._clip_slot is None:
-            return None
-
-        args = {}
-
-        if record_length:
-            args["record_length"] = record_length
-
-        self._clip_slot.fire(**args)
 
     def create_clip(self):
         # type: () -> Optional[Sequence]

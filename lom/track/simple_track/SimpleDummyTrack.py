@@ -91,4 +91,4 @@ class SimpleDummyTrack(SimpleAudioTrack):
 
         clip.show_envelope_parameter(automated_parameter)
         if self.song.is_playing:
-            clip.play()
+            clip.fire()

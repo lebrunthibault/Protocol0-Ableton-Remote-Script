@@ -33,13 +33,12 @@ class CallbackDescriptor(object):
                 Makes the decorator somehow complicated though ^^
     """
 
-    def __init__(self, func, immediate):
-        # type: (Callable, bool) -> None
+    def __init__(self, func):
+        # type: (Callable) -> None
         super(CallbackDescriptor, self).__init__()
         self.__name__ = func.__name__
         self.__doc__ = func.__doc__
         self._func = func  # type: Any
-        self._immediate = immediate
         self._wrapped = None  # type: Optional[Union[Any, CallableWithCallbacks]]
 
     def __repr__(self):
@@ -62,9 +61,7 @@ class CallbackDescriptor(object):
                 # noinspection PyUnresolvedReferences
                 self._wrapped = self._func.__get__(obj)
                 # noinspection PyUnresolvedReferences
-                cwc = CallableWithCallbacks(
-                    cast(Callable, partial(self._wrapped.function.func.original_func, obj)), self._immediate
-                )
+                cwc = CallableWithCallbacks(cast(Callable, partial(self._wrapped.function.func.original_func, obj)))
                 self._wrapped.listener = cwc  # replacing the listener called by Live
                 self._wrapped.function = cwc  # replacing the CallableSlotMixin.function for direct execution
 
@@ -73,18 +70,17 @@ class CallbackDescriptor(object):
                 self._wrapped._callbacks = cwc._callbacks
                 self._wrapped.clear_callbacks = cwc.clear_callbacks  # type: ignore[assignment]
             else:
-                self._wrapped = CallableWithCallbacks(partial(self._func, obj), self._immediate)
+                self._wrapped = CallableWithCallbacks(partial(self._func, obj))
 
             obj.__dict__[id(self)] = self._wrapped  # caching self._wrapped
             return self._wrapped  # Outer most function replacing the decorated method
 
 
 class CallableWithCallbacks(object):
-    def __init__(self, function, immediate):
-        # type: (Callable, bool) -> None
+    def __init__(self, function):
+        # type: (Callable) -> None
         super(CallableWithCallbacks, self).__init__()
         self._function = function  # type: Any
-        self._immediate = immediate
         self._callbacks = deque()  # type: Deque[Callable]
 
     def __repr__(self):
@@ -131,7 +127,8 @@ class CallableWithCallbacks(object):
             return
         from protocol0 import Protocol0
 
-        Protocol0.SELF.wait(0 if self._immediate else 1, self._execute_callbacks)
+        # defer mitigates the "Changes cannot be triggered by notification" error
+        Protocol0.SELF.defer(self._execute_callbacks)
 
     def _execute_callbacks(self):
         # type: () -> None

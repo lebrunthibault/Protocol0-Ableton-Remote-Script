@@ -136,9 +136,12 @@ class ExternalSynthTrackActionMixin(object):
             audio_tail_clip_slot = self.audio_tail_track.clip_slots[self.next_empty_clip_slot_index]
             record_step.append(partial(audio_tail_clip_slot.record, bar_length=recording_bar_length))
             if recording_bar_length:  # and not unlimited
-
-                self._stop_midi_input_to_record_clip_tail(midi_clip_slot=midi_clip_slot,
-                                                          bar_length=recording_bar_length)
+                midi_seq = Sequence()
+                midi_seq.add(record_step[0])
+                midi_seq.add(self.midi_track.stop_midi_input_until_play)
+                record_step[0] = midi_seq
+                # self._stop_midi_input_to_record_clip_tail(midi_clip_slot=midi_clip_slot,
+                #                                           bar_length=recording_bar_length)
 
         seq.add(record_step)
         seq.add(self.song.selected_scene.fire)
@@ -173,8 +176,8 @@ class ExternalSynthTrackActionMixin(object):
             seq.add(audio_tail_clip_slot.add_stop_button)
 
             if self.record_clip_tails:
-                self._stop_midi_input_to_record_clip_tail(midi_clip_slot=midi_clip.clip_slot,
-                                                          bar_length=midi_clip.bar_length)
+                self._stop_midi_input(midi_clip_slot=midi_clip.clip_slot,
+                                      bar_length=midi_clip.bar_length)
 
         clip_slots = [audio_clip_slot] + [audio_tail_clip_slot] if audio_tail_clip_slot else []
         seq.add([cs.add_stop_button for cs in clip_slots])
@@ -208,17 +211,14 @@ class ExternalSynthTrackActionMixin(object):
 
         return seq.done()
 
-    def _stop_midi_input_to_record_clip_tail(self, midi_clip_slot, bar_length):
-        # type: (ExternalSynthTrack, MidiClipSlot, int) -> Sequence
+    def _stop_midi_input(self, midi_clip_slot):
+        # type: (ExternalSynthTrack, MidiClipSlot) -> Sequence
         """ Just before the very end of the midi clip we temporarily disable midi input and stop the midi clip """
         seq = Sequence()
-        if not midi_clip_slot.clip:
-            seq.add(complete_on=midi_clip_slot._has_clip_listener)
-        seq.add(wait_beats=(bar_length * self.song.signature_numerator) - 0.1)
         input_routing_type = self.midi_track.input_routing_type
         seq.add(partial(setattr, self.midi_track, "input_routing_type", InputRoutingTypeEnum.NO_INPUT))
-        seq.add(lambda: midi_clip_slot.clip.stop())
-        seq.add(complete_on=self.song.selected_scene.is_triggered_listener)
+        seq.add(midi_clip_slot.clip.stop)
+        seq.add(complete_on=self.song.selected_scene.is_triggered_listener, no_timeout=True)
         seq.add(partial(setattr, self.midi_track, "input_routing_type", input_routing_type))
         return seq.done()
 
