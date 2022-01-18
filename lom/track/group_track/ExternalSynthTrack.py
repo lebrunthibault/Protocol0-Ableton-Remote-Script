@@ -183,14 +183,6 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
             sub_track.solo = solo
 
     @property
-    def next_empty_clip_slot_index(self):
-        # type: () -> Optional[int]
-        for i in range(self.song.selected_scene.index, len(self.song.scenes)):
-            if not self.midi_track.clip_slots[i].clip and not self.audio_track.clip_slots[i].clip:
-                return i
-        return None
-
-    @property
     def color(self):
         # type: () -> int
         return self.base_track.color

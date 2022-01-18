@@ -51,10 +51,7 @@ class ClipActionMixin(object):
         if not self._clip or self.deleted:  # type: ignore[has-type]
             return None
         self.deleted = True
-        seq = Sequence()
-        seq.add(self.clip_slot.delete_clip, complete_on=self.clip_slot._has_clip_listener)
-        seq.add(wait=1)
-        return seq.done()
+        return self.clip_slot.delete_clip()
 
     def quantize(self, depth=1):
         # type: (Clip, float) -> None
@@ -112,4 +109,3 @@ class ClipActionMixin(object):
         # type: (Clip) -> None
         """ overridden """
         self.clip_name.update(base_name="")
-

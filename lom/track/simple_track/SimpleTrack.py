@@ -108,7 +108,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             device.disconnect()
 
         self.devices = [Device.make(device, self) for device in self._track.devices]
-        self.all_devices = self.find_all_devices(self.base_track)
+        self.all_devices = self.parent.deviceManager.find_all_devices(self.base_track)
 
         # noinspection PyUnresolvedReferences
         self.notify_devices()
@@ -220,6 +220,11 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             self._track.view.device_insert_mode = device_insert_mode
 
     @property
+    def playable_clip_slot(self):
+        # type: () -> ClipSlot
+        return self.clip_slots[self.song.selected_scene.index]
+
+    @property
     def playable_clip(self):
         # type: () -> Optional[Clip]
         return self.clip_slots[self.song.selected_scene.index].clip
@@ -235,15 +240,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             return device
         else:
             return None
-
-    @property
-    def next_empty_clip_slot_index(self):
-        # type: () -> Optional[int]
-        for i in range(self.song.selected_scene.index, len(self.song.scenes)):
-            if not self.clip_slots[i].clip:
-                return i
-
-        return None
 
     def disconnect(self):
         # type: () -> None

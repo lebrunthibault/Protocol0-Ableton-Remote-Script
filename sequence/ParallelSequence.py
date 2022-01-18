@@ -1,5 +1,3 @@
-from typing import Any
-
 from _Framework.SubjectSlot import subject_slot_group
 from protocol0.sequence.Sequence import Sequence
 from protocol0.sequence.SequenceStep import SequenceStep
@@ -8,9 +6,9 @@ from protocol0.sequence.SequenceStep import SequenceStep
 class ParallelSequence(Sequence):
     """ executes steps in parallel """
 
-    def __init__(self, *a, **k):
-        # type: (Any, Any) -> None
-        super(ParallelSequence, self).__init__(*a, **k)
+    def __init__(self):
+        # type: () -> None
+        super(ParallelSequence, self).__init__()
         self._steps_terminated_count = 0
 
     def _on_start(self):

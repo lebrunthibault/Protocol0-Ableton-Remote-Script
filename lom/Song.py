@@ -21,7 +21,6 @@ from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrac
 from protocol0.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
 from protocol0.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.decorators import p0_subject_slot, debounce
 from protocol0.utils.utils import find_if
 
@@ -79,8 +78,7 @@ class Song(SongActionMixin, AbstractObject):
         if Config.CURRENT_RECORD_TYPE is not None or SessionToArrangementManager.IS_BOUNCING:
             return
         # launch selected scene by clicking on play song
-        if not self.selected_scene.has_playing_clips and self.application.session_view_active:
-            self.stop_playing()
+        if self.application.session_view_active and not self.selected_scene.has_playing_clips:
             self.selected_scene.fire()
 
     @p0_subject_slot("record_mode")
@@ -381,14 +379,6 @@ class Song(SongActionMixin, AbstractObject):
     def session_record(self, session_record):
         # type: (bool) -> None
         self._song.session_record = session_record
-
-    def global_record(self):
-        # type: () -> Sequence
-        seq = Sequence()
-        self.record_mode = True
-        seq.add(wait=1)
-        seq.add(complete_on=self._record_mode_listener, no_timeout=True)
-        return seq.done()
 
     @property
     def record_mode(self):

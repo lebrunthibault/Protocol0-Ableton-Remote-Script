@@ -29,7 +29,7 @@ def test_parallel_listeners():
         def callback_listener(self):
             # type: () -> Sequence
             # noinspection PyShadowingNames
-            seq = Sequence(silent=True)
+            seq = Sequence()
 
             self.test_res.append(self.val)
             seq.add(wait=1)
@@ -41,7 +41,7 @@ def test_parallel_listeners():
         def subject_slot_listener(self):
             # type: () -> Sequence
             # noinspection PyShadowingNames
-            seq = Sequence(silent=True)
+            seq = Sequence()
 
             self.test_res.append(self.val)
             seq.add(wait=1)
@@ -57,7 +57,7 @@ def test_parallel_listeners():
         # type: () -> None
         assert test_res_callbacks == [0, 2, 1, 3]
 
-    seq = Sequence(silent=True)
+    seq = Sequence()
     seq.add([obj1.callback_listener, obj2.callback_listener])
     seq.add(check_res)
     seq.done()
@@ -72,7 +72,7 @@ def test_parallel_listeners():
         # type: () -> None
         assert test_res_subject_slot == [0, 2, 1, 3] or test_res_subject_slot == [0, 2, 3, 1]
 
-    seq = Sequence(silent=True)
+    seq = Sequence()
     p0.defer(obj1.test)
     p0.defer(obj2.test)
     seq.add([obj1.subject_slot_listener.listener, obj2.subject_slot_listener.listener])

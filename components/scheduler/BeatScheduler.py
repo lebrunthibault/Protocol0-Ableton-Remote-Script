@@ -1,7 +1,7 @@
 from typing import Callable, Any
 
 from protocol0.components.scheduler.SyncedScheduler import SyncedScheduler
-from protocol0.errors.Protocol0Error import Protocol0Error
+from protocol0.errors.Protocol0Warning import Protocol0Warning
 from protocol0.lom.AbstractObject import AbstractObject
 
 
@@ -28,7 +28,7 @@ class BeatScheduler(AbstractObject, SyncedScheduler):
     def _check_song_is_playing(self):
         # type: () -> None
         if not self.song.is_playing:
-            raise Protocol0Error("Called wait_beat but song is not playing")
+            raise Protocol0Warning("Called wait_beat but song is not playing")
 
     def clear_scheduler(self):
         # type: () -> None

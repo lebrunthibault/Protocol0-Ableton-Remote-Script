@@ -2,9 +2,7 @@ from functools import partial
 
 from typing import TYPE_CHECKING, Any, Optional, NoReturn
 
-from protocol0.config import Config
 from protocol0.enums.DeviceEnum import DeviceEnum
-from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.errors.InvalidTrackException import InvalidTrackException
 from protocol0.sequence.Sequence import Sequence
 
@@ -12,7 +10,7 @@ if TYPE_CHECKING:
     from protocol0.lom.track.AbstractTrack import AbstractTrack
 
 
-# noinspection PyTypeHints,PyAttributeOutsideInit
+# noinspection PyTypeHints,PyAttributeOutsideInit,DuplicatedCode
 class AbstractTrackActionMixin(object):
     # noinspection PyUnusedLocal
     def select(self):
@@ -102,135 +100,6 @@ class AbstractTrackActionMixin(object):
     def switch_monitoring(self):
         # type: (AbstractTrack) -> NoReturn
         self.parent.show_message("%s cannot switch monitoring" % self)
-
-    def record(self, record_type):
-        # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
-        seq = Sequence()
-        if not self.is_armed:
-            if len(self.song.armed_tracks) != 0:
-                options = ["Arm current track", "Record on armed track"]
-                seq.select("The current track is not armed", options=options)
-                seq.add(lambda: self.arm() if seq.res == options[0] else self.song.armed_tracks[0].select())
-            else:
-                seq.add(self.arm)
-
-        seq.add(self.song.check_midi_recording_quantization)
-
-        seq.add(partial(self.session_record, record_type=record_type))
-        return seq.done()
-
-    def session_record(self, record_type):
-        # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
-        if self.is_record_triggered and Config.CURRENT_RECORD_TYPE is not None:
-            return self._cancel_record()
-        Config.CURRENT_RECORD_TYPE = record_type
-
-        seq = Sequence()
-        seq.add(partial(self._pre_session_record, record_type))
-        seq.add(partial(self._launch_count_in, record_type))
-
-        if record_type == RecordTypeEnum.NORMAL:
-            seq.add(self._session_record_all)
-        elif record_type == RecordTypeEnum.AUDIO_ONLY:
-            seq.add(self._session_record_audio_only)
-
-        seq.add(partial(self.post_session_record, record_type))
-
-        return seq.done()
-
-    def _session_record_all(self):
-        # type: (AbstractTrack) -> Sequence
-        """ this records normally on a simple track and both midi and audio on a group track """
-        raise NotImplementedError
-
-    def _session_record_audio_only(self):
-        # type: (AbstractTrack) -> None
-        """ overridden """
-        self.parent.log_error("session_record_audio_only not available on this track")
-        return None
-
-    def _pre_session_record(self, record_type):
-        # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
-        """ restart audio to get a count in and recfix"""
-        if not self.is_armed:
-            self.parent.log_error("%s is not armed for recording" % self)
-            return None
-
-        self.song.record_mode = False
-        self.song.session_automation_record = True
-
-        seq = Sequence()
-        if record_type == RecordTypeEnum.NORMAL:
-            if self.next_empty_clip_slot_index is None:
-                seq.add(self.song.create_scene)
-                seq.add(self.arm_track)
-                seq.add(partial(self._pre_session_record, record_type))
-            elif self.next_empty_clip_slot_index != self.song.selected_scene.index:
-                seq.add(self.song.scenes[self.next_empty_clip_slot_index].select)
-
-        return seq.done()
-
-    def _launch_count_in(self, record_type):
-        # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
-        self.song.metronome = True
-
-        if record_type == RecordTypeEnum.AUDIO_ONLY:
-            return None
-
-        self.song.stop_playing()
-        assert self.next_empty_clip_slot_index is not None
-        recording_scene = self.song.scenes[self.next_empty_clip_slot_index]
-        self.song.stop_all_clips(quantized=False)  # stopping previous scene clips
-        # solo for count in
-        self.solo = True
-        self.song.is_playing = True
-        self.parent.wait_bars(1, partial(setattr, self, "solo", False))
-
-        if recording_scene.length:
-            seq = Sequence()
-            seq.add(wait=1)
-            seq.add(recording_scene.fire)
-            return seq.done()
-        else:
-            return None
-
-    def _cancel_record(self):
-        # type: (AbstractTrack) -> Sequence
-        self.parent.clear_tasks()
-        seq = Sequence()
-        seq.add(partial(self.delete_playable_clip))
-        seq.add(partial(self.stop, immediate=True))
-        seq.add(partial(self.post_session_record, Config.CURRENT_RECORD_TYPE))
-        seq.add(self.song.stop_playing)
-        return seq.done()
-
-    def post_session_record(self):
-        # type: (AbstractTrack) -> None
-        """ overridden """
-        self.has_monitor_in = False
-        self.solo = False
-
-        Config.CURRENT_RECORD_TYPE = None
-
-    def delete_playable_clip(self):
-        # type: (AbstractTrack) -> Sequence
-        """ overridden """
-        seq = Sequence()
-        if self.base_track.playable_clip:
-            seq.add(self.base_track.playable_clip.delete)
-        return seq.done()
-
-    def play(self):
-        # type: (AbstractTrack) -> None
-        from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
-
-        if self.is_foldable:
-            for sub_track in self.sub_tracks:
-                sub_track.play()
-        elif isinstance(self, SimpleTrack) and self.playable_clip:
-            self.playable_clip.fire()
-            if not self.playable_clip.is_recording:
-                self.playable_clip.start_marker = self.song.selected_scene.playing_position
 
     def stop(self, immediate=False):
         # type: (AbstractTrack, bool) -> None

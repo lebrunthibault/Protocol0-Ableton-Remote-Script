@@ -93,11 +93,6 @@ class SyncedScheduler(ClyphXComponentBase):
                     schedule(k)
                     del self._pending_action_list[k]
 
-    def _on_beat_changed(self):
-        # type: () -> None
-        if self.song.playing_scene and self.song.playing_scene.has_playing_clips:
-            self.song.playing_scene.on_beat_changed()
-
     def disconnect(self):
         # type: () -> None
         super(SyncedScheduler, self).disconnect()

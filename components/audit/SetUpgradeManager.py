@@ -45,8 +45,9 @@ class SetUpgradeManager(AbstractControlSurfaceComponent):
         seq = Sequence()
         seq.prompt("Add clip tail track to %s external synth tracks?" % len(tracks))
         for track in tracks:
-            seq.add(track.create_tail_track)
-            seq.add(wait=10)
+            if track.audio_tail_track is None:
+                seq.add(track.create_tail_track)
+                seq.add(wait=10)
         return seq.done()
 
     def delete_unnecessary_devices(self, full_scan=False):

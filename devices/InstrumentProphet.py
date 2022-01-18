@@ -64,7 +64,7 @@ class InstrumentProphet(AbstractExternalSynthTrackInstrument):
             prophet_track.instrument.device.device_on = InstrumentProphet.EDITOR_DEVICE_ON
 
     def activate_editor_automation(self):
-        # type: () -> Sequence()
+        # type: () -> Sequence
         seq = Sequence()
         if self and self.device and InstrumentProphet.EDITOR_DEVICE_ON is False:
             self.device.device_on = True

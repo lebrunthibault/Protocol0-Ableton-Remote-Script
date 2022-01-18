@@ -9,8 +9,6 @@ from protocol0.utils.decorators import p0_subject_slot
 
 
 class AudioTailClipSlot(AudioClipSlot):
-    __subject_events__ = ("is_silent",)
-
     CLIP_CLASS = AudioTailClip
 
     def __init__(self, *a, **k):

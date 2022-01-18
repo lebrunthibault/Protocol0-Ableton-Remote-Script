@@ -7,7 +7,7 @@ from protocol0.utils.utils import nop
 
 def test_sanity_checks():
     # type: () -> None
-    seq = Sequence(silent=True)
+    seq = Sequence()
     seq.add([])
     seq.done()
     assert seq.terminated
@@ -16,13 +16,10 @@ def test_sanity_checks():
         seq.add(wait=1)
 
     with pytest.raises(Exception):
-        Sequence(silent=True).done().done()
+        Sequence().add(wait=1, complete_on=lambda: True).done()
 
     with pytest.raises(Exception):
-        Sequence(silent=True).add(wait=1, complete_on=lambda: True).done()
-
-    with pytest.raises(Exception):
-        Sequence(silent=True).add(wait_for_system=True, wait=1).done()
+        Sequence().add(wait_for_system=True, wait=1).done()
 
 
 def test_async_callback_execution_order():
@@ -35,7 +32,7 @@ def test_async_callback_execution_order():
         def listener(self):
             # type: () -> Sequence
             # noinspection PyShadowingNames
-            seq = Sequence(silent=True)
+            seq = Sequence()
             seq.add(lambda: test_res.append(0), name="append 0")
             seq.add(wait=1)
             seq.add(lambda: test_res.append(1), name="append 1")

@@ -3,6 +3,8 @@ from functools import partial
 
 from typing import Callable, Deque, Optional, Any, cast, Type, Union
 
+from protocol0.config import Config
+from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.enums.SongLoadStateEnum import SongLoadStateEnum
 from protocol0.utils.utils import get_callable_repr
 
@@ -127,8 +129,11 @@ class CallableWithCallbacks(object):
             return
         from protocol0 import Protocol0
 
-        # defer mitigates the "Changes cannot be triggered by notification" error
-        Protocol0.SELF.defer(self._execute_callbacks)
+        if Config.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.TEST:
+            self._execute_callbacks()
+        else:
+            # defer mitigates the "Changes cannot be triggered by notification" error
+            Protocol0.SELF.defer(self._execute_callbacks)
 
     def _execute_callbacks(self):
         # type: () -> None

@@ -2,7 +2,6 @@ from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.enums.DeviceEnum import DeviceEnum
 from protocol0.enums.InputRoutingChannelEnum import InputRoutingChannelEnum
 from protocol0.enums.InputRoutingTypeEnum import InputRoutingTypeEnum
-from protocol0.sequence.Sequence import Sequence
 
 
 class AbstractExternalSynthTrackInstrument(AbstractInstrument):
@@ -15,6 +14,6 @@ class AbstractExternalSynthTrackInstrument(AbstractInstrument):
     EXTERNAL_INSTRUMENT_DEVICE_HARDWARE_LATENCY = 0  # type: float
 
     def activate_editor_automation(self):
-        # type: () -> Sequence()
+        # type: () -> None
         """ overridden by InstrumentProphet"""
         pass

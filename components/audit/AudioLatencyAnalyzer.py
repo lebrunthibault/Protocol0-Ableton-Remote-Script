@@ -70,7 +70,8 @@ class AudioLatencyAnalyzer(AbstractControlSurfaceComponent):
         current_track = cast(ExternalSynthTrack, self.song.current_track)
         seq = Sequence()
         seq.add(partial(setattr, current_track, "mute", True))
-        seq.add(partial(current_track.session_record, record_type=RecordTypeEnum.AUDIO_ONLY))
+        seq.add(partial(self.parent.trackRecorderManager.record_track, current_track,
+                        RecordTypeEnum.AUDIO_ONLY))
         seq.add(lambda: current_track.audio_track.clips[0].select())
         seq.add(wait=10)
         return seq.done()

@@ -56,7 +56,7 @@ class ErrorManager(AbstractControlSurfaceComponent):
         show = [fs for fs in extract_tb(tb) if self._check_file(fs[0])]
         error_message = "----- %s (%s) -----\n" % (exc_value, exc_type)
         if context:
-            error_message += (context + "\n")
+            error_message += (str(context) + "\n")
         error_message += "at " + "".join(self._format_list(show[-1:], print_line=False)).strip()
         error_message += "\n\n"
         error_message += "----- traceback -----\n"

@@ -8,7 +8,7 @@ from protocol0.tests.fixtures.song_view import AbletonSongView
 
 
 class AbletonSong(Subject):
-    __subject_events__ = ("is_playing", "record_mode", "tempo", "midi_recording_quantization")
+    __subject_events__ = ("is_playing", "record_mode", "tempo", "midi_recording_quantization", "re_enable_automation_enabled")
 
     def __init__(self, tracks, view):
         # type: (List[AbletonTrack], AbletonSongView) -> None

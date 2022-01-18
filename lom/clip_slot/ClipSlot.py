@@ -3,7 +3,6 @@ from functools import partial
 from typing import Any, TYPE_CHECKING, Optional
 
 import Live
-from protocol0.components.UtilsManager import UtilsManager
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.clip.Clip import Clip
 from protocol0.sequence.Sequence import Sequence
@@ -14,7 +13,7 @@ if TYPE_CHECKING:
 
 
 class ClipSlot(AbstractObject):
-    __subject_events__ = ("has_clip", "is_triggered", "recording_ended")
+    __subject_events__ = ("has_clip", "is_triggered", "recording_ended", "is_silent")
 
     CLIP_CLASS = Clip
 
@@ -23,8 +22,9 @@ class ClipSlot(AbstractObject):
         super(ClipSlot, self).__init__(*a, **k)
         self._clip_slot = clip_slot
         self.track = track
-        self._has_clip_listener.subject = self._clip_slot
+        self.has_clip_listener.subject = self._clip_slot
         self._is_triggered_listener.subject = self._clip_slot
+        self.recording_ended_listener.subject = self
         self.clip = None  # type: Optional[Clip]
         self._map_clip()
 
@@ -47,7 +47,7 @@ class ClipSlot(AbstractObject):
         return track.CLIP_SLOT_CLASS(clip_slot=clip_slot, track=track)
 
     @p0_subject_slot("has_clip")
-    def _has_clip_listener(self):
+    def has_clip_listener(self):
         # type: () -> None
         if self.clip:
             self.clip.disconnect()
@@ -69,6 +69,11 @@ class ClipSlot(AbstractObject):
         # type: () -> None
         # noinspection PyUnresolvedReferences
         self.notify_is_triggered()
+
+    @p0_subject_slot("recording_ended")
+    def recording_ended_listener(self):
+        # type: () -> None
+        pass
 
     def refresh_appearance(self):
         # type: () -> None
@@ -101,9 +106,12 @@ class ClipSlot(AbstractObject):
         return seq.done()
 
     def delete_clip(self):
-        # type: () -> None
-        if self._clip_slot and self._clip_slot.has_clip:
-            self._clip_slot.delete_clip()
+        # type: () -> Sequence
+        seq = Sequence()
+        if self._clip_slot and self.clip:
+            seq.add(self._clip_slot.delete_clip, complete_on=self.has_clip_listener)
+            seq.add(wait=1)
+        return seq.done()
 
     @property
     def index(self):
@@ -123,17 +131,19 @@ class ClipSlot(AbstractObject):
     def record(self, bar_length):
         # type: (int) -> Optional[Sequence]
         seq = Sequence()
+        if self.clip:
+            seq.add(self.clip.delete)
         seq.add(partial(self.fire, bar_length=bar_length))
         seq.add(lambda: self.clip.fire())
+        # noinspection PyUnresolvedReferences
+        seq.add(self.notify_recording_ended)
 
         return seq.done()
 
-    def fire(self, bar_length=None):
-        # type: (Optional[int]) -> Optional[Sequence]
+    def fire(self, bar_length):
+        # type: (int) -> Optional[Sequence]
         if self._clip_slot is None:
             return None
-
-        self.parent.show_message(UtilsManager.get_recording_length_legend(bar_length, False, 0))
 
         seq = Sequence()
         seq.add(self.add_stop_button)
@@ -141,10 +151,8 @@ class ClipSlot(AbstractObject):
 
         seq.add(self._clip_slot.fire)
         # return just before end of recording
-        self.parent.log_dev("waiting: %s" % ((bar_length * self.song.signature_numerator) - 0.1))
-        seq.add(complete_on=self._has_clip_listener)
-        seq.add(wait_beats=(bar_length * self.song.signature_numerator) - 0.1)
-        seq.add(lambda: self.parent.log_dev("finished with %s" % self.clip))
+        seq.add(complete_on=self.has_clip_listener)
+        seq.add(wait_beats=(bar_length * self.song.signature_numerator) - 0.2)
         return seq.done()
 
     def create_clip(self):
@@ -158,7 +166,7 @@ class ClipSlot(AbstractObject):
 
         seq = Sequence()
         seq.add(partial(self._clip_slot.create_clip, self.song.signature_numerator),
-                complete_on=self._has_clip_listener)
+                complete_on=self.has_clip_listener)
         seq.add(lambda: self.clip.clip_name._name_listener())
         return seq.done()
 
@@ -168,7 +176,7 @@ class ClipSlot(AbstractObject):
         if self._clip_slot:
             seq.add(
                 partial(self._clip_slot.duplicate_clip_to, clip_slot._clip_slot),
-                complete_on=clip_slot._has_clip_listener,
+                complete_on=clip_slot.has_clip_listener,
             )
         return seq.done()
 

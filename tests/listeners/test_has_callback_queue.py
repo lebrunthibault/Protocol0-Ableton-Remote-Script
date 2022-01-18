@@ -112,7 +112,7 @@ def test_async_callback():
         def callback_listener(self):
             # type: () -> Sequence
             # noinspection PyShadowingNames
-            seq = Sequence(silent=True)
+            seq = Sequence()
 
             self.test_res.append(self.val)
             seq.add(wait=1)
@@ -128,7 +128,7 @@ def test_async_callback():
         # type: () -> None
         assert test_res_callbacks == [0, 1, 2, 3]
 
-    seq = Sequence(silent=True)
+    seq = Sequence()
     seq.add(obj1.callback_listener)  # type: ignore[arg-type]
     seq.add(obj2.callback_listener)  # type: ignore[arg-type]
     seq.add(check_res)

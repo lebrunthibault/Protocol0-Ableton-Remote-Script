@@ -1,4 +1,3 @@
-from abc import abstractproperty
 from functools import partial
 
 from typing import Any, Optional, List, Type
@@ -224,12 +223,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         # type: () -> List[Clip]
         return [clip_slot.clip for clip_slot in self.base_track.clip_slots if clip_slot.has_clip and clip_slot.clip]
 
-    # noinspection PyDeprecation
-    @abstractproperty
-    def next_empty_clip_slot_index(self):
-        # type: () -> Optional[int]
-        raise NotImplementedError
-
     @property
     def is_visible(self):
         # type: () -> bool
@@ -250,12 +243,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def is_playing(self):
         # type: () -> bool
         return self.base_track.is_playing or any(sub_track.is_playing for sub_track in self.sub_tracks)
-
-    @property
-    def is_record_triggered(self):
-        # type: () -> bool
-        return self.base_track.fired_slot_index >= 0 or any(clip for clip in self.clips if clip.is_recording) or any(
-            sub_track for sub_track in self.sub_tracks if sub_track.is_record_triggered)
 
     @property
     def mute(self):

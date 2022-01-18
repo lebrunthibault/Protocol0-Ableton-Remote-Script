@@ -1,11 +1,13 @@
 from functools import partial
+from itertools import chain, imap
 
-from typing import Optional, Tuple, Dict, Type, cast, List
+from typing import Optional, Tuple, Dict, Type, cast, List, Union
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.lom.device.Device import Device
+from protocol0.lom.device.DeviceChain import DeviceChain
 from protocol0.lom.device.RackDevice import RackDevice
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.sequence.Sequence import Sequence
@@ -170,3 +172,26 @@ class DeviceManager(AbstractControlSurfaceComponent):
                 return rack_device
 
         raise Protocol0Error("Couldn't find device %s (may be too nested to be detected)" % device.name)
+
+    def find_all_devices(self, track_or_chain, only_visible=False):
+        # type: (Optional[Union[SimpleTrack, DeviceChain]], bool) -> List[Device]
+        u""" Returns a list with all devices from a track or chain """
+        devices = []
+        if track_or_chain is None:
+            return []
+        for device in filter(None, track_or_chain.devices):  # type: Device
+            if not isinstance(device, RackDevice):
+                devices += [device]
+                continue
+
+            if device.can_have_drum_pads and device.can_have_chains:
+                devices += chain([device], self.find_all_devices(device.selected_chain))
+            elif not device.can_have_drum_pads and isinstance(device, RackDevice):
+                devices += chain(
+                    [device],
+                    *imap(
+                        partial(self.find_all_devices, only_visible=only_visible),
+                        filter(None, device.chains),
+                    )
+                )
+        return devices

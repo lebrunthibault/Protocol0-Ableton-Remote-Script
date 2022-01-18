@@ -20,12 +20,12 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
 
     RUNNING_SEQUENCES = []  # type: List[Sequence]
 
-    def __init__(self, *a, **k):
-        # type: (Any, Any) -> None
-        super(Sequence, self).__init__(*a, **k)
+    def __init__(self):
+        # type: () -> None
+        super(Sequence, self).__init__()
 
         self._steps = deque()  # type: Deque[SequenceStep]
-        self._current_step = None  # type: Optional[SequenceStep]s
+        self._current_step = None  # type: Optional[SequenceStep]
         self.res = None  # type: Optional[Any]
         frame_info = get_frame_info(2)
         if frame_info:
