@@ -8,7 +8,7 @@ from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.track.AbstractTrack import AbstractTrack
 from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
-from protocol0.recorder.track_recorder_factory import TrackRecorderFactory
+from protocol0.recorder.track_recorder_factory.abstract_track_recorder_factory import AbstractTrackRecorderFactory
 from protocol0.recorder.track_recorder_interface import TrackRecorderInterface
 from protocol0.sequence.Sequence import Sequence
 
@@ -32,7 +32,7 @@ class TrackRecorderManager(AbstractControlSurfaceComponent):
             self._cancel_record()
             return None
 
-        self.recorder = TrackRecorderFactory.create_recorder(track=track, record_type=record_type, bar_length=InterfaceState.SELECTED_RECORDING_BAR_LENGTH)
+        self.recorder = AbstractTrackRecorderFactory.create_track_recorder(track=track, record_type=record_type, bar_length=InterfaceState.SELECTED_RECORDING_BAR_LENGTH)
 
         bar_length = InterfaceState.SELECTED_RECORDING_BAR_LENGTH.int_value
         if record_type == RecordTypeEnum.AUDIO_ONLY and isinstance(track, ExternalSynthTrack):

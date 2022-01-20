@@ -1,6 +1,6 @@
 from functools import partial
 
-from protocol0.recorder.decorators.track_recorder_decorator import TrackRecorderDecorator
+from protocol0.recorder.track_recorder_decorator.track_recorder_decorator import TrackRecorderDecorator
 from protocol0.sequence.Sequence import Sequence
 
 

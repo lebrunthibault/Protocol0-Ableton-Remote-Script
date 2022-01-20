@@ -6,7 +6,7 @@ from typing import Iterator
 from protocol0.lom.clip.AudioClip import AudioClip
 from protocol0.lom.clip.MidiClip import MidiClip
 from protocol0.lom.clip_slot.AudioClipSlot import AudioClipSlot
-from protocol0.recorder.decorators.external_synth.abstract_track_recorder_external_synth_decorator import \
+from protocol0.recorder.track_recorder_decorator.external_synth.abstract_track_recorder_external_synth_decorator import \
     AbstractTrackRecorderExternalSynthDecorator
 from protocol0.sequence.Sequence import Sequence
 
