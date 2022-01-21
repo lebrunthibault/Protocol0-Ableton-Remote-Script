@@ -1,9 +1,9 @@
-from protocol0.recorder.track_recorder_decorator.track_recorder_decorator import TrackRecorderDecorator
+from protocol0.track_recorder.decorator.track_recorder_decorator import TrackRecorderDecorator
 from protocol0.sequence.Sequence import Sequence
 
 
 class TrackRecorderCountInShortDecorator(TrackRecorderDecorator):
-    def pre_record(self):
+    def _pre_record(self):
         # type: () -> Sequence
         seq = Sequence()
         seq.add(self._launch_count_in)

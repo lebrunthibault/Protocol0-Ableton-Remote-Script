@@ -6,7 +6,7 @@ from typing import Iterator
 from protocol0.lom.clip.AudioClip import AudioClip
 from protocol0.lom.clip.MidiClip import MidiClip
 from protocol0.lom.clip_slot.AudioClipSlot import AudioClipSlot
-from protocol0.recorder.track_recorder_decorator.external_synth.abstract_track_recorder_external_synth_decorator import \
+from protocol0.track_recorder.decorator.external_synth.abstract_track_recorder_external_synth_decorator import \
     AbstractTrackRecorderExternalSynthDecorator
 from protocol0.sequence.Sequence import Sequence
 
@@ -15,14 +15,13 @@ class TrackRecorderPropagateNewAudioClipDecorator(AbstractTrackRecorderExternalS
     def record(self, bar_length):
         # type: (int) -> Sequence
         seq = Sequence()
-        seq.add(partial(super(TrackRecorderPropagateNewAudioClipDecorator, self).record, bar_length=bar_length))
+        seq.add(partial(super(TrackRecorderPropagateNewAudioClipDecorator, self).record, bar_length))
         seq.add(self._propagate_new_audio_clip)
         return seq.done()
 
-    def _propagate_new_audio_clip(self):
-        # type: () -> None
-        assert self.next_empty_clip_slot_index  # type checking
-        audio_clip_slot = self.track.audio_track.clip_slots[self.next_empty_clip_slot_index]
+    def _propagate_new_audio_clip(self, recording_scene_index):
+        # type: (int) -> None
+        audio_clip_slot = self.track.audio_track.clip_slots[recording_scene_index]
         source_midi_clip = self.track.midi_track.clip_slots[audio_clip_slot.index].clip
         source_audio_clip = self.track.audio_track.clip_slots[audio_clip_slot.index].clip
         if source_midi_clip is None or source_audio_clip is None:

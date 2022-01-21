@@ -136,7 +136,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
             name=None,  # type: str
             wait=0,  # type: int
             wait_beats=0,  # type: float
-            wait_bars=0,  # type: int
+            wait_bars=0,  # type: float
             wait_for_system=False,  # type: bool
             no_cancel=False,  # type: bool
             complete_on=None,  # type: Callable

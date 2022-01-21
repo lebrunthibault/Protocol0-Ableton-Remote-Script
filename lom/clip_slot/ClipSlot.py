@@ -152,7 +152,10 @@ class ClipSlot(AbstractObject):
         seq.add(self._clip_slot.fire)
         # return just before end of recording
         seq.add(complete_on=self.has_clip_listener)
-        seq.add(wait_beats=(bar_length * self.song.signature_numerator) - 0.2)
+        if bar_length:
+            seq.add(wait_beats=(bar_length * self.song.signature_numerator) - 0.2)
+        else:
+            seq.add(lambda: self.clip.is_recording_listener)
         return seq.done()
 
     def create_clip(self):

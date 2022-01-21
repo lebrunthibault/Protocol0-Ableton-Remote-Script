@@ -3,7 +3,6 @@ import traceback
 from typing import Any
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.enums.BarLengthEnum import BarLengthEnum
 
 
 class UtilsManager(AbstractControlSurfaceComponent):
@@ -16,12 +15,12 @@ class UtilsManager(AbstractControlSurfaceComponent):
             return "%d bar%s" % (bar_length, "s" if bar_length > 1 else "")
 
     @classmethod
-    def get_recording_length_legend(cls, bar_length):
+    def get_legend_from_bar_length(cls, bar_length):
         # type: (int) -> str
         if bar_length == 0:
-            return "Starting recording of %s" % BarLengthEnum.UNLIMITED
-
-        return "Starting recording of %d bars" % bar_length
+            return "unlimited bars"
+        else:
+            return "%d bars" % bar_length
 
     def print_stack(self):
         # type: () -> None

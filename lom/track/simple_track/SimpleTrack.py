@@ -6,7 +6,6 @@ import Live
 from protocol0.config import Config
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
-from protocol0.lom.clip.Clip import Clip
 from protocol0.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.lom.device.Device import Device
 from protocol0.lom.device.DeviceParameter import DeviceParameter
@@ -218,16 +217,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # type: (Live.Track.DeviceInsertMode) -> None
         if self._track:
             self._track.view.device_insert_mode = device_insert_mode
-
-    @property
-    def playable_clip_slot(self):
-        # type: () -> ClipSlot
-        return self.clip_slots[self.song.selected_scene.index]
-
-    @property
-    def playable_clip(self):
-        # type: () -> Optional[Clip]
-        return self.clip_slots[self.song.selected_scene.index].clip
 
     @property
     def selected_device(self):

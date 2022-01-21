@@ -2,7 +2,7 @@ from functools import partial
 
 from protocol0.enums.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.lom.clip_slot.MidiClipSlot import MidiClipSlot
-from protocol0.recorder.track_recorder_decorator.external_synth.abstract_track_recorder_external_synth_decorator import \
+from protocol0.track_recorder.decorator.external_synth.abstract_track_recorder_external_synth_decorator import \
     AbstractTrackRecorderExternalSynthDecorator
 from protocol0.sequence.Sequence import Sequence
 
@@ -10,11 +10,10 @@ from protocol0.sequence.Sequence import Sequence
 class TrackRecorderStopMidiInputDecorator(AbstractTrackRecorderExternalSynthDecorator):
     def record(self, bar_length):
         # type: (int) -> Sequence
-        if self.track.record_clip_tails:
-            assert self.next_empty_clip_slot_index  # type checking
-            midi_clip_slot = self.track.midi_track.clip_slots[self.next_empty_clip_slot_index]
+        if self.track.record_clip_tails and bar_length != 0:
+            midi_clip_slot = self.track.midi_track.clip_slots[self.recording_scene_index]
             self._stop_midi_input_until_play(midi_clip_slot=midi_clip_slot)
-        return super(TrackRecorderStopMidiInputDecorator, self).record(bar_length=bar_length)
+        return super(TrackRecorderStopMidiInputDecorator, self).record(bar_length)
 
     def _stop_midi_input_until_play(self, midi_clip_slot):
         # type: (MidiClipSlot) -> None

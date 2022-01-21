@@ -85,7 +85,6 @@ class SongActionMixin(object):
 
     def undo(self):
         # type: (Song) -> None
-        self.metronome = False
         self._song.undo()
 
     def select_track(self, abstract_track):

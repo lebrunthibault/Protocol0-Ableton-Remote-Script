@@ -85,7 +85,6 @@ class MidiClip(Clip):
     def post_record(self):
         # type: () -> None
         super(MidiClip, self).post_record()
-        self.song.metronome = False
         if InterfaceState.SELECTED_RECORDING_BAR_LENGTH == BarLengthEnum.UNLIMITED:
             clip_end = self.end_marker - self.song.signature_numerator
             self.loop_end = clip_end

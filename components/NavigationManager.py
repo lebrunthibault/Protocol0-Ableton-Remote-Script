@@ -43,11 +43,6 @@ class NavigationManager(AbstractControlSurfaceComponent):
         """ Moves the focus to the detail view. """
         self._focus_view("Detail")
 
-    def focus_main(self):
-        # type: () -> None
-        """ Moves the focus to the main focus. """
-        self._app_view.focus_view('')
-
     def _focus_view(self, view):
         # type: (str) -> None
         """ Moves the focus to the given view, showing it first if needed. """
