@@ -11,6 +11,7 @@ class TrackRecorderExternalSynthAudio(AbstractTrackRecorderExternalSynth):
         if not self.track.midi_track[self.song.selected_scene.index].clip:
             raise Protocol0Warning("No midi clip selected")
 
+    @property
     def _recording_tracks(self):
         # type: () -> List[SimpleTrack]
         return filter(None, [self.track.audio_track, self.track.audio_tail_track])

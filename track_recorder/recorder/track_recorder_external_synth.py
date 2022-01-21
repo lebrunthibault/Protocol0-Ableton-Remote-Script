@@ -14,6 +14,7 @@ class TrackRecorderExternalSynth(AbstractTrackRecorderExternalSynth):
         if isinstance(self.track.instrument, InstrumentProphet) and not InstrumentProphet.EDITOR_DEVICE_ON:
             self.parent.defer(self.system.show_plugins)
 
+    @property
     def _recording_tracks(self):
         # type: () -> List[SimpleTrack]
         return filter(None, [self.track.midi_track, self.track.audio_track, self.track.audio_tail_track])

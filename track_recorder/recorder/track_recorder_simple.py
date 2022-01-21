@@ -10,6 +10,7 @@ class TrackRecorderSimple(AbstractTrackRecorder):
         super(TrackRecorderSimple, self).__init__(track=track)
         self.track = track
 
+    @property
     def _recording_tracks(self):
         # type: () -> List[SimpleTrack]
         return [self.track]

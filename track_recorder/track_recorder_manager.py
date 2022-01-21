@@ -47,13 +47,14 @@ class TrackRecorderManager(AbstractControlSurfaceComponent):
         recorder_factory = self.get_track_recorder_factory(track)
 
         recording_scene_index = recorder_factory.get_recording_scene_index(record_type)
+        self.parent.log_dev("recording_scene_index: %s" % recording_scene_index)
         self.recorder = recorder_factory.create_recorder(record_type, recording_scene_index)
         bar_length = recorder_factory.get_recording_bar_length(record_type)
 
         self.parent.show_message("Starting recording of %s" % UtilsManager.get_legend_from_bar_length(bar_length))
 
         seq = Sequence()
-        seq.add(partial(self._start_recording, bar_length, recording_scene_index))
+        seq.add(partial(self._start_recording, bar_length))
         seq.add(partial(setattr, self, "recorder", None))
         return seq.done()
 
