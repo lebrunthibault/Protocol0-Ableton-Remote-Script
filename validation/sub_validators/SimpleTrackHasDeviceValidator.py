@@ -26,7 +26,10 @@ class SimpleTrackHasDeviceValidator(AbstractValidator):
 
     def fix(self):
         # type: () -> Sequence
+        from protocol0 import Protocol0
+
         seq = Sequence()
-        seq.add(partial(self._track.load_device_from_enum, self._device_enum))
+        seq.add(self._track.select)
+        seq.add(partial(Protocol0.SELF.browserManager.load_device_from_enum, self._device_enum))
         seq.add(wait=5)
         return seq.done()

@@ -84,7 +84,6 @@ class SceneActionMixin(object):
         # leveraging throttle to disable the next update (that would be 1 / *)
         seq.add(partial(self.scene_name.update, bar_position=Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION))
         seq.add(self.fire)
-        seq.add(wait=1)
         seq.add(partial(self.jump_to_bar, Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION))
         seq.add(self.song.stop_playing)
         seq.add(partial(setattr, self.song.master_track, "volume", master_volume))
@@ -120,8 +119,6 @@ class SceneActionMixin(object):
         # type: (Scene) -> None
         # playing tails
         for clip in self.audio_tail_clips:
-            if clip.is_playing:
-                return None
             if (self.current_bar + 1) % clip.midi_clip.bar_length != 0:
                 continue
 
@@ -141,8 +138,7 @@ class SceneActionMixin(object):
 
     def delete(self):
         # type: (Scene) -> Optional[Sequence]
-        if self._scene and not self.deleted:  # type: ignore[has-type]
-            self.deleted = True
+        if self._scene:  # type: ignore[has-type]
             return self.song.delete_scene(self.index)
         return None
 

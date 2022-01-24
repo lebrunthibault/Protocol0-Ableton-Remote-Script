@@ -43,11 +43,10 @@ class Song(SongActionMixin, AbstractObject):
 
         self.normal_tempo = self.tempo
         self.song_load_state = SongLoadStateEnum.PRE_LOAD
-        self._is_playing_listener.subject = self._song
+        self.is_playing_listener.subject = self._song
         self._record_mode_listener.subject = self._song
         self.session_end_listener.subject = self
         self._tempo_listener.subject = self._song
-        self._re_enable_automation_enabled_listener.subject = self._song
         self._midi_recording_quantization_listener.subject = self._song
 
     def __call__(self):
@@ -56,7 +55,7 @@ class Song(SongActionMixin, AbstractObject):
         return self.parent.song()
 
     @p0_subject_slot("is_playing")
-    def _is_playing_listener(self):
+    def is_playing_listener(self):
         # type: () -> None
         # deduplicate _is_playing_listener calls with is_playing True
         if self.is_playing == self._is_playing:
@@ -100,14 +99,6 @@ class Song(SongActionMixin, AbstractObject):
         self.midi_recording_quantization_checked = False
         self.parent.songDataManager.save()
         self.parent.defer(partial(setattr, self, "tempo", round(self.tempo)))
-
-    @p0_subject_slot("re_enable_automation_enabled")
-    @debounce(wait_time=100)
-    def _re_enable_automation_enabled_listener(self):
-        # type: () -> None
-        return None
-        # we always need clean recorded automation
-        # self.re_enable_automation()
 
     @p0_subject_slot("midi_recording_quantization")
     @save_song_data

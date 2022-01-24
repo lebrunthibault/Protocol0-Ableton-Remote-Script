@@ -30,7 +30,6 @@ class TrackDataManager(AbstractControlSurfaceComponent):
 
         if isinstance(track, ExternalSynthTrack):
             track.set_data(TrackDataEnum.RECORD_CLIP_TAILS.name, track.record_clip_tails)
-            track.set_data(TrackDataEnum.RECORD_CLIP_TAILS_BAR_LENGTH.name, track.record_clip_tails_bar_length)
 
     def restore_data(self, track):
         # type: (AbstractTrack) -> None
@@ -38,7 +37,6 @@ class TrackDataManager(AbstractControlSurfaceComponent):
 
         if isinstance(track, ExternalSynthTrack) and track.audio_tail_track:
             track.record_clip_tails = track.get_data(TrackDataEnum.RECORD_CLIP_TAILS.name, track.instrument.RECORD_CLIP_TAILS)
-            track.record_clip_tails_bar_length = track.get_data(TrackDataEnum.RECORD_CLIP_TAILS_BAR_LENGTH.name, 1)
 
     def clear(self):
         # type: () -> None

@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING, Optional
 
 import Live
 from protocol0.constants import QUANTIZATION_OPTIONS
-from protocol0.enums.PixelEnum import PixelEnum
 from protocol0.lom.device.DeviceParameter import DeviceParameter
 from protocol0.sequence.Sequence import Sequence
 
@@ -20,8 +19,7 @@ class ClipActionMixin(object):
     @is_playing.setter
     def is_playing(self, is_playing):
         # type: (Clip, bool) -> None
-        if self._clip and is_playing != self.is_playing:
-            # noinspection PyPropertyAccess
+        if self._clip:
             self._clip.is_playing = is_playing
 
     def select(self):
@@ -36,7 +34,7 @@ class ClipActionMixin(object):
         if immediate:
             self.muted = True
             self.muted = False
-            return
+            return None
 
         if self._clip:
             self._clip.stop()
@@ -47,10 +45,7 @@ class ClipActionMixin(object):
             self._clip.fire()
 
     def delete(self):
-        # type: (Clip) -> Optional[Sequence]
-        if not self._clip or self.deleted:  # type: ignore[has-type]
-            return None
-        self.deleted = True
+        # type: (Clip) -> Sequence
         return self.clip_slot.delete_clip()
 
     def quantize(self, depth=1):
@@ -64,22 +59,13 @@ class ClipActionMixin(object):
         # type: (Clip, DeviceParameter) -> Live.Clip.AutomationEnvelope
         return self._clip and self._clip.automation_envelope(parameter._device_parameter)
 
-    def show_envelope_parameter(self, parameter):
-        # type: (Clip, DeviceParameter) -> None
-        self.parent.navigationManager.show_clip_view()
-        self.show_envelope()
-        self.view.select_envelope_parameter(parameter._device_parameter)
-        if self.CLIP_ENVELOPE_SHOW_BOX_CLICKED:
-            self.system.double_click(*PixelEnum.SHOW_CLIP_ENVELOPE.coordinates)
-            self.CLIP_ENVELOPE_SHOW_BOX_CLICKED = True
-        self.displayed_automated_parameter = parameter  # type: Optional[DeviceParameter]
-
     def show_loop(self):
         # type: (Clip) -> None
         self.view.show_loop()
 
     def show_envelope(self):
         # type: (Clip) -> None
+        self.hide_envelope()  # necessary
         self.view.show_envelope()
 
     def hide_envelope(self):

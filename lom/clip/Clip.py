@@ -18,10 +18,6 @@ if TYPE_CHECKING:
 class Clip(ClipActionMixin, AbstractObject):
     __subject_events__ = ("notes", "length")
 
-    # NB: for an unknown reason clip.view.show_envelope does not always show the envelope
-    # when the button was not clicked. As a workaround we click it the first time
-    CLIP_ENVELOPE_SHOW_BOX_CLICKED = False
-
     def __init__(self, clip_slot, *a, **k):
         # type: (ClipSlot, Any, Any) -> None
         super(Clip, self).__init__(*a, **k)
@@ -32,7 +28,6 @@ class Clip(ClipActionMixin, AbstractObject):
         self.track = clip_slot.track  # type: SimpleTrack
 
         # listeners
-        self.is_recording_listener.subject = self._clip
         self._playing_status_listener.subject = self._clip
         self._loop_start_listener.subject = self._clip
         self._loop_end_listener.subject = self._clip
@@ -52,12 +47,6 @@ class Clip(ClipActionMixin, AbstractObject):
     def index(self):
         # type: () -> int
         return self.clip_slot.index
-
-    @p0_subject_slot("is_recording")
-    def is_recording_listener(self):
-        # type: () -> None
-        if not self.is_recording:
-            self.parent.defer(self.post_record)
 
     @p0_subject_slot("playing_status")
     def _playing_status_listener(self):

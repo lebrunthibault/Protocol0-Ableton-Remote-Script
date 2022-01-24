@@ -25,6 +25,7 @@ from protocol0.components.SongDataManager import SongDataManager
 from protocol0.components.SongManager import SongManager
 from protocol0.components.TrackDataManager import TrackDataManager
 from protocol0.components.TrackManager import TrackManager
+from protocol0.components.UIManager import UIManager
 from protocol0.components.UtilsManager import UtilsManager
 from protocol0.components.ValidatorManager import ValidatorManager
 from protocol0.components.action_groups.ActionGroupData import ActionGroupData
@@ -123,6 +124,7 @@ class Protocol0(ControlSurface):
             self.logManager = LogManager()
             self.validatorManager = ValidatorManager()
             self.sessionToArrangementManager = SessionToArrangementManager()
+            self.uiManager = UIManager()
             # return
 
             if Config.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.TEST:

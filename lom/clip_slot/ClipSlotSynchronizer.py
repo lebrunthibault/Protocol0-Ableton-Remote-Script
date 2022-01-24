@@ -6,6 +6,7 @@ from _Framework.CompoundElement import subject_slot_group
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.lom.clip.ClipSynchronizer import ClipSynchronizer
 from protocol0.lom.clip_slot.AudioClipSlot import AudioClipSlot
+from protocol0.lom.clip_slot.AudioTailClipSlot import AudioTailClipSlot
 from protocol0.lom.clip_slot.MidiClipSlot import MidiClipSlot
 
 if TYPE_CHECKING:
@@ -22,7 +23,8 @@ class ClipSlotSynchronizer(AbstractControlSurfaceComponent):
         self.audio_cs = audio_cs
 
         self._has_clip_listener.replace_subjects([midi_cs, audio_cs])
-        self._is_triggered_listener.replace_subjects([midi_cs, audio_cs])
+        if not isinstance(audio_cs, AudioTailClipSlot):
+            self._is_triggered_listener.replace_subjects([midi_cs, audio_cs])
         self._clip_synchronizer = None  # type: Optional[ClipSynchronizer]
         self._init_clip_synchronizer()
 

@@ -82,7 +82,7 @@ class AudioLatencyAnalyzer(AbstractControlSurfaceComponent):
         audio_clip = current_track.audio_track.clips[0]
         seq = Sequence()
         seq.add(partial(audio_clip.quantize, depth=0))
-        seq.add(audio_clip.save_sample)
+        seq.add(self.parent.uiManager.save_clip_sample)
         seq.add(partial(self.system.analyze_test_audio_clip_jitter, clip_path=audio_clip.file_path),
                 wait_for_system=True)
         seq.add(current_track.delete)

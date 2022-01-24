@@ -1,3 +1,5 @@
+from typing import List
+
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.enums.FoldActionEnum import FoldActionEnum
 from protocol0.enums.vocal_command.TrackSearchKeywordEnum import TrackSearchKeywordEnum
@@ -43,10 +45,20 @@ class KeywordSearchManager(AbstractControlSurfaceComponent):
 
     def _check_search_matches_track(self, search, track):
         # type: (str, AbstractTrack) -> bool
-        for track_keyword in track.search_keywords:
+        for track_keyword in self._get_track_keywords(track):
             if search in normalize_string(track_keyword).split(" "):
                 self.parent.log_info("found match for search %s in track %s (track keyword matched: %s)" %
                                      (search, track, track_keyword))
                 return True
 
         return False
+
+    def _get_track_keywords(self, track):
+        # type: (AbstractTrack) -> List[str]
+        keywords = [track.name]
+        if track.instrument:
+            keywords += [track.instrument.name, track.instrument.preset_name]
+            if track.instrument.selected_preset:
+                keywords += [track.instrument.selected_preset.name]
+        unique_keywords = list(set(" ".join(keywords).lower().split(" ")))
+        return [kw for kw in unique_keywords if len(kw) >= 3]

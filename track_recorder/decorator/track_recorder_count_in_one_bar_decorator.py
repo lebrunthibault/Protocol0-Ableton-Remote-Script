@@ -5,10 +5,10 @@ from protocol0.sequence.Sequence import Sequence
 
 
 class TrackRecorderCountInOneBarDecorator(TrackRecorderDecorator):
-    def _pre_record(self):
+    def pre_record(self):
         # type: () -> Sequence
         seq = Sequence()
-        seq.add(super(TrackRecorderCountInOneBarDecorator, self).pre_record)
+        seq.add(self.recorder.pre_record)
         seq.add(self._launch_count_in)
         seq.add(self._stop_count_in)
         return seq.done()

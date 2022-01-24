@@ -94,12 +94,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         for clip_slot in self.clip_slots:
             clip_slot.refresh_appearance()
 
-    def refresh_color(self):
-        # type: (SimpleTrack) -> None
-        super(SimpleTrack, self).refresh_color()
-        for clip in self.clips:
-            clip.color = self.color
-
     @p0_subject_slot("devices")
     def _devices_listener(self):
         # type: () -> None
@@ -145,6 +139,19 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             return True
         else:
             return False
+
+    @property
+    def has_monitor_in(self):
+        # type: () -> bool
+        return self.current_monitoring_state == CurrentMonitoringStateEnum.IN
+
+    @has_monitor_in.setter
+    def has_monitor_in(self, has_monitor_in):
+        # type: (bool) -> None
+        if has_monitor_in:
+            self.current_monitoring_state = CurrentMonitoringStateEnum.IN
+        else:
+            self.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
 
     @property
     def current_monitoring_state(self):

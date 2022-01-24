@@ -3,6 +3,7 @@ from typing import Any, TYPE_CHECKING, Optional
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.clip.AudioClip import AudioClip
 from protocol0.lom.clip.MidiClip import MidiClip
+from protocol0.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
     from protocol0.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
@@ -21,14 +22,44 @@ class AudioTailClip(AudioClip):
         # type: () -> Optional[MidiClip]
         return self.track.abstract_group_track.midi_track.clip_slots[self.index].clip
 
+    @property
+    def loop_end(self):
+        # type: () -> float
+        return super(AudioTailClip, self).loop_end
+
+    # noinspection PyPropertyAccess
+    @loop_end.setter
+    def loop_end(self, loop_end):
+        # type: (float) -> None
+        """ make clip synchronizer work with the clip tail """
+        self.loop_start = loop_end
+
     def post_record(self):
         # type: () -> None
+        super(AudioTailClip, self).post_record()
         bar_length = InterfaceState.SELECTED_RECORDING_BAR_LENGTH.int_value
         if bar_length == 0:
-            return
+            return None
         self.clip_name.update(base_name="")
         clip_end = bar_length * self.song.signature_numerator
 
-        self.start_marker = self.loop_start = clip_end
         self.looping = False
+        self.loop_start = clip_end
         self.muted = True
+
+    def play_and_mute(self):
+        # type: () -> Sequence
+        self.muted = False
+        seq = Sequence()
+        seq.add(wait=1)  # wait for unmute
+        seq.add(self.fire)
+        seq.add(wait_beats=1)
+        seq.add(complete_on=self._playing_status_listener)
+        seq.add(wait=10)
+        seq.add(self._mute_if_stopped)
+        return seq.done()
+
+    def _mute_if_stopped(self):
+        # type: () -> None
+        if not self.is_playing:
+            self.muted = True

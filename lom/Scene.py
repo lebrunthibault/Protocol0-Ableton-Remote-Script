@@ -41,6 +41,7 @@ class Scene(SceneActionMixin, AbstractObject):
 
         # listeners
         self.is_triggered_listener.subject = self._scene
+        self._is_playing_listener.subject = self
 
     @property
     def live_id(self):
@@ -85,7 +86,12 @@ class Scene(SceneActionMixin, AbstractObject):
             self.parent.defer(partial(self._stop_previous_scene, self.song.playing_scene, immediate=True))
         Scene.PLAYING_SCENE = self
         # noinspection PyUnresolvedReferences
-        self.notify_is_playing
+        self.notify_is_playing()
+
+    @p0_subject_slot("is_playing")
+    def _is_playing_listener(self):
+        # type: () -> None
+        pass
 
     @subject_slot_group("has_clip")
     def _clip_slots_has_clip_listener(self, _):

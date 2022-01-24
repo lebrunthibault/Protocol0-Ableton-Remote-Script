@@ -59,7 +59,7 @@ class SimpleDummyTrack(SimpleAudioTrack):
     def _insert_device(self):
         # type: () -> Optional[Sequence]
         self.parameter_enum = DeviceParameterEnum.from_value(self.parameter_type)
-        return self.load_device_from_enum(self.parameter_enum.device_enum)
+        return self.parent.browserManager.load_device_from_enum(self.parameter_enum.device_enum)
 
     def _insert_dummy_clip(self):
         # type: () -> Optional[Sequence]
@@ -89,6 +89,6 @@ class SimpleDummyTrack(SimpleAudioTrack):
 
         clip.loop_end = self.clip_bar_length
 
-        clip.show_envelope_parameter(automated_parameter)
+        self.parent.uiManager.show_clip_envelope_parameter(clip, automated_parameter)
         if self.song.is_playing:
             clip.fire()

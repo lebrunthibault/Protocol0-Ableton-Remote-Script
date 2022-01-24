@@ -7,7 +7,7 @@ from protocol0.utils.decorators import p0_subject_slot
 
 
 class SyncedScheduler(ClyphXComponentBase):
-    __subject_events__ = ("beat_changed",)
+    __subject_events__ = ("beat_changed", "bar_ending")
 
     """ SyncedScheduler schedules action lists to be triggered after a specified
     number of bars. """
@@ -18,10 +18,12 @@ class SyncedScheduler(ClyphXComponentBase):
         self._unschedule_on_stop = unschedule_on_stop
         self._last_beat = None  # type: Optional[int]
         self._last_sixteenth = None  # type: Optional[int]
+        self._bar_ending = False
         self._pending_action_list = {}
         self._pending_precise_action_list = {}
-        self._on_is_playing_changed.subject = self._song
-        self._on_song_time_changed.subject = self._song
+        self._is_playing_listener.subject = self._song
+        self._current_song_time_listener.subject = self._song
+        self.bar_ending_listener.subject = self
 
     def schedule_message(self, num_beats, msg):
         # type: (float, Any) -> None
@@ -47,15 +49,21 @@ class SyncedScheduler(ClyphXComponentBase):
             self._pending_precise_action_list[msg] = action
 
     @p0_subject_slot('is_playing')
-    def _on_is_playing_changed(self):
+    def _is_playing_listener(self):
         # type: () -> None
         if not self._song.is_playing and self._unschedule_on_stop:
             self._pending_action_list = {}
         self._last_beat = None
         self._last_sixteenth = None
+        self._bar_ending = False
+
+    @p0_subject_slot('bar_ending')
+    def bar_ending_listener(self):
+        # type: () -> None
+        pass
 
     @p0_subject_slot('current_song_time')
-    def _on_song_time_changed(self):
+    def _current_song_time_listener(self):
         # type: () -> None
         if not self._song.is_playing:
             return
@@ -64,6 +72,14 @@ class SyncedScheduler(ClyphXComponentBase):
         current_beat = current_beat_time.beats
         current_sixteenth = current_beat_time.sub_division
         current_tick = current_beat_time.ticks
+
+        if current_beat == self.song.signature_numerator and current_sixteenth == 4:
+            if current_tick >= 45:  # out of 60
+                if not self._bar_ending:
+                    self._bar_ending = True
+                    self.notify_bar_ending()
+        else:
+            self._bar_ending = False
 
         for k, v in self._pending_precise_action_list.items():
             if v['beats'] == 0 and v['sixteenths'] == 0 and current_tick > v['ticks']:

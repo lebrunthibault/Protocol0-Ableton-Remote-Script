@@ -99,7 +99,7 @@ class AbstractTrackActionMixin(object):
 
     def switch_monitoring(self):
         # type: (AbstractTrack) -> NoReturn
-        self.parent.show_message("%s cannot switch monitoring" % self)
+        raise InvalidTrackException("%s cannot switch monitoring" % self)
 
     def stop(self, immediate=False):
         # type: (AbstractTrack, bool) -> None
@@ -108,13 +108,6 @@ class AbstractTrackActionMixin(object):
         self.base_track._track.stop_all_clips()
         if immediate:
             self.song.enable_clip_trigger_quantization()
-
-    def load_device_from_enum(self, device_enum):
-        # type: (AbstractTrack, DeviceEnum) -> Sequence
-        seq = Sequence()
-        seq.add(self.select)
-        seq.add(partial(self.parent.browserManager.load_device_from_enum, device_enum))
-        return seq.done()
 
     def refresh_appearance(self):
         # type: (AbstractTrack) -> None
@@ -127,6 +120,8 @@ class AbstractTrackActionMixin(object):
     def refresh_color(self):
         # type: (AbstractTrack) -> None
         self.color = self.computed_color
+        for clip in self.clips:
+            clip.color = self.color
 
     def scroll_volume(self, go_next):
         # type: (AbstractTrack, bool) -> None

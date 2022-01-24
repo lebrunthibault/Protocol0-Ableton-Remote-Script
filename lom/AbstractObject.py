@@ -23,7 +23,6 @@ class AbstractObject(SlotManager, Subject):
             parent = find_if(lambda cs: isinstance(cs, Protocol0), get_control_surfaces())
         assert parent
         self._parent = parent  # type: Protocol0
-        self.deleted = False
 
     def __repr__(self):
         # type: () -> str
@@ -34,8 +33,6 @@ class AbstractObject(SlotManager, Subject):
             out += ": %s" % self.name
         if hasattr(self, "index"):
             out += " (%s)" % self.index
-        if self.deleted:
-            out += " - DELETED"
 
         return out
 

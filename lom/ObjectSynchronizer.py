@@ -62,7 +62,7 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
         master_value = getattr(master, property_name)
         slave_value = getattr(slave, property_name)
 
-        if not slave or slave.deleted or master.deleted:
+        if not slave:
             return None
 
         if slave_value != master_value:

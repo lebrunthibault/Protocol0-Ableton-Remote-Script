@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 
 class ClipSlot(AbstractObject):
-    __subject_events__ = ("has_clip", "is_triggered", "recording_ended", "is_silent")
+    __subject_events__ = ("has_clip", "is_triggered")
 
     CLIP_CLASS = Clip
 
@@ -24,7 +24,6 @@ class ClipSlot(AbstractObject):
         self.track = track
         self.has_clip_listener.subject = self._clip_slot
         self._is_triggered_listener.subject = self._clip_slot
-        self.recording_ended_listener.subject = self
         self.clip = None  # type: Optional[Clip]
         self._map_clip()
 
@@ -54,7 +53,7 @@ class ClipSlot(AbstractObject):
 
         self._map_clip(is_new=True)
 
-        if not self.clip:
+        if not self.clip and self.has_stop_button:
             self.parent.defer(partial(setattr, self, "has_stop_button", False))
 
     def _map_clip(self, is_new=False):
@@ -69,11 +68,6 @@ class ClipSlot(AbstractObject):
         # type: () -> None
         # noinspection PyUnresolvedReferences
         self.notify_is_triggered()
-
-    @p0_subject_slot("recording_ended")
-    def recording_ended_listener(self):
-        # type: () -> None
-        pass
 
     def refresh_appearance(self):
         # type: () -> None
@@ -95,22 +89,11 @@ class ClipSlot(AbstractObject):
         if self._clip_slot:
             self._clip_slot.has_stop_button = has_stop_button
 
-    def add_stop_button(self):
-        # type: () -> Optional[Sequence]
-        if self.has_stop_button:
-            return None
-
-        seq = Sequence()
-        self.has_stop_button = True
-        seq.add(wait=1)
-        return seq.done()
-
     def delete_clip(self):
         # type: () -> Sequence
         seq = Sequence()
         if self._clip_slot and self.clip:
             seq.add(self._clip_slot.delete_clip, complete_on=self.has_clip_listener)
-            seq.add(wait=1)
         return seq.done()
 
     @property
@@ -128,34 +111,14 @@ class ClipSlot(AbstractObject):
         # type: () -> bool
         return self._clip_slot and self._clip_slot.is_playing
 
-    def record(self, bar_length):
-        # type: (int) -> Optional[Sequence]
+    def prepare_for_record(self):
         seq = Sequence()
         if self.clip:
-            seq.add(self.clip.delete)
-        seq.add(partial(self.fire, bar_length=bar_length))
-        seq.add(lambda: self.clip.fire())
-        # noinspection PyUnresolvedReferences
-        seq.add(self.notify_recording_ended)
+            seq.add(self.delete_clip)
+            seq.add(wait=3)  # because has stop button is automatically removed on deletion
 
-        return seq.done()
-
-    def fire(self, bar_length):
-        # type: (int) -> Optional[Sequence]
-        if self._clip_slot is None:
-            return None
-
-        seq = Sequence()
-        seq.add(self.add_stop_button)
-        seq.add(wait=1)  # also necessary so that _has_clip_listener triggers on has_clip == True
-
-        seq.add(self._clip_slot.fire)
-        # return just before end of recording
-        seq.add(complete_on=self.has_clip_listener)
-        if bar_length:
-            seq.add(wait_beats=(bar_length * self.song.signature_numerator) - 0.2)
-        else:
-            seq.add(lambda: self.clip.is_recording_listener)
+        seq.add(partial(setattr, self, "has_stop_button", True))
+        seq.add(wait=1)
         return seq.done()
 
     def create_clip(self):

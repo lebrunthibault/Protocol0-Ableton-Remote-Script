@@ -23,7 +23,7 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        self.song.is_playing = True
+        pass
 
     def start_set_profiling(self):
         # type: () -> None

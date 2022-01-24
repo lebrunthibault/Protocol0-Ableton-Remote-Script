@@ -86,14 +86,15 @@ class MidiClip(Clip):
         # type: () -> None
         super(MidiClip, self).post_record()
         if InterfaceState.SELECTED_RECORDING_BAR_LENGTH == BarLengthEnum.UNLIMITED:
-            clip_end = self.end_marker - self.song.signature_numerator
+            self.parent.log_dev("self.end_marker: %s" % self.end_marker)
+            clip_end = int(self.end_marker) - (int(self.end_marker) % self.song.signature_numerator)
+            self.parent.log_dev("clip_end: %s" % clip_end)
             self.loop_end = clip_end
             self.end_marker = clip_end
 
         self.view.grid_quantization = Live.Clip.GridQuantization.g_sixteenth
         self.scale_velocities(go_next=False, scaling_factor=2)
         self.quantize()
-        self.parent.defer(self.system.hide_plugins)
 
     def scale_velocities(self, go_next, scaling_factor):
         # type: (bool, int) -> None

@@ -1,12 +1,11 @@
 from functools import partial
 
-from typing import Any, Optional, List, Type
+from typing import Any, Optional, List
 from typing import TYPE_CHECKING
 
 import Live
 from protocol0.devices.AbstractInstrument import AbstractInstrument
 from protocol0.enums.ColorEnum import ColorEnum
-from protocol0.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.enums.InputRoutingChannelEnum import InputRoutingChannelEnum
 from protocol0.enums.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
@@ -105,14 +104,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
         return None
 
     @property
-    def instrument_class(self):
-        # type: () -> Optional[Type[AbstractInstrument]]
-        if self.instrument:
-            return self.instrument.__class__
-        else:
-            return None
-
-    @property
     def name(self):
         # type: () -> str
         return self._track.name if self._track else ""
@@ -205,18 +196,12 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     @property
     def has_monitor_in(self):
         # type: () -> bool
-        return not self.is_foldable and self.base_track.current_monitoring_state == CurrentMonitoringStateEnum.IN
+        raise NotImplementedError
 
     @has_monitor_in.setter
     def has_monitor_in(self, has_monitor_in):
         # type: (bool) -> None
-        try:
-            if has_monitor_in:
-                self.base_track.current_monitoring_state = CurrentMonitoringStateEnum.IN
-            else:
-                self.base_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
-        except RuntimeError:
-            pass  # Live throws sometimes 'Master or sendtracks have no monitoring state!'
+        raise NotImplementedError
 
     @property
     def clips(self):
@@ -227,17 +212,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def is_visible(self):
         # type: () -> bool
         return self._track and self._track.is_visible
-
-    @property
-    def search_keywords(self):
-        # type: () -> List[str]
-        keywords = [self.name]
-        if self.instrument:
-            keywords += [self.instrument.name, self.instrument.preset_name]
-            if self.instrument.selected_preset:
-                keywords += [self.instrument.selected_preset.name]
-        unique_keywords = list(set(" ".join(keywords).lower().split(" ")))
-        return [kw for kw in unique_keywords if len(kw) >= 3]
 
     @property
     def is_playing(self):

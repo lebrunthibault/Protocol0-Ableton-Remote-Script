@@ -25,14 +25,6 @@ class ActionGroupSet(AbstractActionGroup):
                          on_scroll=self.parent.songManager.scroll_tempo
                          )
 
-        # AUTOmation encoder
-        self.add_encoder(
-            identifier=3,
-            name="automation",
-            on_press=self.parent.automationTrackManager.display_selected_parameter_automation,
-            on_scroll=self.parent.automationTrackManager.scroll_automation_envelopes,
-        )
-
         # STATs encoder
         self.add_encoder(identifier=4, name="display song stats",
                          on_press=self.parent.songStatsManager.display_song_stats)

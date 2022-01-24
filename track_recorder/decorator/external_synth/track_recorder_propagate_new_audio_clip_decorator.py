@@ -1,7 +1,7 @@
 import itertools
 from functools import partial
 
-from typing import Iterator
+from typing import Iterator, Optional
 
 from protocol0.lom.clip.AudioClip import AudioClip
 from protocol0.lom.clip.MidiClip import MidiClip
@@ -12,16 +12,14 @@ from protocol0.sequence.Sequence import Sequence
 
 
 class TrackRecorderPropagateNewAudioClipDecorator(AbstractTrackRecorderExternalSynthDecorator):
-    def record(self, bar_length):
-        # type: (int) -> Sequence
-        seq = Sequence()
-        seq.add(partial(super(TrackRecorderPropagateNewAudioClipDecorator, self).record, bar_length))
-        seq.add(self._propagate_new_audio_clip)
-        return seq.done()
+    def post_record(self):
+        # type: () -> None
+        super(TrackRecorderPropagateNewAudioClipDecorator, self).post_record()
+        self._propagate_new_audio_clip()
 
-    def _propagate_new_audio_clip(self, recording_scene_index):
-        # type: (int) -> None
-        audio_clip_slot = self.track.audio_track.clip_slots[recording_scene_index]
+    def _propagate_new_audio_clip(self):
+        # type: () -> Optional[Sequence]
+        audio_clip_slot = self.track.audio_track.clip_slots[self.recording_scene_index]
         source_midi_clip = self.track.midi_track.clip_slots[audio_clip_slot.index].clip
         source_audio_clip = self.track.audio_track.clip_slots[audio_clip_slot.index].clip
         if source_midi_clip is None or source_audio_clip is None:
@@ -31,7 +29,7 @@ class TrackRecorderPropagateNewAudioClipDecorator(AbstractTrackRecorderExternalS
 
         duplicate_audio_clip_slots = list(self._get_duplicate_audio_clip_slots(source_midi_clip, source_audio_clip))
         if len(duplicate_audio_clip_slots) == 0:
-            return
+            return None
 
         seq = Sequence()
         seq.prompt("Propagate to %s audio clips in track ?" % len(duplicate_audio_clip_slots))
@@ -49,7 +47,7 @@ class TrackRecorderPropagateNewAudioClipDecorator(AbstractTrackRecorderExternalS
             seq.add([partial(source_tail_cs.duplicate_clip_to, cs) for cs in duplicate_audio_tail_clip_slots])
 
         seq.add(lambda: self.parent.show_message("%s audio clips duplicated" % len(duplicate_audio_clip_slots)))
-        seq.done()
+        return seq.done()
 
     def _get_duplicate_audio_clip_slots(self, source_midi_clip, source_audio_clip):
         # type: (MidiClip, AudioClip) -> Iterator[AudioClipSlot]
