@@ -19,16 +19,6 @@ class NormalGroupTrack(AbstractGroupTrack):
         super(NormalGroupTrack, self).__init__(base_group_track=base_group_track, *a, **k)
         self.push2_selected_main_mode = Push2MainModeEnum.MIX
 
-    @property
-    def instrument_class(self):
-        # type: () -> Optional[Type[AbstractInstrument]]
-        sub_tracks_instruments = [sub_track.instrument for sub_track in self.sub_tracks if sub_track.instrument]
-        sub_tracks_instrument_classes = list(set([instrument.__class__ for instrument in sub_tracks_instruments]))
-        if len(sub_tracks_instruments) == len(self.sub_tracks) and len(sub_tracks_instrument_classes) == 1:
-            return sub_tracks_instrument_classes[0]
-        else:
-            return None
-
     def toggle_arm(self):
         # type: (AbstractTrack) -> Optional[Sequence]
         return self.toggle_fold()

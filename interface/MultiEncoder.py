@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, List, Optional, Any
 
 from _Framework.ButtonElement import ButtonElement
 from _Framework.InputControlElement import MIDI_NOTE_TYPE, MIDI_CC_TYPE
-from protocol0.errors.DoubleEncoderActionExecution import DoubleEncoderActionExecution
 from protocol0.errors.InvalidTrackError import InvalidTrackError
 from protocol0.interface.EncoderAction import EncoderAction, EncoderMoveEnum
 from protocol0.lom.AbstractObject import AbstractObject

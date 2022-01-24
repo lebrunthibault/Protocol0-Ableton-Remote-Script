@@ -26,9 +26,9 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
     def create_count_in(self, record_type):
         # type: (RecordTypeEnum) -> CountInInterface
         if record_type == RecordTypeEnum.AUDIO_ONLY:
-            return CountInShort()
+            return CountInShort(self.track)
         else:
-            return CountInOneBar()
+            return CountInOneBar(self.track)
 
     def _create_recorder(self, record_type, bar_length):
         # type: (RecordTypeEnum, int) -> AbstractTrackRecorder

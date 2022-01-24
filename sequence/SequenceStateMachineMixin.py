@@ -69,7 +69,7 @@ class SequenceStateMachineMixin(object):
         try:
             self._state_machine.dispatch(action)
         except MachineError as e:
-            log_ableton("SequenceState error: %s" % e, level=LogLevelEnum.ERROR)
+            log_ableton("SequenceState error: %s on %s" % (e, self), level=LogLevelEnum.ERROR)
 
     def start(self):
         # type: () -> None

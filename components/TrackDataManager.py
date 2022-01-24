@@ -42,4 +42,3 @@ class TrackDataManager(AbstractControlSurfaceComponent):
         # type: () -> None
         for track in self.song.abstract_tracks:
             self.parent.log_notice("Clearing track data of %s" % track)
-            track.set_data(TrackDataEnum.RECORD_CLIP_TAILS_BAR_LENGTH.name, 1)

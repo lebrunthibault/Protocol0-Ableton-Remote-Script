@@ -14,7 +14,12 @@ class ActionGroupTest(AbstractActionGroup):
         super(ActionGroupTest, self).__init__(channel=16, *a, **k)
 
         # TEST encoder
-        self.add_encoder(identifier=1, name="test", on_press=self.action_test, on_cancel_press=self.action_cancel_test)
+        self.add_encoder(identifier=1, name="test",
+                         on_press=self.action_test,
+                         # on_cancel_press=self.action_cancel_test,
+                         on_long_press=self.action_test,
+                         on_cancel_long_press=self.action_cancel_test,
+                         )
 
         # PROFiling encoder
         self.add_encoder(identifier=2, name="start set launch time profiling", on_press=self.start_set_profiling)

@@ -26,7 +26,6 @@ class UIManager(AbstractControlSurfaceComponent):
 
     def show_clip_envelope_parameter(self, clip, parameter):
         # type: (Clip, DeviceParameter) -> None
-        self.parent.log_dev("show clip env !")
         self.parent.navigationManager.show_clip_view()
         clip.show_envelope()
         # noinspection PyArgumentList

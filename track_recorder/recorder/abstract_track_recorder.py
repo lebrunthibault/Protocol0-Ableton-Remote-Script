@@ -77,7 +77,6 @@ class AbstractTrackRecorder(AbstractObject):
         self._focus_main_clip()
         seq = Sequence()
         if bar_length:
-            # seq.add(wait_bars=bar_length - 0.2)
             seq.add(wait_bars=bar_length)
         else:
             seq.add(complete_on=self.song.is_playing_listener)
@@ -114,6 +113,5 @@ class AbstractTrackRecorder(AbstractObject):
         for clip_slot in self._recording_clip_slots:
             clip_slot.delete_clip()
         self.song.metronome = False
-        self.parent.clear_tasks()
         self.track.stop(immediate=True)
         self.song.stop_playing()

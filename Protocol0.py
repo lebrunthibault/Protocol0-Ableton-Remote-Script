@@ -54,8 +54,8 @@ from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.enums.LogLevelEnum import LogLevelEnum
 from protocol0.lom.Application import Application
 from protocol0.lom.Song import Song
-from protocol0.track_recorder.track_recorder_manager import TrackRecorderManager
 from protocol0.sequence.Sequence import Sequence
+from protocol0.track_recorder.track_recorder_manager import TrackRecorderManager
 from protocol0.utils.log import log_ableton
 from protocol0.utils.utils import find_if
 

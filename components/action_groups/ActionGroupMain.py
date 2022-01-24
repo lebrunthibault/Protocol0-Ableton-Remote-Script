@@ -28,7 +28,7 @@ class ActionGroupMain(AbstractActionGroup):
         self.add_encoder(
             identifier=3,
             name="automation",
-            on_press=self.parent.automationTrackManager.display_selected_parameter_automation,
+            on_press=lambda: self.parent.automationTrackManager.display_selected_parameter_automation(self.song.selected_clip),
             on_scroll=self.parent.automationTrackManager.scroll_automation_envelopes,
         )
 
@@ -54,9 +54,12 @@ class ActionGroupMain(AbstractActionGroup):
             on_press=lambda: partial(self.parent.trackRecorderManager.record_track, self.song.current_track,
                                      RecordTypeEnum.NORMAL),
             on_cancel_press=lambda: partial(self.parent.trackRecorderManager.cancel_record, self.song.current_track,
-                                     RecordTypeEnum.NORMAL),
+                                            RecordTypeEnum.NORMAL),
             on_long_press=lambda: partial(self.parent.trackRecorderManager.record_track, self.song.current_track,
-                                          RecordTypeEnum.AUDIO_ONLY)
+                                          RecordTypeEnum.AUDIO_ONLY),
+            on_cancel_long_press=lambda: partial(self.parent.trackRecorderManager.cancel_record,
+                                                 self.song.current_track,
+                                                 RecordTypeEnum.AUDIO_ONLY)
         )
 
         # SCENe 2 encoder

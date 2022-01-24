@@ -7,7 +7,7 @@ from protocol0.utils.decorators import p0_subject_slot
 
 
 class SyncedScheduler(ClyphXComponentBase):
-    __subject_events__ = ("beat_changed", "bar_ending")
+    __subject_events__ = ("beat_changed", "last_32th", "bar_ending")
 
     """ SyncedScheduler schedules action lists to be triggered after a specified
     number of bars. """
@@ -18,12 +18,14 @@ class SyncedScheduler(ClyphXComponentBase):
         self._unschedule_on_stop = unschedule_on_stop
         self._last_beat = None  # type: Optional[int]
         self._last_sixteenth = None  # type: Optional[int]
+        self._last_32th = False
         self._bar_ending = False
         self._pending_action_list = {}
         self._pending_precise_action_list = {}
         self._is_playing_listener.subject = self._song
         self._current_song_time_listener.subject = self._song
         self.bar_ending_listener.subject = self
+        self.last_32th_listener.subject = self
 
     def schedule_message(self, num_beats, msg):
         # type: (float, Any) -> None
@@ -55,10 +57,16 @@ class SyncedScheduler(ClyphXComponentBase):
             self._pending_action_list = {}
         self._last_beat = None
         self._last_sixteenth = None
+        self._last_32th = False
         self._bar_ending = False
 
     @p0_subject_slot('bar_ending')
     def bar_ending_listener(self):
+        # type: () -> None
+        pass
+
+    @p0_subject_slot('last_32th')
+    def last_32th_listener(self):
         # type: () -> None
         pass
 
@@ -74,11 +82,16 @@ class SyncedScheduler(ClyphXComponentBase):
         current_tick = current_beat_time.ticks
 
         if current_beat == self.song.signature_numerator and current_sixteenth == 4:
-            if current_tick >= 45:  # out of 60
+            if current_tick >= 30:  # out of 60 (1/32th)
+                if not self._last_32th:
+                    self._last_32th = True
+                    self.notify_last_32th()
+            if current_tick >= 45:  # out of 60 (1/64th)
                 if not self._bar_ending:
                     self._bar_ending = True
                     self.notify_bar_ending()
         else:
+            self._last_32th = False
             self._bar_ending = False
 
         for k, v in self._pending_precise_action_list.items():

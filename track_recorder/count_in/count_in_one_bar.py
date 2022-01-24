@@ -11,11 +11,11 @@ class CountInOneBar(CountInInterface):
         self.song.stop_playing()
         self.song.stop_all_clips(quantized=False)  # stopping previous scene clips
         # solo for count in
-        self.solo = True
+        self.track.solo = True
         self.song.is_playing = True
         seq = Sequence()
         seq.add(wait_bars=1)
-        seq.add(partial(setattr, self, "solo", False))
+        seq.add(partial(setattr, self.track, "solo", False))
         seq.add(self._stop_count_in)
         return seq.done()
 

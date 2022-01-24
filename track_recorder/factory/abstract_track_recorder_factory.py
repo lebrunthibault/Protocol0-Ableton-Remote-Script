@@ -4,10 +4,6 @@ from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.track_recorder.count_in.count_in_interface import CountInInterface
-from protocol0.track_recorder.decorator.track_recorder_count_in_one_bar_decorator import \
-    TrackRecorderCountInOneBarDecorator
-from protocol0.track_recorder.decorator.track_recorder_count_in_short_decorator import \
-    TrackRecorderCountInShortDecorator
 from protocol0.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
 
 
@@ -18,12 +14,6 @@ class AbstractTrackRecorderFactory(AbstractObject):
 
         if recorder is None:
             raise Protocol0Error("Couldn't generate recorder")
-        #
-        # # apply common decorators
-        # if record_type == RecordTypeEnum.NORMAL:
-        #     recorder = TrackRecorderCountInOneBarDecorator(recorder)
-        # else:
-        #     recorder = TrackRecorderCountInShortDecorator(recorder)
 
         return recorder
 

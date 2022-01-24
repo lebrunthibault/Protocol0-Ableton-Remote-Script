@@ -3,7 +3,6 @@ from math import floor
 from typing import TYPE_CHECKING, Optional, Any, List
 
 import Live
-from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.clip.ClipActionMixin import ClipActionMixin
 from protocol0.lom.clip.ClipName import ClipName
@@ -202,10 +201,10 @@ class Clip(ClipActionMixin, AbstractObject):
         # type: () -> bool
         return self._clip and self._clip.is_recording
 
-    @property
-    def mute(self):
-        # type: () -> bool
-        raise Protocol0Error("Use clip.muted, not clip.mute")
+    # @property
+    # def mute(self):
+    #     # type: () -> bool
+    #     raise Protocol0Error("Use clip.muted, not clip.mute")
 
     @property
     def muted(self):

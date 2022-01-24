@@ -112,6 +112,7 @@ class ClipSlot(AbstractObject):
         return self._clip_slot and self._clip_slot.is_playing
 
     def prepare_for_record(self):
+        # type: () -> Sequence
         seq = Sequence()
         if self.clip:
             seq.add(self.delete_clip)

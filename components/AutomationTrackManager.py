@@ -1,25 +1,23 @@
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.errors.Protocol0Warning import Protocol0Warning
+from protocol0.lom.clip.Clip import Clip
 from protocol0.utils.utils import scroll_values
 
 
 class AutomationTrackManager(AbstractControlSurfaceComponent):
-    """ Handles the creation, grouping and routing of an automation track """
-
-    def display_selected_parameter_automation(self):
-        # type: () -> None
-        if not self.song.selected_clip:
-            raise Protocol0Warning("No clip selected")
-
-        selected_parameter = self.song.selected_parameter or self.song.selected_clip.displayed_automated_parameter
+    def display_selected_parameter_automation(self, clip, show_warning=True):
+        # type: (Clip, bool) -> None
+        selected_parameter = self.song.selected_parameter or clip.displayed_automated_parameter
         if selected_parameter is None:
-            if len(self.song.selected_clip.automated_parameters):
-                selected_parameter = self.song.selected_clip.automated_parameters[0]
+            if len(clip.automated_parameters):
+                selected_parameter = clip.automated_parameters[0]
             else:
-                raise Protocol0Warning("Selected clip has no automation")
+                if show_warning:
+                    raise Protocol0Warning("Selected clip has no automation")
+                return None
 
         self.song.re_enable_automation()
-        self.parent.uiManager.show_clip_envelope_parameter(self.song.selected_clip, selected_parameter)
+        self.parent.uiManager.show_clip_envelope_parameter(clip, selected_parameter)
 
     def scroll_automation_envelopes(self, go_next):
         # type: (bool) -> None
@@ -38,4 +36,4 @@ class AutomationTrackManager(AbstractControlSurfaceComponent):
                 automated_parameters, selected_clip.displayed_automated_parameter, go_next
             )
 
-        self.display_selected_parameter_automation()
+        self.display_selected_parameter_automation(selected_clip)

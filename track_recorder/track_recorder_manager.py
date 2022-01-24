@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import Optional, Any
+from typing import Optional
 
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.components.UtilsManager import UtilsManager
@@ -18,12 +18,6 @@ from protocol0.track_recorder.recorder.abstract_track_recorder import AbstractTr
 
 
 class TrackRecorderManager(AbstractControlSurfaceComponent):
-    def __init__(self, *a, **k):
-        # type: (Any, Any) -> None
-        super(TrackRecorderManager, self).__init__(*a, **k)
-        self._audio_effect_rack_cache = {}
-        self.recorder_factory = None  # type: Optional[AbstractTrackRecorderFactory]
-
     def get_track_recorder_factory(self, track):
         # type: (AbstractTrack) -> AbstractTrackRecorderFactory
         if isinstance(track, SimpleTrack):
@@ -33,33 +27,31 @@ class TrackRecorderManager(AbstractControlSurfaceComponent):
         else:
             raise Protocol0Warning("This track is not recordable")
 
+    def cancel_record(self, track, record_type):
+        # type: (AbstractTrack, RecordTypeEnum) -> None
+        self.system.show_warning("Cancelling record")
+        recorder_factory = self.get_track_recorder_factory(track)
+        bar_length = recorder_factory.get_recording_bar_length(record_type)
+        recorder = recorder_factory.create_recorder(record_type, bar_length)
+        recorder.set_recording_scene_index(self.song.selected_scene.index)
+        self.parent.clear_tasks()
+        recorder.cancel_record()
+        return None
+
     def record_track(self, track, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
-        if self.recorder_factory:
-            self.system.show_warning("Cancelling record")
-            bar_length = self.recorder_factory.get_recording_bar_length(record_type)
-            recorder = self.recorder_factory.create_recorder(record_type, bar_length)
-            recorder.set_recording_scene_index(self.song.selected_scene.index)
-            recorder.cancel_record()
-            self.recorder_factory = None
-            return None
-
-        self.recorder_factory = self.get_track_recorder_factory(track)
-        self._record_track(track, record_type)
-
-    def _record_track(self, track, record_type):
-        # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
         # assert there is a scene we can record on
-        recording_scene_index = self.recorder_factory.get_recording_scene_index(record_type)
+        recorder_factory = self.get_track_recorder_factory(track)
+        recording_scene_index = recorder_factory.get_recording_scene_index(record_type)
         if recording_scene_index is None:
             seq = Sequence()
             seq.add(self.song.create_scene)
             seq.add(partial(self.record_track, track, record_type))
             return seq.done()
 
-        bar_length = self.recorder_factory.get_recording_bar_length(record_type)
-        count_in = self.recorder_factory.create_count_in(record_type)
-        recorder = self.recorder_factory.create_recorder(record_type, bar_length)
+        bar_length = recorder_factory.get_recording_bar_length(record_type)
+        count_in = recorder_factory.create_count_in(record_type)
+        recorder = recorder_factory.create_recorder(record_type, bar_length)
         recorder.set_recording_scene_index(recording_scene_index)
 
         return self._start_recording(count_in, recorder, bar_length)
@@ -70,7 +62,7 @@ class TrackRecorderManager(AbstractControlSurfaceComponent):
 
         seq = Sequence()
         seq.add(recorder.pre_record)
-        seq.add(count_in.launch())
+        seq.add(count_in.launch)
         seq.add(partial(recorder.record, bar_length=bar_length))
         seq.add(recorder.post_audio_record)
         seq.add(self.song.selected_scene.fire)

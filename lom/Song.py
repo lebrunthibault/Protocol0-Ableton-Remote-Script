@@ -389,7 +389,8 @@ class Song(SongActionMixin, AbstractObject):
     @session_automation_record.setter
     def session_automation_record(self, session_automation_record):
         # type: (bool) -> None
-        self._song.session_automation_record = session_automation_record
+        self._song.session_automation_record = True
+        # self._song.session_automation_record = session_automation_record
 
     def scrub_by(self, beat_offset):
         # type: (float) -> None

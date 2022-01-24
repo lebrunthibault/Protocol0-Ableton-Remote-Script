@@ -26,7 +26,6 @@ class TrackRecorderClipTailDecorator(AbstractTrackRecorderExternalSynthDecorator
     @p0_subject_slot("is_silent")
     def _is_silent_listener(self):
         # type: () -> None
-        self.parent.log_dev("tail is silent !")
         pass
 
     def post_audio_record(self):
@@ -38,15 +37,31 @@ class TrackRecorderClipTailDecorator(AbstractTrackRecorderExternalSynthDecorator
 
     def _wait_for_clip_tail_end(self):
         # type: () -> Sequence
-        self.parent.log_dev("waiting for tail")
         input_routing_type = self.track.midi_track.input_routing_type
 
-        self.track.midi_track.input_routing_type = InputRoutingTypeEnum.NO_INPUT
-        self.track.midi_track.stop()
         self.track.audio_track.clip_slots[self.recording_scene_index].clip.fire()
         self._beat_changed_listener.subject = self.parent.beatScheduler
 
+        # following is a trick to have no midi note input at the very end of the bar while being able
+        # to still record automation
+        # This combined with the last_32th_listener will record parameter automation in the midi clip
+        # almost perfectly until the end of the bar while having no notes playing when the tail starts recording
+        midi_clip = self.track.midi_track.clip_slots[self.recording_scene_index].clip
+        midi_notes = midi_clip.get_notes()
+        for note in midi_notes:
+            note.muted = True
+        midi_clip.set_notes(midi_notes)
+        for note in midi_notes:
+            note.muted = False
+
         seq = Sequence()
+        # so that we have automation until the very end
+        seq.add(complete_on=self.parent.beatScheduler.last_32th_listener)
+        seq.add(partial(setattr, self.song, "session_automation_record", False))
+        seq.add(partial(self.track.midi_track.stop, immediate=True))
+        seq.add(partial(setattr, self.track.midi_track, "input_routing_type", InputRoutingTypeEnum.NO_INPUT))
+        seq.add(wait_beats=1)
+        seq.add(partial(midi_clip.set_notes, midi_notes))
         seq.add(complete_on=self._is_silent_listener, no_timeout=True)
         seq.add(partial(setattr, self.track.midi_track, "input_routing_type", input_routing_type))
         seq.add(partial(setattr, self._beat_changed_listener, "subject", None))
