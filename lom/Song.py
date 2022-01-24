@@ -8,7 +8,7 @@ from protocol0.components.SongDataManager import save_song_data
 from protocol0.config import Config
 from protocol0.devices.InstrumentProphet import InstrumentProphet
 from protocol0.enums.SongLoadStateEnum import SongLoadStateEnum
-from protocol0.errors.InvalidTrackException import InvalidTrackException
+from protocol0.errors.InvalidTrackError import InvalidTrackError
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.Scene import Scene
 from protocol0.lom.SongActionMixin import SongActionMixin
@@ -180,7 +180,7 @@ class Song(SongActionMixin, AbstractObject):
         if isinstance(self.current_track, ExternalSynthTrack):
             return cast(ExternalSynthTrack, self.current_track)
         else:
-            raise InvalidTrackException("current track is not an ExternalSynthTrack")
+            raise InvalidTrackError("current track is not an ExternalSynthTrack")
 
     # SCENES
 

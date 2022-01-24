@@ -113,7 +113,7 @@ class AbstractTrackRecorder(AbstractObject):
         # type: () -> None
         for clip_slot in self._recording_clip_slots:
             clip_slot.delete_clip()
-        self.post_audio_record()
+        self.song.metronome = False
         self.parent.clear_tasks()
         self.track.stop(immediate=True)
         self.song.stop_playing()

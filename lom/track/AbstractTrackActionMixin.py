@@ -1,9 +1,6 @@
-from functools import partial
-
 from typing import TYPE_CHECKING, Any, Optional, NoReturn
 
-from protocol0.enums.DeviceEnum import DeviceEnum
-from protocol0.errors.InvalidTrackException import InvalidTrackException
+from protocol0.errors.InvalidTrackError import InvalidTrackError
 from protocol0.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -88,18 +85,18 @@ class AbstractTrackActionMixin(object):
         if self.instrument:
             return self.instrument.scroll_presets_or_samples(go_next)
         else:
-            raise InvalidTrackException("Cannot scroll presets without an instrument")
+            raise InvalidTrackError("Cannot scroll presets without an instrument")
 
     def scroll_preset_categories(self, go_next):
         # type: (AbstractTrack, bool) -> None
         if self.instrument:
             return self.instrument.scroll_preset_categories(go_next=go_next)
         else:
-            raise InvalidTrackException("Cannot scroll categories without an instrument")
+            raise InvalidTrackError("Cannot scroll categories without an instrument")
 
     def switch_monitoring(self):
         # type: (AbstractTrack) -> NoReturn
-        raise InvalidTrackException("%s cannot switch monitoring" % self)
+        raise InvalidTrackError("%s cannot switch monitoring" % self)
 
     def stop(self, immediate=False):
         # type: (AbstractTrack, bool) -> None

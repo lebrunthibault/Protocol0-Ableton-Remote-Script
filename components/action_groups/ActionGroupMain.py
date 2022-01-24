@@ -53,6 +53,8 @@ class ActionGroupMain(AbstractActionGroup):
             on_scroll=InterfaceState.scroll_recording_time,
             on_press=lambda: partial(self.parent.trackRecorderManager.record_track, self.song.current_track,
                                      RecordTypeEnum.NORMAL),
+            on_cancel_press=lambda: partial(self.parent.trackRecorderManager.cancel_record, self.song.current_track,
+                                     RecordTypeEnum.NORMAL),
             on_long_press=lambda: partial(self.parent.trackRecorderManager.record_track, self.song.current_track,
                                           RecordTypeEnum.AUDIO_ONLY)
         )

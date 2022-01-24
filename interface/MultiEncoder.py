@@ -4,7 +4,8 @@ from typing import TYPE_CHECKING, List, Optional, Any
 
 from _Framework.ButtonElement import ButtonElement
 from _Framework.InputControlElement import MIDI_NOTE_TYPE, MIDI_CC_TYPE
-from protocol0.errors.InvalidTrackException import InvalidTrackException
+from protocol0.errors.DoubleEncoderActionExecution import DoubleEncoderActionExecution
+from protocol0.errors.InvalidTrackError import InvalidTrackError
 from protocol0.interface.EncoderAction import EncoderAction, EncoderMoveEnum
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.utils.decorators import p0_subject_slot, handle_error
@@ -72,14 +73,18 @@ class MultiEncoder(AbstractObject):
         # type: (EncoderMoveEnum, Optional[bool]) -> None
         action = self._find_matching_action(move_type=move_type)  # type: ignore[arg-type]
         self._pressed_at = None
-        if action:
-            if self._filter_active_tracks and not self.song.selected_track.IS_ACTIVE:
-                raise InvalidTrackException("action not dispatched for master / return tracks (%s)" % action.name)
-                # self.parent.show_message("action not dispatched for master / return tracks (%s)" % action.name)
-            params = {"encoder_name": self.name}
-            if go_next is not None:
-                params["go_next"] = go_next  # type: ignore[assignment]
-            action.execute(**params)
+        if not action:
+            return None
+
+        if self._filter_active_tracks and not self.song.selected_track.IS_ACTIVE:
+            raise InvalidTrackError("action not dispatched for master / return tracks (%s)" % action.name)
+            # self.parent.show_message("action not dispatched for master / return tracks (%s)" % action.name)
+
+        params = {}
+        if go_next is not None:
+            params["go_next"] = go_next  # type: ignore[assignment]
+
+        action.execute(encoder_name=self.name, **params)
 
     def _find_matching_action(self, move_type, exact_match=False, log_not_found=True):
         # type: (EncoderMoveEnum, bool, bool) -> Optional[EncoderAction]

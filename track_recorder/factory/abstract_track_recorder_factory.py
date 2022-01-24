@@ -3,6 +3,7 @@ from typing import Optional
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.errors.Protocol0Error import Protocol0Error
 from protocol0.lom.AbstractObject import AbstractObject
+from protocol0.track_recorder.count_in.count_in_interface import CountInInterface
 from protocol0.track_recorder.decorator.track_recorder_count_in_one_bar_decorator import \
     TrackRecorderCountInOneBarDecorator
 from protocol0.track_recorder.decorator.track_recorder_count_in_short_decorator import \
@@ -11,21 +12,24 @@ from protocol0.track_recorder.recorder.abstract_track_recorder import AbstractTr
 
 
 class AbstractTrackRecorderFactory(AbstractObject):
-    def create_recorder(self, record_type, recording_scene_index, bar_length):
-        # type: (RecordTypeEnum, int, int) -> AbstractTrackRecorder
+    def create_recorder(self, record_type, bar_length):
+        # type: (RecordTypeEnum, int) -> AbstractTrackRecorder
         recorder = self._create_recorder(record_type, bar_length)
-        recorder.set_recording_scene_index(recording_scene_index)
 
         if recorder is None:
             raise Protocol0Error("Couldn't generate recorder")
-
-        # apply common decorators
-        if record_type == RecordTypeEnum.NORMAL:
-            recorder = TrackRecorderCountInOneBarDecorator(recorder)
-        else:
-            recorder = TrackRecorderCountInShortDecorator(recorder)
+        #
+        # # apply common decorators
+        # if record_type == RecordTypeEnum.NORMAL:
+        #     recorder = TrackRecorderCountInOneBarDecorator(recorder)
+        # else:
+        #     recorder = TrackRecorderCountInShortDecorator(recorder)
 
         return recorder
+
+    def create_count_in(self, record_type):
+        # type: (RecordTypeEnum) -> CountInInterface
+        raise NotImplementedError
 
     def _create_recorder(self, record_type, bar_length):
         # type: (RecordTypeEnum, int) -> AbstractTrackRecorder

@@ -8,6 +8,7 @@ from protocol0.enums.vocal_command.ActionEnum import ActionEnum
 from protocol0.interface.EncoderAction import EncoderAction
 from protocol0.interface.EncoderMoveEnum import EncoderMoveEnum
 from protocol0.lom.track.AbstractTrackList import AbstractTrackList
+from protocol0.utils.decorators import handle_error
 
 
 class KeywordActionManager(AbstractControlSurfaceComponent):
@@ -38,6 +39,7 @@ class KeywordActionManager(AbstractControlSurfaceComponent):
         for enum, func in callable_dict.items():
             self.MAPPING[enum] = EncoderAction(func, move_type=EncoderMoveEnum.API, name=None)
 
+    @handle_error
     def execute_from_enum(self, action_enum):
         # type: (ActionEnum) -> None
         if action_enum not in self.MAPPING:

@@ -4,6 +4,9 @@ from protocol0.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.errors.Protocol0Warning import Protocol0Warning
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+from protocol0.track_recorder.count_in.count_in_interface import CountInInterface
+from protocol0.track_recorder.count_in.count_in_one_bar import CountInOneBar
+from protocol0.track_recorder.count_in.count_in_short import CountInShort
 from protocol0.track_recorder.decorator.external_synth.track_recorder_clip_tail_decorator import \
     TrackRecorderClipTailDecorator
 from protocol0.track_recorder.decorator.external_synth.track_recorder_propagate_new_audio_clip_decorator import \
@@ -19,6 +22,13 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
         # type: (ExternalSynthTrack) -> None
         super(TrackRecorderExternalSynthFactory, self).__init__()
         self.track = track
+
+    def create_count_in(self, record_type):
+        # type: (RecordTypeEnum) -> CountInInterface
+        if record_type == RecordTypeEnum.AUDIO_ONLY:
+            return CountInShort()
+        else:
+            return CountInOneBar()
 
     def _create_recorder(self, record_type, bar_length):
         # type: (RecordTypeEnum, int) -> AbstractTrackRecorder
