@@ -3,7 +3,7 @@ from json import JSONEncoder
 from types import MethodType
 
 from ClyphX_Pro import ParseUtils
-from p0_system_api import P0SystemAPI
+from p0_system_client import P0SystemClient
 from typing import Callable, Any, Optional, Union, List
 
 # noinspection PyUnresolvedReferences
@@ -92,14 +92,14 @@ class Protocol0(ControlSurface):
             self.midiManager = MidiManager()
             ApiRoutesManager()
             ApiAction.create_method_mapping()
-            self.p0_system_api_client = P0SystemAPI()
+            self.p0_system_client = P0SystemClient()
             self.protocol0_application = Application()
             self.protocol0_song = Song(song=self.song())
             self.beatScheduler = BeatScheduler()
             self.songDataManager = SongDataManager()
             self.trackDataManager = TrackDataManager()
             if Config.SHOW_RELOAD_TIME or Config.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.PROFILING:
-                self.p0_system_api_client.end_measurement()
+                self.p0_system_client.end_measurement()
 
             self.deviceManager = DeviceManager()  # needs to be here first
             AbstractInstrument.INSTRUMENT_CLASSES = AbstractInstrument.get_instrument_classes()
@@ -146,11 +146,11 @@ class Protocol0(ControlSurface):
 
     @property
     def system(self):
-        # type: () -> P0SystemAPI
+        # type: () -> P0SystemClient
         """
         Access to non restricted (system) python environment over MIDI
         """
-        return self.p0_system_api_client
+        return self.p0_system_client
 
     def start(self):
         # type: () -> None

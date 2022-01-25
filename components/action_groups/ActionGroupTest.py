@@ -16,9 +16,6 @@ class ActionGroupTest(AbstractActionGroup):
         # TEST encoder
         self.add_encoder(identifier=1, name="test",
                          on_press=self.action_test,
-                         # on_cancel_press=self.action_cancel_test,
-                         on_long_press=self.action_test,
-                         on_cancel_long_press=self.action_cancel_test,
                          )
 
         # PROFiling encoder
@@ -30,12 +27,10 @@ class ActionGroupTest(AbstractActionGroup):
     def action_test(self):
         # type: () -> Sequence
         seq = Sequence()
+        seq.prompt("yes ?")
+        seq.add(lambda: self.parent.show_message("yes !!"))
         seq.add(wait=100)
         return seq.done()
-
-    def action_cancel_test(self):
-        # type: () -> None
-        self.system.show_warning("cancelling !")
 
     def start_set_profiling(self):
         # type: () -> None

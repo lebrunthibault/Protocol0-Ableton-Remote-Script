@@ -41,6 +41,9 @@ class TrackRecorderManager(AbstractControlSurfaceComponent):
     def record_track(self, track, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
         # assert there is a scene we can record on
+        if track.is_recording:
+            raise Protocol0Warning("the track is recording")
+
         recorder_factory = self.get_track_recorder_factory(track)
         recording_scene_index = recorder_factory.get_recording_scene_index(record_type)
         if recording_scene_index is None:
