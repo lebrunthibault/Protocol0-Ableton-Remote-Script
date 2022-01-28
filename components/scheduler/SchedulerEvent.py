@@ -1,6 +1,7 @@
 from typing import Any, Callable
 
 from protocol0.lom.AbstractObject import AbstractObject
+from protocol0.utils.decorators import handle_error
 from protocol0.utils.utils import get_callable_repr
 
 
@@ -33,6 +34,7 @@ class SchedulerEvent(AbstractObject):
         # type: () -> None
         self._cancelled = True
 
+    @handle_error
     def execute(self):
         # type: () -> None
         if self._cancelled:
@@ -40,8 +42,4 @@ class SchedulerEvent(AbstractObject):
 
         assert not self._executed
         self._executed = True
-        # noinspection PyBroadException
-        try:
-            self._callback()
-        except Exception:
-            self.parent.errorManager.handle_error()
+        self._callback()

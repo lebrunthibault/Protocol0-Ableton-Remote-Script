@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, List, Any, Type, Optional, Union
 
 import Live
 from protocol0.enums.DeviceParameterEnum import DeviceParameterEnum
+from protocol0.errors.Protocol0Warning import Protocol0Warning
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.lom.device.DeviceChain import DeviceChain
 from protocol0.lom.device.DeviceParameter import DeviceParameter
@@ -89,7 +90,7 @@ class Device(AbstractObject):
 
     def scroll_presets(self, go_next):
         # type: (bool) -> None
-        self.parent.show_message("Presets scrolling is only available for plugin devices")
+        raise Protocol0Warning("Presets scrolling is only available for plugin devices")
 
     @property
     def name(self):

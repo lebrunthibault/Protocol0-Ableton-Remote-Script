@@ -23,12 +23,12 @@ class AutomationTrackManager(AbstractControlSurfaceComponent):
         # type: (bool) -> None
         selected_clip = self.song.selected_clip
         if not selected_clip:
-            self.parent.show_message("No playable clip")
-            return
+            raise Protocol0Warning("No playable clip")
+
         automated_parameters = selected_clip.automated_parameters
         if len(automated_parameters) == 0:
-            self.parent.show_message("No automated parameters")
-            return
+            raise Protocol0Warning("No automated parameters")
+
         if selected_clip.displayed_automated_parameter is None:
             selected_clip.displayed_automated_parameter = automated_parameters[0]
         else:

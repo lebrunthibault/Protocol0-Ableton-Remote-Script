@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any, Callable
 
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
 from protocol0.my_types import Func, T
+from protocol0.utils.log import log_ableton
 from protocol0.utils.utils import is_method
 
 if TYPE_CHECKING:
@@ -123,7 +124,7 @@ def handle_error(func):
         # noinspection PyBroadException
         try:
             return func(*a, **k)
-        except Exception:
+        except Exception as e:
             from protocol0 import Protocol0
 
             Protocol0.SELF.errorManager.handle_error()
@@ -220,5 +221,18 @@ def single_undo(func):
         res = func(*a, **k)
         Protocol0.SELF.protocol0_song.end_undo_step()
         return res
+
+    return decorate
+
+
+def defer(func):
+    # type: (Callable) -> Callable
+    @wraps(func)
+    def decorate(*a, **k):
+        # type: (Any, Any) -> None
+        from protocol0 import Protocol0
+
+        Protocol0.SELF.defer(partial(func, *a, **k))
+        return None
 
     return decorate

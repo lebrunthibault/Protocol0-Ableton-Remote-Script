@@ -6,6 +6,7 @@ from protocol0.components.SongDataManager import SongDataManager
 from protocol0.config import Config
 from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.enums.SongLoadStateEnum import SongLoadStateEnum
+from protocol0.errors.Protocol0Warning import Protocol0Warning
 from protocol0.interface.InterfaceState import InterfaceState
 from protocol0.lom.Scene import Scene
 from protocol0.lom.track.AbstractTrack import AbstractTrack
@@ -61,7 +62,7 @@ class SongManager(AbstractControlSurfaceComponent):
             if first_prophet_track:
                 return first_prophet_track
             else:
-                self.parent.show_message("Couldn't find prophet track")
+                raise Protocol0Warning("Couldn't find prophet track")
 
         armed_tracks = self.song.armed_tracks
         if len(armed_tracks):

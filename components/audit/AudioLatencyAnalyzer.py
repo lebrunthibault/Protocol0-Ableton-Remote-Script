@@ -5,6 +5,7 @@ from typing import Optional, cast
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.devices.InstrumentMinitaur import InstrumentMinitaur
 from protocol0.enums.RecordTypeEnum import RecordTypeEnum
+from protocol0.errors.Protocol0Warning import Protocol0Warning
 from protocol0.lom.Note import Note
 from protocol0.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.sequence.Sequence import Sequence
@@ -14,16 +15,14 @@ class AudioLatencyAnalyzer(AbstractControlSurfaceComponent):
     def test_audio_latency(self):
         # type: () -> Optional[Sequence]
         if self.song.usamo_track is None:
-            self.parent.show_message("Missing usamo track")
-            return None
+            raise Protocol0Warning("Missing usamo track")
 
         ext_synth_track = self.song.current_track
         if not isinstance(ext_synth_track, ExternalSynthTrack):
             ext_synth_track = next(self.song.prophet_tracks, None)
 
         if ext_synth_track is None:
-            self.parent.show_message("Please select an ExternalSynthTrack")
-            return None
+            raise Protocol0Warning("Please select an ExternalSynthTrack")
 
         tempo = self.song.tempo
         self.song.tempo = 120  # easier to see jitter

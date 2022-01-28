@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, List, Optional, Any
 from _Framework.ButtonElement import ButtonElement
 from _Framework.InputControlElement import MIDI_NOTE_TYPE, MIDI_CC_TYPE
 from protocol0.errors.InvalidTrackError import InvalidTrackError
+from protocol0.errors.Protocol0Warning import Protocol0Warning
 from protocol0.interface.EncoderAction import EncoderAction, EncoderMoveEnum
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.utils.decorators import p0_subject_slot, handle_error
@@ -77,7 +78,6 @@ class MultiEncoder(AbstractObject):
 
         if self._filter_active_tracks and not self.song.selected_track.IS_ACTIVE:
             raise InvalidTrackError("action not dispatched for master / return tracks (%s)" % action.name)
-            # self.parent.show_message("action not dispatched for master / return tracks (%s)" % action.name)
 
         params = {}
         if go_next is not None:
@@ -104,8 +104,6 @@ class MultiEncoder(AbstractObject):
             action = find_matching_action(inner_move_type=EncoderMoveEnum.PRESS)
 
         if not action and log_not_found:
-            self.parent.show_message(
-                "Action not found: %s (%s)" % (self.name, move_type)
-            )
+            raise Protocol0Warning("Action not found: %s (%s)" % (self.name, move_type))
 
         return action

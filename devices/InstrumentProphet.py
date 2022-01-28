@@ -46,9 +46,9 @@ class InstrumentProphet(AbstractExternalSynthTrackInstrument):
     def toggle_editor_plugin_on(cls):
         # type: () -> None
         """
-            Having big issues with the codeknobs editor that doesn't always behave the same
+            Having big issues with codeknobs editor that doesn't always behave in the same way
 
-            Sometimes the editor doesn't work as expected and duplicates (it seems) midi messages.
+            Sometimes the editor doesn't work as expected and generates duplicate midi messages (it seems).
             Notes off messages are generated instantly resulting in very short notes
 
             In that case, the editor will work even toggled off ..

@@ -66,8 +66,9 @@ class ActionGroupMain(AbstractActionGroup):
         self.add_encoder(
             identifier=12,
             name="scene scroll time",
-            on_press=lambda: self.song.last_manually_started_scene.fire_and_move_position,
             on_scroll=lambda: self.song.selected_scene.scroll_position,
+            on_press=lambda: self.song.last_manually_started_scene.fire_and_move_position,
+            on_long_press=lambda: self.song.current_track.toggle_fold,
         )
 
         # TRacK encoder

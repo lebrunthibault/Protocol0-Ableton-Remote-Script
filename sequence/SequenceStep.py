@@ -7,7 +7,7 @@ from protocol0.errors.SequenceError import SequenceError
 from protocol0.lom.AbstractObject import AbstractObject
 from protocol0.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
 from protocol0.utils.callback_descriptor import CallableWithCallbacks
-from protocol0.utils.decorators import p0_subject_slot
+from protocol0.utils.decorators import p0_subject_slot, handle_error
 from protocol0.utils.timeout import TimeoutLimit
 from protocol0.utils.utils import _has_callback_queue, get_callable_repr, nop
 
@@ -148,6 +148,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
             )
             listener.add_callback(self._callback_timeout)
 
+    @handle_error
     def _execute_callable(self, func):
         # type: (Callable) -> Any
         try:

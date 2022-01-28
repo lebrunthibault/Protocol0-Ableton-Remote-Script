@@ -155,7 +155,6 @@ class SongActionMixin(object):
         scenes_count = len(self.song.scenes)
         seq.add(partial(self._song.create_scene, scene_index or scenes_count), complete_on=self.parent.songScenesManager.scenes_listener)
         seq.add(wait=1)
-        seq.add(lambda: self.parent.show_message("created !"))
         return seq.done()
 
     def delete_scene(self, scene_index):

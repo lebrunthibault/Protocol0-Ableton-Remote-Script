@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Optional
 from _Framework.Util import forward_property
 from protocol0.devices.presets.InstrumentPreset import InstrumentPreset
 from protocol0.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
+from protocol0.errors.Protocol0Warning import Protocol0Warning
 from protocol0.lom.device.PluginDevice import PluginDevice
 from protocol0.sequence.Sequence import Sequence
 from protocol0.utils.utils import scroll_values
@@ -59,8 +60,8 @@ class AbstractInstrumentPresetsMixin(object):
     def scroll_preset_categories(self, go_next):
         # type: (AbstractInstrument, bool) -> None
         if not len(self._preset_list.categories):
-            self.parent.show_message("this instrument does not have categories")
-            return
+            raise Protocol0Warning("this instrument does not have categories")
+
         self.parent.navigationManager.show_device_view()
         self._preset_list.selected_category = scroll_values(
             self._preset_list.categories, self._preset_list.selected_category, go_next

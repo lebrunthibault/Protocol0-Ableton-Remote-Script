@@ -10,6 +10,7 @@ from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.enums.AbstractEnum import AbstractEnum
 from protocol0.enums.SongDataEnum import SongDataEnum
 from protocol0.errors.Protocol0Error import Protocol0Error
+from protocol0.errors.Protocol0Warning import Protocol0Warning
 from protocol0.errors.SongDataError import SongDataError
 from protocol0.my_types import Func, T
 from protocol0.utils.utils import class_attributes
@@ -90,7 +91,7 @@ class SongDataManager(AbstractControlSurfaceComponent):
             self.parent.log_error(str(e))
             self.parent.log_notice("setting %s song data to {}")
             self.clear()
-            self.parent.show_message("Inconsistent song data please save the set")
+            raise Protocol0Warning("Inconsistent song data please save the set")
 
     def _restore_data(self):
         # type: () -> None

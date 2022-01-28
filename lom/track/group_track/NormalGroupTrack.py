@@ -7,6 +7,7 @@ from protocol0.lom.track.AbstractTrack import AbstractTrack
 from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.sequence.Sequence import Sequence
+from protocol0.utils.decorators import p0_subject_slot, defer
 from protocol0.utils.utils import find_if
 
 
@@ -18,6 +19,15 @@ class NormalGroupTrack(AbstractGroupTrack):
         # type: (SimpleTrack, Any, Any) -> None
         super(NormalGroupTrack, self).__init__(base_group_track=base_group_track, *a, **k)
         self.push2_selected_main_mode = Push2MainModeEnum.MIX
+        self._solo_listener.subject = base_group_track._track
+
+    @p0_subject_slot("solo")
+    @defer
+    def _solo_listener(self):
+        # type: () -> None
+        self.parent.log_dev("solo !!")
+        for sub_track in self.sub_tracks:
+            sub_track.solo = self.solo
 
     def toggle_arm(self):
         # type: (AbstractTrack) -> Optional[Sequence]

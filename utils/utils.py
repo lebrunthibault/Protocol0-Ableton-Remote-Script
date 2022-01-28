@@ -15,8 +15,8 @@ if TYPE_CHECKING:
     pass
 
 
-def scroll_values(items, selected_item, go_next, show_message=False, rotate=True):
-    # type: (Iterator[T], Optional[T], bool, bool, bool) -> T
+def scroll_values(items, selected_item, go_next, rotate=True):
+    # type: (Iterator[T], Optional[T], bool, bool) -> T
     items_list = list(items)  # type: List[T]
     if selected_item not in items_list:
         selected_item = items_list[0]
@@ -29,12 +29,7 @@ def scroll_values(items, selected_item, go_next, show_message=False, rotate=True
             return selected_item
     try:
         index = (items_list.index(selected_item) + increment) % len(items_list)
-        new_item = items_list[index]
-        if show_message:
-            from protocol0 import Protocol0
-
-            Protocol0.SELF.show_message("Selected %s" % new_item)
-        return new_item
+        return items_list[index]
     except ValueError:
         return selected_item
 
