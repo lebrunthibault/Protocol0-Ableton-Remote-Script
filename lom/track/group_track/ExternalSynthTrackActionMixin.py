@@ -19,14 +19,21 @@ class ExternalSynthTrackActionMixin(object):
         self.base_track.is_folded = False
         self.base_track.mute = False
 
-        # checking levels
-        self.audio_track._output_meter_level_listener.subject = self.audio_track._track
-
         if self.song.usamo_track:
             self.song.usamo_track.input_routing_track = self.midi_track
 
         self.midi_track.input_routing_type = self.instrument.MIDI_INPUT_ROUTING_TYPE
         self.has_monitor_in = False
+
+        for clip in self.midi_track.clips:
+            audio_clip = self.audio_track.clip_slots[clip.index].clip
+            # do not unmute muted clip slot
+            if audio_clip and audio_clip.muted:
+                continue
+            clip.muted = False
+
+        # checking levels
+        self.audio_track._output_meter_level_listener.subject = self.audio_track._track
 
         seq = Sequence()
         seq.add([sub_track.arm for sub_track in self.sub_tracks if not isinstance(sub_track, SimpleDummyTrack)])
@@ -35,6 +42,8 @@ class ExternalSynthTrackActionMixin(object):
     def unarm_track(self):
         # type: (ExternalSynthTrack) -> None
         self.has_monitor_in = True
+        for clip in self.midi_track.clips:
+            clip.muted = True
         self.audio_track._output_meter_level_listener.subject = None
 
     @property

@@ -16,7 +16,8 @@ class ClipSynchronizer(ObjectSynchronizer):
         # type: (MidiClip, AudioClip, Any, Any) -> None
         properties = ["name"]
         if not isinstance(audio_clip.track, SimpleAudioTailTrack):
-            properties += ["looping", "muted"]
+            properties += ["looping"]
+            # not muted because we want to mute only midi clips
 
         if midi_clip.length == audio_clip.length:
             properties += ["loop_start", "loop_end", "start_marker", "end_marker"]
