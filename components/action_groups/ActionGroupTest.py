@@ -1,7 +1,6 @@
 from typing import Any
 
 from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
-from protocol0.sequence.Sequence import Sequence
 
 
 class ActionGroupTest(AbstractActionGroup):
@@ -16,9 +15,7 @@ class ActionGroupTest(AbstractActionGroup):
         # TEST encoder
         self.add_encoder(identifier=1, name="test",
                          on_press=self.action_test,
-                         # on_cancel_press=self.action_cancel_test,
                          on_long_press=self.action_test,
-                         on_cancel_long_press=self.action_cancel_test,
                          )
 
         # PROFiling encoder
@@ -28,14 +25,8 @@ class ActionGroupTest(AbstractActionGroup):
         self.add_encoder(identifier=3, name="clear logs", on_press=self.parent.logManager.clear)
 
     def action_test(self):
-        # type: () -> Sequence
-        seq = Sequence()
-        seq.add(wait=100)
-        return seq.done()
-
-    def action_cancel_test(self):
         # type: () -> None
-        self.system.show_warning("cancelling !")
+        pass
 
     def start_set_profiling(self):
         # type: () -> None

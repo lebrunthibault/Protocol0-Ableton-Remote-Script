@@ -141,19 +141,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             return False
 
     @property
-    def has_monitor_in(self):
-        # type: () -> bool
-        return self.current_monitoring_state == CurrentMonitoringStateEnum.IN
-
-    @has_monitor_in.setter
-    def has_monitor_in(self, has_monitor_in):
-        # type: (bool) -> None
-        if has_monitor_in:
-            self.current_monitoring_state = CurrentMonitoringStateEnum.IN
-        else:
-            self.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
-
-    @property
     def current_monitoring_state(self):
         # type: () -> CurrentMonitoringStateEnum
         if self._track is None:

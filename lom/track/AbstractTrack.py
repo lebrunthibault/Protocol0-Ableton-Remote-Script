@@ -194,16 +194,6 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
             track.is_armed = is_armed
 
     @property
-    def has_monitor_in(self):
-        # type: () -> bool
-        raise NotImplementedError
-
-    @has_monitor_in.setter
-    def has_monitor_in(self, has_monitor_in):
-        # type: (bool) -> None
-        raise NotImplementedError
-
-    @property
     def clips(self):
         # type: () -> List[Clip]
         return [clip_slot.clip for clip_slot in self.base_track.clip_slots if clip_slot.has_clip and clip_slot.clip]

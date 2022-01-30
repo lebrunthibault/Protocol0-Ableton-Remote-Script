@@ -66,7 +66,7 @@ class ExternalSynthTrackValidator(AbstractObjectValidator, AggregateValidator):
 
     def fix(self):
         # type: () -> Sequence
-        self._track.has_monitor_in = True
+        self._track.monitoring_state.monitor_audio()
         seq = Sequence()
         seq.add(super(ExternalSynthTrackValidator, self).fix)
         seq.add(self._track.midi_track.select)

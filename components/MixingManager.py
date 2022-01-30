@@ -4,7 +4,6 @@ import Live
 from _Framework.SubjectSlot import subject_slot_group
 from protocol0.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.config import Config
-from protocol0.lom.track.AbstractTrack import AbstractTrack
 from protocol0.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
 from protocol0.utils.decorators import p0_subject_slot
 
@@ -43,10 +42,8 @@ class MixingManager(AbstractControlSurfaceComponent):
         # type: () -> None
         if not self.song.master_track or not self._should_activate_mix_volume_follower:
             return
-        if self.song.master_track.output_meter_level >= 0.87:
-            for track in self.song.abstract_tracks:  # type: AbstractTrack
-                if not track.group_track:
-                    track.volume *= 0.95
+        if self.song.master_track.output_meter_level >= 0.89:
+            self.scroll_all_tracks_volume(go_next=False)
 
     @subject_slot_group("output_meter_level")
     def _track_output_meter_level_listener(self, track):

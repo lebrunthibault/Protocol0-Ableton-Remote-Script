@@ -37,7 +37,7 @@ class ActionGroupSet(AbstractActionGroup):
         self.add_encoder(identifier=13, name="smooth selected clip velocities",
                          on_scroll=self.parent.clipManager.smooth_selected_clip_velocities)
 
-        # FIX encoder
+        # VOL encoder
         self.add_encoder(identifier=14, name="scroll all tracks volume",
                          on_scroll=self.parent.mixingManager.scroll_all_tracks_volume)
 

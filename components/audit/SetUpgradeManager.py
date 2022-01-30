@@ -46,7 +46,8 @@ class SetUpgradeManager(AbstractControlSurfaceComponent):
         seq.prompt("Add clip tail track to %s external synth tracks?" % len(tracks))
         for track in tracks:
             if track.audio_tail_track is None:
-                seq.add(track.create_tail_track)
+                track.is_folded = False
+                seq.add(track.audio_track.duplicate)
                 seq.add(wait=10)
         return seq.done()
 

@@ -1,5 +1,6 @@
 from typing import Any
 
+from protocol0.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.enums.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
 from protocol0.validation.AbstractObjectValidator import AbstractObjectValidator
@@ -13,7 +14,7 @@ class SimpleInstrumentBusTrackValidator(AbstractObjectValidator, AggregateValida
         # type: (SimpleInstrumentBusTrack, Any, Any) -> None
         validators = [
             PropertyValueValidator(track, "input_routing_type", InputRoutingTypeEnum.NO_INPUT),
-            PropertyValueValidator(track, "has_monitor_in", True),
+            PropertyValueValidator(track, "current_monitoring_state", CurrentMonitoringStateEnum.IN),
             # SimpleTrackHasDeviceValidator(track, DeviceEnum.DUMMY_RACK),
             CallbackValidator(track, lambda t: len(t.clips) == 1, None, "track should have one empty dummy clip"),
         ]

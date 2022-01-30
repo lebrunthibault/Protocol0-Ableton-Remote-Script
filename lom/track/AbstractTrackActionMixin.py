@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Optional, NoReturn
+from typing import TYPE_CHECKING, Any, Optional
 
 from protocol0.errors.InvalidTrackError import InvalidTrackError
 from protocol0.sequence.Sequence import Sequence
@@ -93,10 +93,6 @@ class AbstractTrackActionMixin(object):
             return self.instrument.scroll_preset_categories(go_next=go_next)
         else:
             raise InvalidTrackError("Cannot scroll categories without an instrument")
-
-    def switch_monitoring(self):
-        # type: (AbstractTrack) -> NoReturn
-        raise InvalidTrackError("%s cannot switch monitoring" % self)
 
     def stop(self, immediate=False):
         # type: (AbstractTrack, bool) -> None

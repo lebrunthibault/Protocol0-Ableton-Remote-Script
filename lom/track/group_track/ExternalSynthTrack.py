@@ -10,6 +10,7 @@ from protocol0.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
 from protocol0.lom.device.Device import Device
 from protocol0.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.lom.track.group_track.ExternalSynthTrackActionMixin import ExternalSynthTrackActionMixin
+from protocol0.lom.track.group_track.ExternalSynthTrackMonitoringState import ExternalSynthTrackMonitoringState
 from protocol0.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
@@ -40,6 +41,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self._devices_listener.subject = self.midi_track
         self._devices_listener()
 
+        self.monitoring_state = ExternalSynthTrackMonitoringState(self)
         self.record_clip_tails = False  # records one more bar of audio on presets with tail
 
     def _added_track_init(self):

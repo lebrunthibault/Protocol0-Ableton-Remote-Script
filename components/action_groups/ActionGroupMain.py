@@ -43,7 +43,7 @@ class ActionGroupMain(AbstractActionGroup):
             identifier=8,
             name="monitor",
             filter_active_tracks=True,
-            on_press=lambda: self.song.current_track.switch_monitoring)
+            on_press=lambda: self.song.current_external_synth_track.monitoring_state.switch)
 
         # RECord encoder
         self.add_encoder(

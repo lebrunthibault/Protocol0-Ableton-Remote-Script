@@ -46,7 +46,6 @@ class AbstractTrackRecorder(AbstractObject):
     def pre_record(self):
         # type: () -> Sequence
         self.song.session_automation_record = True
-        self.track.has_monitor_in = False
         seq = Sequence()
         seq.add(self.song.check_midi_recording_quantization)
         seq.add(self._arm_track)

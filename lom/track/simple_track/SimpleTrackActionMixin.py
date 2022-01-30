@@ -29,10 +29,6 @@ class SimpleTrackActionMixin(object):
             seq.add(partial(self.instrument.activate_plugin_window))
         return seq.done()
 
-    def switch_monitoring(self):
-        # type: (SimpleTrack) -> None
-        self.has_monitor_in = not self.has_monitor_in  # type: ignore[has-type]
-
     def delete_device(self, device_index):
         # type: (SimpleTrack, int) -> None
         self._track.delete_device(device_index)

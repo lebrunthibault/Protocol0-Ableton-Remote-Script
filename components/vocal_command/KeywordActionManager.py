@@ -24,7 +24,7 @@ class KeywordActionManager(AbstractControlSurfaceComponent):
             ActionEnum.NEXT: lambda: self.parent.keywordSearchManager.search_track(
                 self.parent.keywordSearchManager.LAST_SEARCH),
             ActionEnum.ARM: lambda: self.song.current_track.toggle_arm,
-            ActionEnum.MONITOR: lambda: self.song.current_track.switch_monitoring,
+            ActionEnum.MONITOR: lambda: self.song.current_external_synth_track.monitoring_state.switch,
             ActionEnum.SOLO: lambda: self.song.current_track.toggle_solo,
             ActionEnum.REC: lambda: partial(self.parent.trackRecorderManager.record_track, self.song.current_track,
                                             RecordTypeEnum.NORMAL),

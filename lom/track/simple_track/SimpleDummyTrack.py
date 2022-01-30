@@ -2,6 +2,7 @@ from functools import partial
 
 from typing import Optional, Any
 
+from protocol0.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.enums.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.enums.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
@@ -20,7 +21,7 @@ class SimpleDummyTrack(SimpleAudioTrack):
 
     def _added_track_init(self):
         # type: () -> Sequence
-        self.has_monitor_in = True
+        self.current_monitoring_state = CurrentMonitoringStateEnum.IN
         self.input_routing_type = InputRoutingTypeEnum.NO_INPUT
         seq = Sequence()
         seq.add(super(SimpleDummyTrack, self)._added_track_init)
