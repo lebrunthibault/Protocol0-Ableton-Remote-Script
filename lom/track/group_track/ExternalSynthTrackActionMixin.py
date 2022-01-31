@@ -19,7 +19,7 @@ class ExternalSynthTrackActionMixin(object):
         self.base_track.mute = False
 
         if self.song.usamo_track:
-            self.song.usamo_track.input_routing_track = self.midi_track
+            self.song.usamo_track.input_routing.track = self.midi_track
 
         self.monitoring_state.monitor_midi()
 

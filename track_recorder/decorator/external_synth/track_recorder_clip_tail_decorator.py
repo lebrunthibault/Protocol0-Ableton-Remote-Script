@@ -37,9 +37,10 @@ class TrackRecorderClipTailDecorator(AbstractTrackRecorderExternalSynthDecorator
 
     def _wait_for_clip_tail_end(self):
         # type: () -> Sequence
-        input_routing_type = self.track.midi_track.input_routing_type
+        input_routing_type = self.track.midi_track.input_routing.type
 
-        self.track.audio_track.clip_slots[self.recording_scene_index].clip.fire()
+        audio_clip = self.track.audio_track.clip_slots[self.recording_scene_index].clip
+        audio_clip.fire()
         self._beat_changed_listener.subject = self.parent.beatScheduler
 
         # following is a trick to have no midi note input at the very end of the bar while being able
@@ -59,10 +60,10 @@ class TrackRecorderClipTailDecorator(AbstractTrackRecorderExternalSynthDecorator
         seq.add(complete_on=self.parent.beatScheduler.last_32th_listener)
         seq.add(partial(setattr, self.song, "session_automation_record", False))
         seq.add(partial(self.track.midi_track.stop, immediate=True))
-        seq.add(partial(setattr, self.track.midi_track, "input_routing_type", InputRoutingTypeEnum.NO_INPUT))
+        seq.add(partial(setattr, self.track.midi_track.input_routing, "type", InputRoutingTypeEnum.NO_INPUT))
         seq.add(wait_beats=1)
         seq.add(partial(midi_clip.set_notes, midi_notes))
         seq.add(complete_on=self._is_silent_listener, no_timeout=True)
-        seq.add(partial(setattr, self.track.midi_track, "input_routing_type", input_routing_type))
+        seq.add(partial(setattr, self.track.midi_track.input_routing, "type", input_routing_type))
         seq.add(partial(setattr, self._beat_changed_listener, "subject", None))
         return seq.done()

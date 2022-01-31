@@ -29,8 +29,8 @@ class SimpleAudioTailTrack(SimpleAudioTrack):
     def configure(self):
         # type: () -> None
         try:
-            self.input_routing_track = self.abstract_group_track.midi_track
-            self.input_routing_channel = InputRoutingChannelEnum.POST_FX
+            self.input_routing.track = self.abstract_group_track.midi_track
+            self.input_routing.channel = InputRoutingChannelEnum.POST_FX
         except Protocol0Error:
             return
 

@@ -154,6 +154,11 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             self._track.current_monitoring_state = monitoring_state.value
 
     @property
+    def output_meter_left(self):
+        # type: () -> float
+        return self._track.output_meter_left if self._track else 0
+
+    @property
     def playing_slot_index(self):
         # type: () -> int
         return self._track.playing_slot_index if self._track else 0

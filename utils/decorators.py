@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, Any, Callable
 
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
 from protocol0.my_types import Func, T
-from protocol0.utils.log import log_ableton
 from protocol0.utils.utils import is_method
 
 if TYPE_CHECKING:
@@ -124,7 +123,7 @@ def handle_error(func):
         # noinspection PyBroadException
         try:
             return func(*a, **k)
-        except Exception as e:
+        except Exception:
             from protocol0 import Protocol0
 
             Protocol0.SELF.errorManager.handle_error()

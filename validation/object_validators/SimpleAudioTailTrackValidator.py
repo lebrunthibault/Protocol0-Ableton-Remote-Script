@@ -10,8 +10,8 @@ class SimpleAudioTailTrackValidator(SimpleAudioTrackValidator):
         # type: (SimpleAudioTailTrack, Any, Any) -> None
         super(SimpleAudioTailTrackValidator, self).__init__(track, *a, **k)
         self._validators += [
-            PropertyValueValidator(track, "input_routing_track", track.abstract_group_track.midi_track),
-            PropertyValueValidator(track, "input_routing_channel",
+            PropertyValueValidator(track.input_routing, "track", track.abstract_group_track.midi_track),
+            PropertyValueValidator(track.input_routing, "channel",
                                    track.abstract_group_track.instrument.AUDIO_INPUT_ROUTING_CHANNEL),
         ]
         for clip in self._track.clips:

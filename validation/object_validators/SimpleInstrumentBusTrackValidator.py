@@ -13,7 +13,7 @@ class SimpleInstrumentBusTrackValidator(AbstractObjectValidator, AggregateValida
     def __init__(self, track, *a, **k):
         # type: (SimpleInstrumentBusTrack, Any, Any) -> None
         validators = [
-            PropertyValueValidator(track, "input_routing_type", InputRoutingTypeEnum.NO_INPUT),
+            PropertyValueValidator(track.input_routing, "type", InputRoutingTypeEnum.NO_INPUT),
             PropertyValueValidator(track, "current_monitoring_state", CurrentMonitoringStateEnum.IN),
             # SimpleTrackHasDeviceValidator(track, DeviceEnum.DUMMY_RACK),
             CallbackValidator(track, lambda t: len(t.clips) == 1, None, "track should have one empty dummy clip"),

@@ -1,6 +1,7 @@
 from typing import Any
 
 from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
+from protocol0.enums.InputRoutingTypeEnum import InputRoutingTypeEnum
 
 
 class ActionGroupTest(AbstractActionGroup):
@@ -26,7 +27,8 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        pass
+        self.parent.log_dev(self.song.selected_track.input_routing.toto)
+        self.song.selected_track.input_routing.toto = InputRoutingTypeEnum.REV2_AUX
 
     def start_set_profiling(self):
         # type: () -> None
