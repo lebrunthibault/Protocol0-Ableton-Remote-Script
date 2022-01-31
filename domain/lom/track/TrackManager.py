@@ -68,6 +68,8 @@ class TrackManager(AbstractControlSurfaceComponent):
         """ discarding automated tracks in creation / suppression """
         midi_track = base_group_track.sub_tracks[0]
 
+        self.parent.log_dev((midi_track, midi_track.instrument))
+
         if not midi_track.instrument:
             midi_track.instrument = InstrumentMinitaur(track=midi_track, device=None)
 

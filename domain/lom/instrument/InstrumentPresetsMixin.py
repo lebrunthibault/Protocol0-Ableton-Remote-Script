@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.instrument.AbstractInstrument import AbstractInstrument
 
 
-class AbstractInstrumentPresetsMixin(object):
+class InstrumentPresetsMixin(object):
     PRESETS_PATH = ""
     PRESET_EXTENSION = ""
     PRESET_DISPLAY_OPTION = PresetDisplayOptionEnum.NAME

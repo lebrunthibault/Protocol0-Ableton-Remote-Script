@@ -63,6 +63,8 @@ class LogManager(AbstractObject):
         self.parent.log_info()
         self.parent.log_info("selected_track.clips: %s" % self.song.selected_track.clips)
         self.parent.log_info()
+        self.parent.log_info("selected_track.instrument: %s" % self.song.selected_track.instrument)
+        self.parent.log_info()
         self.parent.log_notice("********* SELECTED_SCENE *************")
         self.parent.log_info()
         self.parent.log_info("selected_scene: %s" % self.song.selected_scene)

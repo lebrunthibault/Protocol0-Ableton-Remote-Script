@@ -11,7 +11,7 @@ from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.PluginDevice import PluginDevice
 from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.lom.device.SimplerDevice import SimplerDevice
-from protocol0.domain.lom.instrument.AbstractInstrumentPresetsMixin import AbstractInstrumentPresetsMixin
+from protocol0.domain.lom.instrument.InstrumentPresetsMixin import InstrumentPresetsMixin
 from protocol0.domain.lom.instrument.preset.InstrumentPresetList import InstrumentPresetList
 from protocol0.domain.sequence.Sequence import Sequence
 
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
-class AbstractInstrument(AbstractInstrumentPresetsMixin, AbstractObject):
+class AbstractInstrument(InstrumentPresetsMixin, AbstractObject):
     # computed at boot time
     INSTRUMENT_CLASSES = []  # type: List[Type[AbstractInstrument]]
 

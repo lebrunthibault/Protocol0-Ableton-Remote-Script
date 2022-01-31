@@ -1,7 +1,6 @@
 from typing import Any
 
 from protocol0.application.faderfox.group.AbstractActionGroup import AbstractActionGroup
-from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
 
 
 class ActionGroupTest(AbstractActionGroup):
@@ -27,10 +26,8 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        self.parent.log_dev(self.song.selected_track.output_routing.type)
-        self.parent.log_dev(self.song.selected_track.output_routing.track)
-        self.song.selected_track.output_routing.type = OutputRoutingTypeEnum.MASTER
-        self.song.selected_track.output_routing.track = self.song.selected_track.group_track
+        self.parent.log_dev(self.song.current_track.computed_color)
+        self.song.current_track.refresh_color()
 
     def start_set_profiling(self):
         # type: () -> None

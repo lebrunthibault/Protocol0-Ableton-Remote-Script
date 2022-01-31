@@ -2,6 +2,7 @@ from typing import Any, TYPE_CHECKING
 
 from protocol0.domain.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.AbstractObject import AbstractObject
+from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.application.decorators import single_undo
 
@@ -90,7 +91,7 @@ class ExternalSynthTrackMonitoringState(AbstractObject):
         # type: (SimpleTrack) -> None
         track.mute = True
         track.current_monitoring_state = CurrentMonitoringStateEnum.IN
-        track.output_routing.track
+        track.output_routing.type = OutputRoutingTypeEnum.SENDS_ONLY
 
     def _un_mute_track(self, track):
         # type: (SimpleTrack) -> None

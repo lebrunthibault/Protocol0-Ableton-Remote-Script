@@ -107,6 +107,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self.notify_devices()
 
         # Refreshing is only really useful from simpler devices that change when a new sample is loaded
+        self.parent.log_dev((self, self.IS_ACTIVE, self.is_foldable))
         if self.IS_ACTIVE and not self.is_foldable:
             self.instrument = self.parent.deviceManager.make_instrument_from_simple_track(track=self)
 
