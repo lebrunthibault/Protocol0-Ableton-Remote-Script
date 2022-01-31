@@ -1,8 +1,8 @@
 from typing import Optional
 
-from protocol0.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
-from protocol0.enums.LogLevelEnum import LogLevelEnum
-from protocol0.enums.RecordTypeEnum import RecordTypeEnum
+from protocol0.domain.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
+from protocol0.domain.enums.LogLevelEnum import LogLevelEnum
+from protocol0.domain.enums.RecordTypeEnum import RecordTypeEnum
 
 
 class Config(object):

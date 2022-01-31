@@ -1,7 +1,7 @@
 from typing import List
 
 from _Framework.SubjectSlot import Subject
-from protocol0.lom.Song import Song
+from protocol0.domain.lom.song.Song import Song
 from protocol0.tests import p0
 from protocol0.tests.fixtures.simple_track import AbletonTrack
 from protocol0.tests.fixtures.song_view import AbletonSongView

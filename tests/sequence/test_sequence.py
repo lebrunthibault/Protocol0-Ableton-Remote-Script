@@ -1,8 +1,8 @@
 import pytest
 
-from protocol0.sequence.Sequence import Sequence
-from protocol0.utils.decorators import has_callback_queue
-from protocol0.utils.utils import nop
+from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.domain.decorators import has_callback_queue
+from protocol0.domain.utils import nop
 
 
 def test_sanity_checks():

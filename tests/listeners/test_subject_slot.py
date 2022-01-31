@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 from _Framework.SubjectSlot import Subject, SlotManager
-from protocol0.utils.decorators import p0_subject_slot
+from protocol0.domain.decorators import p0_subject_slot
 
 
 def test_subject_slot_inheritance():

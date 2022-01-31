@@ -1,0 +1,37 @@
+from typing import Any
+
+from protocol0.application.faderfox.group.AbstractActionGroup import AbstractActionGroup
+from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
+
+
+class ActionGroupTest(AbstractActionGroup):
+    """ Just a playground to launch test actions """
+
+    def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
+        # channel is not 1 because 1 is reserved for non script midi
+        # NB: each scroll encoder is sending a cc value of zero on startup / shutdown and that can interfere
+        super(ActionGroupTest, self).__init__(channel=16, *a, **k)
+
+        # TEST encoder
+        self.add_encoder(identifier=1, name="test",
+                         on_press=self.action_test,
+                         on_long_press=self.action_test,
+                         )
+
+        # PROFiling encoder
+        self.add_encoder(identifier=2, name="start set launch time profiling", on_press=self.start_set_profiling)
+
+        # CLR encoder
+        self.add_encoder(identifier=3, name="clear logs", on_press=self.parent.logManager.clear)
+
+    def action_test(self):
+        # type: () -> None
+        self.parent.log_dev(self.song.selected_track.output_routing.type)
+        self.parent.log_dev(self.song.selected_track.output_routing.track)
+        self.song.selected_track.output_routing.type = OutputRoutingTypeEnum.MASTER
+        self.song.selected_track.output_routing.track = self.song.selected_track.group_track
+
+    def start_set_profiling(self):
+        # type: () -> None
+        self.system.start_set_profiling()

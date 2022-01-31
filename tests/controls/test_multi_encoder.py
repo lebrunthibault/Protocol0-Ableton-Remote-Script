@@ -1,10 +1,10 @@
 import pytest
 from typing import Any
 
-from protocol0.components.action_groups.AbstractActionGroup import AbstractActionGroup
-from protocol0.interface.EncoderAction import EncoderAction
-from protocol0.interface.EncoderMoveEnum import EncoderMoveEnum
-from protocol0.interface.MultiEncoder import MultiEncoder
+from protocol0.application.faderfox.group.AbstractActionGroup import AbstractActionGroup
+from protocol0.application.faderfox.EncoderAction import EncoderAction
+from protocol0.application.faderfox.EncoderMoveEnum import EncoderMoveEnum
+from protocol0.application.faderfox.MultiEncoder import MultiEncoder
 from protocol0.tests.fixtures import make_song
 from protocol0.tests.test_all import p0
 

@@ -2,7 +2,7 @@ from typing import cast, List, Dict, Any
 
 import Live
 from _Framework.SubjectSlot import Subject
-from protocol0.lom.Song import Song
+from protocol0.domain.lom.song.Song import Song
 
 
 class TrackType(object):
