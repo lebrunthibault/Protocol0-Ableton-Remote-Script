@@ -4,6 +4,7 @@ from itertools import chain, imap
 from typing import Optional, Tuple, Dict, Type, cast, List, Union
 
 from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.domain.lom.instrument import InstrumentFactory
 from protocol0.domain.lom.instrument.AbstractInstrument import AbstractInstrument
 from protocol0.domain.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.lom.device.Device import Device
@@ -28,12 +29,14 @@ class DeviceManager(AbstractControlSurfaceComponent):
         to keep instrument state
         """
 
-        instrument_device = find_if(lambda d: AbstractInstrument.get_instrument_class(d),  # type: ignore
+        instrument_device = find_if(lambda d: InstrumentFactory.get_instrument_class(d),  # type: ignore
                                     track.all_devices)
         if not instrument_device:
             return None
 
-        instrument_class = cast(Type[AbstractInstrument], AbstractInstrument.get_instrument_class(instrument_device))
+        self.parent.log_dev("instrument_device: %s" % instrument_device)
+
+        instrument_class = cast(Type[AbstractInstrument], InstrumentFactory.get_instrument_class(instrument_device))
 
         if isinstance(track.instrument, instrument_class):
             return track.instrument  # maintaining state

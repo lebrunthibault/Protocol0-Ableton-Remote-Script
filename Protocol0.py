@@ -8,55 +8,48 @@ from typing import Callable, Any, Optional, Union, List
 
 # noinspection PyUnresolvedReferences
 from _Framework.ControlSurface import ControlSurface, get_control_surfaces
-from protocol0.domain.lom.track.AutomationTrackManager import AutomationTrackManager
-from protocol0.infra.BrowserManager import BrowserManager
-from protocol0.domain.lom.clip.ClipManager import ClipManager
-from protocol0.domain.lom.device.DeviceManager import DeviceManager
 from protocol0.application.ErrorManager import ErrorManager
 from protocol0.application.LogManager import LogManager
-from protocol0.infra.MidiManager import MidiManager
-from protocol0.domain.lom.set.MixingManager import MixingManager
+from protocol0.application.faderfox.ActionGroupFactory import ActionGroupFactory
 from protocol0.application.interface.NavigationManager import NavigationManager
-from protocol0.domain.lom.instrument.preset.PresetManager import PresetManager
-from protocol0.domain.lom.note.NoteQuantizationManager import NoteQuantizationManager
 from protocol0.application.interface.SessionManager import SessionManager
-from protocol0.domain.lom.set.SessionToArrangementManager import SessionToArrangementManager
-from protocol0.infra.SongDataManager import SongDataManager
-from protocol0.domain.lom.song.SongManager import SongManager
-from protocol0.infra.TrackDataManager import TrackDataManager
-from protocol0.domain.lom.track.TrackManager import TrackManager
 from protocol0.application.interface.UIManager import UIManager
-from protocol0.application.faderfox.group.ActionGroupData import ActionGroupData
-from protocol0.application.faderfox.group.ActionGroupFix import ActionGroupFix
-from protocol0.application.faderfox.group.ActionGroupLog import ActionGroupLog
-from protocol0.application.faderfox.group.ActionGroupMain import ActionGroupMain
-from protocol0.application.faderfox.group.ActionGroupMix import ActionGroupMix
-from protocol0.application.faderfox.group.ActionGroupPreset import ActionGroupPreset
-from protocol0.application.faderfox.group.ActionGroupSet import ActionGroupSet
-from protocol0.application.faderfox.group.ActionGroupTest import ActionGroupTest
 from protocol0.application.midi_api.ApiAction import ApiAction
 from protocol0.application.midi_api.ApiRoutesManager import ApiRoutesManager
+from protocol0.application.vocal_command.KeywordSearchManager import KeywordSearchManager
+from protocol0.application.vocal_command.VocalCommandManager import VocalCommandManager
+from protocol0.config import Config
 from protocol0.domain.audit.AudioLatencyAnalyzer import AudioLatencyAnalyzer
 from protocol0.domain.audit.SetFixerManager import SetFixerManager
 from protocol0.domain.audit.SetUpgradeManager import SetUpgradeManager
 from protocol0.domain.audit.SongStatsManager import SongStatsManager
-from protocol0.domain.lom.scene.SongScenesManager import SongScenesManager
-from protocol0.domain.lom.song.SongTracksManager import SongTracksManager
-from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
-from protocol0.infra.scheduler.FastScheduler import FastScheduler
-from protocol0.infra.scheduler.SchedulerEvent import SchedulerEvent
-from protocol0.application.vocal_command.KeywordSearchManager import KeywordSearchManager
-from protocol0.application.vocal_command.VocalCommandManager import VocalCommandManager
-from protocol0.config import Config
 from protocol0.domain.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.domain.enums.LogLevelEnum import LogLevelEnum
 from protocol0.domain.lom.application.Application import Application
+from protocol0.domain.lom.clip.ClipManager import ClipManager
+from protocol0.domain.lom.device.DeviceManager import DeviceManager
+from protocol0.domain.lom.instrument.preset.PresetManager import PresetManager
+from protocol0.domain.lom.note.NoteQuantizationManager import NoteQuantizationManager
+from protocol0.domain.lom.scene.SongScenesManager import SongScenesManager
+from protocol0.domain.lom.set.MixingManager import MixingManager
+from protocol0.domain.lom.set.SessionToArrangementManager import SessionToArrangementManager
 from protocol0.domain.lom.song.Song import Song
+from protocol0.domain.lom.song.SongManager import SongManager
+from protocol0.domain.lom.song.SongTracksManager import SongTracksManager
+from protocol0.domain.lom.track.AutomationTrackManager import AutomationTrackManager
+from protocol0.domain.lom.track.TrackManager import TrackManager
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.track_recorder.track_recorder_manager import TrackRecorderManager
-from protocol0.infra.log import log_ableton
 from protocol0.domain.utils import find_if
 from protocol0.domain.validation.ValidatorManager import ValidatorManager
+from protocol0.infra.BrowserManager import BrowserManager
+from protocol0.infra.MidiManager import MidiManager
+from protocol0.infra.SongDataManager import SongDataManager
+from protocol0.infra.TrackDataManager import TrackDataManager
+from protocol0.infra.log import log_ableton
+from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
+from protocol0.infra.scheduler.FastScheduler import FastScheduler
+from protocol0.infra.scheduler.SchedulerEvent import SchedulerEvent
 
 
 def _default(_, obj):
@@ -126,14 +119,7 @@ class Protocol0(ControlSurface):
 
             if Config.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.TEST:
                 # action groups
-                ActionGroupData()
-                ActionGroupFix()
-                ActionGroupLog()
-                ActionGroupMain()
-                ActionGroupMix()
-                ActionGroupPreset()
-                ActionGroupSet()
-                ActionGroupTest()
+                ActionGroupFactory.create_action_groups()
 
                 # vocal command
                 self.keywordSearchManager = KeywordSearchManager()

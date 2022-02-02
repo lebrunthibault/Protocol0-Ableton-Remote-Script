@@ -1,4 +1,4 @@
-from protocol0.domain.lom.instrument.InstrumentProphet import InstrumentProphet
+from protocol0.domain.lom.instrument.instrument.InstrumentProphet import InstrumentProphet
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder

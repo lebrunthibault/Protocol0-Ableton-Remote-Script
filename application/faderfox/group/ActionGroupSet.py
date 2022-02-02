@@ -1,7 +1,7 @@
 from typing import Any
 
 from protocol0.application.faderfox.group.AbstractActionGroup import AbstractActionGroup
-from protocol0.domain.lom.instrument.InstrumentProphet import InstrumentProphet
+from protocol0.domain.lom.instrument.instrument.InstrumentProphet import InstrumentProphet
 from protocol0.application.faderfox.InterfaceState import InterfaceState
 
 

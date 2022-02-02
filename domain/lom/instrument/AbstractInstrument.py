@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, Optional, List, Any, Type
 from protocol0.domain.enums.ColorEnum import ColorEnum
 from protocol0.domain.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from protocol0.domain.lom.AbstractObject import AbstractObject
-from protocol0.domain.lom.note.Note import Note
 from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.PluginDevice import PluginDevice
@@ -13,6 +12,7 @@ from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.lom.device.SimplerDevice import SimplerDevice
 from protocol0.domain.lom.instrument.InstrumentPresetsMixin import InstrumentPresetsMixin
 from protocol0.domain.lom.instrument.preset.InstrumentPresetList import InstrumentPresetList
+from protocol0.domain.lom.note.Note import Note
 from protocol0.domain.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -68,15 +68,15 @@ class AbstractInstrument(InstrumentPresetsMixin, AbstractObject):
             device = cls._get_device_from_rack_device(device) or device
 
         if isinstance(device, PluginDevice):
-            for _class in cls.INSTRUMENT_CLASSES:
+            for _class in InstrumentManager.get_instrument_classes():
                 if _class.DEVICE_NAME.lower() == device.name.lower():
                     return _class
         elif isinstance(device, SimplerDevice):
-            from protocol0.domain.lom.instrument.InstrumentSimpler import InstrumentSimpler
+            from protocol0.domain.lom.instrument.instrument.InstrumentSimpler import InstrumentSimpler
 
             return InstrumentSimpler
         elif device.can_have_drum_pads:
-            from protocol0.domain.lom.instrument.InstrumentDrumRack import InstrumentDrumRack
+            from protocol0.domain.lom.instrument.instrument.InstrumentDrumRack import InstrumentDrumRack
 
             return InstrumentDrumRack
 

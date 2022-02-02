@@ -6,7 +6,7 @@ import Live
 from protocol0.domain.lom.set.SessionToArrangementManager import SessionToArrangementManager
 from protocol0.infra.SongDataManager import save_song_data
 from protocol0.config import Config
-from protocol0.domain.lom.instrument.InstrumentProphet import InstrumentProphet
+from protocol0.domain.lom.instrument.instrument.InstrumentProphet import InstrumentProphet
 from protocol0.domain.enums.SongLoadStateEnum import SongLoadStateEnum
 from protocol0.domain.errors.InvalidTrackError import InvalidTrackError
 from protocol0.domain.lom.AbstractObject import AbstractObject

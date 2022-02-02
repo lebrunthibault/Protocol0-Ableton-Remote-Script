@@ -2,7 +2,7 @@ from typing import Optional, Type
 
 import Live
 from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.domain.lom.instrument.InstrumentMinitaur import InstrumentMinitaur
+from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
 from protocol0.domain.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.lom.track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack

@@ -3,7 +3,7 @@ from functools import partial
 from typing import Optional, cast
 
 from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.domain.lom.instrument.InstrumentMinitaur import InstrumentMinitaur
+from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
 from protocol0.domain.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.domain.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.lom.note.Note import Note

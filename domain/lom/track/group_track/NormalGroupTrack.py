@@ -1,7 +1,7 @@
 from typing import Any, Optional, Type
 
 from protocol0.domain.lom.instrument.AbstractInstrument import AbstractInstrument
-from protocol0.domain.lom.instrument import InstrumentSimpler
+from protocol0.domain.lom.instrument.instrument import InstrumentSimpler
 from protocol0.domain.lom.track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
