@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, List, Any
 
 import Live
 from protocol0.domain.lom.AbstractObject import AbstractObject
-from protocol0.domain.decorators import p0_subject_slot
+from protocol0.domain.shared.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.device.Device import Device

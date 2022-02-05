@@ -4,9 +4,9 @@ import types
 
 from typing import Optional, TYPE_CHECKING, Any, List, Dict
 
-from protocol0.config import Config
-from protocol0.domain.errors.Protocol0Error import Protocol0Error
-from protocol0.domain.utils import smart_string
+from protocol0.application.config import Config
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
+from protocol0.domain.shared.utils import smart_string
 
 if TYPE_CHECKING:
     from protocol0.domain.enums.LogLevelEnum import LogLevelEnum  # noqa
@@ -19,7 +19,10 @@ def log_ableton(message, debug=True, level=None):
         message = list(message)
 
     if isinstance(message, List) or isinstance(message, Dict):
-        message = json.dumps(message, indent=4)
+        try:
+            message = json.dumps(message, indent=4)
+        except AttributeError:
+            pass
 
     if not isinstance(message, basestring):
         message = str(message)
@@ -32,7 +35,7 @@ def log_ableton(message, debug=True, level=None):
     if not isinstance(debug, bool):
         raise Protocol0Error("log_ableton: parameter mismatch")
     if debug:
-        from protocol0.domain.utils import get_frame_info
+        from protocol0.domain.shared.utils import get_frame_info
 
         frame_info = get_frame_info(4)
         if frame_info:

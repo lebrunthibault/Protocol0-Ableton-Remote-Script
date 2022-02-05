@@ -3,7 +3,7 @@ from math import floor
 from ClyphX_Pro.ClyphXComponentBase import ClyphXComponentBase, schedule
 from typing import Any, Optional
 
-from protocol0.domain.decorators import p0_subject_slot
+from protocol0.domain.shared.decorators import p0_subject_slot
 
 
 class SyncedScheduler(ClyphXComponentBase):

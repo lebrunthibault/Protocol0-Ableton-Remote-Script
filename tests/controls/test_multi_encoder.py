@@ -5,7 +5,7 @@ from protocol0.application.faderfox.group.AbstractActionGroup import AbstractAct
 from protocol0.application.faderfox.EncoderAction import EncoderAction
 from protocol0.application.faderfox.EncoderMoveEnum import EncoderMoveEnum
 from protocol0.application.faderfox.MultiEncoder import MultiEncoder
-from protocol0.tests.fixtures import make_song
+from protocol0.tests.fixtures import patch_song
 from protocol0.tests.test_all import p0
 
 
@@ -29,7 +29,7 @@ def _scroll_encoder(encoder):
 def _make_multi_encoder(identifier=1):
     # type: (int) -> MultiEncoder
     with p0.component_guard():
-        p0.protocol0_song = make_song()
+        patch_song()
         return ActionGroupTest().add_encoder(identifier=identifier, name="pytest")
 
 

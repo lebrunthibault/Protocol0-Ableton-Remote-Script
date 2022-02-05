@@ -1,22 +1,32 @@
 from ClyphX_Pro import ClyphXComponentBase
-from typing import List, Any, Callable
+from typing import List, Callable, Optional
 
 import Live
-from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.infra.scheduler.SchedulerEvent import SchedulerEvent
 
 
-class FastScheduler(AbstractControlSurfaceComponent):
+class FastScheduler(object):
     TICK_MS_DURATION = 17  # average 17 ms
+    _INSTANCE = None  # type: Optional[FastScheduler]
 
     # noinspection PyArgumentList
-    def __init__(self, *a, **k):
-        # type: (Any, Any) -> None
-        super(FastScheduler, self).__init__(*a, **k)
+    def __init__(self):
+        # type: () -> None
+        if self._INSTANCE:
+            raise Protocol0Error("FastScheduler singleton already instantiated")
         ClyphXComponentBase.start_scheduler()
         self._scheduler = Live.Base.Timer(callback=self._on_tick, interval=1, repeat=True)
         self._scheduler.start()
         self._scheduled_events = []  # type: List[SchedulerEvent]
+
+    @classmethod
+    def get_instance(cls):
+        # type: () -> FastScheduler
+        if not cls._INSTANCE:
+            cls._INSTANCE = FastScheduler()
+
+        return cls._INSTANCE
 
     def stop(self):
         # type: () -> None

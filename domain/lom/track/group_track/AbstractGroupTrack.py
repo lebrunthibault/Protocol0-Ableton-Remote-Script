@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Any, List, Optional, Iterator
 
 from protocol0.domain.lom.clip.Clip import Clip
-from protocol0.domain.lom.track.AbstractTrack import AbstractTrack
+from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 

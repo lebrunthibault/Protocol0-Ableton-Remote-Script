@@ -17,8 +17,8 @@ from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummy
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.domain.decorators import p0_subject_slot
-from protocol0.domain.utils import find_if
+from protocol0.domain.shared.decorators import p0_subject_slot
+from protocol0.domain.shared.utils import find_if
 
 
 class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
@@ -173,7 +173,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     @property
     def solo(self):
         # type: () -> bool
-        return self.base_track.solo
+        return super(ExternalSynthTrack, self).solo
 
     @solo.setter
     def solo(self, solo):

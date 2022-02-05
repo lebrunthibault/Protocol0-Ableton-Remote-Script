@@ -3,22 +3,26 @@ from os.path import isfile, isdir
 
 from typing import TYPE_CHECKING, List, Optional, Any
 
-from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPreset
 from protocol0.domain.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
-from protocol0.domain.lom.AbstractObject import AbstractObject
+from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.PluginDevice import PluginDevice
 from protocol0.domain.lom.device.RackDevice import RackDevice
-from protocol0.domain.utils import find_if
+from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPreset
+from protocol0.domain.shared.utils import find_if
+from protocol0.shared.Logger import Logger
 
 if TYPE_CHECKING:
-    from protocol0.domain.lom.instrument.AbstractInstrument import AbstractInstrument
+    pass
 
 
-class InstrumentPresetList(AbstractObject):
-    def __init__(self, instrument, *a, **k):
-        # type: (AbstractInstrument, Any, Any) -> None
-        super(InstrumentPresetList, self).__init__(*a, **k)
-        self.instrument = instrument
+class InstrumentPresetList(object):
+    def __init__(self, device, preset_path, preset_extension, preset_display_option, track_name):
+        # type: (Device, str, str, PresetDisplayOptionEnum, str) -> None
+        self._device = device
+        self._preset_path = preset_path
+        self._preset_extension = preset_extension
+        self._preset_display_option = preset_display_option
+        self._track_name = track_name
         self._presets = None  # type: Optional[List[InstrumentPreset]]
         self._selected_preset = None  # type: Optional[InstrumentPreset]
 
@@ -85,18 +89,18 @@ class InstrumentPresetList(AbstractObject):
 
     def scroll(self, go_next):
         # type: (bool) -> None
-        if isinstance(self.instrument.device, RackDevice):
-            self.instrument.device.scroll_chain_selector(go_next=go_next)
-            self.selected_preset = self.presets[int(self.instrument.device.chain_selector.value)]
+        if isinstance(self._device, RackDevice):
+            self._device.scroll_chain_selector(go_next=go_next)
+            self.selected_preset = self.presets[int(self._device.chain_selector.value)]
             return
 
         category_presets = self._category_presets()
         if len(category_presets) == 0:
-            self.parent.log_warning(
-                "Didn't find category presets for cat %s in %s" % (self.selected_category, self.instrument)
+            Logger.log_warning(
+                "Didn't find category presets for cat %s in %s" % (self.selected_category, self._device)
             )
             if len(self.categories) == 0:
-                self.parent.log_error("Didn't find categories for %s" % self)
+                Logger.log_error("Didn't find categories for %s" % self)
                 return
 
             self.selected_category = self.categories[0]
@@ -113,49 +117,49 @@ class InstrumentPresetList(AbstractObject):
 
     def _import_presets(self):
         # type: () -> List[InstrumentPreset]
-        if not self.instrument.presets_path:
+        if not self._preset_path:
             # Addictive keys or any other multi instrument rack
-            if isinstance(self.instrument.device, RackDevice):
+            if isinstance(self._device, RackDevice):
                 return [
-                    self.instrument.make_preset(index=i, name=chain.name)
-                    for i, chain in enumerate(self.instrument.device.chains)
+                    InstrumentPreset(index=i, name=chain.name)
+                    for i, chain in enumerate(self._device.chains)
                 ]
             # Prophet rev2 other vst with accessible presets list
-            elif isinstance(self.instrument.device, PluginDevice) and len(self.instrument.device.presets):
+            elif isinstance(self._device, PluginDevice) and len(self._device.presets):
                 return [
-                    self.instrument.make_preset(index=i, name=preset)
-                    for i, preset in enumerate(self.instrument.device.presets[0:128])
+                    InstrumentPreset(index=i, name=preset)
+                    for i, preset in enumerate(self._device.presets[0:128])
                 ]
         # Serum or any other vst storing presets in a text file
-        elif isfile(self.instrument.presets_path):
+        elif isfile(self._preset_path):
             return [
-                self.instrument.make_preset(index=i, name=name)
-                for i, name in enumerate(open(self.instrument.presets_path).readlines()[0:128])
+                InstrumentPreset(index=i, name=name)
+                for i, name in enumerate(open(self._preset_path).readlines()[0:128])
             ]
         # Simpler or Minitaur or any instrument storing presets as files in a directory
-        elif isdir(self.instrument.presets_path):
+        elif isdir(self._preset_path):
             presets = []
             has_categories = False
-            for root, dir_names, files in os.walk(self.instrument.presets_path):
+            for root, dir_names, files in os.walk(self._preset_path):
                 if len(dir_names):
                     has_categories = True
                 if has_categories:
-                    if root == self.instrument.presets_path:
+                    if root == self._preset_path:
                         continue
 
-                    category = root.replace(self.instrument.presets_path + "\\", "").split("\\")[0]
+                    category = root.replace(self._preset_path + "\\", "").split("\\")[0]
                     for filename in [filename for filename in files if
-                                     filename.endswith(self.instrument.PRESET_EXTENSION)]:
+                                     filename.endswith(self._preset_extension)]:
                         presets.append(
-                            self.instrument.make_preset(index=len(presets), category=category, name=filename))
+                            InstrumentPreset(index=len(presets), category=category, name=filename))
                 else:
                     for filename in [filename for filename in files if
-                                     filename.endswith(self.instrument.PRESET_EXTENSION)]:
-                        presets.append(self.instrument.make_preset(index=len(presets), name=filename))
+                                     filename.endswith(self._preset_extension)]:
+                        presets.append(InstrumentPreset(index=len(presets), name=filename))
 
             return presets
 
-        self.parent.log_error("Couldn't import presets for %s" % self.instrument)
+        Logger.log_error("Couldn't import presets for %s" % self._device)
         return []
 
     def _get_selected_preset(self):
@@ -169,9 +173,9 @@ class InstrumentPresetList(AbstractObject):
         if len(self.presets) == 0:
             return None
 
-        if self.instrument.device and self.instrument.device.preset_name:
-            preset = find_if(lambda p: p.name == self.instrument.device.preset_name, self.presets)
-        elif self.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.NAME:
-            preset = find_if(lambda p: p.name == self.instrument.track.abstract_track.name, self.presets)
+        if self._device and self._device.preset_name:
+            preset = find_if(lambda p: p.name == self._device.preset_name, self.presets)
+        elif self._preset_display_option == PresetDisplayOptionEnum.NAME:
+            preset = find_if(lambda p: p.name == self._track_name, self.presets)
 
         return preset

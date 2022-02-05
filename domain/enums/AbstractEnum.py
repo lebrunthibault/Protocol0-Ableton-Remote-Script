@@ -3,7 +3,7 @@ from pydoc import classname, locate
 from enum import Enum
 from typing import TypeVar, cast, Optional, Any, Dict
 
-from protocol0.domain.errors.Protocol0Error import Protocol0Error
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 
 T = TypeVar("T", bound=Enum)
 

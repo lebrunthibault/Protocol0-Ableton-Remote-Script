@@ -1,7 +1,7 @@
 from typing import cast
 
 from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.domain.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.lom.clip.MidiClip import MidiClip
 
 

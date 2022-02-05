@@ -11,7 +11,8 @@ class SetFixerManager(AbstractControlSurfaceComponent):
         self.parent.logManager.clear()
 
         for obj in self._objects_to_refresh_appearance:
-            obj.refresh_appearance()
+            if hasattr(obj, "refresh_appearance"):
+                obj.refresh_appearance()
 
         invalid_objects = []
 

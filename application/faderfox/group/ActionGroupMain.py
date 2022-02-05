@@ -85,9 +85,9 @@ class ActionGroupMain(AbstractActionGroup):
             identifier=14,
             name="instrument",
             filter_active_tracks=True,
-            on_press=lambda: self.song.current_track.show_hide_instrument,
-            on_long_press=lambda: self.song.current_track.activate_instrument_plugin_window,
-            on_scroll=lambda: self.song.current_track.scroll_presets_or_samples,
+            on_press=self.parent.instrumentDisplayManager.show_hide_instrument,
+            on_long_press=self.parent.instrumentDisplayManager.activate_instrument_plugin_window,
+            on_scroll=lambda: partial(self.parent.instrumentPresetScrollerManager.scroll_presets_or_samples, self.song.current_track.instrument),
         )
 
         # SCENe encoder

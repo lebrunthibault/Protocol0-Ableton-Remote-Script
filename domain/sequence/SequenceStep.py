@@ -2,15 +2,16 @@ from functools import partial
 
 from typing import TYPE_CHECKING, Iterable, Any, Union, Callable, Optional, cast, List
 
-from protocol0.config import Config
+from protocol0.application.config import Config
 from protocol0.domain.sequence.SequenceError import SequenceError
 from protocol0.domain.lom.AbstractObject import AbstractObject
 from protocol0.domain.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
 from protocol0.domain.sequence.callback_descriptor import CallableWithCallbacks
-from protocol0.domain.decorators import p0_subject_slot
-from protocol0.application.decorators import handle_error
+from protocol0.domain.shared.decorators import p0_subject_slot
+from protocol0.application.service.decorators import handle_error
 from protocol0.domain.sequence.timeout import TimeoutLimit
-from protocol0.domain.utils import _has_callback_queue, get_callable_repr, nop
+from protocol0.domain.shared.utils import _has_callback_queue, get_callable_repr, nop
+from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
 
 if TYPE_CHECKING:
     from protocol0.domain.sequence.Sequence import Sequence
@@ -112,7 +113,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
             return
 
         if self._wait_beats:
-            self.parent.wait_beats(self._wait_beats, self.terminate)
+            BeatScheduler.get_instance().wait_beats(self._wait_beats, self.terminate)
             return
 
         # we have complete_on there

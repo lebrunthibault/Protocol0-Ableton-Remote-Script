@@ -1,6 +1,7 @@
 from typing import Any
 
 from protocol0.application.faderfox.group.AbstractActionGroup import AbstractActionGroup
+from protocol0.infra.System import System
 
 
 class ActionGroupTest(AbstractActionGroup):
@@ -26,9 +27,8 @@ class ActionGroupTest(AbstractActionGroup):
 
     def action_test(self):
         # type: () -> None
-        self.parent.log_dev(self.song.current_track.computed_color)
-        self.song.current_track.refresh_color()
+        pass
 
     def start_set_profiling(self):
         # type: () -> None
-        self.system.start_set_profiling()
+        System.get_instance().start_set_profiling()

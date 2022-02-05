@@ -2,7 +2,7 @@ import sys
 
 import _Framework.ControlSurface
 from protocol0 import EmptyModule, create_instance
-from protocol0.config import Config
+from protocol0.application.config import Config
 from protocol0.domain.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.domain.sequence.timeout import TimeoutLimit
 

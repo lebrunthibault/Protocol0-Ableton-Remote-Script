@@ -7,7 +7,7 @@ from protocol0.domain.enums.TrackDataEnum import TrackDataEnum
 from protocol0.my_types import Func
 
 if TYPE_CHECKING:
-    from protocol0.domain.lom.track.AbstractTrack import AbstractTrack
+    from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 
 
 def save_track_data(func):
@@ -41,4 +41,4 @@ class TrackDataManager(AbstractControlSurfaceComponent):
     def clear(self):
         # type: () -> None
         for track in self.song.abstract_tracks:
-            self.parent.log_notice("Clearing track data of %s" % track)
+            self.parent.log_info("Clearing track data of %s" % track)

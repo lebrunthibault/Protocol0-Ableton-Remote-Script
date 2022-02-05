@@ -3,7 +3,7 @@ from functools import partial
 from typing import Iterator, List, Dict, Optional
 
 from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.domain.errors.Protocol0Error import Protocol0Error
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.DeviceParameterEnum import DeviceParameterEnum

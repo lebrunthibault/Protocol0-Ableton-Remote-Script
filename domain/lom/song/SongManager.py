@@ -3,14 +3,15 @@ from typing import Optional
 import Live
 from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.infra.SongDataManager import SongDataManager
-from protocol0.config import Config
+from protocol0.application.config import Config
 from protocol0.domain.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.domain.enums.SongLoadStateEnum import SongLoadStateEnum
-from protocol0.domain.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.application.faderfox.InterfaceState import InterfaceState
 from protocol0.domain.lom.scene.Scene import Scene
-from protocol0.domain.lom.track.AbstractTrack import AbstractTrack
+from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.infra.System import System
 
 
 class SongManager(AbstractControlSurfaceComponent):
@@ -23,7 +24,7 @@ class SongManager(AbstractControlSurfaceComponent):
             return None
 
         if self.song.clip_trigger_quantization == Live.Song.Quantization.q_no_q:
-            self.system.show_warning("The global launch quantization is set to None")
+            System.get_instance().show_warning("The global launch quantization is set to None")
 
         for armed_track in self.song.armed_tracks:
             self.parent.defer(armed_track.unarm)

@@ -4,12 +4,11 @@ from typing import TYPE_CHECKING, List, Optional, Any
 
 from _Framework.ButtonElement import ButtonElement
 from _Framework.InputControlElement import MIDI_NOTE_TYPE, MIDI_CC_TYPE
-from protocol0.application.decorators import handle_error
-from protocol0.domain.errors.InvalidTrackError import InvalidTrackError
-from protocol0.domain.errors.Protocol0Warning import Protocol0Warning
+from protocol0.application.service.decorators import handle_error
 from protocol0.application.faderfox.EncoderAction import EncoderAction, EncoderMoveEnum
+from protocol0.domain.shared.decorators import p0_subject_slot
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.lom.AbstractObject import AbstractObject
-from protocol0.domain.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
     from protocol0.application.faderfox.group.AbstractActionGroup import AbstractActionGroup
@@ -78,7 +77,7 @@ class MultiEncoder(AbstractObject):
             return None
 
         if self._filter_active_tracks and not self.song.selected_track.IS_ACTIVE:
-            raise InvalidTrackError("action not dispatched for master / return tracks (%s)" % action.name)
+            raise Protocol0Warning("action not dispatched for master / return tracks (%s)" % action.name)
 
         params = {}
         if go_next is not None:

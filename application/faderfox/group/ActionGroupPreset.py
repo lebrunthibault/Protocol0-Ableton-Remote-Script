@@ -1,3 +1,5 @@
+from functools import partial
+
 from typing import Any
 
 from protocol0.application.faderfox.group.AbstractActionGroup import AbstractActionGroup
@@ -18,5 +20,5 @@ class ActionGroupPreset(AbstractActionGroup):
         # CATegory encoder
         self.add_encoder(
             identifier=2, name="scroll preset categories",
-            on_scroll=lambda: self.song.current_track.scroll_preset_categories
+            on_scroll=lambda: partial(self.parent.instrumentPresetScrollerManager.scroll_preset_categories, self.song.current_track.instrument),
         )

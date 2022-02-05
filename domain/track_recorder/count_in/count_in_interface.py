@@ -1,5 +1,5 @@
 from protocol0.domain.lom.AbstractObject import AbstractObject
-from protocol0.domain.lom.track.AbstractTrack import AbstractTrack
+from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.sequence.Sequence import Sequence
 
 

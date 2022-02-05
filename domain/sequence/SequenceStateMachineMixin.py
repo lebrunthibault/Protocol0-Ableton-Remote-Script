@@ -4,6 +4,7 @@ from typing import Any, Optional
 from protocol0.domain.enums.AbstractEnum import AbstractEnum
 from protocol0.domain.enums.LogLevelEnum import LogLevelEnum
 from protocol0.infra.log import log_ableton
+from protocol0.shared.Logger import Logger
 
 
 class SequenceState(AbstractEnum):
@@ -88,8 +89,7 @@ class SequenceStateMachineMixin(object):
     def error(self, message=None):
         # type: (Optional[str]) -> None
         if message:
-            from protocol0 import Protocol0
-            Protocol0.SELF.log_error(message)
+            Logger.log_error(message)
         self.dispatch("error")
         self.notify_errored()  # type: ignore[attr-defined]
 

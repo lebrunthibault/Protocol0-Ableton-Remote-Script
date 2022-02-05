@@ -5,7 +5,7 @@ from typing import Any, Optional
 
 import Live
 from protocol0.domain.lom.device.Device import Device
-from protocol0.domain.utils import smart_string
+from protocol0.domain.shared.utils import smart_string
 
 
 class SimplerDevice(Device):

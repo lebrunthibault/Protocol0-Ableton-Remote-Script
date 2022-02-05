@@ -3,12 +3,14 @@ from functools import partial
 from typing import List, Optional, Any, Iterator, cast
 
 import Live
+from protocol0.domain.ApplicationView import ApplicationView
 from protocol0.domain.lom.set.SessionToArrangementManager import SessionToArrangementManager
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.infra.SongDataManager import save_song_data
-from protocol0.config import Config
+from protocol0.application.config import Config
 from protocol0.domain.lom.instrument.instrument.InstrumentProphet import InstrumentProphet
 from protocol0.domain.enums.SongLoadStateEnum import SongLoadStateEnum
-from protocol0.domain.errors.InvalidTrackError import InvalidTrackError
+from protocol0.domain.lom.errors.InvalidTrackError import InvalidTrackError
 from protocol0.domain.lom.AbstractObject import AbstractObject
 from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.lom.song.SongActionMixin import SongActionMixin
@@ -16,22 +18,27 @@ from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.device.DeviceParameter import DeviceParameter
-from protocol0.domain.lom.track.AbstractTrack import AbstractTrack
+from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
 from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.decorators import p0_subject_slot, debounce
-from protocol0.domain.utils import find_if
+from protocol0.domain.shared.decorators import p0_subject_slot, debounce
+from protocol0.domain.shared.utils import find_if
 
 
 class Song(SongActionMixin, AbstractObject):
     __subject_events__ = ("session_end",)
+    _INSTANCE = None  # type: Optional[Song]
 
     def __init__(self, song, *a, **k):
         # type: (Live.Song.Song, Any, Any) -> None
+        if self._INSTANCE:
+            raise Protocol0Error("Song singleton already created")
+
         super(Song, self).__init__(*a, **k)
         self._song = song
+        print(song)
         self._view = self._song.view  # type: Live.Song.Song.View
 
         # Global accessible objects / object mappings
@@ -48,6 +55,15 @@ class Song(SongActionMixin, AbstractObject):
         self.session_end_listener.subject = self
         self._tempo_listener.subject = self._song
         self._midi_recording_quantization_listener.subject = self._song
+
+    @classmethod
+    def get_instance(cls):
+        # type: () -> Song
+        if not cls._INSTANCE:
+            from protocol0 import Protocol0
+            cls._INSTANCE = Song(Protocol0.SELF.song())
+
+        return cls._INSTANCE
 
     def __call__(self):
         # type: () -> Live.Song.Song
@@ -77,7 +93,7 @@ class Song(SongActionMixin, AbstractObject):
         if Config.CURRENT_RECORD_TYPE is not None or SessionToArrangementManager.IS_BOUNCING:
             return
         # launch selected scene by clicking on play song
-        if self.application.session_view_active and not self.selected_scene.has_playing_clips:
+        if ApplicationView.is_session_view_active() and not self.selected_scene.has_playing_clips:
             self.selected_scene.fire()
 
     @p0_subject_slot("record_mode")

@@ -3,9 +3,10 @@ from typing import Any
 import Live
 from _Framework.SubjectSlot import subject_slot_group
 from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.config import Config
+from protocol0.application.config import Config
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
-from protocol0.domain.decorators import p0_subject_slot
+from protocol0.domain.shared.decorators import p0_subject_slot
+from protocol0.infra.System import System
 
 
 class MixingManager(AbstractControlSurfaceComponent):
@@ -50,7 +51,7 @@ class MixingManager(AbstractControlSurfaceComponent):
         # type: (Live.Track.Track) -> None
         if track.output_meter_level < Config.CLIPPING_TRACK_VOLUME:
             return
-        self.system.show_warning("%s is clipping (%s)" % (track.name, track.output_meter_level))
+        System.get_instance().show_warning("%s is clipping (%s)" % (track.name, track.output_meter_level))
 
     def scroll_all_tracks_volume(self, go_next):
         # type: (bool) -> None

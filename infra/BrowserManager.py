@@ -6,10 +6,10 @@ from typing import Optional, Any
 import Live
 from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
-from protocol0.domain.errors.Protocol0Error import Protocol0Error
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.domain.utils import find_if
+from protocol0.domain.shared.utils import find_if
 
 
 class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
@@ -21,7 +21,9 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
     def application(self):
         # type: () -> Live.Application.Application
         """ Clyphx code using self.application() """
-        return self.parent.protocol0_application
+        from protocol0 import Protocol0
+
+        return Protocol0.SELF.application()
 
     def get_sample(self, sample_name):
         # type: (str) -> Live.Browser.BrowserItem

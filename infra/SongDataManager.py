@@ -5,15 +5,16 @@ from pydoc import locate, classname
 from typing import Any, Optional
 
 from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.config import Config
+from protocol0.application.config import Config
 from protocol0.domain.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.domain.enums.AbstractEnum import AbstractEnum
 from protocol0.domain.enums.SongDataEnum import SongDataEnum
-from protocol0.domain.errors.Protocol0Error import Protocol0Error
-from protocol0.domain.errors.Protocol0Warning import Protocol0Warning
-from protocol0.domain.errors.SongDataError import SongDataError
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.lom.song.SongDataError import SongDataError
+from protocol0.infra.System import System
 from protocol0.my_types import Func, T
-from protocol0.domain.utils import class_attributes
+from protocol0.domain.shared.utils import class_attributes
 
 SYNCHRONIZABLE_CLASSE_NAMES = set()
 
@@ -56,7 +57,7 @@ class SongDataManager(AbstractControlSurfaceComponent):
         self.save()
         for track in self.song.simple_tracks:
             self.parent.trackDataManager.save(track=track)
-        self.system.save_set()
+        System.get_instance().save_set()
 
     def save(self):
         # type: () -> None
@@ -89,7 +90,7 @@ class SongDataManager(AbstractControlSurfaceComponent):
             self._restore_data()
         except SongDataError as e:
             self.parent.log_error(str(e))
-            self.parent.log_notice("setting %s song data to {}")
+            self.parent.log_info("setting %s song data to {}")
             self.clear()
             raise Protocol0Warning("Inconsistent song data please save the set")
 
@@ -141,5 +142,5 @@ class SongDataManager(AbstractControlSurfaceComponent):
     def clear(self):
         # type: () -> None
         for cls_fqdn in SYNCHRONIZABLE_CLASSE_NAMES:
-            self.parent.log_notice("Clearing song data of %s" % cls_fqdn)
+            self.parent.log_info("Clearing song data of %s" % cls_fqdn)
             self.song.set_data(cls_fqdn, {})

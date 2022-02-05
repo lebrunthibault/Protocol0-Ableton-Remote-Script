@@ -7,7 +7,7 @@ from protocol0.domain.lom.AbstractObject import AbstractObject
 from protocol0.domain.lom.clip.ClipActionMixin import ClipActionMixin
 from protocol0.domain.lom.clip.ClipName import ClipName
 from protocol0.domain.lom.device.DeviceParameter import DeviceParameter
-from protocol0.domain.decorators import p0_subject_slot
+from protocol0.domain.shared.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot

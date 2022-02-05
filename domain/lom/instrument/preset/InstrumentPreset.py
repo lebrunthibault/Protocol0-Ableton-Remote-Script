@@ -1,19 +1,13 @@
 import re
 
-from typing import TYPE_CHECKING, Any, Optional
+from typing import Any, Optional
 
-from protocol0.domain.lom.AbstractObject import AbstractObject
-from protocol0.domain.utils import smart_string
-
-if TYPE_CHECKING:
-    from protocol0.domain.lom.instrument.AbstractInstrument import AbstractInstrument
+from protocol0.domain.shared.utils import smart_string
 
 
-class InstrumentPreset(AbstractObject):
-    def __init__(self, instrument, index, name, category=None, *a, **k):
-        # type: (AbstractInstrument, int, Optional[basestring], Optional[str], Any, Any) -> None
-        super(InstrumentPreset, self).__init__(*a, **k)
-        self.instrument = instrument
+class InstrumentPreset(object):
+    def __init__(self, index, name, category=None):
+        # type: (int, Optional[basestring], Optional[str]) -> None
         self.index = index
         name = smart_string(name) if name else None
         self.original_name = name
@@ -33,4 +27,4 @@ class InstrumentPreset(AbstractObject):
             return "empty"
 
         base_preset_name = re.sub('\\.[a-z0-9]{2,4}', '', name)  # remove file extension
-        return self.instrument.format_preset_name(str(base_preset_name))  # calling subclass formatting
+        return str(base_preset_name)

@@ -1,8 +1,8 @@
 from typing import Any, Callable
 
-from protocol0.domain.errors.Protocol0Error import Protocol0Error
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.lom.AbstractObject import AbstractObject
-from protocol0.domain.utils import get_callable_repr
+from protocol0.domain.shared.utils import get_callable_repr
 
 
 class TimeoutLimit(AbstractObject):

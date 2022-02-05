@@ -8,7 +8,7 @@ if sys.version_info.major == 2:
 
 live_environment_loaded = "Live" in sys.modules
 
-from typing import Any, Iterator, Tuple  # noqa: E402
+from typing import Any  # noqa: E402
 
 
 def load_dotenv():
@@ -60,11 +60,6 @@ class EmptyModule(object):
         # type: () -> int
         return 0
 
-    def __iter__(self):
-        # type: () -> Iterator[Tuple[int, int]]
-        # that's for push2 scales check
-        return iter([(0, 0)])
-
     def to_json(self):
         # type: () -> str
         return self.name
@@ -77,13 +72,14 @@ if not live_environment_loaded:
     sys.modules["multipledispatch"] = EmptyModule("multipledispatch")  # type: ignore[assignment]
 
 if sys.version_info.major == 2:
-    from protocol0.Protocol0 import Protocol0  # noqa: E402
+    # allows loading configuration from python3.7 backend
+    from protocol0.application.Protocol0 import Protocol0  # noqa: E402
 
 
 def create_instance(c_instance):  # noqa
     # type: (Any) -> Protocol0
     if not live_environment_loaded:
         from protocol0.domain.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
-        from protocol0.config import Config
+        from protocol0.application.config import Config
         Config.ABLETON_SESSION_TYPE = AbletonSessionTypeEnum.TEST
     return Protocol0(c_instance)

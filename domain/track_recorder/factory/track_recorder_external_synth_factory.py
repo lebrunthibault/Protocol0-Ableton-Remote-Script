@@ -1,7 +1,7 @@
 from typing import Optional
 
 from protocol0.domain.enums.RecordTypeEnum import RecordTypeEnum
-from protocol0.domain.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.application.faderfox.InterfaceState import InterfaceState
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.track_recorder.count_in.count_in_interface import CountInInterface

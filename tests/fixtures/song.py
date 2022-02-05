@@ -2,13 +2,12 @@ from typing import List
 
 from _Framework.SubjectSlot import Subject
 from protocol0.domain.lom.song.Song import Song
-from protocol0.tests import p0
 from protocol0.tests.fixtures.simple_track import AbletonTrack
 from protocol0.tests.fixtures.song_view import AbletonSongView
 
 
 class AbletonSong(Subject):
-    __subject_events__ = ("is_playing", "record_mode", "tempo", "midi_recording_quantization", "re_enable_automation_enabled")
+    __subject_events__ = ("is_playing", "record_mode", "tempo", "midi_recording_quantization", "re_enable_automation_enabled", "tracks")
 
     def __init__(self, tracks, view):
         # type: (List[AbletonTrack], AbletonSongView) -> None
@@ -29,10 +28,6 @@ class AbletonSong(Subject):
         pass
 
 
-def make_song():
-    # type: () -> Song
-    # noinspection PyTypeChecker
-    song = Song(AbletonSong([], AbletonSongView()))
-    p0.protocol0_song = song
-
-    return song
+def patch_song():
+    # type: () -> None
+    Song.get_instance()._song = AbletonSong([], AbletonSongView())

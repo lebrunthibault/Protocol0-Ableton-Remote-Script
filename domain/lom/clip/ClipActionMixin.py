@@ -1,7 +1,8 @@
 from typing import TYPE_CHECKING, Optional
 
 import Live
-from protocol0.constants import QUANTIZATION_OPTIONS
+from protocol0.application.constants import QUANTIZATION_OPTIONS
+from protocol0.domain.ApplicationView import ApplicationView
 from protocol0.domain.lom.device.DeviceParameter import DeviceParameter
 from protocol0.domain.sequence.Sequence import Sequence
 
@@ -26,7 +27,7 @@ class ClipActionMixin(object):
         # type: (Clip) -> Sequence
         self.song.highlighted_clip_slot = self.clip_slot
         seq = Sequence()
-        seq.add(self.parent.navigationManager.show_clip_view)
+        seq.add(ApplicationView.show_clip)
         return seq.done()
 
     def stop(self, immediate=False):

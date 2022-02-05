@@ -3,16 +3,17 @@ from itertools import chain
 from typing import List, Optional, Any
 
 import Live
-from protocol0.config import Config
-from protocol0.domain.lom.instrument.AbstractInstrument import AbstractInstrument
-from protocol0.domain.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
+from protocol0.application.config import Config
+from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
+from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceParameter import DeviceParameter
-from protocol0.domain.lom.track.AbstractTrack import AbstractTrack
+from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackActionMixin import SimpleTrackActionMixin
-from protocol0.domain.decorators import p0_subject_slot
-from protocol0.domain.utils import find_if
+from protocol0.domain.shared.decorators import p0_subject_slot
+from protocol0.domain.shared.utils import find_if
+from protocol0.infra.System import System
 
 
 class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
@@ -36,7 +37,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
 
         self.devices = []  # type: List[Device]
         self.all_devices = []  # type: List[Device]
-        self._instrument = None  # type: Optional[AbstractInstrument]
+        self._instrument = None  # type: Optional[InstrumentInterface]
         self._devices_listener.subject = self._track
         self._devices_listener()
         self.clip_slots = []  # type: List[ClipSlot]
@@ -114,7 +115,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def _output_meter_level_listener(self):
         # type: () -> None
         if self.output_meter_level > Config.CLIPPING_TRACK_VOLUME:
-            self.system.show_warning("%s is clipping (%.3f)" % (self.name, self.output_meter_level))
+            System.get_instance().show_warning("%s is clipping (%.3f)" % (self.name, self.output_meter_level))
 
     @property
     def is_armed(self):
@@ -180,12 +181,12 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
 
     @property
     def instrument(self):
-        # type: () -> Optional[AbstractInstrument]
+        # type: () -> Optional[InstrumentInterface]
         return self._instrument
 
     @instrument.setter
     def instrument(self, instrument):
-        # type: (AbstractInstrument) -> None
+        # type: (InstrumentInterface) -> None
         self._instrument = instrument
 
     @property
@@ -236,5 +237,3 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             device.disconnect()
         for clip_slot in self.clip_slots:
             clip_slot.disconnect()
-        if self.instrument:
-            self.instrument.disconnect()

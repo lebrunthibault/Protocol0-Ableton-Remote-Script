@@ -1,12 +1,13 @@
 import collections
 
-from typing import Any, Optional, Type, Dict, Iterator
+from typing import Optional, Type, Dict, Iterator
 
 import Live
-from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
+from protocol0.application.service.decorators import handle_error
 from protocol0.domain.enums.SongLoadStateEnum import SongLoadStateEnum
+from protocol0.domain.lom.AbstractObject import AbstractObject
 from protocol0.domain.lom.clip.AudioClip import AudioClip
+from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
 from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
@@ -14,15 +15,13 @@ from protocol0.domain.lom.track.simple_track.SimpleMasterTrack import SimpleMast
 from protocol0.domain.lom.track.simple_track.SimpleReturnTrack import SimpleReturnTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.application.decorators import handle_error
-from protocol0.domain.decorators import p0_subject_slot
+from protocol0.domain.shared.decorators import p0_subject_slot
 
 
-class SongTracksManager(AbstractControlSurfaceComponent):
-    def __init__(self, *a, **k):
-        # type: (Any, Any) -> None
-        super(SongTracksManager, self).__init__(*a, **k)
-
+class SongTracksManager(AbstractObject):
+    def __init__(self):
+        # type: () -> None
+        super(SongTracksManager, self).__init__()
         self._live_track_id_to_simple_track = collections.OrderedDict()  # type: Dict[int, SimpleTrack]
         self.tracks_listener.subject = self.song._song
 
@@ -78,7 +77,9 @@ class SongTracksManager(AbstractControlSurfaceComponent):
 
     def _clean_deleted_tracks(self):
         # type: () -> None
-        existing_track_ids = [track._live_ptr for track in self.live_tracks]
+        print(list(self.live_tracks))
+        # existing_track_ids = [track._live_ptr for track in list(self.live_tracks)]
+        return
         deleted_ids = []
 
         for track_id, simple_track in self._live_track_id_to_simple_track.items():

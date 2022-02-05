@@ -1,7 +1,7 @@
 from typing import Optional
 
 from protocol0.domain.enums.RecordTypeEnum import RecordTypeEnum
-from protocol0.domain.errors.Protocol0Error import Protocol0Error
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.lom.AbstractObject import AbstractObject
 from protocol0.domain.track_recorder.count_in.count_in_interface import CountInInterface
 from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder

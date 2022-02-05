@@ -14,7 +14,7 @@ class TrackRecorderExternalSynthAudio(AbstractTrackRecorderExternalSynth):
         seq.add(super(TrackRecorderExternalSynthAudio, self)._focus_main_clip)
         midi_clip = self.track.midi_track.clip_slots[self.recording_scene_index].clip
         if len(midi_clip.automated_parameters):
-            seq.add(partial(self.parent.uiManager.show_clip_envelope_parameter, midi_clip, midi_clip.automated_parameters[0]))
+            seq.add(partial(self.parent.clickManager.show_clip_envelope_parameter, midi_clip, midi_clip.automated_parameters[0]))
         return seq.done()
 
     def record(self, bar_length):

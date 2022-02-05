@@ -56,22 +56,22 @@ class AbletonTrack(Subject):
         return "%s - %s (%s)" % (self.__class__.__name__, self.track_type, self._live_ptr)
 
 
-def add_track(song, track_type):
-    # type: (Song, str) -> AbletonTrack
+def add_track(track_type):
+    # type: (str) -> AbletonTrack
     live_track = AbletonTrack(track_type=track_type)
-    song._song.tracks.append(cast(Live.Track.Track, live_track))
+    Song.get_instance()._song.tracks.append(cast(Live.Track.Track, live_track))
     return live_track
 
 
-def add_external_synth_track(song, add_tail=False):
-    # type: (Song, bool) -> AbletonTrack
-    group_track = add_track(song, track_type=TrackType.GROUP)
-    midi_track = add_track(song, track_type=TrackType.MIDI)
-    audio_track = add_track(song, track_type=TrackType.AUDIO)
+def add_external_synth_track(add_tail=False):
+    # type: (bool) -> AbletonTrack
+    group_track = add_track(track_type=TrackType.GROUP)
+    midi_track = add_track(track_type=TrackType.MIDI)
+    audio_track = add_track(track_type=TrackType.AUDIO)
     midi_track.group_track = group_track
     audio_track.group_track = group_track
 
     if add_tail:
-        audio_tail_track = add_track(song, track_type=TrackType.AUDIO)
+        audio_tail_track = add_track(track_type=TrackType.AUDIO)
         audio_tail_track.group_track = group_track
     return group_track

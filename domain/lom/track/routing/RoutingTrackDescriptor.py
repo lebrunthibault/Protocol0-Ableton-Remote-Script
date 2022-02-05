@@ -1,9 +1,9 @@
 from typing import Type, Any, Optional, TYPE_CHECKING
 
 import Live
-from protocol0.domain.errors.Protocol0Error import Protocol0Error
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.lom.track.routing.TrackRoutingInterface import TrackRoutingInterface
-from protocol0.domain.utils import find_if
+from protocol0.domain.shared.utils import find_if
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack

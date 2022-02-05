@@ -6,8 +6,8 @@ from _Framework.SubjectSlot import subject_slot_group
 from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.application.push2.decorators import push2_method
 from protocol0.domain.lom.clip.MidiClip import MidiClip
-from protocol0.domain.decorators import p0_subject_slot
-from protocol0.domain.utils import find_if
+from protocol0.domain.shared.decorators import p0_subject_slot
+from protocol0.domain.shared.utils import find_if
 
 
 class Push2Manager(AbstractControlSurfaceComponent):

@@ -3,12 +3,13 @@ from functools import partial
 from typing import TYPE_CHECKING, Optional, Any
 
 import Live
+from protocol0.domain.ApplicationView import ApplicationView
 from protocol0.domain.enums.AbstractEnum import AbstractEnum
 from protocol0.domain.enums.SongLoadStateEnum import SongLoadStateEnum
 from protocol0.domain.lom.device.Device import Device
-from protocol0.domain.lom.track.AbstractTrack import AbstractTrack
+from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.domain.utils import scroll_values
+from protocol0.domain.shared.utils import scroll_values
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.song.Song import Song
@@ -26,11 +27,6 @@ class SongActionMixin(object):
             value = value.value
         self._song.set_data(key, value)
 
-    def activate_arrangement(self):
-        # type: (Song) -> None
-        self.parent.navigationManager.show_arrangement()
-        self._song.back_to_arranger = False
-
     def reset(self, save_data=False):
         # type: (Song, bool) -> None
         """ stopping immediately """
@@ -44,7 +40,7 @@ class SongActionMixin(object):
 
     def play(self):
         # type: (Song) -> None
-        if self.application.session_view_active:
+        if ApplicationView.is_session_view_active():
             self.selected_scene.fire()
         else:
             self.is_playing = True  # play arrangement
@@ -173,7 +169,7 @@ class SongActionMixin(object):
         seq = Sequence()
         seq.add(device.track.select)
         seq.add(partial(self._view.select_device, device._device))
-        seq.add(self.parent.navigationManager.focus_detail)
+        seq.add(ApplicationView.focus_detail)
         return seq.done()
 
     def tap_tempo(self):

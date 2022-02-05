@@ -3,12 +3,12 @@ from functools import partial
 from typing import Optional, List, Any, Callable
 
 from protocol0.application.faderfox.DoubleActionExecutionException import DoubleActionExecutionException
-from protocol0.domain.errors.Protocol0Error import Protocol0Error
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.application.faderfox.EncoderMoveEnum import EncoderMoveEnum
 from protocol0.domain.lom.AbstractObject import AbstractObject
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.application.decorators import handle_error
-from protocol0.domain.utils import get_callable_repr, is_lambda
+from protocol0.application.service.decorators import handle_error
+from protocol0.domain.shared.utils import get_callable_repr, is_lambda
 
 
 class EncoderAction(AbstractObject):
@@ -55,9 +55,9 @@ class EncoderAction(AbstractObject):
             get_callable_repr(func),
         )
         if self.move_type != EncoderMoveEnum.SCROLL:
-            self.parent.log_notice("%s : executing %s" % (encoder_name, get_callable_repr(func)))
+            self.parent.log_info("%s : executing %s" % (encoder_name, get_callable_repr(func)))
         else:
-            self.parent.log_notice("%s : scrolling %s" % (encoder_name, get_callable_repr(func)))
+            self.parent.log_info("%s : scrolling %s" % (encoder_name, get_callable_repr(func)))
 
         self._is_executing = True
         seq = Sequence()

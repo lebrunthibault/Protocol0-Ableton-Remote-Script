@@ -3,7 +3,7 @@ from functools import partial
 from typing import TYPE_CHECKING, Optional
 
 from protocol0.infra.TrackDataManager import save_track_data
-from protocol0.domain.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.sequence.Sequence import Sequence
 
@@ -39,16 +39,6 @@ class ExternalSynthTrackActionMixin(object):
 
         self.record_clip_tails = not self.record_clip_tails
         self.parent.show_message("Record clip tails %s" % "ON" if self.record_clip_tails else "OFF")
-
-    def scroll_presets_or_samples(self, go_next):
-        # type: (ExternalSynthTrack, bool) -> Sequence
-        """ overridden """
-        seq = Sequence()
-        if not self.can_change_presets:
-            seq.add(self._disable_protected_mode)
-
-        seq.add(partial(super(ExternalSynthTrackActionMixin, self).scroll_presets_or_samples, go_next=go_next))
-        return seq.done()
 
     @property
     def can_change_presets(self):

@@ -1,7 +1,7 @@
 from abc import abstractmethod
 
 from protocol0.domain.lom.AbstractObject import AbstractObject
-from protocol0.domain.decorators import p0_subject_slot
+from protocol0.domain.shared.decorators import p0_subject_slot
 
 
 class AbstractObjectName(AbstractObject):

@@ -5,10 +5,12 @@ from typing import Optional, cast
 from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
 from protocol0.domain.enums.RecordTypeEnum import RecordTypeEnum
-from protocol0.domain.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.lom.note.Note import Note
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.infra.MidiManager import MidiManager
+from protocol0.infra.System import System
 
 
 class AudioLatencyAnalyzer(AbstractControlSurfaceComponent):
@@ -40,7 +42,7 @@ class AudioLatencyAnalyzer(AbstractControlSurfaceComponent):
         # type: () -> None
         current_track = cast(ExternalSynthTrack, self.song.current_track)
         # switching to test preset
-        self.parent.midiManager.send_program_change(127)
+        MidiManager.send_program_change(127)
         current_track.record_clip_tails = False
 
     def _create_audio_test_clip(self):
@@ -81,8 +83,8 @@ class AudioLatencyAnalyzer(AbstractControlSurfaceComponent):
         audio_clip = current_track.audio_track.clips[0]
         seq = Sequence()
         seq.add(partial(audio_clip.quantize, depth=0))
-        seq.add(self.parent.uiManager.save_clip_sample)
-        seq.add(partial(self.system.analyze_test_audio_clip_jitter, clip_path=audio_clip.file_path),
+        seq.add(self.parent.clickManager.save_clip_sample)
+        seq.add(partial(System.get_instance().analyze_test_audio_clip_jitter, clip_path=audio_clip.file_path),
                 wait_for_system=True)
         seq.add(current_track.delete)
         return seq.done()

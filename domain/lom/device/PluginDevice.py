@@ -2,7 +2,6 @@ from typing import List, Any, Optional
 
 import Live
 from protocol0.domain.lom.device.Device import Device
-from protocol0.domain.utils import scroll_values
 
 
 class PluginDevice(Device):
@@ -10,14 +9,6 @@ class PluginDevice(Device):
         # type: (Any, Any) -> None
         super(PluginDevice, self).__init__(*a, **k)
         self._device = self._device  # type: Live.PluginDevice.PluginDevice
-
-    def scroll_presets(self, go_next):
-        # type: (bool) -> None
-        """" unused atm """
-        self.parent.navigationManager.focus_detail()
-        self.is_collapsed = False
-        selected_preset = scroll_values(self.presets, self.selected_preset, go_next)
-        self.selected_preset_index = self.presets.index(selected_preset)
 
     @property
     def presets(self):

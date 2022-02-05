@@ -1,28 +1,13 @@
-from p0_system_api.api.default_api import P0SystemAPI
-from typing import TYPE_CHECKING, Any, Optional
-
-from _Framework.ControlSurface import get_control_surfaces
 from _Framework.SubjectSlot import SlotManager, Subject
-from protocol0.domain.utils import find_if
-
-if TYPE_CHECKING:
-    from protocol0.domain.lom.song.Song import Song
-    from protocol0.Protocol0 import Protocol0
-    from protocol0.domain.lom.application.Application import Application
+from protocol0.shared.AccessGlobalState import AccessGlobalState
 
 
-class AbstractObject(SlotManager, Subject):
-    def __init__(self, *a, **k):
-        # type: (Any, Any) -> None
-        super(AbstractObject, self).__init__(*a, **k)
-        from protocol0 import Protocol0
-
-        if Protocol0.SELF:
-            parent = Protocol0.SELF  # type: Optional[Protocol0]
-        else:
-            parent = find_if(lambda cs: isinstance(cs, Protocol0), get_control_surfaces())
-        assert parent
-        self._parent = parent  # type: Protocol0
+class AbstractObject(AccessGlobalState, SlotManager, Subject):
+    """
+        Base class for domain entities
+        Providing global access to services (should be changed)
+        as well as extending appropriate classes to use ableton event system
+    """
 
     def __repr__(self):
         # type: () -> str
@@ -43,27 +28,3 @@ class AbstractObject(SlotManager, Subject):
     def to_json(self):
         # type: () -> str
         return str(self)
-
-    @property
-    def system(self):
-        # type: () -> P0SystemAPI
-        return self.parent.p0_system_api_client
-
-    @property
-    def parent(self):
-        # type: () -> Protocol0
-        return self._parent
-
-    @property
-    def song(self):
-        # type: () -> Optional[Song]
-        return self.parent.protocol0_song
-
-    @property
-    def application(self):
-        # type: () -> Optional[Application]
-        return self.parent.protocol0_application
-
-    def refresh_appearance(self):
-        # type: () -> None
-        pass

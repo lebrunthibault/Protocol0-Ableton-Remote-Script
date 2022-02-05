@@ -1,16 +1,10 @@
-from typing import Any
-
-from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.application.midi_api.decorators import api_exposed, api_exposable_class
+from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.shared.AccessGlobalState import AccessGlobalState
 
 
 @api_exposable_class
-class ApiRoutesManager(AbstractControlSurfaceComponent):
-    def __init__(self, *a, **k):
-        # type: (Any, Any) -> None
-        super(ApiRoutesManager, self).__init__(*a, **k)
-
+class ApiRoutesManager(AccessGlobalState):
     @api_exposed
     def ping(self):
         # type: () -> None
@@ -49,7 +43,7 @@ class ApiRoutesManager(AbstractControlSurfaceComponent):
         """ Called by the speech recognition script """
         waiting_sequence = next((seq for seq in Sequence.RUNNING_SEQUENCES if seq.waiting_for_system), None)
         if waiting_sequence is None:
-            self.parent.log_notice("Response (%s) received from system but couldn't find a waiting sequence" % res)
+            self.parent.log_info("Response (%s) received from system but couldn't find a waiting sequence" % res)
             return
 
         waiting_sequence.on_system_response(res=res)

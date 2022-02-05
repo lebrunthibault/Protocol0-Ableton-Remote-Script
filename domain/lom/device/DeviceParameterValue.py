@@ -2,7 +2,7 @@ from typing import Any
 
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceParameterEnum import DeviceParameterEnum
-from protocol0.domain.utils import compare_values
+from protocol0.domain.shared.utils import compare_values
 
 
 class DeviceParameterValue(object):

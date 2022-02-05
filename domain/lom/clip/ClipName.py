@@ -4,8 +4,8 @@ from functools import partial
 from typing import TYPE_CHECKING, Any, Optional
 
 from protocol0.domain.lom.AbstractObjectName import AbstractObjectName
-from protocol0.domain.decorators import p0_subject_slot
-from protocol0.domain.utils import get_length_legend
+from protocol0.domain.shared.decorators import p0_subject_slot
+from protocol0.domain.shared.utils import get_length_legend
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.clip.Clip import Clip

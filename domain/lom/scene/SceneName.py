@@ -3,8 +3,8 @@ import re
 from typing import TYPE_CHECKING, Any, Optional
 
 from protocol0.domain.lom.AbstractObjectName import AbstractObjectName
-from protocol0.domain.decorators import throttle
-from protocol0.domain.utils import get_length_legend
+from protocol0.domain.shared.decorators import throttle
+from protocol0.domain.shared.utils import get_length_legend
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.scene.Scene import Scene

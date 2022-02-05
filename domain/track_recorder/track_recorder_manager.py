@@ -4,8 +4,8 @@ from typing import Optional
 
 from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.domain.enums.RecordTypeEnum import RecordTypeEnum
-from protocol0.domain.errors.Protocol0Warning import Protocol0Warning
-from protocol0.domain.lom.track.AbstractTrack import AbstractTrack
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.sequence.Sequence import Sequence
@@ -15,7 +15,9 @@ from protocol0.domain.track_recorder.factory.track_recoder_simple_factory import
 from protocol0.domain.track_recorder.factory.track_recorder_external_synth_factory import \
     TrackRecorderExternalSynthFactory
 from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
-from protocol0.domain.utils import get_length_legend
+from protocol0.domain.shared.utils import get_length_legend
+from protocol0.infra.System import System
+from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
 
 
 class TrackRecorderManager(AbstractControlSurfaceComponent):
@@ -30,7 +32,7 @@ class TrackRecorderManager(AbstractControlSurfaceComponent):
 
     def cancel_record(self, track, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> None
-        self.system.show_warning("Cancelling record")
+        System.get_instance().show_warning("Cancelling record")
         recorder_factory = self.get_track_recorder_factory(track)
         bar_length = recorder_factory.get_recording_bar_length(record_type)
         recorder = recorder_factory.create_recorder(record_type, bar_length)
@@ -70,7 +72,7 @@ class TrackRecorderManager(AbstractControlSurfaceComponent):
         seq.add(partial(recorder.record, bar_length=bar_length))
         seq.add(recorder.post_audio_record)
         seq.add(self.song.selected_scene.fire)
-        seq.add(complete_on=self.parent.beatScheduler.bar_ending_listener)
+        seq.add(complete_on=BeatScheduler.get_instance().bar_ending_listener)
         seq.add(recorder.post_record)
         seq.add(partial(setattr, self, "recorderFactory", None))
 

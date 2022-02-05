@@ -6,6 +6,5 @@ class LogLevelEnum(AbstractEnum):
     DEBUG = 1
     DEV = 2
     INFO = 3
-    NOTICE = 4
-    WARNING = 5
-    ERROR = 6
+    WARNING = 4
+    ERROR = 5

@@ -1,8 +1,8 @@
 from typing import Any, Callable
 
 from protocol0.domain.lom.AbstractObject import AbstractObject
-from protocol0.application.decorators import handle_error
-from protocol0.domain.utils import get_callable_repr
+from protocol0.application.service.decorators import handle_error
+from protocol0.domain.shared.utils import get_callable_repr
 
 
 class SchedulerEvent(AbstractObject):

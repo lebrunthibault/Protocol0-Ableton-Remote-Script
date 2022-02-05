@@ -6,6 +6,8 @@ from protocol0.domain.lom.instrument.AbstractExternalSynthTrackInstrument import
 from protocol0.domain.enums.ColorEnum import ColorEnum
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.infra.System import System
 
 
 class InstrumentProphet(AbstractExternalSynthTrackInstrument):
@@ -21,7 +23,7 @@ class InstrumentProphet(AbstractExternalSynthTrackInstrument):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(InstrumentProphet, self).__init__(*a, **k)
-        self.parent.defer(partial(setattr, self.device, "device_on", InstrumentProphet.EDITOR_DEVICE_ON))
+        Scheduler.defer(partial(setattr, self.device, "device_on", InstrumentProphet.EDITOR_DEVICE_ON))
 
     @property
     def needs_exclusive_activation(self):
@@ -33,13 +35,13 @@ class InstrumentProphet(AbstractExternalSynthTrackInstrument):
         InstrumentProphet.ACTIVE_INSTANCE = self
         seq = Sequence()
         seq.add(wait=5)
-        seq.add(self.system.activate_rev2_editor, wait=5)
+        seq.add(System.get_instance().activate_rev2_editor, wait=5)
         return seq.done()
 
     def post_activate(self):
         # type: () -> Optional[Sequence]
         seq = Sequence()
-        seq.add(self.system.post_activate_rev2_editor, wait=20)
+        seq.add(System.get_instance().post_activate_rev2_editor, wait=20)
         return seq.done()
 
     @classmethod
@@ -59,8 +61,9 @@ class InstrumentProphet(AbstractExternalSynthTrackInstrument):
 
         from protocol0 import Protocol0
         Protocol0.SELF.show_message("Rev2 editor %s" % ("ON" if InstrumentProphet.EDITOR_DEVICE_ON else "OFF"))
+        from protocol0.domain.lom.song.Song import Song
 
-        for prophet_track in Protocol0.SELF.protocol0_song.prophet_tracks:
+        for prophet_track in Song.get_instance().prophet_tracks:
             prophet_track.instrument.device.device_on = InstrumentProphet.EDITOR_DEVICE_ON
 
     def activate_editor_automation(self):

@@ -4,15 +4,17 @@ from itertools import chain, imap
 from typing import Optional, Tuple, Dict, Type, cast, List, Union
 
 from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.domain.lom.instrument import InstrumentFactory
-from protocol0.domain.lom.instrument.AbstractInstrument import AbstractInstrument
-from protocol0.domain.errors.Protocol0Error import Protocol0Error
+from protocol0.domain.ApplicationView import ApplicationView
+from protocol0.domain.lom.instrument.InstrumentFactory import InstrumentFactory
+from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceChain import DeviceChain
 from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.domain.utils import find_if
+from protocol0.domain.shared.utils import find_if
+from protocol0.infra.System import System
 
 
 class DeviceManager(AbstractControlSurfaceComponent):
@@ -23,7 +25,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
     WIDTH_PIXEL_OFFSET = 4
 
     def make_instrument_from_simple_track(self, track):
-        # type: (SimpleTrack) -> Optional[AbstractInstrument]
+        # type: (SimpleTrack) -> Optional[InstrumentInterface]
         """
         If the instrument didn't change we keep the same instrument and don't instantiate a new one
         to keep instrument state
@@ -34,9 +36,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
         if not instrument_device:
             return None
 
-        self.parent.log_dev("instrument_device: %s" % instrument_device)
-
-        instrument_class = cast(Type[AbstractInstrument], InstrumentFactory.get_instrument_class(instrument_device))
+        instrument_class = cast(Type[InstrumentInterface], InstrumentFactory.get_instrument_class(instrument_device))
 
         if isinstance(track.instrument, instrument_class):
             return track.instrument  # maintaining state
@@ -71,8 +71,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
         """ handles only one level of grouping in racks. Should be enough for now """
         parent_rack = self._find_parent_rack(device)
         seq = Sequence()
-        seq.add(self.parent.navigationManager.show_device_view)
-        #     seq.add(wait=2)  # apparently live interface refresh is not instant
+        seq.add(ApplicationView.show_device)
 
         if not parent_rack:
             seq.add(partial(self._make_top_device_window_showable, device))
@@ -92,7 +91,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
         (x_device, y_device) = self._get_device_show_button_click_coordinates(device)
         seq = Sequence()
         seq.add(
-            lambda: self.system.toggle_ableton_button(x=x_device, y=y_device, activate=True),
+            lambda: System.get_instance().toggle_ableton_button(x=x_device, y=y_device, activate=True),
             wait=6,
             name="click on device show button",
         )
@@ -118,17 +117,17 @@ class DeviceManager(AbstractControlSurfaceComponent):
 
         seq = Sequence()
         seq.add(
-            lambda: self.system.toggle_ableton_button(x=x_rack, y=y_rack, activate=False),
+            lambda: System.get_instance().toggle_ableton_button(x=x_rack, y=y_rack, activate=False),
             wait=5,
             name="hide rack macro controls",
         )
         seq.add(
-            lambda: self.system.toggle_ableton_button(x=x_device, y=y_device, activate=True),
+            lambda: System.get_instance().toggle_ableton_button(x=x_device, y=y_device, activate=True),
             wait=10,
             name="click on device show button",
         )
         seq.add(
-            lambda: self.system.toggle_ableton_button(x=x_rack, y=y_rack, activate=True),
+            lambda: System.get_instance().toggle_ableton_button(x=x_rack, y=y_rack, activate=True),
             name="show rack macro controls",
         )
         # at this point the rack macro controls could still be hidden if the plugin window masks the button

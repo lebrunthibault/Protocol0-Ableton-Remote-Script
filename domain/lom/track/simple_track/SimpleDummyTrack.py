@@ -2,7 +2,7 @@ from functools import partial
 
 from typing import Optional, Any
 
-from protocol0.domain.enums.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
+from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.device.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
@@ -90,6 +90,6 @@ class SimpleDummyTrack(SimpleAudioTrack):
 
         clip.loop_end = self.clip_bar_length
 
-        self.parent.uiManager.show_clip_envelope_parameter(clip, automated_parameter)
+        self.parent.clickManager.show_clip_envelope_parameter(clip, automated_parameter)
         if self.song.is_playing:
             clip.fire()

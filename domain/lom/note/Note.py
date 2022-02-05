@@ -1,6 +1,6 @@
 from typing import Any, Tuple
 
-from protocol0.domain.errors.Protocol0Error import Protocol0Error
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.lom.AbstractObject import AbstractObject
 
 

@@ -3,9 +3,9 @@ from typing import List
 from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.domain.enums.FoldActionEnum import FoldActionEnum
 from protocol0.application.vocal_command.TrackSearchKeywordEnum import TrackSearchKeywordEnum
-from protocol0.domain.lom.track.AbstractTrack import AbstractTrack
-from protocol0.domain.lom.track.AbstractTrackList import AbstractTrackList
-from protocol0.domain.utils import normalize_string
+from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
+from protocol0.domain.lom.track.track_list.AbstractTrackList import AbstractTrackList
+from protocol0.domain.shared.utils import normalize_string
 
 
 class KeywordSearchManager(AbstractControlSurfaceComponent):
@@ -57,7 +57,7 @@ class KeywordSearchManager(AbstractControlSurfaceComponent):
         # type: (AbstractTrack) -> List[str]
         keywords = [track.name]
         if track.instrument:
-            keywords += [track.instrument.name, track.instrument.preset_name]
+            keywords += [track.instrument.name]
             if track.instrument.selected_preset:
                 keywords += [track.instrument.selected_preset.name]
         unique_keywords = list(set(" ".join(keywords).lower().split(" ")))

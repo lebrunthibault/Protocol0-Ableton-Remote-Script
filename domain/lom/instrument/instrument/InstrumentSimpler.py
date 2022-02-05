@@ -2,7 +2,7 @@ import os
 
 from typing import Any, Optional
 
-from protocol0.domain.lom.instrument.AbstractInstrument import AbstractInstrument
+from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPreset
 from protocol0.domain.enums.ColorEnum import ColorEnum
 from protocol0.domain.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
@@ -10,7 +10,7 @@ from protocol0.domain.lom.device.SimplerDevice import SimplerDevice
 from protocol0.domain.sequence.Sequence import Sequence
 
 
-class InstrumentSimpler(AbstractInstrument):
+class InstrumentSimpler(InstrumentInterface):
     NAME = "Simpler"
     TRACK_COLOR = ColorEnum.SIMPLER
     PRESET_EXTENSION = ".wav"
@@ -26,6 +26,8 @@ class InstrumentSimpler(AbstractInstrument):
     def load_preset(self, preset):
         # type: (InstrumentPreset) -> Optional[Sequence]
         import Live
-        self.song.selected_track.device_insert_mode = Live.Track.DeviceInsertMode.default
+        from protocol0.domain.lom.song.Song import Song
+
+        Song.get_instance().selected_track.device_insert_mode = Live.Track.DeviceInsertMode.default
         self.parent.browserManager.load_sample(preset.original_name)  # type: ignore[arg-type]
         return None

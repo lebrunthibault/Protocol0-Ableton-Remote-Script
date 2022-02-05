@@ -4,21 +4,20 @@ from os import listdir
 
 from typing import Optional, List, Type
 
-from protocol0.domain.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.PluginDevice import PluginDevice
 from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.lom.device.SimplerDevice import SimplerDevice
-from protocol0.domain.lom.instrument.AbstractInstrument import AbstractInstrument
-from protocol0.infra.log import log_ableton
+from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 
 
 class InstrumentFactory(object):
-    INSTRUMENT_CLASSES = {}
+    INSTRUMENT_CLASSES = []  # type: List[Type[InstrumentInterface]]
 
     @classmethod
     def get_instrument_class(cls, device):
-        # type: (Device) -> Optional[Type[AbstractInstrument]]
+        # type: (Device) -> Optional[Type[InstrumentInterface]]
         # checking for grouped devices
         if isinstance(device, RackDevice):
             device = cls._get_device_from_rack_device(device) or device
@@ -52,7 +51,7 @@ class InstrumentFactory(object):
 
     @classmethod
     def get_instrument_classes(cls):
-        # type: () -> List[Type[AbstractInstrument]]
+        # type: () -> List[Type[InstrumentInterface]]
         if not cls.INSTRUMENT_CLASSES:
             cls.INSTRUMENT_CLASSES = cls._get_instrument_classes()
 
@@ -60,10 +59,8 @@ class InstrumentFactory(object):
 
     @classmethod
     def _get_instrument_classes(cls):
-        # type: () -> List[Type[AbstractInstrument]]
-        files = listdir(os.path.dirname(os.path.abspath(__file__)) + "/instrument")
-        log_ableton(os.path.dirname(os.path.abspath(__file__)) + "/instrument")
-        log_ableton(files)
+        # type: () -> List[Type[InstrumentInterface]]
+        files = listdir(os.path.dirname(os.path.abspath(__file__)) + "\\instrument")
 
         class_names = []
         for instrument_file in [instrument_file for instrument_file in files

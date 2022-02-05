@@ -3,9 +3,10 @@ import json
 from typing import Optional, Dict, Any
 
 from protocol0.application.midi_api.ApiError import ApiError
-from protocol0.domain.errors.Protocol0Error import Protocol0Error
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.application.midi_api.decorators import EXPOSED_P0_METHODS
-from protocol0.domain.utils import find_if, get_callable_repr
+from protocol0.domain.shared.utils import find_if, get_callable_repr
+from protocol0.shared.Logger import Logger
 
 
 class ApiAction(object):
@@ -45,7 +46,7 @@ class ApiAction(object):
         if component:
             return getattr(component, method_name)
         else:
-            raise Protocol0Error("You should create the method mapping after the components instantiation")
+            raise Protocol0Error("You should create the method mapping after the components instantiation. Failed for %s.%s" % (class_instance, method_name))
 
     @classmethod
     def make_from_string(cls, payload):
@@ -62,6 +63,5 @@ class ApiAction(object):
 
     def execute(self):
         # type: () -> None
-        from protocol0 import Protocol0
-        Protocol0.SELF.log_debug("Api call, executing %s" % get_callable_repr(self.method))
+        Logger.log_debug("Api call, executing %s" % get_callable_repr(self.method))
         self.method(**self.args)

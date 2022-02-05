@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from protocol0.domain.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 
 if TYPE_CHECKING:
     from protocol0.application.faderfox.EncoderAction import EncoderAction

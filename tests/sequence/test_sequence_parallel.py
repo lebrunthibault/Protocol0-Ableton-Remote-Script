@@ -5,7 +5,7 @@ from typing import List, Any
 from protocol0.domain.lom.AbstractObject import AbstractObject
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.tests.test_all import p0
-from protocol0.domain.decorators import has_callback_queue, p0_subject_slot
+from protocol0.domain.shared.decorators import has_callback_queue, p0_subject_slot
 
 
 def test_parallel_listeners():

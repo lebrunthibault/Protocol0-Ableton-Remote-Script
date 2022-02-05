@@ -5,7 +5,8 @@ from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.track_recorder.decorator.external_synth.abstract_track_recorder_external_synth_decorator import \
     AbstractTrackRecorderExternalSynthDecorator
 from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
-from protocol0.domain.decorators import p0_subject_slot
+from protocol0.domain.shared.decorators import p0_subject_slot
+from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
 
 
 class TrackRecorderClipTailDecorator(AbstractTrackRecorderExternalSynthDecorator):
@@ -41,7 +42,7 @@ class TrackRecorderClipTailDecorator(AbstractTrackRecorderExternalSynthDecorator
 
         audio_clip = self.track.audio_track.clip_slots[self.recording_scene_index].clip
         audio_clip.fire()
-        self._beat_changed_listener.subject = self.parent.beatScheduler
+        self._beat_changed_listener.subject = BeatScheduler.get_instance()
 
         # following is a trick to have no midi note input at the very end of the bar while being able
         # to still record automation
@@ -57,7 +58,7 @@ class TrackRecorderClipTailDecorator(AbstractTrackRecorderExternalSynthDecorator
 
         seq = Sequence()
         # so that we have automation until the very end
-        seq.add(complete_on=self.parent.beatScheduler.last_32th_listener)
+        seq.add(complete_on=BeatScheduler.get_instance().last_32th_listener)
         seq.add(partial(setattr, self.song, "session_automation_record", False))
         seq.add(partial(self.track.midi_track.stop, immediate=True))
         seq.add(partial(setattr, self.track.midi_track.input_routing, "type", InputRoutingTypeEnum.NO_INPUT))

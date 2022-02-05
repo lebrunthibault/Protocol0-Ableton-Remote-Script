@@ -3,7 +3,7 @@ from functools import partial
 from typing import List, Optional, Any
 
 from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.domain.errors.Protocol0Error import Protocol0Error
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.lom.AbstractObject import AbstractObject
 
 
@@ -37,7 +37,7 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
 
     def _get_lom_property_name_from_object(self, obj):
         # type: (AbstractObject) -> str
-        from protocol0.domain.lom.track.AbstractTrack import AbstractTrack
+        from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
         from protocol0.domain.lom.clip.Clip import Clip
         from protocol0.domain.lom.device.DeviceParameter import DeviceParameter
 

@@ -7,8 +7,8 @@ from protocol0.application.vocal_command.VocalActionEnum import VocalActionEnum
 from protocol0.domain.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.application.faderfox.EncoderAction import EncoderAction
 from protocol0.application.faderfox.EncoderMoveEnum import EncoderMoveEnum
-from protocol0.domain.lom.track.AbstractTrackList import AbstractTrackList
-from protocol0.application.decorators import handle_error
+from protocol0.domain.lom.track.track_list.AbstractTrackList import AbstractTrackList
+from protocol0.application.service.decorators import handle_error
 
 
 class KeywordActionManager(AbstractControlSurfaceComponent):
@@ -32,7 +32,7 @@ class KeywordActionManager(AbstractControlSurfaceComponent):
             VocalActionEnum.CLEAR: self.parent.logManager.clear,
             VocalActionEnum.DUPLICATE: lambda: self.song.current_track.duplicate,
             VocalActionEnum.LOOP: lambda: self.song.selected_scene.toggle_loop,
-            VocalActionEnum.SHOW: lambda: self.song.current_track.show_hide_instrument,
+            VocalActionEnum.SHOW: self.parent.instrumentDisplayManager.show_hide_instrument,
             VocalActionEnum.SPLIT: lambda: self.song.selected_scene.split,
         }
         for enum, func in callable_dict.items():
