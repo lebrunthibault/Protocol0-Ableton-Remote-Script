@@ -34,8 +34,7 @@ class ClipSlotSynchronizer(AbstractControlSurfaceComponent):
             self._clip_synchronizer.disconnect()
 
         if self.midi_cs.clip and self.audio_cs.clip:
-            with self.parent.component_guard():
-                self._clip_synchronizer = ClipSynchronizer(midi_clip=self.midi_cs.clip, audio_clip=self.audio_cs.clip)
+            self._clip_synchronizer = ClipSynchronizer(midi_clip=self.midi_cs.clip, audio_clip=self.audio_cs.clip)
         else:
             self._clip_synchronizer = None
 

@@ -6,7 +6,7 @@ from protocol0.application.config import Config
 from protocol0.domain.sequence.SequenceError import SequenceError
 from protocol0.domain.lom.AbstractObject import AbstractObject
 from protocol0.domain.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
-from protocol0.domain.sequence.callback_descriptor import CallableWithCallbacks
+from protocol0.domain.sequence.CallbackDescriptor import CallableWithCallbacks
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.application.service.decorators import handle_error
 from protocol0.domain.sequence.timeout import TimeoutLimit

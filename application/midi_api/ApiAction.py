@@ -10,33 +10,34 @@ from protocol0.shared.Logger import Logger
 
 
 class ApiAction(object):
-    EXPOSED_P0_CALLABLES = None  # type: Optional[Dict]
+    _EXPOSED_P0_CALLABLES = None  # type: Optional[Dict]
 
     def __init__(self, method_name, args):
         # type: (str, Dict) -> None
-        if not self.EXPOSED_P0_CALLABLES:
-            raise ApiError("The method mapping is not done")
+        if not self._EXPOSED_P0_CALLABLES:
+            self._create_method_mapping()
+
         if not isinstance(method_name, basestring):
             raise ApiError(
                 "Type error on method_name while instating ApiAction, expected basestring got %s" % type(method_name))
         if not isinstance(args, Dict):
             raise ApiError("Type error on args while instating ApiAction, expected list got %s" % type(args))
-        if method_name not in self.EXPOSED_P0_CALLABLES:
+        if method_name not in self._EXPOSED_P0_CALLABLES:
             raise ApiError("%s is not a valid method name" % method_name)
-        self.method = self.EXPOSED_P0_CALLABLES[method_name]
+        self.method = self._EXPOSED_P0_CALLABLES[method_name]
         self.args = args
 
     @classmethod
-    def create_method_mapping(cls):
+    def _create_method_mapping(cls):
         # type: () -> None
         """ moving from method names to real methods by looking up components or instantiating them"""
-        if cls.EXPOSED_P0_CALLABLES:
+        if cls._EXPOSED_P0_CALLABLES:
             return
 
-        cls.EXPOSED_P0_CALLABLES = {}
+        cls._EXPOSED_P0_CALLABLES = {}
         for method_name, class_instance in EXPOSED_P0_METHODS.items():
             method = cls._get_method_from_method_name_and_class(class_instance, method_name)
-            cls.EXPOSED_P0_CALLABLES[method_name] = method
+            cls._EXPOSED_P0_CALLABLES[method_name] = method
 
     @classmethod
     def _get_method_from_method_name_and_class(cls, class_instance, method_name):

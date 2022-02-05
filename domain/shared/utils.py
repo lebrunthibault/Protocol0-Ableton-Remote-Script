@@ -61,7 +61,7 @@ def get_frame_info(frame_count=1):
 def _has_callback_queue(func):
     # type: (Any) -> bool
     """ mixing duck typing and isinstance to ensure we really have a callback handler object """
-    from protocol0.domain.sequence.callback_descriptor import CallableWithCallbacks
+    from protocol0.domain.sequence.CallbackDescriptor import CallableWithCallbacks
     from _Framework.SubjectSlot import CallableSlotMixin
 
     return (
@@ -130,7 +130,7 @@ def get_callable_repr(func):
     # type: (Callable) -> str
     from protocol0.domain.sequence.Sequence import Sequence
     from protocol0.domain.sequence.SequenceStep import SequenceStep
-    from protocol0.domain.sequence.callback_descriptor import CallableWithCallbacks
+    from protocol0.domain.sequence.CallbackDescriptor import CallableWithCallbacks
     if isinstance(func, Sequence) or isinstance(func, SequenceStep) or isinstance(func, CallableWithCallbacks):
         return func.__repr__()
 
@@ -149,8 +149,8 @@ def get_callable_repr(func):
         return decorated_func.__name__
 
 
-def nop():
-    # type: () -> None
+def nop(*_, **__):
+    # type: (Any, Any) -> None
     pass
 
 

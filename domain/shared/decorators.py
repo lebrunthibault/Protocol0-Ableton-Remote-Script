@@ -1,11 +1,13 @@
 from collections import defaultdict
 from functools import wraps, partial
 
-from typing import Any, Callable
+from typing import Any, Callable, TYPE_CHECKING
 
-from protocol0.domain.sequence.callback_descriptor import CallbackDescriptor
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
 from protocol0.domain.shared.utils import is_method
+
+if TYPE_CHECKING:
+    from protocol0.domain.sequence.CallbackDescriptor import CallbackDescriptor
 
 
 def p0_subject_slot(event):
@@ -41,7 +43,7 @@ def has_callback_queue():
     # type: () -> Callable[[Callable], CallbackDescriptor]
     def wrap(func):
         # type: (Callable) -> CallbackDescriptor
-        from protocol0.domain.sequence.callback_descriptor import CallbackDescriptor
+        from protocol0.domain.sequence.CallbackDescriptor import CallbackDescriptor
 
         return CallbackDescriptor(func)
 
@@ -53,9 +55,8 @@ def defer(func):
     @wraps(func)
     def decorate(*a, **k):
         # type: (Any, Any) -> None
-        from protocol0 import Protocol0
-
-        Protocol0.SELF.defer(partial(func, *a, **k))
+        from protocol0.infra.scheduler.Scheduler import Scheduler
+        Scheduler.defer(partial(func, *a, **k))
         return None
 
     return decorate

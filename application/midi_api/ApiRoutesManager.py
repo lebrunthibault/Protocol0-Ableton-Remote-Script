@@ -40,7 +40,6 @@ class ApiRoutesManager(AccessGlobalState):
     @api_exposed
     def system_response(self, res):
         # type: (bool) -> None
-        """ Called by the speech recognition script """
         waiting_sequence = next((seq for seq in Sequence.RUNNING_SEQUENCES if seq.waiting_for_system), None)
         if waiting_sequence is None:
             self.parent.log_info("Response (%s) received from system but couldn't find a waiting sequence" % res)

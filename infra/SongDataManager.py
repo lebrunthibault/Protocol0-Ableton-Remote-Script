@@ -5,16 +5,14 @@ from pydoc import locate, classname
 from typing import Any, Optional
 
 from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.application.config import Config
-from protocol0.domain.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.domain.enums.AbstractEnum import AbstractEnum
 from protocol0.domain.enums.SongDataEnum import SongDataEnum
+from protocol0.domain.lom.song.SongDataError import SongDataError
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
-from protocol0.domain.lom.song.SongDataError import SongDataError
+from protocol0.domain.shared.utils import class_attributes
 from protocol0.infra.System import System
 from protocol0.my_types import Func, T
-from protocol0.domain.shared.utils import class_attributes
 
 SYNCHRONIZABLE_CLASSE_NAMES = set()
 
@@ -49,8 +47,7 @@ class SongDataManager(AbstractControlSurfaceComponent):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(SongDataManager, self).__init__(*a, **k)
-        if Config.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.TEST:
-            self.restore_data()
+        self.restore_data()
 
     def save_song_and_tracks(self):
         # type: () -> None

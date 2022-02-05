@@ -2,12 +2,13 @@ from functools import partial
 
 from typing import List, Optional, Any
 
-from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
+from _Framework.SubjectSlot import SlotManager
 from protocol0.domain.lom.AbstractObject import AbstractObject
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
+from protocol0.infra.scheduler.Scheduler import Scheduler
 
 
-class ObjectSynchronizer(AbstractControlSurfaceComponent):
+class ObjectSynchronizer(SlotManager):
     """
     Class that handles the parameter sync of 2 objects (usually track or clip)
     listenable_properties are properties that trigger the sync
@@ -28,11 +29,11 @@ class ObjectSynchronizer(AbstractControlSurfaceComponent):
 
         for property_name in self.listenable_properties:
             self.register_slot(getattr(master, lom_property_name),
-                               partial(self.parent.defer, partial(self._sync_property, master, slave, property_name)),
+                               partial(Scheduler.defer, partial(self._sync_property, master, slave, property_name)),
                                property_name)
             if bidirectional:
                 self.register_slot(getattr(slave, lom_property_name),
-                                   partial(self.parent.defer, partial(self._sync_property, slave, master, property_name)),
+                                   partial(Scheduler.defer, partial(self._sync_property, slave, master, property_name)),
                                    property_name)
 
     def _get_lom_property_name_from_object(self, obj):

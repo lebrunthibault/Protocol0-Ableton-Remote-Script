@@ -1,0 +1,2 @@
+class ClearLogsCommand(object):
+    pass

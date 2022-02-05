@@ -10,6 +10,7 @@ from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.shared.decorators import throttle
 from protocol0.domain.shared.utils import scroll_values
 from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
+from protocol0.infra.scheduler.Scheduler import Scheduler
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.scene.Scene import Scene
@@ -51,7 +52,7 @@ class SceneActionMixin(object):
 
             if self == next_scene:
                 self.song.stop_all_clips()
-                BeatScheduler.get_instance().wait_bars(2, self.song.stop_playing)
+                Scheduler.wait_bars(2, self.song.stop_playing)
                 return None
 
         if next_scene != self:

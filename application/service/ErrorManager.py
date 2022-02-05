@@ -7,7 +7,6 @@ from typing import Optional, Any, List, Type
 from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.application.config import Config
 from protocol0.application.constants import PROJECT_ROOT
-from protocol0.domain.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.infra.System import System
 
@@ -67,8 +66,7 @@ class ErrorManager(AbstractControlSurfaceComponent):
 
         self.parent.clear_tasks()
 
-        if Config.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.TEST:
-            self.parent.wait(10, self._restart)
+        self.parent.wait(10, self._restart)
 
     def _restart(self):
         # type: () -> None

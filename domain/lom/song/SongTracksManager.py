@@ -77,9 +77,7 @@ class SongTracksManager(AbstractObject):
 
     def _clean_deleted_tracks(self):
         # type: () -> None
-        print(list(self.live_tracks))
-        # existing_track_ids = [track._live_ptr for track in list(self.live_tracks)]
-        return
+        existing_track_ids = [track._live_ptr for track in list(self.live_tracks)]
         deleted_ids = []
 
         for track_id, simple_track in self._live_track_id_to_simple_track.items():

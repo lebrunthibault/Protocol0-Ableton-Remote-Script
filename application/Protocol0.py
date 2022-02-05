@@ -10,7 +10,6 @@ from protocol0.application.config import Config
 from protocol0.application.faderfox.ActionGroupFactory import ActionGroupFactory
 from protocol0.application.interface.ClickManager import ClickManager
 from protocol0.application.interface.SessionManager import SessionManager
-from protocol0.application.midi_api.ApiAction import ApiAction
 from protocol0.application.midi_api.ApiRoutesManager import ApiRoutesManager
 from protocol0.application.service.ErrorManager import ErrorManager
 from protocol0.application.service.LogManager import LogManager
@@ -77,7 +76,6 @@ class Protocol0(ControlSurface):
             # setting up scheduler and midi communication system
             self.errorManager = ErrorManager()
             ApiRoutesManager()
-            ApiAction.create_method_mapping()
             self.songDataManager = SongDataManager()
             self.trackDataManager = TrackDataManager()
             if Config.SHOW_RELOAD_TIME or Config.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.PROFILING:
@@ -106,22 +104,19 @@ class Protocol0(ControlSurface):
             self.validatorManager = ValidatorManager()
             self.sessionToArrangementManager = SessionToArrangementManager()
             self.clickManager = ClickManager()
-            # return
 
-            if Config.ABLETON_SESSION_TYPE != AbletonSessionTypeEnum.TEST:
-                # action groups
-                ActionGroupFactory.create_action_groups()
+            # action groups
+            ActionGroupFactory.create_action_groups()
 
-                # vocal command
-                self.keywordSearchManager = KeywordSearchManager()
-                self.vocalCommandManager = VocalCommandManager()
+            # vocal command
+            self.keywordSearchManager = KeywordSearchManager()
+            self.vocalCommandManager = VocalCommandManager()
 
-                self.start()
+            self.start()
 
     def start(self):
         # type: () -> None
-        if Config.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.NORMAL:
-            self._check_midi_server_is_running()
+        self._check_midi_server_is_running()
 
         self.wait(10, self._check_protocol_midi_is_up)  # waiting for Protocol0_midi to boot
 

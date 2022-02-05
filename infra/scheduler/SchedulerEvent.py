@@ -1,14 +1,12 @@
 from typing import Any, Callable
 
-from protocol0.domain.lom.AbstractObject import AbstractObject
 from protocol0.application.service.decorators import handle_error
 from protocol0.domain.shared.utils import get_callable_repr
 
 
-class SchedulerEvent(AbstractObject):
-    def __init__(self, callback, tick_count, *a, **k):
-        # type: (Callable, int, Any, Any) -> None
-        super(SchedulerEvent, self).__init__(*a, **k)
+class SchedulerEvent(object):
+    def __init__(self, callback, tick_count):
+        # type: (Callable, int) -> None
         self._executed = False
         self._cancelled = False
         self._callback = callback

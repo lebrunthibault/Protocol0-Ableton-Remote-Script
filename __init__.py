@@ -78,8 +78,4 @@ if sys.version_info.major == 2:
 
 def create_instance(c_instance):  # noqa
     # type: (Any) -> Protocol0
-    if not live_environment_loaded:
-        from protocol0.domain.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
-        from protocol0.application.config import Config
-        Config.ABLETON_SESSION_TYPE = AbletonSessionTypeEnum.TEST
     return Protocol0(c_instance)
