@@ -1,15 +1,20 @@
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Type
 
-from protocol0.application.midi_api.ApiAction import ApiAction
-from protocol0.application.midi_api.ApiError import ApiError
+from protocol0.domain.CommandBusInterface import CommandBusInterface
 from protocol0.shared.Logger import Logger
 
 
 class MidiManager(object):
     MIDI_STATUS_BYTES = {"note": 144, "cc": 176, "pc": 192}
+    _command_bus = None  # type: Optional[Type[CommandBusInterface]]
 
-    @staticmethod
-    def _sysex_to_string(sysex):
+    @classmethod
+    def set_command_bus(cls, command_bus):
+        # type: (Type[CommandBusInterface]) -> None
+        cls._command_bus = command_bus
+
+    @classmethod
+    def _sysex_to_string(cls, sysex):
         # type: (Tuple) -> str
         return bytearray(sysex[1:-1]).decode()
 
@@ -37,11 +42,8 @@ class MidiManager(object):
         # type: (Tuple) -> None
         message = cls._sysex_to_string(sysex=midi_bytes)
         Logger.log_debug("message: %s" % message)
-        try:
-            api_action = ApiAction.make_from_string(payload=message)
-            Logger.log_debug("api_action: %s" % api_action)
-        except ApiError as e:
-            Logger.log_error("ApiAction generation error : %s" % e)
-            return
+        if not cls._command_bus:
+            Logger.log_warning("Command bus not set in Midi Manager")
+            return None
 
-        api_action.execute()
+        cls._command_bus.execute_from_string(message)

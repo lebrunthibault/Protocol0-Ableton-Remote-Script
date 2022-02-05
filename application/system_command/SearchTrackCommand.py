@@ -1,7 +1,7 @@
 from protocol0.application.system_command.SerializableCommand import SerializableCommand
 
 
-class ShowMessageCommand(SerializableCommand):
-    def __init__(self, message):
+class SearchTrackCommand(SerializableCommand):
+    def __init__(self, search):
         # type: (str) -> None
-        self.message = message
+        self.search = search

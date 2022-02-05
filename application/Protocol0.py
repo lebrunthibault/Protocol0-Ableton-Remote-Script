@@ -10,11 +10,11 @@ from protocol0.application.config import Config
 from protocol0.application.faderfox.ActionGroupFactory import ActionGroupFactory
 from protocol0.application.interface.ClickManager import ClickManager
 from protocol0.application.interface.SessionManager import SessionManager
-from protocol0.application.midi_api.ApiRoutesManager import ApiRoutesManager
 from protocol0.application.service.ErrorManager import ErrorManager
 from protocol0.application.service.LogManager import LogManager
 from protocol0.application.vocal_command.KeywordSearchManager import KeywordSearchManager
 from protocol0.application.vocal_command.VocalCommandManager import VocalCommandManager
+from protocol0.domain.CommandBus import CommandBus
 from protocol0.domain.audit.AudioLatencyAnalyzer import AudioLatencyAnalyzer
 from protocol0.domain.audit.SetFixerManager import SetFixerManager
 from protocol0.domain.audit.SetUpgradeManager import SetUpgradeManager
@@ -39,6 +39,7 @@ from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.shared.utils import find_if
 from protocol0.domain.track_recorder.track_recorder_manager import TrackRecorderManager
 from protocol0.infra.BrowserManager import BrowserManager
+from protocol0.infra.MidiManager import MidiManager
 from protocol0.infra.SongDataManager import SongDataManager
 from protocol0.infra.System import System
 from protocol0.infra.TrackDataManager import TrackDataManager
@@ -74,8 +75,8 @@ class Protocol0(ControlSurface):
 
         with self.component_guard():
             # setting up scheduler and midi communication system
+            MidiManager.set_command_bus(CommandBus)
             self.errorManager = ErrorManager()
-            ApiRoutesManager()
             self.songDataManager = SongDataManager()
             self.trackDataManager = TrackDataManager()
             if Config.SHOW_RELOAD_TIME or Config.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.PROFILING:

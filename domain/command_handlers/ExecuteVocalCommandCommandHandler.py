@@ -7,4 +7,3 @@ class ExecuteVocalCommandCommandHandler(CommandHandlerInterface):
         # type: (ExecuteVocalCommandCommand) -> None
         from protocol0 import Protocol0
         Protocol0.SELF.vocalCommandManager.execute_command(command.command)
-

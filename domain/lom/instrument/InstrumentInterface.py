@@ -7,7 +7,6 @@ from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPreset
 from protocol0.domain.lom.instrument.preset.InstrumentPresetList import InstrumentPresetList
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.infra.MidiManager import MidiManager
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -75,4 +74,6 @@ class InstrumentInterface(object):
     def load_preset(self, preset):
         # type: (InstrumentPreset) -> None
         """ Overridden default is send program change """
+        from protocol0.infra.MidiManager import MidiManager
+
         MidiManager.send_program_change(preset.index + self.PROGRAM_CHANGE_OFFSET)

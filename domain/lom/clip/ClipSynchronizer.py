@@ -38,7 +38,8 @@ class ClipSynchronizer(ObjectSynchronizer):
 
     def is_syncable(self, clip):
         # type: (Clip) -> bool
-        return not clip.track.is_recording and not self.song.record_mode
+        from protocol0.domain.lom.song.Song import Song
+        return not clip.track.is_recording and not Song.get_instance().record_mode
 
     def _sync_property(self, master, slave, property_name):
         # type: (Clip, Clip, str) -> None
