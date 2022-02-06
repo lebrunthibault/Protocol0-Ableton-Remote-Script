@@ -6,7 +6,7 @@ from protocol0.domain.enums.ColorEnum import ColorEnum
 from protocol0.domain.lom.instrument.AbstractExternalSynthTrackInstrument import AbstractExternalSynthTrackInstrument
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.domain.shared.SongFacade import SongFacade
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.infra.System import System
 from protocol0.infra.scheduler.Scheduler import Scheduler
 from protocol0.shared.StatusBar import StatusBar

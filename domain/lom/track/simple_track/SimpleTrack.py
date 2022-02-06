@@ -1,30 +1,40 @@
 from itertools import chain
 
-from typing import List, Optional, Any
+from typing import List, Optional, TYPE_CHECKING
 
 import Live
 from protocol0.application.config import Config
-from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
-from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
+from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
+from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackActionMixin import SimpleTrackActionMixin
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.utils import find_if
 from protocol0.infra.System import System
 
+if TYPE_CHECKING:
+    from protocol0.domain.lom.song.SongTracksManager import SongTracksManager
+    from protocol0.domain.lom.device.DeviceManager import DeviceManager
+    from protocol0.infra.BrowserManager import BrowserManager
+    from protocol0.application.interface.ClickManager import ClickManager
+
 
 class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     IS_ACTIVE = True
     CLIP_SLOT_CLASS = ClipSlot
 
-    def __init__(self, track, index, *a, **k):
-        # type: (Live.Track.Track, int, Any, Any) -> None
+    def __init__(self, track, index, song_tracks_manager, device_manager, browser_manager, click_manager):
+        # type: (Live.Track.Track, int, SongTracksManager, DeviceManager, BrowserManager, ClickManager) -> None
         self._track = track  # type: Live.Track.Track
         self._index = index
-        super(SimpleTrack, self).__init__(track=self, *a, **k)
+        self._song_tracks_manager = song_tracks_manager
+        self._device_manager = device_manager
+        self._browser_manager = browser_manager
+        self._click_manager = click_manager
+        super(SimpleTrack, self).__init__(track=self)
 
         # is_active is used to differentiate set tracks for return / master
         # we act only on active tracks
@@ -53,7 +63,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def is_active(self):
         # type: () -> bool
-        return self._track not in list(self.song._song.return_tracks) + [self.song._song.master_track]
+        return self._track not in list(self._song._song.return_tracks) + [self._song._song.master_track]
 
     def on_tracks_change(self):
         # type: () -> None
@@ -72,9 +82,8 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         if self._track.group_track is None:
             self.group_track = None
             return None
-        from protocol0 import Protocol0
 
-        self.group_track = Protocol0.SELF.songTracksManager.get_simple_track(self._track.group_track)
+        self.group_track = self._song_tracks_manager.get_simple_track(self._track.group_track)
         self.append_to_sub_tracks(self.group_track, self)
 
     def _map_clip_slots(self):
@@ -103,16 +112,15 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             device.disconnect()
 
         self.devices = [Device.make(device, self) for device in self._track.devices]
-        from protocol0 import Protocol0
 
-        self.all_devices = Protocol0.SELF.deviceManager.find_all_devices(self.base_track)
+        self.all_devices = self._device_manager.find_all_devices(self.base_track)
 
         # noinspection PyUnresolvedReferences
         self.notify_devices()
 
         # Refreshing is only really useful from simpler devices that change when a new sample is loaded
         if self.IS_ACTIVE and not self.is_foldable:
-            self.instrument = Protocol0.SELF.deviceManager.make_instrument_from_simple_track(track=self)
+            self.instrument = self._device_manager.make_instrument_from_simple_track(track=self)
 
     @p0_subject_slot("output_meter_level")
     def _output_meter_level_listener(self):

@@ -1,30 +1,31 @@
-from typing import List, Optional, Any, Callable
+from typing import List, Optional, Callable, TYPE_CHECKING
 
-from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.application.faderfox.EncoderAction import EncoderAction
 from protocol0.application.faderfox.MultiEncoder import MultiEncoder
 
+if TYPE_CHECKING:
+    from protocol0.application.Container import Container
 
-class AbstractActionGroup(AbstractControlSurfaceComponent):
+
+class ActionGroupMixin(object):
     """
     An action group represents a group of 16 encoder available on my faderfox ec4
     It responds on a midi channel to cc messages
     See MultiEncoder to configure an encoder
     """
+    CHANNEL = None  # type: Optional[int]
 
-    def __init__(self, channel, *a, **k):
-        # type: (int, Any, Any) -> None
-        assert 1 <= channel <= 16
-        super(AbstractActionGroup, self).__init__(*a, **k)
-        self.channel = channel - 1  # as to match to ec4 channels going from 1 to 16
-        self.multi_encoders = []  # type: List[MultiEncoder]
+    def __init__(self, container):
+        # type: (Container) -> None
+        self._container = container
+        self._multi_encoders = []  # type: List[MultiEncoder]
 
     def _add_multi_encoder(self, multi_encoder):
         # type: (MultiEncoder) -> MultiEncoder
         assert (
-                len([encoder for encoder in self.multi_encoders if encoder.identifier == multi_encoder.identifier]) == 0
+                len([encoder for encoder in self._multi_encoders if encoder.identifier == multi_encoder.identifier]) == 0
         ), ("duplicate multi encoder with id %s" % multi_encoder.identifier)
-        self.multi_encoders.append(multi_encoder)
+        self._multi_encoders.append(multi_encoder)
         return multi_encoder
 
     def add_encoder(self,
@@ -37,7 +38,8 @@ class AbstractActionGroup(AbstractControlSurfaceComponent):
                     on_cancel_long_press=None,
                     on_scroll=None):
         # type: (int, str, bool, Optional[Callable], Optional[Callable], Optional[Callable], Optional[Callable], Optional[Callable]) -> MultiEncoder
-        encoder = MultiEncoder(group=self, identifier=identifier, name=name, filter_active_tracks=filter_active_tracks)
+        assert self.CHANNEL, "channel not configured for %s" % self
+        encoder = MultiEncoder(channel=self.CHANNEL - 1, identifier=identifier, name=name, filter_active_tracks=filter_active_tracks)
         for action in EncoderAction.make_actions(name=name, on_press=on_press, on_cancel_press=on_cancel_press,
                                                  on_long_press=on_long_press, on_cancel_long_press=on_cancel_long_press, on_scroll=on_scroll):
             encoder.add_action(action)

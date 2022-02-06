@@ -7,7 +7,7 @@ from protocol0.domain.lom.set.SessionToArrangementManager import SessionToArrang
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.domain.shared.SongFacade import SongFacade
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.domain.shared.decorators import throttle
 from protocol0.domain.shared.utils import scroll_values
 from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 class SceneActionMixin(AccessSong):
     def select(self):
         # type: (Scene) -> None
-        self.song.selected_scene = self
+        self._song.selected_scene = self
 
     def check_scene_length(self):
         # type: (Scene) -> None
@@ -53,8 +53,8 @@ class SceneActionMixin(AccessSong):
                 SessionToArrangementManager.LAST_SCENE_FIRED = self
 
             if self == next_scene:
-                self.song.stop_all_clips()
-                Scheduler.wait_bars(2, self.song.stop_playing)
+                self._song.stop_all_clips()
+                Scheduler.wait_bars(2, self._song.stop_playing)
                 return None
 
         if next_scene != self:
@@ -63,8 +63,8 @@ class SceneActionMixin(AccessSong):
     def fire(self):
         # type: (Scene) -> None
         # handles click sound when the previous scene plays shortly
-        if self.song.playing_scene and self.song.playing_scene != self:
-            self._stop_previous_scene(self.song.playing_scene)
+        if self._song.playing_scene and self._song.playing_scene != self:
+            self._stop_previous_scene(self._song.playing_scene)
 
         from protocol0.domain.lom.scene.Scene import Scene
         Scene.PLAYING_SCENE = self
@@ -73,7 +73,7 @@ class SceneActionMixin(AccessSong):
 
     def fire_and_move_position(self):
         # type: (Scene) -> Sequence
-        self.song.stop_playing()
+        self._song.stop_playing()
         seq = Sequence()
 
         from protocol0.domain.lom.scene.Scene import Scene
@@ -82,23 +82,23 @@ class SceneActionMixin(AccessSong):
             Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION = 0
 
         # removing click when changing position
-        master_volume = self.song.master_track.volume
-        self.song.master_track.volume = 0
+        master_volume = self._song.master_track.volume
+        self._song.master_track.volume = 0
         seq.add(wait=1)
         # leveraging throttle to disable the next update (that would be 1 / *)
         seq.add(partial(self.scene_name.update, bar_position=Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION))
         seq.add(self.fire)
         seq.add(partial(self.jump_to_bar, Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION))
-        seq.add(self.song.stop_playing)
-        seq.add(partial(setattr, self.song.master_track, "volume", master_volume))
+        seq.add(self._song.stop_playing)
+        seq.add(partial(setattr, self._song.master_track, "volume", master_volume))
         seq.add(wait=1)
-        seq.add(self.song.continue_playing)
+        seq.add(self._song.continue_playing)
         return seq.done()
 
     def pre_fire(self):
         # type: (Scene) -> Sequence
         self.fire()
-        self.song.stop_playing()
+        self._song.stop_playing()
         seq = Sequence()
         seq.add(wait=2)
         return seq.done()
@@ -107,7 +107,7 @@ class SceneActionMixin(AccessSong):
         # type: (Scene, Scene, bool) -> None
         from protocol0.domain.lom.scene.Scene import Scene
 
-        if previous_playing_scene == self.song.looping_scene:
+        if previous_playing_scene == self._song.looping_scene:
             Scene.LOOPING_SCENE = None
 
         # manually stopping previous scene because we don't display clip slot stop buttons
@@ -139,7 +139,7 @@ class SceneActionMixin(AccessSong):
     def delete(self):
         # type: (Scene) -> Optional[Sequence]
         if self._scene:  # type: ignore[has-type]
-            return self.song.delete_scene(self.index)
+            return self._song.delete_scene(self.index)
         return None
 
     def toggle_loop(self):
@@ -147,10 +147,10 @@ class SceneActionMixin(AccessSong):
         """ for a scene solo means looped """
         from protocol0.domain.lom.scene.Scene import Scene
 
-        if self != self.song.looping_scene:  # solo activation
-            previous_looping_scene = self.song.looping_scene
+        if self != self._song.looping_scene:  # solo activation
+            previous_looping_scene = self._song.looping_scene
             Scene.LOOPING_SCENE = self
-            if self != self.song.playing_scene:
+            if self != self._song.playing_scene:
                 self.fire()
             if previous_looping_scene and previous_looping_scene != self:
                 previous_looping_scene.scene_name.update()
@@ -163,10 +163,10 @@ class SceneActionMixin(AccessSong):
         # type: (Scene) -> Sequence
         bar_length = self.SELECTED_DUPLICATE_SCENE_BAR_LENGTH
         seq = Sequence()
-        seq.add(partial(self.song.duplicate_scene, self.index))
-        seq.add(lambda: self.song.selected_scene._crop_clips_to_bar_length(bar_length=-bar_length))
+        seq.add(partial(self._song.duplicate_scene, self.index))
+        seq.add(lambda: self._song.selected_scene._crop_clips_to_bar_length(bar_length=-bar_length))
         seq.add(partial(self._crop_clips_to_bar_length, bar_length=bar_length))
-        for track in self.song.external_synth_tracks:
+        for track in self._song.external_synth_tracks:
             if track.audio_tail_track and track.audio_tail_track.clip_slots[self.index]:
                 seq.add([track.audio_tail_track.clip_slots[self.index].clip.delete])
         return seq.done()
@@ -208,4 +208,4 @@ class SceneActionMixin(AccessSong):
     def jump_to_bar(self, bar_position):
         # type: (Scene, float) -> None
         beat_offset = (bar_position * SongFacade.signature_numerator()) - self.playing_position
-        self.song.scrub_by(beat_offset)
+        self._song.scrub_by(beat_offset)

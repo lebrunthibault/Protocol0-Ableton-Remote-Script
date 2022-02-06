@@ -1,18 +1,16 @@
 import pytest
-from typing import Any
 
-from protocol0.application.faderfox.group.AbstractActionGroup import AbstractActionGroup
+from protocol0 import Protocol0
 from protocol0.application.faderfox.EncoderAction import EncoderAction
 from protocol0.application.faderfox.EncoderMoveEnum import EncoderMoveEnum
 from protocol0.application.faderfox.MultiEncoder import MultiEncoder
+from protocol0.application.faderfox.group.ActionGroupMixin import ActionGroupMixin
 from protocol0.tests.fixtures import patch_song
 from protocol0.tests.test_all import p0
 
 
-class ActionGroupTest(AbstractActionGroup):
-    def __init__(self, channel=1, *a, **k):
-        # type: (int, Any, Any) -> None
-        super(ActionGroupTest, self).__init__(channel=channel, *a, **k)
+class ActionGroupTest(ActionGroupMixin):
+    CHANNEL = 1
 
 
 def _press_encoder(encoder):
@@ -30,7 +28,7 @@ def _make_multi_encoder(identifier=1):
     # type: (int) -> MultiEncoder
     with p0.component_guard():
         patch_song()
-        return ActionGroupTest().add_encoder(identifier=identifier, name="pytest")
+        return ActionGroupTest(Protocol0.CONTAINER).add_encoder(identifier=identifier, name="pytest")
 
 
 def test_multi_encoder_press():

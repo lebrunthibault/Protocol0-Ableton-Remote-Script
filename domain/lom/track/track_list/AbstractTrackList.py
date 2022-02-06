@@ -4,7 +4,7 @@ from protocol0.domain.enums.FoldActionEnum import FoldActionEnum
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.lom.track.track_list.UserMutableSequence import UserMutableSequence
-from protocol0.domain.shared.SongFacade import SongFacade
+from protocol0.shared.SongFacade import SongFacade
 
 
 class AbstractTrackList(UserMutableSequence):

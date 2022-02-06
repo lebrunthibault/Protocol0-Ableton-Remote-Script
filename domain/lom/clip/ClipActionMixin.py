@@ -5,14 +5,15 @@ from protocol0.application.constants import QUANTIZATION_OPTIONS
 from protocol0.domain.ApplicationView import ApplicationView
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.domain.shared.SongFacade import SongFacade
+from protocol0.shared.AccessSong import AccessSong
+from protocol0.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.clip.Clip import Clip
 
 
 # noinspection PyTypeHints
-class ClipActionMixin(object):
+class ClipActionMixin(AccessSong):
     @property
     def is_playing(self):
         # type: (Clip) -> bool
@@ -26,8 +27,7 @@ class ClipActionMixin(object):
 
     def select(self):
         # type: (Clip) -> Sequence
-        from protocol0.domain.lom.song.Song import Song
-        Song.get_instance().highlighted_clip_slot = self.clip_slot
+        self._song.highlighted_clip_slot = self.clip_slot
         seq = Sequence()
         seq.add(ApplicationView.show_clip)
         return seq.done()

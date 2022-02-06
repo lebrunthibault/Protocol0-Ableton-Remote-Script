@@ -6,5 +6,5 @@ def test_error_manager_simple_exception():
     try:
         _ = 1 / 0
     except Exception as e:
-        p0.errorManager.handle_error(e)
+        p0.CONTAINER.error_manager.handle_error(e)
         assert True

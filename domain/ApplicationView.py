@@ -15,7 +15,7 @@ class ApplicationView(object):
         if not cls._APPLICATION_VIEW:
             from protocol0 import Protocol0
 
-            cls._APPLICATION_VIEW = Protocol0.SELF.application().view
+            cls._APPLICATION_VIEW = Protocol0.APPLICATION.view
         return cls._APPLICATION_VIEW
 
     @classmethod

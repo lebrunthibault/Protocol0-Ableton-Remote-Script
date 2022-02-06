@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import Any, Optional, List
+from typing import Optional, List
 from typing import TYPE_CHECKING
 
 import Live
@@ -8,13 +8,13 @@ from protocol0.domain.enums.ColorEnum import ColorEnum
 from protocol0.domain.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from protocol0.domain.lom.Listenable import Listenable
 from protocol0.domain.lom.clip.Clip import Clip
+from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.track.abstract_track.AbstractTrackActionMixin import AbstractTrackActionMixin
 from protocol0.domain.lom.track.abstract_track.AbstractTrackName import AbstractTrackName
 from protocol0.domain.lom.track.routing.TrackInputRouting import TrackInputRouting
 from protocol0.domain.lom.track.routing.TrackOutputRouting import TrackOutputRouting
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.domain.shared.utils import set_device_parameter
 from protocol0.infra.scheduler.Scheduler import Scheduler
 
 if TYPE_CHECKING:
@@ -29,9 +29,9 @@ class AbstractTrack(AbstractTrackActionMixin, Listenable):
     DEFAULT_COLOR = ColorEnum.DISABLED  # when the color cannot be matched
     KEEP_CLIPS_ON_ADDED = False
 
-    def __init__(self, track, *a, **k):
-        # type: (SimpleTrack, Any, Any) -> None
-        super(AbstractTrack, self).__init__(*a, **k)
+    def __init__(self, track):
+        # type: (SimpleTrack) -> None
+        super(AbstractTrack, self).__init__()
         # TRACKS
         self._track = track._track  # type: Live.Track.Track
         self.base_track = track  # type: SimpleTrack
@@ -241,7 +241,7 @@ class AbstractTrack(AbstractTrackActionMixin, Listenable):
     def volume(self, volume):
         # type: (float) -> None
         if self._track:
-            Scheduler.defer(partial(set_device_parameter, self._track.mixer_device.volume, volume))
+            Scheduler.defer(partial(DeviceParameter.set_live_device_parameter, self._track.mixer_device.volume, volume))
 
     @property
     def has_audio_output(self):

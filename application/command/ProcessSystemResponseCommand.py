@@ -1,6 +1,6 @@
 from typing import Any
 
-from protocol0.application.system_command.SerializableCommand import SerializableCommand
+from protocol0.application.command.SerializableCommand import SerializableCommand
 
 
 class ProcessSystemResponseCommand(SerializableCommand):

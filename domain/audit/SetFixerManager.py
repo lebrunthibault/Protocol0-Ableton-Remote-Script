@@ -1,16 +1,22 @@
-from typing import List
+from typing import List, Any
 
-from protocol0.shared.AccessContainer import AccessContainer
+from protocol0.domain.audit.SetUpgradeManager import SetUpgradeManager
+from protocol0.domain.lom.validation.ValidatorManager import ValidatorManager
 from protocol0.shared.AccessSong import AccessSong
 from protocol0.shared.Logger import Logger
 from protocol0.shared.StatusBar import StatusBar
 
 
-class SetFixerManager(AccessContainer, AccessSong):
+class SetFixerManager(AccessSong):
+    def __init__(self, validator_manager, set_upgrade_manager):
+        # type: (ValidatorManager, SetUpgradeManager) -> None
+        self._validator_manager = validator_manager
+        self._set_upgrade_manager = set_upgrade_manager
+
     def fix(self):
         # type: () -> None
         """ Fix the current set to the current standard regarding naming / coloring etc .."""
-        self.parent.logManager.clear()
+        Logger.clear()
 
         for obj in self._objects_to_refresh_appearance:
             if hasattr(obj, "refresh_appearance"):
@@ -19,11 +25,11 @@ class SetFixerManager(AccessContainer, AccessSong):
         invalid_objects = []
 
         for obj in self._objects_to_validate:
-            is_valid = self.parent.validatorManager.validate_object(obj)
+            is_valid = self._validator_manager.validate_object(obj)
             if not is_valid:
                 invalid_objects.append(obj)
 
-        devices_to_remove = list(self.parent.setUpgradeManager.get_deletable_devices(full_scan=True))
+        devices_to_remove = list(self._set_upgrade_manager.get_deletable_devices(full_scan=True))
 
         if len(invalid_objects) == 0 and len(devices_to_remove) == 0:
             StatusBar.show_message("Set is valid")
@@ -39,14 +45,14 @@ class SetFixerManager(AccessContainer, AccessSong):
 
     @property
     def _objects_to_validate(self):
-        # type: () -> List[object]
+        # type: () -> List[Any]
         # noinspection PyTypeChecker
-        return list(self.song.abstract_tracks) + [self.song]
+        return list(self._song.abstract_tracks) + [self._song]
 
     @property
     def _objects_to_refresh_appearance(self):
-        # type: () -> List[object]
+        # type: () -> List[Any]
         # noinspection PyTypeChecker
-        return [clip for track in self.song.simple_tracks for clip in track.clips] + \
-               self.song.scenes + \
-               list(self.song.all_simple_tracks)
+        return [clip for track in self._song.simple_tracks for clip in track.clips] + \
+               self._song.scenes + \
+               list(self._song.all_simple_tracks)

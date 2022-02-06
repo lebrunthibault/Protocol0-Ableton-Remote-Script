@@ -8,8 +8,8 @@ from protocol0.domain.enums.AbstractEnum import AbstractEnum
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.domain.shared.utils import scroll_values
 from protocol0.shared.Logger import Logger
+from protocol0.shared.StatusBar import StatusBar
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.song.Song import Song
@@ -35,7 +35,7 @@ class SongActionMixin(object):
         self._song.current_song_time = 0
         self.stop_all_clips()
         if save_data:
-            self.parent.songDataManager.save()
+            self.container.song_data_manager.save()
 
     def play(self):
         # type: (Song) -> None
@@ -92,18 +92,6 @@ class SongActionMixin(object):
             seq.add(wait=1)
         return seq.done()
 
-    def scroll_tracks(self, go_next):
-        # type: (Song, bool) -> None
-        if not self.selected_track.IS_ACTIVE:
-            next(self.simple_tracks).select()
-            return None
-
-        next_track = scroll_values(self.scrollable_tracks, self.current_track, go_next, rotate=False)
-        if next_track:
-            next_track.select()
-            if next_track == list(self.scrollable_tracks)[-1]:
-                self.parent.sessionManager.toggle_session_ring()
-
     def unfocus_all_tracks(self):
         # type: (Song) -> Sequence
         self._unsolo_all_tracks()
@@ -124,31 +112,27 @@ class SongActionMixin(object):
     def duplicate_track(self, index):
         # type: (Song, int) -> Sequence
         seq = Sequence()
-        seq.add(partial(self._song.duplicate_track, index), complete_on=self.parent.songTracksManager.tracks_listener)
+        seq.add(partial(self._song.duplicate_track, index), complete_on=self.container.song_tracks_manager.tracks_listener)
         return seq.done()
 
     def delete_track(self, index):
         # type: (Song, int) -> Sequence
         seq = Sequence()
-        seq.add(partial(self._song.delete_track, index), complete_on=self.parent.songTracksManager.tracks_listener)
+        seq.add(partial(self._song.delete_track, index), complete_on=self.container.song_tracks_manager.tracks_listener)
         return seq.done()
 
     def duplicate_scene(self, index):
         # type: (Song, int) -> Sequence
         seq = Sequence()
         # seq.add(partial(self._song.duplicate_scene, index))
-        seq.add(partial(self._song.duplicate_scene, index), complete_on=self.parent.songScenesManager.scenes_listener)
+        seq.add(partial(self._song.duplicate_scene, index), complete_on=self.container.song_scenes_manager.scenes_listener)
         return seq.done()
-
-    def scroll_scenes(self, go_next):
-        # type: (Song, bool) -> None
-        scroll_values(self.scenes, self.selected_scene, go_next, rotate=False).select()
 
     def create_scene(self, scene_index=None):
         # type: (Song, Optional[int]) -> Sequence
         seq = Sequence()
         scenes_count = len(self.scenes)
-        seq.add(partial(self._song.create_scene, scene_index or scenes_count), complete_on=self.parent.songScenesManager.scenes_listener)
+        seq.add(partial(self._song.create_scene, scene_index or scenes_count), complete_on=self.container.song_scenes_manager.scenes_listener)
         seq.add(wait=1)
         return seq.done()
 
@@ -159,7 +143,7 @@ class SongActionMixin(object):
             return None
 
         seq = Sequence()
-        seq.add(partial(self._song.delete_scene, scene_index), complete_on=self.parent.songScenesManager.scenes_listener)
+        seq.add(partial(self._song.delete_scene, scene_index), complete_on=self.container.song_scenes_manager.scenes_listener)
         seq.add(wait=1)
         return seq.done()
 
@@ -175,19 +159,24 @@ class SongActionMixin(object):
         # type: (Song) -> None
         self._song.tap_tempo()
 
+    def scroll_tempo(self, go_next):
+        # type: (Song, bool) -> None
+        increment = 1 if go_next else -1
+        self.tempo += increment
+
     def check_midi_recording_quantization(self):
         # type: (Song) -> Optional[Sequence]
         if self.midi_recording_quantization_checked or self.midi_recording_quantization == self.tempo_default_midi_recording_quantization:
             return None
 
         self.midi_recording_quantization_checked = True
-        self.parent.songDataManager.save()
+        self.container.song_data_manager.save()
         seq = Sequence()
         seq.prompt("Midi recording quantization %s is not tempo default : %s, Set to default ?" % (
             self.midi_recording_quantization, self.tempo_default_midi_recording_quantization), no_cancel=True)
         seq.add(
             partial(setattr, self, "midi_recording_quantization", self.tempo_default_midi_recording_quantization))
-        seq.add(partial(self.parent.show_message,
+        seq.add(partial(StatusBar.show_message,
                         "Quantization set to %s" % self.tempo_default_midi_recording_quantization))
 
         return seq.done()

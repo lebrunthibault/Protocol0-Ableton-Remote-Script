@@ -1,13 +1,13 @@
 import itertools
 from functools import partial
 
-from typing import Optional, Any, cast, List, Iterator
+from typing import Optional, cast, List, Iterator, TYPE_CHECKING
 
-from protocol0.domain.lom.instrument.AbstractExternalSynthTrackInstrument import AbstractExternalSynthTrackInstrument
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
 from protocol0.domain.lom.device.Device import Device
+from protocol0.domain.lom.instrument.AbstractExternalSynthTrackInstrument import AbstractExternalSynthTrackInstrument
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.lom.track.group_track.ExternalSynthTrackActionMixin import ExternalSynthTrackActionMixin
 from protocol0.domain.lom.track.group_track.ExternalSynthTrackMonitoringState import ExternalSynthTrackMonitoringState
@@ -21,11 +21,15 @@ from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.utils import find_if
 from protocol0.infra.scheduler.Scheduler import Scheduler
 
+if TYPE_CHECKING:
+    from protocol0.domain.lom.song.SongTracksManager import SongTracksManager
+
 
 class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
-    def __init__(self, base_group_track, *a, **k):
-        # type: (SimpleTrack, Any, Any) -> None
-        super(ExternalSynthTrack, self).__init__(base_group_track=base_group_track, *a, **k)
+    def __init__(self, base_group_track, song_tracks_manager):
+        # type: (SimpleTrack, SongTracksManager) -> None
+        super(ExternalSynthTrack, self).__init__(base_group_track=base_group_track, song_tracks_manager=song_tracks_manager)
+        self.song_tracks_manager = song_tracks_manager
         self.midi_track = cast(SimpleMidiTrack, base_group_track.sub_tracks[0])
         self.audio_track = cast(SimpleAudioTrack, base_group_track.sub_tracks[1])
         self.midi_track.track_name.disconnect()
@@ -66,14 +70,13 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
             return
 
         has_tail_track = len(self.base_track.sub_tracks) > 2 and len(self.base_track.sub_tracks[2].devices) == 0
-        from protocol0 import Protocol0
 
         if has_tail_track and not self.audio_tail_track:
             track = self.base_track.sub_tracks[2]
             self.audio_tail_track = cast(SimpleAudioTailTrack,
-                                         Protocol0.SELF.songTracksManager.generate_simple_track(track=track._track,
-                                                                                                index=track.index,
-                                                                                                cls=SimpleAudioTailTrack))
+                                         self.song_tracks_manager.generate_simple_track(track=track._track,
+                                                                                        index=track.index,
+                                                                                        cls=SimpleAudioTailTrack))
             self.audio_tail_track.abstract_group_track = self
             Scheduler.defer(self.audio_tail_track.configure)
             self.audio_tail_track.track_name.disconnect()
@@ -83,7 +86,6 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
             self.audio_tail_track = None
             self.record_clip_tails = False
 
-        Protocol0.SELF.trackDataManager.restore_data(self)
         self._link_clip_slots()
 
         # the dummy tracks are not yet instantiated and SimpleAudioTracks should be linked to self

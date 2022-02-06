@@ -1,6 +1,5 @@
 from protocol0.domain.ApplicationView import ApplicationView
 from protocol0.domain.lom.instrument.instrument.InstrumentProphet import InstrumentProphet
-from protocol0.domain.lom.song.Song import Song
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
@@ -35,7 +34,7 @@ class TrackRecorderExternalSynthMixin(object):
         track.instrument.activate_editor_automation()
         System.get_instance().hide_plugins()
         # this is delayed in the case an encoder is touched after the recording is finished by mistake
-        Scheduler.wait([1, 10, 50, 100], Song.get_instance().re_enable_automation)
+        Scheduler.wait([1, 10, 50, 100], self._song.re_enable_automation)
 
         midi_clip = track.midi_track.clip_slots[self.recording_scene_index].clip
         audio_clip = track.audio_track.clip_slots[self.recording_scene_index].clip

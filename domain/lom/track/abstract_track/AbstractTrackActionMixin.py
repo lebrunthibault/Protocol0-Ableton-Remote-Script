@@ -13,19 +13,19 @@ class AbstractTrackActionMixin(AccessSong):
     # noinspection PyUnusedLocal
     def select(self):
         # type: (AbstractTrack) -> Sequence
-        return self.song.select_track(self)
+        return self._song.select_track(self)
 
     def duplicate(self):
         # type: (AbstractTrack) -> Sequence
-        return self.song.duplicate_track(self.index)
+        return self._song.duplicate_track(self.index)
 
     def delete(self):
         # type: (AbstractTrack) -> Sequence
-        return self.song.delete_track(self.index)
+        return self._song.delete_track(self.index)
 
     def toggle_arm(self):
         # type: (AbstractTrack) -> None
-        if not self.song.selected_track.IS_ACTIVE:
+        if not self._song.selected_track.IS_ACTIVE:
             return None
         self.unarm() if self.is_armed else self.arm()
 
@@ -52,7 +52,7 @@ class AbstractTrackActionMixin(AccessSong):
         if self.is_foldable:
             self.is_folded = False
         if not self.is_armed:
-            self.song.unfocus_all_tracks()
+            self._song.unfocus_all_tracks()
         return self.arm_track()
 
     def arm_track(self):
@@ -72,10 +72,10 @@ class AbstractTrackActionMixin(AccessSong):
     def stop(self, immediate=False):
         # type: (AbstractTrack, bool) -> None
         if immediate:
-            self.song.disable_clip_trigger_quantization()
+            self._song.disable_clip_trigger_quantization()
         self.base_track._track.stop_all_clips()
         if immediate:
-            self.song.enable_clip_trigger_quantization()
+            self._song.enable_clip_trigger_quantization()
 
     def refresh_appearance(self):
         # type: (AbstractTrack) -> None

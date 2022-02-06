@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+from json import JSONEncoder
 from os.path import dirname
 
 if sys.version_info.major == 2:
@@ -70,6 +71,16 @@ if not live_environment_loaded:
     sys.modules["Live"] = EmptyModule("Live")  # type: ignore[assignment]
     sys.modules["MidiRemoteScript"] = EmptyModule("MidiRemoteScript")  # type: ignore[assignment]
     sys.modules["multipledispatch"] = EmptyModule("multipledispatch")  # type: ignore[assignment]
+
+
+def _default(_, obj):
+    # type: (Any, Any) -> Any
+    return getattr(obj.__class__, "to_json", _default.default)(obj)
+
+
+_default.default = JSONEncoder().default
+JSONEncoder.default = _default  # type: ignore[assignment]
+
 
 if sys.version_info.major == 2:
     # allows loading configuration from python3.7 backend

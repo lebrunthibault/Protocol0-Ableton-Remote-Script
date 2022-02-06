@@ -3,7 +3,7 @@ from typing import Optional
 from protocol0.domain.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.application.faderfox.InterfaceState import InterfaceState
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.shared.SongFacade import SongFacade
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.domain.track_recorder.count_in.count_in_interface import CountInInterface
 from protocol0.domain.track_recorder.count_in.count_in_one_bar import CountInOneBar
 from protocol0.domain.track_recorder.factory.abstract_track_recorder_factory import AbstractTrackRecorderFactory

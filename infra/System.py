@@ -1,16 +1,16 @@
-from p0_system_api import P0SystemAPI
+from p0_system_client import P0SystemClient
 from typing import Optional
 
 
 class System(object):
     """ system singleton facade """
 
-    _INSTANCE = None  # type: Optional[P0SystemAPI]
+    _INSTANCE = None  # type: Optional[P0SystemClient]
 
     @classmethod
     def get_instance(cls):
-        # type: () -> P0SystemAPI
+        # type: () -> P0SystemClient
         if not cls._INSTANCE:
-            cls._INSTANCE = P0SystemAPI()
+            cls._INSTANCE = P0SystemClient()
 
         return cls._INSTANCE

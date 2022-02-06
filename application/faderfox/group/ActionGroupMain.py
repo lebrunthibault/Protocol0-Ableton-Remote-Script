@@ -1,41 +1,32 @@
 from functools import partial
 
-from typing import Any
-
-from protocol0.application.faderfox.group.AbstractActionGroup import AbstractActionGroup
-from protocol0.domain.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.application.faderfox.InterfaceState import InterfaceState
+from protocol0.application.faderfox.group.ActionGroupMixin import ActionGroupMixin
+from protocol0.domain.enums.RecordTypeEnum import RecordTypeEnum
+from protocol0.shared.SongFacade import SongFacade
 
 
-class ActionGroupMain(AbstractActionGroup):
+class ActionGroupMain(ActionGroupMixin):
     """
-    Main manager: gathering most the functionalities. My faithful companion when producing on Live !
+    Main group: gathering most the functionalities. My faithful companion when producing on Live !
     """
 
-    def __init__(self, *a, **k):
-        # type: (Any, Any) -> None
-        super(ActionGroupMain, self).__init__(channel=4, *a, **k)
+    CHANNEL = 4
 
-        # TAIL encoder
-        self.add_encoder(
-            identifier=2,
-            name="toggle audio clip tail recording",
-            filter_active_tracks=True,
-            on_press=lambda: self.song.current_external_synth_track.toggle_record_clip_tails,
-        )
-
+    def configure(self):
+        # type: () -> None
         # AUTOmation encoder
         self.add_encoder(
             identifier=3,
             name="automation",
-            on_press=lambda: self.parent.automationTrackManager.display_selected_parameter_automation(self.song.selected_clip),
-            on_scroll=self.parent.automationTrackManager.scroll_automation_envelopes,
+            on_press=lambda: self._container.automation_track_manager.display_selected_parameter_automation(SongFacade.selected_clip()),
+            on_scroll=self._container.automation_track_manager.scroll_automation_envelopes,
         )
 
         # VOLume tempo encoder
         self.add_encoder(identifier=4, name="volume",
                          filter_active_tracks=True,
-                         on_scroll=lambda: self.song.current_track.scroll_volume
+                         on_scroll=lambda: SongFacade.current_track().scroll_volume
                          )
 
         # MONitor encoder
@@ -43,7 +34,7 @@ class ActionGroupMain(AbstractActionGroup):
             identifier=8,
             name="monitor",
             filter_active_tracks=True,
-            on_press=lambda: self.song.current_external_synth_track.monitoring_state.switch)
+            on_press=lambda: SongFacade.current_external_synth_track().monitoring_state.switch)
 
         # RECord encoder
         self.add_encoder(
@@ -51,14 +42,14 @@ class ActionGroupMain(AbstractActionGroup):
             name="record",
             filter_active_tracks=True,
             on_scroll=InterfaceState.scroll_recording_time,
-            on_press=lambda: partial(self.parent.trackRecorderManager.record_track, self.song.current_track,
+            on_press=lambda: partial(self._container.track_recorder_manager.record_track, SongFacade.current_track(),
                                      RecordTypeEnum.NORMAL),
-            on_cancel_press=lambda: partial(self.parent.trackRecorderManager.cancel_record, self.song.current_track,
+            on_cancel_press=lambda: partial(self._container.track_recorder_manager.cancel_record, SongFacade.current_track(),
                                             RecordTypeEnum.NORMAL),
-            on_long_press=lambda: partial(self.parent.trackRecorderManager.record_track, self.song.current_track,
+            on_long_press=lambda: partial(self._container.track_recorder_manager.record_track, SongFacade.current_track(),
                                           RecordTypeEnum.AUDIO_ONLY),
-            on_cancel_long_press=lambda: partial(self.parent.trackRecorderManager.cancel_record,
-                                                 self.song.current_track,
+            on_cancel_long_press=lambda: partial(self._container.track_recorder_manager.cancel_record,
+                                                 SongFacade.current_track(),
                                                  RecordTypeEnum.AUDIO_ONLY)
         )
 
@@ -66,18 +57,18 @@ class ActionGroupMain(AbstractActionGroup):
         self.add_encoder(
             identifier=12,
             name="scene scroll time",
-            on_scroll=lambda: self.song.selected_scene.scroll_position,
-            on_press=lambda: self.song.last_manually_started_scene.fire_and_move_position,
-            on_long_press=lambda: self.song.current_track.toggle_fold,
+            on_scroll=lambda: SongFacade.selected_scene().scroll_position,
+            on_press=lambda: SongFacade.last_manually_started_scene().fire_and_move_position,
+            on_long_press=lambda: SongFacade.current_track().toggle_fold,
         )
 
         # TRacK encoder
         self.add_encoder(
             identifier=13,
             name="track",
-            on_scroll=self.song.scroll_tracks,
-            on_press=lambda: self.song.current_track.toggle_arm,
-            on_long_press=lambda: self.song.current_track.toggle_fold,
+            on_scroll=self._container.song_tracks_manager.scroll_tracks,
+            on_press=lambda: SongFacade.current_track().toggle_arm,
+            on_long_press=lambda: SongFacade.current_track().toggle_fold,
         )
 
         # INSTrument encoder
@@ -85,16 +76,16 @@ class ActionGroupMain(AbstractActionGroup):
             identifier=14,
             name="instrument",
             filter_active_tracks=True,
-            on_press=self.parent.instrumentDisplayManager.show_hide_instrument,
-            on_long_press=self.parent.instrumentDisplayManager.activate_instrument_plugin_window,
-            on_scroll=lambda: partial(self.parent.instrumentPresetScrollerManager.scroll_presets_or_samples, self.song.current_track.instrument),
+            on_press=self._container.instrument_display_manager.show_hide_instrument,
+            on_long_press=self._container.instrument_display_manager.activate_instrument_plugin_window,
+            on_scroll=lambda: partial(self._container.instrument_preset_scroller_manager.scroll_presets_or_samples, SongFacade.current_track().instrument),
         )
 
         # SCENe encoder
         self.add_encoder(
             identifier=16,
             name="scene",
-            on_press=lambda: self.song.selected_scene.fire,
-            on_long_press=lambda: self.song.selected_scene.toggle_loop,
-            on_scroll=self.song.scroll_scenes,
+            on_press=lambda: SongFacade.selected_scene().fire,
+            on_long_press=lambda: SongFacade.selected_scene().toggle_loop,
+            on_scroll=self._container.song_scenes_manager.scroll_scenes,
         )

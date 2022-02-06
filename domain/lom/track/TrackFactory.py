@@ -18,23 +18,23 @@ from protocol0.shared.AccessSong import AccessSong
 class TrackFactory(AccessContainer, AccessSong):
     def on_added_track(self):
         # type: () -> Optional[Sequence]
-        if not self.song.selected_track.IS_ACTIVE:
+        if not self._song.selected_track.IS_ACTIVE:
             return None
-        self.song.begin_undo_step()  # Live crashes on undo without this
+        self._song.begin_undo_step()  # Live crashes on undo without this
         seq = Sequence()
-        added_track = self.song.selected_track
-        if self.song.selected_track == self.song.current_track.base_track:
-            added_track = self.song.current_track
+        added_track = self._song.selected_track
+        if self._song.selected_track == self._song.current_track.base_track:
+            added_track = self._song.current_track
         seq.add(wait=1)
         seq.add(added_track._added_track_init)
-        seq.add(self.parent.songScenesManager.delete_empty_scenes)
-        seq.add(self.song.end_undo_step)
+        seq.add(self.container.song_scenes_manager.delete_empty_scenes)
+        seq.add(self._song.end_undo_step)
         return seq.done()
 
     def instantiate_simple_track(self, track, index, cls):
         # type: (Live.Track.Track, int, Optional[Type[SimpleTrack]]) -> SimpleTrack
         # checking first on existing tracks
-        existing_simple_track = self.parent.songTracksManager.get_optional_simple_track(track)
+        existing_simple_track = self.container.song_tracks_manager.get_optional_simple_track(track)
         if existing_simple_track and (cls is None or isinstance(existing_simple_track, cls)):
             return existing_simple_track
 
@@ -48,7 +48,14 @@ class TrackFactory(AccessContainer, AccessSong):
             else:
                 raise Protocol0Error("Unknown track type")
 
-        return cls(track=track, index=index)
+        return cls(
+            track=track,
+            index=index,
+            song_tracks_manager=self.container.song_tracks_manager,
+            device_manager=self.container.device_manager,
+            browser_manager=self.container.browser_manager,
+            click_manager=self.container.click_manager
+        )
 
     def instantiate_abstract_group_track(self, base_group_track):
         # type: (SimpleTrack) -> AbstractGroupTrack
@@ -61,7 +68,7 @@ class TrackFactory(AccessContainer, AccessSong):
         if isinstance(previous_abstract_group_track, NormalGroupTrack):
             return previous_abstract_group_track
         else:
-            return NormalGroupTrack(base_group_track=base_group_track)
+            return NormalGroupTrack(base_group_track=base_group_track, song_tracks_manager=self.container.song_tracks_manager)
 
     def _make_external_synth_track(self, base_group_track):
         # type: (SimpleTrack) -> ExternalSynthTrack
@@ -74,7 +81,10 @@ class TrackFactory(AccessContainer, AccessSong):
         if isinstance(base_group_track.abstract_group_track, ExternalSynthTrack):
             return base_group_track.abstract_group_track
         else:
-            return ExternalSynthTrack(base_group_track=base_group_track)
+            return ExternalSynthTrack(
+                base_group_track=base_group_track,
+                song_tracks_manager=self.container.song_tracks_manager
+            )
 
     def _is_valid_external_synth_track(self, base_group_track):
         # type: (SimpleTrack) -> bool

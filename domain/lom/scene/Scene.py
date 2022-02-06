@@ -14,7 +14,7 @@ from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleA
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.shared.SongFacade import SongFacade
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.domain.shared.decorators import p0_subject_slot, throttle
 from protocol0.infra.scheduler.Scheduler import Scheduler
 from protocol0.shared.Logger import Logger

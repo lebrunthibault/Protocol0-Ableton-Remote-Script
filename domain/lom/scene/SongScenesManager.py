@@ -1,24 +1,25 @@
 import collections
 from itertools import chain
 
-from typing import Any, Optional, List
+from typing import Optional, List
 
 import Live
-from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.domain.lom.Listenable import Listenable
 from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.shared.decorators import p0_subject_slot
+from protocol0.domain.shared.utils import scroll_values
 from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
 from protocol0.infra.scheduler.Scheduler import Scheduler
 from protocol0.shared.Logger import Logger
+from protocol0.shared.SongFacade import SongFacade
 
 
-class SongScenesManager(AbstractControlSurfaceComponent, Listenable):
-    def __init__(self, *a, **k):
-        # type: (Any, Any) -> None
-        super(SongScenesManager, self).__init__(*a, **k)
-        self.scenes_listener.subject = self.song._song
+class SongScenesManager(Listenable):
+    def __init__(self):
+        # type: () -> None
+        super(SongScenesManager, self).__init__()
+        self.scenes_listener.subject = SongFacade.live_song()
         self._beat_changed_listener.subject = BeatScheduler.get_instance()
         self._live_scene_id_to_scene = collections.OrderedDict()
 
@@ -46,26 +47,26 @@ class SongScenesManager(AbstractControlSurfaceComponent, Listenable):
     def scenes_listener(self):
         # type: () -> None
         self._generate_scenes()
-        for scene in self.song.scenes:
+        for scene in SongFacade.scenes():
             Scheduler.defer(scene.refresh_appearance)
         Logger.log_info("mapped scenes")
 
     @p0_subject_slot("beat_changed")
     def _beat_changed_listener(self):
         # type: () -> None
-        if self.song.playing_scene and self.song.playing_scene.has_playing_clips:
-            self.song.playing_scene.on_beat_changed()
+        if SongFacade.playing_scene() and SongFacade.playing_scene().has_playing_clips:
+            SongFacade.playing_scene().on_beat_changed()
 
     def _generate_scenes(self):
         # type: () -> None
         self._clean_deleted_scenes()
 
         # mapping cs should be done before generating the scenes
-        for track in collections.OrderedDict.fromkeys(chain(self.song.simple_tracks, self.song.abstract_tracks)):
+        for track in collections.OrderedDict.fromkeys(chain(SongFacade.simple_tracks(), SongFacade.abstract_tracks())):
             track.on_scenes_change()
 
-        live_scenes = self.song._song.scenes
-        has_added_scene = 0 < len(self.song.scenes) < len(live_scenes)
+        live_scenes = SongFacade.live_song().scenes
+        has_added_scene = 0 < len(SongFacade.scenes()) < len(live_scenes)
 
         # get the right scene or instantiate new scenes
         for index, live_scene in enumerate(live_scenes):
@@ -73,12 +74,12 @@ class SongScenesManager(AbstractControlSurfaceComponent, Listenable):
 
         self._sort_scenes()
 
-        if has_added_scene and self.song.selected_scene.length and self.song.is_playing:
-            Scheduler.defer(self.song.selected_scene.fire)
+        if has_added_scene and SongFacade.selected_scene().length and SongFacade.is_playing():
+            Scheduler.defer(SongFacade.selected_scene().fire)
 
     def _clean_deleted_scenes(self):
         # type: () -> None
-        existing_scene_ids = [scene._live_ptr for scene in self.song._song.scenes]
+        existing_scene_ids = [scene._live_ptr for scene in SongFacade.live_song().scenes]
         deleted_ids = []
 
         for scene_id, scene in self._live_scene_id_to_scene.items():
@@ -101,7 +102,7 @@ class SongScenesManager(AbstractControlSurfaceComponent, Listenable):
     def _sort_scenes(self):
         # type: () -> None
         sorted_dict = collections.OrderedDict()
-        for scene in self.song._song.scenes:
+        for scene in SongFacade.live_song().scenes:
             sorted_dict[scene._live_ptr] = self.get_scene(scene)
         self._live_scene_id_to_scene = sorted_dict
 
@@ -109,7 +110,7 @@ class SongScenesManager(AbstractControlSurfaceComponent, Listenable):
         # type: () -> Sequence
         empty_scenes = []
         seq = Sequence()
-        for scene in reversed(self.song.scenes):
+        for scene in reversed(SongFacade.scenes()):
             if scene.length == 0:
                 empty_scenes.append(scene)
             else:
@@ -117,3 +118,7 @@ class SongScenesManager(AbstractControlSurfaceComponent, Listenable):
 
         seq.add([scene.delete for scene in empty_scenes])
         return seq.done()
+
+    def scroll_scenes(self, go_next):
+        # type: (bool) -> None
+        scroll_values(SongFacade.scenes(), SongFacade.selected_scene(), go_next, rotate=False).select()

@@ -10,7 +10,7 @@ from protocol0.application.faderfox.InterfaceState import InterfaceState
 from protocol0.domain.lom.note.Note import Note
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.domain.shared.SongFacade import SongFacade
+from protocol0.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
@@ -90,7 +90,7 @@ class MidiClip(Clip):
         self.scale_velocities(go_next=False, scaling_factor=2)
         self.quantize()
 
-    def scale_velocities(self, go_next, scaling_factor):
+    def scale_velocities(self, go_next, scaling_factor=4):
         # type: (bool, int) -> None
         notes = self.get_notes()
         if len(notes) == 0:

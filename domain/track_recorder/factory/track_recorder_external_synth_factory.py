@@ -3,7 +3,7 @@ from typing import Optional
 from protocol0.application.faderfox.InterfaceState import InterfaceState
 from protocol0.domain.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
-from protocol0.domain.shared.SongFacade import SongFacade
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.track_recorder.count_in.count_in_interface import CountInInterface
 from protocol0.domain.track_recorder.count_in.count_in_one_bar import CountInOneBar
@@ -34,7 +34,7 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
     def _create_recorder(self, record_type, bar_length):
         # type: (RecordTypeEnum, int) -> AbstractTrackRecorder
         if record_type == RecordTypeEnum.AUDIO_ONLY:
-            recorder = TrackRecorderExternalSynthAudio(self.track)
+            recorder = TrackRecorderExternalSynthAudio(self.track)  # type: AbstractTrackRecorder
             recorder = TrackRecorderPropagateNewAudioClipDecorator(recorder)
         else:
             recorder = TrackRecorderExternalSynth(self.track)

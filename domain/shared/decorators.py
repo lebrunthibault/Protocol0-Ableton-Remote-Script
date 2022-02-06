@@ -5,6 +5,7 @@ from typing import Any, Callable, TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
 from protocol0.domain.shared.utils import is_method
+from protocol0.infra.scheduler.Scheduler import Scheduler
 
 if TYPE_CHECKING:
     from protocol0.domain.sequence.CallbackDescriptor import CallbackDescriptor
@@ -73,9 +74,7 @@ def debounce(wait_time=100):
             # type: (Any, Any) -> None
             object_source = a[0] if is_method(func) else decorate
             decorate.count[object_source] += 1  # type: ignore[attr-defined]
-            from protocol0 import Protocol0
-
-            Protocol0.SELF.wait(wait_time, partial(execute, func, *a, **k))
+            Scheduler.wait(wait_time, partial(execute, func, *a, **k))
 
         decorate.count = defaultdict(int)
 
@@ -110,8 +109,7 @@ def throttle(wait_time=100):
                 # type: () -> None
                 decorate.paused[object_source] = False
 
-            from protocol0 import Protocol0
-            Protocol0.SELF.wait(wait_time, activate)
+            Scheduler.wait(wait_time, activate)
             return res
 
         decorate.paused = defaultdict(lambda: False)  # type: ignore[attr-defined]

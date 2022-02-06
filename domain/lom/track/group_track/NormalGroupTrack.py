@@ -1,4 +1,4 @@
-from typing import Any, Optional, Type
+from typing import Any, Optional, Type, TYPE_CHECKING
 
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.instrument.instrument import InstrumentSimpler
@@ -9,14 +9,17 @@ from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.shared.decorators import p0_subject_slot, defer
 from protocol0.domain.shared.utils import find_if
 
+if TYPE_CHECKING:
+    from protocol0.domain.lom.song.SongTracksManager import SongTracksManager
+
 
 class NormalGroupTrack(AbstractGroupTrack):
     DEFAULT_NAME = "Group"
     KEEP_CLIPS_ON_ADDED = True
 
-    def __init__(self, base_group_track, *a, **k):
-        # type: (SimpleTrack, Any, Any) -> None
-        super(NormalGroupTrack, self).__init__(base_group_track=base_group_track, *a, **k)
+    def __init__(self, base_group_track, song_tracks_manager):
+        # type: (SimpleTrack, SongTracksManager) -> None
+        super(NormalGroupTrack, self).__init__(base_group_track=base_group_track, song_tracks_manager=song_tracks_manager)
         self._solo_listener.subject = base_group_track._track
 
     @p0_subject_slot("solo")

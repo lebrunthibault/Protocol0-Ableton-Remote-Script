@@ -1,16 +1,17 @@
-from typing import Optional, Any, List
+from typing import Optional, List, Callable
 
 from _Framework.SessionComponent import SessionComponent
-from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.shared.SongFacade import SongFacade
 
 
-class SessionManager(AbstractControlSurfaceComponent):
-    def __init__(self, *a, **k):
-        # type: (Any, Any) -> None
-        super(SessionManager, self).__init__(*a, **k)
+class SessionManager(object):
+    def __init__(self, component_guard, set_highlighting_session_component):
+        # type: (Callable, Callable) -> None
+        super(SessionManager, self).__init__()
+        self._component_guard = component_guard
+        self._set_highlighting_session_component = set_highlighting_session_component
         self.session = None  # type: Optional[SessionComponent]
-        # self.register_slot(self.parent.songManager, self.display_session_ring, "selected_track")
 
     def toggle_session_ring(self):
         # type: () -> None
@@ -23,7 +24,7 @@ class SessionManager(AbstractControlSurfaceComponent):
             self._hide_session_ring()
 
         try:
-            if not self.song.selected_track.IS_ACTIVE:
+            if not SongFacade.selected_track().IS_ACTIVE:
                 return
         except IndexError:
             return
@@ -35,15 +36,15 @@ class SessionManager(AbstractControlSurfaceComponent):
                 sub_tracks.extend(get_all_sub_tracks_inclusive(sub_track))
             return sub_tracks
 
-        total_tracks = get_all_sub_tracks_inclusive(self.song.current_track.base_track)
+        total_tracks = get_all_sub_tracks_inclusive(SongFacade.current_track().base_track)
         num_tracks = len([track for track in total_tracks if track.is_visible])
         track_offset = self.session_track_offset
 
-        with self.parent.component_guard():
-            self.session = SessionComponent(num_tracks=num_tracks, num_scenes=len(self.song.scenes))
+        with self._component_guard():
+            self.session = SessionComponent(num_tracks=num_tracks, num_scenes=len(SongFacade.scenes()))
         self.session.set_offsets(track_offset=track_offset, scene_offset=0)
-        if track_offset != len(list(self.song.visible_tracks)) - 1:
-            self.parent.set_highlighting_session_component(self.session)
+        if track_offset != len(list(SongFacade.visible_tracks())) - 1:
+            self._set_highlighting_session_component(self.session)
 
     def _hide_session_ring(self):
         # type: () -> None
@@ -55,6 +56,6 @@ class SessionManager(AbstractControlSurfaceComponent):
     def session_track_offset(self):
         # type: () -> int
         try:
-            return list(self.song.visible_tracks).index(self.song.current_track.base_track)
+            return list(SongFacade.visible_tracks()).index(SongFacade.current_track().base_track)
         except ValueError:
             return self.session.track_offset() if self.session else 0

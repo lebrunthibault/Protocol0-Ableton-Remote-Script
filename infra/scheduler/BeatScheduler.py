@@ -1,6 +1,6 @@
 from typing import Callable, Any, Optional
 
-from protocol0.domain.shared.SongFacade import SongFacade
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.infra.scheduler.Scheduler import Scheduler

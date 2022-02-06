@@ -7,7 +7,7 @@ from protocol0.domain.lom.device.DeviceManager import DeviceManager
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.track.simple_track.event.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.domain.shared.SongFacade import SongFacade
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.infra.System import System
 
 

@@ -9,16 +9,18 @@ from protocol0.domain.sequence.SequenceError import SequenceError
 from protocol0.domain.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
 from protocol0.domain.sequence.TimeoutLimit import TimeoutLimit
 from protocol0.domain.shared.decorators import p0_subject_slot
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils import _has_callback_queue, get_callable_repr, nop
 from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
 from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.shared.AccessContainer import AccessContainer
 from protocol0.shared.Logger import Logger
 
 if TYPE_CHECKING:
     from protocol0.domain.sequence.Sequence import Sequence
 
 
-class SequenceStep(SequenceStateMachineMixin):
+class SequenceStep(SequenceStateMachineMixin, AccessContainer):
     def __init__(
             self,
             func,  # type: Callable
@@ -27,6 +29,7 @@ class SequenceStep(SequenceStateMachineMixin):
             wait,  # type: int
             wait_beats,  # type: float
             wait_for_system,  # type: bool
+            wait_for_event,  # type: Optional[object]
             no_cancel,  # type: bool
             complete_on,  # type: Optional[Union[Callable, CallableWithCallbacks]]
             check_timeout,  # type: int
@@ -43,18 +46,16 @@ class SequenceStep(SequenceStateMachineMixin):
         self._wait = wait
         self._wait_beats = wait_beats or 0
         self.wait_for_system = wait_for_system
+        self._wait_for_event = wait_for_event
         self.no_cancel = no_cancel
         self._complete_on = complete_on
         self._check_timeout = check_timeout
         self._callback_timeout = None  # type: Optional[Callable]
         self.res = None  # type: Optional[Any]
 
-        if self.wait_for_system:
-            assert self._wait == 0 and self._wait_beats == 0 and self._complete_on is None, "waiting for system excludes other waiting options"
-        if self._complete_on:
-            assert self._wait == 0 and self._wait_beats == 0, "complete_on excludes wait and wait_beats"
-        if self._wait:
-            assert self._wait_beats == 0, "wait excludes wait_beats"
+        waiting_conditions = iter([self._wait, self._wait_beats, self.wait_for_system, self._wait_for_event, self._complete_on])
+        if any(waiting_conditions) and any(waiting_conditions):
+            raise Protocol0Error("Found multiple concurrent waiting conditions in %s" % self)
         if self.no_cancel:
             assert self.wait_for_system, "no cancel used without wait_for_system"
         assert callable(self._callable), "You passed a non callable (%s) to %s" % (self._callable, self)
@@ -69,6 +70,8 @@ class SequenceStep(SequenceStateMachineMixin):
         output = self.name
         if self.wait_for_system:
             output += " (and wait for system)"
+        if self._wait_for_event:
+            output += " (and wait for event %s)" % self._wait_for_event
         elif self._complete_on:
             output += " (and wait for listener call : %s)" % get_callable_repr(self._complete_on)
         elif self._wait:
@@ -158,8 +161,7 @@ class SequenceStep(SequenceStateMachineMixin):
             raise
         except Exception:
             self.error()
-            from protocol0 import Protocol0
-            Protocol0.SELF.errorManager.handle_error("%s : %s" % (self._sequence_name, self))
+            self.container.error_manager.handle_error("%s : %s" % (self._sequence_name, self))
             raise SequenceError()  # will stop sequence processing
 
     def _execute(self):

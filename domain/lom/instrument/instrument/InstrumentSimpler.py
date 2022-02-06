@@ -8,7 +8,7 @@ from protocol0.domain.enums.PresetDisplayOptionEnum import PresetDisplayOptionEn
 from protocol0.domain.lom.device.SimplerDevice import SimplerDevice
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPreset
-from protocol0.domain.shared.SongFacade import SongFacade
+from protocol0.shared.SongFacade import SongFacade
 
 
 class InstrumentSimpler(InstrumentInterface):
@@ -27,4 +27,4 @@ class InstrumentSimpler(InstrumentInterface):
     def load_preset(self, preset):
         # type: (InstrumentPreset) -> None
         SongFacade.selected_track.device_insert_mode = Live.Track.DeviceInsertMode.default
-        self.parent.browserManager.load_sample(preset.original_name)  # type: ignore[arg-type]
+        self.parent.browser_manager.load_sample(preset.original_name)  # type: ignore[arg-type]

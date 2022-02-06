@@ -13,18 +13,22 @@ from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils import find_if
+from protocol0.infra.BrowserManager import BrowserManager
 from protocol0.infra.System import System
-from protocol0.shared.AccessContainer import AccessContainer
 from protocol0.shared.AccessSong import AccessSong
 from protocol0.shared.Logger import Logger
 
 
-class DeviceManager(AccessContainer, AccessSong):
+class DeviceManager(AccessSong):
     SHOW_HIDE_MACRO_BUTTON_PIXEL_HEIGHT = 830
     SHOW_HIDE_PLUGIN_BUTTON_PIXEL_HEIGHT = 992
     COLLAPSED_DEVICE_PIXEL_WIDTH = 38
     COLLAPSED_RACK_DEVICE_PIXEL_WIDTH = 28
     WIDTH_PIXEL_OFFSET = 4
+
+    def __init__(self, browser_manager):
+        # type: (BrowserManager) -> None
+        self._browser_manager = browser_manager
 
     def make_instrument_from_simple_track(self, track):
         # type: (SimpleTrack) -> Optional[InstrumentInterface]
@@ -51,8 +55,8 @@ class DeviceManager(AccessContainer, AccessSong):
         Logger.log_info("selecting and updating device %s (track %s)" % (device, device.track))
         parameters = {param.name: param.value for param in device.parameters if "macro" not in param.name.lower()}
         seq = Sequence()
-        seq.add(partial(self.song.select_device, device))
-        seq.add(partial(self.parent.browserManager.update_audio_effect_preset, device))
+        seq.add(partial(self._song.select_device, device))
+        seq.add(partial(self._browser_manager.update_audio_effect_preset, device))
         seq.add(partial(self._update_device_params, device.track, device.name, parameters))
         return seq.done()
 

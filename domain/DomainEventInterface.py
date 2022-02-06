@@ -1,2 +1,0 @@
-class DomainEventInterface(object):
-    pass

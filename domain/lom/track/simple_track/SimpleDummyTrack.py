@@ -2,8 +2,8 @@ from functools import partial
 
 from typing import Optional, Any
 
-from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
+from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.sequence.Sequence import Sequence
@@ -61,25 +61,24 @@ class SimpleDummyTrack(SimpleAudioTrack):
     def _insert_device(self):
         # type: () -> Optional[Sequence]
         self.parameter_enum = DeviceParameterEnum.from_value(self.parameter_type)
-        from protocol0 import Protocol0
 
-        return Protocol0.SELF.browserManager.load_device_from_enum(self.parameter_enum.device_enum)
+        return self._browser_manager.load_device_from_enum(self.parameter_enum.device_enum)
 
     def _insert_dummy_clip(self):
         # type: () -> Optional[Sequence]
-        if not self.song.template_dummy_clip or len(self.clips):
+        if not self._song.template_dummy_clip or len(self.clips):
             return None
 
-        cs = self.clip_slots[self.song.selected_scene.index]
+        cs = self.clip_slots[self._song.selected_scene.index]
         seq = Sequence()
-        seq.add(partial(self.song.template_dummy_clip.clip_slot.duplicate_clip_to, cs))
+        seq.add(partial(self._song.template_dummy_clip.clip_slot.duplicate_clip_to, cs))
         seq.add(lambda: setattr(self.clips[0], "muted", False))
         seq.add(wait=2)
         return seq.done()
 
     def _create_dummy_automation(self):
         # type: () -> None
-        clip = self.clip_slots[self.song.selected_scene.index].clip
+        clip = self.clip_slots[self._song.selected_scene.index].clip
         automated_device = self.get_device_from_enum(self.parameter_enum.device_enum)
         if automated_device is None:
             Logger.log_error("The automated device was not inserted")
@@ -92,8 +91,7 @@ class SimpleDummyTrack(SimpleAudioTrack):
             clip.create_automation_envelope(parameter=automated_parameter)
 
         clip.loop_end = self.clip_bar_length
-        from protocol0 import Protocol0
 
-        Protocol0.SELF.clickManager.show_clip_envelope_parameter(clip, automated_parameter)
-        if self.song.is_playing:
+        self._click_manager.show_clip_envelope_parameter(clip, automated_parameter)
+        if self._song.is_playing:
             clip.fire()

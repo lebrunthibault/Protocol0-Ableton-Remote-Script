@@ -12,7 +12,7 @@ class AutomationTrackManager(AccessSong):
 
     def display_selected_parameter_automation(self, clip, show_warning=True):
         # type: (Clip, bool) -> None
-        selected_parameter = self.song.selected_parameter or clip.displayed_automated_parameter
+        selected_parameter = self._song.selected_parameter or clip.displayed_automated_parameter
         if selected_parameter is None:
             if len(clip.automated_parameters):
                 selected_parameter = clip.automated_parameters[0]
@@ -21,12 +21,12 @@ class AutomationTrackManager(AccessSong):
                     raise Protocol0Warning("Selected clip has no automation")
                 return None
 
-        self.song.re_enable_automation()
+        self._song.re_enable_automation()
         self.click_manager.show_clip_envelope_parameter(clip, selected_parameter)
 
     def scroll_automation_envelopes(self, go_next):
         # type: (bool) -> None
-        selected_clip = self.song.selected_clip
+        selected_clip = self._song.selected_clip
         if not selected_clip:
             raise Protocol0Warning("No playable clip")
 

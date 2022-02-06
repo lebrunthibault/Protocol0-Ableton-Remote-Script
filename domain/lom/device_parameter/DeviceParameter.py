@@ -100,3 +100,13 @@ class DeviceParameter(object):
             return self._device_parameter.is_enabled
         else:
             return False
+
+    @classmethod
+    def set_live_device_parameter(cls, param, value):
+        # type: (Live.DeviceParameter.DeviceParameter, float) -> None
+        if not param.is_enabled:
+            return None
+        value = max(param.min, value)
+        value = min(param.max, value)
+        # noinspection PyPropertyAccess
+        param.value = value

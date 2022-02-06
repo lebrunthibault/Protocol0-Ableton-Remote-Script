@@ -4,43 +4,49 @@ from typing import Iterator, List, Dict, Optional
 
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
+from protocol0.domain.lom.device.DeviceManager import DeviceManager
 from protocol0.domain.lom.device.PluginDevice import PluginDevice
 from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
+from protocol0.domain.lom.validation.ValidatorManager import ValidatorManager
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
-from protocol0.shared.AccessContainer import AccessContainer
 from protocol0.shared.AccessSong import AccessSong
 from protocol0.shared.Logger import Logger
 from protocol0.shared.StatusBar import StatusBar
 
 
-class SetUpgradeManager(AccessContainer, AccessSong):
+class SetUpgradeManager(AccessSong):
+    def __init__(self, device_manager, validator_manager):
+        # type: (DeviceManager, ValidatorManager) -> None
+        self._device_manager = device_manager
+        self._validator_manager = validator_manager
+
     def update_audio_effect_racks(self):
         # type: () -> Sequence
         seq = Sequence()
         seq.prompt("Update updatable racks ?")
-        for track in self.song.all_simple_tracks:
+        for track in self._song.all_simple_tracks:
             for device in track.all_devices:
                 if not isinstance(device, RackDevice):
                     continue
                 if any(enum.matches_device(device) for enum in DeviceEnum.updatable_devices()):
-                    seq.add(partial(self.parent.deviceManager.update_audio_effect_rack, device=device))
+                    seq.add(partial(self._device_manager.update_audio_effect_rack, device=device))
 
         return seq.done()
 
     def update_external_synth_tracks_add_clip_tails(self):
         # type: () -> Optional[Sequence]
         tracks = []
-        for track in self.song.abstract_tracks:
+        for track in self._song.abstract_tracks:
             if not isinstance(track, ExternalSynthTrack) or not track.instrument.RECORD_CLIP_TAILS:
                 continue
             if not track.audio_tail_track:
                 tracks.append(track)
 
-        if not all(self.parent.validatorManager.validate_object(track) for track in tracks):
+        if not all(self._validator_manager.validate_object(track) for track in tracks):
             Logger.log_error("invalid ExternalSynthTrack(s)")
             return None
 
@@ -81,7 +87,7 @@ class SetUpgradeManager(AccessContainer, AccessSong):
 
     def get_deletable_devices(self, full_scan):
         # type: (bool) -> Iterator[Device]
-        tracks = [track for track in self.song.all_simple_tracks if not isinstance(track, SimpleDummyTrack)]
+        tracks = [track for track in self._song.all_simple_tracks if not isinstance(track, SimpleDummyTrack)]
 
         # devices off
         for device_enum in DeviceEnum.deprecated_devices():
@@ -108,7 +114,7 @@ class SetUpgradeManager(AccessContainer, AccessSong):
                     yield device
 
         # empty mix racks
-        for track in self.song.all_simple_tracks:
+        for track in self._song.all_simple_tracks:
             mix_rack = track.get_device_from_enum(DeviceEnum.MIX_RACK)  # type: Optional[RackDevice]
             if mix_rack and len(mix_rack.chains[0].devices) == 0:
                 yield mix_rack
@@ -118,7 +124,7 @@ class SetUpgradeManager(AccessContainer, AccessSong):
 
         # plugin devices
         white_list_names = [d.device_name for d in DeviceEnum.plugin_white_list()]
-        for track in self.song.all_simple_tracks:
+        for track in self._song.all_simple_tracks:
             for device in track.all_devices:
                 if isinstance(device, PluginDevice) and device.name not in white_list_names:
                     yield device

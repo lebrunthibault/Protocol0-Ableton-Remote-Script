@@ -1,13 +1,16 @@
-from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.domain.enums.ColorEnum import ColorEnum
 from protocol0.domain.lom.validation.ValidatorFactory import ValidatorFactory
 from protocol0.shared.Logger import Logger
 
 
-class ValidatorManager(AbstractControlSurfaceComponent):
+class ValidatorManager(object):
+    def __init__(self, validator_factory):
+        # type: (ValidatorFactory) -> None
+        self._validator_factory = validator_factory
+
     def validate_object(self, obj):
         # type: (object) -> bool
-        validator = ValidatorFactory.create_from_object(obj)
+        validator = self._validator_factory.create_from_object(obj)
         if validator.is_valid():
             return True
         else:
@@ -18,7 +21,7 @@ class ValidatorManager(AbstractControlSurfaceComponent):
 
     def fix_object(self, obj):
         # type: (object) -> None
-        validator = ValidatorFactory.create_from_object(obj)
+        validator = self._validator_factory.create_from_object(obj)
         validator.fix()
         if hasattr(obj, "refresh_appearance"):
             obj.refresh_appearance()

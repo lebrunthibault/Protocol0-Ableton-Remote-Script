@@ -3,7 +3,6 @@ from functools import partial
 from typing import Optional
 
 from protocol0.domain.lom.Listenable import Listenable
-from protocol0.domain.lom.song.Song import Song
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.sequence.Sequence import Sequence
@@ -77,7 +76,7 @@ class TrackRecorderClipTailDecorator(TrackRecorderDecorator, Listenable):
         seq = Sequence()
         # so that we have automation until the very end
         seq.add(complete_on=BeatScheduler.get_instance().last_32th_listener)
-        seq.add(partial(setattr, Song.get_instance(), "session_automation_record", False))
+        seq.add(partial(setattr, self._song, "session_automation_record", False))
         seq.add(partial(self.track.midi_track.stop, immediate=True))
         seq.add(partial(setattr, self.track.midi_track.input_routing, "type", InputRoutingTypeEnum.NO_INPUT))
         seq.add(wait_beats=1)

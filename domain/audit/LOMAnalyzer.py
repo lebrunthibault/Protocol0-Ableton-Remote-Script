@@ -6,7 +6,7 @@ class LOMAnalyzer(AbstractControlSurfaceComponent):
     """ Audit object model """
     def check_tracks_tree_consistency(self):
         # type: () -> None
-        for simple_track in self.song.simple_tracks:
+        for simple_track in self._song.simple_tracks:
             # 1st layer checks
             if simple_track.group_track:
                 assert simple_track in simple_track.group_track.sub_tracks, "failed on %s" % simple_track

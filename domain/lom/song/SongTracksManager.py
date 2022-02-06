@@ -3,10 +3,12 @@ import collections
 from typing import Optional, Type, Dict, Iterator
 
 import Live
+from protocol0.application.interface.SessionManager import SessionManager
 from protocol0.application.service.decorators import handle_error
 from protocol0.domain.lom.Listenable import Listenable
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
+from protocol0.domain.lom.song.Song import Song
 from protocol0.domain.lom.track.TrackFactory import TrackFactory
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
@@ -16,21 +18,20 @@ from protocol0.domain.lom.track.simple_track.SimpleReturnTrack import SimpleRetu
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.shared.decorators import p0_subject_slot
+from protocol0.domain.shared.utils import scroll_values
 from protocol0.shared.Logger import Logger
+from protocol0.shared.SongFacade import SongFacade
 
 
 class SongTracksManager(Listenable):
-    def __init__(self, track_manager):
-        # type: (TrackFactory) -> None
+    def __init__(self, track_manager, session_manager, song):
+        # type: (TrackFactory, SessionManager, Song) -> None
         super(SongTracksManager, self).__init__()
         self._track_manager = track_manager
+        self._session_manager = session_manager
+        self.song = song
         self._live_track_id_to_simple_track = collections.OrderedDict()  # type: Dict[int, SimpleTrack]
         self.tracks_listener.subject = self.song._song
-
-    @property
-    def song(self):
-        from protocol0.domain.lom.song.Song import Song
-        return Song.get_instance()
 
     @property
     def live_tracks(self):
@@ -184,3 +185,15 @@ class SongTracksManager(Listenable):
                 previous_abstract_group_track.disconnect()
 
             abstract_group_track.on_tracks_change()
+
+    def scroll_tracks(self, go_next):
+        # type: (bool) -> None
+        if not SongFacade.selected_track().IS_ACTIVE:
+            next(SongFacade.simple_tracks()).select()
+            return None
+
+        next_track = scroll_values(SongFacade.scrollable_tracks(), SongFacade.current_track(), go_next, rotate=False)
+        if next_track:
+            next_track.select()
+            if next_track == list(SongFacade.scrollable_tracks())[-1]:
+                self._session_manager.toggle_session_ring()

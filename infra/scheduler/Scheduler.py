@@ -1,6 +1,6 @@
 from typing import Callable, Optional, Union, List
 
-from protocol0.domain.shared.SongFacade import SongFacade
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.infra.scheduler.SchedulerEvent import SchedulerEvent
 
 
@@ -50,5 +50,19 @@ class Scheduler(object):
     def clear(cls):
         # type: () -> None
         from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
-
+        from protocol0.domain.sequence.Sequence import Sequence
+        for seq in reversed(Sequence.RUNNING_SEQUENCES):
+            seq.cancel()
+        Sequence.RUNNING_SEQUENCES = []
+        from protocol0.infra.scheduler.FastScheduler import FastScheduler
+        FastScheduler.get_instance().restart()
         BeatScheduler.get_instance().clear_scheduler()
+
+    @classmethod
+    def stop(cls):
+        # type: () -> None
+        from ClyphX_Pro import ParseUtils
+
+        ParseUtils._midi_message_registry = {}  # noqa
+        from protocol0.infra.scheduler.FastScheduler import FastScheduler
+        FastScheduler.get_instance().stop()

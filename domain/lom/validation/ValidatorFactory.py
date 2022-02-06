@@ -14,8 +14,7 @@ from protocol0.domain.lom.validation.object_validators.SongValidator import Song
 
 
 class ValidatorFactory(object):
-    @classmethod
-    def create_from_object(cls, obj):
+    def create_from_object(self, obj):
         # type: (object) -> ValidatorInterface
         from protocol0.domain.lom.song.Song import Song
 

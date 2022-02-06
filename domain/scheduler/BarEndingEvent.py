@@ -1,0 +1,2 @@
+class BarEndingEvent(object):
+    pass

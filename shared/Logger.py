@@ -1,7 +1,6 @@
 from typing import Any
 
 from protocol0.domain.enums.LogLevelEnum import LogLevelEnum
-from protocol0.shared.StatusBar import StatusBar
 
 
 class Logger(object):
@@ -35,7 +34,9 @@ class Logger(object):
         from protocol0.infra.System import System
         System.get_instance().show_error(message)
         if "\n" not in message:
-            StatusBar.show_message(message, log=False)
+            from protocol0.shared.StatusBar import StatusBar
+
+            StatusBar.show_message(message)
 
     @classmethod
     def _log(cls, message="", level=LogLevelEnum.INFO, debug=False):
@@ -46,3 +47,8 @@ class Logger(object):
             debug=message is not None and debug,
             level=level,
         )
+
+    @classmethod
+    def clear(cls):
+        # type: () -> None
+        cls.log_info("clear_logs")

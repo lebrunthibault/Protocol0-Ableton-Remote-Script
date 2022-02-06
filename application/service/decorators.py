@@ -16,6 +16,6 @@ def handle_error(func):
         except Exception:
             from protocol0 import Protocol0
 
-            Protocol0.SELF.errorManager.handle_error()
+            Protocol0.CONTAINER.error_manager.handle_error()
 
     return decorate

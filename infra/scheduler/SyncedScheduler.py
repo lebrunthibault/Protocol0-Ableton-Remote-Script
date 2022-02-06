@@ -3,7 +3,9 @@ from math import floor
 from ClyphX_Pro.ClyphXComponentBase import ClyphXComponentBase, schedule
 from typing import Any, Optional
 
-from protocol0.domain.shared.SongFacade import SongFacade
+from protocol0.domain.DomainEventBus import DomainEventBus
+from protocol0.domain.scheduler.BarEndingEvent import BarEndingEvent
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.domain.shared.decorators import p0_subject_slot
 
 
@@ -90,6 +92,7 @@ class SyncedScheduler(ClyphXComponentBase):
             if current_tick >= 45:  # out of 60 (1/64th)
                 if not self._bar_ending:
                     self._bar_ending = True
+                    DomainEventBus.notify(BarEndingEvent())
                     self.notify_bar_ending()
         else:
             self._last_32th = False

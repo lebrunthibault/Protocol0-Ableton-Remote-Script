@@ -4,7 +4,7 @@ from protocol0.application.faderfox.InterfaceState import InterfaceState
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.domain.shared.SongFacade import SongFacade
+from protocol0.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack

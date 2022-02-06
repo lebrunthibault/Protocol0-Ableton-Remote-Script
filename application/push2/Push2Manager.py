@@ -2,15 +2,14 @@ from Push2.push2 import Push2
 from typing import Optional, cast, Any
 
 from _Framework.ControlSurface import get_control_surfaces
-from _Framework.SubjectSlot import subject_slot_group
+from _Framework.SubjectSlot import subject_slot_group, subject_slot
 from protocol0.application.push2.decorators import push2_method
 from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.lom.note.NoteQuantizationManager import NoteQuantizationManager
-from protocol0.domain.shared.SongFacade import SongFacade
-from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.utils import find_if
 from protocol0.infra.scheduler.Scheduler import Scheduler
 from protocol0.shared.Logger import Logger
+from protocol0.shared.SongFacade import SongFacade
 
 
 class Push2Manager(object):
@@ -48,13 +47,13 @@ class Push2Manager(object):
         if not self.push2:
             Logger.log_info("Push2 connected to Protocol0")
 
-    @p0_subject_slot("value")
+    @subject_slot("value")
     def _session_pad_press_listener(self, value, *_, **__):
         # type: (Any, Any, Any) -> None
         if value:
             self.update_session_ring = self.update_selected_modes = False
 
-    @p0_subject_slot("value")
+    @subject_slot("value")
     def _track_select_button_press_listener(self, value, *_, **__):
         # type: (Any, Any, Any) -> None
         if value:

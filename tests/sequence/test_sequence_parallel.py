@@ -6,7 +6,6 @@ from protocol0.domain.lom.Listenable import Listenable
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.shared.decorators import has_callback_queue, p0_subject_slot
 from protocol0.infra.scheduler.Scheduler import Scheduler
-from protocol0.tests.test_all import p0
 
 
 def test_parallel_listeners():

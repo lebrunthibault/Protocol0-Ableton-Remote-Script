@@ -1,3 +1,4 @@
+import collections
 from functools import partial
 
 from typing import List, Optional, Any, Iterator, cast
@@ -21,7 +22,6 @@ from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupT
 from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.decorators import p0_subject_slot, debounce
-from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils import find_if
 from protocol0.infra.SongDataManager import save_song_data
 from protocol0.infra.scheduler.Scheduler import Scheduler
@@ -29,15 +29,13 @@ from protocol0.shared.AccessContainer import AccessContainer
 
 
 class Song(SongActionMixin, AccessContainer, Listenable):
+    """ AccessContainer to overcome cyclic dependency """
     __subject_events__ = ("session_end",)
-    _INSTANCE = None  # type: Optional[Song]
 
-    def __init__(self, song, *a, **k):
-        # type: (Live.Song.Song, Any, Any) -> None
-        if self._INSTANCE:
-            raise Protocol0Error("Song singleton already created")
+    def __init__(self, song):
+        # type: (Live.Song.Song) -> None
 
-        super(Song, self).__init__(*a, **k)
+        super(Song, self).__init__()
         self._song = song
         self._view = self._song.view  # type: Live.Song.Song.View
 
@@ -48,6 +46,8 @@ class Song(SongActionMixin, AccessContainer, Listenable):
         self.midi_recording_quantization_checked = False
         self._is_playing = False  # caching this because _is_playing_listener activates multiple times
 
+        self._live_scene_id_to_scene = collections.OrderedDict()
+
         self.normal_tempo = self.tempo
         self.is_playing_listener.subject = self._song
         self._record_mode_listener.subject = self._song
@@ -55,19 +55,10 @@ class Song(SongActionMixin, AccessContainer, Listenable):
         self._tempo_listener.subject = self._song
         self._midi_recording_quantization_listener.subject = self._song
 
-    @classmethod
-    def get_instance(cls):
-        # type: () -> Song
-        if not cls._INSTANCE:
-            from protocol0 import Protocol0
-            cls._INSTANCE = Song(Protocol0.SELF.song())
-
-        return cls._INSTANCE
-
-    def __call__(self):
-        # type: () -> Live.Song.Song
-        """ allows for self.song() behavior to extend other surface script classes """
-        return self.parent.song()
+    # def __call__(self):
+    #     # type: () -> Live.Song.Song
+    #     """ allows for self.song() behavior to extend other surface script classes """
+    #     return self.container.song()
 
     @p0_subject_slot("is_playing")
     def is_playing_listener(self):
@@ -112,7 +103,6 @@ class Song(SongActionMixin, AccessContainer, Listenable):
     def _tempo_listener(self):
         # type: () -> None
         self.midi_recording_quantization_checked = False
-        self.parent.songDataManager.save()
         Scheduler.defer(partial(setattr, self, "tempo", round(self.tempo)))
 
     @p0_subject_slot("midi_recording_quantization")
@@ -126,7 +116,7 @@ class Song(SongActionMixin, AccessContainer, Listenable):
     @property
     def all_simple_tracks(self):
         # type: () -> Iterator[SimpleTrack]
-        return self.parent.songTracksManager.all_simple_tracks
+        return self.container.song_tracks_manager.all_simple_tracks
 
     @property
     def simple_tracks(self):
@@ -175,14 +165,15 @@ class Song(SongActionMixin, AccessContainer, Listenable):
             if not track.is_visible:
                 continue
             # when a group track is unfolded, will directly select the first sub_trackB
-            if isinstance(track, NormalGroupTrack) and not track.is_folded and isinstance(track.sub_tracks[0], SimpleTrack):
+            if isinstance(track, NormalGroupTrack) and not track.is_folded and isinstance(track.sub_tracks[0],
+                                                                                          SimpleTrack):
                 continue
             yield track
 
     @property
     def selected_track(self):
         # type: () -> Optional[SimpleTrack]
-        return self.parent.songTracksManager.get_optional_simple_track(self._view.selected_track)
+        return self.container.song_tracks_manager.get_optional_simple_track(self._view.selected_track)
 
     @property
     def current_track(self):
@@ -202,12 +193,12 @@ class Song(SongActionMixin, AccessContainer, Listenable):
     @property
     def scenes(self):
         # type: () -> List[Scene]
-        return self.parent.songScenesManager.scenes
+        return self.container.song_scenes_manager.scenes
 
     @property
     def selected_scene(self):
         # type: () -> Scene
-        return self.parent.songScenesManager.get_scene(self._view.selected_scene)
+        return self.container.song_scenes_manager.get_scene(self._view.selected_scene)
 
     @selected_scene.setter
     def selected_scene(self, scene):
@@ -234,7 +225,8 @@ class Song(SongActionMixin, AccessContainer, Listenable):
     @property
     def highlighted_clip_slot(self):
         # type: () -> Optional[ClipSlot]
-        return next((cs for cs in self.selected_track.clip_slots if cs._clip_slot == self._view.highlighted_clip_slot), None)
+        return next((cs for cs in self.selected_track.clip_slots if cs._clip_slot == self._view.highlighted_clip_slot),
+                    None)
 
     @highlighted_clip_slot.setter
     def highlighted_clip_slot(self, clip_slot):
@@ -308,12 +300,6 @@ class Song(SongActionMixin, AccessContainer, Listenable):
     def loop_length(self, loop_length):
         # type: (float) -> None
         self._song.loop_length = loop_length
-
-    @property
-    def current_song_time(self):
-        # type: () -> None
-        if self._song:
-            return self._song.current_song_time
 
     @property
     def tempo(self):

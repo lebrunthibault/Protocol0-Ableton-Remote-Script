@@ -6,7 +6,7 @@ from typing import Deque, Optional, Iterable, Union, Callable, Any, List
 from protocol0.application.config import Config
 from protocol0.domain.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
 from protocol0.domain.sequence.SequenceStep import SequenceStep
-from protocol0.domain.shared.SongFacade import SongFacade
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.utils import get_frame_info, nop
 from protocol0.infra.System import System
@@ -141,6 +141,7 @@ class Sequence(SequenceStateMachineMixin):
             wait_beats=0,  # type: float
             wait_bars=0,  # type: float
             wait_for_system=False,  # type: bool
+            wait_for_event=None,  # type: object
             no_cancel=False,  # type: bool
             complete_on=None,  # type: Callable
             no_timeout=False,  # type: bool
@@ -168,6 +169,7 @@ class Sequence(SequenceStateMachineMixin):
                 wait=wait,
                 wait_beats=wait_beats,
                 wait_for_system=wait_for_system,
+                wait_for_event=wait_for_event,
                 no_cancel=no_cancel,
                 complete_on=complete_on,
                 check_timeout=0 if no_timeout else 4,

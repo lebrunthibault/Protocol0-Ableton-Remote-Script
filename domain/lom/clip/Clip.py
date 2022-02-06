@@ -7,7 +7,7 @@ from protocol0.domain.lom.Listenable import Listenable
 from protocol0.domain.lom.clip.ClipActionMixin import ClipActionMixin
 from protocol0.domain.lom.clip.ClipName import ClipName
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
-from protocol0.domain.shared.SongFacade import SongFacade
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.domain.shared.decorators import p0_subject_slot
 
 if TYPE_CHECKING:

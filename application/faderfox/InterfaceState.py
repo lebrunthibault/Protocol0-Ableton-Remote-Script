@@ -1,11 +1,12 @@
 from typing import Union
 
 from protocol0.domain.enums.BarLengthEnum import BarLengthEnum
-from protocol0.domain.shared.SongFacade import SongFacade
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.domain.shared.utils import scroll_values
 from protocol0.infra.SongDataManager import save_song_data, song_synchronizable_class
 from protocol0.infra.log import log_ableton
 from protocol0.shared.Logger import Logger
+from protocol0.shared.StatusBar import StatusBar
 
 
 @song_synchronizable_class
@@ -22,7 +23,7 @@ class InterfaceState(object):
         cls.SELECTED_RECORDING_BAR_LENGTH = scroll_values(
             list(BarLengthEnum), cls.SELECTED_RECORDING_BAR_LENGTH, go_next
         )
-        cls.show_selected_bar_length("RECORDING", cls.SELECTED_RECORDING_BAR_LENGTH)
+        cls._show_selected_bar_length("RECORDING", cls.SELECTED_RECORDING_BAR_LENGTH)
 
     @classmethod
     @save_song_data
@@ -45,10 +46,9 @@ class InterfaceState(object):
         Scene.SELECTED_DUPLICATE_SCENE_BAR_LENGTH = scroll_values(
             bar_lengths, Scene.SELECTED_DUPLICATE_SCENE_BAR_LENGTH, go_next
         )
-        cls.show_selected_bar_length("SCENE DUPLICATE", Scene.SELECTED_DUPLICATE_SCENE_BAR_LENGTH)
+        cls._show_selected_bar_length("SCENE DUPLICATE", Scene.SELECTED_DUPLICATE_SCENE_BAR_LENGTH)
 
     @classmethod
-    def show_selected_bar_length(cls, title, bar_length):
+    def _show_selected_bar_length(cls, title, bar_length):
         # type: (str, Union[int, BarLengthEnum]) -> None
-        from protocol0 import Protocol0
-        Protocol0.SELF.show_message("Selected %s : %s" % (title, bar_length))
+        StatusBar.show_message("Selected %s : %s" % (title, bar_length))

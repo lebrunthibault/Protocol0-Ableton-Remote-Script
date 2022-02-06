@@ -6,11 +6,10 @@ from types import FrameType
 from qualname import qualname
 from typing import Optional, Any, cast, Callable, Iterator, List, Dict
 
-import Live
 from protocol0.application.constants import PROJECT_ROOT, REMOTE_SCRIPTS_ROOT
-from protocol0.domain.shared.SongFacade import SongFacade
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.my_types import T
+from protocol0.shared.SongFacade import SongFacade
 
 
 def scroll_values(items, selected_item, go_next, rotate=True):
@@ -153,16 +152,6 @@ def get_callable_repr(func):
 def nop(*_, **__):
     # type: (Any, Any) -> None
     pass
-
-
-def set_device_parameter(param, value):
-    # type: (Live.DeviceParameter.DeviceParameter, float) -> None
-    if not param.is_enabled:
-        return None
-    value = max(param.min, value)
-    value = min(param.max, value)
-    # noinspection PyPropertyAccess
-    param.value = value
 
 
 def class_attributes(cls):

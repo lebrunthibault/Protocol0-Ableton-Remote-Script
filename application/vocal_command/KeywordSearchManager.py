@@ -1,15 +1,15 @@
 from typing import List
 
-from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.domain.enums.FoldActionEnum import FoldActionEnum
 from protocol0.application.vocal_command.TrackSearchKeywordEnum import TrackSearchKeywordEnum
+from protocol0.domain.enums.FoldActionEnum import FoldActionEnum
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.track_list.AbstractTrackList import AbstractTrackList
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.domain.shared.utils import normalize_string
 from protocol0.shared.Logger import Logger
 
 
-class KeywordSearchManager(AbstractControlSurfaceComponent):
+class KeywordSearchManager(object):
     LAST_SEARCH = None  # type: TrackSearchKeywordEnum
 
     def search_track(self, keyword_enum):
@@ -17,14 +17,14 @@ class KeywordSearchManager(AbstractControlSurfaceComponent):
         self.LAST_SEARCH = keyword_enum
 
         if keyword_enum == TrackSearchKeywordEnum.MASTER:
-            if self.song.master_track:
-                self.song.master_track.select()
+            if SongFacade.master_track():
+                SongFacade.master_track().select()
             return
 
         search = keyword_enum.search_value
 
         matching_tracks = []
-        for track in self.song.abstract_tracks:
+        for track in SongFacade.abstract_tracks():
             if self._check_search_matches_track(search=search, track=track):
                 matching_tracks.append(track)
 
@@ -33,8 +33,8 @@ class KeywordSearchManager(AbstractControlSurfaceComponent):
             return
 
         index = 0
-        if self.song.current_track in matching_tracks:
-            index = (matching_tracks.index(self.song.current_track) + 1) % len(matching_tracks)
+        if SongFacade.current_track() in matching_tracks:
+            index = (matching_tracks.index(SongFacade.current_track()) + 1) % len(matching_tracks)
 
         matching_track = matching_tracks[index]
 
@@ -42,14 +42,14 @@ class KeywordSearchManager(AbstractControlSurfaceComponent):
         matching_track.select()
         if matching_track.is_foldable:
             matching_track.is_folded = False
-        AbstractTrackList(self.song.abstract_tracks).toggle_fold(fold_action=FoldActionEnum.FOLD_ALL_EXCEPT_CURRENT)
+        AbstractTrackList(SongFacade.abstract_tracks()).toggle_fold(fold_action=FoldActionEnum.FOLD_ALL_EXCEPT_CURRENT)
 
     def _check_search_matches_track(self, search, track):
         # type: (str, AbstractTrack) -> bool
         for track_keyword in self._get_track_keywords(track):
             if search in normalize_string(track_keyword).split(" "):
                 Logger.log_info("found match for search %s in track %s (track keyword matched: %s)" %
-                                     (search, track, track_keyword))
+                                (search, track, track_keyword))
                 return True
 
         return False

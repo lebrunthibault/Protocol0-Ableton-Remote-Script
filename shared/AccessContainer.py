@@ -1,16 +1,16 @@
 from typing import TYPE_CHECKING
 
+
 if TYPE_CHECKING:
-    from protocol0.domain.lom.song.Song import Song  # noqa
-    from protocol0.application.Protocol0 import Protocol0  # noqa
+    from protocol0.application.Container import Container
 
 
 class AccessContainer(object):
-    """ Providing global access to the container (should be changed by using dependency injection) """
+    """ Provides global access to the container (should be changed by using DI everywhere) """
 
     @property
-    def parent(self):
-        # type: () -> Protocol0
+    def container(self):
+        # type: () -> Container
         from protocol0 import Protocol0  # noqa
 
-        return Protocol0.SELF
+        return Protocol0.CONTAINER

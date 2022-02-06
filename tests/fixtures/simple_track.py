@@ -2,7 +2,7 @@ from typing import cast, List, Dict, Any
 
 import Live
 from _Framework.SubjectSlot import Subject
-from protocol0.domain.lom.song.Song import Song
+from protocol0.shared.SongFacade import SongFacade
 
 
 class TrackType(object):
@@ -24,6 +24,7 @@ class AbletonTrack(Subject):
         self.fold_state = False
         self.is_visible = True
         self.has_midi_input = self.has_audio_output = self.is_foldable = self.fold_state = False
+        self.available_input_routing_types = []
         self.clip_slots = []  # type: List[Live.ClipSlot.ClipSlot]
         self.view = None
         self.group_track = None
@@ -59,7 +60,7 @@ class AbletonTrack(Subject):
 def add_track(track_type):
     # type: (str) -> AbletonTrack
     live_track = AbletonTrack(track_type=track_type)
-    Song.get_instance()._song.tracks.append(cast(Live.Track.Track, live_track))
+    SongFacade.live_song().tracks.append(cast(Live.Track.Track, live_track))
     return live_track
 
 

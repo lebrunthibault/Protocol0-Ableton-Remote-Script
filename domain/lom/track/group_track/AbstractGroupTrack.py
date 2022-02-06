@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, List, Optional, Iterator
+from typing import TYPE_CHECKING, List, Optional, Iterator
 
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
@@ -8,12 +8,14 @@ from protocol0.infra.scheduler.Scheduler import Scheduler
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+    from protocol0.domain.lom.song.SongTracksManager import SongTracksManager
 
 
 class AbstractGroupTrack(AbstractTrack):
-    def __init__(self, base_group_track, *a, **k):
-        # type: (SimpleTrack, Any, Any) -> None
-        super(AbstractGroupTrack, self).__init__(track=base_group_track, *a, **k)
+    def __init__(self, base_group_track, song_tracks_manager):
+        # type: (SimpleTrack, SongTracksManager) -> None
+        super(AbstractGroupTrack, self).__init__(track=base_group_track)
+        self._song_tracks_manager = song_tracks_manager
         self.base_track.abstract_group_track = self
         base_group_track.track_name.disconnect()
         # filled when link_sub_tracks is called
@@ -73,11 +75,9 @@ class AbstractGroupTrack(AbstractTrack):
         if len(self.dummy_tracks) == len(dummy_tracks):
             return
 
-        from protocol0 import Protocol0
-
         self.dummy_tracks[:] = [
-            Protocol0.SELF.songTracksManager.generate_simple_track(track=track._track, index=track.index,
-                                                                   cls=SimpleDummyTrack)
+            self._song_tracks_manager.generate_simple_track(track=track._track, index=track.index,
+                                                            cls=SimpleDummyTrack)
             for track in dummy_tracks]
         for dummy_track in self.dummy_tracks:
             dummy_track.abstract_group_track = self

@@ -1,6 +1,8 @@
 from typing import TYPE_CHECKING, Optional
 
 from _Framework.Util import forward_property
+from protocol0.application.command.ProgramChangeCommand import ProgramChangeCommand
+from protocol0.domain.CommandBus import CommandBus
 from protocol0.domain.enums.ColorEnum import ColorEnum
 from protocol0.domain.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from protocol0.domain.lom.device.Device import Device
@@ -69,6 +71,5 @@ class InstrumentInterface(object):
     def load_preset(self, preset):
         # type: (InstrumentPreset) -> None
         """ Overridden default is send program change """
-        from protocol0.infra.MidiManager import MidiManager
 
-        MidiManager.send_program_change(preset.index + self.PROGRAM_CHANGE_OFFSET)
+        CommandBus.dispatch(ProgramChangeCommand(preset.index + self.PROGRAM_CHANGE_OFFSET))

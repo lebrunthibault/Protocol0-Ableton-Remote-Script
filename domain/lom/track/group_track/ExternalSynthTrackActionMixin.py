@@ -2,10 +2,9 @@ from functools import partial
 
 from typing import TYPE_CHECKING, Optional
 
-from protocol0.infra.TrackDataManager import save_track_data
-from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.StatusBar import StatusBar
 
 if TYPE_CHECKING:
@@ -19,8 +18,8 @@ class ExternalSynthTrackActionMixin(object):
         self.base_track.is_folded = False
         self.base_track.mute = False
 
-        if self.song.usamo_track:
-            self.song.usamo_track.input_routing.track = self.midi_track
+        if self._song.usamo_track:
+            self._song.usamo_track.input_routing.track = self.midi_track
 
         self.monitoring_state.monitor_midi()
 
@@ -32,7 +31,6 @@ class ExternalSynthTrackActionMixin(object):
         # type: (ExternalSynthTrack) -> None
         self.monitoring_state.monitor_audio()
 
-    @save_track_data
     def toggle_record_clip_tails(self):
         # type: (ExternalSynthTrack) -> None
         if self.audio_tail_track is None:

@@ -3,7 +3,7 @@ from typing import Any, TYPE_CHECKING
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.shared.SongFacade import SongFacade
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.infra.scheduler.Scheduler import Scheduler
 
 if TYPE_CHECKING:
@@ -95,4 +95,4 @@ class ExternalSynthTrackMonitoringState(object):
         # type: (SimpleTrack) -> None
         track.mute = False
         track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
-        track.output_routing.track = track.group_track
+        track.output_routing.track = track.group_track  # type: ignore[assignment]

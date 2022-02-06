@@ -4,11 +4,12 @@ from typing import Optional
 
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.lom.validation.ValidatorInterface import ValidatorInterface
+from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.shared.AccessContainer import AccessContainer
 
 
-class SimpleTrackHasDeviceValidator(ValidatorInterface):
+class SimpleTrackHasDeviceValidator(ValidatorInterface, AccessContainer):
     def __init__(self, track, device_enum):
         # type: (SimpleTrack, DeviceEnum) -> None
         self._track = track
@@ -26,10 +27,9 @@ class SimpleTrackHasDeviceValidator(ValidatorInterface):
 
     def fix(self):
         # type: () -> Sequence
-        from protocol0 import Protocol0
 
         seq = Sequence()
         seq.add(self._track.select)
-        seq.add(partial(Protocol0.SELF.browserManager.load_device_from_enum, self._device_enum))
+        seq.add(partial(self.container.browser_manager.load_device_from_enum, self._device_enum))
         seq.add(wait=5)
         return seq.done()

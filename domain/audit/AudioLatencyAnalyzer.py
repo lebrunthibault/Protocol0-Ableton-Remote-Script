@@ -2,32 +2,41 @@ from functools import partial
 
 from typing import Optional, cast
 
-from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
+from protocol0.application.command.ProgramChangeCommand import ProgramChangeCommand
+from protocol0.application.interface.ClickManager import ClickManager
+from protocol0.domain.CommandBus import CommandBus
 from protocol0.domain.enums.RecordTypeEnum import RecordTypeEnum
-from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
 from protocol0.domain.lom.note.Note import Note
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.infra.MidiManager import MidiManager
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.track_recorder.track_recorder_manager import TrackRecorderManager
 from protocol0.infra.System import System
+from protocol0.shared.AccessSong import AccessSong
+from protocol0.shared.SongFacade import SongFacade
 
 
-class AudioLatencyAnalyzer(AbstractControlSurfaceComponent):
+class AudioLatencyAnalyzer(AccessSong):
+    def __init__(self, track_recorder_manager, click_manager):
+        # type: (TrackRecorderManager, ClickManager) -> None
+        self._track_recorder_manager = track_recorder_manager
+        self._click_manager = click_manager
+
     def test_audio_latency(self):
         # type: () -> Optional[Sequence]
-        if self.song.usamo_track is None:
+        if self._song.usamo_track is None:
             raise Protocol0Warning("Missing usamo track")
 
-        ext_synth_track = self.song.current_track
+        ext_synth_track = SongFacade.current_track()
         if not isinstance(ext_synth_track, ExternalSynthTrack):
-            ext_synth_track = next(self.song.prophet_tracks, None)
+            ext_synth_track = next(SongFacade.prophet_tracks(), None)
 
         if ext_synth_track is None:
             raise Protocol0Warning("Please select an ExternalSynthTrack")
 
-        tempo = self.song.tempo
-        self.song.tempo = 120  # easier to see jitter
+        tempo = SongFacade.tempo()
+        self._song.tempo = 120  # easier to see jitter
 
         seq = Sequence()
         seq.add(ext_synth_track.duplicate)
@@ -35,19 +44,19 @@ class AudioLatencyAnalyzer(AbstractControlSurfaceComponent):
         seq.add(self._create_audio_test_clip)
         seq.add(self._record_test_clip)
         seq.add(self._analyze_jitter)
-        seq.add(partial(setattr, self.song, "tempo", tempo))
+        seq.add(partial(setattr, self._song, "tempo", tempo))
         return seq.done()
 
     def _set_up_track_for_record(self):
         # type: () -> None
-        current_track = cast(ExternalSynthTrack, self.song.current_track)
+        current_track = cast(ExternalSynthTrack, SongFacade.current_track())
         # switching to test preset
-        MidiManager.send_program_change(127)
+        CommandBus.dispatch(ProgramChangeCommand(127))
         current_track.record_clip_tails = False
 
     def _create_audio_test_clip(self):
         # type: () -> Sequence
-        current_track = cast(ExternalSynthTrack, self.song.current_track)
+        current_track = cast(ExternalSynthTrack, SongFacade.current_track())
         # switching to test preset
         seq = Sequence()
         seq.add(current_track.midi_track.clip_slots[0].create_clip)
@@ -56,7 +65,7 @@ class AudioLatencyAnalyzer(AbstractControlSurfaceComponent):
 
     def _generate_test_notes(self):
         # type: () -> Sequence
-        current_track = cast(ExternalSynthTrack, self.song.current_track)
+        current_track = cast(ExternalSynthTrack, SongFacade.current_track())
         pitch = 84
         if isinstance(current_track.instrument, InstrumentMinitaur):
             pitch += 24
@@ -68,10 +77,10 @@ class AudioLatencyAnalyzer(AbstractControlSurfaceComponent):
 
     def _record_test_clip(self):
         # type: () -> Sequence
-        current_track = cast(ExternalSynthTrack, self.song.current_track)
+        current_track = cast(ExternalSynthTrack, SongFacade.current_track())
         seq = Sequence()
         seq.add(partial(setattr, current_track, "mute", True))
-        seq.add(partial(self.parent.trackRecorderManager.record_track, current_track,
+        seq.add(partial(self._track_recorder_manager.record_track, current_track,
                         RecordTypeEnum.AUDIO_ONLY))
         seq.add(lambda: current_track.audio_track.clips[0].select())
         seq.add(wait=10)
@@ -79,11 +88,11 @@ class AudioLatencyAnalyzer(AbstractControlSurfaceComponent):
 
     def _analyze_jitter(self):
         # type: () -> Sequence
-        current_track = cast(ExternalSynthTrack, self.song.current_track)
+        current_track = cast(ExternalSynthTrack, SongFacade.current_track())
         audio_clip = current_track.audio_track.clips[0]
         seq = Sequence()
         seq.add(partial(audio_clip.quantize, depth=0))
-        seq.add(self.parent.clickManager.save_clip_sample)
+        seq.add(self._click_manager.save_clip_sample)
         seq.add(partial(System.get_instance().analyze_test_audio_clip_jitter, clip_path=audio_clip.file_path),
                 wait_for_system=True)
         seq.add(current_track.delete)

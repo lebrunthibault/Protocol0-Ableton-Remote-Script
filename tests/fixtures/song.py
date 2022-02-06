@@ -2,7 +2,7 @@ from typing import List
 
 from _Framework.SubjectSlot import Subject
 from protocol0.domain.lom.song.Song import Song
-from protocol0.domain.shared.SongFacade import SongFacade
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.tests.fixtures.simple_track import AbletonTrack
 from protocol0.tests.fixtures.song_view import AbletonSongView
 
@@ -31,5 +31,5 @@ class AbletonSong(Subject):
 
 def patch_song():
     # type: () -> Song
-    SongFacade._song._song = AbletonSong([], AbletonSongView())
-    return SongFacade._song
+    SongFacade._song()._song = AbletonSong([], AbletonSongView())
+    return SongFacade._song()

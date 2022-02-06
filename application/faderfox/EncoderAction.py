@@ -5,14 +5,14 @@ from typing import Optional, List, Any, Callable
 from protocol0.application.faderfox.DoubleActionExecutionException import DoubleActionExecutionException
 from protocol0.application.faderfox.EncoderMoveEnum import EncoderMoveEnum
 from protocol0.application.service.decorators import handle_error
-from protocol0.domain.lom.song.Song import Song
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils import get_callable_repr, is_lambda
+from protocol0.shared.AccessSong import AccessSong
 from protocol0.shared.Logger import Logger
 
 
-class EncoderAction(object):
+class EncoderAction(AccessSong):
     def __init__(self, func, move_type, name, *a, **k):
         # type: (Callable, EncoderMoveEnum, Optional[str], Any, Any) -> None
         """
@@ -43,7 +43,7 @@ class EncoderAction(object):
                 return None
             raise DoubleActionExecutionException(self)
 
-        Song.get_instance().begin_undo_step()
+        self._song.begin_undo_step()
         if is_lambda(self.func):
             func = self.func()  # allows delaying property lookup until execution time
         else:
@@ -61,12 +61,12 @@ class EncoderAction(object):
 
         self._is_executing = True
         seq = Sequence()
-        from protocol0 import Protocol0
 
-        with Protocol0.SELF.component_guard():
-            seq.add(partial(func, *a, **k))
-            seq.add(Song.get_instance().end_undo_step)
-            seq.on_end(partial(setattr, self, "_is_executing", False))
+        # with Protocol0.SELF.component_guard():
+        # todo: check
+        seq.add(partial(func, *a, **k))
+        seq.add(self._song.end_undo_step)
+        seq.on_end(partial(setattr, self, "_is_executing", False))
         return seq.done()
 
     @staticmethod

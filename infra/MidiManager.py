@@ -1,32 +1,34 @@
-from typing import Optional, Tuple, Type
+from typing import Optional, Tuple, Type, Callable
 
+from _Framework.ControlSurface import get_control_surfaces
 from protocol0.domain.CommandBusInterface import CommandBusInterface
+from protocol0.domain.shared.utils import find_if
+from protocol0.infra.System import System
+from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.infra.scheduler.SchedulerEvent import SchedulerEvent
 from protocol0.shared.Logger import Logger
 
 
 class MidiManager(object):
-    MIDI_STATUS_BYTES = {"note": 144, "cc": 176, "pc": 192}
-    _command_bus = None  # type: Optional[Type[CommandBusInterface]]
+    _MIDI_STATUS_BYTES = {"note": 144, "cc": 176, "pc": 192}
 
-    @classmethod
-    def set_command_bus(cls, command_bus):
-        # type: (Type[CommandBusInterface]) -> None
-        cls._command_bus = command_bus
+    def __init__(self, command_bus, send_midi):
+        # type: (Type[CommandBusInterface], Callable) -> None
+        self._command_bus = command_bus
+        self._send_midi = send_midi
+        self.midi_server_check_timeout_scheduler_event = None  # type: Optional[SchedulerEvent]
 
-    @classmethod
-    def _sysex_to_string(cls, sysex):
+    def _sysex_to_string(self, sysex):
         # type: (Tuple) -> str
         return bytearray(sysex[1:-1]).decode()
 
-    @classmethod
-    def send_program_change(cls, value, channel=0):
+    def send_program_change(self, value, channel=0):
         # type: (int, int) -> None
-        cls._send_formatted_midi_message("pc", channel, value)
+        self._send_formatted_midi_message("pc", channel, value)
 
-    @classmethod
-    def _send_formatted_midi_message(cls, message_type, channel, value, value2=None):
+    def _send_formatted_midi_message(self, message_type, channel, value, value2=None):
         # type: (str, int, int, Optional[int]) -> None
-        status = cls.MIDI_STATUS_BYTES[message_type]
+        status = self._MIDI_STATUS_BYTES[message_type]
         assert 0 <= channel <= 15
         assert 0 <= value <= 127
         status += channel
@@ -34,16 +36,35 @@ class MidiManager(object):
         if value2:
             msg.append(value2)
         Logger.log_info("MidiManager sending : %s" % msg, debug=False)
-        from protocol0 import Protocol0
-        Protocol0.SELF._send_midi(tuple(msg))
+        self._send_midi(tuple(msg))
 
-    @classmethod
-    def receive_midi(cls, midi_bytes):
+    def receive_midi(self, midi_bytes):
         # type: (Tuple) -> None
-        message = cls._sysex_to_string(sysex=midi_bytes)
+        message = self._sysex_to_string(sysex=midi_bytes)
         Logger.log_debug("message: %s" % message)
-        if not cls._command_bus:
+        if not self._command_bus:
             Logger.log_warning("Command bus not set in Midi Manager")
             return None
 
-        cls._command_bus.execute_from_string(message)
+        self._command_bus.execute_from_string(message)
+
+    def ping_midi_server(self):
+        # type: () -> None
+        self._check_midi_server_is_running()
+        Scheduler.wait(10, self._check_protocol_midi_is_up)  # waiting for Protocol0_midi to boot
+
+    def _check_midi_server_is_running(self):
+        # type: () -> None
+        self.MIDI_SERVER_CHECK_TIMEOUT_SCHEDULER_EVENT = Scheduler.wait(300, self._no_midi_server_found)
+        System.get_instance().ping()
+
+    def _check_protocol_midi_is_up(self):
+        # type: () -> None
+        from protocol0_midi import Protocol0Midi
+        protocol0_midi = find_if(lambda cs: isinstance(cs, Protocol0Midi), get_control_surfaces())
+        if protocol0_midi is None:
+            Logger.log_error("Protocol0Midi is not loaded")
+
+    def _no_midi_server_found(self):
+        # type: () -> None
+        Logger.log_warning("Midi server is not running.")

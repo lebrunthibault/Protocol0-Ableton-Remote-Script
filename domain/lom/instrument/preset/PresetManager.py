@@ -1,4 +1,4 @@
-from protocol0.domain.shared.SongFacade import SongFacade
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.Logger import Logger
 
 

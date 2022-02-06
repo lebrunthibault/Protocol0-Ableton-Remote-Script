@@ -2,14 +2,16 @@ import re
 
 from typing import TYPE_CHECKING, Any, Optional
 
-from protocol0.domain.lom.AbstractObjectName import AbstractObjectName
+from protocol0.domain.lom.Listenable import Listenable
+from protocol0.domain.shared.decorators import p0_subject_slot
+from protocol0.infra.scheduler.Scheduler import Scheduler
 from protocol0.shared.Logger import Logger
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 
 
-class AbstractTrackName(AbstractObjectName):
+class AbstractTrackName(Listenable):
     DEBUG = False
 
     def __init__(self, track, *a, **k):
@@ -18,6 +20,11 @@ class AbstractTrackName(AbstractObjectName):
         self.track = track
         self._name_listener.subject = self.track._track
         self._disconnected = False
+
+    @p0_subject_slot("name")
+    def _name_listener(self):
+        # type: () -> None
+        Scheduler.defer(self.update)
 
     def _get_base_name(self):
         # type: () -> str

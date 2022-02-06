@@ -3,12 +3,10 @@ from functools import partial
 from typing import Optional
 
 from protocol0.domain.enums.RecordTypeEnum import RecordTypeEnum
-from protocol0.domain.lom.song.Song import Song
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.domain.shared.SongFacade import SongFacade
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.utils import get_length_legend
 from protocol0.domain.track_recorder.count_in.count_in_interface import CountInInterface
@@ -19,11 +17,14 @@ from protocol0.domain.track_recorder.factory.track_recorder_external_synth_facto
 from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
 from protocol0.infra.System import System
 from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
+from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.shared.AccessSong import AccessSong
 from protocol0.shared.Logger import Logger
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.StatusBar import StatusBar
 
 
-class TrackRecorderManager(object):
+class TrackRecorderManager(AccessSong):
     def get_track_recorder_factory(self, track):
         # type: (AbstractTrack) -> AbstractTrackRecorderFactory
         if isinstance(track, SimpleTrack):
@@ -40,8 +41,7 @@ class TrackRecorderManager(object):
         bar_length = recorder_factory.get_recording_bar_length(record_type)
         recorder = recorder_factory.create_recorder(record_type, bar_length)
         recorder.set_recording_scene_index(SongFacade.selected_scene().index)
-        from protocol0 import Protocol0
-        Protocol0.SELF.clear_tasks()
+        Scheduler.clear()
         recorder.cancel_record()
         return None
 
@@ -56,7 +56,7 @@ class TrackRecorderManager(object):
         recording_scene_index = recorder_factory.get_recording_scene_index(record_type)
         if recording_scene_index is None:
             seq = Sequence()
-            seq.add(Song.get_instance().create_scene)
+            seq.add(self._song.create_scene)
             seq.add(partial(self.record_track, track, record_type))
             return seq.done()
 

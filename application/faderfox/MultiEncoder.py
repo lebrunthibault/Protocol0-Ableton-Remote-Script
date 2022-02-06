@@ -1,25 +1,23 @@
+import json
 import time
 
-from typing import TYPE_CHECKING, List, Optional, Any
+from typing import List, Optional, Any
 
 from _Framework.ButtonElement import ButtonElement
 from _Framework.InputControlElement import MIDI_NOTE_TYPE, MIDI_CC_TYPE
+from _Framework.SubjectSlot import subject_slot
 from protocol0.application.faderfox.EncoderAction import EncoderAction, EncoderMoveEnum
 from protocol0.application.service.decorators import handle_error
 from protocol0.domain.lom.Listenable import Listenable
-from protocol0.domain.shared.SongFacade import SongFacade
-from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
-
-if TYPE_CHECKING:
-    from protocol0.application.faderfox.group.AbstractActionGroup import AbstractActionGroup
+from protocol0.shared.SongFacade import SongFacade
 
 
 class MultiEncoder(Listenable):
     PRESS_MAX_TIME = 0.25  # maximum time in seconds we consider a simple press
 
-    def __init__(self, group, identifier, name, filter_active_tracks, *a, **k):
-        # type: (AbstractActionGroup, int, str, bool, Any, Any) -> None
+    def __init__(self, channel, identifier, name, filter_active_tracks, *a, **k):
+        # type: (int, int, str, bool, Any, Any) -> None
         """
         Actions are triggered at the end of the press not the start. Allows press vs long_press (Note) vs scroll (CC)
         NB : for press actions the action is triggered on button release (allowing long_press)
@@ -28,11 +26,20 @@ class MultiEncoder(Listenable):
         self._actions = []  # type: List[EncoderAction]
         self.identifier = identifier
         self.name = name.title()
+        self._channel = channel
         self._filter_active_tracks = filter_active_tracks
-        self._press_listener.subject = ButtonElement(True, MIDI_NOTE_TYPE, group.channel, identifier)
-        self._scroll_listener.subject = ButtonElement(True, MIDI_CC_TYPE, group.channel, identifier)
+        self._press_listener.subject = ButtonElement(True, MIDI_NOTE_TYPE, channel, identifier)
+        self._scroll_listener.subject = ButtonElement(True, MIDI_CC_TYPE, channel, identifier)
         self._pressed_at = None  # type: Optional[float]
         self._has_long_press = False
+
+    def __repr__(self):
+        # type: () -> str
+        return json.dumps({
+            "channel": self._channel,
+            "name": self.name,
+            "id": self.identifier
+        })
 
     def add_action(self, action):
         # type: (EncoderAction) -> MultiEncoder
@@ -49,7 +56,7 @@ class MultiEncoder(Listenable):
         # type: () -> bool
         return bool(self._pressed_at and (time.time() - self._pressed_at) > MultiEncoder.PRESS_MAX_TIME)
 
-    @p0_subject_slot("value")
+    @subject_slot("value")
     @handle_error
     def _press_listener(self, value):
         # type: (int) -> None
@@ -64,7 +71,7 @@ class MultiEncoder(Listenable):
                 move_type = EncoderMoveEnum.LONG_PRESS if self._is_long_pressed else EncoderMoveEnum.PRESS
                 self._find_and_execute_action(move_type=move_type)
 
-    @p0_subject_slot("value")
+    @subject_slot("value")
     @handle_error
     def _scroll_listener(self, value):
         # type: (int) -> None

@@ -4,15 +4,16 @@ from types import TracebackType
 
 from typing import Optional, Any, List, Type
 
-from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.application.constants import PROJECT_ROOT
+from protocol0.domain.lom.song.SongManager import SongManager
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.infra.System import System
 from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.shared.AccessSong import AccessSong
 from protocol0.shared.Logger import Logger
 
 
-class ErrorManager(AbstractControlSurfaceComponent):
+class ErrorManager(AccessSong):
     SET_EXCEPTHOOK = False
     IGNORED_ERROR_STRINGS = (
         "Cannot convert MIDI clip",
@@ -27,17 +28,17 @@ class ErrorManager(AbstractControlSurfaceComponent):
         "\\sequence\\"
     )
 
-    def __init__(self, *a, **k):
-        # type: (Any, Any) -> None
-        super(ErrorManager, self).__init__(*a, **k)
+    def __init__(self, song_manager):
+        # type: (SongManager) -> None
         self._original_excepthook = sys.excepthook
+        self._song_manager = song_manager
         if self.SET_EXCEPTHOOK:
             sys.excepthook = self.handle_uncaught_exception
 
     def handle_error(self, context=None):
         # type: (Optional[str]) -> None
-        if self.song:
-            self.song.end_undo_step()
+        if self._song:
+            self._song.end_undo_step()
         exc_type, exc_value, tb = sys.exc_info()
         assert exc_type and exc_value and tb
         if issubclass(exc_type, Protocol0Warning):
@@ -66,14 +67,14 @@ class ErrorManager(AbstractControlSurfaceComponent):
 
         Logger.log_error(error_message)
 
-        self.parent.clear_tasks()
+        Scheduler.clear()
 
         Scheduler.wait(10, self._restart)
 
     def _restart(self):
         # type: () -> None
         Logger.log_warning("Error handled: reinitializing song")
-        self.parent.songManager.init_song()
+        self._song_manager.init_song()
 
     def _check_file(self, name):
         # type: (str) -> bool
@@ -105,9 +106,3 @@ class ErrorManager(AbstractControlSurfaceComponent):
                 item = item + "    %s\n" % line.strip()
             trace_list.append(item)
         return trace_list
-
-    def disconnect(self):
-        # type: () -> None
-        super(ErrorManager, self).disconnect()
-        if self.SET_EXCEPTHOOK:
-            sys.excepthook = self._original_excepthook
