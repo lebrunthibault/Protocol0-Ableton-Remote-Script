@@ -1,33 +1,29 @@
 from typing import Optional
 
 import Live
-from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.infra.SongDataManager import SongDataManager
-from protocol0.application.config import Config
-from protocol0.domain.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
-from protocol0.domain.enums.SongLoadStateEnum import SongLoadStateEnum
-from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.application.faderfox.InterfaceState import InterfaceState
 from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.infra.SongDataManager import SongDataManager
 from protocol0.infra.System import System
+from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.shared.AccessContainer import AccessContainer
+from protocol0.shared.AccessSong import AccessSong
 
 
-class SongManager(AbstractControlSurfaceComponent):
+class SongManager(AccessContainer, AccessSong):
     def init_song(self):
         # type: () -> None
         self.parent.songTracksManager.tracks_listener()
         self.parent.songScenesManager.scenes_listener()
-        self.song.song_load_state = SongLoadStateEnum.LOADING
-        if Config.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.PROFILING:
-            return None
 
         if self.song.clip_trigger_quantization == Live.Song.Quantization.q_no_q:
             System.get_instance().show_warning("The global launch quantization is set to None")
 
         for armed_track in self.song.armed_tracks:
-            self.parent.defer(armed_track.unarm)
+            Scheduler.defer(armed_track.unarm)
 
         startup_track = self._get_startup_track()
         self._restore_selected_state()

@@ -2,14 +2,16 @@ from typing import Any
 
 import Live
 from _Framework.SubjectSlot import subject_slot_group
-from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.application.config import Config
+from protocol0.domain.lom.Listenable import Listenable
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.infra.System import System
+from protocol0.shared.AccessSong import AccessSong
+from protocol0.shared.StatusBar import StatusBar
 
 
-class MixingManager(AbstractControlSurfaceComponent):
+class MixingManager(Listenable, AccessSong):
     MIXING_PLUGIN_NAMES = ("ozone", "limiter")
 
     def __init__(self, *a, **k):
@@ -20,7 +22,7 @@ class MixingManager(AbstractControlSurfaceComponent):
     def toggle_volume_check(self):
         # type: () -> None
         Config.VOLUME_LISTENER_ACTIVE = not Config.VOLUME_LISTENER_ACTIVE
-        self.parent.show_message("VOLUME_LISTENER_ACTIVE: %s" % Config.VOLUME_LISTENER_ACTIVE)
+        StatusBar.show_message("VOLUME_LISTENER_ACTIVE: %s" % Config.VOLUME_LISTENER_ACTIVE)
         listenable_tracks = self.song._song.tracks
         if not Config.VOLUME_LISTENER_ACTIVE:
             listenable_tracks = []

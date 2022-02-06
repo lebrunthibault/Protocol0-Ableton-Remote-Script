@@ -1,13 +1,14 @@
 import os
 
-from typing import Any, Optional
+from typing import Any
 
-from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
-from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPreset
+import Live
 from protocol0.domain.enums.ColorEnum import ColorEnum
 from protocol0.domain.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from protocol0.domain.lom.device.SimplerDevice import SimplerDevice
-from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
+from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPreset
+from protocol0.domain.shared.SongFacade import SongFacade
 
 
 class InstrumentSimpler(InstrumentInterface):
@@ -24,10 +25,6 @@ class InstrumentSimpler(InstrumentInterface):
         self.device = self.device  # type: SimplerDevice
 
     def load_preset(self, preset):
-        # type: (InstrumentPreset) -> Optional[Sequence]
-        import Live
-        from protocol0.domain.lom.song.Song import Song
-
-        Song.get_instance().selected_track.device_insert_mode = Live.Track.DeviceInsertMode.default
+        # type: (InstrumentPreset) -> None
+        SongFacade.selected_track.device_insert_mode = Live.Track.DeviceInsertMode.default
         self.parent.browserManager.load_sample(preset.original_name)  # type: ignore[arg-type]
-        return None

@@ -4,6 +4,7 @@ from protocol0.domain.enums.FoldActionEnum import FoldActionEnum
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.lom.track.track_list.UserMutableSequence import UserMutableSequence
+from protocol0.domain.shared.SongFacade import SongFacade
 
 
 class AbstractTrackList(UserMutableSequence):
@@ -25,7 +26,7 @@ class AbstractTrackList(UserMutableSequence):
     @property
     def other_abstract_group_tracks(self):
         # type: () -> Iterable[AbstractGroupTrack]
-        return (ab for ab in self.abstract_group_tracks if not ab.is_parent(self.song.current_track))
+        return (ab for ab in self.abstract_group_tracks if not ab.is_parent(SongFacade.current_track()))
 
     def toggle_solo(self):
         # type: () -> None
@@ -43,8 +44,8 @@ class AbstractTrackList(UserMutableSequence):
                 if not abg.is_armed:
                     abg.is_folded = True
 
-            self.song.current_track.is_folded = False
-            group_track = self.song.selected_track.group_track
+            SongFacade.current_track().is_folded = False
+            group_track = SongFacade.selected_track().group_track
             while group_track:
                 group_track.is_folded = False
                 group_track = group_track.group_track
@@ -57,7 +58,7 @@ class AbstractTrackList(UserMutableSequence):
         """ Depending on the tracks fold state we change folding strategy """
         other_abstract_tracks_to_fold = [abg for abg in self.other_abstract_group_tracks if not abg.is_folded]
 
-        if not self.song.current_track.is_folded:
+        if not SongFacade.current_track().is_folded:
             return FoldActionEnum.FOLD_ALL
         else:
             if len(other_abstract_tracks_to_fold):

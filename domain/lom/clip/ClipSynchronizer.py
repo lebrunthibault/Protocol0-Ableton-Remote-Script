@@ -4,6 +4,7 @@ from protocol0.domain.lom.ObjectSynchronizer import ObjectSynchronizer
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
+from protocol0.domain.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.clip.Clip import Clip
@@ -38,8 +39,7 @@ class ClipSynchronizer(ObjectSynchronizer):
 
     def is_syncable(self, clip):
         # type: (Clip) -> bool
-        from protocol0.domain.lom.song.Song import Song
-        return not clip.track.is_recording and not Song.get_instance().record_mode
+        return not clip.track.is_recording and not SongFacade.record_mode
 
     def _sync_property(self, master, slave, property_name):
         # type: (Clip, Clip, str) -> None

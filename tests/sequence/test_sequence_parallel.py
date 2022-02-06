@@ -2,15 +2,16 @@ from __future__ import print_function
 
 from typing import List, Any
 
-from protocol0.domain.lom.AbstractObject import AbstractObject
+from protocol0.domain.lom.Listenable import Listenable
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.tests.test_all import p0
 from protocol0.domain.shared.decorators import has_callback_queue, p0_subject_slot
+from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.tests.test_all import p0
 
 
 def test_parallel_listeners():
     # type: () -> None
-    class Example(AbstractObject):
+    class Example(Listenable):
         __subject_events__ = ("test",)
 
         def __init__(self, val, test_res, *a, **k):
@@ -73,8 +74,8 @@ def test_parallel_listeners():
         assert test_res_subject_slot == [0, 2, 1, 3] or test_res_subject_slot == [0, 2, 3, 1]
 
     seq = Sequence()
-    p0.defer(obj1.test)
-    p0.defer(obj2.test)
+    Scheduler.defer(obj1.test)
+    Scheduler.defer(obj2.test)
     seq.add([obj1.subject_slot_listener.listener, obj2.subject_slot_listener.listener])
     seq.add(check_res_2)
     seq.done()

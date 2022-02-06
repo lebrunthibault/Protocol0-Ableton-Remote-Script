@@ -1,9 +1,10 @@
-from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.domain.shared.SongFacade import SongFacade
+from protocol0.shared.Logger import Logger
 
 
-class PresetManager(AbstractControlSurfaceComponent):
+class PresetManager(object):
     def refresh_presets(self):
         # type: () -> None
-        for instrument in filter(None, [abstract_track.instrument for abstract_track in self.song.abstract_tracks]):
-            self.parent.log_info("syncing presets for %s" % instrument)
+        for instrument in filter(None, [abstract_track.instrument for abstract_track in SongFacade.abstract_tracks()]):
+            Logger.log_info("syncing presets for %s" % instrument)
             instrument.preset_list.sync_presets()

@@ -1,13 +1,12 @@
 from typing import TYPE_CHECKING, Any
 
 import Live
-from protocol0.domain.lom.AbstractObject import AbstractObject
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.device.Device import Device
 
 
-class DeviceParameter(AbstractObject):
+class DeviceParameter(object):
     def __init__(self, device, device_parameter, *a, **k):
         # type: (Device, Live.DeviceParameter.DeviceParameter, Any, Any) -> None
         super(DeviceParameter, self).__init__(*a, **k)

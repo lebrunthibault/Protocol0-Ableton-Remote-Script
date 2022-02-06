@@ -5,13 +5,16 @@ from typing import Any, Optional, List
 
 import Live
 from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.domain.lom.Listenable import Listenable
 from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
+from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.shared.Logger import Logger
 
 
-class SongScenesManager(AbstractControlSurfaceComponent):
+class SongScenesManager(AbstractControlSurfaceComponent, Listenable):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(SongScenesManager, self).__init__(*a, **k)
@@ -44,8 +47,8 @@ class SongScenesManager(AbstractControlSurfaceComponent):
         # type: () -> None
         self._generate_scenes()
         for scene in self.song.scenes:
-            self.parent.defer(scene.refresh_appearance)
-        self.parent.log_info("mapped scenes")
+            Scheduler.defer(scene.refresh_appearance)
+        Logger.log_info("mapped scenes")
 
     @p0_subject_slot("beat_changed")
     def _beat_changed_listener(self):
@@ -71,7 +74,7 @@ class SongScenesManager(AbstractControlSurfaceComponent):
         self._sort_scenes()
 
         if has_added_scene and self.song.selected_scene.length and self.song.is_playing:
-            self.parent.defer(self.song.selected_scene.fire)
+            Scheduler.defer(self.song.selected_scene.fire)
 
     def _clean_deleted_scenes(self):
         # type: () -> None

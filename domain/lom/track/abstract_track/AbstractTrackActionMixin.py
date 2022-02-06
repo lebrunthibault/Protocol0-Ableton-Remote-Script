@@ -1,13 +1,15 @@
 from typing import TYPE_CHECKING, Any, Optional
 
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.shared.AccessSong import AccessSong
+from protocol0.shared.Logger import Logger
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 
 
 # noinspection PyTypeHints,PyAttributeOutsideInit,DuplicatedCode
-class AbstractTrackActionMixin(object):
+class AbstractTrackActionMixin(AccessSong):
     # noinspection PyUnusedLocal
     def select(self):
         # type: (AbstractTrack) -> Sequence
@@ -55,7 +57,7 @@ class AbstractTrackActionMixin(object):
 
     def arm_track(self):
         # type: (AbstractTrack) -> Optional[Sequence]
-        self.parent.log_warning("Tried arming unarmable %s" % self)
+        Logger.log_warning("Tried arming unarmable %s" % self)
         return None
 
     def unarm(self):
@@ -102,3 +104,15 @@ class AbstractTrackActionMixin(object):
     def set_data(self, key, value):
         # type: (AbstractTrack, str, Any) -> None
         self._track.set_data(key, value)
+
+    @classmethod
+    def append_to_sub_tracks(cls, group_track, sub_track, previous_sub_track=None):
+        # type: (AbstractTrack, AbstractTrack, Optional[AbstractTrack]) -> None
+        if sub_track in group_track.sub_tracks:
+            return
+
+        if previous_sub_track is None or previous_sub_track not in group_track.sub_tracks:
+            group_track.sub_tracks.append(sub_track)
+        else:
+            sub_track_index = group_track.sub_tracks.index(previous_sub_track)
+            group_track.sub_tracks[sub_track_index] = sub_track

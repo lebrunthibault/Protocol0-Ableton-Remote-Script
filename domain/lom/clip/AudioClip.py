@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any
 import Live
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.shared.decorators import p0_subject_slot
+from protocol0.infra.scheduler.Scheduler import Scheduler
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
@@ -24,7 +25,7 @@ class AudioClip(Clip):
     def _warping_listener(self):
         # type: () -> None
         if self.warping:
-            self.parent.defer(partial(setattr, self, "looping", True))
+            Scheduler.defer(partial(setattr, self, "looping", True))
         # noinspection PyUnresolvedReferences
         self.notify_length()
 

@@ -5,10 +5,11 @@ from protocol0.domain.track_recorder.recorder.abstract_track_recorder import Abs
 
 
 class TrackRecorderSimple(AbstractTrackRecorder):
-    def __init__(self, track):
-        # type: (SimpleTrack) -> None
-        super(TrackRecorderSimple, self).__init__(track=track)
-        self.track = track
+    @property
+    def track(self):
+        # type: (AbstractTrackRecorder) -> SimpleTrack
+        # noinspection PyTypeChecker
+        return self._track
 
     @property
     def _main_recording_track(self):

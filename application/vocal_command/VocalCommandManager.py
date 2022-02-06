@@ -5,6 +5,7 @@ from protocol0.application.vocal_command.KeywordActionManager import KeywordActi
 from protocol0.application.vocal_command.TrackSearchKeywordEnum import TrackSearchKeywordEnum
 from protocol0.application.vocal_command.VocalActionEnum import VocalActionEnum
 from protocol0.domain.shared.utils import smart_string
+from protocol0.shared.Logger import Logger
 
 
 class VocalCommandManager(AbstractControlSurfaceComponent):
@@ -28,4 +29,4 @@ class VocalCommandManager(AbstractControlSurfaceComponent):
             self.parent.keywordSearchManager.search_track(keyword_enum=track_search_keyword_enum)
             return
 
-        self.parent.log_error("Couldn't find matching command for input %s" % command)
+        Logger.log_error("Couldn't find matching command for input %s" % command)

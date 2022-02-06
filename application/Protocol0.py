@@ -6,7 +6,6 @@ from typing import Callable, Any, Optional, Union, List
 
 # noinspection PyUnresolvedReferences
 from _Framework.ControlSurface import ControlSurface, get_control_surfaces
-from protocol0.application.config import Config
 from protocol0.application.faderfox.ActionGroupFactory import ActionGroupFactory
 from protocol0.application.interface.ClickManager import ClickManager
 from protocol0.application.interface.SessionManager import SessionManager
@@ -19,23 +18,22 @@ from protocol0.domain.audit.AudioLatencyAnalyzer import AudioLatencyAnalyzer
 from protocol0.domain.audit.SetFixerManager import SetFixerManager
 from protocol0.domain.audit.SetUpgradeManager import SetUpgradeManager
 from protocol0.domain.audit.SongStatsManager import SongStatsManager
-from protocol0.domain.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
-from protocol0.domain.enums.LogLevelEnum import LogLevelEnum
 from protocol0.domain.lom.automation.AutomationTrackManager import AutomationTrackManager
 from protocol0.domain.lom.clip.ClipManager import ClipManager
 from protocol0.domain.lom.device.DeviceManager import DeviceManager
 from protocol0.domain.lom.instrument.InstrumentDisplayManager import InstrumentDisplayManager
 from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerManager import InstrumentPresetScrollerManager
 from protocol0.domain.lom.instrument.preset.PresetManager import PresetManager
-from protocol0.domain.lom.note.NoteQuantizationManager import NoteQuantizationManager
 from protocol0.domain.lom.scene.SongScenesManager import SongScenesManager
 from protocol0.domain.lom.set.MixingManager import MixingManager
 from protocol0.domain.lom.set.SessionToArrangementManager import SessionToArrangementManager
+from protocol0.domain.lom.song.Song import Song
 from protocol0.domain.lom.song.SongManager import SongManager
 from protocol0.domain.lom.song.SongTracksManager import SongTracksManager
-from protocol0.domain.lom.track.TrackFactory import TrackManager
+from protocol0.domain.lom.track.TrackFactory import TrackFactory
 from protocol0.domain.lom.validation.ValidatorManager import ValidatorManager
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.domain.shared.SongFacade import SongFacade
 from protocol0.domain.shared.utils import find_if
 from protocol0.domain.track_recorder.track_recorder_manager import TrackRecorderManager
 from protocol0.infra.BrowserManager import BrowserManager
@@ -43,10 +41,10 @@ from protocol0.infra.MidiManager import MidiManager
 from protocol0.infra.SongDataManager import SongDataManager
 from protocol0.infra.System import System
 from protocol0.infra.TrackDataManager import TrackDataManager
-from protocol0.infra.log import log_ableton
 from protocol0.infra.scheduler.FastScheduler import FastScheduler
 from protocol0.infra.scheduler.Scheduler import Scheduler
 from protocol0.infra.scheduler.SchedulerEvent import SchedulerEvent
+from protocol0.shared.Logger import Logger
 
 
 def _default(_, obj):
@@ -76,24 +74,23 @@ class Protocol0(ControlSurface):
         with self.component_guard():
             # setting up scheduler and midi communication system
             MidiManager.set_command_bus(CommandBus)
+            SongFacade._song = Song.get_instance()
             self.errorManager = ErrorManager()
             self.songDataManager = SongDataManager()
             self.trackDataManager = TrackDataManager()
-            if Config.SHOW_RELOAD_TIME or Config.ABLETON_SESSION_TYPE == AbletonSessionTypeEnum.PROFILING:
-                System.get_instance().end_measurement()
-
+            System.get_instance().end_measurement()
             self.deviceManager = DeviceManager()  # needs to be here first
-            self.instrumentDisplayManager = InstrumentDisplayManager()
+            self.instrumentDisplayManager = InstrumentDisplayManager(self.deviceManager)
             self.instrumentPresetScrollerManager = InstrumentPresetScrollerManager()
+            self.trackManager = TrackFactory()
             self.songManager = SongManager()
-            self.songTracksManager = SongTracksManager()
+            self.songTracksManager = SongTracksManager(self.trackManager)
             self.songScenesManager = SongScenesManager()
             self.sessionManager = SessionManager()
             self.mixingManager = MixingManager()
-            self.trackManager = TrackManager()
             self.trackRecorderManager = TrackRecorderManager()
-            self.automationTrackManager = AutomationTrackManager()
-            self.noteQuantizationManager = NoteQuantizationManager()
+            self.clickManager = ClickManager()
+            self.automationTrackManager = AutomationTrackManager(self.clickManager)
             self.setFixerManager = SetFixerManager()
             self.setUpgradeManager = SetUpgradeManager()
             self.songStatsManager = SongStatsManager()
@@ -104,7 +101,6 @@ class Protocol0(ControlSurface):
             self.logManager = LogManager()
             self.validatorManager = ValidatorManager()
             self.sessionToArrangementManager = SessionToArrangementManager()
-            self.clickManager = ClickManager()
 
             # action groups
             ActionGroupFactory.create_action_groups()
@@ -123,7 +119,7 @@ class Protocol0(ControlSurface):
 
         self.songManager.init_song()
 
-        self.log_info("Protocol0 script loaded")
+        Logger.log_info("Protocol0 script loaded")
         self.started = True
 
     def _check_midi_server_is_running(self):
@@ -136,52 +132,19 @@ class Protocol0(ControlSurface):
         from protocol0_midi import Protocol0Midi
         protocol0_midi = find_if(lambda cs: isinstance(cs, Protocol0Midi), get_control_surfaces())
         if protocol0_midi is None:
-            self.log_error("Protocol0Midi is not loaded")
+            Logger.log_error("Protocol0Midi is not loaded")
 
     def _no_midi_server_found(self):
         # type: () -> None
-        self.log_warning("Midi server is not running.")
+        Logger.log_warning("Midi server is not running.")
 
-    def show_message(self, message, log=True):
-        # type: (str, bool) -> None
+    def show_message(self, message):
+        # type: (str) -> None
         # noinspection PyBroadException
         try:
             super(Protocol0, self).show_message(str(message))
         except Exception:
-            self.log_warning("Couldn't show message")
-        if log:
-            self.log_warning(message)
-
-    def log_dev(self, message="", debug=True):
-        # type: (Any, bool) -> None
-        self._log(level=LogLevelEnum.DEV, message=message, debug=debug)
-
-    def log_debug(self, *a, **k):
-        # type: (Any, Any) -> None
-        self._log(level=LogLevelEnum.DEBUG, *a, **k)
-
-    def log_info(self, *a, **k):
-        # type: (Any, Any) -> None
-        self._log(level=LogLevelEnum.INFO, *a, **k)
-
-    def log_warning(self, *a, **k):
-        # type: (Any, Any) -> None
-        self._log(level=LogLevelEnum.WARNING, *a, **k)
-
-    def log_error(self, message="", debug=True):
-        # type: (str, bool) -> None
-        self._log(message, level=LogLevelEnum.ERROR, debug=debug)
-        System.get_instance().show_error(message)
-        if "\n" not in message:
-            self.show_message(message, log=False)
-
-    def _log(self, message="", level=LogLevelEnum.INFO, debug=False):
-        # type: (Any, LogLevelEnum, bool) -> None
-        log_ableton(
-            message=message,
-            debug=message is not None and debug,
-            level=level,
-        )
+            Logger.log_warning("Couldn't show message : %s" % message)
 
     def defer(self, callback):
         # type: (Callable) -> None

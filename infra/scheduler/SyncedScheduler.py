@@ -3,6 +3,7 @@ from math import floor
 from ClyphX_Pro.ClyphXComponentBase import ClyphXComponentBase, schedule
 from typing import Any, Optional
 
+from protocol0.domain.shared.SongFacade import SongFacade
 from protocol0.domain.shared.decorators import p0_subject_slot
 
 
@@ -37,7 +38,7 @@ class SyncedScheduler(ClyphXComponentBase):
         else:
             beats = floor(num_beats)
             beats_reminder = (num_beats - beats)
-            sixteenth_float_value = float(1) / self.song.signature_numerator
+            sixteenth_float_value = float(1) / SongFacade.signature_numerator()
             tick_float_value = float(1) / 60
 
             sixteenths = beats_reminder // sixteenth_float_value
@@ -81,7 +82,7 @@ class SyncedScheduler(ClyphXComponentBase):
         current_sixteenth = current_beat_time.sub_division
         current_tick = current_beat_time.ticks
 
-        if current_beat == self.song.signature_numerator and current_sixteenth == 4:
+        if current_beat == SongFacade.signature_numerator() and current_sixteenth == 4:
             if current_tick >= 30:  # out of 60 (1/32th)
                 if not self._last_32th:
                     self._last_32th = True

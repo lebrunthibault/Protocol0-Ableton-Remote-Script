@@ -8,6 +8,7 @@ from typing import Optional, Any, cast, Callable, Iterator, List, Dict
 
 import Live
 from protocol0.application.constants import PROJECT_ROOT, REMOTE_SCRIPTS_ROOT
+from protocol0.domain.shared.SongFacade import SongFacade
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.my_types import T
 
@@ -186,10 +187,9 @@ def get_length_legend(length):
     # type: (float) -> str
     if length == 0:
         return "unlimited bars"
-    from protocol0.domain.lom.song.Song import Song
 
-    if int(length) % Song.get_instance().signature_numerator != 0:
+    if int(length) % SongFacade.signature_numerator() != 0:
         return "%d beat%s" % (length, "s" if length > 1 else "")
     else:
-        bar_length = length / Song.get_instance().signature_numerator
+        bar_length = length / SongFacade.signature_numerator()
         return "%d bar%s" % (bar_length, "s" if bar_length > 1 else "")

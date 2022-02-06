@@ -25,7 +25,7 @@ class InstrumentPresetScrollerManager(object):
             seq.add(self._disable_protected_mode)
 
         seq.add(partial(instrument.preset_list.scroll, go_next=go_next))
-        seq.add(partial(self._sync_selected_preset))
+        seq.add(partial(self._sync_selected_preset, instrument))
         return seq.done()
 
     def _disable_protected_mode(self, instrument):

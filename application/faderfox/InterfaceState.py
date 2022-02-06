@@ -1,7 +1,7 @@
 from typing import Union
 
-from protocol0.domain.enums.AbletonSessionTypeEnum import AbletonSessionTypeEnum
 from protocol0.domain.enums.BarLengthEnum import BarLengthEnum
+from protocol0.domain.shared.SongFacade import SongFacade
 from protocol0.domain.shared.utils import scroll_values
 from protocol0.infra.SongDataManager import save_song_data, song_synchronizable_class
 from protocol0.infra.log import log_ableton
@@ -12,7 +12,6 @@ from protocol0.shared.Logger import Logger
 class InterfaceState(object):
     SELECTED_RECORDING_BAR_LENGTH = BarLengthEnum.UNLIMITED
     SELECTED_DUPLICATE_SCENE_BAR_LENGTH = 4
-    ABLETON_SESSION_TYPE = AbletonSessionTypeEnum.PROFILING
 
     FOCUS_PROPHET_ON_STARTUP = False
 
@@ -29,9 +28,7 @@ class InterfaceState(object):
     @save_song_data
     def scroll_duplicate_scene_bar_lengths(cls, go_next):
         # type: (bool) -> None
-        from protocol0.domain.lom.song.Song import Song
-
-        selected_scene = Song.get_instance().selected_scene
+        selected_scene = SongFacade.selected_scene()
         if selected_scene.length < 2:
             Logger.log_warning(
                 "Cannot partial duplicate scene with length %s (min 2 bars)" % selected_scene.length)

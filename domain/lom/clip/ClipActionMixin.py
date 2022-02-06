@@ -3,8 +3,9 @@ from typing import TYPE_CHECKING, Optional
 import Live
 from protocol0.application.constants import QUANTIZATION_OPTIONS
 from protocol0.domain.ApplicationView import ApplicationView
-from protocol0.domain.lom.device.DeviceParameter import DeviceParameter
+from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.domain.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.clip.Clip import Clip
@@ -25,7 +26,8 @@ class ClipActionMixin(object):
 
     def select(self):
         # type: (Clip) -> Sequence
-        self.song.highlighted_clip_slot = self.clip_slot
+        from protocol0.domain.lom.song.Song import Song
+        Song.get_instance().highlighted_clip_slot = self.clip_slot
         seq = Sequence()
         seq.add(ApplicationView.show_clip)
         return seq.done()
@@ -52,7 +54,7 @@ class ClipActionMixin(object):
     def quantize(self, depth=1):
         # type: (Clip, float) -> None
         if self._clip:
-            record_quantization_index = QUANTIZATION_OPTIONS.index(self.song.midi_recording_quantization)
+            record_quantization_index = QUANTIZATION_OPTIONS.index(SongFacade.midi_recording_quantization)
             if record_quantization_index:
                 self._clip.quantize(record_quantization_index, depth)
 

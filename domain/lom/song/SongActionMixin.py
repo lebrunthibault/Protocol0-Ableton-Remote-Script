@@ -5,11 +5,11 @@ from typing import TYPE_CHECKING, Optional, Any
 import Live
 from protocol0.domain.ApplicationView import ApplicationView
 from protocol0.domain.enums.AbstractEnum import AbstractEnum
-from protocol0.domain.enums.SongLoadStateEnum import SongLoadStateEnum
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.shared.utils import scroll_values
+from protocol0.shared.Logger import Logger
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.song.Song import Song
@@ -34,7 +34,6 @@ class SongActionMixin(object):
         # noinspection PyPropertyAccess
         self._song.current_song_time = 0
         self.stop_all_clips()
-        self.parent.wait(3, partial(setattr, self.song, "song_load_state", SongLoadStateEnum.LOADED))
         if save_data:
             self.parent.songDataManager.save()
 
@@ -88,15 +87,15 @@ class SongActionMixin(object):
         if abstract_track.group_track:
             abstract_track.group_track.is_folded = False
         seq = Sequence()
-        if self.song.selected_track != abstract_track.base_track:
+        if self.selected_track != abstract_track.base_track:
             self._view.selected_track = abstract_track._track
             seq.add(wait=1)
         return seq.done()
 
     def scroll_tracks(self, go_next):
         # type: (Song, bool) -> None
-        if not self.song.selected_track.IS_ACTIVE:
-            next(self.song.simple_tracks).select()
+        if not self.selected_track.IS_ACTIVE:
+            next(self.simple_tracks).select()
             return None
 
         next_track = scroll_values(self.scrollable_tracks, self.current_track, go_next, rotate=False)
@@ -118,7 +117,7 @@ class SongActionMixin(object):
 
     def _unsolo_all_tracks(self):
         # type: (Song) -> None
-        for t in self.song.abstract_tracks:
+        for t in self.abstract_tracks:
             if t.solo and t != self.current_track:
                 t.solo = False
 
@@ -148,15 +147,15 @@ class SongActionMixin(object):
     def create_scene(self, scene_index=None):
         # type: (Song, Optional[int]) -> Sequence
         seq = Sequence()
-        scenes_count = len(self.song.scenes)
+        scenes_count = len(self.scenes)
         seq.add(partial(self._song.create_scene, scene_index or scenes_count), complete_on=self.parent.songScenesManager.scenes_listener)
         seq.add(wait=1)
         return seq.done()
 
     def delete_scene(self, scene_index):
         # type: (Song, Optional) -> Optional[Sequence]
-        if len(self.song.scenes) == 1:
-            self.parent.log_warning("Cannot delete last scene")
+        if len(self.scenes) == 1:
+            Logger.log_warning("Cannot delete last scene")
             return None
 
         seq = Sequence()

@@ -3,7 +3,7 @@ import sys
 import _Framework.ControlSurface
 from protocol0 import EmptyModule, create_instance, Protocol0
 from protocol0.application.config import Config
-from protocol0.domain.sequence.timeout import TimeoutLimit
+from protocol0.domain.sequence.TimeoutLimit import TimeoutLimit
 from protocol0.domain.shared.utils import nop
 from protocol0.infra.SongDataManager import SongDataManager
 

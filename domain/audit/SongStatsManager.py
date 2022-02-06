@@ -12,6 +12,7 @@ from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupT
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
+from protocol0.shared.Logger import Logger
 
 
 class SongStatsManager(AbstractControlSurfaceComponent):
@@ -19,7 +20,7 @@ class SongStatsManager(AbstractControlSurfaceComponent):
         # type: () -> None
         stats = self._get_stats()
         self.parent.logManager.clear()
-        self.parent.log_info(json.dumps(stats, indent=4))
+        Logger.log_info(json.dumps(stats, indent=4))
 
     def _get_stats(self):
         # type: () -> collections.OrderedDict

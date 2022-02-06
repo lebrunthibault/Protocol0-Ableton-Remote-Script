@@ -2,6 +2,7 @@ from functools import wraps
 
 from typing import TYPE_CHECKING, Any, Callable
 
+from protocol0.infra.scheduler.Scheduler import Scheduler
 from protocol0.my_types import Func
 
 if TYPE_CHECKING:
@@ -25,7 +26,7 @@ def push2_method(defer_call=True):
                     return func(self, *a, **k)
 
             if defer_call:
-                self.parent.defer(execute)
+                Scheduler.defer(execute)
             else:
                 return execute()
 

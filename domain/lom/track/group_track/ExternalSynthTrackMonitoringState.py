@@ -1,16 +1,16 @@
 from typing import Any, TYPE_CHECKING
 
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
-from protocol0.domain.lom.AbstractObject import AbstractObject
 from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.application.service.decorators import single_undo
+from protocol0.domain.shared.SongFacade import SongFacade
+from protocol0.infra.scheduler.Scheduler import Scheduler
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 
 
-class ExternalSynthTrackMonitoringState(AbstractObject):
+class ExternalSynthTrackMonitoringState(object):
     def __init__(self, track, *a, **k):
         # type: (ExternalSynthTrack, Any, Any) -> None
         super(ExternalSynthTrackMonitoringState, self).__init__(*a, **k)
@@ -29,7 +29,6 @@ class ExternalSynthTrackMonitoringState(AbstractObject):
         return self._track.midi_track.mute is False
 
     # noinspection DuplicatedCode
-    @single_undo
     def monitor_midi(self):
         # type: () -> None
         # midi track
@@ -42,7 +41,7 @@ class ExternalSynthTrackMonitoringState(AbstractObject):
                 continue
             midi_clip.muted = False
             if audio_clip.is_playing:
-                self.parent.defer(self.song.scenes[midi_clip.index].fire)
+                Scheduler.defer(SongFacade.scenes()[midi_clip.index].fire)
 
         # audio track
         self._mute_track(self._track.audio_track)
@@ -62,7 +61,6 @@ class ExternalSynthTrackMonitoringState(AbstractObject):
             self._track._external_device.device_on = True
 
     # noinspection DuplicatedCode
-    @single_undo
     def monitor_audio(self):
         # type: () -> None
         # midi track

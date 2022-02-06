@@ -5,13 +5,15 @@ from types import TracebackType
 from typing import Optional, Any, List, Type
 
 from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.application.config import Config
 from protocol0.application.constants import PROJECT_ROOT
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.infra.System import System
+from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.shared.Logger import Logger
 
 
 class ErrorManager(AbstractControlSurfaceComponent):
+    SET_EXCEPTHOOK = False
     IGNORED_ERROR_STRINGS = (
         "Cannot convert MIDI clip",
     )
@@ -29,7 +31,7 @@ class ErrorManager(AbstractControlSurfaceComponent):
         # type: (Any, Any) -> None
         super(ErrorManager, self).__init__(*a, **k)
         self._original_excepthook = sys.excepthook
-        if Config.SET_EXCEPTHOOK:
+        if self.SET_EXCEPTHOOK:
             sys.excepthook = self.handle_uncaught_exception
 
     def handle_error(self, context=None):
@@ -48,7 +50,7 @@ class ErrorManager(AbstractControlSurfaceComponent):
         if any([string in str(exc_value) for string in self.IGNORED_ERROR_STRINGS]) or \
                 any([string in str(exc_type) for string in self.IGNORED_ERROR_TYPES]):
             pass
-        self.parent.log_error("unhandled exception caught !!")
+        Logger.log_error("unhandled exception caught !!")
         self._handle_exception(exc_type, exc_value, tb)
 
     def _handle_exception(self, exc_type, exc_value, tb, context=None):
@@ -62,15 +64,15 @@ class ErrorManager(AbstractControlSurfaceComponent):
         error_message += "----- traceback -----\n"
         error_message += "".join(self._format_list(show))
 
-        self.parent.log_error(error_message)
+        Logger.log_error(error_message)
 
         self.parent.clear_tasks()
 
-        self.parent.wait(10, self._restart)
+        Scheduler.wait(10, self._restart)
 
     def _restart(self):
         # type: () -> None
-        self.parent.log_warning("Error handled: reinitializing song")
+        Logger.log_warning("Error handled: reinitializing song")
         self.parent.songManager.init_song()
 
     def _check_file(self, name):
@@ -107,5 +109,5 @@ class ErrorManager(AbstractControlSurfaceComponent):
     def disconnect(self):
         # type: () -> None
         super(ErrorManager, self).disconnect()
-        if Config.SET_EXCEPTHOOK:
+        if self.SET_EXCEPTHOOK:
             sys.excepthook = self._original_excepthook

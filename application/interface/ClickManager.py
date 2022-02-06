@@ -1,15 +1,14 @@
 from functools import partial
 
-from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.application.interface.PixelEnum import PixelEnum
 from protocol0.domain.ApplicationView import ApplicationView
 from protocol0.domain.lom.clip.Clip import Clip
-from protocol0.domain.lom.device.DeviceParameter import DeviceParameter
+from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.infra.System import System
 
 
-class ClickManager(AbstractControlSurfaceComponent):
+class ClickManager(object):
     # NB: for an unknown reason clip.view.show_envelope does not always show the envelope
     # when the button was not clicked. As a workaround we click it the first time
     CLIP_ENVELOPE_SHOW_BOX_CLICKED = False

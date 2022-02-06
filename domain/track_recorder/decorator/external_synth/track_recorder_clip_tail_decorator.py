@@ -1,28 +1,43 @@
 from functools import partial
 
+from typing import Optional
+
+from protocol0.domain.lom.Listenable import Listenable
+from protocol0.domain.lom.song.Song import Song
+from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.domain.track_recorder.decorator.external_synth.abstract_track_recorder_external_synth_decorator import \
-    AbstractTrackRecorderExternalSynthDecorator
-from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
 from protocol0.domain.shared.decorators import p0_subject_slot
+from protocol0.domain.track_recorder.decorator.track_recorder_decorator import TrackRecorderDecorator
+from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
 from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
 
 
-class TrackRecorderClipTailDecorator(AbstractTrackRecorderExternalSynthDecorator):
+class TrackRecorderClipTailDecorator(TrackRecorderDecorator, Listenable):
     __subject_events__ = ("is_silent",)
 
     def __init__(self, recorder):
         # type: (AbstractTrackRecorder) -> None
-        super(AbstractTrackRecorderExternalSynthDecorator, self).__init__(recorder=recorder)
+        super(TrackRecorderClipTailDecorator, self).__init__(recorder=recorder)
         self._is_silent_listener.subject = self
+
+    @property
+    def track(self):
+        # type: (AbstractTrackRecorder) -> ExternalSynthTrack
+        # noinspection PyTypeChecker
+        return self._track
 
     @p0_subject_slot("beat_changed")
     def _beat_changed_listener(self):
         # type: () -> None
-        if self.track.audio_tail_track.output_meter_left < 0.1:
+        if self.is_audio_silent:
             # noinspection PyUnresolvedReferences
             self.notify_is_silent()
+
+    @property
+    def is_audio_silent(self):
+        # type: () -> bool
+        return self.track.audio_tail_track.output_meter_left < 0.1
 
     @p0_subject_slot("is_silent")
     def _is_silent_listener(self):
@@ -30,11 +45,14 @@ class TrackRecorderClipTailDecorator(AbstractTrackRecorderExternalSynthDecorator
         pass
 
     def post_audio_record(self):
-        # type: () -> Sequence
-        seq = Sequence()
-        seq.add(super(TrackRecorderClipTailDecorator, self).post_audio_record)
-        seq.add(self._wait_for_clip_tail_end)
-        return seq.done()
+        # type: () -> Optional[Sequence]
+        super(TrackRecorderClipTailDecorator, self).post_audio_record
+        if self.is_audio_silent:
+            return None
+        else:
+            seq = Sequence()
+            seq.add(self._wait_for_clip_tail_end)
+            return seq.done()
 
     def _wait_for_clip_tail_end(self):
         # type: () -> Sequence
@@ -59,7 +77,7 @@ class TrackRecorderClipTailDecorator(AbstractTrackRecorderExternalSynthDecorator
         seq = Sequence()
         # so that we have automation until the very end
         seq.add(complete_on=BeatScheduler.get_instance().last_32th_listener)
-        seq.add(partial(setattr, self.song, "session_automation_record", False))
+        seq.add(partial(setattr, Song.get_instance(), "session_automation_record", False))
         seq.add(partial(self.track.midi_track.stop, immediate=True))
         seq.add(partial(setattr, self.track.midi_track.input_routing, "type", InputRoutingTypeEnum.NO_INPUT))
         seq.add(wait_beats=1)

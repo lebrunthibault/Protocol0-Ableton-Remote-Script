@@ -5,7 +5,7 @@ from protocol0.application.constants import PUSH2_BEAT_QUANTIZATION_STEPS
 from protocol0.domain.lom.note.Note import Note
 
 
-class NoteQuantizationManager(AbstractControlSurfaceComponent):
+class NoteQuantizationManager(object):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(NoteQuantizationManager, self).__init__(*a, **k)

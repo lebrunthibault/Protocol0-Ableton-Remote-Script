@@ -1,6 +1,6 @@
 from typing import Optional, Any
 
-from protocol0.domain.lom.device.DeviceParameterEnum import DeviceParameterEnum
+from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.validation.ValidatorInterface import ValidatorInterface

@@ -10,6 +10,7 @@ from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.shared.utils import find_if
+from protocol0.shared.Logger import Logger
 
 
 class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
@@ -59,7 +60,7 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
         device.delete()
         preset_item = self._get_audio_effect_preset_item(device_name)
         if not preset_item:
-            self.parent.log_warning("Couldn't find preset item")
+            Logger.log_warning("Couldn't find preset item")
             return None
         seq.add(partial(self._browser.load_item, preset_item), wait=3)
         return seq.done()
@@ -72,7 +73,7 @@ class BrowserManager(BrowserActions, AbstractControlSurfaceComponent):
             audio_effect_rack_item = find_if(lambda i: i.name == "Audio Effect Rack",
                                              self._browser.audio_effects.iter_children)
             if not audio_effect_rack_item:
-                self.parent.log_info("Couldn't access preset items for Audio Effect Rack")
+                Logger.log_info("Couldn't access preset items for Audio Effect Rack")
                 return None
             else:
                 preset = find_if(lambda i: i.name == "%s.adg" % preset_name, audio_effect_rack_item.iter_children)

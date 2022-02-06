@@ -10,6 +10,7 @@ from protocol0.application.faderfox.InterfaceState import InterfaceState
 from protocol0.domain.lom.note.Note import Note
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.domain.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
@@ -81,7 +82,7 @@ class MidiClip(Clip):
         # type: () -> None
         super(MidiClip, self).post_record()
         if InterfaceState.SELECTED_RECORDING_BAR_LENGTH == BarLengthEnum.UNLIMITED:
-            clip_end = int(self.end_marker) - (int(self.end_marker) % self.song.signature_numerator)
+            clip_end = int(self.end_marker) - (int(self.end_marker) % SongFacade.signature_numerator())
             self.loop_end = clip_end
             self.end_marker = clip_end
 

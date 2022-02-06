@@ -4,17 +4,18 @@ from typing import TYPE_CHECKING, List, Optional, Any
 
 from _Framework.ButtonElement import ButtonElement
 from _Framework.InputControlElement import MIDI_NOTE_TYPE, MIDI_CC_TYPE
-from protocol0.application.service.decorators import handle_error
 from protocol0.application.faderfox.EncoderAction import EncoderAction, EncoderMoveEnum
+from protocol0.application.service.decorators import handle_error
+from protocol0.domain.lom.Listenable import Listenable
+from protocol0.domain.shared.SongFacade import SongFacade
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
-from protocol0.domain.lom.AbstractObject import AbstractObject
 
 if TYPE_CHECKING:
     from protocol0.application.faderfox.group.AbstractActionGroup import AbstractActionGroup
 
 
-class MultiEncoder(AbstractObject):
+class MultiEncoder(Listenable):
     PRESS_MAX_TIME = 0.25  # maximum time in seconds we consider a simple press
 
     def __init__(self, group, identifier, name, filter_active_tracks, *a, **k):
@@ -76,7 +77,7 @@ class MultiEncoder(AbstractObject):
         if not action:
             return None
 
-        if self._filter_active_tracks and not self.song.selected_track.IS_ACTIVE:
+        if self._filter_active_tracks and not SongFacade.selected_track().IS_ACTIVE:
             raise Protocol0Warning("action not dispatched for master / return tracks (%s)" % action.name)
 
         params = {}

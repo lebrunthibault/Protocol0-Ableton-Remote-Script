@@ -4,6 +4,7 @@ from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
+from protocol0.infra.scheduler.Scheduler import Scheduler
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -34,7 +35,7 @@ class AbstractGroupTrack(AbstractTrack):
         self.sub_tracks[:] = self.base_track.sub_tracks
         # here we don't necessarily link the sub tracks to self
         if update_name:
-            self.parent.defer(self.track_name.update)
+            Scheduler.defer(self.track_name.update)
 
     def _link_group_track(self):
         # type: () -> None
@@ -50,7 +51,7 @@ class AbstractGroupTrack(AbstractTrack):
         assert self.base_track.group_track.abstract_group_track
         self.group_track = self.base_track.group_track.abstract_group_track
         self.abstract_group_track = self.base_track.group_track.abstract_group_track
-        self.parent.trackManager.append_to_sub_tracks(self.group_track, self, self.base_track)
+        self.append_to_sub_tracks(self.group_track, self, self.base_track)
 
     def _get_dummy_tracks(self):
         # type: () -> Iterator[SimpleTrack]
@@ -72,15 +73,17 @@ class AbstractGroupTrack(AbstractTrack):
         if len(self.dummy_tracks) == len(dummy_tracks):
             return
 
+        from protocol0 import Protocol0
+
         self.dummy_tracks[:] = [
-            self.parent.songTracksManager.generate_simple_track(track=track._track, index=track.index,
-                                                                cls=SimpleDummyTrack)
+            Protocol0.SELF.songTracksManager.generate_simple_track(track=track._track, index=track.index,
+                                                                   cls=SimpleDummyTrack)
             for track in dummy_tracks]
         for dummy_track in self.dummy_tracks:
             dummy_track.abstract_group_track = self
-            self.parent.defer(dummy_track.track_name.update)
+            Scheduler.defer(dummy_track.track_name.update)
 
-        self.parent.wait(3, self._link_dummy_tracks_routings)
+        Scheduler.wait(3, self._link_dummy_tracks_routings)
 
     def _link_dummy_tracks_routings(self):
         # type: () -> None

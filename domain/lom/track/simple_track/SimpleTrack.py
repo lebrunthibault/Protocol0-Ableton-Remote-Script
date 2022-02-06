@@ -8,7 +8,7 @@ from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterf
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.device.Device import Device
-from protocol0.domain.lom.device.DeviceParameter import DeviceParameter
+from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackActionMixin import SimpleTrackActionMixin
 from protocol0.domain.shared.decorators import p0_subject_slot
@@ -72,9 +72,10 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         if self._track.group_track is None:
             self.group_track = None
             return None
+        from protocol0 import Protocol0
 
-        self.group_track = self.parent.songTracksManager.get_simple_track(self._track.group_track)
-        self.parent.trackManager.append_to_sub_tracks(self.group_track, self)
+        self.group_track = Protocol0.SELF.songTracksManager.get_simple_track(self._track.group_track)
+        self.append_to_sub_tracks(self.group_track, self)
 
     def _map_clip_slots(self):
         # type: () -> None
@@ -102,14 +103,16 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             device.disconnect()
 
         self.devices = [Device.make(device, self) for device in self._track.devices]
-        self.all_devices = self.parent.deviceManager.find_all_devices(self.base_track)
+        from protocol0 import Protocol0
+
+        self.all_devices = Protocol0.SELF.deviceManager.find_all_devices(self.base_track)
 
         # noinspection PyUnresolvedReferences
         self.notify_devices()
 
         # Refreshing is only really useful from simpler devices that change when a new sample is loaded
         if self.IS_ACTIVE and not self.is_foldable:
-            self.instrument = self.parent.deviceManager.make_instrument_from_simple_track(track=self)
+            self.instrument = Protocol0.SELF.deviceManager.make_instrument_from_simple_track(track=self)
 
     @p0_subject_slot("output_meter_level")
     def _output_meter_level_listener(self):

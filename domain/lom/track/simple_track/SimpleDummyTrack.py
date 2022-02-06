@@ -3,10 +3,11 @@ from functools import partial
 from typing import Optional, Any
 
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
-from protocol0.domain.lom.device.DeviceParameterEnum import DeviceParameterEnum
+from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.shared.Logger import Logger
 
 
 class SimpleDummyTrack(SimpleAudioTrack):
@@ -60,7 +61,9 @@ class SimpleDummyTrack(SimpleAudioTrack):
     def _insert_device(self):
         # type: () -> Optional[Sequence]
         self.parameter_enum = DeviceParameterEnum.from_value(self.parameter_type)
-        return self.parent.browserManager.load_device_from_enum(self.parameter_enum.device_enum)
+        from protocol0 import Protocol0
+
+        return Protocol0.SELF.browserManager.load_device_from_enum(self.parameter_enum.device_enum)
 
     def _insert_dummy_clip(self):
         # type: () -> Optional[Sequence]
@@ -79,7 +82,7 @@ class SimpleDummyTrack(SimpleAudioTrack):
         clip = self.clip_slots[self.song.selected_scene.index].clip
         automated_device = self.get_device_from_enum(self.parameter_enum.device_enum)
         if automated_device is None:
-            self.parent.log_error("The automated device was not inserted")
+            Logger.log_error("The automated device was not inserted")
             return None
 
         automated_parameter = automated_device.get_parameter_by_name(self.parameter_enum)
@@ -89,7 +92,8 @@ class SimpleDummyTrack(SimpleAudioTrack):
             clip.create_automation_envelope(parameter=automated_parameter)
 
         clip.loop_end = self.clip_bar_length
+        from protocol0 import Protocol0
 
-        self.parent.clickManager.show_clip_envelope_parameter(clip, automated_parameter)
+        Protocol0.SELF.clickManager.show_clip_envelope_parameter(clip, automated_parameter)
         if self.song.is_playing:
             clip.fire()

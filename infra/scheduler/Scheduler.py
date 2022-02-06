@@ -1,5 +1,6 @@
 from typing import Callable, Optional, Union, List
 
+from protocol0.domain.shared.SongFacade import SongFacade
 from protocol0.infra.scheduler.SchedulerEvent import SchedulerEvent
 
 
@@ -17,9 +18,7 @@ class Scheduler(object):
     def wait_bars(cls, bar_length, callback):
         # type: (int, Callable) -> None
         from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
-        from protocol0.domain.lom.song.Song import Song
-
-        BeatScheduler.get_instance().wait_beats(Song.get_instance().signature_numerator * bar_length, callback)
+        BeatScheduler.get_instance().wait_beats(SongFacade.signature_numerator() * bar_length, callback)
 
     @classmethod
     def wait_beats(cls, beats, callback):

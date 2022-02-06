@@ -3,21 +3,23 @@ from itertools import chain, imap
 
 from typing import Optional, Tuple, Dict, Type, cast, List, Union
 
-from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.domain.ApplicationView import ApplicationView
-from protocol0.domain.lom.instrument.InstrumentFactory import InstrumentFactory
-from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
-from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceChain import DeviceChain
 from protocol0.domain.lom.device.RackDevice import RackDevice
+from protocol0.domain.lom.instrument.InstrumentFactory import InstrumentFactory
+from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils import find_if
 from protocol0.infra.System import System
+from protocol0.shared.AccessContainer import AccessContainer
+from protocol0.shared.AccessSong import AccessSong
+from protocol0.shared.Logger import Logger
 
 
-class DeviceManager(AbstractControlSurfaceComponent):
+class DeviceManager(AccessContainer, AccessSong):
     SHOW_HIDE_MACRO_BUTTON_PIXEL_HEIGHT = 830
     SHOW_HIDE_PLUGIN_BUTTON_PIXEL_HEIGHT = 992
     COLLAPSED_DEVICE_PIXEL_WIDTH = 38
@@ -46,7 +48,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
     def update_audio_effect_rack(self, device):
         # type: (RackDevice) -> Sequence
         """ update rack with the version stored in browser, keeping old values for identical parameters """
-        self.parent.log_info("selecting and updating device %s (track %s)" % (device, device.track))
+        Logger.log_info("selecting and updating device %s (track %s)" % (device, device.track))
         parameters = {param.name: param.value for param in device.parameters if "macro" not in param.name.lower()}
         seq = Sequence()
         seq.add(partial(self.song.select_device, device))
@@ -58,7 +60,7 @@ class DeviceManager(AbstractControlSurfaceComponent):
         # type: (SimpleTrack, str, Dict[str, float]) -> None
         device = find_if(lambda d: d.name == device_name, track.devices)
         if not device:
-            self.parent.log_error("Couldn't find device with name %s in %s" % (device_name, track))
+            Logger.log_error("Couldn't find device with name %s in %s" % (device_name, track))
         for param_name, param_value in parameters.items():
             device.update_param_value(param_name=param_name, param_value=param_value)
 

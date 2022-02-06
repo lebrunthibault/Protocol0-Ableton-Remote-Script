@@ -3,6 +3,7 @@ import re
 from typing import TYPE_CHECKING, Any, Optional
 
 from protocol0.domain.lom.AbstractObjectName import AbstractObjectName
+from protocol0.domain.shared.SongFacade import SongFacade
 from protocol0.domain.shared.decorators import throttle
 from protocol0.domain.shared.utils import get_length_legend
 
@@ -35,7 +36,7 @@ class SceneName(AbstractObjectName):
         # type: (str, bool, Optional[int]) -> None
         """ throttling to avoid multiple calls due to name listener """
         base_name = base_name if base_name else self._get_base_name()
-        looping = "*" if self.scene == self.song.looping_scene else ""
+        looping = "*" if self.scene == SongFacade.looping_scene() else ""
         length_legend = get_length_legend(length=self.scene.length)
 
         if self.scene.has_playing_clips and display_bar_count:

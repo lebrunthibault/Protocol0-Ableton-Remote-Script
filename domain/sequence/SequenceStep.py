@@ -3,23 +3,22 @@ from functools import partial
 from typing import TYPE_CHECKING, Iterable, Any, Union, Callable, Optional, cast, List
 
 from protocol0.application.config import Config
-from protocol0.domain.sequence.SequenceError import SequenceError
-from protocol0.domain.lom.AbstractObject import AbstractObject
-from protocol0.domain.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
-from protocol0.domain.sequence.CallbackDescriptor import CallableWithCallbacks
-from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.application.service.decorators import handle_error
-from protocol0.domain.sequence.timeout import TimeoutLimit
+from protocol0.domain.sequence.CallbackDescriptor import CallableWithCallbacks
+from protocol0.domain.sequence.SequenceError import SequenceError
+from protocol0.domain.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
+from protocol0.domain.sequence.TimeoutLimit import TimeoutLimit
+from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.utils import _has_callback_queue, get_callable_repr, nop
 from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
+from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.shared.Logger import Logger
 
 if TYPE_CHECKING:
     from protocol0.domain.sequence.Sequence import Sequence
 
 
-class SequenceStep(AbstractObject, SequenceStateMachineMixin):
-    __subject_events__ = ("terminated", "errored", "cancelled")
-
+class SequenceStep(SequenceStateMachineMixin):
     def __init__(
             self,
             func,  # type: Callable
@@ -109,7 +108,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
             return
 
         if self._wait:
-            self.parent.wait(self._wait, self.terminate)
+            Scheduler.wait(self._wait, self.terminate)
             return
 
         if self._wait_beats:
@@ -159,7 +158,8 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
             raise
         except Exception:
             self.error()
-            self.parent.errorManager.handle_error("%s : %s" % (self._sequence_name, self))
+            from protocol0 import Protocol0
+            Protocol0.SELF.errorManager.handle_error("%s : %s" % (self._sequence_name, self))
             raise SequenceError()  # will stop sequence processing
 
     def _execute(self):
@@ -187,7 +187,7 @@ class SequenceStep(AbstractObject, SequenceStateMachineMixin):
         if isinstance(self._complete_on, CallableWithCallbacks) and self._callback_timeout:
             self._complete_on.clear_callbacks()
 
-        self.parent.log_warning("timeout completion error on %s" % self, debug=False)
+        Logger.log_warning("timeout completion error on %s" % self, debug=False)
 
         self.error()
 

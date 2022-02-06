@@ -3,8 +3,9 @@ from functools import wraps
 from typing import Any, TYPE_CHECKING
 
 from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.domain.enums.TrackDataEnum import TrackDataEnum
+from protocol0.infra.TrackDataEnum import TrackDataEnum
 from protocol0.my_types import Func
+from protocol0.shared.Logger import Logger
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
@@ -41,4 +42,4 @@ class TrackDataManager(AbstractControlSurfaceComponent):
     def clear(self):
         # type: () -> None
         for track in self.song.abstract_tracks:
-            self.parent.log_info("Clearing track data of %s" % track)
+            Logger.log_info("Clearing track data of %s" % track)

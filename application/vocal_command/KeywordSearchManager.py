@@ -6,6 +6,7 @@ from protocol0.application.vocal_command.TrackSearchKeywordEnum import TrackSear
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.track_list.AbstractTrackList import AbstractTrackList
 from protocol0.domain.shared.utils import normalize_string
+from protocol0.shared.Logger import Logger
 
 
 class KeywordSearchManager(AbstractControlSurfaceComponent):
@@ -28,7 +29,7 @@ class KeywordSearchManager(AbstractControlSurfaceComponent):
                 matching_tracks.append(track)
 
         if len(matching_tracks) == 0:
-            self.parent.log_info("Didn't find track for search: %s" % search.lower())
+            Logger.log_info("Didn't find track for search: %s" % search.lower())
             return
 
         index = 0
@@ -37,7 +38,7 @@ class KeywordSearchManager(AbstractControlSurfaceComponent):
 
         matching_track = matching_tracks[index]
 
-        self.parent.log_info("Selecting track %s" % matching_track)
+        Logger.log_info("Selecting track %s" % matching_track)
         matching_track.select()
         if matching_track.is_foldable:
             matching_track.is_folded = False
@@ -47,7 +48,7 @@ class KeywordSearchManager(AbstractControlSurfaceComponent):
         # type: (str, AbstractTrack) -> bool
         for track_keyword in self._get_track_keywords(track):
             if search in normalize_string(track_keyword).split(" "):
-                self.parent.log_info("found match for search %s in track %s (track keyword matched: %s)" %
+                Logger.log_info("found match for search %s in track %s (track keyword matched: %s)" %
                                      (search, track, track_keyword))
                 return True
 

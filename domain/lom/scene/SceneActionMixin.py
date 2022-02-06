@@ -7,38 +7,40 @@ from protocol0.domain.lom.set.SessionToArrangementManager import SessionToArrang
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.domain.shared.SongFacade import SongFacade
 from protocol0.domain.shared.decorators import throttle
 from protocol0.domain.shared.utils import scroll_values
 from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
 from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.shared.AccessSong import AccessSong
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.scene.Scene import Scene
 
 
 # noinspection PyTypeHints
-class SceneActionMixin(object):
+class SceneActionMixin(AccessSong):
     def select(self):
         # type: (Scene) -> None
         self.song.selected_scene = self
 
     def check_scene_length(self):
         # type: (Scene) -> None
-        self.parent.defer(self.scene_name.update)
+        Scheduler.defer(self.scene_name.update)
 
     def on_beat_changed(self):
         # type: (Scene) -> None
         if self.is_recording:
             return
-        # trigger on last beat
-        if self.current_beat == self.song.signature_numerator - 1:
-            self.parent.defer(self._play_audio_tails)  # only call is here, at the end of each bar
         if self.current_bar == self.bar_length - 1:
-            if SessionToArrangementManager.IS_BOUNCING or self.current_beat == self.song.signature_numerator - 1:
+            # trigger on last beat
+            if self.current_beat == SongFacade.signature_numerator() - 1:
+                Scheduler.defer(self._play_audio_tails)  # only call is here, at the end of each bar
+            if SessionToArrangementManager.IS_BOUNCING or self.current_beat == SongFacade.signature_numerator() - 1:
                 self._fire_next_scene()
 
         if self.current_beat == 0 and not SessionToArrangementManager.IS_BOUNCING:
-            self.parent.defer(self.scene_name.update)
+            Scheduler.defer(self.scene_name.update)
 
     def _fire_next_scene(self):
         # type: (Scene) -> None
@@ -119,19 +121,15 @@ class SceneActionMixin(object):
 
     def _play_audio_tails(self):
         # type: (Scene) -> None
-        # playing tails
         for clip in self.audio_tail_clips:
-            if (self.current_bar + 1) % clip.midi_clip.bar_length != 0:
-                continue
-
             abstract_track = cast(ExternalSynthTrack, clip.track.abstract_track)
             # do not trigger tail on monophonic loop
             if abstract_track.instrument.MONOPHONIC and self.next_scene != self and self.next_scene.clip_slots[clip.track.index - 1].clip:
                 continue
-            if abstract_track.midi_track.clip_slots[clip.index].clip.muted:
+            if abstract_track.audio_track.clip_slots[clip.index].clip.muted:
                 continue
-            else:
-                clip.play_and_mute()
+
+            clip.play_and_mute()
 
     def mute_audio_tails(self):
         # type: (Scene) -> None
@@ -182,7 +180,7 @@ class SceneActionMixin(object):
             if 0 < bar_length < clip.bar_length:
                 clip.bar_length = min(clip.bar_length, bar_length)
             elif bar_length < 0 and clip.bar_length > abs(bar_length):
-                offset = clip.length - abs(bar_length) * self.song.signature_numerator
+                offset = clip.length - abs(bar_length) * SongFacade.signature_numerator()
                 clip.start_marker += offset
                 clip.loop_start += offset
 
@@ -197,7 +195,7 @@ class SceneActionMixin(object):
         scene_position = Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION
 
         if self.has_playing_clips:
-            bar_position = self.playing_position * self.song.signature_numerator
+            bar_position = self.playing_position * SongFacade.signature_numerator()
             rounded_bar_position = floor(bar_position) if go_next else round(bar_position)
             scene_position = int(scroll_values(range(0, self.bar_length), rounded_bar_position, go_next=go_next))
             self.jump_to_bar(scene_position)
@@ -209,5 +207,5 @@ class SceneActionMixin(object):
 
     def jump_to_bar(self, bar_position):
         # type: (Scene, float) -> None
-        beat_offset = (bar_position * self.song.signature_numerator) - self.playing_position
+        beat_offset = (bar_position * SongFacade.signature_numerator()) - self.playing_position
         self.song.scrub_by(beat_offset)

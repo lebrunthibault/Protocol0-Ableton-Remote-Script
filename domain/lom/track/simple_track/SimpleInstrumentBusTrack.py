@@ -1,5 +1,6 @@
 from protocol0.domain.enums.ColorEnum import ColorEnum
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+from protocol0.infra.scheduler.Scheduler import Scheduler
 
 
 class SimpleInstrumentBusTrack(SimpleAudioTrack):
@@ -17,4 +18,4 @@ class SimpleInstrumentBusTrack(SimpleAudioTrack):
         # type: () -> None
         super(SimpleInstrumentBusTrack, self).on_scenes_change()
         for clip in self.clips[1:]:
-            self.parent.defer(clip.delete)
+            Scheduler.defer(clip.delete)

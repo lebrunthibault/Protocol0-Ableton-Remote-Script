@@ -1,10 +1,11 @@
 from abc import abstractmethod
 
-from protocol0.domain.lom.AbstractObject import AbstractObject
+from protocol0.domain.lom.Listenable import Listenable
 from protocol0.domain.shared.decorators import p0_subject_slot
+from protocol0.infra.scheduler.Scheduler import Scheduler
 
 
-class AbstractObjectName(AbstractObject):
+class AbstractObjectName(Listenable):
     @abstractmethod
     def update(self):
         # type: () -> str
@@ -13,4 +14,4 @@ class AbstractObjectName(AbstractObject):
     @p0_subject_slot("name")
     def _name_listener(self):
         # type: () -> None
-        self.parent.defer(self.update)
+        Scheduler.defer(self.update)

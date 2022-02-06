@@ -6,6 +6,7 @@ from protocol0.application.AbstractControlSurfaceComponent import AbstractContro
 from protocol0.domain.ApplicationView import ApplicationView
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.infra.System import System
+from protocol0.infra.scheduler.Scheduler import Scheduler
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.scene.Scene import Scene
@@ -19,7 +20,7 @@ class SessionToArrangementManager(AbstractControlSurfaceComponent):
         # type: () -> Optional[Sequence]
         if SessionToArrangementManager.IS_BOUNCING:
             self.song.session_end_listener()
-            self.parent.defer(ApplicationView.show_session)
+            Scheduler.defer(ApplicationView.show_session)
             return None
 
         from protocol0.domain.lom.scene.Scene import Scene

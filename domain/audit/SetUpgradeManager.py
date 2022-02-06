@@ -2,19 +2,22 @@ from functools import partial
 
 from typing import Iterator, List, Dict, Optional
 
-from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
-from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
-from protocol0.domain.lom.device.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.lom.device.PluginDevice import PluginDevice
 from protocol0.domain.lom.device.RackDevice import RackDevice
+from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
+from protocol0.shared.AccessContainer import AccessContainer
+from protocol0.shared.AccessSong import AccessSong
+from protocol0.shared.Logger import Logger
+from protocol0.shared.StatusBar import StatusBar
 
 
-class SetUpgradeManager(AbstractControlSurfaceComponent):
+class SetUpgradeManager(AccessContainer, AccessSong):
     def update_audio_effect_racks(self):
         # type: () -> Sequence
         seq = Sequence()
@@ -38,7 +41,7 @@ class SetUpgradeManager(AbstractControlSurfaceComponent):
                 tracks.append(track)
 
         if not all(self.parent.validatorManager.validate_object(track) for track in tracks):
-            self.parent.log_error("invalid ExternalSynthTrack(s)")
+            Logger.log_error("invalid ExternalSynthTrack(s)")
             return None
 
         seq = Sequence()
@@ -57,7 +60,7 @@ class SetUpgradeManager(AbstractControlSurfaceComponent):
             if full_scan is False:
                 self.delete_unnecessary_devices(full_scan=True)
             else:
-                self.parent.show_message("No devices to delete")
+                StatusBar.show_message("No devices to delete")
             return
 
         devices_by_name = {}  # type: Dict[str, List[Device]]
@@ -72,7 +75,7 @@ class SetUpgradeManager(AbstractControlSurfaceComponent):
         seq = Sequence()
         seq.prompt("%s devices to delete,\n\n%s\n\nproceed ?" % (len(devices_to_delete), info))
         seq.add([device.delete for device in devices_to_delete])
-        seq.add(lambda: self.parent.show_message("Devices deleted"))
+        seq.add(lambda: StatusBar.show_message("Devices deleted"))
         seq.add(self.delete_unnecessary_devices)  # now delete enclosing racks if empty
         seq.done()
 

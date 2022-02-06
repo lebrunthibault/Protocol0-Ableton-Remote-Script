@@ -4,10 +4,10 @@ from typing import Optional, Type, Dict, Iterator
 
 import Live
 from protocol0.application.service.decorators import handle_error
-from protocol0.domain.enums.SongLoadStateEnum import SongLoadStateEnum
-from protocol0.domain.lom.AbstractObject import AbstractObject
+from protocol0.domain.lom.Listenable import Listenable
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
+from protocol0.domain.lom.track.TrackFactory import TrackFactory
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
 from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
@@ -16,14 +16,21 @@ from protocol0.domain.lom.track.simple_track.SimpleReturnTrack import SimpleRetu
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.shared.decorators import p0_subject_slot
+from protocol0.shared.Logger import Logger
 
 
-class SongTracksManager(AbstractObject):
-    def __init__(self):
-        # type: () -> None
+class SongTracksManager(Listenable):
+    def __init__(self, track_manager):
+        # type: (TrackFactory) -> None
         super(SongTracksManager, self).__init__()
+        self._track_manager = track_manager
         self._live_track_id_to_simple_track = collections.OrderedDict()  # type: Dict[int, SimpleTrack]
         self.tracks_listener.subject = self.song._song
+
+    @property
+    def song(self):
+        from protocol0.domain.lom.song.Song import Song
+        return Song.get_instance()
 
     @property
     def live_tracks(self):
@@ -67,11 +74,11 @@ class SongTracksManager(AbstractObject):
         for scene in self.song.scenes:
             scene.on_tracks_change()
 
-        self.parent.log_info("mapped tracks")
+        Logger.log_info("mapped tracks")
 
         seq = Sequence()
         if has_added_tracks and self.song.selected_track:
-            seq.add(self.parent.trackManager.on_added_track)
+            seq.add(self._track_manager.on_added_track)
 
         return seq.done()
 
@@ -100,8 +107,8 @@ class SongTracksManager(AbstractObject):
         for index, track in enumerate(list(self.song._song.tracks)):
             self.generate_simple_track(track=track, index=index)
 
-        if self.song.usamo_track is None and self.song.song_load_state != SongLoadStateEnum.LOADED:
-            self.parent.log_warning("Usamo track is not present")
+        if self.song.usamo_track is None:
+            Logger.log_warning("Usamo track is not present")
 
         for index, track in enumerate(list(self.song._song.return_tracks)):
             self.generate_simple_track(track=track, index=index, cls=SimpleReturnTrack)
@@ -113,7 +120,7 @@ class SongTracksManager(AbstractObject):
 
     def generate_simple_track(self, track, index, cls=None):
         # type: (Live.Track.Track, int, Optional[Type[SimpleTrack]]) -> SimpleTrack
-        simple_track = self.parent.trackManager.instantiate_simple_track(track=track, index=index, cls=cls)
+        simple_track = self._track_manager.instantiate_simple_track(track=track, index=index, cls=cls)
         self._register_simple_track(simple_track)
         if index is not None:
             simple_track._index = index
@@ -145,13 +152,12 @@ class SongTracksManager(AbstractObject):
         """ disconnecting and removing from SimpleTrack group track and abstract_group_track """
         new_simple_track._index = previous_simple_track._index
         previous_simple_track.disconnect()
-        append_to_sub = self.parent.trackManager.append_to_sub_tracks
 
         if previous_simple_track.group_track:
-            append_to_sub(previous_simple_track.group_track, new_simple_track, previous_simple_track)
+            previous_simple_track.append_to_sub_tracks(previous_simple_track.group_track, new_simple_track, previous_simple_track)
 
         if previous_simple_track.abstract_group_track:
-            append_to_sub(previous_simple_track.abstract_group_track, new_simple_track, previous_simple_track)
+            previous_simple_track.append_to_sub_tracks(previous_simple_track.abstract_group_track, new_simple_track, previous_simple_track)
 
     def _sort_simple_tracks(self):
         # type: () -> None
@@ -168,11 +174,11 @@ class SongTracksManager(AbstractObject):
                 continue
 
             previous_abstract_group_track = track.abstract_group_track
-            abstract_group_track = self.parent.trackManager.instantiate_abstract_group_track(track)
+            abstract_group_track = self._track_manager.instantiate_abstract_group_track(track)
 
             if isinstance(previous_abstract_group_track, ExternalSynthTrack) and isinstance(abstract_group_track,
                                                                                             NormalGroupTrack):
-                self.parent.log_error("An ExternalSynthTrack is changed to a NormalGroupTrack")
+                Logger.log_error("An ExternalSynthTrack is changed to a NormalGroupTrack")
 
             if previous_abstract_group_track and previous_abstract_group_track != abstract_group_track:
                 previous_abstract_group_track.disconnect()

@@ -2,12 +2,14 @@ from functools import partial
 
 from typing import Optional, Any
 
-from protocol0.domain.lom.instrument.AbstractExternalSynthTrackInstrument import AbstractExternalSynthTrackInstrument
 from protocol0.domain.enums.ColorEnum import ColorEnum
+from protocol0.domain.lom.instrument.AbstractExternalSynthTrackInstrument import AbstractExternalSynthTrackInstrument
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.SongFacade import SongFacade
 from protocol0.infra.System import System
+from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.shared.StatusBar import StatusBar
 
 
 class InstrumentProphet(AbstractExternalSynthTrackInstrument):
@@ -59,11 +61,9 @@ class InstrumentProphet(AbstractExternalSynthTrackInstrument):
         """
         InstrumentProphet.EDITOR_DEVICE_ON = not InstrumentProphet.EDITOR_DEVICE_ON
 
-        from protocol0 import Protocol0
-        Protocol0.SELF.show_message("Rev2 editor %s" % ("ON" if InstrumentProphet.EDITOR_DEVICE_ON else "OFF"))
-        from protocol0.domain.lom.song.Song import Song
+        StatusBar.show_message("Rev2 editor %s" % ("ON" if InstrumentProphet.EDITOR_DEVICE_ON else "OFF"))
 
-        for prophet_track in Song.get_instance().prophet_tracks:
+        for prophet_track in SongFacade.prophet_tracks():
             prophet_track.instrument.device.device_on = InstrumentProphet.EDITOR_DEVICE_ON
 
     def activate_editor_automation(self):

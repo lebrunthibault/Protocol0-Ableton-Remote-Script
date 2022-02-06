@@ -6,13 +6,14 @@ from typing import Any, Optional
 
 from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.domain.enums.AbstractEnum import AbstractEnum
-from protocol0.domain.enums.SongDataEnum import SongDataEnum
+from protocol0.infra.SongDataEnum import SongDataEnum
 from protocol0.domain.lom.song.SongDataError import SongDataError
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.utils import class_attributes
 from protocol0.infra.System import System
 from protocol0.my_types import Func, T
+from protocol0.shared.Logger import Logger
 
 SYNCHRONIZABLE_CLASSE_NAMES = set()
 
@@ -86,15 +87,15 @@ class SongDataManager(AbstractControlSurfaceComponent):
         try:
             self._restore_data()
         except SongDataError as e:
-            self.parent.log_error(str(e))
-            self.parent.log_info("setting %s song data to {}")
+            Logger.log_error(str(e))
+            Logger.log_info("setting %s song data to {}")
             self.clear()
             raise Protocol0Warning("Inconsistent song data please save the set")
 
     def _restore_data(self):
         # type: () -> None
         if len(list(SYNCHRONIZABLE_CLASSE_NAMES)) == 0:
-            self.parent.log_error("no song synchronizable class detected")
+            Logger.log_error("no song synchronizable class detected")
             return
 
         for cls_fqdn in SYNCHRONIZABLE_CLASSE_NAMES:
@@ -111,7 +112,7 @@ class SongDataManager(AbstractControlSurfaceComponent):
         # type: (str) -> None
         cls = locate(cls_fqdn)
         if not cls:
-            self.parent.log_error("Couldn't locate %s" % cls_fqdn)
+            Logger.log_error("Couldn't locate %s" % cls_fqdn)
             return
         class_data = self.song.get_data(cls_fqdn, {})
         if self.DEBUG:
@@ -126,7 +127,7 @@ class SongDataManager(AbstractControlSurfaceComponent):
                 except Protocol0Error as e:
                     raise SongDataError(e)
             if not hasattr(cls, key):
-                self.parent.log_warning("Invalid song data, attribute does not exist %s.%s" % (cls.__name__, key))
+                Logger.log_warning("Invalid song data, attribute does not exist %s.%s" % (cls.__name__, key))
                 continue
             if isinstance(getattr(cls, key), AbstractEnum) and not isinstance(value, AbstractEnum):
                 raise SongDataError("inconsistent AbstractEnum value for %s.%s : got %s" % (cls_fqdn, key, value))
@@ -134,10 +135,10 @@ class SongDataManager(AbstractControlSurfaceComponent):
 
     def _log(self, key, value):
         # type: (str, Any) -> None
-        self.parent.log_info("song data of %s: %s" % (key, json.dumps(value, indent=4, sort_keys=True)))
+        Logger.log_info("song data of %s: %s" % (key, json.dumps(value, indent=4, sort_keys=True)))
 
     def clear(self):
         # type: () -> None
         for cls_fqdn in SYNCHRONIZABLE_CLASSE_NAMES:
-            self.parent.log_info("Clearing song data of %s" % cls_fqdn)
+            Logger.log_info("Clearing song data of %s" % cls_fqdn)
             self.song.set_data(cls_fqdn, {})

@@ -1,10 +1,7 @@
 from typing import Optional, Type
 
 import Live
-from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
-from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
-from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
@@ -13,9 +10,12 @@ from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import Sim
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
+from protocol0.shared.AccessContainer import AccessContainer
+from protocol0.shared.AccessSong import AccessSong
 
 
-class TrackManager(AbstractControlSurfaceComponent):
+class TrackFactory(AccessContainer, AccessSong):
     def on_added_track(self):
         # type: () -> Optional[Sequence]
         if not self.song.selected_track.IS_ACTIVE:
@@ -91,14 +91,3 @@ class TrackManager(AbstractControlSurfaceComponent):
                 return False
 
         return True
-
-    def append_to_sub_tracks(self, group_track, sub_track, previous_sub_track=None):
-        # type: (AbstractTrack, AbstractTrack, Optional[AbstractTrack]) -> None
-        if sub_track in group_track.sub_tracks:
-            return
-
-        if previous_sub_track is None or previous_sub_track not in group_track.sub_tracks:
-            group_track.sub_tracks.append(sub_track)
-        else:
-            sub_track_index = group_track.sub_tracks.index(previous_sub_track)
-            group_track.sub_tracks[sub_track_index] = sub_track

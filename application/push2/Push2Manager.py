@@ -3,19 +3,22 @@ from typing import Optional, cast, Any
 
 from _Framework.ControlSurface import get_control_surfaces
 from _Framework.SubjectSlot import subject_slot_group
-from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.application.push2.decorators import push2_method
 from protocol0.domain.lom.clip.MidiClip import MidiClip
+from protocol0.domain.lom.note.NoteQuantizationManager import NoteQuantizationManager
+from protocol0.domain.shared.SongFacade import SongFacade
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.utils import find_if
+from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.shared.Logger import Logger
 
 
-class Push2Manager(AbstractControlSurfaceComponent):
+class Push2Manager(object):
     ENABLE_AUTO_SELECTED_MODE = False
 
-    def __init__(self, *a, **k):
-        # type: (Any, Any) -> None
-        super(Push2Manager, self).__init__(*a, **k)
+    def __init__(self, note_quantization_manager):
+        # type: (NoteQuantizationManager) -> None
+        self.note_quantization_manager = note_quantization_manager
         self.push2 = None  # type: Optional[Push2]
         self.update_session_ring = True
         self.update_selected_modes = True
@@ -26,11 +29,11 @@ class Push2Manager(AbstractControlSurfaceComponent):
         push2 = find_if(lambda cs: isinstance(cs, Push2), get_control_surfaces())
         if not push2 or not hasattr(push2, "_session_ring"):
             if log:
-                self.parent.log_warning("Cannot connect to push2")
+                Logger.log_warning("Cannot connect to push2")
             return
 
         if not self.push2:
-            self.parent.log_info("Push2 connected")
+            Logger.log_info("Push2 connected")
 
         self.push2 = push2
         with push2.component_guard():
@@ -43,7 +46,7 @@ class Push2Manager(AbstractControlSurfaceComponent):
             )
 
         if not self.push2:
-            self.parent.log_info("Push2 connected to Protocol0")
+            Logger.log_info("Push2 connected to Protocol0")
 
     @p0_subject_slot("value")
     def _session_pad_press_listener(self, value, *_, **__):
@@ -56,7 +59,7 @@ class Push2Manager(AbstractControlSurfaceComponent):
         # type: (Any, Any, Any) -> None
         if value:
             self.update_session_ring = False
-            self.parent.defer(self._update_selected_modes)
+            Scheduler.defer(self._update_selected_modes)
 
     @subject_slot_group("value")
     def _nav_button_press_listener(self, value, *a, **k):
@@ -88,11 +91,11 @@ class Push2Manager(AbstractControlSurfaceComponent):
     def update_clip_grid_quantization(self):
         # type: () -> None
         assert self.push2
-        if not self.song.selected_clip or not isinstance(self.song.selected_clip, MidiClip):
+        if not SongFacade.selected_clip() or not isinstance(SongFacade.selected_clip(), MidiClip):
             return
-        clip = cast(MidiClip, self.song.selected_clip)
+        clip = cast(MidiClip, SongFacade.selected_clip())
         self._update_selected_modes()
-        quantization_index = self.parent.noteQuantizationManager.get_notes_quantization_index(clip.get_notes())
+        quantization_index = self.note_quantization_manager.get_notes_quantization_index(clip.get_notes())
         self.push2._grid_resolution.index = quantization_index
         self.push2._grid_resolution.quantization_buttons[quantization_index].is_checked = True
 
@@ -103,11 +106,11 @@ class Push2Manager(AbstractControlSurfaceComponent):
         if not self.ENABLE_AUTO_SELECTED_MODE:
             return
         assert self.push2
-        if self.update_selected_modes and self.song.selected_track.IS_ACTIVE:
-            self.push2._main_modes.selected_mode = self.song.selected_track.push2_selected_main_mode.label
-            self.push2._matrix_modes.selected_mode = self.song.selected_track.push2_selected_matrix_mode.label
-            if self.song.selected_track.push2_selected_instrument_mode:
-                self.push2._instrument.selected_mode = self.song.selected_track.push2_selected_instrument_mode.label
+        if self.update_selected_modes and SongFacade.selected_track().IS_ACTIVE:
+            self.push2._main_modes.selected_mode = SongFacade.selected_track().push2_selected_main_mode.label
+            self.push2._matrix_modes.selected_mode = SongFacade.selected_track().push2_selected_matrix_mode.label
+            if SongFacade.selected_track().push2_selected_instrument_mode:
+                self.push2._instrument.selected_mode = SongFacade.selected_track().push2_selected_instrument_mode.label
             else:
                 self.push2._instrument.selected_mode = self.push2._instrument.selected_mode
 

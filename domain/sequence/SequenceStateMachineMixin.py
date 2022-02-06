@@ -3,6 +3,7 @@ from typing import Any, Optional
 
 from protocol0.domain.enums.AbstractEnum import AbstractEnum
 from protocol0.domain.enums.LogLevelEnum import LogLevelEnum
+from protocol0.domain.lom.Listenable import Listenable
 from protocol0.infra.log import log_ableton
 from protocol0.shared.Logger import Logger
 
@@ -15,9 +16,12 @@ class SequenceState(AbstractEnum):
     ERRORED = "ERRORED"
 
 
-class SequenceStateMachineMixin(object):
+class SequenceStateMachineMixin(Listenable):
+    __subject_events__ = ("terminated", "errored", "cancelled")
+
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
+        super(SequenceStateMachineMixin, self).__init__(*a, **k)
         transitions = [
             ["start", SequenceState.UN_STARTED, SequenceState.STARTED],
             ["terminate", SequenceState.STARTED, SequenceState.TERMINATED],

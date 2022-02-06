@@ -1,9 +1,8 @@
-from protocol0.domain.lom.AbstractObject import AbstractObject
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.sequence.Sequence import Sequence
 
 
-class CountInInterface(AbstractObject):
+class CountInInterface(object):
     def __init__(self, track):
         # type: (AbstractTrack) -> None
         super(CountInInterface, self).__init__()

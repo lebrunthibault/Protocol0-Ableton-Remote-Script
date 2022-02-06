@@ -2,11 +2,12 @@ from __future__ import print_function
 
 from typing import List, Any
 
-from protocol0.domain.lom.AbstractObject import AbstractObject
+from protocol0.domain.lom.Listenable import Listenable
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.domain.shared.decorators import has_callback_queue, p0_subject_slot
 from protocol0.infra.scheduler.Scheduler import Scheduler
 from protocol0.tests.test_all import p0
-from protocol0.domain.shared.decorators import has_callback_queue, p0_subject_slot
+
 Scheduler.defer = classmethod(lambda cls, callback: callback())
 
 
@@ -52,7 +53,7 @@ def test_has_callback_queue_2():
 
 def test_has_callback_queue_result():
     # type: () -> None
-    class Example(AbstractObject):
+    class Example(Listenable):
         __subject_events__ = ("test",)
 
         def __init__(self):
@@ -64,9 +65,8 @@ def test_has_callback_queue_result():
 
         def test(self):
             # type: () -> None
-            from protocol0 import Protocol0
             # noinspection PyUnresolvedReferences
-            Protocol0.SELF.defer(self.notify_test)
+            Scheduler.defer(self.notify_test)
 
         @p0_subject_slot("test")
         def listener_normal(self):
@@ -101,7 +101,7 @@ def test_has_callback_queue_result():
 
 def test_async_callback():
     # type: () -> None
-    class Example(AbstractObject):
+    class Example(Listenable):
         __subject_events__ = ("test",)
 
         def __init__(self, val, test_res, *a, **k):
@@ -139,7 +139,7 @@ def test_async_callback():
 
 def test_p0_subject_slot_sequence():
     # type: () -> None
-    class Example(AbstractObject):
+    class Example(Listenable):
         __subject_events__ = ("test",)
 
         def __init__(self, val, test_res, *a, **k):

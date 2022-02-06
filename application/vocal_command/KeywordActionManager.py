@@ -9,6 +9,7 @@ from protocol0.application.faderfox.EncoderAction import EncoderAction
 from protocol0.application.faderfox.EncoderMoveEnum import EncoderMoveEnum
 from protocol0.domain.lom.track.track_list.AbstractTrackList import AbstractTrackList
 from protocol0.application.service.decorators import handle_error
+from protocol0.shared.Logger import Logger
 
 
 class KeywordActionManager(AbstractControlSurfaceComponent):
@@ -42,7 +43,7 @@ class KeywordActionManager(AbstractControlSurfaceComponent):
     def execute_from_enum(self, action_enum):
         # type: (VocalActionEnum) -> None
         if action_enum not in self.MAPPING:
-            self.parent.log_error("Couldn't find %s in mapping" % action_enum)
+            Logger.log_error("Couldn't find %s in mapping" % action_enum)
             return None
 
         encoder_action = self.MAPPING[action_enum]

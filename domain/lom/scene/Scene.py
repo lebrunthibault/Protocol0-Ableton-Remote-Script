@@ -4,20 +4,23 @@ from typing import List, Any, Optional, cast
 
 import Live
 from _Framework.SubjectSlot import subject_slot_group
-from protocol0.domain.lom.AbstractObject import AbstractObject
-from protocol0.domain.lom.scene.SceneActionMixin import SceneActionMixin
-from protocol0.domain.lom.scene.SceneName import SceneName
+from protocol0.domain.lom.Listenable import Listenable
 from protocol0.domain.lom.clip.AudioTailClip import AudioTailClip
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
+from protocol0.domain.lom.scene.SceneActionMixin import SceneActionMixin
+from protocol0.domain.lom.scene.SceneName import SceneName
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.domain.shared.SongFacade import SongFacade
 from protocol0.domain.shared.decorators import p0_subject_slot, throttle
+from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.shared.Logger import Logger
 
 
-class Scene(SceneActionMixin, AbstractObject):
+class Scene(SceneActionMixin, Listenable):
     __subject_events__ = ("is_playing",)
 
     PLAYING_SCENE = None  # type: Optional[Scene]
@@ -54,7 +57,7 @@ class Scene(SceneActionMixin, AbstractObject):
 
     def _link_clip_slots_and_clips(self):
         # type: () -> None
-        self.clip_slots = [track.clip_slots[self.index] for track in self.song.simple_tracks]
+        self.clip_slots = [track.clip_slots[self.index] for track in SongFacade.simple_tracks()]
         self._map_clips()
 
         # listeners
@@ -79,11 +82,11 @@ class Scene(SceneActionMixin, AbstractObject):
     @p0_subject_slot("is_triggered")
     def is_triggered_listener(self):
         # type: () -> None
-        if self.song.is_playing is False or not self.has_playing_clips:
+        if SongFacade.is_playing() is False or not self.has_playing_clips:
             return
 
-        if self.song.playing_scene and self.song.playing_scene != self:
-            self.parent.defer(partial(self._stop_previous_scene, self.song.playing_scene, immediate=True))
+        if SongFacade.playing_scene() and SongFacade.playing_scene() != self:
+            Scheduler.defer(partial(self._stop_previous_scene, SongFacade.playing_scene(), immediate=True))
         Scene.PLAYING_SCENE = self
         # noinspection PyUnresolvedReferences
         self.notify_is_playing()
@@ -114,12 +117,12 @@ class Scene(SceneActionMixin, AbstractObject):
     @property
     def next_scene(self):
         # type: () -> Scene
-        if self == self.song.looping_scene \
-                or self == self.song.scenes[-1] \
-                or self.song.scenes[self.index + 1].bar_length == 0:
+        if self == SongFacade.looping_scene() \
+                or self == SongFacade.scenes()[-1] \
+                or SongFacade.scenes()[self.index + 1].bar_length == 0:
             return self
         else:
-            return self.song.scenes[self.index + 1]
+            return SongFacade.scenes()[self.index + 1]
 
     @property
     def color(self):
@@ -161,10 +164,10 @@ class Scene(SceneActionMixin, AbstractObject):
     @property
     def bar_length(self):
         # type: () -> int
-        if self.length % self.song.signature_numerator != 0:
-            self.parent.log_warning("%s invalid length: %s, longest_clip track: %s" % (
+        if self.length % SongFacade.signature_numerator() != 0:
+            Logger.log_warning("%s invalid length: %s, longest_clip track: %s" % (
                 self, self.length, self.longest_clip.track.abstract_track))
-        return int(self.length / self.song.signature_numerator)
+        return int(self.length / SongFacade.signature_numerator())
 
     @property
     def playing_position(self):
@@ -177,19 +180,19 @@ class Scene(SceneActionMixin, AbstractObject):
     @property
     def current_beat(self):
         # type: () -> int
-        return int(self.playing_position % self.song.signature_numerator)
+        return int(self.playing_position % SongFacade.signature_numerator())
 
     @property
     def current_bar(self):
         # type: () -> int
         if self.length == 0:
             return 0
-        return int(self.playing_position / self.song.signature_numerator)
+        return int(self.playing_position / SongFacade.signature_numerator())
 
     @property
     def has_playing_clips(self):
         # type: () -> bool
-        return self.song.is_playing and any(clip and clip.is_playing and not clip.muted for clip in self.clips)
+        return SongFacade.is_playing() and any(clip and clip.is_playing and not clip.muted for clip in self.clips)
 
     @property
     def longest_clip(self):

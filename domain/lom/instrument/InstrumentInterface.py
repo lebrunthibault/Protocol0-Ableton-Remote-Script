@@ -43,11 +43,6 @@ class InstrumentInterface(object):
             return self.device.name
 
     @property
-    def needs_activation(self):
-        # type: () -> bool
-        return self.CAN_BE_SHOWN and (not self.activated or self.needs_exclusive_activation)
-
-    @property
     def needs_exclusive_activation(self):
         # type: () -> bool
         return False
@@ -66,7 +61,7 @@ class InstrumentInterface(object):
         return True
 
     # noinspection PyMethodParameters
-    @forward_property("_preset_list")
+    @forward_property("preset_list")
     def selected_preset():
         # type: () -> Optional[InstrumentPreset]
         pass

@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING, Any, Optional
 from protocol0.domain.lom.AbstractObjectName import AbstractObjectName
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.utils import get_length_legend
+from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.shared.Logger import Logger
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.clip.Clip import Clip
@@ -42,12 +44,11 @@ class ClipName(AbstractObjectName):
     def _name_listener(self, force=False):
         # type: (bool) -> None
         base_name = self._get_base_name()
-        # noinspection PyUnresolvedReferences
         if not force and base_name == self.base_name and self.clip.name != base_name:
             return
         self.base_name = base_name
         self.normalize_base_name()
-        self.parent.defer(self.update)
+        Scheduler.defer(self.update)
 
     def _get_base_name(self):
         # type: () -> str
@@ -76,7 +77,7 @@ class ClipName(AbstractObjectName):
         if self.clip.is_recording:
             return None
         if self.DEBUG:
-            self.parent.log_info("%s : %s <-> %s <-> %s" % (self.clip, base_name, self.base_name, self.clip.name))
+            Logger.log_info("%s : %s <-> %s <-> %s" % (self.clip, base_name, self.base_name, self.clip.name))
         if base_name is not None:
             self.base_name = base_name
         if self.base_name:

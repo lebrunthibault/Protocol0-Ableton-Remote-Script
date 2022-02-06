@@ -3,7 +3,7 @@ from typing import List, Optional, Any
 import Live
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceChain import DeviceChain
-from protocol0.domain.lom.device.DeviceParameter import DeviceParameter
+from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.utils import find_if
 

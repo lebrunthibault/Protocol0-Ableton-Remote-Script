@@ -1,7 +1,9 @@
 from typing import Callable, Any, Optional
 
+from protocol0.domain.shared.SongFacade import SongFacade
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.infra.scheduler.Scheduler import Scheduler
 from protocol0.infra.scheduler.SyncedScheduler import SyncedScheduler
 
 
@@ -26,14 +28,12 @@ class BeatScheduler(SyncedScheduler):
     def wait_beats(self, beats, callback):
         # type: (float, Callable) -> None
         # deferring in the case we call wait_beats just after starting the song
-        self.parent.defer(self._check_song_is_playing)
+        Scheduler.defer(self._check_song_is_playing)
         self.schedule_message(beats, callback)
 
     def _check_song_is_playing(self):
         # type: () -> None
-        from protocol0.domain.lom.song.Song import Song
-
-        if not Song.get_instance().is_playing:
+        if not SongFacade.is_playing():
             raise Protocol0Warning("Called wait_beat but song is not playing")
 
     def clear_scheduler(self):

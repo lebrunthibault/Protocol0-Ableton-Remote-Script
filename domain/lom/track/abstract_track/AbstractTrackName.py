@@ -3,6 +3,7 @@ import re
 from typing import TYPE_CHECKING, Any, Optional
 
 from protocol0.domain.lom.AbstractObjectName import AbstractObjectName
+from protocol0.shared.Logger import Logger
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
@@ -26,7 +27,7 @@ class AbstractTrackName(AbstractObjectName):
         base_name = match.group("base_name").strip() if match else ""
 
         if self.DEBUG:
-            self.parent.log_info("%s <-> %s <-> %s" % (base_name, self._should_recompute_base_name(base_name=base_name), self.track.computed_base_name))
+            Logger.log_info("%s <-> %s <-> %s" % (base_name, self._should_recompute_base_name(base_name=base_name), self.track.computed_base_name))
         # allows manual modification
         if self._should_recompute_base_name(base_name=base_name):
             return self.track.computed_base_name

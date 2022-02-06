@@ -3,17 +3,18 @@ from functools import partial
 from typing import Optional, TYPE_CHECKING, Any
 
 from _Framework.CompoundElement import subject_slot_group
-from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.domain.lom.Listenable import Listenable
 from protocol0.domain.lom.clip.ClipSynchronizer import ClipSynchronizer
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.domain.lom.clip_slot.AudioTailClipSlot import AudioTailClipSlot
 from protocol0.domain.lom.clip_slot.MidiClipSlot import MidiClipSlot
+from protocol0.infra.scheduler.Scheduler import Scheduler
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 
 
-class ClipSlotSynchronizer(AbstractControlSurfaceComponent):
+class ClipSlotSynchronizer(Listenable):
     """ For ExternalSynthTrack """
 
     def __init__(self, midi_cs, audio_cs, *a, **k):
@@ -50,7 +51,7 @@ class ClipSlotSynchronizer(AbstractControlSurfaceComponent):
         linked_clip_slot = self.linked_clip_slot(clip_slot=changed_clip_slot)
 
         if not changed_clip_slot.clip and linked_clip_slot.clip:
-            self.parent.defer(partial(linked_clip_slot.clip.delete))
+            Scheduler.defer(partial(linked_clip_slot.clip.delete))
 
     @subject_slot_group("is_triggered")
     def _is_triggered_listener(self, changed_clip_slot):

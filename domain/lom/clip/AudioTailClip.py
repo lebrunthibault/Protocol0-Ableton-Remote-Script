@@ -4,6 +4,7 @@ from protocol0.application.faderfox.InterfaceState import InterfaceState
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.domain.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
@@ -41,7 +42,7 @@ class AudioTailClip(AudioClip):
         if bar_length == 0:
             return None
         self.clip_name.update(base_name="")
-        clip_end = bar_length * self.song.signature_numerator
+        clip_end = bar_length * SongFacade.signature_numerator()
 
         self.looping = False
         self.loop_start = clip_end

@@ -3,10 +3,11 @@ from math import floor
 from typing import TYPE_CHECKING, Optional, Any, List
 
 import Live
-from protocol0.domain.lom.AbstractObject import AbstractObject
+from protocol0.domain.lom.Listenable import Listenable
 from protocol0.domain.lom.clip.ClipActionMixin import ClipActionMixin
 from protocol0.domain.lom.clip.ClipName import ClipName
-from protocol0.domain.lom.device.DeviceParameter import DeviceParameter
+from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
+from protocol0.domain.shared.SongFacade import SongFacade
 from protocol0.domain.shared.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
@@ -14,7 +15,7 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
-class Clip(ClipActionMixin, AbstractObject):
+class Clip(ClipActionMixin, Listenable):
     __subject_events__ = ("notes", "length")
 
     def __init__(self, clip_slot, *a, **k):
@@ -106,12 +107,12 @@ class Clip(ClipActionMixin, AbstractObject):
     @property
     def bar_length(self):
         # type: () -> int
-        return int(self.length / self.song.signature_numerator)
+        return int(self.length / SongFacade.signature_numerator())
 
     @bar_length.setter
     def bar_length(self, bar_length):
         # type: (int) -> None
-        self.length = bar_length * self.song.signature_numerator
+        self.length = bar_length * SongFacade.signature_numerator()
 
     @property
     def looping(self):

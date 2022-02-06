@@ -3,15 +3,16 @@ from functools import partial
 from typing import Optional, List, Any, Callable
 
 from protocol0.application.faderfox.DoubleActionExecutionException import DoubleActionExecutionException
-from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.application.faderfox.EncoderMoveEnum import EncoderMoveEnum
-from protocol0.domain.lom.AbstractObject import AbstractObject
-from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.application.service.decorators import handle_error
+from protocol0.domain.lom.song.Song import Song
+from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils import get_callable_repr, is_lambda
+from protocol0.shared.Logger import Logger
 
 
-class EncoderAction(AbstractObject):
+class EncoderAction(object):
     def __init__(self, func, move_type, name, *a, **k):
         # type: (Callable, EncoderMoveEnum, Optional[str], Any, Any) -> None
         """
@@ -42,8 +43,7 @@ class EncoderAction(AbstractObject):
                 return None
             raise DoubleActionExecutionException(self)
 
-        if self.song:
-            self.song.begin_undo_step()
+        Song.get_instance().begin_undo_step()
         if is_lambda(self.func):
             func = self.func()  # allows delaying property lookup until execution time
         else:
@@ -55,16 +55,17 @@ class EncoderAction(AbstractObject):
             get_callable_repr(func),
         )
         if self.move_type != EncoderMoveEnum.SCROLL:
-            self.parent.log_info("%s : executing %s" % (encoder_name, get_callable_repr(func)))
+            Logger.log_info("%s : executing %s" % (encoder_name, get_callable_repr(func)))
         else:
-            self.parent.log_info("%s : scrolling %s" % (encoder_name, get_callable_repr(func)))
+            Logger.log_info("%s : scrolling %s" % (encoder_name, get_callable_repr(func)))
 
         self._is_executing = True
         seq = Sequence()
-        with self.parent.component_guard():
+        from protocol0 import Protocol0
+
+        with Protocol0.SELF.component_guard():
             seq.add(partial(func, *a, **k))
-            if self.song:
-                seq.add(self.song.end_undo_step)
+            seq.add(Song.get_instance().end_undo_step)
             seq.on_end(partial(setattr, self, "_is_executing", False))
         return seq.done()
 

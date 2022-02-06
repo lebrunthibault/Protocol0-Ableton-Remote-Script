@@ -3,31 +3,32 @@ from functools import partial
 from typing import List, Optional, Any, Iterator, cast
 
 import Live
-from protocol0.domain.ApplicationView import ApplicationView
-from protocol0.domain.lom.set.SessionToArrangementManager import SessionToArrangementManager
-from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
-from protocol0.infra.SongDataManager import save_song_data
 from protocol0.application.config import Config
-from protocol0.domain.lom.instrument.instrument.InstrumentProphet import InstrumentProphet
-from protocol0.domain.enums.SongLoadStateEnum import SongLoadStateEnum
-from protocol0.domain.lom.errors.InvalidTrackError import InvalidTrackError
-from protocol0.domain.lom.AbstractObject import AbstractObject
-from protocol0.domain.lom.scene.Scene import Scene
-from protocol0.domain.lom.song.SongActionMixin import SongActionMixin
+from protocol0.domain.ApplicationView import ApplicationView
+from protocol0.domain.lom.Listenable import Listenable
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
-from protocol0.domain.lom.device.DeviceParameter import DeviceParameter
+from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
+from protocol0.domain.lom.errors.InvalidTrackError import InvalidTrackError
+from protocol0.domain.lom.instrument.instrument.InstrumentProphet import InstrumentProphet
+from protocol0.domain.lom.scene.Scene import Scene
+from protocol0.domain.lom.set.SessionToArrangementManager import SessionToArrangementManager
+from protocol0.domain.lom.song.SongActionMixin import SongActionMixin
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
 from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.decorators import p0_subject_slot, debounce
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils import find_if
+from protocol0.infra.SongDataManager import save_song_data
+from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.shared.AccessContainer import AccessContainer
 
 
-class Song(SongActionMixin, AbstractObject):
+class Song(SongActionMixin, AccessContainer, Listenable):
     __subject_events__ = ("session_end",)
     _INSTANCE = None  # type: Optional[Song]
 
@@ -38,7 +39,6 @@ class Song(SongActionMixin, AbstractObject):
 
         super(Song, self).__init__(*a, **k)
         self._song = song
-        print(song)
         self._view = self._song.view  # type: Live.Song.Song.View
 
         # Global accessible objects / object mappings
@@ -49,7 +49,6 @@ class Song(SongActionMixin, AbstractObject):
         self._is_playing = False  # caching this because _is_playing_listener activates multiple times
 
         self.normal_tempo = self.tempo
-        self.song_load_state = SongLoadStateEnum.PRE_LOAD
         self.is_playing_listener.subject = self._song
         self._record_mode_listener.subject = self._song
         self.session_end_listener.subject = self
@@ -82,11 +81,11 @@ class Song(SongActionMixin, AbstractObject):
         if not self.is_playing:
             if SessionToArrangementManager.IS_BOUNCING:
                 # noinspection PyUnresolvedReferences
-                self.parent.defer(self.notify_session_end)
+                Scheduler.defer(self.notify_session_end)
             # if not self.selected_scene.is
             Config.CURRENT_RECORD_TYPE = None
             if self.playing_scene:
-                self.parent.defer(self.playing_scene.mute_audio_tails)
+                Scheduler.defer(self.playing_scene.mute_audio_tails)
             return
 
         # song started playing
@@ -114,7 +113,7 @@ class Song(SongActionMixin, AbstractObject):
         # type: () -> None
         self.midi_recording_quantization_checked = False
         self.parent.songDataManager.save()
-        self.parent.defer(partial(setattr, self, "tempo", round(self.tempo)))
+        Scheduler.defer(partial(setattr, self, "tempo", round(self.tempo)))
 
     @p0_subject_slot("midi_recording_quantization")
     @save_song_data

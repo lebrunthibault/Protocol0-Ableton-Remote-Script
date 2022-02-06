@@ -4,21 +4,20 @@ from functools import partial
 from typing import Deque, Optional, Iterable, Union, Callable, Any, List
 
 from protocol0.application.config import Config
-from protocol0.domain.lom.AbstractObject import AbstractObject
 from protocol0.domain.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
 from protocol0.domain.sequence.SequenceStep import SequenceStep
+from protocol0.domain.shared.SongFacade import SongFacade
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.utils import get_frame_info, nop
 from protocol0.infra.System import System
+from protocol0.shared.Logger import Logger
 
 
-class Sequence(AbstractObject, SequenceStateMachineMixin):
+class Sequence(SequenceStateMachineMixin):
     """
     Replacement of the _Framework Task as it does not seem to allow variable timeouts like triggers from listeners.
     Encapsulates and composes all asynchronous tasks done in the script.
     """
-    __subject_events__ = ("terminated", "errored", "cancelled")
-
     RUNNING_SEQUENCES = []  # type: List[Sequence]
 
     def __init__(self):
@@ -70,7 +69,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
         if len(self._steps):
             self._current_step = self._steps.popleft()
             if Config.SEQUENCE_DEBUG:
-                self.parent.log_debug("%s : %s" % (self, self._current_step), debug=False)
+                Logger.log_debug("%s : %s" % (self, self._current_step), debug=False)
             self._step_terminated.subject = self._current_step
             self._step_errored.subject = self._current_step
             self._step_cancelled.subject = self._current_step
@@ -132,7 +131,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
         self._current_step = None
 
         if self.errored and Config.SEQUENCE_DEBUG:
-            self.parent.log_error(self.debug_str, debug=False)
+            Logger.log_error(self.debug_str, debug=False)
 
     def add(  # type: ignore[no-untyped-def]
             self,
@@ -159,7 +158,7 @@ class Sequence(AbstractObject, SequenceStateMachineMixin):
         # assert not isinstance(func, Sequence), "You passed a Sequence object instead of a Sequence factory to add"
 
         if wait_bars:
-            wait_beats += wait_bars * self.song.signature_numerator
+            wait_beats += wait_bars * SongFacade.signature_numerator()
 
         self._steps.append(
             SequenceStep.make(

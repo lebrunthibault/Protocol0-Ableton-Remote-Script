@@ -1,9 +1,10 @@
 from typing import Optional
 
-from protocol0.domain.enums.RecordTypeEnum import RecordTypeEnum
-from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.application.faderfox.InterfaceState import InterfaceState
+from protocol0.domain.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+from protocol0.domain.shared.SongFacade import SongFacade
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.track_recorder.count_in.count_in_interface import CountInInterface
 from protocol0.domain.track_recorder.count_in.count_in_one_bar import CountInOneBar
 from protocol0.domain.track_recorder.count_in.count_in_short import CountInShort
@@ -46,11 +47,11 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
     def _get_recording_scene_index(self, record_type):
         # type: (RecordTypeEnum) -> Optional[int]
         if record_type == RecordTypeEnum.AUDIO_ONLY:
-            if not self.track.midi_track.clip_slots[self.song.selected_scene.index].clip:
+            if not self.track.midi_track.clip_slots[SongFacade.selected_scene().index].clip:
                 raise Protocol0Warning("No midi clip selected")
-            return self.song.selected_scene.index
+            return SongFacade.selected_scene().index
         else:
-            for i in range(self.song.selected_scene.index, len(self.song.scenes)):
+            for i in range(SongFacade.selected_scene().index, len(SongFacade.scenes())):
                 if not self.track.midi_track.clip_slots[i].clip and not self.track.audio_track.clip_slots[i].clip:
                     return i
 
@@ -59,7 +60,7 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
     def get_recording_bar_length(self, record_type):
         # type: (RecordTypeEnum) -> int
         if record_type == RecordTypeEnum.AUDIO_ONLY:
-            midi_clip = self.track.midi_track.clip_slots[self.song.selected_scene.index].clip
+            midi_clip = self.track.midi_track.clip_slots[SongFacade.selected_scene().index].clip
             return midi_clip.bar_length
         else:
             return InterfaceState.SELECTED_RECORDING_BAR_LENGTH.int_value

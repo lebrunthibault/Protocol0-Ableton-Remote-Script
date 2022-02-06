@@ -1,10 +1,15 @@
-from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
+from protocol0.application.interface.ClickManager import ClickManager
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.shared.utils import scroll_values
+from protocol0.shared.AccessSong import AccessSong
 
 
-class AutomationTrackManager(AbstractControlSurfaceComponent):
+class AutomationTrackManager(AccessSong):
+    def __init__(self, click_manager):
+        # type: (ClickManager) -> None
+        self.click_manager = click_manager
+
     def display_selected_parameter_automation(self, clip, show_warning=True):
         # type: (Clip, bool) -> None
         selected_parameter = self.song.selected_parameter or clip.displayed_automated_parameter
@@ -17,7 +22,7 @@ class AutomationTrackManager(AbstractControlSurfaceComponent):
                 return None
 
         self.song.re_enable_automation()
-        self.parent.clickManager.show_clip_envelope_parameter(clip, selected_parameter)
+        self.click_manager.show_clip_envelope_parameter(clip, selected_parameter)
 
     def scroll_automation_envelopes(self, go_next):
         # type: (bool) -> None

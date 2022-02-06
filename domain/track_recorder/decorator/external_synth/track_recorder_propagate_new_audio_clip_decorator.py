@@ -6,12 +6,20 @@ from typing import Iterator, Optional
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
-from protocol0.domain.track_recorder.decorator.external_synth.abstract_track_recorder_external_synth_decorator import \
-    AbstractTrackRecorderExternalSynthDecorator
+from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.domain.track_recorder.decorator.track_recorder_decorator import TrackRecorderDecorator
+from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
+from protocol0.shared.StatusBar import StatusBar
 
 
-class TrackRecorderPropagateNewAudioClipDecorator(AbstractTrackRecorderExternalSynthDecorator):
+class TrackRecorderPropagateNewAudioClipDecorator(TrackRecorderDecorator):
+    @property
+    def track(self):
+        # type: (AbstractTrackRecorder) -> ExternalSynthTrack
+        # noinspection PyTypeChecker
+        return self._track
+
     def post_record(self):
         # type: () -> None
         super(TrackRecorderPropagateNewAudioClipDecorator, self).post_record()
@@ -46,7 +54,7 @@ class TrackRecorderPropagateNewAudioClipDecorator(AbstractTrackRecorderExternalS
                                                duplicate_audio_clip_slots]
             seq.add([partial(source_tail_cs.duplicate_clip_to, cs) for cs in duplicate_audio_tail_clip_slots])
 
-        seq.add(lambda: self.parent.show_message("%s audio clips duplicated" % len(duplicate_audio_clip_slots)))
+        seq.add(lambda: StatusBar.show_message("%s audio clips duplicated" % len(duplicate_audio_clip_slots)))
         return seq.done()
 
     def _get_duplicate_audio_clip_slots(self, source_midi_clip, source_audio_clip):

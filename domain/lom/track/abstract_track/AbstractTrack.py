@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 import Live
 from protocol0.domain.enums.ColorEnum import ColorEnum
 from protocol0.domain.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
-from protocol0.domain.lom.AbstractObject import AbstractObject
+from protocol0.domain.lom.Listenable import Listenable
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.track.abstract_track.AbstractTrackActionMixin import AbstractTrackActionMixin
@@ -15,13 +15,14 @@ from protocol0.domain.lom.track.routing.TrackInputRouting import TrackInputRouti
 from protocol0.domain.lom.track.routing.TrackOutputRouting import TrackOutputRouting
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.shared.utils import set_device_parameter
+from protocol0.infra.scheduler.Scheduler import Scheduler
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
     from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 
 
-class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
+class AbstractTrack(AbstractTrackActionMixin, Listenable):
     __subject_events__ = ("devices",)
 
     DEFAULT_NAME = "default"
@@ -240,7 +241,7 @@ class AbstractTrack(AbstractTrackActionMixin, AbstractObject):
     def volume(self, volume):
         # type: (float) -> None
         if self._track:
-            self.parent.defer(partial(set_device_parameter, self._track.mixer_device.volume, volume))
+            Scheduler.defer(partial(set_device_parameter, self._track.mixer_device.volume, volume))
 
     @property
     def has_audio_output(self):

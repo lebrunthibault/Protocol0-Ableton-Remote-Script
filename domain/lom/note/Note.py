@@ -1,7 +1,6 @@
 from typing import Any, Tuple
 
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
-from protocol0.domain.lom.AbstractObject import AbstractObject
 
 
 def clamp(val, minv, maxv):
@@ -9,7 +8,7 @@ def clamp(val, minv, maxv):
     return max(minv, min(val, maxv))
 
 
-class Note(AbstractObject):
+class Note(object):
     MIN_DURATION = 1 / 128
 
     def __init__(self, pitch=127, start=0, duration=1, velocity=127, muted=False, *a, **k):

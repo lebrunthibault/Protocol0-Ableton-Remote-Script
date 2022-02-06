@@ -2,25 +2,28 @@ from functools import partial
 
 from typing import Optional
 
-from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.domain.enums.RecordTypeEnum import RecordTypeEnum
-from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.lom.song.Song import Song
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.domain.shared.SongFacade import SongFacade
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.shared.utils import get_length_legend
 from protocol0.domain.track_recorder.count_in.count_in_interface import CountInInterface
 from protocol0.domain.track_recorder.factory.abstract_track_recorder_factory import AbstractTrackRecorderFactory
 from protocol0.domain.track_recorder.factory.track_recoder_simple_factory import TrackRecorderSimpleFactory
 from protocol0.domain.track_recorder.factory.track_recorder_external_synth_factory import \
     TrackRecorderExternalSynthFactory
 from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
-from protocol0.domain.shared.utils import get_length_legend
 from protocol0.infra.System import System
 from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
+from protocol0.shared.Logger import Logger
+from protocol0.shared.StatusBar import StatusBar
 
 
-class TrackRecorderManager(AbstractControlSurfaceComponent):
+class TrackRecorderManager(object):
     def get_track_recorder_factory(self, track):
         # type: (AbstractTrack) -> AbstractTrackRecorderFactory
         if isinstance(track, SimpleTrack):
@@ -36,8 +39,9 @@ class TrackRecorderManager(AbstractControlSurfaceComponent):
         recorder_factory = self.get_track_recorder_factory(track)
         bar_length = recorder_factory.get_recording_bar_length(record_type)
         recorder = recorder_factory.create_recorder(record_type, bar_length)
-        recorder.set_recording_scene_index(self.song.selected_scene.index)
-        self.parent.clear_tasks()
+        recorder.set_recording_scene_index(SongFacade.selected_scene().index)
+        from protocol0 import Protocol0
+        Protocol0.SELF.clear_tasks()
         recorder.cancel_record()
         return None
 
@@ -48,30 +52,32 @@ class TrackRecorderManager(AbstractControlSurfaceComponent):
             raise Protocol0Warning("the track is recording")
 
         recorder_factory = self.get_track_recorder_factory(track)
+        Logger.log_dev(recorder_factory)
         recording_scene_index = recorder_factory.get_recording_scene_index(record_type)
         if recording_scene_index is None:
             seq = Sequence()
-            seq.add(self.song.create_scene)
+            seq.add(Song.get_instance().create_scene)
             seq.add(partial(self.record_track, track, record_type))
             return seq.done()
 
         bar_length = recorder_factory.get_recording_bar_length(record_type)
         count_in = recorder_factory.create_count_in(record_type)
         recorder = recorder_factory.create_recorder(record_type, bar_length)
+        Logger.log_dev(recorder)
         recorder.set_recording_scene_index(recording_scene_index)
 
         return self._start_recording(count_in, recorder, bar_length)
 
     def _start_recording(self, count_in, recorder, bar_length):
         # type: (CountInInterface, AbstractTrackRecorder, int) -> Optional[Sequence]
-        self.parent.show_message("Starting recording of %s" % get_length_legend(bar_length))
+        StatusBar.show_message("Starting recording of %s" % get_length_legend(bar_length))
 
         seq = Sequence()
         seq.add(recorder.pre_record)
         seq.add(count_in.launch)
         seq.add(partial(recorder.record, bar_length=bar_length))
         seq.add(recorder.post_audio_record)
-        seq.add(self.song.selected_scene.fire)
+        seq.add(SongFacade.selected_scene().fire)
         seq.add(complete_on=BeatScheduler.get_instance().bar_ending_listener)
         seq.add(recorder.post_record)
         seq.add(partial(setattr, self, "recorderFactory", None))

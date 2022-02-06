@@ -1,14 +1,13 @@
-from protocol0.domain.lom.AbstractObject import AbstractObject
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
 
 
-class TrackRecorderDecorator(AbstractTrackRecorder, AbstractObject):
+class TrackRecorderDecorator(AbstractTrackRecorder):
     def __init__(self, recorder):
         # type: (AbstractTrackRecorder) -> None
         super(TrackRecorderDecorator, self).__init__(track=recorder.track)
         self.recorder = recorder
-        self.track = recorder.track
+        self._track = recorder.track
 
     @property
     def recording_scene_index(self):

@@ -1,14 +1,14 @@
 from typing import TYPE_CHECKING, List, Any
 
 import Live
-from protocol0.domain.lom.AbstractObject import AbstractObject
+from protocol0.domain.lom.Listenable import Listenable
 from protocol0.domain.shared.decorators import p0_subject_slot
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.device.Device import Device
 
 
-class DeviceChain(AbstractObject):
+class DeviceChain(Listenable):
     def __init__(self, device, chain, index, *a, **k):
         # type: (Device, Live.Chain.Chain, int, Any, Any) -> None
         super(DeviceChain, self).__init__(*a, **k)

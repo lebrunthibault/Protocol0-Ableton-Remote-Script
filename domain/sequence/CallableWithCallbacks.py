@@ -2,7 +2,6 @@ from collections import deque
 
 from typing import Callable, Deque, Any
 
-from protocol0.domain.enums.SongLoadStateEnum import SongLoadStateEnum
 from protocol0.domain.shared.utils import get_callable_repr
 from protocol0.infra.scheduler.Scheduler import Scheduler
 
@@ -20,10 +19,6 @@ class CallableWithCallbacks(object):
 
     def __call__(self, *a, **k):
         # type: (Any, Any) -> Any
-        from protocol0.domain.lom.song.Song import Song
-
-        if Song.get_instance().song_load_state == SongLoadStateEnum.LOADING and "listener" in str(self):
-            return
         res = self._function(*a, **k)
 
         from protocol0.domain.sequence.Sequence import Sequence

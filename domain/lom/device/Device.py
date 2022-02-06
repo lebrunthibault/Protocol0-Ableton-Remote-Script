@@ -1,11 +1,11 @@
 from typing import TYPE_CHECKING, List, Any, Type, Optional, Union
 
 import Live
-from protocol0.domain.lom.device.DeviceParameterEnum import DeviceParameterEnum
+from protocol0.domain.lom.Listenable import Listenable
+from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
-from protocol0.domain.lom.AbstractObject import AbstractObject
 from protocol0.domain.lom.device.DeviceChain import DeviceChain
-from protocol0.domain.lom.device.DeviceParameter import DeviceParameter
+from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.utils import find_if
 
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
-class Device(AbstractObject):
+class Device(Listenable):
     def __init__(self, device, track, chain=None, *a, **k):
         # type: (Live.Device.Device, SimpleTrack, Optional[DeviceChain], Any, Any) -> None
         super(Device, self).__init__(*a, **k)
@@ -132,9 +132,3 @@ class Device(AbstractObject):
     def _parameters_listener(self):
         # type: () -> None
         self.parameters = [DeviceParameter(self, parameter) for parameter in self._device.parameters]
-
-    def disconnect(self):
-        # type: () -> None
-        super(Device, self).disconnect()
-        for parameter in self.parameters:
-            parameter.disconnect()

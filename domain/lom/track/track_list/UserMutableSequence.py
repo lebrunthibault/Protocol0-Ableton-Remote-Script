@@ -4,7 +4,6 @@ from collections import MutableSequence as CollectionsMutableSequence
 from typing import Any, Iterator, Union, TypeVar, MutableSequence
 
 from _Framework.SubjectSlot import SubjectMeta
-from protocol0.domain.lom.AbstractObject import AbstractObject
 
 T = TypeVar("T")
 
@@ -18,7 +17,7 @@ class CombinedMeta(SubjectMeta, abc.ABCMeta):
     pass
 
 
-class UserMutableSequence(CollectionsMutableSequence, AbstractObject):
+class UserMutableSequence(CollectionsMutableSequence):
     __metaclass__ = CombinedMeta
 
     """

@@ -6,6 +6,7 @@ from protocol0.infra.TrackDataManager import save_track_data
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.shared.StatusBar import StatusBar
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
@@ -38,7 +39,7 @@ class ExternalSynthTrackActionMixin(object):
             raise Protocol0Warning("Please create a clip tail track")
 
         self.record_clip_tails = not self.record_clip_tails
-        self.parent.show_message("Record clip tails %s" % "ON" if self.record_clip_tails else "OFF")
+        StatusBar.show_message("Record clip tails %s" % "ON" if self.record_clip_tails else "OFF")
 
     @property
     def can_change_presets(self):
@@ -52,5 +53,5 @@ class ExternalSynthTrackActionMixin(object):
         seq = Sequence()
         seq.prompt("Disable protected mode ?")
         seq.add(partial(setattr, self, "protected_mode_active", False))
-        seq.add(partial(self.parent.show_message, "track protected mode disabled"))
+        seq.add(partial(StatusBar.show_message, "track protected mode disabled"))
         return seq.done()

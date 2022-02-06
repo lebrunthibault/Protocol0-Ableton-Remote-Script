@@ -19,6 +19,7 @@ from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.utils import find_if
+from protocol0.infra.scheduler.Scheduler import Scheduler
 
 
 class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
@@ -65,22 +66,24 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
             return
 
         has_tail_track = len(self.base_track.sub_tracks) > 2 and len(self.base_track.sub_tracks[2].devices) == 0
+        from protocol0 import Protocol0
+
         if has_tail_track and not self.audio_tail_track:
             track = self.base_track.sub_tracks[2]
             self.audio_tail_track = cast(SimpleAudioTailTrack,
-                                         self.parent.songTracksManager.generate_simple_track(track=track._track,
-                                                                                             index=track.index,
-                                                                                             cls=SimpleAudioTailTrack))
+                                         Protocol0.SELF.songTracksManager.generate_simple_track(track=track._track,
+                                                                                                index=track.index,
+                                                                                                cls=SimpleAudioTailTrack))
             self.audio_tail_track.abstract_group_track = self
-            self.parent.defer(self.audio_tail_track.configure)
+            Scheduler.defer(self.audio_tail_track.configure)
             self.audio_tail_track.track_name.disconnect()
-            self.parent.defer(partial(setattr, self.audio_tail_track, "name", SimpleAudioTailTrack.DEFAULT_NAME))
+            Scheduler.defer(partial(setattr, self.audio_tail_track, "name", SimpleAudioTailTrack.DEFAULT_NAME))
             self.record_clip_tails = True
         elif not has_tail_track:
             self.audio_tail_track = None
             self.record_clip_tails = False
 
-        self.parent.trackDataManager.restore_data(self)
+        Protocol0.SELF.trackDataManager.restore_data(self)
         self._link_clip_slots()
 
         # the dummy tracks are not yet instantiated and SimpleAudioTracks should be linked to self
@@ -106,22 +109,22 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
 
         for clip_slot_synchronizer in self._clip_slot_synchronizers:
             clip_slot_synchronizer.disconnect()
-        with self.parent.component_guard():
-            self._clip_slot_synchronizers = [
-                ClipSlotSynchronizer(midi_clip_slot, audio_clip_slot)
-                for midi_clip_slot, audio_clip_slot in
+
+        self._clip_slot_synchronizers = [
+            ClipSlotSynchronizer(midi_clip_slot, audio_clip_slot)
+            for midi_clip_slot, audio_clip_slot in
+            itertools.izip(  # type: ignore[attr-defined]
+                self.midi_track.clip_slots, self.audio_track.clip_slots
+            )
+        ]
+        if self.audio_tail_track:
+            self._clip_slot_synchronizers += [
+                ClipSlotSynchronizer(midi_clip_slot, audio_tail_clip_slot)
+                for midi_clip_slot, audio_tail_clip_slot in
                 itertools.izip(  # type: ignore[attr-defined]
-                    self.midi_track.clip_slots, self.audio_track.clip_slots
+                    self.midi_track.clip_slots, self.audio_tail_track.clip_slots
                 )
             ]
-            if self.audio_tail_track:
-                self._clip_slot_synchronizers += [
-                    ClipSlotSynchronizer(midi_clip_slot, audio_tail_clip_slot)
-                    for midi_clip_slot, audio_tail_clip_slot in
-                    itertools.izip(  # type: ignore[attr-defined]
-                        self.midi_track.clip_slots, self.audio_tail_track.clip_slots
-                    )
-                ]
 
     @p0_subject_slot("devices")
     def _devices_listener(self):

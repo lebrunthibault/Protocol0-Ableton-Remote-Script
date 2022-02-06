@@ -1,18 +1,24 @@
 from typing import Optional, List
 
-from protocol0.domain.lom.AbstractObject import AbstractObject
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
+from protocol0.domain.lom.song.Song import Song
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.domain.shared.SongFacade import SongFacade
 
 
-class AbstractTrackRecorder(AbstractObject):
+class AbstractTrackRecorder(object):
     def __init__(self, track):
         # type: (AbstractTrack) -> None
         super(AbstractTrackRecorder, self).__init__()
-        self.track = track
+        self._track = track
         self._recording_scene_index = None  # type: Optional[int]
+
+    @property
+    def track(self):
+        # type: (AbstractTrackRecorder) -> AbstractTrack
+        return self._track
 
     def __repr__(self):
         # type: () -> str
@@ -45,9 +51,9 @@ class AbstractTrackRecorder(AbstractObject):
 
     def pre_record(self):
         # type: () -> Sequence
-        self.song.session_automation_record = True
+        Song.get_instance().session_automation_record = True
         seq = Sequence()
-        seq.add(self.song.check_midi_recording_quantization)
+        seq.add(Song.get_instance().check_midi_recording_quantization)
         seq.add(self._arm_track)
         seq.add([clip_slot.prepare_for_record for clip_slot in self._recording_clip_slots])
         seq.add(self._pre_record)
@@ -57,10 +63,10 @@ class AbstractTrackRecorder(AbstractObject):
         # type: () -> Sequence
         seq = Sequence()
         if not self.track.is_armed:
-            if len(self.song.armed_tracks) != 0:
+            if len(Song.get_instance().armed_tracks) != 0:
                 options = ["Arm current track", "Record on armed track"]
                 seq.select("The current track is not armed", options=options)
-                seq.add(lambda: self.track.arm() if seq.res == options[0] else self.song.armed_tracks[0].select())
+                seq.add(lambda: self.track.arm() if seq.res == options[0] else Song.get_instance().armed_tracks[0].select())
             else:
                 seq.add(self.track.arm)
 
@@ -72,13 +78,14 @@ class AbstractTrackRecorder(AbstractObject):
 
     def record(self, bar_length):
         # type: (int) -> Sequence
-        self.song.session_record = True
+        Song.get_instance().session_record = True
         self._focus_main_clip()
         seq = Sequence()
         if bar_length:
-            seq.add(wait_bars=bar_length)
+            # seq.add(wait_bars=bar_length)
+            seq.add(wait_beats=(bar_length * SongFacade.signature_numerator()) - 1)
         else:
-            seq.add(complete_on=self.song.is_playing_listener)
+            seq.add(complete_on=Song.get_instance().is_playing_listener)
         return seq.done()
 
     def _focus_main_clip(self):
@@ -92,12 +99,12 @@ class AbstractTrackRecorder(AbstractObject):
 
     def post_audio_record(self):
         # type: () -> None
-        self.song.metronome = False
+        Song.get_instance().metronome = False
 
     def post_record(self):
         # type: () -> None
-        self.song.session_record = False
-        self.song.session_automation_record = False
+        Song.get_instance().session_record = False
+        Song.get_instance().session_automation_record = False
         for clip_slot in self._recording_clip_slots:
             if clip_slot.clip:
                 clip_slot.clip.post_record()
@@ -111,6 +118,6 @@ class AbstractTrackRecorder(AbstractObject):
         # type: () -> None
         for clip_slot in self._recording_clip_slots:
             clip_slot.delete_clip()
-        self.song.metronome = False
+        Song.get_instance().metronome = False
         self.track.stop(immediate=True)
-        self.song.stop_playing()
+        Song.get_instance().stop_playing()

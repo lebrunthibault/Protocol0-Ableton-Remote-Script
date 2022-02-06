@@ -5,6 +5,7 @@ from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.lom.clip_slot.AudioTailClipSlot import AudioTailClipSlot
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.shared.decorators import p0_subject_slot
+from protocol0.shared.Logger import Logger
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
@@ -39,4 +40,4 @@ class SimpleAudioTailTrack(SimpleAudioTrack):
         # type: () -> None
         super(SimpleAudioTailTrack, self)._devices_listener()
         if len(self.devices):
-            self.parent.log_error("A tail track should not have devices")
+            Logger.log_error("A tail track should not have devices")

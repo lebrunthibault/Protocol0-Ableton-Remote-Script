@@ -1,11 +1,12 @@
 from typing import Any, Callable
 
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
-from protocol0.domain.lom.AbstractObject import AbstractObject
 from protocol0.domain.shared.utils import get_callable_repr
+from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.shared.Logger import Logger
 
 
-class TimeoutLimit(AbstractObject):
+class TimeoutLimit(object):
     TICKS_COUNT = 100  # around 1.7s
 
     def __init__(self, func, timeout_limit, awaited_listener=None, on_timeout=None, *a, **k):
@@ -15,7 +16,7 @@ class TimeoutLimit(AbstractObject):
         self.func = func
         self.awaited_listener = awaited_listener
         self.on_timeout = on_timeout
-        self.parent.wait(timeout_limit * self.TICKS_COUNT, self._after_timeout)
+        Scheduler.wait(timeout_limit * self.TICKS_COUNT, self._after_timeout)
         self.executed = False
         self.timed_out = False
 
@@ -29,7 +30,7 @@ class TimeoutLimit(AbstractObject):
     def __call__(self, *a, **k):
         # type: (Any, Any) -> None
         if self.timed_out:
-            self.parent.log_warning("Tried to execute function after timeout: %s" % self)
+            Logger.log_warning("Tried to execute function after timeout: %s" % self)
             return
 
         self.executed = True
@@ -48,4 +49,4 @@ class TimeoutLimit(AbstractObject):
             self.on_timeout()
             return
         else:
-            self.parent.log_error("Timeout reached for %s" % self)
+            Logger.log_error("Timeout reached for %s" % self)

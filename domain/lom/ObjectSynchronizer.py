@@ -3,7 +3,6 @@ from functools import partial
 from typing import List, Optional, Any
 
 from _Framework.SubjectSlot import SlotManager
-from protocol0.domain.lom.AbstractObject import AbstractObject
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.infra.scheduler.Scheduler import Scheduler
 
@@ -16,7 +15,7 @@ class ObjectSynchronizer(SlotManager):
     """
 
     def __init__(self, master, slave, listenable_properties=None, bidirectional=True, *a, **k):
-        # type: (AbstractObject, AbstractObject, Optional[List[str]], bool, Any, Any) -> None
+        # type: (Any, Any, Optional[List[str]], bool, Any, Any) -> None
         super(ObjectSynchronizer, self).__init__(*a, **k)
 
         if not master or not slave:
@@ -37,10 +36,10 @@ class ObjectSynchronizer(SlotManager):
                                    property_name)
 
     def _get_lom_property_name_from_object(self, obj):
-        # type: (AbstractObject) -> str
+        # type: (Any) -> str
         from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
         from protocol0.domain.lom.clip.Clip import Clip
-        from protocol0.domain.lom.device.DeviceParameter import DeviceParameter
+        from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 
         if isinstance(obj, AbstractTrack):
             return "_track"
@@ -52,11 +51,11 @@ class ObjectSynchronizer(SlotManager):
             raise Protocol0Error("Object of class %s is not a synchronizable object" % obj.__class__.__name__)
 
     def is_syncable(self, _):
-        # type: (AbstractObject) -> bool
+        # type: (Any) -> bool
         return True
 
     def _sync_property(self, master, slave, property_name):
-        # type: (AbstractObject, AbstractObject, str) -> None
+        # type: (Any, Any, str) -> None
         if not self.is_syncable(slave):
             return
 
