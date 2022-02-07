@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import TYPE_CHECKING, Iterable, Any, Union, Callable, Optional, cast, List
+from typing import TYPE_CHECKING, Iterable, Any, Union, Callable, Optional, cast, List, Type
 
 from protocol0.application.config import Config
 from protocol0.application.service.decorators import handle_error
@@ -8,11 +8,11 @@ from protocol0.domain.sequence.CallbackDescriptor import CallableWithCallbacks
 from protocol0.domain.sequence.SequenceError import SequenceError
 from protocol0.domain.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
 from protocol0.domain.sequence.TimeoutLimit import TimeoutLimit
+from protocol0.domain.shared.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils import _has_callback_queue, get_callable_repr, nop
-from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
-from protocol0.infra.scheduler.Scheduler import Scheduler
 from protocol0.shared.AccessContainer import AccessContainer
 from protocol0.shared.Logger import Logger
 
@@ -29,7 +29,7 @@ class SequenceStep(SequenceStateMachineMixin, AccessContainer):
             wait,  # type: int
             wait_beats,  # type: float
             wait_for_system,  # type: bool
-            wait_for_event,  # type: Optional[object]
+            wait_for_event,  # type: Type[object]
             no_cancel,  # type: bool
             complete_on,  # type: Optional[Union[Callable, CallableWithCallbacks]]
             check_timeout,  # type: int
@@ -106,20 +106,24 @@ class SequenceStep(SequenceStateMachineMixin, AccessContainer):
 
     def _check_for_step_completion(self, _=None):
         # type: (Any) -> None
-        if not self._complete_on and not self._wait and not self._wait_beats:
-            self.terminate()
-            return
-
         if self._wait:
             Scheduler.wait(self._wait, self.terminate)
             return
 
         if self._wait_beats:
-            BeatScheduler.get_instance().wait_beats(self._wait_beats, self.terminate)
+            Scheduler.wait_beats(self._wait_beats, self.terminate)
             return
 
-        # we have complete_on there
-        self._handle_complete_on()
+        if self._wait_for_event:
+            Logger.log_dev("waiting for event %s" % self._wait_for_event)
+            DomainEventBus.subscribe(self._wait_for_event, self._handle_event)
+            return
+
+        if self._complete_on:
+            self._handle_complete_on()
+            return
+
+        self.terminate()
 
     def _handle_complete_on(self):
         # type: () -> None
@@ -138,6 +142,10 @@ class SequenceStep(SequenceStateMachineMixin, AccessContainer):
             return self._postpone_termination_after_listener(cast(CallableWithCallbacks, callable_response))
         else:
             raise SequenceError("on complete_on should have a callback queue")
+
+    def _handle_event(self, _):
+        # type: (object) -> None
+        self.terminate()
 
     def _postpone_termination_after_listener(self, listener):
         # type: (CallableWithCallbacks) -> None
@@ -201,3 +209,8 @@ class SequenceStep(SequenceStateMachineMixin, AccessContainer):
             self._check_for_step_completion()
         except SequenceError as e:
             self.error(e.message)
+
+    def _on_terminate(self):
+        # type: () -> None
+        if self._wait_for_event:
+            DomainEventBus.un_subscribe(self._wait_for_event, self.terminate)

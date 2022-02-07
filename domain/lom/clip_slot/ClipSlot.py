@@ -8,7 +8,7 @@ from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.domain.shared.decorators import p0_subject_slot
-from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.Logger import Logger
 
 if TYPE_CHECKING:

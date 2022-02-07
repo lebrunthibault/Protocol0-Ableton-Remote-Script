@@ -5,7 +5,7 @@ from typing import Any, Callable, TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
 from protocol0.domain.shared.utils import is_method
-from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 
 if TYPE_CHECKING:
     from protocol0.domain.sequence.CallbackDescriptor import CallbackDescriptor
@@ -56,7 +56,7 @@ def defer(func):
     @wraps(func)
     def decorate(*a, **k):
         # type: (Any, Any) -> None
-        from protocol0.infra.scheduler.Scheduler import Scheduler
+        from protocol0.domain.shared.scheduler.Scheduler import Scheduler
         Scheduler.defer(partial(func, *a, **k))
         return None
 

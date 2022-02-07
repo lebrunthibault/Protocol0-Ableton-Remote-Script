@@ -1,10 +1,10 @@
-from protocol0.domain.ApplicationView import ApplicationView
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.lom.instrument.instrument.InstrumentProphet import InstrumentProphet
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
-from protocol0.infra.System import System
-from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.System import System
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 
 
 # noinspection PyTypeHints,PyArgumentList

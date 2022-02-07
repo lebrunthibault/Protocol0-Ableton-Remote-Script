@@ -1,3 +1,4 @@
+import inspect
 from functools import partial
 
 from typing import Dict, List, Type, Callable, TYPE_CHECKING
@@ -12,6 +13,11 @@ class DomainEventBus(object):
     @classmethod
     def subscribe(cls, domain_event, subscriber):
         # type: (Type, Callable) -> None
+        args = inspect.getargspec(subscriber).args
+        if "self" in args:
+            args = args[1:]
+        assert len(args) == 1, "The subscriber should have a unique parameter for the event : %s" % subscriber
+
         if domain_event not in cls._registry:
             cls._registry[domain_event] = []
 

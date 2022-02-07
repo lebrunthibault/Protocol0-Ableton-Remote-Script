@@ -11,6 +11,6 @@ class AccessContainer(object):
     @property
     def container(self):
         # type: () -> Container
-        from protocol0 import Protocol0  # noqa
+        from protocol0.application.Protocol0 import Protocol0  # noqa
 
         return Protocol0.CONTAINER

@@ -4,7 +4,7 @@ from os.path import dirname
 
 import Live
 
-PROJECT_ROOT = dirname(os.path.realpath(__file__))
+PROJECT_ROOT = dirname(dirname(os.path.realpath(__file__)))
 REMOTE_SCRIPTS_ROOT = dirname(PROJECT_ROOT)
 
 QUANTIZATION_OPTIONS = [

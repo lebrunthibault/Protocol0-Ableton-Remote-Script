@@ -1,10 +1,10 @@
 from typing import Optional, Tuple, Type, Callable
 
 from _Framework.ControlSurface import get_control_surfaces
-from protocol0.domain.CommandBusInterface import CommandBusInterface
+from protocol0.domain.shared.CommandBusInterface import CommandBusInterface
 from protocol0.domain.shared.utils import find_if
-from protocol0.infra.System import System
-from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.System import System
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.infra.scheduler.SchedulerEvent import SchedulerEvent
 from protocol0.shared.Logger import Logger
 

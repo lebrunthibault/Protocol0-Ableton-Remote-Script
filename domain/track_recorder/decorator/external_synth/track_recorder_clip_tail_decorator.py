@@ -6,10 +6,12 @@ from protocol0.domain.lom.Listenable import Listenable
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.domain.shared.BeatChangedEvent import BeatChangedEvent
+from protocol0.domain.shared.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.Last32thPassedEvent import Last32thPassedEvent
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.track_recorder.decorator.track_recorder_decorator import TrackRecorderDecorator
 from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
-from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
 
 
 class TrackRecorderClipTailDecorator(TrackRecorderDecorator, Listenable):
@@ -26,9 +28,8 @@ class TrackRecorderClipTailDecorator(TrackRecorderDecorator, Listenable):
         # noinspection PyTypeChecker
         return self._track
 
-    @p0_subject_slot("beat_changed")
-    def _beat_changed_listener(self):
-        # type: () -> None
+    def _beat_changed_listener(self, _):
+        # type: (BeatChangedEvent) -> None
         if self.is_audio_silent:
             # noinspection PyUnresolvedReferences
             self.notify_is_silent()
@@ -59,7 +60,7 @@ class TrackRecorderClipTailDecorator(TrackRecorderDecorator, Listenable):
 
         audio_clip = self.track.audio_track.clip_slots[self.recording_scene_index].clip
         audio_clip.fire()
-        self._beat_changed_listener.subject = BeatScheduler.get_instance()
+        DomainEventBus.subscribe(BeatChangedEvent, self._beat_changed_listener)
 
         # following is a trick to have no midi note input at the very end of the bar while being able
         # to still record automation
@@ -75,7 +76,7 @@ class TrackRecorderClipTailDecorator(TrackRecorderDecorator, Listenable):
 
         seq = Sequence()
         # so that we have automation until the very end
-        seq.add(complete_on=BeatScheduler.get_instance().last_32th_listener)
+        seq.add(wait_for_event=Last32thPassedEvent)
         seq.add(partial(setattr, self._song, "session_automation_record", False))
         seq.add(partial(self.track.midi_track.stop, immediate=True))
         seq.add(partial(setattr, self.track.midi_track.input_routing, "type", InputRoutingTypeEnum.NO_INPUT))
@@ -83,5 +84,5 @@ class TrackRecorderClipTailDecorator(TrackRecorderDecorator, Listenable):
         seq.add(partial(midi_clip.set_notes, midi_notes))
         seq.add(complete_on=self._is_silent_listener, no_timeout=True)
         seq.add(partial(setattr, self.track.midi_track.input_routing, "type", input_routing_type))
-        seq.add(partial(setattr, self._beat_changed_listener, "subject", None))
+        seq.add(partial(DomainEventBus.un_subscribe, BeatChangedEvent, self._beat_changed_listener))
         return seq.done()

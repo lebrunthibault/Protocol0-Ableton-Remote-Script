@@ -3,15 +3,15 @@ from math import floor
 from ClyphX_Pro.ClyphXComponentBase import ClyphXComponentBase, schedule
 from typing import Any, Optional
 
-from protocol0.domain.DomainEventBus import DomainEventBus
 from protocol0.domain.scheduler.BarEndingEvent import BarEndingEvent
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.domain.shared.BeatChangedEvent import BeatChangedEvent
+from protocol0.domain.shared.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.Last32thPassedEvent import Last32thPassedEvent
 from protocol0.domain.shared.decorators import p0_subject_slot
+from protocol0.shared.SongFacade import SongFacade
 
 
 class SyncedScheduler(ClyphXComponentBase):
-    __subject_events__ = ("beat_changed", "last_32th", "bar_ending")
-
     """ SyncedScheduler schedules action lists to be triggered after a specified
     number of bars. """
 
@@ -27,8 +27,6 @@ class SyncedScheduler(ClyphXComponentBase):
         self._pending_precise_action_list = {}
         self._is_playing_listener.subject = self._song
         self._current_song_time_listener.subject = self._song
-        self.bar_ending_listener.subject = self
-        self.last_32th_listener.subject = self
 
     def schedule_message(self, num_beats, msg):
         # type: (float, Any) -> None
@@ -63,16 +61,6 @@ class SyncedScheduler(ClyphXComponentBase):
         self._last_32th = False
         self._bar_ending = False
 
-    @p0_subject_slot('bar_ending')
-    def bar_ending_listener(self):
-        # type: () -> None
-        pass
-
-    @p0_subject_slot('last_32th')
-    def last_32th_listener(self):
-        # type: () -> None
-        pass
-
     @p0_subject_slot('current_song_time')
     def _current_song_time_listener(self):
         # type: () -> None
@@ -88,12 +76,11 @@ class SyncedScheduler(ClyphXComponentBase):
             if current_tick >= 30:  # out of 60 (1/32th)
                 if not self._last_32th:
                     self._last_32th = True
-                    self.notify_last_32th()
+                    DomainEventBus.notify(Last32thPassedEvent())
             if current_tick >= 45:  # out of 60 (1/64th)
                 if not self._bar_ending:
                     self._bar_ending = True
                     DomainEventBus.notify(BarEndingEvent())
-                    self.notify_bar_ending()
         else:
             self._last_32th = False
             self._bar_ending = False
@@ -115,7 +102,7 @@ class SyncedScheduler(ClyphXComponentBase):
         if self._last_beat != current_beat:
             self._last_beat = current_beat
 
-            self.notify_beat_changed()
+            DomainEventBus.notify(BeatChangedEvent())
 
             for k, v in self._pending_precise_action_list.items():
                 v['beats'] -= 1

@@ -1,31 +1,37 @@
-from typing import Callable, Optional, Union, List
+from typing import Callable, Optional, Union, List, TYPE_CHECKING
 
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.infra.scheduler.SchedulerEvent import SchedulerEvent
+
+if TYPE_CHECKING:
+    from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
+    from protocol0.infra.scheduler.FastScheduler import FastScheduler
+    from protocol0.infra.scheduler.SchedulerEvent import SchedulerEvent
 
 
 class Scheduler(object):
     """ Facade for scheduling calls """
+    _INSTANCE = None  # type: Optional[Scheduler]
+
+    def __init__(self, fast_scheduler, beat_scheduler):
+        # type: (FastScheduler, BeatScheduler) -> None
+        self._fast_scheduler = fast_scheduler
+        self._beat_scheduler = beat_scheduler
+        self._INSTANCE = self
 
     @classmethod
     def defer(cls, callback):
         # type: (Callable) -> None
-        from protocol0.infra.scheduler.FastScheduler import FastScheduler
-
-        FastScheduler.get_instance().schedule(1, callback)
+        cls._INSTANCE._fast_scheduler.schedule(1, callback)
 
     @classmethod
     def wait_bars(cls, bar_length, callback):
         # type: (int, Callable) -> None
-        from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
-        BeatScheduler.get_instance().wait_beats(SongFacade.signature_numerator() * bar_length, callback)
+        cls._INSTANCE._beat_scheduler.wait_beats(SongFacade.signature_numerator() * bar_length, callback)
 
     @classmethod
     def wait_beats(cls, beats, callback):
         # type: (float, Callable) -> None
-        from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
-
-        BeatScheduler.get_instance().wait_beats(beats, callback)
+        cls._INSTANCE._beat_scheduler.wait_beats(beats, callback)
 
     @classmethod
     def wait(cls, tick_count, callback):
@@ -42,21 +48,17 @@ class Scheduler(object):
             callback()
             return None
         else:
-            from protocol0.infra.scheduler.FastScheduler import FastScheduler
-
-            return FastScheduler.get_instance().schedule(tick_count=tick_count, callback=callback)
+            return cls._INSTANCE._fast_scheduler.schedule(tick_count=tick_count, callback=callback)
 
     @classmethod
     def clear(cls):
         # type: () -> None
-        from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
         from protocol0.domain.sequence.Sequence import Sequence
         for seq in reversed(Sequence.RUNNING_SEQUENCES):
             seq.cancel()
         Sequence.RUNNING_SEQUENCES = []
-        from protocol0.infra.scheduler.FastScheduler import FastScheduler
-        FastScheduler.get_instance().restart()
-        BeatScheduler.get_instance().clear_scheduler()
+        cls._INSTANCE._fast_scheduler.restart()
+        cls._INSTANCE._beat_scheduler.clear_scheduler()
 
     @classmethod
     def stop(cls):
@@ -64,5 +66,4 @@ class Scheduler(object):
         from ClyphX_Pro import ParseUtils
 
         ParseUtils._midi_message_registry = {}  # noqa
-        from protocol0.infra.scheduler.FastScheduler import FastScheduler
-        FastScheduler.get_instance().stop()
+        cls._INSTANCE._fast_scheduler.stop()

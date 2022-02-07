@@ -1,4 +1,5 @@
 import inspect
+import pkgutil
 import types
 from collections import namedtuple, Sequence as CollectionsSequence
 from types import FrameType
@@ -147,6 +148,14 @@ def get_callable_repr(func):
         return "%s.%s" % (class_name, decorated_func.__name__)
     else:
         return decorated_func.__name__
+
+
+def import_package(package):
+    # type: (types.ModuleType) -> None
+    """ import all modules in a package """
+    prefix = package.__name__ + "."
+    for importer, mod_name, is_pkg in pkgutil.iter_modules(package.__path__, prefix):
+        __import__(mod_name, fromlist="dummy")
 
 
 def nop(*_, **__):

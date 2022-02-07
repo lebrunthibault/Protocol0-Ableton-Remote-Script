@@ -1,7 +1,7 @@
 from typing import Optional
 from typing import TYPE_CHECKING
 
-from protocol0.domain.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.track.simple_track.event.SimpleTrackArmedEvent import SimpleTrackArmedEvent

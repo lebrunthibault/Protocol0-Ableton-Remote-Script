@@ -1,6 +1,6 @@
 from functools import partial
 
-from protocol0.domain.ApplicationView import ApplicationView
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from protocol0.domain.lom.device.PluginDevice import PluginDevice
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface

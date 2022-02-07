@@ -4,7 +4,7 @@ from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitor
 from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack

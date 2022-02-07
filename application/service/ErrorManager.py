@@ -7,8 +7,8 @@ from typing import Optional, Any, List, Type
 from protocol0.application.constants import PROJECT_ROOT
 from protocol0.domain.lom.song.SongManager import SongManager
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
-from protocol0.infra.System import System
-from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.System import System
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.AccessSong import AccessSong
 from protocol0.shared.Logger import Logger
 

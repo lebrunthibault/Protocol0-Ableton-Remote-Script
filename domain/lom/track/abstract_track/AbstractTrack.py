@@ -15,7 +15,7 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrackName import Abstract
 from protocol0.domain.lom.track.routing.TrackInputRouting import TrackInputRouting
 from protocol0.domain.lom.track.routing.TrackOutputRouting import TrackOutputRouting
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack

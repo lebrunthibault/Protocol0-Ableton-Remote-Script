@@ -1,6 +1,8 @@
 import pytest
 
+from protocol0.domain.scheduler.BarEndingEvent import BarEndingEvent
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.decorators import has_callback_queue
 from protocol0.domain.shared.utils import nop
 
@@ -80,5 +82,26 @@ def test_sequence_cancel():
     seq.add(inner_seq)
     seq.add(lambda: test_res.append(True))
     seq.done()
+
+    assert test_res == [True]
+
+
+def test_wait_for_event():
+    test_res = []
+
+    seq = Sequence()
+    seq.add(wait_for_event=BarEndingEvent)
+    seq.add(lambda: test_res.append(True))
+    seq.done()
+
+    assert test_res == []
+    seq.cancel()
+
+    seq = Sequence()
+    seq.add(wait_for_event=BarEndingEvent)
+    seq.add(lambda: test_res.append(True))
+    seq.done()
+
+    DomainEventBus.notify(BarEndingEvent())
 
     assert test_res == [True]

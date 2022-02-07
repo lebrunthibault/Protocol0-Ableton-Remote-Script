@@ -6,7 +6,7 @@ class StatusBar(object):
     @classmethod
     def show_message(cls, message):
         # type: (str) -> None
-        from protocol0 import Protocol0
+        from protocol0.application.Protocol0 import Protocol0
         # noinspection PyBroadException
         try:
             Protocol0.SHOW_MESSAGE(str(message))

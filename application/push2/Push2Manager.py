@@ -7,7 +7,7 @@ from protocol0.application.push2.decorators import push2_method
 from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.lom.note.NoteQuantizationManager import NoteQuantizationManager
 from protocol0.domain.shared.utils import find_if
-from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
 

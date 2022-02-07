@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Optional
 
 from _Framework.Util import forward_property
 from protocol0.application.command.ProgramChangeCommand import ProgramChangeCommand
-from protocol0.domain.CommandBus import CommandBus
+from protocol0.domain.shared.CommandBus import CommandBus
 from protocol0.domain.enums.ColorEnum import ColorEnum
 from protocol0.domain.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from protocol0.domain.lom.device.Device import Device

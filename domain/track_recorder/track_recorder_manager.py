@@ -6,6 +6,7 @@ from protocol0.domain.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.domain.scheduler.BarEndingEvent import BarEndingEvent
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.utils import get_length_legend
@@ -15,9 +16,8 @@ from protocol0.domain.track_recorder.factory.track_recoder_simple_factory import
 from protocol0.domain.track_recorder.factory.track_recorder_external_synth_factory import \
     TrackRecorderExternalSynthFactory
 from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
-from protocol0.infra.System import System
-from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
-from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.System import System
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.AccessSong import AccessSong
 from protocol0.shared.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
@@ -78,7 +78,7 @@ class TrackRecorderManager(AccessSong):
         seq.add(partial(recorder.record, bar_length=bar_length))
         seq.add(recorder.post_audio_record)
         seq.add(SongFacade.selected_scene().fire)
-        seq.add(complete_on=BeatScheduler.get_instance().bar_ending_listener)
+        seq.add(wait_for_event=BarEndingEvent)
         seq.add(recorder.post_record)
         seq.add(partial(setattr, self, "recorderFactory", None))
 

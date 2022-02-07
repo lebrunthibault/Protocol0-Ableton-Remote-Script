@@ -4,7 +4,7 @@ from typing import Optional, cast
 
 from protocol0.application.command.ProgramChangeCommand import ProgramChangeCommand
 from protocol0.application.interface.ClickManager import ClickManager
-from protocol0.domain.CommandBus import CommandBus
+from protocol0.domain.shared.CommandBus import CommandBus
 from protocol0.domain.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
 from protocol0.domain.lom.note.Note import Note
@@ -12,7 +12,7 @@ from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSy
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.track_recorder.track_recorder_manager import TrackRecorderManager
-from protocol0.infra.System import System
+from protocol0.domain.shared.System import System
 from protocol0.shared.AccessSong import AccessSong
 from protocol0.shared.SongFacade import SongFacade
 

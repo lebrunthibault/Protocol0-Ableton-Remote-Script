@@ -2,10 +2,10 @@ from functools import partial
 
 from typing import Optional, TYPE_CHECKING
 
-from protocol0.domain.ApplicationView import ApplicationView
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.infra.System import System
-from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.System import System
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.AccessSong import AccessSong
 
 if TYPE_CHECKING:

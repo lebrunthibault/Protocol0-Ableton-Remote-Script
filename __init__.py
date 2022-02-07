@@ -82,11 +82,8 @@ _default.default = JSONEncoder().default
 JSONEncoder.default = _default  # type: ignore[assignment]
 
 
-if sys.version_info.major == 2:
-    # allows loading configuration from python3.7 backend
-    from protocol0.application.Protocol0 import Protocol0  # noqa: E402
-
-
 def create_instance(c_instance):  # noqa
-    # type: (Any) -> Protocol0
+    # type: (Any) -> Any
+    from protocol0.application.Protocol0 import Protocol0
+
     return Protocol0(c_instance)

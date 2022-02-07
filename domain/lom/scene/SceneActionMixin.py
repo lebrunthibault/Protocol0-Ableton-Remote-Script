@@ -7,12 +7,11 @@ from protocol0.domain.lom.set.SessionToArrangementManager import SessionToArrang
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.decorators import throttle
 from protocol0.domain.shared.utils import scroll_values
-from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
-from protocol0.infra.scheduler.Scheduler import Scheduler
 from protocol0.shared.AccessSong import AccessSong
+from protocol0.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.scene.Scene import Scene
@@ -117,7 +116,7 @@ class SceneActionMixin(AccessSong):
 
             track.stop(immediate=immediate)
 
-        BeatScheduler.get_instance().wait_beats(1, partial(previous_playing_scene.scene_name.update, display_bar_count=False))
+        Scheduler.wait_beats(1, partial(previous_playing_scene.scene_name.update, display_bar_count=False))
 
     def _play_audio_tails(self):
         # type: (Scene) -> None

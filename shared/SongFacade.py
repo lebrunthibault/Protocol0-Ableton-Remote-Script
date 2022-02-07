@@ -22,7 +22,7 @@ class SongFacade(object):
     @classmethod
     def _song(cls):
         # type: () -> Song
-        from protocol0 import Protocol0
+        from protocol0.application.Protocol0 import Protocol0
 
         return Protocol0.CONTAINER.song
 

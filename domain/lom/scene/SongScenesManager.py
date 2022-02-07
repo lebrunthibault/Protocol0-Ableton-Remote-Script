@@ -7,10 +7,11 @@ import Live
 from protocol0.domain.lom.Listenable import Listenable
 from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.domain.shared.BeatChangedEvent import BeatChangedEvent
+from protocol0.domain.shared.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.utils import scroll_values
-from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
-from protocol0.infra.scheduler.Scheduler import Scheduler
 from protocol0.shared.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
 
@@ -20,7 +21,7 @@ class SongScenesManager(Listenable):
         # type: () -> None
         super(SongScenesManager, self).__init__()
         self.scenes_listener.subject = SongFacade.live_song()
-        self._beat_changed_listener.subject = BeatScheduler.get_instance()
+        DomainEventBus.subscribe(BeatChangedEvent, self._beat_changed_listener)
         self._live_scene_id_to_scene = collections.OrderedDict()
 
     def get_scene(self, live_scene):
@@ -51,9 +52,8 @@ class SongScenesManager(Listenable):
             Scheduler.defer(scene.refresh_appearance)
         Logger.log_info("mapped scenes")
 
-    @p0_subject_slot("beat_changed")
-    def _beat_changed_listener(self):
-        # type: () -> None
+    def _beat_changed_listener(self, _):
+        # type: (BeatChangedEvent) -> None
         if SongFacade.playing_scene() and SongFacade.playing_scene().has_playing_clips:
             SongFacade.playing_scene().on_beat_changed()
 

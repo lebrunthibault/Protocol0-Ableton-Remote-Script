@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Optional
 
 import Live
 from protocol0.application.constants import QUANTIZATION_OPTIONS
-from protocol0.domain.ApplicationView import ApplicationView
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.shared.AccessSong import AccessSong

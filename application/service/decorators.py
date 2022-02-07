@@ -14,7 +14,7 @@ def handle_error(func):
         try:
             return func(*a, **k)
         except Exception:
-            from protocol0 import Protocol0
+            from protocol0.application.Protocol0 import Protocol0
 
             Protocol0.CONTAINER.error_manager.handle_error()
 

@@ -1,6 +1,6 @@
 from protocol0.domain.enums.ColorEnum import ColorEnum
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
-from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 
 
 class SimpleInstrumentBusTrack(SimpleAudioTrack):

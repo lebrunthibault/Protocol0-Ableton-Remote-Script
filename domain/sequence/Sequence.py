@@ -1,7 +1,7 @@
 from collections import deque
 from functools import partial
 
-from typing import Deque, Optional, Iterable, Union, Callable, Any, List
+from typing import Deque, Optional, Iterable, Union, Callable, Any, List, Type
 
 from protocol0.application.config import Config
 from protocol0.domain.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
@@ -9,7 +9,7 @@ from protocol0.domain.sequence.SequenceStep import SequenceStep
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.utils import get_frame_info, nop
-from protocol0.infra.System import System
+from protocol0.domain.shared.System import System
 from protocol0.shared.Logger import Logger
 
 
@@ -114,6 +114,8 @@ class Sequence(SequenceStateMachineMixin):
         # type: () -> None
         if self._on_end:
             self._on_end()
+        # if self._current_step:
+        #     self._current_step.terminate()
         try:
             self.RUNNING_SEQUENCES.remove(self)
         except ValueError:
@@ -141,7 +143,7 @@ class Sequence(SequenceStateMachineMixin):
             wait_beats=0,  # type: float
             wait_bars=0,  # type: float
             wait_for_system=False,  # type: bool
-            wait_for_event=None,  # type: object
+            wait_for_event=None,  # type: Type[object]
             no_cancel=False,  # type: bool
             complete_on=None,  # type: Callable
             no_timeout=False,  # type: bool
@@ -160,7 +162,6 @@ class Sequence(SequenceStateMachineMixin):
 
         if wait_bars:
             wait_beats += wait_bars * SongFacade.signature_numerator()
-
         self._steps.append(
             SequenceStep.make(
                 self,

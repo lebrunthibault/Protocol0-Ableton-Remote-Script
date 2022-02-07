@@ -10,7 +10,7 @@ from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.utils import class_attributes
 from protocol0.infra.SongDataEnum import SongDataEnum
-from protocol0.infra.System import System
+from protocol0.domain.shared.System import System
 from protocol0.my_types import Func, T
 from protocol0.shared.AccessSong import AccessSong
 from protocol0.shared.Logger import Logger
@@ -30,7 +30,7 @@ def save_song_data(func):
     def decorate(*a, **k):
         # type: (Any, Any) -> None
         res = func(*a, **k)
-        from protocol0 import Protocol0
+        from protocol0.application.Protocol0 import Protocol0
         Protocol0.CONTAINER.song_data_manager.save()
         return res
 

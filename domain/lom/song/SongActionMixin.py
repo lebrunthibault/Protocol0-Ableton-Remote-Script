@@ -3,7 +3,7 @@ from functools import partial
 from typing import TYPE_CHECKING, Optional, Any
 
 import Live
-from protocol0.domain.ApplicationView import ApplicationView
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.enums.AbstractEnum import AbstractEnum
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
@@ -170,7 +170,6 @@ class SongActionMixin(object):
             return None
 
         self.midi_recording_quantization_checked = True
-        self.container.song_data_manager.save()
         seq = Sequence()
         seq.prompt("Midi recording quantization %s is not tempo default : %s, Set to default ?" % (
             self.midi_recording_quantization, self.tempo_default_midi_recording_quantization), no_cancel=True)

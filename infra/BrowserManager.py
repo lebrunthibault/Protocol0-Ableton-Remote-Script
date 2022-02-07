@@ -21,7 +21,7 @@ class BrowserManager(BrowserActions):
     def application(self):
         # type: () -> Live.Application.Application
         """ Clyphx code using self.application() """
-        from protocol0 import Protocol0
+        from protocol0.application.Protocol0 import Protocol0
 
         return Protocol0.APPLICATION
 

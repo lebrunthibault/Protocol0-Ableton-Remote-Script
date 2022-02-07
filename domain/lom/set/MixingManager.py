@@ -4,7 +4,7 @@ from protocol0.application.config import Config
 from protocol0.domain.lom.Listenable import Listenable
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
 from protocol0.domain.shared.decorators import p0_subject_slot
-from protocol0.infra.System import System
+from protocol0.domain.shared.System import System
 from protocol0.shared.AccessSong import AccessSong
 from protocol0.shared.StatusBar import StatusBar
 

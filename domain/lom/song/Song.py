@@ -5,7 +5,7 @@ from typing import List, Optional, Any, Iterator, cast
 
 import Live
 from protocol0.application.config import Config
-from protocol0.domain.ApplicationView import ApplicationView
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.lom.Listenable import Listenable
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip.Clip import Clip
@@ -24,7 +24,7 @@ from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.decorators import p0_subject_slot, debounce
 from protocol0.domain.shared.utils import find_if
 from protocol0.infra.SongDataManager import save_song_data
-from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.AccessContainer import AccessContainer
 
 

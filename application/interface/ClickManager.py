@@ -1,11 +1,11 @@
 from functools import partial
 
 from protocol0.application.interface.PixelEnum import PixelEnum
-from protocol0.domain.ApplicationView import ApplicationView
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.infra.System import System
+from protocol0.domain.shared.System import System
 
 
 class ClickManager(object):

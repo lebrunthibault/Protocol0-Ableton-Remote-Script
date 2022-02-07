@@ -7,7 +7,7 @@ import Live
 
 from _Framework.ControlSurface import ControlSurface
 from protocol0.application.Container import Container
-from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.Logger import Logger
 
 

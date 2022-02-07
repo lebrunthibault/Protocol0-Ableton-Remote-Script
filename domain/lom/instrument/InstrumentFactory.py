@@ -1,19 +1,16 @@
-import os
-import re
-from os import listdir
-
 from typing import Optional, List, Type
 
+import protocol0.domain.lom.instrument.instrument as instrument_package
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.PluginDevice import PluginDevice
 from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.lom.device.SimplerDevice import SimplerDevice
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
-from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
+from protocol0.domain.shared.utils import import_package
 
 
 class InstrumentFactory(object):
-    INSTRUMENT_CLASSES = []  # type: List[Type[InstrumentInterface]]
+    _INSTRUMENT_CLASSES = []  # type: List[Type[InstrumentInterface]]
 
     @classmethod
     def get_instrument_class(cls, device):
@@ -23,7 +20,7 @@ class InstrumentFactory(object):
             device = cls._get_device_from_rack_device(device) or device
 
         if isinstance(device, PluginDevice):
-            for _class in cls.get_instrument_classes():
+            for _class in cls._get_instrument_classes():
                 if _class.DEVICE_NAME.lower() == device.name.lower():
                     return _class
         elif isinstance(device, SimplerDevice):
@@ -50,27 +47,10 @@ class InstrumentFactory(object):
         return None
 
     @classmethod
-    def get_instrument_classes(cls):
-        # type: () -> List[Type[InstrumentInterface]]
-        if not cls.INSTRUMENT_CLASSES:
-            cls.INSTRUMENT_CLASSES = cls._get_instrument_classes()
-
-        return cls.INSTRUMENT_CLASSES
-
-    @classmethod
     def _get_instrument_classes(cls):
         # type: () -> List[Type[InstrumentInterface]]
-        files = listdir(os.path.dirname(os.path.abspath(__file__)) + "\\instrument")
+        if not cls._INSTRUMENT_CLASSES:
+            import_package(instrument_package)
+            cls._INSTRUMENT_CLASSES = InstrumentInterface.__subclasses__()
 
-        class_names = []
-        for instrument_file in [instrument_file for instrument_file in files
-                                if re.match("^Instrument[a-zA-Z]*\\.py$", instrument_file)]:
-            class_name = instrument_file.replace(".py", "")
-            try:
-                mod = __import__("protocol0.domain.lom.instrument.instrument." + class_name, fromlist=[class_name])
-            except ImportError:
-                raise Protocol0Error("Import Error on class %s" % class_name)
-
-            class_names.append(getattr(mod, class_name))
-
-        return class_names
+        return cls._INSTRUMENT_CLASSES

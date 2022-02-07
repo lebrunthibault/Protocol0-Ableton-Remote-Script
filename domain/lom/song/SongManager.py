@@ -1,26 +1,29 @@
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 import Live
 from protocol0.application.config import Config
-from protocol0.application.interface.SessionManager import SessionManager
 from protocol0.domain.lom.scene.Scene import Scene
-from protocol0.domain.lom.scene.SongScenesManager import SongScenesManager
-from protocol0.domain.lom.song.SongTracksManager import SongTracksManager
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
-from protocol0.infra.SongDataManager import SongDataManager
-from protocol0.infra.System import System
-from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.System import System
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.AccessSong import AccessSong
+
+if TYPE_CHECKING:
+    from protocol0.application.interface.SessionManager import SessionManager
+    from protocol0.domain.lom.scene.SongScenesManager import SongScenesManager
+    from protocol0.domain.lom.song.SongTracksManager import SongTracksManager
+    from protocol0.infra.SongDataManager import SongDataManager
 
 
 class SongManager(AccessSong):
-    def __init__(self, song_tracks_manager, song_scenes_manager, session_manager):
-        # type: (SongTracksManager, SongScenesManager, SessionManager) -> None
+    def __init__(self, song_tracks_manager, song_scenes_manager, session_manager, song_data_manager):
+        # type: (SongTracksManager, SongScenesManager, SessionManager, SongDataManager) -> None
         self._song_tracks_manager = song_tracks_manager
         self._song_scenes_manager = song_scenes_manager
         self._session_manager = session_manager
+        self._song_data_manager = song_data_manager
 
     def init_song(self):
         # type: () -> None
@@ -45,19 +48,19 @@ class SongManager(AccessSong):
 
     def _restore_selected_state(self):
         # type: () -> None
-        if SongDataManager.SELECTED_SCENE_INDEX is not None and SongDataManager.SELECTED_SCENE_INDEX < len(
+        if self._song_data_manager.SELECTED_SCENE_INDEX is not None and self._song_data_manager.SELECTED_SCENE_INDEX < len(
                 self._song.scenes):
-            selected_scene = self._song.scenes[SongDataManager.SELECTED_SCENE_INDEX]
+            selected_scene = self._song.scenes[self._song_data_manager.SELECTED_SCENE_INDEX]
             selected_scene.select()
-        if SongDataManager.SELECTED_TRACK_INDEX is not None and SongDataManager.SELECTED_TRACK_INDEX < len(
+        if self._song_data_manager.SELECTED_TRACK_INDEX is not None and self._song_data_manager.SELECTED_TRACK_INDEX < len(
                 list(self._song.all_simple_tracks)):
-            selected_track = list(self._song.all_simple_tracks)[SongDataManager.SELECTED_TRACK_INDEX]
+            selected_track = list(self._song.all_simple_tracks)[self._song_data_manager.SELECTED_TRACK_INDEX]
             selected_track.select()
-        if SongDataManager.LAST_MANUALLY_STARTED_SCENE_INDEX is not None and SongDataManager.LAST_MANUALLY_STARTED_SCENE_INDEX < len(
+        if self._song_data_manager.LAST_MANUALLY_STARTED_SCENE_INDEX is not None and self._song_data_manager.LAST_MANUALLY_STARTED_SCENE_INDEX < len(
                 list(self._song.scenes)):
-            scene = self._song.scenes[SongDataManager.LAST_MANUALLY_STARTED_SCENE_INDEX]
-            if not SongDataManager.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION or SongDataManager.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION < scene.bar_length:
-                Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION = SongDataManager.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION
+            scene = self._song.scenes[self._song_data_manager.LAST_MANUALLY_STARTED_SCENE_INDEX]
+            if not self._song_data_manager.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION or self._song_data_manager.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION < scene.bar_length:
+                Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION = self._song_data_manager.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION
             Scene.LAST_MANUALLY_STARTED_SCENE = scene
 
     def _get_startup_track(self):

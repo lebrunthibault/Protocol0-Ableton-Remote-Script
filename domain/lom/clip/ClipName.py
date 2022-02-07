@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, Optional
 from protocol0.domain.lom.Listenable import Listenable
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.utils import get_length_legend
-from protocol0.infra.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.Logger import Logger
 
 if TYPE_CHECKING:

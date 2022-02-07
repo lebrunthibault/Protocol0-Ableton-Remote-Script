@@ -20,7 +20,6 @@ class SerializableCommand(object):
         assert "args" in json_dict, "attrs is missing from json serialization"
 
         sub_class = locate(json_dict["class"])
-        print(sub_class)
         if not sub_class:
             raise Protocol0Error("Couldn't locate %s" % json_dict["class"])
 

@@ -1,0 +1,2 @@
+class BeatChangedEvent(object):
+    pass

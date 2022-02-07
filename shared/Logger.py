@@ -1,10 +1,16 @@
-from typing import Any
+from typing import Any, Callable, Optional
 
 from protocol0.domain.enums.LogLevelEnum import LogLevelEnum
 
 
 class Logger(object):
     """ Facade for logging """
+    _INSTANCE = None  # type: Optional[Logger]
+
+    def __init__(self, ableton_logger):
+        # type: (Callable) -> None
+        self._INSTANCE = self
+        self._ableton_logger = ableton_logger
 
     @classmethod
     def log_dev(cls, *a, **k):
@@ -31,7 +37,7 @@ class Logger(object):
         # type: (str, bool) -> None
         cls._log(message, level=LogLevelEnum.ERROR, debug=debug)
 
-        from protocol0.infra.System import System
+        from protocol0.domain.shared.System import System
         System.get_instance().show_error(message)
         if "\n" not in message:
             from protocol0.shared.StatusBar import StatusBar
@@ -41,8 +47,7 @@ class Logger(object):
     @classmethod
     def _log(cls, message="", level=LogLevelEnum.INFO, debug=False):
         # type: (Any, LogLevelEnum, bool) -> None
-        from protocol0.infra.log import log_ableton
-        log_ableton(
+        cls._INSTANCE._ableton_logger(
             message=message,
             debug=message is not None and debug,
             level=level,

@@ -1,7 +1,8 @@
 import sys
 
 import _Framework.ControlSurface
-from protocol0 import EmptyModule, create_instance, Protocol0
+from protocol0 import EmptyModule, create_instance
+from protocol0.application.Protocol0 import Protocol0
 from protocol0.application.config import Config
 from protocol0.application.service.ErrorManager import ErrorManager
 from protocol0.domain.sequence.TimeoutLimit import TimeoutLimit

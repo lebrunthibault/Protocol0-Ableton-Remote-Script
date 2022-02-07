@@ -2,9 +2,7 @@ from transitions import Machine, State, MachineError
 from typing import Any, Optional
 
 from protocol0.domain.enums.AbstractEnum import AbstractEnum
-from protocol0.domain.enums.LogLevelEnum import LogLevelEnum
 from protocol0.domain.lom.Listenable import Listenable
-from protocol0.infra.log import log_ableton
 from protocol0.shared.Logger import Logger
 
 
@@ -74,7 +72,7 @@ class SequenceStateMachineMixin(Listenable):
         try:
             self._state_machine.dispatch(action)
         except MachineError as e:
-            log_ableton("SequenceState error: %s on %s" % (e, self), level=LogLevelEnum.ERROR)
+            Logger.log_error("SequenceState error: %s on %s" % (e, self))
 
     def start(self):
         # type: () -> None
@@ -82,6 +80,11 @@ class SequenceStateMachineMixin(Listenable):
 
     def terminate(self):
         # type: () -> None
+        if self.errored:
+            Logger.log_info("tried to terminate error %s" % self)
+            return
+        if self.terminated:
+            return
         self.dispatch("terminate")
         self.notify_terminated()  # type: ignore[attr-defined]
 

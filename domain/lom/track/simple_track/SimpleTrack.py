@@ -13,7 +13,7 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrac
 from protocol0.domain.lom.track.simple_track.SimpleTrackActionMixin import SimpleTrackActionMixin
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.utils import find_if
-from protocol0.infra.System import System
+from protocol0.domain.shared.System import System
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.song.SongTracksManager import SongTracksManager

@@ -1,9 +1,9 @@
 from functools import partial
 from itertools import chain, imap
 
-from typing import Optional, Tuple, Dict, Type, cast, List, Union
+from typing import Optional, Tuple, Dict, Type, cast, List, Union, TYPE_CHECKING
 
-from protocol0.domain.ApplicationView import ApplicationView
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceChain import DeviceChain
 from protocol0.domain.lom.device.RackDevice import RackDevice
@@ -13,10 +13,12 @@ from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils import find_if
-from protocol0.infra.BrowserManager import BrowserManager
-from protocol0.infra.System import System
+from protocol0.domain.shared.System import System
 from protocol0.shared.AccessSong import AccessSong
 from protocol0.shared.Logger import Logger
+
+if TYPE_CHECKING:
+    from protocol0.infra.BrowserManager import BrowserManager
 
 
 class DeviceManager(AccessSong):

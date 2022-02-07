@@ -1,6 +1,6 @@
 import pytest
 
-from protocol0 import Protocol0
+from protocol0.application.Protocol0 import Protocol0
 from protocol0.application.faderfox.EncoderAction import EncoderAction
 from protocol0.application.faderfox.EncoderMoveEnum import EncoderMoveEnum
 from protocol0.application.faderfox.MultiEncoder import MultiEncoder

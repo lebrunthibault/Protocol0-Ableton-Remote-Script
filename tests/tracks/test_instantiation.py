@@ -8,7 +8,7 @@ def test_instantiation_simple():
     song = patch_song()
     add_track(track_type=TrackType.MIDI)
     add_track(track_type=TrackType.AUDIO)
-    from protocol0 import Protocol0
+    from protocol0.application.Protocol0 import Protocol0
     Protocol0.CONTAINER.song_tracks_manager.tracks_listener()
     assert len(list(song.simple_tracks)) == 2
 
@@ -17,7 +17,7 @@ def test_instantiation_external_synth_track():
     # return
     song = patch_song()
     add_external_synth_track()
-    from protocol0 import Protocol0
+    from protocol0.application.Protocol0 import Protocol0
     Protocol0.CONTAINER.song_tracks_manager.tracks_listener()
     assert len(list(song.simple_tracks)) == 3
     assert len(list(song.external_synth_tracks)) == 1
@@ -27,7 +27,7 @@ def test_instantiation_external_synth_track_with_tail():
     # return
     song = patch_song()
     add_external_synth_track(add_tail=True)
-    from protocol0 import Protocol0
+    from protocol0.application.Protocol0 import Protocol0
     Protocol0.CONTAINER.song_tracks_manager.tracks_listener()
     assert len(list(song.simple_tracks)) == 4
     assert len(list(song.external_synth_tracks)) == 1
