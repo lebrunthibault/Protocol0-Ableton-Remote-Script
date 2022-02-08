@@ -20,9 +20,9 @@ class TrackRecorderPropagateNewAudioClipDecorator(TrackRecorderDecorator):
         # noinspection PyTypeChecker
         return self._track
 
-    def post_record(self):
-        # type: () -> None
-        super(TrackRecorderPropagateNewAudioClipDecorator, self).post_record()
+    def post_record(self, bar_length):
+        # type: (int) -> None
+        super(TrackRecorderPropagateNewAudioClipDecorator, self).post_record(bar_length)
         self._propagate_new_audio_clip()
 
     def _propagate_new_audio_clip(self):

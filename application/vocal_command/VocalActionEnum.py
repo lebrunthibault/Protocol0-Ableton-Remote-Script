@@ -1,5 +1,5 @@
 from protocol0.domain.command.ClearLogsCommand import ClearLogsCommand
-from protocol0.domain.enums.AbstractEnum import AbstractEnum
+from protocol0.shared.AbstractEnum import AbstractEnum
 
 
 class VocalActionEnum(AbstractEnum):

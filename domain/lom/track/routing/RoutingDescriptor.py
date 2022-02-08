@@ -1,9 +1,9 @@
 from typing import Type, Any, Optional
 
-from protocol0.domain.enums.AbstractEnum import AbstractEnum
 from protocol0.domain.lom.track.routing.TrackRoutingInterface import TrackRoutingInterface
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils import find_if
+from protocol0.shared.AbstractEnum import AbstractEnum
 
 
 class RoutingDescriptor(object):

@@ -6,10 +6,10 @@ from typing import Optional, TYPE_CHECKING, Any, List, Dict
 
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils import smart_string
-from protocol0.shared.config import Config
+from protocol0.shared.Config import Config
 
 if TYPE_CHECKING:
-    from protocol0.domain.enums.LogLevelEnum import LogLevelEnum  # noqa
+    from protocol0.shared.LogLevelEnum import LogLevelEnum  # noqa
 
 
 def log_ableton(message, debug=True, level=None):
@@ -27,7 +27,7 @@ def log_ableton(message, debug=True, level=None):
     if not isinstance(message, basestring):
         message = str(message)
 
-    from protocol0.domain.enums.LogLevelEnum import LogLevelEnum  # noqa
+    from protocol0.shared.LogLevelEnum import LogLevelEnum  # noqa
     level = level or LogLevelEnum.INFO
     if level.value < Config.LOG_LEVEL.value:
         return

@@ -1,42 +1,41 @@
 from typing import Type, Dict, Any
 
 import Live
-
 from _Framework.ControlSurface import ControlSurface
+from protocol0.application.ErrorService import ErrorService
 from protocol0.application.faderfox.ActionGroupFactory import ActionGroupFactory
-from protocol0.application.ErrorManager import ErrorManager
-from protocol0.application.vocal_command.KeywordSearchManager import KeywordSearchManager
-from protocol0.application.vocal_command.VocalCommandManager import VocalCommandManager
-from protocol0.domain.audit.AudioLatencyAnalyzer import AudioLatencyAnalyzer
-from protocol0.domain.audit.SetFixerManager import SetFixerManager
-from protocol0.domain.audit.SetUpgradeManager import SetUpgradeManager
-from protocol0.domain.audit.SongStatsManager import SongStatsManager
-from protocol0.domain.lom.LogManager import LogManager
-from protocol0.domain.lom.device.DeviceManager import DeviceManager
-from protocol0.domain.lom.instrument.InstrumentDisplayManager import InstrumentDisplayManager
-from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerManager import InstrumentPresetScrollerManager
-from protocol0.domain.lom.instrument.preset.PresetManager import PresetManager
-from protocol0.domain.lom.set.MixingManager import MixingManager
-from protocol0.domain.lom.set.SessionToArrangementManager import SessionToArrangementManager
+from protocol0.application.vocal_command.KeywordSearchService import KeywordSearchService
+from protocol0.application.vocal_command.VocalCommandService import VocalCommandService
+from protocol0.domain.audit.AudioLatencyAnalyzerService import AudioLatencyAnalyzerService
+from protocol0.domain.audit.LogService import LogService
+from protocol0.domain.audit.SetFixerService import SetFixerService
+from protocol0.domain.audit.SetUpgradeService import SetUpgradeService
+from protocol0.domain.audit.SongStatsService import SongStatsService
+from protocol0.domain.lom.device.DeviceService import DeviceService
+from protocol0.domain.lom.instrument.InstrumentDisplayService import InstrumentDisplayService
+from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService import InstrumentPresetScrollerService
+from protocol0.domain.lom.instrument.preset.PresetService import PresetService
+from protocol0.domain.lom.set.MixingService import MixingService
+from protocol0.domain.lom.set.SessionToArrangementService import SessionToArrangementService
 from protocol0.domain.lom.song.Song import Song
-from protocol0.domain.lom.song.SongManager import SongManager
-from protocol0.domain.lom.song.SongScenesManager import SongScenesManager
-from protocol0.domain.lom.song.SongTracksManager import SongTracksManager
+from protocol0.domain.lom.song.SongScenesService import SongScenesService
+from protocol0.domain.lom.song.SongService import SongService
+from protocol0.domain.lom.song.SongTracksService import SongTracksService
 from protocol0.domain.lom.track.TrackFactory import TrackFactory
-from protocol0.domain.lom.track.simple_track.SimpleDummyTrackManager import SimpleDummyTrackManager
+from protocol0.domain.lom.track.simple_track.SimpleDummyTrackService import SimpleDummyTrackService
 from protocol0.domain.lom.validation.ValidatorFactory import ValidatorFactory
-from protocol0.domain.lom.validation.ValidatorManager import ValidatorManager
+from protocol0.domain.lom.validation.ValidatorService import ValidatorService
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.CommandBus import CommandBus
 from protocol0.domain.shared.System import System
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.track_recorder.track_recorder_manager import TrackRecorderManager
-from protocol0.infra.BrowserManager import BrowserManager
-from protocol0.infra.InterfaceClicksManager import InterfaceClicksManager
-from protocol0.infra.MidiManager import MidiManager
-from protocol0.infra.SessionManager import SessionManager
-from protocol0.infra.SongDataManager import SongDataManager
+from protocol0.domain.track_recorder.track_recorder_service import TrackRecorderService
+from protocol0.infra.BrowserService import BrowserService
+from protocol0.infra.InterfaceClicksService import InterfaceClicksService
+from protocol0.infra.MidiService import MidiService
+from protocol0.infra.SessionService import SessionService
+from protocol0.infra.SongDataService import SongDataService
 from protocol0.infra.log import log_ableton
 from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
 from protocol0.infra.scheduler.FastScheduler import FastScheduler
@@ -59,7 +58,7 @@ class Container(ContainerInterface):
 
         Logger(log_ableton)
         StatusBar(control_surface.show_message)
-        ErrorManager()
+        ErrorService()
 
         System(control_surface._send_midi)
         UndoFacade(live_song.begin_undo_step, live_song.end_undo_step)
@@ -67,65 +66,65 @@ class Container(ContainerInterface):
         CommandBus(self, song)
 
         Scheduler(FastScheduler(), BeatScheduler(unschedule_on_stop=True))  # setup Scheduler facade
-        midi_manager = MidiManager(control_surface._send_midi)
-        session_manager = SessionManager(control_surface.component_guard,
+        midi_service = MidiService(control_surface._send_midi)
+        session_service = SessionService(control_surface.component_guard,
                                          control_surface.set_highlighting_session_component)
-        ApplicationView(control_surface.application().view, session_manager)
+        ApplicationView(control_surface.application().view, session_service)
 
-        browser_manager = BrowserManager()
-        device_manager = DeviceManager(browser_manager, song.select_device)
+        browser_service = BrowserService()
+        device_service = DeviceService(browser_service, song.select_device)
         track_factory = TrackFactory(song)
-        SimpleDummyTrackManager(browser_manager)
-        song_tracks_manager = SongTracksManager(track_factory, song)
-        song_scenes_manager = SongScenesManager(song)
-        SongFacade(song, song_tracks_manager, song_scenes_manager)
-        song_data_manager = SongDataManager(live_song.get_data, live_song.set_data)
-        song_manager = SongManager()
+        SimpleDummyTrackService(browser_service)
+        song_tracks_service = SongTracksService(track_factory, song)
+        song_scenes_service = SongScenesService(song)
+        SongFacade(song, song_tracks_service, song_scenes_service)
+        song_data_service = SongDataService(live_song.get_data, live_song.set_data)
+        song_service = SongService()
         System.client().end_measurement()
-        instrument_display_manager = InstrumentDisplayManager(device_manager)
-        instrument_preset_scroller_manager = InstrumentPresetScrollerManager()
-        mixing_manager = MixingManager(live_song.master_track)
-        track_recorder_manager = TrackRecorderManager(song)
-        validator_manager = ValidatorManager(ValidatorFactory(browser_manager))
-        set_upgrade_manager = SetUpgradeManager(device_manager, validator_manager)
-        log_manager = LogManager()
-        set_fixer_manager = SetFixerManager(
-            validator_manager=validator_manager,
-            set_upgrade_manager=set_upgrade_manager,
+        instrument_display_service = InstrumentDisplayService(device_service)
+        instrument_preset_scroller_service = InstrumentPresetScrollerService()
+        mixing_service = MixingService(live_song.master_track)
+        track_recorder_service = TrackRecorderService(song)
+        validator_service = ValidatorService(ValidatorFactory(browser_service))
+        set_upgrade_service = SetUpgradeService(device_service, validator_service)
+        log_service = LogService()
+        set_fixer_service = SetFixerService(
+            validator_service=validator_service,
+            set_upgrade_service=set_upgrade_service,
             song=song
         )
-        song_stats_manager = SongStatsManager()
-        interface_clicks_manager = InterfaceClicksManager()
-        audio_latency_manager = AudioLatencyAnalyzer(track_recorder_manager, song,
-                                                     interface_clicks_manager)
-        preset_manager = PresetManager()
-        session_to_arrangement_manager = SessionToArrangementManager(song)
+        song_stats_service = SongStatsService()
+        interface_clicks_service = InterfaceClicksService()
+        audio_latency_service = AudioLatencyAnalyzerService(track_recorder_service, song,
+                                                            interface_clicks_service)
+        preset_service = PresetService()
+        session_to_arrangement_service = SessionToArrangementService(song)
 
         # vocal command
-        keyword_search_manager = KeywordSearchManager()
-        vocal_command_manager = VocalCommandManager(keyword_search_manager)
+        keyword_search_service = KeywordSearchService()
+        vocal_command_service = VocalCommandService(keyword_search_service)
 
         # registering managers in container
-        self._register(midi_manager)
-        self._register(browser_manager)
-        self._register(song_tracks_manager)
-        self._register(song_scenes_manager)
-        self._register(song_data_manager)
-        self._register(song_manager)
-        self._register(instrument_display_manager)
-        self._register(instrument_preset_scroller_manager)
-        self._register(mixing_manager)
-        self._register(track_recorder_manager)
-        self._register(validator_manager)
-        self._register(set_upgrade_manager)
-        self._register(log_manager)
-        self._register(set_fixer_manager)
-        self._register(song_stats_manager)
-        self._register(audio_latency_manager)
-        self._register(preset_manager)
-        self._register(session_to_arrangement_manager)
-        self._register(keyword_search_manager)
-        self._register(vocal_command_manager)
+        self._register(midi_service)
+        self._register(browser_service)
+        self._register(song_tracks_service)
+        self._register(song_scenes_service)
+        self._register(song_data_service)
+        self._register(song_service)
+        self._register(instrument_display_service)
+        self._register(instrument_preset_scroller_service)
+        self._register(mixing_service)
+        self._register(track_recorder_service)
+        self._register(validator_service)
+        self._register(set_upgrade_service)
+        self._register(log_service)
+        self._register(set_fixer_service)
+        self._register(song_stats_service)
+        self._register(audio_latency_service)
+        self._register(preset_service)
+        self._register(session_to_arrangement_service)
+        self._register(keyword_search_service)
+        self._register(vocal_command_service)
 
         ActionGroupFactory.create_action_groups(self, song)
 

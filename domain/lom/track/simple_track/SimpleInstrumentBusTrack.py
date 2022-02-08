@@ -1,11 +1,11 @@
-from protocol0.domain.enums.ColorEnum import ColorEnum
+from protocol0.domain.lom.track.TrackColorEnum import TrackColorEnum
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 
 
 class SimpleInstrumentBusTrack(SimpleAudioTrack):
     DEFAULT_NAME = "Instrument bus"
-    DEFAULT_COLOR = ColorEnum.DISABLED
+    DEFAULT_COLOR = TrackColorEnum.DISABLED
     KEEP_CLIPS_ON_ADDED = True
 
     def _added_track_init(self):

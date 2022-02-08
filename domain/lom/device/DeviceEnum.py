@@ -1,9 +1,9 @@
 from typing import List
 
-from protocol0.domain.enums.AbstractEnum import AbstractEnum
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.lom.device_parameter.DeviceParameterValue import DeviceParameterValue
+from protocol0.shared.AbstractEnum import AbstractEnum
 
 
 class DeviceEnum(AbstractEnum):

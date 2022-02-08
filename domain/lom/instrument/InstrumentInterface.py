@@ -2,11 +2,11 @@ from typing import TYPE_CHECKING, Optional
 
 from _Framework.Util import forward_property
 from protocol0.domain.command.ProgramChangeCommand import ProgramChangeCommand
-from protocol0.domain.enums.ColorEnum import ColorEnum
-from protocol0.domain.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from protocol0.domain.lom.device.Device import Device
+from protocol0.domain.lom.instrument.InstrumentColorEnum import InstrumentColorEnum
 from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPreset
 from protocol0.domain.lom.instrument.preset.InstrumentPresetList import InstrumentPresetList
+from protocol0.domain.lom.instrument.preset.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.shared.CommandBus import CommandBus
 
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 class InstrumentInterface(object):
     NAME = ""
     DEVICE_NAME = ""
-    TRACK_COLOR = ColorEnum.DISABLED
+    TRACK_COLOR = InstrumentColorEnum.UNKNOWN
     CAN_BE_SHOWN = True
     PRESETS_PATH = ""
     PRESET_EXTENSION = ""

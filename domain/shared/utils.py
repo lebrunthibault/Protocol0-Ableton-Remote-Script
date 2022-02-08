@@ -8,8 +8,8 @@ from qualname import qualname
 from typing import Optional, Any, cast, Callable, Iterator, List, Dict
 
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
+from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.constants import PROJECT_ROOT, REMOTE_SCRIPTS_ROOT
 from protocol0.shared.my_types import T
 
 
@@ -52,7 +52,7 @@ def get_frame_info(frame_count=1):
         (filename, line, method_name, _, _) = inspect.getframeinfo(cast(FrameType, call_frame))
     except IndexError:
         return None
-    filename = filename.replace(PROJECT_ROOT + "\\", "").replace(REMOTE_SCRIPTS_ROOT + "\\", "")
+    filename = filename.replace(Config.PROJECT_ROOT + "\\", "").replace(Config.REMOTE_SCRIPTS_ROOT + "\\", "")
     class_name = filename.replace(".py", "").split("\\")[-1]
 
     FrameInfo = namedtuple("FrameInfo", ["filename", "class_name", "line", "method_name"])

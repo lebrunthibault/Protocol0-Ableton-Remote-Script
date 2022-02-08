@@ -1,8 +1,8 @@
 from transitions import Machine, State, MachineError
 from typing import Any, Optional
 
-from protocol0.domain.enums.AbstractEnum import AbstractEnum
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
+from protocol0.shared.AbstractEnum import AbstractEnum
 from protocol0.shared.Logger import Logger
 
 

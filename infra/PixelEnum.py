@@ -1,6 +1,6 @@
 from typing import Tuple
 
-from protocol0.domain.enums.AbstractEnum import AbstractEnum
+from protocol0.shared.AbstractEnum import AbstractEnum
 
 
 class PixelEnum(AbstractEnum):

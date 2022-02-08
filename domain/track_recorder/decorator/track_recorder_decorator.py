@@ -35,9 +35,9 @@ class TrackRecorderDecorator(AbstractTrackRecorder):
         # type: () -> None
         return self.recorder.post_audio_record()
 
-    def post_record(self):
-        # type: () -> None
-        return self.recorder.post_record()
+    def post_record(self, bar_length):
+        # type: (int) -> None
+        return self.recorder.post_record(bar_length)
 
     def cancel_record(self):
         # type: () -> None

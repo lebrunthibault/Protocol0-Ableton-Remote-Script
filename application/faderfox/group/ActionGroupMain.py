@@ -1,10 +1,10 @@
 from functools import partial
 
 from protocol0.application.faderfox.group.ActionGroupMixin import ActionGroupMixin
-from protocol0.domain.enums.RecordTypeEnum import RecordTypeEnum
-from protocol0.domain.lom.instrument.InstrumentDisplayManager import InstrumentDisplayManager
-from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerManager import InstrumentPresetScrollerManager
-from protocol0.domain.track_recorder.track_recorder_manager import TrackRecorderManager
+from protocol0.domain.lom.instrument.InstrumentDisplayService import InstrumentDisplayService
+from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService import InstrumentPresetScrollerService
+from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
+from protocol0.domain.track_recorder.track_recorder_service import TrackRecorderService
 from protocol0.shared.InterfaceState import InterfaceState
 from protocol0.shared.SongFacade import SongFacade
 
@@ -45,13 +45,13 @@ class ActionGroupMain(ActionGroupMixin):
             name="record",
             filter_active_tracks=True,
             on_scroll=InterfaceState.scroll_recording_time,
-            on_press=lambda: partial(self._container.get(TrackRecorderManager).record_track, SongFacade.current_track(),
+            on_press=lambda: partial(self._container.get(TrackRecorderService).record_track, SongFacade.current_track(),
                                      RecordTypeEnum.NORMAL),
-            on_cancel_press=lambda: partial(self._container.get(TrackRecorderManager).cancel_record, SongFacade.current_track(),
+            on_cancel_press=lambda: partial(self._container.get(TrackRecorderService).cancel_record, SongFacade.current_track(),
                                             RecordTypeEnum.NORMAL),
-            on_long_press=lambda: partial(self._container.get(TrackRecorderManager).record_track, SongFacade.current_track(),
+            on_long_press=lambda: partial(self._container.get(TrackRecorderService).record_track, SongFacade.current_track(),
                                           RecordTypeEnum.AUDIO_ONLY),
-            on_cancel_long_press=lambda: partial(self._container.get(TrackRecorderManager).cancel_record,
+            on_cancel_long_press=lambda: partial(self._container.get(TrackRecorderService).cancel_record,
                                                  SongFacade.current_track(),
                                                  RecordTypeEnum.AUDIO_ONLY)
         )
@@ -79,9 +79,9 @@ class ActionGroupMain(ActionGroupMixin):
             identifier=14,
             name="instrument",
             filter_active_tracks=True,
-            on_press=self._container.get(InstrumentDisplayManager).show_hide_instrument,
-            on_long_press=self._container.get(InstrumentDisplayManager).activate_instrument_plugin_window,
-            on_scroll=lambda: partial(self._container.get(InstrumentPresetScrollerManager).scroll_presets_or_samples, SongFacade.current_track().instrument),
+            on_press=self._container.get(InstrumentDisplayService).show_hide_instrument,
+            on_long_press=self._container.get(InstrumentDisplayService).activate_instrument_plugin_window,
+            on_scroll=lambda: partial(self._container.get(InstrumentPresetScrollerService).scroll_presets_or_samples, SongFacade.current_track().instrument),
         )
 
         # SCENe encoder

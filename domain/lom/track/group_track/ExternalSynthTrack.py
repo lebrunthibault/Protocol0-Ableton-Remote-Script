@@ -129,7 +129,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     @property
     def instrument(self):
         # type: () -> InstrumentInterface
-        return self.midi_track.instrument or self.audio_track.instrument
+        return cast(InstrumentInterface, self.midi_track.instrument or self.audio_track.instrument)
 
     @property
     def clips(self):
@@ -197,7 +197,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     @property
     def computed_color(self):
         # type: () -> int
-        return self.instrument.TRACK_COLOR.index
+        return self.instrument.TRACK_COLOR.color_int_value
 
     def disconnect(self):
         # type: () -> None

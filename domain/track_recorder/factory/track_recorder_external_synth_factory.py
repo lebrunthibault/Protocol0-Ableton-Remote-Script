@@ -1,10 +1,8 @@
 from typing import Optional, TYPE_CHECKING
 
-from protocol0.shared.InterfaceState import InterfaceState
-from protocol0.domain.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
-from protocol0.shared.SongFacade import SongFacade
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
 from protocol0.domain.track_recorder.count_in.count_in_interface import CountInInterface
 from protocol0.domain.track_recorder.count_in.count_in_one_bar import CountInOneBar
 from protocol0.domain.track_recorder.count_in.count_in_short import CountInShort
@@ -16,6 +14,8 @@ from protocol0.domain.track_recorder.factory.abstract_track_recorder_factory imp
 from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
 from protocol0.domain.track_recorder.recorder.track_recorder_external_synth import TrackRecorderExternalSynth
 from protocol0.domain.track_recorder.recorder.track_recorder_external_synth_audio import TrackRecorderExternalSynthAudio
+from protocol0.shared.InterfaceState import InterfaceState
+from protocol0.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.song.Song import Song
@@ -67,4 +67,4 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
             midi_clip = self.track.midi_track.clip_slots[SongFacade.selected_scene().index].clip
             return midi_clip.bar_length
         else:
-            return InterfaceState.SELECTED_RECORDING_BAR_LENGTH.int_value
+            return InterfaceState.SELECTED_RECORDING_BAR_LENGTH.bar_length_value

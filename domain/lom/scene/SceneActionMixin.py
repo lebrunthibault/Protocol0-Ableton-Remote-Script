@@ -3,7 +3,7 @@ from math import floor
 
 from typing import TYPE_CHECKING, Optional, cast
 
-from protocol0.domain.lom.set.SessionToArrangementManager import SessionToArrangementManager
+from protocol0.domain.lom.set.SessionToArrangementService import SessionToArrangementService
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.sequence.Sequence import Sequence
@@ -34,21 +34,21 @@ class SceneActionMixin(object):
             # trigger on last beat
             if self.current_beat == SongFacade.signature_numerator() - 1:
                 Scheduler.defer(self._play_audio_tails)  # only call is here, at the end of each bar
-            if SessionToArrangementManager.IS_BOUNCING or self.current_beat == SongFacade.signature_numerator() - 1:
+            if SessionToArrangementService.IS_BOUNCING or self.current_beat == SongFacade.signature_numerator() - 1:
                 self._fire_next_scene()
 
-        if self.current_beat == 0 and not SessionToArrangementManager.IS_BOUNCING:
+        if self.current_beat == 0 and not SessionToArrangementService.IS_BOUNCING:
             Scheduler.defer(self.scene_name.update)
 
     def _fire_next_scene(self):
         # type: (Scene) -> None
         next_scene = self.next_scene
-        if SessionToArrangementManager.IS_BOUNCING:
+        if SessionToArrangementService.IS_BOUNCING:
             # unique call when bouncing
-            if SessionToArrangementManager.LAST_SCENE_FIRED == self:
+            if SessionToArrangementService.LAST_SCENE_FIRED == self:
                 return None
             else:
-                SessionToArrangementManager.LAST_SCENE_FIRED = self
+                SessionToArrangementService.LAST_SCENE_FIRED = self
 
             if self == next_scene:
                 self._song.stop_all_clips()

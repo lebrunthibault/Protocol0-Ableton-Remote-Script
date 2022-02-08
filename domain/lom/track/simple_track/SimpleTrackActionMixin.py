@@ -9,7 +9,6 @@ from protocol0.domain.lom.device.DeviceChain import DeviceChain
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.lom.track.simple_track.event.SimpleTrackArmedEvent import SimpleTrackArmedEvent
-from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.utils import find_if
 
@@ -17,10 +16,9 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
-# noinspection PyTypeHints,PyArgumentList
 class SimpleTrackActionMixin(object):
     def arm_track(self):
-        # type: (SimpleTrack) -> Optional[Sequence]
+        # type: (SimpleTrack) -> None
         if self.is_armed:
             return None
         if self.is_foldable:

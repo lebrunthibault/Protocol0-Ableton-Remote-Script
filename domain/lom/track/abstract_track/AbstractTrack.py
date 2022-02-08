@@ -4,12 +4,13 @@ from typing import Optional, List
 from typing import TYPE_CHECKING
 
 import Live
-from protocol0.domain.enums.ColorEnum import ColorEnum
-from protocol0.domain.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
+from protocol0.domain.lom.ColorEnumInterface import ColorEnumInterface
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
+from protocol0.domain.lom.instrument.preset.PresetDisplayOptionEnum import PresetDisplayOptionEnum
+from protocol0.domain.lom.track.TrackColorEnum import TrackColorEnum
 from protocol0.domain.lom.track.abstract_track.AbstractTrackActionMixin import AbstractTrackActionMixin
 from protocol0.domain.lom.track.abstract_track.AbstractTrackName import AbstractTrackName
 from protocol0.domain.lom.track.routing.TrackInputRouting import TrackInputRouting
@@ -27,7 +28,8 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents):
     __subject_events__ = ("devices",)
 
     DEFAULT_NAME = "default"
-    DEFAULT_COLOR = ColorEnum.DISABLED  # when the color cannot be matched
+    # when the color cannot be matched
+    DEFAULT_COLOR = TrackColorEnum.DISABLED  # type: ColorEnumInterface
     KEEP_CLIPS_ON_ADDED = False
 
     def __init__(self, track):
@@ -128,7 +130,7 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents):
         if self._track:
             return self._track.color_index
         else:
-            return ColorEnum.DISABLED.index
+            return TrackColorEnum.DISABLED.color_int_value
 
     @color.setter
     def color(self, color_index):
@@ -146,9 +148,9 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents):
 
         instrument = self.instrument or self.abstract_track.instrument
         if instrument:
-            return instrument.TRACK_COLOR.index
+            return instrument.TRACK_COLOR.color_int_value
         else:
-            return self.DEFAULT_COLOR.index
+            return self.DEFAULT_COLOR.color_int_value
 
     @property
     def is_foldable(self):

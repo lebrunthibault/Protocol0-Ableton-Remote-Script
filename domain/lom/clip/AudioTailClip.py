@@ -2,7 +2,6 @@ from typing import Any, TYPE_CHECKING
 
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.shared.InterfaceState import InterfaceState
 from protocol0.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:
@@ -29,10 +28,9 @@ class AudioTailClip(AudioClip):
         """ make clip synchronizer work with the clip tail """
         self.loop_start = loop_end
 
-    def post_record(self):
-        # type: () -> None
-        super(AudioTailClip, self).post_record()
-        bar_length = InterfaceState.SELECTED_RECORDING_BAR_LENGTH.int_value
+    def post_record(self, bar_length):
+        # type: (int) -> None
+        super(AudioTailClip, self).post_record(bar_length)
         if bar_length == 0:
             return None
         self.clip_name.update(base_name="")

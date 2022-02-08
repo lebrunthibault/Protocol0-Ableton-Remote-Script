@@ -1,5 +1,5 @@
 from protocol0.application.faderfox.group.ActionGroupMixin import ActionGroupMixin
-from protocol0.domain.lom.set.MixingManager import MixingManager
+from protocol0.domain.lom.set.MixingService import MixingService
 
 
 class ActionGroupMix(ActionGroupMixin):
@@ -9,4 +9,4 @@ class ActionGroupMix(ActionGroupMixin):
         # type: () -> None
         # CHecK encoder
         self.add_encoder(identifier=1, name="check clipping tracks",
-                         on_press=self._container.get(MixingManager).toggle_volume_check)
+                         on_press=self._container.get(MixingService).toggle_volume_check)

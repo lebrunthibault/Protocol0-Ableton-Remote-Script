@@ -1,6 +1,6 @@
 from typing import Any, Callable, Optional
 
-from protocol0.domain.enums.LogLevelEnum import LogLevelEnum
+from protocol0.shared.LogLevelEnum import LogLevelEnum
 
 
 class Logger(object):

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, List
 
 import Live
 from protocol0.domain.lom.clip.ClipSelectedEvent import ClipSelectedEvent
@@ -7,7 +7,6 @@ from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.constants import QUANTIZATION_OPTIONS
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.clip.Clip import Clip
@@ -15,6 +14,18 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints
 class ClipActionMixin(object):
+    _QUANTIZATION_OPTIONS = [
+        Live.Song.RecordingQuantization.rec_q_no_q,
+        Live.Song.RecordingQuantization.rec_q_quarter,
+        Live.Song.RecordingQuantization.rec_q_eight,
+        Live.Song.RecordingQuantization.rec_q_eight_triplet,
+        Live.Song.RecordingQuantization.rec_q_eight_eight_triplet,
+        Live.Song.RecordingQuantization.rec_q_sixtenth,
+        Live.Song.RecordingQuantization.rec_q_sixtenth_triplet,
+        Live.Song.RecordingQuantization.rec_q_sixtenth_sixtenth_triplet,
+        Live.Song.RecordingQuantization.rec_q_thirtysecond,
+    ]  # type: List[int]
+
     @property
     def is_playing(self):
         # type: (Clip) -> bool
@@ -55,7 +66,7 @@ class ClipActionMixin(object):
     def quantize(self, depth=1):
         # type: (Clip, float) -> None
         if self._clip:
-            record_quantization_index = QUANTIZATION_OPTIONS.index(SongFacade.midi_recording_quantization)
+            record_quantization_index = self._QUANTIZATION_OPTIONS.index(SongFacade.midi_recording_quantization())
             if record_quantization_index:
                 self._clip.quantize(record_quantization_index, depth)
 
@@ -95,7 +106,7 @@ class ClipActionMixin(object):
         self.clip_name._name_listener(force=True)  # type: ignore[has-type]
         self.color = self.track.computed_color
 
-    def post_record(self):
-        # type: (Clip) -> None
+    def post_record(self, bar_length):
+        # type: (Clip, int) -> None
         """ overridden """
         self.clip_name.update(base_name="")

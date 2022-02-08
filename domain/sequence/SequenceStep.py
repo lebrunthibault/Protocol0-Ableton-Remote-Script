@@ -7,13 +7,13 @@ from protocol0.domain.sequence.SequenceError import SequenceError
 from protocol0.domain.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
 from protocol0.domain.sequence.TimeoutLimit import TimeoutLimit
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.ErrorRaisedEvent import ErrorRaisedEvent
 from protocol0.domain.shared.decorators import p0_subject_slot, handle_error
+from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import _has_callback_queue, get_callable_repr, nop
+from protocol0.shared.Config import Config
 from protocol0.shared.Logger import Logger
-from protocol0.shared.config import Config
 
 if TYPE_CHECKING:
     from protocol0.domain.sequence.Sequence import Sequence

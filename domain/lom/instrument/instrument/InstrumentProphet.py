@@ -2,12 +2,12 @@ from functools import partial
 
 from typing import Optional, TYPE_CHECKING
 
-from protocol0.domain.enums.ColorEnum import ColorEnum
+from protocol0.domain.lom.device.Device import Device
+from protocol0.domain.lom.instrument.InstrumentColorEnum import InstrumentColorEnum
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.instrument.InstrumentWithEditorInterface import InstrumentWithEditorInterface
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.shared.System import System
-from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.StatusBar import StatusBar
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 class InstrumentProphet(InstrumentInterface, InstrumentWithEditorInterface):
     NAME = "Prophet"
     DEVICE_NAME = "rev2editor"
-    TRACK_COLOR = ColorEnum.PROPHET
+    TRACK_COLOR = InstrumentColorEnum.PROPHET
     ACTIVE_INSTANCE = None  # type: Optional[InstrumentProphet]
 
     EXTERNAL_INSTRUMENT_DEVICE_HARDWARE_LATENCY = 3.2

@@ -8,9 +8,9 @@ from protocol0.domain.sequence.SequenceStep import SequenceStep
 from protocol0.domain.shared.System import System
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.utils import get_frame_info, nop
+from protocol0.shared.Config import Config
 from protocol0.shared.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.config import Config
 
 
 class Sequence(SequenceStateMachineMixin):

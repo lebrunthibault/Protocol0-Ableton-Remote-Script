@@ -1,14 +1,14 @@
 from protocol0.domain.command.SaveSongDataCommand import SaveSongDataCommand
-from protocol0.domain.enums.BarLengthEnum import BarLengthEnum
 from protocol0.domain.shared.CommandBus import CommandBus
 from protocol0.domain.shared.utils import scroll_values
+from protocol0.domain.track_recorder.RecordingBarLengthEnum import RecordingBarLengthEnum
 from protocol0.shared.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.StatusBar import StatusBar
 
 
 class InterfaceState(object):
-    SELECTED_RECORDING_BAR_LENGTH = BarLengthEnum.UNLIMITED
+    SELECTED_RECORDING_BAR_LENGTH = RecordingBarLengthEnum.UNLIMITED
     SELECTED_DUPLICATE_SCENE_BAR_LENGTH = 4
 
     FOCUS_PROPHET_ON_STARTUP = False
@@ -17,7 +17,7 @@ class InterfaceState(object):
     def scroll_recording_time(cls, go_next):
         # type: (bool) -> None
         cls.SELECTED_RECORDING_BAR_LENGTH = scroll_values(
-            list(BarLengthEnum), cls.SELECTED_RECORDING_BAR_LENGTH, go_next
+            list(RecordingBarLengthEnum), cls.SELECTED_RECORDING_BAR_LENGTH, go_next
         )
         StatusBar.show_message("SCENE RECORDING : %s" % cls.SELECTED_RECORDING_BAR_LENGTH)
         CommandBus.dispatch(SaveSongDataCommand())

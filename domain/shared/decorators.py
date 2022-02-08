@@ -5,7 +5,7 @@ from typing import Any, Callable, TYPE_CHECKING
 
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.ErrorRaisedEvent import ErrorRaisedEvent
+from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import is_method
 from protocol0.shared.my_types import Func

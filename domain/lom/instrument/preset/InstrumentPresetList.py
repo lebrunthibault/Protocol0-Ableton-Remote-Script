@@ -3,11 +3,11 @@ from os.path import isfile, isdir
 
 from typing import List, Optional, Any
 
-from protocol0.domain.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.PluginDevice import PluginDevice
 from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPreset
+from protocol0.domain.lom.instrument.preset.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from protocol0.domain.shared.utils import find_if
 from protocol0.shared.Logger import Logger
 

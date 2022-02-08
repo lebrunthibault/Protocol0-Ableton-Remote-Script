@@ -4,7 +4,7 @@ from collections import Iterator
 import pytest
 from typing import List, Optional
 
-from protocol0.shared.constants import PROJECT_ROOT
+from protocol0.shared.Config import Config
 
 
 @pytest.mark.skip(reason="slow")
@@ -17,7 +17,7 @@ def get_code_filenames(exclude_folder_list=None):
         ".ipynb_checkpoints",
         "venv"
     ]
-    for current_path, _, files in os.walk(PROJECT_ROOT):
+    for current_path, _, files in os.walk(Config.PROJECT_ROOT):
         if any(
                 folder_name in current_path
                 for folder_name in exclude_folder_list
@@ -40,4 +40,4 @@ def test_sequence_pattern():
             returned_sequences_count = file_content.count("seq.done(")  # expecting coherent naming
             assert (
                     instantiated_sequences_count <= returned_sequences_count
-            ), "invalid sequence code in %s" % filename.replace(PROJECT_ROOT, "")
+            ), "invalid sequence code in %s" % filename.replace(Config.PROJECT_ROOT, "")

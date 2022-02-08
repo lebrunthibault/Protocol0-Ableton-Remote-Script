@@ -105,13 +105,13 @@ class AbstractTrackRecorder(object):
         # type: () -> None
         self._song.metronome = False
 
-    def post_record(self):
-        # type: () -> None
+    def post_record(self, bar_length):
+        # type: (int) -> None
         self._song.session_record = False
         self._song.session_automation_record = False
         for clip_slot in self._recording_clip_slots:
             if clip_slot.clip:
-                clip_slot.clip.post_record()
+                clip_slot.clip.post_record(bar_length)
         return self._post_record()
 
     def _post_record(self):

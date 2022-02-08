@@ -1,6 +1,6 @@
 from typing import List, TYPE_CHECKING
 
-from protocol0.domain.enums.AbstractEnum import AbstractEnum
+from protocol0.shared.AbstractEnum import AbstractEnum
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.device.DeviceEnum import DeviceEnum  # noqa

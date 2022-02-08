@@ -6,15 +6,15 @@ from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.validation.ValidatorInterface import ValidatorInterface
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.domain.shared.BrowserManagerInterface import BrowserManagerInterface
+from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 
 
 class SimpleTrackHasDeviceValidator(ValidatorInterface):
-    def __init__(self, track, device_enum, browser_manager):
-        # type: (SimpleTrack, DeviceEnum, BrowserManagerInterface) -> None
+    def __init__(self, track, device_enum, browser_service):
+        # type: (SimpleTrack, DeviceEnum, BrowserServiceInterface) -> None
         self._track = track
         self._device_enum = device_enum
-        self._browser_manager = browser_manager
+        self._browser_service = browser_service
 
     def get_error_message(self):
         # type: () -> Optional[str]
@@ -31,6 +31,6 @@ class SimpleTrackHasDeviceValidator(ValidatorInterface):
 
         seq = Sequence()
         seq.add(self._track.select)
-        seq.add(partial(self._browser_manager.load_device_from_enum, self._device_enum))
+        seq.add(partial(self._browser_service.load_device_from_enum, self._device_enum))
         seq.add(wait=5)
         return seq.done()

@@ -5,11 +5,9 @@ from functools import partial
 from typing import List, TYPE_CHECKING, Optional, Any, Iterator
 
 import Live
-from protocol0.domain.enums.BarLengthEnum import BarLengthEnum
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.note.Note import Note
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.shared.InterfaceState import InterfaceState
 from protocol0.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:
@@ -78,10 +76,10 @@ class MidiClip(Clip):
         else:
             return None
 
-    def post_record(self):
-        # type: () -> None
-        super(MidiClip, self).post_record()
-        if InterfaceState.SELECTED_RECORDING_BAR_LENGTH == BarLengthEnum.UNLIMITED:
+    def post_record(self, bar_length):
+        # type: (int) -> None
+        super(MidiClip, self).post_record(bar_length)
+        if bar_length == 0:  # unlimited recording
             clip_end = int(self.end_marker) - (int(self.end_marker) % SongFacade.signature_numerator())
             self.loop_end = clip_end
             self.end_marker = clip_end

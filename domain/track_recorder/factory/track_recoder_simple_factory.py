@@ -1,7 +1,7 @@
 from typing import Optional, TYPE_CHECKING
 
-from protocol0.domain.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
 from protocol0.domain.track_recorder.count_in.count_in_interface import CountInInterface
 from protocol0.domain.track_recorder.count_in.count_in_one_bar import CountInOneBar
 from protocol0.domain.track_recorder.factory.abstract_track_recorder_factory import AbstractTrackRecorderFactory
@@ -39,4 +39,4 @@ class TrackRecorderSimpleFactory(AbstractTrackRecorderFactory):
 
     def get_recording_bar_length(self, _):
         # type: (RecordTypeEnum) -> int
-        return InterfaceState.SELECTED_RECORDING_BAR_LENGTH.int_value
+        return InterfaceState.SELECTED_RECORDING_BAR_LENGTH.bar_length_value

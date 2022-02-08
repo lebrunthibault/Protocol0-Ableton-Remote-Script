@@ -3,12 +3,11 @@ from collections import Iterator
 from typing import TYPE_CHECKING, Optional, List, cast
 
 import Live
-from protocol0.domain.lom.errors.InvalidTrackError import InvalidTrackError
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 
 if TYPE_CHECKING:
-    from protocol0.domain.lom.song.SongScenesManager import SongScenesManager
-    from protocol0.domain.lom.song.SongTracksManager import SongTracksManager
+    from protocol0.domain.lom.song.SongScenesService import SongScenesService
+    from protocol0.domain.lom.song.SongTracksService import SongTracksService
     from protocol0.domain.lom.song.Song import Song
     from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -27,12 +26,12 @@ class SongFacade(object):
     """ Read only facade for accessing song properties """
     _INSTANCE = None  # type: Optional[SongFacade]
 
-    def __init__(self, song, song_tracks_manager, song_scenes_manager):
-        # type: (Song, SongTracksManager, SongScenesManager) -> None
+    def __init__(self, song, song_tracks_service, song_scenes_service):
+        # type: (Song, SongTracksService, SongScenesService) -> None
         SongFacade._INSTANCE = self
         self._song = song
-        self._song_tracks_manager = song_tracks_manager
-        self._song_scenes_manager = song_scenes_manager
+        self._song_tracks_service = song_tracks_service
+        self._song_scenes_service = song_scenes_service
 
     @classmethod
     def live_song(cls):
@@ -68,7 +67,7 @@ class SongFacade(object):
         if isinstance(SongFacade.current_track(), ExternalSynthTrack):
             return cast(ExternalSynthTrack, SongFacade.current_track())
         else:
-            raise InvalidTrackError("current track is not an ExternalSynthTrack")
+            raise Protocol0Warning("current track is not an ExternalSynthTrack")
 
     @classmethod
     def abstract_tracks(cls):
@@ -79,7 +78,7 @@ class SongFacade(object):
     def simple_track_from_live_track(cls, live_track):
         # type: (Live.Track.Track) -> SimpleTrack
         """ we use the live ptr instead of the track to be able to access outdated simple tracks on deletion """
-        return cls._INSTANCE._song_tracks_manager._live_track_id_to_simple_track[live_track._live_ptr]
+        return cls._INSTANCE._song_tracks_service._live_track_id_to_simple_track[live_track._live_ptr]
 
     @classmethod
     def optional_simple_track_from_live_track(cls, live_track):
@@ -97,7 +96,7 @@ class SongFacade(object):
     @classmethod
     def all_simple_tracks(cls):
         # type: () -> Iterator[SimpleTrack]
-        return (track for track in cls._INSTANCE._song_tracks_manager._live_track_id_to_simple_track.values())
+        return (track for track in cls._INSTANCE._song_tracks_service._live_track_id_to_simple_track.values())
 
     @classmethod
     def external_synth_tracks(cls):
@@ -133,17 +132,17 @@ class SongFacade(object):
     @classmethod
     def usamo_track(cls):
         # type: () -> Optional[SimpleTrack]
-        return cls._INSTANCE._song_tracks_manager._usamo_track
+        return cls._INSTANCE._song_tracks_service._usamo_track
 
     @classmethod
     def master_track(cls):
         # type: () -> Optional[SimpleTrack]
-        return cls._INSTANCE._song_tracks_manager._master_track
+        return cls._INSTANCE._song_tracks_service._master_track
 
     @classmethod
     def selected_scene(cls):
         # type: () -> Scene
-        return cls._INSTANCE._song_scenes_manager.get_scene(cls.live_song().view.selected_scene)
+        return cls._INSTANCE._song_scenes_service.get_scene(cls.live_song().view.selected_scene)
 
     @classmethod
     def playing_scene(cls):
@@ -169,7 +168,7 @@ class SongFacade(object):
     @classmethod
     def scenes(cls):
         # type: () -> List[Scene]
-        return cls._INSTANCE._song_scenes_manager.scenes
+        return cls._INSTANCE._song_scenes_service.scenes
 
     @classmethod
     def highlighted_clip_slot(cls):
@@ -204,7 +203,7 @@ class SongFacade(object):
     @classmethod
     def template_dummy_clip(cls):
         # type: () -> Optional[AudioClip]
-        return cls._INSTANCE._song_tracks_manager._template_dummy_clip
+        return cls._INSTANCE._song_tracks_service._template_dummy_clip
 
     @classmethod
     def selected_parameter(cls):

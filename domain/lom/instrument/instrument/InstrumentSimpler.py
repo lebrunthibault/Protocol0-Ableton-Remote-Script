@@ -4,12 +4,12 @@ from typing import Optional, TYPE_CHECKING
 
 import Live
 from protocol0.domain.command.LoadSampleCommand import LoadSampleCommand
-from protocol0.domain.enums.ColorEnum import ColorEnum
-from protocol0.domain.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.SimplerDevice import SimplerDevice
+from protocol0.domain.lom.instrument.InstrumentColorEnum import InstrumentColorEnum
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPreset
+from protocol0.domain.lom.instrument.preset.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from protocol0.domain.shared.CommandBus import CommandBus
 from protocol0.shared.SongFacade import SongFacade
 
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 class InstrumentSimpler(InstrumentInterface):
     NAME = "Simpler"
-    TRACK_COLOR = ColorEnum.SIMPLER
+    TRACK_COLOR = InstrumentColorEnum.SIMPLER
     PRESET_EXTENSION = ".wav"
     PRESETS_PATH = str(os.getenv("SAMPLE_PATH"))
     PRESET_DISPLAY_OPTION = PresetDisplayOptionEnum.CATEGORY

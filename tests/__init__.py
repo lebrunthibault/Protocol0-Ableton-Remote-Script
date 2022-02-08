@@ -7,6 +7,7 @@ from protocol0.shared.Logger import Logger
 sys.dont_write_bytecode = True  # noqa
 
 # hide logs
+Logger.log_dev = classmethod(nop)
 Logger.log_info = classmethod(nop)
 Logger.log_warning = classmethod(nop)
 

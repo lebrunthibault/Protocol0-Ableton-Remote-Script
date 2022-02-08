@@ -16,9 +16,8 @@ from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.System import System
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.utils import find_if
-from protocol0.shared.Logger import Logger
+from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.config import Config
 
 
 class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
@@ -118,7 +117,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # Refreshing is only really useful from simpler devices that change when a new sample is loaded
         if self.IS_ACTIVE and not self.is_foldable:
             self.instrument = InstrumentFactory.make_instrument_from_simple_track(track=self)
-            Logger.log_dev((self, self.instrument))
 
     @p0_subject_slot("output_meter_level")
     def _output_meter_level_listener(self):

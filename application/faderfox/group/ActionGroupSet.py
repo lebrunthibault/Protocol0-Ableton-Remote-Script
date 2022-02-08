@@ -1,8 +1,8 @@
 from protocol0.application.faderfox.group.ActionGroupMixin import ActionGroupMixin
-from protocol0.domain.audit.SongStatsManager import SongStatsManager
+from protocol0.domain.audit.SongStatsService import SongStatsService
 from protocol0.domain.lom.instrument.instrument.InstrumentProphet import InstrumentProphet
-from protocol0.domain.lom.set.MixingManager import MixingManager
-from protocol0.domain.lom.set.SessionToArrangementManager import SessionToArrangementManager
+from protocol0.domain.lom.set.MixingService import MixingService
+from protocol0.domain.lom.set.SessionToArrangementService import SessionToArrangementService
 from protocol0.shared.InterfaceState import InterfaceState
 from protocol0.shared.SongFacade import SongFacade
 
@@ -27,7 +27,7 @@ class ActionGroupSet(ActionGroupMixin):
 
         # STATs encoder
         self.add_encoder(identifier=4, name="display song stats",
-                         on_press=self._container.get(SongStatsManager).display_song_stats)
+                         on_press=self._container.get(SongStatsService).display_song_stats)
 
         # REV2 encoder
         self.add_encoder(identifier=5, name="rev2 toggle vst editor",
@@ -39,8 +39,8 @@ class ActionGroupSet(ActionGroupMixin):
 
         # VOL encoder
         self.add_encoder(identifier=14, name="scroll all tracks volume",
-                         on_scroll=self._container.get(MixingManager).scroll_all_tracks_volume)
+                         on_scroll=self._container.get(MixingService).scroll_all_tracks_volume)
 
         # Session2ARrangement encoder
         self.add_encoder(identifier=16, name="bounce session to arrangement",
-                         on_press=self._container.get(SessionToArrangementManager).bounce_session_to_arrangement)
+                         on_press=self._container.get(SessionToArrangementService).bounce_session_to_arrangement)

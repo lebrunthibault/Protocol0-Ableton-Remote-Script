@@ -1,4 +1,4 @@
-from protocol0.domain.enums.AbstractEnum import AbstractEnum
+from protocol0.shared.AbstractEnum import AbstractEnum
 
 
 class Push2InstrumentModeEnum(AbstractEnum):

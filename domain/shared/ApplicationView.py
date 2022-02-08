@@ -1,7 +1,7 @@
 from typing import Optional
 
 import Live
-from protocol0.domain.shared.SessionManagerInterface import SessionManagerInterface
+from protocol0.domain.shared.SessionServiceInterface import SessionServiceInterface
 
 
 # noinspection PyArgumentList
@@ -10,11 +10,11 @@ class ApplicationView(object):
 
     _INSTANCE = None  # type: Optional[ApplicationView]
 
-    def __init__(self, application_view, session_manager):
-        # type: (Live.Application.Application.View, SessionManagerInterface) -> None
+    def __init__(self, application_view, session_service):
+        # type: (Live.Application.Application.View, SessionServiceInterface) -> None
         ApplicationView._INSTANCE = self
         self._application_view = application_view
-        self._session_manager = session_manager
+        self._session_service = session_service
 
     @classmethod
     def show_clip(cls):
@@ -50,7 +50,7 @@ class ApplicationView(object):
     def focus_current_track(cls):
         # type: () -> None
         """ Moves the focus to the detail view. """
-        cls._INSTANCE._session_manager.toggle_session_ring()
+        cls._INSTANCE._session_service.toggle_session_ring()
 
     @classmethod
     def _focus_view(cls, view):

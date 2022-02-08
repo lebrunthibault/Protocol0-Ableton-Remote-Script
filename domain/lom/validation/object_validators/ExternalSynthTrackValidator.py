@@ -1,28 +1,29 @@
-from protocol0.domain.lom.track.routing.InputRoutingChannelEnum import InputRoutingChannelEnum
-from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
-from protocol0.domain.shared.BrowserManagerInterface import BrowserManagerInterface
-from protocol0.shared.config import Config
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.lom.instrument.instrument.InstrumentProphet import InstrumentProphet
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
-from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.domain.lom.validation.object_validators.SimpleAudioTailTrackValidator import SimpleAudioTailTrackValidator
+from protocol0.domain.lom.track.routing.InputRoutingChannelEnum import InputRoutingChannelEnum
+from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
+from protocol0.domain.lom.validation.object_validators.SimpleAudioTailTrackValidator import \
+    SimpleAudioTailTrackValidator
 from protocol0.domain.lom.validation.sub_validators.AggregateValidator import AggregateValidator
 from protocol0.domain.lom.validation.sub_validators.CallbackValidator import CallbackValidator
 from protocol0.domain.lom.validation.sub_validators.DeviceParameterValidator import DeviceParameterValidator
 from protocol0.domain.lom.validation.sub_validators.PropertyValueValidator import PropertyValueValidator
 from protocol0.domain.lom.validation.sub_validators.SimpleTrackHasDeviceValidator import SimpleTrackHasDeviceValidator
+from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
+from protocol0.shared.Config import Config
 
 
 class ExternalSynthTrackValidator(AggregateValidator):
-    def __init__(self, track, browser_manager):
-        # type: (ExternalSynthTrack, BrowserManagerInterface) -> None
+    def __init__(self, track, browser_service):
+        # type: (ExternalSynthTrack, BrowserServiceInterface) -> None
         self._track = track
 
         validators = [
             CallbackValidator(track, lambda t: t.instrument is not None, None, "track should have an instrument"),
-            SimpleTrackHasDeviceValidator(track.midi_track, DeviceEnum.EXTERNAL_AUDIO_EFFECT, browser_manager),
+            SimpleTrackHasDeviceValidator(track.midi_track, DeviceEnum.EXTERNAL_AUDIO_EFFECT, browser_service),
             CallbackValidator(track.midi_track,
                               lambda t: t.get_device_from_enum(DeviceEnum.EXTERNAL_INSTRUMENT) is None,
                               lambda t: t.get_device_from_enum(DeviceEnum.EXTERNAL_INSTRUMENT).delete),

@@ -21,8 +21,8 @@ from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.decorators import p0_subject_slot, debounce
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import find_if
+from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.config import Config
 
 
 class Song(SongActionMixin, UseFrameworkEvents):
@@ -114,7 +114,7 @@ class Song(SongActionMixin, UseFrameworkEvents):
     @property
     def highlighted_clip_slot(self):
         # type: () -> Optional[ClipSlot]
-        return SongFacade().highlighted_clip_slot()
+        return SongFacade.highlighted_clip_slot()
 
     @highlighted_clip_slot.setter
     def highlighted_clip_slot(self, clip_slot):
