@@ -40,7 +40,7 @@ class DeviceService(object):
 
     def _update_device_params(self, track, device_name, parameters):
         # type: (SimpleTrack, str, Dict[str, float]) -> None
-        device = find_if(lambda d: d.name == device_name, track.devices)
+        device = find_if(lambda d: d._name == device_name, track.devices)
         if not device:
             Logger.log_error("Couldn't find device with name %s in %s" % (device_name, track))
         for param_name, param_value in parameters.items():

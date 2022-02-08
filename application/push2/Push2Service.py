@@ -45,14 +45,13 @@ class Push2Service(object):
             Logger.log_info("Push2 connected")
 
         self.push2 = push2
-        with push2.component_guard():
-            self.push2._session_ring.set_enabled(False)
-            self.push2._matrix_modes.selected_mode = "session"
-            self._session_pad_press_listener.subject = self.push2.elements.matrix
-            self._track_select_button_press_listener.subject = self.push2.elements.select_buttons
-            self._nav_button_press_listener.replace_subjects(
-                [self.push2.elements.nav_left_button, self.push2.elements.nav_right_button]
-            )
+        self.push2._session_ring.set_enabled(False)
+        self.push2._matrix_modes.selected_mode = "session"
+        self._session_pad_press_listener.subject = self.push2.elements.matrix
+        self._track_select_button_press_listener.subject = self.push2.elements.select_buttons
+        self._nav_button_press_listener.replace_subjects(
+            [self.push2.elements.nav_left_button, self.push2.elements.nav_right_button]
+        )
 
         if not self.push2:
             Logger.log_info("Push2 connected to Protocol0")

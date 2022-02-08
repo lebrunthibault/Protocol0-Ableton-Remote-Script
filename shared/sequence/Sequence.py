@@ -77,6 +77,23 @@ class Sequence(SequenceStateMachineMixin):
         else:
             self.terminate()
 
+    @classmethod
+    def restart(cls):
+        # type: () -> None
+        for seq in reversed(Sequence.RUNNING_SEQUENCES):
+            seq.cancel()
+        Sequence.RUNNING_SEQUENCES = []
+
+    @classmethod
+    def handle_system_response(cls, res):
+        # type: (Any) -> None
+        waiting_sequence = next((seq for seq in Sequence.RUNNING_SEQUENCES if seq.waiting_for_system), None)
+        if waiting_sequence is None:
+            Logger.log_info("Response (%s) received from system but couldn't find a waiting sequence" % res)
+            return
+
+        waiting_sequence.on_system_response(res=res)
+
     def on_system_response(self, res):
         # type: (bool) -> None
         if res:

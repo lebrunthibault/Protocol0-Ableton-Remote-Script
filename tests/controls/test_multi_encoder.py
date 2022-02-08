@@ -27,9 +27,9 @@ def _scroll_encoder(encoder):
 def _make_multi_encoder(identifier=1):
     # type: (int) -> MultiEncoder
     p0 = make_protocol0()
-    with p0.component_guard():
-        return ActionGroupTest(TestContainer(), SongFacade._INSTANCE._song).add_encoder(identifier=identifier,
-                                                                                        name="pytest")
+    return ActionGroupTest(TestContainer(), SongFacade._INSTANCE._song, p0.component_guard).add_encoder(
+        identifier=identifier,
+        name="pytest")
 
 
 def test_multi_encoder_press():

@@ -6,7 +6,6 @@ from protocol0.domain.lom.instrument.preset.PresetProgramSelectedEvent import Pr
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.System import System
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.shared.scheduler.SchedulerEvent import SchedulerEvent
 from protocol0.domain.shared.utils import find_if
 from protocol0.infra.midi.MidiBytesReceivedEvent import MidiBytesReceivedEvent
 from protocol0.shared.logging.Logger import Logger
@@ -18,7 +17,7 @@ class MidiService(object):
     def __init__(self, send_midi):
         # type: (Callable) -> None
         self._send_midi = send_midi
-        self._midi_server_check_timeout_scheduler_event = None  # type: Optional[SchedulerEvent]
+        self._midi_server_up = False
 
         DomainEventBus.subscribe(MidiBytesReceivedEvent, self._on_midi_bytes_received_event)
         DomainEventBus.subscribe(PresetProgramSelectedEvent, self._on_preset_program_selected_event)
@@ -56,14 +55,13 @@ class MidiService(object):
 
     def _ping_midi_server(self):
         # type: () -> None
-        self._midi_server_check_timeout_scheduler_event = Scheduler.wait(300, self._no_midi_server_found)
+        Scheduler.wait(300, self._midi_server_ping_timeout)
         System.client().ping()
         Scheduler.wait(10, self._check_protocol_midi_is_up)  # waiting for Protocol0_midi to boot
 
     def pong_from_midi_server(self):
         # type: () -> None
-        self._midi_server_check_timeout_scheduler_event.cancel()
-        self._midi_server_check_timeout_scheduler_event = None
+        self._midi_server_up = True
         Logger.clear()
 
     def _check_protocol_midi_is_up(self):
@@ -73,6 +71,7 @@ class MidiService(object):
         if protocol0_midi is None:
             Logger.log_error("Protocol0Midi is not loaded")
 
-    def _no_midi_server_found(self):
+    def _midi_server_ping_timeout(self):
         # type: () -> None
-        Logger.log_warning("Midi server is not running.")
+        if not self._midi_server_up:
+            Logger.log_warning("Midi server is not running.")

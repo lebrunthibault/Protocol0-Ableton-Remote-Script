@@ -61,9 +61,6 @@ class EncoderAction(object):
 
         self._is_executing = True
         seq = Sequence()
-
-        # with Protocol0.SELF.component_guard():
-        # todo: check
         seq.add(partial(func, *a, **k))
         seq.add(UndoFacade.end_undo_step)
         seq.on_end(partial(setattr, self, "_is_executing", False))

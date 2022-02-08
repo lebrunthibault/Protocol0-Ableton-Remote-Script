@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 from protocol0.application.faderfox.group.ActionGroupData import ActionGroupData
 from protocol0.application.faderfox.group.ActionGroupFix import ActionGroupFix
@@ -16,8 +16,8 @@ if TYPE_CHECKING:
 
 class ActionGroupFactory(object):
     @classmethod
-    def create_action_groups(cls, container, song):
-        # type: (Container, Song) -> None
+    def create_action_groups(cls, container, song, component_guard):
+        # type: (Container, Song, Callable) -> None
         groups = [
             ActionGroupData,
             ActionGroupFix,
@@ -30,4 +30,4 @@ class ActionGroupFactory(object):
         ]
 
         for group in groups:
-            group(container, song).configure()
+            group(container, song, component_guard).configure()

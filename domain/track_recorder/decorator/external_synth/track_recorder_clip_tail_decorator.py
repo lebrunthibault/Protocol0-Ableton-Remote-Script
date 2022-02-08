@@ -65,7 +65,7 @@ class TrackRecorderClipTailDecorator(TrackRecorderDecorator, UseFrameworkEvents)
         # so that we have automation until the very end
         seq.add(wait_for_event=Last32thPassedEvent)
         seq.add(partial(setattr, self._song, "session_automation_record", False))
-        seq.add(partial(self.track.midi_track.stop, immediate=True))
+        seq.add(partial(self.track.midi_track._stop, immediate=True))
         seq.add(partial(setattr, self.track.midi_track.input_routing, "type", InputRoutingTypeEnum.NO_INPUT))
         seq.add(wait_beats=1)
         seq.add(partial(midi_clip.set_notes, midi_notes))

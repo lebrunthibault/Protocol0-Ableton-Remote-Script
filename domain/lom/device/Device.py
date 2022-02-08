@@ -79,7 +79,7 @@ class Device(UseFrameworkEvents):
         # type: (Union[DeviceParameterEnum, str]) -> Optional[DeviceParameter]
         if isinstance(device_parameter_name, DeviceParameterEnum):
             device_parameter_name = device_parameter_name.label
-        return find_if(lambda d: d.name == device_parameter_name, self.parameters)
+        return find_if(lambda d: d._name == device_parameter_name, self.parameters)
 
     def update_param_value(self, param_name, param_value):
         # type: (Union[DeviceParameterEnum, str], Any) -> None

@@ -1,7 +1,7 @@
 import json
 import time
 
-from typing import List, Optional, Any
+from typing import List, Optional, Callable
 
 from _Framework.ButtonElement import ButtonElement
 from _Framework.InputControlElement import MIDI_NOTE_TYPE, MIDI_CC_TYPE
@@ -16,20 +16,21 @@ from protocol0.shared.SongFacade import SongFacade
 class MultiEncoder(UseFrameworkEvents):
     PRESS_MAX_TIME = 0.25  # maximum time in seconds we consider a simple press
 
-    def __init__(self, channel, identifier, name, filter_active_tracks, *a, **k):
-        # type: (int, int, str, bool, Any, Any) -> None
+    def __init__(self, channel, identifier, name, filter_active_tracks, component_guard):
+        # type: (int, int, str, bool, Callable) -> None
         """
         Actions are triggered at the end of the press not the start. Allows press vs long_press (Note) vs scroll (CC)
         NB : for press actions the action is triggered on button release (allowing long_press)
         """
-        super(MultiEncoder, self).__init__(*a, **k)
+        super(MultiEncoder, self).__init__()
         self._actions = []  # type: List[EncoderAction]
         self.identifier = identifier
         self.name = name.title()
         self._channel = channel
         self._filter_active_tracks = filter_active_tracks
-        self._press_listener.subject = ButtonElement(True, MIDI_NOTE_TYPE, channel, identifier)
-        self._scroll_listener.subject = ButtonElement(True, MIDI_CC_TYPE, channel, identifier)
+        with component_guard():
+            self._press_listener.subject = ButtonElement(True, MIDI_NOTE_TYPE, channel, identifier)
+            self._scroll_listener.subject = ButtonElement(True, MIDI_CC_TYPE, channel, identifier)
         self._pressed_at = None  # type: Optional[float]
         self._has_long_press = False
 

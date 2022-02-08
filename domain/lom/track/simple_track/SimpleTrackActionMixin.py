@@ -59,4 +59,4 @@ class SimpleTrackActionMixin(object):
 
     def get_device_from_enum(self, device_enum):
         # type: (SimpleTrack, DeviceEnum) -> Optional[Device]
-        return find_if(lambda d: d.name == device_enum.device_name, self.base_track.all_devices)
+        return find_if(lambda d: d._name == device_enum.device_name, self.base_track.all_devices)

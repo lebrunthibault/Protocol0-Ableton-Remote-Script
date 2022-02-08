@@ -16,10 +16,11 @@ class ActionGroupMixin(object):
     """
     CHANNEL = None  # type: Optional[int]
 
-    def __init__(self, container, song):
-        # type: (ContainerInterface, Song) -> None
+    def __init__(self, container, song, component_guard):
+        # type: (ContainerInterface, Song, Callable) -> None
         self._container = container
         self._song = song
+        self._component_guard = component_guard
         self._multi_encoders = []  # type: List[MultiEncoder]
 
     def _add_multi_encoder(self, multi_encoder):
@@ -41,7 +42,7 @@ class ActionGroupMixin(object):
                     on_scroll=None):
         # type: (int, str, bool, Optional[Callable], Optional[Callable], Optional[Callable], Optional[Callable], Optional[Callable]) -> MultiEncoder
         assert self.CHANNEL, "channel not configured for %s" % self
-        encoder = MultiEncoder(channel=self.CHANNEL - 1, identifier=identifier, name=name, filter_active_tracks=filter_active_tracks)
+        encoder = MultiEncoder(channel=self.CHANNEL - 1, identifier=identifier, name=name, filter_active_tracks=filter_active_tracks, component_guard=self._component_guard)
         for action in EncoderAction.make_actions(name=name, on_press=on_press, on_cancel_press=on_cancel_press,
                                                  on_long_press=on_long_press, on_cancel_long_press=on_cancel_long_press, on_scroll=on_scroll):
             encoder.add_action(action)

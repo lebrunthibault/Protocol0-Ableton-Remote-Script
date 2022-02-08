@@ -6,6 +6,6 @@ class BeatSchedulerInterface(object):
         # type: (float, Callable) -> None
         raise NotImplementedError
 
-    def clear_scheduler(self):
+    def restart(self):
         # type: () -> None
         raise NotImplementedError

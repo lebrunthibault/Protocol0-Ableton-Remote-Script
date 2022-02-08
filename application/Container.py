@@ -38,7 +38,7 @@ from protocol0.infra.interface.SessionService import SessionService
 from protocol0.infra.persistence.SongDataService import SongDataService
 from protocol0.infra.logging.LoggerService import LoggerService
 from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
-from protocol0.infra.scheduler.FastScheduler import FastScheduler
+from protocol0.infra.scheduler.TickScheduler import TickScheduler
 from protocol0.application.ContainerInterface import ContainerInterface
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
@@ -65,19 +65,22 @@ class Container(ContainerInterface):
         song = Song(live_song)
         CommandBus(self, song)
 
-        Scheduler(FastScheduler(), BeatScheduler(unschedule_on_stop=True))  # setup Scheduler facade
-        midi_service = MidiService(control_surface._send_midi)
         session_service = SessionService(control_surface.component_guard,
                                          control_surface.set_highlighting_session_component)
         ApplicationView(control_surface.application().view, session_service)
 
-        browser_service = BrowserService()
+        with control_surface.component_guard():
+            browser_service = BrowserService()
         device_service = DeviceService(browser_service, song.select_device)
         track_factory = TrackFactory(song)
         SimpleDummyTrackService(browser_service)
         song_tracks_service = SongTracksService(track_factory, song)
         song_scenes_service = SongScenesService(song)
         SongFacade(song, song_tracks_service, song_scenes_service)
+
+        Scheduler(TickScheduler(), BeatScheduler(song))  # setup Scheduler facade
+        midi_service = MidiService(control_surface._send_midi)
+
         song_service = SongService(song)
         System.client().end_measurement()
         instrument_display_service = InstrumentDisplayService(device_service)
@@ -126,7 +129,7 @@ class Container(ContainerInterface):
         self._register(keyword_search_service)
         self._register(vocal_command_service)
 
-        ActionGroupFactory.create_action_groups(self, song)
+        ActionGroupFactory.create_action_groups(self, song, control_surface.component_guard)
 
     def _register(self, service):
         # type: (object) -> None

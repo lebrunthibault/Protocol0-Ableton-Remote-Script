@@ -1,4 +1,6 @@
-from typing import List, Any
+from collections import namedtuple
+
+from typing import List, Any, NamedTuple
 
 from _Framework.SubjectSlot import Subject
 from protocol0.tests.fixtures.simple_track import AbletonTrack
@@ -38,6 +40,11 @@ class AbletonSong(Subject):
     def stop_all_clips(self, _):
         # type: (bool) -> None
         pass
+
+    def get_current_beats_song_time(self):
+        # type: () -> NamedTuple
+        beats_song_time = namedtuple('beats_song_time', ['beats', 'sub_division', 'ticks'])
+        return beats_song_time(1, 1, 1)
 
     def get_data(self, _, default):
         # type: () -> Any

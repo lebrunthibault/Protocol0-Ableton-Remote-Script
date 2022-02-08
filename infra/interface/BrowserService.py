@@ -67,12 +67,12 @@ class BrowserService(BrowserActions, BrowserServiceInterface):
         if preset_name in self._audio_effect_rack_cache:
             return self._audio_effect_rack_cache[preset_name]
         else:
-            audio_effect_rack_item = find_if(lambda i: i.name == "Audio Effect Rack",
+            audio_effect_rack_item = find_if(lambda i: i._name == "Audio Effect Rack",
                                              self._browser.audio_effects.iter_children)
             if not audio_effect_rack_item:
                 Logger.log_info("Couldn't access preset items for Audio Effect Rack")
                 return None
             else:
-                preset = find_if(lambda i: i.name == "%s.adg" % preset_name, audio_effect_rack_item.iter_children)
+                preset = find_if(lambda i: i._name == "%s.adg" % preset_name, audio_effect_rack_item.iter_children)
                 self._audio_effect_rack_cache[preset_name] = preset
                 return preset

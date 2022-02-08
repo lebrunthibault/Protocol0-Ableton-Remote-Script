@@ -38,7 +38,8 @@ class TrackRecorderExternalSynthMixin(object):
             instrument.activate_editor_automation()
         System.client().hide_plugins()
         # this is delayed in the case an encoder is touched after the recording is finished by mistake
-        Scheduler.wait([1, 10, 50, 100], self._song.re_enable_automation)
+        for tick in [1, 10, 50, 100]:
+            Scheduler.wait(tick, self._song.re_enable_automation)
 
         midi_clip = track.midi_track.clip_slots[self.recording_scene_index].clip
         audio_clip = track.audio_track.clip_slots[self.recording_scene_index].clip

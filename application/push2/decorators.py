@@ -22,8 +22,7 @@ def push2_method(defer_call=True):
 
             def execute():
                 # type: () -> Any
-                with self.push2.component_guard():
-                    return func(self, *a, **k)
+                return func(self, *a, **k)
 
             if defer_call:
                 Scheduler.defer(execute)
