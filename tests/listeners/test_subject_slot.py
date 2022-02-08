@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 from _Framework.SubjectSlot import Subject, SlotManager
+from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.shared.decorators import p0_subject_slot
 
 
@@ -16,7 +17,7 @@ def test_subject_slot_inheritance():
             # noinspection PyUnresolvedReferences
             self.notify_test()
 
-    class Parent(SlotManager):
+    class Parent(UseFrameworkEvents):
         def __init__(self, source_emitter):
             # type: (Emitter) -> None
             super(Parent, self).__init__()

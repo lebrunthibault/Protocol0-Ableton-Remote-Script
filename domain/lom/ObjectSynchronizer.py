@@ -2,12 +2,12 @@ from functools import partial
 
 from typing import List, Optional, Any
 
-from _Framework.SubjectSlot import SlotManager
+from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 
 
-class ObjectSynchronizer(SlotManager):
+class ObjectSynchronizer(UseFrameworkEvents):
     """
     Class that handles the parameter sync of 2 objects (usually track or clip)
     listenable_properties are properties that trigger the sync
