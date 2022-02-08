@@ -3,7 +3,7 @@ from functools import wraps
 from typing import TYPE_CHECKING, Any, Callable
 
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.my_types import Func
+from protocol0.shared.my_types import Func
 
 if TYPE_CHECKING:
     from protocol0.application.push2.Push2Manager import Push2Manager

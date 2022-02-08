@@ -4,7 +4,7 @@ from collections import Iterator
 import pytest
 from typing import List, Optional
 
-from protocol0.application.constants import PROJECT_ROOT
+from protocol0.shared.constants import PROJECT_ROOT
 
 
 @pytest.mark.skip(reason="slow")

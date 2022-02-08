@@ -3,7 +3,7 @@ from functools import partial
 from typing import Optional, TYPE_CHECKING, Any
 
 from _Framework.CompoundElement import subject_slot_group
-from protocol0.domain.lom.Listenable import Listenable
+from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.clip.ClipSynchronizer import ClipSynchronizer
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.domain.lom.clip_slot.AudioTailClipSlot import AudioTailClipSlot
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 
 
-class ClipSlotSynchronizer(Listenable):
+class ClipSlotSynchronizer(UseFrameworkEvents):
     """ For ExternalSynthTrack """
 
     def __init__(self, midi_cs, audio_cs, *a, **k):

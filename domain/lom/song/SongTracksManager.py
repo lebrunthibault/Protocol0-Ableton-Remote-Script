@@ -1,14 +1,14 @@
 import collections
 
-from typing import Optional, Type, Dict, Iterator
+from typing import Optional, Dict
 
-import Live
-from protocol0.application.interface.SessionManager import SessionManager
-from protocol0.application.service.decorators import handle_error
-from protocol0.domain.lom.Listenable import Listenable
+from _Framework.SubjectSlot import subject_slot
+from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.song.Song import Song
+from protocol0.domain.lom.song.TrackAddedEvent import TrackAddedEvent
+from protocol0.domain.lom.song.TracksMappedEvent import TracksMappedEvent
 from protocol0.domain.lom.track.TrackFactory import TrackFactory
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
@@ -16,76 +16,51 @@ from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import Sim
 from protocol0.domain.lom.track.simple_track.SimpleMasterTrack import SimpleMasterTrack
 from protocol0.domain.lom.track.simple_track.SimpleReturnTrack import SimpleReturnTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.domain.shared.decorators import p0_subject_slot
-from protocol0.domain.shared.utils import scroll_values
+from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import SimpleTrackCreatedEvent
+from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.shared.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
 
 
-class SongTracksManager(Listenable):
-    def __init__(self, track_manager, session_manager, song):
-        # type: (TrackFactory, SessionManager, Song) -> None
+class SongTracksManager(UseFrameworkEvents):
+    def __init__(self, track_factory, song):
+        # type: (TrackFactory, Song) -> None
         super(SongTracksManager, self).__init__()
-        self._track_manager = track_manager
-        self._session_manager = session_manager
-        self.song = song
+        self._track_factory = track_factory
+        self._song = song
+
         self._live_track_id_to_simple_track = collections.OrderedDict()  # type: Dict[int, SimpleTrack]
-        self.tracks_listener.subject = self.song._song
+        self._template_dummy_clip = None  # type: Optional[AudioClip]
+        self._usamo_track = None  # type: Optional[SimpleTrack]
+        self._master_track = None  # type: Optional[SimpleTrack]
 
-    @property
-    def live_tracks(self):
-        # type: () -> Iterator[Live.Track.Track]
-        return (track for track in
-                list(self.song._song.tracks) + list(self.song._song.return_tracks) + [self.song._song.master_track])
+        self.tracks_listener.subject = self._song._song
+        DomainEventBus.subscribe(SimpleTrackCreatedEvent, self._on_simple_track_created_event)
 
-    def get_simple_track(self, live_track):
-        # type: (Live.Track.Track) -> SimpleTrack
-        """ we use the live ptr instead of the track to be able to access outdated simple tracks on deletion """
-        return self._live_track_id_to_simple_track[live_track._live_ptr]
-
-    def get_optional_simple_track(self, live_track):
-        # type: (Live.Track.Track) -> Optional[SimpleTrack]
-        try:
-            return self.get_simple_track(live_track)
-        except KeyError:
-            return None
-
-    def add_simple_track(self, simple_track):
-        # type: (SimpleTrack) -> None
-        self._live_track_id_to_simple_track[simple_track.live_id] = simple_track
-
-    @property
-    def all_simple_tracks(self):
-        # type: () -> Iterator[SimpleTrack]
-        return (track for track in self._live_track_id_to_simple_track.values())
-
-    @p0_subject_slot("tracks")
-    @handle_error
+    @subject_slot("tracks")
     def tracks_listener(self):
-        # type: () -> Sequence
+        # type: () -> None
         self._clean_deleted_tracks()
 
-        previous_simple_track_count = len(list(self.all_simple_tracks))
-        has_added_tracks = 0 < previous_simple_track_count < len(list(self.live_tracks))
+        previous_simple_track_count = len(list(SongFacade.all_simple_tracks()))
+        has_added_tracks = 0 < previous_simple_track_count < len(list(SongFacade.live_tracks()))
 
         self._generate_simple_tracks()
         self._generate_abstract_group_tracks()
 
-        for scene in self.song.scenes:
+        for scene in SongFacade.scenes():
             scene.on_tracks_change()
 
         Logger.log_info("mapped tracks")
 
-        seq = Sequence()
-        if has_added_tracks and self.song.selected_track:
-            seq.add(self._track_manager.on_added_track)
+        if has_added_tracks and SongFacade.selected_track():
+            DomainEventBus.notify(TrackAddedEvent())
 
-        return seq.done()
+        DomainEventBus.notify(TracksMappedEvent())
 
     def _clean_deleted_tracks(self):
         # type: () -> None
-        existing_track_ids = [track._live_ptr for track in list(self.live_tracks)]
+        existing_track_ids = [track._live_ptr for track in list(SongFacade.live_tracks())]
         deleted_ids = []
 
         for track_id, simple_track in self._live_track_id_to_simple_track.items():
@@ -101,40 +76,37 @@ class SongTracksManager(Listenable):
     def _generate_simple_tracks(self):
         # type: () -> None
         """ instantiate SimpleTracks (including return / master, that are marked as inactive) """
-        self.song.usamo_track = None
+        self._usamo_track = None
         self.template_dummy_clip = None  # type: Optional[AudioClip]
 
         # instantiate set tracks
-        for index, track in enumerate(list(self.song._song.tracks)):
-            self.generate_simple_track(track=track, index=index)
+        for index, track in enumerate(list(self._song._song.tracks)):
+            self._track_factory.create_simple_track(track=track, index=index)
 
-        if self.song.usamo_track is None:
+        if self._usamo_track is None:
             Logger.log_warning("Usamo track is not present")
 
-        for index, track in enumerate(list(self.song._song.return_tracks)):
-            self.generate_simple_track(track=track, index=index, cls=SimpleReturnTrack)
+        for index, track in enumerate(list(self._song._song.return_tracks)):
+            self._track_factory.create_simple_track(track=track, index=index, cls=SimpleReturnTrack)
 
-        self.song.master_track = self.generate_simple_track(track=self.song._song.master_track, index=0,
-                                                            cls=SimpleMasterTrack)
+        self._master_track = self._track_factory.create_simple_track(track=self._song._song.master_track, index=0,
+                                                                     cls=SimpleMasterTrack)
 
         self._sort_simple_tracks()
 
-    def generate_simple_track(self, track, index, cls=None):
-        # type: (Live.Track.Track, int, Optional[Type[SimpleTrack]]) -> SimpleTrack
-        simple_track = self._track_manager.instantiate_simple_track(track=track, index=index, cls=cls)
-        self._register_simple_track(simple_track)
-        if index is not None:
-            simple_track._index = index
-        simple_track.on_tracks_change()
+    def _on_simple_track_created_event(self, event):
+        # type: (SimpleTrackCreatedEvent) -> None
+        """ So as to be able to generate simple tracks with the abstract group track aggregate """
+        event.track.set_song(self._song)
+        self._register_simple_track(event.track)
+        event.track.on_tracks_change()
 
-        if self.song.usamo_track is None:
-            if simple_track.get_device_from_enum(DeviceEnum.USAMO):
-                self.song.usamo_track = simple_track
+        if self._usamo_track is None:
+            if event.track.get_device_from_enum(DeviceEnum.USAMO):
+                self._usamo_track = event.track
 
-        if simple_track.name == SimpleInstrumentBusTrack.DEFAULT_NAME and len(simple_track.clips):
-            self.song.template_dummy_clip = simple_track.clips[0]
-
-        return simple_track
+        if event.track.name == SimpleInstrumentBusTrack.DEFAULT_NAME and len(event.track.clips):
+            self._template_dummy_clip = event.track.clips[0]
 
     def _register_simple_track(self, simple_track):
         # type: (SimpleTrack) -> None
@@ -142,11 +114,11 @@ class SongTracksManager(Listenable):
         simple_track.sub_tracks = []
 
         # handling replacement of a SimpleTrack by another
-        previous_simple_track = self.get_optional_simple_track(simple_track._track)
+        previous_simple_track = SongFacade.optional_simple_track_from_live_track(simple_track._track)
         if previous_simple_track and previous_simple_track != simple_track:
             self._replace_simple_track(previous_simple_track, simple_track)
 
-        self.add_simple_track(simple_track)
+        self._live_track_id_to_simple_track[simple_track.live_id] = simple_track
 
     def _replace_simple_track(self, previous_simple_track, new_simple_track):
         # type: (SimpleTrack, SimpleTrack) -> None
@@ -155,27 +127,30 @@ class SongTracksManager(Listenable):
         previous_simple_track.disconnect()
 
         if previous_simple_track.group_track:
-            previous_simple_track.append_to_sub_tracks(previous_simple_track.group_track, new_simple_track, previous_simple_track)
+            previous_simple_track.append_to_sub_tracks(previous_simple_track.group_track, new_simple_track,
+                                                       previous_simple_track)
 
         if previous_simple_track.abstract_group_track:
-            previous_simple_track.append_to_sub_tracks(previous_simple_track.abstract_group_track, new_simple_track, previous_simple_track)
+            previous_simple_track.append_to_sub_tracks(previous_simple_track.abstract_group_track, new_simple_track,
+                                                       previous_simple_track)
 
     def _sort_simple_tracks(self):
         # type: () -> None
         sorted_dict = collections.OrderedDict()
-        for track in self.live_tracks:
-            sorted_dict[track._live_ptr] = self.get_simple_track(track)
+        for track in SongFacade.live_tracks():
+            sorted_dict[track._live_ptr] = SongFacade.simple_track_from_live_track(track)
         self._live_track_id_to_simple_track = sorted_dict
 
     def _generate_abstract_group_tracks(self):
         # type: () -> None
         # 2nd pass : instantiate AbstractGroupTracks
-        for track in self.song.simple_tracks:
+        for track in SongFacade.simple_tracks():
             if not track.is_foldable:
                 continue
 
             previous_abstract_group_track = track.abstract_group_track
-            abstract_group_track = self._track_manager.instantiate_abstract_group_track(track)
+            abstract_group_track = self._track_factory.create_abstract_group_track(track)
+            abstract_group_track.set_song(self._song)
 
             if isinstance(previous_abstract_group_track, ExternalSynthTrack) and isinstance(abstract_group_track,
                                                                                             NormalGroupTrack):
@@ -185,15 +160,3 @@ class SongTracksManager(Listenable):
                 previous_abstract_group_track.disconnect()
 
             abstract_group_track.on_tracks_change()
-
-    def scroll_tracks(self, go_next):
-        # type: (bool) -> None
-        if not SongFacade.selected_track().IS_ACTIVE:
-            next(SongFacade.simple_tracks()).select()
-            return None
-
-        next_track = scroll_values(SongFacade.scrollable_tracks(), SongFacade.current_track(), go_next, rotate=False)
-        if next_track:
-            next_track.select()
-            if next_track == list(SongFacade.scrollable_tracks())[-1]:
-                self._session_manager.toggle_session_ring()

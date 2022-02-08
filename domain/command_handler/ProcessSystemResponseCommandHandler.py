@@ -1,4 +1,4 @@
-from protocol0.application.command.ProcessSystemResponseCommand import ProcessSystemResponseCommand
+from protocol0.domain.command.ProcessSystemResponseCommand import ProcessSystemResponseCommand
 from protocol0.domain.command_handler.CommandHandlerInterface import CommandHandlerInterface
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.shared.Logger import Logger

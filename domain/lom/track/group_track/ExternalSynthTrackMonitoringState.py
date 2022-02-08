@@ -1,10 +1,11 @@
 from typing import Any, TYPE_CHECKING
 
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
+from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.shared.SongFacade import SongFacade
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
@@ -28,12 +29,11 @@ class ExternalSynthTrackMonitoringState(object):
         # type: () -> bool
         return self._track.midi_track.mute is False
 
-    # noinspection DuplicatedCode
     def monitor_midi(self):
         # type: () -> None
         # midi track
         self._un_mute_track(self._track.midi_track)
-        self._track.midi_track.input_routing.type = self._track.instrument.MIDI_INPUT_ROUTING_TYPE
+        self._track.midi_track.input_routing.type = InputRoutingTypeEnum.REV2_AUX
         for midi_clip in self._track.midi_track.clips:
             audio_clip = self._track.audio_track.clip_slots[midi_clip.index].clip
             # do not unmute muted clip slot

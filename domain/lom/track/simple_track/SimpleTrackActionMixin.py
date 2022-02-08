@@ -1,11 +1,16 @@
-from typing import Optional
+from functools import partial
+from itertools import chain, imap
+
+from typing import Optional, List, Union
 from typing import TYPE_CHECKING
 
-from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.lom.device.Device import Device
+from protocol0.domain.lom.device.DeviceChain import DeviceChain
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
+from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.lom.track.simple_track.event.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.utils import find_if
 
 if TYPE_CHECKING:
@@ -24,7 +29,30 @@ class SimpleTrackActionMixin(object):
             self.mute = False
             self.is_armed = True
 
-        return DomainEventBus.notify(SimpleTrackArmedEvent(self))
+        DomainEventBus.notify(SimpleTrackArmedEvent(self))
+
+    def _find_all_devices(self, track_or_chain, only_visible=False):
+        # type: (SimpleTrack, Optional[Union[SimpleTrack, DeviceChain]], bool) -> List[Device]
+        u""" Returns a list with all devices from a track or chain """
+        devices = []
+        if track_or_chain is None:
+            return []
+        for device in filter(None, track_or_chain.devices):  # type: Device
+            if not isinstance(device, RackDevice):
+                devices += [device]
+                continue
+
+            if device.can_have_drum_pads and device.can_have_chains:
+                devices += chain([device], self._find_all_devices(device.selected_chain))
+            elif not device.can_have_drum_pads and isinstance(device, RackDevice):
+                devices += chain(
+                    [device],
+                    *imap(
+                        partial(self._find_all_devices, only_visible=only_visible),
+                        filter(None, device.chains),
+                    )
+                )
+        return devices
 
     def delete_device(self, device_index):
         # type: (SimpleTrack, int) -> None

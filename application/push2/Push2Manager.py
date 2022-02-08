@@ -1,13 +1,12 @@
 from Push2.push2 import Push2
-from typing import Optional, cast, Any
+from typing import Optional, Any
 
 from _Framework.ControlSurface import get_control_surfaces
 from _Framework.SubjectSlot import subject_slot_group, subject_slot
 from protocol0.application.push2.decorators import push2_method
-from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.lom.note.NoteQuantizationManager import NoteQuantizationManager
-from protocol0.domain.shared.utils import find_if
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.utils import find_if
 from protocol0.shared.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
 
@@ -68,8 +67,6 @@ class Push2Manager(object):
     def _selected_track_listener(self):
         # type: () -> None
         # NB :  listen to this
-        # if self.parent.sessionManager.session:
-        #     self._update_session_ring()
         self._update_selected_modes()
 
     @push2_method()
@@ -90,11 +87,8 @@ class Push2Manager(object):
     def update_clip_grid_quantization(self):
         # type: () -> None
         assert self.push2
-        if not SongFacade.selected_clip() or not isinstance(SongFacade.selected_clip(), MidiClip):
-            return
-        clip = cast(MidiClip, SongFacade.selected_clip())
         self._update_selected_modes()
-        quantization_index = self.note_quantization_manager.get_notes_quantization_index(clip.get_notes())
+        quantization_index = self.note_quantization_manager.get_notes_quantization_index(SongFacade.selected_midi_clip().get_notes())
         self.push2._grid_resolution.index = quantization_index
         self.push2._grid_resolution.quantization_buttons[quantization_index].is_checked = True
 

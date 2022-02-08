@@ -1,12 +1,12 @@
 import pytest
 
-from protocol0.application.Protocol0 import Protocol0
 from protocol0.application.faderfox.EncoderAction import EncoderAction
 from protocol0.application.faderfox.EncoderMoveEnum import EncoderMoveEnum
 from protocol0.application.faderfox.MultiEncoder import MultiEncoder
 from protocol0.application.faderfox.group.ActionGroupMixin import ActionGroupMixin
-from protocol0.tests.fixtures import patch_song
-from protocol0.tests.test_all import p0
+from protocol0.shared.SongFacade import SongFacade
+from protocol0.tests.fixtures.container import TestContainer
+from protocol0.tests.fixtures.p0 import make_protocol0
 
 
 class ActionGroupTest(ActionGroupMixin):
@@ -26,9 +26,10 @@ def _scroll_encoder(encoder):
 
 def _make_multi_encoder(identifier=1):
     # type: (int) -> MultiEncoder
+    p0 = make_protocol0()
     with p0.component_guard():
-        patch_song()
-        return ActionGroupTest(Protocol0.CONTAINER).add_encoder(identifier=identifier, name="pytest")
+        return ActionGroupTest(TestContainer(), SongFacade._INSTANCE._song).add_encoder(identifier=identifier,
+                                                                                        name="pytest")
 
 
 def test_multi_encoder_press():
@@ -41,7 +42,7 @@ def test_multi_encoder_press():
 
     multi_encoder = _make_multi_encoder().add_action(EncoderAction(press, move_type=EncoderMoveEnum.PRESS, name="test"))
 
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         multi_encoder.add_action(EncoderAction(func=lambda: None, move_type=EncoderMoveEnum.PRESS, name="test"))
 
     _press_encoder(multi_encoder)
@@ -57,7 +58,8 @@ def test_multi_encoder_scroll():
         # type: (bool) -> None
         res["scrolled"] = True
 
-    multi_encoder = _make_multi_encoder().add_action(EncoderAction(scroll, move_type=EncoderMoveEnum.SCROLL, name="test"))
+    multi_encoder = _make_multi_encoder().add_action(
+        EncoderAction(scroll, move_type=EncoderMoveEnum.SCROLL, name="test"))
     _scroll_encoder(multi_encoder)
     assert res["scrolled"] is True
 

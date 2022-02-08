@@ -2,30 +2,31 @@ from functools import partial
 
 from typing import Optional, cast
 
-from protocol0.application.command.ProgramChangeCommand import ProgramChangeCommand
-from protocol0.application.interface.ClickManager import ClickManager
-from protocol0.domain.shared.CommandBus import CommandBus
+from protocol0.domain.command.ProgramChangeCommand import ProgramChangeCommand
 from protocol0.domain.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
 from protocol0.domain.lom.note.Note import Note
+from protocol0.domain.lom.song.Song import Song
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.domain.shared.CommandBus import CommandBus
+from protocol0.domain.shared.InterfaceClicksManagerInterface import InterfaceClicksManagerInterface
+from protocol0.domain.shared.System import System
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.track_recorder.track_recorder_manager import TrackRecorderManager
-from protocol0.domain.shared.System import System
-from protocol0.shared.AccessSong import AccessSong
 from protocol0.shared.SongFacade import SongFacade
 
 
-class AudioLatencyAnalyzer(AccessSong):
-    def __init__(self, track_recorder_manager, click_manager):
-        # type: (TrackRecorderManager, ClickManager) -> None
+class AudioLatencyAnalyzer(object):
+    def __init__(self, track_recorder_manager, song, interface_clicks_manager):
+        # type: (TrackRecorderManager, Song, InterfaceClicksManagerInterface) -> None
         self._track_recorder_manager = track_recorder_manager
-        self._click_manager = click_manager
+        self._song = song
+        self._interface_clicks_manager = interface_clicks_manager
 
     def test_audio_latency(self):
         # type: () -> Optional[Sequence]
-        if self._song.usamo_track is None:
+        if SongFacade.usamo_track() is None:
             raise Protocol0Warning("Missing usamo track")
 
         ext_synth_track = SongFacade.current_track()
@@ -92,8 +93,8 @@ class AudioLatencyAnalyzer(AccessSong):
         audio_clip = current_track.audio_track.clips[0]
         seq = Sequence()
         seq.add(partial(audio_clip.quantize, depth=0))
-        seq.add(self._click_manager.save_clip_sample)
-        seq.add(partial(System.get_instance().analyze_test_audio_clip_jitter, clip_path=audio_clip.file_path),
+        seq.add(self._interface_clicks_manager.save_sample)
+        seq.add(partial(System.client().analyze_test_audio_clip_jitter, clip_path=audio_clip.file_path),
                 wait_for_system=True)
         seq.add(current_track.delete)
         return seq.done()

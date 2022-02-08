@@ -7,10 +7,10 @@ from types import FrameType
 from qualname import qualname
 from typing import Optional, Any, cast, Callable, Iterator, List, Dict
 
-from protocol0.application.constants import PROJECT_ROOT, REMOTE_SCRIPTS_ROOT
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
-from protocol0.my_types import T
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.constants import PROJECT_ROOT, REMOTE_SCRIPTS_ROOT
+from protocol0.shared.my_types import T
 
 
 def scroll_values(items, selected_item, go_next, rotate=True):
@@ -154,7 +154,7 @@ def import_package(package):
     # type: (types.ModuleType) -> None
     """ import all modules in a package """
     prefix = package.__name__ + "."
-    for importer, mod_name, is_pkg in pkgutil.iter_modules(package.__path__, prefix):
+    for _, mod_name, _ in pkgutil.iter_modules(package.__path__, prefix):
         __import__(mod_name, fromlist="dummy")
 
 

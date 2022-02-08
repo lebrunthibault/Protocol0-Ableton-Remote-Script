@@ -2,7 +2,7 @@ from transitions import Machine, State, MachineError
 from typing import Any, Optional
 
 from protocol0.domain.enums.AbstractEnum import AbstractEnum
-from protocol0.domain.lom.Listenable import Listenable
+from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.shared.Logger import Logger
 
 
@@ -14,7 +14,7 @@ class SequenceState(AbstractEnum):
     ERRORED = "ERRORED"
 
 
-class SequenceStateMachineMixin(Listenable):
+class SequenceStateMachineMixin(UseFrameworkEvents):
     __subject_events__ = ("terminated", "errored", "cancelled")
 
     def __init__(self, *a, **k):

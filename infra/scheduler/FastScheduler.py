@@ -2,17 +2,16 @@ from ClyphX_Pro import ClyphXComponentBase
 from typing import List, Callable
 
 import Live
-from protocol0.infra.scheduler.SchedulerEvent import SchedulerEvent
+from protocol0.domain.shared.scheduler.FastSchedulerInterface import FastSchedulerInterface
+from protocol0.domain.shared.scheduler.SchedulerEvent import SchedulerEvent
 
 
-class FastScheduler(object):
-    TICK_MS_DURATION = 17  # average 17 ms
-
-    # noinspection PyArgumentList
+class FastScheduler(FastSchedulerInterface):
     def __init__(self):
         # type: () -> None
         ClyphXComponentBase.start_scheduler()
         self._scheduler = Live.Base.Timer(callback=self._on_tick, interval=1, repeat=True)
+        # noinspection PyArgumentList
         self._scheduler.start()
         self._scheduled_events = []  # type: List[SchedulerEvent]
 
@@ -56,7 +55,3 @@ class FastScheduler(object):
             self._execute_event(scheduled_event)
 
         return scheduled_event
-
-    def schedule_next(self, callback):
-        # type: (Callable) -> None
-        self.schedule(1, callback)

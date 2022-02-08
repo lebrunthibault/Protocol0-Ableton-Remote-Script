@@ -7,13 +7,13 @@ from _Framework.ButtonElement import ButtonElement
 from _Framework.InputControlElement import MIDI_NOTE_TYPE, MIDI_CC_TYPE
 from _Framework.SubjectSlot import subject_slot
 from protocol0.application.faderfox.EncoderAction import EncoderAction, EncoderMoveEnum
-from protocol0.application.service.decorators import handle_error
-from protocol0.domain.lom.Listenable import Listenable
+from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
+from protocol0.domain.shared.decorators import handle_error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.SongFacade import SongFacade
 
 
-class MultiEncoder(Listenable):
+class MultiEncoder(UseFrameworkEvents):
     PRESS_MAX_TIME = 0.25  # maximum time in seconds we consider a simple press
 
     def __init__(self, channel, identifier, name, filter_active_tracks, *a, **k):
@@ -43,9 +43,7 @@ class MultiEncoder(Listenable):
 
     def add_action(self, action):
         # type: (EncoderAction) -> MultiEncoder
-        assert not self._find_matching_action(
-            action.move_type, exact_match=True, log_not_found=False
-        ), ("duplicate move %s" % action)
+        assert self._find_matching_action(action.move_type) is None, ("duplicate move %s" % action)
         if action.move_type == EncoderMoveEnum.LONG_PRESS:
             self._has_long_press = True
         self._actions.append(action)
@@ -79,7 +77,14 @@ class MultiEncoder(Listenable):
 
     def _find_and_execute_action(self, move_type, go_next=None):
         # type: (EncoderMoveEnum, Optional[bool]) -> None
-        action = self._find_matching_action(move_type=move_type)  # type: ignore[arg-type]
+        action = self._find_matching_action(move_type=move_type)
+        # special case : fallback long_press to press
+        if not action and move_type == EncoderMoveEnum.LONG_PRESS:
+            action = self._find_matching_action(move_type=EncoderMoveEnum.PRESS)
+
+        if not action:
+            raise Protocol0Warning("Action not found: %s (%s)" % (self.name, move_type))
+
         self._pressed_at = None
         if not action:
             return None
@@ -93,25 +98,11 @@ class MultiEncoder(Listenable):
 
         action.execute(encoder_name=self.name, **params)
 
-    def _find_matching_action(self, move_type, exact_match=False, log_not_found=True):
-        # type: (EncoderMoveEnum, bool, bool) -> Optional[EncoderAction]
-        def find_matching_action(inner_move_type):
-            # type: (EncoderMoveEnum) -> Optional[EncoderAction]
-            actions = [
-                encoder_action
-                for encoder_action in self._actions
-                if encoder_action.move_type == inner_move_type
-            ]
-            return next(iter(actions), None)
-
-        action = find_matching_action(inner_move_type=move_type)  # type: ignore[arg-type]
-
-        # special case : fallback long_press to press
-        if not action and move_type == EncoderMoveEnum.LONG_PRESS and not exact_match:
-            # type: ignore[arg-type]
-            action = find_matching_action(inner_move_type=EncoderMoveEnum.PRESS)
-
-        if not action and log_not_found:
-            raise Protocol0Warning("Action not found: %s (%s)" % (self.name, move_type))
-
-        return action
+    def _find_matching_action(self, move_type):
+        # type: (EncoderMoveEnum) -> Optional[EncoderAction]
+        actions = [
+            encoder_action
+            for encoder_action in self._actions
+            if encoder_action.move_type == move_type
+        ]
+        return next(iter(actions), None)

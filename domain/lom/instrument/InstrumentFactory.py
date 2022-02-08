@@ -1,4 +1,4 @@
-from typing import Optional, List, Type
+from typing import Optional, List, Type, TYPE_CHECKING
 
 import protocol0.domain.lom.instrument.instrument as instrument_package
 from protocol0.domain.lom.device.Device import Device
@@ -6,20 +6,45 @@ from protocol0.domain.lom.device.PluginDevice import PluginDevice
 from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.lom.device.SimplerDevice import SimplerDevice
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
-from protocol0.domain.shared.utils import import_package
+from protocol0.domain.shared.utils import find_if, import_package
+from protocol0.shared.Logger import Logger
+
+if TYPE_CHECKING:
+    from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
 class InstrumentFactory(object):
     _INSTRUMENT_CLASSES = []  # type: List[Type[InstrumentInterface]]
 
     @classmethod
-    def get_instrument_class(cls, device):
+    def make_instrument_from_simple_track(cls, track):
+        # type: (SimpleTrack) -> Optional[InstrumentInterface]
+        """
+        If the instrument didn't change we keep the same instrument and don't instantiate a new one
+        to keep instrument state
+        """
+
+        instrument_device = find_if(lambda d: cls._get_instrument_class(d) is not None, track.all_devices)
+        Logger.log_dev("instrument_device: %s" % instrument_device)
+        if not instrument_device:
+            return None
+
+        instrument_class = cls._get_instrument_class(instrument_device)
+
+        if isinstance(track.instrument, instrument_class):
+            return track.instrument  # maintaining state
+        else:
+            return instrument_class(track=track, device=instrument_device)
+
+    @classmethod
+    def _get_instrument_class(cls, device):
         # type: (Device) -> Optional[Type[InstrumentInterface]]
         # checking for grouped devices
         if isinstance(device, RackDevice):
             device = cls._get_device_from_rack_device(device) or device
 
         if isinstance(device, PluginDevice):
+            Logger.log_dev("cls._get_instrument_classes: %s" % cls._get_instrument_classes())
             for _class in cls._get_instrument_classes():
                 if _class.DEVICE_NAME.lower() == device.name.lower():
                     return _class

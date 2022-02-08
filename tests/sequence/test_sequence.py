@@ -1,9 +1,10 @@
 import pytest
 
-from protocol0.domain.scheduler.BarEndingEvent import BarEndingEvent
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.decorators import has_callback_queue
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
+from protocol0.domain.shared.scheduler.BarEndingEvent import BarEndingEvent
 from protocol0.domain.shared.utils import nop
 
 
@@ -14,13 +15,13 @@ def test_sanity_checks():
     seq.done()
     assert seq.terminated
 
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         seq.add(wait=1)
 
-    with pytest.raises(Exception):
+    with pytest.raises(Protocol0Error):
         Sequence().add(wait=1, complete_on=lambda: True).done()
 
-    with pytest.raises(Exception):
+    with pytest.raises(Protocol0Error):
         Sequence().add(wait_for_system=True, wait=1).done()
 
 

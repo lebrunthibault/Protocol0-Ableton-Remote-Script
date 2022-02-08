@@ -2,13 +2,13 @@ from functools import partial
 
 from typing import Optional
 
-from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.lom.device.DeviceManager import DeviceManager
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.track.simple_track.event.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.System import System
+from protocol0.shared.SongFacade import SongFacade
 
 
 class InstrumentDisplayManager(object):
@@ -29,9 +29,9 @@ class InstrumentDisplayManager(object):
         else:
             seq.add(instrument.device.track.select)
             if SongFacade.selected_track() != instrument.device.track:
-                seq.add(System.get_instance().show_plugins)
+                seq.add(System.client().show_plugins)
             else:
-                seq.add(System.get_instance().show_hide_plugins)
+                seq.add(System.client().show_hide_plugins)
         return seq.done()
 
     def activate_instrument_plugin_window(self):
@@ -65,6 +65,6 @@ class InstrumentDisplayManager(object):
 
         if not force_activate and not select_instrument_track:
             seq.add(wait=2)
-            seq.add(System.get_instance().hide_plugins)
+            seq.add(System.client().hide_plugins)
 
         return seq.done()

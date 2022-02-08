@@ -1,12 +1,13 @@
 from typing import Callable
 
-from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.shared.scheduler.BeatSchedulerInterface import BeatSchedulerInterface
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.infra.scheduler.SyncedScheduler import SyncedScheduler
 from protocol0.shared.SongFacade import SongFacade
 
 
-class BeatScheduler(SyncedScheduler):
+class BeatScheduler(SyncedScheduler, BeatSchedulerInterface):
     def wait_beats(self, beats, callback):
         # type: (float, Callable) -> None
         # deferring in the case we call wait_beats just after starting the song

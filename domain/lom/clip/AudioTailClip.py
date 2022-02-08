@@ -1,9 +1,8 @@
-from typing import Any, TYPE_CHECKING, Optional
+from typing import Any, TYPE_CHECKING
 
-from protocol0.application.faderfox.InterfaceState import InterfaceState
 from protocol0.domain.lom.clip.AudioClip import AudioClip
-from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.shared.InterfaceState import InterfaceState
 from protocol0.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:
@@ -17,11 +16,6 @@ class AudioTailClip(AudioClip):
         super(AudioTailClip, self).__init__(*a, **k)
         self.track = self.track  # type: SimpleAudioTailTrack
         self.clip_slot = self.clip_slot  # type: AudioTailClipSlot
-
-    @property
-    def midi_clip(self):
-        # type: () -> Optional[MidiClip]
-        return self.track.abstract_group_track.midi_track.clip_slots[self.index].clip
 
     @property
     def loop_end(self):

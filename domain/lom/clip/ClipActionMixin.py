@@ -1,19 +1,20 @@
 from typing import TYPE_CHECKING, Optional
 
 import Live
-from protocol0.application.constants import QUANTIZATION_OPTIONS
-from protocol0.domain.shared.ApplicationView import ApplicationView
+from protocol0.domain.lom.clip.ClipSelectedEvent import ClipSelectedEvent
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.shared.AccessSong import AccessSong
+from protocol0.domain.shared.ApplicationView import ApplicationView
+from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.constants import QUANTIZATION_OPTIONS
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.clip.Clip import Clip
 
 
 # noinspection PyTypeHints
-class ClipActionMixin(AccessSong):
+class ClipActionMixin(object):
     @property
     def is_playing(self):
         # type: (Clip) -> bool
@@ -27,7 +28,7 @@ class ClipActionMixin(AccessSong):
 
     def select(self):
         # type: (Clip) -> Sequence
-        self._song.highlighted_clip_slot = self.clip_slot
+        DomainEventBus.notify(ClipSelectedEvent(self))
         seq = Sequence()
         seq.add(ApplicationView.show_clip)
         return seq.done()

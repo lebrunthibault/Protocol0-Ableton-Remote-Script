@@ -1,5 +1,5 @@
-from protocol0.application.command.ClearLogsCommand import ClearLogsCommand
 from protocol0.application.faderfox.group.ActionGroupMixin import ActionGroupMixin
+from protocol0.domain.command.ClearLogsCommand import ClearLogsCommand
 from protocol0.domain.shared.CommandBus import CommandBus
 from protocol0.domain.shared.System import System
 from protocol0.shared.Logger import Logger
@@ -22,7 +22,7 @@ class ActionGroupTest(ActionGroupMixin):
                          )
 
         # PROFiling encoder
-        self.add_encoder(identifier=2, name="start set launch time profiling", on_press=self.start_set_profiling)
+        self.add_encoder(identifier=2, name="start set launch time profiling", on_press=System.client().start_set_profiling)
 
         # CLR encoder
         self.add_encoder(identifier=3, name="clear logs", on_press=Logger.clear)
@@ -30,7 +30,3 @@ class ActionGroupTest(ActionGroupMixin):
     def action_test(self):
         # type: () -> None
         CommandBus.dispatch(ClearLogsCommand())
-
-    def start_set_profiling(self):
-        # type: () -> None
-        System.get_instance().start_set_profiling()

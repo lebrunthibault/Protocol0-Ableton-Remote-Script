@@ -1,11 +1,14 @@
 from collections import Iterator
 
-from typing import TYPE_CHECKING, Optional, List
+from typing import TYPE_CHECKING, Optional, List, cast
 
 import Live
-
+from protocol0.domain.lom.errors.InvalidTrackError import InvalidTrackError
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 
 if TYPE_CHECKING:
+    from protocol0.domain.lom.song.SongScenesManager import SongScenesManager
+    from protocol0.domain.lom.song.SongTracksManager import SongTracksManager
     from protocol0.domain.lom.song.Song import Song
     from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -13,142 +16,227 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.scene.Scene import Scene
     from protocol0.domain.lom.clip.Clip import Clip
     from protocol0.domain.lom.clip.MidiClip import MidiClip
+    from protocol0.domain.lom.clip.AudioClip import AudioClip
     from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
     from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
+    from protocol0.domain.lom.instrument.instrument.InstrumentProphet import InstrumentProphet
 
 
+# noinspection PyArgumentList
 class SongFacade(object):
     """ Read only facade for accessing song properties """
-    @classmethod
-    def _song(cls):
-        # type: () -> Song
-        from protocol0.application.Protocol0 import Protocol0
+    _INSTANCE = None  # type: Optional[SongFacade]
 
-        return Protocol0.CONTAINER.song
+    def __init__(self, song, song_tracks_manager, song_scenes_manager):
+        # type: (Song, SongTracksManager, SongScenesManager) -> None
+        SongFacade._INSTANCE = self
+        self._song = song
+        self._song_tracks_manager = song_tracks_manager
+        self._song_scenes_manager = song_scenes_manager
 
     @classmethod
     def live_song(cls):
         # type: () -> Live.Song.Song
-        return cls._song()._song
+        return cls._INSTANCE._song._song
+
+    @classmethod
+    def live_tracks(cls):
+        # type: () -> Iterator[Live.Track.Track]
+        return (track for track in
+                list(cls.live_song().tracks) + list(cls.live_song().return_tracks) + [cls.live_song().master_track])
 
     @classmethod
     def signature_numerator(cls):
         # type: () -> int
-        return cls._song().signature_numerator
+        return cls.live_song().signature_numerator
 
     @classmethod
     def selected_track(cls):
         # type: () -> Optional[SimpleTrack]
-        return cls._song().selected_track
+        return cls.optional_simple_track_from_live_track(cls.live_song().view.selected_track)
 
     @classmethod
     def current_track(cls):
         # type: () -> AbstractTrack
-        return cls._song().current_track
+        return cls.selected_track().abstract_track
 
     @classmethod
     def current_external_synth_track(cls):
         # type: () -> ExternalSynthTrack
-        return cls._song().current_external_synth_track
+        from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+
+        if isinstance(SongFacade.current_track(), ExternalSynthTrack):
+            return cast(ExternalSynthTrack, SongFacade.current_track())
+        else:
+            raise InvalidTrackError("current track is not an ExternalSynthTrack")
 
     @classmethod
     def abstract_tracks(cls):
         # type: () -> Iterator[AbstractTrack]
-        return cls._song().abstract_tracks
+        return cls._INSTANCE._song.abstract_tracks
+
+    @classmethod
+    def simple_track_from_live_track(cls, live_track):
+        # type: (Live.Track.Track) -> SimpleTrack
+        """ we use the live ptr instead of the track to be able to access outdated simple tracks on deletion """
+        return cls._INSTANCE._song_tracks_manager._live_track_id_to_simple_track[live_track._live_ptr]
+
+    @classmethod
+    def optional_simple_track_from_live_track(cls, live_track):
+        # type: (Live.Track.Track) -> Optional[SimpleTrack]
+        try:
+            return cls.simple_track_from_live_track(live_track)
+        except KeyError:
+            return None
 
     @classmethod
     def simple_tracks(cls):
         # type: () -> Iterator[SimpleTrack]
-        return cls._song().simple_tracks
+        return (track for track in cls.all_simple_tracks() if track.IS_ACTIVE)
+
+    @classmethod
+    def all_simple_tracks(cls):
+        # type: () -> Iterator[SimpleTrack]
+        return (track for track in cls._INSTANCE._song_tracks_manager._live_track_id_to_simple_track.values())
 
     @classmethod
     def external_synth_tracks(cls):
         # type: () -> Iterator[ExternalSynthTrack]
-        return cls._song().external_synth_tracks
+        from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+
+        for track in cls.abstract_tracks():
+            if isinstance(track, ExternalSynthTrack):
+                yield track
 
     @classmethod
     def scrollable_tracks(cls):
         # type: () -> Iterator[AbstractTrack]
-        return cls._song().scrollable_tracks
+        return cls._INSTANCE._song.scrollable_tracks
 
     @classmethod
     def visible_tracks(cls):
         # type: () -> Iterator[AbstractTrack]
-        return cls._song().visible_tracks
+        return (t for t in cls.simple_tracks() if t.is_visible)
+
+    @classmethod
+    def armed_tracks(cls):
+        # type: () -> Iterator[AbstractTrack]
+        return (track for track in cls.abstract_tracks() if track.is_armed)
 
     @classmethod
     def prophet_tracks(cls):
         # type: () -> Iterator[ExternalSynthTrack]
-        return cls._song().prophet_tracks
+        for track in cls.external_synth_tracks():
+            if isinstance(track.instrument, InstrumentProphet):
+                yield track
+
+    @classmethod
+    def usamo_track(cls):
+        # type: () -> Optional[SimpleTrack]
+        return cls._INSTANCE._song_tracks_manager._usamo_track
 
     @classmethod
     def master_track(cls):
         # type: () -> Optional[SimpleTrack]
-        return cls._song().master_track
+        return cls._INSTANCE._song_tracks_manager._master_track
 
     @classmethod
     def selected_scene(cls):
         # type: () -> Scene
-        return cls._song().selected_scene
+        return cls._INSTANCE._song_scenes_manager.get_scene(cls.live_song().view.selected_scene)
 
     @classmethod
     def playing_scene(cls):
         # type: () -> Optional[Scene]
-        return cls._song().playing_scene
+        from protocol0.domain.lom.scene.Scene import Scene
+
+        return Scene.PLAYING_SCENE
 
     @classmethod
     def looping_scene(cls):
         # type: () -> Optional[Scene]
-        return cls._song().looping_scene
+        from protocol0.domain.lom.scene.Scene import Scene
+
+        return Scene.LOOPING_SCENE
 
     @classmethod
     def last_manually_started_scene(cls):
         # type: () -> Scene
-        return cls._song().last_manually_started_scene
+        from protocol0.domain.lom.scene.Scene import Scene
+
+        return Scene.LAST_MANUALLY_STARTED_SCENE or cls.selected_scene()
 
     @classmethod
     def scenes(cls):
         # type: () -> List[Scene]
-        return cls._song().scenes
+        return cls._INSTANCE._song_scenes_manager.scenes
 
     @classmethod
     def highlighted_clip_slot(cls):
         # type: () -> Optional[ClipSlot]
-        return cls._song().highlighted_clip_slot
+        if cls.selected_track() is None:
+            return None
+        else:
+            return next((cs for cs in cls.selected_track().clip_slots if cs._clip_slot == cls.live_song().view.highlighted_clip_slot),
+                        None)
 
     @classmethod
     def selected_clip(cls):
+        # type: () -> Clip
+        clip = cls.highlighted_clip_slot() and cls.highlighted_clip_slot().clip
+        if clip is None:
+            raise Protocol0Warning("no selected midi clip")
+        return clip
+
+    @classmethod
+    def selected_optional_clip(cls):
         # type: () -> Optional[Clip]
-        return cls._song().selected_clip
+        return cls.highlighted_clip_slot() and cls.highlighted_clip_slot().clip
 
     @classmethod
     def selected_midi_clip(cls):
         # type: () -> MidiClip
-        clip = cls._song().selected_clip
-        assert isinstance(clip, MidiClip), "expected midi clip"
+        clip = cls._INSTANCE._song.selected_clip
+        if not isinstance(clip, MidiClip):
+            raise Protocol0Warning("no selected midi clip")
         return clip
+
+    @classmethod
+    def template_dummy_clip(cls):
+        # type: () -> Optional[AudioClip]
+        return cls._INSTANCE._song_tracks_manager._template_dummy_clip
 
     @classmethod
     def selected_parameter(cls):
         # type: () -> Optional[DeviceParameter]
-        return cls._song().selected_parameter
+        return cls._INSTANCE._song.selected_parameter
 
     @classmethod
     def is_playing(cls):
         # type: () -> bool
-        return cls._song().is_playing
+        return cls._INSTANCE._song.is_playing
 
     @classmethod
     def record_mode(cls):
         # type: () -> bool
-        return cls._song().record_mode
+        return cls._INSTANCE._song.record_mode
 
     @classmethod
     def midi_recording_quantization(cls):
         # type: () -> int
-        return cls._song().midi_recording_quantization
+        return cls._INSTANCE._song.midi_recording_quantization
 
     @classmethod
     def tempo(cls):
         # type: () -> float
-        return cls._song().tempo
+        return cls._INSTANCE._song.tempo
+
+    @classmethod
+    def current_beats_song_time(cls):
+        # type: () -> Live.Song.BeatTime
+        return cls.live_song().get_current_beats_song_time()
+
+    @classmethod
+    def clip_trigger_quantization(cls):
+        # type: () -> int
+        return cls._INSTANCE._song.clip_trigger_quantization

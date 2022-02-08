@@ -1,15 +1,15 @@
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Optional
 
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.shared.AccessSong import AccessSong
 from protocol0.shared.Logger import Logger
+from protocol0.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 
 
 # noinspection PyTypeHints,PyAttributeOutsideInit,DuplicatedCode
-class AbstractTrackActionMixin(AccessSong):
+class AbstractTrackActionMixin(object):
     # noinspection PyUnusedLocal
     def select(self):
         # type: (AbstractTrack) -> Sequence
@@ -25,7 +25,7 @@ class AbstractTrackActionMixin(AccessSong):
 
     def toggle_arm(self):
         # type: (AbstractTrack) -> None
-        if not self._song.selected_track.IS_ACTIVE:
+        if not SongFacade.selected_track().IS_ACTIVE:
             return None
         self.unarm() if self.is_armed else self.arm()
 
@@ -42,10 +42,6 @@ class AbstractTrackActionMixin(AccessSong):
             return self.group_track.toggle_fold()
         else:
             return None
-
-    def toggle_solo(self):
-        # type: () -> None
-        self.solo = not self.solo  # type: ignore[has-type]
 
     def arm(self):
         # type: (AbstractTrack) -> Optional[Sequence]
@@ -96,14 +92,6 @@ class AbstractTrackActionMixin(AccessSong):
         abs_factor = 1.01
         factor = abs_factor if go_next else (1 / abs_factor)
         self.volume *= factor
-
-    def get_data(self, key, default_value=None):
-        # type: (AbstractTrack, str, Any) -> Any
-        return self._track.get_data(key, default_value)
-
-    def set_data(self, key, value):
-        # type: (AbstractTrack, str, Any) -> None
-        self._track.set_data(key, value)
 
     @classmethod
     def append_to_sub_tracks(cls, group_track, sub_track, previous_sub_track=None):

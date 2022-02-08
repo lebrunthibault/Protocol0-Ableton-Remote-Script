@@ -1,5 +1,4 @@
 import inspect
-from functools import partial
 
 from typing import Dict, List, Type, Callable, TYPE_CHECKING
 
@@ -32,12 +31,7 @@ class DomainEventBus(object):
 
     @classmethod
     def notify(cls, domain_event):
-        # type: (object) -> Sequence
-        from protocol0.domain.sequence.Sequence import Sequence  # noqa
-
-        seq = Sequence()
+        # type: (object) -> None
         if type(domain_event) in cls._registry:
             for subscriber in cls._registry[type(domain_event)]:
-                seq.add(partial(subscriber, domain_event))
-
-        return seq.done()
+                subscriber(domain_event)

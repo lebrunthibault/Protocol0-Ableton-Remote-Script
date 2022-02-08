@@ -1,7 +1,7 @@
 import pytest
 
-from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.lom.validation.sub_validators.PropertyValueValidator import PropertyValueValidator
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 
 
 def test_property_validator():

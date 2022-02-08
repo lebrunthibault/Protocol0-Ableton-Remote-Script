@@ -1,14 +1,19 @@
 from functools import partial
 
-from typing import TYPE_CHECKING, Optional, Any
+from typing import TYPE_CHECKING, Optional
 
 import Live
-from protocol0.domain.shared.ApplicationView import ApplicationView
-from protocol0.domain.enums.AbstractEnum import AbstractEnum
 from protocol0.domain.lom.device.Device import Device
+from protocol0.domain.lom.song.ScenesMappedEvent import ScenesMappedEvent
+from protocol0.domain.lom.song.SongResetedEvent import SongResetedEvent
+from protocol0.domain.lom.song.TracksMappedEvent import TracksMappedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.domain.shared.ApplicationView import ApplicationView
+from protocol0.domain.shared.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.utils import scroll_values
 from protocol0.shared.Logger import Logger
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.StatusBar import StatusBar
 
 if TYPE_CHECKING:
@@ -17,32 +22,14 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints,PyArgumentList
 class SongActionMixin(object):
-    def get_data(self, key, default_value=None):
-        # type: (Song, str, Any) -> Any
-        return self._song.get_data(key, default_value)
-
-    def set_data(self, key, value):
-        # type: (Song, str, Any) -> None
-        if isinstance(value, AbstractEnum):
-            value = value.value
-        self._song.set_data(key, value)
-
-    def reset(self, save_data=False):
-        # type: (Song, bool) -> None
+    def reset(self):
+        # type: (Song) -> None
         """ stopping immediately """
         self.stop_playing()
         # noinspection PyPropertyAccess
         self._song.current_song_time = 0
         self.stop_all_clips()
-        if save_data:
-            self.container.song_data_manager.save()
-
-    def play(self):
-        # type: (Song) -> None
-        if ApplicationView.is_session_view_active():
-            self.selected_scene.fire()
-        else:
-            self.is_playing = True  # play arrangement
+        DomainEventBus.notify(SongResetedEvent())
 
     def continue_playing(self):
         # type: (Song) -> None
@@ -87,7 +74,7 @@ class SongActionMixin(object):
         if abstract_track.group_track:
             abstract_track.group_track.is_folded = False
         seq = Sequence()
-        if self.selected_track != abstract_track.base_track:
+        if SongFacade.selected_track() != abstract_track.base_track:
             self._view.selected_track = abstract_track._track
             seq.add(wait=1)
         return seq.done()
@@ -100,50 +87,66 @@ class SongActionMixin(object):
     def _unarm_all_tracks(self):
         # type: (Song) -> Sequence
         seq = Sequence()
-        seq.add([t.unarm for t in self.armed_tracks])
+        seq.add([t.unarm for t in SongFacade.armed_tracks()])
         return seq.done()
 
     def _unsolo_all_tracks(self):
         # type: (Song) -> None
-        for t in self.abstract_tracks:
-            if t.solo and t != self.current_track:
+        for t in SongFacade.abstract_tracks():
+            if t.solo and t != SongFacade.current_track():
                 t.solo = False
 
     def duplicate_track(self, index):
         # type: (Song, int) -> Sequence
         seq = Sequence()
-        seq.add(partial(self._song.duplicate_track, index), complete_on=self.container.song_tracks_manager.tracks_listener)
+        seq.add(partial(self._song.duplicate_track, index))
+        seq.add(wait_for_event=TracksMappedEvent)
         return seq.done()
 
     def delete_track(self, index):
         # type: (Song, int) -> Sequence
         seq = Sequence()
-        seq.add(partial(self._song.delete_track, index), complete_on=self.container.song_tracks_manager.tracks_listener)
+        seq.add(partial(self._song.delete_track, index))
+        seq.add(wait_for_event=TracksMappedEvent)
         return seq.done()
+
+    def scroll_tracks(self, go_next):
+        # type: (bool) -> None
+        if not SongFacade.selected_track().IS_ACTIVE:
+            next(SongFacade.simple_tracks()).select()
+            return None
+
+        next_track = scroll_values(SongFacade.scrollable_tracks(), SongFacade.current_track(), go_next, rotate=False)
+        if next_track:
+            next_track.select()
+            if next_track == list(SongFacade.scrollable_tracks())[-1]:
+                ApplicationView.focus_current_track()
 
     def duplicate_scene(self, index):
         # type: (Song, int) -> Sequence
         seq = Sequence()
-        # seq.add(partial(self._song.duplicate_scene, index))
-        seq.add(partial(self._song.duplicate_scene, index), complete_on=self.container.song_scenes_manager.scenes_listener)
+        seq.add(partial(self._song.duplicate_scene, index))
+        seq.add(wait_for_event=ScenesMappedEvent)
         return seq.done()
 
     def create_scene(self, scene_index=None):
         # type: (Song, Optional[int]) -> Sequence
         seq = Sequence()
-        scenes_count = len(self.scenes)
-        seq.add(partial(self._song.create_scene, scene_index or scenes_count), complete_on=self.container.song_scenes_manager.scenes_listener)
+        scenes_count = len(SongFacade.scenes())
+        seq.add(partial(self._song.create_scene, scene_index or scenes_count))
+        seq.add(wait_for_event=ScenesMappedEvent)
         seq.add(wait=1)
         return seq.done()
 
     def delete_scene(self, scene_index):
         # type: (Song, Optional) -> Optional[Sequence]
-        if len(self.scenes) == 1:
+        if len(SongFacade.scenes()) == 1:
             Logger.log_warning("Cannot delete last scene")
             return None
 
         seq = Sequence()
-        seq.add(partial(self._song.delete_scene, scene_index), complete_on=self.container.song_scenes_manager.scenes_listener)
+        seq.add(partial(self._song.delete_scene, scene_index))
+        seq.add(wait_for_event=ScenesMappedEvent)
         seq.add(wait=1)
         return seq.done()
 
@@ -154,6 +157,10 @@ class SongActionMixin(object):
         seq.add(partial(self._view.select_device, device._device))
         seq.add(ApplicationView.focus_detail)
         return seq.done()
+
+    def scroll_scenes(self, go_next):
+        # type: (bool) -> None
+        scroll_values(SongFacade.scenes(), SongFacade.selected_scene(), go_next, rotate=False).select()
 
     def tap_tempo(self):
         # type: (Song) -> None
@@ -166,10 +173,10 @@ class SongActionMixin(object):
 
     def check_midi_recording_quantization(self):
         # type: (Song) -> Optional[Sequence]
-        if self.midi_recording_quantization_checked or self.midi_recording_quantization == self.tempo_default_midi_recording_quantization:
+        if self._midi_recording_quantization_checked or self.midi_recording_quantization == self.tempo_default_midi_recording_quantization:
             return None
 
-        self.midi_recording_quantization_checked = True
+        self._midi_recording_quantization_checked = True
         seq = Sequence()
         seq.prompt("Midi recording quantization %s is not tempo default : %s, Set to default ?" % (
             self.midi_recording_quantization, self.tempo_default_midi_recording_quantization), no_cancel=True)

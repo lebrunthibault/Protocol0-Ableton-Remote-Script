@@ -1,0 +1,2 @@
+class TracksMappedEvent(object):
+    pass

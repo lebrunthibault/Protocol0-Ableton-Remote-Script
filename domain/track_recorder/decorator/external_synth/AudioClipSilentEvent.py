@@ -1,0 +1,2 @@
+class AudioClipSilentEvent(object):
+    pass

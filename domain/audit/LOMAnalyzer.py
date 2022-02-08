@@ -1,12 +1,12 @@
-from protocol0.application.AbstractControlSurfaceComponent import AbstractControlSurfaceComponent
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
+from protocol0.shared.SongFacade import SongFacade
 
 
-class LOMAnalyzer(AbstractControlSurfaceComponent):
+class LOMAnalyzer(object):
     """ Audit object model """
     def check_tracks_tree_consistency(self):
         # type: () -> None
-        for simple_track in self._song.simple_tracks:
+        for simple_track in SongFacade.simple_tracks():
             # 1st layer checks
             if simple_track.group_track:
                 assert simple_track in simple_track.group_track.sub_tracks, "failed on %s" % simple_track

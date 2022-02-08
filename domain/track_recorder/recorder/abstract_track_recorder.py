@@ -1,18 +1,22 @@
-from typing import Optional, List
+from typing import Optional, List, TYPE_CHECKING
 
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
+from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.shared.AccessSong import AccessSong
 from protocol0.shared.SongFacade import SongFacade
 
+if TYPE_CHECKING:
+    from protocol0.domain.lom.song.Song import Song
 
-class AbstractTrackRecorder(AccessSong):
-    def __init__(self, track):
-        # type: (AbstractTrack) -> None
+
+class AbstractTrackRecorder(object):
+    def __init__(self, track, song):
+        # type: (AbstractTrack, Song) -> None
         super(AbstractTrackRecorder, self).__init__()
         self._track = track
+        self._song = song
         self._recording_scene_index = None  # type: Optional[int]
 
     @property
@@ -63,10 +67,10 @@ class AbstractTrackRecorder(AccessSong):
         # type: () -> Sequence
         seq = Sequence()
         if not self.track.is_armed:
-            if len(self._song.armed_tracks) != 0:
+            if len(list(SongFacade.armed_tracks())) != 0:
                 options = ["Arm current track", "Record on armed track"]
                 seq.select("The current track is not armed", options=options)
-                seq.add(lambda: self.track.arm() if seq.res == options[0] else self._song.armed_tracks[0].select())
+                seq.add(lambda: self.track.arm() if seq.res == options[0] else list(SongFacade.armed_tracks())[0].select())
             else:
                 seq.add(self.track.arm)
 
@@ -85,7 +89,7 @@ class AbstractTrackRecorder(AccessSong):
             # seq.add(wait_bars=bar_length)
             seq.add(wait_beats=(bar_length * SongFacade.signature_numerator()) - 1)
         else:
-            seq.add(complete_on=self._song.is_playing_listener)
+            seq.add(wait_for_event=SongStoppedEvent)
         return seq.done()
 
     def _focus_main_clip(self):

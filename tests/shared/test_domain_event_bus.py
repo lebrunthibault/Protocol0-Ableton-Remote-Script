@@ -1,5 +1,5 @@
-from protocol0.domain.scheduler.BarEndingEvent import BarEndingEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.scheduler.BarEndingEvent import BarEndingEvent
 
 
 def test_domain_event_bus():

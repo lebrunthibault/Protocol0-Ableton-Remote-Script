@@ -1,13 +1,13 @@
 import itertools
 from functools import partial
 
-from typing import Optional, cast, List, Iterator, TYPE_CHECKING
+from typing import Optional, cast, List, Iterator
 
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
 from protocol0.domain.lom.device.Device import Device
-from protocol0.domain.lom.instrument.AbstractExternalSynthTrackInstrument import AbstractExternalSynthTrackInstrument
+from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.lom.track.group_track.ExternalSynthTrackActionMixin import ExternalSynthTrackActionMixin
 from protocol0.domain.lom.track.group_track.ExternalSynthTrackMonitoringState import ExternalSynthTrackMonitoringState
@@ -18,18 +18,14 @@ from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTr
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.shared.decorators import p0_subject_slot
-from protocol0.domain.shared.utils import find_if
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-
-if TYPE_CHECKING:
-    from protocol0.domain.lom.song.SongTracksManager import SongTracksManager
+from protocol0.domain.shared.utils import find_if
 
 
 class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
-    def __init__(self, base_group_track, song_tracks_manager):
-        # type: (SimpleTrack, SongTracksManager) -> None
-        super(ExternalSynthTrack, self).__init__(base_group_track=base_group_track, song_tracks_manager=song_tracks_manager)
-        self.song_tracks_manager = song_tracks_manager
+    def __init__(self, base_group_track):
+        # type: (SimpleTrack) -> None
+        super(ExternalSynthTrack, self).__init__(base_group_track=base_group_track)
         self.midi_track = cast(SimpleMidiTrack, base_group_track.sub_tracks[0])
         self.audio_track = cast(SimpleAudioTrack, base_group_track.sub_tracks[1])
         self.midi_track.track_name.disconnect()
@@ -73,10 +69,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
 
         if has_tail_track and not self.audio_tail_track:
             track = self.base_track.sub_tracks[2]
-            self.audio_tail_track = cast(SimpleAudioTailTrack,
-                                         self.song_tracks_manager.generate_simple_track(track=track._track,
-                                                                                        index=track.index,
-                                                                                        cls=SimpleAudioTailTrack))
+            self.audio_tail_track = SimpleAudioTailTrack(track._track, track._index)
             self.audio_tail_track.abstract_group_track = self
             Scheduler.defer(self.audio_tail_track.configure)
             self.audio_tail_track.track_name.disconnect()
@@ -135,8 +128,8 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
 
     @property
     def instrument(self):
-        # type: () -> AbstractExternalSynthTrackInstrument
-        return cast(AbstractExternalSynthTrackInstrument, self.midi_track.instrument or self.audio_track.instrument)
+        # type: () -> InstrumentInterface
+        return self.midi_track.instrument or self.audio_track.instrument
 
     @property
     def clips(self):

@@ -1,11 +1,16 @@
+from typing import TYPE_CHECKING
+
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
 
+if TYPE_CHECKING:
+    from protocol0.domain.lom.song.Song import Song
+
 
 class TrackRecorderDecorator(AbstractTrackRecorder):
-    def __init__(self, recorder):
-        # type: (AbstractTrackRecorder) -> None
-        super(TrackRecorderDecorator, self).__init__(track=recorder.track)
+    def __init__(self, recorder, song):
+        # type: (AbstractTrackRecorder, Song) -> None
+        super(TrackRecorderDecorator, self).__init__(track=recorder.track, song=song)
         self.recorder = recorder
         self._track = recorder.track
 

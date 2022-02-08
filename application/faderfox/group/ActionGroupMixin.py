@@ -2,9 +2,10 @@ from typing import List, Optional, Callable, TYPE_CHECKING
 
 from protocol0.application.faderfox.EncoderAction import EncoderAction
 from protocol0.application.faderfox.MultiEncoder import MultiEncoder
+from protocol0.shared.ContainerInterface import ContainerInterface
 
 if TYPE_CHECKING:
-    from protocol0.application.Container import Container
+    from protocol0.domain.lom.song.Song import Song
 
 
 class ActionGroupMixin(object):
@@ -15,9 +16,10 @@ class ActionGroupMixin(object):
     """
     CHANNEL = None  # type: Optional[int]
 
-    def __init__(self, container):
-        # type: (Container) -> None
+    def __init__(self, container, song):
+        # type: (ContainerInterface, Song) -> None
         self._container = container
+        self._song = song
         self._multi_encoders = []  # type: List[MultiEncoder]
 
     def _add_multi_encoder(self, multi_encoder):

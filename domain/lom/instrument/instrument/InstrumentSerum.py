@@ -2,7 +2,7 @@ from protocol0.domain.enums.ColorEnum import ColorEnum
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 
 
-class InstrumentSerum(InstrumentInterface):  # noqa
+class InstrumentSerum(InstrumentInterface):
     NAME = "Serum"
     DEVICE_NAME = "serum_x64"
     TRACK_COLOR = ColorEnum.SERUM

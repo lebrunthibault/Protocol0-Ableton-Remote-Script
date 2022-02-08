@@ -1,16 +1,18 @@
 from p0_system_client import P0SystemClient
-from typing import Optional
+from typing import Optional, Callable
 
 
 class System(object):
-    """ system singleton facade """
+    """ system facade """
 
-    _INSTANCE = None  # type: Optional[P0SystemClient]
+    _INSTANCE = None  # type: Optional[System]
+
+    def __init__(self, send_midi):
+        # type: (Callable) -> None
+        System._INSTANCE = self
+        self._client = P0SystemClient(send_midi)
 
     @classmethod
-    def get_instance(cls):
+    def client(cls):
         # type: () -> P0SystemClient
-        if not cls._INSTANCE:
-            cls._INSTANCE = P0SystemClient()
-
-        return cls._INSTANCE
+        return cls._INSTANCE._client

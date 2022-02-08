@@ -1,11 +1,11 @@
 from typing import List
 
 from protocol0.domain.enums.BarLengthEnum import BarLengthEnum
-from protocol0.application.faderfox.InterfaceState import InterfaceState
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.sequence.Sequence import Sequence
 from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
 from protocol0.domain.track_recorder.recorder.track_recorder_external_synth_mixin import TrackRecorderExternalSynthMixin
+from protocol0.shared.InterfaceState import InterfaceState
 
 
 class TrackRecorderExternalSynth(TrackRecorderExternalSynthMixin, AbstractTrackRecorder):

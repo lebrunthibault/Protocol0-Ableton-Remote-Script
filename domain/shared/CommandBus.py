@@ -1,23 +1,31 @@
-from typing import Dict, Type
+from typing import Dict, Type, Optional, TYPE_CHECKING
 
-import protocol0.application.command as command_package
+import protocol0.domain.command as command_package
 import protocol0.domain.command_handler as command_handler_package
-from protocol0.application.command.SerializableCommand import SerializableCommand
-from protocol0.domain.shared.CommandBusInterface import CommandBusInterface
+from protocol0.domain.command.SerializableCommand import SerializableCommand
 from protocol0.domain.command_handler.CommandHandlerInterface import CommandHandlerInterface
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils import import_package
+from protocol0.shared.ContainerInterface import ContainerInterface
+
+if TYPE_CHECKING:
+    from protocol0.domain.lom.song.Song import Song
+
+CommandMapping = Dict[Type[SerializableCommand], Type[CommandHandlerInterface]]
 
 
-class CommandBus(CommandBusInterface):
-    _MAPPING = {}
+class CommandBus(object):
+    _INSTANCE = None  # type: Optional[CommandBus]
 
-    @classmethod
-    def _get_mapping(cls):
-        # type: () -> Dict[Type[SerializableCommand], Type[CommandHandlerInterface]]
-        if cls._MAPPING:
-            return cls._MAPPING
+    def __init__(self, container, song):
+        # type: (ContainerInterface, Song) -> None
+        CommandBus._INSTANCE = self
+        self._container = container
+        self._song = song
+        self._command_mapping = self._create_command_mapping()
 
+    def _create_command_mapping(self):
+        # type: () -> CommandMapping
         import_package(command_package)
         import_package(command_handler_package)
 
@@ -26,15 +34,16 @@ class CommandBus(CommandBusInterface):
 
         handler_names_to_class = {handler_class.__name__: handler_class for handler_class in handler_classes}
 
+        mapping = {}  # type: CommandMapping
         # matching on class name
         for command_class in command_classes:
             handler_class_name = command_class.__name__ + "Handler"
             if handler_class_name not in handler_names_to_class:
                 raise Protocol0Error("Couldn't find matching handler for %s" % command_class)
 
-            cls._MAPPING[command_class] = handler_names_to_class[handler_class_name]
+            mapping[command_class] = handler_names_to_class[handler_class_name]
 
-        return cls._MAPPING
+        return mapping
 
     @classmethod
     def execute_from_string(cls, command_string):
@@ -45,7 +54,9 @@ class CommandBus(CommandBusInterface):
     @classmethod
     def dispatch(cls, command):
         # type: (SerializableCommand) -> None
-        from protocol0.application.Protocol0 import Protocol0
+        cls._INSTANCE._dispatch_command(command)
 
-        handler = cls._get_mapping()[command.__class__](Protocol0.CONTAINER)
+    def _dispatch_command(self, command):
+        # type: (SerializableCommand) -> None
+        handler = self._command_mapping[command.__class__](self._container, self._song)
         handler.handle(command)

@@ -1,8 +1,11 @@
 from functools import partial
 
-from protocol0.application.faderfox.InterfaceState import InterfaceState
 from protocol0.application.faderfox.group.ActionGroupMixin import ActionGroupMixin
 from protocol0.domain.enums.RecordTypeEnum import RecordTypeEnum
+from protocol0.domain.lom.instrument.InstrumentDisplayManager import InstrumentDisplayManager
+from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerManager import InstrumentPresetScrollerManager
+from protocol0.domain.track_recorder.track_recorder_manager import TrackRecorderManager
+from protocol0.shared.InterfaceState import InterfaceState
 from protocol0.shared.SongFacade import SongFacade
 
 
@@ -19,8 +22,8 @@ class ActionGroupMain(ActionGroupMixin):
         self.add_encoder(
             identifier=3,
             name="automation",
-            on_press=lambda: self._container.automation_track_manager.display_selected_parameter_automation(SongFacade.selected_clip()),
-            on_scroll=self._container.automation_track_manager.scroll_automation_envelopes,
+            on_press=lambda: SongFacade.selected_clip().display_current_parameter_automation,
+            on_scroll=lambda: SongFacade.selected_clip().scroll_automation_envelopes,
         )
 
         # VOLume tempo encoder
@@ -42,13 +45,13 @@ class ActionGroupMain(ActionGroupMixin):
             name="record",
             filter_active_tracks=True,
             on_scroll=InterfaceState.scroll_recording_time,
-            on_press=lambda: partial(self._container.track_recorder_manager.record_track, SongFacade.current_track(),
+            on_press=lambda: partial(self._container.get(TrackRecorderManager).record_track, SongFacade.current_track(),
                                      RecordTypeEnum.NORMAL),
-            on_cancel_press=lambda: partial(self._container.track_recorder_manager.cancel_record, SongFacade.current_track(),
+            on_cancel_press=lambda: partial(self._container.get(TrackRecorderManager).cancel_record, SongFacade.current_track(),
                                             RecordTypeEnum.NORMAL),
-            on_long_press=lambda: partial(self._container.track_recorder_manager.record_track, SongFacade.current_track(),
+            on_long_press=lambda: partial(self._container.get(TrackRecorderManager).record_track, SongFacade.current_track(),
                                           RecordTypeEnum.AUDIO_ONLY),
-            on_cancel_long_press=lambda: partial(self._container.track_recorder_manager.cancel_record,
+            on_cancel_long_press=lambda: partial(self._container.get(TrackRecorderManager).cancel_record,
                                                  SongFacade.current_track(),
                                                  RecordTypeEnum.AUDIO_ONLY)
         )
@@ -66,7 +69,7 @@ class ActionGroupMain(ActionGroupMixin):
         self.add_encoder(
             identifier=13,
             name="track",
-            on_scroll=self._container.song_tracks_manager.scroll_tracks,
+            on_scroll=self._song.scroll_tracks,
             on_press=lambda: SongFacade.current_track().toggle_arm,
             on_long_press=lambda: SongFacade.current_track().toggle_fold,
         )
@@ -76,9 +79,9 @@ class ActionGroupMain(ActionGroupMixin):
             identifier=14,
             name="instrument",
             filter_active_tracks=True,
-            on_press=self._container.instrument_display_manager.show_hide_instrument,
-            on_long_press=self._container.instrument_display_manager.activate_instrument_plugin_window,
-            on_scroll=lambda: partial(self._container.instrument_preset_scroller_manager.scroll_presets_or_samples, SongFacade.current_track().instrument),
+            on_press=self._container.get(InstrumentDisplayManager).show_hide_instrument,
+            on_long_press=self._container.get(InstrumentDisplayManager).activate_instrument_plugin_window,
+            on_scroll=lambda: partial(self._container.get(InstrumentPresetScrollerManager).scroll_presets_or_samples, SongFacade.current_track().instrument),
         )
 
         # SCENe encoder
@@ -87,5 +90,5 @@ class ActionGroupMain(ActionGroupMixin):
             name="scene",
             on_press=lambda: SongFacade.selected_scene().fire,
             on_long_press=lambda: SongFacade.selected_scene().toggle_loop,
-            on_scroll=self._container.song_scenes_manager.scroll_scenes,
+            on_scroll=self._song.scroll_scenes,
         )

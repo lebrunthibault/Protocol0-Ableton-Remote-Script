@@ -4,9 +4,9 @@ import types
 
 from typing import Optional, TYPE_CHECKING, Any, List, Dict
 
-from protocol0.application.config import Config
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils import smart_string
+from protocol0.shared.config import Config
 
 if TYPE_CHECKING:
     from protocol0.domain.enums.LogLevelEnum import LogLevelEnum  # noqa

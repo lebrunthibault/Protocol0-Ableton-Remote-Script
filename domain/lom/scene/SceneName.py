@@ -2,17 +2,17 @@ import re
 
 from typing import TYPE_CHECKING, Any, Optional
 
-from protocol0.domain.lom.Listenable import Listenable
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.shared.decorators import throttle, p0_subject_slot
-from protocol0.domain.shared.utils import get_length_legend
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.utils import get_length_legend
+from protocol0.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.scene.Scene import Scene
 
 
-class SceneName(Listenable):
+class SceneName(UseFrameworkEvents):
     def __init__(self, scene, *a, **k):
         # type: (Scene, Any, Any) -> None
         super(SceneName, self).__init__(*a, **k)

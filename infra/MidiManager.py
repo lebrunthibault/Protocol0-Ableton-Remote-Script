@@ -1,22 +1,27 @@
-from typing import Optional, Tuple, Type, Callable
+from typing import Optional, Tuple, Callable
 
 from _Framework.ControlSurface import get_control_surfaces
-from protocol0.domain.shared.CommandBusInterface import CommandBusInterface
-from protocol0.domain.shared.utils import find_if
+from protocol0.domain.shared.CommandBus import CommandBus
+from protocol0.domain.shared.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.midi.MidiBytesReceivedEvent import MidiBytesReceivedEvent
+from protocol0.domain.shared.midi.MidiManagerInterface import MidiManagerInterface
 from protocol0.domain.shared.System import System
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.infra.scheduler.SchedulerEvent import SchedulerEvent
+from protocol0.domain.shared.scheduler.SchedulerEvent import SchedulerEvent
+from protocol0.domain.shared.utils import find_if
 from protocol0.shared.Logger import Logger
 
 
-class MidiManager(object):
+class MidiManager(MidiManagerInterface):
     _MIDI_STATUS_BYTES = {"note": 144, "cc": 176, "pc": 192}
 
-    def __init__(self, command_bus, send_midi):
-        # type: (Type[CommandBusInterface], Callable) -> None
-        self._command_bus = command_bus
+    def __init__(self, send_midi):
+        # type: (Callable) -> None
         self._send_midi = send_midi
-        self.midi_server_check_timeout_scheduler_event = None  # type: Optional[SchedulerEvent]
+        self._midi_server_check_timeout_scheduler_event = None  # type: Optional[SchedulerEvent]
+
+        DomainEventBus.subscribe(MidiBytesReceivedEvent, self._on_midi_bytes_received_event)
+        self._ping_midi_server()
 
     def _sysex_to_string(self, sysex):
         # type: (Tuple) -> str
@@ -38,25 +43,23 @@ class MidiManager(object):
         Logger.log_info("MidiManager sending : %s" % msg, debug=False)
         self._send_midi(tuple(msg))
 
-    def receive_midi(self, midi_bytes):
-        # type: (Tuple) -> None
-        message = self._sysex_to_string(sysex=midi_bytes)
+    def _on_midi_bytes_received_event(self, event):
+        # type: (MidiBytesReceivedEvent) -> None
+        message = self._sysex_to_string(sysex=event.midi_bytes)
         Logger.log_debug("message: %s" % message)
-        if not self._command_bus:
-            Logger.log_warning("Command bus not set in Midi Manager")
-            return None
+        CommandBus.execute_from_string(message)
 
-        self._command_bus.execute_from_string(message)
-
-    def ping_midi_server(self):
+    def _ping_midi_server(self):
         # type: () -> None
-        self._check_midi_server_is_running()
+        self._midi_server_check_timeout_scheduler_event = Scheduler.wait(300, self._no_midi_server_found)
+        System.client().ping()
         Scheduler.wait(10, self._check_protocol_midi_is_up)  # waiting for Protocol0_midi to boot
 
-    def _check_midi_server_is_running(self):
+    def pong_from_midi_server(self):
         # type: () -> None
-        self.MIDI_SERVER_CHECK_TIMEOUT_SCHEDULER_EVENT = Scheduler.wait(300, self._no_midi_server_found)
-        System.get_instance().ping()
+        self._midi_server_check_timeout_scheduler_event.cancel()
+        self._midi_server_check_timeout_scheduler_event = None
+        Logger.clear()
 
     def _check_protocol_midi_is_up(self):
         # type: () -> None

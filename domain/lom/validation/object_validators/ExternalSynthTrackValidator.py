@@ -1,4 +1,7 @@
-from protocol0.application.config import Config
+from protocol0.domain.lom.track.routing.InputRoutingChannelEnum import InputRoutingChannelEnum
+from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
+from protocol0.domain.shared.BrowserManagerInterface import BrowserManagerInterface
+from protocol0.shared.config import Config
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.lom.instrument.instrument.InstrumentProphet import InstrumentProphet
@@ -13,13 +16,13 @@ from protocol0.domain.lom.validation.sub_validators.SimpleTrackHasDeviceValidato
 
 
 class ExternalSynthTrackValidator(AggregateValidator):
-    def __init__(self, track):
-        # type: (ExternalSynthTrack) -> None
+    def __init__(self, track, browser_manager):
+        # type: (ExternalSynthTrack, BrowserManagerInterface) -> None
         self._track = track
 
         validators = [
             CallbackValidator(track, lambda t: t.instrument is not None, None, "track should have an instrument"),
-            SimpleTrackHasDeviceValidator(track.midi_track, track.instrument.EXTERNAL_INSTRUMENT_DEVICE),
+            SimpleTrackHasDeviceValidator(track.midi_track, DeviceEnum.EXTERNAL_AUDIO_EFFECT, browser_manager),
             CallbackValidator(track.midi_track,
                               lambda t: t.get_device_from_enum(DeviceEnum.EXTERNAL_INSTRUMENT) is None,
                               lambda t: t.get_device_from_enum(DeviceEnum.EXTERNAL_INSTRUMENT).delete),
@@ -28,10 +31,9 @@ class ExternalSynthTrackValidator(AggregateValidator):
 
             # ROUTINGS
 
-            PropertyValueValidator(track.midi_track.input_routing, "type", track.instrument.MIDI_INPUT_ROUTING_TYPE),
+            PropertyValueValidator(track.midi_track.input_routing, "type", InputRoutingTypeEnum.REV2_AUX),
             PropertyValueValidator(track.audio_track.input_routing, "track", track.midi_track),
-            PropertyValueValidator(track.audio_track.input_routing, "channel",
-                                   track.instrument.AUDIO_INPUT_ROUTING_CHANNEL),
+            PropertyValueValidator(track.audio_track.input_routing, "channel", InputRoutingChannelEnum.POST_FX),
         ]
 
         if track.audio_tail_track:

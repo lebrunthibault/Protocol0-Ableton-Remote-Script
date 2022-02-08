@@ -1,30 +1,33 @@
 from functools import partial
 
-from typing import Optional, Any
+from typing import Optional, TYPE_CHECKING
 
 from protocol0.domain.enums.ColorEnum import ColorEnum
-from protocol0.domain.lom.instrument.AbstractExternalSynthTrackInstrument import AbstractExternalSynthTrackInstrument
-from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
+from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
+from protocol0.domain.lom.instrument.InstrumentWithEditorInterface import InstrumentWithEditorInterface
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.shared.SongFacade import SongFacade
 from protocol0.domain.shared.System import System
+from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.StatusBar import StatusBar
 
+if TYPE_CHECKING:
+    from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 
-class InstrumentProphet(AbstractExternalSynthTrackInstrument):
+
+class InstrumentProphet(InstrumentInterface, InstrumentWithEditorInterface):
     NAME = "Prophet"
     DEVICE_NAME = "rev2editor"
     TRACK_COLOR = ColorEnum.PROPHET
     ACTIVE_INSTANCE = None  # type: Optional[InstrumentProphet]
 
-    MIDI_INPUT_ROUTING_TYPE = InputRoutingTypeEnum.REV2_AUX
     EXTERNAL_INSTRUMENT_DEVICE_HARDWARE_LATENCY = 3.2
     EDITOR_DEVICE_ON = True
 
-    def __init__(self, *a, **k):
-        # type: (Any, Any) -> None
-        super(InstrumentProphet, self).__init__(*a, **k)
+    def __init__(self, track, device):
+        # type: (SimpleTrack, Optional[Device]) -> None
+        super(InstrumentProphet, self).__init__(track, device)
         Scheduler.defer(partial(setattr, self.device, "device_on", InstrumentProphet.EDITOR_DEVICE_ON))
 
     @property
@@ -37,13 +40,13 @@ class InstrumentProphet(AbstractExternalSynthTrackInstrument):
         InstrumentProphet.ACTIVE_INSTANCE = self
         seq = Sequence()
         seq.add(wait=5)
-        seq.add(System.get_instance().activate_rev2_editor, wait=5)
+        seq.add(System.client().activate_rev2_editor, wait=5)
         return seq.done()
 
     def post_activate(self):
         # type: () -> Optional[Sequence]
         seq = Sequence()
-        seq.add(System.get_instance().post_activate_rev2_editor, wait=20)
+        seq.add(System.client().post_activate_rev2_editor, wait=20)
         return seq.done()
 
     @classmethod

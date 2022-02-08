@@ -1,11 +1,11 @@
 from typing import Callable, Optional, Union, List, TYPE_CHECKING
 
+from protocol0.domain.shared.scheduler.BeatSchedulerInterface import BeatSchedulerInterface
+from protocol0.domain.shared.scheduler.FastSchedulerInterface import FastSchedulerInterface
 from protocol0.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:
-    from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
-    from protocol0.infra.scheduler.FastScheduler import FastScheduler
-    from protocol0.infra.scheduler.SchedulerEvent import SchedulerEvent
+    from protocol0.domain.shared.scheduler.SchedulerEvent import SchedulerEvent
 
 
 class Scheduler(object):
@@ -13,10 +13,10 @@ class Scheduler(object):
     _INSTANCE = None  # type: Optional[Scheduler]
 
     def __init__(self, fast_scheduler, beat_scheduler):
-        # type: (FastScheduler, BeatScheduler) -> None
+        # type: (FastSchedulerInterface, BeatSchedulerInterface) -> None
+        Scheduler._INSTANCE = self
         self._fast_scheduler = fast_scheduler
         self._beat_scheduler = beat_scheduler
-        self._INSTANCE = self
 
     @classmethod
     def defer(cls, callback):

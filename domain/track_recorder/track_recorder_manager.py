@@ -1,14 +1,16 @@
 from functools import partial
 
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from protocol0.domain.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.scheduler.BarEndingEvent import BarEndingEvent
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.domain.shared.System import System
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.shared.scheduler.BarEndingEvent import BarEndingEvent
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import get_length_legend
 from protocol0.domain.track_recorder.count_in.count_in_interface import CountInInterface
 from protocol0.domain.track_recorder.factory.abstract_track_recorder_factory import AbstractTrackRecorderFactory
@@ -16,27 +18,31 @@ from protocol0.domain.track_recorder.factory.track_recoder_simple_factory import
 from protocol0.domain.track_recorder.factory.track_recorder_external_synth_factory import \
     TrackRecorderExternalSynthFactory
 from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
-from protocol0.domain.shared.System import System
-from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.shared.AccessSong import AccessSong
 from protocol0.shared.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.StatusBar import StatusBar
 
+if TYPE_CHECKING:
+    from protocol0.domain.lom.song.Song import Song
 
-class TrackRecorderManager(AccessSong):
+
+class TrackRecorderManager(object):
+    def __init__(self, song):
+        # type: (Song) -> None
+        self._song = song
+
     def get_track_recorder_factory(self, track):
         # type: (AbstractTrack) -> AbstractTrackRecorderFactory
         if isinstance(track, SimpleTrack):
-            return TrackRecorderSimpleFactory(track)
+            return TrackRecorderSimpleFactory(track, self._song)
         elif isinstance(track, ExternalSynthTrack):
-            return TrackRecorderExternalSynthFactory(track)
+            return TrackRecorderExternalSynthFactory(track, self._song)
         else:
             raise Protocol0Warning("This track is not recordable")
 
     def cancel_record(self, track, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> None
-        System.get_instance().show_warning("Cancelling record")
+        System.client().show_warning("Cancelling record")
         recorder_factory = self.get_track_recorder_factory(track)
         bar_length = recorder_factory.get_recording_bar_length(record_type)
         recorder = recorder_factory.create_recorder(record_type, bar_length)

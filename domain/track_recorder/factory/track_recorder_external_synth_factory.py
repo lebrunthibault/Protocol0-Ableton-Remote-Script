@@ -1,6 +1,6 @@
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
-from protocol0.application.faderfox.InterfaceState import InterfaceState
+from protocol0.shared.InterfaceState import InterfaceState
 from protocol0.domain.enums.RecordTypeEnum import RecordTypeEnum
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.shared.SongFacade import SongFacade
@@ -17,30 +17,34 @@ from protocol0.domain.track_recorder.recorder.abstract_track_recorder import Abs
 from protocol0.domain.track_recorder.recorder.track_recorder_external_synth import TrackRecorderExternalSynth
 from protocol0.domain.track_recorder.recorder.track_recorder_external_synth_audio import TrackRecorderExternalSynthAudio
 
+if TYPE_CHECKING:
+    from protocol0.domain.lom.song.Song import Song
+
 
 class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
-    def __init__(self, track):
-        # type: (ExternalSynthTrack) -> None
+    def __init__(self, track, song):
+        # type: (ExternalSynthTrack, Song) -> None
         super(TrackRecorderExternalSynthFactory, self).__init__()
         self.track = track
+        self._song = song
 
     def create_count_in(self, record_type):
         # type: (RecordTypeEnum) -> CountInInterface
         if record_type == RecordTypeEnum.AUDIO_ONLY:
-            return CountInShort(self.track)
+            return CountInShort(self.track, self._song)
         else:
-            return CountInOneBar(self.track)
+            return CountInOneBar(self.track, self._song)
 
     def _create_recorder(self, record_type, bar_length):
         # type: (RecordTypeEnum, int) -> AbstractTrackRecorder
         if record_type == RecordTypeEnum.AUDIO_ONLY:
-            recorder = TrackRecorderExternalSynthAudio(self.track)  # type: AbstractTrackRecorder
-            recorder = TrackRecorderPropagateNewAudioClipDecorator(recorder)
+            recorder = TrackRecorderExternalSynthAudio(self.track, self._song)  # type: AbstractTrackRecorder
+            recorder = TrackRecorderPropagateNewAudioClipDecorator(recorder, self._song)
         else:
-            recorder = TrackRecorderExternalSynth(self.track)
+            recorder = TrackRecorderExternalSynth(self.track, self._song)
 
         if self.track.audio_tail_track and self.track.record_clip_tails and bar_length != 0:
-            recorder = TrackRecorderClipTailDecorator(recorder)
+            recorder = TrackRecorderClipTailDecorator(recorder, self._song)
 
         return recorder
 

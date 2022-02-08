@@ -1,0 +1,2 @@
+class ScenesMappedEvent(object):
+    pass

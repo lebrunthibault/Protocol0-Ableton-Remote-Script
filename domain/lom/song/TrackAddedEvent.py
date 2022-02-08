@@ -1,0 +1,2 @@
+class TrackAddedEvent(object):
+    pass

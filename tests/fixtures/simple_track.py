@@ -1,4 +1,4 @@
-from typing import cast, List, Dict, Any
+from typing import cast, List
 
 import Live
 from _Framework.SubjectSlot import Subject
@@ -12,7 +12,15 @@ class TrackType(object):
 
 
 class AbletonTrack(Subject):
-    __subject_events__ = ("name", "devices", "clip_slots", "playing_slot_index", "fired_slot_index", "color")
+    __subject_events__ = (
+        "name",
+        "devices",
+        "clip_slots",
+        "playing_slot_index",
+        "fired_slot_index",
+        "color",
+        "output_meter_level"
+    )
 
     def __init__(self, track_type=TrackType.MIDI):
         # type: (str, str) -> None
@@ -20,7 +28,7 @@ class AbletonTrack(Subject):
         self.name = track_type
         self.devices = []  # type: List[Live.Device.Device]
         self.can_be_armed = True
-        self.is_armed = False
+        self.arm = False
         self.fold_state = False
         self.is_visible = True
         self.has_midi_input = self.has_audio_output = self.is_foldable = self.fold_state = False
@@ -47,10 +55,6 @@ class AbletonTrack(Subject):
     def to_json(self):
         # type: () -> str
         return str(self)
-
-    def get_data(self, _, __):
-        # type: (str, Any) -> Dict
-        return {}
 
     def __repr__(self):
         # type: () -> str

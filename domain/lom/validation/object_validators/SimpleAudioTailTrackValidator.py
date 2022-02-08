@@ -1,3 +1,4 @@
+from protocol0.domain.lom.track.routing.InputRoutingChannelEnum import InputRoutingChannelEnum
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.lom.validation.object_validators.SimpleAudioTrackValidator import SimpleAudioTrackValidator
 from protocol0.domain.lom.validation.sub_validators.AggregateValidator import AggregateValidator
@@ -11,8 +12,7 @@ class SimpleAudioTailTrackValidator(AggregateValidator):
 
         validators += [
             PropertyValueValidator(track.input_routing, "track", track.abstract_group_track.midi_track),
-            PropertyValueValidator(track.input_routing, "channel",
-                                   track.abstract_group_track.instrument.AUDIO_INPUT_ROUTING_CHANNEL),
+            PropertyValueValidator(track.input_routing, "channel", InputRoutingChannelEnum.POST_FX),
         ]
         for clip in track.clips:
             validators.append(

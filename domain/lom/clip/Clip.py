@@ -3,19 +3,24 @@ from math import floor
 from typing import TYPE_CHECKING, Optional, Any, List
 
 import Live
-from protocol0.domain.lom.Listenable import Listenable
+from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.clip.ClipActionMixin import ClipActionMixin
+from protocol0.domain.lom.clip.ClipEnveloppeShowedEvent import ClipEnveloppeShowedEvent
 from protocol0.domain.lom.clip.ClipName import ClipName
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.domain.shared.ApplicationView import ApplicationView
+from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.decorators import p0_subject_slot
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.shared.utils import scroll_values
+from protocol0.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
-class Clip(ClipActionMixin, Listenable):
+class Clip(ClipActionMixin, UseFrameworkEvents):
     __subject_events__ = ("notes", "length")
 
     def __init__(self, clip_slot, *a, **k):
@@ -38,10 +43,6 @@ class Clip(ClipActionMixin, Listenable):
     def __eq__(self, clip):
         # type: (object) -> bool
         return isinstance(clip, Clip) and self._clip == clip._clip
-
-    def _on_selected(self):
-        # type: () -> None
-        self.show_loop()
 
     @property
     def index(self):
@@ -223,6 +224,41 @@ class Clip(ClipActionMixin, Listenable):
     def automated_parameters(self):
         # type: () -> List[DeviceParameter]
         return [parameter for parameter in self.track.device_parameters if self.automation_envelope(parameter)]
+
+    def show_parameter_envelope(self, parameter):
+        # type: (DeviceParameter) -> None
+        ApplicationView.show_clip()
+        self.show_envelope()
+        # noinspection PyArgumentList
+        self.view.select_envelope_parameter(parameter._device_parameter)
+        DomainEventBus.notify(ClipEnveloppeShowedEvent())
+        self.displayed_automated_parameter = parameter
+
+    def scroll_automation_envelopes(self, go_next):
+        # type: (bool) -> None
+        automated_parameters = self.automated_parameters
+        if len(automated_parameters) == 0:
+            raise Protocol0Warning("No automated parameters")
+
+        if self.displayed_automated_parameter is None:
+            self.displayed_automated_parameter = automated_parameters[0]
+        else:
+            self.displayed_automated_parameter = scroll_values(
+                automated_parameters, self.displayed_automated_parameter, go_next
+            )
+
+        self.display_current_parameter_automation()
+
+    def display_current_parameter_automation(self):
+        # type: () -> None
+        selected_parameter = SongFacade.selected_parameter() or self.displayed_automated_parameter
+        if selected_parameter is None:
+            if len(self.automated_parameters):
+                selected_parameter = self.automated_parameters[0]
+            else:
+                raise Protocol0Warning("Selected clip has no automation")
+
+        self.show_parameter_envelope(selected_parameter)
 
     def disconnect(self):
         # type: () -> None

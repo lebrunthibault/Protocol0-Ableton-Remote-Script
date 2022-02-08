@@ -5,4 +5,3 @@ class EncoderMoveEnum(AbstractEnum):
     PRESS = "PRESS"
     LONG_PRESS = "LONG_PRESS"
     SCROLL = "SCROLL"
-    API = "API"

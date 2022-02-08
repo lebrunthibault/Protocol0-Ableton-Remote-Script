@@ -9,7 +9,7 @@ class Logger(object):
 
     def __init__(self, ableton_logger):
         # type: (Callable) -> None
-        self._INSTANCE = self
+        Logger._INSTANCE = self
         self._ableton_logger = ableton_logger
 
     @classmethod
@@ -38,7 +38,7 @@ class Logger(object):
         cls._log(message, level=LogLevelEnum.ERROR, debug=debug)
 
         from protocol0.domain.shared.System import System
-        System.get_instance().show_error(message)
+        System.client().show_error(message)
         if "\n" not in message:
             from protocol0.shared.StatusBar import StatusBar
 

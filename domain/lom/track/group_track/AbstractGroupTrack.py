@@ -8,14 +8,12 @@ from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-    from protocol0.domain.lom.song.SongTracksManager import SongTracksManager
 
 
 class AbstractGroupTrack(AbstractTrack):
-    def __init__(self, base_group_track, song_tracks_manager):
-        # type: (SimpleTrack, SongTracksManager) -> None
+    def __init__(self, base_group_track):
+        # type: (SimpleTrack) -> None
         super(AbstractGroupTrack, self).__init__(track=base_group_track)
-        self._song_tracks_manager = song_tracks_manager
         self.base_track.abstract_group_track = self
         base_group_track.track_name.disconnect()
         # filled when link_sub_tracks is called
@@ -75,10 +73,7 @@ class AbstractGroupTrack(AbstractTrack):
         if len(self.dummy_tracks) == len(dummy_tracks):
             return
 
-        self.dummy_tracks[:] = [
-            self._song_tracks_manager.generate_simple_track(track=track._track, index=track.index,
-                                                            cls=SimpleDummyTrack)
-            for track in dummy_tracks]
+        self.dummy_tracks[:] = [SimpleDummyTrack(track._track, track.index) for track in dummy_tracks]
         for dummy_track in self.dummy_tracks:
             dummy_track.abstract_group_track = self
             Scheduler.defer(dummy_track.track_name.update)
@@ -102,11 +97,6 @@ class AbstractGroupTrack(AbstractTrack):
             dummy_track.output_routing.track = next_dummy_track
             dummy_track = next_dummy_track
         dummy_track.output_routing.track = self.base_track
-
-    @property
-    def active_tracks(self):
-        # type: () -> List[AbstractTrack]
-        return self.sub_tracks
 
     def is_parent(self, abstract_track):
         # type: (AbstractTrack) -> bool

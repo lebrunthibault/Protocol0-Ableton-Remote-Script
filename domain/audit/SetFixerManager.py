@@ -1,17 +1,19 @@
 from typing import List, Any
 
 from protocol0.domain.audit.SetUpgradeManager import SetUpgradeManager
+from protocol0.domain.lom.song.Song import Song
 from protocol0.domain.lom.validation.ValidatorManager import ValidatorManager
-from protocol0.shared.AccessSong import AccessSong
 from protocol0.shared.Logger import Logger
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.StatusBar import StatusBar
 
 
-class SetFixerManager(AccessSong):
-    def __init__(self, validator_manager, set_upgrade_manager):
-        # type: (ValidatorManager, SetUpgradeManager) -> None
+class SetFixerManager(object):
+    def __init__(self, validator_manager, set_upgrade_manager, song):
+        # type: (ValidatorManager, SetUpgradeManager, Song) -> None
         self._validator_manager = validator_manager
         self._set_upgrade_manager = set_upgrade_manager
+        self._song = song
 
     def fix(self):
         # type: () -> None
@@ -53,6 +55,6 @@ class SetFixerManager(AccessSong):
     def _objects_to_refresh_appearance(self):
         # type: () -> List[Any]
         # noinspection PyTypeChecker
-        return [clip for track in self._song.simple_tracks for clip in track.clips] + \
-               self._song.scenes + \
-               list(self._song.all_simple_tracks)
+        return [clip for track in SongFacade.simple_tracks() for clip in track.clips] + \
+               SongFacade.scenes() + \
+               list(SongFacade.all_simple_tracks())

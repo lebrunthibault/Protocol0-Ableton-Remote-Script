@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 import Live
 from protocol0.domain.enums.ColorEnum import ColorEnum
 from protocol0.domain.enums.PresetDisplayOptionEnum import PresetDisplayOptionEnum
-from protocol0.domain.lom.Listenable import Listenable
+from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
@@ -20,9 +20,10 @@ from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
     from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
+    from protocol0.domain.lom.song.Song import Song
 
 
-class AbstractTrack(AbstractTrackActionMixin, Listenable):
+class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents):
     __subject_events__ = ("devices",)
 
     DEFAULT_NAME = "default"
@@ -32,6 +33,7 @@ class AbstractTrack(AbstractTrackActionMixin, Listenable):
     def __init__(self, track):
         # type: (SimpleTrack) -> None
         super(AbstractTrack, self).__init__()
+        self._song = None  # type: Optional[Song]
         # TRACKS
         self._track = track._track  # type: Live.Track.Track
         self.base_track = track  # type: SimpleTrack
@@ -53,6 +55,10 @@ class AbstractTrack(AbstractTrackActionMixin, Listenable):
     def __repr__(self):
         # type: () -> str
         return "P0 %s : %s (%s)" % (self.__class__.__name__, self.name, self.index + 1)
+
+    def set_song(self, song):
+        # type: (Song) -> None
+        self._song = song
 
     def _added_track_init(self):
         # type: () -> Optional[Sequence]
@@ -86,11 +92,6 @@ class AbstractTrack(AbstractTrackActionMixin, Listenable):
         will return the AbstractGroupTrack
         """
         return self.abstract_group_track if self.abstract_group_track else self  # type: ignore
-
-    @property
-    def active_tracks(self):
-        # type: () -> List[AbstractTrack]
-        raise NotImplementedError
 
     @property
     def instrument(self):
@@ -184,7 +185,7 @@ class AbstractTrack(AbstractTrackActionMixin, Listenable):
     @is_armed.setter
     def is_armed(self, is_armed):
         # type: (bool) -> None
-        for track in self.active_tracks:
+        for track in self.sub_tracks:
             track.is_armed = is_armed
 
     @property

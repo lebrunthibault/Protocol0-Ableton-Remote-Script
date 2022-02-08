@@ -1,11 +1,10 @@
 from typing import TYPE_CHECKING, List, Any, Type, Optional, Union
 
 import Live
-from protocol0.domain.lom.Listenable import Listenable
-from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
-from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.device.DeviceChain import DeviceChain
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
+from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.utils import find_if
 
@@ -13,7 +12,7 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
-class Device(Listenable):
+class Device(UseFrameworkEvents):
     def __init__(self, device, track, chain=None, *a, **k):
         # type: (Live.Device.Device, SimpleTrack, Optional[DeviceChain], Any, Any) -> None
         super(Device, self).__init__(*a, **k)
@@ -87,10 +86,6 @@ class Device(Listenable):
         param = self.get_parameter_by_name(device_parameter_name=param_name)
         if param and param.is_enabled:
             param.value = param_value
-
-    def scroll_presets(self, go_next):
-        # type: (bool) -> None
-        raise Protocol0Warning("Presets scrolling is only available for plugin devices")
 
     @property
     def name(self):

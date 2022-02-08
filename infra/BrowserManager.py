@@ -7,28 +7,18 @@ import Live
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.domain.shared.BrowserManagerInterface import BrowserManagerInterface
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils import find_if
 from protocol0.shared.Logger import Logger
+from protocol0.shared.SongFacade import SongFacade
 
 
-class BrowserManager(BrowserActions):
-    def __init__(self, *a, **k):
-        # type: (Any, Any) -> None
-        super(BrowserManager, self).__init__(*a, **k)
+class BrowserManager(BrowserActions, BrowserManagerInterface):
+    def __init__(self):
+        # type: () -> None
+        super(BrowserManager, self).__init__()
         self._audio_effect_rack_cache = {}
-
-    def application(self):
-        # type: () -> Live.Application.Application
-        """ Clyphx code using self.application() """
-        from protocol0.application.Protocol0 import Protocol0
-
-        return Protocol0.APPLICATION
-
-    def get_sample(self, sample_name):
-        # type: (str) -> Live.Browser.BrowserItem
-        self._cache_category("samples")
-        return self._cached_browser_items["samples"].get(sample_name.decode("utf-8"), None)
 
     def load_device_from_enum(self, device_enum):
         # type: (DeviceEnum) -> Sequence
@@ -41,16 +31,21 @@ class BrowserManager(BrowserActions):
         else:
             raise Protocol0Error("Couldn't load device %s, configure is_device or is_rack" % device_enum)
 
-        seq.add(load_func, complete_on=self.song.selected_track._devices_listener)
+        seq.add(load_func, complete_on=SongFacade.selected_track()._devices_listener)
         return seq.done()
 
     def load_sample(self, sample_name, **k):
         # type: (str, Any) -> None
-        item = self.get_sample(sample_name=sample_name)
+        item = self._get_sample(sample_name=sample_name)
         if item and item.is_loadable:
-            self.song.selected_track.device_insert_mode = self._insert_mode
+            SongFacade.selected_track().device_insert_mode = self._insert_mode
             # noinspection PyArgumentList
             self._browser.load_item(item)  # or _browser.preview_item
+
+    def _get_sample(self, sample_name):
+        # type: (str) -> Live.Browser.BrowserItem
+        self._cache_category("samples")
+        return self._cached_browser_items["samples"].get(sample_name.decode("utf-8"), None)
 
     def update_audio_effect_preset(self, device):
         # type: (Device) -> Optional[Sequence]

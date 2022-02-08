@@ -1,10 +1,10 @@
 from functools import partial
 
-from typing import List, Any, Optional, cast
+from typing import List, Optional, cast, TYPE_CHECKING
 
 import Live
 from _Framework.SubjectSlot import subject_slot_group
-from protocol0.domain.lom.Listenable import Listenable
+from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.clip.AudioTailClip import AudioTailClip
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
@@ -14,26 +14,28 @@ from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleA
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.shared.SongFacade import SongFacade
 from protocol0.domain.shared.decorators import p0_subject_slot, throttle
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.Logger import Logger
+from protocol0.shared.SongFacade import SongFacade
+
+if TYPE_CHECKING:
+    from protocol0.domain.lom.song.Song import Song
 
 
-class Scene(SceneActionMixin, Listenable):
-    __subject_events__ = ("is_playing",)
-
+class Scene(SceneActionMixin, UseFrameworkEvents):
     PLAYING_SCENE = None  # type: Optional[Scene]
     LOOPING_SCENE = None  # type: Optional[Scene]
     LAST_MANUALLY_STARTED_SCENE = None  # type: Optional[Scene]
     LAST_MANUALLY_STARTED_SCENE_BAR_POSITION = 0  # type: int
     SELECTED_DUPLICATE_SCENE_BAR_LENGTH = 4
 
-    def __init__(self, scene, index, *a, **k):
-        # type: (Live.Scene.Scene, int, Any, Any) -> None
-        super(Scene, self).__init__(*a, **k)
+    def __init__(self, scene, index, song):
+        # type: (Live.Scene.Scene, int, Song) -> None
+        super(Scene, self).__init__()
         self._scene = scene
         self.index = index
+        self._song = song
 
         self.scene_name = SceneName(self)
 
@@ -44,7 +46,6 @@ class Scene(SceneActionMixin, Listenable):
 
         # listeners
         self.is_triggered_listener.subject = self._scene
-        self._is_playing_listener.subject = self
 
     @property
     def live_id(self):
@@ -88,13 +89,6 @@ class Scene(SceneActionMixin, Listenable):
         if SongFacade.playing_scene() and SongFacade.playing_scene() != self:
             Scheduler.defer(partial(self._stop_previous_scene, SongFacade.playing_scene(), immediate=True))
         Scene.PLAYING_SCENE = self
-        # noinspection PyUnresolvedReferences
-        self.notify_is_playing()
-
-    @p0_subject_slot("is_playing")
-    def _is_playing_listener(self):
-        # type: () -> None
-        pass
 
     @subject_slot_group("has_clip")
     def _clip_slots_has_clip_listener(self, _):

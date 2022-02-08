@@ -1,14 +1,24 @@
+from collections import Callable
+
+from typing import Optional
+
 from protocol0.shared.Logger import Logger
 
 
 class StatusBar(object):
     """ Facade for writing to the status bar """
+    _INSTANCE = None  # type: Optional[StatusBar]
+
+    def __init__(self, show_messsage):
+        # type: (Callable) -> None
+        StatusBar._INSTANCE = self
+        self._show_message = show_messsage
+
     @classmethod
     def show_message(cls, message):
         # type: (str) -> None
-        from protocol0.application.Protocol0 import Protocol0
         # noinspection PyBroadException
         try:
-            Protocol0.SHOW_MESSAGE(str(message))
+            cls._INSTANCE._show_message(str(message))
         except Exception:
             Logger.log_warning("Couldn't show message : %s" % message)

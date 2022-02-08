@@ -1,39 +1,34 @@
 from itertools import chain
 
-from typing import List, Optional, TYPE_CHECKING
+from typing import List, Optional
 
 import Live
-from protocol0.application.config import Config
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
+from protocol0.domain.lom.instrument.InstrumentFactory import InstrumentFactory
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackActionMixin import SimpleTrackActionMixin
+from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import SimpleTrackCreatedEvent
+from protocol0.domain.shared.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.System import System
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.utils import find_if
-from protocol0.domain.shared.System import System
-
-if TYPE_CHECKING:
-    from protocol0.domain.lom.song.SongTracksManager import SongTracksManager
-    from protocol0.domain.lom.device.DeviceManager import DeviceManager
-    from protocol0.infra.BrowserManager import BrowserManager
-    from protocol0.application.interface.ClickManager import ClickManager
+from protocol0.shared.Logger import Logger
+from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.config import Config
 
 
 class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     IS_ACTIVE = True
     CLIP_SLOT_CLASS = ClipSlot
 
-    def __init__(self, track, index, song_tracks_manager, device_manager, browser_manager, click_manager):
-        # type: (Live.Track.Track, int, SongTracksManager, DeviceManager, BrowserManager, ClickManager) -> None
+    def __init__(self, track, index):
+        # type: (Live.Track.Track, int) -> None
         self._track = track  # type: Live.Track.Track
         self._index = index
-        self._song_tracks_manager = song_tracks_manager
-        self._device_manager = device_manager
-        self._browser_manager = browser_manager
-        self._click_manager = click_manager
         super(SimpleTrack, self).__init__(track=self)
 
         # is_active is used to differentiate set tracks for return / master
@@ -54,6 +49,8 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self._map_clip_slots()
 
         self._output_meter_level_listener.subject = None
+
+        DomainEventBus.notify(SimpleTrackCreatedEvent(self))
 
     @property
     def live_id(self):
@@ -83,7 +80,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             self.group_track = None
             return None
 
-        self.group_track = self._song_tracks_manager.get_simple_track(self._track.group_track)
+        self.group_track = SongFacade.simple_track_from_live_track(self._track.group_track)
         self.append_to_sub_tracks(self.group_track, self)
 
     def _map_clip_slots(self):
@@ -113,20 +110,21 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
 
         self.devices = [Device.make(device, self) for device in self._track.devices]
 
-        self.all_devices = self._device_manager.find_all_devices(self.base_track)
+        self.all_devices = self._find_all_devices(self.base_track)
 
         # noinspection PyUnresolvedReferences
         self.notify_devices()
 
         # Refreshing is only really useful from simpler devices that change when a new sample is loaded
         if self.IS_ACTIVE and not self.is_foldable:
-            self.instrument = self._device_manager.make_instrument_from_simple_track(track=self)
+            self.instrument = InstrumentFactory.make_instrument_from_simple_track(track=self)
+            Logger.log_dev((self, self.instrument))
 
     @p0_subject_slot("output_meter_level")
     def _output_meter_level_listener(self):
         # type: () -> None
         if self.output_meter_level > Config.CLIPPING_TRACK_VOLUME:
-            System.get_instance().show_warning("%s is clipping (%.3f)" % (self.name, self.output_meter_level))
+            System.client().show_warning("%s is clipping (%.3f)" % (self.name, self.output_meter_level))
 
     @property
     def is_armed(self):
@@ -179,11 +177,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def fired_slot_index(self):
         # type: () -> int
         return self._track.fired_slot_index if self._track else 0
-
-    @property
-    def active_tracks(self):
-        # type: () -> List[AbstractTrack]
-        raise [self]
 
     @property
     def device_parameters(self):

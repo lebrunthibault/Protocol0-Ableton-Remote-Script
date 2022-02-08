@@ -3,11 +3,11 @@ from math import floor
 from ClyphX_Pro.ClyphXComponentBase import ClyphXComponentBase, schedule
 from typing import Any, Optional
 
-from protocol0.domain.scheduler.BarEndingEvent import BarEndingEvent
-from protocol0.domain.shared.BeatChangedEvent import BeatChangedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.Last32thPassedEvent import Last32thPassedEvent
 from protocol0.domain.shared.decorators import p0_subject_slot
+from protocol0.domain.shared.scheduler.BarEndingEvent import BarEndingEvent
+from protocol0.domain.shared.scheduler.BeatChangedEvent import BeatChangedEvent
+from protocol0.domain.shared.scheduler.Last32thPassedEvent import Last32thPassedEvent
 from protocol0.shared.SongFacade import SongFacade
 
 
@@ -67,7 +67,7 @@ class SyncedScheduler(ClyphXComponentBase):
         if not self._song.is_playing:
             return
 
-        current_beat_time = self._song.get_current_beats_song_time()
+        current_beat_time = SongFacade.current_beats_song_time()
         current_beat = current_beat_time.beats
         current_sixteenth = current_beat_time.sub_division
         current_tick = current_beat_time.ticks

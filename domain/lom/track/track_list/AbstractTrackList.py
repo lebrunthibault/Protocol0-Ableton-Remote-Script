@@ -28,11 +28,6 @@ class AbstractTrackList(UserMutableSequence):
         # type: () -> Iterable[AbstractGroupTrack]
         return (ab for ab in self.abstract_group_tracks if not ab.is_parent(SongFacade.current_track()))
 
-    def toggle_solo(self):
-        # type: () -> None
-        for t in self._abstract_tracks:
-            t.solo = not t.solo
-
     def toggle_fold(self, fold_action=None):
         # type: (Optional[FoldActionEnum]) -> None
         fold_action = fold_action or self._get_fold_action()

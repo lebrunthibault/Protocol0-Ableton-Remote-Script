@@ -1,55 +1,31 @@
+from collections import Callable
 from functools import partial
-from itertools import chain, imap
 
-from typing import Optional, Tuple, Dict, Type, cast, List, Union, TYPE_CHECKING
+from typing import Optional, Tuple, Dict, List
 
-from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.lom.device.Device import Device
-from protocol0.domain.lom.device.DeviceChain import DeviceChain
 from protocol0.domain.lom.device.RackDevice import RackDevice
-from protocol0.domain.lom.instrument.InstrumentFactory import InstrumentFactory
-from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.domain.shared.ApplicationView import ApplicationView
+from protocol0.domain.shared.BrowserManagerInterface import BrowserManagerInterface
+from protocol0.domain.shared.System import System
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils import find_if
-from protocol0.domain.shared.System import System
-from protocol0.shared.AccessSong import AccessSong
 from protocol0.shared.Logger import Logger
 
-if TYPE_CHECKING:
-    from protocol0.infra.BrowserManager import BrowserManager
 
-
-class DeviceManager(AccessSong):
+class DeviceManager(object):
     SHOW_HIDE_MACRO_BUTTON_PIXEL_HEIGHT = 830
     SHOW_HIDE_PLUGIN_BUTTON_PIXEL_HEIGHT = 992
     COLLAPSED_DEVICE_PIXEL_WIDTH = 38
     COLLAPSED_RACK_DEVICE_PIXEL_WIDTH = 28
     WIDTH_PIXEL_OFFSET = 4
 
-    def __init__(self, browser_manager):
-        # type: (BrowserManager) -> None
+    def __init__(self, browser_manager, select_device):
+        # type: (BrowserManagerInterface, Callable) -> None
         self._browser_manager = browser_manager
-
-    def make_instrument_from_simple_track(self, track):
-        # type: (SimpleTrack) -> Optional[InstrumentInterface]
-        """
-        If the instrument didn't change we keep the same instrument and don't instantiate a new one
-        to keep instrument state
-        """
-
-        instrument_device = find_if(lambda d: InstrumentFactory.get_instrument_class(d),  # type: ignore
-                                    track.all_devices)
-        if not instrument_device:
-            return None
-
-        instrument_class = cast(Type[InstrumentInterface], InstrumentFactory.get_instrument_class(instrument_device))
-
-        if isinstance(track.instrument, instrument_class):
-            return track.instrument  # maintaining state
-        else:
-            return instrument_class(track=track, device=instrument_device)
+        self._select_device = select_device
 
     def update_audio_effect_rack(self, device):
         # type: (RackDevice) -> Sequence
@@ -57,7 +33,7 @@ class DeviceManager(AccessSong):
         Logger.log_info("selecting and updating device %s (track %s)" % (device, device.track))
         parameters = {param.name: param.value for param in device.parameters if "macro" not in param.name.lower()}
         seq = Sequence()
-        seq.add(partial(self._song.select_device, device))
+        seq.add(partial(self._select_device, device))
         seq.add(partial(self._browser_manager.update_audio_effect_preset, device))
         seq.add(partial(self._update_device_params, device.track, device.name, parameters))
         return seq.done()
@@ -99,7 +75,7 @@ class DeviceManager(AccessSong):
         (x_device, y_device) = self._get_device_show_button_click_coordinates(device)
         seq = Sequence()
         seq.add(
-            lambda: System.get_instance().toggle_ableton_button(x=x_device, y=y_device, activate=True),
+            lambda: System.client().toggle_ableton_button(x=x_device, y=y_device, activate=True),
             wait=6,
             name="click on device show button",
         )
@@ -125,17 +101,17 @@ class DeviceManager(AccessSong):
 
         seq = Sequence()
         seq.add(
-            lambda: System.get_instance().toggle_ableton_button(x=x_rack, y=y_rack, activate=False),
+            lambda: System.client().toggle_ableton_button(x=x_rack, y=y_rack, activate=False),
             wait=5,
             name="hide rack macro controls",
         )
         seq.add(
-            lambda: System.get_instance().toggle_ableton_button(x=x_device, y=y_device, activate=True),
+            lambda: System.client().toggle_ableton_button(x=x_device, y=y_device, activate=True),
             wait=10,
             name="click on device show button",
         )
         seq.add(
-            lambda: System.get_instance().toggle_ableton_button(x=x_rack, y=y_rack, activate=True),
+            lambda: System.client().toggle_ableton_button(x=x_rack, y=y_rack, activate=True),
             name="show rack macro controls",
         )
         # at this point the rack macro controls could still be hidden if the plugin window masks the button
@@ -182,26 +158,3 @@ class DeviceManager(AccessSong):
                 return rack_device
 
         raise Protocol0Error("Couldn't find device %s (may be too nested to be detected)" % device.name)
-
-    def find_all_devices(self, track_or_chain, only_visible=False):
-        # type: (Optional[Union[SimpleTrack, DeviceChain]], bool) -> List[Device]
-        u""" Returns a list with all devices from a track or chain """
-        devices = []
-        if track_or_chain is None:
-            return []
-        for device in filter(None, track_or_chain.devices):  # type: Device
-            if not isinstance(device, RackDevice):
-                devices += [device]
-                continue
-
-            if device.can_have_drum_pads and device.can_have_chains:
-                devices += chain([device], self.find_all_devices(device.selected_chain))
-            elif not device.can_have_drum_pads and isinstance(device, RackDevice):
-                devices += chain(
-                    [device],
-                    *imap(
-                        partial(self.find_all_devices, only_visible=only_visible),
-                        filter(None, device.chains),
-                    )
-                )
-        return devices

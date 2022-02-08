@@ -1,14 +1,15 @@
-from protocol0.domain.shared.ApplicationView import ApplicationView
+from protocol0.domain.lom.instrument.InstrumentWithEditorInterface import InstrumentWithEditorInterface
 from protocol0.domain.lom.instrument.instrument.InstrumentProphet import InstrumentProphet
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.System import System
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
 
 
-# noinspection PyTypeHints,PyArgumentList
 class TrackRecorderExternalSynthMixin(object):
+    # noinspection PyTypeHints,PyArgumentList
     @property
     def track(self):
         # type: (AbstractTrackRecorder) -> ExternalSynthTrack
@@ -25,14 +26,17 @@ class TrackRecorderExternalSynthMixin(object):
         self.track.midi_track.select()
         ApplicationView.show_device()
         if isinstance(self.track.instrument, InstrumentProphet) and not InstrumentProphet.EDITOR_DEVICE_ON:
-            Scheduler.defer(System.get_instance().show_plugins)
+            Scheduler.defer(System.client().show_plugins)
 
+    # noinspection PyTypeHints,PyArgumentList
     def _post_record(self):
         # type: (AbstractTrackRecorder) -> None
         from typing import cast
         track = cast(ExternalSynthTrack, self.track)
-        track.instrument.activate_editor_automation()
-        System.get_instance().hide_plugins()
+        instrument = track.instrument
+        if isinstance(instrument, InstrumentWithEditorInterface):
+            instrument.activate_editor_automation()
+        System.client().hide_plugins()
         # this is delayed in the case an encoder is touched after the recording is finished by mistake
         Scheduler.wait([1, 10, 50, 100], self._song.re_enable_automation)
 

@@ -7,10 +7,9 @@ from protocol0.domain.lom.set.SessionToArrangementManager import SessionToArrang
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.decorators import throttle
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import scroll_values
-from protocol0.shared.AccessSong import AccessSong
 from protocol0.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:
@@ -18,7 +17,7 @@ if TYPE_CHECKING:
 
 
 # noinspection PyTypeHints
-class SceneActionMixin(AccessSong):
+class SceneActionMixin(object):
     def select(self):
         # type: (Scene) -> None
         self._song.selected_scene = self
@@ -62,8 +61,8 @@ class SceneActionMixin(AccessSong):
     def fire(self):
         # type: (Scene) -> None
         # handles click sound when the previous scene plays shortly
-        if self._song.playing_scene and self._song.playing_scene != self:
-            self._stop_previous_scene(self._song.playing_scene)
+        if SongFacade.playing_scene() and SongFacade.playing_scene() != self:
+            self._stop_previous_scene(SongFacade.playing_scene())
 
         from protocol0.domain.lom.scene.Scene import Scene
         Scene.PLAYING_SCENE = self
@@ -81,15 +80,15 @@ class SceneActionMixin(AccessSong):
             Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION = 0
 
         # removing click when changing position
-        master_volume = self._song.master_track.volume
-        self._song.master_track.volume = 0
+        master_volume = SongFacade.master_track().volume
+        SongFacade.master_track().volume = 0
         seq.add(wait=1)
         # leveraging throttle to disable the next update (that would be 1 / *)
         seq.add(partial(self.scene_name.update, bar_position=Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION))
         seq.add(self.fire)
         seq.add(partial(self.jump_to_bar, Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION))
         seq.add(self._song.stop_playing)
-        seq.add(partial(setattr, self._song.master_track, "volume", master_volume))
+        seq.add(partial(setattr, SongFacade.master_track(), "volume", master_volume))
         seq.add(wait=1)
         seq.add(self._song.continue_playing)
         return seq.done()
@@ -106,7 +105,7 @@ class SceneActionMixin(AccessSong):
         # type: (Scene, Scene, bool) -> None
         from protocol0.domain.lom.scene.Scene import Scene
 
-        if previous_playing_scene == self._song.looping_scene:
+        if previous_playing_scene == SongFacade.looping_scene():
             Scene.LOOPING_SCENE = None
 
         # manually stopping previous scene because we don't display clip slot stop buttons
@@ -123,7 +122,7 @@ class SceneActionMixin(AccessSong):
         for clip in self.audio_tail_clips:
             abstract_track = cast(ExternalSynthTrack, clip.track.abstract_track)
             # do not trigger tail on monophonic loop
-            if abstract_track.instrument.MONOPHONIC and self.next_scene != self and self.next_scene.clip_slots[clip.track.index - 1].clip:
+            if self.next_scene != self and self.next_scene.clip_slots[clip.track.index - 1].clip:
                 continue
             if abstract_track.audio_track.clip_slots[clip.index].clip.muted:
                 continue
@@ -146,10 +145,10 @@ class SceneActionMixin(AccessSong):
         """ for a scene solo means looped """
         from protocol0.domain.lom.scene.Scene import Scene
 
-        if self != self._song.looping_scene:  # solo activation
-            previous_looping_scene = self._song.looping_scene
+        if self != SongFacade.looping_scene():  # solo activation
+            previous_looping_scene = SongFacade.looping_scene()
             Scene.LOOPING_SCENE = self
-            if self != self._song.playing_scene:
+            if self != SongFacade.playing_scene():
                 self.fire()
             if previous_looping_scene and previous_looping_scene != self:
                 previous_looping_scene.scene_name.update()
@@ -165,7 +164,7 @@ class SceneActionMixin(AccessSong):
         seq.add(partial(self._song.duplicate_scene, self.index))
         seq.add(lambda: self._song.selected_scene._crop_clips_to_bar_length(bar_length=-bar_length))
         seq.add(partial(self._crop_clips_to_bar_length, bar_length=bar_length))
-        for track in self._song.external_synth_tracks:
+        for track in SongFacade.external_synth_tracks():
             if track.audio_tail_track and track.audio_tail_track.clip_slots[self.index]:
                 seq.add([track.audio_tail_track.clip_slots[self.index].clip.delete])
         return seq.done()
