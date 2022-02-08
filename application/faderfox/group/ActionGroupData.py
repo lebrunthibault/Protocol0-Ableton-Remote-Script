@@ -1,5 +1,5 @@
 from protocol0.application.faderfox.group.ActionGroupMixin import ActionGroupMixin
-from protocol0.domain.shared.SongDataServiceInterface import SongDataServiceInterface
+from protocol0.infra.persistence.SongDataService import SongDataService
 
 
 class ActionGroupData(ActionGroupMixin):
@@ -8,7 +8,4 @@ class ActionGroupData(ActionGroupMixin):
     def configure(self):
         # type: () -> None
         # SAVE encoder
-        self.add_encoder(identifier=1, name="save song data", on_press=self._container.get(SongDataServiceInterface).save)
-
-        # CLeaR encoder
-        self.add_encoder(identifier=2, name="clear song data", on_press=self._container.get(SongDataServiceInterface).clear)
+        self.add_encoder(identifier=1, name="save song data", on_press=self._container.get(SongDataService).save)

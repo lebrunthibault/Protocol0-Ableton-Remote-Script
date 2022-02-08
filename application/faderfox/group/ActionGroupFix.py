@@ -3,7 +3,7 @@ from protocol0.domain.audit.AudioLatencyAnalyzerService import AudioLatencyAnaly
 from protocol0.domain.audit.SetFixerService import SetFixerService
 from protocol0.domain.audit.SetUpgradeService import SetUpgradeService
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
-from protocol0.shared.Logger import Logger
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
 
 

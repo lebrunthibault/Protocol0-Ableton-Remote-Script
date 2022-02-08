@@ -1,8 +1,8 @@
 from protocol0.application.faderfox.group.ActionGroupMixin import ActionGroupMixin
-from protocol0.domain.command.ClearLogsCommand import ClearLogsCommand
-from protocol0.domain.shared.CommandBus import CommandBus
+from protocol0.application.command.ClearLogsCommand import ClearLogsCommand
+from protocol0.application.CommandBus import CommandBus
 from protocol0.domain.shared.System import System
-from protocol0.shared.Logger import Logger
+from protocol0.shared.logging.Logger import Logger
 
 
 class ActionGroupTest(ActionGroupMixin):

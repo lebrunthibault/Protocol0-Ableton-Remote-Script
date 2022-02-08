@@ -4,7 +4,7 @@ from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:

@@ -1,7 +1,6 @@
 import json
 import os
 import sys
-from json import JSONEncoder
 from os.path import dirname
 
 if sys.version_info.major == 2:
@@ -61,10 +60,6 @@ class EmptyModule(object):
         # type: () -> int
         return 0
 
-    def to_json(self):
-        # type: () -> str
-        return self.name
-
 
 # allows accessing code from this module from outside of the Live python environment, e.g. Jupyter tests
 if not live_environment_loaded:
@@ -72,14 +67,14 @@ if not live_environment_loaded:
     sys.modules["MidiRemoteScript"] = EmptyModule("MidiRemoteScript")  # type: ignore[assignment]
     sys.modules["multipledispatch"] = EmptyModule("multipledispatch")  # type: ignore[assignment]
 
-
-def _default(_, obj):
-    # type: (Any, Any) -> Any
-    return getattr(obj.__class__, "to_json", _default.default)(obj)
-
-
-_default.default = JSONEncoder().default
-JSONEncoder.default = _default  # type: ignore[assignment]
+#
+# def _default(_, obj):
+#     # type: (Any, Any) -> Any
+#     return getattr(obj.__class__, "to_json", _default.default)(obj)
+#
+#
+# _default.default = JSONEncoder().default
+# JSONEncoder.default = _default  # type: ignore[assignment]
 
 
 def create_instance(c_instance):  # noqa

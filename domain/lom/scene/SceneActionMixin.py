@@ -3,10 +3,9 @@ from math import floor
 
 from typing import TYPE_CHECKING, Optional, cast
 
-from protocol0.domain.lom.set.SessionToArrangementService import SessionToArrangementService
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
-from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.decorators import throttle
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import scroll_values
@@ -34,26 +33,14 @@ class SceneActionMixin(object):
             # trigger on last beat
             if self.current_beat == SongFacade.signature_numerator() - 1:
                 Scheduler.defer(self._play_audio_tails)  # only call is here, at the end of each bar
-            if SessionToArrangementService.IS_BOUNCING or self.current_beat == SongFacade.signature_numerator() - 1:
                 self._fire_next_scene()
 
-        if self.current_beat == 0 and not SessionToArrangementService.IS_BOUNCING:
+        if self.current_beat == 0:
             Scheduler.defer(self.scene_name.update)
 
     def _fire_next_scene(self):
         # type: (Scene) -> None
         next_scene = self.next_scene
-        if SessionToArrangementService.IS_BOUNCING:
-            # unique call when bouncing
-            if SessionToArrangementService.LAST_SCENE_FIRED == self:
-                return None
-            else:
-                SessionToArrangementService.LAST_SCENE_FIRED = self
-
-            if self == next_scene:
-                self._song.stop_all_clips()
-                Scheduler.wait_bars(2, self._song.stop_playing)
-                return None
 
         if next_scene != self:
             next_scene.fire()  # do not fire same scene as it focus it again (can loose current parameter focus)
@@ -157,9 +144,8 @@ class SceneActionMixin(object):
 
         self.scene_name.update()
 
-    def split(self):
-        # type: (Scene) -> Sequence
-        bar_length = self.SELECTED_DUPLICATE_SCENE_BAR_LENGTH
+    def split(self, bar_length):
+        # type: (Scene, int) -> Sequence
         seq = Sequence()
         seq.add(partial(self._song.duplicate_scene, self.index))
         seq.add(lambda: self._song.selected_scene._crop_clips_to_bar_length(bar_length=-bar_length))

@@ -3,7 +3,7 @@ from __future__ import print_function
 from typing import List, Any
 
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
-from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.decorators import has_callback_queue, p0_subject_slot
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 

@@ -58,7 +58,6 @@ class Song(SongActionMixin, UseFrameworkEvents):
 
         if not self.is_playing:
             DomainEventBus.notify(SongStoppedEvent())
-            Config.CURRENT_RECORD_TYPE = None
             if SongFacade.playing_scene():
                 Scheduler.defer(SongFacade.playing_scene().mute_audio_tails)
             return

@@ -3,10 +3,10 @@ from typing import cast, Optional
 from protocol0.application.vocal_command.KeywordSearchService import KeywordSearchService
 from protocol0.application.vocal_command.TrackSearchKeywordEnum import TrackSearchKeywordEnum
 from protocol0.application.vocal_command.VocalActionEnum import VocalActionEnum
-from protocol0.domain.shared.CommandBus import CommandBus
+from protocol0.application.CommandBus import CommandBus
 from protocol0.domain.shared.utils import smart_string
-from protocol0.shared.Logger import Logger
-from protocol0.shared.StatusBar import StatusBar
+from protocol0.shared.logging.Logger import Logger
+from protocol0.shared.logging.StatusBar import StatusBar
 
 
 class VocalCommandService(object):

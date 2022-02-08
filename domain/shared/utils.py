@@ -5,12 +5,12 @@ from collections import namedtuple, Sequence as CollectionsSequence
 from types import FrameType
 
 from qualname import qualname
-from typing import Optional, Any, cast, Callable, Iterator, List, Dict
+from typing import Optional, Any, cast, Callable, Iterator, List
 
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.my_types import T
+from protocol0.shared.types import T
 
 
 def scroll_values(items, selected_item, go_next, rotate=True):
@@ -57,19 +57,6 @@ def get_frame_info(frame_count=1):
 
     FrameInfo = namedtuple("FrameInfo", ["filename", "class_name", "line", "method_name"])
     return FrameInfo(filename=filename, class_name=class_name, line=line, method_name=method_name)
-
-
-def _has_callback_queue(func):
-    # type: (Any) -> bool
-    """ mixing duck typing and isinstance to ensure we really have a callback handler object """
-    from protocol0.domain.sequence.CallbackDescriptor import CallableWithCallbacks
-    from _Framework.SubjectSlot import CallableSlotMixin
-
-    return (
-            func
-            and hasattr(func, "add_callback")
-            and (isinstance(func, CallableWithCallbacks) or isinstance(func, CallableSlotMixin))
-    )
 
 
 def is_method(func):
@@ -129,9 +116,9 @@ def get_class_name_from_method(func):
 
 def get_callable_repr(func):
     # type: (Callable) -> str
-    from protocol0.domain.sequence.Sequence import Sequence
-    from protocol0.domain.sequence.SequenceStep import SequenceStep
-    from protocol0.domain.sequence.CallbackDescriptor import CallableWithCallbacks
+    from protocol0.shared.sequence.Sequence import Sequence
+    from protocol0.shared.sequence.SequenceStep import SequenceStep
+    from protocol0.shared.sequence.CallbackDescriptor import CallableWithCallbacks
     if isinstance(func, Sequence) or isinstance(func, SequenceStep) or isinstance(func, CallableWithCallbacks):
         return func.__repr__()
 
@@ -161,15 +148,6 @@ def import_package(package):
 def nop(*_, **__):
     # type: (Any, Any) -> None
     pass
-
-
-def class_attributes(cls):
-    # type: (Any) -> Dict
-    attributes = {}
-    for key, value in inspect.getmembers(cls):
-        if not key.startswith('_') and not inspect.ismethod(value):
-            attributes[key] = value
-    return attributes
 
 
 def compare_values(value, expected_value):

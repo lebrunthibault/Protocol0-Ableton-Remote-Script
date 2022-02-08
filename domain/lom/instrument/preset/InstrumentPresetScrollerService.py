@@ -3,11 +3,11 @@ from functools import partial
 from protocol0.domain.lom.device.PluginDevice import PluginDevice
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.instrument.preset.PresetDisplayOptionEnum import PresetDisplayOptionEnum
-from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.utils import scroll_values
-from protocol0.shared.StatusBar import StatusBar
+from protocol0.shared.logging.StatusBar import StatusBar
 
 
 class InstrumentPresetScrollerService(object):

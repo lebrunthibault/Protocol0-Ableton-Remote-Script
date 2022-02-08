@@ -11,11 +11,11 @@ from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DevicePara
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
-from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
-from protocol0.shared.Logger import Logger
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.StatusBar import StatusBar
+from protocol0.shared.logging.StatusBar import StatusBar
 
 
 class SetUpgradeService(object):

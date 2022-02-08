@@ -11,7 +11,7 @@ from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupT
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
-from protocol0.shared.Logger import Logger
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
 
 

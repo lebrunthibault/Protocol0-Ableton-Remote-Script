@@ -11,7 +11,7 @@ from protocol0.domain.lom.validation.sub_validators.CallbackValidator import Cal
 from protocol0.domain.lom.validation.sub_validators.DeviceParameterValidator import DeviceParameterValidator
 from protocol0.domain.lom.validation.sub_validators.PropertyValueValidator import PropertyValueValidator
 from protocol0.domain.lom.validation.sub_validators.SimpleTrackHasDeviceValidator import SimpleTrackHasDeviceValidator
-from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.shared.Config import Config
 

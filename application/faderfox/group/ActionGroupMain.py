@@ -5,7 +5,6 @@ from protocol0.domain.lom.instrument.InstrumentDisplayService import InstrumentD
 from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService import InstrumentPresetScrollerService
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
 from protocol0.domain.track_recorder.track_recorder_service import TrackRecorderService
-from protocol0.shared.InterfaceState import InterfaceState
 from protocol0.shared.SongFacade import SongFacade
 
 
@@ -44,7 +43,7 @@ class ActionGroupMain(ActionGroupMixin):
             identifier=9,
             name="record",
             filter_active_tracks=True,
-            on_scroll=InterfaceState.scroll_recording_time,
+            on_scroll=self._container.get(TrackRecorderService).scroll_recording_time,
             on_press=lambda: partial(self._container.get(TrackRecorderService).record_track, SongFacade.current_track(),
                                      RecordTypeEnum.NORMAL),
             on_cancel_press=lambda: partial(self._container.get(TrackRecorderService).cancel_record, SongFacade.current_track(),

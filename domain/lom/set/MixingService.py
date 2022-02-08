@@ -6,23 +6,24 @@ from protocol0.domain.shared.System import System
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.StatusBar import StatusBar
+from protocol0.shared.logging.StatusBar import StatusBar
 
 
 class MixingService(UseFrameworkEvents):
-    MIXING_PLUGIN_NAMES = ("ozone", "limiter")
+    _VOLUME_LISTENER_ACTIVE = False
 
     def __init__(self, master_track):
         # type: (Live.Track.Track) -> None
         super(MixingService, self).__init__()
+        self._mixing_plugins_names = ("ozone", "limiter")
         self._master_track_output_meter_level_listener.subject = master_track
 
     def toggle_volume_check(self):
         # type: () -> None
-        Config.VOLUME_LISTENER_ACTIVE = not Config.VOLUME_LISTENER_ACTIVE
-        StatusBar.show_message("VOLUME_LISTENER_ACTIVE: %s" % Config.VOLUME_LISTENER_ACTIVE)
+        MixingService._VOLUME_LISTENER_ACTIVE = not MixingService._VOLUME_LISTENER_ACTIVE
+        StatusBar.show_message("VOLUME_LISTENER_ACTIVE: %s" % MixingService._VOLUME_LISTENER_ACTIVE)
         listenable_tracks = SongFacade.live_song().tracks
-        if not Config.VOLUME_LISTENER_ACTIVE:
+        if not MixingService._VOLUME_LISTENER_ACTIVE:
             listenable_tracks = []
         self._track_output_meter_level_listener.replace_subjects(listenable_tracks)
 
@@ -30,10 +31,10 @@ class MixingService(UseFrameworkEvents):
     def _should_activate_mix_volume_follower(self):
         # type: () -> bool
         """ deprecated """
-        if not Config.VOLUME_LISTENER_ACTIVE:
+        if not MixingService._VOLUME_LISTENER_ACTIVE:
             return False
         for device in SongFacade.master_track().all_devices:
-            if any([name.lower() in device.name.lower() for name in self.MIXING_PLUGIN_NAMES]) and device.is_active:
+            if any([name.lower() in device.name.lower() for name in self._mixing_plugins_names]) and device.is_active:
                 return False
 
         return True

@@ -1,0 +1,2 @@
+class SelectedRecordingBarLengthUpdatedEvent(object):
+    pass

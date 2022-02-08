@@ -1,9 +1,11 @@
+from functools import partial
+
 from protocol0.application.faderfox.group.ActionGroupMixin import ActionGroupMixin
 from protocol0.domain.audit.SongStatsService import SongStatsService
 from protocol0.domain.lom.instrument.instrument.InstrumentProphet import InstrumentProphet
 from protocol0.domain.lom.set.MixingService import MixingService
 from protocol0.domain.lom.set.SessionToArrangementService import SessionToArrangementService
-from protocol0.shared.InterfaceState import InterfaceState
+from protocol0.domain.lom.scene.ScenesService import SongScenesService
 from protocol0.shared.SongFacade import SongFacade
 
 
@@ -15,8 +17,8 @@ class ActionGroupSet(ActionGroupMixin):
         # SPLiT encoder
         self.add_encoder(identifier=1,
                          name="split scene",
-                         on_scroll=InterfaceState.scroll_duplicate_scene_bar_lengths,
-                         on_press=lambda: SongFacade.selected_scene().split
+                         on_scroll=self._container.get(SongScenesService).scroll_duplicate_scene_bar_lengths,
+                         on_press=lambda: partial(SongFacade.selected_scene().split, self._container.get(SongScenesService).selected_duplicate_scene_bar_length)
                          )
 
         # TAP tempo encoder

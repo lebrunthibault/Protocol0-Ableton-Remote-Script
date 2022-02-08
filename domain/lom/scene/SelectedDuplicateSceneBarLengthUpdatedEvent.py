@@ -1,0 +1,2 @@
+class SelectedDuplicateSceneBarLengthUpdatedEvent(object):
+    pass

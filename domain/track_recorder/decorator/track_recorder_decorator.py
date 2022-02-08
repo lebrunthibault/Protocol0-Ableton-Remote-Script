@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
 
 if TYPE_CHECKING:

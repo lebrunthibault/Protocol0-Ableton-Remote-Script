@@ -4,15 +4,15 @@ from types import TracebackType
 
 from typing import Optional, Any, List, Type
 
-from protocol0.domain.command.InitializeSongCommand import InitializeSongCommand
-from protocol0.domain.shared.CommandBus import CommandBus
+from protocol0.application.command.InitializeSongCommand import InitializeSongCommand
+from protocol0.application.CommandBus import CommandBus
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.System import System
 from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.Config import Config
-from protocol0.shared.Logger import Logger
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.UndoFacade import UndoFacade
 
 

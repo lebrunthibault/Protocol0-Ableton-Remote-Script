@@ -18,28 +18,33 @@ class AbletonSong(Subject):
         "current_song_time"
     )
 
-    def __init__(self, tracks, view):
-        # type: (List[AbletonTrack], AbletonSongView) -> None
-        self.view = view
+    def __init__(self):
+        # type: () -> None
+        self.view = AbletonSongView()
         self.tempo = 120
 
-        self.tracks = tracks
+        self.tracks = [self.view.selected_track]
         self.return_tracks = []  # type: List[AbletonTrack]
         self.master_track = AbletonTrack()  # type: ignore
-        self.scenes = []
+        self.scenes = [self.view.selected_scene]
         self.clip_trigger_quantization = 0
         self.view.selected_track = self.master_track
+        self.is_playing = False
 
     def stop_playing(self):
         # type: () -> None
+        pass
+
+    def stop_all_clips(self, _):
+        # type: (bool) -> None
         pass
 
     def get_data(self, _, default):
         # type: () -> Any
         return default
 
-    def set_data(self):
-        # type: () -> None
+    def set_data(self, _, __):
+        # type: (str, Any) -> None
         pass
 
     def begin_undo_step(self):

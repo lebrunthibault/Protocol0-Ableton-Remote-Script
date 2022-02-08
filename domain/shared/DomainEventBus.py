@@ -3,7 +3,7 @@ import inspect
 from typing import Dict, List, Type, Callable, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from protocol0.domain.sequence.Sequence import Sequence  # noqa
+    from protocol0.shared.sequence.Sequence import Sequence  # noqa
 
 
 class DomainEventBus(object):

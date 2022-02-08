@@ -1,14 +1,11 @@
-from functools import partial
-
 from typing import Optional
 
 import Live
-from protocol0.domain.command.ResetSongCommand import ResetSongCommand
+from protocol0.domain.lom.song.Song import Song
 from protocol0.domain.lom.song.SongInitializedEvent import SongInitializedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.ApplicationView import ApplicationView
-from protocol0.domain.shared.CommandBus import CommandBus
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.System import System
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
@@ -18,6 +15,10 @@ from protocol0.shared.SongFacade import SongFacade
 
 
 class SongService(object):
+    def __init__(self, song):
+        # type: (Song) -> None
+        self._song = song
+
     def init_song(self):
         # type: () -> None
         if SongFacade.clip_trigger_quantization() == Live.Song.Quantization.q_no_q:
@@ -34,7 +35,7 @@ class SongService(object):
             seq.add(startup_track.select)
             seq.add(ApplicationView.focus_current_track)
             seq.done()
-        Scheduler.wait(2, partial(CommandBus.dispatch, ResetSongCommand()))
+        self._song.reset()
 
     def _get_startup_track(self):
         # type: () -> Optional[AbstractTrack]

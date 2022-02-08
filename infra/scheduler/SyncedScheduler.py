@@ -3,8 +3,8 @@ from math import floor
 from ClyphX_Pro.ClyphXComponentBase import ClyphXComponentBase, schedule
 from typing import Any, Optional
 
+from _Framework.SubjectSlot import subject_slot
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.scheduler.BarEndingEvent import BarEndingEvent
 from protocol0.domain.shared.scheduler.BeatChangedEvent import BeatChangedEvent
 from protocol0.domain.shared.scheduler.Last32thPassedEvent import Last32thPassedEvent
@@ -51,7 +51,7 @@ class SyncedScheduler(ClyphXComponentBase):
 
             self._pending_precise_action_list[msg] = action
 
-    @p0_subject_slot('is_playing')
+    @subject_slot('is_playing')
     def _is_playing_listener(self):
         # type: () -> None
         if not self._song.is_playing and self._unschedule_on_stop:
@@ -61,7 +61,7 @@ class SyncedScheduler(ClyphXComponentBase):
         self._last_32th = False
         self._bar_ending = False
 
-    @p0_subject_slot('current_song_time')
+    @subject_slot('current_song_time')
     def _current_song_time_listener(self):
         # type: () -> None
         if not self._song.is_playing:

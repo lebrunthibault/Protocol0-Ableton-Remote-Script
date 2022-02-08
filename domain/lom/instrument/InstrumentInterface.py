@@ -1,14 +1,14 @@
 from typing import TYPE_CHECKING, Optional
 
 from _Framework.Util import forward_property
-from protocol0.domain.command.ProgramChangeCommand import ProgramChangeCommand
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.instrument.InstrumentColorEnum import InstrumentColorEnum
 from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPreset
 from protocol0.domain.lom.instrument.preset.InstrumentPresetList import InstrumentPresetList
 from protocol0.domain.lom.instrument.preset.PresetDisplayOptionEnum import PresetDisplayOptionEnum
-from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.domain.shared.CommandBus import CommandBus
+from protocol0.domain.lom.instrument.preset.PresetProgramSelectedEvent import PresetProgramSelectedEvent
+from protocol0.shared.sequence.Sequence import Sequence
+from protocol0.domain.shared.DomainEventBus import DomainEventBus
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -71,4 +71,4 @@ class InstrumentInterface(object):
     def load_preset(self, preset):
         # type: (InstrumentPreset) -> None
         """ Overridden default is send program change """
-        CommandBus.dispatch(ProgramChangeCommand(preset.index + self.PROGRAM_CHANGE_OFFSET))
+        DomainEventBus.notify(PresetProgramSelectedEvent(preset.index + self.PROGRAM_CHANGE_OFFSET))

@@ -1,6 +1,6 @@
 from protocol0.domain.lom.track.TrackColorEnum import TrackColorEnum
 from protocol0.domain.lom.validation.ValidatorFactory import ValidatorFactory
-from protocol0.shared.Logger import Logger
+from protocol0.shared.logging.Logger import Logger
 
 
 class ValidatorService(object):

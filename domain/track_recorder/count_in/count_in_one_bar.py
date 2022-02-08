@@ -1,6 +1,6 @@
 from functools import partial
 
-from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.track_recorder.count_in.count_in_interface import CountInInterface
 
 

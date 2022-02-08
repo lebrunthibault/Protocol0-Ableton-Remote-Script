@@ -1,7 +1,7 @@
 from typing import Any, TYPE_CHECKING
 
 from protocol0.domain.lom.clip.AudioClip import AudioClip
-from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:

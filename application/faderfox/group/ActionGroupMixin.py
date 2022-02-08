@@ -2,7 +2,7 @@ from typing import List, Optional, Callable, TYPE_CHECKING
 
 from protocol0.application.faderfox.EncoderAction import EncoderAction
 from protocol0.application.faderfox.MultiEncoder import MultiEncoder
-from protocol0.shared.ContainerInterface import ContainerInterface
+from protocol0.application.ContainerInterface import ContainerInterface
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.song.Song import Song

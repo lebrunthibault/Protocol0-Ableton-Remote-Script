@@ -7,10 +7,10 @@ from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
-from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.track_recorder.decorator.track_recorder_decorator import TrackRecorderDecorator
 from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
-from protocol0.shared.StatusBar import StatusBar
+from protocol0.shared.logging.StatusBar import StatusBar
 
 
 class TrackRecorderPropagateNewAudioClipDecorator(TrackRecorderDecorator):

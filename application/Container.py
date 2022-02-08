@@ -18,33 +18,33 @@ from protocol0.domain.lom.instrument.preset.PresetService import PresetService
 from protocol0.domain.lom.set.MixingService import MixingService
 from protocol0.domain.lom.set.SessionToArrangementService import SessionToArrangementService
 from protocol0.domain.lom.song.Song import Song
-from protocol0.domain.lom.song.SongScenesService import SongScenesService
+from protocol0.domain.lom.scene.ScenesService import SongScenesService
 from protocol0.domain.lom.song.SongService import SongService
-from protocol0.domain.lom.song.SongTracksService import SongTracksService
+from protocol0.domain.lom.track.TracksService import SongTracksService
 from protocol0.domain.lom.track.TrackFactory import TrackFactory
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrackService import SimpleDummyTrackService
 from protocol0.domain.lom.validation.ValidatorFactory import ValidatorFactory
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
 from protocol0.domain.shared.ApplicationView import ApplicationView
-from protocol0.domain.shared.CommandBus import CommandBus
+from protocol0.application.CommandBus import CommandBus
 from protocol0.domain.shared.System import System
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.track_recorder.track_recorder_service import TrackRecorderService
-from protocol0.infra.BrowserService import BrowserService
-from protocol0.infra.InterfaceClicksService import InterfaceClicksService
-from protocol0.infra.MidiService import MidiService
-from protocol0.infra.SessionService import SessionService
-from protocol0.infra.SongDataService import SongDataService
-from protocol0.infra.log import log_ableton
+from protocol0.infra.interface.BrowserService import BrowserService
+from protocol0.infra.interface.InterfaceClicksService import InterfaceClicksService
+from protocol0.infra.midi.MidiService import MidiService
+from protocol0.infra.interface.SessionService import SessionService
+from protocol0.infra.persistence.SongDataService import SongDataService
+from protocol0.infra.logging.LoggerService import LoggerService
 from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
 from protocol0.infra.scheduler.FastScheduler import FastScheduler
-from protocol0.shared.ContainerInterface import ContainerInterface
-from protocol0.shared.Logger import Logger
+from protocol0.application.ContainerInterface import ContainerInterface
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.StatusBar import StatusBar
+from protocol0.shared.logging.StatusBar import StatusBar
 from protocol0.shared.UndoFacade import UndoFacade
-from protocol0.shared.my_types import T
+from protocol0.shared.types import T
 
 
 class Container(ContainerInterface):
@@ -56,7 +56,7 @@ class Container(ContainerInterface):
 
         live_song = control_surface.song()  # type: Live.Song.Song
 
-        Logger(log_ableton)
+        Logger(LoggerService())
         StatusBar(control_surface.show_message)
         ErrorService()
 
@@ -78,8 +78,7 @@ class Container(ContainerInterface):
         song_tracks_service = SongTracksService(track_factory, song)
         song_scenes_service = SongScenesService(song)
         SongFacade(song, song_tracks_service, song_scenes_service)
-        song_data_service = SongDataService(live_song.get_data, live_song.set_data)
-        song_service = SongService()
+        song_service = SongService(song)
         System.client().end_measurement()
         instrument_display_service = InstrumentDisplayService(device_service)
         instrument_preset_scroller_service = InstrumentPresetScrollerService()
@@ -99,6 +98,7 @@ class Container(ContainerInterface):
                                                             interface_clicks_service)
         preset_service = PresetService()
         session_to_arrangement_service = SessionToArrangementService(song)
+        song_data_service = SongDataService(live_song.get_data, live_song.set_data, track_recorder_service, song_scenes_service)
 
         # vocal command
         keyword_search_service = KeywordSearchService()

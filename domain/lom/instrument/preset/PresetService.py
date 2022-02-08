@@ -1,4 +1,4 @@
-from protocol0.shared.Logger import Logger
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
 
 

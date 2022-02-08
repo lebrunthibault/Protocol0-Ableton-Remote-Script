@@ -3,9 +3,9 @@ from functools import partial
 from typing import TYPE_CHECKING, Optional
 
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
-from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.StatusBar import StatusBar
+from protocol0.shared.logging.StatusBar import StatusBar
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack

@@ -1,0 +1,2 @@
+class ResetSongCommand(object):
+    pass

@@ -1,7 +1,7 @@
 from typing import Type
 
-from protocol0.shared.ContainerInterface import ContainerInterface
-from protocol0.shared.my_types import T
+from protocol0.application.ContainerInterface import ContainerInterface
+from protocol0.shared.types import T
 
 
 class TestContainer(ContainerInterface):

@@ -2,7 +2,6 @@ from typing import Callable, Optional, Union, List, TYPE_CHECKING
 
 from protocol0.domain.shared.scheduler.BeatSchedulerInterface import BeatSchedulerInterface
 from protocol0.domain.shared.scheduler.FastSchedulerInterface import FastSchedulerInterface
-from protocol0.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:
     from protocol0.domain.shared.scheduler.SchedulerEvent import SchedulerEvent
@@ -22,11 +21,6 @@ class Scheduler(object):
     def defer(cls, callback):
         # type: (Callable) -> None
         cls._INSTANCE._fast_scheduler.schedule(1, callback)
-
-    @classmethod
-    def wait_bars(cls, bar_length, callback):
-        # type: (int, Callable) -> None
-        cls._INSTANCE._beat_scheduler.wait_beats(SongFacade.signature_numerator() * bar_length, callback)
 
     @classmethod
     def wait_beats(cls, beats, callback):
@@ -53,7 +47,7 @@ class Scheduler(object):
     @classmethod
     def clear(cls):
         # type: () -> None
-        from protocol0.domain.sequence.Sequence import Sequence
+        from protocol0.shared.sequence.Sequence import Sequence
         for seq in reversed(Sequence.RUNNING_SEQUENCES):
             seq.cancel()
         Sequence.RUNNING_SEQUENCES = []

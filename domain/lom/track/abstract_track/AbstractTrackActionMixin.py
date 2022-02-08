@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Optional
 
-from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.shared.Logger import Logger
+from protocol0.shared.sequence.Sequence import Sequence
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:

@@ -6,8 +6,8 @@ import Live
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 
 if TYPE_CHECKING:
-    from protocol0.domain.lom.song.SongScenesService import SongScenesService
-    from protocol0.domain.lom.song.SongTracksService import SongTracksService
+    from protocol0.domain.lom.scene.ScenesService import SongScenesService
+    from protocol0.domain.lom.track.TracksService import SongTracksService
     from protocol0.domain.lom.song.Song import Song
     from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack

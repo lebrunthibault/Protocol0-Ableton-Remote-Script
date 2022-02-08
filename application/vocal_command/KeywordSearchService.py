@@ -5,7 +5,7 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrac
 from protocol0.domain.lom.track.track_list.AbstractTrackList import AbstractTrackList
 from protocol0.domain.lom.track.track_list.FoldActionEnum import FoldActionEnum
 from protocol0.domain.shared.utils import normalize_string
-from protocol0.shared.Logger import Logger
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
 
 

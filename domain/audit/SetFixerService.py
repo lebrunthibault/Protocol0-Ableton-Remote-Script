@@ -3,9 +3,9 @@ from typing import List, Any
 from protocol0.domain.audit.SetUpgradeService import SetUpgradeService
 from protocol0.domain.lom.song.Song import Song
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
-from protocol0.shared.Logger import Logger
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.StatusBar import StatusBar
+from protocol0.shared.logging.StatusBar import StatusBar
 
 
 class SetFixerService(object):

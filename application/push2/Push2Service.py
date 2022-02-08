@@ -9,7 +9,7 @@ from protocol0.application.push2.decorators import push2_method
 from protocol0.domain.lom.note.Note import Note
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import find_if
-from protocol0.shared.Logger import Logger
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
 
 

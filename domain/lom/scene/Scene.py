@@ -16,7 +16,7 @@ from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import Sim
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.decorators import p0_subject_slot, throttle
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.shared.Logger import Logger
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:
@@ -28,7 +28,6 @@ class Scene(SceneActionMixin, UseFrameworkEvents):
     LOOPING_SCENE = None  # type: Optional[Scene]
     LAST_MANUALLY_STARTED_SCENE = None  # type: Optional[Scene]
     LAST_MANUALLY_STARTED_SCENE_BAR_POSITION = 0  # type: int
-    SELECTED_DUPLICATE_SCENE_BAR_LENGTH = 4
 
     def __init__(self, scene, index, song):
         # type: (Live.Scene.Scene, int, Song) -> None

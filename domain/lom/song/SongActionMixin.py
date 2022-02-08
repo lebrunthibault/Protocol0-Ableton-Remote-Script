@@ -4,17 +4,17 @@ from typing import TYPE_CHECKING, Optional
 
 import Live
 from protocol0.domain.lom.device.Device import Device
-from protocol0.domain.lom.song.ScenesMappedEvent import ScenesMappedEvent
+from protocol0.domain.lom.scene.ScenesMappedEvent import ScenesMappedEvent
 from protocol0.domain.lom.song.SongResetedEvent import SongResetedEvent
-from protocol0.domain.lom.song.TracksMappedEvent import TracksMappedEvent
+from protocol0.domain.lom.track.TracksMappedEvent import TracksMappedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.utils import scroll_values
-from protocol0.shared.Logger import Logger
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.StatusBar import StatusBar
+from protocol0.shared.logging.StatusBar import StatusBar
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.song.Song import Song

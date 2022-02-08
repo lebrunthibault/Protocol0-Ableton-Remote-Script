@@ -5,7 +5,7 @@ from protocol0.domain.lom.track.routing.InputRoutingChannelEnum import InputRout
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
-from protocol0.shared.Logger import Logger
+from protocol0.shared.logging.Logger import Logger
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences

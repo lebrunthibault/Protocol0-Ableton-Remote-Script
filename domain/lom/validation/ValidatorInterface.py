@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 
 from typing import Optional
 
-from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.shared.sequence.Sequence import Sequence
 
 
 class ValidatorInterface(object):

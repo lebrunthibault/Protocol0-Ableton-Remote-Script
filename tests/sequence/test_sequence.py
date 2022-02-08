@@ -1,6 +1,6 @@
 import pytest
 
-from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.decorators import has_callback_queue
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error

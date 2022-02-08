@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Optional, List
 import Live
 from protocol0.domain.lom.clip.ClipSelectedEvent import ClipSelectedEvent
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
-from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.shared.SongFacade import SongFacade

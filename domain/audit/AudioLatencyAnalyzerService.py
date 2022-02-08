@@ -2,13 +2,13 @@ from functools import partial
 
 from typing import Optional, cast
 
-from protocol0.domain.command.ProgramChangeCommand import ProgramChangeCommand
 from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
+from protocol0.domain.lom.instrument.preset.PresetProgramSelectedEvent import PresetProgramSelectedEvent
 from protocol0.domain.lom.note.Note import Note
 from protocol0.domain.lom.song.Song import Song
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
-from protocol0.domain.sequence.Sequence import Sequence
-from protocol0.domain.shared.CommandBus import CommandBus
+from protocol0.shared.sequence.Sequence import Sequence
+from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.InterfaceClicksServiceInterface import InterfaceClicksServiceInterface
 from protocol0.domain.shared.System import System
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
@@ -52,7 +52,7 @@ class AudioLatencyAnalyzerService(object):
         # type: () -> None
         current_track = cast(ExternalSynthTrack, SongFacade.current_track())
         # switching to test preset
-        CommandBus.dispatch(ProgramChangeCommand(127))
+        DomainEventBus.notify(PresetProgramSelectedEvent(127))
         current_track.record_clip_tails = False
 
     def _create_audio_test_clip(self):

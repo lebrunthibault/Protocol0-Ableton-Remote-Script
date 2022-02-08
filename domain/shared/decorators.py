@@ -8,10 +8,10 @@ from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import is_method
-from protocol0.shared.my_types import Func
+from protocol0.shared.types import Func
 
 if TYPE_CHECKING:
-    from protocol0.domain.sequence.CallbackDescriptor import CallbackDescriptor
+    from protocol0.shared.sequence.CallbackDescriptor import CallbackDescriptor
 
 
 def p0_subject_slot(event):
@@ -47,7 +47,7 @@ def has_callback_queue():
     # type: () -> Callable[[Callable], CallbackDescriptor]
     def wrap(func):
         # type: (Callable) -> CallbackDescriptor
-        from protocol0.domain.sequence.CallbackDescriptor import CallbackDescriptor
+        from protocol0.shared.sequence.CallbackDescriptor import CallbackDescriptor
 
         return CallbackDescriptor(func)
 

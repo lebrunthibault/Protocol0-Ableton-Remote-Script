@@ -3,38 +3,35 @@ from functools import partial
 from typing import Optional, TYPE_CHECKING
 
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
-from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.System import System
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.domain.lom.scene.Scene import Scene
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.song.Song import Song
-    from protocol0.domain.lom.scene.Scene import Scene
 
 
 class SessionToArrangementService(object):
-    IS_BOUNCING = False
-    LAST_SCENE_FIRED = None   # type: Optional[Scene]
-
     def __init__(self, song):
         # type: (Song) -> None
         self._song = song
         self._tempo = self._song.tempo
+        self._is_bouncing = False
 
     def bounce_session_to_arrangement(self):
         # type: () -> Optional[Sequence]
-        if SessionToArrangementService.IS_BOUNCING:
+        self._prepare_for_bounce()
+
+        if self._is_bouncing:
             self._finish()
             Scheduler.defer(ApplicationView.show_session)
             return None
 
-        from protocol0.domain.lom.scene.Scene import Scene
-
         Scene.LOOPING_SCENE = None
-        SessionToArrangementService.IS_BOUNCING = True
-        SessionToArrangementService.LAST_SCENE_FIRED = None
+        self._is_bouncing = True
         self._song.unfocus_all_tracks()
         self._tempo = self._song.tempo
         self._song.tempo = 999
@@ -53,10 +50,19 @@ class SessionToArrangementService(object):
         seq.add(ApplicationView.show_arrangement)
         return seq.done()
 
+    def _prepare_for_bounce(self):
+        # type: () -> None
+        """ Stop the song when the last scene finishes """
+        last_scene = SongFacade.scenes()[-1]
+        seq = Sequence()
+        seq.add(complete_on=last_scene.is_triggered_listener)
+        seq.add(wait_bars=last_scene.bar_length)
+        seq.add(self._song.stop_all_clips)
+        seq.done()
+
     def _finish(self):
         # type: () -> None
         self._song.reset()
         self._song.record_mode = False
         self._song.tempo = self._tempo
-        SessionToArrangementService.IS_BOUNCING = False
-        SessionToArrangementService.LAST_SCENE_FIRED = None
+        self._is_bouncing = False

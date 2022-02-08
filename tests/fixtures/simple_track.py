@@ -3,6 +3,7 @@ from typing import cast, List
 import Live
 from _Framework.SubjectSlot import Subject
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.tests.fixtures.clip_slot import AbletonClipSlot
 
 
 class TrackType(object):
@@ -33,7 +34,7 @@ class AbletonTrack(Subject):
         self.is_visible = True
         self.has_midi_input = self.has_audio_output = self.is_foldable = self.fold_state = False
         self.available_input_routing_types = []
-        self.clip_slots = []  # type: List[Live.ClipSlot.ClipSlot]
+        self.clip_slots = [AbletonClipSlot()]
         self.view = None
         self.group_track = None
         self.color_index = 0
@@ -51,10 +52,6 @@ class AbletonTrack(Subject):
             self.has_midi_input = True
         if track_type == TrackType.AUDIO:
             self.has_audio_input = True
-
-    def to_json(self):
-        # type: () -> str
-        return str(self)
 
     def __repr__(self):
         # type: () -> str

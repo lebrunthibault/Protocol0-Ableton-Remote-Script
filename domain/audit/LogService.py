@@ -1,6 +1,6 @@
 from protocol0.domain.lom.device.PluginDevice import PluginDevice
 from protocol0.domain.shared.System import System
-from protocol0.shared.Logger import Logger
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
 
 

@@ -4,11 +4,11 @@ from typing import Optional, List, Any, Callable
 
 from protocol0.application.faderfox.DoubleActionExecutionException import DoubleActionExecutionException
 from protocol0.application.faderfox.EncoderMoveEnum import EncoderMoveEnum
-from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.decorators import handle_error
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils import get_callable_repr, is_lambda
-from protocol0.shared.Logger import Logger
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.UndoFacade import UndoFacade
 
 

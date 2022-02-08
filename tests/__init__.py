@@ -2,7 +2,7 @@ import sys
 
 from protocol0.application.faderfox.ActionGroupFactory import ActionGroupFactory
 from protocol0.domain.shared.utils import nop
-from protocol0.shared.Logger import Logger
+from protocol0.shared.logging.Logger import Logger
 
 sys.dont_write_bytecode = True  # noqa
 

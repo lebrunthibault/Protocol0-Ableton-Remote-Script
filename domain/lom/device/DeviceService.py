@@ -6,13 +6,13 @@ from typing import Optional, Tuple, Dict, List
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.sequence.Sequence import Sequence
+from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.System import System
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils import find_if
-from protocol0.shared.Logger import Logger
+from protocol0.shared.logging.Logger import Logger
 
 
 class DeviceService(object):

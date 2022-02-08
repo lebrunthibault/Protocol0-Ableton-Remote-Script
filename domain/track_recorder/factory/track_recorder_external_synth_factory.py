@@ -14,7 +14,6 @@ from protocol0.domain.track_recorder.factory.abstract_track_recorder_factory imp
 from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
 from protocol0.domain.track_recorder.recorder.track_recorder_external_synth import TrackRecorderExternalSynth
 from protocol0.domain.track_recorder.recorder.track_recorder_external_synth_audio import TrackRecorderExternalSynthAudio
-from protocol0.shared.InterfaceState import InterfaceState
 from protocol0.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:
@@ -22,11 +21,12 @@ if TYPE_CHECKING:
 
 
 class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
-    def __init__(self, track, song):
-        # type: (ExternalSynthTrack, Song) -> None
+    def __init__(self, track, song, recording_bar_length):
+        # type: (ExternalSynthTrack, Song, int) -> None
         super(TrackRecorderExternalSynthFactory, self).__init__()
         self.track = track
         self._song = song
+        self._recording_bar_length = recording_bar_length
 
     def create_count_in(self, record_type):
         # type: (RecordTypeEnum) -> CountInInterface
@@ -67,4 +67,4 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
             midi_clip = self.track.midi_track.clip_slots[SongFacade.selected_scene().index].clip
             return midi_clip.bar_length
         else:
-            return InterfaceState.SELECTED_RECORDING_BAR_LENGTH.bar_length_value
+            return self._recording_bar_length

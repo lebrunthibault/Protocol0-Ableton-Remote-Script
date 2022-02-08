@@ -1,7 +1,7 @@
-from protocol0.domain.command.InitializeSongCommand import InitializeSongCommand
+from protocol0.application.command.InitializeSongCommand import InitializeSongCommand
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
-from protocol0.domain.shared.CommandBus import CommandBus
+from protocol0.application.CommandBus import CommandBus
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.tests.fixtures.p0 import make_protocol0
 from protocol0.tests.fixtures.simple_track import TrackType, add_external_synth_track, add_track
