@@ -162,5 +162,5 @@ class SongScenesService(UseFrameworkEvents):
         self.selected_duplicate_scene_bar_length = scroll_values(
             bar_lengths, self.selected_duplicate_scene_bar_length, go_next
         )
-        StatusBar.show_message("SCENE DUPLICATE : %s" % self.selected_duplicate_scene_bar_length)
+        StatusBar.show_message("SCENE DUPLICATE : %s bars" % self.selected_duplicate_scene_bar_length)
         DomainEventBus.notify(SelectedDuplicateSceneBarLengthUpdatedEvent())

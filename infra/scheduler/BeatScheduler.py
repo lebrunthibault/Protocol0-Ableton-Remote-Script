@@ -1,8 +1,8 @@
 from typing import Callable, List
 
+import Live
 from _Framework.SubjectSlot import subject_slot
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
-from protocol0.domain.lom.song.Song import Song
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarEndingEvent import BarEndingEvent
 from protocol0.domain.shared.scheduler.BeatChangedEvent import BeatChangedEvent
@@ -10,7 +10,6 @@ from protocol0.domain.shared.scheduler.BeatSchedulerInterface import BeatSchedul
 from protocol0.domain.shared.scheduler.Last32thPassedEvent import Last32thPassedEvent
 from protocol0.infra.scheduler.BeatSchedulerEvent import BeatSchedulerEvent
 from protocol0.infra.scheduler.BeatsSongTime import BeatsSongTime
-from protocol0.shared.SongFacade import SongFacade
 
 
 class BeatScheduler(UseFrameworkEvents, BeatSchedulerInterface):
@@ -18,13 +17,14 @@ class BeatScheduler(UseFrameworkEvents, BeatSchedulerInterface):
     number of bars. """
 
     def __init__(self, song):
-        # type: (Song) -> None
+        # type: (Live.Song.Song) -> None
         super(BeatScheduler, self).__init__()
         self._song = song
-        self._last_beats_song_time = BeatsSongTime.now()
+        # noinspection PyArgumentList
+        self._last_beats_song_time = BeatsSongTime.make_from_beat_time(song.get_current_beats_song_time())
         self._scheduled_events = []  # type: List[BeatSchedulerEvent]
-        self._is_playing_listener.subject = song._song
-        self._current_song_time_listener.subject = song._song
+        self._is_playing_listener.subject = song
+        self._current_song_time_listener.subject = song
 
     @subject_slot('is_playing')
     def _is_playing_listener(self):
@@ -35,7 +35,8 @@ class BeatScheduler(UseFrameworkEvents, BeatSchedulerInterface):
     @subject_slot('current_song_time')
     def _current_song_time_listener(self):
         # type: () -> None
-        current_beats_song_time = BeatsSongTime.now()
+        # noinspection PyArgumentList
+        current_beats_song_time = BeatsSongTime.make_from_beat_time(self._song.get_current_beats_song_time())
 
         if current_beats_song_time.beats != self._last_beats_song_time.beats:
             DomainEventBus.notify(BeatChangedEvent())

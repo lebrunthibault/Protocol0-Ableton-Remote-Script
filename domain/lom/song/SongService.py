@@ -35,7 +35,6 @@ class SongService(object):
             seq.add(startup_track.select)
             seq.add(ApplicationView.focus_current_track)
             seq.done()
-        self._song.reset()
 
     def _get_startup_track(self):
         # type: () -> Optional[AbstractTrack]

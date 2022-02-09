@@ -19,7 +19,7 @@ class Device(UseFrameworkEvents):
         self._device = device
         self.track = track
         self._view = self._device.view  # type: Live.Device.Device.View
-        self.parameters = []  # type: (List[DeviceParameter])
+        self.parameters = []  # type: List[DeviceParameter]
         self._parameters_listener.subject = self._device
         self._parameters_listener()
         self.can_have_drum_pads = self._device.can_have_drum_pads
@@ -72,14 +72,14 @@ class Device(UseFrameworkEvents):
     @device_on.setter
     def device_on(self, on):
         # type: (bool) -> None
+        return None
         self.get_parameter_by_name(DeviceParameterEnum.DEVICE_ON).value = 1 if on else 0
-        pass
 
     def get_parameter_by_name(self, device_parameter_name):
         # type: (Union[DeviceParameterEnum, str]) -> Optional[DeviceParameter]
         if isinstance(device_parameter_name, DeviceParameterEnum):
             device_parameter_name = device_parameter_name.label
-        return find_if(lambda d: d._name == device_parameter_name, self.parameters)
+        return find_if(lambda p: p.name == device_parameter_name, self.parameters)
 
     def update_param_value(self, param_name, param_value):
         # type: (Union[DeviceParameterEnum, str], Any) -> None

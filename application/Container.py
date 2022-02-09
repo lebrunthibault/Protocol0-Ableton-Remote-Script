@@ -59,9 +59,12 @@ class Container(ContainerInterface):
         Logger(LoggerService())
         StatusBar(control_surface.show_message)
         ErrorService()
+        midi_service = MidiService(control_surface._send_midi)
+        Scheduler(TickScheduler(), BeatScheduler(live_song))  # setup Scheduler facade
 
         System(control_surface._send_midi)
         UndoFacade(live_song.begin_undo_step, live_song.end_undo_step)
+
         song = Song(live_song)
         CommandBus(self, song)
 
@@ -77,9 +80,6 @@ class Container(ContainerInterface):
         song_tracks_service = SongTracksService(track_factory, song)
         song_scenes_service = SongScenesService(song)
         SongFacade(song, song_tracks_service, song_scenes_service)
-
-        Scheduler(TickScheduler(), BeatScheduler(song))  # setup Scheduler facade
-        midi_service = MidiService(control_surface._send_midi)
 
         song_service = SongService(song)
         System.client().end_measurement()

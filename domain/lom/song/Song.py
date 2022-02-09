@@ -42,11 +42,6 @@ class Song(SongActionMixin, UseFrameworkEvents):
         DomainEventBus.subscribe(ClipEnveloppeShowedEvent, lambda _: self.re_enable_automation())
         DomainEventBus.subscribe(ClipSelectedEvent, self._on_selected_clip_event)
 
-    # def __call__(self):
-    #     # type: () -> Live.Song.Song
-    #     """ allows for self.song() behavior to extend other surface script classes """
-    #     return self.container.song()
-
     @p0_subject_slot("is_playing")
     def is_playing_listener(self):
         # type: () -> None

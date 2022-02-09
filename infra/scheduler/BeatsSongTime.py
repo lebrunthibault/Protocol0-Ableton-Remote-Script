@@ -1,5 +1,7 @@
 from math import floor
 
+import Live
+
 from protocol0.shared.SongFacade import SongFacade
 
 
@@ -17,10 +19,9 @@ class BeatsSongTime(object):
                self._ticks >= time._ticks
 
     @classmethod
-    def now(cls):
-        # type: () -> BeatsSongTime
-        time = SongFacade.current_beats_song_time()
-        return cls(time.beats, time.sub_division, time.ticks)
+    def make_from_beat_time(cls, beat_time):
+        # type: (Live.Song.BeatTime) -> BeatsSongTime
+        return cls(beat_time.beats, beat_time.sub_division, beat_time.ticks)
 
     @classmethod
     def make_from_beat_count(cls, beat_count):

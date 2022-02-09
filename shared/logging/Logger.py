@@ -57,4 +57,5 @@ class Logger(object):
     @classmethod
     def clear(cls):
         # type: () -> None
+        return None
         cls.log_info("clear_logs")

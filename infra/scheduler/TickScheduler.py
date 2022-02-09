@@ -4,6 +4,7 @@ import Live
 from protocol0.domain.shared.decorators import handle_error
 from protocol0.domain.shared.scheduler.TickSchedulerInterface import TickSchedulerInterface
 from protocol0.infra.scheduler.TickSchedulerEvent import TickSchedulerEvent
+from protocol0.shared.logging.Logger import Logger
 
 
 class TickScheduler(TickSchedulerInterface):
@@ -31,6 +32,8 @@ class TickScheduler(TickSchedulerInterface):
         # type: () -> None
         for scheduled_event in self._scheduled_events[:]:
             if scheduled_event.should_execute:
+                import logging
+                logging.info("executing : %s" % scheduled_event._callback)
                 scheduled_event.execute()
                 try:
                     self._scheduled_events.remove(scheduled_event)

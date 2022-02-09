@@ -35,39 +35,39 @@ class SongDataService(object):
         self._last_manually_started_scene_bar_position = 0
 
         DomainEventBus.subscribe(SongResetedEvent, lambda _: self.save())
-        DomainEventBus.subscribe(SongInitializedEvent, lambda _: self._restore_set_state())
+        DomainEventBus.subscribe(SongInitializedEvent, lambda _: self._restore())
         DomainEventBus.subscribe(SelectedRecordingBarLengthUpdatedEvent, lambda _: self.save())
         DomainEventBus.subscribe(SelectedDuplicateSceneBarLengthUpdatedEvent, lambda _: self.save())
 
-        self._restore()
+        # self._restore()
 
     def save(self):
         # type: () -> None
-        self._set_data(SongDataEnum.SELECTED_RECORDING_BAR_LENGTH.name, self._track_recorder_service.selected_recording_bar_length.bar_length_value)
-        self._set_data(SongDataEnum.SELECTED_DUPLICATE_SCENE_BAR_LENGTH.name, self._song_scenes_service.selected_duplicate_scene_bar_length)
+        self._set_data(SongDataEnum.SELECTED_RECORDING_BAR_LENGTH.value, self._track_recorder_service.selected_recording_bar_length.bar_length_value)
+        self._set_data(SongDataEnum.SELECTED_DUPLICATE_SCENE_BAR_LENGTH.value, self._song_scenes_service.selected_duplicate_scene_bar_length)
 
         # can happen on record e.g.
         if SongFacade.selected_scene():
-            self._set_data(SongDataEnum.SELECTED_SCENE_INDEX.name, SongFacade.selected_scene().index)
+            self._set_data(SongDataEnum.SELECTED_SCENE_INDEX.value, SongFacade.selected_scene().index)
         if SongFacade.selected_track():
-            self._set_data(SongDataEnum.SELECTED_TRACK_INDEX.name, SongFacade.selected_track().index)
+            self._set_data(SongDataEnum.SELECTED_TRACK_INDEX.value, SongFacade.selected_track().index)
 
         from protocol0.domain.lom.scene.Scene import Scene
 
         if Scene.LAST_MANUALLY_STARTED_SCENE:
-            self._set_data(SongDataEnum.LAST_MANUALLY_STARTED_SCENE_INDEX.name, Scene.LAST_MANUALLY_STARTED_SCENE.index)
-            self._set_data(SongDataEnum.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION.name, Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION)
+            self._set_data(SongDataEnum.LAST_MANUALLY_STARTED_SCENE_INDEX.value, Scene.LAST_MANUALLY_STARTED_SCENE.index)
+            self._set_data(SongDataEnum.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION.value, Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION)
 
     def _restore(self):
         # type: () -> None
         try:
-            self._track_recorder_service.selected_recording_bar_length = RecordingBarLengthEnum.from_value(self._get_data(SongDataEnum.SELECTED_RECORDING_BAR_LENGTH, 4))
-            self._song_scenes_service.selected_duplicate_scene_bar_length = RecordingBarLengthEnum.from_value(self._get_data(SongDataEnum.SELECTED_RECORDING_BAR_LENGTH, 4))
+            self._track_recorder_service.selected_recording_bar_length = RecordingBarLengthEnum.from_value(self._get_data(SongDataEnum.SELECTED_RECORDING_BAR_LENGTH.value, 4))
+            self._song_scenes_service.selected_duplicate_scene_bar_length = RecordingBarLengthEnum.from_value(self._get_data(SongDataEnum.SELECTED_RECORDING_BAR_LENGTH.value, 4))
 
-            self._selected_scene_index = self._get_data(SongDataEnum.SELECTED_SCENE_INDEX.name, None)
-            self._selected_track_index = self._get_data(SongDataEnum.SELECTED_TRACK_INDEX.name, None)
-            self._last_manually_started_scene_index = self._get_data(SongDataEnum.LAST_MANUALLY_STARTED_SCENE_INDEX.name, None)
-            self._last_manually_started_scene_bar_position = self._get_data(SongDataEnum.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION.name, None)
+            self._selected_scene_index = self._get_data(SongDataEnum.SELECTED_SCENE_INDEX.value, None)
+            self._selected_track_index = self._get_data(SongDataEnum.SELECTED_TRACK_INDEX.value, None)
+            self._last_manually_started_scene_index = self._get_data(SongDataEnum.LAST_MANUALLY_STARTED_SCENE_INDEX.value, None)
+            self._last_manually_started_scene_bar_position = self._get_data(SongDataEnum.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION.value, None)
 
             self._restore_set_state()
         except SongDataError as e:

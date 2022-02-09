@@ -4,16 +4,14 @@ from types import TracebackType
 
 from typing import Optional, Any, List, Type
 
-from protocol0.application.command.InitializeSongCommand import InitializeSongCommand
-from protocol0.application.CommandBus import CommandBus
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.System import System
 from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.Config import Config
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.UndoFacade import UndoFacade
+from protocol0.shared.logging.Logger import Logger
 
 
 class ErrorService(object):
@@ -69,13 +67,13 @@ class ErrorService(object):
         Logger.log_error(error_message)
 
         Scheduler.clear()
-
-        Scheduler.wait(10, self._restart)
-
-    def _restart(self):
-        # type: () -> None
-        Logger.log_warning("Error handled: reinitializing song")
-        CommandBus.dispatch(InitializeSongCommand())
+    #
+    #     Scheduler.wait(10, self._restart)
+    #
+    # def _restart(self):
+    #     # type: () -> None
+    #     Logger.log_warning("Error handled: reinitializing song")
+    #     CommandBus.dispatch(InitializeSongCommand())
 
     def _check_file(self, name):
         # type: (str) -> bool

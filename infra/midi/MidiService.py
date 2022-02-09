@@ -3,6 +3,7 @@ from typing import Optional, Tuple, Callable
 from _Framework.ControlSurface import get_control_surfaces
 from protocol0.application.CommandBus import CommandBus
 from protocol0.domain.lom.instrument.preset.PresetProgramSelectedEvent import PresetProgramSelectedEvent
+from protocol0.domain.lom.song.SongInitializedEvent import SongInitializedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.System import System
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -21,7 +22,7 @@ class MidiService(object):
 
         DomainEventBus.subscribe(MidiBytesReceivedEvent, self._on_midi_bytes_received_event)
         DomainEventBus.subscribe(PresetProgramSelectedEvent, self._on_preset_program_selected_event)
-        self._ping_midi_server()
+        DomainEventBus.subscribe(SongInitializedEvent, lambda _: self._ping_midi_server())
 
     def _sysex_to_string(self, sysex):
         # type: (Tuple) -> str
@@ -55,14 +56,13 @@ class MidiService(object):
 
     def _ping_midi_server(self):
         # type: () -> None
-        Scheduler.wait(300, self._midi_server_ping_timeout)
-        System.client().ping()
+        Scheduler.wait(10, System.client().ping)  # waiting for Protocol0_midi to boot
         Scheduler.wait(10, self._check_protocol_midi_is_up)  # waiting for Protocol0_midi to boot
+        Scheduler.wait(100, self._midi_server_ping_timeout)
 
     def pong_from_midi_server(self):
         # type: () -> None
         self._midi_server_up = True
-        Logger.clear()
 
     def _check_protocol_midi_is_up(self):
         # type: () -> None
@@ -73,5 +73,6 @@ class MidiService(object):
 
     def _midi_server_ping_timeout(self):
         # type: () -> None
+        Logger.log_info(self._midi_server_up)
         if not self._midi_server_up:
             Logger.log_warning("Midi server is not running.")
