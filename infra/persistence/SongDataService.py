@@ -11,7 +11,7 @@ from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.track_recorder.RecordingBarLengthEnum import RecordingBarLengthEnum
 from protocol0.domain.track_recorder.SelectedRecordingBarLengthUpdatedEvent import \
     SelectedRecordingBarLengthUpdatedEvent
-from protocol0.domain.track_recorder.track_recorder_service import TrackRecorderService
+from protocol0.domain.track_recorder.TrackRecorderService import TrackRecorderService
 from protocol0.infra.persistence.SongDataEnum import SongDataEnum
 from protocol0.infra.persistence.SongDataError import SongDataError
 from protocol0.shared.logging.Logger import Logger
@@ -62,7 +62,7 @@ class SongDataService(object):
         # type: () -> None
         try:
             self._track_recorder_service.selected_recording_bar_length = RecordingBarLengthEnum.from_value(self._get_data(SongDataEnum.SELECTED_RECORDING_BAR_LENGTH.value, 4))
-            self._song_scenes_service.selected_duplicate_scene_bar_length = RecordingBarLengthEnum.from_value(self._get_data(SongDataEnum.SELECTED_RECORDING_BAR_LENGTH.value, 4))
+            self._song_scenes_service.selected_duplicate_scene_bar_length = self._get_data(SongDataEnum.SELECTED_RECORDING_BAR_LENGTH.value, 4)
 
             self._selected_scene_index = self._get_data(SongDataEnum.SELECTED_SCENE_INDEX.value, None)
             self._selected_track_index = self._get_data(SongDataEnum.SELECTED_TRACK_INDEX.value, None)

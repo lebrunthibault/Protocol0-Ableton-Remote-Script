@@ -28,7 +28,6 @@ class RoutingTrackDescriptor(object):
 
     def __set__(self, track_routing, track):
         # type: (TrackRoutingInterface, SimpleTrack) -> None
-        return
         available_routings = getattr(track_routing._track, self.available_routings_attribute_name)
 
         routing = find_if(lambda r: r.attached_object == track._track, available_routings)

@@ -13,7 +13,7 @@ from protocol0.domain.shared.InterfaceClicksServiceInterface import InterfaceCli
 from protocol0.domain.shared.System import System
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
-from protocol0.domain.track_recorder.track_recorder_service import TrackRecorderService
+from protocol0.domain.track_recorder.TrackRecorderService import TrackRecorderService
 from protocol0.shared.SongFacade import SongFacade
 
 

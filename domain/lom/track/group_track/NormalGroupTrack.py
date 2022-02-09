@@ -45,7 +45,7 @@ class NormalGroupTrack(AbstractGroupTrack):
         # tracks have all the same instrument
         common_subtracks_instrument_class = self._common_subtracks_instrument_class
         if common_subtracks_instrument_class == InstrumentSimpler and \
-                find_if(lambda t: "kick" in t._name.lower(), self.sub_tracks):
+                find_if(lambda t: "kick" in t.name.lower(), self.sub_tracks):
             return "Drums"
 
         if common_subtracks_instrument_class:

@@ -73,6 +73,5 @@ class MidiService(object):
 
     def _midi_server_ping_timeout(self):
         # type: () -> None
-        Logger.log_info(self._midi_server_up)
         if not self._midi_server_up:
             Logger.log_warning("Midi server is not running.")

@@ -21,6 +21,8 @@ class SongService(object):
 
     def init_song(self):
         # type: () -> None
+        self._song.stop_playing()
+
         if SongFacade.clip_trigger_quantization() == Live.Song.Quantization.q_no_q:
             System.client().show_warning("The global launch quantization is set to None")
 

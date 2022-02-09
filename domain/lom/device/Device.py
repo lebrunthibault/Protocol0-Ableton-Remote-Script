@@ -72,7 +72,6 @@ class Device(UseFrameworkEvents):
     @device_on.setter
     def device_on(self, on):
         # type: (bool) -> None
-        return None
         self.get_parameter_by_name(DeviceParameterEnum.DEVICE_ON).value = 1 if on else 0
 
     def get_parameter_by_name(self, device_parameter_name):

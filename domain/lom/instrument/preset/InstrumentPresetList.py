@@ -171,8 +171,8 @@ class InstrumentPresetList(object):
             return None
 
         if self._device and self._device.preset_name:
-            preset = find_if(lambda p: p._name == self._device.preset_name, self.presets)
+            preset = find_if(lambda p: p.name == self._device.preset_name, self.presets)
         elif self._preset_display_option == PresetDisplayOptionEnum.NAME:
-            preset = find_if(lambda p: p._name == self._track_name, self.presets)
+            preset = find_if(lambda p: p.name == self._track_name, self.presets)
 
         return preset

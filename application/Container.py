@@ -30,7 +30,7 @@ from protocol0.application.CommandBus import CommandBus
 from protocol0.domain.shared.System import System
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.track_recorder.track_recorder_service import TrackRecorderService
+from protocol0.domain.track_recorder.TrackRecorderService import TrackRecorderService
 from protocol0.infra.interface.BrowserService import BrowserService
 from protocol0.infra.interface.InterfaceClicksService import InterfaceClicksService
 from protocol0.infra.midi.MidiService import MidiService
