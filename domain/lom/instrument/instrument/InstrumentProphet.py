@@ -23,7 +23,7 @@ class InstrumentProphet(InstrumentInterface, InstrumentWithEditorInterface):
     ACTIVE_INSTANCE = None  # type: Optional[InstrumentProphet]
 
     EXTERNAL_INSTRUMENT_DEVICE_HARDWARE_LATENCY = 3.2
-    EDITOR_DEVICE_ON = True
+    EDITOR_DEVICE_ON = False
 
     def __init__(self, track, device):
         # type: (SimpleTrack, Optional[Device]) -> None
