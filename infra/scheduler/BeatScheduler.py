@@ -9,7 +9,7 @@ from protocol0.domain.shared.scheduler.BeatChangedEvent import BeatChangedEvent
 from protocol0.domain.shared.scheduler.BeatSchedulerInterface import BeatSchedulerInterface
 from protocol0.domain.shared.scheduler.Last32thPassedEvent import Last32thPassedEvent
 from protocol0.infra.scheduler.BeatSchedulerEvent import BeatSchedulerEvent
-from protocol0.infra.scheduler.BeatsSongTime import BeatsSongTime
+from protocol0.infra.scheduler.BeatTime import BeatTime
 
 
 class BeatScheduler(UseFrameworkEvents, BeatSchedulerInterface):
@@ -21,7 +21,7 @@ class BeatScheduler(UseFrameworkEvents, BeatSchedulerInterface):
         super(BeatScheduler, self).__init__()
         self._song = song
         # noinspection PyArgumentList
-        self._last_beats_song_time = BeatsSongTime.make_from_beat_time(song.get_current_beats_song_time())
+        self._last_beats_song_time = BeatTime.make_from_beat_time(song.get_current_beats_song_time())
         self._scheduled_events = []  # type: List[BeatSchedulerEvent]
         self._is_playing_listener.subject = song
         self._current_song_time_listener.subject = song
@@ -29,14 +29,14 @@ class BeatScheduler(UseFrameworkEvents, BeatSchedulerInterface):
     @subject_slot('is_playing')
     def _is_playing_listener(self):
         # type: () -> None
-        if self._song.is_playing:
+        if not self._song.is_playing:
             self.restart()
 
     @subject_slot('current_song_time')
     def _current_song_time_listener(self):
         # type: () -> None
         # noinspection PyArgumentList
-        current_beats_song_time = BeatsSongTime.make_from_beat_time(self._song.get_current_beats_song_time())
+        current_beats_song_time = BeatTime.make_from_beat_time(self._song.get_current_beats_song_time())
 
         if current_beats_song_time.beats != self._last_beats_song_time.beats:
             DomainEventBus.notify(BeatChangedEvent())
@@ -56,7 +56,13 @@ class BeatScheduler(UseFrameworkEvents, BeatSchedulerInterface):
 
     def wait_beats(self, beat_count, callback):
         # type: (float, Callable) -> None
-        self._scheduled_events.append(BeatSchedulerEvent(callback, BeatsSongTime.make_from_beat_count(beat_count)))
+        # take into account the deferring of the event execution
+        # at 120 BPM that's 0.025. A tick is 0.017 so that would mean the execution will happen 8ms
+        # early. It's better than being late. NB : we could adapt this depending on the tempo
+        # the system is not precise, often late, and we never want to have late executions
+        beat_count -= 0.3
+        event = BeatSchedulerEvent(callback, BeatTime.make_from_beat_count(beat_count))
+        self._scheduled_events.append(event)
 
     def restart(self):
         # type: () -> None

@@ -5,6 +5,7 @@ from typing import Optional, TYPE_CHECKING
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.System import System
@@ -34,6 +35,7 @@ class TrackRecorderService(object):
         # type: (Song) -> None
         self._song = song
         self.selected_recording_bar_length = RecordingBarLengthEnum.UNLIMITED
+        self._recorder = None  # type: Optional[AbstractTrackRecorder]
 
     def scroll_recording_time(self, go_next):
         # type: (bool) -> None
@@ -43,7 +45,7 @@ class TrackRecorderService(object):
         StatusBar.show_message("SCENE RECORDING : %s" % self.selected_recording_bar_length)
         DomainEventBus.notify(SelectedRecordingBarLengthUpdatedEvent())
 
-    def get_track_recorder_factory(self, track):
+    def _get_track_recorder_factory(self, track):
         # type: (AbstractTrack) -> AbstractTrackRecorderFactory
         if isinstance(track, SimpleTrack):
             return TrackRecorderSimpleFactory(track, self._song, self.selected_recording_bar_length.bar_length_value)
@@ -52,24 +54,14 @@ class TrackRecorderService(object):
         else:
             raise Protocol0Warning("This track is not recordable")
 
-    def cancel_record(self, track, record_type):
-        # type: (AbstractTrack, RecordTypeEnum) -> None
-        System.client().show_warning("Cancelling record")
-        recorder_factory = self.get_track_recorder_factory(track)
-        bar_length = recorder_factory.get_recording_bar_length(record_type)
-        recorder = recorder_factory.create_recorder(record_type, bar_length)
-        recorder.set_recording_scene_index(SongFacade.selected_scene().index)
-        Scheduler.clear()
-        recorder.cancel_record()
-        return None
-
     def record_track(self, track, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
         # assert there is a scene we can record on
-        if track.is_recording:
+        if self._recorder:
+            self.cancel_record()
             raise Protocol0Warning("the track is recording")
 
-        recorder_factory = self.get_track_recorder_factory(track)
+        recorder_factory = self._get_track_recorder_factory(track)
         recording_scene_index = recorder_factory.get_recording_scene_index(record_type)
         if recording_scene_index is None:
             seq = Sequence()
@@ -95,7 +87,15 @@ class TrackRecorderService(object):
         seq.add(recorder.post_audio_record)
         seq.add(SongFacade.selected_scene().fire)
         seq.add(wait_for_event=BarEndingEvent)
+        seq.add(wait=1)
         seq.add(partial(recorder.post_record, bar_length=bar_length))
-        seq.add(partial(setattr, self, "recorderFactory", None))
+        seq.add(partial(setattr, self, "_recorder", None))
 
         return seq.done()
+
+    def cancel_record(self):
+        # type: () -> None
+        System.client().show_warning("Cancelling record")
+        Scheduler.clear()
+        self._recorder.cancel_record()
+        self._recorder = None

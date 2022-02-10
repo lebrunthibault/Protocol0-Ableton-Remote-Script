@@ -1,8 +1,8 @@
 from protocol0.application.faderfox.group.ActionGroupMixin import ActionGroupMixin
-from protocol0.application.command.ClearLogsCommand import ClearLogsCommand
-from protocol0.application.CommandBus import CommandBus
 from protocol0.domain.shared.System import System
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.logging.Logger import Logger
+from protocol0.shared.sequence.Sequence import Sequence
 
 
 class ActionGroupTest(ActionGroupMixin):
@@ -29,4 +29,10 @@ class ActionGroupTest(ActionGroupMixin):
 
     def action_test(self):
         # type: () -> None
-        CommandBus.dispatch(ClearLogsCommand())
+        self._song.is_playing = True
+
+        Logger.log_dev("started !")
+        seq = Sequence()
+        seq.add(wait_bars=1)
+        seq.add(lambda: Logger.log_dev("finished !"))
+        seq.done()

@@ -46,13 +46,8 @@ class ActionGroupMain(ActionGroupMixin):
             on_scroll=self._container.get(TrackRecorderService).scroll_recording_time,
             on_press=lambda: partial(self._container.get(TrackRecorderService).record_track, SongFacade.current_track(),
                                      RecordTypeEnum.NORMAL),
-            on_cancel_press=lambda: partial(self._container.get(TrackRecorderService).cancel_record, SongFacade.current_track(),
-                                            RecordTypeEnum.NORMAL),
             on_long_press=lambda: partial(self._container.get(TrackRecorderService).record_track, SongFacade.current_track(),
                                           RecordTypeEnum.AUDIO_ONLY),
-            on_cancel_long_press=lambda: partial(self._container.get(TrackRecorderService).cancel_record,
-                                                 SongFacade.current_track(),
-                                                 RecordTypeEnum.AUDIO_ONLY)
         )
 
         # SCENe 2 encoder

@@ -4,6 +4,7 @@ from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.shared.SongFacade import SongFacade
 
@@ -82,6 +83,7 @@ class AbstractTrackRecorder(object):
 
     def record(self, bar_length):
         # type: (int) -> Sequence
+        Logger.log_info("Starting record !")
         self._song.session_record = True
         self._focus_main_clip()
         seq = Sequence()

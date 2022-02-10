@@ -36,14 +36,11 @@ class ActionGroupMixin(object):
                     name,
                     filter_active_tracks=False,
                     on_press=None,
-                    on_cancel_press=None,
                     on_long_press=None,
-                    on_cancel_long_press=None,
                     on_scroll=None):
-        # type: (int, str, bool, Optional[Callable], Optional[Callable], Optional[Callable], Optional[Callable], Optional[Callable]) -> MultiEncoder
+        # type: (int, str, bool, Optional[Callable], Optional[Callable], Optional[Callable]) -> MultiEncoder
         assert self.CHANNEL, "channel not configured for %s" % self
         encoder = MultiEncoder(channel=self.CHANNEL - 1, identifier=identifier, name=name, filter_active_tracks=filter_active_tracks, component_guard=self._component_guard)
-        for action in EncoderAction.make_actions(name=name, on_press=on_press, on_cancel_press=on_cancel_press,
-                                                 on_long_press=on_long_press, on_cancel_long_press=on_cancel_long_press, on_scroll=on_scroll):
+        for action in EncoderAction.make_actions(name=name, on_press=on_press, on_long_press=on_long_press, on_scroll=on_scroll):
             encoder.add_action(action)
         return self._add_multi_encoder(encoder)

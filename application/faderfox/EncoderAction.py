@@ -24,7 +24,6 @@ class EncoderAction(object):
         self.move_type = move_type
         self.name = name
         self._is_executing = False
-        self.cancel_action = None  # type: Optional[EncoderAction]
 
     def __repr__(self, **k):
         # type: (Any) -> str
@@ -38,9 +37,6 @@ class EncoderAction(object):
         """
         if self._is_executing:
             self._is_executing = False
-            if self.cancel_action:
-                self.cancel_action.execute(encoder_name, *a, **k)
-                return None
             raise DoubleActionExecutionException(self)
 
         UndoFacade.begin_undo_step()
@@ -71,9 +67,7 @@ class EncoderAction(object):
     def make_actions(
             name,  # type: str
             on_press,  # type: Optional[Callable]
-            on_cancel_press,  # type: Optional[Callable]
             on_long_press,  # type: Optional[Callable]
-            on_cancel_long_press,  # type: Optional[Callable]
             on_scroll,  # type: Optional[Callable]
     ):
         # type: (...) -> List[EncoderAction]
@@ -81,18 +75,10 @@ class EncoderAction(object):
         actions = []  # type: List[EncoderAction]
         if on_press:
             actions.append(EncoderAction(on_press, move_type=EncoderMoveEnum.PRESS, name=name))
-        if on_cancel_press:
-            if not on_press:
-                raise Protocol0Error("Cannot set on_cancel_press without on_press")
-            actions[-1].cancel_action = EncoderAction(on_cancel_press, move_type=EncoderMoveEnum.PRESS, name=name)
         if on_long_press:
             if not on_press:
                 raise Protocol0Error("Cannot set on_long_press without on_press")
             actions.append(EncoderAction(on_long_press, move_type=EncoderMoveEnum.LONG_PRESS, name=name))  # type: ignore[arg-type]
-        if on_cancel_long_press:
-            if not on_long_press:
-                raise Protocol0Error("Cannot set on_cancel_long_press without on_long_press")
-            actions[-1].cancel_action = EncoderAction(on_cancel_long_press, move_type=EncoderMoveEnum.LONG_PRESS, name=name)
         if on_scroll:
             actions.append(EncoderAction(on_scroll, move_type=EncoderMoveEnum.SCROLL, name=name))  # type: ignore[arg-type]
 

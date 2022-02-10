@@ -24,6 +24,7 @@ class AbletonSong(Subject):
         # type: () -> None
         self.view = AbletonSongView()
         self.tempo = 120
+        self.signature_numerator = 4
 
         self.tracks = [self.view.selected_track]
         self.return_tracks = []  # type: List[AbletonTrack]
@@ -43,8 +44,8 @@ class AbletonSong(Subject):
 
     def get_current_beats_song_time(self):
         # type: () -> NamedTuple
-        beats_song_time = namedtuple('beats_song_time', ['beats', 'sub_division', 'ticks'])
-        return beats_song_time(1, 1, 1)
+        beats_song_time = namedtuple('beats_song_time', ['bars', 'beats', 'sub_division', 'ticks'])
+        return beats_song_time(1, 1, 1, 1)
 
     def get_data(self, _, default):
         # type: () -> Any
