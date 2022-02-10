@@ -84,7 +84,7 @@ class AbstractTrackRecorder(object):
         pass
 
     def record(self, bar_length):
-        # type: (int) -> Sequence
+        # type: (float) -> Sequence
         Logger.log_info("Starting record !")
         self._song.session_record = True
         self._focus_main_clip()

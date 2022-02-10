@@ -15,7 +15,7 @@ class InstrumentDisplayService(object):
     def __init__(self, device_service):
         # type: (DeviceService) -> None
         self._device_service = device_service
-        DomainEventBus.subscribe(SimpleTrackArmedEvent, self.handle_armed_simple_track)
+        DomainEventBus.subscribe(SimpleTrackArmedEvent, self._handle_simple_track_armed_event)
 
     def show_hide_instrument(self):
         # type: () -> Optional[Sequence]
@@ -40,7 +40,7 @@ class InstrumentDisplayService(object):
         if instrument and instrument.CAN_BE_SHOWN:
             self.activate_plugin_window(instrument, force_activate=True)
 
-    def handle_armed_simple_track(self, event):
+    def _handle_simple_track_armed_event(self, event):
         # type: (SimpleTrackArmedEvent) -> Sequence
         seq = Sequence()
         if event.track.instrument and event.track.instrument.needs_exclusive_activation:
@@ -64,7 +64,7 @@ class InstrumentDisplayService(object):
             seq.add(instrument.post_activate)
 
         if not force_activate and not select_instrument_track:
-            seq.add(wait=2)
+            seq.add(wait=15)
             seq.add(System.client().hide_plugins)
 
         return seq.done()

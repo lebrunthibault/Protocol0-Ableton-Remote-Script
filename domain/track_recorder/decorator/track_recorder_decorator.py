@@ -28,7 +28,7 @@ class TrackRecorderDecorator(AbstractTrackRecorder):
         return self.recorder.pre_record()
 
     def record(self, bar_length):
-        # type: (int) -> Sequence
+        # type: (float) -> Sequence
         return self.recorder.record(bar_length)
 
     def post_audio_record(self):
