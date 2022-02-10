@@ -14,6 +14,7 @@ from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.utils import scroll_values
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
@@ -256,7 +257,8 @@ class Clip(ClipActionMixin, UseFrameworkEvents):
             if len(self.automated_parameters):
                 selected_parameter = self.automated_parameters[0]
             else:
-                raise Protocol0Warning("Selected clip has no automation")
+                Logger.log_warning("Selected clip has no automation")
+                return None
 
         self.show_parameter_envelope(selected_parameter)
 

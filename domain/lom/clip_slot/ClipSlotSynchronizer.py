@@ -1,5 +1,3 @@
-from functools import partial
-
 from typing import Optional, TYPE_CHECKING, Any
 
 from _Framework.CompoundElement import subject_slot_group
@@ -8,7 +6,6 @@ from protocol0.domain.lom.clip.ClipSynchronizer import ClipSynchronizer
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.domain.lom.clip_slot.AudioTailClipSlot import AudioTailClipSlot
 from protocol0.domain.lom.clip_slot.MidiClipSlot import MidiClipSlot
-from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
@@ -44,14 +41,9 @@ class ClipSlotSynchronizer(UseFrameworkEvents):
         return self.audio_cs if clip_slot == self.midi_cs else self.audio_cs
 
     @subject_slot_group("has_clip")
-    def _has_clip_listener(self, changed_clip_slot):
+    def _has_clip_listener(self, _):
         # type: (ClipSlot) -> None
         self._init_clip_synchronizer()
-
-        linked_clip_slot = self.linked_clip_slot(clip_slot=changed_clip_slot)
-
-        if not changed_clip_slot.clip and linked_clip_slot.clip:
-            Scheduler.defer(partial(linked_clip_slot.clip.delete))
 
     @subject_slot_group("is_triggered")
     def _is_triggered_listener(self, changed_clip_slot):

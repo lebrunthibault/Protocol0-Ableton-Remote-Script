@@ -1,0 +1,2 @@
+class LastBeatPassedEvent(object):
+    pass

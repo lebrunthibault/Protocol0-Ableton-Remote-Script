@@ -125,15 +125,14 @@ def handle_error(func):
     @wraps(func)
     def decorate(*a, **k):
         # type: (Any, Any) -> Any
-        # noinspection PyBroadException
         try:
             return func(*a, **k)
         except Exception as e:
             import logging
-            logging.info(str(e))
-            # having these imports up causes object is None : might be because of garbage collection
-            # from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
-            # from protocol0.domain.shared.DomainEventBus import DomainEventBus
-            # DomainEventBus.notify(ErrorRaisedEvent())
+            from protocol0.domain.shared.DomainEventBus import DomainEventBus
+            from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
+            logging.info("in handle error: %s" % DomainEventBus)
+            DomainEventBus.notify(ErrorRaisedEvent())
+            raise e
 
     return decorate

@@ -43,7 +43,7 @@ class SceneName(UseFrameworkEvents):
         """ throttling to avoid multiple calls due to name listener """
         base_name = base_name if base_name else self._get_base_name()
         looping = "*" if self.scene == SongFacade.looping_scene() else ""
-        length_legend = get_length_legend(length=self.scene.length)
+        length_legend = get_length_legend(beat_length=self.scene.length)
 
         if self.scene.has_playing_clips and display_bar_count:
             length_legend = "%s|%s" % (self.scene.current_bar + 1, length_legend)

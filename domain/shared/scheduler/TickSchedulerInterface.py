@@ -7,6 +7,6 @@ class TickSchedulerInterface(object):
         """ timeout_duration in ms """
         raise NotImplementedError
 
-    def restart(self):
+    def start(self):
         # type: () -> None
         raise NotImplementedError

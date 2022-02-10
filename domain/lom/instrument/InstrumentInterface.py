@@ -24,6 +24,7 @@ class InstrumentInterface(object):
     PRESET_DISPLAY_OPTION = PresetDisplayOptionEnum.NAME
     HAS_PROTECTED_MODE = True
     PROGRAM_CHANGE_OFFSET = 0  # if we store presets not at the beginning of the list
+    MONOPHONIC = False
 
     def __init__(self, track, device):
         # type: (SimpleTrack, Optional[Device]) -> None

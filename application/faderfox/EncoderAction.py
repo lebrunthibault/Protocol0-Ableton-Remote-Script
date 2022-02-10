@@ -2,14 +2,12 @@ from functools import partial
 
 from typing import Optional, List, Any, Callable
 
-from protocol0.application.faderfox.DoubleActionExecutionException import DoubleActionExecutionException
 from protocol0.application.faderfox.EncoderMoveEnum import EncoderMoveEnum
-from protocol0.shared.sequence.Sequence import Sequence
-from protocol0.domain.shared.decorators import handle_error
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils import get_callable_repr, is_lambda
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.UndoFacade import UndoFacade
+from protocol0.shared.logging.Logger import Logger
+from protocol0.shared.sequence.Sequence import Sequence
 
 
 class EncoderAction(object):
@@ -23,7 +21,6 @@ class EncoderAction(object):
         self.func = func
         self.move_type = move_type
         self.name = name
-        self._is_executing = False
 
     def __repr__(self, **k):
         # type: (Any) -> str
@@ -35,10 +32,6 @@ class EncoderAction(object):
         NB : Here lambda is just a way to act on the right objects at runtime
             like this we can display the function name
         """
-        if self._is_executing:
-            self._is_executing = False
-            raise DoubleActionExecutionException(self)
-
         UndoFacade.begin_undo_step()
         if is_lambda(self.func):
             func = self.func()  # allows delaying property lookup until execution time
@@ -55,22 +48,14 @@ class EncoderAction(object):
         else:
             Logger.log_info("%s : scrolling %s" % (encoder_name, get_callable_repr(func)))
 
-        self._is_executing = True
         seq = Sequence()
         seq.add(partial(func, *a, **k))
         seq.add(UndoFacade.end_undo_step)
-        seq.on_end(partial(setattr, self, "_is_executing", False))
         return seq.done()
 
-    @staticmethod
-    @handle_error
-    def make_actions(
-            name,  # type: str
-            on_press,  # type: Optional[Callable]
-            on_long_press,  # type: Optional[Callable]
-            on_scroll,  # type: Optional[Callable]
-    ):
-        # type: (...) -> List[EncoderAction]
+    @classmethod
+    def make_actions(cls, name, on_press, on_long_press, on_scroll):
+        # type: (str, Optional[Callable], Optional[Callable], Optional[Callable]) -> List[EncoderAction]
 
         actions = []  # type: List[EncoderAction]
         if on_press:

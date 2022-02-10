@@ -159,13 +159,10 @@ def compare_values(value, expected_value):
     return value == expected_value
 
 
-def get_length_legend(length):
+def get_length_legend(beat_length):
     # type: (float) -> str
-    if length == 0:
-        return "unlimited bars"
-
-    if int(length) % SongFacade.signature_numerator() != 0:
-        return "%d beat%s" % (length, "s" if length > 1 else "")
+    if int(beat_length) % SongFacade.signature_numerator() != 0:
+        return "%d beat%s" % (beat_length, "s" if beat_length > 1 else "")
     else:
-        bar_length = length / SongFacade.signature_numerator()
+        bar_length = beat_length / SongFacade.signature_numerator()
         return "%d bar%s" % (bar_length, "s" if bar_length > 1 else "")

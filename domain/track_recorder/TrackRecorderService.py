@@ -5,14 +5,12 @@ from typing import Optional, TYPE_CHECKING
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.shared.logging.Logger import Logger
-from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.System import System
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.BarEndingEvent import BarEndingEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.shared.utils import get_length_legend, scroll_values
+from protocol0.domain.shared.utils import scroll_values
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
 from protocol0.domain.track_recorder.RecordingBarLengthEnum import RecordingBarLengthEnum
 from protocol0.domain.track_recorder.SelectedRecordingBarLengthUpdatedEvent import \
@@ -24,7 +22,9 @@ from protocol0.domain.track_recorder.factory.track_recorder_external_synth_facto
     TrackRecorderExternalSynthFactory
 from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.logging.StatusBar import StatusBar
+from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.song.Song import Song
@@ -64,10 +64,18 @@ class TrackRecorderService(object):
         recorder_factory = self._get_track_recorder_factory(track)
         recording_scene_index = recorder_factory.get_recording_scene_index(record_type)
         if recording_scene_index is None:
-            seq = Sequence()
-            seq.add(self._song.create_scene)
-            seq.add(partial(self.record_track, track, record_type))
-            return seq.done()
+            # todo: fix with exception
+            System.client().show_warning("No scene available")
+            return None
+            # raise Protocol0Warning("No scene available")
+
+        # todo: fix this
+        # if recording_scene_index is None:
+        #     recording_scene_index = len(SongFacade.scenes())
+        #     seq.add(self._song.create_scene)
+        #     # seq.add()
+        #
+        # Logger.log_dev(recording_scene_index)
 
         bar_length = recorder_factory.get_recording_bar_length(record_type)
         count_in = recorder_factory.create_count_in(record_type)
@@ -78,7 +86,8 @@ class TrackRecorderService(object):
 
     def _start_recording(self, count_in, recorder, bar_length):
         # type: (CountInInterface, AbstractTrackRecorder, int) -> Optional[Sequence]
-        StatusBar.show_message("Starting recording of %s" % get_length_legend(bar_length))
+        bar_legend = bar_length if bar_length else "unlimited"
+        StatusBar.show_message("Starting recording of %s bars on scene %s" % (bar_legend, recorder.recording_scene_index))
 
         seq = Sequence()
         seq.add(recorder.pre_record)
@@ -87,7 +96,6 @@ class TrackRecorderService(object):
         seq.add(recorder.post_audio_record)
         seq.add(SongFacade.selected_scene().fire)
         seq.add(wait_for_event=BarEndingEvent)
-        seq.add(wait=1)
         seq.add(partial(recorder.post_record, bar_length=bar_length))
         seq.add(partial(setattr, self, "_recorder", None))
 
@@ -96,6 +104,6 @@ class TrackRecorderService(object):
     def cancel_record(self):
         # type: () -> None
         System.client().show_warning("Cancelling record")
-        Scheduler.clear()
+        Scheduler.restart()
         self._recorder.cancel_record()
         self._recorder = None

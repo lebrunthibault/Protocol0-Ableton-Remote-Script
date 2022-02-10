@@ -1,5 +1,6 @@
 from functools import partial
 
+from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
 from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.track_recorder.count_in.count_in_interface import CountInInterface
 
@@ -14,7 +15,7 @@ class CountInOneBar(CountInInterface):
         self.track.solo = True
         self._song.is_playing = True
         seq = Sequence()
-        seq.add(wait_bars=1)
+        seq.add(wait_for_event=LastBeatPassedEvent)
         seq.add(partial(setattr, self.track, "solo", False))
         seq.add(self._stop_count_in)
         return seq.done()

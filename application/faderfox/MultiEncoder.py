@@ -8,7 +8,8 @@ from _Framework.InputControlElement import MIDI_NOTE_TYPE, MIDI_CC_TYPE
 from _Framework.SubjectSlot import subject_slot
 from protocol0.application.faderfox.EncoderAction import EncoderAction, EncoderMoveEnum
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
-from protocol0.domain.shared.decorators import handle_error
+from protocol0.domain.shared.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.SongFacade import SongFacade
 
@@ -56,7 +57,6 @@ class MultiEncoder(UseFrameworkEvents):
         return bool(self._pressed_at and (time.time() - self._pressed_at) > MultiEncoder.PRESS_MAX_TIME)
 
     @subject_slot("value")
-    @handle_error
     def _press_listener(self, value):
         # type: (int) -> None
         if value:
@@ -71,33 +71,37 @@ class MultiEncoder(UseFrameworkEvents):
                 self._find_and_execute_action(move_type=move_type)
 
     @subject_slot("value")
-    @handle_error
     def _scroll_listener(self, value):
         # type: (int) -> None
         self._find_and_execute_action(move_type=EncoderMoveEnum.SCROLL, go_next=value == 1)
 
     def _find_and_execute_action(self, move_type, go_next=None):
         # type: (EncoderMoveEnum, Optional[bool]) -> None
-        action = self._find_matching_action(move_type=move_type)
-        # special case : fallback long_press to press
-        if not action and move_type == EncoderMoveEnum.LONG_PRESS:
-            action = self._find_matching_action(move_type=EncoderMoveEnum.PRESS)
+        # noinspection PyBroadException
+        try:
+            action = self._find_matching_action(move_type=move_type)
+            # special case : fallback long_press to press
+            if not action and move_type == EncoderMoveEnum.LONG_PRESS:
+                action = self._find_matching_action(move_type=EncoderMoveEnum.PRESS)
 
-        if not action:
-            raise Protocol0Warning("Action not found: %s (%s)" % (self.name, move_type))
+            if not action:
+                raise Protocol0Warning("Action not found: %s (%s)" % (self.name, move_type))
 
-        self._pressed_at = None
-        if not action:
-            return None
+            self._pressed_at = None
+            if not action:
+                return None
 
-        if self._filter_active_tracks and not SongFacade.selected_track().IS_ACTIVE:
-            raise Protocol0Warning("action not dispatched for master / return tracks (%s)" % action.name)
+            selected_track = SongFacade.selected_track()
+            if self._filter_active_tracks and (selected_track is None or not selected_track.IS_ACTIVE):
+                raise Protocol0Warning("action not dispatched for master / return tracks (%s)" % action.name)
 
-        params = {}
-        if go_next is not None:
-            params["go_next"] = go_next  # type: ignore[assignment]
+            params = {}
+            if go_next is not None:
+                params["go_next"] = go_next  # type: ignore[assignment]
 
-        action.execute(encoder_name=self.name, **params)
+            action.execute(encoder_name=self.name, **params)
+        except Exception:
+            DomainEventBus.notify(ErrorRaisedEvent())
 
     def _find_matching_action(self, move_type):
         # type: (EncoderMoveEnum) -> Optional[EncoderAction]

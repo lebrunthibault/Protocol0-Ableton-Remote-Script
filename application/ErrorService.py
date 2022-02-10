@@ -66,7 +66,7 @@ class ErrorService(object):
 
         Logger.log_error(error_message)
 
-        Scheduler.clear()
+        Scheduler.restart()
     #
     #     Scheduler.wait(10, self._restart)
     #

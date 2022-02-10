@@ -5,11 +5,11 @@ from typing import TYPE_CHECKING, Optional, cast
 
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
-from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.decorators import throttle
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import scroll_values
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.scene.Scene import Scene
@@ -25,18 +25,14 @@ class SceneActionMixin(object):
         # type: (Scene) -> None
         Scheduler.defer(self.scene_name.update)
 
-    def on_beat_changed(self):
+    def on_last_beat(self):
         # type: (Scene) -> None
         if self.is_recording:
             return
+        # if it is the last bar
         if self.current_bar == self.bar_length - 1:
-            # trigger on last beat
-            if self.current_beat == SongFacade.signature_numerator() - 1:
-                Scheduler.defer(self._play_audio_tails)  # only call is here, at the end of each bar
-                self._fire_next_scene()
-
-        if self.current_beat == 0:
-            Scheduler.defer(self.scene_name.update)
+            self._play_audio_tails()
+            self._fire_next_scene()
 
     def _fire_next_scene(self):
         # type: (Scene) -> None
@@ -108,9 +104,10 @@ class SceneActionMixin(object):
         # type: (Scene) -> None
         for clip in self.audio_tail_clips:
             abstract_track = cast(ExternalSynthTrack, clip.track.abstract_track)
-            # do not trigger tail on monophonic loop
-            if self.next_scene != self and self.next_scene.clip_slots[clip.track.index - 1].clip:
-                continue
+            # do not trigger tail on monophonic loop when audio clip plays on next scene
+            # NB : the .MONOPHONIC breaks everything !
+            # if clip.track.instrument.MONOPHONIC and self.next_scene.clip_slots[clip.track.index - 1].clip:
+            #     continue
             if abstract_track.audio_track.clip_slots[clip.index].clip.muted:
                 continue
 

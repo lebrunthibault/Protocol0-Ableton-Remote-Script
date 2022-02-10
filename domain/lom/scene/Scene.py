@@ -110,9 +110,7 @@ class Scene(SceneActionMixin, UseFrameworkEvents):
     @property
     def next_scene(self):
         # type: () -> Scene
-        if self == SongFacade.looping_scene() \
-                or self == SongFacade.scenes()[-1] \
-                or SongFacade.scenes()[self.index + 1].bar_length == 0:
+        if self == SongFacade.looping_scene() or self == SongFacade.scenes()[-1]:
             return self
         else:
             return SongFacade.scenes()[self.index + 1]

@@ -4,9 +4,10 @@ from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.domain.shared.scheduler.Last32thPassedEvent import Last32thPassedEvent
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
-from protocol0.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.song.Song import Song
@@ -37,6 +38,7 @@ class AbstractTrackRecorder(object):
 
     def set_recording_scene_index(self, recording_scene_index):
         # type: (int) -> None
+        Logger.log_dev("setting to %s" % recording_scene_index)
         self._recording_scene_index = recording_scene_index
 
     @property
@@ -88,8 +90,8 @@ class AbstractTrackRecorder(object):
         self._focus_main_clip()
         seq = Sequence()
         if bar_length:
-            # seq.add(wait_bars=bar_length)
-            seq.add(wait_beats=(bar_length * SongFacade.signature_numerator()) - 1)
+            seq.add(wait_bars=bar_length)  # this works because the method is called before the beginning of the bar
+            seq.add(wait_for_event=Last32thPassedEvent)
         else:
             seq.add(wait_for_event=SongStoppedEvent)
         return seq.done()
@@ -106,11 +108,11 @@ class AbstractTrackRecorder(object):
     def post_audio_record(self):
         # type: () -> None
         self._song.metronome = False
+        self._song.session_automation_record = False
 
     def post_record(self, bar_length):
         # type: (int) -> None
         self._song.session_record = False
-        self._song.session_automation_record = False
         for clip_slot in self._recording_clip_slots:
             if clip_slot.clip:
                 clip_slot.clip.post_record(bar_length)

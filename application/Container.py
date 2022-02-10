@@ -55,15 +55,15 @@ class Container(ContainerInterface):
         self._registry = {}  # type: Dict[Type, Any]
 
         live_song = control_surface.song()  # type: Live.Song.Song
-
         Logger(LoggerService())
+        UndoFacade(live_song.begin_undo_step, live_song.end_undo_step)
         StatusBar(control_surface.show_message)
+        System(control_surface._send_midi)
         ErrorService()
         midi_service = MidiService(control_surface._send_midi)
-        Scheduler(TickScheduler(), BeatScheduler(live_song))  # setup Scheduler facade
-
-        System(control_surface._send_midi)
-        UndoFacade(live_song.begin_undo_step, live_song.end_undo_step)
+        beat_scheduler = BeatScheduler(live_song)
+        tick_scheduler = TickScheduler(beat_scheduler, live_song)
+        Scheduler(tick_scheduler, beat_scheduler)  # setup Scheduler facade
 
         song = Song(live_song)
         CommandBus(self, song)

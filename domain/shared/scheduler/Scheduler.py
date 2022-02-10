@@ -31,9 +31,9 @@ class Scheduler(object):
         cls._INSTANCE._tick_scheduler.schedule(tick_count=tick_count, callback=callback)
 
     @classmethod
-    def clear(cls):
+    def restart(cls):
         # type: () -> None
         from protocol0.shared.sequence.Sequence import Sequence
         Sequence.restart()
-        cls._INSTANCE._tick_scheduler.restart()
+        cls._INSTANCE._tick_scheduler.start()
         cls._INSTANCE._beat_scheduler.restart()

@@ -3,6 +3,7 @@ from functools import partial
 from typing import Optional, TYPE_CHECKING
 
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
+from protocol0.domain.shared.scheduler.BarEndingEvent import BarEndingEvent
 from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.System import System
@@ -56,7 +57,7 @@ class SessionToArrangementService(object):
         last_scene = SongFacade.scenes()[-1]
         seq = Sequence()
         seq.add(complete_on=last_scene.is_triggered_listener)
-        seq.add(wait_bars=last_scene.bar_length)
+        seq.add(wait_for_event=BarEndingEvent)
         seq.add(self._song.stop_all_clips)
         seq.done()
 

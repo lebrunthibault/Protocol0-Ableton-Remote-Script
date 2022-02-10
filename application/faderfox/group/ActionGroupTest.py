@@ -29,10 +29,4 @@ class ActionGroupTest(ActionGroupMixin):
 
     def action_test(self):
         # type: () -> None
-        self._song.is_playing = True
-
-        Logger.log_dev("started !")
-        seq = Sequence()
-        seq.add(wait_bars=1)
-        seq.add(lambda: Logger.log_dev("finished !"))
-        seq.done()
+        pass

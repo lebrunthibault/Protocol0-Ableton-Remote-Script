@@ -70,7 +70,7 @@ class ClipName(UseFrameworkEvents):
         if hasattr(self.clip, "warping") and not self.clip.warping:
             return "unwarped"
 
-        return get_length_legend(length=self.clip.length)
+        return get_length_legend(beat_length=self.clip.length)
 
     def update(self, base_name=None):
         # type: (Optional[str]) -> None

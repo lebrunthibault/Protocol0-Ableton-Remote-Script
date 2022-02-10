@@ -12,15 +12,16 @@ from protocol0.domain.lom.scene.SelectedDuplicateSceneBarLengthUpdatedEvent impo
     SelectedDuplicateSceneBarLengthUpdatedEvent
 from protocol0.domain.lom.song.SongStartedEvent import SongStartedEvent
 from protocol0.domain.lom.track.TrackAddedEvent import TrackAddedEvent
-from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.scheduler.BeatChangedEvent import BeatChangedEvent
+from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
+from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import scroll_values
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.logging.StatusBar import StatusBar
+from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.song.Song import Song
@@ -35,7 +36,8 @@ class SongScenesService(UseFrameworkEvents):
         self._live_scene_id_to_scene = collections.OrderedDict()
         self.selected_duplicate_scene_bar_length = 4
 
-        DomainEventBus.subscribe(BeatChangedEvent, self._on_beat_changed_event)
+        DomainEventBus.subscribe(BarChangedEvent, self._on_bar_changed_event)
+        DomainEventBus.subscribe(LastBeatPassedEvent, self._on_last_beat_passed_event)
         DomainEventBus.subscribe(TrackAddedEvent, self._on_track_added_event)
         DomainEventBus.subscribe(SongStartedEvent, self._on_song_started_event)
 
@@ -68,10 +70,15 @@ class SongScenesService(UseFrameworkEvents):
         DomainEventBus.notify(ScenesMappedEvent())
         Logger.log_info("mapped scenes")
 
-    def _on_beat_changed_event(self, _):
-        # type: (BeatChangedEvent) -> None
+    def _on_bar_changed_event(self, _):
+        # type: (BarChangedEvent) -> None
+        if SongFacade.playing_scene():
+            SongFacade.playing_scene().scene_name.update()
+
+    def _on_last_beat_passed_event(self, _):
+        # type: (LastBeatPassedEvent) -> None
         if SongFacade.playing_scene() and SongFacade.playing_scene().has_playing_clips:
-            SongFacade.playing_scene().on_beat_changed()
+            SongFacade.playing_scene().on_last_beat()
 
     def _generate_scenes(self):
         # type: () -> None
