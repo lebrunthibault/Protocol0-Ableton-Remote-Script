@@ -62,7 +62,7 @@ def get_frame_info(frame_count=1):
 def is_method(func):
     # type: (Callable) -> bool
     spec = inspect.getargspec(func)
-    return bool(spec.args and spec.args[0] == "self")
+    return bool(spec.args and (spec.args[0] == "self" or spec.args[0] == "cls"))
 
 
 def is_lambda(func):

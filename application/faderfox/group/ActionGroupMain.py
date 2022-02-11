@@ -73,9 +73,9 @@ class ActionGroupMain(ActionGroupMixin):
             identifier=14,
             name="instrument",
             filter_active_tracks=True,
-            on_press=self._container.get(InstrumentDisplayService).show_hide_instrument,
-            on_long_press=self._container.get(InstrumentDisplayService).activate_instrument_plugin_window,
-            on_scroll=lambda: partial(self._container.get(InstrumentPresetScrollerService).scroll_presets_or_samples, SongFacade.current_track().instrument),
+            on_press=lambda: partial(self._container.get(InstrumentDisplayService).show_hide_instrument, SongFacade.current_instrument()),
+            on_long_press=lambda: partial(self._container.get(InstrumentDisplayService).activate_instrument_plugin_window, SongFacade.current_instrument()),
+            on_scroll=lambda: partial(self._container.get(InstrumentPresetScrollerService).scroll_presets_or_samples, SongFacade.current_instrument()),
         )
 
         # SCENe encoder

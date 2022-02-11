@@ -19,7 +19,7 @@ class PropertyValueValidator(ValidatorInterface):
         if hasattr(self._obj, self._attr):
             error = "Got %s" % getattr(self._obj, self._attr)
         else:
-            error = "Object has no attribute %s" % self._attr
+            error = "%s has no attribute %s" % (self._obj, self._attr)
         return "Expected %s.%s to be %s. %s" % (self._obj, self._attr, self._expected_value, error)
 
     def is_valid(self):

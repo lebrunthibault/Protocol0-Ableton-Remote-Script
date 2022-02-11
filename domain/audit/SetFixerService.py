@@ -3,6 +3,7 @@ from typing import List, Any
 from protocol0.domain.audit.SetUpgradeService import SetUpgradeService
 from protocol0.domain.lom.song.Song import Song
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
+from protocol0.domain.shared.System import System
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.StatusBar import StatusBar
@@ -38,12 +39,10 @@ class SetFixerService(object):
         else:
             message = "Invalid set."
             if len(invalid_objects):
-                message += " Invalid objects: %s." % (len(invalid_objects))
-                Logger.log_warning("invalid_objects: %s" % invalid_objects)
+                message += "Invalid_objects: %s" % invalid_objects
             if len(devices_to_remove):
                 message += " devices to remove: %s." % (len(devices_to_remove))
             StatusBar.show_message(message)
-            Logger.log_warning("devices_to_remove: %s" % [(d, d.track) for d in devices_to_remove])
 
     @property
     def _objects_to_validate(self):

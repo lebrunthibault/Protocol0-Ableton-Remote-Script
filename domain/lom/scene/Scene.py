@@ -46,6 +46,10 @@ class Scene(SceneActionMixin, UseFrameworkEvents):
         # listeners
         self.is_triggered_listener.subject = self._scene
 
+    def __repr__(self):
+        # type: () -> str
+        return "Scene %s (%s)" % (self.name, self.index)
+
     @property
     def live_id(self):
         # type: () -> int

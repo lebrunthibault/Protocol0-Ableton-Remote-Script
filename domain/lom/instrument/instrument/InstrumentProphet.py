@@ -6,6 +6,7 @@ from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.instrument.InstrumentColorEnum import InstrumentColorEnum
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.instrument.InstrumentWithEditorInterface import InstrumentWithEditorInterface
+from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.System import System
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -24,6 +25,7 @@ class InstrumentProphet(InstrumentInterface, InstrumentWithEditorInterface):
 
     EXTERNAL_INSTRUMENT_DEVICE_HARDWARE_LATENCY = 3.2
     EDITOR_DEVICE_ON = False
+    MIDI_INPUT_ROUTING_TYPE = InputRoutingTypeEnum.REV2_AUX
 
     def __init__(self, track, device):
         # type: (SimpleTrack, Optional[Device]) -> None

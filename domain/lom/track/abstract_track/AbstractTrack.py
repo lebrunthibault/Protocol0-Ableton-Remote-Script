@@ -15,9 +15,8 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrackActionMixin import A
 from protocol0.domain.lom.track.abstract_track.AbstractTrackName import AbstractTrackName
 from protocol0.domain.lom.track.routing.TrackInputRouting import TrackInputRouting
 from protocol0.domain.lom.track.routing.TrackOutputRouting import TrackOutputRouting
-from protocol0.domain.shared.decorators import defer
-from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -57,7 +56,7 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents):
 
     def __repr__(self):
         # type: () -> str
-        return "P0 %s : %s (%s)" % (self.__class__.__name__, self.name, self.index + 1)
+        return "%s : %s (%s)" % (self.__class__.__name__, self.name, self.index + 1)
 
     def set_song(self, song):
         # type: (Song) -> None

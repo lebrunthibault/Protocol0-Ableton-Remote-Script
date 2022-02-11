@@ -9,3 +9,7 @@ class TrackRoutingInterface(object):
         # type: (SimpleTrack, Any, Any) -> None
         super(TrackRoutingInterface, self).__init__(*a, **k)
         self._track = track._track
+
+    def __repr__(self):
+        # type: () -> str
+        return self.__class__.__name__

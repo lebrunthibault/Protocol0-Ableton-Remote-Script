@@ -18,5 +18,5 @@ class ActionGroupPreset(ActionGroupMixin):
         # CATegory encoder
         self.add_encoder(
             identifier=2, name="scroll preset categories",
-            on_scroll=lambda: partial(self._container.get(InstrumentPresetScrollerService).scroll_preset_categories, SongFacade.current_track().instrument),
+            on_scroll=lambda: partial(self._container.get(InstrumentPresetScrollerService).scroll_preset_categories, SongFacade.current_instrument()),
         )

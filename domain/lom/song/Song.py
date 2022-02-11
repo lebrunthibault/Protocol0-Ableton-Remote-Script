@@ -42,6 +42,10 @@ class Song(SongActionMixin, UseFrameworkEvents):
         DomainEventBus.subscribe(ClipEnveloppeShowedEvent, lambda _: self.re_enable_automation())
         DomainEventBus.subscribe(ClipSelectedEvent, self._on_selected_clip_event)
 
+    def __repr__(self):
+        # type: () -> str
+        return "Song"
+
     @p0_subject_slot("is_playing")
     def is_playing_listener(self):
         # type: () -> None

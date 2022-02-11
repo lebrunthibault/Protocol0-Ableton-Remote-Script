@@ -7,6 +7,7 @@ from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPr
 from protocol0.domain.lom.instrument.preset.InstrumentPresetList import InstrumentPresetList
 from protocol0.domain.lom.instrument.preset.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from protocol0.domain.lom.instrument.preset.PresetProgramSelectedEvent import PresetProgramSelectedEvent
+from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 
@@ -25,6 +26,7 @@ class InstrumentInterface(object):
     HAS_PROTECTED_MODE = True
     PROGRAM_CHANGE_OFFSET = 0  # if we store presets not at the beginning of the list
     MONOPHONIC = False
+    MIDI_INPUT_ROUTING_TYPE = InputRoutingTypeEnum.ALL_INS
 
     def __init__(self, track, device):
         # type: (SimpleTrack, Optional[Device]) -> None

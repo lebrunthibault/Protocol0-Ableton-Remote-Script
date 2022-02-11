@@ -7,6 +7,7 @@ from protocol0.domain.lom.instrument.preset.PresetProgramSelectedEvent import Pr
 from protocol0.domain.lom.note.Note import Note
 from protocol0.domain.lom.song.Song import Song
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.InterfaceClicksServiceInterface import InterfaceClicksServiceInterface
@@ -26,6 +27,7 @@ class AudioLatencyAnalyzerService(object):
 
     def test_audio_latency(self):
         # type: () -> Optional[Sequence]
+        Logger.log_dev("executing test")
         if SongFacade.usamo_track() is None:
             raise Protocol0Warning("Missing usamo track")
 

@@ -17,10 +17,9 @@ class InstrumentDisplayService(object):
         self._device_service = device_service
         DomainEventBus.subscribe(SimpleTrackArmedEvent, self._handle_simple_track_armed_event)
 
-    def show_hide_instrument(self):
-        # type: () -> Optional[Sequence]
-        instrument = SongFacade.current_track().instrument
-        if not instrument or not instrument.CAN_BE_SHOWN:
+    def show_hide_instrument(self, instrument):
+        # type: (InstrumentInterface) -> Optional[Sequence]
+        if not instrument.CAN_BE_SHOWN:
             return None
 
         seq = Sequence()
@@ -34,10 +33,9 @@ class InstrumentDisplayService(object):
                 seq.add(System.client().show_hide_plugins)
         return seq.done()
 
-    def activate_instrument_plugin_window(self):
-        # type: () -> None
-        instrument = SongFacade.current_track().instrument
-        if instrument and instrument.CAN_BE_SHOWN:
+    def activate_instrument_plugin_window(self, instrument):
+        # type: (InstrumentInterface) -> None
+        if instrument.CAN_BE_SHOWN:
             self.activate_plugin_window(instrument, force_activate=True)
 
     def _handle_simple_track_armed_event(self, event):

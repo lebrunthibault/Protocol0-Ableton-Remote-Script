@@ -26,9 +26,9 @@ class Device(UseFrameworkEvents):
         self.can_have_chains = self._device.can_have_chains
         self.device_chain = chain
 
-    def __eq__(self, device):
-        # type: (object) -> bool
-        return isinstance(device, Device) and self._device == device._device
+    def __repr__(self):
+        # type: () -> str
+        return "%s %s" % (self.__class__.name, self.name)
 
     @staticmethod
     def get_class(device):

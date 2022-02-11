@@ -3,7 +3,7 @@ from protocol0.shared.AbstractEnum import AbstractEnum
 
 
 class VocalActionEnum(AbstractEnum):
-    """ todo: re add previous commands """
+    """ NB: add previous commands """
     CLEAR = ClearLogsCommand
     # PLAY = "PLAY"  # play set
     # PAUSE = "PAUSE"  # pause set

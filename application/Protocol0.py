@@ -16,9 +16,8 @@ class Protocol0(ControlSurface):
         # type: (Any) -> None
         super(Protocol0, self).__init__(c_instance=c_instance)
 
-        self.song().stop_playing()  # doing this early because the set often loads playing
-        # stop log duplication
-        self._c_instance.log_message = MethodType(lambda s, message: None, self._c_instance)  # noqa
+        # # stop log duplication
+        # self._c_instance.log_message = MethodType(lambda s, message: None, self._c_instance)  # noqa
 
         # noinspection PyBroadException
         try:

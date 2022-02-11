@@ -17,8 +17,9 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.clip.MidiClip import MidiClip
     from protocol0.domain.lom.clip.AudioClip import AudioClip
     from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
-    from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
+    from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
     from protocol0.domain.lom.instrument.instrument.InstrumentProphet import InstrumentProphet
+    from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 
 
 # noinspection PyArgumentList
@@ -204,6 +205,14 @@ class SongFacade(object):
     def template_dummy_clip(cls):
         # type: () -> Optional[AudioClip]
         return cls._INSTANCE._song_tracks_service._template_dummy_clip
+
+    @classmethod
+    def current_instrument(cls):
+        # type: () -> InstrumentInterface
+        instrument = cls.current_track().instrument
+        if instrument is None:
+            raise Protocol0Warning("current track has no instrument")
+        return instrument
 
     @classmethod
     def selected_parameter(cls):
