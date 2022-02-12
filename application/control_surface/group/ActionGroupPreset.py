@@ -1,13 +1,13 @@
 from functools import partial
 
-from protocol0.application.faderfox.group.ActionGroupMixin import ActionGroupMixin
+from protocol0.application.control_surface.group.ActionGroupMixin import ActionGroupMixin
 from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService import InstrumentPresetScrollerService
 from protocol0.domain.lom.instrument.preset.PresetService import PresetService
 from protocol0.shared.SongFacade import SongFacade
 
 
 class ActionGroupPreset(ActionGroupMixin):
-    CHANNEL = 2
+    CHANNEL = 13
 
     def configure(self):
         # type: () -> None

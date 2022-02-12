@@ -2,7 +2,7 @@ from functools import partial
 
 from typing import Optional, List, Any, Callable
 
-from protocol0.application.faderfox.EncoderMoveEnum import EncoderMoveEnum
+from protocol0.application.control_surface.EncoderMoveEnum import EncoderMoveEnum
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils import get_callable_repr, is_lambda
 from protocol0.shared.UndoFacade import UndoFacade

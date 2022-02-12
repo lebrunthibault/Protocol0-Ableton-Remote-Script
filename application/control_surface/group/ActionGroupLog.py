@@ -1,4 +1,4 @@
-from protocol0.application.faderfox.group.ActionGroupMixin import ActionGroupMixin
+from protocol0.application.control_surface.group.ActionGroupMixin import ActionGroupMixin
 from protocol0.domain.audit.LogService import LogService
 from protocol0.shared.logging.Logger import Logger
 

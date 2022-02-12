@@ -1,7 +1,7 @@
 from typing import List, Optional, Callable, TYPE_CHECKING
 
-from protocol0.application.faderfox.EncoderAction import EncoderAction
-from protocol0.application.faderfox.MultiEncoder import MultiEncoder
+from protocol0.application.control_surface.EncoderAction import EncoderAction
+from protocol0.application.control_surface.MultiEncoder import MultiEncoder
 from protocol0.application.ContainerInterface import ContainerInterface
 
 if TYPE_CHECKING:
@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 class ActionGroupMixin(object):
     """
-    An action group represents a group of 16 encoder available on my faderfox ec4
+    An action group represents a group of 16 encoder available on my control_surface ec4
     It responds on a midi channel to cc messages
     See MultiEncoder to configure an encoder
     """

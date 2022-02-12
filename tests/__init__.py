@@ -1,6 +1,6 @@
 import sys
 
-from protocol0.application.faderfox.ActionGroupFactory import ActionGroupFactory
+from protocol0.application.control_surface.ActionGroupFactory import ActionGroupFactory
 from protocol0.domain.shared.utils import nop
 from protocol0.shared.logging.Logger import Logger
 

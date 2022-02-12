@@ -1,13 +1,13 @@
 from typing import TYPE_CHECKING, Callable
 
-from protocol0.application.faderfox.group.ActionGroupData import ActionGroupData
-from protocol0.application.faderfox.group.ActionGroupFix import ActionGroupFix
-from protocol0.application.faderfox.group.ActionGroupLog import ActionGroupLog
-from protocol0.application.faderfox.group.ActionGroupMain import ActionGroupMain
-from protocol0.application.faderfox.group.ActionGroupMix import ActionGroupMix
-from protocol0.application.faderfox.group.ActionGroupPreset import ActionGroupPreset
-from protocol0.application.faderfox.group.ActionGroupSet import ActionGroupSet
-from protocol0.application.faderfox.group.ActionGroupTest import ActionGroupTest
+from protocol0.application.control_surface.group.ActionGroupData import ActionGroupData
+from protocol0.application.control_surface.group.ActionGroupFix import ActionGroupFix
+from protocol0.application.control_surface.group.ActionGroupLog import ActionGroupLog
+from protocol0.application.control_surface.group.ActionGroupMain import ActionGroupMain
+from protocol0.application.control_surface.group.ActionGroupMix import ActionGroupMix
+from protocol0.application.control_surface.group.ActionGroupPreset import ActionGroupPreset
+from protocol0.application.control_surface.group.ActionGroupSet import ActionGroupSet
+from protocol0.application.control_surface.group.ActionGroupTest import ActionGroupTest
 
 if TYPE_CHECKING:
     from protocol0.application.Container import Container

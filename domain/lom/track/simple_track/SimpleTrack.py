@@ -206,20 +206,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # type: () -> bool
         return any(clip for clip in self.clips if clip and clip.is_recording)
 
-    # noinspection PyTypeChecker
-    @property
-    def device_insert_mode(self):
-        # type: () -> Live.Track.DeviceInsertMode
-        if self._track is None:
-            return Live.Track.DeviceInsertMode.default
-        return self._track.view.device_insert_mode
-
-    @device_insert_mode.setter
-    def device_insert_mode(self, device_insert_mode):
-        # type: (Live.Track.DeviceInsertMode) -> None
-        if self._track:
-            self._track.view.device_insert_mode = device_insert_mode
-
     @property
     def selected_device(self):
         # type: (SimpleTrack) -> Optional[Device]

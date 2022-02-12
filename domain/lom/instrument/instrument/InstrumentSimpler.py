@@ -2,7 +2,6 @@ import os
 
 from typing import Optional, TYPE_CHECKING
 
-import Live
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.SimplerDevice import SimplerDevice
 from protocol0.domain.lom.instrument.InstrumentColorEnum import InstrumentColorEnum
@@ -11,7 +10,6 @@ from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPr
 from protocol0.domain.lom.instrument.preset.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from protocol0.domain.lom.instrument.preset.SampleSelectedEvent import SampleSelectedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
-from protocol0.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -32,5 +30,4 @@ class InstrumentSimpler(InstrumentInterface):
 
     def load_preset(self, preset):
         # type: (InstrumentPreset) -> None
-        SongFacade.selected_track.device_insert_mode = Live.Track.DeviceInsertMode.default
         DomainEventBus.notify(SampleSelectedEvent(str(preset.original_name)))

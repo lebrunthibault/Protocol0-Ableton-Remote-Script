@@ -22,7 +22,6 @@ from protocol0.domain.track_recorder.factory.track_recorder_external_synth_facto
     TrackRecorderExternalSynthFactory
 from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.logging.StatusBar import StatusBar
 from protocol0.shared.sequence.Sequence import Sequence
 

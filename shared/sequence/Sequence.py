@@ -26,7 +26,6 @@ class Sequence(SequenceStateMachineMixin):
 
         self._steps = deque()  # type: Deque[SequenceStep]
         self._current_step = None  # type: Optional[SequenceStep]
-        self._on_end = None  # type: Optional[Callable]
         self.res = None  # type: Optional[Any]
         frame_info = get_frame_info(2)
         if frame_info:
@@ -129,8 +128,6 @@ class Sequence(SequenceStateMachineMixin):
 
     def _on_final_step(self):
         # type: () -> None
-        if self._on_end:
-            self._on_end()
         # if self._current_step:
         #     self._current_step.terminate()
         try:
@@ -196,10 +193,6 @@ class Sequence(SequenceStateMachineMixin):
         )
 
         return self
-
-    def on_end(self, func):
-        # type: (Callable) -> None
-        self._on_end = func
 
     def prompt(self, question, *a, **k):
         # type: (str, Any, Any) -> None

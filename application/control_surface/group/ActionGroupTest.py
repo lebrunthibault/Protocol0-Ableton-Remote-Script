@@ -1,17 +1,12 @@
-from protocol0.application.faderfox.group.ActionGroupMixin import ActionGroupMixin
+from protocol0.application.control_surface.group.ActionGroupMixin import ActionGroupMixin
 from protocol0.domain.shared.System import System
-from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.logging.Logger import Logger
-from protocol0.shared.sequence.Sequence import Sequence
 
 
 class ActionGroupTest(ActionGroupMixin):
-    """ Just a playground to launch test actions """
+    # NB: each scroll encoder is sending a cc value of zero on startup / shutdown and that can interfere
 
     CHANNEL = 16
-
-    # channel is not 1 because 1 is reserved for non script midi
-    # NB: each scroll encoder is sending a cc value of zero on startup / shutdown and that can interfere
 
     def configure(self):
         # type: () -> None
@@ -29,4 +24,4 @@ class ActionGroupTest(ActionGroupMixin):
 
     def action_test(self):
         # type: () -> None
-        pass
+        System.client().show_warning("error")

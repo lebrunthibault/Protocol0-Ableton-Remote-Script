@@ -3,7 +3,7 @@
 Protocol0 is a control surface script for Ableton Live. 
 It is written in python 2.7 (not moving to python3/Live 11 because a full restart is needed to recompile the script in Live 11. It's boring).
 It is a "selected track control" like script focused on working in session view with hardware synths.
-Especially it enables a simple workflow for recording both midi and audio from external synths.
+Especially it eases recording external synths in a way that feels more like recording vst.
 I'm triggering commands from note on / off and cc messages using a
 faderfox EC4.
 > This script is working for me but would need to be adapted to be used by someone else as I'm relying on specific track
@@ -20,30 +20,14 @@ loopMidi virtual ports to communicate with it.
 > Without setting up the backend (might not be straightforward) the script will only partially work.
 
 > As it's not possible to listen to multiple midi ports from a surface script I'm using a "proxy" surface script that forwards messages
-> on its port to the main script. See [this repo](https://github.com/lebrunthibault/Protocol0-Midi-Surface-Script)
+> from my backend on its port to the main script. See [this repo](https://github.com/lebrunthibault/Protocol0-Midi-Surface-Script)
 > The same purpose would be achievable my external midi routing using e.g. midi ox. I like this dependency better.
-
-## Technical Foreword
-
-This script is tailor made for my gear and workflow and is probably thus of little interest to users. But it could be
-interesting to remote scripts devs !
-
-There is a few specificities / dependencies to bear in mind if anyone would ever want to test it :
-
-- The biggest one is on a famous remote script as I'm using a few of its classes (in particular for scheduling, using
-  Live browser and a few others, see the code). I'm not going to give the name because I'm not so sure this kind of use
-  of the code is allowed by the EULA. Without this script in your remote script folder, protocol0 will fail miserably.
-- Synths targeted (Prophet rev2, Serum ..). Not blocking
-- Push2 handling code. Not blocking. I've actually disabled it in my script as I'm not using the push2 anymore.
-
-Apart from the first point, these external dependencies should not prevent the script from loading or working at half capacity.
 
 ## Features
 
 I started writing the script specifically because I thought recording my rev2 was tedious. Later on I realized I would
-probably produce better if I was working more in session view and experiment instead of rushing to arrangement. So now
-it is more of a session view tool. My goal is to be able to produce better quality music faster in session view by
-experimenting fast without too much technical hassle.
+probably produce better if I was working more in session view and experiment longer instead of rushing to arrangement. So now
+it is more of a session view tool. Regarding synths my goal is to have a more of a vst like recording experience while working on my synths.
 
 Specifically it aims to achieve :
 
@@ -53,7 +37,7 @@ Specifically it aims to achieve :
   - Other actions can be relative to the selected scene, clip, or to the song.
 - A better workflow in session view
 - A better workflow when using external synthesizers
-- A better way to show / hide vsts and change presets (specifically drums using simpler, and the synths I use most :
+- A better / unified way to show / hide vsts and change presets (specifically drums using simpler, and the synths I use most :
   Prophet Rev2, Minitaur and Serum). Mostly leveraging program change
 - A lot of little improvements in the session view including:
 
@@ -73,7 +57,7 @@ The bigger part of the script is dedicated to handling external synths.
 ### External Synths
 
 - The script is able to record both midi, audio and automation at the same time doing unlimited or fixed length recordings.
-- It activates only on a group track that has the following layout (in order, any other layout will not be detected) :
+- It activates only on a group track that has the following layout (in this order, any other layout will not be detected) :
   - a midi track (records midi ofc)
   - an audio track (records the synth)
   - an optional audio track with no device on it (records audio clip tails)
@@ -87,12 +71,13 @@ The bigger part of the script is dedicated to handling external synths.
 
 - clone the repo in your remote scripts directory
 - create a .env.json file by duplicating the .env.example.json and fill it
-- create a python virtual env in ./venv, activate and `pip install -r .\requirements.txt`
-- Try using a configurable midi controller to match the mappings in ./components/actionGroups. The main commands are defined in ActionGroupMain
+- create a python virtual env, activate it and `pip install -r .\requirements.txt`
+- Try using a configurable midi controller to match the mappings in ./application/control_surface/group. The main commands are defined in ActionGroupMain
 
 ### Installation with backend (longer)
 
 - clone and follow the README install section of the [backend](https://github.com/lebrunthibault/Protocol-0-backend).
+- You should also clone the [companion midi script](https://github.com/lebrunthibault/Protocol0-Midi-Surface-Script) to receive data back from the backend
 
 ## Development
 
@@ -100,9 +85,11 @@ I've written a technical doc that details important parts of the script object m
 remote scripts concepts are
 explained. [see this google doc](https://lebrunthibault.github.io/post/protocol0-technical-overview/) (could be a bit outdated)
 
-I'm working on dev and releasing (sometimes not so often) working versions to master
+I'm working on dev and releasing working versions to master
+
+I've been using DDD concepts to structure the script with a single central domain folder 
 
 ### Tools
 
 - `make test` runs the test suite (pytest) I've written a few unit tests mostly related to non LOM stuff.
-- `make check` runs the linting tools and tests on the whole project. I'm using flake8 and mypy for type checking.
+- `make check` runs the linting tools and tests on the whole project. I'm using flake8, vulture and mypy.

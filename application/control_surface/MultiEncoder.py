@@ -6,7 +6,7 @@ from typing import List, Optional, Callable
 from _Framework.ButtonElement import ButtonElement
 from _Framework.InputControlElement import MIDI_NOTE_TYPE, MIDI_CC_TYPE
 from _Framework.SubjectSlot import subject_slot
-from protocol0.application.faderfox.EncoderAction import EncoderAction, EncoderMoveEnum
+from protocol0.application.control_surface.EncoderAction import EncoderAction, EncoderMoveEnum
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent

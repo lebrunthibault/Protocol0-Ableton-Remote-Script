@@ -21,18 +21,13 @@ class TickScheduler(TickSchedulerInterface):
     def start(self):
         # type: () -> None
         if self._live_timer:
+            del self._scheduled_events[:]
             # noinspection PyArgumentList
             self._live_timer.stop()
 
         self._live_timer = Live.Base.Timer(callback=self._on_tick, interval=1, repeat=True)
         # noinspection PyArgumentList
         self._live_timer.start()
-
-    def _stop(self):
-        # type: () -> None
-        del self._scheduled_events[:]
-        # noinspection PyArgumentList
-        self._live_timer.stop()
 
     @handle_error
     def _on_tick(self):

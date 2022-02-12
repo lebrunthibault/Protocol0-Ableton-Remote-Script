@@ -1,5 +1,3 @@
-from types import MethodType
-
 from typing import Any
 
 from _Framework.ControlSurface import ControlSurface
@@ -15,9 +13,6 @@ class Protocol0(ControlSurface):
     def __init__(self, c_instance=None):
         # type: (Any) -> None
         super(Protocol0, self).__init__(c_instance=c_instance)
-
-        # # stop log duplication
-        # self._c_instance.log_message = MethodType(lambda s, message: None, self._c_instance)  # noqa
 
         # noinspection PyBroadException
         try:

@@ -1,9 +1,9 @@
-from protocol0.application.faderfox.group.ActionGroupMixin import ActionGroupMixin
+from protocol0.application.control_surface.group.ActionGroupMixin import ActionGroupMixin
 from protocol0.domain.lom.set.MixingService import MixingService
 
 
 class ActionGroupMix(ActionGroupMixin):
-    CHANNEL = 6
+    CHANNEL = 14
 
     def configure(self):
         # type: () -> None

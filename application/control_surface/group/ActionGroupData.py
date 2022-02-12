@@ -1,9 +1,9 @@
-from protocol0.application.faderfox.group.ActionGroupMixin import ActionGroupMixin
+from protocol0.application.control_surface.group.ActionGroupMixin import ActionGroupMixin
 from protocol0.infra.persistence.SongDataService import SongDataService
 
 
 class ActionGroupData(ActionGroupMixin):
-    CHANNEL = 7
+    CHANNEL = 15
 
     def configure(self):
         # type: () -> None

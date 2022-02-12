@@ -1,6 +1,6 @@
 from functools import partial
 
-from protocol0.application.faderfox.group.ActionGroupMixin import ActionGroupMixin
+from protocol0.application.control_surface.group.ActionGroupMixin import ActionGroupMixin
 from protocol0.domain.audit.SongStatsService import SongStatsService
 from protocol0.domain.lom.instrument.instrument.InstrumentProphet import InstrumentProphet
 from protocol0.domain.lom.set.MixingService import MixingService
@@ -10,7 +10,7 @@ from protocol0.shared.SongFacade import SongFacade
 
 
 class ActionGroupSet(ActionGroupMixin):
-    CHANNEL = 3
+    CHANNEL = 2
 
     def configure(self):
         # type: () -> None

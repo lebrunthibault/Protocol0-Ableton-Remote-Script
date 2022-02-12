@@ -2,11 +2,11 @@ from typing import List, Any
 
 from protocol0.domain.audit.SetUpgradeService import SetUpgradeService
 from protocol0.domain.lom.song.Song import Song
+from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
 from protocol0.domain.shared.System import System
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.StatusBar import StatusBar
+from protocol0.shared.logging.Logger import Logger
 
 
 class SetFixerService(object):
@@ -16,7 +16,7 @@ class SetFixerService(object):
         self._set_upgrade_service = set_upgrade_service
         self._song = song
 
-    def fix(self):
+    def fix_set(self):
         # type: () -> None
         """ Fix the current set to the current standard regarding naming / coloring etc .."""
         Logger.clear()
@@ -35,14 +35,18 @@ class SetFixerService(object):
         devices_to_remove = list(self._set_upgrade_service.get_deletable_devices(full_scan=True))
 
         if len(invalid_objects) == 0 and len(devices_to_remove) == 0:
-            StatusBar.show_message("Set is valid")
+            System.client().show_success("Set is valid")
         else:
-            message = "Invalid set."
+            message = ""
             if len(invalid_objects):
-                message += "Invalid_objects: %s" % invalid_objects
+                message += "Invalid_objects: %s\n" % invalid_objects
+                first_object = invalid_objects[0]
+                if isinstance(first_object, AbstractTrack):
+                    first_object.select()
             if len(devices_to_remove):
-                message += " devices to remove: %s." % (len(devices_to_remove))
-            StatusBar.show_message(message)
+                message += "Devices to remove: %s" % (len(devices_to_remove))
+            System.client().show_warning("Invalid set")
+            Logger.log_warning(message)
 
     @property
     def _objects_to_validate(self):

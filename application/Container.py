@@ -3,7 +3,7 @@ from typing import Type, Dict, Any
 import Live
 from _Framework.ControlSurface import ControlSurface
 from protocol0.application.ErrorService import ErrorService
-from protocol0.application.faderfox.ActionGroupFactory import ActionGroupFactory
+from protocol0.application.control_surface.ActionGroupFactory import ActionGroupFactory
 from protocol0.application.vocal_command.KeywordSearchService import KeywordSearchService
 from protocol0.application.vocal_command.VocalCommandService import VocalCommandService
 from protocol0.domain.audit.AudioLatencyAnalyzerService import AudioLatencyAnalyzerService
@@ -31,6 +31,7 @@ from protocol0.domain.shared.System import System
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.track_recorder.TrackRecorderService import TrackRecorderService
+from protocol0.infra.interface.BrowserLoaderService import BrowserLoaderService
 from protocol0.infra.interface.BrowserService import BrowserService
 from protocol0.infra.interface.InterfaceClicksService import InterfaceClicksService
 from protocol0.infra.midi.MidiService import MidiService
@@ -72,8 +73,8 @@ class Container(ContainerInterface):
                                          control_surface.set_highlighting_session_component)
         ApplicationView(control_surface.application().view, session_service)
 
-        with control_surface.component_guard():
-            browser_service = BrowserService()
+        browser = control_surface.application().browser
+        browser_service = BrowserService(browser, BrowserLoaderService(browser))
         device_service = DeviceService(browser_service, song.select_device)
         track_factory = TrackFactory(song)
         SimpleDummyTrackService(browser_service)

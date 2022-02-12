@@ -2,7 +2,6 @@ from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSy
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
-from protocol0.domain.lom.validation.EmptyValidator import EmptyValidator
 from protocol0.domain.lom.validation.ValidatorInterface import ValidatorInterface
 from protocol0.domain.lom.validation.object_validators.ExternalSynthTrackValidator import ExternalSynthTrackValidator
 from protocol0.domain.lom.validation.object_validators.SimpleAudioTailTrackValidator import \
@@ -12,6 +11,7 @@ from protocol0.domain.lom.validation.object_validators.SimpleInstrumentBusTrackV
     SimpleInstrumentBusTrackValidator
 from protocol0.domain.lom.validation.object_validators.SongValidator import SongValidator
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 
 
 class ValidatorFactory(object):
@@ -34,4 +34,4 @@ class ValidatorFactory(object):
         elif isinstance(obj, Song):
             return SongValidator(obj)
         else:
-            return EmptyValidator()
+            raise Protocol0Warning("%s is not handled by the object validator" % obj)

@@ -173,11 +173,6 @@ class Scene(SceneActionMixin, UseFrameworkEvents):
             return 0
 
     @property
-    def current_beat(self):
-        # type: () -> int
-        return int(self.playing_position % SongFacade.signature_numerator())
-
-    @property
     def current_bar(self):
         # type: () -> int
         if self.length == 0:

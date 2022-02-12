@@ -12,7 +12,6 @@ from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassed
 from protocol0.infra.scheduler.BeatSchedulerEvent import BeatSchedulerEvent
 from protocol0.infra.scheduler.BeatTime import BeatTime
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 
 
 class BeatScheduler(UseFrameworkEvents, BeatSchedulerInterface):
