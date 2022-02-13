@@ -16,10 +16,10 @@ from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudio
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import find_if
+from protocol0.shared.sequence.Sequence import Sequence
 
 
 class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
@@ -62,6 +62,8 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
 
     def on_tracks_change(self):
         # type: () -> None
+        super(ExternalSynthTrack, self).on_tracks_change()
+
         if len(self.base_track.sub_tracks) == len(self.sub_tracks):
             return
 
@@ -80,12 +82,6 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
             self.record_clip_tails = False
 
         self._link_clip_slots()
-
-        # the dummy tracks are not yet instantiated and SimpleAudioTracks should be linked to self
-        for sub_track in self.base_track.sub_tracks:
-            sub_track.abstract_group_track = self
-
-        super(ExternalSynthTrack, self).on_tracks_change()
 
     def on_scenes_change(self):
         # type: () -> None

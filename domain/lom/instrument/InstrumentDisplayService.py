@@ -5,10 +5,10 @@ from typing import Optional
 from protocol0.domain.lom.device.DeviceService import DeviceService
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.track.simple_track.event.SimpleTrackArmedEvent import SimpleTrackArmedEvent
-from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.System import System
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.sequence.Sequence import Sequence
 
 
 class InstrumentDisplayService(object):
@@ -43,10 +43,12 @@ class InstrumentDisplayService(object):
         seq = Sequence()
         if event.track.instrument and event.track.instrument.needs_exclusive_activation:
             seq.add(partial(self.activate_plugin_window, event.track.instrument))
+            seq.add(wait=10)
+            seq.add(System.client().hide_plugins)
         return seq.done()
 
-    def activate_plugin_window(self, instrument, select_instrument_track=False, force_activate=False):
-        # type: (InstrumentInterface, bool, bool) -> Optional[Sequence]
+    def activate_plugin_window(self, instrument, force_activate=False):
+        # type: (InstrumentInterface, bool) -> Optional[Sequence]
         seq = Sequence()
 
         if force_activate or not instrument.activated:
@@ -60,9 +62,5 @@ class InstrumentDisplayService(object):
 
         if force_activate or not instrument.activated:
             seq.add(instrument.post_activate)
-
-        if not force_activate and not select_instrument_track:
-            seq.add(wait=15)
-            seq.add(System.client().hide_plugins)
 
         return seq.done()

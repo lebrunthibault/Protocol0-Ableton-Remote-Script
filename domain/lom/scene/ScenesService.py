@@ -14,6 +14,7 @@ from protocol0.domain.lom.song.SongStartedEvent import SongStartedEvent
 from protocol0.domain.lom.track.TrackAddedEvent import TrackAddedEvent
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.decorators import handle_error
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -62,6 +63,7 @@ class SongScenesService(UseFrameworkEvents):
         return self._live_scene_id_to_scene.values()
 
     @subject_slot("scenes")
+    @handle_error
     def scenes_listener(self):
         # type: () -> None
         self._generate_scenes()
@@ -133,7 +135,7 @@ class SongScenesService(UseFrameworkEvents):
         # type: (TrackAddedEvent) -> Sequence
         empty_scenes = []
         seq = Sequence()
-        for scene in reversed(SongFacade.scenes()):
+        for scene in list(reversed(SongFacade.scenes()))[1:]:
             if scene.length == 0:
                 empty_scenes.append(scene)
             else:

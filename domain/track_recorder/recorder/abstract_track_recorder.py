@@ -38,7 +38,6 @@ class AbstractTrackRecorder(object):
 
     def set_recording_scene_index(self, recording_scene_index):
         # type: (int) -> None
-        Logger.log_dev("setting to %s" % recording_scene_index)
         self._recording_scene_index = recording_scene_index
 
     @property
@@ -61,7 +60,8 @@ class AbstractTrackRecorder(object):
         self._song.session_automation_record = True
         seq = Sequence()
         seq.add(self._song.check_midi_recording_quantization)
-        seq.add(self._arm_track)
+        if not self.track.is_armed:
+            seq.add(self._arm_track)
         seq.add([clip_slot.prepare_for_record for clip_slot in self._recording_clip_slots])
         seq.add(self._pre_record)
         return seq.done()
@@ -69,13 +69,12 @@ class AbstractTrackRecorder(object):
     def _arm_track(self):
         # type: () -> Sequence
         seq = Sequence()
-        if not self.track.is_armed:
-            if len(list(SongFacade.armed_tracks())) != 0:
-                options = ["Arm current track", "Record on armed track"]
-                seq.select("The current track is not armed", options=options)
-                seq.add(lambda: self.track.arm() if seq.res == options[0] else list(SongFacade.armed_tracks())[0].select())
-            else:
-                seq.add(self.track.arm)
+        if len(list(SongFacade.armed_tracks())) != 0:
+            options = ["Arm current track", "Record on armed track"]
+            seq.select("The current track is not armed", options=options)
+            seq.add(lambda: self.track.arm() if seq.res == options[0] else list(SongFacade.armed_tracks())[0].select())
+        else:
+            seq.add(self.track.arm)
 
         return seq.done()
 

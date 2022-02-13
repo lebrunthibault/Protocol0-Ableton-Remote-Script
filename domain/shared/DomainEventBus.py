@@ -1,6 +1,9 @@
 import inspect
+from functools import partial
 
 from typing import Dict, List, Type, Callable, TYPE_CHECKING
+
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 
 if TYPE_CHECKING:
     from protocol0.shared.sequence.Sequence import Sequence  # noqa
@@ -35,3 +38,9 @@ class DomainEventBus(object):
         if type(domain_event) in cls._registry:
             for subscriber in cls._registry[type(domain_event)]:
                 subscriber(domain_event)
+
+    @classmethod
+    def defer_notify(cls, domain_event):
+        # type: (object) -> None
+        """ for events notified in listeners we can defer to avoid the changes by notification error"""
+        Scheduler.defer(partial(cls.notify, domain_event))

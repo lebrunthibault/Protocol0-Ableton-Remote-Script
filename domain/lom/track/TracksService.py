@@ -8,8 +8,8 @@ from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.song.Song import Song
 from protocol0.domain.lom.track.TrackAddedEvent import TrackAddedEvent
-from protocol0.domain.lom.track.TracksMappedEvent import TracksMappedEvent
 from protocol0.domain.lom.track.TrackFactory import TrackFactory
+from protocol0.domain.lom.track.TracksMappedEvent import TracksMappedEvent
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
 from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
@@ -18,8 +18,12 @@ from protocol0.domain.lom.track.simple_track.SimpleReturnTrack import SimpleRetu
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import SimpleTrackCreatedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
-from protocol0.shared.logging.Logger import Logger
+from protocol0.domain.shared.decorators import handle_error
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.UndoFacade import UndoFacade
+from protocol0.shared.logging.Logger import Logger
+from protocol0.shared.sequence.Sequence import Sequence
 
 
 class SongTracksService(UseFrameworkEvents):
@@ -36,8 +40,10 @@ class SongTracksService(UseFrameworkEvents):
 
         self.tracks_listener.subject = self._song._song
         DomainEventBus.subscribe(SimpleTrackCreatedEvent, self._on_simple_track_created_event)
+        DomainEventBus.subscribe(TrackAddedEvent, self._on_track_added_event)
 
     @subject_slot("tracks")
+    @handle_error
     def tracks_listener(self):
         # type: () -> None
         self._clean_deleted_tracks()
@@ -54,7 +60,7 @@ class SongTracksService(UseFrameworkEvents):
         Logger.log_info("mapped tracks")
 
         if has_added_tracks and SongFacade.selected_track():
-            DomainEventBus.notify(TrackAddedEvent())
+            DomainEventBus.defer_notify(TrackAddedEvent())
 
         DomainEventBus.notify(TracksMappedEvent())
 
@@ -89,17 +95,34 @@ class SongTracksService(UseFrameworkEvents):
         for index, track in enumerate(list(self._song._song.return_tracks)):
             self._track_factory.create_simple_track(track=track, index=index, cls=SimpleReturnTrack)
 
-        self._master_track = self._track_factory.create_simple_track(track=self._song._song.master_track, index=0,
-                                                                     cls=SimpleMasterTrack)
+        self._track_factory.create_simple_track(track=self._song._song.master_track, index=0,
+                                                cls=SimpleMasterTrack)
+        self._master_track = SongFacade.simple_track_from_live_track(self._song._song.master_track)
 
         self._sort_simple_tracks()
+
+        for track in SongFacade.simple_tracks():
+            track.on_tracks_change()
+
+    def _on_track_added_event(self, _):
+        # type: (TrackAddedEvent) -> Optional[Sequence]
+        if not SongFacade.selected_track().IS_ACTIVE:
+            return None
+        UndoFacade.begin_undo_step()  # Live crashes on undo without this
+        seq = Sequence()
+        added_track = SongFacade.selected_track()
+        if SongFacade.selected_track() == SongFacade.current_track().base_track:
+            added_track = SongFacade.current_track()
+        seq.add(wait=1)
+        seq.add(added_track._added_track_init)
+        seq.add(UndoFacade.end_undo_step)
+        return seq.done()
 
     def _on_simple_track_created_event(self, event):
         # type: (SimpleTrackCreatedEvent) -> None
         """ So as to be able to generate simple tracks with the abstract group track aggregate """
         event.track.set_song(self._song)
         self._register_simple_track(event.track)
-        event.track.on_tracks_change()
 
         if self._usamo_track is None:
             if event.track.get_device_from_enum(DeviceEnum.USAMO):
@@ -110,9 +133,6 @@ class SongTracksService(UseFrameworkEvents):
 
     def _register_simple_track(self, simple_track):
         # type: (SimpleTrack) -> None
-        # rebuild sub_tracks
-        simple_track.sub_tracks = []
-
         # handling replacement of a SimpleTrack by another
         previous_simple_track = SongFacade.optional_simple_track_from_live_track(simple_track._track)
         if previous_simple_track and previous_simple_track != simple_track:
@@ -127,12 +147,10 @@ class SongTracksService(UseFrameworkEvents):
         previous_simple_track.disconnect()
 
         if previous_simple_track.group_track:
-            previous_simple_track.append_to_sub_tracks(previous_simple_track.group_track, new_simple_track,
-                                                       previous_simple_track)
+            previous_simple_track.group_track.add_or_replace_sub_track(new_simple_track, previous_simple_track)
 
         if previous_simple_track.abstract_group_track:
-            previous_simple_track.append_to_sub_tracks(previous_simple_track.abstract_group_track, new_simple_track,
-                                                       previous_simple_track)
+            previous_simple_track.abstract_group_track.add_or_replace_sub_track(new_simple_track, previous_simple_track)
 
     def _sort_simple_tracks(self):
         # type: () -> None
@@ -154,7 +172,7 @@ class SongTracksService(UseFrameworkEvents):
 
             if isinstance(previous_abstract_group_track, ExternalSynthTrack) and isinstance(abstract_group_track,
                                                                                             NormalGroupTrack):
-                Logger.log_error("An ExternalSynthTrack is changed to a NormalGroupTrack")
+                raise Protocol0Error("An ExternalSynthTrack is changed to a NormalGroupTrack")
 
             if previous_abstract_group_track and previous_abstract_group_track != abstract_group_track:
                 previous_abstract_group_track.disconnect()

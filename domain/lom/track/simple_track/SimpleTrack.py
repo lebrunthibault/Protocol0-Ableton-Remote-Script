@@ -21,6 +21,8 @@ from protocol0.shared.SongFacade import SongFacade
 
 
 class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
+    # is_active is used to differentiate set tracks for return / master
+    # we act only on active tracks
     IS_ACTIVE = True
     CLIP_SLOT_CLASS = ClipSlot
 
@@ -29,10 +31,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self._track = track  # type: Live.Track.Track
         self._index = index
         super(SimpleTrack, self).__init__(track=self)
-
-        # is_active is used to differentiate set tracks for return / master
-        # we act only on active tracks
-
         # Note : SimpleTracks represent the first layer of abstraction and know nothing about
         # AbstractGroupTracks except with self.abstract_group_track which links both layers
         # and is handled by the abg
@@ -64,6 +62,9 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def on_tracks_change(self):
         # type: () -> None
         self._link_to_group_track()
+        # because we traverse the tracks left to right : sub tracks will register themselves
+        if self.is_foldable:
+            self.sub_tracks[:] = []
 
     def on_scenes_change(self):
         # type: () -> None
@@ -80,7 +81,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
             return None
 
         self.group_track = SongFacade.simple_track_from_live_track(self._track.group_track)
-        self.append_to_sub_tracks(self.group_track, self)
+        self.group_track.add_or_replace_sub_track(self)
 
     def _map_clip_slots(self):
         # type: () -> None

@@ -4,8 +4,6 @@ import Live
 from protocol0.domain.lom.song.Song import Song
 from protocol0.domain.lom.song.SongInitializedEvent import SongInitializedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.shared.logging.Logger import Logger
-from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.System import System
@@ -13,6 +11,7 @@ from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.sequence.Sequence import Sequence
 
 
 class SongService(object):
@@ -27,7 +26,6 @@ class SongService(object):
         Scheduler.wait(10, self._song.reset)
         Scheduler.wait(50, self._song.reset)
 
-        Logger.log_dev("in init song")
         if SongFacade.clip_trigger_quantization() == Live.Song.Quantization.q_no_q:
             System.client().show_warning("The global launch quantization is set to None")
 

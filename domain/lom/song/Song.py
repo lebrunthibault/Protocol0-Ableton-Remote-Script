@@ -56,12 +56,12 @@ class Song(SongActionMixin, UseFrameworkEvents):
             self._is_playing = self.is_playing
 
         if not self.is_playing:
-            DomainEventBus.notify(SongStoppedEvent())
+            DomainEventBus.defer_notify(SongStoppedEvent())
             if SongFacade.playing_scene():
                 Scheduler.defer(SongFacade.playing_scene().mute_audio_tails)
             return
         else:
-            DomainEventBus.notify(SongStartedEvent())
+            DomainEventBus.defer_notify(SongStartedEvent())
 
     @p0_subject_slot("tempo")
     @debounce(wait_time=60)  # 1 second

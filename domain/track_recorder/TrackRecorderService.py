@@ -62,26 +62,19 @@ class TrackRecorderService(object):
 
         recorder_factory = self._get_track_recorder_factory(track)
         recording_scene_index = recorder_factory.get_recording_scene_index(record_type)
-        if recording_scene_index is None:
-            # todo: fix with exception
-            System.client().show_warning("No scene available")
-            return None
-            # raise Protocol0Warning("No scene available")
 
-        # todo: fix this
-        # if recording_scene_index is None:
-        #     recording_scene_index = len(SongFacade.scenes())
-        #     seq.add(self._song.create_scene)
-        #     # seq.add()
-        #
-        # Logger.log_dev(recording_scene_index)
+        seq = Sequence()
+        if recording_scene_index is None:
+            recording_scene_index = len(SongFacade.scenes())
+            seq.add(self._song.create_scene)
 
         bar_length = recorder_factory.get_recording_bar_length(record_type)
         count_in = recorder_factory.create_count_in(record_type)
         recorder = recorder_factory.create_recorder(record_type, bar_length)
         recorder.set_recording_scene_index(recording_scene_index)
 
-        return self._start_recording(count_in, recorder, bar_length)
+        seq.add(partial(self._start_recording, count_in, recorder, bar_length))
+        return seq.done()
 
     def _start_recording(self, count_in, recorder, bar_length):
         # type: (CountInInterface, AbstractTrackRecorder, int) -> Optional[Sequence]

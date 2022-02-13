@@ -1,7 +1,7 @@
 from protocol0.domain.lom.device.PluginDevice import PluginDevice
 from protocol0.domain.shared.System import System
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 
 
 class LogService(object):
@@ -131,8 +131,8 @@ class LogService(object):
         Logger.log_info("song.is_playing: %s" % SongFacade.is_playing())
         Logger.log_info("song.midi_recording_quantization: %s" % SongFacade.midi_recording_quantization())
         Logger.log_info()
-        # Logger.log_info("********* SONG TRACKS *************")
-        # Logger.log_info("simple_tracks : %s" % list(SongFacade.simple_tracks()))
+        Logger.log_info("********* SONG TRACKS *************")
+        Logger.log_info("simple_tracks : %s" % list(SongFacade.simple_tracks()))
         # Logger.log_info()
         # Logger.log_info("abstract_tracks : %s" % list(SongFacade.abstract_tracks()))
         # Logger.log_info()

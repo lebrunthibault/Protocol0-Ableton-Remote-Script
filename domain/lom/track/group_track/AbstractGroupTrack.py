@@ -33,6 +33,7 @@ class AbstractGroupTrack(AbstractTrack):
         """ 2nd layer linking """
         update_name = len(self.sub_tracks) != len(self.base_track.sub_tracks)
         self.sub_tracks[:] = self.base_track.sub_tracks
+
         # here we don't necessarily link the sub tracks to self
         if update_name:
             Scheduler.defer(self.track_name.update)
@@ -51,7 +52,21 @@ class AbstractGroupTrack(AbstractTrack):
         assert self.base_track.group_track.abstract_group_track
         self.group_track = self.base_track.group_track.abstract_group_track
         self.abstract_group_track = self.base_track.group_track.abstract_group_track
-        self.append_to_sub_tracks(self.group_track, self, self.base_track)
+        self.group_track.add_or_replace_sub_track(self, self.base_track)
+
+    def _map_dummy_tracks(self):
+        # type: () -> None
+        dummy_tracks = list(self._get_dummy_tracks())
+        if len(self.dummy_tracks) == len(dummy_tracks):
+            return
+
+        self.dummy_tracks[:] = [SimpleDummyTrack(track._track, track.index) for track in dummy_tracks]
+        for dummy_track in self.dummy_tracks:
+            dummy_track.group_track = self.base_track
+            dummy_track.abstract_group_track = self
+            Scheduler.defer(dummy_track.track_name.update)
+
+        Scheduler.wait(3, self._link_dummy_tracks_routings)
 
     def _get_dummy_tracks(self):
         # type: () -> Iterator[SimpleTrack]
@@ -66,19 +81,6 @@ class AbstractGroupTrack(AbstractTrack):
                 return iter([])
 
         return reversed(dummy_tracks)
-
-    def _map_dummy_tracks(self):
-        # type: () -> None
-        dummy_tracks = list(self._get_dummy_tracks())
-        if len(self.dummy_tracks) == len(dummy_tracks):
-            return
-
-        self.dummy_tracks[:] = [SimpleDummyTrack(track._track, track.index) for track in dummy_tracks]
-        for dummy_track in self.dummy_tracks:
-            dummy_track.abstract_group_track = self
-            Scheduler.defer(dummy_track.track_name.update)
-
-        Scheduler.wait(3, self._link_dummy_tracks_routings)
 
     def _link_dummy_tracks_routings(self):
         # type: () -> None

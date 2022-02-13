@@ -2,7 +2,6 @@ from typing import Optional, Type, TYPE_CHECKING
 
 import Live
 from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
-from protocol0.domain.lom.track.TrackAddedEvent import TrackAddedEvent
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
@@ -10,11 +9,8 @@ from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudio
 from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.shared.sequence.Sequence import Sequence
-from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.UndoFacade import UndoFacade
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.song.Song import Song
@@ -24,21 +20,6 @@ class TrackFactory(object):
     def __init__(self, song):
         # type: (Song) -> None
         self._song = song
-        DomainEventBus.subscribe(TrackAddedEvent, self._on_track_added_event)
-
-    def _on_track_added_event(self, _):
-        # type: (TrackAddedEvent) -> Optional[Sequence]
-        if not SongFacade.selected_track().IS_ACTIVE:
-            return None
-        UndoFacade.begin_undo_step()  # Live crashes on undo without this
-        seq = Sequence()
-        added_track = SongFacade.selected_track()
-        if SongFacade.selected_track() == SongFacade.current_track().base_track:
-            added_track = SongFacade.current_track()
-        seq.add(wait=1)
-        seq.add(added_track._added_track_init)
-        seq.add(UndoFacade.end_undo_step)
-        return seq.done()
 
     def create_simple_track(self, track, index, cls=None):
         # type: (Live.Track.Track, int, Optional[Type[SimpleTrack]]) -> SimpleTrack
@@ -57,7 +38,7 @@ class TrackFactory(object):
             else:
                 raise Protocol0Error("Unknown track type")
 
-        return cls(track=track, index=index)
+        cls(track=track, index=index)
 
     def create_abstract_group_track(self, base_group_track):
         # type: (SimpleTrack) -> AbstractGroupTrack

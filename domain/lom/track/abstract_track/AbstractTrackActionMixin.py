@@ -1,8 +1,9 @@
 from typing import TYPE_CHECKING, Optional
 
-from protocol0.shared.sequence.Sequence import Sequence
-from protocol0.shared.logging.Logger import Logger
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
+from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
@@ -45,6 +46,8 @@ class AbstractTrackActionMixin(object):
 
     def arm(self):
         # type: (AbstractTrack) -> Optional[Sequence]
+        if self.is_armed:
+            raise Protocol0Warning("Tried to arm already armed %s" % self)
         if self.is_foldable:
             self.is_folded = False
         if not self.is_armed:
@@ -93,14 +96,13 @@ class AbstractTrackActionMixin(object):
         factor = abs_factor if go_next else (1 / abs_factor)
         self.volume *= factor
 
-    @classmethod
-    def append_to_sub_tracks(cls, group_track, sub_track, previous_sub_track=None):
+    def add_or_replace_sub_track(self, sub_track, previous_sub_track=None):
         # type: (AbstractTrack, AbstractTrack, Optional[AbstractTrack]) -> None
-        if sub_track in group_track.sub_tracks:
+        if sub_track in self.sub_tracks:
             return
 
-        if previous_sub_track is None or previous_sub_track not in group_track.sub_tracks:
-            group_track.sub_tracks.append(sub_track)
+        if previous_sub_track is None or previous_sub_track not in self.sub_tracks:
+            self.sub_tracks.append(sub_track)
         else:
-            sub_track_index = group_track.sub_tracks.index(previous_sub_track)
-            group_track.sub_tracks[sub_track_index] = sub_track
+            sub_track_index = self.sub_tracks.index(previous_sub_track)
+            self.sub_tracks[sub_track_index] = sub_track
