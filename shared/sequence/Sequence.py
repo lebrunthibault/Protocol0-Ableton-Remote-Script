@@ -68,7 +68,7 @@ class Sequence(SequenceStateMachineMixin):
         if len(self._steps):
             self._current_step = self._steps.popleft()
             if self._DEBUG:
-                Logger.log_debug("%s : %s" % (self, self._current_step), debug=False)
+                Logger.log_debug("%s : %s" % (self, self._current_step))
             self._step_terminated.subject = self._current_step
             self._step_errored.subject = self._current_step
             self._step_cancelled.subject = self._current_step
@@ -194,15 +194,15 @@ class Sequence(SequenceStateMachineMixin):
 
         return self
 
-    def prompt(self, question, *a, **k):
-        # type: (str, Any, Any) -> None
+    def prompt(self, question, no_cancel=False):
+        # type: (str, bool) -> None
         """ helper method for prompts """
-        self.add(partial(System.client().prompt, question), wait_for_system=True, *a, **k)
+        self.add(partial(System.client().prompt, question), wait_for_system=True, no_cancel=no_cancel)
 
-    def select(self, question, options, vertical=True, *a, **k):
-        # type: (str, List[str], bool, Any, Any) -> None
+    def select(self, question, options, vertical=True):
+        # type: (str, List[str], bool) -> None
         """ helper method for selects """
-        self.add(partial(System.client().select, question, options, vertical=vertical), wait_for_system=True, *a, **k)
+        self.add(partial(System.client().select, question, options, vertical=vertical), wait_for_system=True)
 
     def done(self):
         # type: () -> Sequence

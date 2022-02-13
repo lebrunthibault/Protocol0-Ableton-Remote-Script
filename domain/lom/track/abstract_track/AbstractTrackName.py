@@ -1,6 +1,6 @@
 import re
 
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Optional
 
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.shared.decorators import p0_subject_slot
@@ -14,9 +14,9 @@ if TYPE_CHECKING:
 class AbstractTrackName(UseFrameworkEvents):
     DEBUG = False
 
-    def __init__(self, track, *a, **k):
-        # type: (AbstractTrack, Any, Any) -> None
-        super(AbstractTrackName, self).__init__(*a, **k)
+    def __init__(self, track):
+        # type: (AbstractTrack) -> None
+        super(AbstractTrackName, self).__init__()
         self.track = track
         self._name_listener.subject = self.track._track
         self._disconnected = False

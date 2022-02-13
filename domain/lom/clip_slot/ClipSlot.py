@@ -5,11 +5,11 @@ from typing import Any, TYPE_CHECKING, Optional
 import Live
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.clip.Clip import Clip
-from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
+from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -20,9 +20,9 @@ class ClipSlot(UseFrameworkEvents):
 
     CLIP_CLASS = Clip
 
-    def __init__(self, clip_slot, track, *a, **k):
-        # type: (Live.ClipSlot.ClipSlot, SimpleTrack, Any, Any) -> None
-        super(ClipSlot, self).__init__(*a, **k)
+    def __init__(self, clip_slot, track):
+        # type: (Live.ClipSlot.ClipSlot, SimpleTrack) -> None
+        super(ClipSlot, self).__init__()
         self._clip_slot = clip_slot
         self.track = track
         self.has_clip_listener.subject = self._clip_slot

@@ -22,11 +22,11 @@ class TrackFactory(object):
         self._song = song
 
     def create_simple_track(self, track, index, cls=None):
-        # type: (Live.Track.Track, int, Optional[Type[SimpleTrack]]) -> SimpleTrack
+        # type: (Live.Track.Track, int, Optional[Type[SimpleTrack]]) -> None
         # checking first on existing tracks
         existing_simple_track = SongFacade.optional_simple_track_from_live_track(track)
         if existing_simple_track and (cls is None or isinstance(existing_simple_track, cls)):
-            return existing_simple_track
+            return
 
         if cls is None:
             if track.name == SimpleInstrumentBusTrack.DEFAULT_NAME:

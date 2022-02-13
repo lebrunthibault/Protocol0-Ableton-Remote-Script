@@ -44,11 +44,9 @@ class SequenceStep(SequenceStateMachineMixin):
             no_cancel,  # type: bool
             complete_on,  # type: Optional[Union[Callable, CallableWithCallbacks]]
             check_timeout,  # type: int
-            *a,  # type: Any
-            **k  # type: Any
     ):
         """ the tick is 100 ms """
-        super(SequenceStep, self).__init__(*a, **k)
+        super(SequenceStep, self).__init__()
         if not name and func == nop:
             name = "wait %s" % wait if wait else "pass"
         self.name = "step %s" % (name or get_callable_repr(func))
@@ -203,7 +201,7 @@ class SequenceStep(SequenceStateMachineMixin):
         if isinstance(self._complete_on, CallableWithCallbacks) and self._callback_timeout:
             self._complete_on.clear_callbacks()
 
-        Logger.log_warning("timeout completion error on %s" % self, debug=False)
+        Logger.log_warning("timeout completion error on %s" % self)
 
         self.error()
 

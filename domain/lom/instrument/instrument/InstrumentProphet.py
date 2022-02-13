@@ -7,11 +7,11 @@ from protocol0.domain.lom.instrument.InstrumentColorEnum import InstrumentColorE
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.instrument.InstrumentWithEditorInterface import InstrumentWithEditorInterface
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
-from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.System import System
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.StatusBar import StatusBar
+from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -64,12 +64,12 @@ class InstrumentProphet(InstrumentInterface, InstrumentWithEditorInterface):
             So we need to toggle if off but still activate it shortly at certain moments
             to have the notes AND nrpn messages work as expected.
         """
-        InstrumentProphet.EDITOR_DEVICE_ON = not InstrumentProphet.EDITOR_DEVICE_ON
+        cls.EDITOR_DEVICE_ON = not cls.EDITOR_DEVICE_ON
 
-        StatusBar.show_message("Rev2 editor %s" % ("ON" if InstrumentProphet.EDITOR_DEVICE_ON else "OFF"))
+        StatusBar.show_message("Rev2 editor %s" % ("ON" if cls.EDITOR_DEVICE_ON else "OFF"))
 
         for prophet_track in SongFacade.prophet_tracks():
-            prophet_track.instrument.device.device_on = InstrumentProphet.EDITOR_DEVICE_ON
+            prophet_track.instrument.device.device_on = cls.EDITOR_DEVICE_ON
 
     def activate_editor_automation(self):
         # type: () -> Sequence

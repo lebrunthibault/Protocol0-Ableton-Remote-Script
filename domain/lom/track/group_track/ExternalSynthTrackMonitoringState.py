@@ -1,4 +1,4 @@
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
@@ -11,9 +11,9 @@ if TYPE_CHECKING:
 
 
 class ExternalSynthTrackMonitoringState(object):
-    def __init__(self, track, *a, **k):
-        # type: (ExternalSynthTrack, Any, Any) -> None
-        super(ExternalSynthTrackMonitoringState, self).__init__(*a, **k)
+    def __init__(self, track):
+        # type: (ExternalSynthTrack) -> None
+        super(ExternalSynthTrackMonitoringState, self).__init__()
         self._track = track
 
     def switch(self):

@@ -11,12 +11,12 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 
 class EncoderAction(object):
-    def __init__(self, func, move_type, name, *a, **k):
-        # type: (Callable, EncoderMoveEnum, Optional[str], Any, Any) -> None
+    def __init__(self, func, move_type, name):
+        # type: (Callable, EncoderMoveEnum, Optional[str]) -> None
         """
         base moves are listed in the enum. press is the default choice
         """
-        super(EncoderAction, self).__init__(*a, **k)
+        super(EncoderAction, self).__init__()
         assert callable(func), "func action should be callable: %s" % get_callable_repr(func)
         self.func = func
         self.move_type = move_type

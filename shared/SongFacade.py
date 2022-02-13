@@ -14,11 +14,10 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
     from protocol0.domain.lom.scene.Scene import Scene
     from protocol0.domain.lom.clip.Clip import Clip
-    from protocol0.domain.lom.clip.MidiClip import MidiClip
+    from protocol0.domain.lom.clip.MidiClip import MidiClip  # noqa
     from protocol0.domain.lom.clip.AudioClip import AudioClip
     from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
     from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
-    from protocol0.domain.lom.instrument.instrument.InstrumentProphet import InstrumentProphet
     from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 
 
@@ -126,6 +125,8 @@ class SongFacade(object):
     @classmethod
     def prophet_tracks(cls):
         # type: () -> Iterator[ExternalSynthTrack]
+        from protocol0.domain.lom.instrument.instrument.InstrumentProphet import InstrumentProphet
+
         for track in cls.external_synth_tracks():
             if isinstance(track.instrument, InstrumentProphet):
                 yield track
@@ -196,6 +197,8 @@ class SongFacade(object):
     @classmethod
     def selected_midi_clip(cls):
         # type: () -> MidiClip
+        from protocol0.domain.lom.clip.MidiClip import MidiClip  # noqa
+
         clip = cls._INSTANCE._song.selected_clip
         if not isinstance(clip, MidiClip):
             raise Protocol0Warning("no selected midi clip")

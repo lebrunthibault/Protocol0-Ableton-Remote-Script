@@ -1,6 +1,6 @@
 import re
 
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Optional
 
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.shared.decorators import throttle, p0_subject_slot
@@ -13,9 +13,9 @@ if TYPE_CHECKING:
 
 
 class SceneName(UseFrameworkEvents):
-    def __init__(self, scene, *a, **k):
-        # type: (Scene, Any, Any) -> None
-        super(SceneName, self).__init__(*a, **k)
+    def __init__(self, scene):
+        # type: (Scene) -> None
+        super(SceneName, self).__init__()
         self.scene = scene
         self._name_listener.subject = self.scene._scene
 

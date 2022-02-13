@@ -1,6 +1,6 @@
 from math import floor
 
-from typing import TYPE_CHECKING, Optional, Any, List
+from typing import TYPE_CHECKING, Optional, List
 
 import Live
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
@@ -24,9 +24,9 @@ if TYPE_CHECKING:
 class Clip(ClipActionMixin, UseFrameworkEvents):
     __subject_events__ = ("notes", "length")
 
-    def __init__(self, clip_slot, *a, **k):
-        # type: (ClipSlot, Any, Any) -> None
-        super(Clip, self).__init__(*a, **k)
+    def __init__(self, clip_slot):
+        # type: (ClipSlot) -> None
+        super(Clip, self).__init__()
         self.clip_slot = clip_slot
         self._clip_slot = clip_slot._clip_slot
         self._clip = self._clip_slot.clip  # type: Live.Clip.Clip
@@ -44,6 +44,10 @@ class Clip(ClipActionMixin, UseFrameworkEvents):
     def __eq__(self, clip):
         # type: (object) -> bool
         return isinstance(clip, Clip) and self._clip == clip._clip
+
+    def __repr__(self):
+        # type: () -> str
+        return "%s: %s (%s)" % (self.__class__.__name__, self.name, self.index)
 
     @property
     def index(self):

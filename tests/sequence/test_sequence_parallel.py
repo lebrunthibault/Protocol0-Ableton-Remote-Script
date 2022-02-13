@@ -1,11 +1,11 @@
 from __future__ import print_function
 
-from typing import List, Any
+from typing import List
 
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
-from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.decorators import has_callback_queue, p0_subject_slot
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.shared.sequence.Sequence import Sequence
 
 
 def test_parallel_listeners():
@@ -13,9 +13,9 @@ def test_parallel_listeners():
     class Example(UseFrameworkEvents):
         __subject_events__ = ("test",)
 
-        def __init__(self, val, test_res, *a, **k):
-            # type: (int, List[int], Any, Any) -> None
-            super(Example, self).__init__(*a, **k)
+        def __init__(self, val, test_res):
+            # type: (int, List[int]) -> None
+            super(Example, self).__init__()
             self.val = val
             self.test_res = test_res
             self.subject_slot_listener.subject = self

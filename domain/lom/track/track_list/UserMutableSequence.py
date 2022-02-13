@@ -29,9 +29,9 @@ class UserMutableSequence(CollectionsMutableSequence):
         out = "P0 %s (%s)" % (self.__class__.__name__, len(self._list))
         return out
 
-    def __init__(self, object_list, *a, **k):
-        # type: (MutableSequence[T], Any, Any) -> None
-        super(UserMutableSequence, self).__init__(*a, **k)
+    def __init__(self, object_list):
+        # type: (MutableSequence[T]) -> None
+        super(UserMutableSequence, self).__init__()
         self._list = object_list
 
     def __getitem__(self, value):

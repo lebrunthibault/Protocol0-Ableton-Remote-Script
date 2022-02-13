@@ -1,4 +1,4 @@
-from typing import Optional, TYPE_CHECKING, Any
+from typing import Optional, TYPE_CHECKING
 
 from _Framework.CompoundElement import subject_slot_group
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
@@ -14,9 +14,9 @@ if TYPE_CHECKING:
 class ClipSlotSynchronizer(UseFrameworkEvents):
     """ For ExternalSynthTrack """
 
-    def __init__(self, midi_cs, audio_cs, *a, **k):
-        # type: (MidiClipSlot, AudioClipSlot, Any, Any) -> None
-        super(ClipSlotSynchronizer, self).__init__(*a, **k)
+    def __init__(self, midi_cs, audio_cs):
+        # type: (MidiClipSlot, AudioClipSlot) -> None
+        super(ClipSlotSynchronizer, self).__init__()
         self.midi_cs = midi_cs
         self.audio_cs = audio_cs
 

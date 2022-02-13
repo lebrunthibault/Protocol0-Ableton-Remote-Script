@@ -62,7 +62,7 @@ class SongTracksService(UseFrameworkEvents):
         if has_added_tracks and SongFacade.selected_track():
             DomainEventBus.defer_notify(TrackAddedEvent())
 
-        DomainEventBus.notify(TracksMappedEvent())
+        DomainEventBus.defer_notify(TracksMappedEvent())
 
     def _clean_deleted_tracks(self):
         # type: () -> None

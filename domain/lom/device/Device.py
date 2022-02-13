@@ -13,9 +13,9 @@ if TYPE_CHECKING:
 
 
 class Device(UseFrameworkEvents):
-    def __init__(self, device, track, chain=None, *a, **k):
-        # type: (Live.Device.Device, SimpleTrack, Optional[DeviceChain], Any, Any) -> None
-        super(Device, self).__init__(*a, **k)
+    def __init__(self, device, track, chain=None):
+        # type: (Live.Device.Device, SimpleTrack, Optional[DeviceChain]) -> None
+        super(Device, self).__init__()
         self._device = device
         self.track = track
         self._view = self._device.view  # type: Live.Device.Device.View
@@ -48,9 +48,9 @@ class Device(UseFrameworkEvents):
         else:
             return Device
 
-    @staticmethod
-    def make(device, track, chain=None):
-        # type: (Live.Device.Device, SimpleTrack) -> Device
+    @classmethod
+    def make(cls, device, track, chain=None):
+        # type: (Live.Device.Device, SimpleTrack, Optional[DeviceChain]) -> Device
         return Device.get_class(device)(device=device, track=track, chain=chain)
 
     def delete(self):

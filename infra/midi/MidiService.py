@@ -41,7 +41,7 @@ class MidiService(object):
         msg = [status, value]
         if value2:
             msg.append(value2)
-        Logger.log_info("MidiService sending : %s" % msg, debug=False)
+        Logger.log_info("MidiService sending : %s" % msg)
         self._send_midi(tuple(msg))
 
     def _on_midi_bytes_received_event(self, event):

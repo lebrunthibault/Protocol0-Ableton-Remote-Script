@@ -11,9 +11,9 @@ def clamp(val, minv, maxv):
 class Note(object):
     MIN_DURATION = 1 / 128
 
-    def __init__(self, pitch=127, start=0, duration=1, velocity=127, muted=False, *a, **k):
-        # type: (int, float, float, int, bool, Any, Any) -> None
-        super(Note, self).__init__(*a, **k)
+    def __init__(self, pitch=127, start=0, duration=1, velocity=127, muted=False):
+        # type: (int, float, float, int, bool) -> None
+        super(Note, self).__init__()
         self._pitch = int(pitch)
         self._start = start
         self._duration = duration

@@ -205,6 +205,16 @@ class Song(SongActionMixin, UseFrameworkEvents):
             pass
 
     @property
+    def back_to_arranger(self):
+        # type: () -> bool
+        return self._song.back_to_arranger
+
+    @back_to_arranger.setter
+    def back_to_arranger(self, back_to_arranger):
+        # type: (bool) -> None
+        self._song.back_to_arranger = back_to_arranger
+
+    @property
     def clip_trigger_quantization(self):
         # type: () -> int
         return self._song.clip_trigger_quantization

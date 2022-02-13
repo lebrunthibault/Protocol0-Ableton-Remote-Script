@@ -1,8 +1,8 @@
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from protocol0.domain.lom.clip.AudioClip import AudioClip
-from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
@@ -10,9 +10,9 @@ if TYPE_CHECKING:
 
 
 class AudioTailClip(AudioClip):
-    def __init__(self, *a, **k):
-        # type: (Any, Any) -> None
-        super(AudioTailClip, self).__init__(*a, **k)
+    def __init__(self, clip_slot):
+        # type: (AudioTailClipSlot) -> None
+        super(AudioTailClip, self).__init__(clip_slot)
         self.track = self.track  # type: SimpleAudioTailTrack
         self.clip_slot = self.clip_slot  # type: AudioTailClipSlot
 

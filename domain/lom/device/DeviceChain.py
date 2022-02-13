@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List, Any
+from typing import TYPE_CHECKING, List
 
 import Live
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
@@ -9,9 +9,9 @@ if TYPE_CHECKING:
 
 
 class DeviceChain(UseFrameworkEvents):
-    def __init__(self, device, chain, index, *a, **k):
-        # type: (Device, Live.Chain.Chain, int, Any, Any) -> None
-        super(DeviceChain, self).__init__(*a, **k)
+    def __init__(self, device, chain, index):
+        # type: (Device, Live.Chain.Chain, int) -> None
+        super(DeviceChain, self).__init__()
         self.device = device
         self._chain = chain
         self.index = index

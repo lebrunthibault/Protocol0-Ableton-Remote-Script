@@ -2,13 +2,13 @@ from __future__ import division
 
 from functools import partial
 
-from typing import List, TYPE_CHECKING, Optional, Any, Iterator
+from typing import List, TYPE_CHECKING, Optional, Iterator
 
 import Live
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.note.Note import Note
-from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
@@ -16,9 +16,9 @@ if TYPE_CHECKING:
 
 
 class MidiClip(Clip):
-    def __init__(self, *a, **k):
-        # type: (Any, Any) -> None
-        super(MidiClip, self).__init__(*a, **k)
+    def __init__(self, clip_slot):
+        # type: (MidiClipSlot) -> None
+        super(MidiClip, self).__init__(clip_slot)
         self.track = self.track  # type: SimpleMidiTrack
         self.clip_slot = self.clip_slot  # type: MidiClipSlot
         # NOTES

@@ -1,18 +1,18 @@
 from typing import Any, Callable
 
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
-from protocol0.domain.shared.utils import get_callable_repr
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.utils import get_callable_repr
 from protocol0.shared.logging.Logger import Logger
 
 
 class TimeoutLimit(object):
     TICKS_COUNT = 100  # around 1.7s
 
-    def __init__(self, func, timeout_limit, awaited_listener=None, on_timeout=None, *a, **k):
-        # type: (Callable, int, Callable, Callable, Any, Any) -> None
+    def __init__(self, func, timeout_limit, awaited_listener=None, on_timeout=None):
+        # type: (Callable, int, Callable, Callable) -> None
         """ timeout_limit in ms """
-        super(TimeoutLimit, self).__init__(*a, **k)
+        super(TimeoutLimit, self).__init__()
         self.func = func
         self.awaited_listener = awaited_listener
         self.on_timeout = on_timeout

@@ -10,14 +10,13 @@ from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.scene.SceneActionMixin import SceneActionMixin
 from protocol0.domain.lom.scene.SceneName import SceneName
-from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.decorators import p0_subject_slot, throttle
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.song.Song import Song
@@ -73,7 +72,7 @@ class Scene(SceneActionMixin, UseFrameworkEvents):
                       clip_slot.has_clip and clip_slot.clip and clip_slot.track.__class__ not in (
                           SimpleDummyTrack, SimpleInstrumentBusTrack)]
         self.audio_tail_clips = cast(List[AudioTailClip],
-                                     [clip for clip in self.clips if isinstance(clip.track, SimpleAudioTailTrack)])
+                                     [clip for clip in self.clips if isinstance(clip, AudioTailClip)])
         self._clips_length_listener.replace_subjects(self.clips)
         self._clips_muted_listener.replace_subjects([clip._clip for clip in self.clips])
 

@@ -3,12 +3,16 @@ from math import floor
 
 from typing import TYPE_CHECKING, Optional, cast
 
+from protocol0.domain.lom.clip.AudioTailClip import AudioTailClip
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.shared.decorators import throttle
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import scroll_values
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
+from protocol0.shared.logging.StatusBar import StatusBar
 from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -143,10 +147,14 @@ class SceneActionMixin(object):
 
     def split(self, bar_length):
         # type: (Scene, int) -> Sequence
+        if bar_length == 0:
+            raise Protocol0Warning("Please select a bar length")
+
+        StatusBar.show_message("Splitting scene one %d bar(s)" % bar_length)
         seq = Sequence()
         seq.add(partial(self._song.duplicate_scene, self.index))
-        seq.add(lambda: self._song.selected_scene._crop_clips_to_bar_length(bar_length=-bar_length))
-        seq.add(partial(self._crop_clips_to_bar_length, bar_length=bar_length))
+        seq.add(partial(self._crop_clips_to_bar_length, bar_length))
+        seq.add(lambda: self._song.selected_scene._offset_clips_to_bar_length(bar_length))
         for track in SongFacade.external_synth_tracks():
             if track.audio_tail_track and track.audio_tail_track.clip_slots[self.index]:
                 seq.add([track.audio_tail_track.clip_slots[self.index].clip.delete])
@@ -154,16 +162,32 @@ class SceneActionMixin(object):
 
     def _crop_clips_to_bar_length(self, bar_length):
         # type: (Scene, int) -> None
+        Logger.log_dev("clips: %s" % self.clips)
         for clip in self.clips:
-            if isinstance(clip.track, SimpleAudioTailTrack):
+            if isinstance(clip, AudioTailClip):
+                Logger.log_dev("deleting %s" % clip)
+                clip.delete()
+                return
+
+            clip.bar_length = min(clip.bar_length, bar_length)
+
+    def _offset_clips_to_bar_length(self, bar_length):
+        # type: (Scene, int) -> None
+        for clip in self.clips:
+            if isinstance(clip, AudioTailClip):
                 continue
 
-            if 0 < bar_length < clip.bar_length:
-                clip.bar_length = min(clip.bar_length, bar_length)
-            elif bar_length < 0 and clip.bar_length > abs(bar_length):
-                offset = clip.length - abs(bar_length) * SongFacade.signature_numerator()
-                clip.start_marker += offset
-                clip.loop_start += offset
+            Logger.log_dev("handling %s -> %s" % (clip, clip.bar_length))
+
+            if clip.bar_length <= bar_length:
+                if not clip.looping:
+                    clip.delete()
+                continue
+
+            offset = bar_length * SongFacade.signature_numerator()
+            Logger.log_dev("offset of %s: %s" % (clip, offset))
+            clip.start_marker += offset
+            clip.loop_start += offset
 
     @throttle(wait_time=10)
     def scroll_position(self, go_next):

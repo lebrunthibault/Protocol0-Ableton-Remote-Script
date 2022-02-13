@@ -14,9 +14,9 @@ class ObjectSynchronizer(UseFrameworkEvents):
     properties are properties effectively synced
     """
 
-    def __init__(self, master, slave, listenable_properties=None, bidirectional=True, *a, **k):
-        # type: (Any, Any, Optional[List[str]], bool, Any, Any) -> None
-        super(ObjectSynchronizer, self).__init__(*a, **k)
+    def __init__(self, master, slave, listenable_properties=None, bidirectional=True):
+        # type: (Any, Any, Optional[List[str]], bool) -> None
+        super(ObjectSynchronizer, self).__init__()
 
         if not master or not slave:
             raise Protocol0Error("Master and slave should be objects")

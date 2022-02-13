@@ -7,9 +7,9 @@ if TYPE_CHECKING:
 
 
 class DeviceParameter(object):
-    def __init__(self, device, device_parameter, *a, **k):
-        # type: (Device, Live.DeviceParameter.DeviceParameter, Any, Any) -> None
-        super(DeviceParameter, self).__init__(*a, **k)
+    def __init__(self, device, device_parameter):
+        # type: (Device, Live.DeviceParameter.DeviceParameter) -> None
+        super(DeviceParameter, self).__init__()
         self.device = device
         self.track = self.device.track
         self._device_parameter = device_parameter  # type: Live.DeviceParameter.DeviceParameter

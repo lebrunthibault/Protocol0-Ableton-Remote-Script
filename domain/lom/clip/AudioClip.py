@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import Live
 from protocol0.domain.lom.clip.Clip import Clip
@@ -14,9 +14,9 @@ if TYPE_CHECKING:
 
 # noinspection PyPropertyAccess
 class AudioClip(Clip):
-    def __init__(self, *a, **k):
-        # type: (Any, Any) -> None
-        super(AudioClip, self).__init__(*a, **k)
+    def __init__(self, clip_slot):
+        # type: (AudioClipSlot) -> None
+        super(AudioClip, self).__init__(clip_slot)
         self.track = self.track  # type: SimpleAudioTrack
         self.clip_slot = self.clip_slot  # type: AudioClipSlot
         self._warping_listener.subject = self._clip

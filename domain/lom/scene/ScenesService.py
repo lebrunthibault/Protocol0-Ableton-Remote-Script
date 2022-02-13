@@ -15,6 +15,7 @@ from protocol0.domain.lom.track.TrackAddedEvent import TrackAddedEvent
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.decorators import handle_error
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -35,7 +36,7 @@ class SongScenesService(UseFrameworkEvents):
         self._song = song
         self.scenes_listener.subject = song._song
         self._live_scene_id_to_scene = collections.OrderedDict()
-        self.selected_duplicate_scene_bar_length = 4
+        self.selected_duplicate_scene_bar_length = 1
 
         DomainEventBus.subscribe(BarChangedEvent, self._on_bar_changed_event)
         DomainEventBus.subscribe(LastBeatPassedEvent, self._on_last_beat_passed_event)
@@ -69,7 +70,7 @@ class SongScenesService(UseFrameworkEvents):
         self._generate_scenes()
         for scene in SongFacade.scenes():
             Scheduler.defer(scene.refresh_appearance)
-        DomainEventBus.notify(ScenesMappedEvent())
+        DomainEventBus.defer_notify(ScenesMappedEvent())
         Logger.log_info("mapped scenes")
 
     def _on_bar_changed_event(self, _):
@@ -157,17 +158,21 @@ class SongScenesService(UseFrameworkEvents):
     def scroll_duplicate_scene_bar_lengths(self, go_next):
         # type: (bool) -> None
         selected_scene = SongFacade.selected_scene()
-        if selected_scene.length < 2:
-            Logger.log_warning(
-                "Cannot partial duplicate scene with length %s (min 2 bars)" % selected_scene.length)
-            return
+        if selected_scene.bar_length < 2:
+            raise Protocol0Warning("Cannot partial duplicate scene with bar length %s (min 2 bars)" % selected_scene.bar_length)
+
         bar_lengths = []
         power = 0
         while pow(2, power) <= selected_scene.bar_length / 2:
-            bar_lengths += [pow(2, power), -pow(2, power)]
+            bar_lengths += [pow(2, power), selected_scene.bar_length - pow(2, power)]
             power += 1
+        bar_lengths = list(dict.fromkeys(bar_lengths))
         bar_lengths.sort()
+        Logger.log_dev(bar_lengths)
+        Logger.log_dev(self.selected_duplicate_scene_bar_length)
 
+        if self.selected_duplicate_scene_bar_length not in bar_lengths:
+            self.selected_duplicate_scene_bar_length = 1
         self.selected_duplicate_scene_bar_length = scroll_values(
             bar_lengths, self.selected_duplicate_scene_bar_length, go_next
         )

@@ -1,5 +1,5 @@
 from transitions import Machine, State, MachineError
-from typing import Any, Optional
+from typing import Optional
 
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.shared.AbstractEnum import AbstractEnum
@@ -17,9 +17,9 @@ class SequenceState(AbstractEnum):
 class SequenceStateMachineMixin(UseFrameworkEvents):
     __subject_events__ = ("terminated", "errored", "cancelled")
 
-    def __init__(self, *a, **k):
-        # type: (Any, Any) -> None
-        super(SequenceStateMachineMixin, self).__init__(*a, **k)
+    def __init__(self):
+        # type: () -> None
+        super(SequenceStateMachineMixin, self).__init__()
         transitions = [
             ["start", SequenceState.UN_STARTED, SequenceState.STARTED],
             ["terminate", SequenceState.STARTED, SequenceState.TERMINATED],

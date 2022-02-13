@@ -1,4 +1,4 @@
-from typing import Any, Iterable, Optional
+from typing import Iterable, Optional
 
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
@@ -10,12 +10,12 @@ from protocol0.shared.SongFacade import SongFacade
 class AbstractTrackList(UserMutableSequence):
     """ Manipulate a track list as an object """
 
-    def __init__(self, abstract_tracks, default_abstract_tracks=None, *a, **k):
-        # type: (Iterable[AbstractTrack], Optional[Iterable[AbstractTrack]], Any, Any) -> None
+    def __init__(self, abstract_tracks, default_abstract_tracks=None):
+        # type: (Iterable[AbstractTrack], Optional[Iterable[AbstractTrack]]) -> None
         tracks = list(dict.fromkeys(abstract_tracks))
         if not len(tracks) and default_abstract_tracks is not None:
             tracks = list(dict.fromkeys(default_abstract_tracks))
-        super(AbstractTrackList, self).__init__(object_list=tracks, *a, **k)
+        super(AbstractTrackList, self).__init__(object_list=tracks)
         self._abstract_tracks = tracks
 
     @property

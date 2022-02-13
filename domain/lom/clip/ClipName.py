@@ -1,7 +1,7 @@
 import re
 from functools import partial
 
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Optional
 
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.shared.decorators import p0_subject_slot
@@ -16,9 +16,9 @@ if TYPE_CHECKING:
 class ClipName(UseFrameworkEvents):
     DEBUG = False
 
-    def __init__(self, clip, *a, **k):
-        # type: (Clip, Any, Any) -> None
-        super(ClipName, self).__init__(*a, **k)
+    def __init__(self, clip):
+        # type: (Clip) -> None
+        super(ClipName, self).__init__()
         self.clip = clip
         self.register_slot(self.clip._clip, partial(self._name_listener, force=True), "loop_start")
         self.register_slot(self.clip._clip, partial(self._name_listener, force=True), "loop_end")
