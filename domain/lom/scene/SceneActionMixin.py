@@ -117,6 +117,12 @@ class SceneActionMixin(object):
         for clip in self.audio_tail_clips:
             clip.muted = True
 
+    def duplicate(self):
+        # type: (Scene) -> Optional[Sequence]
+        if self._scene:  # type: ignore[has-type]
+            return self._song.duplicate_scene(self.index)
+        return None
+
     def delete(self):
         # type: (Scene) -> Optional[Sequence]
         if self._scene:  # type: ignore[has-type]
@@ -146,38 +152,25 @@ class SceneActionMixin(object):
             raise Protocol0Warning("Please select a bar length")
 
         StatusBar.show_message("Splitting scene one %d bar(s)" % bar_length)
+        length = bar_length * SongFacade.signature_numerator()
         seq = Sequence()
-        seq.add(partial(self._song.duplicate_scene, self.index))
-        seq.add(partial(self._crop_clips_to_bar_length, bar_length))
-        seq.add(lambda: self._song.selected_scene._offset_clips_to_bar_length(bar_length))
+        seq.add(self.duplicate)
+        seq.add(partial(self._crop_clips, 0, length))
+        seq.add(lambda: self._song.selected_scene._crop_clips(length, self.length))
         for track in SongFacade.external_synth_tracks():
             if track.audio_tail_track and track.audio_tail_track.clip_slots[self.index]:
                 seq.add([track.audio_tail_track.clip_slots[self.index].clip.delete])
         return seq.done()
 
-    def _crop_clips_to_bar_length(self, bar_length):
-        # type: (Scene, int) -> None
+    def _crop_clips(self, start, end):
+        # type: (Scene, float, float) -> None
         for clip in self.clips:
-            if isinstance(clip, AudioTailClip):
+            if start == 0 and isinstance(clip, AudioTailClip):
                 clip.delete()
                 return
 
-            clip.bar_length = min(clip.bar_length, bar_length)
-
-    def _offset_clips_to_bar_length(self, bar_length):
-        # type: (Scene, int) -> None
-        for clip in self.clips:
-            if isinstance(clip, AudioTailClip):
-                continue
-
-            if clip.bar_length <= bar_length:
-                if not clip.looping:
-                    clip.delete()
-                continue
-
-            offset = bar_length * SongFacade.signature_numerator()
-            clip.start_marker += offset
-            clip.loop_start += offset
+            clip.loop.start = start
+            clip.loop.end = end
 
     @throttle(wait_time=10)
     def scroll_position(self, go_next):

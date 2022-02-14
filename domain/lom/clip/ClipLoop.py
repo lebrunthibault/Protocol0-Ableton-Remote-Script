@@ -52,9 +52,6 @@ class ClipLoop(object):
     @end.setter
     def end(self, end):
         # type: (float) -> None
-        if end > self._clip.length:
-            System.client().show_warning("end should be <= length")
-            return
         if end % SongFacade.signature_numerator() != 0:
             System.client().show_warning("end should be a bar length")
             return
@@ -73,7 +70,9 @@ class ClipLoop(object):
         factor = 1 if go_next else -1
         end = self.end + (factor * SongFacade.signature_numerator())
         Logger.log_dev("end is %s" % end)
-        if end <= self.start or end > self._clip.length:
+        Logger.log_dev("self._clip.length is %s" % self._clip.length)
+        Logger.log_dev("self.start is %s" % self.start)
+        if end <= self.start:
             Logger.log_dev("end not valid")
             return
         self.end = end

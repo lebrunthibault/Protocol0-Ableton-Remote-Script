@@ -16,11 +16,11 @@ class Protocol0(ControlSurface):
 
         # noinspection PyBroadException
         try:
-            # Container(self)
+            Container(self)
         except Exception:
-            # DomainEventBus.notify(ErrorRaisedEvent())
+            DomainEventBus.notify(ErrorRaisedEvent())
             return
 
-        # CommandBus.dispatch(InitializeSongCommand())
+        CommandBus.dispatch(InitializeSongCommand())
 
         Logger.log_info("Protocol0 script loaded")

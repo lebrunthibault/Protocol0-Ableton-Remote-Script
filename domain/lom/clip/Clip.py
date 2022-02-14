@@ -6,6 +6,7 @@ import Live
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.clip.ClipActionMixin import ClipActionMixin
 from protocol0.domain.lom.clip.ClipEnveloppeShowedEvent import ClipEnveloppeShowedEvent
+from protocol0.domain.lom.clip.ClipLoop import ClipLoop
 from protocol0.domain.lom.clip.ClipName import ClipName
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.shared.ApplicationView import ApplicationView
@@ -32,6 +33,8 @@ class Clip(ClipActionMixin, UseFrameworkEvents):
         self._clip = self._clip_slot.clip  # type: Live.Clip.Clip
         self.view = self._clip.view  # type: Live.Clip.Clip.View
         self.track = clip_slot.track  # type: SimpleTrack
+
+        self.loop = ClipLoop(self)
 
         # listeners
         self._playing_status_listener.subject = self._clip

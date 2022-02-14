@@ -48,3 +48,11 @@ class ExternalSynthTrackActionMixin(object):
         seq.add(partial(setattr, self, "protected_mode_active", False))
         seq.add(partial(StatusBar.show_message, "track protected mode disabled"))
         return seq.done()
+
+    def copy_and_paste_clips_to_new_scene(self):
+        # type: (ExternalSynthTrack) -> Sequence
+        seq = Sequence()
+        seq.add(SongFacade.selected_scene().duplicate())
+        seq.add(lambda: SongFacade.current_external_synth_track().midi_track.clips[SongFacade.selected_scene().index].select)
+        return seq.done()
+        # seq.add(lambda: SongFacade.current_external_synth_track().midi_track.clips[SongFacade.selected_scene().index].cro)

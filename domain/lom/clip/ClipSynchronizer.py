@@ -4,6 +4,7 @@ from protocol0.domain.lom.clip.AudioTailClip import AudioTailClip
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 
 
 class ClipSynchronizer(ObjectSynchronizer):
@@ -18,6 +19,8 @@ class ClipSynchronizer(ObjectSynchronizer):
 
             if midi_clip.length == audio_clip.length:
                 properties += ["loop_start", "loop_end", "start_marker", "end_marker"]
+
+        Logger.log_dev("%s <-> %s : %s" % (midi_clip, audio_clip, properties))
 
         # check we are not in the clip tail case
         if not audio_clip.is_recording and audio_clip.bar_length not in (
@@ -34,7 +37,7 @@ class ClipSynchronizer(ObjectSynchronizer):
 
     def is_syncable(self, clip):
         # type: (Clip) -> bool
-        return not clip.track.is_recording and not SongFacade.record_mode
+        return not clip.track.is_recording and not SongFacade.record_mode()
 
     def _sync_property(self, master, slave, property_name):
         # type: (Clip, Clip, str) -> None

@@ -18,3 +18,9 @@ class ActionGroupSet(ActionGroupMixin):
                          name="clip end",
                          on_scroll=lambda: SongFacade.selected_midi_clip().loop.scroll_end,
                          )
+
+        # CUT encoder
+        self.add_encoder(identifier=3,
+                         name="copy and paste clip to new scene",
+                         on_scroll=lambda: SongFacade.current_external_synth_track().loop.scroll_end,
+                         )
