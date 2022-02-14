@@ -1,13 +1,15 @@
-from typing import List, Any
+from typing import List, Any, TYPE_CHECKING
 
 from protocol0.domain.lom.clip.AudioDummyClip import AudioDummyClip
 from protocol0.domain.lom.clip_slot.AudioDummyClipSlot import AudioDummyClipSlot
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
-from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrackAddedEvent import SimpleDummyTrackAddedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
+
+if TYPE_CHECKING:
+    from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 
 
 class SimpleDummyTrack(SimpleAudioTrack):

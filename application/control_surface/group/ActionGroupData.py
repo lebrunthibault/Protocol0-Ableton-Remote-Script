@@ -1,4 +1,4 @@
-from protocol0.application.control_surface.group.ActionGroupMixin import ActionGroupMixin
+from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
 from protocol0.infra.persistence.SongDataService import SongDataService
 
 

@@ -44,3 +44,7 @@ class ActionGroupMixin(object):
         for action in EncoderAction.make_actions(name=name, on_press=on_press, on_long_press=on_long_press, on_scroll=on_scroll):
             encoder.add_action(action)
         return self._add_multi_encoder(encoder)
+
+    def configure(self):
+        # type: () -> None
+        pass

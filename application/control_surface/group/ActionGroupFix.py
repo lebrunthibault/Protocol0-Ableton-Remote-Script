@@ -1,4 +1,6 @@
-from protocol0.application.control_surface.group.ActionGroupMixin import ActionGroupMixin
+from functools import partial
+
+from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
 from protocol0.domain.audit.AudioLatencyAnalyzerService import AudioLatencyAnalyzerService
 from protocol0.domain.audit.SetFixerService import SetFixerService
 from protocol0.domain.audit.SetUpgradeService import SetUpgradeService
@@ -25,4 +27,4 @@ class ActionGroupFix(ActionGroupMixin):
                          on_press=self._container.get(SetUpgradeService).update_external_synth_tracks_add_clip_tails)
 
         # USAMo encoder
-        self.add_encoder(identifier=13, name="check usamo latency", on_press=self._container.get(AudioLatencyAnalyzerService).test_audio_latency)
+        self.add_encoder(identifier=13, name="check usamo latency", on_press=lambda: partial(self._container.get(AudioLatencyAnalyzerService).test_audio_latency, SongFacade.current_external_synth_track()))

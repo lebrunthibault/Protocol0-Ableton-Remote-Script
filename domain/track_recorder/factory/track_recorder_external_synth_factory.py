@@ -15,6 +15,7 @@ from protocol0.domain.track_recorder.recorder.abstract_track_recorder import Abs
 from protocol0.domain.track_recorder.recorder.track_recorder_external_synth import TrackRecorderExternalSynth
 from protocol0.domain.track_recorder.recorder.track_recorder_external_synth_audio import TrackRecorderExternalSynthAudio
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.song.Song import Song

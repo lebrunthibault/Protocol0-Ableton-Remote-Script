@@ -28,7 +28,11 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         if not SongFacade.selected_track().IS_ACTIVE:
             return None
-        self.unarm() if self.is_armed else self.arm()
+        Logger.log_dev("%s is armed: %s" % (self, self.is_armed))
+        if self.is_armed:
+            self.unarm()
+        else:
+            self.arm()
 
     def toggle_fold(self):
         # type: (AbstractTrack) -> Optional[Sequence]
@@ -46,18 +50,17 @@ class AbstractTrackActionMixin(object):
 
     def arm(self):
         # type: (AbstractTrack) -> Optional[Sequence]
+        Logger.log_dev("arming %s : %s" % (self, self.is_armed))
         if self.is_armed:
-            raise Protocol0Warning("Tried to arm already armed %s" % self)
+            return None
+        self._song.unfocus_all_tracks()
         if self.is_foldable:
             self.is_folded = False
-        if not self.is_armed:
-            self._song.unfocus_all_tracks()
         return self.arm_track()
 
     def arm_track(self):
         # type: (AbstractTrack) -> Optional[Sequence]
-        Logger.log_warning("Tried arming unarmable %s" % self)
-        return None
+        raise Protocol0Warning("Tried arming unarmable %s" % self)
 
     def unarm(self):
         # type: (AbstractTrack) -> None

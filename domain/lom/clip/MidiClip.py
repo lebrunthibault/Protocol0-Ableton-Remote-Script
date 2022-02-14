@@ -6,7 +6,9 @@ from typing import List, TYPE_CHECKING, Optional, Iterator
 
 import Live
 from protocol0.domain.lom.clip.Clip import Clip
+from protocol0.domain.lom.clip.ClipLoop import ClipLoop
 from protocol0.domain.lom.note.Note import Note
+from protocol0.domain.shared.System import System
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -21,6 +23,7 @@ class MidiClip(Clip):
         super(MidiClip, self).__init__(clip_slot)
         self.track = self.track  # type: SimpleMidiTrack
         self.clip_slot = self.clip_slot  # type: MidiClipSlot
+        self.loop = ClipLoop(self)
         # NOTES
         self._cached_notes = []
 
@@ -64,7 +67,6 @@ class MidiClip(Clip):
         seq = Sequence()
         seq.add(wait=1)
         seq.add(self.generate_base_notes)
-        seq.add(self.hide_envelope)
         seq.add(wait=10)
         return seq.done()
 
@@ -101,3 +103,4 @@ class MidiClip(Clip):
             else:
                 note.velocity -= velocity_diff / scaling_factor
         self.set_notes(notes)
+

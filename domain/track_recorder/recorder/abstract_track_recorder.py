@@ -79,7 +79,7 @@ class AbstractTrackRecorder(object):
         return seq.done()
 
     def _pre_record(self):
-        # type: () -> Optional[Sequence]
+        # type: () -> None
         pass
 
     def record(self, bar_length):
@@ -93,6 +93,7 @@ class AbstractTrackRecorder(object):
             seq.add(wait_for_event=Last32thPassedEvent)
         else:
             seq.add(wait_for_event=SongStoppedEvent)
+
         return seq.done()
 
     def _focus_main_clip(self):

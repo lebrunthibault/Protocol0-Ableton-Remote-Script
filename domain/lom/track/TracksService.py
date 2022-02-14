@@ -5,6 +5,7 @@ from typing import Optional, Dict
 from _Framework.SubjectSlot import subject_slot
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.clip.AudioClip import AudioClip
+from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.song.Song import Song
 from protocol0.domain.lom.track.TrackAddedEvent import TrackAddedEvent
@@ -20,6 +21,7 @@ from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import Simp
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.decorators import handle_error
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.UndoFacade import UndoFacade
 from protocol0.shared.logging.Logger import Logger
@@ -35,7 +37,7 @@ class SongTracksService(UseFrameworkEvents):
 
         self._live_track_id_to_simple_track = collections.OrderedDict()  # type: Dict[int, SimpleTrack]
         self._template_dummy_clip = None  # type: Optional[AudioClip]
-        self._usamo_track = None  # type: Optional[SimpleTrack]
+        self._usamo_device = None  # type: Optional[Device]
         self._master_track = None  # type: Optional[SimpleTrack]
 
         self.tracks_listener.subject = self._song._song
@@ -82,27 +84,35 @@ class SongTracksService(UseFrameworkEvents):
     def _generate_simple_tracks(self):
         # type: () -> None
         """ instantiate SimpleTracks (including return / master, that are marked as inactive) """
-        self._usamo_track = None
+        self._usamo_device = None
         self.template_dummy_clip = None  # type: Optional[AudioClip]
 
         # instantiate set tracks
         for index, track in enumerate(list(self._song._song.tracks)):
-            self._track_factory.create_simple_track(track=track, index=index)
+            track = self._track_factory.create_simple_track(track=track, index=index)
 
-        if self._usamo_track is None:
-            Logger.log_warning("Usamo track is not present")
+            usamo_device = track.get_device_from_enum(DeviceEnum.USAMO)
+            if usamo_device:
+                if self._usamo_device:
+                    raise Protocol0Warning("Duplicate usamo track")
+                self._usamo_device = usamo_device
+
+            if track.name == SimpleInstrumentBusTrack.DEFAULT_NAME and len(track.clips):
+                self._template_dummy_clip = track.clips[0]
 
         for index, track in enumerate(list(self._song._song.return_tracks)):
             self._track_factory.create_simple_track(track=track, index=index, cls=SimpleReturnTrack)
 
-        self._track_factory.create_simple_track(track=self._song._song.master_track, index=0,
-                                                cls=SimpleMasterTrack)
-        self._master_track = SongFacade.simple_track_from_live_track(self._song._song.master_track)
+        self._master_track = self._track_factory.create_simple_track(track=self._song._song.master_track, index=0,
+                                                                     cls=SimpleMasterTrack)
 
         self._sort_simple_tracks()
 
         for track in SongFacade.simple_tracks():
             track.on_tracks_change()
+
+        if self._usamo_device is None:
+            Logger.log_warning("Usamo track is not present")
 
     def _on_track_added_event(self, _):
         # type: (TrackAddedEvent) -> Optional[Sequence]
@@ -122,23 +132,12 @@ class SongTracksService(UseFrameworkEvents):
         # type: (SimpleTrackCreatedEvent) -> None
         """ So as to be able to generate simple tracks with the abstract group track aggregate """
         event.track.set_song(self._song)
-        self._register_simple_track(event.track)
-
-        if self._usamo_track is None:
-            if event.track.get_device_from_enum(DeviceEnum.USAMO):
-                self._usamo_track = event.track
-
-        if event.track.name == SimpleInstrumentBusTrack.DEFAULT_NAME and len(event.track.clips):
-            self._template_dummy_clip = event.track.clips[0]
-
-    def _register_simple_track(self, simple_track):
-        # type: (SimpleTrack) -> None
         # handling replacement of a SimpleTrack by another
-        previous_simple_track = SongFacade.optional_simple_track_from_live_track(simple_track._track)
-        if previous_simple_track and previous_simple_track != simple_track:
-            self._replace_simple_track(previous_simple_track, simple_track)
+        previous_simple_track = SongFacade.optional_simple_track_from_live_track(event.track._track)
+        if previous_simple_track and previous_simple_track != event.track:
+            self._replace_simple_track(previous_simple_track, event.track)
 
-        self._live_track_id_to_simple_track[simple_track.live_id] = simple_track
+        self._live_track_id_to_simple_track[event.track.live_id] = event.track
 
     def _replace_simple_track(self, previous_simple_track, new_simple_track):
         # type: (SimpleTrack, SimpleTrack) -> None

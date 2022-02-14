@@ -1,13 +1,8 @@
 from typing import TYPE_CHECKING, Callable
 
-from protocol0.application.control_surface.group.ActionGroupData import ActionGroupData
-from protocol0.application.control_surface.group.ActionGroupFix import ActionGroupFix
-from protocol0.application.control_surface.group.ActionGroupLog import ActionGroupLog
-from protocol0.application.control_surface.group.ActionGroupMain import ActionGroupMain
-from protocol0.application.control_surface.group.ActionGroupMix import ActionGroupMix
-from protocol0.application.control_surface.group.ActionGroupPreset import ActionGroupPreset
-from protocol0.application.control_surface.group.ActionGroupSet import ActionGroupSet
-from protocol0.application.control_surface.group.ActionGroupTest import ActionGroupTest
+import protocol0.application.control_surface.group as group_package
+from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
+from protocol0.domain.shared.utils import import_package
 
 if TYPE_CHECKING:
     from protocol0.application.Container import Container
@@ -18,16 +13,8 @@ class ActionGroupFactory(object):
     @classmethod
     def create_action_groups(cls, container, song, component_guard):
         # type: (Container, Song, Callable) -> None
-        groups = [
-            ActionGroupData,
-            ActionGroupFix,
-            ActionGroupLog,
-            ActionGroupMain,
-            ActionGroupMix,
-            ActionGroupPreset,
-            ActionGroupSet,
-            ActionGroupTest,
-        ]
+        import_package(group_package)
+        group_classes = ActionGroupMixin.__subclasses__()
 
-        for group in groups:
-            group(container, song, component_guard).configure()
+        for group_class in group_classes:
+            group_class(container, song, component_guard).configure()

@@ -168,8 +168,6 @@ class SongScenesService(UseFrameworkEvents):
             power += 1
         bar_lengths = list(dict.fromkeys(bar_lengths))
         bar_lengths.sort()
-        Logger.log_dev(bar_lengths)
-        Logger.log_dev(self.selected_duplicate_scene_bar_length)
 
         if self.selected_duplicate_scene_bar_length not in bar_lengths:
             self.selected_duplicate_scene_bar_length = 1

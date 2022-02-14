@@ -71,8 +71,8 @@ class Clip(ClipActionMixin, UseFrameworkEvents):
         # noinspection PyUnresolvedReferences
         self.notify_length()
 
-    @staticmethod
-    def make(clip_slot, is_new=False):
+    @classmethod
+    def make(cls, clip_slot, is_new=False):
         # type: (ClipSlot, bool) -> Clip
         clip = clip_slot.CLIP_CLASS(clip_slot=clip_slot)
 
@@ -207,11 +207,6 @@ class Clip(ClipActionMixin, UseFrameworkEvents):
     def is_recording(self):
         # type: () -> bool
         return self._clip and self._clip.is_recording
-
-    # @property
-    # def mute(self):
-    #     # type: () -> bool
-    #     raise Protocol0Error("Use clip.muted, not clip.mute")
 
     @property
     def muted(self):

@@ -6,9 +6,9 @@ import Live
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.shared.decorators import p0_subject_slot
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -130,13 +130,17 @@ class ClipSlot(UseFrameworkEvents):
         """ creating one bar clip """
         if self._clip_slot is None:
             return None
+        from protocol0.domain.lom.clip_slot.MidiClipSlot import MidiClipSlot
+        if not isinstance(self, MidiClipSlot):
+            raise Protocol0Warning("Clips can only be created on midi tracks")
         if self.clip:
-            Logger.log_error("%s has already a clip" % self)
-            return None
+            raise Protocol0Warning("%s has already a clip" % self)
 
         seq = Sequence()
-        seq.add(partial(self._clip_slot.create_clip, SongFacade.signature_numerator),
+        seq.add(partial(self._clip_slot.create_clip, SongFacade.signature_numerator()),
                 complete_on=self.has_clip_listener)
+        seq.add(wait=1)
+        seq.add(lambda: self.clip.select)
         seq.add(lambda: self.clip.clip_name._name_listener())
         return seq.done()
 

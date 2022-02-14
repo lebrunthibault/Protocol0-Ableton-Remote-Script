@@ -8,7 +8,6 @@ from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.System import System
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
-from protocol0.domain.shared.scheduler.BarEndingEvent import BarEndingEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import scroll_values
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
@@ -58,7 +57,7 @@ class TrackRecorderService(object):
         # assert there is a scene we can record on
         if self._recorder:
             self.cancel_record()
-            raise Protocol0Warning("the track is recording")
+            return None
 
         recorder_factory = self._get_track_recorder_factory(track)
         recording_scene_index = recorder_factory.get_recording_scene_index(record_type)
@@ -70,32 +69,32 @@ class TrackRecorderService(object):
 
         bar_length = recorder_factory.get_recording_bar_length(record_type)
         count_in = recorder_factory.create_count_in(record_type)
-        recorder = recorder_factory.create_recorder(record_type, bar_length)
-        recorder.set_recording_scene_index(recording_scene_index)
+        self._recorder = recorder_factory.create_recorder(record_type, bar_length)
+        self._recorder.set_recording_scene_index(recording_scene_index)
 
-        seq.add(partial(self._start_recording, count_in, recorder, bar_length))
+        seq.add(partial(self._start_recording, count_in, self._recorder, bar_length))
         return seq.done()
 
     def _start_recording(self, count_in, recorder, bar_length):
         # type: (CountInInterface, AbstractTrackRecorder, int) -> Optional[Sequence]
         bar_legend = bar_length if bar_length else "unlimited"
-        StatusBar.show_message("Starting recording of %s bars on scene %s" % (bar_legend, recorder.recording_scene_index))
+        System.client().show_info("Rec: %s bars" % bar_legend)
 
         seq = Sequence()
         seq.add(recorder.pre_record)
         seq.add(count_in.launch)
         seq.add(partial(recorder.record, bar_length=bar_length))
         seq.add(recorder.post_audio_record)
-        seq.add(SongFacade.selected_scene().fire)
-        seq.add(wait_for_event=BarEndingEvent)
+        # seq.add(wait_for_event=BarEndingEvent)
         seq.add(partial(recorder.post_record, bar_length=bar_length))
+        seq.add(SongFacade.selected_scene().fire)
         seq.add(partial(setattr, self, "_recorder", None))
 
         return seq.done()
 
     def cancel_record(self):
         # type: () -> None
-        System.client().show_warning("Cancelling record")
         Scheduler.restart()
         self._recorder.cancel_record()
         self._recorder = None
+        System.client().show_warning("Record cancelled")

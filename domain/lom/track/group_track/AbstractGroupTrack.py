@@ -114,3 +114,7 @@ class AbstractGroupTrack(AbstractTrack):
     def clips(self):
         # type: () -> List[Clip]
         return [clip for track in self.sub_tracks for clip in track.clips]
+
+    def arm_track(self):
+        # type: () -> None
+        pass

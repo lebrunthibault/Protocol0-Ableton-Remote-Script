@@ -1,5 +1,6 @@
-from protocol0.application.control_surface.group.ActionGroupMixin import ActionGroupMixin
+from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
 from protocol0.domain.shared.System import System
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 
 
@@ -24,4 +25,7 @@ class ActionGroupTest(ActionGroupMixin):
 
     def action_test(self):
         # type: () -> None
-        System.client().show_warning("error")
+        Logger.log_dev(SongFacade.current_track().is_armed)
+        Logger.log_dev(SongFacade.current_track().is_partially_armed)
+        Logger.log_dev(SongFacade.armed_tracks())
+        Logger.log_dev(SongFacade.partially_armed_tracks())

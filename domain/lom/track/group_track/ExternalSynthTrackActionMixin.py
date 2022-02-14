@@ -3,6 +3,7 @@ from functools import partial
 from typing import TYPE_CHECKING, Optional
 
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.StatusBar import StatusBar
@@ -16,15 +17,17 @@ class ExternalSynthTrackActionMixin(object):
     def arm_track(self):
         # type: (ExternalSynthTrack) -> Optional[Sequence]
         self.base_track.is_folded = False
-        self.base_track.mute = False
+        self.base_track.muted = False
 
         if SongFacade.usamo_track():
             SongFacade.usamo_track().input_routing.track = self.midi_track
+            SongFacade.usamo_device().device_on = True  # this is the default: overridden by prophet
 
         self.monitoring_state.monitor_midi()
 
+        Logger.log_dev("arming %s" % self.sub_tracks)
         seq = Sequence()
-        seq.add([sub_track.arm for sub_track in self.sub_tracks if not isinstance(sub_track, SimpleDummyTrack)])
+        seq.add([sub_track.arm_track for sub_track in self.sub_tracks if not isinstance(sub_track, SimpleDummyTrack)])
         return seq.done()
 
     def unarm_track(self):

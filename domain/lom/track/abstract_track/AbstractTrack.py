@@ -184,6 +184,11 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents):
         # type: () -> bool
         return False
 
+    @property
+    def is_partially_armed(self):
+        # type: () -> bool
+        return self.is_armed
+
     @is_armed.setter
     def is_armed(self, is_armed):
         # type: (bool) -> None
@@ -206,24 +211,15 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents):
         return self.base_track.is_playing or any(sub_track.is_playing for sub_track in self.sub_tracks)
 
     @property
-    def mute(self):
+    def muted(self):
         # type: () -> bool
         return self._track and self._track.mute
 
-    @mute.setter
-    def mute(self, mute):
+    @muted.setter
+    def muted(self, mute):
         # type: (bool) -> None
         if self._track:
             self._track.mute = mute
-
-    @property
-    def is_hearable(self):
-        # type: () -> bool
-        return (
-                self.is_playing
-                and self.output_meter_level > 0.2
-                and (not self.abstract_group_track or self.abstract_group_track.is_hearable)
-        )
 
     @property
     def is_recording(self):

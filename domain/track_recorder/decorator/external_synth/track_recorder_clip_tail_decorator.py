@@ -14,6 +14,12 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 
 class TrackRecorderClipTailDecorator(TrackRecorderDecorator, UseFrameworkEvents):
+    # NB : Represents the smoothed momentary peak value of left channel output meter
+    # This value is not zero just after the sound is finished
+    # and this thus not precise for sounds with a low release
+    # But if it were higher we would loose tail ends of sounds with a high release ..
+    OUTPUT_METER_LEFT_THRESHOLD = 0.2
+
     @property
     def track(self):
         # type: (AbstractTrackRecorder) -> ExternalSynthTrack
@@ -28,7 +34,7 @@ class TrackRecorderClipTailDecorator(TrackRecorderDecorator, UseFrameworkEvents)
     @property
     def is_audio_silent(self):
         # type: () -> bool
-        return self.track.audio_tail_track.output_meter_left < 0.1
+        return self.track.audio_tail_track.output_meter_left < self.OUTPUT_METER_LEFT_THRESHOLD
 
     def post_audio_record(self):
         # type: () -> Optional[Sequence]

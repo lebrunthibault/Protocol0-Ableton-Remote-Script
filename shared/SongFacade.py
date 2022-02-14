@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
     from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+    from protocol0.domain.lom.device.Device import Device
     from protocol0.domain.lom.scene.Scene import Scene
     from protocol0.domain.lom.clip.Clip import Clip
     from protocol0.domain.lom.clip.MidiClip import MidiClip  # noqa
@@ -123,6 +124,11 @@ class SongFacade(object):
         return (track for track in cls.abstract_tracks() if track.is_armed)
 
     @classmethod
+    def partially_armed_tracks(cls):
+        # type: () -> Iterator[AbstractTrack]
+        return (track for track in cls.abstract_tracks() if track.is_partially_armed)
+
+    @classmethod
     def prophet_tracks(cls):
         # type: () -> Iterator[ExternalSynthTrack]
         from protocol0.domain.lom.instrument.instrument.InstrumentProphet import InstrumentProphet
@@ -134,7 +140,15 @@ class SongFacade(object):
     @classmethod
     def usamo_track(cls):
         # type: () -> Optional[SimpleTrack]
-        return cls._INSTANCE._song_tracks_service._usamo_track
+        if cls.usamo_device():
+            return cls.usamo_device().track
+        else:
+            return None
+
+    @classmethod
+    def usamo_device(cls):
+        # type: () -> Optional[Device]
+        return cls._INSTANCE._song_tracks_service._usamo_device
 
     @classmethod
     def master_track(cls):

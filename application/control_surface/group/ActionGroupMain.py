@@ -1,6 +1,6 @@
 from functools import partial
 
-from protocol0.application.control_surface.group.ActionGroupMixin import ActionGroupMixin
+from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
 from protocol0.domain.lom.instrument.InstrumentDisplayService import InstrumentDisplayService
 from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService import InstrumentPresetScrollerService
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum

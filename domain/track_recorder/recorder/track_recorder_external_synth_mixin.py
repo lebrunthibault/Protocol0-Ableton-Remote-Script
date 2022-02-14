@@ -1,5 +1,4 @@
 from protocol0.domain.lom.instrument.InstrumentWithEditorInterface import InstrumentWithEditorInterface
-from protocol0.domain.lom.instrument.instrument.InstrumentProphet import InstrumentProphet
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationView import ApplicationView
@@ -25,18 +24,16 @@ class TrackRecorderExternalSynthMixin(object):
         # type: () -> None
         self.track.midi_track.select()
         ApplicationView.show_device()
-        if isinstance(self.track.instrument, InstrumentProphet) and not InstrumentProphet.EDITOR_DEVICE_ON:
-            Scheduler.defer(System.client().show_plugins)
 
     # noinspection PyTypeHints,PyArgumentList
     def _post_record(self):
         # type: (AbstractTrackRecorder) -> None
         from typing import cast
         track = cast(ExternalSynthTrack, self.track)
-        instrument = track.instrument
-        if isinstance(instrument, InstrumentWithEditorInterface):
-            instrument.activate_editor_automation()
-        System.client().hide_plugins()
+        # instrument = track.instrument
+        # if isinstance(instrument, InstrumentWithEditorInterface):
+        #     instrument.activate_editor_automation()
+        # System.client().hide_plugins()
         # this is delayed in the case an encoder is touched after the recording is finished by mistake
         for tick in [1, 10, 50, 100]:
             Scheduler.wait(tick, self._song.re_enable_automation)

@@ -4,7 +4,7 @@ from typing import Optional
 
 from protocol0.domain.lom.device.DeviceService import DeviceService
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
-from protocol0.domain.lom.track.simple_track.event.SimpleTrackArmedEvent import SimpleTrackArmedEvent
+from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.System import System
 from protocol0.shared.SongFacade import SongFacade
@@ -43,7 +43,6 @@ class InstrumentDisplayService(object):
         seq = Sequence()
         if event.track.instrument and event.track.instrument.needs_exclusive_activation:
             seq.add(partial(self.activate_plugin_window, event.track.instrument))
-            seq.add(wait=10)
             seq.add(System.client().hide_plugins)
         return seq.done()
 

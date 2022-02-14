@@ -26,7 +26,7 @@ class ExternalSynthTrackMonitoringState(object):
     @property
     def _monitors_midi(self):
         # type: () -> bool
-        return self._track.midi_track.mute is False
+        return self._track.midi_track.muted is False
 
     def monitor_midi(self):
         # type: () -> None
@@ -39,7 +39,7 @@ class ExternalSynthTrackMonitoringState(object):
             if audio_clip and audio_clip.muted:
                 continue
             midi_clip.muted = False
-            if audio_clip.is_playing:
+            if audio_clip and audio_clip.is_playing:
                 Scheduler.defer(SongFacade.scenes()[midi_clip.index].fire)
 
         # audio track
@@ -56,8 +56,7 @@ class ExternalSynthTrackMonitoringState(object):
             self._track.audio_track.solo = False
 
         # external device
-        if self._track._external_device:
-            self._track._external_device.device_on = True
+        self._track._external_device.device_on = True
 
     # noinspection DuplicatedCode
     def monitor_audio(self):
@@ -81,17 +80,16 @@ class ExternalSynthTrackMonitoringState(object):
             self._track.midi_track.solo = False
 
         # external device
-        if self._track._external_device:
-            self._track._external_device.device_on = False
+        self._track._external_device.device_on = False
 
     def _mute_track(self, track):
         # type: (SimpleTrack) -> None
-        track.mute = True
+        track.muted = True
         track.current_monitoring_state = CurrentMonitoringStateEnum.IN
         track.output_routing.type = OutputRoutingTypeEnum.SENDS_ONLY
 
     def _un_mute_track(self, track):
         # type: (SimpleTrack) -> None
-        track.mute = False
+        track.muted = False
         track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
         track.output_routing.track = track.group_track  # type: ignore[assignment]

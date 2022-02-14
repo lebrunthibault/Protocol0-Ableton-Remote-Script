@@ -5,7 +5,6 @@ from protocol0.domain.lom.scene.ScenesService import SongScenesService
 from protocol0.domain.lom.scene.SelectedDuplicateSceneBarLengthUpdatedEvent import \
     SelectedDuplicateSceneBarLengthUpdatedEvent
 from protocol0.domain.lom.song.SongInitializedEvent import SongInitializedEvent
-from protocol0.domain.lom.song.SongResetedEvent import SongResetedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.track_recorder.RecordingBarLengthEnum import RecordingBarLengthEnum
@@ -34,12 +33,9 @@ class SongDataService(object):
         self._last_manually_started_scene_index = None  # type: Optional[int]
         self._last_manually_started_scene_bar_position = 0
 
-        DomainEventBus.subscribe(SongResetedEvent, lambda _: self.save())
         DomainEventBus.subscribe(SongInitializedEvent, lambda _: self._restore())
         DomainEventBus.subscribe(SelectedRecordingBarLengthUpdatedEvent, lambda _: self.save())
         DomainEventBus.subscribe(SelectedDuplicateSceneBarLengthUpdatedEvent, lambda _: self.save())
-
-        # self._restore()
 
     def save(self):
         # type: () -> None

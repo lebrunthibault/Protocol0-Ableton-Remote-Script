@@ -17,6 +17,7 @@ from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummy
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.decorators import p0_subject_slot
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import find_if
 from protocol0.shared.sequence.Sequence import Sequence
@@ -62,17 +63,19 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
 
     def on_tracks_change(self):
         # type: () -> None
+        self._map_optional_audio_tail_track()
         super(ExternalSynthTrack, self).on_tracks_change()
+        self._link_clip_slots()
 
-        if len(self.base_track.sub_tracks) == len(self.sub_tracks):
-            return
-
+    def _map_optional_audio_tail_track(self):
+        # type: () -> None
         has_tail_track = len(self.base_track.sub_tracks) > 2 and len(self.base_track.sub_tracks[2].devices) == 0
 
         if has_tail_track and not self.audio_tail_track:
             track = self.base_track.sub_tracks[2]
             self.audio_tail_track = SimpleAudioTailTrack(track._track, track._index)
             self.audio_tail_track.abstract_group_track = self
+            self.audio_tail_track.group_track = self.base_track
             Scheduler.defer(self.audio_tail_track.configure)
             self.audio_tail_track.track_name.disconnect()
             Scheduler.defer(partial(setattr, self.audio_tail_track, "name", SimpleAudioTailTrack.DEFAULT_NAME))
@@ -80,8 +83,6 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         elif not has_tail_track:
             self.audio_tail_track = None
             self.record_clip_tails = False
-
-        self._link_clip_slots()
 
     def on_scenes_change(self):
         # type: () -> None
@@ -121,6 +122,8 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     def _devices_listener(self):
         # type: () -> None
         self._external_device = find_if(lambda d: d.is_external_device, self.midi_track.devices)
+        if self._external_device is None:
+            raise Protocol0Warning("%s should have an external device" % self)
 
     @property
     def instrument(self):
@@ -146,6 +149,11 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     def is_armed(self):
         # type: () -> bool
         return all(sub_track.is_armed for sub_track in self.sub_tracks if not isinstance(sub_track, SimpleDummyTrack))
+
+    @property
+    def is_partially_armed(self):
+        # type: () -> bool
+        return any(sub_track.is_armed for sub_track in self.sub_tracks if not isinstance(sub_track, SimpleDummyTrack))
 
     @is_armed.setter
     def is_armed(self, is_armed):

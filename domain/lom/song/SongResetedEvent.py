@@ -1,2 +1,0 @@
-class SongResetedEvent(object):
-    pass

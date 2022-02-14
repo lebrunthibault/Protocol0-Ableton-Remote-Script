@@ -1,6 +1,6 @@
 from itertools import chain
 
-from typing import List, Optional, Type
+from typing import List, Optional
 
 import Live
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot

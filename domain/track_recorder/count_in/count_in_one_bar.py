@@ -1,6 +1,7 @@
 from functools import partial
 
 from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.track_recorder.count_in.count_in_interface import CountInInterface
 
@@ -22,5 +23,5 @@ class CountInOneBar(CountInInterface):
 
     def _stop_count_in(self):
         # type: () -> None
-        if len(list(filter(None, [t.is_hearable for t in self._song.abstract_tracks]))) > 1:
+        if len([clip for clip in SongFacade.selected_scene().clips if not clip.muted]) >= 1:
             self._song.metronome = False

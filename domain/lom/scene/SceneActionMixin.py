@@ -11,7 +11,6 @@ from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import scroll_values
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.logging.StatusBar import StatusBar
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -108,10 +107,6 @@ class SceneActionMixin(object):
         # type: (Scene) -> None
         for clip in self.audio_tail_clips:
             abstract_track = cast(ExternalSynthTrack, clip.track.abstract_track)
-            # do not trigger tail on monophonic loop when audio clip plays on next scene
-            # NB : the .MONOPHONIC breaks everything !
-            # if clip.track.instrument.MONOPHONIC and self.next_scene.clip_slots[clip.track.index - 1].clip:
-            #     continue
             if abstract_track.audio_track.clip_slots[clip.index].clip.muted:
                 continue
 
@@ -162,10 +157,8 @@ class SceneActionMixin(object):
 
     def _crop_clips_to_bar_length(self, bar_length):
         # type: (Scene, int) -> None
-        Logger.log_dev("clips: %s" % self.clips)
         for clip in self.clips:
             if isinstance(clip, AudioTailClip):
-                Logger.log_dev("deleting %s" % clip)
                 clip.delete()
                 return
 
@@ -177,15 +170,12 @@ class SceneActionMixin(object):
             if isinstance(clip, AudioTailClip):
                 continue
 
-            Logger.log_dev("handling %s -> %s" % (clip, clip.bar_length))
-
             if clip.bar_length <= bar_length:
                 if not clip.looping:
                     clip.delete()
                 continue
 
             offset = bar_length * SongFacade.signature_numerator()
-            Logger.log_dev("offset of %s: %s" % (clip, offset))
             clip.start_marker += offset
             clip.loop_start += offset
 

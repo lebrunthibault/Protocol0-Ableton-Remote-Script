@@ -8,7 +8,7 @@ from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceChain import DeviceChain
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.RackDevice import RackDevice
-from protocol0.domain.lom.track.simple_track.event.SimpleTrackArmedEvent import SimpleTrackArmedEvent
+from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.utils import find_if
 
@@ -24,7 +24,7 @@ class SimpleTrackActionMixin(object):
         if self.is_foldable:
             self.is_folded = not self.is_folded  # type: ignore[has-type]
         else:
-            self.mute = False
+            self.muted = False
             self.is_armed = True
 
         DomainEventBus.notify(SimpleTrackArmedEvent(self))

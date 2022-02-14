@@ -29,8 +29,7 @@ class SongService(object):
         if SongFacade.clip_trigger_quantization() == Live.Song.Quantization.q_no_q:
             System.client().show_warning("The global launch quantization is set to None")
 
-        for armed_track in SongFacade.armed_tracks():
-            Scheduler.defer(armed_track.unarm)
+        self._song.unfocus_all_tracks()
 
         startup_track = self._get_startup_track()
         DomainEventBus.notify(SongInitializedEvent())
