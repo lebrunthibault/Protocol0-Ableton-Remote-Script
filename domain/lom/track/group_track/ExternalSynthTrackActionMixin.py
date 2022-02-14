@@ -3,10 +3,9 @@ from functools import partial
 from typing import TYPE_CHECKING, Optional
 
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
-from protocol0.shared.logging.Logger import Logger
-from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.StatusBar import StatusBar
+from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
@@ -25,7 +24,6 @@ class ExternalSynthTrackActionMixin(object):
 
         self.monitoring_state.monitor_midi()
 
-        Logger.log_dev("arming %s" % self.sub_tracks)
         seq = Sequence()
         seq.add([sub_track.arm_track for sub_track in self.sub_tracks if not isinstance(sub_track, SimpleDummyTrack)])
         return seq.done()
@@ -51,8 +49,13 @@ class ExternalSynthTrackActionMixin(object):
 
     def copy_and_paste_clips_to_new_scene(self):
         # type: (ExternalSynthTrack) -> Sequence
+        current_track = self
+        if SongFacade.selected_scene() != SongFacade.looping_scene():
+            SongFacade.selected_scene().toggle_loop()
         seq = Sequence()
-        seq.add(SongFacade.selected_scene().duplicate())
-        seq.add(lambda: SongFacade.current_external_synth_track().midi_track.clips[SongFacade.selected_scene().index].select)
+        seq.add(SongFacade.selected_scene().duplicate)
+        seq.add(current_track.midi_track.clips[SongFacade.selected_scene().index].select)
+        seq.add(SongFacade.selected_scene().fire)
+        # NB : deactivate clip slot synchronizer before doing this
+        # seq.add(lambda: SongFacade.current_external_synth_track().midi_track.clips[SongFacade.selected_scene().index].crop)
         return seq.done()
-        # seq.add(lambda: SongFacade.current_external_synth_track().midi_track.clips[SongFacade.selected_scene().index].cro)

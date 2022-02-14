@@ -28,7 +28,6 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         if not SongFacade.selected_track().IS_ACTIVE:
             return None
-        Logger.log_dev("%s is armed: %s" % (self, self.is_armed))
         if self.is_armed:
             self.unarm()
         else:
@@ -50,7 +49,6 @@ class AbstractTrackActionMixin(object):
 
     def arm(self):
         # type: (AbstractTrack) -> Optional[Sequence]
-        Logger.log_dev("arming %s : %s" % (self, self.is_armed))
         if self.is_armed:
             return None
         self._song.unfocus_all_tracks()

@@ -4,7 +4,6 @@ from protocol0.domain.lom.clip.AudioTailClip import AudioTailClip
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 
 
 class ClipSynchronizer(ObjectSynchronizer):
@@ -17,10 +16,8 @@ class ClipSynchronizer(ObjectSynchronizer):
             properties += ["looping"]
             # not muted because we want to mute only midi clips
 
-            if midi_clip.length == audio_clip.length:
-                properties += ["loop_start", "loop_end", "start_marker", "end_marker"]
-
-        Logger.log_dev("%s <-> %s : %s" % (midi_clip, audio_clip, properties))
+            # if midi_clip.length == audio_clip.length:
+            properties += ["loop_start", "loop_end", "start_marker", "end_marker"]
 
         # check we are not in the clip tail case
         if not audio_clip.is_recording and audio_clip.bar_length not in (

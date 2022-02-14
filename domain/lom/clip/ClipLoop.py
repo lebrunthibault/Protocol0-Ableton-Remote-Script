@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING
 
 from protocol0.domain.shared.System import System
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.clip.Clip import Clip
@@ -36,14 +35,6 @@ class ClipLoop(object):
         self._clip.start_marker = start
         self._clip.loop_start = start
 
-    def scroll_start(self, go_next):
-        # type: (bool) -> None
-        factor = 1 if go_next else -1
-        start = self.start + (factor * SongFacade.signature_numerator())
-        if start >= self.end or start < 0:
-            return
-        self.start = start
-
     @property
     def end(self):
         # type: () -> float
@@ -65,14 +56,33 @@ class ClipLoop(object):
         self._clip.end_marker = end
         self._clip.loop_end = end
 
+    def scroll_start(self, go_next):
+        # type: (bool) -> None
+        factor = 1 if go_next else -1
+        start = self.start + (factor * SongFacade.signature_numerator())
+        if start >= self.end or start < 0:
+            return
+        self.start = start
+
     def scroll_end(self, go_next):
         # type: (bool) -> None
         factor = 1 if go_next else -1
         end = self.end + (factor * SongFacade.signature_numerator())
-        Logger.log_dev("end is %s" % end)
-        Logger.log_dev("self._clip.length is %s" % self._clip.length)
-        Logger.log_dev("self.start is %s" % self.start)
         if end <= self.start:
-            Logger.log_dev("end not valid")
             return
         self.end = end
+
+    def scroll_loop(self, go_next):
+        # type: (bool) -> None
+        factor = 1 if go_next else -1
+        start = self.start + (factor * SongFacade.signature_numerator())
+        end = self.end + (factor * SongFacade.signature_numerator())
+        if start < 0:
+            return
+
+        self.start = start
+        self.end = end
+
+    def set_loop_bar_length(self, bar_length):
+        # type: (int) -> None
+        self.end = self.start + (bar_length * SongFacade.signature_numerator())

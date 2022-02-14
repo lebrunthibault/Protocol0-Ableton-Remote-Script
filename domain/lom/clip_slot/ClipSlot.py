@@ -95,7 +95,7 @@ class ClipSlot(UseFrameworkEvents):
     def delete_clip(self):
         # type: () -> Sequence
         seq = Sequence()
-        if self._clip_slot and self.clip:
+        if self._clip_slot and self.has_clip and self.clip:
             seq.add(self._clip_slot.delete_clip, complete_on=self.has_clip_listener)
         return seq.done()
 

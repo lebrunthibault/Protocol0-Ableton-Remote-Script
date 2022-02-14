@@ -55,7 +55,7 @@ class TrackRecorderService(object):
     def record_track(self, track, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
         # assert there is a scene we can record on
-        if self._recorder:
+        if self._recorder is not None:
             self.cancel_record()
             return None
 
