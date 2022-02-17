@@ -25,4 +25,4 @@ class ActionGroupTest(ActionGroupMixin):
 
     def action_test(self):
         # type: () -> None
-        SongFacade.selected_midi_clip().crop()
+        self._song.back_to_arranger = False

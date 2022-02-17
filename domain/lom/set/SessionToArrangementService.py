@@ -73,6 +73,6 @@ class SessionToArrangementService(object):
         self._song.reset()
         self._song.record_mode = False
         self._song.tempo = self._tempo
-        self._song.back_to_arranger = True
+        self._song.back_to_arranger = False
         ApplicationView.show_arrangement()
         self._is_bouncing = False

@@ -49,4 +49,5 @@ class TrackRecorderExternalSynthAudio(TrackRecorderExternalSynthMixin, AbstractT
     def post_audio_record(self):
         # type: () -> None
         super(TrackRecorderExternalSynthAudio, self).post_audio_record()
+        self.track.audio_track.clip_slots[self.recording_scene_index].clip.color = self.track.color
         DomainEventBus.notify(ExternalSynthAudioRecordingEndedEvent(self.track))
