@@ -3,6 +3,8 @@ from functools import partial
 from protocol0.domain.lom.device.PluginDevice import PluginDevice
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.instrument.preset.PresetDisplayOptionEnum import PresetDisplayOptionEnum
+from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+from protocol0.domain.shared.decorators import lock
 from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
@@ -16,24 +18,19 @@ class InstrumentPresetScrollerService(object):
     PRESET_DISPLAY_OPTION = PresetDisplayOptionEnum.NAME
     PROGRAM_CHANGE_OFFSET = 0  # if we store presets not at the beginning of the list
 
+    @lock
     def scroll_presets_or_samples(self, instrument, go_next):
         # type: (InstrumentInterface, bool) -> Sequence
         ApplicationView.show_device()
 
         seq = Sequence()
-        if not instrument.can_change_presets:
-            seq.add(self._disable_protected_mode)
+        track = instrument.track.abstract_track
+        if isinstance(track, ExternalSynthTrack) and not track.can_change_presets:
+            seq.add(track.disable_protected_mode)
+            return seq.done()
 
         seq.add(partial(instrument.preset_list.scroll, go_next=go_next))
         seq.add(partial(self._sync_selected_preset, instrument))
-        return seq.done()
-
-    def _disable_protected_mode(self, instrument):
-        # type: (InstrumentInterface) -> Sequence
-        seq = Sequence()
-        seq.prompt("Disable protected mode ?")
-        seq.add(partial(setattr, instrument, "protected_mode_active", False))
-        seq.add(partial(StatusBar.show_message, "track protected mode disabled"))
         return seq.done()
 
     def scroll_preset_categories(self, instrument, go_next):

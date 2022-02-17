@@ -30,6 +30,7 @@ class AbletonTrack(Subject):
         self.devices = []  # type: List[Live.Device.Device]
         self.can_be_armed = True
         self.arm = False
+        self.solo = False
         self.fold_state = False
         self.is_visible = True
         self.has_midi_input = self.has_audio_output = self.is_foldable = self.fold_state = False

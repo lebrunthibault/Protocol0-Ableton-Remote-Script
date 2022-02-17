@@ -59,11 +59,6 @@ class InstrumentInterface(object):
         # type: () -> Optional[Sequence]
         pass
 
-    @property
-    def can_change_presets(self):
-        # type: () -> bool
-        return True
-
     # noinspection PyMethodParameters
     @forward_property("preset_list")
     def selected_preset():

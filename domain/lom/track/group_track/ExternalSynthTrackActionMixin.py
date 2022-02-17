@@ -39,7 +39,7 @@ class ExternalSynthTrackActionMixin(object):
                not self.protected_mode_active or \
                not self.instrument.HAS_PROTECTED_MODE
 
-    def _disable_protected_mode(self):
+    def disable_protected_mode(self):
         # type: (ExternalSynthTrack) -> Sequence
         seq = Sequence()
         seq.prompt("Disable protected mode ?")

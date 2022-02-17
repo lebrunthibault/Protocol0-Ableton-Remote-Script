@@ -1,11 +1,11 @@
 import pytest
 
-from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.decorators import has_callback_queue
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.scheduler.BarEndingEvent import BarEndingEvent
 from protocol0.domain.shared.utils import nop
+from protocol0.shared.sequence.Sequence import Sequence
 
 
 def test_sanity_checks():
@@ -60,12 +60,22 @@ def test_async_callback_execution_order():
 
 def test_sequence_cancel():
     # type: () -> None
+    """ A cancelled inner seq will cancel all parent sequences """
     test_res = []
 
     def inner_seq():
         # type: () -> Sequence
         seq = Sequence()
         return seq.done()
+
+    seq = Sequence()
+    seq.add(inner_seq)
+    seq.add(lambda: test_res.append(True))
+    seq.done()
+
+    assert test_res == [True]
+
+    test_res = []
 
     def inner_seq_cancel():
         # type: () -> Sequence
@@ -78,13 +88,19 @@ def test_sequence_cancel():
     seq.add(lambda: test_res.append(True))
     seq.done()
     assert test_res == []
+    assert seq.cancelled
+
+    def inner_inner_seq_cancel():
+        seq = Sequence()
+        seq.add(inner_seq_cancel)
+        return seq.done()
 
     seq = Sequence()
-    seq.add(inner_seq)
+    seq.add(inner_inner_seq_cancel)
     seq.add(lambda: test_res.append(True))
     seq.done()
-
-    assert test_res == [True]
+    assert test_res == []
+    assert seq.cancelled
 
 
 def test_wait_for_event():

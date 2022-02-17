@@ -110,8 +110,9 @@ class SequenceStep(SequenceStateMachineMixin):
             if not self.errored:
                 self.error(e.message)
 
-    def _check_for_step_completion(self, _=None):
+    def _check_for_step_completion(self, res=None):
         # type: (Any) -> None
+        self.res = res
         if self._wait:
             Scheduler.wait(self._wait, self.terminate)
             return

@@ -1,11 +1,12 @@
 from collections import defaultdict
 from functools import wraps, partial
 
-from typing import Any, Callable, TYPE_CHECKING
+from typing import Any, Callable, TYPE_CHECKING, Optional
 
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import is_method
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.types import Func
 
 if TYPE_CHECKING:
@@ -64,12 +65,39 @@ def defer(func):
     return decorate
 
 
+def lock(func):
+    # type: (Func) -> Func
+    from protocol0.shared.sequence.Sequence import Sequence
+
+    @wraps(func)
+    def decorate(*a, **k):
+        # type: (Any, Any) -> Optional[Sequence]
+        object_source = a[0] if is_method(func) else decorate
+        if decorate.lock[object_source]:  # type: ignore[attr-defined]
+            Logger.log_dev("already executing !")
+            return None
+
+        decorate.lock[object_source] = True  # type: ignore[attr-defined]
+
+        def unlock():
+            decorate.lock[object_source] = False  # type: ignore[attr-defined]
+
+        seq = Sequence()
+        seq.add(partial(func, *a, **k))
+        seq.add(unlock)
+        return seq.done()
+
+    decorate.lock = defaultdict(int)
+
+    return decorate
+
+
 def debounce(wait_time=100):
-    # type: (int) -> Callable
+    # type: (int) -> Func
     """ here we make the method dynamic """
 
     def wrap(func):
-        # type: (Callable) -> Callable
+        # type: (Func) -> Func
         @wraps(func)
         def decorate(*a, **k):
             # type: (Any, Any) -> None
@@ -92,9 +120,9 @@ def debounce(wait_time=100):
 
 
 def throttle(wait_time=100):
-    # type: (int) -> Callable
+    # type: (int) -> Func
     def wrap(func):
-        # type: (Callable) -> Callable
+        # type: (Func) -> Func
         @wraps(func)
         def decorate(*a, **k):
             # type: (Any, Any) -> Any
