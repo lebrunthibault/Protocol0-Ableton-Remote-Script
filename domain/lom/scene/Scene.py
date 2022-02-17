@@ -186,5 +186,5 @@ class Scene(SceneActionMixin, UseFrameworkEvents):
     @property
     def longest_clip(self):
         # type: () -> Optional[Clip]
-        clips = [clip for clip in self.clips if not clip.is_recording and not clip.muted]
+        clips = [clip for clip in self.clips if not clip.is_recording]
         return None if not len(clips) else max(clips, key=lambda c: c.length if c else 0)

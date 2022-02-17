@@ -2,6 +2,7 @@ from functools import partial
 
 from typing import Optional, TYPE_CHECKING
 
+from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -34,6 +35,7 @@ class TrackRecorderService(object):
         self._song = song
         self.selected_recording_bar_length = RecordingBarLengthEnum.UNLIMITED
         self._recorder = None  # type: Optional[AbstractTrackRecorder]
+        DomainEventBus.subscribe(SongStoppedEvent, self._on_song_stopped_event)
 
     def scroll_recording_time(self, go_next):
         # type: (bool) -> None
@@ -85,7 +87,6 @@ class TrackRecorderService(object):
         seq.add(count_in.launch)
         seq.add(partial(recorder.record, bar_length=bar_length))
         seq.add(recorder.post_audio_record)
-        # seq.add(wait_for_event=BarEndingEvent)
         seq.add(partial(recorder.post_record, bar_length=bar_length))
         seq.add(SongFacade.selected_scene().fire)
         seq.add(partial(setattr, self, "_recorder", None))
@@ -98,3 +99,12 @@ class TrackRecorderService(object):
         self._recorder.cancel_record()
         self._recorder = None
         System.client().show_warning("Record cancelled")
+
+    def _on_song_stopped_event(self, _):
+        # type: (SongStoppedEvent) -> None
+        """ happens when manually stopping song while recording."""
+        if self._recorder is None or self.selected_recording_bar_length.bar_length_value == 0:
+            return
+        else:
+            # we could cancel the record here also
+            self._recorder = None

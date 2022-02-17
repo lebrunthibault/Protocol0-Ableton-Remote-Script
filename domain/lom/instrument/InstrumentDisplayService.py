@@ -24,7 +24,7 @@ class InstrumentDisplayService(object):
 
         seq = Sequence()
         if not instrument.activated or instrument.needs_exclusive_activation:
-            seq.add(partial(self.activate_plugin_window, instrument, select_instrument_track=True))
+            seq.add(partial(self.activate_plugin_window, instrument))
         else:
             seq.add(instrument.device.track.select)
             if SongFacade.selected_track() != instrument.device.track:

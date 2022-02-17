@@ -149,6 +149,8 @@ class SongScenesService(UseFrameworkEvents):
         # type: (SongStartedEvent) -> None
         # launch selected scene by clicking on play song
         if ApplicationView.is_session_view_active() and not SongFacade.selected_scene().has_playing_clips:
+            self._song.stop_all_clips(quantized=False)
+            self._song.stop_playing()
             SongFacade.selected_scene().fire()
 
     def scroll_scenes(self, go_next):
