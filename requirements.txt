@@ -30,7 +30,6 @@ qualname==0.1.0
 scandir==1.10.0
 singledispatch==3.7.0
 six==1.16.0
-transitions==0.8.7
 typing==3.7.4.3
 typing-extensions==3.7.4.3
 urllib3==1.26.6

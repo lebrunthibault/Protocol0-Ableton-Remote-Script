@@ -30,8 +30,8 @@ class Device(UseFrameworkEvents):
         # type: () -> str
         return "%s %s" % (self.__class__.name, self.name)
 
-    @staticmethod
-    def get_class(device):
+    @classmethod
+    def get_class(cls, device):
         # type: (Any) -> Type[Device]
         if isinstance(device, Live.RackDevice.RackDevice):
             from protocol0.domain.lom.device.RackDevice import RackDevice

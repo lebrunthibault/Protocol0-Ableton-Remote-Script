@@ -17,9 +17,6 @@ def test_sanity_checks():
     seq.done()
     assert seq.terminated
 
-    with pytest.raises(AssertionError):
-        seq.add(wait=1)
-
     with pytest.raises(Protocol0Error):
         Sequence().add(wait=1, complete_on=lambda: True).done()
 
@@ -61,52 +58,6 @@ def test_async_callback_execution_order():
     obj.listener()
 
 
-# def test_sequence_cancel():
-#     # type: () -> None
-#     """ A cancelled inner seq will cancel all parent sequences """
-#     # test_res = []
-#     #
-#     # def inner_seq():
-#     #     # type: () -> Sequence
-#     #     seq = Sequence()
-#     #     return seq.done()
-#     #
-#     # seq = Sequence()
-#     # seq.add(inner_seq)
-#     # seq.add(lambda: test_res.append(True))
-#     # seq.done()
-#     #
-#     # assert test_res == [True]
-#
-#     test_res = []
-#
-#     def inner_seq_cancel():
-#         # type: () -> Sequence
-#         seq = Sequence()
-#         seq.add(seq.cancel)
-#         return seq.done()
-#
-#     seq = Sequence()
-#     seq.add(inner_seq_cancel)
-#     seq.add(lambda: test_res.append(True))
-#     seq.done()
-#     assert test_res == []
-#     assert seq.cancelled
-#     return
-#
-#     def inner_inner_seq_cancel():
-#         seq = Sequence()
-#         seq.add(inner_seq_cancel)
-#         return seq.done()
-#
-#     seq = Sequence()
-#     seq.add(inner_inner_seq_cancel)
-#     seq.add(lambda: test_res.append(True))
-#     seq.done()
-#     assert test_res == []
-#     assert seq.cancelled
-
-
 def test_wait_for_event():
     test_res = []
 
@@ -116,7 +67,7 @@ def test_wait_for_event():
     seq.done()
 
     assert test_res == []
-    seq.cancel()
+    seq._cancel()
 
     seq2 = Sequence()
     seq2.add(wait_for_event=BarEndingEvent, name="event wait seq 2")
@@ -128,7 +79,7 @@ def test_wait_for_event():
     assert test_res == [True]
 
 
-def test_wait_for_any_event():
+def test_wait_for_events():
     test_res = []
 
     def inner_seq():
@@ -139,7 +90,7 @@ def test_wait_for_any_event():
 
     seq = inner_seq()
     assert test_res == []
-    seq.cancel()
+    seq._cancel()
 
     inner_seq()
     DomainEventBus.notify(BarEndingEvent())

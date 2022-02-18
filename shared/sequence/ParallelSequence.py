@@ -1,5 +1,6 @@
 from _Framework.SubjectSlot import subject_slot_group
 from protocol0.shared.sequence.Sequence import Sequence
+from protocol0.shared.sequence.SequenceState import SequenceStateEnum
 from protocol0.shared.sequence.SequenceStep import SequenceStep
 
 
@@ -11,10 +12,11 @@ class ParallelSequence(Sequence):
         super(ParallelSequence, self).__init__()
         self._steps_terminated_count = 0
 
-    def _on_start(self):
+    def start(self):
         # type: () -> None
+        self.change_state(SequenceStateEnum.STARTED)
         if len(self._steps) == 0:
-            self.check_for_parallel_step_completion()
+            self._check_for_parallel_step_completion()
             return
         for step in self._steps:  # type: SequenceStep
             self._parallel_step_termination.add_subject(step)
@@ -24,9 +26,15 @@ class ParallelSequence(Sequence):
     def _parallel_step_termination(self, _):
         # type: (Sequence) -> None
         self._steps_terminated_count += 1
-        self.check_for_parallel_step_completion()
+        self._check_for_parallel_step_completion()
 
-    def check_for_parallel_step_completion(self):
+    def _check_for_parallel_step_completion(self):
         # type: () -> None
         if self._steps_terminated_count == len(self._steps):
-            self.terminate()
+            self._terminate()
+
+    def _terminate(self):
+        # type: () -> None
+        self.change_state(SequenceStateEnum.TERMINATED)
+        self.disconnect()
+        self.notify_terminated()  # type: ignore[attr-defined]

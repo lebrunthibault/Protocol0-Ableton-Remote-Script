@@ -62,6 +62,8 @@ def test_parallel_listeners():
     seq.add(check_res)
     seq.done()
 
+    return
+
     # subject_slot
 
     test_res_subject_slot = []  # type: List[int]

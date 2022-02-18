@@ -4,6 +4,7 @@ import Live
 from _Framework.SubjectSlot import Subject
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.tests.fixtures.clip_slot import AbletonClipSlot
+from protocol0.tests.fixtures.device import AbletonDevice
 
 
 class TrackType(object):
@@ -27,7 +28,7 @@ class AbletonTrack(Subject):
         # type: (str, str) -> None
         self._live_ptr = id(self)
         self.name = track_type
-        self.devices = []  # type: List[Live.Device.Device]
+        self.devices = []  # type: List[AbletonDevice]
         self.can_be_armed = True
         self.arm = False
         self.solo = False
@@ -65,16 +66,3 @@ def add_track(track_type):
     SongFacade.live_song().tracks.append(cast(Live.Track.Track, live_track))
     return live_track
 
-
-def add_external_synth_track(add_tail=False):
-    # type: (bool) -> AbletonTrack
-    group_track = add_track(track_type=TrackType.GROUP)
-    midi_track = add_track(track_type=TrackType.MIDI)
-    audio_track = add_track(track_type=TrackType.AUDIO)
-    midi_track.group_track = group_track
-    audio_track.group_track = group_track
-
-    if add_tail:
-        audio_tail_track = add_track(track_type=TrackType.AUDIO)
-        audio_tail_track.group_track = group_track
-    return group_track

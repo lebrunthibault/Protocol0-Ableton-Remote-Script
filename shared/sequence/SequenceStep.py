@@ -2,6 +2,7 @@ from functools import partial
 
 from typing import TYPE_CHECKING, Iterable, Any, Union, Callable, Optional, cast, List, Type
 
+from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
@@ -11,6 +12,7 @@ from protocol0.domain.shared.utils import get_callable_repr, nop
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.CallbackDescriptor import CallableWithCallbacks
 from protocol0.shared.sequence.SequenceError import SequenceError
+from protocol0.shared.sequence.SequenceState import SequenceStateEnum
 from protocol0.shared.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
 from protocol0.shared.sequence.TimeoutLimit import TimeoutLimit
 
@@ -31,7 +33,9 @@ def _has_callback_queue(func):
     )
 
 
-class SequenceStep(SequenceStateMachineMixin):
+class SequenceStep(UseFrameworkEvents, SequenceStateMachineMixin):
+    __subject_events__ = ("terminated", "errored", "cancelled")
+
     def __init__(
             self,
             func,  # type: Callable
@@ -62,7 +66,8 @@ class SequenceStep(SequenceStateMachineMixin):
         self._callback_timeout = None  # type: Optional[Callable]
         self.res = None  # type: Optional[Any]
 
-        waiting_conditions = iter([self._wait, self._wait_beats, self.wait_for_system, self._wait_for_events, self._complete_on])
+        waiting_conditions = iter(
+            [self._wait, self._wait_beats, self.wait_for_system, self._wait_for_events, self._complete_on])
         if any(waiting_conditions) and any(waiting_conditions):
             raise Protocol0Error("Found multiple concurrent waiting conditions in %s" % self)
         if self.no_cancel:
@@ -102,23 +107,24 @@ class SequenceStep(SequenceStateMachineMixin):
 
         return SequenceStep(callback, sequence=sequence, *a, **k)
 
-    def _on_start(self):
+    def start(self):
         # type: () -> None
+        self.change_state(SequenceStateEnum.STARTED)
         try:
             self._execute()
         except SequenceError as e:
             if not self.errored:
-                self.error(e.message)
+                self._error(e.message)
 
     def _check_for_step_completion(self, res=None):
         # type: (Any) -> None
         self.res = res
         if self._wait:
-            Scheduler.wait(self._wait, self.terminate)
+            Scheduler.wait(self._wait, self._terminate)
             return
 
         if self._wait_beats:
-            Scheduler.wait_beats(self._wait_beats, self.terminate)
+            Scheduler.wait_beats(self._wait_beats, self._terminate)
             return
 
         if self._wait_for_events:
@@ -130,7 +136,7 @@ class SequenceStep(SequenceStateMachineMixin):
             self._handle_complete_on()
             return
 
-        self.terminate()
+        self._terminate()
 
     def _handle_complete_on(self):
         # type: () -> None
@@ -152,17 +158,17 @@ class SequenceStep(SequenceStateMachineMixin):
 
     def _on_event(self, _):
         # type: (object) -> None
-        self.terminate()
+        self._terminate()
         for event in self._wait_for_events:
             DomainEventBus.un_subscribe(event, self._on_event)
 
     def _postpone_termination_after_listener(self, listener):
         # type: (CallableWithCallbacks) -> None
         if not self._check_timeout:
-            listener.add_callback(self.terminate)
+            listener.add_callback(self._terminate)
         else:
             self._callback_timeout = TimeoutLimit(
-                func=self.terminate,
+                func=self._terminate,
                 awaited_listener=listener,
                 timeout_limit=self._check_timeout,
                 on_timeout=self._step_timed_out,
@@ -176,7 +182,7 @@ class SequenceStep(SequenceStateMachineMixin):
         except SequenceError:
             raise
         except Exception:
-            self.error()
+            self._error()
             DomainEventBus.notify(ErrorRaisedEvent("%s : %s" % (self._sequence_name, self)))
             raise SequenceError()  # will stop sequence processing
 
@@ -188,13 +194,13 @@ class SequenceStep(SequenceStateMachineMixin):
 
         if isinstance(res, Sequence):
             if res.errored:
-                self.error()
+                self._error()
             elif res.cancelled:
                 self.cancel()
             elif res.terminated:
                 self._check_for_step_completion(res.res)
             else:
-                self._step_sequence_terminated_listener.subject = res  # type: ignore[attr-defined]
+                self._sequence_terminated_listener.subject = res  # type: ignore[attr-defined]
                 if not res.started:
                     res.start()
         else:
@@ -207,23 +213,42 @@ class SequenceStep(SequenceStateMachineMixin):
 
         Logger.log_warning("timeout completion error on %s" % self)
 
-        self.error()
+        self._error()
 
     @p0_subject_slot("terminated")
-    def _step_sequence_terminated_listener(self):
+    def _sequence_terminated_listener(self):
         # type: () -> None
-        self.res = self._step_sequence_terminated_listener.subject.res
+        self.res = self._sequence_terminated_listener.subject.res
         try:
             self._check_for_step_completion()
         except SequenceError as e:
-            self.error(e.message)
+            self._error(e.message)
 
-    def _on_cancel(self):
-        # type: () -> None
-        print("cancelling %s" % self)
-        self._on_terminate()
+    def _error(self, message=None):
+        # type: (Optional[str]) -> None
+        if message:
+            Logger.log_error(message)
+        self.change_state(SequenceStateEnum.ERRORED)
+        self.notify_errored()  # type: ignore[attr-defined]
+        self.disconnect()
 
-    def _on_terminate(self):
+    def cancel(self, notify=True):
+        # type: (bool) -> None
+        self.change_state(SequenceStateEnum.CANCELLED)
+        if notify:
+            self.notify_cancelled()  # type: ignore[attr-defined]
+        self.disconnect()
+
+    def _terminate(self):
         # type: () -> None
+        if self.cancelled:
+            return
+        self.change_state(SequenceStateEnum.TERMINATED)
+        self.notify_terminated()  # type: ignore[attr-defined]
+        self.disconnect()
+
+    def disconnect(self):
+        # type: () -> None
+        super(SequenceStep, self).disconnect()
         for event in self._wait_for_events:
             DomainEventBus.un_subscribe(event, self._on_event)

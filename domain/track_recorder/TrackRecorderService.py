@@ -2,7 +2,6 @@ from functools import partial
 
 from typing import Optional, TYPE_CHECKING
 
-from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -56,7 +55,6 @@ class TrackRecorderService(object):
 
     def record_track(self, track, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
-        # assert there is a scene we can record on
         if self._recorder is not None:
             self.cancel_record()
             return None
@@ -65,6 +63,7 @@ class TrackRecorderService(object):
         recording_scene_index = recorder_factory.get_recording_scene_index(record_type)
 
         seq = Sequence()
+        # assert there is a scene we can record on
         if recording_scene_index is None:
             recording_scene_index = len(SongFacade.scenes())
             seq.add(self._song.create_scene)
@@ -100,11 +99,11 @@ class TrackRecorderService(object):
         self._recorder = None
         System.client().show_warning("Record cancelled")
 
-    def _on_song_stopped_event(self, _):
-        # type: (SongStoppedEvent) -> None
-        """ happens when manually stopping song while recording."""
-        if self._recorder is None or self.selected_recording_bar_length.bar_length_value == 0:
-            return
-        else:
-            # we could cancel the record here also
-            self._recorder = None
+    # def _on_song_stopped_event(self, _):
+    #     # type: (SongStoppedEvent) -> None
+    #     """ happens when manually stopping song while recording."""
+    #     if self._recorder is None or self.selected_recording_bar_length.bar_length_value == 0:
+    #         return
+    #     else:
+    #         # we could cancel the record here also
+    #         self._recorder = None
