@@ -124,12 +124,12 @@ class Sequence(SequenceStateMachineMixin):
     @p0_subject_slot("cancelled")
     def _step_cancelled(self):
         # type: () -> None
+        print("step cancelled: %s" % self._step_cancelled.subject)
+        print("seq state : %s" % self.state)
         self.cancel()
 
     def _on_final_step(self):
         # type: () -> None
-        # if self._current_step:
-        #     self._current_step.terminate()
         try:
             self.RUNNING_SEQUENCES.remove(self)
         except ValueError:
@@ -137,6 +137,9 @@ class Sequence(SequenceStateMachineMixin):
 
     def _on_cancel(self):
         # type: () -> None
+        print("cancelling %s" % self)
+        if self._current_step:
+            self._current_step.terminate()
         self._on_final_step()
 
     def _on_terminate(self):
@@ -158,6 +161,7 @@ class Sequence(SequenceStateMachineMixin):
             wait_bars=0,  # type: float
             wait_for_system=False,  # type: bool
             wait_for_event=None,  # type: Type[object]
+            wait_for_events=None,  # type: List[Type[object]]
             no_cancel=False,  # type: bool
             complete_on=None,  # type: Callable
             no_timeout=False,  # type: bool
@@ -171,8 +175,16 @@ class Sequence(SequenceStateMachineMixin):
             func,
             self,
         )
+        assert not (wait_for_event and wait_for_events), "You used both wait_for_event and wait_for_events"
+        if wait_for_events:
+            assert isinstance(wait_for_events, List), "wait_for_events should be a List"
+        else:
+            wait_for_events = []
+
+        if wait_for_event:
+            wait_for_events = [wait_for_event]
+
         assert not self.has_final_state
-        # assert not isinstance(func, Sequence), "You passed a Sequence object instead of a Sequence factory to add"
 
         if wait_bars:
             wait_beats += wait_bars * SongFacade.signature_numerator()
@@ -184,7 +196,7 @@ class Sequence(SequenceStateMachineMixin):
                 wait=wait,
                 wait_beats=wait_beats,
                 wait_for_system=wait_for_system,
-                wait_for_event=wait_for_event,
+                wait_for_events=wait_for_events,
                 no_cancel=no_cancel,
                 complete_on=complete_on,
                 check_timeout=0 if no_timeout else 4,

@@ -35,7 +35,7 @@ class TrackRecorderService(object):
         self._song = song
         self.selected_recording_bar_length = RecordingBarLengthEnum.UNLIMITED
         self._recorder = None  # type: Optional[AbstractTrackRecorder]
-        DomainEventBus.subscribe(SongStoppedEvent, self._on_song_stopped_event)
+        # DomainEventBus.subscribe(SongStoppedEvent, self._on_song_stopped_event)
 
     def scroll_recording_time(self, go_next):
         # type: (bool) -> None

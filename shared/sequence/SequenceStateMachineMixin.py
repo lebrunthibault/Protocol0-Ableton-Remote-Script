@@ -20,6 +20,7 @@ class SequenceStateMachineMixin(UseFrameworkEvents):
     def __init__(self):
         # type: () -> None
         super(SequenceStateMachineMixin, self).__init__()
+        # self.state = SequenceState.UN_STARTED
         transitions = [
             ["start", SequenceState.UN_STARTED, SequenceState.STARTED],
             ["terminate", SequenceState.STARTED, SequenceState.TERMINATED],
@@ -91,7 +92,7 @@ class SequenceStateMachineMixin(UseFrameworkEvents):
     def cancel(self):
         # type: () -> None
         self.dispatch("cancel")
-        # self.notify_cancelled()  # type: ignore[attr-defined]
+        self.notify_cancelled()  # type: ignore[attr-defined]
 
     def error(self, message=None):
         # type: (Optional[str]) -> None
