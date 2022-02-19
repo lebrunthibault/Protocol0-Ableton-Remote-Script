@@ -1,7 +1,7 @@
 from typing import Optional, Callable
 
 from protocol0.domain.lom.scene.Scene import Scene
-from protocol0.domain.lom.scene.ScenesService import SongScenesService
+from protocol0.domain.lom.scene.ScenesService import ScenesService
 from protocol0.domain.lom.scene.SelectedDuplicateSceneBarLengthUpdatedEvent import \
     SelectedDuplicateSceneBarLengthUpdatedEvent
 from protocol0.domain.lom.song.SongInitializedEvent import SongInitializedEvent
@@ -20,13 +20,13 @@ from protocol0.shared.logging.Logger import Logger
 class SongDataService(object):
     DEBUG = False
 
-    def __init__(self, get_data, set_data, track_recorder_service, song_scenes_service):
-        # type: (Callable, Callable, TrackRecorderService, SongScenesService) -> None
+    def __init__(self, get_data, set_data, track_recorder_service, scenes_service):
+        # type: (Callable, Callable, TrackRecorderService, ScenesService) -> None
 
         self._set_data = set_data
         self._get_data = get_data
         self._track_recorder_service = track_recorder_service
-        self._song_scenes_service = song_scenes_service
+        self._scenes_service = scenes_service
 
         self._selected_scene_index = None  # type: Optional[int]
         self._selected_track_index = None  # type: Optional[int]
@@ -40,7 +40,7 @@ class SongDataService(object):
     def save(self):
         # type: () -> None
         self._set_data(SongDataEnum.SELECTED_RECORDING_BAR_LENGTH.value, self._track_recorder_service.selected_recording_bar_length.bar_length_value)
-        self._set_data(SongDataEnum.SELECTED_DUPLICATE_SCENE_BAR_LENGTH.value, self._song_scenes_service.selected_duplicate_scene_bar_length)
+        self._set_data(SongDataEnum.SELECTED_DUPLICATE_SCENE_BAR_LENGTH.value, self._scenes_service.selected_duplicate_scene_bar_length)
 
         # can happen on record e.g.
         if SongFacade.selected_scene():
@@ -58,7 +58,7 @@ class SongDataService(object):
         # type: () -> None
         try:
             self._track_recorder_service.selected_recording_bar_length = RecordingBarLengthEnum.from_value(self._get_data(SongDataEnum.SELECTED_RECORDING_BAR_LENGTH.value, 4))
-            self._song_scenes_service.selected_duplicate_scene_bar_length = self._get_data(SongDataEnum.SELECTED_DUPLICATE_SCENE_BAR_LENGTH.value, 4)
+            self._scenes_service.selected_duplicate_scene_bar_length = self._get_data(SongDataEnum.SELECTED_DUPLICATE_SCENE_BAR_LENGTH.value, 4)
 
             self._selected_scene_index = self._get_data(SongDataEnum.SELECTED_SCENE_INDEX.value, None)
             self._selected_track_index = self._get_data(SongDataEnum.SELECTED_TRACK_INDEX.value, None)

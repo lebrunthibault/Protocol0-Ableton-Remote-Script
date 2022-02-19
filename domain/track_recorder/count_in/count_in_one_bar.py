@@ -1,16 +1,15 @@
 from functools import partial
 
 from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
+from protocol0.domain.track_recorder.count_in.count_in_interface import CountInInterface
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
-from protocol0.domain.track_recorder.count_in.count_in_interface import CountInInterface
 
 
 class CountInOneBar(CountInInterface):
     def launch(self):
         # type: () -> Sequence
-        Logger.log_dev("launching one bar")
         self._song.metronome = True
         self._song.stop_playing()
         self._song.stop_all_clips(quantized=False)  # stopping previous scene clips

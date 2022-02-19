@@ -77,15 +77,14 @@ class SongActionMixin(object):
         return seq.done()
 
     def unfocus_all_tracks(self):
-        # type: (Song) -> Sequence
+        # type: (Song) -> None
         self._unsolo_all_tracks()
-        return self._unarm_all_tracks()
+        self._unarm_all_tracks()
 
     def _unarm_all_tracks(self):
-        # type: (Song) -> Sequence
-        seq = Sequence()
-        seq.add([t.unarm for t in SongFacade.partially_armed_tracks()])
-        return seq.done()
+        # type: (Song) -> None
+        for t in SongFacade.partially_armed_tracks():
+            t.unarm()
 
     def _unsolo_all_tracks(self):
         # type: (Song) -> None

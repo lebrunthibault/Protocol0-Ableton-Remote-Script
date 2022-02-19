@@ -5,7 +5,7 @@ from protocol0.domain.audit.SongStatsService import SongStatsService
 from protocol0.domain.lom.instrument.instrument.InstrumentProphet import InstrumentProphet
 from protocol0.domain.lom.set.MixingService import MixingService
 from protocol0.domain.lom.set.SessionToArrangementService import SessionToArrangementService
-from protocol0.domain.lom.scene.ScenesService import SongScenesService
+from protocol0.domain.lom.scene.ScenesService import ScenesService
 from protocol0.shared.SongFacade import SongFacade
 
 
@@ -17,8 +17,8 @@ class ActionGroupSet(ActionGroupMixin):
         # SPLiT encoder
         self.add_encoder(identifier=1,
                          name="split scene",
-                         on_scroll=self._container.get(SongScenesService).scroll_duplicate_scene_bar_lengths,
-                         on_press=lambda: partial(SongFacade.selected_scene().split, self._container.get(SongScenesService).selected_duplicate_scene_bar_length)
+                         on_scroll=self._container.get(ScenesService).scroll_duplicate_scene_bar_lengths,
+                         on_press=lambda: partial(SongFacade.selected_scene().split, self._container.get(ScenesService).selected_duplicate_scene_bar_length)
                          )
 
         # TAP tempo encoder
@@ -38,10 +38,6 @@ class ActionGroupSet(ActionGroupMixin):
         # VELO encoder
         self.add_encoder(identifier=13, name="smooth selected clip velocities",
                          on_scroll=lambda: SongFacade.selected_midi_clip().scale_velocities)
-
-        # VOL encoder
-        self.add_encoder(identifier=14, name="scroll all tracks volume",
-                         on_scroll=self._container.get(MixingService).scroll_all_tracks_volume)
 
         # Session2ARrangement encoder
         self.add_encoder(identifier=16, name="bounce session to arrangement",

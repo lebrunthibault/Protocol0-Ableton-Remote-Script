@@ -91,10 +91,10 @@ class SequenceStep(UseFrameworkEvents, SequenceStateMachineMixin):
 
         return "[%s]" % output
 
-    @staticmethod
-    def make(sequence, callback, *a, **k):
+    @classmethod
+    def make(cls, sequence, callback, *a, **k):
         # type: (Sequence, Union[Callable, Iterable], Any, Any) -> SequenceStep
-        if isinstance(callback, Iterable):
+        if isinstance(callback, List):
             def parallel_sequence_creator(callbacks):
                 # type: (List[Callable]) -> Sequence
                 from protocol0.shared.sequence.ParallelSequence import ParallelSequence
@@ -158,9 +158,9 @@ class SequenceStep(UseFrameworkEvents, SequenceStateMachineMixin):
 
     def _on_event(self, _):
         # type: (object) -> None
-        self._terminate()
         for event in self._wait_for_events:
             DomainEventBus.un_subscribe(event, self._on_event)
+        self._terminate()
 
     def _postpone_termination_after_listener(self, listener):
         # type: (CallableWithCallbacks) -> None
@@ -234,6 +234,8 @@ class SequenceStep(UseFrameworkEvents, SequenceStateMachineMixin):
 
     def cancel(self, notify=True):
         # type: (bool) -> None
+        if self.errored:
+            return
         self.change_state(SequenceStateEnum.CANCELLED)
         if notify:
             self.notify_cancelled()  # type: ignore[attr-defined]
@@ -241,7 +243,7 @@ class SequenceStep(UseFrameworkEvents, SequenceStateMachineMixin):
 
     def _terminate(self):
         # type: () -> None
-        if self.cancelled:
+        if self.cancelled or self.errored:
             return
         self.change_state(SequenceStateEnum.TERMINATED)
         self.notify_terminated()  # type: ignore[attr-defined]

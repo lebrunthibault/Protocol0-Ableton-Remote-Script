@@ -9,7 +9,6 @@ from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.scheduler.Last32thPassedEvent import Last32thPassedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -87,7 +86,7 @@ class AbstractTrackRecorder(object):
 
     def record(self, bar_length):
         # type: (float) -> Sequence
-        Logger.log_info("Starting record !")
+        SongFacade.selected_scene().fire()
         self._song.session_record = True
         self._focus_main_clip()
         seq = Sequence()
@@ -119,7 +118,7 @@ class AbstractTrackRecorder(object):
         for clip_slot in self._recording_clip_slots:
             if clip_slot.clip:
                 # deferring because the clip length is not accurate right now
-                Scheduler.defer(partial(clip_slot.clip.post_record, bar_length))
+                Scheduler.wait(10, partial(clip_slot.clip.post_record, bar_length))
         return self._post_record()
 
     def _post_record(self):

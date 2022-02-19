@@ -3,7 +3,7 @@ import re
 from typing import TYPE_CHECKING, Optional
 
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
-from protocol0.domain.shared.decorators import throttle, p0_subject_slot
+from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import get_length_legend
 from protocol0.shared.SongFacade import SongFacade
@@ -37,7 +37,6 @@ class SceneName(UseFrameworkEvents):
 
         return base_name
 
-    @throttle(wait_time=10)
     def update(self, base_name=None, display_bar_count=True, bar_position=None):
         # type: (str, bool, Optional[int]) -> None
         """ throttling to avoid multiple calls due to name listener """

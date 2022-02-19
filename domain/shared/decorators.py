@@ -74,7 +74,6 @@ def lock(func):
         # type: (Any, Any) -> Optional[Sequence]
         object_source = a[0] if is_method(func) else decorate
         if decorate.lock[object_source]:  # type: ignore[attr-defined]
-            Logger.log_dev("already executing !")
             return None
 
         decorate.lock[object_source] = True  # type: ignore[attr-defined]

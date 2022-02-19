@@ -18,7 +18,7 @@ from protocol0.domain.lom.instrument.preset.PresetService import PresetService
 from protocol0.domain.lom.set.MixingService import MixingService
 from protocol0.domain.lom.set.SessionToArrangementService import SessionToArrangementService
 from protocol0.domain.lom.song.Song import Song
-from protocol0.domain.lom.scene.ScenesService import SongScenesService
+from protocol0.domain.lom.scene.ScenesService import ScenesService
 from protocol0.domain.lom.song.SongService import SongService
 from protocol0.domain.lom.track.TracksService import SongTracksService
 from protocol0.domain.lom.track.TrackFactory import TrackFactory
@@ -79,15 +79,15 @@ class Container(ContainerInterface):
         track_factory = TrackFactory(song)
         SimpleDummyTrackService(browser_service)
         song_tracks_service = SongTracksService(track_factory, song)
-        song_scenes_service = SongScenesService(song)
-        SongFacade(song, song_tracks_service, song_scenes_service)
+        track_recorder_service = TrackRecorderService(song)
+        scenes_service = ScenesService(song, track_recorder_service)
+        SongFacade(song, song_tracks_service, scenes_service)
 
         song_service = SongService(song)
         System.client().end_measurement()
         instrument_display_service = InstrumentDisplayService(device_service)
         instrument_preset_scroller_service = InstrumentPresetScrollerService()
         mixing_service = MixingService(live_song.master_track)
-        track_recorder_service = TrackRecorderService(song)
         validator_service = ValidatorService(ValidatorFactory(browser_service))
         set_upgrade_service = SetUpgradeService(device_service, validator_service)
         log_service = LogService()
@@ -102,7 +102,7 @@ class Container(ContainerInterface):
                                                             interface_clicks_service)
         preset_service = PresetService()
         session_to_arrangement_service = SessionToArrangementService(song)
-        song_data_service = SongDataService(live_song.get_data, live_song.set_data, track_recorder_service, song_scenes_service)
+        song_data_service = SongDataService(live_song.get_data, live_song.set_data, track_recorder_service, scenes_service)
 
         # vocal command
         keyword_search_service = KeywordSearchService()
@@ -112,7 +112,7 @@ class Container(ContainerInterface):
         self._register(midi_service)
         self._register(browser_service)
         self._register(song_tracks_service)
-        self._register(song_scenes_service)
+        self._register(scenes_service)
         self._register(song_data_service)
         self._register(song_service)
         self._register(instrument_display_service)

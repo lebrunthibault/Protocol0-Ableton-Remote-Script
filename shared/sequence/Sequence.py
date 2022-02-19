@@ -128,7 +128,6 @@ class Sequence(UseFrameworkEvents, SequenceStateMachineMixin):
             return
         if len(self._steps):
             self._current_step = self._steps.popleft()
-            # print("executing step : %s" % self._current_step)
             if self._DEBUG:
                 Logger.log_debug("%s : %s" % (self, self._current_step))
             self._step_terminated.subject = self._current_step
@@ -172,7 +171,8 @@ class Sequence(UseFrameworkEvents, SequenceStateMachineMixin):
     @p0_subject_slot("terminated")
     def _step_terminated(self):
         # type: () -> None
-        # print("step terminated : %s" % self._current_step)
+        if self._DEBUG:
+            Logger.log_info("step terminated : %s" % self._current_step)
         self._execute_next_step()
 
     @p0_subject_slot("errored")
@@ -192,15 +192,11 @@ class Sequence(UseFrameworkEvents, SequenceStateMachineMixin):
     @p0_subject_slot("cancelled")
     def _step_cancelled(self):
         # type: () -> None
-        # print("step cancelled: %s" % self._step_cancelled.subject)
-        # print("seq state : %s" % self.state)
         self._cancel(notify_step=False)
 
     def _cancel(self, notify_step=True):
         # type: (bool) -> None
         self.change_state(SequenceStateEnum.CANCELLED)
-        # print("cancelling %s" % self)
-        # print("current step state: %s" % self._current_step.state)
         if notify_step and self._current_step:
             self._current_step.cancel(notify=False)
         self.disconnect()

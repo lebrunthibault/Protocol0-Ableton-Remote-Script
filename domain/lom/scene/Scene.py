@@ -166,8 +166,8 @@ class Scene(SceneActionMixin, UseFrameworkEvents):
     @property
     def playing_position(self):
         # type: () -> float
-        if self.longest_clip:
-            return self.longest_clip.playing_position - self.longest_clip.start_marker
+        if self.longest_un_muted_clip:
+            return self.longest_un_muted_clip.playing_position - self.longest_un_muted_clip.start_marker
         else:
             return 0
 
@@ -187,4 +187,16 @@ class Scene(SceneActionMixin, UseFrameworkEvents):
     def longest_clip(self):
         # type: () -> Optional[Clip]
         clips = [clip for clip in self.clips if not clip.is_recording]
-        return None if not len(clips) else max(clips, key=lambda c: c.length if c else 0)
+        if len(clips) == 0:
+            return None
+        else:
+            return max(clips, key=lambda c: c.length)
+
+    @property
+    def longest_un_muted_clip(self):
+        # type: () -> Optional[Clip]
+        clips = [clip for clip in self.clips if not clip.is_recording and not clip.muted]
+        if len(clips) == 0:
+            return None
+        else:
+            return max(clips, key=lambda c: c.length)

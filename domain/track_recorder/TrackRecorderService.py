@@ -2,6 +2,7 @@ from functools import partial
 
 from typing import Optional, TYPE_CHECKING
 
+from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -21,6 +22,7 @@ from protocol0.domain.track_recorder.factory.track_recorder_external_synth_facto
     TrackRecorderExternalSynthFactory
 from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.logging.StatusBar import StatusBar
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -34,7 +36,11 @@ class TrackRecorderService(object):
         self._song = song
         self.selected_recording_bar_length = RecordingBarLengthEnum.UNLIMITED
         self._recorder = None  # type: Optional[AbstractTrackRecorder]
-        # DomainEventBus.subscribe(SongStoppedEvent, self._on_song_stopped_event)
+
+    @property
+    def is_recording(self):
+        # type: () -> bool
+        return self._recorder is not None
 
     def scroll_recording_time(self, go_next):
         # type: (bool) -> None
@@ -55,6 +61,8 @@ class TrackRecorderService(object):
 
     def record_track(self, track, record_type):
         # type: (AbstractTrack, RecordTypeEnum) -> Optional[Sequence]
+        # we'll subscribe back later
+        DomainEventBus.un_subscribe(SongStoppedEvent, self._on_song_stopped_event)
         if self._recorder is not None:
             self.cancel_record()
             return None
@@ -81,9 +89,12 @@ class TrackRecorderService(object):
         bar_legend = bar_length if bar_length else "unlimited"
         System.client().show_info("Rec: %s bars" % bar_legend)
 
+        Logger.log_dev((count_in, recorder, bar_length, recorder.recording_scene_index))
+
         seq = Sequence()
         seq.add(recorder.pre_record)
         seq.add(count_in.launch)
+        seq.add(partial(DomainEventBus.subscribe, SongStoppedEvent, self._on_song_stopped_event))
         seq.add(partial(recorder.record, bar_length=bar_length))
         seq.add(recorder.post_audio_record)
         seq.add(partial(recorder.post_record, bar_length=bar_length))
@@ -97,13 +108,16 @@ class TrackRecorderService(object):
         Scheduler.restart()
         self._recorder.cancel_record()
         self._recorder = None
-        System.client().show_warning("Record cancelled")
+        System.client().show_warning("Recording cancelled")
 
-    # def _on_song_stopped_event(self, _):
-    #     # type: (SongStoppedEvent) -> None
-    #     """ happens when manually stopping song while recording."""
-    #     if self._recorder is None or self.selected_recording_bar_length.bar_length_value == 0:
-    #         return
-    #     else:
-    #         # we could cancel the record here also
-    #         self._recorder = None
+    def _on_song_stopped_event(self, _):
+        # type: (SongStoppedEvent) -> None
+        """ happens when manually stopping song while recording."""
+        if self._recorder is None or self.selected_recording_bar_length.bar_length_value == 0:
+            return
+        else:
+            # we could cancel the record here also
+            System.client().show_info("Recording stopped")
+            # deferring this to allow components to react to the song stopped event
+            Scheduler.defer(Scheduler.restart)
+            self._recorder = None

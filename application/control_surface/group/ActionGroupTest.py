@@ -2,6 +2,7 @@ from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMi
 from protocol0.domain.shared.System import System
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
+from protocol0.shared.sequence.Sequence import Sequence
 
 
 class ActionGroupTest(ActionGroupMixin):
@@ -25,4 +26,4 @@ class ActionGroupTest(ActionGroupMixin):
 
     def action_test(self):
         # type: () -> None
-        self._song.back_to_arranger = False
+        SongFacade.current_track().unarm()

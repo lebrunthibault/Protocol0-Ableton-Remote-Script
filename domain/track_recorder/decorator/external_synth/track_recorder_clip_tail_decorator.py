@@ -3,6 +3,7 @@ from functools import partial
 from typing import Optional
 
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
+from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
@@ -10,6 +11,7 @@ from protocol0.domain.shared.scheduler.Last32thPassedEvent import Last32thPassed
 from protocol0.domain.track_recorder.decorator.external_synth.AudioClipSilentEvent import AudioClipSilentEvent
 from protocol0.domain.track_recorder.decorator.track_recorder_decorator import TrackRecorderDecorator
 from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -56,7 +58,7 @@ class TrackRecorderClipTailDecorator(TrackRecorderDecorator, UseFrameworkEvents)
 
         DomainEventBus.subscribe(Last32thPassedEvent, self._on_last_32th_passed_event)
         seq = Sequence()
-        seq.add(wait_for_event=AudioClipSilentEvent)
+        seq.add(wait_for_events=[SongStoppedEvent, AudioClipSilentEvent])
         seq.add(partial(setattr, self.track.midi_track.input_routing, "type", input_routing_type))
         seq.add(partial(DomainEventBus.un_subscribe, Last32thPassedEvent, self._on_last_32th_passed_event))
         return seq.done()

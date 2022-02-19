@@ -20,6 +20,7 @@ from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import scroll_values
+from protocol0.domain.track_recorder.TrackRecorderService import TrackRecorderService
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.logging.StatusBar import StatusBar
@@ -29,11 +30,12 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.song.Song import Song
 
 
-class SongScenesService(UseFrameworkEvents):
-    def __init__(self, song):
-        # type: (Song) -> None
-        super(SongScenesService, self).__init__()
+class ScenesService(UseFrameworkEvents):
+    def __init__(self, song, track_recorder_service):
+        # type: (Song, TrackRecorderService) -> None
+        super(ScenesService, self).__init__()
         self._song = song
+        self._track_recorder_service = track_recorder_service
         self.scenes_listener.subject = song._song
         self._live_scene_id_to_scene = collections.OrderedDict()
         self.selected_duplicate_scene_bar_length = 1
@@ -148,7 +150,7 @@ class SongScenesService(UseFrameworkEvents):
     def _on_song_started_event(self, _):
         # type: (SongStartedEvent) -> None
         # launch selected scene by clicking on play song
-        if ApplicationView.is_session_view_active() and not SongFacade.selected_scene().has_playing_clips:
+        if not self._track_recorder_service.is_recording and ApplicationView.is_session_view_active() and not SongFacade.selected_scene().has_playing_clips:
             self._song.stop_all_clips(quantized=False)
             self._song.stop_playing()
             SongFacade.selected_scene().fire()
@@ -161,7 +163,8 @@ class SongScenesService(UseFrameworkEvents):
         # type: (bool) -> None
         selected_scene = SongFacade.selected_scene()
         if selected_scene.bar_length < 2:
-            raise Protocol0Warning("Cannot partial duplicate scene with bar length %s (min 2 bars)" % selected_scene.bar_length)
+            raise Protocol0Warning(
+                "Cannot partial duplicate scene with bar length %s (min 2 bars)" % selected_scene.bar_length)
 
         bar_lengths = []
         power = 0

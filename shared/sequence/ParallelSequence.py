@@ -36,5 +36,5 @@ class ParallelSequence(Sequence):
     def _terminate(self):
         # type: () -> None
         self.change_state(SequenceStateEnum.TERMINATED)
-        self.disconnect()
         self.notify_terminated()  # type: ignore[attr-defined]
+        self.disconnect()

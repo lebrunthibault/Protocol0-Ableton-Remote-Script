@@ -3,6 +3,7 @@ from functools import partial
 from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
 from protocol0.domain.lom.instrument.InstrumentDisplayService import InstrumentDisplayService
 from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService import InstrumentPresetScrollerService
+from protocol0.domain.lom.set.MixingService import MixingService
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
 from protocol0.domain.track_recorder.TrackRecorderService import TrackRecorderService
 from protocol0.shared.SongFacade import SongFacade
@@ -28,7 +29,7 @@ class ActionGroupMain(ActionGroupMixin):
         # VOLume tempo encoder
         self.add_encoder(identifier=4, name="volume",
                          filter_active_tracks=True,
-                         on_scroll=lambda: SongFacade.current_track().scroll_volume
+                         on_scroll=self._container.get(MixingService).scroll_all_tracks_volume
                          )
 
         # MONitor encoder
