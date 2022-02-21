@@ -42,18 +42,21 @@ class InstrumentPresetScrollerService(object):
         instrument.preset_list.selected_category = scroll_values(
             instrument.preset_list.categories, instrument.preset_list.selected_category, go_next
         ).lower()
+        category = instrument.preset_list.selected_category.title()
         if instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.CATEGORY:
-            instrument.track.abstract_track.track_name.update()
+            instrument.track.abstract_track.track_name.update(name=category)
         else:
-            StatusBar.show_message("selected preset category %s" % instrument.preset_list.selected_category.title())
+            StatusBar.show_message("selected preset category %s" % category)
 
     def _sync_selected_preset(self, instrument):
         # type: (InstrumentInterface) -> Sequence
         seq = Sequence()
+        track = instrument.track.abstract_track
         if instrument.selected_preset:
             if isinstance(instrument.device, PluginDevice):
                 instrument.device.selected_preset_index = instrument.selected_preset.index
-            seq.add(instrument.track.abstract_track.arm)
+            seq.add(track.arm)
             seq.add(partial(instrument.load_preset, instrument.selected_preset))
-            seq.add(partial(instrument.track.abstract_track.track_name.update, instrument.selected_preset.name))
+            if instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.NAME:
+                seq.add(partial(track.track_name.update, instrument.selected_preset.name))
         return seq.done()

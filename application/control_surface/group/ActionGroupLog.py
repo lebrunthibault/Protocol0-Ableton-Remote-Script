@@ -1,5 +1,6 @@
 from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
 from protocol0.domain.audit.LogService import LogService
+from protocol0.domain.audit.SongStatsService import SongStatsService
 from protocol0.shared.logging.Logger import Logger
 
 
@@ -16,3 +17,7 @@ class ActionGroupLog(ActionGroupMixin):
 
         # CLR encoder
         self.add_encoder(identifier=3, name="clear logs", on_press=Logger.clear)
+
+        # STATs encoder
+        self.add_encoder(identifier=4, name="display song stats",
+                         on_press=self._container.get(SongStatsService).display_song_stats)

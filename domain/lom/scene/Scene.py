@@ -119,17 +119,6 @@ class Scene(SceneActionMixin, UseFrameworkEvents):
             return SongFacade.scenes()[self.index + 1]
 
     @property
-    def color(self):
-        # type: () -> int
-        return self._scene and self._scene.color
-
-    @color.setter
-    def color(self, color_index):
-        # type: (int) -> None
-        if self._scene:
-            self._scene.color = color_index
-
-    @property
     def is_triggered(self):
         # type: () -> bool
         return bool(self._scene.is_triggered) if self._scene else False

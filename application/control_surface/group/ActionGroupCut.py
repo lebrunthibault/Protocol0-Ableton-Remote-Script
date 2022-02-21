@@ -1,6 +1,7 @@
 from functools import partial
 
 from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
+from protocol0.domain.lom.scene.ScenesService import ScenesService
 from protocol0.shared.SongFacade import SongFacade
 
 
@@ -31,6 +32,13 @@ class ActionGroupSet(ActionGroupMixin):
         self.add_encoder(identifier=4,
                          name="copy and paste clip to new scene",
                          on_press=lambda: SongFacade.current_external_synth_track().copy_and_paste_clips_to_new_scene,
+                         )
+
+        # SPLiT encoder
+        self.add_encoder(identifier=8,
+                         name="split scene",
+                         on_scroll=self._container.get(ScenesService).scroll_duplicate_scene_bar_lengths,
+                         on_press=lambda: partial(SongFacade.selected_scene().split, self._container.get(ScenesService).selected_duplicate_scene_bar_length)
                          )
 
         # 2 bars loop encoder

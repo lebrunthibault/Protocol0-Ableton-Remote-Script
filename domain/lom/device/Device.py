@@ -28,7 +28,7 @@ class Device(UseFrameworkEvents):
 
     def __repr__(self):
         # type: () -> str
-        return "%s %s" % (self.__class__.name, self.name)
+        return "%s (of %s)" % (self.name, self.track)
 
     @classmethod
     def get_class(cls, device):

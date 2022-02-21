@@ -15,6 +15,12 @@ class SimplerDevice(Device):
         self._device = self._device  # type: Live.SimplerDevice.SimplerDevice
 
     @property
+    def sample(self):
+        # type: () -> Optional[Live.Sample.Sample]
+        if self._device:
+            return self._device.sample
+
+    @property
     def preset_name(self):
         # type: () -> Optional[str]
         """ overridden """

@@ -11,6 +11,7 @@ from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import scroll_values
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.logging.StatusBar import StatusBar
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -26,6 +27,7 @@ class SceneActionMixin(object):
 
     def check_scene_length(self):
         # type: (Scene) -> None
+        Logger.log_dev("updating from check scene length")
         Scheduler.defer(self.scene_name.update)
 
     def on_last_beat(self):
@@ -101,7 +103,7 @@ class SceneActionMixin(object):
 
             track.stop(immediate=immediate)
 
-        Scheduler.wait_beats(1, partial(previous_playing_scene.scene_name.update, display_bar_count=False))
+        Scheduler.wait_beats(1, partial(previous_playing_scene.scene_name.update))
 
     def _play_audio_tails(self):
         # type: (Scene) -> None
@@ -158,7 +160,7 @@ class SceneActionMixin(object):
         seq.add(partial(self._crop_clips, 0, length))
         seq.add(lambda: self._song.selected_scene._crop_clips(length, self.length))
         for track in SongFacade.external_synth_tracks():
-            if track.audio_tail_track and track.audio_tail_track.clip_slots[self.index]:
+            if track.audio_tail_track and track.audio_tail_track.clip_slots[self.index].clip:
                 seq.add([track.audio_tail_track.clip_slots[self.index].clip.delete])
         return seq.done()
 
@@ -182,10 +184,15 @@ class SceneActionMixin(object):
             Scene.LAST_MANUALLY_STARTED_SCENE = self
         scene_position = Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION
 
+        Logger.log_dev("scene_position: %s" % scene_position)
+
         if self.has_playing_clips:
             bar_position = self.playing_position * SongFacade.signature_numerator()
+            Logger.log_dev("bar_position: %s" % bar_position)
             rounded_bar_position = floor(bar_position) if go_next else round(bar_position)
+            Logger.log_dev("rounded_bar_position: %s" % rounded_bar_position)
             scene_position = int(scroll_values(range(0, self.bar_length), rounded_bar_position, go_next=go_next))
+            Logger.log_dev("new scene_position: %s" % scene_position)
             self.jump_to_bar(scene_position)
         else:
             scene_position = scroll_values(range(0, self.bar_length), scene_position, go_next=go_next)

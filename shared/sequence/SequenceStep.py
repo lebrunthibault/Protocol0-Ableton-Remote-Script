@@ -226,6 +226,8 @@ class SequenceStep(UseFrameworkEvents, SequenceStateMachineMixin):
 
     def _error(self, message=None):
         # type: (Optional[str]) -> None
+        if self.cancelled:
+            return
         if message:
             Logger.log_error(message)
         self.change_state(SequenceStateEnum.ERRORED)

@@ -65,7 +65,7 @@ class InstrumentPresetList(object):
     def categories(self):
         # type: () -> List[str]
         """ overridden """
-        return sorted(list(set([preset.category for preset in self.presets if preset.category])))
+        return sorted(list(set([preset.category for preset in self.presets if preset.category and not preset.category.startswith("_")])))
 
     @property
     def selected_category(self):

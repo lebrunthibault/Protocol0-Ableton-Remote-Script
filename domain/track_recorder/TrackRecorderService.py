@@ -89,8 +89,6 @@ class TrackRecorderService(object):
         bar_legend = bar_length if bar_length else "unlimited"
         System.client().show_info("Rec: %s bars" % bar_legend)
 
-        Logger.log_dev((count_in, recorder, bar_length, recorder.recording_scene_index))
-
         seq = Sequence()
         seq.add(recorder.pre_record)
         seq.add(count_in.launch)

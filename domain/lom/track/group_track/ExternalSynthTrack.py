@@ -195,8 +195,6 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self.base_track.color = color_index
         for sub_track in self.sub_tracks:
             sub_track.color = color_index
-            for clip in sub_track.clips:
-                clip.color = color_index
 
     @property
     def computed_color(self):

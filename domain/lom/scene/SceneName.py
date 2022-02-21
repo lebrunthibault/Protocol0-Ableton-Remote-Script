@@ -1,4 +1,5 @@
 import re
+import time
 
 from typing import TYPE_CHECKING, Optional
 
@@ -18,11 +19,13 @@ class SceneName(UseFrameworkEvents):
         super(SceneName, self).__init__()
         self.scene = scene
         self._name_listener.subject = self.scene._scene
+        self._last_updated_at = time.time()
 
     @p0_subject_slot("name")
     def _name_listener(self):
         # type: () -> None
-        Scheduler.defer(self.update)
+        if time.time() >= self._last_updated_at + 0.1:
+            Scheduler.defer(self.update)
 
     def _get_base_name(self):
         # type: () -> str
@@ -37,14 +40,14 @@ class SceneName(UseFrameworkEvents):
 
         return base_name
 
-    def update(self, base_name=None, display_bar_count=True, bar_position=None):
-        # type: (str, bool, Optional[int]) -> None
+    def update(self, base_name=None, bar_position=None):
+        # type: (str, Optional[int]) -> None
         """ throttling to avoid multiple calls due to name listener """
         base_name = base_name if base_name else self._get_base_name()
         looping = "*" if self.scene == SongFacade.looping_scene() else ""
         length_legend = get_length_legend(beat_length=self.scene.length)
 
-        if self.scene.has_playing_clips and display_bar_count:
+        if self.scene.has_playing_clips:
             length_legend = "%s|%s" % (self.scene.current_bar + 1, length_legend)
         elif bar_position is not None:
             length_legend = "%s|%s" % (bar_position + 1, length_legend)
@@ -54,3 +57,4 @@ class SceneName(UseFrameworkEvents):
         else:
             scene_name = "%s%s" % (length_legend, looping)
         self.scene.name = scene_name
+        self._last_updated_at = time.time()

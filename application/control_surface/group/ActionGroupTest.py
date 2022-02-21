@@ -2,7 +2,6 @@ from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMi
 from protocol0.domain.shared.System import System
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
-from protocol0.shared.sequence.Sequence import Sequence
 
 
 class ActionGroupTest(ActionGroupMixin):
@@ -19,11 +18,12 @@ class ActionGroupTest(ActionGroupMixin):
                          )
 
         # PROFiling encoder
-        self.add_encoder(identifier=2, name="start set launch time profiling", on_press=System.client().start_set_profiling)
+        self.add_encoder(identifier=2, name="start set launch time profiling",
+                         on_press=System.client().start_set_profiling)
 
         # CLR encoder
         self.add_encoder(identifier=3, name="clear logs", on_press=Logger.clear)
 
     def action_test(self):
         # type: () -> None
-        SongFacade.current_track().unarm()
+        Logger.log_dev(SongFacade.selected_scene().current_bar)

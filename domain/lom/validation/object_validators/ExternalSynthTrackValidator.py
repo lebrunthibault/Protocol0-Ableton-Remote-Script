@@ -28,26 +28,23 @@ class ExternalSynthTrackValidator(AggregateValidator):
             CallbackValidator(track.midi_track,
                               lambda t: t.get_device_from_enum(DeviceEnum.EXTERNAL_INSTRUMENT) is None,
                               lambda t: t.get_device_from_enum(DeviceEnum.EXTERNAL_INSTRUMENT).delete),
-            PropertyValueValidator(track.midi_track, "volume", Config.ZERO_DB_VOLUME),  # 0 db
-            PropertyValueValidator(track.audio_track, "volume", Config.ZERO_DB_VOLUME),
+            PropertyValueValidator(track.midi_track, "volume", Config.ZERO_DB_VOLUME, name="midi track volume"),  # 0 db
+            PropertyValueValidator(track.audio_track, "volume", Config.ZERO_DB_VOLUME, name="audio track volume"),
 
             # ROUTINGS
 
-            PropertyValueValidator(track.midi_track.input_routing, "type", track.instrument.MIDI_INPUT_ROUTING_TYPE),
-            PropertyValueValidator(track.audio_track.input_routing, "track", track.midi_track),
-            PropertyValueValidator(track.audio_track.input_routing, "channel", InputRoutingChannelEnum.POST_FX),
+            PropertyValueValidator(track.midi_track.input_routing, "type", track.instrument.MIDI_INPUT_ROUTING_TYPE, name="midi track input type"),
+            PropertyValueValidator(track.audio_track.input_routing, "track", track.midi_track, name="audio track input track"),
+            PropertyValueValidator(track.audio_track.input_routing, "channel", InputRoutingChannelEnum.POST_FX, name="audio track input channel"),
         ]
 
         if track.audio_tail_track:
             validators += SimpleAudioTailTrackValidator(track.audio_tail_track)._validators
 
         if len(track.dummy_tracks) == 0:
-            validators += [
-                PropertyValueValidator(track.midi_track.output_routing, "track", track.base_track),
-                PropertyValueValidator(track.audio_track.output_routing, "track", track.base_track),
-            ]
+            validators.append(PropertyValueValidator(track.audio_track.output_routing, "track", track.base_track, name="audio track output routing"))
             if track.audio_tail_track:
-                validators.append(PropertyValueValidator(track.audio_tail_track.output_routing, "track", track.base_track))
+                validators.append(PropertyValueValidator(track.audio_tail_track.output_routing, "track", track.base_track, name="tailND track output routing"))
 
         for dummy_track in track.dummy_tracks:
             validators.append(PropertyValueValidator(dummy_track, "volume", Config.ZERO_DB_VOLUME))

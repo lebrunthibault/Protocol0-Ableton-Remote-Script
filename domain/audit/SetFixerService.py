@@ -44,7 +44,7 @@ class SetFixerService(object):
                 if isinstance(first_object, AbstractTrack):
                     first_object.select()
             if len(devices_to_remove):
-                message += "Devices to remove: %s" % (len(devices_to_remove))
+                message += "Devices to remove: %s" % devices_to_remove
             System.client().show_warning("Invalid set")
             Logger.log_warning(message)
 
@@ -52,7 +52,7 @@ class SetFixerService(object):
     def _objects_to_validate(self):
         # type: () -> List[Any]
         # noinspection PyTypeChecker
-        return list(self._song.abstract_tracks) + [self._song]
+        return [self._song] + SongFacade.scenes() + list(self._song.abstract_tracks)
 
     @property
     def _objects_to_refresh_appearance(self):

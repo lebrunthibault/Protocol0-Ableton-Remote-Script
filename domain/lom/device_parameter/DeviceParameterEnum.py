@@ -16,6 +16,7 @@ class DeviceParameterEnum(AbstractEnum):
     DUMMY_RACK_GAIN = "DUMMY_RACK_GAIN"
     EQ_EIGHT_FREQUENCY_1_A = "EQ_EIGHT_FREQUENCY_1_A"
     EQ_EIGHT_FREQUENCY_8_A = "EQ_EIGHT_FREQUENCY_8_A"
+    EQ_EIGHT_GAIN_4_A = "EQ_EIGHT_GAIN_4_A"
     LFO_TOOL_LFO_DEPTH = "LFO_TOOL_LFO_DEPTH"
     UTILITY_GAIN = "UTILITY_GAIN"
     UTILITY_MID_SIDE = "UTILITY_MID_SIDE"
@@ -43,6 +44,7 @@ class DeviceParameterEnum(AbstractEnum):
             DeviceParameterEnum.DEVICE_ON: "Device On",
             DeviceParameterEnum.DUMMY_RACK_GAIN: "Gain",
             DeviceParameterEnum.EQ_EIGHT_FREQUENCY_1_A: "1 Frequency A",
+            DeviceParameterEnum.EQ_EIGHT_GAIN_4_A: "4 Gain A",
             DeviceParameterEnum.EQ_EIGHT_FREQUENCY_8_A: "8 Frequency A",
             DeviceParameterEnum.LFO_TOOL_LFO_DEPTH: "LFO Depth",
             DeviceParameterEnum.UTILITY_GAIN: "Gain",

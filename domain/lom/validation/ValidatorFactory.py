@@ -1,3 +1,4 @@
+from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
@@ -6,6 +7,7 @@ from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import Sim
 from protocol0.domain.lom.validation.ValidatorInterface import ValidatorInterface
 from protocol0.domain.lom.validation.object_validators.EmptyValidator import EmptyValidator
 from protocol0.domain.lom.validation.object_validators.ExternalSynthTrackValidator import ExternalSynthTrackValidator
+from protocol0.domain.lom.validation.object_validators.SceneValidator import SceneValidator
 from protocol0.domain.lom.validation.object_validators.SimpleAudioTailTrackValidator import \
     SimpleAudioTailTrackValidator
 from protocol0.domain.lom.validation.object_validators.SimpleAudioTrackValidator import SimpleAudioTrackValidator
@@ -25,7 +27,11 @@ class ValidatorFactory(object):
         # type: (object) -> ValidatorInterface
         from protocol0.domain.lom.song.Song import Song
 
-        if isinstance(obj, ExternalSynthTrack):
+        if isinstance(obj, Song):
+            return SongValidator(obj)
+        if isinstance(obj, Scene):
+            return SceneValidator(obj)
+        elif isinstance(obj, ExternalSynthTrack):
             return ExternalSynthTrackValidator(obj, self._browser_service)
         elif isinstance(obj, SimpleAudioTrack):
             return SimpleAudioTrackValidator(obj)
@@ -36,7 +42,5 @@ class ValidatorFactory(object):
         elif isinstance(obj, AbstractTrack):
             # no validation
             return EmptyValidator()
-        elif isinstance(obj, Song):
-            return SongValidator(obj)
         else:
             raise Protocol0Warning("%s is not handled by the object validator" % obj)

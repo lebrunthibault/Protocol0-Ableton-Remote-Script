@@ -6,11 +6,12 @@ from protocol0.domain.lom.validation.ValidatorInterface import ValidatorInterfac
 
 
 class PropertyValueValidator(ValidatorInterface):
-    def __init__(self, obj, attribute, expected_value):
-        # type: (Any, str, Any) -> None
+    def __init__(self, obj, attribute, expected_value, name=None):
+        # type: (Any, str, Any, Optional[str]) -> None
         self._obj = obj
         self._attr = attribute
         self._expected_value = expected_value
+        self._name = name
 
     def get_error_message(self):
         # type: () -> Optional[str]
@@ -20,7 +21,8 @@ class PropertyValueValidator(ValidatorInterface):
             error = "Got %s" % getattr(self._obj, self._attr)
         else:
             error = "%s has no attribute %s" % (self._obj, self._attr)
-        return "Expected %s.%s to be %s. %s" % (self._obj, self._attr, self._expected_value, error)
+        name_prefix = "%s : " if self._name else ""
+        return "%sExpected %s.%s to be %s. %s" % (name_prefix, self._obj, self._attr, self._expected_value, error)
 
     def is_valid(self):
         # type: () -> bool
