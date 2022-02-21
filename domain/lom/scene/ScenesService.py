@@ -77,7 +77,6 @@ class ScenesService(UseFrameworkEvents):
 
     def _on_bar_changed_event(self, _):
         # type: (BarChangedEvent) -> None
-        Logger.log_dev("updating from bar changed")
         if SongFacade.playing_scene():
             SongFacade.playing_scene().scene_name.update()
 

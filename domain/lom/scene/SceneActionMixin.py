@@ -27,7 +27,6 @@ class SceneActionMixin(object):
 
     def check_scene_length(self):
         # type: (Scene) -> None
-        Logger.log_dev("updating from check scene length")
         Scheduler.defer(self.scene_name.update)
 
     def on_last_beat(self):
@@ -56,30 +55,6 @@ class SceneActionMixin(object):
         Scene.PLAYING_SCENE = self
 
         self._scene.fire()
-
-    def fire_and_move_position(self):
-        # type: (Scene) -> Sequence
-        self._song.stop_playing()
-        seq = Sequence()
-
-        from protocol0.domain.lom.scene.Scene import Scene
-
-        if Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION >= self.bar_length:
-            Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION = 0
-
-        # removing click when changing position
-        master_volume = SongFacade.master_track().volume
-        SongFacade.master_track().volume = 0
-        seq.add(wait=1)
-        # leveraging throttle to disable the next update (that would be 1 / *)
-        seq.add(partial(self.scene_name.update, bar_position=Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION))
-        seq.add(self.fire)
-        seq.add(partial(self.jump_to_bar, Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION))
-        seq.add(self._song.stop_playing)
-        seq.add(partial(setattr, SongFacade.master_track(), "volume", master_volume))
-        seq.add(wait=1)
-        seq.add(self._song.continue_playing)
-        return seq.done()
 
     def pre_fire(self):
         # type: (Scene) -> Sequence
@@ -184,10 +159,10 @@ class SceneActionMixin(object):
             Scene.LAST_MANUALLY_STARTED_SCENE = self
         scene_position = Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION
 
-        Logger.log_dev("scene_position: %s" % scene_position)
+        Logger.log_dev("prev scene_position: %s" % scene_position)
 
         if self.has_playing_clips:
-            bar_position = self.playing_position * SongFacade.signature_numerator()
+            bar_position = self.playing_position / SongFacade.signature_numerator()
             Logger.log_dev("bar_position: %s" % bar_position)
             rounded_bar_position = floor(bar_position) if go_next else round(bar_position)
             Logger.log_dev("rounded_bar_position: %s" % rounded_bar_position)
@@ -196,11 +171,35 @@ class SceneActionMixin(object):
             self.jump_to_bar(scene_position)
         else:
             scene_position = scroll_values(range(0, self.bar_length), scene_position, go_next=go_next)
+            Logger.log_dev("new scene_position: %s" % scene_position)
 
         Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION = scene_position
         self.scene_name.update(bar_position=scene_position)
 
+    def fire_and_move_position(self):
+        # type: (Scene) -> Sequence
+        self._song.stop_playing()
+        seq = Sequence()
+
+        from protocol0.domain.lom.scene.Scene import Scene
+
+        if Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION >= self.bar_length:
+            Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION = 0
+
+        # removing click when changing position
+        master_volume = SongFacade.master_track().volume
+        SongFacade.master_track().volume = 0
+        seq.add(wait=1)
+        # leveraging throttle to disable the next update (that would be 1 / *)
+        seq.add(partial(self.scene_name.update, bar_position=Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION))
+        seq.add(self.fire)
+        seq.add(wait=1)
+        seq.add(partial(self.jump_to_bar, Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION))
+        seq.add(partial(setattr, SongFacade.master_track(), "volume", master_volume))
+        return seq.done()
+
     def jump_to_bar(self, bar_position):
         # type: (Scene, float) -> None
+        Logger.log_dev("jumping to %s" % bar_position)
         beat_offset = (bar_position * SongFacade.signature_numerator()) - self.playing_position
         self._song.scrub_by(beat_offset)
