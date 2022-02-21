@@ -196,7 +196,7 @@ class Sequence(UseFrameworkEvents, SequenceStateMachineMixin):
 
     def _cancel(self, notify_step=True):
         # type: (bool) -> None
-        if self.errored:
+        if self.errored or self.terminated:
             return
         self.change_state(SequenceStateEnum.CANCELLED)
         if notify_step and self._current_step:

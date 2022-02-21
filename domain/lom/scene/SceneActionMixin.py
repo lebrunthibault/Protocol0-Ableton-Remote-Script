@@ -159,19 +159,13 @@ class SceneActionMixin(object):
             Scene.LAST_MANUALLY_STARTED_SCENE = self
         scene_position = Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION
 
-        Logger.log_dev("prev scene_position: %s" % scene_position)
-
         if self.has_playing_clips:
             bar_position = self.playing_position / SongFacade.signature_numerator()
-            Logger.log_dev("bar_position: %s" % bar_position)
             rounded_bar_position = floor(bar_position) if go_next else round(bar_position)
-            Logger.log_dev("rounded_bar_position: %s" % rounded_bar_position)
             scene_position = int(scroll_values(range(0, self.bar_length), rounded_bar_position, go_next=go_next))
-            Logger.log_dev("new scene_position: %s" % scene_position)
             self.jump_to_bar(scene_position)
         else:
             scene_position = scroll_values(range(0, self.bar_length), scene_position, go_next=go_next)
-            Logger.log_dev("new scene_position: %s" % scene_position)
 
         Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION = scene_position
         self.scene_name.update(bar_position=scene_position)
@@ -200,6 +194,5 @@ class SceneActionMixin(object):
 
     def jump_to_bar(self, bar_position):
         # type: (Scene, float) -> None
-        Logger.log_dev("jumping to %s" % bar_position)
         beat_offset = (bar_position * SongFacade.signature_numerator()) - self.playing_position
         self._song.scrub_by(beat_offset)

@@ -3,6 +3,7 @@ from typing import Callable, List
 import Live
 from _Framework.SubjectSlot import subject_slot
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
+from protocol0.domain.lom.scene.SceneLastBarPassedEvent import SceneLastBarPassedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.BarEndingEvent import BarEndingEvent
@@ -49,6 +50,8 @@ class BeatScheduler(UseFrameworkEvents, BeatSchedulerInterface):
         events = []
         if current_beats_song_time.bars != self._last_beats_song_time.bars:
             events.append(BarChangedEvent())
+            if SongFacade.playing_scene() and SongFacade.playing_scene().current_bar == SongFacade.playing_scene().bar_length - 1:
+                events.append(SceneLastBarPassedEvent())
 
         if current_beats_song_time.in_last_beat and not self._last_beats_song_time.in_last_beat:
             events.append(LastBeatPassedEvent())

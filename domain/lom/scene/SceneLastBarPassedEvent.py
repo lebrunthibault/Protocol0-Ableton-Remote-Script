@@ -1,0 +1,2 @@
+class SceneLastBarPassedEvent(object):
+    pass

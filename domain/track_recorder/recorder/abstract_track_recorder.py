@@ -32,6 +32,10 @@ class AbstractTrackRecorder(object):
         # type: () -> str
         return "%s of %s" % (self.__class__.__name__, self.track)
 
+    def legend(self, bar_length):
+        # type: (int) -> str
+        return "%s bars" % str(bar_length) if bar_length else "unlimited"
+
     @property
     def recording_scene_index(self):
         # type: () -> int

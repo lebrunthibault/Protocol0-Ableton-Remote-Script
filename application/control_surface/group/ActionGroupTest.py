@@ -26,4 +26,4 @@ class ActionGroupTest(ActionGroupMixin):
 
     def action_test(self):
         # type: () -> None
-        Logger.log_dev(SongFacade.selected_scene().current_bar)
+        pass

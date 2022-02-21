@@ -114,6 +114,10 @@ class ClipSlot(UseFrameworkEvents):
         # type: () -> bool
         return self._clip_slot and self._clip_slot.is_playing
 
+    def fire(self):
+        # type: () -> None
+        self._clip_slot.fire()
+
     def prepare_for_record(self):
         # type: () -> Sequence
         seq = Sequence()

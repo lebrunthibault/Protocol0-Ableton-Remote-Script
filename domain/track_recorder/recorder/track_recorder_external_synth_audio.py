@@ -16,6 +16,10 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 
 class TrackRecorderExternalSynthAudio(TrackRecorderExternalSynthMixin, AbstractTrackRecorder):
+    def legend(self, bar_length):
+        # type: (int) -> str
+        return "audio %s bars" % str(bar_length)
+
     def _pre_record(self):
         # type: () -> None
         super(TrackRecorderExternalSynthAudio, self)._pre_record()
@@ -51,5 +55,4 @@ class TrackRecorderExternalSynthAudio(TrackRecorderExternalSynthMixin, AbstractT
     def post_audio_record(self):
         # type: () -> None
         super(TrackRecorderExternalSynthAudio, self).post_audio_record()
-        self.track.audio_track.clip_slots[self.recording_scene_index].clip.color = self.track.color
         DomainEventBus.notify(ExternalSynthAudioRecordingEndedEvent(self.track))

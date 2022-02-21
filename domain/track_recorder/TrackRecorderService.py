@@ -22,7 +22,6 @@ from protocol0.domain.track_recorder.factory.track_recorder_external_synth_facto
     TrackRecorderExternalSynthFactory
 from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.logging.StatusBar import StatusBar
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -55,7 +54,8 @@ class TrackRecorderService(object):
         if isinstance(track, SimpleTrack):
             return TrackRecorderSimpleFactory(track, self._song, self.selected_recording_bar_length.bar_length_value)
         elif isinstance(track, ExternalSynthTrack):
-            return TrackRecorderExternalSynthFactory(track, self._song, self.selected_recording_bar_length.bar_length_value)
+            return TrackRecorderExternalSynthFactory(track, self._song,
+                                                     self.selected_recording_bar_length.bar_length_value)
         else:
             raise Protocol0Warning("This track is not recordable")
 
@@ -81,21 +81,20 @@ class TrackRecorderService(object):
         self._recorder = recorder_factory.create_recorder(record_type, bar_length)
         self._recorder.set_recording_scene_index(recording_scene_index)
 
+        System.client().show_info("Rec: %s" % self._recorder.legend(bar_length))
+
         seq.add(partial(self._start_recording, count_in, self._recorder, bar_length))
         return seq.done()
 
     def _start_recording(self, count_in, recorder, bar_length):
         # type: (CountInInterface, AbstractTrackRecorder, int) -> Optional[Sequence]
-        bar_legend = bar_length if bar_length else "unlimited"
-        System.client().show_info("Rec: %s bars" % bar_legend)
-
         seq = Sequence()
         seq.add(recorder.pre_record)
         seq.add(count_in.launch)
         seq.add(partial(DomainEventBus.subscribe, SongStoppedEvent, self._on_song_stopped_event))
-        seq.add(partial(recorder.record, bar_length=bar_length))
+        seq.add(partial(recorder.record, bar_length))
         seq.add(recorder.post_audio_record)
-        seq.add(partial(recorder.post_record, bar_length=bar_length))
+        seq.add(partial(recorder.post_record, bar_length))
         seq.add(SongFacade.selected_scene().fire)
         seq.add(partial(setattr, self, "_recorder", None))
 
@@ -111,7 +110,7 @@ class TrackRecorderService(object):
     def _on_song_stopped_event(self, _):
         # type: (SongStoppedEvent) -> None
         """ happens when manually stopping song while recording."""
-        if self._recorder is None or self.selected_recording_bar_length.bar_length_value == 0:
+        if self._recorder is None:
             return
         else:
             # we could cancel the record here also

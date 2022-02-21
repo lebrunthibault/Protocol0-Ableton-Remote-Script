@@ -39,16 +39,26 @@ class ActionGroupMain(ActionGroupMixin):
             filter_active_tracks=True,
             on_press=lambda: SongFacade.current_external_synth_track().monitoring_state.switch)
 
+        # RECordAudio encoder
+        self.add_encoder(
+            identifier=5,
+            name="record audio",
+            filter_active_tracks=True,
+            on_scroll=self._container.get(TrackRecorderService).scroll_recording_time,
+            on_press=lambda: partial(self._container.get(TrackRecorderService).record_track, SongFacade.current_track(),
+                                     RecordTypeEnum.AUDIO_ONLY),
+            on_long_press=lambda: partial(self._container.get(TrackRecorderService).record_track, SongFacade.current_track(),
+                                          RecordTypeEnum.AUDIO_ONLY_MULTI),
+        )
+
         # RECord encoder
         self.add_encoder(
             identifier=9,
-            name="record",
+            name="record normal",
             filter_active_tracks=True,
             on_scroll=self._container.get(TrackRecorderService).scroll_recording_time,
             on_press=lambda: partial(self._container.get(TrackRecorderService).record_track, SongFacade.current_track(),
                                      RecordTypeEnum.NORMAL),
-            on_long_press=lambda: partial(self._container.get(TrackRecorderService).record_track, SongFacade.current_track(),
-                                          RecordTypeEnum.AUDIO_ONLY),
         )
 
         # SCENe 2 encoder

@@ -14,6 +14,8 @@ from protocol0.domain.track_recorder.factory.abstract_track_recorder_factory imp
 from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
 from protocol0.domain.track_recorder.recorder.track_recorder_external_synth import TrackRecorderExternalSynth
 from protocol0.domain.track_recorder.recorder.track_recorder_external_synth_audio import TrackRecorderExternalSynthAudio
+from protocol0.domain.track_recorder.recorder.track_recorder_external_synth_audio_multi import \
+    TrackRecorderExternalSynthAudioMulti
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 
@@ -31,7 +33,7 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
 
     def create_count_in(self, record_type):
         # type: (RecordTypeEnum) -> CountInInterface
-        if record_type == RecordTypeEnum.AUDIO_ONLY:
+        if record_type in (RecordTypeEnum.AUDIO_ONLY, RecordTypeEnum.AUDIO_ONLY_MULTI):
             return CountInShort(self.track, self._song)
         else:
             return CountInOneBar(self.track, self._song)
@@ -41,8 +43,12 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
         if record_type == RecordTypeEnum.AUDIO_ONLY:
             recorder = TrackRecorderExternalSynthAudio(self.track, self._song)  # type: AbstractTrackRecorder
             recorder = TrackRecorderPropagateNewAudioClipDecorator(recorder, self._song)
-        else:
+        elif record_type == RecordTypeEnum.AUDIO_ONLY_MULTI:
+            recorder = TrackRecorderExternalSynthAudioMulti(self.track, self._song)  # type: AbstractTrackRecorder
+        elif record_type == RecordTypeEnum.NORMAL:
             recorder = TrackRecorderExternalSynth(self.track, self._song)
+        else:
+            raise Protocol0Warning("Unmatched record type %s" % record_type)
 
         if self.track.audio_tail_track and self.track.record_clip_tails and bar_length != 0:
             recorder = TrackRecorderClipTailDecorator(recorder, self._song)
@@ -51,21 +57,27 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
 
     def _get_recording_scene_index(self, record_type):
         # type: (RecordTypeEnum) -> Optional[int]
-        if record_type == RecordTypeEnum.AUDIO_ONLY:
+        if record_type in (RecordTypeEnum.AUDIO_ONLY, RecordTypeEnum.AUDIO_ONLY_MULTI):
             if not self.track.midi_track.clip_slots[SongFacade.selected_scene().index].clip:
                 raise Protocol0Warning("No midi clip selected")
             return SongFacade.selected_scene().index
-        else:
+        elif record_type == RecordTypeEnum.NORMAL:
             for i in range(SongFacade.selected_scene().index, len(SongFacade.scenes())):
                 if not self.track.midi_track.clip_slots[i].clip and not self.track.audio_track.clip_slots[i].clip:
                     return i
 
             return None
+        else:
+            raise Protocol0Warning("Unmatched record type %s" % record_type)
 
     def get_recording_bar_length(self, record_type):
         # type: (RecordTypeEnum) -> int
         if record_type == RecordTypeEnum.AUDIO_ONLY:
             midi_clip = self.track.midi_track.clip_slots[SongFacade.selected_scene().index].clip
             return midi_clip.bar_length
-        else:
+        elif record_type == RecordTypeEnum.AUDIO_ONLY_MULTI:
+            return SongFacade.selected_scene().bar_length
+        elif record_type == RecordTypeEnum.NORMAL:
             return self._recording_bar_length
+        else:
+            raise Protocol0Warning("Unmatched record type %s" % record_type)

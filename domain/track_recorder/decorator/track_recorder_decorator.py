@@ -14,6 +14,10 @@ class TrackRecorderDecorator(AbstractTrackRecorder):
         self.recorder = recorder
         self._track = recorder.track
 
+    def legend(self, bar_length):
+        # type: (int) -> str
+        return self.recorder.legend(bar_length)
+
     @property
     def recording_scene_index(self):
         # type: () -> int
