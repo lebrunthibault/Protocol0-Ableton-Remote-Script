@@ -42,5 +42,8 @@ class ClipSynchronizer(ObjectSynchronizer):
             return
         if property_name == "name":
             slave.clip_name.update(base_name=master.clip_name.base_name)
+        elif master.length > slave.length:
+            # do not synchronize when duplicating midi loop or editing midi clip length manually
+            return
         else:
             super(ClipSynchronizer, self)._sync_property(master, slave, property_name)

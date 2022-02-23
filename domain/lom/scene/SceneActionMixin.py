@@ -166,6 +166,7 @@ class SceneActionMixin(object):
             self.jump_to_bar(scene_position)
         else:
             scene_position = scroll_values(range(0, self.bar_length), scene_position, go_next=go_next)
+            Logger.log_dev("next scene position: %s" % scene_position)
 
         Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION = scene_position
         self.scene_name.update(bar_position=scene_position)

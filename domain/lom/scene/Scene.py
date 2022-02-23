@@ -68,11 +68,13 @@ class Scene(SceneActionMixin, UseFrameworkEvents):
 
     def _map_clips(self):
         # type: () -> None
-        self.clips = [clip_slot.clip for clip_slot in self.clip_slots if
-                      clip_slot.has_clip and clip_slot.clip and clip_slot.track.__class__ not in (
-                          SimpleDummyTrack, SimpleInstrumentBusTrack)]
+        clips = [clip_slot.clip for clip_slot in self.clip_slots if
+                 clip_slot.has_clip and clip_slot.clip and clip_slot.track.__class__ not in (
+                     SimpleDummyTrack, SimpleInstrumentBusTrack)]
+
+        self.clips = [clip for clip in clips if not isinstance(clip, AudioTailClip)]
         self.audio_tail_clips = cast(List[AudioTailClip],
-                                     [clip for clip in self.clips if isinstance(clip, AudioTailClip)])
+                                     [clip for clip in clips if isinstance(clip, AudioTailClip)])
         self._clips_length_listener.replace_subjects(self.clips)
         self._clips_muted_listener.replace_subjects([clip._clip for clip in self.clips])
 
@@ -113,7 +115,8 @@ class Scene(SceneActionMixin, UseFrameworkEvents):
     @property
     def next_scene(self):
         # type: () -> Scene
-        if self == SongFacade.looping_scene() or self == SongFacade.scenes()[-1] or SongFacade.scenes()[self.index + 1].bar_length == 0:
+        if self == SongFacade.looping_scene() or self == SongFacade.scenes()[-1] or SongFacade.scenes()[
+            self.index + 1].bar_length == 0:
             return self
         else:
             return SongFacade.scenes()[self.index + 1]

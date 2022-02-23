@@ -1,8 +1,6 @@
-from protocol0.domain.lom.instrument.InstrumentWithEditorInterface import InstrumentWithEditorInterface
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationView import ApplicationView
-from protocol0.domain.shared.System import System
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
 
@@ -22,6 +20,7 @@ class TrackRecorderExternalSynthMixin(object):
 
     def _pre_record(self):
         # type: () -> None
+        self.track.monitoring_state.monitor_midi()
         self.track.midi_track.select()
         ApplicationView.show_device()
 

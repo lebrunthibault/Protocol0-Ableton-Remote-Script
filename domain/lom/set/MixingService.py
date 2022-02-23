@@ -50,7 +50,7 @@ class MixingService(UseFrameworkEvents):
     @subject_slot_group("output_meter_level")
     def _track_output_meter_level_listener(self, track):
         # type: (Live.Track.Track) -> None
-        if track.output_meter_level < Config.CLIPPING_TRACK_VOLUME:
+        if track.output_meter_level < Config.CLIPPING_TRACK_VOLUME or not SongFacade.is_playing():
             return
         System.client().show_warning("%s is clipping (%s)" % (track.name, track.output_meter_level))
 

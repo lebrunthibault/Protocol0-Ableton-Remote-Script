@@ -63,8 +63,8 @@ class ExternalSynthTrackMonitoringState(object):
         # type: () -> None
         # midi track
         self._mute_track(self._track.midi_track)
-        for clip in self._track.midi_track.clips:
-            clip.muted = True
+        # for clip in self._track.midi_track.clips:
+        #     clip.muted = True
 
         # audio track
         self._un_mute_track(self._track.audio_track)
