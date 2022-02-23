@@ -2,6 +2,7 @@ from typing import Optional, Tuple, Callable
 
 from _Framework.ControlSurface import get_control_surfaces
 from protocol0.application.CommandBus import CommandBus
+from protocol0.application.command.SerializableCommand import SerializableCommand
 from protocol0.domain.lom.instrument.preset.PresetProgramSelectedEvent import PresetProgramSelectedEvent
 from protocol0.domain.lom.song.SongInitializedEvent import SongInitializedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
@@ -48,7 +49,8 @@ class MidiService(object):
         # type: (MidiBytesReceivedEvent) -> None
         message = self._sysex_to_string(sysex=event.midi_bytes)
         Logger.log_debug("message: %s" % message)
-        CommandBus.execute_from_string(message)
+        command = SerializableCommand.unserialize(message)
+        CommandBus.dispatch(command)
 
     def _on_preset_program_selected_event(self, event):
         # type: (PresetProgramSelectedEvent) -> None

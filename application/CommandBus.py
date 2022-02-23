@@ -47,12 +47,6 @@ class CommandBus(object):
         return mapping
 
     @classmethod
-    def execute_from_string(cls, command_string):
-        # type: (str) -> None
-        command = SerializableCommand.unserialize(command_string)
-        cls.dispatch(command)
-
-    @classmethod
     def dispatch(cls, command):
         # type: (SerializableCommand) -> None
         cls._INSTANCE._dispatch_command(command)
