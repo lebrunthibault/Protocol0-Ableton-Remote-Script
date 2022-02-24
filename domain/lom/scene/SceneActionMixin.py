@@ -123,17 +123,20 @@ class SceneActionMixin(object):
 
         self.scene_name.update()
 
-    def split(self, bar_length):
+    def split(self, split_bar_length):
         # type: (Scene, int) -> Sequence
-        if bar_length == 0:
+        if split_bar_length == 0:
             raise Protocol0Warning("Please select a bar length")
 
-        StatusBar.show_message("Splitting scene one %d bar(s)" % bar_length)
-        length = bar_length * SongFacade.signature_numerator()
+        StatusBar.show_message("Splitting %s on %d bar(s)" % (self, split_bar_length))
+        split_length = split_bar_length * SongFacade.signature_numerator()
+        scene_length = self.length  # modified by following code
+
         seq = Sequence()
         seq.add(self.duplicate)
-        seq.add(partial(self._crop_clips, 0, length))
-        seq.add(lambda: self._song.selected_scene._crop_clips(length, self.length))
+        seq.add(partial(self._crop_clips, 0, split_length))
+        seq.add(lambda: self._song.selected_scene._crop_clips(split_length, scene_length))
+
         for track in SongFacade.external_synth_tracks():
             if track.audio_tail_track and track.audio_tail_track.clip_slots[self.index].clip:
                 seq.add([track.audio_tail_track.clip_slots[self.index].clip.delete])
@@ -142,6 +145,9 @@ class SceneActionMixin(object):
     def _crop_clips(self, start, end):
         # type: (Scene, float, float) -> None
         for clip in self.clips:
+            if clip.length <= end - start:
+                continue
+            Logger.log_dev("cropping %s to %s <-> %s" % (clip, start, end))
             if start == 0 and isinstance(clip, AudioTailClip):
                 clip.delete()
                 return

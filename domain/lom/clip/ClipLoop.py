@@ -23,13 +23,13 @@ class ClipLoop(object):
         # type: (float) -> None
         assert start >= 0, "start should be >= 0"
         if start % SongFacade.signature_numerator() != 0:
-            System.client().show_warning("start should be a bar length")
+            System.client().show_warning("start should be a bar length : %s" % self._clip)
             return
         if start >= self._clip.end_marker:
-            System.client().show_warning("Cannot set start >= end_marker")
+            System.client().show_warning("Cannot set start >= end_marker : %s" % self._clip)
             return
         if start >= self._clip.loop_end:
-            System.client().show_warning("Cannot set start >= loop_end")
+            System.client().show_warning("Cannot set start >= loop_end : %s" % self._clip)
             return
 
         self._clip.start_marker = start
@@ -44,13 +44,13 @@ class ClipLoop(object):
     def end(self, end):
         # type: (float) -> None
         if end % SongFacade.signature_numerator() != 0:
-            System.client().show_warning("end should be a bar length")
+            System.client().show_warning("end should be a bar length : %s" % self._clip)
             return
         if end <= self._clip.start_marker:
-            System.client().show_warning("Cannot set end <= start_marker")
+            System.client().show_warning("Cannot set end <= start_marker : %s" % self._clip)
             return
         if end <= self._clip.loop_start:
-            System.client().show_warning("Cannot set end <= loop_start")
+            System.client().show_warning("Cannot set end <= loop_start : %s" % self._clip)
             return
 
         self._clip.end_marker = end
