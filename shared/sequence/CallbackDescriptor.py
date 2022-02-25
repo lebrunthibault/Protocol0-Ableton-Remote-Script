@@ -23,9 +23,9 @@ class CallbackDescriptor(object):
                 we patch the subject slot mixin to look like CallableWithCallbacks
                 The external interface is gonna be the same in both cases now
                 (we use only add_callback, clear_callbacks and __call)
-            - At method execution time (by _Framework code), we need to fetch
+            - At method execution time (by _Framework lint), we need to fetch
                 the real undecorated method to get the result.
-                Didn't really understand why _Framework code is not forwarding the result
+                Didn't really understand why _Framework lint is not forwarding the result
                 when calling the subject slot mixin ..
             - Then we get the best of both worlds, _Framework is doing its listener magic
                 while we get full control on the function execution, response and _callbacks execution.

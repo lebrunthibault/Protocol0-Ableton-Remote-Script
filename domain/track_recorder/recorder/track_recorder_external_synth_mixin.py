@@ -29,10 +29,6 @@ class TrackRecorderExternalSynthMixin(object):
         # type: (AbstractTrackRecorder) -> None
         from typing import cast
         track = cast(ExternalSynthTrack, self.track)
-        # instrument = track.instrument
-        # if isinstance(instrument, InstrumentWithEditorInterface):
-        #     instrument.activate_editor_automation()
-        # System.client().hide_plugins()
         # this is delayed in the case an encoder is touched after the recording is finished by mistake
         for tick in [1, 10, 50, 100]:
             Scheduler.wait(tick, self._song.re_enable_automation)

@@ -1,8 +1,5 @@
-from protocol0.application.CommandBus import CommandBus
-from protocol0.application.command.ToggleSceneLoopCommand import ToggleSceneLoopCommand
 from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
 from protocol0.domain.shared.System import System
-from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 
 
@@ -28,4 +25,4 @@ class ActionGroupTest(ActionGroupMixin):
 
     def action_test(self):
         # type: () -> None
-        CommandBus.dispatch(ToggleSceneLoopCommand())
+        self._song.looping_scene_toggler.reset()

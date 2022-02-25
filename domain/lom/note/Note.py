@@ -1,11 +1,7 @@
 from typing import Any, Tuple
 
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
-
-
-def clamp(val, minv, maxv):
-    # type: (float, float, float) -> float
-    return max(minv, min(val, maxv))
+from protocol0.domain.shared.utils import clamp
 
 
 class Note(object):

@@ -184,16 +184,16 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents):
         # type: () -> bool
         return False
 
-    @property
-    def is_partially_armed(self):
-        # type: () -> bool
-        return self.is_armed
-
     @is_armed.setter
     def is_armed(self, is_armed):
         # type: (bool) -> None
         for track in self.sub_tracks:
             track.is_armed = is_armed
+
+    @property
+    def is_partially_armed(self):
+        # type: () -> bool
+        return self.is_armed
 
     @property
     def clips(self):

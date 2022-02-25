@@ -1,15 +1,12 @@
 from typing import Optional
 
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
-from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
-from protocol0.domain.lom.instrument.instrument.InstrumentProphet import InstrumentProphet
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.routing.InputRoutingChannelEnum import InputRoutingChannelEnum
 from protocol0.domain.lom.validation.object_validators.SimpleAudioTailTrackValidator import \
     SimpleAudioTailTrackValidator
 from protocol0.domain.lom.validation.sub_validators.AggregateValidator import AggregateValidator
 from protocol0.domain.lom.validation.sub_validators.CallbackValidator import CallbackValidator
-from protocol0.domain.lom.validation.sub_validators.DeviceParameterValidator import DeviceParameterValidator
 from protocol0.domain.lom.validation.sub_validators.PropertyValueValidator import PropertyValueValidator
 from protocol0.domain.lom.validation.sub_validators.SimpleTrackHasDeviceValidator import SimpleTrackHasDeviceValidator
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
@@ -48,10 +45,6 @@ class ExternalSynthTrackValidator(AggregateValidator):
 
         for dummy_track in track.dummy_tracks:
             validators.append(PropertyValueValidator(dummy_track, "volume", Config.ZERO_DB_VOLUME))
-
-        instrument = track.instrument
-        if isinstance(instrument, InstrumentProphet):
-            validators.append(DeviceParameterValidator(instrument.device, DeviceParameterEnum.DEVICE_ON, instrument.EDITOR_DEVICE_ON))
 
         super(ExternalSynthTrackValidator, self).__init__(validators)
 

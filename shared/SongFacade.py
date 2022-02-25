@@ -170,9 +170,7 @@ class SongFacade(object):
     @classmethod
     def looping_scene(cls):
         # type: () -> Optional[Scene]
-        from protocol0.domain.lom.scene.Scene import Scene
-
-        return Scene.LOOPING_SCENE
+        return cls._INSTANCE._song.looping_scene_toggler.value
 
     @classmethod
     def last_manually_started_scene(cls):

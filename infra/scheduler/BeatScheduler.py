@@ -1,7 +1,7 @@
+from _Framework.SubjectSlot import subject_slot
 from typing import Callable, List
 
 import Live
-from _Framework.SubjectSlot import subject_slot
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.scene.SceneLastBarPassedEvent import SceneLastBarPassedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus

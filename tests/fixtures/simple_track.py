@@ -1,7 +1,7 @@
+from _Framework.SubjectSlot import Subject
 from typing import cast, List
 
 import Live
-from _Framework.SubjectSlot import Subject
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.tests.fixtures.clip_slot import AbletonClipSlot
 from protocol0.tests.fixtures.device import AbletonDevice

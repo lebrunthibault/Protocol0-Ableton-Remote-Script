@@ -2,7 +2,6 @@ from functools import partial
 
 from typing import Optional, Any
 
-from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.lom.scene.SceneLastBarPassedEvent import SceneLastBarPassedEvent
 from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -15,7 +14,7 @@ class TrackRecorderExternalSynthAudioMulti(TrackRecorderExternalSynthAudio):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(TrackRecorderExternalSynthAudioMulti, self).__init__(*a, **k)
-        Scene.LOOPING_SCENE = None
+        self._song.looping_scene_toggler.reset()
 
     def legend(self, bar_length):
         # type: (int) -> str

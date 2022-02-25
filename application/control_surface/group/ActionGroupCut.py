@@ -1,7 +1,6 @@
 from functools import partial
 
 from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
-from protocol0.domain.lom.scene.ScenesService import ScenesService
 from protocol0.shared.SongFacade import SongFacade
 
 
@@ -43,8 +42,8 @@ class ActionGroupSet(ActionGroupMixin):
         # CROP encoder
         self.add_encoder(identifier=12,
                          name="crop scene",
-                         on_scroll=self._container.get(ScenesService).scroll_scene_crop_bar_length,
-                         on_press=lambda: partial(SongFacade.selected_scene().crop, self._container.get(ScenesService).scene_crop_bar_length)
+                         on_scroll=lambda: SongFacade.selected_scene().crop_scroller.scroll,
+                         on_press=lambda: partial(SongFacade.selected_scene().crop)
                          )
 
         # 2 bars loop encoder

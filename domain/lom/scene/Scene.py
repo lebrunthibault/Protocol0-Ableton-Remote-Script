@@ -1,15 +1,17 @@
 from functools import partial
 
+from _Framework.SubjectSlot import subject_slot_group
 from typing import List, Optional, cast, TYPE_CHECKING
 
 import Live
-from _Framework.SubjectSlot import subject_slot_group
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.clip.AudioTailClip import AudioTailClip
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.scene.SceneActionMixin import SceneActionMixin
+from protocol0.domain.lom.scene.SceneCropScroller import SceneCropScroller
 from protocol0.domain.lom.scene.SceneName import SceneName
+from protocol0.domain.lom.scene.ScenePositionScroller import ScenePositionScroller
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -24,9 +26,7 @@ if TYPE_CHECKING:
 
 class Scene(SceneActionMixin, UseFrameworkEvents):
     PLAYING_SCENE = None  # type: Optional[Scene]
-    LOOPING_SCENE = None  # type: Optional[Scene]
     LAST_MANUALLY_STARTED_SCENE = None  # type: Optional[Scene]
-    LAST_MANUALLY_STARTED_SCENE_BAR_POSITION = 0  # type: int
 
     def __init__(self, scene, index, song):
         # type: (Live.Scene.Scene, int, Song) -> None
@@ -36,6 +36,8 @@ class Scene(SceneActionMixin, UseFrameworkEvents):
         self._song = song
 
         self.scene_name = SceneName(self)
+        self.crop_scroller = SceneCropScroller(self)
+        self.position_scroller = ScenePositionScroller(self)
 
         self.clip_slots = []  # type: List[ClipSlot]
         self.clips = []  # type: List[Clip]
@@ -115,8 +117,7 @@ class Scene(SceneActionMixin, UseFrameworkEvents):
     @property
     def next_scene(self):
         # type: () -> Scene
-        if self == SongFacade.looping_scene() or self == SongFacade.scenes()[-1] or SongFacade.scenes()[
-            self.index + 1].bar_length == 0:
+        if self == SongFacade.looping_scene() or self == SongFacade.scenes()[-1] or SongFacade.scenes()[self.index + 1].bar_length == 0:
             return self
         else:
             return SongFacade.scenes()[self.index + 1]
@@ -164,11 +165,16 @@ class Scene(SceneActionMixin, UseFrameworkEvents):
             return 0
 
     @property
+    def playing_bar_position(self):
+        # type: () -> float
+        return self.playing_position / SongFacade.signature_numerator()
+
+    @property
     def current_bar(self):
         # type: () -> int
         if self.length == 0:
             return 0
-        return int(self.playing_position / SongFacade.signature_numerator())
+        return int(self.playing_bar_position)
 
     @property
     def has_playing_clips(self):

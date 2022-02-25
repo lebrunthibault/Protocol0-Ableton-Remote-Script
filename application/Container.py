@@ -102,7 +102,7 @@ class Container(ContainerInterface):
                                                             interface_clicks_service)
         preset_service = PresetService()
         session_to_arrangement_service = SessionToArrangementService(song)
-        song_data_service = SongDataService(live_song.get_data, live_song.set_data, track_recorder_service, scenes_service)
+        song_data_service = SongDataService(live_song.get_data, live_song.set_data)
 
         # vocal command
         keyword_search_service = KeywordSearchService()

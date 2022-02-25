@@ -17,7 +17,6 @@ from protocol0.domain.track_recorder.recorder.track_recorder_external_synth_audi
 from protocol0.domain.track_recorder.recorder.track_recorder_external_synth_audio_multi import \
     TrackRecorderExternalSynthAudioMulti
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.song.Song import Song
@@ -44,7 +43,7 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
             recorder = TrackRecorderExternalSynthAudio(self.track, self._song)  # type: AbstractTrackRecorder
             recorder = TrackRecorderPropagateNewAudioClipDecorator(recorder, self._song)
         elif record_type == RecordTypeEnum.AUDIO_ONLY_MULTI:
-            recorder = TrackRecorderExternalSynthAudioMulti(self.track, self._song)  # type: AbstractTrackRecorder
+            recorder = TrackRecorderExternalSynthAudioMulti(self.track, self._song)
         elif record_type == RecordTypeEnum.NORMAL:
             recorder = TrackRecorderExternalSynth(self.track, self._song)
         else:

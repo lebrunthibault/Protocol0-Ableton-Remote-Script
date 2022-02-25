@@ -2,7 +2,6 @@ from functools import partial
 
 from typing import TYPE_CHECKING
 
-from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
@@ -34,7 +33,7 @@ class SessionToArrangementService(object):
 
     def _bounce(self):
         # type: () -> None
-        Scene.LOOPING_SCENE = None
+        self._song.looping_scene_toggler.reset()
         self._is_bouncing = True
         self._song.unfocus_all_tracks()
         self._tempo = self._song.tempo

@@ -111,11 +111,6 @@ class Sequence(UseFrameworkEvents, SequenceStateMachineMixin):
         self.start()
         return self
 
-    @property
-    def waiting_for_system(self):
-        # type: () -> bool
-        return self._current_step is not None and self._current_step.wait_for_system
-
     def start(self):
         # type: () -> None
         self.change_state(SequenceStateEnum.STARTED)
@@ -215,7 +210,7 @@ class Sequence(UseFrameworkEvents, SequenceStateMachineMixin):
         # type: () -> None
         super(Sequence, self).disconnect()
         if self._current_step:
-            self._current_step.waiting_for_system = False
+            self._current_step.wait_for_system = False
             self._current_step = None
         try:
             self.RUNNING_SEQUENCES.remove(self)

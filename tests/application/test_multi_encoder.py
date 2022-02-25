@@ -1,9 +1,9 @@
 import pytest
 
+from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
 from protocol0.application.control_surface.EncoderAction import EncoderAction
 from protocol0.application.control_surface.EncoderMoveEnum import EncoderMoveEnum
 from protocol0.application.control_surface.MultiEncoder import MultiEncoder
-from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.tests.fixtures.container import TestContainer
 from protocol0.tests.fixtures.p0 import make_protocol0

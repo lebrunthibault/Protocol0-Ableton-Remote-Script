@@ -1,6 +1,6 @@
+from _Framework.SessionComponent import SessionComponent
 from typing import Optional, List, Callable
 
-from _Framework.SessionComponent import SessionComponent
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.SessionServiceInterface import SessionServiceInterface
 from protocol0.shared.SongFacade import SongFacade

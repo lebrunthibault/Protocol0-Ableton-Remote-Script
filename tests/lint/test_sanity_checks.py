@@ -40,4 +40,4 @@ def test_sequence_pattern():
             returned_sequences_count = file_content.count("seq.done(")  # expecting coherent naming
             assert (
                     instantiated_sequences_count <= returned_sequences_count
-            ), "invalid sequence code in %s" % filename.replace(Config.PROJECT_ROOT, "")
+            ), "invalid sequence lint in %s" % filename.replace(Config.PROJECT_ROOT, "")

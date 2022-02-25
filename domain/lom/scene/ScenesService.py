@@ -1,21 +1,18 @@
 import collections
 from itertools import chain
 
+from _Framework.SubjectSlot import subject_slot
 from typing import Optional, List, TYPE_CHECKING
 
 import Live
-from _Framework.SubjectSlot import subject_slot
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.lom.scene.ScenesMappedEvent import ScenesMappedEvent
-from protocol0.domain.lom.scene.SceneCropBarLengthUpdatedEvent import \
-    SceneCropBarLengthUpdatedEvent
 from protocol0.domain.lom.song.SongStartedEvent import SongStartedEvent
 from protocol0.domain.lom.track.TrackAddedEvent import TrackAddedEvent
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.decorators import handle_error
-from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -23,7 +20,6 @@ from protocol0.domain.shared.utils import scroll_values
 from protocol0.domain.track_recorder.TrackRecorderService import TrackRecorderService
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
-from protocol0.shared.logging.StatusBar import StatusBar
 from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -38,7 +34,6 @@ class ScenesService(UseFrameworkEvents):
         self._track_recorder_service = track_recorder_service
         self.scenes_listener.subject = song._song
         self._live_scene_id_to_scene = collections.OrderedDict()
-        self.scene_crop_bar_length = 1
 
         DomainEventBus.subscribe(BarChangedEvent, self._on_bar_changed_event)
         DomainEventBus.subscribe(LastBeatPassedEvent, self._on_last_beat_passed_event)
@@ -158,25 +153,3 @@ class ScenesService(UseFrameworkEvents):
     def scroll_scenes(self, go_next):
         # type: (bool) -> None
         scroll_values(SongFacade.scenes(), SongFacade.selected_scene(), go_next, rotate=False).select()
-
-    def scroll_scene_crop_bar_length(self, go_next):
-        # type: (bool) -> None
-        selected_scene = SongFacade.selected_scene()
-        if selected_scene.bar_length < 2:
-            raise Protocol0Warning("Scene should be at least 2 bars for cropping")
-
-        bar_lengths = []
-        power = 0
-        while pow(2, power) <= selected_scene.bar_length / 2:
-            bar_lengths += [-pow(2, power), pow(2, power)]
-            power += 1
-        bar_lengths = list(dict.fromkeys(bar_lengths))
-        bar_lengths.sort()
-
-        if self.scene_crop_bar_length not in bar_lengths:
-            self.scene_crop_bar_length = 1
-        self.scene_crop_bar_length = scroll_values(
-            bar_lengths, self.scene_crop_bar_length, go_next
-        )
-        StatusBar.show_message("SCENE CROP : %s bars" % self.scene_crop_bar_length)
-        DomainEventBus.notify(SceneCropBarLengthUpdatedEvent())

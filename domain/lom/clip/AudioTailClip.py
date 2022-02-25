@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:

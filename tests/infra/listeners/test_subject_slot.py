@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 from _Framework.SubjectSlot import Subject
+
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.shared.decorators import p0_subject_slot
 

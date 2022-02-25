@@ -1,8 +1,8 @@
 from collections import namedtuple
 
+from _Framework.SubjectSlot import Subject
 from typing import List, Any
 
-from _Framework.SubjectSlot import Subject
 from protocol0.tests.fixtures.simple_track import AbletonTrack
 from protocol0.tests.fixtures.song_view import AbletonSongView
 

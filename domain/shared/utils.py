@@ -13,23 +13,31 @@ from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.types import T
 
 
-def scroll_values(items, selected_item, go_next, rotate=True):
+def scroll_values(items, current_value, go_next, rotate=True):
     # type: (Iterator[T], Optional[T], bool, bool) -> T
-    items_list = list(items)  # type: List[T]
-    if selected_item not in items_list:
-        selected_item = items_list[0]
+    values = list(items)  # type: List[T]
+    if current_value not in values:
+        return values[0]
 
     increment = 1 if go_next else -1
+    current_index = values.index(current_value)
+    next_index = current_index + increment
 
     if rotate is False:
-        if (selected_item == items_list[0] and increment == -1) \
-                or (selected_item == items_list[-1] and increment == 1):
-            return selected_item
-    try:
-        index = (items_list.index(selected_item) + increment) % len(items_list)
-        return items_list[index]
-    except ValueError:
-        return selected_item
+        next_index = int(clamp(next_index, 0, len(values) - 1))
+    else:
+        next_index = (current_index + increment) % len(values)
+
+    return values[next_index]
+    # try:
+    #     return values[next_index]
+    # except ValueError:
+    #     return current_value
+
+
+def clamp(val, minv, maxv):
+    # type: (float, float, float) -> float
+    return max(minv, min(val, maxv))
 
 
 def find_if(predicate, seq):

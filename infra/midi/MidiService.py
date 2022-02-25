@@ -1,6 +1,6 @@
+from _Framework.ControlSurface import get_control_surfaces
 from typing import Optional, Tuple, Callable
 
-from _Framework.ControlSurface import get_control_surfaces
 from protocol0.application.CommandBus import CommandBus
 from protocol0.application.command.SerializableCommand import SerializableCommand
 from protocol0.domain.lom.instrument.preset.PresetProgramSelectedEvent import PresetProgramSelectedEvent

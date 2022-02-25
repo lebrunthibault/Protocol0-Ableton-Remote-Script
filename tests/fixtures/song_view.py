@@ -1,6 +1,6 @@
+from _Framework.SubjectSlot import Subject
 from typing import Optional
 
-from _Framework.SubjectSlot import Subject
 from protocol0.tests.fixtures.scene import AbletonScene
 from protocol0.tests.fixtures.simple_track import AbletonTrack
 

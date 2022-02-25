@@ -61,7 +61,7 @@ class EmptyModule(object):
         return 0
 
 
-# allows accessing code from this module from outside of the Live python environment, e.g. Jupyter tests
+# allows accessing lint from this module from outside of the Live python environment, e.g. Jupyter tests
 if not live_environment_loaded:
     sys.modules["Live"] = EmptyModule("Live")  # type: ignore[assignment]
     sys.modules["MidiRemoteScript"] = EmptyModule("MidiRemoteScript")  # type: ignore[assignment]

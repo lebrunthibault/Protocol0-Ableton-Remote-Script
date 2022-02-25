@@ -50,8 +50,6 @@ class ExternalSynthTrackActionMixin(object):
     def copy_and_paste_clips_to_new_scene(self):
         # type: (ExternalSynthTrack) -> Sequence
         current_track = self
-        if SongFacade.selected_scene() != SongFacade.looping_scene():
-            SongFacade.selected_scene().toggle_loop()
         seq = Sequence()
         seq.add(SongFacade.selected_scene().duplicate)
         seq.add(current_track.midi_track.clips[SongFacade.selected_scene().index].select)

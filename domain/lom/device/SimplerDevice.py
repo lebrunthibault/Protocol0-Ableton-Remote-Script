@@ -19,6 +19,8 @@ class SimplerDevice(Device):
         # type: () -> Optional[Live.Sample.Sample]
         if self._device:
             return self._device.sample
+        else:
+            return None
 
     @property
     def preset_name(self):

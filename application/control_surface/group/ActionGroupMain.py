@@ -44,7 +44,6 @@ class ActionGroupMain(ActionGroupMixin):
             identifier=5,
             name="record audio",
             filter_active_tracks=True,
-            on_scroll=self._container.get(TrackRecorderService).scroll_recording_time,
             on_press=lambda: partial(self._container.get(TrackRecorderService).record_track, SongFacade.current_track(),
                                      RecordTypeEnum.AUDIO_ONLY),
             on_long_press=lambda: partial(self._container.get(TrackRecorderService).record_track, SongFacade.current_track(),
@@ -56,7 +55,7 @@ class ActionGroupMain(ActionGroupMixin):
             identifier=9,
             name="record normal",
             filter_active_tracks=True,
-            on_scroll=self._container.get(TrackRecorderService).scroll_recording_time,
+            on_scroll=self._container.get(TrackRecorderService).recording_bar_length_scroller.scroll,
             on_press=lambda: partial(self._container.get(TrackRecorderService).record_track, SongFacade.current_track(),
                                      RecordTypeEnum.NORMAL),
         )
@@ -65,8 +64,8 @@ class ActionGroupMain(ActionGroupMixin):
         self.add_encoder(
             identifier=12,
             name="scene scroll time",
-            on_scroll=lambda: SongFacade.selected_scene().scroll_position,
-            on_press=lambda: SongFacade.last_manually_started_scene().fire_and_move_position,
+            on_scroll=lambda: SongFacade.selected_scene().position_scroller.scroll,
+            on_press=lambda: SongFacade.last_manually_started_scene().fire_to_position,
             on_long_press=lambda: SongFacade.current_track().toggle_fold,
         )
 
@@ -94,6 +93,6 @@ class ActionGroupMain(ActionGroupMixin):
             identifier=16,
             name="scene",
             on_press=lambda: SongFacade.selected_scene().fire,
-            on_long_press=lambda: SongFacade.selected_scene().toggle_loop,
+            on_long_press=self._song.looping_scene_toggler.toggle,
             on_scroll=self._song.scroll_scenes,
         )

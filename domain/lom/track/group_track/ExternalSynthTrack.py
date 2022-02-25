@@ -150,17 +150,17 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         # type: () -> bool
         return all(sub_track.is_armed for sub_track in self.sub_tracks if not isinstance(sub_track, SimpleDummyTrack))
 
-    @property
-    def is_partially_armed(self):
-        # type: () -> bool
-        return any(sub_track.is_armed for sub_track in self.sub_tracks if not isinstance(sub_track, SimpleDummyTrack))
-
     @is_armed.setter
     def is_armed(self, is_armed):
         # type: (bool) -> None
         for track in self.sub_tracks:
             if not isinstance(track, SimpleDummyTrack):
                 track.is_armed = is_armed
+
+    @property
+    def is_partially_armed(self):
+        # type: () -> bool
+        return any(sub_track.is_armed for sub_track in self.sub_tracks if not isinstance(sub_track, SimpleDummyTrack))
 
     @property
     def is_playing(self):

@@ -1,19 +1,13 @@
 from functools import partial
-from math import floor
 
 from typing import TYPE_CHECKING, Optional, cast
 
-from protocol0.domain.lom.clip.AudioTailClip import AudioTailClip
-from protocol0.domain.lom.scene.SceneLengthWindow import SceneLengthWindow
+from protocol0.domain.lom.scene.SceneWindow import SceneWindow
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
-from protocol0.domain.shared.decorators import throttle
-from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.shared.utils import scroll_values
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
-from protocol0.shared.logging.StatusBar import StatusBar
 from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -37,14 +31,10 @@ class SceneActionMixin(object):
         # if it is the last bar
         if self.current_bar == self.bar_length - 1:
             self._play_audio_tails()
-            self._fire_next_scene()
+            next_scene = self.next_scene
 
-    def _fire_next_scene(self):
-        # type: (Scene) -> None
-        next_scene = self.next_scene
-
-        if next_scene != self:
-            next_scene.fire()  # do not fire same scene as it focus it again (can loose current parameter focus)
+            if next_scene != self:
+                next_scene.fire()  # do not fire same scene as it focus it again (can loose current parameter focus)
 
     def fire(self):
         # type: (Scene) -> None
@@ -67,11 +57,6 @@ class SceneActionMixin(object):
 
     def _stop_previous_scene(self, previous_playing_scene, immediate=False):
         # type: (Scene, Scene, bool) -> None
-        from protocol0.domain.lom.scene.Scene import Scene
-
-        if previous_playing_scene == SongFacade.looping_scene():
-            Scene.LOOPING_SCENE = None
-
         # manually stopping previous scene because we don't display clip slot stop buttons
         for track in previous_playing_scene.tracks:
             if not track.is_playing or track in self.tracks or isinstance(track, SimpleAudioTailTrack):
@@ -79,7 +64,10 @@ class SceneActionMixin(object):
 
             track.stop(immediate=immediate)
 
-        Scheduler.wait_beats(1, partial(previous_playing_scene.scene_name.update))
+        seq = Sequence()
+        seq.add(wait_for_event=BarChangedEvent)
+        seq.add(previous_playing_scene.scene_name.update)
+        seq.done()
 
     def _play_audio_tails(self):
         # type: (Scene) -> None
@@ -107,129 +95,42 @@ class SceneActionMixin(object):
             return self._song.delete_scene(self.index)
         return None
 
-    def toggle_loop(self):
-        # type: (Scene) -> None
-        """ for a scene solo means looped """
-        from protocol0.domain.lom.scene.Scene import Scene
-
-        if self != SongFacade.looping_scene():  # solo activation
-            previous_looping_scene = SongFacade.looping_scene()
-            Scene.LOOPING_SCENE = self
-            if self != SongFacade.playing_scene():
-                self.fire()
-            if previous_looping_scene and previous_looping_scene != self:
-                previous_looping_scene.scene_name.update()
-        else:  # solo inactivation
-            Scene.LOOPING_SCENE = None
-
-        self.scene_name.update()
-
     def split(self):
-        # type: (Scene, int) -> Sequence
-        if self.bar_length < 2:
-            raise Protocol0Warning("Scene should be at least 2 bars for splitting")
-        if self.bar_length % 2 != 0:
-            raise Protocol0Warning("Can only split scene with even bar length")
-
-        StatusBar.show_message("Splitting %s" % self)
-        start_window, end_window = SceneLengthWindow.create_from_split(self, self.bar_length / 2)
-
-        seq = Sequence()
-        seq.add(self.duplicate)
-
-        # crop first half and delete tail clips
-        seq.add(partial(self._crop_clips, start_window))
-        # crop 2nd half
-        seq.add(lambda: self._song.selected_scene._crop_clips(end_window))
-
-        return seq.done()
-
-    def crop(self, crop_bar_length):
-        # type: (Scene, int) -> Sequence
-        StatusBar.show_message("Splitting %s on %d bar(s)" % (self, crop_bar_length))
-        crop_length = crop_bar_length * SongFacade.signature_numerator()
-        scene_length = self.length  # modified by following code
-
-        seq = Sequence()
-        seq.add(self.duplicate)
-
-        # 2 cases : either we crop from the beginning, or from the end
-        # in the 2nd case we can repeat the end of a scene
-        if crop_length > 0:
-            start_length = 0
-            end_length = crop_length
-            seq.add(lambda: self._song.selected_scene._delete_tail_clips)
-        else:
-            start_length = scene_length - crop_length
-            end_length = scene_length
-
-        seq.add(lambda: self._song.selected_scene._crop_clips(start_length, end_length))
-
-        return seq.done()
-
-    def _crop_clips(self, scene_window):
-        # type: (Scene, SceneLengthWindow) -> None
-        for clip in self.clips:
-            if clip.length <= scene_window.length:
-                continue
-            if isinstance(clip, AudioTailClip) and not scene_window.has_scene_end:
-                clip.delete()
-                return
-
-            Logger.log_dev("cropping %s to %s <-> %s" % (clip, scene_window.start_length, scene_window.end_length))
-
-            clip.loop.start = scene_window.start_length
-            clip.loop.end = scene_window.end_length
-
-    def _delete_tail_clips(self):
         # type: (Scene) -> Sequence
+        start_window, end_window = SceneWindow.create_from_split(self)
+
         seq = Sequence()
-        for track in SongFacade.external_synth_tracks():
-            if track.audio_tail_track and track.audio_tail_track.clip_slots[self.index].clip:
-                seq.add([track.audio_tail_track.clip_slots[self.index].clip.delete])
+        seq.add(self.duplicate)
+
+        # crop first half
+        seq.add(partial(start_window.apply_to_scene, self))
+        # crop 2nd half
+        seq.add(lambda: end_window.apply_to_scene(SongFacade.selected_scene()))
+
         return seq.done()
 
-    @throttle(wait_time=10)
-    def scroll_position(self, go_next):
-        # type: (Scene, bool) -> None
-        from protocol0.domain.lom.scene.Scene import Scene
+    def crop(self):
+        # type: (Scene) -> Sequence
+        window = SceneWindow.create_from_crop(self)
+        seq = Sequence()
+        seq.add(self.duplicate)
+        seq.add(lambda: window.apply_to_scene(SongFacade.selected_scene()))
 
-        if Scene.LAST_MANUALLY_STARTED_SCENE != self:
-            Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION = 0
-            Scene.LAST_MANUALLY_STARTED_SCENE = self
-        scene_position = Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION
+        return seq.done()
 
-        if self.has_playing_clips:
-            bar_position = self.playing_position / SongFacade.signature_numerator()
-            rounded_bar_position = floor(bar_position) if go_next else round(bar_position)
-            scene_position = int(scroll_values(range(0, self.bar_length), rounded_bar_position, go_next=go_next))
-            self.jump_to_bar(scene_position)
-        else:
-            scene_position = scroll_values(range(0, self.bar_length), scene_position, go_next=go_next)
-            Logger.log_dev("next scene position: %s" % scene_position)
-
-        Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION = scene_position
-        self.scene_name.update(bar_position=scene_position)
-
-    def fire_and_move_position(self):
+    def fire_to_position(self):
         # type: (Scene) -> Sequence
         self._song.stop_playing()
         seq = Sequence()
-
-        from protocol0.domain.lom.scene.Scene import Scene
-
-        if Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION >= self.bar_length:
-            Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION = 0
-
         # removing click when changing position
         master_volume = SongFacade.master_track().volume
         SongFacade.master_track().volume = 0
         seq.add(wait=1)
         # leveraging throttle to disable the next update (that would be 1 / *)
-        seq.add(partial(self.scene_name.update, bar_position=Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION))
+        seq.add(partial(self.scene_name.update, bar_position=self.position_scroller.current_value))
         seq.add(self.fire)
         seq.add(wait=1)
-        seq.add(partial(self.jump_to_bar, Scene.LAST_MANUALLY_STARTED_SCENE_BAR_POSITION))
+        seq.add(partial(self.jump_to_bar, min(self.bar_length - 1, self.position_scroller.current_value)))
         seq.add(partial(setattr, SongFacade.master_track(), "volume", master_volume))
         return seq.done()
 

@@ -6,7 +6,6 @@ from typing import Any, Callable, TYPE_CHECKING, Optional
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import is_method
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.types import Func
 
 if TYPE_CHECKING:
@@ -79,6 +78,7 @@ def lock(func):
         decorate.lock[object_source] = True  # type: ignore[attr-defined]
 
         def unlock():
+            # type: ()  -> None
             decorate.lock[object_source] = False  # type: ignore[attr-defined]
 
         seq = Sequence()

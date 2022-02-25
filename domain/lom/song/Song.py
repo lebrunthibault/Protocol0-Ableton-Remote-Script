@@ -9,6 +9,7 @@ from protocol0.domain.lom.clip.ClipEnveloppeShowedEvent import ClipEnveloppeShow
 from protocol0.domain.lom.clip.ClipSelectedEvent import ClipSelectedEvent
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
+from protocol0.domain.lom.scene.LoopingSceneToggler import LoopingSceneToggler
 from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.lom.song.SongActionMixin import SongActionMixin
 from protocol0.domain.lom.song.SongStartedEvent import SongStartedEvent
@@ -35,6 +36,8 @@ class Song(SongActionMixin, UseFrameworkEvents):
         # Global accessible objects / object mappings
         self._midi_recording_quantization_checked = False
         self._is_playing = False  # caching this because _is_playing_listener activates multiple times
+
+        self.looping_scene_toggler = LoopingSceneToggler()
 
         self.is_playing_listener.subject = self._song
         self._tempo_listener.subject = self._song
