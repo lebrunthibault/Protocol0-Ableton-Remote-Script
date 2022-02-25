@@ -33,7 +33,7 @@ class TrackRecorderService(object):
     def __init__(self, song):
         # type: (Song) -> None
         self._song = song
-        self.selected_recording_bar_length = RecordingBarLengthEnum.UNLIMITED
+        self.scene_recording_bar_length = RecordingBarLengthEnum.UNLIMITED
         self._recorder = None  # type: Optional[AbstractTrackRecorder]
 
     @property
@@ -43,19 +43,19 @@ class TrackRecorderService(object):
 
     def scroll_recording_time(self, go_next):
         # type: (bool) -> None
-        self.selected_recording_bar_length = scroll_values(
-            list(RecordingBarLengthEnum), self.selected_recording_bar_length, go_next
+        self.scene_recording_bar_length = scroll_values(
+            list(RecordingBarLengthEnum), self.scene_recording_bar_length, go_next
         )
-        StatusBar.show_message("SCENE RECORDING : %s" % self.selected_recording_bar_length)
+        StatusBar.show_message("SCENE RECORDING : %s" % self.scene_recording_bar_length)
         DomainEventBus.notify(SelectedRecordingBarLengthUpdatedEvent())
 
     def _get_track_recorder_factory(self, track):
         # type: (AbstractTrack) -> AbstractTrackRecorderFactory
         if isinstance(track, SimpleTrack):
-            return TrackRecorderSimpleFactory(track, self._song, self.selected_recording_bar_length.bar_length_value)
+            return TrackRecorderSimpleFactory(track, self._song, self.scene_recording_bar_length.bar_length_value)
         elif isinstance(track, ExternalSynthTrack):
             return TrackRecorderExternalSynthFactory(track, self._song,
-                                                     self.selected_recording_bar_length.bar_length_value)
+                                                     self.scene_recording_bar_length.bar_length_value)
         else:
             raise Protocol0Warning("This track is not recordable")
 

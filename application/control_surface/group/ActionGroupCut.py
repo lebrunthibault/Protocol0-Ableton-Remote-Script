@@ -37,8 +37,14 @@ class ActionGroupSet(ActionGroupMixin):
         # SPLiT encoder
         self.add_encoder(identifier=8,
                          name="split scene",
-                         on_scroll=self._container.get(ScenesService).scroll_duplicate_scene_bar_lengths,
-                         on_press=lambda: partial(SongFacade.selected_scene().split, self._container.get(ScenesService).selected_duplicate_scene_bar_length)
+                         on_press=lambda: SongFacade.selected_scene().split
+                         )
+
+        # CROP encoder
+        self.add_encoder(identifier=12,
+                         name="crop scene",
+                         on_scroll=self._container.get(ScenesService).scroll_scene_crop_bar_length,
+                         on_press=lambda: partial(SongFacade.selected_scene().crop, self._container.get(ScenesService).scene_crop_bar_length)
                          )
 
         # 2 bars loop encoder

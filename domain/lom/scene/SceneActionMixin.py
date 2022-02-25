@@ -4,6 +4,7 @@ from math import floor
 from typing import TYPE_CHECKING, Optional, cast
 
 from protocol0.domain.lom.clip.AudioTailClip import AudioTailClip
+from protocol0.domain.lom.scene.SceneLengthWindow import SceneLengthWindow
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.shared.decorators import throttle
@@ -123,37 +124,70 @@ class SceneActionMixin(object):
 
         self.scene_name.update()
 
-    def split(self, split_bar_length):
+    def split(self):
         # type: (Scene, int) -> Sequence
-        if split_bar_length == 0:
-            raise Protocol0Warning("Please select a bar length")
+        if self.bar_length < 2:
+            raise Protocol0Warning("Scene should be at least 2 bars for splitting")
+        if self.bar_length % 2 != 0:
+            raise Protocol0Warning("Can only split scene with even bar length")
 
-        StatusBar.show_message("Splitting %s on %d bar(s)" % (self, split_bar_length))
-        split_length = split_bar_length * SongFacade.signature_numerator()
+        StatusBar.show_message("Splitting %s" % self)
+        start_window, end_window = SceneLengthWindow.create_from_split(self, self.bar_length / 2)
+
+        seq = Sequence()
+        seq.add(self.duplicate)
+
+        # crop first half and delete tail clips
+        seq.add(partial(self._crop_clips, start_window))
+        # crop 2nd half
+        seq.add(lambda: self._song.selected_scene._crop_clips(end_window))
+
+        return seq.done()
+
+    def crop(self, crop_bar_length):
+        # type: (Scene, int) -> Sequence
+        StatusBar.show_message("Splitting %s on %d bar(s)" % (self, crop_bar_length))
+        crop_length = crop_bar_length * SongFacade.signature_numerator()
         scene_length = self.length  # modified by following code
 
         seq = Sequence()
         seq.add(self.duplicate)
-        seq.add(partial(self._crop_clips, 0, split_length))
-        seq.add(lambda: self._song.selected_scene._crop_clips(split_length, scene_length))
 
+        # 2 cases : either we crop from the beginning, or from the end
+        # in the 2nd case we can repeat the end of a scene
+        if crop_length > 0:
+            start_length = 0
+            end_length = crop_length
+            seq.add(lambda: self._song.selected_scene._delete_tail_clips)
+        else:
+            start_length = scene_length - crop_length
+            end_length = scene_length
+
+        seq.add(lambda: self._song.selected_scene._crop_clips(start_length, end_length))
+
+        return seq.done()
+
+    def _crop_clips(self, scene_window):
+        # type: (Scene, SceneLengthWindow) -> None
+        for clip in self.clips:
+            if clip.length <= scene_window.length:
+                continue
+            if isinstance(clip, AudioTailClip) and not scene_window.has_scene_end:
+                clip.delete()
+                return
+
+            Logger.log_dev("cropping %s to %s <-> %s" % (clip, scene_window.start_length, scene_window.end_length))
+
+            clip.loop.start = scene_window.start_length
+            clip.loop.end = scene_window.end_length
+
+    def _delete_tail_clips(self):
+        # type: (Scene) -> Sequence
+        seq = Sequence()
         for track in SongFacade.external_synth_tracks():
             if track.audio_tail_track and track.audio_tail_track.clip_slots[self.index].clip:
                 seq.add([track.audio_tail_track.clip_slots[self.index].clip.delete])
         return seq.done()
-
-    def _crop_clips(self, start, end):
-        # type: (Scene, float, float) -> None
-        for clip in self.clips:
-            if clip.length <= end - start:
-                continue
-            Logger.log_dev("cropping %s to %s <-> %s" % (clip, start, end))
-            if start == 0 and isinstance(clip, AudioTailClip):
-                clip.delete()
-                return
-
-            clip.loop.start = start
-            clip.loop.end = end
 
     @throttle(wait_time=10)
     def scroll_position(self, go_next):

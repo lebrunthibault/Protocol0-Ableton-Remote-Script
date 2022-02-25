@@ -1,0 +1,2 @@
+class SceneCropBarLengthUpdatedEvent(object):
+    pass
