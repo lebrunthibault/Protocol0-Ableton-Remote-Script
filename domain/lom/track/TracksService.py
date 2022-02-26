@@ -1,4 +1,5 @@
 import collections
+from functools import partial
 
 from typing import Optional, Dict
 
@@ -42,7 +43,6 @@ class SongTracksService(UseFrameworkEvents):
 
         self.tracks_listener.subject = self._song._song
         DomainEventBus.subscribe(SimpleTrackCreatedEvent, self._on_simple_track_created_event)
-        DomainEventBus.subscribe(TrackAddedEvent, self._on_track_added_event)
 
     @subject_slot("tracks")
     @handle_error
@@ -61,10 +61,13 @@ class SongTracksService(UseFrameworkEvents):
 
         Logger.log_info("mapped tracks")
 
+        seq = Sequence()
         if has_added_tracks and SongFacade.selected_track():
-            DomainEventBus.defer_notify(TrackAddedEvent())
+            seq.add(self._on_track_added_event)
+            seq.add(partial(DomainEventBus.defer_notify, TrackAddedEvent()))
 
-        DomainEventBus.defer_notify(TracksMappedEvent())
+        seq.add(partial(DomainEventBus.defer_notify, TracksMappedEvent()))
+        seq.done()
 
     def _clean_deleted_tracks(self):
         # type: () -> None
@@ -114,8 +117,8 @@ class SongTracksService(UseFrameworkEvents):
         if self._usamo_device is None:
             Logger.log_warning("Usamo track is not present")
 
-    def _on_track_added_event(self, _):
-        # type: (TrackAddedEvent) -> Optional[Sequence]
+    def _on_track_added_event(self):
+        # type: () -> Optional[Sequence]
         if not SongFacade.selected_track().IS_ACTIVE:
             return None
         UndoFacade.begin_undo_step()  # Live crashes on undo without this

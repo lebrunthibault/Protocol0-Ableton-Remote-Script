@@ -44,7 +44,6 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self._devices_listener()
 
         self.monitoring_state = ExternalSynthTrackMonitoringState(self)
-        self.record_clip_tails = False  # records one more bar of audio on presets with tail
 
     def _added_track_init(self):
         # type: () -> Sequence
@@ -79,10 +78,8 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
             Scheduler.defer(self.audio_tail_track.configure)
             self.audio_tail_track.track_name.disconnect()
             Scheduler.defer(partial(setattr, self.audio_tail_track, "name", SimpleAudioTailTrack.DEFAULT_NAME))
-            self.record_clip_tails = True
         elif not has_tail_track:
             self.audio_tail_track = None
-            self.record_clip_tails = False
 
     def on_scenes_change(self):
         # type: () -> None

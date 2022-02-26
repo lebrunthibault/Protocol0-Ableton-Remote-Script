@@ -2,15 +2,16 @@ from functools import partial
 
 from typing import Optional
 
+from protocol0.domain.lom.instrument.InstrumentActivatedEvent import InstrumentActivatedEvent
 from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
-from protocol0.domain.lom.instrument.preset.PresetProgramSelectedEvent import PresetProgramSelectedEvent
 from protocol0.domain.lom.note.Note import Note
 from protocol0.domain.lom.song.Song import Song
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
-from protocol0.domain.shared.DomainEventBus import DomainEventBus
+from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.shared.InterfaceClicksServiceInterface import InterfaceClicksServiceInterface
 from protocol0.domain.shared.System import System
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
 from protocol0.domain.track_recorder.TrackRecorderService import TrackRecorderService
 from protocol0.shared.SongFacade import SongFacade
@@ -34,6 +35,7 @@ class AudioLatencyAnalyzerService(object):
 
         seq = Sequence()
         seq.add(track.duplicate)
+        seq.add(wait_for_event=InstrumentActivatedEvent)
         seq.add(self._set_up_track_for_record)
         seq.add(self._create_audio_test_clip)
         seq.add(self._record_test_clip)
@@ -45,10 +47,10 @@ class AudioLatencyAnalyzerService(object):
         # type: () -> None
         track = SongFacade.current_external_synth_track()
 
-        # switching to test preset
-        DomainEventBus.notify(PresetProgramSelectedEvent(127))
-
-        track.record_clip_tails = False
+        # we need this here but not in InstrumentInterface for some reason
+        track.midi_track.input_routing.type = InputRoutingTypeEnum.ALL_INS
+        # switching to test preset (last)
+        Scheduler.defer(partial(track.instrument.load_preset, track.instrument.preset_list.presets[-1]))
 
     def _create_audio_test_clip(self):
         # type: () -> Sequence
@@ -88,9 +90,9 @@ class AudioLatencyAnalyzerService(object):
         track = SongFacade.current_external_synth_track()
         audio_clip = track.audio_track.clips[0]
         seq = Sequence()
-        # seq.add(partial(audio_clip.quantize, depth=0))
+        seq.add(partial(audio_clip.quantize, depth=0))
         seq.add(self._interface_clicks_service.save_sample)
         seq.add(partial(System.client().analyze_test_audio_clip_jitter, clip_path=audio_clip.file_path),
                 wait_for_system=True)
-        seq.add(track.delete)
+        # seq.add(track.delete)
         return seq.done()

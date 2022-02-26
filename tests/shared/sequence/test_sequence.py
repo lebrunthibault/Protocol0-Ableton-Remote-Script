@@ -101,3 +101,13 @@ def test_wait_for_events():
     DomainEventBus.notify(SongStoppedEvent())
 
     assert test_res == [True, True]
+
+
+def test_cancel():
+    test_res = []
+    seq = Sequence()
+    # seq.add(seq._cancel)
+    seq.add(lambda: test_res.append(True))
+    seq.done()
+
+    assert test_res == []

@@ -3,6 +3,7 @@ from functools import partial
 from typing import Optional
 
 from protocol0.domain.lom.device.DeviceService import DeviceService
+from protocol0.domain.lom.instrument.InstrumentActivatedEvent import InstrumentActivatedEvent
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
@@ -61,5 +62,7 @@ class InstrumentDisplayService(object):
 
         if force_activate or not instrument.activated:
             seq.add(instrument.post_activate)
+
+        seq.add(partial(DomainEventBus.notify, InstrumentActivatedEvent(instrument)))
 
         return seq.done()

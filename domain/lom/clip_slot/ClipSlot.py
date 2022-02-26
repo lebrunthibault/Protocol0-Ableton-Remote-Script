@@ -144,7 +144,7 @@ class ClipSlot(UseFrameworkEvents):
         seq.add(partial(self._clip_slot.create_clip, SongFacade.signature_numerator()),
                 complete_on=self.has_clip_listener)
         seq.add(wait=1)
-        seq.add(lambda: self.clip.select)
+        seq.add(lambda: self.clip.select())
         seq.add(lambda: self.clip.clip_name._name_listener())
         return seq.done()
 

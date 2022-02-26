@@ -49,7 +49,7 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
         else:
             raise Protocol0Warning("Unmatched record type %s" % record_type)
 
-        if self.track.audio_tail_track and self.track.record_clip_tails and bar_length != 0:
+        if self.track.audio_tail_track and bar_length != 0:
             recorder = TrackRecorderClipTailDecorator(recorder, self._song)
 
         return recorder

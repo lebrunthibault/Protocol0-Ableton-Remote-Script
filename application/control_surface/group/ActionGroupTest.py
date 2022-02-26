@@ -1,6 +1,9 @@
 from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
+from protocol0.domain.lom.instrument.preset.PresetProgramSelectedEvent import PresetProgramSelectedEvent
+from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.System import System
 from protocol0.shared.logging.Logger import Logger
+from protocol0.shared.sequence.Sequence import Sequence
 
 
 class ActionGroupTest(ActionGroupMixin):
@@ -25,4 +28,8 @@ class ActionGroupTest(ActionGroupMixin):
 
     def action_test(self):
         # type: () -> None
-        self._song.looping_scene_toggler.reset()
+        options = ["Arm current track", "Record on armed track"]
+        seq = Sequence()
+        seq.select("The current track is not armed", options=options)
+        seq.add(lambda: Logger.log_dev("received %s" % seq.res))
+        seq.done()
