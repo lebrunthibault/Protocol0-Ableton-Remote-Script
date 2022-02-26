@@ -32,5 +32,5 @@ class SimpleTrackHasDeviceValidator(ValidatorInterface):
         seq = Sequence()
         seq.add(self._track.select)
         seq.add(partial(self._browser_service.load_device_from_enum, self._device_enum))
-        seq.add(wait=5)
+        seq.wait(5)
         return seq.done()

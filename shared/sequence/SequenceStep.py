@@ -1,14 +1,13 @@
 from functools import partial
 
-from typing import TYPE_CHECKING, Iterable, Any, Union, Callable, Optional, cast, List, Type
+from typing import TYPE_CHECKING, Iterable, Any, Union, Callable, Optional, cast, List
 
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
-from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.shared.utils import get_callable_repr, nop
+from protocol0.domain.shared.utils import get_callable_repr
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.CallbackDescriptor import CallableWithCallbacks
 from protocol0.shared.sequence.SequenceError import SequenceError
@@ -41,33 +40,27 @@ class SequenceStep(UseFrameworkEvents, SequenceStateMachineMixin):
             func,  # type: Callable
             sequence,  # type: Sequence
             name,  # type: str
-            wait,  # type: int
-            wait_beats,  # type: float
             wait_for_system,  # type: bool
-            wait_for_events,  # type: List[Type[object]]
             no_cancel,  # type: bool
             complete_on,  # type: Optional[Union[Callable, CallableWithCallbacks]]
             check_timeout,  # type: int
+            no_terminate,  # type: bool
     ):
         """ the tick is 100 ms """
         super(SequenceStep, self).__init__()
-        if not name and func == nop:
-            name = "wait %s" % wait if wait else "pass"
         self.name = "step %s" % (name or get_callable_repr(func))
         self._sequence_name = sequence.name
         self._callable = func
-        self._wait = wait
-        self._wait_beats = wait_beats or 0
         self.wait_for_system = wait_for_system
-        self._wait_for_events = wait_for_events
         self.no_cancel = no_cancel
         self._complete_on = complete_on
         self._check_timeout = check_timeout
         self._callback_timeout = None  # type: Optional[Callable]
+        self._no_terminate = no_terminate
         self.res = None  # type: Optional[Any]
 
         waiting_conditions = iter(
-            [self._wait, self._wait_beats, self.wait_for_system, self._wait_for_events, self._complete_on])
+            [self.wait_for_system, self._complete_on])
         if any(waiting_conditions) and any(waiting_conditions):
             raise Protocol0Error("Found multiple concurrent waiting conditions in %s" % self)
         if self.no_cancel:
@@ -80,14 +73,8 @@ class SequenceStep(UseFrameworkEvents, SequenceStateMachineMixin):
         output = self.name
         if self.wait_for_system:
             output += " (and wait for system)"
-        if self._wait_for_events:
-            output += " (and wait for event %s)" % self._wait_for_events
         elif self._complete_on:
             output += " (and wait for listener call : %s)" % get_callable_repr(self._complete_on)
-        elif self._wait:
-            output += " (and wait %s)" % self._wait
-        elif self._wait_beats:
-            output += " (and wait_beats %.2f)" % self._wait_beats
 
         return "[%s]" % output
 
@@ -119,18 +106,6 @@ class SequenceStep(UseFrameworkEvents, SequenceStateMachineMixin):
     def _check_for_step_completion(self, res=None):
         # type: (Any) -> None
         self.res = res
-        if self._wait:
-            Scheduler.wait(self._wait, self._terminate)
-            return
-
-        if self._wait_beats:
-            Scheduler.wait_beats(self._wait_beats, self._terminate)
-            return
-
-        if self._wait_for_events:
-            for event in self._wait_for_events:
-                DomainEventBus.subscribe(event, self._on_event)
-            return
 
         if self._complete_on:
             self._handle_complete_on()
@@ -155,12 +130,6 @@ class SequenceStep(UseFrameworkEvents, SequenceStateMachineMixin):
             return self._postpone_termination_after_listener(cast(CallableWithCallbacks, callable_response))
         else:
             raise SequenceError("on complete_on should have a callback queue")
-
-    def _on_event(self, _):
-        # type: (object) -> None
-        for event in self._wait_for_events:
-            DomainEventBus.un_subscribe(event, self._on_event)
-        self._terminate()
 
     def _postpone_termination_after_listener(self, listener):
         # type: (CallableWithCallbacks) -> None
@@ -248,11 +217,6 @@ class SequenceStep(UseFrameworkEvents, SequenceStateMachineMixin):
         if self.cancelled or self.errored:
             return
         self.change_state(SequenceStateEnum.TERMINATED)
-        self.notify_terminated()  # type: ignore[attr-defined]
+        if not self._no_terminate:
+            self.notify_terminated()  # type: ignore[attr-defined]
         self.disconnect()
-
-    def disconnect(self):
-        # type: () -> None
-        super(SequenceStep, self).disconnect()
-        for event in self._wait_for_events:
-            DomainEventBus.un_subscribe(event, self._on_event)

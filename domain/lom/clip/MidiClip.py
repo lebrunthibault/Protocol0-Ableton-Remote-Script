@@ -52,7 +52,7 @@ class MidiClip(Clip):
         seq = Sequence()
         seq.add(partial(self._clip.replace_selected_notes, tuple(note.to_data() for note in notes)))
         # noinspection PyUnresolvedReferences
-        seq.add(wait=1)
+        seq.defer()
         return seq.done()
 
     def configure_new_clip(self):
@@ -62,9 +62,9 @@ class MidiClip(Clip):
 
         self.view.grid_quantization = Live.Clip.GridQuantization.g_sixteenth
         seq = Sequence()
-        seq.add(wait=1)
+        seq.defer()
         seq.add(self.generate_base_notes)
-        seq.add(wait=10)
+        seq.wait(10)
         return seq.done()
 
     def generate_base_notes(self):

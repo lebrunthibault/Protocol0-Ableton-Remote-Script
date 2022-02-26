@@ -58,7 +58,7 @@ class TrackRecorderClipTailDecorator(TrackRecorderDecorator, UseFrameworkEvents)
 
         DomainEventBus.subscribe(Last32thPassedEvent, self._on_last_32th_passed_event)
         seq = Sequence()
-        seq.add(wait_for_events=[SongStoppedEvent, AudioClipSilentEvent])
+        seq.wait_for_events([SongStoppedEvent, AudioClipSilentEvent])
         seq.add(partial(setattr, self.track.midi_track.input_routing, "type", input_routing_type))
         seq.add(partial(DomainEventBus.un_subscribe, Last32thPassedEvent, self._on_last_32th_passed_event))
         return seq.done()

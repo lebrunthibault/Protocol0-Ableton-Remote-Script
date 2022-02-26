@@ -8,5 +8,5 @@ class CountInShort(CountInInterface):
         self._song.stop_playing()
         # self.track.stop(immediate=True)
         seq = Sequence()
-        seq.add(wait=40)  # mini count in
+        seq.wait(40)  # mini count in
         return seq.done()

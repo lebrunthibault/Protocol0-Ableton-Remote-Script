@@ -1,5 +1,5 @@
 from protocol0.domain.lom.device.PluginDevice import PluginDevice
-from protocol0.domain.shared.System import System
+from protocol0.domain.shared.backend.System import System
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 

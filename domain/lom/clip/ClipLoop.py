@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from protocol0.domain.shared.System import System
+from protocol0.domain.shared.backend.System import System
 from protocol0.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:

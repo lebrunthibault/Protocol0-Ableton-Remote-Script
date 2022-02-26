@@ -39,8 +39,8 @@ class TrackRecorderExternalSynthAudioMulti(TrackRecorderExternalSynthAudio):
         for cs in self._recording_clip_slots:
             cs.fire()
         seq = Sequence()
-        seq.add(wait_for_event=SceneLastBarPassedEvent)
-        seq.add(wait_for_event=LastBeatPassedEvent)
+        seq.wait_for_event(SceneLastBarPassedEvent)
+        seq.wait_for_event(LastBeatPassedEvent)
         seq.add(self._launch_record_on_next_scene)
         return seq.done()
 

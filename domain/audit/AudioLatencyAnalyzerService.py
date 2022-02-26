@@ -9,7 +9,7 @@ from protocol0.domain.lom.song.Song import Song
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.shared.InterfaceClicksServiceInterface import InterfaceClicksServiceInterface
-from protocol0.domain.shared.System import System
+from protocol0.domain.shared.backend.System import System
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
@@ -35,7 +35,7 @@ class AudioLatencyAnalyzerService(object):
 
         seq = Sequence()
         seq.add(track.duplicate)
-        seq.add(wait_for_event=InstrumentActivatedEvent)
+        seq.wait_for_event(InstrumentActivatedEvent)
         seq.add(self._set_up_track_for_record)
         seq.add(self._create_audio_test_clip)
         seq.add(self._record_test_clip)
@@ -82,7 +82,7 @@ class AudioLatencyAnalyzerService(object):
                         RecordTypeEnum.AUDIO_ONLY))
         seq.add(lambda: track.audio_track.clips[0].select())
         seq.add(self._song.reset)
-        seq.add(wait=10)
+        seq.wait(10)
         return seq.done()
 
     def _analyze_jitter(self):
@@ -92,7 +92,5 @@ class AudioLatencyAnalyzerService(object):
         seq = Sequence()
         seq.add(partial(audio_clip.quantize, depth=0))
         seq.add(self._interface_clicks_service.save_sample)
-        seq.add(partial(System.client().analyze_test_audio_clip_jitter, clip_path=audio_clip.file_path),
-                wait_for_system=True)
-        # seq.add(track.delete)
+        seq.add(partial(System.client().analyze_test_audio_clip_jitter, clip_path=audio_clip.file_path))
         return seq.done()

@@ -1,9 +1,6 @@
-import pytest
-
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.decorators import has_callback_queue
-from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.scheduler.BarEndingEvent import BarEndingEvent
 from protocol0.domain.shared.utils import nop
 from protocol0.shared.sequence.Sequence import Sequence
@@ -16,12 +13,6 @@ def test_sanity_checks():
     seq.add([])
     seq.done()
     assert seq.terminated
-
-    with pytest.raises(Protocol0Error):
-        Sequence().add(wait=1, complete_on=lambda: True).done()
-
-    with pytest.raises(Protocol0Error):
-        Sequence().add(wait_for_system=True, wait=1).done()
 
 
 def test_async_callback_execution_order():
@@ -37,7 +28,7 @@ def test_async_callback_execution_order():
             # noinspection PyShadowingNames
             seq = Sequence()
             seq.add(lambda: test_res.append(0), name="append 0")
-            seq.add(wait=1)
+            seq.defer()
             seq.add(lambda: test_res.append(1), name="append 1")
             return seq.done()
 
@@ -62,7 +53,7 @@ def test_wait_for_event():
     test_res = []
 
     seq = Sequence()
-    seq.add(wait_for_event=BarEndingEvent, name="event wait seq 1")
+    seq.wait_for_event(BarEndingEvent)
     seq.add(lambda: test_res.append(False), name="appending res seq 1")
     seq.done()
 
@@ -70,7 +61,7 @@ def test_wait_for_event():
     seq._cancel()
 
     seq2 = Sequence()
-    seq2.add(wait_for_event=BarEndingEvent, name="event wait seq 2")
+    seq2.wait_for_event(BarEndingEvent)
     seq2.add(lambda: test_res.append(True), name="appending res seq 2")
     seq2.done()
 
@@ -80,12 +71,13 @@ def test_wait_for_event():
 
 
 def test_wait_for_events():
+    make_protocol0()
     test_res = []
 
     def inner_seq():
         seq = Sequence()
-        seq.add(wait_for_events=[BarEndingEvent, SongStoppedEvent])
-        seq.add(lambda: test_res.append(True))
+        seq.wait_for_events([BarEndingEvent, SongStoppedEvent])
+        seq.add(lambda: test_res.append(True), name="append true")
         return seq.done()
 
     seq = inner_seq()
@@ -106,7 +98,7 @@ def test_wait_for_events():
 def test_cancel():
     test_res = []
     seq = Sequence()
-    # seq.add(seq._cancel)
+    seq.add(seq._cancel)
     seq.add(lambda: test_res.append(True))
     seq.done()
 

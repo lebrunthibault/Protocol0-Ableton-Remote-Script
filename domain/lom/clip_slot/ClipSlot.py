@@ -123,10 +123,10 @@ class ClipSlot(UseFrameworkEvents):
         seq = Sequence()
         if self.clip:
             seq.add(self.delete_clip)
-            seq.add(wait=3)  # because has stop button is automatically removed on deletion
+            seq.wait(3)  # because has stop button is automatically removed on deletion
 
         seq.add(partial(setattr, self, "has_stop_button", True))
-        seq.add(wait=1)
+        seq.defer()
         return seq.done()
 
     def create_clip(self):
@@ -143,7 +143,7 @@ class ClipSlot(UseFrameworkEvents):
         seq = Sequence()
         seq.add(partial(self._clip_slot.create_clip, SongFacade.signature_numerator()),
                 complete_on=self.has_clip_listener)
-        seq.add(wait=1)
+        seq.defer()
         seq.add(lambda: self.clip.select())
         seq.add(lambda: self.clip.clip_name._name_listener())
         return seq.done()

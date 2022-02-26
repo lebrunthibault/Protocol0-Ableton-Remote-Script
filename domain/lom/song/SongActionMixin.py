@@ -73,7 +73,7 @@ class SongActionMixin(object):
         seq = Sequence()
         if SongFacade.selected_track() != abstract_track.base_track:
             self._view.selected_track = abstract_track._track
-            seq.add(wait=1)
+            seq.defer()
         return seq.done()
 
     def unfocus_all_tracks(self):
@@ -96,14 +96,14 @@ class SongActionMixin(object):
         # type: (Song, int) -> Sequence
         seq = Sequence()
         seq.add(partial(self._song.duplicate_track, index))
-        seq.add(wait_for_event=TracksMappedEvent)
+        seq.wait_for_event(TracksMappedEvent)
         return seq.done()
 
     def delete_track(self, index):
         # type: (Song, int) -> Sequence
         seq = Sequence()
         seq.add(partial(self._song.delete_track, index))
-        seq.add(wait_for_event=TracksMappedEvent)
+        seq.wait_for_event(TracksMappedEvent)
         return seq.done()
 
     def scroll_tracks(self, go_next):
@@ -122,7 +122,7 @@ class SongActionMixin(object):
         # type: (Song, int) -> Sequence
         seq = Sequence()
         seq.add(partial(self._song.duplicate_scene, index))
-        seq.add(wait_for_event=ScenesMappedEvent)
+        seq.wait_for_event(ScenesMappedEvent)
         return seq.done()
 
     def create_scene(self, scene_index=None):
@@ -130,8 +130,8 @@ class SongActionMixin(object):
         seq = Sequence()
         scenes_count = len(SongFacade.scenes())
         seq.add(partial(self._song.create_scene, scene_index or scenes_count))
-        seq.add(wait_for_event=ScenesMappedEvent)
-        seq.add(wait=1)
+        seq.wait_for_event(ScenesMappedEvent)
+        seq.defer()
         return seq.done()
 
     def delete_scene(self, scene_index):
@@ -142,8 +142,8 @@ class SongActionMixin(object):
 
         seq = Sequence()
         seq.add(partial(self._song.delete_scene, scene_index))
-        seq.add(wait_for_event=ScenesMappedEvent)
-        seq.add(wait=1)
+        seq.wait_for_event(ScenesMappedEvent)
+        seq.defer()
         return seq.done()
 
     def select_device(self, device):

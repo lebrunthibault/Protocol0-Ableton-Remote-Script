@@ -4,8 +4,10 @@ from functools import partial
 from typing import Deque, Optional, Iterable, Union, Callable, Any, List, Type
 
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
-from protocol0.domain.shared.System import System
+from protocol0.domain.shared.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.backend.System import System
 from protocol0.domain.shared.decorators import p0_subject_slot
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import get_frame_info, nop
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
@@ -48,15 +50,11 @@ class Sequence(UseFrameworkEvents, SequenceStateMachineMixin):
             self,
             func=nop,  # type: Union[Iterable, Callable, object]
             name=None,  # type: str
-            wait=0,  # type: int
-            wait_beats=0,  # type: float
-            wait_bars=0,  # type: float
             wait_for_system=False,  # type: bool
-            wait_for_event=None,  # type: Type[object]
-            wait_for_events=None,  # type: List[Type[object]]
             no_cancel=False,  # type: bool
             complete_on=None,  # type: Callable
             no_timeout=False,  # type: bool
+            no_terminate=False,  # type: bool
     ):
         """
         callback can be :
@@ -67,34 +65,57 @@ class Sequence(UseFrameworkEvents, SequenceStateMachineMixin):
             func,
             self,
         )
-        assert not (wait_for_event and wait_for_events), "You used both wait_for_event and wait_for_events"
-        if wait_for_events:
-            assert isinstance(wait_for_events, List), "wait_for_events should be a List"
-        else:
-            wait_for_events = []
 
-        if wait_for_event:
-            wait_for_events = [wait_for_event]
-
-        if wait_bars:
-            wait_beats += wait_bars * SongFacade.signature_numerator()
         self._steps.append(
             SequenceStep.make(
                 self,
                 func,
                 name=name,
-                wait=wait,
-                wait_beats=wait_beats,
                 wait_for_system=wait_for_system,
-                wait_for_events=wait_for_events,
                 no_cancel=no_cancel,
                 complete_on=complete_on,
                 check_timeout=0 if no_timeout else 4,
+                no_terminate=no_terminate
                 # check_timeout is the number of (exponential duration) checks executed before step failure (based on the Live.Base.Timer tick)
             )
         )
 
         return self
+
+    def defer(self):
+        # type: () -> None
+        self.add(partial(Scheduler.defer, self._execute_next_step), no_terminate=True)
+
+    def wait(self, ticks):
+        # type: (int) -> None
+        self.add(partial(Scheduler.wait, ticks, self._execute_next_step), no_terminate=True)
+
+    def wait_bars(self, bars):
+        # type: (float) -> None
+        self.wait_beats(bars * SongFacade.signature_numerator())
+
+    def wait_beats(self, beats):
+        # type: (float) -> None
+        self.add(partial(Scheduler.wait_beats, beats, self._execute_next_step), no_terminate=True)
+
+    def wait_for_event(self, event):
+        # type: (Type[object]) -> None
+        self.wait_for_events([event])
+
+    def wait_for_events(self, events):
+        # type: (List[Type[object]]) -> None
+        def subscribe():
+            # type: () -> None
+            for event in events:
+                DomainEventBus.subscribe(event, on_event)
+
+        def on_event(_):
+            # type: (object) -> None
+            for event in events:
+                DomainEventBus.un_subscribe(event, on_event)
+            if self.started:
+                self._execute_next_step()
+        self.add(subscribe, no_terminate=True)
 
     def prompt(self, question, no_cancel=False):
         # type: (str, bool) -> None
@@ -124,7 +145,7 @@ class Sequence(UseFrameworkEvents, SequenceStateMachineMixin):
         if len(self._steps):
             self._current_step = self._steps.popleft()
             if self._DEBUG:
-                Logger.log_debug("%s : %s" % (self, self._current_step))
+                Logger.log_debug("Executing %s : %s" % (self, self._current_step))
             self._step_terminated.subject = self._current_step
             self._step_errored.subject = self._current_step
             self._step_cancelled.subject = self._current_step
@@ -194,8 +215,8 @@ class Sequence(UseFrameworkEvents, SequenceStateMachineMixin):
         if self.errored or self.terminated:
             return
         self.change_state(SequenceStateEnum.CANCELLED)
-        if notify_step and self._current_step:
-            self._current_step.cancel(notify=False)
+        # if notify_step and self._current_step:
+        #     self._current_step.cancel(notify=False)
         self.disconnect()
 
     def _terminate(self):

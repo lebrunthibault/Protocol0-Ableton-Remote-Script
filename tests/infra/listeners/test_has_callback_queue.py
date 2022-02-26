@@ -116,7 +116,7 @@ def test_async_callback():
             seq = Sequence()
 
             self.test_res.append(self.val)
-            seq.add(wait=1)
+            seq.defer()
             seq.add(lambda: self.test_res.append(self.val + 1))
 
             return seq.done()

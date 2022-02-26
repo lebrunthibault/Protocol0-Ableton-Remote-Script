@@ -52,7 +52,7 @@ class SceneActionMixin(object):
         self.fire()
         self._song.stop_playing()
         seq = Sequence()
-        seq.add(wait=2)
+        seq.wait(2)
         return seq.done()
 
     def _stop_previous_scene(self, previous_playing_scene, immediate=False):
@@ -65,7 +65,7 @@ class SceneActionMixin(object):
             track.stop(immediate=immediate)
 
         seq = Sequence()
-        seq.add(wait_for_event=BarChangedEvent)
+        seq.wait_for_event(BarChangedEvent)
         seq.add(previous_playing_scene.scene_name.update)
         seq.done()
 
@@ -125,11 +125,11 @@ class SceneActionMixin(object):
         # removing click when changing position
         master_volume = SongFacade.master_track().volume
         SongFacade.master_track().volume = 0
-        seq.add(wait=1)
+        seq.defer()
         # leveraging throttle to disable the next update (that would be 1 / *)
         seq.add(partial(self.scene_name.update, bar_position=self.position_scroller.current_value))
         seq.add(self.fire)
-        seq.add(wait=1)
+        seq.defer()
         seq.add(partial(self.jump_to_bar, min(self.bar_length - 1, self.position_scroller.current_value)))
         seq.add(partial(setattr, SongFacade.master_track(), "volume", master_volume))
         return seq.done()

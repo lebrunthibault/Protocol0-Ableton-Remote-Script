@@ -5,7 +5,7 @@ from types import TracebackType
 from typing import Optional, Any, List, Type
 
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.System import System
+from protocol0.domain.shared.backend.System import System
 from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler

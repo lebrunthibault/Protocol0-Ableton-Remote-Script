@@ -126,7 +126,7 @@ class SongTracksService(UseFrameworkEvents):
         added_track = SongFacade.selected_track()
         if SongFacade.selected_track() == SongFacade.current_track().base_track:
             added_track = SongFacade.current_track()
-        seq.add(wait=1)
+        seq.defer()
         seq.add(added_track._added_track_init)
         seq.add(UndoFacade.end_undo_step)
         return seq.done()

@@ -56,7 +56,7 @@ class SetUpgradeService(object):
             if track.audio_tail_track is None:
                 track.is_folded = False
                 seq.add(track.audio_track.duplicate)
-                seq.add(wait=10)
+                seq.wait(10)
         return seq.done()
 
     def delete_unnecessary_devices(self, full_scan=False):

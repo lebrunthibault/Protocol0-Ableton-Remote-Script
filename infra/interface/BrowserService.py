@@ -58,7 +58,8 @@ class BrowserService(BrowserServiceInterface):
         if not preset_item:
             Logger.log_warning("Couldn't find preset item")
             return None
-        seq.add(partial(self._browser.load_item, preset_item), wait=3)
+        seq.add(partial(self._browser.load_item, preset_item))
+        seq.wait(3)
         return seq.done()
 
     def _get_audio_effect_preset_item(self, preset_name):

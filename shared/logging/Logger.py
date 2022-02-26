@@ -38,7 +38,7 @@ class Logger(object):
         # type: (str, bool) -> None
         cls._log(message, level=LogLevelEnum.ERROR, debug=debug)
 
-        from protocol0.domain.shared.System import System
+        from protocol0.domain.shared.backend.System import System
         System.client().show_error(message)
         if "\n" not in message:
             from protocol0.shared.logging.StatusBar import StatusBar

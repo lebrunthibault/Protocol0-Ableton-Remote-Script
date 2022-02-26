@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.System import System
+from protocol0.domain.shared.backend.System import System
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
@@ -42,7 +42,7 @@ class SessionToArrangementService(object):
 
         seq = Sequence()
         seq.add(System.client().clear_arrangement)
-        seq.add(wait=20)
+        seq.wait(20)
         seq.add(ApplicationView.show_session)
         seq.add(self._song.reset)
 
@@ -57,7 +57,7 @@ class SessionToArrangementService(object):
         last_scene = SongFacade.scenes()[-1]
         seq = Sequence()
         seq.add(complete_on=last_scene.is_triggered_listener, no_timeout=True)
-        seq.add(wait_for_event=BarChangedEvent)
+        seq.wait_for_event(BarChangedEvent)
         seq.add(self._song.stop_playing)
         seq.done()
 

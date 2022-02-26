@@ -9,7 +9,7 @@ from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
-from protocol0.domain.shared.System import System
+from protocol0.domain.shared.backend.System import System
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils import find_if
 from protocol0.shared.logging.Logger import Logger
@@ -74,12 +74,9 @@ class DeviceService(object):
                 d.is_collapsed = True
         (x_device, y_device) = self._get_device_show_button_click_coordinates(device)
         seq = Sequence()
-        seq.add(
-            lambda: System.client().toggle_ableton_button(x=x_device, y=y_device, activate=True),
-            wait=6,
-            name="click on device show button",
-        )
-        seq.add(partial(self.uncollapse_devices, devices_to_uncollapse), name="restore device collapse state")
+        seq.add(lambda: System.client().toggle_ableton_button(x=x_device, y=y_device, activate=True))
+        seq.wait(6)
+        seq.add(partial(self.uncollapse_devices, devices_to_uncollapse))
 
         return seq.done()
 
@@ -100,20 +97,11 @@ class DeviceService(object):
         (x_device, y_device) = self._get_device_show_button_click_coordinates(device, parent_rack)
 
         seq = Sequence()
-        seq.add(
-            lambda: System.client().toggle_ableton_button(x=x_rack, y=y_rack, activate=False),
-            wait=5,
-            name="hide rack macro controls",
-        )
-        seq.add(
-            lambda: System.client().toggle_ableton_button(x=x_device, y=y_device, activate=True),
-            wait=10,
-            name="click on device show button",
-        )
-        seq.add(
-            lambda: System.client().toggle_ableton_button(x=x_rack, y=y_rack, activate=True),
-            name="show rack macro controls",
-        )
+        seq.add(lambda: System.client().toggle_ableton_button(x=x_rack, y=y_rack, activate=False))
+        seq.wait(5)
+        seq.add(lambda: System.client().toggle_ableton_button(x=x_device, y=y_device, activate=True))
+        seq.wait(10)
+        seq.add(lambda: System.client().toggle_ableton_button(x=x_rack, y=y_rack, activate=True))
         # at this point the rack macro controls could still be hidden if the plugin window masks the button
         seq.add(partial(self.uncollapse_devices, devices_to_uncollapse), name="restore device collapse state")
 

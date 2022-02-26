@@ -3,7 +3,7 @@ from _Framework.SubjectSlot import subject_slot_group
 import Live
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
-from protocol0.domain.shared.System import System
+from protocol0.domain.shared.backend.System import System
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade

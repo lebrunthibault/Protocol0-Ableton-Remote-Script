@@ -4,7 +4,7 @@ from protocol0.domain.audit.SetUpgradeService import SetUpgradeService
 from protocol0.domain.lom.song.Song import Song
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
-from protocol0.domain.shared.System import System
+from protocol0.domain.shared.backend.System import System
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 

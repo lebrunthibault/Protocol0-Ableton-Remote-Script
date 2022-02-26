@@ -25,7 +25,7 @@ class SimpleDummyTrackService(object):
         seq = Sequence()
         seq.add(self._select_parameters)
         seq.add(self._insert_device)
-        seq.add(wait=5)
+        seq.wait(5)
         seq.add(partial(self._insert_dummy_clip, event.track))
         seq.add(partial(self._create_dummy_automation, event.track))
         return seq.done()
@@ -52,7 +52,7 @@ class SimpleDummyTrackService(object):
         seq = Sequence()
         seq.add(partial(SongFacade.template_dummy_clip().clip_slot.duplicate_clip_to, cs))
         seq.add(lambda: setattr(track.clips[0], "muted", False))
-        seq.add(wait=2)
+        seq.wait(2)
         return seq.done()
 
     def _create_dummy_automation(self, track):

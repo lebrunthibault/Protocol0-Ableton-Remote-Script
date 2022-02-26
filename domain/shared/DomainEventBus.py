@@ -36,7 +36,9 @@ class DomainEventBus(object):
     def notify(cls, domain_event):
         # type: (object) -> None
         if type(domain_event) in cls._registry:
-            for subscriber in cls._registry[type(domain_event)]:
+            # protect the list from unsubscribe in subscribers
+            subscribers = cls._registry[type(domain_event)][:]
+            for subscriber in subscribers:
                 subscriber(domain_event)
 
     @classmethod

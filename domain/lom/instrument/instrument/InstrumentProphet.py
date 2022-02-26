@@ -6,7 +6,7 @@ from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterf
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.System import System
+from protocol0.domain.shared.backend.System import System
 from protocol0.domain.track_recorder.recorder.ExternalSynthAudioRecordingEndedEvent import \
     ExternalSynthAudioRecordingEndedEvent
 from protocol0.domain.track_recorder.recorder.ExternalSynthAudioRecordingStartedEvent import \
@@ -43,14 +43,16 @@ class InstrumentProphet(InstrumentInterface):
         # type: () -> Optional[Sequence]
         InstrumentProphet.ACTIVE_INSTANCE = self
         seq = Sequence()
-        seq.add(wait=5)
-        seq.add(System.client().activate_rev2_editor, wait=5)
+        seq.wait(5)
+        seq.add(System.client().activate_rev2_editor)
+        seq.wait(5)
         return seq.done()
 
     def post_activate(self):
         # type: () -> Optional[Sequence]
         seq = Sequence()
-        seq.add(System.client().post_activate_rev2_editor, wait=20)
+        seq.add(System.client().post_activate_rev2_editor)
+        seq.wait(20)
         return seq.done()
 
     def _on_simple_track_armed_event(self, event):
