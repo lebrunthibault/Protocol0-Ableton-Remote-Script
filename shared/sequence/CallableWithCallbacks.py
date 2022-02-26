@@ -33,9 +33,21 @@ class CallableWithCallbacks(object):
 
         return res
 
+    @classmethod
+    def func_has_callback_queue(cls, func):
+        # type: (Any) -> bool
+        """ mixing duck typing and isinstance to ensure we really have a callback handler object """
+        from _Framework.SubjectSlot import CallableSlotMixin
+
+        if isinstance(func, CallableWithCallbacks):
+            return True
+        else:
+            return func and hasattr(func, "add_callback") and isinstance(func, CallableSlotMixin)
+
     def add_callback(self, callback):
         # type: (Callable) -> None
         """
+        todo: add a timeout ?
         we don't allow the same exact callback to be added. Mitigates stuff like double clicks
         defer is used for triggering callback after listeners and prevents change after notification error
         """
@@ -53,7 +65,8 @@ class CallableWithCallbacks(object):
         if len(self._callbacks) == 0:
             return
         # defer mitigates the "Changes cannot be triggered by notification" error
-        Scheduler.defer(self._execute_callbacks)
+        self._execute_callbacks()
+        # Scheduler.defer(self._execute_callbacks)
 
     def _execute_callbacks(self):
         # type: () -> None

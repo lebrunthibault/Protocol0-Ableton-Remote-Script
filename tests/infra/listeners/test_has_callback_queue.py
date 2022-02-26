@@ -80,7 +80,8 @@ def test_has_callback_queue_result():
     # 'normal' listener
     obj = Example()
     seq = Sequence()
-    seq.add(obj.test, complete_on=obj.listener_normal)
+    seq.add(obj.test)
+    seq.wait_for_listener(obj.listener_normal)
     seq.add(lambda: setattr(obj, "callback_called", True))
 
     def check_called():
@@ -92,7 +93,8 @@ def test_has_callback_queue_result():
 
     # listener returning sequence
     seq = Sequence()
-    seq.add(obj.test, complete_on=obj.listener_sequence)
+    seq.add(obj.test)
+    seq.wait_for_listener(obj.listener_sequence)
     seq.add(lambda: setattr(obj, "callback_called", True))
     seq.add(check_called)
     seq.done()
@@ -156,10 +158,12 @@ def test_p0_subject_slot_sequence():
     test_res_callbacks = []  # type: List[int]
     example = Example(0, test_res_callbacks)
     seq = Sequence()
-    seq.add(complete_on=example.subject_slot_listener)
-    seq.add(lambda: test_res_callbacks.append(1))
+    seq.wait_for_listener(example.subject_slot_listener)
+    # seq.add(lambda: test_res_callbacks.append(1))
     seq.done()
-    example.subject_slot_listener()
+    # example.subject_slot_listener()
+    # assert test_res_callbacks == [1]
+    # return
 
     def check_res():
         # type: () -> None

@@ -96,7 +96,8 @@ class ClipSlot(UseFrameworkEvents):
         # type: () -> Sequence
         seq = Sequence()
         if self._clip_slot and self.has_clip and self.clip:
-            seq.add(self._clip_slot.delete_clip, complete_on=self.has_clip_listener)
+            seq.add(self._clip_slot.delete_clip)
+            seq.wait_for_listener(self.has_clip_listener)
         return seq.done()
 
     @property
@@ -141,8 +142,8 @@ class ClipSlot(UseFrameworkEvents):
             raise Protocol0Warning("%s has already a clip" % self)
 
         seq = Sequence()
-        seq.add(partial(self._clip_slot.create_clip, SongFacade.signature_numerator()),
-                complete_on=self.has_clip_listener)
+        seq.add(partial(self._clip_slot.create_clip, SongFacade.signature_numerator()))
+        seq.wait_for_listener(self.has_clip_listener)
         seq.defer()
         seq.add(lambda: self.clip.select())
         seq.add(lambda: self.clip.clip_name._name_listener())
@@ -152,10 +153,8 @@ class ClipSlot(UseFrameworkEvents):
         # type: (ClipSlot) -> Sequence
         seq = Sequence()
         if self._clip_slot:
-            seq.add(
-                partial(self._clip_slot.duplicate_clip_to, clip_slot._clip_slot),
-                complete_on=clip_slot.has_clip_listener,
-            )
+            seq.add(partial(self._clip_slot.duplicate_clip_to, clip_slot._clip_slot))
+            seq.wait_for_listener(clip_slot.has_clip_listener)
         return seq.done()
 
     def disconnect(self):

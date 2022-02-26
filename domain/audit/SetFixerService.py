@@ -4,7 +4,7 @@ from protocol0.domain.audit.SetUpgradeService import SetUpgradeService
 from protocol0.domain.lom.song.Song import Song
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
-from protocol0.domain.shared.backend.System import System
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 
@@ -35,7 +35,7 @@ class SetFixerService(object):
         devices_to_remove = list(self._set_upgrade_service.get_deletable_devices(full_scan=True))
 
         if len(invalid_objects) == 0 and len(devices_to_remove) == 0:
-            System.client().show_success("Set is valid")
+            Backend.client().show_success("Set is valid")
         else:
             message = ""
             if len(invalid_objects):
@@ -45,7 +45,7 @@ class SetFixerService(object):
                     first_object.select()
             if len(devices_to_remove):
                 message += "Devices to remove: %s" % devices_to_remove
-            System.client().show_warning("Invalid set")
+            Backend.client().show_warning("Invalid set")
             Logger.log_warning(message)
 
     @property

@@ -5,7 +5,7 @@ from types import TracebackType
 from typing import Optional, Any, List, Type
 
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.backend.System import System
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -41,7 +41,7 @@ class ErrorService(object):
         exc_type, exc_value, tb = sys.exc_info()
         assert exc_type and exc_value and tb
         if issubclass(exc_type, Protocol0Warning):
-            System.client().show_warning(str(exc_value or exc_type))
+            Backend.client().show_warning(str(exc_value or exc_type))
         else:
             self._handle_exception(exc_type, exc_value, tb, event.context)
 

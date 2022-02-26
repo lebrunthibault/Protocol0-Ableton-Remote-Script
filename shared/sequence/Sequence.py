@@ -1,25 +1,24 @@
 from collections import deque
-from functools import partial
 
-from typing import Deque, Optional, Iterable, Union, Callable, Any, List, Type
+from typing import Deque, Optional, Iterable, Union, Callable, Any, List
 
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
-from protocol0.domain.shared.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.backend.System import System
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.shared.utils import get_frame_info, nop
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.domain.shared.utils import get_frame_info, nop, get_callable_repr
 from protocol0.shared.logging.Logger import Logger
+from protocol0.shared.sequence.SequenceActionMixin import SequenceActionMixin
 from protocol0.shared.sequence.SequenceState import SequenceStateEnum
 from protocol0.shared.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
 from protocol0.shared.sequence.SequenceStep import SequenceStep
 
 
-class Sequence(UseFrameworkEvents, SequenceStateMachineMixin):
+class Sequence(UseFrameworkEvents, SequenceStateMachineMixin, SequenceActionMixin):
     __subject_events__ = ("terminated",)
     """
-    Replacement of the _Framework Task as it does not seem to allow variable timeouts like triggers from listeners.
+    Replacement of the _Framework Task.
+    I added asynchronous behavior by hooking in the listener system and my own event system, 
+    including communication with the backend
     Encapsulates and composes all asynchronous tasks done in the script.
     """
     RUNNING_SEQUENCES = []  # type: List[Sequence]
@@ -42,101 +41,28 @@ class Sequence(UseFrameworkEvents, SequenceStateMachineMixin):
         # type: (Any) -> str
         return self.name
 
-    def __call__(self):
-        # type: () -> Sequence
-        return self.done()
+    def add(self, func=nop,  name=None, no_timeout=False, no_terminate=False):
+        # type: (Union[Iterable, Callable, object], str, bool, bool) -> None
+        """ callback can be a callable or a list of callable (will execute in parallel) """
+        assert callable(func) or isinstance(func, Iterable), "You passed a non callable (%s) to %s" % (func, self)
+        if isinstance(func, List):
+            from protocol0.shared.sequence.ParallelSequence import ParallelSequence
+            func = ParallelSequence.make_func_from_list(func)
 
-    def add(  # type: ignore[no-untyped-def]
-            self,
-            func=nop,  # type: Union[Iterable, Callable, object]
-            name=None,  # type: str
-            wait_for_system=False,  # type: bool
-            no_cancel=False,  # type: bool
-            complete_on=None,  # type: Callable
-            no_timeout=False,  # type: bool
-            no_terminate=False,  # type: bool
-    ):
-        """
-        callback can be :
-        - not given (nop): can be used to just wait on a condition (with complete_on)
-        - a callable or a list of callable (parallel sequence execution) which are added as a single SequenceStep
-        """
-        assert callable(func) or isinstance(func, Iterable), "You passed a non callable (%s) to %s" % (
-            func,
-            self,
-        )
+        step_name = "%s : step %s" % (self.name, name or get_callable_repr(func))
 
-        self._steps.append(
-            SequenceStep.make(
-                self,
-                func,
-                name=name,
-                wait_for_system=wait_for_system,
-                no_cancel=no_cancel,
-                complete_on=complete_on,
-                check_timeout=0 if no_timeout else 4,
-                no_terminate=no_terminate
-                # check_timeout is the number of (exponential duration) checks executed before step failure (based on the Live.Base.Timer tick)
-            )
-        )
+        if not no_timeout:
+            Scheduler.wait(100, self._cancel)
 
-        return self
-
-    def defer(self):
-        # type: () -> None
-        self.add(partial(Scheduler.defer, self._execute_next_step), no_terminate=True)
-
-    def wait(self, ticks):
-        # type: (int) -> None
-        self.add(partial(Scheduler.wait, ticks, self._execute_next_step), no_terminate=True)
-
-    def wait_bars(self, bars):
-        # type: (float) -> None
-        self.wait_beats(bars * SongFacade.signature_numerator())
-
-    def wait_beats(self, beats):
-        # type: (float) -> None
-        self.add(partial(Scheduler.wait_beats, beats, self._execute_next_step), no_terminate=True)
-
-    def wait_for_event(self, event):
-        # type: (Type[object]) -> None
-        self.wait_for_events([event])
-
-    def wait_for_events(self, events):
-        # type: (List[Type[object]]) -> None
-        def subscribe():
-            # type: () -> None
-            for event in events:
-                DomainEventBus.subscribe(event, on_event)
-
-        def on_event(_):
-            # type: (object) -> None
-            for event in events:
-                DomainEventBus.un_subscribe(event, on_event)
-            if self.started:
-                self._execute_next_step()
-        self.add(subscribe, no_terminate=True)
-
-    def prompt(self, question, no_cancel=False):
-        # type: (str, bool) -> None
-        """ helper method for prompts """
-        self.add(partial(System.client().prompt, question), wait_for_system=True, no_cancel=no_cancel)
-
-    def select(self, question, options, vertical=True):
-        # type: (str, List[str], bool) -> None
-        """ helper method for selects """
-        self.add(partial(System.client().select, question, options, vertical=vertical), wait_for_system=True)
+        step = SequenceStep(func, step_name, no_timeout, no_terminate)
+        self._steps.append(step)
 
     def done(self):
         # type: () -> Sequence
-        self.start()
-        return self
-
-    def start(self):
-        # type: () -> None
         self.change_state(SequenceStateEnum.STARTED)
         self.RUNNING_SEQUENCES.append(self)
         self._execute_next_step()
+        return self
 
     def _execute_next_step(self):
         # type: () -> None
@@ -159,30 +85,6 @@ class Sequence(UseFrameworkEvents, SequenceStateMachineMixin):
         for seq in reversed(Sequence.RUNNING_SEQUENCES):
             seq._cancel()
         Sequence.RUNNING_SEQUENCES = []
-
-    @classmethod
-    def handle_system_response(cls, res):
-        # type: (Any) -> None
-        waiting_sequence = next((seq for seq in Sequence.RUNNING_SEQUENCES if
-                                 seq._current_step is not None and seq._current_step.wait_for_system
-                                 ), None)
-        if waiting_sequence is None:
-            Logger.log_info("Response (%s) received from system but couldn't find a waiting sequence" % res)
-            return
-
-        waiting_sequence.on_system_response(res=res)
-
-    def on_system_response(self, res):
-        # type: (bool) -> None
-        if res:
-            self.res = res  # system response is accessible from the next step
-            self._execute_next_step()
-            return None
-
-        if self._current_step.no_cancel:
-            self._terminate()
-        else:
-            self._cancel()
 
     @p0_subject_slot("terminated")
     def _step_terminated(self):
@@ -208,15 +110,17 @@ class Sequence(UseFrameworkEvents, SequenceStateMachineMixin):
     @p0_subject_slot("cancelled")
     def _step_cancelled(self):
         # type: () -> None
-        self._cancel(notify_step=False)
+        if not self.cancelled:
+            self._cancel()
 
-    def _cancel(self, notify_step=True):
-        # type: (bool) -> None
+    def _cancel(self):
+        # type: () -> None
         if self.errored or self.terminated:
             return
         self.change_state(SequenceStateEnum.CANCELLED)
-        # if notify_step and self._current_step:
-        #     self._current_step.cancel(notify=False)
+        Logger.log_warning("%s has been cancelled" % self)
+        if self._current_step:
+            self._current_step.cancel()
         self.disconnect()
 
     def _terminate(self):
@@ -230,9 +134,6 @@ class Sequence(UseFrameworkEvents, SequenceStateMachineMixin):
     def disconnect(self):
         # type: () -> None
         super(Sequence, self).disconnect()
-        if self._current_step:
-            self._current_step.wait_for_system = False
-            self._current_step = None
         try:
             self.RUNNING_SEQUENCES.remove(self)
         except ValueError:

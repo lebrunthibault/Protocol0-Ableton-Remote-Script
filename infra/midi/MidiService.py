@@ -6,7 +6,7 @@ from protocol0.application.command.SerializableCommand import SerializableComman
 from protocol0.domain.lom.instrument.preset.PresetProgramSelectedEvent import PresetProgramSelectedEvent
 from protocol0.domain.lom.song.SongInitializedEvent import SongInitializedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.backend.System import System
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import find_if
 from protocol0.infra.midi.MidiBytesReceivedEvent import MidiBytesReceivedEvent
@@ -58,7 +58,7 @@ class MidiService(object):
 
     def _ping_midi_server(self):
         # type: () -> None
-        Scheduler.wait(10, System.client().ping)  # waiting for Protocol0_midi to boot
+        Scheduler.wait(10, Backend.client().ping)  # waiting for Protocol0_midi to boot
         Scheduler.wait(10, self._check_protocol_midi_is_up)  # waiting for Protocol0_midi to boot
         Scheduler.wait(100, self._midi_server_ping_timeout)
 

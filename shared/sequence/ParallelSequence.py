@@ -1,4 +1,8 @@
+from functools import partial
+
 from _Framework.SubjectSlot import subject_slot_group
+from typing import List, Callable
+
 from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.shared.sequence.SequenceState import SequenceStateEnum
 from protocol0.shared.sequence.SequenceStep import SequenceStep
@@ -6,11 +10,22 @@ from protocol0.shared.sequence.SequenceStep import SequenceStep
 
 class ParallelSequence(Sequence):
     """ executes steps in parallel """
-
     def __init__(self):
         # type: () -> None
         super(ParallelSequence, self).__init__()
         self._steps_terminated_count = 0
+
+    @classmethod
+    def make_func_from_list(cls, funcs):
+        # type: (List[Callable]) -> Callable
+        def parallel_sequence_creator(callbacks):
+            # type: (List[Callable]) -> Sequence
+
+            seq = ParallelSequence()
+            [seq.add(func) for func in callbacks]
+            return seq.done()
+
+        return partial(parallel_sequence_creator, funcs)
 
     def start(self):
         # type: () -> None

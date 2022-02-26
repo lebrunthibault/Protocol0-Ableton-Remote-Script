@@ -3,7 +3,7 @@ from _Framework.SubjectSlot import subject_slot_group
 import Live
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
-from protocol0.domain.shared.backend.System import System
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
@@ -53,7 +53,7 @@ class MixingService(UseFrameworkEvents):
         # type: (Live.Track.Track) -> None
         if track.output_meter_level < Config.CLIPPING_TRACK_VOLUME or not SongFacade.is_playing():
             return
-        System.client().show_warning("%s is clipping (%s)" % (track.name, track.output_meter_level))
+        Backend.client().show_warning("%s is clipping (%s)" % (track.name, track.output_meter_level))
 
     def scroll_all_tracks_volume(self, go_next):
         # type: (bool) -> None

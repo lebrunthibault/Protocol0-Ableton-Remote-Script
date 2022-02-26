@@ -1,3 +1,5 @@
+from protocol0.application.CommandBus import CommandBus
+from protocol0.application.command.ProcessSystemResponseCommand import ProcessSystemResponseCommand
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.decorators import has_callback_queue
@@ -35,7 +37,7 @@ def test_async_callback_execution_order():
     obj = Example()
 
     seq = Sequence()
-    seq.add(nop, complete_on=obj.listener, name="waiting for obj.listener")
+    seq.wait_for_listener(obj.listener)
     seq.add(lambda: test_res.append(2), name="append 2")
     seq.add(nop, name="after listener step")
 
@@ -71,7 +73,6 @@ def test_wait_for_event():
 
 
 def test_wait_for_events():
-    make_protocol0()
     test_res = []
 
     def inner_seq():
@@ -93,6 +94,58 @@ def test_wait_for_events():
     DomainEventBus.notify(SongStoppedEvent())
 
     assert test_res == [True, True]
+
+
+def test_prompt():
+    make_protocol0()
+
+    def create_seq():
+        seq = Sequence()
+        seq.prompt("question ?")
+        seq.add(lambda: test_res.append(True))
+        return seq.done()
+
+    test_res = []
+    seq = create_seq()
+    assert seq.started
+    assert test_res == []
+    seq._cancel()
+
+    test_res = []
+    seq = create_seq()
+    CommandBus.dispatch(ProcessSystemResponseCommand(True))
+    assert test_res == [True]
+    seq._cancel()
+
+    test_res = []
+    seq = create_seq()
+    CommandBus.dispatch(ProcessSystemResponseCommand(False))
+    assert seq.cancelled
+    assert test_res == []
+
+    assert test_res == []
+
+
+def test_select():
+    make_protocol0()
+
+    def create_seq():
+        seq = Sequence()
+        seq.select("question ?", [1, 2, 3])
+        seq.add(lambda: test_res.append(seq.res))
+        return seq.done()
+
+    test_res = []
+    seq = create_seq()
+    assert seq.started
+    assert test_res == []
+    seq._cancel()
+
+    test_res = []
+    seq = create_seq()
+    CommandBus.dispatch(ProcessSystemResponseCommand(2))
+    assert test_res == [2]
+    seq._cancel()
 
 
 def test_cancel():

@@ -175,7 +175,7 @@ class SongActionMixin(object):
         self._midi_recording_quantization_checked = True
         seq = Sequence()
         seq.prompt("Midi recording quantization %s is not tempo default : %s, Set to default ?" % (
-            self.midi_recording_quantization, self.tempo_default_midi_recording_quantization), no_cancel=True)
+            self.midi_recording_quantization, self.tempo_default_midi_recording_quantization))
         seq.add(
             partial(setattr, self, "midi_recording_quantization", self.tempo_default_midi_recording_quantization))
         seq.add(partial(StatusBar.show_message,

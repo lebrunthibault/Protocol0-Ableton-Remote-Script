@@ -34,7 +34,8 @@ class BrowserService(BrowserServiceInterface):
         else:
             raise Protocol0Error("Couldn't load device %s, configure is_device or is_rack" % device_enum)
 
-        seq.add(load_func, complete_on=SongFacade.selected_track()._devices_listener)
+        seq.add(load_func)
+        seq.wait_for_listener(SongFacade.selected_track()._devices_listener)
         return seq.done()
 
     def _on_sample_selected_event(self, event):

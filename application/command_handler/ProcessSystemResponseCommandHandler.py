@@ -1,10 +1,10 @@
 from protocol0.application.command.ProcessSystemResponseCommand import ProcessSystemResponseCommand
 from protocol0.application.command_handler.CommandHandlerInterface import CommandHandlerInterface
-from protocol0.shared.sequence.Sequence import Sequence
+from protocol0.domain.shared.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.backend.BackendResponseEvent import BackendResponseEvent
 
 
 class ProcessSystemResponseCommandHandler(CommandHandlerInterface):
     def handle(self, command):
         # type: (ProcessSystemResponseCommand) -> None
-
-        Sequence.handle_system_response(command.res)
+        DomainEventBus.notify(BackendResponseEvent(command.res))

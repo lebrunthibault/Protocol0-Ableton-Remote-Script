@@ -22,7 +22,7 @@ def p0_subject_slot(event):
 
     This decorator / callback registration is mainly used by the Sequence pattern
     It allows chaining functions by reacting to listeners being triggered and is paramount to executing asynchronous sequence of actions
-    Sequence.add(complete_on=<@p0_subject_slot<listener>> will actually registers a callback on the decorated <listener>.
+    Sequence.wait_for_listener(<@p0_subject_slot<listener>>) will actually registers a callback on the decorated <listener>.
     This callback will resume the sequence when executed.
     """
 

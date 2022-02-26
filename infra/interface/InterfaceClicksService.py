@@ -1,7 +1,7 @@
 from protocol0.domain.lom.clip.ClipEnveloppeShowedEvent import ClipEnveloppeShowedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.InterfaceClicksServiceInterface import InterfaceClicksServiceInterface
-from protocol0.domain.shared.backend.System import System
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.infra.interface.PixelEnum import PixelEnum
 
 
@@ -17,9 +17,9 @@ class InterfaceClicksService(InterfaceClicksServiceInterface):
     def _on_clip_enveloppe_showed_event(self, _):
         # type: (ClipEnveloppeShowedEvent) -> None
         if InterfaceClicksService.CLIP_ENVELOPE_SHOW_BOX_CLICKED:
-            System.client().double_click(*PixelEnum.SHOW_CLIP_ENVELOPE.coordinates)
+            Backend.client().double_click(*PixelEnum.SHOW_CLIP_ENVELOPE.coordinates)
         InterfaceClicksService.CLIP_ENVELOPE_SHOW_BOX_CLICKED = True
 
     def save_sample(self):
         # type: () -> None
-        System.client().click_vertical_zone(*PixelEnum.SAVE_SAMPLE.coordinates)
+        Backend.client().click_vertical_zone(*PixelEnum.SAVE_SAMPLE.coordinates)

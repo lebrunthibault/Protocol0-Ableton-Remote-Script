@@ -27,7 +27,7 @@ from protocol0.domain.lom.validation.ValidatorFactory import ValidatorFactory
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.application.CommandBus import CommandBus
-from protocol0.domain.shared.backend.System import System
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.track_recorder.TrackRecorderService import TrackRecorderService
@@ -59,7 +59,7 @@ class Container(ContainerInterface):
         Logger(LoggerService())
         UndoFacade(live_song.begin_undo_step, live_song.end_undo_step)
         StatusBar(control_surface.show_message)
-        System(control_surface._send_midi)
+        Backend(control_surface._send_midi)
         ErrorService()
         midi_service = MidiService(control_surface._send_midi)
         beat_scheduler = BeatScheduler(live_song)
@@ -84,7 +84,7 @@ class Container(ContainerInterface):
         SongFacade(song, song_tracks_service, scenes_service)
 
         song_service = SongService(song)
-        System.client().end_measurement()
+        Backend.client().end_measurement()
         instrument_display_service = InstrumentDisplayService(device_service)
         instrument_preset_scroller_service = InstrumentPresetScrollerService()
         mixing_service = MixingService(live_song.master_track)

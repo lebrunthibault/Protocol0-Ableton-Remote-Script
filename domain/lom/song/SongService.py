@@ -6,7 +6,7 @@ from protocol0.domain.lom.song.SongInitializedEvent import SongInitializedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.backend.System import System
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.Config import Config
@@ -27,7 +27,7 @@ class SongService(object):
         Scheduler.wait(50, self._song.reset)
 
         if SongFacade.clip_trigger_quantization() == Live.Song.Quantization.q_no_q:
-            System.client().show_warning("The global launch quantization is set to None")
+            Backend.client().show_warning("The global launch quantization is set to None")
 
         Scheduler.defer(self._song.unfocus_all_tracks)  # need defer
 

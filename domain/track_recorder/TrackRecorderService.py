@@ -7,7 +7,7 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrac
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.backend.System import System
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
@@ -70,7 +70,7 @@ class TrackRecorderService(object):
         self._recorder = recorder_factory.create_recorder(record_type, bar_length)
         self._recorder.set_recording_scene_index(recording_scene_index)
 
-        System.client().show_info("Rec: %s" % self._recorder.legend(bar_length))
+        Backend.client().show_info("Rec: %s" % self._recorder.legend(bar_length))
 
         seq.add(partial(self._start_recording, count_in, self._recorder, bar_length))
         return seq.done()
@@ -94,7 +94,7 @@ class TrackRecorderService(object):
         Scheduler.restart()
         self._recorder.cancel_record()
         self._recorder = None
-        System.client().show_warning("Recording cancelled")
+        Backend.client().show_warning("Recording cancelled")
 
     def _on_song_stopped_event(self, _):
         # type: (SongStoppedEvent) -> None
@@ -103,7 +103,7 @@ class TrackRecorderService(object):
             return
         else:
             # we could cancel the record here also
-            System.client().show_info("Recording stopped")
+            Backend.client().show_info("Recording stopped")
             # deferring this to allow components to react to the song stopped event
             Scheduler.defer(Scheduler.restart)
             self._recorder = None

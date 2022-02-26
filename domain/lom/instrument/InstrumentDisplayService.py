@@ -7,7 +7,7 @@ from protocol0.domain.lom.instrument.InstrumentActivatedEvent import InstrumentA
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.backend.System import System
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -29,9 +29,9 @@ class InstrumentDisplayService(object):
         else:
             seq.add(instrument.device.track.select)
             if SongFacade.selected_track() != instrument.device.track:
-                seq.add(System.client().show_plugins)
+                seq.add(Backend.client().show_plugins)
             else:
-                seq.add(System.client().show_hide_plugins)
+                seq.add(Backend.client().show_hide_plugins)
         return seq.done()
 
     def activate_instrument_plugin_window(self, instrument):
@@ -44,7 +44,7 @@ class InstrumentDisplayService(object):
         seq = Sequence()
         if event.track.instrument and event.track.instrument.needs_exclusive_activation:
             seq.add(partial(self.activate_plugin_window, event.track.instrument))
-            seq.add(System.client().hide_plugins)
+            seq.add(Backend.client().hide_plugins)
         return seq.done()
 
     def activate_plugin_window(self, instrument, force_activate=False):

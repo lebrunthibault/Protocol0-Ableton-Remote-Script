@@ -1,5 +1,5 @@
 from protocol0.domain.lom.device.PluginDevice import PluginDevice
-from protocol0.domain.shared.backend.System import System
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 
@@ -7,7 +7,7 @@ from protocol0.shared.logging.Logger import Logger
 class LogService(object):
     def focus_window(self):
         # type: () -> None
-        System.client().focus_window(window_name="logs terminal")
+        Backend.client().focus_window(window_name="logs terminal")
 
     def clear(self):
         # type: () -> None
