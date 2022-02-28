@@ -35,12 +35,14 @@ class TickScheduler(TickSchedulerInterface):
         # type: () -> None
         try:
             # this throws on startup
-            if self._song.is_playing:
-                self._beat_scheduler._on_tick()
+            is_song_playing = self._song.is_playing
         except Exception as e:
             import logging
             logging.info("is playing error: %s" % e)
             return
+
+        if is_song_playing:
+            self._beat_scheduler._on_tick()
         for scheduled_event in self._scheduled_events[:]:
             if scheduled_event.should_execute:
                 scheduled_event.execute()

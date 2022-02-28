@@ -1,6 +1,5 @@
 from typing import Any, Callable, Optional
 
-from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
@@ -8,7 +7,7 @@ from protocol0.shared.sequence.SequenceState import SequenceStateEnum
 from protocol0.shared.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
 
 
-class SequenceStep(UseFrameworkEvents, SequenceStateMachineMixin):
+class SequenceStep(SequenceStateMachineMixin):
     __subject_events__ = ("terminated", "errored", "cancelled")
 
     def __init__(self, func, name, notify_terminated):
@@ -37,9 +36,7 @@ class SequenceStep(UseFrameworkEvents, SequenceStateMachineMixin):
         # type: () -> None
         res = self._callable()
 
-        from protocol0.shared.sequence.Sequence import Sequence
-
-        if isinstance(res, Sequence):
+        if isinstance(res, SequenceStateMachineMixin):
             if res.errored:
                 self._error()
             elif res.cancelled:

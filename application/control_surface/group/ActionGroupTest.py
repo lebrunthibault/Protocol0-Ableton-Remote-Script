@@ -26,8 +26,3 @@ class ActionGroupTest(ActionGroupMixin):
     def action_test(self):
         # type: () -> None
         pass
-        # options = ["Arm current track", "Record on armed track"]
-        # seq = Sequence()
-        # seq.select("The current track is not armed", options=options)
-        # seq.add(lambda: Logger.log_dev("received %s" % seq.res))
-        # seq.done()

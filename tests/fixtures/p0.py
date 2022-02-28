@@ -50,9 +50,11 @@ def monkey_patch_static():
     # remove this until fixtures are thorough
     ActionGroupFactory.create_action_groups = classmethod(nop)
 
+    SongService.init_song = nop
+    AbstractGroupTrack._link_dummy_tracks_routings = nop
+
 
 def monkey_patch_p0(live_song=None):
     # type: (Optional[Live.Song.Song]) -> None
     Scheduler(TickSchedulerTest(), BeatScheduler(live_song))
-    SongService.init_song = nop
-    AbstractGroupTrack._link_dummy_tracks_routings = nop
+

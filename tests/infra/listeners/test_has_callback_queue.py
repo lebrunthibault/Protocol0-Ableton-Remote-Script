@@ -7,8 +7,6 @@ from protocol0.domain.shared.decorators import has_callback_queue, p0_subject_sl
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.sequence.Sequence import Sequence
 
-Scheduler.defer = classmethod(lambda cls, callback: callback())
-
 
 def test_has_callback_queue_1():
     # type: () -> None

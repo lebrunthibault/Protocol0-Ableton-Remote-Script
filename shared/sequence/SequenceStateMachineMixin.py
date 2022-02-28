@@ -1,10 +1,12 @@
+from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.shared.sequence.SequenceState import SequenceState, SequenceStateEnum
 
 
-class SequenceStateMachineMixin(object):
+class SequenceStateMachineMixin(UseFrameworkEvents):
     def __init__(self):
         # type: () -> None
+        super(SequenceStateMachineMixin, self).__init__()
         terminated_state = SequenceState(SequenceStateEnum.TERMINATED, [])
         cancelled_state = SequenceState(SequenceStateEnum.CANCELLED, [])
         errored_state = SequenceState(SequenceStateEnum.ERRORED, [])
@@ -12,12 +14,13 @@ class SequenceStateMachineMixin(object):
         un_started_state = SequenceState(SequenceStateEnum.UN_STARTED, [started_state])
 
         self.state = un_started_state
+        self.res = None
 
     def change_state(self, enum):
         # type: (SequenceStateEnum) -> None
         new_state = self.state.get_transition(enum)
         if new_state is None:
-            raise Protocol0Error("Cannot change state from %s to %s" % (self.state.enum, enum))
+            raise Protocol0Error("Cannot change state from %s to %s : %s" % (self.state.enum, enum, self))
 
         self.state = new_state
 

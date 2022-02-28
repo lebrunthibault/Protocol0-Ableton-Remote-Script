@@ -52,6 +52,7 @@ class TrackRecorderClipTailDecorator(TrackRecorderDecorator, UseFrameworkEvents)
         input_routing_type = self.track.midi_track.input_routing.type
 
         audio_clip = self.track.audio_track.clip_slots[self.recording_scene_index].clip
+        audio_tail_clip = self.track.audio_tail_track.clip_slots[self.recording_scene_index].clip
         audio_clip.fire()
         self.track.midi_track.stop()
         self.track.midi_track.input_routing.type = InputRoutingTypeEnum.NO_INPUT
@@ -60,5 +61,6 @@ class TrackRecorderClipTailDecorator(TrackRecorderDecorator, UseFrameworkEvents)
         seq = Sequence()
         seq.wait_for_events([SongStoppedEvent, AudioClipSilentEvent])
         seq.add(partial(setattr, self.track.midi_track.input_routing, "type", input_routing_type))
+        seq.add(partial(audio_tail_clip.stop, immediate=True))
         seq.add(partial(DomainEventBus.un_subscribe, Last32thPassedEvent, self._on_last_32th_passed_event))
         return seq.done()

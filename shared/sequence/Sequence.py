@@ -2,7 +2,6 @@ from collections import deque
 
 from typing import Deque, Optional, Iterable, Union, Callable, Any, List
 
-from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.utils import get_frame_info, nop, get_callable_repr
 from protocol0.shared.logging.Logger import Logger
@@ -12,14 +11,14 @@ from protocol0.shared.sequence.SequenceStateMachineMixin import SequenceStateMac
 from protocol0.shared.sequence.SequenceStep import SequenceStep
 
 
-class Sequence(UseFrameworkEvents, SequenceStateMachineMixin, SequenceActionMixin):
-    __subject_events__ = ("terminated",)
+class Sequence(SequenceStateMachineMixin, SequenceActionMixin):
     """
     Replacement of the _Framework Task.
     I added asynchronous behavior by hooking in the listener system and my own event system,
     including communication with the backend
     Encapsulates and composes all asynchronous tasks done in the script.
     """
+    __subject_events__ = ("terminated",)
     RUNNING_SEQUENCES = []  # type: List[Sequence]
     _DEBUG = False
 

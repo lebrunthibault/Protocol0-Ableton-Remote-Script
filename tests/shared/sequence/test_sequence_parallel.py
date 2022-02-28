@@ -15,16 +15,19 @@ def test_sequence_parallel():
         seq = Sequence()
 
         test_res.append(val)
-        seq.wait(100)
+        seq.defer()
         seq.add(lambda: test_res.append(val + 1))
 
         return seq.done()
 
     def check_res():
         # type: () -> None
-        assert test_res == [0, 2, 1, 3]
+        assert test_res == [0, 2, 1, 3, 4]
 
     seq = Sequence()
     seq.add([partial(inner_seq, 0), partial(inner_seq, 2)])
+    seq.add(lambda: test_res.append(4))
     seq.add(check_res)
     seq.done()
+
+    assert test_res == [0, 2]

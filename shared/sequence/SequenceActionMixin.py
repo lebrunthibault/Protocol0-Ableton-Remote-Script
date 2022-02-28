@@ -7,23 +7,12 @@ from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.backend.BackendResponseEvent import BackendResponseEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.CallableWithCallbacks import CallableWithCallbacks
 from protocol0.shared.types import Func
 
 if TYPE_CHECKING:
     from protocol0.shared.sequence.Sequence import Sequence
-
-
-def _make_timeout_step(func, timeout_func):
-    # type: (Callable, Callable) -> Callable
-    timeout_event = Scheduler.wait(100, timeout_func)
-
-    def execute():
-        # type: () -> None
-        timeout_event.cancel()
-        func()
-
-    return execute
 
 
 # noinspection PyTypeHints
@@ -48,7 +37,7 @@ class SequenceActionMixin(object):
         # type: (Sequence, Callable) -> None
         assert CallableWithCallbacks.func_has_callback_queue(listener)
         listener = cast(CallableWithCallbacks, listener)
-        self.add(_make_timeout_step(partial(listener.add_callback, self._execute_next_step), self._cancel), notify_terminated=False)
+        self._add_timeout_step(partial(listener.add_callback, self._execute_next_step), "wait_for_listener %s" % listener)
 
     def wait_for_event(self, event):
         # type: (Sequence, Type[object]) -> None
@@ -68,7 +57,25 @@ class SequenceActionMixin(object):
             if self.started:
                 self._execute_next_step()
 
-        self.add(_make_timeout_step(subscribe, self._cancel), notify_terminated=False)
+        self._add_timeout_step(subscribe, "wait_for_events %s" % events)
+
+    def _add_timeout_step(self, func, legend):
+        # type: (Sequence, Callable, str) -> None
+        ticks = 200
+
+        def cancel():
+            # type: () -> None
+            Logger.log_warning("cancelling after %s ticks : %s on %s" % (ticks, self, legend))
+            self._cancel()
+
+        timeout_event = Scheduler.wait(ticks, cancel)
+
+        def execute():
+            # type: () -> None
+            timeout_event.cancel()
+            func()
+
+        self.add(execute, notify_terminated=False)
 
     def prompt(self, question):
         # type: (Sequence, str) -> None

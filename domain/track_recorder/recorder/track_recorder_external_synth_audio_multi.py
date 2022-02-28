@@ -34,7 +34,6 @@ class TrackRecorderExternalSynthAudioMulti(TrackRecorderExternalSynthAudio):
             for tick in [1, 10, 50, 100]:
                 Scheduler.wait(tick, midi_clip.display_current_parameter_automation)
 
-        # negative delay so that it's not late
         SongFacade.scenes()[self.recording_scene_index].fire()
         for cs in self._recording_clip_slots:
             cs.fire()

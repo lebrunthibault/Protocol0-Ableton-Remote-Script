@@ -18,6 +18,17 @@ class ActionGroupMain(ActionGroupMixin):
 
     def configure(self):
         # type: () -> None
+        # RECO encoder
+        self.add_encoder(
+            identifier=5,
+            name="record audio and keep automation",
+            filter_active_tracks=True,
+            on_press=lambda: partial(self._container.get(TrackRecorderService).record_track, SongFacade.current_track(),
+                                     RecordTypeEnum.AUDIO_ONLY),
+            on_long_press=lambda: partial(self._container.get(TrackRecorderService).record_track, SongFacade.current_track(),
+                                          RecordTypeEnum.AUDIO_ONLY_MULTI),
+        )
+
         # AUTOmation encoder
         self.add_encoder(
             identifier=3,

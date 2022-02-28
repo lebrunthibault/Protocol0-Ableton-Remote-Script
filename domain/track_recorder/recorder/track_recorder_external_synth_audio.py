@@ -37,15 +37,18 @@ class TrackRecorderExternalSynthAudio(TrackRecorderExternalSynthMixin, AbstractT
 
     def record(self, bar_length):
         # type: (float) -> Sequence
+        self._clear_automation()
+        # negative delay so that it's not late
+        return super(TrackRecorderExternalSynthAudio, self).record(bar_length - 0.6)
+
+    def _clear_automation(self):
+        # type: () -> None
         midi_clip = self.track.midi_track.clip_slots[self.recording_scene_index].clip
         # reset automation enveloppes
         midi_clip.clear_all_envelopes()
         if len(midi_clip.automated_parameters):
             for tick in [1, 10, 50, 100]:
                 Scheduler.wait(tick, midi_clip.display_current_parameter_automation)
-
-        # negative delay so that it's not late
-        return super(TrackRecorderExternalSynthAudio, self).record(bar_length - 0.6)
 
     @property
     def _recording_tracks(self):
