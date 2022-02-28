@@ -65,7 +65,7 @@ class CallableWithCallbacks(object):
         if len(self._callbacks) == 0:
             return
         # defer mitigates the "Changes cannot be triggered by notification" error
-        self._execute_callbacks()
+        self._execute_callbacks()  # todo: change
         # Scheduler.defer(self._execute_callbacks)
 
     def _execute_callbacks(self):
