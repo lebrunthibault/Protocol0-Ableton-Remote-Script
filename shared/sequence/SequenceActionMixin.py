@@ -14,15 +14,27 @@ if TYPE_CHECKING:
     from protocol0.shared.sequence.Sequence import Sequence
 
 
+def _make_timeout_step(func, timeout_func):
+    # type: (Callable, Callable) -> Callable
+    timeout_event = Scheduler.wait(100, timeout_func)
+
+    def execute():
+        # type: () -> None
+        timeout_event.cancel()
+        func()
+
+    return execute
+
+
 # noinspection PyTypeHints
 class SequenceActionMixin(object):
     def defer(self):
         # type: (Sequence) -> None
-        self.add(partial(Scheduler.defer, self._execute_next_step), no_terminate=True)
+        self.add(partial(Scheduler.defer, self._execute_next_step), notify_terminated=False)
 
     def wait(self, ticks):
         # type: (Sequence, int) -> None
-        self.add(partial(Scheduler.wait, ticks, self._execute_next_step), no_terminate=True)
+        self.add(partial(Scheduler.wait, ticks, self._execute_next_step), notify_terminated=False)
 
     def wait_bars(self, bars):
         # type: (Sequence, float) -> None
@@ -30,15 +42,13 @@ class SequenceActionMixin(object):
 
     def wait_beats(self, beats):
         # type: (Sequence, float) -> None
-        self.add(partial(Scheduler.wait_beats, beats, self._execute_next_step), no_terminate=True)
+        self.add(partial(Scheduler.wait_beats, beats, self._execute_next_step), notify_terminated=False)
 
     def wait_for_listener(self, listener):
         # type: (Sequence, Callable) -> None
         assert CallableWithCallbacks.func_has_callback_queue(listener)
         listener = cast(CallableWithCallbacks, listener)
-        print("got listener %s" % listener)
-        # NB : we could add a timeout here
-        # listener.add_callback(self._execute_next_step)
+        self.add(_make_timeout_step(partial(listener.add_callback, self._execute_next_step), self._cancel), notify_terminated=False)
 
     def wait_for_event(self, event):
         # type: (Sequence, Type[object]) -> None
@@ -58,17 +68,19 @@ class SequenceActionMixin(object):
             if self.started:
                 self._execute_next_step()
 
-        self.add(subscribe, no_terminate=True)
+        self.add(_make_timeout_step(subscribe, self._cancel), notify_terminated=False)
 
     def prompt(self, question):
         # type: (Sequence, str) -> None
         """ helper method for prompts """
+
         def on_response(res):
             # type: (bool) -> None
             if res:
                 self._execute_next_step()
             else:
                 self._cancel()
+
         self._execute_backend_step(partial(Backend.client().prompt, question), on_response)
 
     def select(self, question, options, vertical=True):
@@ -78,7 +90,7 @@ class SequenceActionMixin(object):
 
     def _execute_backend_step(self, func, on_response=None):
         # type: (Sequence, Func, Optional[Func]) -> None
-        self.add(func, no_terminate=True)
+        self.add(func, notify_terminated=False)
 
         def on_event(event):
             # type: (BackendResponseEvent) -> None

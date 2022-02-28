@@ -25,13 +25,17 @@ class BeatTime(object):
         # type: (BeatTime) -> bool
         return self._to_tick_count >= other._to_tick_count
 
+    def __gt__(self, other):
+        # type: (BeatTime) -> bool
+        return self._to_tick_count > other._to_tick_count
+
     @property
     def _to_tick_count(self):
         # type: () -> int
-        tick_coeff = 60
-        beat_coeff = 4 * tick_coeff
+        sixteenths_coeff = 60
+        beat_coeff = 4 * sixteenths_coeff
         bar_coeff = beat_coeff * SongFacade.signature_numerator()
-        return self._ticks + self._sixteenths * 60 + self.beats * beat_coeff + self.bars * bar_coeff
+        return self._ticks + self._sixteenths * sixteenths_coeff + self.beats * beat_coeff + self.bars * bar_coeff
 
     @classmethod
     def from_song_beat_time(cls, beat_time):

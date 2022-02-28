@@ -1,7 +1,6 @@
 from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.logging.Logger import Logger
-from protocol0.shared.sequence.Sequence import Sequence
 
 
 class ActionGroupTest(ActionGroupMixin):
@@ -26,17 +25,7 @@ class ActionGroupTest(ActionGroupMixin):
 
     def action_test(self):
         # type: () -> None
-        seq = Sequence()
-        seq.add(lambda: Logger.log_dev("started"))
-        seq.defer()
-        seq.add(lambda: Logger.log_dev("deferred"))
-        seq.wait(10)
-        seq.add(lambda: Logger.log_dev("waited 10"))
-        seq.wait_bars(1)
-        seq.add(lambda: Logger.log_dev("waited bars"))
-        seq.wait_beats(1)
-        seq.add(lambda: Logger.log_dev("waited beats"))
-        seq.done()
+        pass
         # options = ["Arm current track", "Record on armed track"]
         # seq = Sequence()
         # seq.select("The current track is not armed", options=options)

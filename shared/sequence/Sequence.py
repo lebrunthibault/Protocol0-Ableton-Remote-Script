@@ -4,7 +4,6 @@ from typing import Deque, Optional, Iterable, Union, Callable, Any, List
 
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.shared.decorators import p0_subject_slot
-from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import get_frame_info, nop, get_callable_repr
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.SequenceActionMixin import SequenceActionMixin
@@ -17,7 +16,7 @@ class Sequence(UseFrameworkEvents, SequenceStateMachineMixin, SequenceActionMixi
     __subject_events__ = ("terminated",)
     """
     Replacement of the _Framework Task.
-    I added asynchronous behavior by hooking in the listener system and my own event system, 
+    I added asynchronous behavior by hooking in the listener system and my own event system,
     including communication with the backend
     Encapsulates and composes all asynchronous tasks done in the script.
     """
@@ -41,20 +40,17 @@ class Sequence(UseFrameworkEvents, SequenceStateMachineMixin, SequenceActionMixi
         # type: (Any) -> str
         return self.name
 
-    def add(self, func=nop,  name=None, no_timeout=False, no_terminate=False):
-        # type: (Union[Iterable, Callable, object], str, bool, bool) -> None
+    def add(self, func=nop, name=None, notify_terminated=True):
+        # type: (Union[Iterable, Callable, object], str, bool) -> None
         """ callback can be a callable or a list of callable (will execute in parallel) """
         assert callable(func) or isinstance(func, Iterable), "You passed a non callable (%s) to %s" % (func, self)
         if isinstance(func, List):
             from protocol0.shared.sequence.ParallelSequence import ParallelSequence
-            func = ParallelSequence.make_func_from_list(func)
+            func = ParallelSequence(func).start
 
         step_name = "%s : step %s" % (self.name, name or get_callable_repr(func))
 
-        if not no_timeout:
-            Scheduler.wait(100, self._cancel)
-
-        step = SequenceStep(func, step_name, no_timeout, no_terminate)
+        step = SequenceStep(func, step_name, notify_terminated)
         self._steps.append(step)
 
     def done(self):
@@ -66,7 +62,7 @@ class Sequence(UseFrameworkEvents, SequenceStateMachineMixin, SequenceActionMixi
 
     def _execute_next_step(self):
         # type: () -> None
-        if self.errored or self.cancelled or self.terminated:
+        if not self.started:
             return
         if len(self._steps):
             self._current_step = self._steps.popleft()
@@ -98,10 +94,8 @@ class Sequence(UseFrameworkEvents, SequenceStateMachineMixin, SequenceActionMixi
         # type: () -> None
         self._error()
 
-    def _error(self, message=None):
-        # type: (Optional[str]) -> None
-        if message:
-            Logger.log_error(message)
+    def _error(self):
+        # type: () -> None
         self.change_state(SequenceStateEnum.ERRORED)
         self.disconnect()
         if self._DEBUG:
@@ -110,18 +104,16 @@ class Sequence(UseFrameworkEvents, SequenceStateMachineMixin, SequenceActionMixi
     @p0_subject_slot("cancelled")
     def _step_cancelled(self):
         # type: () -> None
-        if not self.cancelled:
-            self._cancel()
+        self._cancel()
 
     def _cancel(self):
         # type: () -> None
-        if self.errored or self.terminated:
-            return
-        self.change_state(SequenceStateEnum.CANCELLED)
-        Logger.log_warning("%s has been cancelled" % self)
-        if self._current_step:
-            self._current_step.cancel()
-        self.disconnect()
+        if self.started:
+            self.change_state(SequenceStateEnum.CANCELLED)
+            Logger.log_warning("%s has been cancelled" % self)
+            if self._current_step:
+                self._current_step.cancel()
+            self.disconnect()
 
     def _terminate(self):
         # type: () -> None

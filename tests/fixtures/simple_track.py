@@ -65,4 +65,3 @@ def add_track(track_type):
     live_track = AbletonTrack(track_type=track_type)
     SongFacade.live_song().tracks.append(cast(Live.Track.Track, live_track))
     return live_track
-

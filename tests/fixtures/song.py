@@ -27,6 +27,7 @@ class AbletonSong(Subject):
         self.signature_numerator = 4
 
         self.tracks = [self.view.selected_track]
+        self.visible_tracks = self.tracks
         self.return_tracks = []  # type: List[AbletonTrack]
         self.master_track = AbletonTrack()  # type: ignore
         self.scenes = [self.view.selected_scene]

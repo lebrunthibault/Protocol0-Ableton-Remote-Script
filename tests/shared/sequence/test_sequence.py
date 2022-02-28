@@ -6,7 +6,6 @@ from protocol0.domain.shared.decorators import has_callback_queue
 from protocol0.domain.shared.scheduler.BarEndingEvent import BarEndingEvent
 from protocol0.domain.shared.utils import nop
 from protocol0.shared.sequence.Sequence import Sequence
-from protocol0.tests.fixtures.p0 import make_protocol0
 
 
 def test_sanity_checks():
@@ -19,7 +18,6 @@ def test_sanity_checks():
 
 def test_async_callback_execution_order():
     # type: () -> None
-    make_protocol0()
     test_res = []
 
     # noinspection PyClassHasNoInit
@@ -97,8 +95,6 @@ def test_wait_for_events():
 
 
 def test_prompt():
-    make_protocol0()
-
     def create_seq():
         seq = Sequence()
         seq.prompt("question ?")
@@ -127,8 +123,6 @@ def test_prompt():
 
 
 def test_select():
-    make_protocol0()
-
     def create_seq():
         seq = Sequence()
         seq.select("question ?", [1, 2, 3])

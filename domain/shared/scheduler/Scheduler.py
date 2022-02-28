@@ -1,6 +1,7 @@
 from typing import Callable, Optional
 
 from protocol0.domain.shared.scheduler.BeatSchedulerInterface import BeatSchedulerInterface
+from protocol0.domain.shared.scheduler.TickSchedulerEventInterface import TickSchedulerEventInterface
 from protocol0.domain.shared.scheduler.TickSchedulerInterface import TickSchedulerInterface
 
 
@@ -26,9 +27,9 @@ class Scheduler(object):
 
     @classmethod
     def wait(cls, tick_count, callback):
-        # type: (int, Callable) -> None
+        # type: (int, Callable) -> TickSchedulerEventInterface
         """ tick_count (* 17 sms) """
-        cls._INSTANCE._tick_scheduler.schedule(tick_count=tick_count, callback=callback)
+        return cls._INSTANCE._tick_scheduler.schedule(tick_count, callback)
 
     @classmethod
     def restart(cls):

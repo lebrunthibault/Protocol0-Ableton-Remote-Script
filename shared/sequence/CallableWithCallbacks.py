@@ -3,7 +3,6 @@ from collections import deque
 from typing import Callable, Deque, Any
 
 from protocol0.domain.shared.utils import get_callable_repr
-from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 
 
 class CallableWithCallbacks(object):

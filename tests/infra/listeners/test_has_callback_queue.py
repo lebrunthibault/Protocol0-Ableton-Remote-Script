@@ -159,14 +159,14 @@ def test_p0_subject_slot_sequence():
     example = Example(0, test_res_callbacks)
     seq = Sequence()
     seq.wait_for_listener(example.subject_slot_listener)
-    # seq.add(lambda: test_res_callbacks.append(1))
+    seq.add(lambda: test_res_callbacks.append(1))
     seq.done()
-    # example.subject_slot_listener()
-    # assert test_res_callbacks == [1]
-    # return
+    example.subject_slot_listener()
+    assert test_res_callbacks == [1]
+    # # return
+    #
+    # def check_res():
+    #     # type: () -> None
+    #     assert test_res_callbacks == [1]
 
-    def check_res():
-        # type: () -> None
-        assert test_res_callbacks == [1]
-
-    Scheduler.wait(3, check_res)
+    # Scheduler.wait(3, check_res)

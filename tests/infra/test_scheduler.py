@@ -48,6 +48,7 @@ def test_beat_time_is_after():
     beat_time_same = BeatTime.make_from_beat_offset(1)
     beat_time_future = BeatTime.make_from_beat_offset(2)
     assert beat_time_same == beat_time
+    assert beat_time_future._to_tick_count > beat_time._to_tick_count
     assert beat_time_future > beat_time
     assert beat_time < beat_time_future
     assert beat_time <= beat_time_same
