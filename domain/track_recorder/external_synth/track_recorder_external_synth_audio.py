@@ -5,12 +5,12 @@ from typing import List
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.track_recorder.recorder.ExternalSynthAudioRecordingEndedEvent import \
+from protocol0.domain.track_recorder.external_synth.ExternalSynthAudioRecordingEndedEvent import \
     ExternalSynthAudioRecordingEndedEvent
-from protocol0.domain.track_recorder.recorder.ExternalSynthAudioRecordingStartedEvent import \
+from protocol0.domain.track_recorder.external_synth.ExternalSynthAudioRecordingStartedEvent import \
     ExternalSynthAudioRecordingStartedEvent
-from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
-from protocol0.domain.track_recorder.recorder.track_recorder_external_synth_mixin import TrackRecorderExternalSynthMixin
+from protocol0.domain.track_recorder.abstract_track_recorder import AbstractTrackRecorder
+from protocol0.domain.track_recorder.external_synth.track_recorder_external_synth_mixin import TrackRecorderExternalSynthMixin
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 

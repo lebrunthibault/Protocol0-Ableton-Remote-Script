@@ -4,7 +4,6 @@ from _Framework.SubjectSlot import subject_slot_group
 from typing import List, Callable
 
 from protocol0.domain.shared.utils import get_callable_repr
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.SequenceState import SequenceStateEnum
 from protocol0.shared.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
 from protocol0.shared.sequence.SequenceStep import SequenceStep

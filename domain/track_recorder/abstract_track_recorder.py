@@ -3,6 +3,7 @@ from functools import partial
 from typing import Optional, List, TYPE_CHECKING
 
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
+from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -42,6 +43,11 @@ class AbstractTrackRecorder(object):
         assert self._recording_scene_index is not None
         return self._recording_scene_index
 
+    @property
+    def recording_scene(self):
+        # type: () -> Scene
+        return SongFacade.scenes()[self.recording_scene_index]
+
     def set_recording_scene_index(self, recording_scene_index):
         # type: (int) -> None
         self._recording_scene_index = recording_scene_index
@@ -64,6 +70,7 @@ class AbstractTrackRecorder(object):
     def pre_record(self):
         # type: () -> Sequence
         self._song.session_automation_record = True
+        self._song.stop_playing()
         seq = Sequence()
         seq.add(self._song.check_midi_recording_quantization)
         if not self.track.is_armed:
@@ -90,7 +97,7 @@ class AbstractTrackRecorder(object):
 
     def record(self, bar_length):
         # type: (float) -> Sequence
-        SongFacade.selected_scene().fire()
+        self.recording_scene.fire()
         self._song.session_record = True
         self._focus_main_clip()
         seq = Sequence()

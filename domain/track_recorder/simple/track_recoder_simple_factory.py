@@ -4,9 +4,9 @@ from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
 from protocol0.domain.track_recorder.count_in.count_in_interface import CountInInterface
 from protocol0.domain.track_recorder.count_in.count_in_one_bar import CountInOneBar
-from protocol0.domain.track_recorder.factory.abstract_track_recorder_factory import AbstractTrackRecorderFactory
-from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
-from protocol0.domain.track_recorder.recorder.track_recorder_simple import TrackRecorderSimple
+from protocol0.domain.track_recorder.abstract_track_recorder_factory import AbstractTrackRecorderFactory
+from protocol0.domain.track_recorder.abstract_track_recorder import AbstractTrackRecorder
+from protocol0.domain.track_recorder.simple.track_recorder_simple import TrackRecorderSimple
 from protocol0.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:

@@ -4,9 +4,8 @@ from typing import Optional, Any
 
 from protocol0.domain.lom.scene.SceneLastBarPassedEvent import SceneLastBarPassedEvent
 from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
-from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.track_recorder.recorder.track_recorder_external_synth_audio import TrackRecorderExternalSynthAudio
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.domain.track_recorder.external_synth.track_recorder_external_synth_audio import \
+    TrackRecorderExternalSynthAudio
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -19,22 +18,17 @@ class TrackRecorderExternalSynthAudioMulti(TrackRecorderExternalSynthAudio):
     def legend(self, bar_length):
         # type: (int) -> str
         number_of_scenes = 1
-        current_scene = SongFacade.scenes()[self.recording_scene_index]
-        while current_scene.next_scene != current_scene and self.track.midi_track.clip_slots[current_scene.next_scene.index].clip:
+        current_scene = self.recording_scene
+        while self.recording_scene.next_scene != current_scene and self.track.midi_track.clip_slots[current_scene.next_scene.index].clip:
             current_scene = current_scene.next_scene
             number_of_scenes += 1
         return "audio multi (%s scenes)" % number_of_scenes
 
     def record(self, _):
         # type: (float) -> Sequence
-        midi_clip = self.track.midi_track.clip_slots[self.recording_scene_index].clip
-        # reset automation enveloppes
-        midi_clip.clear_all_envelopes()
-        if len(midi_clip.automated_parameters):
-            for tick in [1, 10, 50, 100]:
-                Scheduler.wait(tick, midi_clip.display_current_parameter_automation)
+        self._clear_automation()
 
-        SongFacade.scenes()[self.recording_scene_index].fire()
+        self.recording_scene.fire()
         for cs in self._recording_clip_slots:
             cs.fire()
         seq = Sequence()
@@ -45,9 +39,8 @@ class TrackRecorderExternalSynthAudioMulti(TrackRecorderExternalSynthAudio):
 
     def _launch_record_on_next_scene(self):
         # type: () -> Optional[Sequence]
-        current_scene = SongFacade.scenes()[self.recording_scene_index]
-        next_scene = current_scene.next_scene
-        if next_scene == current_scene:
+        next_scene = self.recording_scene.next_scene
+        if next_scene == self.recording_scene:
             return None
         if not self.track.midi_track.clip_slots[next_scene.index].clip:
             return None

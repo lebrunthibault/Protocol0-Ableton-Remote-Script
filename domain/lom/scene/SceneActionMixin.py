@@ -26,7 +26,7 @@ class SceneActionMixin(object):
 
     def on_last_beat(self):
         # type: (Scene) -> None
-        if self.is_recording:
+        if SongFacade.is_recording():
             return
         # if it is the last bar
         if self.current_bar == self.bar_length - 1:

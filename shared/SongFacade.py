@@ -8,6 +8,7 @@ from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 if TYPE_CHECKING:
     from protocol0.domain.lom.scene.ScenesService import ScenesService
     from protocol0.domain.lom.track.TracksService import SongTracksService
+    from protocol0.domain.track_recorder.TrackRecorderService import TrackRecorderService
     from protocol0.domain.lom.song.Song import Song
     from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -27,12 +28,13 @@ class SongFacade(object):
     """ Read only facade for accessing song properties """
     _INSTANCE = None  # type: Optional[SongFacade]
 
-    def __init__(self, song, song_tracks_service, scenes_service):
-        # type: (Song, SongTracksService, ScenesService) -> None
+    def __init__(self, song, song_tracks_service, scenes_service, track_recorder_service):
+        # type: (Song, SongTracksService, ScenesService, TrackRecorderService) -> None
         SongFacade._INSTANCE = self
         self._song = song
         self._song_tracks_service = song_tracks_service
         self._scenes_service = scenes_service
+        self._track_recorder_service = track_recorder_service
 
     @classmethod
     def live_song(cls):
@@ -238,6 +240,11 @@ class SongFacade(object):
     def is_playing(cls):
         # type: () -> bool
         return cls._INSTANCE._song.is_playing
+
+    @classmethod
+    def is_recording(cls):
+        # type: () -> bool
+        return cls._INSTANCE._song.session_record or cls._INSTANCE._track_recorder_service.is_recording
 
     @classmethod
     def record_mode(cls):

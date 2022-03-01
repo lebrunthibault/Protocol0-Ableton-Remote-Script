@@ -1,7 +1,8 @@
 from typing import TYPE_CHECKING
 
+from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.shared.sequence.Sequence import Sequence
-from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
+from protocol0.domain.track_recorder.abstract_track_recorder import AbstractTrackRecorder
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.song.Song import Song
@@ -22,6 +23,11 @@ class TrackRecorderDecorator(AbstractTrackRecorder):
     def recording_scene_index(self):
         # type: () -> int
         return self.recorder.recording_scene_index
+
+    @property
+    def recording_scene(self):
+        # type: () -> Scene
+        return self.recorder.recording_scene
 
     def set_recording_scene_index(self, recording_scene_index):
         # type: (int) -> None

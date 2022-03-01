@@ -2,8 +2,8 @@ from typing import List
 
 from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.track_recorder.recorder.abstract_track_recorder import AbstractTrackRecorder
-from protocol0.domain.track_recorder.recorder.track_recorder_external_synth_mixin import TrackRecorderExternalSynthMixin
+from protocol0.domain.track_recorder.abstract_track_recorder import AbstractTrackRecorder
+from protocol0.domain.track_recorder.external_synth.track_recorder_external_synth_mixin import TrackRecorderExternalSynthMixin
 
 
 class TrackRecorderExternalSynth(TrackRecorderExternalSynthMixin, AbstractTrackRecorder):

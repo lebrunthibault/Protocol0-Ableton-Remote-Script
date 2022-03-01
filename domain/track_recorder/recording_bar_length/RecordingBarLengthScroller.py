@@ -2,8 +2,8 @@ from typing import List
 
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.ValueScroller import ValueScroller
-from protocol0.domain.track_recorder.RecordingBarLengthEnum import RecordingBarLengthEnum
-from protocol0.domain.track_recorder.SelectedRecordingBarLengthUpdatedEvent import \
+from protocol0.domain.track_recorder.recording_bar_length.RecordingBarLengthEnum import RecordingBarLengthEnum
+from protocol0.domain.track_recorder.recording_bar_length.SelectedRecordingBarLengthUpdatedEvent import \
     SelectedRecordingBarLengthUpdatedEvent
 from protocol0.shared.logging.StatusBar import StatusBar
 

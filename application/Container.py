@@ -81,7 +81,7 @@ class Container(ContainerInterface):
         song_tracks_service = SongTracksService(track_factory, song)
         track_recorder_service = TrackRecorderService(song)
         scenes_service = ScenesService(song, track_recorder_service)
-        SongFacade(song, song_tracks_service, scenes_service)
+        SongFacade(song, song_tracks_service, scenes_service, track_recorder_service)
 
         song_service = SongService(song)
         Backend.client().end_measurement()

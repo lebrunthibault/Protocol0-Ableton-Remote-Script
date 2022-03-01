@@ -128,11 +128,6 @@ class Scene(SceneActionMixin, UseFrameworkEvents):
         return bool(self._scene.is_triggered) if self._scene else False
 
     @property
-    def is_recording(self):
-        # type: () -> bool
-        return any(clip for clip in self.clips if clip and clip.is_recording)
-
-    @property
     def name(self):
         # type: () -> str
         return self._scene and self._scene.name

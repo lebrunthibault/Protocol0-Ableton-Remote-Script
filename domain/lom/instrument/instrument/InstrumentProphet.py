@@ -7,9 +7,9 @@ from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRouting
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.backend.Backend import Backend
-from protocol0.domain.track_recorder.recorder.ExternalSynthAudioRecordingEndedEvent import \
+from protocol0.domain.track_recorder.external_synth.ExternalSynthAudioRecordingEndedEvent import \
     ExternalSynthAudioRecordingEndedEvent
-from protocol0.domain.track_recorder.recorder.ExternalSynthAudioRecordingStartedEvent import \
+from protocol0.domain.track_recorder.external_synth.ExternalSynthAudioRecordingStartedEvent import \
     ExternalSynthAudioRecordingStartedEvent
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence

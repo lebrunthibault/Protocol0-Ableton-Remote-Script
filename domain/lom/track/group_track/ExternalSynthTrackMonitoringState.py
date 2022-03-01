@@ -39,7 +39,7 @@ class ExternalSynthTrackMonitoringState(object):
             if audio_clip and audio_clip.muted:
                 continue
             midi_clip.muted = False
-            if audio_clip and audio_clip.is_playing:
+            if audio_clip and audio_clip.is_playing and SongFacade.is_playing() and not SongFacade.is_recording():
                 Scheduler.defer(SongFacade.scenes()[midi_clip.index].fire)
 
         # audio track
