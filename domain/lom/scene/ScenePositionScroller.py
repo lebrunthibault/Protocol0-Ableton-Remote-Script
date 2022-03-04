@@ -1,6 +1,6 @@
 from math import floor
 
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, cast
 
 from protocol0.domain.shared.ValueScroller import ValueScroller
 
@@ -23,7 +23,7 @@ class ScenePositionScroller(ValueScroller):
         if self._scene.has_playing_clips:
             return int(floor(self._scene.playing_bar_position) if go_next else round(self._scene.playing_bar_position))
         else:
-            return self.current_value
+            return cast(int, self.current_value)
 
     def _value_scrolled(self, bar_position):
         # type: (int) -> None

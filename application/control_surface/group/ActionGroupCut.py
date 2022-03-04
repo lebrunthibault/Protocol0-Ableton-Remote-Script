@@ -36,6 +36,7 @@ class ActionGroupSet(ActionGroupMixin):
         # SPLiT encoder
         self.add_encoder(identifier=8,
                          name="split scene",
+                         on_scroll=lambda: SongFacade.selected_scene().crop_scroller.scroll,
                          on_press=lambda: SongFacade.selected_scene().split
                          )
 

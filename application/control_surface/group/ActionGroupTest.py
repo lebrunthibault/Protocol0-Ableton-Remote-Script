@@ -1,5 +1,6 @@
 from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
 from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 
 
@@ -25,4 +26,6 @@ class ActionGroupTest(ActionGroupMixin):
 
     def action_test(self):
         # type: () -> None
-        pass
+        Logger.log_dev(SongFacade.selected_clip().loop_end)
+        Logger.log_dev(SongFacade.selected_clip().end_marker)
+        Logger.log_dev(SongFacade.selected_clip()._clip.end_time)

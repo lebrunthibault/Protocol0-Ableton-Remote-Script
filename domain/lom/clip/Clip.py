@@ -3,6 +3,7 @@ from math import floor
 from typing import TYPE_CHECKING, Optional, List
 
 import Live
+from protocol0.domain.lom.SynchronizableObjectInterface import SynchronizableObjectInterface
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.clip.ClipActionMixin import ClipActionMixin
 from protocol0.domain.lom.clip.ClipEnveloppeShowedEvent import ClipEnveloppeShowedEvent
@@ -22,7 +23,7 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
-class Clip(ClipActionMixin, UseFrameworkEvents):
+class Clip(ClipActionMixin, UseFrameworkEvents, SynchronizableObjectInterface):
     __subject_events__ = ("notes", "length")
 
     def __init__(self, clip_slot):
@@ -51,6 +52,16 @@ class Clip(ClipActionMixin, UseFrameworkEvents):
     def __repr__(self):
         # type: () -> str
         return "%s: %s (%s)" % (self.__class__.__name__, self.name, self.index)
+
+    @property
+    def lom_property_name(self):
+        # type: () -> str
+        return "_clip"
+
+    @property
+    def is_syncable(self):
+        # type: () -> bool
+        return not self.track.is_recording and not SongFacade.record_mode()
 
     @property
     def index(self):

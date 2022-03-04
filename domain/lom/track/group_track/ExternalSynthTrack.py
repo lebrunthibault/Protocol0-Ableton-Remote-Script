@@ -106,14 +106,6 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
                 self.midi_track.clip_slots, self.audio_track.clip_slots
             )
         ]
-        if self.audio_tail_track:
-            self._clip_slot_synchronizers += [
-                ClipSlotSynchronizer(midi_clip_slot, audio_tail_clip_slot)
-                for midi_clip_slot, audio_tail_clip_slot in
-                itertools.izip(  # type: ignore[attr-defined]
-                    self.midi_track.clip_slots, self.audio_tail_track.clip_slots
-                )
-            ]
 
     @p0_subject_slot("devices")
     def _devices_listener(self):

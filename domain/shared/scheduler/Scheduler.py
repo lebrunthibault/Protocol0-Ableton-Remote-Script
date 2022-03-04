@@ -8,6 +8,7 @@ from protocol0.domain.shared.scheduler.TickSchedulerInterface import TickSchedul
 class Scheduler(object):
     """ Facade for scheduling calls """
     _INSTANCE = None  # type: Optional[Scheduler]
+    _TICKS_BY_SECOND = float(1000) / 17
 
     def __init__(self, tick_scheduler, beat_scheduler):
         # type: (TickSchedulerInterface, BeatSchedulerInterface) -> None
@@ -30,6 +31,12 @@ class Scheduler(object):
         # type: (int, Callable) -> TickSchedulerEventInterface
         """ tick_count (* 17 sms) """
         return cls._INSTANCE._tick_scheduler.schedule(tick_count, callback)
+
+    @classmethod
+    def wait_seconds(cls, seconds, callback):
+        # type: (float, Callable) -> TickSchedulerEventInterface
+        """ tick_count (* 17 sms) """
+        return cls.wait(int(seconds * cls._TICKS_BY_SECOND), callback)
 
     @classmethod
     def restart(cls):

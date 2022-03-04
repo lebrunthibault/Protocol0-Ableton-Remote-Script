@@ -12,6 +12,7 @@ from protocol0.domain.track_recorder.external_synth.ExternalSynthAudioRecordingE
 from protocol0.domain.track_recorder.external_synth.ExternalSynthAudioRecordingStartedEvent import \
     ExternalSynthAudioRecordingStartedEvent
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -71,6 +72,7 @@ class InstrumentProphet(InstrumentInterface):
 
     def _on_audio_recording_ended_event(self, event):
         # type: (ExternalSynthAudioRecordingEndedEvent) -> None
+        Logger.log_dev("got audio ended %s on %s" % (event.track, self.track.abstract_track))
         if event.track != self.track.abstract_track:
             return
         SongFacade.usamo_device().device_on = False

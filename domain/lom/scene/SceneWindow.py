@@ -1,7 +1,12 @@
 from typing import TYPE_CHECKING, Tuple
 
+from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
+from protocol0.domain.lom.clip.MidiClip import MidiClip
+from protocol0.domain.shared.Colorer import Colorer
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.scene.Scene import Scene
@@ -21,16 +26,34 @@ class SceneWindow(object):
 
     def apply_to_scene(self, scene):
         # type: (Scene) -> None
+        # it is not possible to crop an audio clip
+        # so instead we notify clips that should be cropped by color and focus the last of them
+        # usually only one audio clip will be long enough that it needs to be cropped
+        audio_clip_to_crop = None
+
         for clip in scene.clips:
             if clip.length <= self._length:
                 continue
 
+            Logger.log_dev("%s : %s <-> %s" % (clip, clip.loop_start, clip.loop_end))
             clip.loop.end = clip.loop_start + self._end_length
+            Logger.log_dev("new loop end %s" % (clip.loop_start + self._end_length))
             clip.loop.start += self._start_length
+            Logger.log_dev("new loop start %s" % (clip.loop_start + self._start_length))
+
+            if isinstance(clip, MidiClip):
+                clip.crop()
+            else:
+                if clip.loop.start != 0:
+                    audio_clip_to_crop = clip
+                    Colorer.twinkle(clip, clip.color, ClipColorEnum.SHOULD_BE_CROPPED.color_int_value)
 
         if not self._contains_scene_end:
             for clip in scene.audio_tail_clips:
                 clip.delete()
+
+        if audio_clip_to_crop:
+            Scheduler.defer(audio_clip_to_crop.select)
 
     @classmethod
     def create_from_split(cls, scene, split_bar_length):
