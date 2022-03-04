@@ -26,6 +26,4 @@ class ActionGroupTest(ActionGroupMixin):
 
     def action_test(self):
         # type: () -> None
-        Logger.log_dev(SongFacade.selected_clip().loop_end)
-        Logger.log_dev(SongFacade.selected_clip().end_marker)
-        Logger.log_dev(SongFacade.selected_clip()._clip.end_time)
+        pass

@@ -72,7 +72,6 @@ class InstrumentProphet(InstrumentInterface):
 
     def _on_audio_recording_ended_event(self, event):
         # type: (ExternalSynthAudioRecordingEndedEvent) -> None
-        Logger.log_dev("got audio ended %s on %s" % (event.track, self.track.abstract_track))
         if event.track != self.track.abstract_track:
             return
         SongFacade.usamo_device().device_on = False

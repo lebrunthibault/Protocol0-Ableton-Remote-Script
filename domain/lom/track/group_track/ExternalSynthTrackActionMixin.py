@@ -49,11 +49,11 @@ class ExternalSynthTrackActionMixin(object):
 
     def copy_and_paste_clips_to_new_scene(self):
         # type: (ExternalSynthTrack) -> Sequence
-        current_track = self
         seq = Sequence()
         seq.add(SongFacade.selected_scene().duplicate)
-        seq.add(current_track.midi_track.clips[SongFacade.selected_scene().index].select)
-        seq.add(SongFacade.selected_scene().fire)
-        # NB : deactivate clip slot synchronizer before doing this
-        # seq.add(lambda: SongFacade.current_external_synth_track().midi_track.clips[SongFacade.selected_scene().index].crop)
+        # seq.add(self.midi_track.clip_slots[SongFacade.selected_scene().index].clip.select)
+        # seq.add(SongFacade.selected_scene().fire)
+        seq.add(lambda: SongFacade.current_external_synth_track().midi_track.clip_slots[SongFacade.selected_scene().index].clip.crop())
+        seq.add(lambda: SongFacade.current_external_synth_track().audio_track.clip_slots[SongFacade.selected_scene().index].clip.crop())
+        seq.add()
         return seq.done()

@@ -18,9 +18,6 @@ class ClipSynchronizer(ObjectSynchronizer):
             return
         if property_name == "name":
             slave.clip_name.update(base_name=master.clip_name.base_name)
-        elif master.loop.end != slave.loop.end and master.length > slave.length:
-            # do not synchronize when duplicating midi loop or editing midi clip length manually
-            return
         # following is when clips have same length but markers are offset
         elif property_name in ("loop_start", "start_marker") and master.loop.end != slave.loop.end:
             return

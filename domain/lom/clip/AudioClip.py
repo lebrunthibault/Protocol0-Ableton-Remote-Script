@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING
 
 import Live
 from protocol0.domain.lom.clip.Clip import Clip
+from protocol0.domain.shared.Colorer import Colorer
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 
@@ -55,3 +57,10 @@ class AudioClip(Clip):
     def file_path(self):
         # type: () -> str
         return self._clip.file_path if self._clip else ""
+
+    def crop(self):
+        # type: () -> None
+        """ Live.Clip.Clip.crop_sample doesn't exists so we notify the user """
+        if self.loop.start != 0:
+            Colorer.blink(self)
+            Backend.client().show_warning("Please crop %s" % self)

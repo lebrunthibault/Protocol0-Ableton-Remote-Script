@@ -1,6 +1,6 @@
+from _Framework.ControlSurface import ControlSurface
 from typing import Any
 
-from _Framework.ControlSurface import ControlSurface
 from protocol0.application.CommandBus import CommandBus
 from protocol0.application.Container import Container
 from protocol0.application.command.InitializeSongCommand import InitializeSongCommand

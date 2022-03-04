@@ -61,17 +61,17 @@ class SequenceActionMixin(object):
 
     def _add_timeout_step(self, func, legend):
         # type: (Sequence, Callable, str) -> None
-        ticks = 200
+        seconds = 10
 
         def cancel():
             # type: () -> None
             if self._current_step and self._current_step._callable == execute:
                 self._cancel()
-                Logger.log_warning("cancelling after %s ticks : %s on %s" % (ticks, self, legend))
+                Logger.log_warning("cancelling after %s seconds : %s on %s" % (seconds, self, legend))
 
         def execute():
             # type: () -> None
-            Scheduler.wait(ticks, cancel)
+            Scheduler.wait_seconds(seconds, cancel)
             func()
 
         self.add(execute, notify_terminated=False)

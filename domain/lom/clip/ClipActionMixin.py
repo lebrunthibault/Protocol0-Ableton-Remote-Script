@@ -110,3 +110,8 @@ class ClipActionMixin(object):
         # type: (Clip, int) -> None
         """ overridden """
         self.clip_name.update(base_name="")
+
+    def crop(self):
+        # type: () -> None
+        """ implemented in MidiClip and AudioClip """
+        raise NotImplementedError
