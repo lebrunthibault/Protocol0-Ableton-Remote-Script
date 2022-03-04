@@ -30,7 +30,7 @@ class TrackRecorderService(object):
     def __init__(self, song):
         # type: (Song) -> None
         self._song = song
-        self.recording_bar_length_scroller = RecordingBarLengthScroller(RecordingBarLengthEnum.UNLIMITED)
+        self.recording_bar_length_scroller = RecordingBarLengthScroller(RecordingBarLengthEnum.ONE)
         self._recorder = None  # type: Optional[AbstractTrackRecorder]
 
     @property

@@ -75,6 +75,7 @@ class AbstractTrackRecorder(object):
         seq.add(self._song.check_midi_recording_quantization)
         if not self.track.is_armed:
             seq.add(self._arm_track)
+        seq.add(self.track.select)
         seq.add([clip_slot.prepare_for_record for clip_slot in self._recording_clip_slots])
         seq.add(self._pre_record)
         return seq.done()

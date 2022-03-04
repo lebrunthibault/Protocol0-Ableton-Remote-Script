@@ -125,6 +125,7 @@ class Sequence(SequenceStateMachineMixin, SequenceActionMixin):
     def disconnect(self):
         # type: () -> None
         super(Sequence, self).disconnect()
+        self._current_step = None
         try:
             self.RUNNING_SEQUENCES.remove(self)
         except ValueError:

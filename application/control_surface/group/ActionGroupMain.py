@@ -1,5 +1,7 @@
 from functools import partial
 
+from typing import Optional
+
 from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
 from protocol0.domain.lom.instrument.InstrumentDisplayService import InstrumentDisplayService
 from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService import InstrumentPresetScrollerService
@@ -7,6 +9,7 @@ from protocol0.domain.lom.set.MixingService import MixingService
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
 from protocol0.domain.track_recorder.TrackRecorderService import TrackRecorderService
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.sequence.Sequence import Sequence
 
 
 class ActionGroupMain(ActionGroupMixin):
@@ -18,15 +21,17 @@ class ActionGroupMain(ActionGroupMixin):
 
     def configure(self):
         # type: () -> None
+        def record_track(record_type):
+            # type: (RecordTypeEnum) -> Optional[Sequence]
+            return self._container.get(TrackRecorderService).record_track(SongFacade.current_track(), record_type)
+
         # RECO encoder
         self.add_encoder(
             identifier=1,
             name="record audio and keep automation",
             filter_active_tracks=True,
-            on_press=lambda: partial(self._container.get(TrackRecorderService).record_track, SongFacade.current_track(),
-                                     RecordTypeEnum.AUDIO_ONLY_AUTOMATION),
-            on_long_press=lambda: partial(self._container.get(TrackRecorderService).record_track, SongFacade.current_track(),
-                                          RecordTypeEnum.AUDIO_ONLY_MULTI_AUTOMATION),
+            on_press=lambda: partial(record_track, RecordTypeEnum.AUDIO_ONLY_AUTOMATION),
+            on_long_press=lambda: partial(record_track, RecordTypeEnum.AUDIO_ONLY_MULTI_AUTOMATION),
         )
 
         # AUTOmation encoder
@@ -55,20 +60,18 @@ class ActionGroupMain(ActionGroupMixin):
             identifier=5,
             name="record audio",
             filter_active_tracks=True,
-            on_press=lambda: partial(self._container.get(TrackRecorderService).record_track, SongFacade.current_track(),
-                                     RecordTypeEnum.AUDIO_ONLY),
-            on_long_press=lambda: partial(self._container.get(TrackRecorderService).record_track, SongFacade.current_track(),
-                                          RecordTypeEnum.AUDIO_ONLY_MULTI),
+            on_press=lambda: partial(record_track, RecordTypeEnum.AUDIO_ONLY),
+            on_long_press=lambda: partial(record_track, RecordTypeEnum.AUDIO_ONLY_MULTI),
         )
 
-        # RECord encoder
+        # RECord normal encoder
         self.add_encoder(
             identifier=9,
             name="record normal",
             filter_active_tracks=True,
             on_scroll=self._container.get(TrackRecorderService).recording_bar_length_scroller.scroll,
-            on_press=lambda: partial(self._container.get(TrackRecorderService).record_track, SongFacade.current_track(),
-                                     RecordTypeEnum.NORMAL),
+            on_press=lambda: partial(record_track, RecordTypeEnum.NORMAL),
+            on_long_press=lambda: partial(record_track, RecordTypeEnum.NORMAL_UNLIMITED),
         )
 
         # SCENe 2 encoder

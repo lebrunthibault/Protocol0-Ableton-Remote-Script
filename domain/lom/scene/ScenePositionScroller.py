@@ -14,11 +14,6 @@ class ScenePositionScroller(ValueScroller):
         self._scene = scene
         super(ScenePositionScroller, self).__init__(1)
 
-    @property
-    def current_value(self):
-        # type: () -> int
-        return self.current_value
-
     def _get_values(self):
         # type: () -> List
         return range(0, self._scene.bar_length)

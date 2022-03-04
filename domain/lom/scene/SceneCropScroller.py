@@ -12,11 +12,6 @@ class SceneCropScroller(ValueScroller):
         self._scene = scene
         super(SceneCropScroller, self).__init__(1)
 
-    @property
-    def current_value(self):
-        # type: () -> int
-        return self.current_value
-
     def _get_values(self):
         # type: () -> List
         bar_lengths = []

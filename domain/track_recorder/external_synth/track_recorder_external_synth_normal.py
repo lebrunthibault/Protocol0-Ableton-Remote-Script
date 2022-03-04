@@ -6,7 +6,7 @@ from protocol0.domain.track_recorder.abstract_track_recorder import AbstractTrac
 from protocol0.domain.track_recorder.external_synth.track_recorder_external_synth_mixin import TrackRecorderExternalSynthMixin
 
 
-class TrackRecorderExternalSynth(TrackRecorderExternalSynthMixin, AbstractTrackRecorder):
+class TrackRecorderExternalSynthNormal(TrackRecorderExternalSynthMixin, AbstractTrackRecorder):
     @property
     def _recording_tracks(self):
         # type: () -> List[SimpleTrack]
@@ -14,5 +14,5 @@ class TrackRecorderExternalSynth(TrackRecorderExternalSynthMixin, AbstractTrackR
 
     def post_audio_record(self):
         # type: () -> None
-        super(TrackRecorderExternalSynth, self).post_audio_record()
+        super(TrackRecorderExternalSynthNormal, self).post_audio_record()
         self.track.audio_track.clip_slots[self.recording_scene_index].clip.color = ClipColorEnum.AUDIO_UN_QUANTIZED.color_int_value

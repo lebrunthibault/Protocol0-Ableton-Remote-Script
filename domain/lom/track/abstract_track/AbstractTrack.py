@@ -70,6 +70,7 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents):
 
         seq = Sequence()
         seq.add([clip.delete for clip in self.clips])
+        seq.defer()
         return seq.done()
 
     def on_tracks_change(self):

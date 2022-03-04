@@ -97,21 +97,17 @@ class SceneActionMixin(object):
 
     def split(self):
         # type: (Scene) -> Sequence
-        start_window, end_window = SceneWindow.create_from_split(self)
-
+        start_window, end_window = SceneWindow.create_from_split(self, self.crop_scroller.current_value)
         seq = Sequence()
         seq.add(self.duplicate)
-
-        # crop first half
         seq.add(partial(start_window.apply_to_scene, self))
-        # crop 2nd half
         seq.add(lambda: end_window.apply_to_scene(SongFacade.selected_scene()))
 
         return seq.done()
 
     def crop(self):
         # type: (Scene) -> Sequence
-        window = SceneWindow.create_from_crop(self)
+        window = SceneWindow.create_from_crop(self, self.crop_scroller.current_value)
         seq = Sequence()
         seq.add(self.duplicate)
         seq.add(lambda: window.apply_to_scene(SongFacade.selected_scene()))

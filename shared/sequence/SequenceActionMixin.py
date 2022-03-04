@@ -65,14 +65,13 @@ class SequenceActionMixin(object):
 
         def cancel():
             # type: () -> None
-            Logger.log_warning("cancelling after %s ticks : %s on %s" % (ticks, self, legend))
-            self._cancel()
-
-        timeout_event = Scheduler.wait(ticks, cancel)
+            if self._current_step and self._current_step._callable == execute:
+                self._cancel()
+                Logger.log_warning("cancelling after %s ticks : %s on %s" % (ticks, self, legend))
 
         def execute():
             # type: () -> None
-            timeout_event.cancel()
+            Scheduler.wait(ticks, cancel)
             func()
 
         self.add(execute, notify_terminated=False)
