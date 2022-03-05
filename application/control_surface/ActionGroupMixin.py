@@ -18,6 +18,7 @@ class ActionGroupMixin(object):
 
     def __init__(self, container, song, component_guard):
         # type: (ContainerInterface, Song, Callable) -> None
+        super(ActionGroupMixin, self).__init__()
         self._container = container
         self._song = song
         self._component_guard = component_guard

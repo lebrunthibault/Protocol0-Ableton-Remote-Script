@@ -33,12 +33,13 @@ class TickScheduler(TickSchedulerInterface):
     @handle_error
     def _on_tick(self):
         # type: () -> None
+        # noinspection PyBroadException
         try:
             # this throws on startup
             is_song_playing = self._song.is_playing
-        except Exception as e:
-            import logging
-            logging.info("is playing error: %s" % e)
+        except Exception:
+            # import logging
+            # logging.info("is playing error: %s" % e)
             return
 
         if is_song_playing:
