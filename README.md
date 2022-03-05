@@ -85,7 +85,7 @@ loopMidi virtual ports to communicate with it.
 
 I've written a technical doc that details important parts of the script object model and techniques. Also, a few
 remote scripts concepts are
-explained. [see this article](https://lebrunthibault.github.io/post/protocol0-technical-overview/) (might be a bit outdated)
+explained. [see this article](https://lebrunthibault.github.io/post/ableton/p0-technical-overview/) (might be a bit outdated)
 
 I'm working on dev and releasing working versions to master
 
