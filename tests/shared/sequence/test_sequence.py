@@ -1,5 +1,5 @@
 from protocol0.application.CommandBus import CommandBus
-from protocol0.application.command.ProcessSystemResponseCommand import ProcessSystemResponseCommand
+from protocol0.application.command.ProcessBackendResponseCommand import ProcessBackendResponseCommand
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.decorators import has_callback_queue
@@ -109,13 +109,13 @@ def test_prompt():
 
     test_res = []
     seq = create_seq()
-    CommandBus.dispatch(ProcessSystemResponseCommand(True))
+    CommandBus.dispatch(ProcessBackendResponseCommand(True))
     assert test_res == [True]
     seq._cancel()
 
     test_res = []
     seq = create_seq()
-    CommandBus.dispatch(ProcessSystemResponseCommand(False))
+    CommandBus.dispatch(ProcessBackendResponseCommand(False))
     assert seq.cancelled
     assert test_res == []
 
@@ -137,7 +137,7 @@ def test_select():
 
     test_res = []
     seq = create_seq()
-    CommandBus.dispatch(ProcessSystemResponseCommand(2))
+    CommandBus.dispatch(ProcessBackendResponseCommand(2))
     assert test_res == [2]
     seq._cancel()
 

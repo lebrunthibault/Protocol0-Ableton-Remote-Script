@@ -15,7 +15,6 @@ importlib-metadata==2.1.1
 importlib-resources==3.3.1
 mccabe==0.6.1
 more-itertools==5.0.0
-p0-system-api @ file:///C:/Users/thiba/Google%20Drive/music/dev/protocol0_system/sdk_generation/p0_system/api_client
 packaging==20.9
 pathlib2==2.3.6
 platformdirs==2.0.2
