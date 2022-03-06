@@ -24,7 +24,6 @@ class SongService(object):
         self._song.reset()
         # the song usually starts playing after this method is executed
         Scheduler.wait(10, self._song.reset)
-        Scheduler.wait(50, self._song.reset)
 
         if SongFacade.clip_trigger_quantization() == Live.Song.Quantization.q_no_q:
             Backend.client().show_warning("The global launch quantization is set to None")

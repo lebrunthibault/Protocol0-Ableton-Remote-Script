@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Optional, List
 
 import Live
 from protocol0.domain.lom.clip.ClipSelectedEvent import ClipSelectedEvent
+from protocol0.domain.lom.clip.automation_envelope.ClipAutomationEnvelope import ClipAutomationEnvelope
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
@@ -71,8 +72,13 @@ class ClipActionMixin(object):
                 self._clip.quantize(record_quantization_index, depth)
 
     def automation_envelope(self, parameter):
-        # type: (Clip, DeviceParameter) -> Live.Clip.AutomationEnvelope
-        return self._clip and self._clip.automation_envelope(parameter._device_parameter)
+        # type: (Clip, DeviceParameter) -> Optional[ClipAutomationEnvelope]
+        if self._clip:
+            env = self._clip.automation_envelope(parameter._device_parameter)
+            if env:
+                return ClipAutomationEnvelope(env, self.length)
+
+        return None
 
     def show_loop(self):
         # type: (Clip) -> None

@@ -276,6 +276,16 @@ class Song(SongActionMixin, UseFrameworkEvents):
         # type: (bool) -> None
         self._song.session_automation_record = session_automation_record
 
+    @property
+    def draw_mode(self):
+        # type: () -> bool
+        return self._song.view.draw_mode
+
+    @draw_mode.setter
+    def draw_mode(self, draw_mode):
+        # type: (bool) -> None
+        self._song.view.draw_mode = draw_mode
+
     def scrub_by(self, beat_offset):
         # type: (float) -> None
         if self._song:

@@ -6,7 +6,9 @@ from typing import List, TYPE_CHECKING, Optional, Iterator
 
 import Live
 from protocol0.domain.lom.clip.Clip import Clip
+from protocol0.domain.lom.device_parameter.LinkedDeviceParameters import LinkedDeviceParameters
 from protocol0.domain.lom.note.Note import Note
+from protocol0.domain.shared.utils import find_if
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -105,3 +107,20 @@ class MidiClip(Clip):
         # type: () -> None
         if self._clip:
             self._clip.crop()
+
+    def get_linked_parameters(self):
+        # type: () -> List[LinkedDeviceParameters]
+        """
+            NB : this is only really useful for my rev2 where I want copy paste easily automation curves
+            between the 2 layers.
+            The rev2 is bitimbral and has two layers that expose the same parameters.
+        """
+        parameters = self.automated_parameters
+        parameters_couple = []
+        for parameter in parameters:
+            if parameter.name.startswith("A-"):
+                b_parameter = find_if(lambda p: p.name == parameter.name.replace("A-", "B-"), parameters)
+                if b_parameter:
+                    parameters_couple.append(LinkedDeviceParameters(parameter, b_parameter))
+
+        return parameters_couple
