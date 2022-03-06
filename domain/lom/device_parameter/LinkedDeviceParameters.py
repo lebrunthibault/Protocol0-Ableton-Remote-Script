@@ -21,7 +21,7 @@ class LinkedDeviceParameters(object):
 
     def __repr__(self):
         # type: () -> str
-        return "param_a: %s, param_b: %s" % (self._param_a, self._param_b)
+        return "(param_a: %s, param_b: %s)" % (self._param_a, self._param_b)
 
     def link_clip_automation(self, clip):
         # type: (MidiClip) -> Sequence
@@ -31,10 +31,10 @@ class LinkedDeviceParameters(object):
         seq = Sequence()
         seq.add(partial(clip.show_parameter_envelope, self._param_a))
         seq.add(a_env.focus)
-        seq.wait(5)
+        seq.wait(3)
         seq.add(a_env.copy)
-        seq.wait(20)
+        seq.wait(10)
         seq.add(partial(clip.show_parameter_envelope, self._param_b))
         seq.add(b_env.paste)
-        seq.wait(20)
+        seq.wait(10)
         return seq.done()

@@ -10,6 +10,8 @@ from protocol0.domain.lom.device_parameter.LinkedDeviceParameters import LinkedD
 from protocol0.domain.lom.note.Note import Note
 from protocol0.domain.shared.utils import find_if
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.SongViewFacade import SongViewFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -124,3 +126,14 @@ class MidiClip(Clip):
                     parameters_couple.append(LinkedDeviceParameters(parameter, b_parameter))
 
         return parameters_couple
+
+    def synchronize_automation_layers(self):
+        # type: () -> Sequence
+        parameters_couple = self.get_linked_parameters()
+        Logger.log_dev(parameters_couple)
+        SongViewFacade.draw_mode(False)
+        seq = Sequence()
+        for couple in parameters_couple:
+            seq.add(partial(couple.link_clip_automation, self))
+
+        return seq.done()

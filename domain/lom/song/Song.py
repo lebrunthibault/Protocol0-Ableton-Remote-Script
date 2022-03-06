@@ -24,6 +24,7 @@ from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import find_if
 from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 
 
 class Song(SongActionMixin, UseFrameworkEvents):
@@ -274,6 +275,7 @@ class Song(SongActionMixin, UseFrameworkEvents):
     @session_automation_record.setter
     def session_automation_record(self, session_automation_record):
         # type: (bool) -> None
+        Logger.log_dev("setting session auto rec to %s" % session_automation_record)
         self._song.session_automation_record = session_automation_record
 
     @property

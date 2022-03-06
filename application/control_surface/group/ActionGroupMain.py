@@ -39,6 +39,7 @@ class ActionGroupMain(ActionGroupMixin):
             identifier=3,
             name="automation",
             on_press=lambda: SongFacade.selected_clip().display_current_parameter_automation,
+            on_long_press=lambda: SongFacade.selected_midi_clip().synchronize_automation_layers,
             on_scroll=lambda: SongFacade.selected_clip().scroll_automation_envelopes,
         )
 
@@ -80,7 +81,6 @@ class ActionGroupMain(ActionGroupMixin):
             name="scene scroll time",
             on_scroll=lambda: SongFacade.selected_scene().position_scroller.scroll,
             on_press=lambda: SongFacade.last_manually_started_scene().fire_to_position,
-            on_long_press=lambda: SongFacade.current_track().toggle_fold,
         )
 
         # TRacK encoder

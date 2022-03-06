@@ -128,6 +128,7 @@ class SceneActionMixin(object):
         seq.defer()
         seq.add(partial(self.jump_to_bar, min(self.bar_length - 1, self.position_scroller.current_value)))
         seq.add(partial(setattr, SongFacade.master_track(), "volume", master_volume))
+        seq.add(partial(setattr, self._song, "session_record", True))
         return seq.done()
 
     def jump_to_bar(self, bar_position):

@@ -1,6 +1,5 @@
 from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
 from protocol0.domain.shared.backend.Backend import Backend
-from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 
 
@@ -26,11 +25,4 @@ class ActionGroupTest(ActionGroupMixin):
 
     def action_test(self):
         # type: () -> None
-        Backend.client().move_to(1000, 1000)
-        return
-        clip = SongFacade.selected_midi_clip()
-        parameters_couple = clip.get_linked_parameters()
-        Logger.log_dev(parameters_couple)
-        self._song.draw_mode = False
-        for couple in parameters_couple[:1]:
-            couple.link_clip_automation(clip)
+        pass

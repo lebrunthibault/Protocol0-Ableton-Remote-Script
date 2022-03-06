@@ -41,6 +41,7 @@ from protocol0.infra.logging.LoggerService import LoggerService
 from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
 from protocol0.infra.scheduler.TickScheduler import TickScheduler
 from protocol0.application.ContainerInterface import ContainerInterface
+from protocol0.shared.SongViewFacade import SongViewFacade
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.StatusBar import StatusBar
@@ -82,6 +83,7 @@ class Container(ContainerInterface):
         track_recorder_service = TrackRecorderService(song)
         scenes_service = ScenesService(song, track_recorder_service)
         SongFacade(song, song_tracks_service, scenes_service, track_recorder_service)
+        SongViewFacade(song)
 
         song_service = SongService(song)
         Backend.client().end_measurement()
