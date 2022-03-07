@@ -53,7 +53,7 @@ class MixingService(UseFrameworkEvents):
         # type: (Live.Track.Track) -> None
         if track.output_meter_level < Config.CLIPPING_TRACK_VOLUME or not SongFacade.is_playing():
             return
-        Backend.client().show_warning("%s is clipping (%s)" % (track.name, track.output_meter_level))
+        Backend.client().show_warning("track %s is clipping (%s)" % (track.name, track.output_meter_level))
 
     def scroll_all_tracks_volume(self, go_next):
         # type: (bool) -> None

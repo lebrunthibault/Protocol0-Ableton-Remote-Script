@@ -15,10 +15,10 @@ from protocol0.domain.lom.scene.ScenePositionScroller import ScenePositionScroll
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.decorators import p0_subject_slot, throttle
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.song.Song import Song
@@ -147,7 +147,8 @@ class Scene(SceneActionMixin, UseFrameworkEvents):
     def bar_length(self):
         # type: () -> int
         if self.length % SongFacade.signature_numerator() != 0:
-            Backend.client().show_warning("%s invalid length: %s, longest_clip track: %s" % (
+            # can happen when changing longest clip length
+            Logger.log_warning("%s invalid length: %s, longest_clip track: %s" % (
                 self, self.length, self.longest_clip.track.abstract_track))
         return int(self.length / SongFacade.signature_numerator())
 

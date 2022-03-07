@@ -13,7 +13,6 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrac
 from protocol0.domain.lom.track.simple_track.SimpleTrackActionMixin import SimpleTrackActionMixin
 from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import SimpleTrackCreatedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.utils import find_if
 from protocol0.shared.Config import Config
@@ -123,7 +122,10 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def _output_meter_level_listener(self):
         # type: () -> None
         if self.output_meter_level > Config.CLIPPING_TRACK_VOLUME:
-            Backend.client().show_warning("%s is clipping (%.3f)" % (self.name, self.output_meter_level))
+            # some clicks e.g. when starting / stopping the song have this value
+            if round(self.output_meter_level, 3) == 0.921:
+                return
+            # Backend.client().show_warning("%s is clipping (%.3f)" % (self.abstract_track.name, self.output_meter_level))
 
     @property
     def is_armed(self):

@@ -8,10 +8,10 @@ import Live
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.device_parameter.LinkedDeviceParameters import LinkedDeviceParameters
 from protocol0.domain.lom.note.Note import Note
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.utils import find_if
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.SongViewFacade import SongViewFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -130,10 +130,15 @@ class MidiClip(Clip):
     def synchronize_automation_layers(self):
         # type: () -> Sequence
         parameters_couple = self.get_linked_parameters()
-        Logger.log_dev(parameters_couple)
+        if len(parameters_couple) == 0:
+            raise Protocol0Warning("This clip has no linked automated parameters")
+
         SongViewFacade.draw_mode(False)
         seq = Sequence()
         for couple in parameters_couple:
             seq.add(partial(couple.link_clip_automation, self))
+
+        # refocus an A parameter to avoid mistakenly modify a B one
+        seq.add(partial(self.show_parameter_envelope, parameters_couple[-1]._param_a))
 
         return seq.done()
