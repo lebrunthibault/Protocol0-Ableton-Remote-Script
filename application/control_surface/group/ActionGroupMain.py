@@ -27,7 +27,7 @@ class ActionGroupMain(ActionGroupMixin):
 
         # # RECO encoder
         # self.add_encoder(
-        #     identifier=5,
+        #     identifier=1,
         #     name="record audio and erase automation",
         #     filter_active_tracks=True,
         #     on_press=lambda: partial(record_track, RecordTypeEnum.AUDIO_ONLY),

@@ -46,27 +46,3 @@ class ActionGroupSet(ActionGroupMixin):
                          on_scroll=lambda: SongFacade.selected_scene().crop_scroller.scroll,
                          on_press=lambda: partial(SongFacade.selected_scene().crop)
                          )
-
-        # 2 bars loop encoder
-        self.add_encoder(identifier=13,
-                         name="2 bars loop",
-                         on_press=lambda: partial(SongFacade.selected_midi_clip().loop.set_loop_bar_length, 2),
-                         )
-
-        # 4 bars loop encoder
-        self.add_encoder(identifier=14,
-                         name="4 bars loop",
-                         on_press=lambda: partial(SongFacade.selected_midi_clip().loop.set_loop_bar_length, 4),
-                         )
-
-        # 8 bars loop encoder
-        self.add_encoder(identifier=15,
-                         name="8 bars loop",
-                         on_press=lambda: partial(SongFacade.selected_midi_clip().loop.set_loop_bar_length, 8),
-                         )
-
-        # 16 bars loop encoder
-        self.add_encoder(identifier=16,
-                         name="16 bars loop",
-                         on_press=lambda: partial(SongFacade.selected_midi_clip().loop.set_loop_bar_length, 16),
-                         )
