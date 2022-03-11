@@ -6,8 +6,8 @@ import Live
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 
 if TYPE_CHECKING:
-    from protocol0.domain.lom.scene.ScenesService import ScenesService
-    from protocol0.domain.lom.track.TracksService import SongTracksService
+    from protocol0.domain.lom.scene.SceneService import SceneService
+    from protocol0.domain.lom.track.TracksService import TrackService
     from protocol0.domain.track_recorder.TrackRecorderService import TrackRecorderService
     from protocol0.domain.lom.song.Song import Song
     from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
@@ -28,12 +28,12 @@ class SongFacade(object):
     """ Read only facade for accessing song properties """
     _INSTANCE = None  # type: Optional[SongFacade]
 
-    def __init__(self, song, song_tracks_service, scenes_service, track_recorder_service):
-        # type: (Song, SongTracksService, ScenesService, TrackRecorderService) -> None
+    def __init__(self, song, track_service, scene_service, track_recorder_service):
+        # type: (Song, TrackService, SceneService, TrackRecorderService) -> None
         SongFacade._INSTANCE = self
         self._song = song
-        self._song_tracks_service = song_tracks_service
-        self._scenes_service = scenes_service
+        self._track_service = track_service
+        self._scene_service = scene_service
         self._track_recorder_service = track_recorder_service
 
     @classmethod
@@ -81,7 +81,7 @@ class SongFacade(object):
     def simple_track_from_live_track(cls, live_track):
         # type: (Live.Track.Track) -> SimpleTrack
         """ we use the live ptr instead of the track to be able to access outdated simple tracks on deletion """
-        return cls._INSTANCE._song_tracks_service._live_track_id_to_simple_track[live_track._live_ptr]
+        return cls._INSTANCE._track_service._live_track_id_to_simple_track[live_track._live_ptr]
 
     @classmethod
     def optional_simple_track_from_live_track(cls, live_track):
@@ -99,7 +99,7 @@ class SongFacade(object):
     @classmethod
     def all_simple_tracks(cls):
         # type: () -> Iterator[SimpleTrack]
-        return (track for track in cls._INSTANCE._song_tracks_service._live_track_id_to_simple_track.values())
+        return (track for track in cls._INSTANCE._track_service._live_track_id_to_simple_track.values())
 
     @classmethod
     def external_synth_tracks(cls):
@@ -150,17 +150,17 @@ class SongFacade(object):
     @classmethod
     def usamo_device(cls):
         # type: () -> Optional[Device]
-        return cls._INSTANCE._song_tracks_service._usamo_device
+        return cls._INSTANCE._track_service._usamo_device
 
     @classmethod
     def master_track(cls):
         # type: () -> Optional[SimpleTrack]
-        return cls._INSTANCE._song_tracks_service._master_track
+        return cls._INSTANCE._track_service._master_track
 
     @classmethod
     def selected_scene(cls):
         # type: () -> Scene
-        return cls._INSTANCE._scenes_service.get_scene(cls.live_song().view.selected_scene)
+        return cls._INSTANCE._scene_service.get_scene(cls.live_song().view.selected_scene)
 
     @classmethod
     def playing_scene(cls):
@@ -184,7 +184,7 @@ class SongFacade(object):
     @classmethod
     def scenes(cls):
         # type: () -> List[Scene]
-        return cls._INSTANCE._scenes_service.scenes
+        return cls._INSTANCE._scene_service.scenes
 
     @classmethod
     def highlighted_clip_slot(cls):
@@ -221,7 +221,7 @@ class SongFacade(object):
     @classmethod
     def template_dummy_clip(cls):
         # type: () -> Optional[AudioClip]
-        return cls._INSTANCE._song_tracks_service._template_dummy_clip
+        return cls._INSTANCE._track_service._template_dummy_clip
 
     @classmethod
     def current_instrument(cls):

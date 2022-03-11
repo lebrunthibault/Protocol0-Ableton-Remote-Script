@@ -28,6 +28,10 @@ class SongActionMixin(object):
         self._song.current_song_time = 0
         self.stop_all_clips()
 
+    def play_pause(self):
+        # type: (Song) -> None
+        self.is_playing = not self.is_playing
+
     def continue_playing(self):
         # type: (Song) -> None
         if self._song:

@@ -35,15 +35,6 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.MIX_RACK,
         ]
 
-    @property
-    def is_device(self):
-        # type: () -> bool
-        return self in [
-            DeviceEnum.EXTERNAL_INSTRUMENT,
-            DeviceEnum.EXTERNAL_INSTRUMENT,
-            DeviceEnum.UTILITY,
-        ]
-
     @classmethod
     def updatable_devices(cls):
         # type: () -> List[DeviceEnum]
@@ -89,7 +80,9 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.AUTO_FILTER_LOW_PASS: "Auto Filter Low Pass.adv",
             DeviceEnum.EXTERNAL_AUDIO_EFFECT: "External Audio Effect",
             DeviceEnum.EXTERNAL_INSTRUMENT: "External Instrument",
+            DeviceEnum.COMPRESSOR: "Compressor",
             DeviceEnum.DUMMY_RACK: "Dummy Rack.adg",
+            DeviceEnum.EQ_EIGHT: "EQ Eight",
             DeviceEnum.LFO_TOOL: "LFOTool.adg",
             DeviceEnum.MIX_RACK: "Mix Rack.adg",
             DeviceEnum.UTILITY: "Utility",

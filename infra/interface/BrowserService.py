@@ -6,9 +6,9 @@ import Live
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.instrument.preset.SampleSelectedEvent import SampleSelectedEvent
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils import find_if
 from protocol0.infra.interface.BrowserLoaderService import BrowserLoaderService
 from protocol0.shared.SongFacade import SongFacade
@@ -27,15 +27,14 @@ class BrowserService(BrowserServiceInterface):
     def load_device_from_enum(self, device_enum):
         # type: (DeviceEnum) -> Sequence
         seq = Sequence()
-        if device_enum.is_device:
-            load_func = partial(self._browser_loader_service.load_device, device_enum.browser_name)
-        elif device_enum.is_user:
+        if device_enum.is_user:
             load_func = partial(self._browser_loader_service.load_from_user_library, device_enum.browser_name)
         else:
-            raise Protocol0Error("Couldn't load device %s, configure is_device or is_rack" % device_enum)
+            load_func = partial(self._browser_loader_service.load_device, device_enum.browser_name)
 
         seq.add(load_func)
         seq.wait_for_listener(SongFacade.selected_track()._devices_listener)
+        seq.add(ApplicationView.focus_detail)
         return seq.done()
 
     def _on_sample_selected_event(self, event):

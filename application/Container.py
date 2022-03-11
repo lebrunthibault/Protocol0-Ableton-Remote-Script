@@ -18,9 +18,11 @@ from protocol0.domain.lom.instrument.preset.PresetService import PresetService
 from protocol0.domain.lom.set.MixingService import MixingService
 from protocol0.domain.lom.set.SessionToArrangementService import SessionToArrangementService
 from protocol0.domain.lom.song.Song import Song
-from protocol0.domain.lom.scene.ScenesService import ScenesService
+from protocol0.domain.lom.scene.SceneService import SceneService
 from protocol0.domain.lom.song.SongService import SongService
-from protocol0.domain.lom.track.TracksService import SongTracksService
+from protocol0.domain.lom.track.TrackPlayerService import TrackPlayerService
+from protocol0.domain.lom.track.TrackRepository import TrackRepository
+from protocol0.domain.lom.track.TracksService import TrackService
 from protocol0.domain.lom.track.TrackFactory import TrackFactory
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrackService import SimpleDummyTrackService
 from protocol0.domain.lom.validation.ValidatorFactory import ValidatorFactory
@@ -79,10 +81,12 @@ class Container(ContainerInterface):
         device_service = DeviceService(browser_service, song.select_device)
         track_factory = TrackFactory(song)
         SimpleDummyTrackService(browser_service)
-        song_tracks_service = SongTracksService(track_factory, song)
+        track_repository = TrackRepository()
+        track_service = TrackService(track_factory, song)
+        track_player_service = TrackPlayerService(track_repository)
         track_recorder_service = TrackRecorderService(song)
-        scenes_service = ScenesService(song, track_recorder_service)
-        SongFacade(song, song_tracks_service, scenes_service, track_recorder_service)
+        scene_service = SceneService(song, track_recorder_service)
+        SongFacade(song, track_service, scene_service, track_recorder_service)
         SongViewFacade(song)
 
         song_service = SongService(song)
@@ -113,8 +117,9 @@ class Container(ContainerInterface):
         # registering managers in container
         self._register(midi_service)
         self._register(browser_service)
-        self._register(song_tracks_service)
-        self._register(scenes_service)
+        self._register(track_service)
+        self._register(track_player_service)
+        self._register(scene_service)
         self._register(song_data_service)
         self._register(song_service)
         self._register(instrument_display_service)

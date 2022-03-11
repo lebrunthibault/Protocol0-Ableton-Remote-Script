@@ -26,10 +26,10 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.song.Song import Song
 
 
-class ScenesService(UseFrameworkEvents):
+class SceneService(UseFrameworkEvents):
     def __init__(self, song, track_recorder_service):
         # type: (Song, TrackRecorderService) -> None
-        super(ScenesService, self).__init__()
+        super(SceneService, self).__init__()
         self._song = song
         self._track_recorder_service = track_recorder_service
         self.scenes_listener.subject = song._song

@@ -29,10 +29,10 @@ from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
-class SongTracksService(UseFrameworkEvents):
+class TrackService(UseFrameworkEvents):
     def __init__(self, track_factory, song):
         # type: (TrackFactory, Song) -> None
-        super(SongTracksService, self).__init__()
+        super(TrackService, self).__init__()
         self._track_factory = track_factory
         self._song = song
 

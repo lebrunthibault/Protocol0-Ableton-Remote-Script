@@ -13,6 +13,16 @@ class DomainEventBus(object):
     _registry = {}  # type: Dict[Type, List[Callable]]
 
     @classmethod
+    def one(cls, domain_event, subscriber):
+        # type: (Type, Callable) -> None
+        """ helper method for unique reaction """
+        def execute(_):
+            subscriber()
+            cls.un_subscribe(domain_event, execute)
+
+        cls.subscribe(domain_event, execute)
+
+    @classmethod
     def subscribe(cls, domain_event, subscriber):
         # type: (Type, Callable) -> None
         args = inspect.getargspec(subscriber).args
