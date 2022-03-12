@@ -7,6 +7,7 @@ import Live
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.clip.AudioTailClip import AudioTailClip
 from protocol0.domain.lom.clip.Clip import Clip
+from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.scene.SceneActionMixin import SceneActionMixin
 from protocol0.domain.lom.scene.SceneCropScroller import SceneCropScroller
@@ -66,6 +67,12 @@ class Scene(SceneActionMixin, UseFrameworkEvents):
         Logger.log_dev("on added %s" % self)
         if any(clip for clip in self.all_clips if clip.has_default_recording_name):
             for clip in self.all_clips:
+                if isinstance(clip, AudioTailClip):
+                    clip.delete()
+                    continue
+
+                if clip.has_default_recording_name:
+                    clip.color = ClipColorEnum.AUDIO_UN_QUANTIZED.color_int_value
                 clip.clip_name.update("")
 
     def _link_clip_slots_and_clips(self):

@@ -4,6 +4,7 @@ import protocol0.application.command as command_package
 import protocol0.application.command_handler as command_handler_package
 from protocol0.application.command.SerializableCommand import SerializableCommand
 from protocol0.application.command_handler.CommandHandlerInterface import CommandHandlerInterface
+from protocol0.domain.shared.decorators import handle_error
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils import import_package
 from protocol0.application.ContainerInterface import ContainerInterface
@@ -51,6 +52,7 @@ class CommandBus(object):
         # type: (SerializableCommand) -> None
         cls._INSTANCE._dispatch_command(command)
 
+    @handle_error
     def _dispatch_command(self, command):
         # type: (SerializableCommand) -> None
         handler = self._command_mapping[command.__class__](self._container, self._song)

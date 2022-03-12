@@ -10,6 +10,11 @@ if TYPE_CHECKING:
 
 # noinspection PyTypeHints,PyAttributeOutsideInit,DuplicatedCode
 class AbstractTrackActionMixin(object):
+    def matches_name(self, name):
+        # type: (AbstractTrack, str) -> bool
+        first_word = self.name.split(" ")[0].lower()
+        return first_word == name.lower()
+
     # noinspection PyUnusedLocal
     def select(self):
         # type: (AbstractTrack) -> Sequence

@@ -49,6 +49,10 @@ class SongActionMixin(object):
         # type: (Song) -> None
         self._song.re_enable_automation()
 
+    def start_playing(self):
+        # type: (Song) -> None
+        self._song.is_playing = True
+
     def stop_playing(self):
         # type: (Song) -> None
         self._song.stop_playing()

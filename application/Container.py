@@ -83,7 +83,7 @@ class Container(ContainerInterface):
         SimpleDummyTrackService(browser_service)
         track_repository = TrackRepository()
         track_service = TrackService(track_factory, song)
-        track_player_service = TrackPlayerService(track_repository)
+        track_player_service = TrackPlayerService(song, track_repository)
         track_recorder_service = TrackRecorderService(song)
         scene_service = SceneService(song, track_recorder_service)
         SongFacade(song, track_service, scene_service, track_recorder_service)

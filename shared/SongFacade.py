@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.song.Song import Song
     from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+    from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack  # noqa
     from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
     from protocol0.domain.lom.device.Device import Device
     from protocol0.domain.lom.scene.Scene import Scene
@@ -78,6 +79,13 @@ class SongFacade(object):
     def abstract_tracks(cls):
         # type: () -> Iterator[AbstractTrack]
         return cls._INSTANCE._song.abstract_tracks
+
+    @classmethod
+    def abstract_group_tracks(cls):
+        # type: () -> Iterator[AbstractGroupTrack]
+        from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack  # noqa
+
+        return (ab for ab in cls.abstract_tracks() if isinstance(ab, AbstractGroupTrack))
 
     @classmethod
     def simple_track_from_live_track(cls, live_track):

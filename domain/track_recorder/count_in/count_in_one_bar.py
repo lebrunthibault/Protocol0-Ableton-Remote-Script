@@ -14,7 +14,7 @@ class CountInOneBar(CountInInterface):
         self._song.stop_all_clips(quantized=False)  # stopping previous scene clips
         # solo for count in
         self.track.solo = True
-        self._song.is_playing = True
+        self._song.start_playing()
         seq = Sequence()
         seq.wait_for_event(LastBeatPassedEvent)
         seq.add(partial(setattr, self.track, "solo", False))

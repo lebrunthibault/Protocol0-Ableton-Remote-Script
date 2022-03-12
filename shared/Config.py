@@ -11,6 +11,8 @@ class Config(object):
 
     FOCUS_PROPHET_ON_STARTUP = False
 
+    DRUMS_TRACK_NAME = "Drums"
+
     SPLIT_QUANTIZATION_TEMPO = 110
 
     ZERO_DB_VOLUME = 0.850000023842

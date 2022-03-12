@@ -7,6 +7,7 @@ from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGr
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.decorators import p0_subject_slot, defer
 from protocol0.domain.shared.utils import find_if
+from protocol0.shared.Config import Config
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -42,7 +43,7 @@ class NormalGroupTrack(AbstractGroupTrack):
         common_subtracks_instrument_class = self._common_subtracks_instrument_class
         if common_subtracks_instrument_class == InstrumentSimpler and \
                 find_if(lambda t: "kick" in t.name.lower(), self.sub_tracks):
-            return "Drums"
+            return Config.DRUMS_TRACK_NAME
 
         if common_subtracks_instrument_class:
             return common_subtracks_instrument_class.NAME
