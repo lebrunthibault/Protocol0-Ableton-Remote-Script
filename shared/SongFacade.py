@@ -254,7 +254,7 @@ class SongFacade(object):
     @classmethod
     def is_recording(cls):
         # type: () -> bool
-        return cls._INSTANCE._song.session_record or cls._INSTANCE._track_recorder_service.is_recording
+        return cls._INSTANCE._track_recorder_service.is_recording
 
     @classmethod
     def record_mode(cls):

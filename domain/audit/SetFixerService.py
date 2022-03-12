@@ -37,16 +37,13 @@ class SetFixerService(object):
         if len(invalid_objects) == 0 and len(devices_to_remove) == 0:
             Backend.client().show_success("Set is valid")
         else:
-            message = ""
             if len(invalid_objects):
-                message += "Invalid_objects: %s\n" % invalid_objects
                 first_object = invalid_objects[0]
                 if isinstance(first_object, AbstractTrack):
                     first_object.select()
             if len(devices_to_remove):
-                message += "Devices to remove: %s" % devices_to_remove
+                Logger.log_warning("Devices to remove: %s" % devices_to_remove)
             Backend.client().show_warning("Invalid set")
-            Logger.log_warning(message)
 
     @property
     def _objects_to_validate(self):

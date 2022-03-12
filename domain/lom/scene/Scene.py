@@ -64,7 +64,6 @@ class Scene(SceneActionMixin, UseFrameworkEvents):
     def on_added(self):
         # type: () -> None
         """ Rename clips when doing consolidate time to new scene """
-        Logger.log_dev("on added %s" % self)
         if any(clip for clip in self.all_clips if clip.has_default_recording_name):
             for clip in self.all_clips:
                 if isinstance(clip, AudioTailClip):
