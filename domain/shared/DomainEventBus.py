@@ -4,6 +4,7 @@ from functools import partial
 from typing import Dict, List, Type, Callable, TYPE_CHECKING
 
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.shared.types import T
 
 if TYPE_CHECKING:
     from protocol0.shared.sequence.Sequence import Sequence  # noqa
@@ -14,9 +15,10 @@ class DomainEventBus(object):
 
     @classmethod
     def one(cls, domain_event, subscriber):
-        # type: (Type, Callable) -> None
+        # type: (Type[T], Callable) -> None
         """ helper method for unique reaction """
         def execute(_):
+            # type: (T) -> None
             subscriber()
             cls.un_subscribe(domain_event, execute)
 

@@ -22,7 +22,7 @@ from protocol0.domain.lom.scene.SceneService import SceneService
 from protocol0.domain.lom.song.SongService import SongService
 from protocol0.domain.lom.track.TrackPlayerService import TrackPlayerService
 from protocol0.domain.lom.track.TrackRepository import TrackRepository
-from protocol0.domain.lom.track.TracksService import TrackService
+from protocol0.domain.lom.track.TrackService import TrackService
 from protocol0.domain.lom.track.TrackFactory import TrackFactory
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrackService import SimpleDummyTrackService
 from protocol0.domain.lom.validation.ValidatorFactory import ValidatorFactory
@@ -74,7 +74,7 @@ class Container(ContainerInterface):
 
         session_service = SessionService(control_surface.component_guard,
                                          control_surface.set_highlighting_session_component)
-        ApplicationView(control_surface.application().view, session_service)
+        ApplicationView(song, control_surface.application().view, session_service)
 
         browser = control_surface.application().browser
         browser_service = BrowserService(browser, BrowserLoaderService(browser))

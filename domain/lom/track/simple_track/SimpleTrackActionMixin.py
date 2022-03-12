@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
+# noinspection PyAttributeOutsideInit
 class SimpleTrackActionMixin(object):
     def arm_track(self):
         # type: (SimpleTrack) -> None

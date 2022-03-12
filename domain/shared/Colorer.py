@@ -16,9 +16,9 @@ class Colorer(object):
         if hasattr(obj, "select"):
             Scheduler.defer(obj.select)
 
-        def set_color(color):
+        def set_color(new_color):
             # type: (int) -> None
-            obj.color = color
+            obj.color = new_color
 
         color = obj.color
 

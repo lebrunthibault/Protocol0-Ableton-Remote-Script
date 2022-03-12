@@ -6,4 +6,4 @@ from protocol0.domain.lom.track.TrackPlayerService import TrackPlayerService
 class ToggleTrackCommandHandler(CommandHandlerInterface):
     def handle(self, command):
         # type: (ToggleTrackCommand) -> None
-        self._container.get(TrackPlayerService).toggle_track_first_clip(command.track_name)
+        self._container.get(TrackPlayerService).toggle_track(command.track_name)

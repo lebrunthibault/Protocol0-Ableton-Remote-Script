@@ -13,7 +13,7 @@ def test_has_callback_queue_1():
     res = []
 
     # noinspection PyClassHasNoInit
-    class Example:
+    class Example(object):
         @has_callback_queue()
         def example(self):
             # type: () -> None
@@ -33,7 +33,7 @@ def test_has_callback_queue_2():
     res = []
 
     # noinspection PyClassHasNoInit
-    class Child:
+    class Child(object):
         @has_callback_queue()
         def example(self):
             # type: () -> None

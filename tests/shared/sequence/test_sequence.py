@@ -21,7 +21,7 @@ def test_async_callback_execution_order():
     test_res = []
 
     # noinspection PyClassHasNoInit
-    class Example:
+    class Example(object):
         @has_callback_queue()
         def listener(self):
             # type: () -> Sequence
@@ -73,6 +73,7 @@ def test_wait_for_event():
 def test_wait_for_events():
     test_res = []
 
+    # noinspection PyShadowingNames
     def inner_seq():
         seq = Sequence()
         seq.wait_for_events([BarEndingEvent, SongStoppedEvent])
@@ -95,6 +96,7 @@ def test_wait_for_events():
 
 
 def test_prompt():
+    # noinspection PyShadowingNames
     def create_seq():
         seq = Sequence()
         seq.prompt("question ?")
@@ -123,6 +125,7 @@ def test_prompt():
 
 
 def test_select():
+    # noinspection PyShadowingNames
     def create_seq():
         seq = Sequence()
         seq.select("question ?", [1, 2, 3])

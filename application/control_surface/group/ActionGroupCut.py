@@ -1,6 +1,8 @@
 from functools import partial
 
 from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
+from protocol0.domain.lom.loop.Looper import Looper
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.shared.SongFacade import SongFacade
 
 
@@ -12,19 +14,19 @@ class ActionGroupSet(ActionGroupMixin):
         # STaRT encoder
         self.add_encoder(identifier=1,
                          name="scroll clip start",
-                         on_scroll=lambda: SongFacade.selected_midi_clip().loop.scroll_start,
+                         on_scroll=lambda: Looper(SongFacade.current_loop()).scroll_start,
                          )
 
         # END encoder
         self.add_encoder(identifier=2,
                          name="scroll clip end",
-                         on_scroll=lambda: SongFacade.selected_midi_clip().loop.scroll_end,
+                         on_scroll=lambda: Looper(SongFacade.current_loop()).scroll_end,
                          )
 
         # LOOP encoder
         self.add_encoder(identifier=3,
                          name="scroll loop",
-                         on_scroll=lambda: SongFacade.selected_midi_clip().loop.scroll_loop,
+                         on_scroll=lambda: Looper(SongFacade.current_loop()).scroll_loop,
                          )
 
         # CUT encoder
@@ -45,4 +47,10 @@ class ActionGroupSet(ActionGroupMixin):
                          name="crop scene",
                          on_scroll=lambda: SongFacade.selected_scene().crop_scroller.scroll,
                          on_press=lambda: partial(SongFacade.selected_scene().crop)
+                         )
+
+        # Session/ARrangement encoder
+        self.add_encoder(identifier=13,
+                         name="toggle session / arrangement",
+                         on_press=ApplicationView.toggle_session_arrangement
                          )

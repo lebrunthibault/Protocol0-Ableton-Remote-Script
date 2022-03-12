@@ -60,6 +60,14 @@ class Scene(SceneActionMixin, UseFrameworkEvents):
         # type: () -> None
         self._link_clip_slots_and_clips()
 
+    def on_added(self):
+        # type: () -> None
+        """ Rename clips when doing consolidate time to new scene """
+        Logger.log_dev("on added %s" % self)
+        if any(clip for clip in self.all_clips if clip.has_default_recording_name):
+            for clip in self.all_clips:
+                clip.clip_name.update("")
+
     def _link_clip_slots_and_clips(self):
         # type: () -> None
         self.clip_slots = [track.clip_slots[self.index] for track in SongFacade.simple_tracks()]
@@ -81,6 +89,11 @@ class Scene(SceneActionMixin, UseFrameworkEvents):
         self._clips_muted_listener.replace_subjects([clip._clip for clip in self.clips])
 
         self.tracks = [clip.track for clip in self.clips if not clip.muted]
+
+    @property
+    def all_clips(self):
+        # type: () -> List[Clip]
+        return self.clips + self.audio_tail_clips
 
     def refresh_appearance(self):
         # type: (Scene) -> None

@@ -34,3 +34,5 @@ ActionGroupMix  # unused class (application\control_surface\group\ActionGroupMix
 ActionGroupPreset  # unused class (application\control_surface\group\ActionGroupPreset.py:9)
 ActionGroupSet  # unused class (application\control_surface\group\ActionGroupSet.py:6)
 DeviceParameterValidator  # unused class (domain\lom\validation\sub_validators\DeviceParameterValidator.py:9)
+_.play_pause  # unused method (domain\lom\song\SongActionMixin.py:31)
+_.toggle_track  # unused method (domain\lom\track\TrackPlayerService.py:16)

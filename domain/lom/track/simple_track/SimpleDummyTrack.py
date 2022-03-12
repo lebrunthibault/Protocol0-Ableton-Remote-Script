@@ -27,11 +27,11 @@ class SimpleDummyTrack(SimpleAudioTrack):
         # type: () -> List[AudioDummyClip]
         return super(SimpleDummyTrack, self).clips  # type: ignore
 
-    def _added_track_init(self):
+    def on_added(self):
         # type: () -> None
         self.current_monitoring_state = CurrentMonitoringStateEnum.IN
         self.input_routing.type = InputRoutingTypeEnum.NO_INPUT
-        super(SimpleDummyTrack, self)._added_track_init()
+        super(SimpleDummyTrack, self).on_added()
         DomainEventBus.notify(SimpleDummyTrackAddedEvent(self))
 
     @property

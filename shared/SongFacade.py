@@ -3,11 +3,12 @@ from collections import Iterator
 from typing import TYPE_CHECKING, Optional, List, cast
 
 import Live
+from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.scene.SceneService import SceneService
-    from protocol0.domain.lom.track.TracksService import TrackService
+    from protocol0.domain.lom.track.TrackService import TrackService
     from protocol0.domain.track_recorder.TrackRecorderService import TrackRecorderService
     from protocol0.domain.lom.song.Song import Song
     from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
@@ -21,6 +22,7 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
     from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
     from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
+    from protocol0.domain.lom.loop.LoopableInterface import LoopableInterface
 
 
 # noinspection PyArgumentList
@@ -270,3 +272,11 @@ class SongFacade(object):
     def clip_trigger_quantization(cls):
         # type: () -> int
         return cls._INSTANCE._song.clip_trigger_quantization
+
+    @classmethod
+    def current_loop(cls):
+        # type: () -> LoopableInterface
+        if ApplicationView.is_session_visible():
+            return cls.selected_midi_clip().loop
+        else:
+            return cls._INSTANCE._song.loop

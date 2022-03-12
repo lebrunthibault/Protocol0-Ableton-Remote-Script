@@ -64,9 +64,14 @@ class SceneService(UseFrameworkEvents):
     @handle_error
     def scenes_listener(self):
         # type: () -> None
+        previous_live_scenes_ids = self._live_scene_id_to_scene.keys()
+
         self._generate_scenes()
         for scene in SongFacade.scenes():
+            if len(previous_live_scenes_ids) and scene.live_id not in previous_live_scenes_ids:
+                Scheduler.defer(scene.on_added)
             Scheduler.defer(scene.refresh_appearance)
+
         DomainEventBus.defer_notify(ScenesMappedEvent())
         Logger.log_info("mapped scenes")
 
@@ -145,7 +150,7 @@ class SceneService(UseFrameworkEvents):
     def _on_song_started_event(self, _):
         # type: (SongStartedEvent) -> None
         # launch selected scene by clicking on play song
-        if not self._track_recorder_service.is_recording and ApplicationView.is_session_view_active() and not SongFacade.selected_scene().has_playing_clips:
+        if not self._track_recorder_service.is_recording and ApplicationView.is_session_visible() and not SongFacade.selected_scene().has_playing_clips:
             self._song.stop_all_clips(quantized=False)
             self._song.stop_playing()
             SongFacade.selected_scene().fire()

@@ -13,7 +13,7 @@ class TrackPlayerService(object):
         # type: (TrackRepository) -> None
         self._track_repository = track_repository
 
-    def toggle_track_first_clip(self, track_name):
+    def toggle_track(self, track_name):
         # type: (str) -> None
         track = self._track_repository.get_by_name(track_name)
         if track is None:

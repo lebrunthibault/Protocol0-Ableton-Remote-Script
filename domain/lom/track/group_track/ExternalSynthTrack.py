@@ -45,10 +45,10 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
 
         self.monitoring_state = ExternalSynthTrackMonitoringState(self)
 
-    def _added_track_init(self):
+    def on_added(self):
         # type: () -> Sequence
         seq = Sequence()
-        seq.add(super(ExternalSynthTrack, self)._added_track_init)
+        seq.add(super(ExternalSynthTrack, self).on_added)
         seq.add(self.abstract_track.arm)
 
         if len(self.base_track.devices):

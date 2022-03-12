@@ -62,7 +62,7 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents):
         # type: (Song) -> None
         self._song = song
 
-    def _added_track_init(self):
+    def on_added(self):
         # type: () -> Optional[Sequence]
         self.refresh_appearance()
         if self.KEEP_CLIPS_ON_ADDED:

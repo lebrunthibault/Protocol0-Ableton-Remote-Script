@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.song.Song import Song
 
 
-# noinspection PyTypeHints,PyArgumentList
+# noinspection PyTypeHints,PyArgumentList,PyAttributeOutsideInit
 class SongActionMixin(object):
     def reset(self):
         # type: (Song) -> None

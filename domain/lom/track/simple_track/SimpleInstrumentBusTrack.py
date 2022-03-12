@@ -8,9 +8,9 @@ class SimpleInstrumentBusTrack(SimpleAudioTrack):
     DEFAULT_COLOR = TrackColorEnum.DISABLED
     KEEP_CLIPS_ON_ADDED = True
 
-    def _added_track_init(self):
+    def on_added(self):
         # type: () -> None
-        super(SimpleInstrumentBusTrack, self)._added_track_init()
+        super(SimpleInstrumentBusTrack, self).on_added()
         if len(self.clips):
             self.clips[0].muted = True
 

@@ -2,7 +2,7 @@ from protocol0.application.command.InitializeSongCommand import InitializeSongCo
 from protocol0.application.command_handler.CommandHandlerInterface import CommandHandlerInterface
 from protocol0.domain.lom.scene.SceneService import SceneService
 from protocol0.domain.lom.song.SongService import SongService
-from protocol0.domain.lom.track.TracksService import TrackService
+from protocol0.domain.lom.track.TrackService import TrackService
 
 
 class InitializeSongCommandHandler(CommandHandlerInterface):

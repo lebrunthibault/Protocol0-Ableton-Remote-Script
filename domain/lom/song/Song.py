@@ -12,6 +12,7 @@ from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParamete
 from protocol0.domain.lom.scene.LoopingSceneToggler import LoopingSceneToggler
 from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.lom.song.SongActionMixin import SongActionMixin
+from protocol0.domain.lom.song.SongLoop import SongLoop
 from protocol0.domain.lom.song.SongStartedEvent import SongStartedEvent
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
@@ -37,6 +38,7 @@ class Song(SongActionMixin, UseFrameworkEvents):
         self._midi_recording_quantization_checked = False
         self._is_playing = False  # caching this because _is_playing_listener activates multiple times
 
+        self.loop = SongLoop(self)
         self.looping_scene_toggler = LoopingSceneToggler()
 
         self.is_playing_listener.subject = self._song
@@ -165,12 +167,12 @@ class Song(SongActionMixin, UseFrameworkEvents):
         self._song.metronome = metronome
 
     @property
-    def loop(self):
+    def looping(self):
         # type: () -> bool
         return self._song.loop
 
-    @loop.setter
-    def loop(self, loop):
+    @looping.setter
+    def looping(self, loop):
         # type: (bool) -> None
         self._song.loop = loop
 

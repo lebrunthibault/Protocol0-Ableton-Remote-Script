@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.clip.Clip import Clip
 
 
-# noinspection PyTypeHints
+# noinspection PyTypeHints,PyAttributeOutsideInit
 class ClipActionMixin(object):
     _QUANTIZATION_OPTIONS = [
         Live.Song.RecordingQuantization.rec_q_no_q,

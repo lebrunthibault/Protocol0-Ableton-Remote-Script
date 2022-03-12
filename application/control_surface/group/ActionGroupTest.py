@@ -25,4 +25,8 @@ class ActionGroupTest(ActionGroupMixin):
 
     def action_test(self):
         # type: () -> None
-        pass
+        Logger.log_dev("self._song.loop.start: %s" % self._song.loop.start)
+        Logger.log_dev("self._song.loop.end: %s" % self._song.loop.end)
+        Logger.log_dev("self._song.loop.length: %s" % self._song.loop.length)
+        # self._song.loop_length += 1
+        self._song.loop.end += 1

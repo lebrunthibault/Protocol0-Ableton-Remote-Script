@@ -1,3 +1,4 @@
+import re
 from math import floor
 
 from typing import TYPE_CHECKING, Optional, List
@@ -23,6 +24,7 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
+# noinspection PyAbstractClass
 class Clip(ClipActionMixin, UseFrameworkEvents, SynchronizableObjectInterface):
     __subject_events__ = ("notes", "length")
 
@@ -108,8 +110,13 @@ class Clip(ClipActionMixin, UseFrameworkEvents, SynchronizableObjectInterface):
             self._clip.name = str(name).strip()
 
     @property
+    def has_default_recording_name(self):
+        # type: () -> bool
+        return bool(re.match(".*\\[\\d{4}-\\d{2}-\\d{2} \\d+]$", self.name))
+
+    @property
     def length(self):
-        # type: () -> int
+        # type: () -> float
         """
         For looped clips: loop length in beats.
         Casting to int to have whole beats.
@@ -120,7 +127,7 @@ class Clip(ClipActionMixin, UseFrameworkEvents, SynchronizableObjectInterface):
 
     @length.setter
     def length(self, length):
-        # type: (int) -> None
+        # type: (float) -> None
         self.loop_end = self.loop_start + length
         self.end_marker = self.loop_end
 
