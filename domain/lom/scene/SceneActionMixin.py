@@ -74,7 +74,8 @@ class SceneActionMixin(object):
         # type: (Scene) -> None
         for clip in self.audio_tail_clips:
             abstract_track = cast(ExternalSynthTrack, clip.track.abstract_track)
-            if abstract_track.audio_track.clip_slots[clip.index].clip.muted:
+            audio_clip = abstract_track.audio_track.clip_slots[clip.index].clip
+            if audio_clip and audio_clip.muted:
                 continue
 
             clip.play_and_mute()

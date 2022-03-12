@@ -100,7 +100,9 @@ class AbstractTrackRecorder(object):
         # type: (float) -> Sequence
         self.recording_scene.fire()
         self._song.session_record = True
-        self._song.record_mode = True
+        # only for unlimited recordings so that we can play with other tracks as well
+        if bar_length == 0:
+            self._song.record_mode = True
         self._focus_main_clip()
         seq = Sequence()
         if bar_length:
