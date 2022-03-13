@@ -8,9 +8,9 @@ from protocol0.shared.SongFacade import SongFacade
 
 
 class AbstractTrackRecorderFactory(object):
-    def create_recorder(self, record_type, bar_length):
-        # type: (RecordTypeEnum, int) -> AbstractTrackRecorder
-        recorder = self._create_recorder(record_type, bar_length)
+    def create_recorder(self, record_type):
+        # type: (RecordTypeEnum) -> AbstractTrackRecorder
+        recorder = self._create_recorder(record_type)
 
         if recorder is None:
             raise Protocol0Error("Couldn't generate simple")
@@ -21,8 +21,8 @@ class AbstractTrackRecorderFactory(object):
         # type: (RecordTypeEnum) -> CountInInterface
         raise NotImplementedError
 
-    def _create_recorder(self, record_type, bar_length):
-        # type: (RecordTypeEnum, int) -> AbstractTrackRecorder
+    def _create_recorder(self, record_type):
+        # type: (RecordTypeEnum) -> AbstractTrackRecorder
         raise NotImplementedError
 
     def get_recording_scene_index(self, record_type):

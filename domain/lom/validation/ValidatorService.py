@@ -23,5 +23,6 @@ class ValidatorService(object):
         # type: (object) -> None
         validator = self._validator_factory.create_from_object(obj)
         validator.fix()
+        Logger.log_info("fixed %s" % obj)
         if hasattr(obj, "refresh_appearance"):
             obj.refresh_appearance()

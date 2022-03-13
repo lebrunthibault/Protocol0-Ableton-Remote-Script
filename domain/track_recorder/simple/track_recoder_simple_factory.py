@@ -25,8 +25,8 @@ class TrackRecorderSimpleFactory(AbstractTrackRecorderFactory):
         # type: (RecordTypeEnum) -> CountInInterface
         return CountInOneBar(self.track, self._song)
 
-    def _create_recorder(self, _, __):
-        # type: (RecordTypeEnum, int) -> AbstractTrackRecorder
+    def _create_recorder(self, _):
+        # type: (RecordTypeEnum) -> AbstractTrackRecorder
         return TrackRecorderSimple(self.track, self._song)
 
     def _get_recording_scene_index(self, _):

@@ -1,8 +1,11 @@
 from typing import Optional, TYPE_CHECKING
 
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
+from protocol0.domain.track_recorder.abstract_track_recorder import AbstractTrackRecorder
+from protocol0.domain.track_recorder.abstract_track_recorder_factory import AbstractTrackRecorderFactory
 from protocol0.domain.track_recorder.count_in.count_in_interface import CountInInterface
 from protocol0.domain.track_recorder.count_in.count_in_one_bar import CountInOneBar
 from protocol0.domain.track_recorder.count_in.count_in_short import CountInShort
@@ -10,16 +13,18 @@ from protocol0.domain.track_recorder.external_synth.decorator.track_recorder_cli
     TrackRecorderClipTailDecorator
 from protocol0.domain.track_recorder.external_synth.decorator.track_recorder_propagate_new_audio_clip_decorator import \
     TrackRecorderPropagateNewAudioClipDecorator
-from protocol0.domain.track_recorder.abstract_track_recorder_factory import AbstractTrackRecorderFactory
-from protocol0.domain.track_recorder.abstract_track_recorder import AbstractTrackRecorder
-from protocol0.domain.track_recorder.external_synth.track_recorder_external_synth_normal import TrackRecorderExternalSynthNormal
-from protocol0.domain.track_recorder.external_synth.track_recorder_external_synth_audio import TrackRecorderExternalSynthAudio
+from protocol0.domain.track_recorder.external_synth.track_recorder_external_synth_audio import \
+    TrackRecorderExternalSynthAudio
 from protocol0.domain.track_recorder.external_synth.track_recorder_external_synth_audio_automation import \
     TrackRecorderExternalSynthAudioAutomation
 from protocol0.domain.track_recorder.external_synth.track_recorder_external_synth_audio_multi import \
     TrackRecorderExternalSynthAudioMulti
 from protocol0.domain.track_recorder.external_synth.track_recorder_external_synth_audio_multi_automation import \
     TrackRecorderExternalSynthAudioMultiAutomation
+from protocol0.domain.track_recorder.external_synth.track_recorder_external_synth_normal import \
+    TrackRecorderExternalSynthNormal
+from protocol0.domain.track_recorder.external_synth.track_recorder_external_synth_normal_unlimited import \
+    TrackRecorderExternalSynthNormalUnlimited
 from protocol0.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:
@@ -41,8 +46,8 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
         else:
             return CountInShort(self.track, self._song)
 
-    def _create_recorder(self, record_type, bar_length):
-        # type: (RecordTypeEnum, int) -> AbstractTrackRecorder
+    def _create_recorder(self, record_type):
+        # type: (RecordTypeEnum) -> AbstractTrackRecorder
         if record_type == RecordTypeEnum.AUDIO_ONLY:
             recorder = TrackRecorderExternalSynthAudio(self.track, self._song)  # type: AbstractTrackRecorder
             recorder = TrackRecorderPropagateNewAudioClipDecorator(recorder, self._song)
@@ -56,11 +61,11 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
         elif record_type == RecordTypeEnum.NORMAL:
             recorder = TrackRecorderExternalSynthNormal(self.track, self._song)
         elif record_type == RecordTypeEnum.NORMAL_UNLIMITED:
-            recorder = TrackRecorderExternalSynthNormal(self.track, self._song)
+            recorder = TrackRecorderExternalSynthNormalUnlimited(self.track, self._song)
         else:
-            raise Protocol0Warning("Unmatched record type %s" % record_type)
+            raise Protocol0Error("Unmatched record type %s" % record_type)
 
-        if self.track.audio_tail_track and bar_length != 0:
+        if self.track.audio_tail_track and record_type == RecordTypeEnum.NORMAL_UNLIMITED:
             recorder = TrackRecorderClipTailDecorator(recorder, self._song)
 
         return recorder

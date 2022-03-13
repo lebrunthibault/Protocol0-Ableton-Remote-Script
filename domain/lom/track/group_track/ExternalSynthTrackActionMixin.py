@@ -28,8 +28,9 @@ class ExternalSynthTrackActionMixin(object):
         seq.add([sub_track.arm_track for sub_track in self.sub_tracks if not isinstance(sub_track, SimpleDummyTrack)])
         return seq.done()
 
-    def unarm_track(self):
+    def unarm(self):
         # type: (ExternalSynthTrack) -> None
+        super(ExternalSynthTrackActionMixin, self).unarm()
         self.monitoring_state.monitor_audio()
 
     @property

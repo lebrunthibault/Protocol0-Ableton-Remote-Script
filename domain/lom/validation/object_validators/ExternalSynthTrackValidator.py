@@ -52,7 +52,7 @@ class ExternalSynthTrackValidator(AggregateValidator):
         # type: () -> Optional[str]
         error_message = super(ExternalSynthTrackValidator, self).get_error_message()
         if error_message:
-            return "%s -> %s" % (self._track, error_message)
+            return "%s -> toto %s" % (self._track, error_message)
         return error_message
 
     def fix(self):

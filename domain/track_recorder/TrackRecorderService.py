@@ -68,7 +68,7 @@ class TrackRecorderService(object):
         bar_length = recorder_factory.get_recording_bar_length(record_type)
 
         count_in = recorder_factory.create_count_in(record_type)
-        self._recorder = recorder_factory.create_recorder(record_type, bar_length)
+        self._recorder = recorder_factory.create_recorder(record_type)
         self._recorder.set_recording_scene_index(recording_scene_index)
 
         Backend.client().show_info("Rec: %s" % self._recorder.legend(bar_length))

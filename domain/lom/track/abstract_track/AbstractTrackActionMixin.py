@@ -67,11 +67,6 @@ class AbstractTrackActionMixin(object):
     def unarm(self):
         # type: (AbstractTrack) -> None
         self.is_armed = False
-        self.unarm_track()
-
-    def unarm_track(self):
-        # type: (AbstractTrack) -> None
-        pass
 
     def stop(self, immediate=False):
         # type: (AbstractTrack, bool) -> None
