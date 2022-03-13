@@ -49,7 +49,7 @@ class SetFixerService(object):
     def _objects_to_validate(self):
         # type: () -> List[Any]
         # noinspection PyTypeChecker
-        return [self._song] + SongFacade.scenes() + list(self._song.abstract_tracks)
+        return [self._song] + SongFacade.scenes() + list(SongFacade.abstract_tracks())
 
     @property
     def _objects_to_refresh_appearance(self):
@@ -57,4 +57,4 @@ class SetFixerService(object):
         # noinspection PyTypeChecker
         return [clip for track in SongFacade.simple_tracks() for clip in track.clips] + \
                SongFacade.scenes() + \
-               list(SongFacade.all_simple_tracks())
+               list(SongFacade.abstract_tracks())
