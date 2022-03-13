@@ -20,7 +20,7 @@ class SongStatsService(object):
         # type: () -> None
         stats = self._get_stats()
         Logger.clear()
-        Logger.log_info(json.dumps(stats, indent=4))
+        Logger.info(json.dumps(stats, indent=4))
 
     def _get_stats(self):
         # type: () -> collections.OrderedDict

@@ -46,7 +46,7 @@ class BrowserLoaderService(object):
         # type: (Live.Browser.BrowserItem, str) -> None
         """ Handles loading an item and displaying load info in status bar. """
         if item and item.is_loadable:
-            Logger.log_info('Loading %s: %s' % (header, item.name))
+            Logger.info('Loading %s: %s' % (header, item.name))
             Scheduler.defer(partial(self._browser.load_item, item))
 
     def _get_item_for_category(self, category, item):

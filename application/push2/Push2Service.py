@@ -38,11 +38,11 @@ class Push2Service(object):
         push2 = find_if(lambda cs: isinstance(cs, Push2), get_control_surfaces())
         if not push2 or not hasattr(push2, "_session_ring"):
             if log:
-                Logger.log_warning("Cannot connect to push2")
+                Logger.warning("Cannot connect to push2")
             return
 
         if not self.push2:
-            Logger.log_info("Push2 connected")
+            Logger.info("Push2 connected")
 
         self.push2 = push2
         self.push2._session_ring.set_enabled(False)
@@ -54,7 +54,7 @@ class Push2Service(object):
         )
 
         if not self.push2:
-            Logger.log_info("Push2 connected to Protocol0")
+            Logger.info("Push2 connected to Protocol0")
 
     @subject_slot("value")
     def _session_pad_press_listener(self, value, *_, **__):

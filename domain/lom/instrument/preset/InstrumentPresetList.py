@@ -93,11 +93,11 @@ class InstrumentPresetList(object):
 
         category_presets = self._category_presets()
         if len(category_presets) == 0:
-            Logger.log_warning(
+            Logger.warning(
                 "Didn't find category presets for cat %s in %s" % (self.selected_category, self._device)
             )
             if len(self.categories) == 0:
-                Logger.log_error("Didn't find categories for %s" % self)
+                Logger.error("Didn't find categories for %s" % self)
                 return
 
             self.selected_category = self.categories[0]
@@ -156,7 +156,7 @@ class InstrumentPresetList(object):
 
             return presets
 
-        Logger.log_error("Couldn't import presets for %s" % self._device)
+        Logger.error("Couldn't import presets for %s" % self._device)
         return []
 
     def _get_selected_preset(self):

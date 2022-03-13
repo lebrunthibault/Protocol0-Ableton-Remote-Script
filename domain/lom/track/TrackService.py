@@ -59,7 +59,7 @@ class TrackService(UseFrameworkEvents):
         for scene in SongFacade.scenes():
             scene.on_tracks_change()
 
-        Logger.log_info("mapped tracks")
+        Logger.info("mapped tracks")
 
         seq = Sequence()
         if has_added_tracks and SongFacade.selected_track():
@@ -115,7 +115,7 @@ class TrackService(UseFrameworkEvents):
             track.on_tracks_change()
 
         if self._usamo_device is None:
-            Logger.log_warning("Usamo track is not present")
+            Logger.warning("Usamo track is not present")
 
     def _on_track_added_event(self):
         # type: () -> Optional[Sequence]

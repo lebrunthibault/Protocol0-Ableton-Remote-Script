@@ -14,27 +14,27 @@ class Logger(object):
         self._logger = logger_service
 
     @classmethod
-    def log_dev(cls, message):
+    def dev(cls, message):
         # type: (Any) -> None
         cls._log(message, LogLevelEnum.DEV)
 
     @classmethod
-    def log_debug(cls, message):
+    def debug(cls, message):
         # type: (Any) -> None
         cls._log(message, LogLevelEnum.DEBUG)
 
     @classmethod
-    def log_info(cls, message=""):
+    def info(cls, message=""):
         # type: (Any) -> None
         cls._log(message, LogLevelEnum.INFO)
 
     @classmethod
-    def log_warning(cls, message):
+    def warning(cls, message):
         # type: (Any) -> None
         cls._log(message, LogLevelEnum.WARNING)
 
     @classmethod
-    def log_error(cls, message="", debug=True):
+    def error(cls, message="", debug=True):
         # type: (str, bool) -> None
         cls._log(message, level=LogLevelEnum.ERROR, debug=debug)
 
@@ -57,4 +57,4 @@ class Logger(object):
     @classmethod
     def clear(cls):
         # type: () -> None
-        cls.log_info("clear_logs")
+        cls.info("clear_logs")

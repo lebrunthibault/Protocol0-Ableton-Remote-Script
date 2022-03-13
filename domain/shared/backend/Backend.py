@@ -29,9 +29,9 @@ class Backend(object):
         self._client = P0BackendClient(send_midi)
 
         # wrap backend notification to also log
-        self._client.show_info = show_and_log(self._client.show_info, Logger.log_info)
-        self._client.show_success = show_and_log(self._client.show_success, Logger.log_info)
-        self._client.show_warning = show_and_log(self._client.show_warning, Logger.log_warning)
+        self._client.show_info = show_and_log(self._client.show_info, Logger.info)
+        self._client.show_success = show_and_log(self._client.show_success, Logger.info)
+        self._client.show_warning = show_and_log(self._client.show_warning, Logger.warning)
         # NB : Logger.show_error already calls self._client.show_error
 
     @classmethod

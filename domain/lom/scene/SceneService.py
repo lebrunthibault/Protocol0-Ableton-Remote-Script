@@ -73,7 +73,7 @@ class SceneService(UseFrameworkEvents):
             Scheduler.defer(scene.refresh_appearance)
 
         DomainEventBus.defer_notify(ScenesMappedEvent())
-        Logger.log_info("mapped scenes")
+        Logger.info("mapped scenes")
 
     def _on_bar_changed_event(self, _):
         # type: (BarChangedEvent) -> None

@@ -67,7 +67,7 @@ class SequenceActionMixin(object):
             # type: () -> None
             if self._current_step and self._current_step._callable == execute:
                 self._cancel()
-                Logger.log_warning("cancelling after %s seconds : %s on %s" % (seconds, self, legend))
+                Logger.warning("cancelling after %s seconds : %s on %s" % (seconds, self, legend))
 
         def execute():
             # type: () -> None

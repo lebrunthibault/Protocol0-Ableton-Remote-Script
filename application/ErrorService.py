@@ -50,7 +50,7 @@ class ErrorService(object):
         if any([string in str(exc_value) for string in self._IGNORED_ERROR_STRINGS]) or \
                 any([string in str(exc_type) for string in self._IGNORED_ERROR_TYPES]):
             pass
-        Logger.log_error("unhandled exception caught !!")
+        Logger.error("unhandled exception caught !!")
         self._handle_exception(exc_type, exc_value, tb)
 
     def _handle_exception(self, exc_type, exc_value, tb, context=None):
@@ -64,7 +64,7 @@ class ErrorService(object):
         error_message += "----- traceback -----\n"
         error_message += "".join(self._format_list(show))
 
-        Logger.log_error(error_message)
+        Logger.error(error_message)
 
         Scheduler.restart()
     #

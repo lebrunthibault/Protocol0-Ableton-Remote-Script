@@ -56,7 +56,7 @@ class BrowserService(BrowserServiceInterface):
         device.delete()
         preset_item = self._get_audio_effect_preset_item(device_name)
         if not preset_item:
-            Logger.log_warning("Couldn't find preset item")
+            Logger.warning("Couldn't find preset item")
             return None
         seq.add(partial(self._browser.load_item, preset_item))
         seq.wait(3)
@@ -67,7 +67,7 @@ class BrowserService(BrowserServiceInterface):
         audio_effect_rack_item = find_if(lambda i: i.name == "Audio Effect Rack",
                                          self._browser.audio_effects.iter_children)
         if not audio_effect_rack_item:
-            Logger.log_info("Couldn't access preset items for Audio Effect Rack")
+            Logger.info("Couldn't access preset items for Audio Effect Rack")
             return None
         else:
             preset = find_if(lambda i: i.name == "%s.adg" % preset_name, audio_effect_rack_item.iter_children)

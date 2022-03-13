@@ -145,7 +145,7 @@ class SongActionMixin(object):
     def delete_scene(self, scene_index):
         # type: (Song, Optional) -> Optional[Sequence]
         if len(SongFacade.scenes()) == 1:
-            Logger.log_warning("Cannot delete last scene")
+            Logger.warning("Cannot delete last scene")
             return None
 
         seq = Sequence()

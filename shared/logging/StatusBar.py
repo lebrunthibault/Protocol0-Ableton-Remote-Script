@@ -17,9 +17,9 @@ class StatusBar(object):
     @classmethod
     def show_message(cls, message):
         # type: (str) -> None
-        Logger.log_info(message)
+        Logger.info(message)
         # noinspection PyBroadException
         try:
             cls._INSTANCE._show_message(str(message))
         except Exception:
-            Logger.log_warning("Couldn't show message : %s" % message)
+            Logger.warning("Couldn't show message : %s" % message)

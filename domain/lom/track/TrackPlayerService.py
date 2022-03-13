@@ -34,10 +34,10 @@ class TrackPlayerService(object):
             return
 
         if track.is_playing:
-            Logger.log_info("Stopping %s" % track)
+            Logger.info("Stopping %s" % track)
             track.stop()
         else:
-            Logger.log_info("Playing %s" % track)
+            Logger.info("Playing %s" % track)
 
             seq = Sequence()
             clip = next((clip for clip in track.clips if not clip.muted), None)

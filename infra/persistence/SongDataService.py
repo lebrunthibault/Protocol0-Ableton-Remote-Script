@@ -42,7 +42,7 @@ class SongDataService(object):
 
             self._restore_set_state()
         except SongDataError as e:
-            Logger.log_error(str(e))
+            Logger.error(str(e))
             raise Protocol0Warning("Inconsistent song data please save the set")
 
     def _restore_set_state(self):

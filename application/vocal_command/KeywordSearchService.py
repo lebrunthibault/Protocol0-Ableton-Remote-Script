@@ -29,7 +29,7 @@ class KeywordSearchService(object):
                 matching_tracks.append(track)
 
         if len(matching_tracks) == 0:
-            Logger.log_info("Didn't find track for search: %s" % search.lower())
+            Logger.info("Didn't find track for search: %s" % search.lower())
             return
 
         index = 0
@@ -38,7 +38,7 @@ class KeywordSearchService(object):
 
         matching_track = matching_tracks[index]
 
-        Logger.log_info("Selecting track %s" % matching_track)
+        Logger.info("Selecting track %s" % matching_track)
         matching_track.select()
         if matching_track.is_foldable:
             matching_track.is_folded = False
@@ -48,8 +48,8 @@ class KeywordSearchService(object):
         # type: (str, AbstractTrack) -> bool
         for track_keyword in self._get_track_keywords(track):
             if search in normalize_string(track_keyword).split(" "):
-                Logger.log_info("found match for search %s in track %s (track keyword matched: %s)" %
-                                (search, track, track_keyword))
+                Logger.info("found match for search %s in track %s (track keyword matched: %s)" %
+                            (search, track, track_keyword))
                 return True
 
         return False

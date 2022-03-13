@@ -60,7 +60,7 @@ class SimpleDummyTrackService(object):
         clip = track.clip_slots[SongFacade.selected_scene().index].clip
         automated_device = track.get_device_from_enum(self.parameter_enum.device_enum)
         if automated_device is None:
-            Logger.log_error("The automated device was not inserted")
+            Logger.error("The automated device was not inserted")
             return None
 
         automated_parameter = automated_device.get_parameter_by_name(self.parameter_enum)

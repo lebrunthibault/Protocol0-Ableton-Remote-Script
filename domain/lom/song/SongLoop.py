@@ -47,7 +47,7 @@ class SongLoop(LoopableInterface):
     @end.setter
     def end(self, end):
         # type: (float) -> None
-        Logger.log_dev("setting length to: %s" % (end - self.start))
+        Logger.dev("setting length to: %s" % (end - self.start))
         self.length = end - self.start
 
     @property

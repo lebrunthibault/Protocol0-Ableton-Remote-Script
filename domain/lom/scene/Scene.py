@@ -167,7 +167,7 @@ class Scene(SceneActionMixin, UseFrameworkEvents):
         # type: () -> int
         if self.length % SongFacade.signature_numerator() != 0:
             # can happen when changing longest clip length
-            Logger.log_warning("%s invalid length: %s, longest_clip track: %s" % (
+            Logger.warning("%s invalid length: %s, longest_clip track: %s" % (
                 self, self.length, self.longest_clip.track.abstract_track))
         return int(self.length / SongFacade.signature_numerator())
 

@@ -29,4 +29,4 @@ class VocalCommandService(object):
             self._keyword_search_service.search_track(keyword_enum=track_search_keyword_enum)
             return
 
-        Logger.log_error("Couldn't find matching command for input %s" % command)
+        Logger.error("Couldn't find matching command for input %s" % command)

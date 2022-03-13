@@ -277,7 +277,7 @@ class Clip(ClipActionMixin, UseFrameworkEvents, SynchronizableObjectInterface):
             if len(self.automated_parameters):
                 selected_parameter = self.automated_parameters[0]
             else:
-                Logger.log_warning("Selected clip has no automation")
+                Logger.warning("Selected clip has no automation")
                 return None
 
         self.show_parameter_envelope(selected_parameter)

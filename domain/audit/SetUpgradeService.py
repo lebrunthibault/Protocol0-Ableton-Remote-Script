@@ -47,7 +47,7 @@ class SetUpgradeService(object):
                 tracks.append(track)
 
         if not all(self._validator_service.validate_object(track) for track in tracks):
-            Logger.log_error("invalid ExternalSynthTrack(s)")
+            Logger.error("invalid ExternalSynthTrack(s)")
             return None
 
         seq = Sequence()

@@ -66,7 +66,7 @@ class Sequence(SequenceStateMachineMixin, SequenceActionMixin):
         if len(self._steps):
             self._current_step = self._steps.popleft()
             if self._DEBUG:
-                Logger.log_debug("Executing %s : %s" % (self, self._current_step))
+                Logger.debug("Executing %s : %s" % (self, self._current_step))
             self._step_terminated.subject = self._current_step
             self._step_errored.subject = self._current_step
             self._step_cancelled.subject = self._current_step
@@ -85,7 +85,7 @@ class Sequence(SequenceStateMachineMixin, SequenceActionMixin):
     def _step_terminated(self):
         # type: () -> None
         if self._DEBUG:
-            Logger.log_info("step terminated : %s" % self._current_step)
+            Logger.info("step terminated : %s" % self._current_step)
         self._execute_next_step()
 
     @p0_subject_slot("errored")
@@ -98,7 +98,7 @@ class Sequence(SequenceStateMachineMixin, SequenceActionMixin):
         self.change_state(SequenceStateEnum.ERRORED)
         self.disconnect()
         if self._DEBUG:
-            Logger.log_error("%s" % self, debug=False)
+            Logger.error("%s" % self, debug=False)
 
     @p0_subject_slot("cancelled")
     def _step_cancelled(self):
@@ -109,7 +109,7 @@ class Sequence(SequenceStateMachineMixin, SequenceActionMixin):
         # type: () -> None
         if self.started:
             self.change_state(SequenceStateEnum.CANCELLED)
-            Logger.log_warning("%s has been cancelled" % self)
+            Logger.warning("%s has been cancelled" % self)
             if self._current_step:
                 self._current_step.cancel()
             self.disconnect()

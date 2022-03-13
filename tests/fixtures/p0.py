@@ -34,9 +34,9 @@ def make_protocol0():
 def monkey_patch_static():
     # hide logs
     Logger(LoggerService())
-    Logger.log_dev = classmethod(nop)
-    Logger.log_info = classmethod(nop)
-    Logger.log_warning = classmethod(nop)
+    Logger.dev = classmethod(nop)
+    Logger.info = classmethod(nop)
+    Logger.warning = classmethod(nop)
 
     MidiService._ping_midi_server = nop
 

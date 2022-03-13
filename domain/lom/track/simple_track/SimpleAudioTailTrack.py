@@ -40,4 +40,4 @@ class SimpleAudioTailTrack(SimpleAudioTrack):
         # type: () -> None
         super(SimpleAudioTailTrack, self)._devices_listener()
         if len(self.devices):
-            Logger.log_error("A tail track should not have devices")
+            Logger.error("A tail track should not have devices")

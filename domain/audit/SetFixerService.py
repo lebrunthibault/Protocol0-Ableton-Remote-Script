@@ -42,7 +42,7 @@ class SetFixerService(object):
                 if isinstance(first_object, AbstractTrack):
                     first_object.select()
             if len(devices_to_remove):
-                Logger.log_warning("Devices to remove: %s" % devices_to_remove)
+                Logger.warning("Devices to remove: %s" % devices_to_remove)
             Backend.client().show_warning("Invalid set")
 
     @property

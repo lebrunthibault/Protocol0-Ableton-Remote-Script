@@ -44,9 +44,9 @@ class EncoderAction(object):
             get_callable_repr(func),
         )
         if self.move_type != EncoderMoveEnum.SCROLL:
-            Logger.log_info("%s : executing %s" % (encoder_name, get_callable_repr(func)))
+            Logger.info("%s : executing %s" % (encoder_name, get_callable_repr(func)))
         else:
-            Logger.log_info("%s : scrolling %s" % (encoder_name, get_callable_repr(func)))
+            Logger.info("%s : scrolling %s" % (encoder_name, get_callable_repr(func)))
 
         seq = Sequence()
         seq.add(partial(func, *a, **k))

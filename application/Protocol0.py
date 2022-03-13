@@ -23,4 +23,4 @@ class Protocol0(ControlSurface):
 
         CommandBus.dispatch(InitializeSongCommand())
 
-        Logger.log_info("Protocol0 script loaded")
+        Logger.info("Protocol0 script loaded")

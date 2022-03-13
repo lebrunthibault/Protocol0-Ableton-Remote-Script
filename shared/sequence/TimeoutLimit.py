@@ -30,7 +30,7 @@ class TimeoutLimit(object):
     def __call__(self, *a, **k):
         # type: (Any, Any) -> None
         if self.timed_out:
-            Logger.log_warning("Tried to execute function after timeout: %s" % self)
+            Logger.warning("Tried to execute function after timeout: %s" % self)
             return
 
         self.executed = True
@@ -49,4 +49,4 @@ class TimeoutLimit(object):
             self.on_timeout()
             return
         else:
-            Logger.log_error("Timeout reached for %s" % self)
+            Logger.error("Timeout reached for %s" % self)

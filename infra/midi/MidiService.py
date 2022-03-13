@@ -42,13 +42,13 @@ class MidiService(object):
         msg = [status, value]
         if value2:
             msg.append(value2)
-        Logger.log_info("MidiService sending : %s" % msg)
+        Logger.info("MidiService sending : %s" % msg)
         self._send_midi(tuple(msg))
 
     def _on_midi_bytes_received_event(self, event):
         # type: (MidiBytesReceivedEvent) -> None
         message = self._sysex_to_string(sysex=event.midi_bytes)
-        Logger.log_debug("message: %s" % message)
+        Logger.debug("message: %s" % message)
         command = SerializableCommand.unserialize(message)
         CommandBus.dispatch(command)
 
@@ -71,9 +71,9 @@ class MidiService(object):
         from protocol0_midi import Protocol0Midi
         protocol0_midi = find_if(lambda cs: isinstance(cs, Protocol0Midi), get_control_surfaces())
         if protocol0_midi is None:
-            Logger.log_error("Protocol0Midi is not loaded")
+            Logger.error("Protocol0Midi is not loaded")
 
     def _midi_server_ping_timeout(self):
         # type: () -> None
         if not self._midi_server_up:
-            Logger.log_warning("Midi server is not running.")
+            Logger.warning("Midi server is not running.")

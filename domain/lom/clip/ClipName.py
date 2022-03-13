@@ -77,7 +77,7 @@ class ClipName(UseFrameworkEvents):
         if self.clip.is_recording:
             return None
         if self.DEBUG:
-            Logger.log_info("%s : %s <-> %s <-> %s" % (self.clip, base_name, self.base_name, self.clip.name))
+            Logger.info("%s : %s <-> %s <-> %s" % (self.clip, base_name, self.base_name, self.clip.name))
         if base_name is not None:
             self.base_name = base_name
         if self.base_name:

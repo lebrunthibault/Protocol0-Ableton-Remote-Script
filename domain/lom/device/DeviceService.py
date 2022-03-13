@@ -30,7 +30,7 @@ class DeviceService(object):
     def update_audio_effect_rack(self, device):
         # type: (RackDevice) -> Sequence
         """ update rack with the version stored in browser, keeping old values for identical parameters """
-        Logger.log_info("selecting and updating device %s (track %s)" % (device, device.track))
+        Logger.info("selecting and updating device %s (track %s)" % (device, device.track))
         parameters = {param.name: param.value for param in device.parameters if "macro" not in param.name.lower()}
         seq = Sequence()
         seq.add(partial(self._select_device, device))
@@ -42,7 +42,7 @@ class DeviceService(object):
         # type: (SimpleTrack, str, Dict[str, float]) -> None
         device = find_if(lambda d: d.name == device_name, track.devices)
         if not device:
-            Logger.log_error("Couldn't find device with name %s in %s" % (device_name, track))
+            Logger.error("Couldn't find device with name %s in %s" % (device_name, track))
         for param_name, param_value in parameters.items():
             device.update_param_value(param_name=param_name, param_value=param_value)
 
