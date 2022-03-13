@@ -16,14 +16,30 @@ class SetFixerService(object):
         self._set_upgrade_service = set_upgrade_service
         self._song = song
 
-    def fix_set(self):
-        # type: () -> None
-        """ Fix the current set to the current standard regarding naming / coloring etc .."""
-        Logger.clear()
+    @property
+    def _objects_to_refresh_appearance(self):
+        # type: () -> List[Any]
+        # noinspection PyTypeChecker
+        return [clip for track in SongFacade.simple_tracks() for clip in track.clips] + \
+               SongFacade.scenes() + \
+               list(SongFacade.abstract_tracks())
 
+    def refresh_appearance(self):
+        # type: () -> None
         for obj in self._objects_to_refresh_appearance:
             if hasattr(obj, "refresh_appearance"):
                 obj.refresh_appearance()
+
+    @property
+    def _objects_to_validate(self):
+        # type: () -> List[Any]
+        # noinspection PyTypeChecker
+        return [self._song] + SongFacade.scenes() + list(SongFacade.abstract_tracks())
+
+    def validate_set(self):
+        # type: () -> None
+        """ Fix the current set to the current standard regarding naming / coloring etc .."""
+        Logger.clear()
 
         invalid_objects = []
 
@@ -36,6 +52,7 @@ class SetFixerService(object):
 
         if len(invalid_objects) == 0 and len(devices_to_remove) == 0:
             Backend.client().show_success("Set is valid")
+            self.refresh_appearance()
         else:
             if len(invalid_objects):
                 first_object = invalid_objects[0]
@@ -44,17 +61,3 @@ class SetFixerService(object):
             if len(devices_to_remove):
                 Logger.warning("Devices to remove: %s" % devices_to_remove)
             Backend.client().show_warning("Invalid set")
-
-    @property
-    def _objects_to_validate(self):
-        # type: () -> List[Any]
-        # noinspection PyTypeChecker
-        return [self._song] + SongFacade.scenes() + list(SongFacade.abstract_tracks())
-
-    @property
-    def _objects_to_refresh_appearance(self):
-        # type: () -> List[Any]
-        # noinspection PyTypeChecker
-        return [clip for track in SongFacade.simple_tracks() for clip in track.clips] + \
-               SongFacade.scenes() + \
-               list(SongFacade.abstract_tracks())

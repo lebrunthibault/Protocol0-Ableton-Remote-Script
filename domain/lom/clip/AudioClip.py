@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING
 
 import Live
 from protocol0.domain.lom.clip.Clip import Clip
-from protocol0.domain.shared.Colorer import Colorer
-from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.domain.shared.ColorEnum import ColorEnum
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.shared.logging.Logger import Logger
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
@@ -22,14 +22,8 @@ class AudioClip(Clip):
         self.track = self.track  # type: SimpleAudioTrack
         self.clip_slot = self.clip_slot  # type: AudioClipSlot
         self._warping_listener.subject = self._clip
-
-    @p0_subject_slot("warping")
-    def _warping_listener(self):
-        # type: () -> None
-        if self.warping:
-            Scheduler.defer(partial(setattr, self, "looping", True))
-        # noinspection PyUnresolvedReferences
-        self.notify_length()
+        self._file_path_listener.subject = self._clip
+        Scheduler.defer(self.refresh_appearance)
 
     @property
     def warping(self):
@@ -41,6 +35,14 @@ class AudioClip(Clip):
         # type: (float) -> None
         if self._clip:
             self._clip.warping = warping
+
+    @p0_subject_slot("warping")
+    def _warping_listener(self):
+        # type: () -> None
+        if self.warping:
+            Scheduler.defer(partial(setattr, self, "looping", True))
+        # noinspection PyUnresolvedReferences
+        self.notify_length()
 
     @property
     def warp_mode(self):
@@ -58,9 +60,17 @@ class AudioClip(Clip):
         # type: () -> str
         return self._clip.file_path if self._clip else ""
 
+    @p0_subject_slot("file_path")
+    def _file_path_listener(self):
+        # type: () -> None
+        """ this happens after crop. See def crop"""
+        Logger.dev("file path changed : %s" % self)
+        self.refresh_appearance()
+
     def crop(self):
         # type: () -> None
         """ Live.Clip.Clip.crop_sample doesn't exists so we notify the user """
         if self.loop.start != 0:
-            Colorer.blink(self)
-            Backend.client().show_warning("Please crop %s" % self)
+            self.color = ColorEnum.WARNING.color_int_value
+            Scheduler.defer(self.select)
+            Logger.warning("Please crop %s" % self)

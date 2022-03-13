@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, List, Iterator, cast
 
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.SongFacade import SongFacade
@@ -6,6 +6,7 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
+    from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack  # noqa
 
 
 # noinspection PyTypeHints,PyAttributeOutsideInit,DuplicatedCode
@@ -95,6 +96,27 @@ class AbstractTrackActionMixin(object):
         abs_factor = 1.01
         factor = abs_factor if go_next else (1 / abs_factor)
         self.volume *= factor
+
+    @property
+    def group_tracks(self):
+        # type: (AbstractTrack) -> Iterator[AbstractTrack]
+        group_track = self
+        while group_track.group_track:
+            yield group_track.group_track
+            group_track = group_track.group_track
+
+    def get_all_simple_sub_tracks(self):
+        # type: (AbstractTrack) -> List[SimpleTrack]
+        from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack  # noqa
+
+        sub_tracks = []
+        for sub_track in self.sub_tracks:
+            if sub_track.is_foldable:
+                sub_tracks += self.get_all_simple_sub_tracks(sub_track)
+            else:
+                sub_tracks.append(sub_track)
+
+        return cast(List[SimpleTrack], sub_tracks)
 
     def add_or_replace_sub_track(self, sub_track, previous_sub_track=None):
         # type: (AbstractTrack, AbstractTrack, Optional[AbstractTrack]) -> None

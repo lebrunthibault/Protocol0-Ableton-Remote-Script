@@ -52,8 +52,6 @@ class ExternalSynthTrackActionMixin(object):
         # type: (ExternalSynthTrack) -> Sequence
         seq = Sequence()
         seq.add(SongFacade.selected_scene().duplicate)
-        # seq.add(self.midi_track.clip_slots[SongFacade.selected_scene().index].clip.select)
-        # seq.add(SongFacade.selected_scene().fire)
         seq.add(lambda: SongFacade.current_external_synth_track().midi_track.clip_slots[SongFacade.selected_scene().index].clip.crop())
         seq.add(lambda: SongFacade.current_external_synth_track().audio_track.clip_slots[SongFacade.selected_scene().index].clip.crop())
         seq.add()

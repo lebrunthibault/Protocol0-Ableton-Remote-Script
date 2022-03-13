@@ -53,7 +53,7 @@ class TrackPlayerService(object):
     def toggle_drums(self):
         # type: () -> None
         group_track = self._track_repository.find_group_by_name(Config.DRUMS_TRACK_NAME)
-        drum_tracks = self._track_repository.find_all_simple_sub_tracks(group_track)
+        drum_tracks = group_track.get_all_simple_sub_tracks()
         if any(track for track in drum_tracks if track.is_playing):
             for track in drum_tracks:
                 track.stop()
@@ -66,4 +66,3 @@ class TrackPlayerService(object):
                 if not song_is_playing:
                     self._song.stop_playing()
                     Scheduler.defer(self._song.start_playing)
-

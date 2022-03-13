@@ -122,6 +122,12 @@ class Song(SongActionMixin, UseFrameworkEvents):
     @highlighted_clip_slot.setter
     def highlighted_clip_slot(self, clip_slot):
         # type: (ClipSlot) -> None
+        # we need all tracks un folded for this
+        track = clip_slot.track.abstract_track
+        for track in list(track.group_tracks) + [track]:
+            if track.is_folded:
+                track.is_folded = False
+
         self._view.highlighted_clip_slot = clip_slot._clip_slot
 
     # CLIPS

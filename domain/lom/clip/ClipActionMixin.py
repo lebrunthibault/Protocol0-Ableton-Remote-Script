@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, Optional, List
 
 import Live
+from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
 from protocol0.domain.lom.clip.ClipSelectedEvent import ClipSelectedEvent
 from protocol0.domain.lom.clip.automation_envelope.ClipAutomationEnvelope import ClipAutomationEnvelope
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
@@ -110,7 +111,8 @@ class ClipActionMixin(object):
     def refresh_appearance(self):
         # type: (Clip) -> None
         self.clip_name._name_listener(force=True)  # type: ignore[has-type]
-        self.color = self.track.computed_color
+        if self.color != ClipColorEnum.AUDIO_UN_QUANTIZED.color_int_value:
+            self.color = self.track.computed_color
 
     def post_record(self, bar_length):
         # type: (Clip, int) -> None
