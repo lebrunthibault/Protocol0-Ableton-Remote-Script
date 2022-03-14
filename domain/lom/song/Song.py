@@ -14,6 +14,7 @@ from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.lom.song.SongActionMixin import SongActionMixin
 from protocol0.domain.lom.song.SongLoop import SongLoop
 from protocol0.domain.lom.song.SongStartedEvent import SongStartedEvent
+from protocol0.domain.lom.song.SongState import SongState
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
@@ -38,6 +39,7 @@ class Song(SongActionMixin, UseFrameworkEvents):
         self._midi_recording_quantization_checked = False
         self._is_playing = False  # caching this because _is_playing_listener activates multiple times
 
+        self.state = SongState()
         self.loop = SongLoop(self)
         self.looping_scene_toggler = LoopingSceneToggler()
 
