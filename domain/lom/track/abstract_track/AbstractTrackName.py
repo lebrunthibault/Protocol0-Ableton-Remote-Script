@@ -12,32 +12,31 @@ if TYPE_CHECKING:
 
 
 class AbstractTrackName(UseFrameworkEvents):
-    DEBUG = False
+    DEBUG = True
 
     def __init__(self, track):
         # type: (AbstractTrack) -> None
         super(AbstractTrackName, self).__init__()
-        self.track = track
-        self._name_listener.subject = self.track._track
-        self._disconnected = False
+        self._track = track
+        self._name_listener.subject = self._track._track
 
     @p0_subject_slot("name")
     def _name_listener(self):
         # type: () -> None
         Scheduler.defer(self.update)
 
-    def _get_base_name(self):
+    def get_base_name(self):
         # type: () -> str
         match = re.match(
-            "^(?P<base_name>[^()]*).*$", self.track.name
+            "^(?P<base_name>[^()]*).*$", self._track.name
         )
         base_name = match.group("base_name").strip() if match else ""
 
         if self.DEBUG:
-            Logger.info("%s <-> %s <-> %s" % (base_name, self._should_recompute_base_name(base_name=base_name), self.track.computed_base_name))
+            Logger.info("%s <-> %s <-> %s" % (base_name, self._should_recompute_base_name(base_name=base_name), self._track.computed_base_name))
         # allows manual modification
         if self._should_recompute_base_name(base_name=base_name):
-            return self.track.computed_base_name
+            return self._track.computed_base_name
         else:
             return base_name
 
@@ -47,27 +46,21 @@ class AbstractTrackName(UseFrameworkEvents):
 
         return (
                 not base_name
-                or base_name.lower() == self.track.DEFAULT_NAME.lower()
-                or isinstance(self.track, SimpleDummyTrack)
+                or base_name.lower() == self._track.DEFAULT_NAME.lower()
+                or self._track.instrument is not None
+                or isinstance(self._track, SimpleDummyTrack)
         )
 
     def update(self, name=None):
         # type: (Optional[str]) -> None
-        if self._disconnected:
-            return
-        name = name or self._get_base_name()
+        name = name or self.get_base_name()
 
         if name[0:1].islower():
             name = name.title()
 
         from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
 
-        if isinstance(self.track, NormalGroupTrack):
-            name += " (%d)" % len(self.track.sub_tracks)
+        if isinstance(self._track, NormalGroupTrack):
+            name += " (%d)" % len(self._track.sub_tracks)
 
-        self.track.name = name
-
-    def disconnect(self):
-        # type: () -> None
-        super(AbstractTrackName, self).disconnect()
-        self._disconnected = True
+        self._track.name = name

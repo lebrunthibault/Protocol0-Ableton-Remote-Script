@@ -5,6 +5,7 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrac
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.shared.logging.Logger import Logger
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -31,9 +32,17 @@ class AbstractGroupTrack(AbstractTrack):
     def _link_sub_tracks(self):
         # type: () -> None
         """ 2nd layer linking """
-        update_name = len(self.sub_tracks) != len(self.base_track.sub_tracks)
-        self.sub_tracks[:] = self.base_track.sub_tracks
+        update_name = len(self.sub_tracks) and len(self.sub_tracks) != len(self.base_track.sub_tracks)
 
+        self.sub_tracks[:] = self.base_track.sub_tracks
+        # self.instrument.preset_list.sync_presets()
+        Logger.dev("")
+        Logger.dev(self)
+        Logger.dev("self.sub_tracks: %s" % self.sub_tracks)
+        Logger.dev("update_name: %s" % update_name)
+        Logger.dev("self.instrument: %s" % self.instrument)
+        if self.instrument:
+            Logger.dev("self.instrument.selected_preset: %s" % self.instrument.selected_preset)
         # here we don't necessarily link the sub tracks to self
         if update_name:
             Scheduler.defer(self.track_name.update)

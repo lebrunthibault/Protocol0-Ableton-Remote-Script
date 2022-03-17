@@ -51,7 +51,7 @@ class TrackFactory(object):
         if isinstance(previous_abstract_group_track, NormalGroupTrack):
             return previous_abstract_group_track
         else:
-            return NormalGroupTrack(base_group_track=base_group_track)
+            return NormalGroupTrack.make(base_group_track)
 
     def _create_external_synth_track(self, base_group_track):
         # type: (SimpleTrack) -> ExternalSynthTrack

@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Optional, List, Iterator, cast
 
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -30,13 +31,14 @@ class AbstractTrackActionMixin(object):
         return self._song.delete_track(self.index)
 
     def toggle_arm(self):
-        # type: (AbstractTrack) -> None
+        # type: (AbstractTrack) -> Optional[Sequence]
         if not SongFacade.selected_track().IS_ACTIVE:
             return None
         if self.is_armed:
             self.unarm()
+            return None
         else:
-            self.arm()
+            return self.arm()
 
     def toggle_fold(self):
         # type: (AbstractTrack) -> Optional[Sequence]
@@ -81,7 +83,7 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         if not self.base_track.IS_ACTIVE:
             return
-
+        Logger.dev("refreshing %s" % self)
         self.track_name.update()
         self.refresh_color()
 
@@ -112,7 +114,7 @@ class AbstractTrackActionMixin(object):
         sub_tracks = []
         for sub_track in self.sub_tracks:
             if sub_track.is_foldable:
-                sub_tracks += self.get_all_simple_sub_tracks(sub_track)
+                sub_tracks += sub_track.get_all_simple_sub_tracks()
             else:
                 sub_tracks.append(sub_track)
 

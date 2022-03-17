@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING
 
 from protocol0.domain.lom.loop.LoopableInterface import LoopableInterface
-from protocol0.shared.logging.Logger import Logger
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.song.Song import Song
@@ -47,7 +46,6 @@ class SongLoop(LoopableInterface):
     @end.setter
     def end(self, end):
         # type: (float) -> None
-        Logger.dev("setting length to: %s" % (end - self.start))
         self.length = end - self.start
 
     @property

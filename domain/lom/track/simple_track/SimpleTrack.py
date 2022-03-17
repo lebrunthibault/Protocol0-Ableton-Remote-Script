@@ -39,10 +39,11 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self.devices = []  # type: List[Device]
         self.all_devices = []  # type: List[Device]
         self._instrument = None  # type: Optional[InstrumentInterface]
-        self._devices_listener.subject = self._track
-        self._devices_listener()
         self.clip_slots = []  # type: List[ClipSlot]
         self._map_clip_slots()
+
+        self._devices_listener.subject = self._track
+        self._devices_listener()
 
         self._output_meter_level_listener.subject = None
 
@@ -117,6 +118,8 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         # Refreshing is only really useful from simpler devices that change when a new sample is loaded
         if self.IS_ACTIVE and not self.is_foldable:
             self.instrument = InstrumentFactory.make_instrument_from_simple_track(track=self)
+            # if self.instrument:
+            #     self.abstract_track.refresh_appearance()
 
     @p0_subject_slot("output_meter_level")
     def _output_meter_level_listener(self):

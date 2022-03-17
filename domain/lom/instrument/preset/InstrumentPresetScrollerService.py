@@ -1,23 +1,17 @@
 from functools import partial
 
-from protocol0.domain.lom.device.PluginDevice import PluginDevice
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.instrument.preset.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
-from protocol0.domain.shared.decorators import lock
-from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.ApplicationView import ApplicationView
+from protocol0.domain.shared.decorators import lock
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.utils import scroll_values
 from protocol0.shared.logging.StatusBar import StatusBar
+from protocol0.shared.sequence.Sequence import Sequence
 
 
 class InstrumentPresetScrollerService(object):
-    PRESETS_PATH = ""
-    PRESET_EXTENSION = ""
-    PRESET_DISPLAY_OPTION = PresetDisplayOptionEnum.NAME
-    PROGRAM_CHANGE_OFFSET = 0  # if we store presets not at the beginning of the list
-
     @lock
     def scroll_presets_or_samples(self, instrument, go_next):
         # type: (InstrumentInterface, bool) -> Sequence
@@ -29,8 +23,7 @@ class InstrumentPresetScrollerService(object):
             seq.add(track.disable_protected_mode)
             return seq.done()
 
-        seq.add(partial(instrument.preset_list.scroll, go_next=go_next))
-        seq.add(partial(self._sync_selected_preset, instrument))
+        seq.add(partial(instrument.scroll_presets, go_next))
         return seq.done()
 
     def scroll_preset_categories(self, instrument, go_next):
@@ -39,24 +32,12 @@ class InstrumentPresetScrollerService(object):
             raise Protocol0Warning("this instrument does not have categories")
 
         ApplicationView.show_device()
-        instrument.preset_list.selected_category = scroll_values(
+        category = scroll_values(
             instrument.preset_list.categories, instrument.preset_list.selected_category, go_next
         ).lower()
+        instrument.preset_list.set_selected_category(category)
         category = instrument.preset_list.selected_category.title()
         if instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.CATEGORY:
             instrument.track.abstract_track.track_name.update(name=category)
         else:
             StatusBar.show_message("selected preset category %s" % category)
-
-    def _sync_selected_preset(self, instrument):
-        # type: (InstrumentInterface) -> Sequence
-        seq = Sequence()
-        track = instrument.track.abstract_track
-        if instrument.selected_preset:
-            if isinstance(instrument.device, PluginDevice):
-                instrument.device.selected_preset_index = instrument.selected_preset.index
-            seq.add(track.arm)
-            seq.add(partial(instrument.load_preset, instrument.selected_preset))
-            if instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.NAME:
-                seq.add(partial(track.track_name.update, instrument.selected_preset.name))
-        return seq.done()

@@ -64,6 +64,7 @@ class MidiService(object):
 
     def pong_from_midi_server(self):
         # type: () -> None
+        Logger.info("Midi server is up")
         self._midi_server_up = True
 
     def _check_protocol_midi_is_up(self):

@@ -1,5 +1,6 @@
 from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
 from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 
 
@@ -25,8 +26,4 @@ class ActionGroupTest(ActionGroupMixin):
 
     def action_test(self):
         # type: () -> None
-        Logger.dev("self._song.loop.start: %s" % self._song.loop.start)
-        Logger.dev("self._song.loop.end: %s" % self._song.loop.end)
-        Logger.dev("self._song.loop.length: %s" % self._song.loop.length)
-        # self._song.loop_length += 1
-        self._song.loop.end += 1
+        SongFacade.drums_track().add_track("clap")

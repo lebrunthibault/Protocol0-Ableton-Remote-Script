@@ -15,6 +15,8 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
     from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack  # noqa
     from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+    from protocol0.domain.lom.track.drums.DrumsTrack import DrumsTrack
+    from protocol0.domain.lom.track.simple_track.MasterTrack import MasterTrack
     from protocol0.domain.lom.device.Device import Device
     from protocol0.domain.lom.scene.Scene import Scene
     from protocol0.domain.lom.clip.Clip import Clip
@@ -163,8 +165,13 @@ class SongFacade(object):
         return cls._INSTANCE._track_service._usamo_device
 
     @classmethod
+    def drums_track(cls):
+        # type: () -> Optional[DrumsTrack]
+        return cls._INSTANCE._track_service._drums_track
+
+    @classmethod
     def master_track(cls):
-        # type: () -> Optional[SimpleTrack]
+        # type: () -> Optional[MasterTrack]
         return cls._INSTANCE._track_service._master_track
 
     @classmethod

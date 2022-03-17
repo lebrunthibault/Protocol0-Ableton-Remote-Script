@@ -1,9 +1,9 @@
 import collections
 from functools import partial
 
+from _Framework.SubjectSlot import subject_slot
 from typing import Optional, Dict
 
-from _Framework.SubjectSlot import subject_slot
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.device.Device import Device
@@ -12,10 +12,11 @@ from protocol0.domain.lom.song.Song import Song
 from protocol0.domain.lom.track.TrackAddedEvent import TrackAddedEvent
 from protocol0.domain.lom.track.TrackFactory import TrackFactory
 from protocol0.domain.lom.track.TracksMappedEvent import TracksMappedEvent
+from protocol0.domain.lom.track.drums.DrumsTrack import DrumsTrack
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
+from protocol0.domain.lom.track.simple_track.MasterTrack import MasterTrack
 from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
-from protocol0.domain.lom.track.simple_track.SimpleMasterTrack import SimpleMasterTrack
 from protocol0.domain.lom.track.simple_track.SimpleReturnTrack import SimpleReturnTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import SimpleTrackCreatedEvent
@@ -39,6 +40,7 @@ class TrackService(UseFrameworkEvents):
         self._live_track_id_to_simple_track = collections.OrderedDict()  # type: Dict[int, SimpleTrack]
         self._template_dummy_clip = None  # type: Optional[AudioClip]
         self._usamo_device = None  # type: Optional[Device]
+        self._drums_track = None  # type: Optional[DrumsTrack]
         self._master_track = None  # type: Optional[SimpleTrack]
 
         self.tracks_listener.subject = self._song._song
@@ -107,7 +109,7 @@ class TrackService(UseFrameworkEvents):
             self._track_factory.create_simple_track(track=track, index=index, cls=SimpleReturnTrack)
 
         self._master_track = self._track_factory.create_simple_track(track=self._song._song.master_track, index=0,
-                                                                     cls=SimpleMasterTrack)
+                                                                     cls=MasterTrack)
 
         self._sort_simple_tracks()
 
@@ -180,3 +182,6 @@ class TrackService(UseFrameworkEvents):
                 previous_abstract_group_track.disconnect()
 
             abstract_group_track.on_tracks_change()
+
+            if isinstance(abstract_group_track, DrumsTrack):
+                self._drums_track = abstract_group_track

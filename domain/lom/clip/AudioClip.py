@@ -22,7 +22,6 @@ class AudioClip(Clip):
         self.track = self.track  # type: SimpleAudioTrack
         self.clip_slot = self.clip_slot  # type: AudioClipSlot
         self._warping_listener.subject = self._clip
-        self._file_path_listener.subject = self._clip
         Scheduler.defer(self.refresh_appearance)
 
     @property
@@ -59,13 +58,6 @@ class AudioClip(Clip):
     def file_path(self):
         # type: () -> str
         return self._clip.file_path if self._clip else ""
-
-    @p0_subject_slot("file_path")
-    def _file_path_listener(self):
-        # type: () -> None
-        """ this happens after crop. See def crop"""
-        Logger.dev("file path changed : %s" % self)
-        self.refresh_appearance()
 
     def crop(self):
         # type: () -> None

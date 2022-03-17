@@ -20,6 +20,15 @@ class NormalGroupTrack(AbstractGroupTrack):
         super(NormalGroupTrack, self).__init__(base_group_track=base_group_track)
         self._solo_listener.subject = base_group_track._track
 
+    @classmethod
+    def make(cls, base_group_track):
+        # type: (SimpleTrack) -> NormalGroupTrack
+        from protocol0.domain.lom.track.drums.DrumsTrack import DrumsTrack
+        if base_group_track.track_name.get_base_name() == DrumsTrack.DEFAULT_NAME:
+            return DrumsTrack(base_group_track)
+        else:
+            return NormalGroupTrack(base_group_track)
+
     @p0_subject_slot("solo")
     @defer
     def _solo_listener(self):

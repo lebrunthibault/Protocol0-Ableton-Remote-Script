@@ -1,5 +1,7 @@
 from protocol0.domain.lom.instrument.InstrumentColorEnum import InstrumentColorEnum
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
+from protocol0.domain.lom.instrument.preset.preset_initializer.PresetInitializerGroupTrackName import \
+    PresetInitializerGroupTrackName
 
 
 class InstrumentMinitaur(InstrumentInterface):
@@ -9,7 +11,8 @@ class InstrumentMinitaur(InstrumentInterface):
     TRACK_COLOR = InstrumentColorEnum.MINITAUR
     CAN_BE_SHOWN = False
     PRESETS_PATH = "C:\\Users\\thiba\\AppData\\Roaming\\Moog Music Inc\\Minitaur\\Presets Library\\User"
-    PROGRAM_CHANGE_OFFSET = 1
+    PRESET_OFFSET = 1
     HAS_PROTECTED_MODE = False
+    PRESET_INITIALIZER = PresetInitializerGroupTrackName
 
     EXTERNAL_INSTRUMENT_DEVICE_HARDWARE_LATENCY = 1.4

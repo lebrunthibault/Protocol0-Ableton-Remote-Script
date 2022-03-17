@@ -100,17 +100,24 @@ class SongActionMixin(object):
             if t.solo and t != SongFacade.current_track():
                 t.solo = False
 
+    def create_midi_track(self, index):
+        # type: (Song, int) -> Sequence
+        seq = Sequence()
+        self._song.create_midi_track(Index=index)
+        seq.wait_for_event(TracksMappedEvent)
+        return seq.done()
+
     def duplicate_track(self, index):
         # type: (Song, int) -> Sequence
         seq = Sequence()
-        seq.add(partial(self._song.duplicate_track, index))
+        self._song.duplicate_track(index)
         seq.wait_for_event(TracksMappedEvent)
         return seq.done()
 
     def delete_track(self, index):
         # type: (Song, int) -> Sequence
         seq = Sequence()
-        seq.add(partial(self._song.delete_track, index))
+        self._song.delete_track(index)
         seq.wait_for_event(TracksMappedEvent)
         return seq.done()
 

@@ -1,3 +1,4 @@
+import os
 from os.path import dirname, realpath
 
 from protocol0.shared.logging.LogLevelEnum import LogLevelEnum
@@ -6,6 +7,8 @@ from protocol0.shared.logging.LogLevelEnum import LogLevelEnum
 class Config(object):
     PROJECT_ROOT = dirname(dirname(realpath(__file__)))
     REMOTE_SCRIPTS_ROOT = dirname(PROJECT_ROOT)
+
+    SAMPLE_PATH = str(os.getenv("SAMPLE_PATH"))
 
     LOG_LEVEL = LogLevelEnum.DEV
 

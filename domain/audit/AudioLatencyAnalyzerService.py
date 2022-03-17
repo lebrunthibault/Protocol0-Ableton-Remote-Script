@@ -50,7 +50,7 @@ class AudioLatencyAnalyzerService(object):
         # we need this here but not in InstrumentInterface for some reason
         track.midi_track.input_routing.type = InputRoutingTypeEnum.ALL_INS
         # switching to test preset (last)
-        Scheduler.defer(partial(track.instrument.load_preset, track.instrument.preset_list.presets[-1]))
+        Scheduler.defer(partial(track.instrument.preset_list.load_preset, track.instrument.preset_list.presets[-1]))
 
     def _create_audio_test_clip(self):
         # type: () -> Sequence

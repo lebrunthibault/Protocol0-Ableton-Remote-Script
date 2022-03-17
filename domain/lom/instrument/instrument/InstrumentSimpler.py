@@ -1,41 +1,44 @@
-import os
-
+from _Framework.SubjectSlot import subject_slot
 from typing import Optional, TYPE_CHECKING
 
-from protocol0.domain.lom.device.Device import Device
+from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.device.SimplerDevice import SimplerDevice
 from protocol0.domain.lom.instrument.InstrumentColorEnum import InstrumentColorEnum
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
-from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPreset
 from protocol0.domain.lom.instrument.preset.PresetDisplayOptionEnum import PresetDisplayOptionEnum
-from protocol0.domain.lom.instrument.preset.SampleSelectedEvent import SampleSelectedEvent
-from protocol0.domain.shared.DomainEventBus import DomainEventBus
+from protocol0.domain.lom.instrument.preset.preset_changer.SamplePresetChanger import SamplePresetChanger
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.shared.Config import Config
+from protocol0.shared.logging.Logger import Logger
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
-class InstrumentSimpler(InstrumentInterface):
+class InstrumentSimpler(UseFrameworkEvents, InstrumentInterface):
     NAME = "Simpler"
     TRACK_COLOR = InstrumentColorEnum.SIMPLER
     PRESET_EXTENSION = ".wav"
-    PRESETS_PATH = str(os.getenv("SAMPLE_PATH"))
+    PRESETS_PATH = Config.SAMPLE_PATH
     PRESET_DISPLAY_OPTION = PresetDisplayOptionEnum.CATEGORY
     CAN_BE_SHOWN = False
+    PRESET_CHANGER = SamplePresetChanger
 
     def __init__(self, track, device):
-        # type: (SimpleTrack, Optional[Device]) -> None
+        # type: (SimpleTrack, Optional[SimplerDevice]) -> None
         super(InstrumentSimpler, self).__init__(track, device)
         self.device = self.device  # type: SimplerDevice
         Scheduler.defer(self._set_warping)
+        Logger.dev(device)
+        Logger.dev(device._device)
+        self._sample_listener.subject = device._device
+
+    @subject_slot("sample")
+    def _sample_listener(self):
+        # type: () -> None
+        self.preset_list.sync_presets()
 
     def _set_warping(self):
         # type: () -> None
         if self.device.sample and "loop" in self.device.sample.file_path:
             self.device.sample.warping = True
-
-    def load_preset(self, preset):
-        # type: (InstrumentPreset) -> None
-        DomainEventBus.notify(SampleSelectedEvent(str(preset.original_name)))
-        # NB : the simpler device will be replaced at this point

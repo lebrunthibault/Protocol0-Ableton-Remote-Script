@@ -9,7 +9,6 @@ from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
-from protocol0.domain.lom.instrument.preset.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from protocol0.domain.lom.track.TrackColorEnum import TrackColorEnum
 from protocol0.domain.lom.track.abstract_track.AbstractTrackActionMixin import AbstractTrackActionMixin
 from protocol0.domain.lom.track.abstract_track.AbstractTrackName import AbstractTrackName
@@ -115,13 +114,8 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents):
     @property
     def computed_base_name(self):
         # type: () -> str
-        if self.instrument and self.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.NAME:
-            if self.instrument.selected_preset:
-                return self.instrument.selected_preset.name
-            else:
-                return self.instrument.name
-        elif self.instrument and self.instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.CATEGORY:
-            return self.instrument.preset_list.selected_category
+        if self.instrument:
+            return self.instrument.name
         else:
             return self.DEFAULT_NAME
 

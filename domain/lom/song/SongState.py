@@ -18,4 +18,5 @@ class SongState(object):
         }
 
     def notify(self):
+        # type: () -> None
         Backend.client().notify_song_state(self.to_dict())

@@ -25,7 +25,8 @@ class InstrumentProphet(InstrumentInterface):
     ACTIVE_INSTANCE = None  # type: Optional[InstrumentProphet]
 
     EXTERNAL_INSTRUMENT_DEVICE_HARDWARE_LATENCY = 3.2
-    MIDI_INPUT_ROUTING_TYPE = InputRoutingTypeEnum.REV2_AUX
+    MIDI_INPUT_ROUTING_TYPE = InputRoutingTypeEnum.ALL_INS
+    # MIDI_INPUT_ROUTING_TYPE = InputRoutingTypeEnum.REV2_AUX
 
     def __init__(self, track, device):
         # type: (SimpleTrack, Optional[Device]) -> None

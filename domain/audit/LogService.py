@@ -65,6 +65,7 @@ class LogService(object):
         Logger.info("selected_track.clips: %s" % SongFacade.selected_track().clips)
         Logger.info()
         Logger.info("selected_track.instrument: %s" % SongFacade.selected_track().instrument)
+        Logger.info("selected_track.instrument.device: %s" % SongFacade.selected_track().instrument.device)
         Logger.info()
         Logger.info("********* SELECTED_SCENE *************")
         Logger.info()

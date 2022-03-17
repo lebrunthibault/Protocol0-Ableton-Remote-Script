@@ -21,6 +21,7 @@ class DeviceEnum(AbstractEnum):
     MIX_RACK = "MIX_RACK"
     REV2_EDITOR = "REV2_EDITOR"
     SERUM = "SERUM"
+    SIMPLER = "SIMPLER"
     USAMO = "USAMO"
     UTILITY = "UTILITY"
 
@@ -68,6 +69,7 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.MIX_RACK: "Mix Rack",
             DeviceEnum.REV2_EDITOR: "REV2Editor",
             DeviceEnum.SERUM: "Serum_x64",
+            DeviceEnum.SIMPLER: "Simpler",
             DeviceEnum.USAMO: "usamo_x64",
             DeviceEnum.UTILITY: "Utility",
         })
@@ -85,6 +87,7 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.EQ_EIGHT: "EQ Eight",
             DeviceEnum.LFO_TOOL: "LFOTool.adg",
             DeviceEnum.MIX_RACK: "Mix Rack.adg",
+            DeviceEnum.SIMPLER: "Simpler",
             DeviceEnum.UTILITY: "Utility",
         })
 
