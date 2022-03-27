@@ -5,6 +5,7 @@ from protocol0.domain.lom.instrument.preset.preset_changer.PresetChangerInterfac
 from protocol0.domain.lom.instrument.preset.preset_importer.PresetImportInterface import PresetImportInterface
 from protocol0.domain.lom.instrument.preset.preset_initializer.PresetInitializerInterface import \
     PresetInitializerInterface
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.utils import scroll_values
 
 
@@ -43,7 +44,11 @@ class InstrumentPresetList(object):
 
     def set_selected_category(self, selected_category):
         # type: (Optional[str]) -> None
-        self.selected_preset = self._category_presets(selected_category)[0]
+        presets = self._category_presets(selected_category)
+        if len(presets) == 0:
+            raise Protocol0Warning("Cannot find presets in category '%s'" % selected_category)
+
+        self.selected_preset = presets[0]
 
     def _category_presets(self, category=None):
         # type: (Optional[str]) -> List[InstrumentPreset]

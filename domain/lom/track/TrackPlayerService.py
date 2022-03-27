@@ -1,5 +1,7 @@
 from functools import partial
 
+from typing import Optional
+
 from protocol0.domain.lom.song.Song import Song
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.lom.track.TrackRepository import TrackRepository
@@ -7,7 +9,6 @@ from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
@@ -29,31 +30,31 @@ class TrackPlayerService(object):
         self._toggle_track_first_clip(track)
 
     def _toggle_track_first_clip(self, track):
-        # type: (SimpleTrack) -> None
+        # type: (SimpleTrack) -> Optional[Sequence]
         if len(track.clips) == 0:
             return
 
         if track.is_playing:
             Logger.info("Stopping %s" % track)
             track.stop()
-        else:
-            Logger.info("Playing %s" % track)
+            return None
 
-            seq = Sequence()
-            clip = next((clip for clip in track.clips if not clip.muted), None)
-            if not clip:
-                clip = track.clips[0]
-                clip.muted = False
-                DomainEventBus.one(SongStoppedEvent, partial(setattr, clip, "muted", True))
-                seq.defer()
+        Logger.info("Playing %s" % track)
 
-            seq.add(clip.fire)
-            seq.done()
+        seq = Sequence()
+        clip = next((clip for clip in track.clips if not clip.muted), None)
+        if not clip:
+            clip = track.clips[0]
+            clip.muted = False
+            DomainEventBus.one(SongStoppedEvent, partial(setattr, clip, "muted", True))
+            seq.defer()
+
+        seq.add(clip.fire)
+        return seq.done()
 
     def toggle_drums(self):
         # type: () -> None
-        group_track = self._track_repository.find_group_by_name(Config.DRUMS_TRACK_NAME)
-        drum_tracks = group_track.get_all_simple_sub_tracks()
+        drum_tracks = SongFacade.drums_track().get_all_simple_sub_tracks()
         if any(track for track in drum_tracks if track.is_playing):
             for track in drum_tracks:
                 track.stop()

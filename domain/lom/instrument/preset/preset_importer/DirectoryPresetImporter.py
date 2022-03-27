@@ -4,6 +4,7 @@ from typing import List
 
 from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPreset
 from protocol0.domain.lom.instrument.preset.preset_importer.PresetImportInterface import PresetImportInterface
+from protocol0.shared.logging.Logger import Logger
 
 
 class DirectoryPresetImporter(PresetImportInterface):
@@ -16,6 +17,7 @@ class DirectoryPresetImporter(PresetImportInterface):
         # type: () -> List[InstrumentPreset]
         presets = []
         has_categories = False
+
         for root, dir_names, files in os.walk(self._path):
             if len(dir_names):
                 has_categories = True
@@ -25,13 +27,17 @@ class DirectoryPresetImporter(PresetImportInterface):
                     continue
 
                 category = root.replace(self._path + "\\", "").split("\\")[0]
-                for filename in [filename for filename in files if
-                                 filename.endswith(self._preset_extension)]:
+                if category.startswith("_"):
+                    continue
+                for filename in [filename for filename in files if self._is_preset_filename(filename)]:
                     presets.append(
                         InstrumentPreset(index=len(presets), category=category, name=filename))
             else:
-                for filename in [filename for filename in files if
-                                 filename.endswith(self._preset_extension)]:
+                for filename in [filename for filename in files if self._is_preset_filename(filename)]:
                     presets.append(InstrumentPreset(index=len(presets), name=filename))
 
         return presets
+
+    def _is_preset_filename(self, filename):
+        # type: (str) -> bool
+        return filename.endswith(self._preset_extension) and not filename.startswith("_")

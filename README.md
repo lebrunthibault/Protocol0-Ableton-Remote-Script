@@ -1,7 +1,8 @@
 # Protocol0 Control Surface Script for Ableton 10
 
 Protocol0 is a control surface script for Ableton Live. 
-It is written in python 2.7 (not moving to python3/Live 11 because a full restart is needed to recompile the script in Live 11. It's boring).
+It is written in python 2.7 (not moving to python3/Live 11 because a full restart is needed
+to recompile the script in Live 11. It's boring).
 It is a "selected track control" like script focused on working in session view with hardware synths.
 Especially it eases recording external synths in a way that feels more like recording vst.
 I'm triggering commands from note on / off and cc messages using a
@@ -11,9 +12,11 @@ faderfox EC4.
 
 ## Features
 
-I started writing the script specifically because I thought recording my rev2 was tedious. Later on I realized I would
-probably produce better if I was working more in session view and experiment longer instead of rushing to arrangement. So now
-it is more of a session view tool. Regarding synths my goal is to have a more of a vst like recording experience while working on my synths.
+I started writing the script specifically because I thought recording my Prophet Rev2 was tedious.
+Later on I realized I would probably produce better if I was working more in session view
+and experiment longer instead of rushing to arrangement. 
+So now it is more of a session view tool. 
+Regarding synths my goal is to have a more of a vst like recording experience while working on my synths.
 
 Specifically it aims to achieve :
 

@@ -29,7 +29,7 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents):
     DEFAULT_NAME = "default"
     # when the color cannot be matched
     DEFAULT_COLOR = TrackColorEnum.DISABLED  # type: ColorEnumInterface
-    KEEP_CLIPS_ON_ADDED = False
+    REMOVE_CLIPS_ON_ADDED = False
 
     def __init__(self, track):
         # type: (SimpleTrack) -> None
@@ -64,13 +64,11 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents):
     def on_added(self):
         # type: () -> Optional[Sequence]
         self.refresh_appearance()
-        if self.KEEP_CLIPS_ON_ADDED:
-            return None
-
-        seq = Sequence()
-        seq.add([clip.delete for clip in self.clips])
-        seq.defer()
-        return seq.done()
+        if self.REMOVE_CLIPS_ON_ADDED:
+            seq = Sequence()
+            seq.add([clip.delete for clip in self.clips])
+            seq.defer()
+            return seq.done()
 
     def on_tracks_change(self):
         # type: () -> None

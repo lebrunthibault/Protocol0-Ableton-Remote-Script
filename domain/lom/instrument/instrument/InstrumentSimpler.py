@@ -1,5 +1,5 @@
 from _Framework.SubjectSlot import subject_slot
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, cast
 
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.device.SimplerDevice import SimplerDevice
@@ -9,7 +9,6 @@ from protocol0.domain.lom.instrument.preset.PresetDisplayOptionEnum import Prese
 from protocol0.domain.lom.instrument.preset.preset_changer.SamplePresetChanger import SamplePresetChanger
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.Config import Config
-from protocol0.shared.logging.Logger import Logger
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -27,10 +26,8 @@ class InstrumentSimpler(UseFrameworkEvents, InstrumentInterface):
     def __init__(self, track, device):
         # type: (SimpleTrack, Optional[SimplerDevice]) -> None
         super(InstrumentSimpler, self).__init__(track, device)
-        self.device = self.device  # type: SimplerDevice
+        self.device = cast(SimplerDevice, self.device)
         Scheduler.defer(self._set_warping)
-        Logger.dev(device)
-        Logger.dev(device._device)
         self._sample_listener.subject = device._device
 
     @subject_slot("sample")

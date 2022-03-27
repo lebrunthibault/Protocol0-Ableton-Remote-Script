@@ -20,11 +20,12 @@ from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import find_if
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
 class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
+    REMOVE_CLIPS_ON_ADDED = True
+
     def __init__(self, base_group_track):
         # type: (SimpleTrack) -> None
         super(ExternalSynthTrack, self).__init__(base_group_track=base_group_track)
@@ -73,9 +74,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
 
         if has_tail_track and not self.audio_tail_track:
             track = self.base_track.sub_tracks[2]
-            Logger.dev(self.sub_tracks)
             self.audio_tail_track = SimpleAudioTailTrack(track._track, track._index)
-            Logger.dev(self.sub_tracks)
             self.audio_tail_track.abstract_group_track = self
             self.audio_tail_track.group_track = self.base_track
             Scheduler.defer(self.audio_tail_track.configure)
@@ -83,6 +82,23 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
             Scheduler.defer(partial(setattr, self.audio_tail_track, "name", SimpleAudioTailTrack.DEFAULT_NAME))
         elif not has_tail_track:
             self.audio_tail_track = None
+
+    @classmethod
+    def is_group_track_valid(cls, base_group_track):
+        # type: (SimpleTrack) -> bool
+        if len(base_group_track.sub_tracks) < 2:
+            return False
+
+        if not isinstance(base_group_track.sub_tracks[0], SimpleMidiTrack):
+            return False
+        if not isinstance(base_group_track.sub_tracks[1], SimpleAudioTrack):
+            return False
+
+        for track in base_group_track.sub_tracks[2:]:
+            if not isinstance(track, SimpleAudioTrack):
+                return False
+
+        return True
 
     def on_scenes_change(self):
         # type: () -> None

@@ -6,7 +6,6 @@ from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 class SimpleInstrumentBusTrack(SimpleAudioTrack):
     DEFAULT_NAME = "Instrument bus"
     DEFAULT_COLOR = TrackColorEnum.DISABLED
-    KEEP_CLIPS_ON_ADDED = True
 
     def on_added(self):
         # type: () -> None

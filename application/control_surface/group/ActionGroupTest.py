@@ -26,4 +26,4 @@ class ActionGroupTest(ActionGroupMixin):
 
     def action_test(self):
         # type: () -> None
-        SongFacade.drums_track().add_track("clap")
+        Logger.dev(self._song.state.drum_categories)

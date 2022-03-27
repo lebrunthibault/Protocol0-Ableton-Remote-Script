@@ -16,14 +16,6 @@ class TrackRepository(object):
 
         raise Protocol0Warning("Couldn't find SimpleTrack %s" % name)
 
-    def find_group_by_name(self, name):
-        # type: (str) -> AbstractGroupTrack
-        for track in SongFacade.abstract_group_tracks():
-            if track.matches_name(name):
-                return track
-
-        raise Protocol0Warning("Couldn't find AbstractGroupTrack %s" % name)
-
     def find_all_simple_sub_tracks(self, group_track):
         # type: (AbstractGroupTrack) -> List[SimpleTrack]
         sub_tracks = []

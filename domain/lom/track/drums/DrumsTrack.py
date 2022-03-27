@@ -27,7 +27,8 @@ class DrumsTrack(NormalGroupTrack):
 
     def add_track(self, name):
         # type: (str) -> Sequence
-        if name.lower() not in self.categories:
+        name = name.lower()
+        if name not in self.categories:
             raise Protocol0Warning("Cannot fin category for drum track %s" % name)
 
         self.is_folded = False

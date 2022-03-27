@@ -35,14 +35,6 @@ class AbstractGroupTrack(AbstractTrack):
         update_name = len(self.sub_tracks) and len(self.sub_tracks) != len(self.base_track.sub_tracks)
 
         self.sub_tracks[:] = self.base_track.sub_tracks
-        # self.instrument.preset_list.sync_presets()
-        Logger.dev("")
-        Logger.dev(self)
-        Logger.dev("self.sub_tracks: %s" % self.sub_tracks)
-        Logger.dev("update_name: %s" % update_name)
-        Logger.dev("self.instrument: %s" % self.instrument)
-        if self.instrument:
-            Logger.dev("self.instrument.selected_preset: %s" % self.instrument.selected_preset)
         # here we don't necessarily link the sub tracks to self
         if update_name:
             Scheduler.defer(self.track_name.update)

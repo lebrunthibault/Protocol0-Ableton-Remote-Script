@@ -42,7 +42,7 @@ class TrackFactory(object):
 
     def create_abstract_group_track(self, base_group_track):
         # type: (SimpleTrack) -> AbstractGroupTrack
-        if self._is_valid_external_synth_track(base_group_track):
+        if ExternalSynthTrack.is_group_track_valid(base_group_track):
             return self._create_external_synth_track(base_group_track=base_group_track)
 
         # handling normal group track
@@ -65,19 +65,3 @@ class TrackFactory(object):
             return base_group_track.abstract_group_track
         else:
             return ExternalSynthTrack(base_group_track=base_group_track)
-
-    def _is_valid_external_synth_track(self, base_group_track):
-        # type: (SimpleTrack) -> bool
-        if len(base_group_track.sub_tracks) < 2:
-            return False
-
-        if not isinstance(base_group_track.sub_tracks[0], SimpleMidiTrack):
-            return False
-        if not isinstance(base_group_track.sub_tracks[1], SimpleAudioTrack):
-            return False
-
-        for track in base_group_track.sub_tracks[2:]:
-            if not isinstance(track, SimpleAudioTrack):
-                return False
-
-        return True

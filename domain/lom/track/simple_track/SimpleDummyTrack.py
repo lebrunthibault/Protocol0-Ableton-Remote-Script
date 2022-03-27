@@ -13,7 +13,6 @@ if TYPE_CHECKING:
 
 
 class SimpleDummyTrack(SimpleAudioTrack):
-    KEEP_CLIPS_ON_ADDED = True
     CLIP_SLOT_CLASS = AudioDummyClipSlot
 
     def __init__(self, *a, **k):

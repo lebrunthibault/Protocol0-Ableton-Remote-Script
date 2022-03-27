@@ -56,7 +56,7 @@ class AudioLatencyAnalyzerService(object):
         # type: () -> Sequence
         track = SongFacade.current_external_synth_track()
         # switching to test preset
-        track.KEEP_CLIPS_ON_ADDED = True
+        track.REMOVE_CLIPS_ON_ADDED = False
         seq = Sequence()
         seq.add(track.midi_track.clip_slots[0].create_clip)
         seq.add(self._generate_test_notes)

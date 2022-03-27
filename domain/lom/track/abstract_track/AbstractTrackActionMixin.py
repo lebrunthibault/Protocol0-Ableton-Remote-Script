@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING, Optional, List, Iterator, cast
 
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -14,8 +13,7 @@ if TYPE_CHECKING:
 class AbstractTrackActionMixin(object):
     def matches_name(self, name):
         # type: (AbstractTrack, str) -> bool
-        first_word = self.name.split(" ")[0].lower()
-        return first_word == name.lower()
+        return self.name.lower().strip() == name.lower().strip()
 
     # noinspection PyUnusedLocal
     def select(self):
@@ -83,7 +81,6 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> None
         if not self.base_track.IS_ACTIVE:
             return
-        Logger.dev("refreshing %s" % self)
         self.track_name.update()
         self.refresh_color()
 

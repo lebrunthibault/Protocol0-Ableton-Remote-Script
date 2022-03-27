@@ -90,6 +90,7 @@ class TrackService(UseFrameworkEvents):
         # type: () -> None
         """ instantiate SimpleTracks (including return / master, that are marked as inactive) """
         self._usamo_device = None
+        self._drums_track = None
         self.template_dummy_clip = None  # type: Optional[AudioClip]
 
         # instantiate set tracks
@@ -102,7 +103,7 @@ class TrackService(UseFrameworkEvents):
                     raise Protocol0Warning("Duplicate usamo track")
                 self._usamo_device = usamo_device
 
-            if track.name == SimpleInstrumentBusTrack.DEFAULT_NAME and len(track.clips):
+            if isinstance(track, SimpleInstrumentBusTrack) and len(track.clips):
                 self._template_dummy_clip = track.clips[0]
 
         for index, track in enumerate(list(self._song._song.return_tracks)):
