@@ -125,7 +125,7 @@ class DeviceService(object):
             x = x_rack + device_position * self.COLLAPSED_RACK_DEVICE_PIXEL_WIDTH
             y = self.SHOW_HIDE_PLUGIN_BUTTON_PIXEL_HEIGHT
 
-        return x - 3, y - 2  # we click not exactly on the center so as to know if the button is activated or not
+        return x - 3, y - 2  # we click not exactly in the center so as to know if the button is activated or not
 
     def _get_rack_show_macros_button_click_coordinates(self, rack_device):
         # type: (Device) -> Tuple[int, int]

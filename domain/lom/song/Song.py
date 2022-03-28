@@ -5,7 +5,7 @@ from typing import Optional, Any, Iterator
 import Live
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.clip.Clip import Clip
-from protocol0.domain.lom.clip.ClipEnveloppeShowedEvent import ClipEnveloppeShowedEvent
+from protocol0.domain.lom.clip.ClipEnvelopeShowedEvent import ClipEnvelopeShowedEvent
 from protocol0.domain.lom.clip.ClipSelectedEvent import ClipSelectedEvent
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
@@ -46,7 +46,7 @@ class Song(SongActionMixin, UseFrameworkEvents):
         self.is_playing_listener.subject = self._song
         self._tempo_listener.subject = self._song
 
-        DomainEventBus.subscribe(ClipEnveloppeShowedEvent, lambda _: self.re_enable_automation())
+        DomainEventBus.subscribe(ClipEnvelopeShowedEvent, lambda _: self.re_enable_automation())
         DomainEventBus.subscribe(ClipSelectedEvent, self._on_selected_clip_event)
 
     def __repr__(self):

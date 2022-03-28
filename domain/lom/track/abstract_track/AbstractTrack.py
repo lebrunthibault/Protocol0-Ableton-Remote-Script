@@ -69,6 +69,8 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents):
             seq.add([clip.delete for clip in self.clips])
             seq.defer()
             return seq.done()
+        else:
+            return None
 
     def on_tracks_change(self):
         # type: () -> None

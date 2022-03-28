@@ -1,6 +1,6 @@
 from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
 from protocol0.domain.shared.backend.Backend import Backend
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.logging.Logger import Logger
 
 
@@ -26,4 +26,4 @@ class ActionGroupTest(ActionGroupMixin):
 
     def action_test(self):
         # type: () -> None
-        Logger.dev(self._song.state.drum_categories)
+        raise Protocol0Warning("hey")

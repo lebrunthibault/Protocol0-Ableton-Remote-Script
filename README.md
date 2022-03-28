@@ -36,7 +36,7 @@ Specifically it aims to achieve :
 > - Automatic detection of dummy tracks. Because dummy clips are lighter than vsts.
 > - Automatic scenes follow action to have more of an arrangement view feeling but still being able to loop them
 > - Automatic track, clip, scene naming / coloring
-> - Validator code that can detect different kind of set configuration "errors" (routings, volumes, unused devices etc)
+> - Validator code that can detect different kind of set configuration "errors" (routings, volumes, unused devices etc.)
 > - A tool to bounce session to arrangement
 > - Tools to split and crop whole scenes
 > - A few other tools that can be found in the action_groups folder

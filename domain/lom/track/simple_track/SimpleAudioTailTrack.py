@@ -1,4 +1,4 @@
-from typing import Any, TYPE_CHECKING, List, Type
+from typing import Any, List, Type, cast
 
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.domain.lom.clip_slot.AudioTailClipSlot import AudioTailClipSlot
@@ -8,9 +8,6 @@ from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.shared.logging.Logger import Logger
 
-if TYPE_CHECKING:
-    from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
-
 
 class SimpleAudioTailTrack(SimpleAudioTrack):
     DEFAULT_NAME = "tail"
@@ -19,8 +16,10 @@ class SimpleAudioTailTrack(SimpleAudioTrack):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(SimpleAudioTrack, self).__init__(*a, **k)
-        self.abstract_group_track = self.abstract_group_track  # type: ExternalSynthTrack
-        self.clip_slots = self.clip_slots  # type: List[AudioTailClipSlot]
+        from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+
+        self.abstract_group_track = cast(ExternalSynthTrack, self.abstract_group_track)
+        self.clip_slots = cast(List[AudioTailClipSlot], self.clip_slots)
 
     @property
     def clips(self):

@@ -1,4 +1,4 @@
-from typing import List, Optional, Any
+from typing import List, Optional, Any, cast
 
 import Live
 from protocol0.domain.lom.device.Device import Device
@@ -11,7 +11,7 @@ class RackDevice(Device):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(RackDevice, self).__init__(*a, **k)
-        self._device = self._device  # type: Live.RackDevice.RackDevice
+        self._device = cast(Live.RackDevice.RackDevice, self._device)
         self.chains = []  # type: List[DeviceChain]
         self._view = self._device.view  # type: Live.RackDevice.RackDevice.View
         self._chains_listener.subject = self._device

@@ -34,7 +34,7 @@ class SceneActionMixin(object):
             next_scene = self.next_scene
 
             if next_scene != self:
-                next_scene.fire()  # do not fire same scene as it focus it again (can loose current parameter focus)
+                next_scene.fire()  # do not fire same scene as it focus it again (can lose current parameter focus)
 
     def fire(self):
         # type: (Scene) -> None

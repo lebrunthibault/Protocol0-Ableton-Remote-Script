@@ -17,12 +17,12 @@ def p0_subject_slot(event):
     """
     Drop in replacement of _Framework subject_slot decorator
     Extends its behavior to allow the registration of callbacks that will execute after the decorated function finished
-    By default the callbacks execution is deferred to prevent the dreaded "Changes cannot be triggered by notifications. You will need to defer your response"
+    By default the callbacks executions are deferred to prevent the dreaded "Changes cannot be triggered by notifications. You will need to defer your response"
     immediate=True executes the callbacks immediately (synchronously)
 
     This decorator / callback registration is mainly used by the Sequence pattern
     It allows chaining functions by reacting to listeners being triggered and is paramount to executing asynchronous sequence of actions
-    Sequence.wait_for_listener(<@p0_subject_slot<listener>>) will actually registers a callback on the decorated <listener>.
+    Sequence.wait_for_listener(<@p0_subject_slot<listener>>) will actually register a callback on the decorated <listener>.
     This callback will resume the sequence when executed.
     """
 
@@ -152,14 +152,13 @@ def handle_error(func):
     @wraps(func)
     def decorate(*a, **k):
         # type: (Any, Any) -> Any
+        # noinspection PyBroadException
         try:
             return func(*a, **k)
-        except Exception as e:
-            import logging
+        except Exception:
             from protocol0.domain.shared.DomainEventBus import DomainEventBus
             from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
-            logging.info("in handle error: %s" % DomainEventBus)
             DomainEventBus.notify(ErrorRaisedEvent())
-            raise e
+            # raise e
 
     return decorate

@@ -29,7 +29,7 @@ class BrowserLoaderService(object):
 
     def load_device(self, device_name):
         # type: (str) -> None
-        """ Loads a built in Live device. """
+        """ Loads a built-in Live device. """
         if device_name in MIDI_FX:
             self._do_load_item(self._get_item_for_category('midi_effects', device_name))
         elif device_name in INSTRUMENTS:

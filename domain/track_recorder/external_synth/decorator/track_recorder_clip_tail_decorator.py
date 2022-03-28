@@ -18,7 +18,7 @@ class TrackRecorderClipTailDecorator(TrackRecorderDecorator, UseFrameworkEvents)
     # NB : Represents the smoothed momentary peak value of left channel output meter
     # This value is not zero just after the sound is finished
     # and this thus not precise for sounds with a low release
-    # But if it were higher we would loose tail ends of sounds with a high release ..
+    # But if it were higher we would lose tail ends of sounds with a high release ..
     OUTPUT_METER_LEFT_THRESHOLD = 0.2
 
     @property

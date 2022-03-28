@@ -2,7 +2,7 @@ from __future__ import division
 
 from functools import partial
 
-from typing import List, TYPE_CHECKING, Optional, Iterator
+from typing import List, TYPE_CHECKING, Optional, Iterator, cast
 
 import Live
 from protocol0.domain.lom.clip.Clip import Clip
@@ -15,16 +15,18 @@ from protocol0.shared.SongViewFacade import SongViewFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
-    from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
-    from protocol0.domain.lom.clip_slot.MidiClipSlot import MidiClipSlot
+    from protocol0.domain.lom.clip_slot.MidiClipSlot import MidiClipSlot  # noqa
 
 
 class MidiClip(Clip):
     def __init__(self, clip_slot):
         # type: (MidiClipSlot) -> None
         super(MidiClip, self).__init__(clip_slot)
-        self.track = self.track  # type: SimpleMidiTrack
-        self.clip_slot = self.clip_slot  # type: MidiClipSlot
+        from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
+        from protocol0.domain.lom.clip_slot.MidiClipSlot import MidiClipSlot  # noqa
+
+        self.track = cast(SimpleMidiTrack, self.track)
+        self.clip_slot = cast(MidiClipSlot, self.clip_slot)
         # NOTES
         self._cached_notes = []
 
@@ -113,7 +115,7 @@ class MidiClip(Clip):
     def get_linked_parameters(self):
         # type: () -> List[LinkedDeviceParameters]
         """
-            NB : this is only really useful for my rev2 where I want copy paste easily automation curves
+            NB : this is only really useful for my rev2 where I want to copy and paste easily automation curves
             between the 2 layers.
             The rev2 is bitimbral and has two layers that expose the same parameters.
         """

@@ -1,7 +1,7 @@
 import os
 from os.path import basename
 
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 import Live
 from protocol0.domain.lom.device.Device import Device
@@ -12,7 +12,7 @@ class SimplerDevice(Device):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(SimplerDevice, self).__init__(*a, **k)
-        self._device = self._device  # type: Live.SimplerDevice.SimplerDevice
+        self._device = cast(Live.SimplerDevice.SimplerDevice, self._device)
 
     @property
     def sample(self):

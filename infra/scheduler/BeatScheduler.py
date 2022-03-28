@@ -64,7 +64,7 @@ class BeatScheduler(UseFrameworkEvents, BeatSchedulerInterface):
 
         self._last_beats_song_time = current_beats_song_time
 
-        # NB: launching events in the loop can cause side effets
+        # NB: launching events in the loop can cause side effects
         # when _on_tick is called synchronously by live
         # and the loop might not be finished
 
@@ -76,7 +76,7 @@ class BeatScheduler(UseFrameworkEvents, BeatSchedulerInterface):
         """
         NB : the system internally relies on the Live timer's tick (every 17ms)
         So we cannot have precise execution
-        Tip: never rely on wait_beats but use it in conjonction with listeners and Live quantization on launch
+        Tip: never rely on wait_beats but use it in conjunction with listeners and Live quantization on launch
         It's the only way to have precise scheduling
         """
         # beats_offset -= 0.2  ?

@@ -21,7 +21,7 @@ class CallbackDescriptor(object):
                 (when the method is first accessed via __get__)
                 Then we replace the listener with our own CallableWithCallbacks and
                 we patch the subject slot mixin to look like CallableWithCallbacks
-                The external interface is gonna be the same in both cases now
+                The external interface is going to be the same in both cases now
                 (we use only add_callback, clear_callbacks and __call)
             - At method execution time (by _Framework lint), we need to fetch
                 the real undecorated method to get the result.
@@ -72,4 +72,4 @@ class CallbackDescriptor(object):
                 self._wrapped = CallableWithCallbacks(partial(self._func, obj))
 
             obj.__dict__[id(self)] = self._wrapped  # caching self._wrapped
-            return self._wrapped  # Outer most function replacing the decorated method
+            return self._wrapped  # Outermost function replacing the decorated method

@@ -32,7 +32,7 @@ class TrackPlayerService(object):
     def _toggle_track_first_clip(self, track):
         # type: (SimpleTrack) -> Optional[Sequence]
         if len(track.clips) == 0:
-            return
+            return None
 
         if track.is_playing:
             Logger.info("Stopping %s" % track)

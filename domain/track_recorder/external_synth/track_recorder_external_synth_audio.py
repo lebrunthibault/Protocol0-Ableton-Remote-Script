@@ -44,7 +44,7 @@ class TrackRecorderExternalSynthAudio(TrackRecorderExternalSynthMixin, AbstractT
     def _clear_automation(self):
         # type: () -> None
         midi_clip = self.track.midi_track.clip_slots[self.recording_scene_index].clip
-        # reset automation enveloppes
+        # reset automation envelopes
         midi_clip.clear_all_envelopes()
         if len(midi_clip.automated_parameters):
             for tick in [1, 10, 50, 100]:

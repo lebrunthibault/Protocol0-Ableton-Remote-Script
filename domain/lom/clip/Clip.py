@@ -7,7 +7,7 @@ import Live
 from protocol0.domain.lom.SynchronizableObjectInterface import SynchronizableObjectInterface
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.clip.ClipActionMixin import ClipActionMixin
-from protocol0.domain.lom.clip.ClipEnveloppeShowedEvent import ClipEnveloppeShowedEvent
+from protocol0.domain.lom.clip.ClipEnvelopeShowedEvent import ClipEnvelopeShowedEvent
 from protocol0.domain.lom.clip.ClipLoop import ClipLoop
 from protocol0.domain.lom.clip.ClipName import ClipName
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
@@ -252,7 +252,7 @@ class Clip(ClipActionMixin, UseFrameworkEvents, SynchronizableObjectInterface):
         self.show_envelope()
         # noinspection PyArgumentList
         self.view.select_envelope_parameter(parameter._device_parameter)
-        DomainEventBus.notify(ClipEnveloppeShowedEvent())
+        DomainEventBus.notify(ClipEnvelopeShowedEvent())
         self.displayed_automated_parameter = parameter
 
     def scroll_automation_envelopes(self, go_next):

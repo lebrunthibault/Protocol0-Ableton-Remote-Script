@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import Live
 from protocol0.domain.lom.clip.Clip import Clip
@@ -10,8 +10,7 @@ from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.logging.Logger import Logger
 
 if TYPE_CHECKING:
-    from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
-    from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
+    from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot  # noqa
 
 
 # noinspection PyPropertyAccess
@@ -19,8 +18,11 @@ class AudioClip(Clip):
     def __init__(self, clip_slot):
         # type: (AudioClipSlot) -> None
         super(AudioClip, self).__init__(clip_slot)
-        self.track = self.track  # type: SimpleAudioTrack
-        self.clip_slot = self.clip_slot  # type: AudioClipSlot
+        from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+        from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot  # noqa
+
+        self.track = cast(SimpleAudioTrack, self.track)
+        self.clip_slot = cast(AudioClipSlot, self.clip_slot)
         self._warping_listener.subject = self._clip
         Scheduler.defer(self.refresh_appearance)
 
@@ -61,7 +63,7 @@ class AudioClip(Clip):
 
     def crop(self):
         # type: () -> None
-        """ Live.Clip.Clip.crop_sample doesn't exists so we notify the user """
+        """ Live.Clip.Clip.crop_sample doesn't exist so we notify the user """
         if self.loop.start != 0:
             self.color = ColorEnum.WARNING.color_int_value
             Scheduler.defer(self.select)

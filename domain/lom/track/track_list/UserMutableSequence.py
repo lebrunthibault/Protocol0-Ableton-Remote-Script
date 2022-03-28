@@ -11,7 +11,7 @@ T = TypeVar("T")
 class CombinedMeta(SubjectMeta, abc.ABCMeta):
     """
     makes it possible to inherit both from AbstractObject and class defining
-    abc.ABCMeta as its meta class
+    abc.ABCMeta as its metaclass
     """
 
     pass

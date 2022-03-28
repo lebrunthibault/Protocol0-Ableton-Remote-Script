@@ -1,4 +1,4 @@
-from protocol0.domain.lom.clip.ClipEnveloppeShowedEvent import ClipEnveloppeShowedEvent
+from protocol0.domain.lom.clip.ClipEnvelopeShowedEvent import ClipEnvelopeShowedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.InterfaceClicksServiceInterface import InterfaceClicksServiceInterface
 from protocol0.domain.shared.backend.Backend import Backend
@@ -12,10 +12,10 @@ class InterfaceClicksService(InterfaceClicksServiceInterface):
 
     def __init__(self):
         # type: () -> None
-        DomainEventBus.subscribe(ClipEnveloppeShowedEvent, self._on_clip_enveloppe_showed_event)
+        DomainEventBus.subscribe(ClipEnvelopeShowedEvent, self._on_clip_envelope_showed_event)
 
-    def _on_clip_enveloppe_showed_event(self, _):
-        # type: (ClipEnveloppeShowedEvent) -> None
+    def _on_clip_envelope_showed_event(self, _):
+        # type: (ClipEnvelopeShowedEvent) -> None
         if InterfaceClicksService.CLIP_ENVELOPE_SHOW_BOX_CLICKED:
             Backend.client().double_click(*PixelEnum.SHOW_CLIP_ENVELOPE.coordinates)
         InterfaceClicksService.CLIP_ENVELOPE_SHOW_BOX_CLICKED = True

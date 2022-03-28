@@ -1,4 +1,4 @@
-from typing import List, Any, TYPE_CHECKING
+from typing import List, Any, cast
 
 from protocol0.domain.lom.clip.AudioDummyClip import AudioDummyClip
 from protocol0.domain.lom.clip_slot.AudioDummyClipSlot import AudioDummyClipSlot
@@ -8,9 +8,6 @@ from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudio
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrackAddedEvent import SimpleDummyTrackAddedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 
-if TYPE_CHECKING:
-    from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
-
 
 class SimpleDummyTrack(SimpleAudioTrack):
     CLIP_SLOT_CLASS = AudioDummyClipSlot
@@ -18,8 +15,9 @@ class SimpleDummyTrack(SimpleAudioTrack):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(SimpleAudioTrack, self).__init__(*a, **k)
-        self.abstract_group_track = self.abstract_group_track  # type: ExternalSynthTrack
-        self.clip_slots = self.clip_slots  # type: List[AudioDummyClipSlot]
+        from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+        self.abstract_group_track = cast(ExternalSynthTrack, self.abstract_group_track)
+        self.clip_slots = cast(List[AudioDummyClipSlot], self.clip_slots)
 
     @property
     def clips(self):
