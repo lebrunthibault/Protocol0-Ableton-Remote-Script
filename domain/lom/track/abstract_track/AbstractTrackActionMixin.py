@@ -92,9 +92,7 @@ class AbstractTrackActionMixin(object):
 
     def scroll_volume(self, go_next):
         # type: (AbstractTrack, bool) -> None
-        abs_factor = 1.01
-        factor = abs_factor if go_next else (1 / abs_factor)
-        self.volume *= factor
+        self.volume += 0.5 if go_next else -0.5
 
     @property
     def group_tracks(self):

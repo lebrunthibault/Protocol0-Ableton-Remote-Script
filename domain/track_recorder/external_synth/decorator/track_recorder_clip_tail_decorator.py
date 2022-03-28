@@ -47,12 +47,15 @@ class TrackRecorderClipTailDecorator(TrackRecorderDecorator, UseFrameworkEvents)
             return self._wait_for_clip_tail_end()
 
     def _wait_for_clip_tail_end(self):
-        # type: () -> Sequence
+        # type: () -> Optional[Sequence]
         """ wait for clip tail end and temporarily disable midi input """
         input_routing_type = self.track.midi_track.input_routing.type
 
         audio_clip = self.track.audio_track.clip_slots[self.recording_scene_index].clip
         audio_tail_clip = self.track.audio_tail_track.clip_slots[self.recording_scene_index].clip
+        if audio_tail_clip is None:
+            return None
+
         audio_clip.fire()
         self.track.midi_track.stop()
         self.track.midi_track.input_routing.type = InputRoutingTypeEnum.NO_INPUT

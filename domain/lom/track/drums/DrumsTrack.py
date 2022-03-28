@@ -37,8 +37,12 @@ class DrumsTrack(NormalGroupTrack):
         seq.add(partial(self._song.create_midi_track, self.sub_tracks[-1].index))
         seq.add(partial(CommandBus.dispatch, LoadDeviceCommand(DeviceEnum.SIMPLER.name)))
         seq.defer()
-        seq.add(lambda: SongFacade.selected_track().instrument.preset_list.set_selected_category(name))
-        seq.add(lambda: SongFacade.selected_track().instrument.scroll_presets(True))
-        seq.add(lambda: SongFacade.selected_track().clip_slots[SongFacade.selected_scene().index].create_clip())
-
+        seq.add(partial(self._on_track_added, name))
         return seq.done()
+
+    def _on_track_added(self, name):
+        # type: (str) -> None
+        SongFacade.selected_track().volume -= 15
+        SongFacade.selected_track().instrument.preset_list.set_selected_category(name)
+        SongFacade.selected_track().instrument.scroll_presets(True)
+        SongFacade.selected_track().clip_slots[SongFacade.selected_scene().index].create_clip()

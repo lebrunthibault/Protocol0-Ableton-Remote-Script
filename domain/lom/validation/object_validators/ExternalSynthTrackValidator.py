@@ -11,7 +11,6 @@ from protocol0.domain.lom.validation.sub_validators.CallbackValidator import Cal
 from protocol0.domain.lom.validation.sub_validators.PropertyValueValidator import PropertyValueValidator
 from protocol0.domain.lom.validation.sub_validators.SimpleTrackHasDeviceValidator import SimpleTrackHasDeviceValidator
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
-from protocol0.shared.Config import Config
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -29,8 +28,8 @@ class ExternalSynthTrackValidator(AggregateValidator):
                               lambda t: t.get_device_from_enum(DeviceEnum.EXTERNAL_INSTRUMENT).delete),
 
             # VOLUMES
-            PropertyValueValidator(track.midi_track, "volume", Config.ZERO_DB_VOLUME, name="midi track volume"),  # 0 db
-            PropertyValueValidator(track.audio_track, "volume", Config.ZERO_DB_VOLUME, name="audio track volume"),
+            PropertyValueValidator(track.midi_track, "volume", 0, name="midi track volume"),
+            PropertyValueValidator(track.audio_track, "volume", 0, name="audio track volume"),
 
             # ROUTINGS
             PropertyValueValidator(track.midi_track.input_routing, "type", track.instrument.MIDI_INPUT_ROUTING_TYPE, name="midi track input type"),
@@ -50,7 +49,7 @@ class ExternalSynthTrackValidator(AggregateValidator):
                 validators.append(PropertyValueValidator(track.audio_tail_track.output_routing, "track", track.base_track, name="tail track output routing"))
 
         for dummy_track in track.dummy_tracks:
-            validators.append(PropertyValueValidator(dummy_track, "volume", Config.ZERO_DB_VOLUME))
+            validators.append(PropertyValueValidator(dummy_track, "volume", 0))
 
         super(ExternalSynthTrackValidator, self).__init__(validators)
 

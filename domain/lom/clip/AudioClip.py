@@ -13,7 +13,6 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot  # noqa
 
 
-# noinspection PyPropertyAccess
 class AudioClip(Clip):
     def __init__(self, clip_slot):
         # type: (AudioClipSlot) -> None

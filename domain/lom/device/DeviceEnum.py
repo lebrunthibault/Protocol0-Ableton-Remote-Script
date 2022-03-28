@@ -4,6 +4,7 @@ from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.lom.device_parameter.DeviceParameterValue import DeviceParameterValue
 from protocol0.shared.AbstractEnum import AbstractEnum
+from protocol0.shared.Config import Config
 
 
 class DeviceEnum(AbstractEnum):
@@ -103,7 +104,7 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.ARPEGGIATOR_RACK: [DeviceParameterValue(DeviceParameterEnum.CHAIN_SELECTOR, 0)],
             DeviceEnum.COMPRESSOR: [
                 DeviceParameterValue(DeviceParameterEnum.COMPRESSOR_OUTPUT_GAIN, 0),
-                DeviceParameterValue(DeviceParameterEnum.COMPRESSOR_THRESHOLD, 0.850000023842),  # 0db
+                DeviceParameterValue(DeviceParameterEnum.COMPRESSOR_THRESHOLD, Config.ZERO_VOLUME),  # 0db
             ],
             DeviceEnum.EQ_EIGHT: [
                 DeviceParameterValue(DeviceParameterEnum.EQ_EIGHT_FREQUENCY_1_A, 0.285494267941),

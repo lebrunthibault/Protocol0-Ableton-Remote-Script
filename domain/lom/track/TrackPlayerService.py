@@ -40,6 +40,8 @@ class TrackPlayerService(object):
             return None
 
         Logger.info("Playing %s" % track)
+        if not self._song.is_playing:
+            self._song.stop_all_clips()
 
         seq = Sequence()
         clip = next((clip for clip in track.clips if not clip.muted), None)
@@ -57,7 +59,7 @@ class TrackPlayerService(object):
         drum_tracks = SongFacade.drums_track().get_all_simple_sub_tracks()
         if any(track for track in drum_tracks if track.is_playing):
             for track in drum_tracks:
-                track.stop()
+                track.stop(immediate=True)
         else:
             song_is_playing = SongFacade.is_playing()
             for track in drum_tracks:

@@ -1,4 +1,5 @@
 import inspect
+import math
 import pkgutil
 import types
 from collections import namedtuple, Sequence as CollectionsSequence
@@ -174,3 +175,16 @@ def get_length_legend(beat_length):
     else:
         bar_length = beat_length / SongFacade.signature_numerator()
         return "%d bar%s" % (bar_length, "s" if bar_length > 1 else "")
+
+
+live_factor = 6 / math.log10(1.0 / Config.ZERO_VOLUME)
+
+
+def volume_to_db(volume):
+    # type: (float) -> float
+    return live_factor * math.log10(round(volume, 3) / round(Config.ZERO_VOLUME, 3))
+
+
+def db_to_volume(db):
+    # type: (float) -> float
+    return pow(10, db / live_factor) * Config.ZERO_VOLUME

@@ -13,9 +13,10 @@ class SongState(object):
         # type: () -> None
         DomainEventBus.subscribe(TracksMappedEvent, lambda _: self.notify())
         presets = DirectoryPresetImporter(InstrumentSimpler.PRESETS_PATH, InstrumentSimpler.PRESET_EXTENSION).import_presets()
-        self.drum_categories = set()
+        drum_categories = set()
         for preset in presets:
-            self.drum_categories.add(preset.category)
+            drum_categories.add(preset.category)
+        self._drum_categories = sorted(drum_categories)
 
     def to_dict(self):
         # type: () -> Dict
@@ -25,7 +26,7 @@ class SongState(object):
         return {
             "track_names": [track.name for track in SongFacade.simple_tracks()],
             "drum_track_names": drum_track_names,
-            "drum_categories": list(self.drum_categories)
+            "drum_categories": self._drum_categories
         }
 
     def notify(self):

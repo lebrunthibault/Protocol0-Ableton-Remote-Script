@@ -4,6 +4,7 @@ from typing import Optional, List
 from typing import TYPE_CHECKING
 
 import Live
+
 from protocol0.domain.lom.ColorEnumInterface import ColorEnumInterface
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.clip.Clip import Clip
@@ -15,6 +16,7 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrackName import Abstract
 from protocol0.domain.lom.track.routing.TrackInputRouting import TrackInputRouting
 from protocol0.domain.lom.track.routing.TrackOutputRouting import TrackOutputRouting
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.utils import volume_to_db, db_to_volume
 from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -229,11 +231,13 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents):
     @property
     def volume(self):
         # type: () -> float
-        return self._track.mixer_device.volume.value if self._track else 0
+        volume = self._track.mixer_device.volume.value if self._track else 0
+        return volume_to_db(volume)
 
     @volume.setter
     def volume(self, volume):
         # type: (float) -> None
+        volume = db_to_volume(volume)
         if self._track:
             Scheduler.defer(partial(DeviceParameter.set_live_device_parameter, self._track.mixer_device.volume, volume))
 
