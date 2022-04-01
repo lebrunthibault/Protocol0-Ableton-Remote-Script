@@ -5,7 +5,6 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrac
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.decorators import p0_subject_slot, defer
-from protocol0.shared.sequence.Sequence import Sequence
 
 
 class NormalGroupTrack(AbstractGroupTrack):
@@ -33,8 +32,8 @@ class NormalGroupTrack(AbstractGroupTrack):
             sub_track.solo = self.solo
 
     def toggle_arm(self):
-        # type: (AbstractTrack) -> Optional[Sequence]
-        return self.toggle_fold()
+        # type: (AbstractTrack) -> None
+        self.is_folded = False
 
     @property
     def computed_base_name(self):

@@ -18,8 +18,8 @@ class BeatTime(object):
             self.bars, self.beats, self._sixteenths, self._ticks)
 
     def __eq__(self, other):
-        # type: (BeatTime) -> bool
-        return self._to_tick_count == other._to_tick_count
+        # type: (object) -> bool
+        return isinstance(other, BeatTime) and self._to_tick_count == other._to_tick_count
 
     def __ge__(self, other):
         # type: (BeatTime) -> bool

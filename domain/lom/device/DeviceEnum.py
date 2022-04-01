@@ -23,8 +23,65 @@ class DeviceEnum(AbstractEnum):
     REV2_EDITOR = "REV2_EDITOR"
     SERUM = "SERUM"
     SIMPLER = "SIMPLER"
+    SSL_COMP = "SSL_COMP"
+    TRACKSPACER = "TRACKSPACER"
     USAMO = "USAMO"
     UTILITY = "UTILITY"
+
+    @property
+    def device_name(self):
+        # type: () -> str
+        return self.get_value_from_mapping({
+            DeviceEnum.ADDICTIVE_KEYS: "Addictive Keys",
+            DeviceEnum.ARPEGGIATOR_RACK: "Arpeggiator rack",
+            DeviceEnum.AUTO_FILTER_HIGH_PASS: "Auto Filter High Pass",
+            DeviceEnum.AUTO_FILTER_LOW_PASS: "Auto Filter Low Pass",
+            DeviceEnum.COMPRESSOR: "Compressor",
+            DeviceEnum.DUMMY_RACK: "Dummy Rack",
+            DeviceEnum.EQ_EIGHT: "EQ Eight",
+            DeviceEnum.EXTERNAL_AUDIO_EFFECT: "Ext. Audio Effect",
+            DeviceEnum.EXTERNAL_INSTRUMENT: "Ext. Instrument",
+            DeviceEnum.LFO_TOOL: "LFOTool_x64",
+            DeviceEnum.MINITAUR_EDITOR: "Minitaur Editor(x64)",
+            DeviceEnum.MIX_RACK: "Mix Rack",
+            DeviceEnum.REV2_EDITOR: "REV2Editor",
+            DeviceEnum.SERUM: "Serum_x64",
+            DeviceEnum.SIMPLER: "Simpler",
+            DeviceEnum.SSL_COMP: "SSLComp Stereo",
+            DeviceEnum.TRACKSPACER: "Trackspacer 2.5",
+            DeviceEnum.USAMO: "usamo_x64",
+            DeviceEnum.UTILITY: "Utility",
+        })
+
+    @property
+    def browser_name(self):
+        # type: () -> str
+        return self.get_value_from_mapping({
+            DeviceEnum.AUTO_FILTER_HIGH_PASS: "Auto Filter High Pass.adv",
+            DeviceEnum.AUTO_FILTER_LOW_PASS: "Auto Filter Low Pass.adv",
+            DeviceEnum.EXTERNAL_AUDIO_EFFECT: "External Audio Effect",
+            DeviceEnum.EXTERNAL_INSTRUMENT: "External Instrument",
+            DeviceEnum.COMPRESSOR: "Compressor",
+            DeviceEnum.DUMMY_RACK: "Dummy Rack.adg",
+            DeviceEnum.EQ_EIGHT: "EQ Eight",
+            DeviceEnum.LFO_TOOL: "LFOTool.adg",
+            DeviceEnum.MIX_RACK: "Mix Rack.adg",
+            DeviceEnum.SIMPLER: "Simpler",
+            DeviceEnum.SSL_COMP: "SSLComp Stereo",
+            DeviceEnum.TRACKSPACER: "Trackspacer 2.5",
+            DeviceEnum.UTILITY: "Utility",
+        })
+
+    @classmethod
+    def favorites(cls):
+        # type: () -> List[DeviceEnum]
+        return [
+            cls.COMPRESSOR,
+            cls.EQ_EIGHT,
+            cls.SSL_COMP,
+            cls.TRACKSPACER,
+            cls.UTILITY,
+        ]
 
     @property
     def is_user(self):
@@ -51,46 +108,6 @@ class DeviceEnum(AbstractEnum):
             cls.SERUM,
             cls.USAMO
         ]
-
-    @property
-    def device_name(self):
-        # type: () -> str
-        return self.get_value_from_mapping({
-            DeviceEnum.ADDICTIVE_KEYS: "Addictive Keys",
-            DeviceEnum.ARPEGGIATOR_RACK: "Arpeggiator rack",
-            DeviceEnum.AUTO_FILTER_HIGH_PASS: "Auto Filter High Pass",
-            DeviceEnum.AUTO_FILTER_LOW_PASS: "Auto Filter Low Pass",
-            DeviceEnum.COMPRESSOR: "Compressor",
-            DeviceEnum.DUMMY_RACK: "Dummy Rack",
-            DeviceEnum.EQ_EIGHT: "EQ Eight",
-            DeviceEnum.EXTERNAL_AUDIO_EFFECT: "Ext. Audio Effect",
-            DeviceEnum.EXTERNAL_INSTRUMENT: "Ext. Instrument",
-            DeviceEnum.LFO_TOOL: "LFOTool_x64",
-            DeviceEnum.MINITAUR_EDITOR: "Minitaur Editor(x64)",
-            DeviceEnum.MIX_RACK: "Mix Rack",
-            DeviceEnum.REV2_EDITOR: "REV2Editor",
-            DeviceEnum.SERUM: "Serum_x64",
-            DeviceEnum.SIMPLER: "Simpler",
-            DeviceEnum.USAMO: "usamo_x64",
-            DeviceEnum.UTILITY: "Utility",
-        })
-
-    @property
-    def browser_name(self):
-        # type: () -> str
-        return self.get_value_from_mapping({
-            DeviceEnum.AUTO_FILTER_HIGH_PASS: "Auto Filter High Pass.adv",
-            DeviceEnum.AUTO_FILTER_LOW_PASS: "Auto Filter Low Pass.adv",
-            DeviceEnum.EXTERNAL_AUDIO_EFFECT: "External Audio Effect",
-            DeviceEnum.EXTERNAL_INSTRUMENT: "External Instrument",
-            DeviceEnum.COMPRESSOR: "Compressor",
-            DeviceEnum.DUMMY_RACK: "Dummy Rack.adg",
-            DeviceEnum.EQ_EIGHT: "EQ Eight",
-            DeviceEnum.LFO_TOOL: "LFOTool.adg",
-            DeviceEnum.MIX_RACK: "Mix Rack.adg",
-            DeviceEnum.SIMPLER: "Simpler",
-            DeviceEnum.UTILITY: "Utility",
-        })
 
     @classmethod
     def deprecated_devices(cls):

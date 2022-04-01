@@ -56,7 +56,7 @@ class SessionToArrangementService(object):
         """ Stop the song when the last scene finishes """
         last_scene = SongFacade.scenes()[-1]
         seq = Sequence()
-        seq.wait_for_listener(last_scene.is_triggered_listener)
+        seq.wait_for_listener(last_scene.is_triggered_listener)  # type: ignore[arg-type]
         seq.wait_for_event(BarChangedEvent)
         seq.add(self._song.stop_playing)
         seq.done()

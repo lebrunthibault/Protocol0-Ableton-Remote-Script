@@ -3,7 +3,6 @@ from typing import List
 from protocol0.application.vocal_command.TrackSearchKeywordEnum import TrackSearchKeywordEnum
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.track_list.AbstractTrackList import AbstractTrackList
-from protocol0.domain.lom.track.track_list.FoldActionEnum import FoldActionEnum
 from protocol0.domain.shared.utils import normalize_string
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
@@ -39,10 +38,10 @@ class KeywordSearchService(object):
         matching_track = matching_tracks[index]
 
         Logger.info("Selecting track %s" % matching_track)
+        AbstractTrackList(SongFacade.abstract_tracks()).fold()
         matching_track.select()
         if matching_track.is_foldable:
             matching_track.is_folded = False
-        AbstractTrackList(SongFacade.abstract_tracks()).toggle_fold(fold_action=FoldActionEnum.FOLD_ALL_EXCEPT_CURRENT)
 
     def _check_search_matches_track(self, search, track):
         # type: (str, AbstractTrack) -> bool

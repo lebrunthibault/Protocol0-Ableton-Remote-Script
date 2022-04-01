@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import Optional
+from typing import Optional, cast
 
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
@@ -40,7 +40,7 @@ class SimpleDummyTrackService(object):
 
     def _insert_device(self):
         # type: () -> Optional[Sequence]
-        self.parameter_enum = DeviceParameterEnum.from_value(self._parameter_type)
+        self.parameter_enum = cast(DeviceParameterEnum, DeviceParameterEnum.from_value(self._parameter_type))
         return self._browser_service.load_device_from_enum(self.parameter_enum.device_enum)
 
     def _insert_dummy_clip(self, track):
@@ -64,6 +64,10 @@ class SimpleDummyTrackService(object):
             return None
 
         automated_parameter = automated_device.get_parameter_by_name(self.parameter_enum)
+
+        if automated_parameter is None:
+            Logger.error("The automated device has not matching parameter : %s" % self.parameter_enum.name)
+            return None
 
         existing_envelope = clip.automation_envelope(automated_parameter)
         if not existing_envelope:

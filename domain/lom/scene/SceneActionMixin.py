@@ -39,8 +39,9 @@ class SceneActionMixin(object):
     def fire(self):
         # type: (Scene) -> None
         # handles click sound when the previous scene plays shortly
-        if SongFacade.playing_scene() and SongFacade.playing_scene() != self:
-            self._stop_previous_scene(SongFacade.playing_scene())
+        playing_scene = SongFacade.playing_scene()
+        if playing_scene and playing_scene != self:
+            self._stop_previous_scene(playing_scene)
 
         from protocol0.domain.lom.scene.Scene import Scene
         Scene.PLAYING_SCENE = self

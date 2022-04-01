@@ -20,10 +20,10 @@ class ClipName(UseFrameworkEvents):
         # type: (Clip) -> None
         super(ClipName, self).__init__()
         self.clip = clip
-        self.register_slot(self.clip._clip, partial(self._name_listener, force=True), "loop_start")
-        self.register_slot(self.clip._clip, partial(self._name_listener, force=True), "loop_end")
-        self.register_slot(self.clip._clip, partial(self._name_listener, force=True), "start_marker")
-        self.register_slot(self.clip._clip, partial(self._name_listener, force=True), "end_marker")
+        self.register_slot(self.clip._clip, partial(self._name_listener, force=True), "loop_start")  # type: ignore[arg-type]
+        self.register_slot(self.clip._clip, partial(self._name_listener, force=True), "loop_end")  # type: ignore[arg-type]
+        self.register_slot(self.clip._clip, partial(self._name_listener, force=True), "start_marker")  # type: ignore[arg-type]
+        self.register_slot(self.clip._clip, partial(self._name_listener, force=True), "end_marker")  # type: ignore[arg-type]
         self._name_listener.subject = self.clip._clip
         self._base_name = None  # type: Optional[str]
 

@@ -1,6 +1,6 @@
 from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
+from protocol0.domain.lom.track.track_list.AbstractTrackList import AbstractTrackList
 from protocol0.domain.shared.backend.Backend import Backend
-from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 
@@ -27,4 +27,4 @@ class ActionGroupTest(ActionGroupMixin):
 
     def action_test(self):
         # type: () -> None
-        Logger.dev(SongFacade.current_track().volume)
+        AbstractTrackList(SongFacade.abstract_tracks()).fold()

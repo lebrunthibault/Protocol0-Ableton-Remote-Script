@@ -1,9 +1,9 @@
-from typing import Optional
+from typing import Optional, Generic
 
 from protocol0.shared.types import T
 
 
-class ValueToggler(object):
+class ValueToggler(Generic[T]):
     def __init__(self, value=None):
         # type: (Optional[T]) -> None
         self._value = value

@@ -3,6 +3,7 @@ from typing import Optional
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.routing.InputRoutingChannelEnum import InputRoutingChannelEnum
+from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.lom.validation.object_validators.SimpleAudioTailTrackValidator import \
     SimpleAudioTailTrackValidator
 from protocol0.domain.lom.validation.object_validators.SimpleAudioTrackValidator import SimpleAudioTrackValidator
@@ -32,7 +33,8 @@ class ExternalSynthTrackValidator(AggregateValidator):
             PropertyValueValidator(track.audio_track, "volume", 0, name="audio track volume"),
 
             # ROUTINGS
-            PropertyValueValidator(track.midi_track.input_routing, "type", track.instrument.MIDI_INPUT_ROUTING_TYPE, name="midi track input type"),
+            CallbackValidator(track, lambda t: t.midi_track.input_routing.type in (InputRoutingTypeEnum.ALL_INS, InputRoutingTypeEnum.REV2_AUX), None, "midi track input type"),
+            # PropertyValueValidator(track.midi_track.input_routing, "type", track.instrument.MIDI_INPUT_ROUTING_TYPE, name="midi track input type"),
             PropertyValueValidator(track.audio_track.input_routing, "track", track.midi_track, name="audio track input track"),
             PropertyValueValidator(track.audio_track.input_routing, "channel", InputRoutingChannelEnum.POST_FX, name="audio track input channel"),
         ]

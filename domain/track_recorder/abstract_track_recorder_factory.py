@@ -8,12 +8,13 @@ from protocol0.shared.SongFacade import SongFacade
 
 
 class AbstractTrackRecorderFactory(object):
+    """ Abstract Factory """
     def create_recorder(self, record_type):
         # type: (RecordTypeEnum) -> AbstractTrackRecorder
         recorder = self._create_recorder(record_type)
 
         if recorder is None:
-            raise Protocol0Error("Couldn't generate simple")
+            raise Protocol0Error("Couldn't generate recorder in %s" % self)
 
         return recorder
 
@@ -27,7 +28,7 @@ class AbstractTrackRecorderFactory(object):
 
     def get_recording_scene_index(self, record_type):
         # type: (RecordTypeEnum) -> Optional[int]
-        index = self._get_recording_scene_index(record_type=record_type)
+        index = self._get_recording_scene_index(record_type)
 
         if index is not None and index != SongFacade.selected_scene().index:
             SongFacade.scenes()[index].select()

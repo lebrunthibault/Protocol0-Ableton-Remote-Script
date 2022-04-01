@@ -33,7 +33,7 @@ class BrowserService(BrowserServiceInterface):
             load_func = partial(self._browser_loader_service.load_device, device_enum.browser_name)
 
         seq.add(load_func)
-        seq.wait_for_listener(SongFacade.selected_track()._devices_listener)
+        seq.wait_for_listener(SongFacade.selected_track()._devices_listener)  # type: ignore[arg-type]
         seq.add(ApplicationView.focus_detail)
         return seq.done()
 
@@ -47,7 +47,7 @@ class BrowserService(BrowserServiceInterface):
     def _get_sample(self, sample_name):
         # type: (str) -> Live.Browser.BrowserItem
         self._browser_loader_service._cache_category("samples")
-        return self._browser_loader_service._cached_browser_items["samples"].get(sample_name.decode("utf-8"), None)
+        return self._browser_loader_service._cached_browser_items["samples"].get(str(sample_name.decode("utf-8")), None)
 
     def update_audio_effect_preset(self, device):
         # type: (Device) -> Optional[Sequence]

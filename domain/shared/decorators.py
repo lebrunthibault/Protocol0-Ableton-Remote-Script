@@ -86,7 +86,7 @@ def lock(func):
         seq.add(unlock)
         return seq.done()
 
-    decorate.lock = defaultdict(int)
+    decorate.lock = defaultdict(int)  # type: ignore[attr-defined]
 
     return decorate
 
@@ -104,7 +104,7 @@ def debounce(wait_time=100):
             decorate.count[object_source] += 1  # type: ignore[attr-defined]
             Scheduler.wait(wait_time, partial(execute, func, *a, **k))
 
-        decorate.count = defaultdict(int)
+        decorate.count = defaultdict(int)  # type: ignore[attr-defined]
 
         def execute(real_func, *a, **k):
             # type: (Callable, Any, Any) -> Any
@@ -127,15 +127,15 @@ def throttle(wait_time=100):
             # type: (Any, Any) -> Any
             object_source = a[0] if is_method(func) else decorate
 
-            if decorate.paused[object_source] and k.get("throttle", True):
+            if decorate.paused[object_source] and k.get("throttle", True):  # type: ignore[attr-defined]
                 return
 
-            decorate.paused[object_source] = True
+            decorate.paused[object_source] = True  # type: ignore[attr-defined]
             res = func(*a, **k)
 
             def activate():
                 # type: () -> None
-                decorate.paused[object_source] = False
+                decorate.paused[object_source] = False  # type: ignore[attr-defined]
 
             Scheduler.wait(wait_time, activate)
             return res

@@ -22,6 +22,10 @@ class AbstractGroupTrack(AbstractTrack):
         # for now: List[SimpleTrack] but AbstractGroupTracks will register themselves on_tracks_change
         self.dummy_tracks = []  # type: List[SimpleDummyTrack]
 
+    def __iter__(self):
+        # type: () -> Iterator[AbstractTrack]
+        return iter(self.sub_tracks)
+
     def on_tracks_change(self):
         # type: () -> None
         self._link_sub_tracks()

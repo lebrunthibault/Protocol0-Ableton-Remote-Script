@@ -1,5 +1,6 @@
 from typing import Dict
 
+from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.instrument.instrument.InstrumentSimpler import InstrumentSimpler
 from protocol0.domain.lom.instrument.preset.preset_importer.DirectoryPresetImporter import DirectoryPresetImporter
 from protocol0.domain.lom.track.TracksMappedEvent import TracksMappedEvent
@@ -26,7 +27,8 @@ class SongState(object):
         return {
             "track_names": [track.name for track in SongFacade.simple_tracks()],
             "drum_track_names": drum_track_names,
-            "drum_categories": self._drum_categories
+            "drum_categories": self._drum_categories,
+            "favorite_device_names": [device.name for device in DeviceEnum.favorites()]
         }
 
     def notify(self):

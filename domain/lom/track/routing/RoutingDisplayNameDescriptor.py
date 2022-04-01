@@ -6,7 +6,7 @@ from protocol0.domain.shared.utils import find_if
 from protocol0.shared.AbstractEnum import AbstractEnum
 
 
-class RoutingDescriptor(object):
+class RoutingDisplayNameDescriptor(object):
     def __init__(self, routing_attribute_name, routing_enum_class):
         # type: (str, Type[AbstractEnum]) -> None
         self.routing_enum_class = routing_enum_class

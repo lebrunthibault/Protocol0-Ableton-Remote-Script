@@ -49,7 +49,7 @@ class AudioTailClip(AudioClip):
         seq.defer()  # wait for unmute
         seq.add(self.fire)
         seq.wait_beats(1)
-        seq.wait_for_listener(self._playing_status_listener)
+        seq.wait_for_listener(self._playing_status_listener)  # type: ignore[arg-type]
         seq.wait(10)
         seq.add(partial(setattr, self, "muted", True))
         return seq.done()

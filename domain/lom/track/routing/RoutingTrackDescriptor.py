@@ -30,10 +30,14 @@ class RoutingTrackDescriptor(object):
         # type: (TrackRoutingInterface, SimpleTrack) -> None
         available_routings = getattr(track_routing._track, self.available_routings_attribute_name)
 
-        routing = find_if(lambda r: r.attached_object == track._track, available_routings)
+        if track._track == track_routing._track.group_track:
+            routing = find_if(lambda r: r.category == Live.Track.RoutingTypeCategory.parent_group_track, available_routings)
+        else:
+            routing = find_if(lambda r: r.attached_object == track._track, available_routings)
 
-        if not routing:
-            routing = find_if(lambda r: r.display_name == track.name, available_routings)
+            # still needed ?
+            # if not routing:
+            #     routing = find_if(lambda r: r.display_name == track.name, available_routings)
 
         if not routing:
             raise Protocol0Error("couldn't find %s routing matching %s for %s" % (self.routing_attribute_name, track._track, track_routing._track))

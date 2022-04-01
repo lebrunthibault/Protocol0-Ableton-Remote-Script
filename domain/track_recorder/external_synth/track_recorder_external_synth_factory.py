@@ -65,7 +65,7 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
         else:
             raise Protocol0Error("Unmatched record type %s" % record_type)
 
-        if self.track.audio_tail_track and record_type == RecordTypeEnum.NORMAL_UNLIMITED:
+        if self.track.audio_tail_track and record_type != RecordTypeEnum.NORMAL_UNLIMITED:
             recorder = TrackRecorderClipTailDecorator(recorder, self._song)
 
         return recorder

@@ -45,7 +45,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self._devices_listener.subject = self.midi_track
         self._devices_listener()
 
-        self.monitoring_state = ExternalSynthTrackMonitoringState(self)
+        self.monitoring_state = ExternalSynthTrackMonitoringState(self)  # type: ExternalSynthTrackMonitoringState
 
     def on_added(self):
         # type: () -> Sequence
@@ -53,9 +53,10 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         seq.add(super(ExternalSynthTrack, self).on_added)
         seq.add(self.abstract_track.arm)
 
-        if len(self.base_track.devices):
-            seq.prompt("Clear %s effects ?\n\n%s" % (len(self.base_track.devices), self.base_track.devices))
-            seq.add([device.delete for device in self.base_track.devices])
+        # if len(self.base_track.devices):
+        #     devices = "\n".join([str(d) for d in self.base_track.devices])
+        #     seq.prompt("Clear %s effects ?\n\n%s" % (len(self.base_track.devices), devices))
+        #     seq.add([device.delete for device in self.base_track.devices])
 
         for dummy_track in self.dummy_tracks:
             seq.add([clip.delete for clip in dummy_track.clips])

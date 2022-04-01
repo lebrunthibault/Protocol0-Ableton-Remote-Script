@@ -29,7 +29,7 @@ class InstrumentFactory(object):
 
         instrument_class = cls._get_instrument_class(instrument_device)
 
-        if isinstance(track.instrument, instrument_class) and track.instrument.device == instrument_device:
+        if instrument_class and isinstance(track.instrument, instrument_class) and track.instrument.device == instrument_device:
             return track.instrument  # maintaining state
         else:
             return instrument_class(track=track, device=instrument_device)

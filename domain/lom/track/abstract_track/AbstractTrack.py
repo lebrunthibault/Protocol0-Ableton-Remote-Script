@@ -1,3 +1,4 @@
+from abc import ABCMeta
 from functools import partial
 
 from typing import Optional, List
@@ -11,6 +12,7 @@ from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.track.TrackColorEnum import TrackColorEnum
+from protocol0.domain.lom.track.TrackComponent import TrackComponent
 from protocol0.domain.lom.track.abstract_track.AbstractTrackActionMixin import AbstractTrackActionMixin
 from protocol0.domain.lom.track.abstract_track.AbstractTrackName import AbstractTrackName
 from protocol0.domain.lom.track.routing.TrackInputRouting import TrackInputRouting
@@ -25,7 +27,8 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.song.Song import Song
 
 
-class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents):
+class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents, TrackComponent):
+    # __metaclass__ = ABCMeta
     __subject_events__ = ("devices",)
 
     DEFAULT_NAME = "default"
@@ -164,6 +167,11 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents):
         # type: (bool) -> None
         if self.is_foldable and self._track:
             self._track.fold_state = int(is_folded)
+            if is_folded:
+                group_track = self.group_track
+                while group_track:
+                    group_track.is_folded = False
+                    group_track = group_track.group_track
 
     @property
     def solo(self):

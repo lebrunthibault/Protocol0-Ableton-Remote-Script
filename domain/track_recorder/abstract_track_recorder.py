@@ -118,7 +118,7 @@ class AbstractTrackRecorder(object):
         seq = Sequence()
         main_clip_slot = self._main_recording_track.clip_slots[self.recording_scene_index]
         if not main_clip_slot.clip:
-            seq.wait_for_listener(main_clip_slot.has_clip_listener)
+            seq.wait_for_listener(main_clip_slot.has_clip_listener)  # type: ignore[arg-type]
         seq.add(lambda: main_clip_slot.clip.select())
         return seq.done()
 

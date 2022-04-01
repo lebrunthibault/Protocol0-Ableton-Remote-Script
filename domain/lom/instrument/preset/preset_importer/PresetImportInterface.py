@@ -1,10 +1,10 @@
-from typing import List
+from typing import List, Type, Dict
 
 from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPreset
 
 
 class PresetImportInterface(object):
-    PRESET_CACHE = {}
+    PRESET_CACHE = {}  # type: Dict[Type, List[InstrumentPreset]]
 
     def import_presets(self):
         # type: () -> List[InstrumentPreset]

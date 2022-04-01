@@ -28,7 +28,7 @@ class MidiClip(Clip):
         self.track = cast(SimpleMidiTrack, self.track)
         self.clip_slot = cast(MidiClipSlot, self.clip_slot)
         # NOTES
-        self._cached_notes = []
+        self._cached_notes = []  # type: List[Note]
 
     def hash(self):
         # type: () -> int

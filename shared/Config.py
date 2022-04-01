@@ -13,6 +13,7 @@ class Config(object):
     LOG_LEVEL = LogLevelEnum.DEV
 
     FOCUS_PROPHET_ON_STARTUP = False
+    CHECK_PLUGINS_TO_REMOVE = False
 
     SPLIT_QUANTIZATION_TEMPO = 110
 

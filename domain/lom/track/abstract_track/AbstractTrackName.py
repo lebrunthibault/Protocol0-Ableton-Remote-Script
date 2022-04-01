@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 class AbstractTrackName(UseFrameworkEvents):
-    DEBUG = True
+    DEBUG = False
 
     def __init__(self, track):
         # type: (AbstractTrack) -> None
@@ -47,7 +47,7 @@ class AbstractTrackName(UseFrameworkEvents):
         return (
                 not base_name
                 or base_name.lower() == self._track.DEFAULT_NAME.lower()
-                or self._track.instrument is not None
+                # or self._track.instrument is not None # nb activating this blocks manual changes
                 or isinstance(self._track, SimpleDummyTrack)
         )
 

@@ -1,6 +1,6 @@
 from collections import deque
 
-from typing import Deque, Optional, Iterable, Union, Callable, Any, List
+from typing import Deque, Optional, Iterable, Union, Callable, Any, List, cast
 
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.utils import get_frame_info, nop, get_callable_repr
@@ -46,6 +46,8 @@ class Sequence(SequenceStateMachineMixin, SequenceActionMixin):
         if isinstance(func, List):
             from protocol0.shared.sequence.ParallelSequence import ParallelSequence
             func = ParallelSequence(func).start
+
+        func = cast(Callable, func)
 
         step_name = "%s : step %s" % (self.name, name or get_callable_repr(func))
 

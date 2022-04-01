@@ -37,14 +37,14 @@ class Clip(ClipActionMixin, UseFrameworkEvents, SynchronizableObjectInterface):
         self.view = self._clip.view  # type: Live.Clip.Clip.View
         self.track = clip_slot.track  # type: SimpleTrack
 
-        self.loop = ClipLoop(self)
+        self.loop = ClipLoop(self)  # type: ClipLoop
 
         # listeners
         self._playing_status_listener.subject = self._clip
         self._loop_start_listener.subject = self._clip
         self._loop_end_listener.subject = self._clip
 
-        self.clip_name = ClipName(self)
+        self.clip_name = ClipName(self)  # type: ClipName
         self.displayed_automated_parameter = None  # type: Optional[DeviceParameter]
 
     def __eq__(self, clip):
@@ -206,7 +206,6 @@ class Clip(ClipActionMixin, UseFrameworkEvents, SynchronizableObjectInterface):
         # type: () -> int
         return self._clip.color_index if self._clip else 0
 
-    # noinspection PyPropertyAccess
     @color.setter
     def color(self, color_index):
         # type: (int) -> None

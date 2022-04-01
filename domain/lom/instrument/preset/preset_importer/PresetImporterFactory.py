@@ -1,5 +1,7 @@
 from os.path import isfile, isdir
 
+from typing import Optional
+
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.PluginDevice import PluginDevice
 from protocol0.domain.lom.device.RackDevice import RackDevice
@@ -14,7 +16,7 @@ from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 class PresetImporterFactory(object):
     @classmethod
     def create_importer(cls, device, preset_path, preset_extension):
-        # type: (Device, str, str) -> PresetImportInterface
+        # type: (Optional[Device], str, str) -> PresetImportInterface
         if isinstance(device, RackDevice):
             return RackDevicePresetImporter(device)
         elif isinstance(device, PluginDevice):

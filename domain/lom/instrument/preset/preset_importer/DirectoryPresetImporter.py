@@ -14,7 +14,7 @@ class DirectoryPresetImporter(PresetImportInterface):
 
     def _import_presets(self):
         # type: () -> List[InstrumentPreset]
-        presets = []
+        presets = []  # type: List[InstrumentPreset]
         has_categories = False
 
         for root, dir_names, files in os.walk(self._path):

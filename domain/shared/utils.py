@@ -6,7 +6,7 @@ from collections import namedtuple, Sequence as CollectionsSequence
 from types import FrameType
 
 from qualname import qualname
-from typing import Optional, Any, cast, Callable, Iterator, List
+from typing import Optional, Any, cast, Callable, List, Iterable
 
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.shared.Config import Config
@@ -15,7 +15,7 @@ from protocol0.shared.types import T
 
 
 def scroll_values(items, current_value, go_next, rotate=True):
-    # type: (Iterator[T], Optional[T], bool, bool) -> T
+    # type: (Iterable[T], Optional[T], bool, bool) -> T
     values = list(items)  # type: List[T]
     if current_value not in values:
         return values[0]
@@ -124,7 +124,7 @@ def get_class_name_from_method(func):
 
 
 def get_callable_repr(func):
-    # type: (Callable) -> str
+    # type: (Any) -> str
     from protocol0.shared.sequence.Sequence import Sequence
     from protocol0.shared.sequence.SequenceStep import SequenceStep
     from protocol0.shared.sequence.CallbackDescriptor import CallableWithCallbacks

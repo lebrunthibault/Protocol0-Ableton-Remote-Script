@@ -3,6 +3,8 @@ from functools import partial
 from typing import Dict
 
 import Live
+
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.logging.Logger import Logger
 
@@ -25,7 +27,7 @@ class BrowserLoaderService(object):
     def __init__(self, browser):
         # type: (Live.Browser.Browser) -> None
         self._browser = browser
-        self._cached_browser_items = {}
+        self._cached_browser_items = {}  # type: Dict[str, Dict[str, Live.Browser.BrowserItem]]
 
     def load_device(self, device_name):
         # type: (str) -> None
@@ -36,6 +38,13 @@ class BrowserLoaderService(object):
             self._do_load_item(self._get_item_for_category('instruments', device_name))
         elif device_name in AUDIO_FX:
             self._do_load_item(self._get_item_for_category('audio_effects', device_name))
+        else:
+            item = self._get_item_for_category('plugins', device_name)
+
+            if item is None:
+                raise Protocol0Warning("Couldn't load %s" % device_name)
+
+            self._do_load_item(item, 'Plugin')
 
     def load_from_user_library(self, name):
         # type: (str) -> None
@@ -48,6 +57,8 @@ class BrowserLoaderService(object):
         if item and item.is_loadable:
             Logger.info('Loading %s: %s' % (header, item.name))
             Scheduler.defer(partial(self._browser.load_item, item))
+        else:
+            raise Protocol0Warning("Couldn't load %s item" % header)
 
     def _get_item_for_category(self, category, item):
         # type: (str, str) -> Live.Browser.BrowserItem
@@ -59,7 +70,7 @@ class BrowserLoaderService(object):
         # type: (str) -> None
         """ This will cache an entire dict of items for the category if one doesn't
         already exist. """
-        if category == 'user_library' and self._cached_browser_items.get(category, None):
+        if category == 'user_library' and self._cached_browser_items.get(category, False):
             self._cached_browser_items[category] = {}
         if not self._cached_browser_items.get(category, None):
             self._cached_browser_items[category] = {}

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, List, Iterator, cast
+from typing import TYPE_CHECKING, Optional, List, cast
 
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.SongFacade import SongFacade
@@ -38,19 +38,10 @@ class AbstractTrackActionMixin(object):
         else:
             return self.arm()
 
-    def toggle_fold(self):
-        # type: (AbstractTrack) -> Optional[Sequence]
+    def fold(self):
+        # type: (AbstractTrack) -> None
         if self.is_foldable:
-            self.is_folded = not self.is_folded
-            if not self.is_folded:
-                return self.sub_tracks[0].select()
-            else:
-                return None
-
-        if self.group_track:
-            return self.group_track.toggle_fold()
-        else:
-            return None
+            self.is_folded = True
 
     def arm(self):
         # type: (AbstractTrack) -> Optional[Sequence]
@@ -93,14 +84,6 @@ class AbstractTrackActionMixin(object):
     def scroll_volume(self, go_next):
         # type: (AbstractTrack, bool) -> None
         self.volume += 0.5 if go_next else -0.5
-
-    @property
-    def group_tracks(self):
-        # type: (AbstractTrack) -> Iterator[AbstractTrack]
-        group_track = self
-        while group_track.group_track:
-            yield group_track.group_track
-            group_track = group_track.group_track
 
     def get_all_simple_sub_tracks(self):
         # type: (AbstractTrack) -> List[SimpleTrack]

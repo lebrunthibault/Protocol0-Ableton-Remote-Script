@@ -11,6 +11,7 @@ from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DevicePara
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
+from protocol0.shared.Config import Config
 from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.shared.logging.Logger import Logger
@@ -123,8 +124,9 @@ class SetUpgradeService(object):
             return
 
         # plugin devices
-        white_list_names = [d.device_name for d in DeviceEnum.plugin_white_list()]
-        for track in SongFacade.all_simple_tracks():
-            for device in track.all_devices:
-                if isinstance(device, PluginDevice) and device.name not in white_list_names:
-                    yield device
+        if Config.CHECK_PLUGINS_TO_REMOVE:
+            white_list_names = [d.device_name for d in DeviceEnum.plugin_white_list()]
+            for track in SongFacade.all_simple_tracks():
+                for device in track.all_devices:
+                    if isinstance(device, PluginDevice) and device.name not in white_list_names:
+                        yield device

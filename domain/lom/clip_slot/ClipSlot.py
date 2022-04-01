@@ -97,7 +97,7 @@ class ClipSlot(UseFrameworkEvents):
         seq = Sequence()
         if self._clip_slot and self.has_clip and self.clip:
             seq.add(self._clip_slot.delete_clip)
-            seq.wait_for_listener(self.has_clip_listener)
+            seq.wait_for_listener(self.has_clip_listener)  # type: ignore[arg-type]
         return seq.done()
 
     @property
@@ -143,7 +143,7 @@ class ClipSlot(UseFrameworkEvents):
 
         seq = Sequence()
         seq.add(partial(self._clip_slot.create_clip, SongFacade.signature_numerator()))
-        seq.wait_for_listener(self.has_clip_listener)
+        seq.wait_for_listener(self.has_clip_listener)  # type: ignore[arg-type]
         seq.defer()
         seq.add(lambda: self.clip.select())
         seq.add(lambda: self.clip.clip_name._name_listener())
@@ -154,7 +154,7 @@ class ClipSlot(UseFrameworkEvents):
         seq = Sequence()
         if self._clip_slot:
             seq.add(partial(self._clip_slot.duplicate_clip_to, clip_slot._clip_slot))
-            seq.wait_for_listener(clip_slot.has_clip_listener)
+            seq.wait_for_listener(clip_slot.has_clip_listener)  # type: ignore[arg-type]
         return seq.done()
 
     def disconnect(self):

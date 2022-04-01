@@ -2,7 +2,7 @@ import collections
 from itertools import chain
 
 from _Framework.SubjectSlot import subject_slot
-from typing import Optional, List, TYPE_CHECKING
+from typing import Optional, List, TYPE_CHECKING, Iterator, Dict
 
 import Live
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
@@ -10,6 +10,7 @@ from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.lom.scene.ScenesMappedEvent import ScenesMappedEvent
 from protocol0.domain.lom.song.SongStartedEvent import SongStartedEvent
 from protocol0.domain.lom.track.TrackAddedEvent import TrackAddedEvent
+from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.decorators import handle_error
@@ -33,7 +34,7 @@ class SceneService(UseFrameworkEvents):
         self._song = song
         self._track_recorder_service = track_recorder_service
         self.scenes_listener.subject = song._song
-        self._live_scene_id_to_scene = collections.OrderedDict()
+        self._live_scene_id_to_scene = collections.OrderedDict()  # type: Dict[int, Scene]
 
         DomainEventBus.subscribe(BarChangedEvent, self._on_bar_changed_event)
         DomainEventBus.subscribe(LastBeatPassedEvent, self._on_last_beat_passed_event)
@@ -90,7 +91,8 @@ class SceneService(UseFrameworkEvents):
         self._clean_deleted_scenes()
 
         # mapping cs should be done before generating the scenes
-        for track in collections.OrderedDict.fromkeys(chain(SongFacade.simple_tracks(), SongFacade.abstract_tracks())):
+        tracks = chain(SongFacade.simple_tracks(), SongFacade.abstract_tracks())  # type: Iterator[AbstractTrack]
+        for track in collections.OrderedDict.fromkeys(tracks):
             track.on_scenes_change()
 
         live_scenes = SongFacade.live_song().scenes
@@ -108,7 +110,7 @@ class SceneService(UseFrameworkEvents):
     def _clean_deleted_scenes(self):
         # type: () -> None
         existing_scene_ids = [scene._live_ptr for scene in SongFacade.live_song().scenes]
-        deleted_ids = []
+        deleted_ids = []  # type: List[int]
 
         for scene_id, scene in self._live_scene_id_to_scene.items():
             if scene_id not in existing_scene_ids:

@@ -1,11 +1,11 @@
-from typing import List
+from typing import List, Generic
 
 from protocol0.domain.shared.utils import scroll_values
 from protocol0.shared.logging.StatusBar import StatusBar
 from protocol0.shared.types import T
 
 
-class ValueScroller(object):
+class ValueScroller(Generic[T]):
     def __init__(self, initial_value):
         # type: (T) -> None
         self._current_value = initial_value

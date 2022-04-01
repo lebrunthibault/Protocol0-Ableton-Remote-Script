@@ -11,6 +11,7 @@ from protocol0.domain.shared.scheduler.Last32thPassedEvent import Last32thPassed
 from protocol0.domain.track_recorder.external_synth.decorator.AudioClipSilentEvent import AudioClipSilentEvent
 from protocol0.domain.track_recorder.track_recorder_decorator import TrackRecorderDecorator
 from protocol0.domain.track_recorder.abstract_track_recorder import AbstractTrackRecorder
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 

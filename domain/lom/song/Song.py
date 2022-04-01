@@ -36,12 +36,12 @@ class Song(SongActionMixin, UseFrameworkEvents):
         self._view = self._song.view  # type: Live.Song.Song.View
 
         # Global accessible objects / object mappings
-        self._midi_recording_quantization_checked = False
+        self._midi_recording_quantization_checked = False  # type: bool
         self._is_playing = False  # caching this because _is_playing_listener activates multiple times
 
-        self.state = SongState()
-        self.loop = SongLoop(self)
-        self.looping_scene_toggler = LoopingSceneToggler()
+        self.state = SongState()  # type: SongState
+        self.loop = SongLoop(self)  # type: SongLoop
+        self.looping_scene_toggler = LoopingSceneToggler()  # type: LoopingSceneToggler
 
         self.is_playing_listener.subject = self._song
         self._tempo_listener.subject = self._song
@@ -126,10 +126,7 @@ class Song(SongActionMixin, UseFrameworkEvents):
         # type: (ClipSlot) -> None
         # we need all tracks un folded for this
         track = clip_slot.track.abstract_track
-        for track in list(track.group_tracks) + [track]:
-            if track.is_folded:
-                track.is_folded = False
-
+        track.is_folded = False
         self._view.highlighted_clip_slot = clip_slot._clip_slot
 
     # CLIPS

@@ -1,6 +1,6 @@
 from itertools import chain
 
-from typing import List, Optional
+from typing import List, Optional, Iterator
 
 import Live
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
@@ -48,6 +48,10 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self._output_meter_level_listener.subject = None
 
         DomainEventBus.notify(SimpleTrackCreatedEvent(self))
+
+    # def __iter__(self):
+    #     # type: () -> Iterator[AbstractTrack]
+    #     return iter([])
 
     @property
     def live_id(self):

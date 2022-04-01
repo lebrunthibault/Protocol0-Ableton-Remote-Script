@@ -89,7 +89,6 @@ class ActionGroupMain(ActionGroupMixin):
             name="track",
             on_scroll=self._song.scroll_tracks,
             on_press=lambda: SongFacade.current_track().toggle_arm,
-            on_long_press=lambda: SongFacade.current_track().toggle_fold,
         )
 
         # INSTrument encoder

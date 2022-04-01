@@ -16,7 +16,7 @@ class ValidatorService(object):
         else:
             Logger.warning(validator.get_error_message())
             if hasattr(obj, "color"):
-                obj.color = TrackColorEnum.ERROR.color_int_value
+                obj.color = TrackColorEnum.ERROR.color_int_value  # type: ignore[attr-defined]
             return False
 
     def fix_object(self, obj):
@@ -25,4 +25,4 @@ class ValidatorService(object):
         validator.fix()
         Logger.info("Fixed %s" % obj)
         if hasattr(obj, "refresh_appearance"):
-            obj.refresh_appearance()
+            obj.refresh_appearance()  # type: ignore[attr-defined]
