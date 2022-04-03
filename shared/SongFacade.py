@@ -3,6 +3,7 @@ from collections import Iterator
 from typing import TYPE_CHECKING, Optional, List, cast
 
 import Live
+
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 
@@ -11,11 +12,12 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.track.TrackService import TrackService
     from protocol0.domain.track_recorder.TrackRecorderService import TrackRecorderService
     from protocol0.domain.lom.song.Song import Song
+    from protocol0.domain.lom.track.TrackComponent import TrackComponent
     from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-    from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
     from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack  # noqa
     from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
     from protocol0.domain.lom.track.drums.DrumsTrack import DrumsTrack
+    from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
     from protocol0.domain.lom.track.simple_track.MasterTrack import MasterTrack
     from protocol0.domain.lom.device.Device import Device
     from protocol0.domain.lom.scene.Scene import Scene
@@ -79,15 +81,10 @@ class SongFacade(object):
 
     @classmethod
     def abstract_tracks(cls):
-        # type: () -> Iterator[AbstractTrack]
-        return cls._INSTANCE._song.abstract_tracks
+        # type: () -> TrackComponent
+        from protocol0.domain.lom.track.track_list.AbstractTrackList import AbstractTrackList
 
-    @classmethod
-    def abstract_group_tracks(cls):
-        # type: () -> Iterator[AbstractGroupTrack]
-        from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack  # noqa
-
-        return (ab for ab in cls.abstract_tracks() if isinstance(ab, AbstractGroupTrack))
+        return AbstractTrackList(cls._INSTANCE._song.abstract_tracks)
 
     @classmethod
     def simple_track_from_live_track(cls, live_track):

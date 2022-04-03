@@ -14,6 +14,7 @@ from protocol0.shared.logging.Logger import Logger
 
 
 class MidiService(object):
+    _DEBUG = True
     _MIDI_STATUS_BYTES = {"note": 144, "cc": 176, "pc": 192}
 
     def __init__(self, send_midi):
@@ -48,7 +49,8 @@ class MidiService(object):
     def _on_midi_bytes_received_event(self, event):
         # type: (MidiBytesReceivedEvent) -> None
         message = self._sysex_to_string(sysex=event.midi_bytes)
-        Logger.debug("message: %s" % message)
+        if self._DEBUG:
+            Logger.info("message: %s" % message)
         command = SerializableCommand.unserialize(message)
         CommandBus.dispatch(command)
 

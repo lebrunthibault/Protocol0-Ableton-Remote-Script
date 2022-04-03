@@ -1,5 +1,3 @@
-import abc
-
 from typing import Iterator, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -7,12 +5,10 @@ if TYPE_CHECKING:
 
 
 class TrackComponent(object):
-    @abc.abstractmethod
     def __iter__(self):
         # type: () -> Iterator[AbstractTrack]
         raise NotImplementedError
 
-    @abc.abstractmethod
     def fold(self):
         # type: () -> None
         raise NotImplementedError

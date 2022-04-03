@@ -1,7 +1,6 @@
-from abc import ABCMeta
 from functools import partial
 
-from typing import Optional, List
+from typing import Optional, List, Iterator
 from typing import TYPE_CHECKING
 
 import Live
@@ -61,6 +60,10 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents, TrackComponent
     def __repr__(self):
         # type: () -> str
         return "%s : %s (%s)" % (self.__class__.__name__, self.name, self.index + 1)
+
+    def __iter__(self):
+        # type: () -> Iterator[AbstractTrack]
+        return iter(self.sub_tracks)
 
     def set_song(self, song):
         # type: (Song) -> None

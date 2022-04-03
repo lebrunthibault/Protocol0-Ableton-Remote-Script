@@ -1,5 +1,6 @@
+from protocol0.application.CommandBus import CommandBus
+from protocol0.application.command.LoadDeviceCommand import LoadDeviceCommand
 from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
-from protocol0.domain.lom.track.track_list.AbstractTrackList import AbstractTrackList
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
@@ -27,4 +28,4 @@ class ActionGroupTest(ActionGroupMixin):
 
     def action_test(self):
         # type: () -> None
-        AbstractTrackList(SongFacade.abstract_tracks()).fold()
+        CommandBus.dispatch(LoadDeviceCommand("COMPRESSOR"))
