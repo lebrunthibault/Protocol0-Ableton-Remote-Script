@@ -1,8 +1,8 @@
 from collections import namedtuple
 
 from protocol0.infra.scheduler.BeatTime import BeatTime
-from protocol0.tests.fixtures.p0 import make_protocol0
-from protocol0.tests.fixtures.song import AbletonSong
+from protocol0.tests.domain.fixtures.p0 import make_protocol0
+from protocol0.tests.domain.fixtures.song import AbletonSong
 
 
 def test_beat_time_simple():

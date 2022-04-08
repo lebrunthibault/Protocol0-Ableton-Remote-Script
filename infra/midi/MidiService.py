@@ -7,6 +7,7 @@ from protocol0.domain.lom.instrument.preset.PresetProgramSelectedEvent import Pr
 from protocol0.domain.lom.song.SongInitializedEvent import SongInitializedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import find_if
 from protocol0.infra.midi.MidiBytesReceivedEvent import MidiBytesReceivedEvent
@@ -24,7 +25,7 @@ class MidiService(object):
 
         DomainEventBus.subscribe(MidiBytesReceivedEvent, self._on_midi_bytes_received_event)
         DomainEventBus.subscribe(PresetProgramSelectedEvent, self._on_preset_program_selected_event)
-        DomainEventBus.subscribe(SongInitializedEvent, lambda _: self._ping_midi_server())
+        DomainEventBus.subscribe(SongInitializedEvent, self._on_song_initialized_event)
 
     def _sysex_to_string(self, sysex):
         # type: (Tuple) -> str
@@ -58,15 +59,22 @@ class MidiService(object):
         # type: (PresetProgramSelectedEvent) -> None
         self._send_program_change(event.preset_index)
 
-    def _ping_midi_server(self):
-        # type: () -> None
-        Scheduler.wait(10, Backend.client().ping)  # waiting for Protocol0_midi to boot
+    def _on_song_initialized_event(self, _):
+        # type: (SongInitializedEvent) -> None
+        self._ping_midi_server()
         Scheduler.wait(10, self._check_protocol_midi_is_up)  # waiting for Protocol0_midi to boot
         Scheduler.wait(100, self._midi_server_ping_timeout)
+
+    def _ping_midi_server(self):
+        # type: () -> None
+        Logger.dev("pinging server")
+        Backend.client().ping()
 
     def pong_from_midi_server(self):
         # type: () -> None
         Logger.info("Midi server is up")
+        if self._midi_server_up:
+            raise Protocol0Error("Duplicate pong : midi server is loaded multiple times")
         self._midi_server_up = True
 
     def _check_protocol_midi_is_up(self):

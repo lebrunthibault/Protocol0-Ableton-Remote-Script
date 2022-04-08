@@ -7,7 +7,6 @@ from typing import List, Optional
 from protocol0.shared.Config import Config
 
 
-@pytest.mark.skip(reason="slow")
 def get_code_filenames(exclude_folder_list=None):
     # type: (Optional[List[str]]) -> Iterator[str]
     exclude_folder_list = (exclude_folder_list or []) + [

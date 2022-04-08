@@ -29,7 +29,7 @@ class SceneActionMixin(object):
         if SongFacade.is_recording():
             return
         # if it is the last bar
-        if self.current_bar == self.bar_length - 1:
+        if self.playing_position.current_bar == self.bar_length - 1:
             self._play_audio_tails()
             next_scene = self.next_scene
 
@@ -72,7 +72,7 @@ class SceneActionMixin(object):
 
     def _play_audio_tails(self):
         # type: (Scene) -> None
-        for clip in self.audio_tail_clips:
+        for clip in self.clips.audio_tail_clips:
             abstract_track = cast(ExternalSynthTrack, clip.track.abstract_track)
             audio_clip = abstract_track.audio_track.clip_slots[clip.index].clip
             if audio_clip and audio_clip.muted:
@@ -82,7 +82,7 @@ class SceneActionMixin(object):
 
     def mute_audio_tails(self):
         # type: (Scene) -> None
-        for clip in self.audio_tail_clips:
+        for clip in self.clips.audio_tail_clips:
             clip.muted = True
 
     def duplicate(self):
@@ -135,5 +135,5 @@ class SceneActionMixin(object):
 
     def jump_to_bar(self, bar_position):
         # type: (Scene, float) -> None
-        beat_offset = (bar_position * SongFacade.signature_numerator()) - self.playing_position
+        beat_offset = (bar_position * SongFacade.signature_numerator()) - self.playing_position.position
         self._song.scrub_by(beat_offset)

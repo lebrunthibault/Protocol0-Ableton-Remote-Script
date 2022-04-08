@@ -52,7 +52,7 @@ class SceneName(UseFrameworkEvents):
         length_legend = get_length_legend(beat_length=self._scene.length)
 
         if self._scene.has_playing_clips:
-            length_legend = "%s|%s" % (self._scene.current_bar + 1, length_legend)
+            length_legend = "%s|%s" % (self._scene.playing_position.current_bar + 1, length_legend)
         elif bar_position is not None:
             length_legend = "%s|%s" % (bar_position + 1, length_legend)
 

@@ -3,8 +3,8 @@ from typing import cast, List
 
 import Live
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.tests.fixtures.clip_slot import AbletonClipSlot
-from protocol0.tests.fixtures.device import AbletonDevice
+from protocol0.tests.domain.fixtures.clip_slot import AbletonClipSlot
+from protocol0.tests.domain.fixtures.device import AbletonDevice
 
 
 class TrackType(object):

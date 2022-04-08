@@ -25,7 +25,7 @@ if sys.version_info.major == 2:
 
 
 class EmptyModule(object):
-    def __init__(self, name, is_false=True):
+    def __init__(self, name="", is_false=True):
         # type: (str, bool) -> None
         self.name = name
         self.is_false = is_false

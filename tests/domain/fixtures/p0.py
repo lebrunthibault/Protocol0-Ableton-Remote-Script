@@ -14,7 +14,7 @@ from protocol0.infra.midi.MidiService import MidiService
 from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
 from protocol0.shared.UndoFacade import UndoFacade
 from protocol0.shared.logging.Logger import Logger
-from protocol0.tests.fixtures.song import AbletonSong
+from protocol0.tests.domain.fixtures.song import AbletonSong
 from protocol0.tests.infra.scheduler.TickSchedulerTest import TickSchedulerTest
 
 

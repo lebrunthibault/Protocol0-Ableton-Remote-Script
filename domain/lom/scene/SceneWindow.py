@@ -31,7 +31,7 @@ class SceneWindow(object):
             clip.crop()
 
         if not self._contains_scene_end:
-            for clip in scene.audio_tail_clips:
+            for clip in scene.clips.audio_tail_clips:
                 clip.delete()
 
     @classmethod

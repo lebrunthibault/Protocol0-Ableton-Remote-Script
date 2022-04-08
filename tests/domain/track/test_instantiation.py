@@ -3,9 +3,9 @@ from protocol0.application.command.InitializeSongCommand import InitializeSongCo
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.tests.fixtures.group_track import add_external_synth_track
-from protocol0.tests.fixtures.p0 import make_protocol0
-from protocol0.tests.fixtures.simple_track import TrackType, add_track
+from protocol0.tests.domain.fixtures.group_track import add_external_synth_track
+from protocol0.tests.domain.fixtures.p0 import make_protocol0
+from protocol0.tests.domain.fixtures.simple_track import TrackType, add_track
 
 
 def test_instantiation_simple():

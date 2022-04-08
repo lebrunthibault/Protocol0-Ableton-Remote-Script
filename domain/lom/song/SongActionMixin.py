@@ -30,7 +30,10 @@ class SongActionMixin(object):
 
     def play_pause(self):
         # type: (Song) -> None
-        self.is_playing = not self.is_playing
+        if self.is_playing:
+            self.reset()
+        else:
+            self.start_playing()
 
     def continue_playing(self):
         # type: (Song) -> None

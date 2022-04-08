@@ -53,6 +53,6 @@ class SongService(object):
             return armed_tracks[0]
 
         if SongFacade.selected_track() == SongFacade.master_track():
-            return next(SongFacade.abstract_tracks())
+            return next(iter(SongFacade.abstract_tracks()))
 
         return None

@@ -2,7 +2,6 @@ from protocol0.application.CommandBus import CommandBus
 from protocol0.application.command.LoadDeviceCommand import LoadDeviceCommand
 from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
 from protocol0.domain.shared.backend.Backend import Backend
-from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 
 

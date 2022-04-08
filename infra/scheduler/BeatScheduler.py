@@ -50,7 +50,7 @@ class BeatScheduler(UseFrameworkEvents, BeatSchedulerInterface):
         events = []  # type: List[object]
         if current_beats_song_time.bars != self._last_beats_song_time.bars:
             events.append(BarChangedEvent())
-            if SongFacade.playing_scene() and SongFacade.playing_scene().current_bar == SongFacade.playing_scene().bar_length - 1:
+            if SongFacade.playing_scene() and SongFacade.playing_scene().playing_position.current_bar == SongFacade.playing_scene().bar_length - 1:
                 events.append(SceneLastBarPassedEvent())
 
         if current_beats_song_time.in_last_beat and not self._last_beats_song_time.in_last_beat:

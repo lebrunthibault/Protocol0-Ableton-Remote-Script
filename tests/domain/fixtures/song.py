@@ -1,10 +1,13 @@
 from collections import namedtuple
 
+import Live
 from _Framework.SubjectSlot import Subject
-from typing import List, Any
+from typing import List, Any, cast
 
-from protocol0.tests.fixtures.simple_track import AbletonTrack
-from protocol0.tests.fixtures.song_view import AbletonSongView
+from protocol0.domain.lom.song.Song import Song
+from protocol0.tests.domain.fixtures.scene import AbletonScene
+from protocol0.tests.domain.fixtures.simple_track import AbletonTrack
+from protocol0.tests.domain.fixtures.song_view import AbletonSongView
 
 
 class AbletonSong(Subject):
@@ -26,13 +29,15 @@ class AbletonSong(Subject):
         self.tempo = 120
         self.signature_numerator = 4
 
-        self.tracks = [self.view.selected_track]
+        self.tracks = [AbletonTrack()]
         self.visible_tracks = self.tracks
         self.return_tracks = []  # type: List[AbletonTrack]
         self.master_track = AbletonTrack()  # type: ignore
-        self.scenes = [self.view.selected_scene]
+        self.scenes = [AbletonScene()]
         self.clip_trigger_quantization = 0
-        self.view.selected_track = self.master_track
+
+        self.view.selected_track = self.tracks[0]
+        self.view.selected_scene = self.scenes[0]
         self.is_playing = False
 
     def stop_playing(self):
@@ -63,3 +68,8 @@ class AbletonSong(Subject):
     def end_undo_step(self):
         # type: () -> None
         pass
+
+
+def make_song():
+    # type: () -> Song
+    return Song(cast(Live.Song.Song, AbletonSong()))

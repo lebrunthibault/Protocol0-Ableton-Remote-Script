@@ -40,8 +40,7 @@ class ClipSlot(UseFrameworkEvents):
 
     def __repr__(self, **k):
         # type: (Any) -> str
-        out = super(ClipSlot, self).__repr__()
-        return "%s (%s)" % (out, self.clip.name if self.clip else "empty (of %s)" % self.track.name)
+        return "%s (%s)" % (self.__class__.__name__, self.clip.name if self.clip else "empty (of %s)" % self.track.name)
 
     @staticmethod
     def make(clip_slot, track):

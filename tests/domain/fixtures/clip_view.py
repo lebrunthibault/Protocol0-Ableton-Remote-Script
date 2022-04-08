@@ -1,0 +1,2 @@
+class AbletonClipView(object):
+    pass

@@ -1,0 +1,2 @@
+class SongStateUpdatedEvent(object):
+    pass

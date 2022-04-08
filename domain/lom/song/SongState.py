@@ -3,6 +3,7 @@ from typing import Dict
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.instrument.instrument.InstrumentSimpler import InstrumentSimpler
 from protocol0.domain.lom.instrument.preset.preset_importer.DirectoryPresetImporter import DirectoryPresetImporter
+from protocol0.domain.lom.song.SongStateUpdatedEvent import SongStateUpdatedEvent
 from protocol0.domain.lom.track.TracksMappedEvent import TracksMappedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.backend.Backend import Backend
@@ -13,6 +14,7 @@ class SongState(object):
     def __init__(self):
         # type: () -> None
         DomainEventBus.subscribe(TracksMappedEvent, lambda _: self.notify())
+        DomainEventBus.subscribe(SongStateUpdatedEvent, lambda _: self.notify())
         presets = DirectoryPresetImporter(InstrumentSimpler.PRESETS_PATH, InstrumentSimpler.PRESET_EXTENSION).import_presets()
         drum_categories = set()
         for preset in presets:

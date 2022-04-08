@@ -16,8 +16,10 @@ from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudio
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import find_if
 from protocol0.shared.sequence.Sequence import Sequence
@@ -47,6 +49,8 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
 
         self.monitoring_state = ExternalSynthTrackMonitoringState(self)  # type: ExternalSynthTrackMonitoringState
 
+        DomainEventBus.subscribe(LastBeatPassedEvent, self._on_last_beat_passed_event)
+
     def on_added(self):
         # type: () -> Sequence
         seq = Sequence()
@@ -68,6 +72,10 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self._map_optional_audio_tail_track()
         super(ExternalSynthTrack, self).on_tracks_change()
         self._link_clip_slots()
+
+    def _on_last_beat_passed_event(self, _):
+        # type: (LastBeatPassedEvent) -> None
+        pass
 
     def _map_optional_audio_tail_track(self):
         # type: () -> None

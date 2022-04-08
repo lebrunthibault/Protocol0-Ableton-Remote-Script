@@ -63,7 +63,7 @@ This script executes in the context of ableton's bundled python interpreter, lik
 Some things are not possible in this environment like spawning processes or accessing win32apis (keyboard, mouse ..)
 A simple example : clicking on a device show button is not possible from a "normal" script.
 To make this kind of thing possible I've created a backend that you can find
-in [this repo](https://github.com/lebrunthibault/Protocol-0-backend). The backend is exposing its api over midi, and I'm using
+in [this repo](https://github.com/lebrunthibault/Protocol0-Backend). The backend is exposing its api over midi, and I'm using
 loopMidi virtual ports to communicate with it.
 > Without setting up the backend (might not be straightforward) the script will only partially work.
 
@@ -81,7 +81,7 @@ loopMidi virtual ports to communicate with it.
 
 ### Installation with backend (longer)
 
-- clone and follow the README install section of the [backend](https://github.com/lebrunthibault/Protocol-0-backend).
+- clone and follow the README install section of the [backend](https://github.com/lebrunthibault/Protocol0-Backend).
 - You should also clone the [companion midi script](https://github.com/lebrunthibault/Protocol0-Midi-Surface-Script) to receive data back from the backend
 
 ## Development

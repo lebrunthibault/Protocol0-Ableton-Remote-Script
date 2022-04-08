@@ -1,6 +1,6 @@
 from protocol0.domain.lom.device.Device import Device
-from protocol0.tests.fixtures.device import AbletonDevice
-from protocol0.tests.fixtures.simple_track import add_track, AbletonTrack, TrackType
+from protocol0.tests.domain.fixtures.device import AbletonDevice
+from protocol0.tests.domain.fixtures.simple_track import add_track, AbletonTrack, TrackType
 
 
 def add_external_synth_track(add_tail=False):
