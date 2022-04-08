@@ -10,6 +10,7 @@ from protocol0.domain.lom.clip.ClipActionMixin import ClipActionMixin
 from protocol0.domain.lom.clip.ClipEnvelopeShowedEvent import ClipEnvelopeShowedEvent
 from protocol0.domain.lom.clip.ClipLoop import ClipLoop
 from protocol0.domain.lom.clip.ClipName import ClipName
+from protocol0.domain.lom.clip.ClipPlayingPosition import ClipPlayingPosition
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
@@ -38,6 +39,7 @@ class Clip(ClipActionMixin, UseFrameworkEvents, SynchronizableObjectInterface):
         self.track = clip_slot.track  # type: SimpleTrack
 
         self.loop = ClipLoop(self)  # type: ClipLoop
+        self.playing_position = ClipPlayingPosition(self)
 
         # listeners
         self._playing_status_listener.subject = self._clip
@@ -216,12 +218,6 @@ class Clip(ClipActionMixin, UseFrameworkEvents, SynchronizableObjectInterface):
     def is_triggered(self):
         # type: () -> bool
         return self._clip and self._clip.is_triggered
-
-    @property
-    def playing_position(self):
-        # type: () -> float
-        """ For MIDI and warped audio clips the value is given in beats of absolute clip time """
-        return self._clip.playing_position if self._clip else 0
 
     @property
     def is_recording(self):

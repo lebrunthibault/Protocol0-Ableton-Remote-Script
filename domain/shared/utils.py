@@ -9,6 +9,7 @@ from qualname import qualname
 from typing import Optional, Any, cast, Callable, List, Iterable
 
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.types import T
@@ -17,6 +18,9 @@ from protocol0.shared.types import T
 def scroll_values(items, current_value, go_next, rotate=True):
     # type: (Iterable[T], Optional[T], bool, bool) -> T
     values = list(items)  # type: List[T]
+    if len(values) == 0:
+        raise Protocol0Warning("empty list handed to scroll_values")
+
     if current_value not in values:
         return values[0]
 

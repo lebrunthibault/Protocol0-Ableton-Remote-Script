@@ -1,9 +1,8 @@
 from functools import partial
 
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, Optional
 
 from protocol0.domain.lom.scene.SceneWindow import SceneWindow
-from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -28,9 +27,8 @@ class SceneActionMixin(object):
         # type: (Scene) -> None
         if SongFacade.is_recording():
             return
-        # if it is the last bar
-        if self.playing_position.current_bar == self.bar_length - 1:
-            self._play_audio_tails()
+
+        if self.playing_position.in_last_bar:
             next_scene = self.next_scene
 
             if next_scene != self:
@@ -69,16 +67,6 @@ class SceneActionMixin(object):
         seq.wait_for_event(BarChangedEvent)
         seq.add(previous_playing_scene.scene_name.update)
         seq.done()
-
-    def _play_audio_tails(self):
-        # type: (Scene) -> None
-        for clip in self.clips.audio_tail_clips:
-            abstract_track = cast(ExternalSynthTrack, clip.track.abstract_track)
-            audio_clip = abstract_track.audio_track.clip_slots[clip.index].clip
-            if audio_clip and audio_clip.muted:
-                continue
-
-            clip.play_and_mute()
 
     def mute_audio_tails(self):
         # type: (Scene) -> None

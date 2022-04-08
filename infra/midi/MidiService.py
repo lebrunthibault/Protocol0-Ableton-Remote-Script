@@ -67,7 +67,6 @@ class MidiService(object):
 
     def _ping_midi_server(self):
         # type: () -> None
-        Logger.dev("pinging server")
         Backend.client().ping()
 
     def pong_from_midi_server(self):

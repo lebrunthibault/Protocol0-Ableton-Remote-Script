@@ -9,7 +9,6 @@ from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -31,8 +30,6 @@ class DrumsTrack(NormalGroupTrack):
         name = name.lower()
         if name not in self.categories:
             raise Protocol0Warning("Cannot fin category for drum track %s" % name)
-
-        Logger.dev("adding track %s" % name)
 
         self.is_folded = False
 

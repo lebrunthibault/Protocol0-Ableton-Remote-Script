@@ -12,11 +12,17 @@ class ScenePlayingPosition(object):
         self._clips = clips
         self._scene_length = scene_length
 
+    def __repr__(self):
+        # type: () -> str
+        return "position: %s, bar_position: %s, current_bar: %s, in_last_bar: %s" % (
+            self.position, self.bar_position, self.current_bar, self.in_last_bar
+        )
+
     @property
     def position(self):
         # type: () -> float
         if self._longest_un_muted_clip:
-            return self._longest_un_muted_clip.playing_position - self._longest_un_muted_clip.start_marker
+            return self._longest_un_muted_clip.playing_position.position
         else:
             return 0
 
@@ -31,6 +37,11 @@ class ScenePlayingPosition(object):
         if self._scene_length.length == 0:
             return 0
         return int(self.bar_position)
+
+    @property
+    def in_last_bar(self):
+        # type: () -> bool
+        return self.current_bar == self._scene_length.bar_length - 1
 
     @property
     def _longest_un_muted_clip(self):

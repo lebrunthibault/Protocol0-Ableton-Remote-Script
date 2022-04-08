@@ -75,7 +75,17 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
 
     def _on_last_beat_passed_event(self, _):
         # type: (LastBeatPassedEvent) -> None
-        pass
+        # if it is the last bar
+        playing_cs = find_if(lambda cs: cs.is_playing, self.audio_track.clip_slots)
+        if playing_cs is None \
+                or playing_cs.clip is None \
+                or not self.audio_tail_track:
+            return
+
+        if playing_cs.clip.playing_position.in_last_bar:
+            audio_tail_clip = self.audio_tail_track.clip_slots[playing_cs.index].clip
+            if audio_tail_clip:
+                audio_tail_clip.play_and_mute()
 
     def _map_optional_audio_tail_track(self):
         # type: () -> None
