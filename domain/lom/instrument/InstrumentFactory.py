@@ -23,7 +23,7 @@ class InstrumentFactory(object):
         to keep instrument state
         """
 
-        instrument_device = find_if(lambda d: cls._get_instrument_class(d) is not None, track.all_devices)
+        instrument_device = find_if(lambda d: cls._get_instrument_class(d) is not None, track.devices.all())
         if not instrument_device:
             return None
 

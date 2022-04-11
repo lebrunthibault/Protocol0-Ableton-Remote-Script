@@ -1,17 +1,17 @@
 from functools import partial
 
+import Live
 from typing import Optional
 
-import Live
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.instrument.preset.SampleSelectedEvent import SampleSelectedEvent
+from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.utils import find_if
 from protocol0.infra.interface.BrowserLoaderService import BrowserLoaderService
-from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -33,7 +33,7 @@ class BrowserService(BrowserServiceInterface):
             load_func = partial(self._browser_loader_service.load_device, device_enum.browser_name)
 
         seq.add(load_func)
-        seq.wait_for_listener(SongFacade.selected_track()._devices_listener)  # type: ignore[arg-type]
+        seq.wait(20)
         seq.add(ApplicationView.focus_detail)
         return seq.done()
 
@@ -49,11 +49,11 @@ class BrowserService(BrowserServiceInterface):
         self._browser_loader_service._cache_category("samples")
         return self._browser_loader_service._cached_browser_items["samples"].get(str(sample_name.decode("utf-8")), None)
 
-    def update_audio_effect_preset(self, device):
-        # type: (Device) -> Optional[Sequence]
+    def update_audio_effect_preset(self, track, device):
+        # type: (SimpleTrack, Device) -> Optional[Sequence]
         seq = Sequence()
         device_name = device.name
-        device.delete()
+        track.devices.delete(device)
         preset_item = self._get_audio_effect_preset_item(device_name)
         if not preset_item:
             Logger.warning("Couldn't find preset item")

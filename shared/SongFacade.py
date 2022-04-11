@@ -1,8 +1,7 @@
 from collections import Iterator
 
-from typing import TYPE_CHECKING, Optional, List, cast
-
 import Live
+from typing import TYPE_CHECKING, Optional, List, cast
 
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
@@ -151,10 +150,7 @@ class SongFacade(object):
     @classmethod
     def usamo_track(cls):
         # type: () -> Optional[SimpleTrack]
-        if cls.usamo_device():
-            return cls.usamo_device().track
-        else:
-            return None
+        return cls._INSTANCE._track_service._usamo_track
 
     @classmethod
     def usamo_device(cls):

@@ -1,0 +1,2 @@
+class SimpleTrackFirstClipAddedEvent(object):
+    pass

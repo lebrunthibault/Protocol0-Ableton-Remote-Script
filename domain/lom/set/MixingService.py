@@ -1,6 +1,6 @@
+import Live
 from _Framework.SubjectSlot import subject_slot_group
 
-import Live
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
 from protocol0.domain.shared.backend.Backend import Backend
@@ -34,7 +34,7 @@ class MixingService(UseFrameworkEvents):
         """ deprecated """
         if not MixingService._VOLUME_LISTENER_ACTIVE:
             return False
-        for device in SongFacade.master_track().all_devices:
+        for device in SongFacade.master_track().devices.all():
             if any([name.lower() in device.name.lower() for name in self._mixing_plugins_names]) and device.is_active:
                 return False
 

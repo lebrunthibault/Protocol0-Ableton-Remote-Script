@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, Optional, List, cast
 
+from protocol0.domain.lom.track.abstract_track.AbstractTrackSelectedEvent import AbstractTrackSelectedEvent
+from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
@@ -17,16 +19,8 @@ class AbstractTrackActionMixin(object):
 
     # noinspection PyUnusedLocal
     def select(self):
-        # type: (AbstractTrack) -> Sequence
-        return self._song.select_track(self)
-
-    def duplicate(self):
-        # type: (AbstractTrack) -> Sequence
-        return self._song.duplicate_track(self.index)
-
-    def delete(self):
-        # type: (AbstractTrack) -> Sequence
-        return self._song.delete_track(self.index)
+        # type: (AbstractTrack) -> None
+        DomainEventBus.notify(AbstractTrackSelectedEvent(self))
 
     def toggle_arm(self):
         # type: (AbstractTrack) -> Optional[Sequence]
@@ -47,9 +41,9 @@ class AbstractTrackActionMixin(object):
         # type: (AbstractTrack) -> Optional[Sequence]
         if self.is_armed:
             return None
-        self._song.unfocus_all_tracks()
         if self.is_foldable:
             self.is_folded = False
+
         return self.arm_track()
 
     def arm_track(self):
@@ -62,11 +56,8 @@ class AbstractTrackActionMixin(object):
 
     def stop(self, immediate=False):
         # type: (AbstractTrack, bool) -> None
-        if immediate:
-            self._song.disable_clip_trigger_quantization()
-        self.base_track._track.stop_all_clips()
-        if immediate:
-            self._song.enable_clip_trigger_quantization()
+        # noinspection PyTypeChecker
+        self.base_track._track.stop_all_clips(not immediate)
 
     def refresh_appearance(self):
         # type: (AbstractTrack) -> None

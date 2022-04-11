@@ -13,7 +13,7 @@ def add_external_synth_track(add_tail=False):
     midi_track.group_track = group_track
     audio_track.group_track = group_track
 
-    Device.get_class = classmethod(lambda _, __: Device)
+    Device._get_class = classmethod(lambda _, __: Device)
 
     if add_tail:
         audio_tail_track = add_track(track_type=TrackType.AUDIO)

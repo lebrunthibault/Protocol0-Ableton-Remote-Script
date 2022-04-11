@@ -1,6 +1,6 @@
-from typing import TYPE_CHECKING, List, Any, Type, Optional, Union
-
 import Live
+from typing import List, Any, Type, Optional, Union
+
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.device.DeviceChain import DeviceChain
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
@@ -8,16 +8,12 @@ from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DevicePara
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.utils import find_if
 
-if TYPE_CHECKING:
-    from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-
 
 class Device(UseFrameworkEvents):
-    def __init__(self, device, track, chain=None):
-        # type: (Live.Device.Device, SimpleTrack, Optional[DeviceChain]) -> None
+    def __init__(self, device, chain=None):
+        # type: (Live.Device.Device, Optional[DeviceChain]) -> None
         super(Device, self).__init__()
         self._device = device
-        self.track = track
         self._view = self._device.view  # type: Live.Device.Device.View
         self.parameters = []  # type: List[DeviceParameter]
         self._parameters_listener.subject = self._device
@@ -28,10 +24,15 @@ class Device(UseFrameworkEvents):
 
     def __repr__(self):
         # type: () -> str
-        return "%s: %s (of %s)" % (self.__class__.__name__, self.name, self.track)
+        return "%s: %s" % (self.__class__.__name__, self.name)
+
+    @property
+    def live_id(self):
+        # type: () -> int
+        return self._device._live_ptr
 
     @classmethod
-    def get_class(cls, device):
+    def _get_class(cls, device):
         # type: (Any) -> Type[Device]
         if isinstance(device, Live.RackDevice.RackDevice):
             from protocol0.domain.lom.device.RackDevice import RackDevice
@@ -49,20 +50,9 @@ class Device(UseFrameworkEvents):
             return Device
 
     @classmethod
-    def make(cls, device, track, chain=None):
-        # type: (Live.Device.Device, SimpleTrack, Optional[DeviceChain]) -> Device
-        return Device.get_class(device)(device=device, track=track, chain=chain)
-
-    def delete(self):
-        # type: () -> None
-        if self not in self.track.all_devices:
-            return None
-
-        if self.device_chain:
-            self.device_chain.delete_device(self)
-        else:
-            device_index = self.track.devices.index(self)
-            self.track.delete_device(device_index)
+    def make(cls, device, chain=None):
+        # type: (Live.Device.Device, Optional[DeviceChain]) -> Device
+        return Device._get_class(device)(device=device, chain=chain)
 
     @property
     def device_on(self):
@@ -125,4 +115,4 @@ class Device(UseFrameworkEvents):
     @p0_subject_slot("parameters")
     def _parameters_listener(self):
         # type: () -> None
-        self.parameters = [DeviceParameter(self, parameter) for parameter in self._device.parameters]
+        self.parameters = [DeviceParameter(parameter) for parameter in self._device.parameters]

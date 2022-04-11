@@ -1,6 +1,6 @@
+import Live
 from typing import TYPE_CHECKING, List
 
-import Live
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.shared.decorators import p0_subject_slot
 
@@ -9,13 +9,11 @@ if TYPE_CHECKING:
 
 
 class DeviceChain(UseFrameworkEvents):
-    def __init__(self, device, chain, index):
-        # type: (Device, Live.Chain.Chain, int) -> None
+    def __init__(self, chain, index):
+        # type: (Live.Chain.Chain, int) -> None
         super(DeviceChain, self).__init__()
-        self.device = device
         self._chain = chain
         self.index = index
-        self.track = self.device.track
         self.devices = []  # type: List[Device]
         self._devices_listener.subject = self._chain
         self._devices_listener()
@@ -30,7 +28,7 @@ class DeviceChain(UseFrameworkEvents):
         # type: () -> None
         from protocol0.domain.lom.device.Device import Device
 
-        self.devices = [Device.make(device, self.track, self) for device in self._chain.devices]
+        self.devices = [Device.make(device, self) for device in self._chain.devices]
 
     def disconnect(self):
         # type: () -> None

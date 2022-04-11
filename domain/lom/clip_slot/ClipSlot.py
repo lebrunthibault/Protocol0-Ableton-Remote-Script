@@ -1,10 +1,13 @@
 from functools import partial
 
+import Live
 from typing import Any, TYPE_CHECKING, Optional
 
-import Live
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.clip.Clip import Clip
+from protocol0.domain.lom.track.simple_track.SimpleTrackFirstClipAddedEvent import SimpleTrackFirstClipAddedEvent
+from protocol0.domain.lom.track.simple_track.SimpleTrackLastClipDeletedEvent import SimpleTrackLastClipDeletedEvent
+from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -54,6 +57,11 @@ class ClipSlot(UseFrameworkEvents):
             self.clip.disconnect()
 
         self._map_clip(is_new=True)
+
+        if self.has_clip and len(self.track.clips) == 1:
+            DomainEventBus.notify(SimpleTrackFirstClipAddedEvent())
+        elif not self.has_clip and len(self.track.clips) == 0:
+            DomainEventBus.notify(SimpleTrackLastClipDeletedEvent())
 
         if not self.clip and self.has_stop_button:
             Scheduler.defer(partial(setattr, self, "has_stop_button", False))

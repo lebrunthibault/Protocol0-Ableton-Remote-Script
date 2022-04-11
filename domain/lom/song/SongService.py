@@ -1,6 +1,6 @@
+import Live
 from typing import Optional
 
-import Live
 from protocol0.domain.lom.song.Song import Song
 from protocol0.domain.lom.song.SongInitializedEvent import SongInitializedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack

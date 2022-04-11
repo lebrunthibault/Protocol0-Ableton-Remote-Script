@@ -5,11 +5,11 @@ from typing import Optional, cast
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrackAddedEvent import SimpleDummyTrackAddedEvent
-from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
+from protocol0.shared.sequence.Sequence import Sequence
 
 
 class SimpleDummyTrackService(object):
@@ -58,7 +58,7 @@ class SimpleDummyTrackService(object):
     def _create_dummy_automation(self, track):
         # type: (SimpleDummyTrack) -> None
         clip = track.clip_slots[SongFacade.selected_scene().index].clip
-        automated_device = track.get_device_from_enum(self.parameter_enum.device_enum)
+        automated_device = track.devices.get_from_enum(self.parameter_enum.device_enum)
         if automated_device is None:
             Logger.error("The automated device was not inserted")
             return None

@@ -1,8 +1,8 @@
 from functools import partial
 
+import Live
 from typing import TYPE_CHECKING, cast
 
-import Live
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.shared.ColorEnum import ColorEnum
 from protocol0.domain.shared.decorators import p0_subject_slot

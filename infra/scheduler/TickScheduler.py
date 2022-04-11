@@ -1,6 +1,6 @@
+import Live
 from typing import List, Callable, Optional
 
-import Live
 from protocol0.domain.shared.decorators import handle_error
 from protocol0.domain.shared.scheduler.TickSchedulerEventInterface import TickSchedulerEventInterface
 from protocol0.domain.shared.scheduler.TickSchedulerInterface import TickSchedulerInterface

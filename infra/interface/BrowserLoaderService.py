@@ -1,8 +1,7 @@
 from functools import partial
 
-from typing import Dict
-
 import Live
+from typing import Dict
 
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler

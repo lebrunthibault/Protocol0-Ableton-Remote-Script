@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import Iterator, List, Dict, Optional
+from typing import Iterator, List, Dict, Optional, Tuple, Callable
 
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
@@ -10,31 +10,33 @@ from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
+from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
-from protocol0.shared.Config import Config
-from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
-from protocol0.shared.logging.Logger import Logger
+from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.logging.StatusBar import StatusBar
+from protocol0.shared.sequence.Sequence import Sequence
 
 
 class SetUpgradeService(object):
-    def __init__(self, device_service, validator_service):
-        # type: (DeviceService, ValidatorService) -> None
+    def __init__(self, device_service, validator_service, duplicate_track):
+        # type: (DeviceService, ValidatorService, Callable) -> None
         self._device_service = device_service
         self._validator_service = validator_service
+        self._duplicate_track = duplicate_track
 
     def update_audio_effect_racks(self):
         # type: () -> Sequence
         seq = Sequence()
         seq.prompt("Update updatable racks ?")
         for track in SongFacade.all_simple_tracks():
-            for device in track.all_devices:
+            for device in track.devices.all():
                 if not isinstance(device, RackDevice):
                     continue
                 if any(enum.matches_device(device) for enum in DeviceEnum.updatable_devices()):
-                    seq.add(partial(self._device_service.update_audio_effect_rack, device=device))
+                    seq.add(partial(self._device_service.update_audio_effect_rack, track, device))
 
         return seq.done()
 
@@ -56,7 +58,7 @@ class SetUpgradeService(object):
         for track in tracks:
             if track.audio_tail_track is None:
                 track.is_folded = False
-                seq.add(track.audio_track.duplicate)
+                seq.add(partial(self._duplicate_track, track.audio_track))
                 seq.wait(10)
         return seq.done()
 
@@ -71,7 +73,7 @@ class SetUpgradeService(object):
             return
 
         devices_by_name = {}  # type: Dict[str, List[Device]]
-        for device in devices_to_delete:
+        for track, device in devices_to_delete:
             name = device.name or device.class_name
             if name not in devices_by_name:
                 devices_by_name[name] = []
@@ -81,21 +83,21 @@ class SetUpgradeService(object):
 
         seq = Sequence()
         seq.prompt("%s devices to delete,\n\n%s\n\nproceed ?" % (len(devices_to_delete), info))
-        seq.add([device.delete for device in devices_to_delete])
+        seq.add([partial(track.devices.delete, device) for track, device in devices_to_delete])
         seq.add(lambda: StatusBar.show_message("Devices deleted"))
         seq.add(self.delete_unnecessary_devices)  # now delete enclosing racks if empty
         seq.done()
 
     def get_deletable_devices(self, full_scan):
-        # type: (bool) -> Iterator[Device]
+        # type: (bool) -> Iterator[Tuple[SimpleTrack, Device]]
         tracks = [track for track in SongFacade.all_simple_tracks() if not isinstance(track, SimpleDummyTrack)]
 
         # devices off
         for device_enum in DeviceEnum.deprecated_devices():
             for track in tracks:
-                device = track.get_device_from_enum(device_enum)
+                device = track.devices.get_from_enum(device_enum)
                 if device:
-                    yield device
+                    yield track, device
 
         # devices with default values (unchanged)
         for device_enum in DeviceEnum:  # type: DeviceEnum  # type: ignore[no-redef]
@@ -105,20 +107,20 @@ class SetUpgradeService(object):
                 continue
 
             for track in tracks:
-                device = track.get_device_from_enum(device_enum)
+                device = track.devices.get_from_enum(device_enum)
                 if not device:
                     continue
                 device_on = device.get_parameter_by_name(DeviceParameterEnum.DEVICE_ON)
                 if device_on.value is False and not device_on.is_automated:
-                    yield device
+                    yield track, device
                 if all([parameter_value.matches(device) for parameter_value in default_parameter_values]):
-                    yield device
+                    yield track, device
 
         # empty mix racks
         for track in SongFacade.all_simple_tracks():
-            mix_rack = track.get_device_from_enum(DeviceEnum.MIX_RACK)  # type: Optional[RackDevice]
+            mix_rack = track.devices.get_from_enum(DeviceEnum.MIX_RACK)  # type: Optional[RackDevice]
             if mix_rack and len(mix_rack.chains[0].devices) == 0:
-                yield mix_rack
+                yield track, mix_rack
 
         if not full_scan:
             return
@@ -127,6 +129,6 @@ class SetUpgradeService(object):
         if Config.CHECK_PLUGINS_TO_REMOVE:
             white_list_names = [d.device_name for d in DeviceEnum.plugin_white_list()]
             for track in SongFacade.all_simple_tracks():
-                for device in track.all_devices:
+                for device in track.devices.all():
                     if isinstance(device, PluginDevice) and device.name not in white_list_names:
-                        yield device
+                        yield track, device

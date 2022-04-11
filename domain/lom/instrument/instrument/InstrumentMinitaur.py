@@ -14,5 +14,3 @@ class InstrumentMinitaur(InstrumentInterface):
     PRESET_OFFSET = 1
     HAS_PROTECTED_MODE = False
     PRESET_INITIALIZER = PresetInitializerGroupTrackName
-
-    EXTERNAL_INSTRUMENT_DEVICE_HARDWARE_LATENCY = 1.4

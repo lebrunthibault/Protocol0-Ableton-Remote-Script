@@ -7,6 +7,7 @@ from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
 from protocol0.domain.lom.device.Device import Device
+from protocol0.domain.lom.device.TrackDevices import TrackDevices
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.lom.track.group_track.ExternalSynthTrackActionMixin import ExternalSynthTrackActionMixin
@@ -17,11 +18,11 @@ from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummy
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import find_if
+from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -44,8 +45,8 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self._clip_slot_synchronizers = []  # type: List[ClipSlotSynchronizer]
 
         self._external_device = None  # type: Optional[Device]
-        self._devices_listener.subject = self.midi_track
-        self._devices_listener()
+        self.midi_track.devices.register_observer(self)
+        self.midi_track.devices.build()
 
         self.monitoring_state = ExternalSynthTrackMonitoringState(self)  # type: ExternalSynthTrackMonitoringState
 
@@ -56,11 +57,6 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         seq = Sequence()
         seq.add(super(ExternalSynthTrack, self).on_added)
         seq.add(self.abstract_track.arm)
-
-        # if len(self.base_track.devices):
-        #     devices = "\n".join([str(d) for d in self.base_track.devices])
-        #     seq.prompt("Clear %s effects ?\n\n%s" % (len(self.base_track.devices), devices))
-        #     seq.add([device.delete for device in self.base_track.devices])
 
         for dummy_track in self.dummy_tracks:
             seq.add([clip.delete for clip in dummy_track.clips])
@@ -89,7 +85,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
 
     def _map_optional_audio_tail_track(self):
         # type: () -> None
-        has_tail_track = len(self.base_track.sub_tracks) > 2 and len(self.base_track.sub_tracks[2].devices) == 0
+        has_tail_track = len(self.base_track.sub_tracks) > 2 and len(list(self.base_track.sub_tracks[2].devices)) == 0
 
         if has_tail_track and not self.audio_tail_track:
             track = self.base_track.sub_tracks[2]
@@ -145,12 +141,12 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
             )
         ]
 
-    @p0_subject_slot("devices")
-    def _devices_listener(self):
-        # type: () -> None
-        self._external_device = find_if(lambda d: d.is_external_device, self.midi_track.devices)
-        if self._external_device is None:
-            raise Protocol0Warning("%s should have an external device" % self)
+    def update(self, observable):
+        # type: (Observable) -> None
+        if isinstance(observable, TrackDevices):
+            self._external_device = find_if(lambda d: d.is_external_device, list(self.midi_track.devices))
+            if self._external_device is None:
+                raise Protocol0Warning("%s should have an external device" % self)
 
     @property
     def instrument(self):

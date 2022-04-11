@@ -1,6 +1,6 @@
+import Live
 from typing import TYPE_CHECKING, Optional, List
 
-import Live
 from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
 from protocol0.domain.lom.clip.ClipSelectedEvent import ClipSelectedEvent
 from protocol0.domain.lom.clip.automation_envelope.ClipAutomationEnvelope import ClipAutomationEnvelope

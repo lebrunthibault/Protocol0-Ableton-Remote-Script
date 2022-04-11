@@ -1,6 +1,6 @@
+import Live
 from typing import List, Optional, Any, cast
 
-import Live
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceChain import DeviceChain
 from protocol0.domain.shared.decorators import p0_subject_slot
@@ -20,7 +20,7 @@ class RackDevice(Device):
     @p0_subject_slot("chains")
     def _chains_listener(self):
         # type: () -> None
-        self.chains = [DeviceChain(self, chain, index) for index, chain in enumerate(self._device.chains)]
+        self.chains = [DeviceChain(chain, index) for index, chain in enumerate(self._device.chains)]
 
     @property
     def selected_chain(self):

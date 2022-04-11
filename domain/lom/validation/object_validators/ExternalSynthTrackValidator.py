@@ -25,8 +25,7 @@ class ExternalSynthTrackValidator(AggregateValidator):
             CallbackValidator(track, lambda t: t.instrument is not None, None, "track should have an instrument"),
             SimpleTrackHasDeviceValidator(track.midi_track, DeviceEnum.EXTERNAL_AUDIO_EFFECT, browser_service),
             CallbackValidator(track.midi_track,
-                              lambda t: t.get_device_from_enum(DeviceEnum.EXTERNAL_INSTRUMENT) is None,
-                              lambda t: t.get_device_from_enum(DeviceEnum.EXTERNAL_INSTRUMENT).delete),
+                              lambda t: t.devices.get_from_enum(DeviceEnum.EXTERNAL_INSTRUMENT) is None),
 
             # VOLUMES
             PropertyValueValidator(track.midi_track, "volume", 0, name="midi track volume"),

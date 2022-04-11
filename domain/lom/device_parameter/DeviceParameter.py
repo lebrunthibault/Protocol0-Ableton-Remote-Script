@@ -1,17 +1,10 @@
-from typing import TYPE_CHECKING, Any
-
 import Live
-
-if TYPE_CHECKING:
-    from protocol0.domain.lom.device.Device import Device
+from typing import Any
 
 
 class DeviceParameter(object):
-    def __init__(self, device, device_parameter):
-        # type: (Device, Live.DeviceParameter.DeviceParameter) -> None
-        super(DeviceParameter, self).__init__()
-        self.device = device
-        self.track = self.device.track
+    def __init__(self, device_parameter):
+        # type: (Live.DeviceParameter.DeviceParameter) -> None
         self._device_parameter = device_parameter  # type: Live.DeviceParameter.DeviceParameter
 
     def __repr__(self, **k):

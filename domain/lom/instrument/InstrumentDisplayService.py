@@ -16,7 +16,7 @@ class InstrumentDisplayService(object):
     def __init__(self, device_service):
         # type: (DeviceService) -> None
         self._device_service = device_service
-        DomainEventBus.subscribe(SimpleTrackArmedEvent, self._handle_simple_track_armed_event)
+        DomainEventBus.subscribe(SimpleTrackArmedEvent, self._on_simple_track_armed_event)
 
     def show_hide_instrument(self, instrument):
         # type: (InstrumentInterface) -> Optional[Sequence]
@@ -27,8 +27,8 @@ class InstrumentDisplayService(object):
         if not instrument.activated or instrument.needs_exclusive_activation:
             seq.add(partial(self.activate_plugin_window, instrument))
         else:
-            seq.add(instrument.device.track.select)
-            if SongFacade.selected_track() != instrument.device.track:
+            seq.add(instrument.track.select)
+            if SongFacade.selected_track() != instrument.track:
                 seq.add(Backend.client().show_plugins)
             else:
                 seq.add(Backend.client().show_hide_plugins)
@@ -39,7 +39,7 @@ class InstrumentDisplayService(object):
         if instrument.CAN_BE_SHOWN:
             self.activate_plugin_window(instrument, force_activate=True)
 
-    def _handle_simple_track_armed_event(self, event):
+    def _on_simple_track_armed_event(self, event):
         # type: (SimpleTrackArmedEvent) -> Sequence
         seq = Sequence()
         if event.track.instrument and event.track.instrument.needs_exclusive_activation:
@@ -52,12 +52,12 @@ class InstrumentDisplayService(object):
         seq = Sequence()
 
         if force_activate or not instrument.activated:
-            seq.add(instrument.device.track.select)
-            seq.add(partial(self._device_service.make_plugin_window_showable, instrument.device))
+            seq.add(instrument.track.select)
+            seq.add(partial(self._device_service.make_plugin_window_showable, instrument.track, instrument.device))
             seq.add(lambda: setattr(instrument, "activated", True), name="mark instrument as activated")
 
         if force_activate or instrument.needs_exclusive_activation:
-            seq.add(instrument.device.track.select)
+            seq.add(instrument.track.select)
             seq.add(instrument.exclusive_activate)
 
         if force_activate or not instrument.activated:

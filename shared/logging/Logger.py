@@ -16,7 +16,7 @@ class Logger(object):
     @classmethod
     def dev(cls, message):
         # type: (Any) -> None
-        cls._log(message, LogLevelEnum.DEV)
+        cls._log(message, LogLevelEnum.DEV, debug=True)
 
     @classmethod
     def debug(cls, message):

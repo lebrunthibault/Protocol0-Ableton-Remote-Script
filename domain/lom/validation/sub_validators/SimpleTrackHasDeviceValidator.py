@@ -5,8 +5,8 @@ from typing import Optional
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.validation.ValidatorInterface import ValidatorInterface
-from protocol0.shared.sequence.Sequence import Sequence
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
+from protocol0.shared.sequence.Sequence import Sequence
 
 
 class SimpleTrackHasDeviceValidator(ValidatorInterface):
@@ -24,7 +24,7 @@ class SimpleTrackHasDeviceValidator(ValidatorInterface):
 
     def is_valid(self):
         # type: () -> bool
-        return self._track.get_device_from_enum(self._device_enum) is not None
+        return self._track.devices.get_from_enum(self._device_enum) is not None
 
     def fix(self):
         # type: () -> Sequence

@@ -2,11 +2,11 @@ from functools import partial
 
 from typing import TYPE_CHECKING, Optional
 
-import Live
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.scene.ScenesMappedEvent import ScenesMappedEvent
 from protocol0.domain.lom.track.TracksMappedEvent import TracksMappedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
+from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationView import ApplicationView
 from protocol0.domain.shared.utils import scroll_values
 from protocol0.shared.SongFacade import SongFacade
@@ -39,14 +39,6 @@ class SongActionMixin(object):
         # type: (Song) -> None
         if self._song:
             self._song.continue_playing()
-
-    def enable_clip_trigger_quantization(self):
-        # type: (Song) -> None
-        self.clip_trigger_quantization = Live.Song.Quantization.q_bar
-
-    def disable_clip_trigger_quantization(self):
-        # type: (Song) -> None
-        self.clip_trigger_quantization = Live.Song.Quantization.q_no_q
 
     def re_enable_automation(self):
         # type: (Song) -> None
@@ -95,7 +87,8 @@ class SongActionMixin(object):
     def _unarm_all_tracks(self):
         # type: (Song) -> None
         for t in SongFacade.partially_armed_tracks():
-            t.unarm()
+            if t.abstract_track != SongFacade.current_track():
+                t.unarm()
 
     def _unsolo_all_tracks(self):
         # type: (Song) -> None
@@ -164,10 +157,10 @@ class SongActionMixin(object):
         seq.defer()
         return seq.done()
 
-    def select_device(self, device):
-        # type: (Song, Device) -> Sequence
+    def select_device(self, track, device):
+        # type: (Song, SimpleTrack, Device) -> Sequence
         seq = Sequence()
-        seq.add(device.track.select)
+        seq.add(track.select)
         seq.add(partial(self._view.select_device, device._device))
         seq.add(ApplicationView.focus_detail)
         return seq.done()

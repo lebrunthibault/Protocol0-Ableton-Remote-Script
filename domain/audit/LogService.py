@@ -80,7 +80,7 @@ class LogService(object):
         Logger.info("********* SELECTED_DEVICE *************")
         Logger.info()
         try:
-            Logger.info("selected_device: %s" % SongFacade.selected_track().selected_device)
+            Logger.info("selected_device: %s" % SongFacade.selected_track().devices.selected)
             Logger.info()
         except AssertionError:
             pass
@@ -89,7 +89,7 @@ class LogService(object):
             Logger.info()
             Logger.info("selected_parameter: %s" % SongFacade.selected_parameter())
             Logger.info()
-            Logger.info("selected_device.parameters: %s" % SongFacade.selected_track().selected_device.parameters)
+            Logger.info("selected_device.parameters: %s" % SongFacade.selected_track().devices.selected.parameters)
         Logger.info()
 
         if SongFacade.current_track().instrument:

@@ -8,6 +8,7 @@ class AbletonDevice(Subject):
 
     def __init__(self, name):
         # type: (str) -> None
+        self._live_ptr = id(self)
         self.name = name
         self.view = None
         self.parameters = []

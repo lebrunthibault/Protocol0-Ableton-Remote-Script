@@ -7,7 +7,6 @@ from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.backend.BackendResponseEvent import BackendResponseEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.CallableWithCallbacks import CallableWithCallbacks
 from protocol0.shared.types import Func
 
@@ -61,13 +60,13 @@ class SequenceActionMixin(object):
 
     def _add_timeout_step(self, func, legend):
         # type: (Sequence, Callable, str) -> None
-        seconds = 10
+        seconds = 50
 
         def cancel():
             # type: () -> None
             if self._current_step and self._current_step._callable == execute:
                 self._cancel()
-                Logger.warning("cancelling after %s seconds : %s on %s" % (seconds, self, legend))
+                Backend.client().show_warning("cancelling after %s seconds : %s on %s" % (seconds, self, legend))
 
         def execute():
             # type: () -> None

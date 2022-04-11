@@ -1,9 +1,8 @@
 from functools import partial
 
+import Live
 from typing import Optional, List, Iterator
 from typing import TYPE_CHECKING
-
-import Live
 
 from protocol0.domain.lom.ColorEnumInterface import ColorEnumInterface
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
@@ -14,8 +13,10 @@ from protocol0.domain.lom.track.TrackColorEnum import TrackColorEnum
 from protocol0.domain.lom.track.TrackComponent import TrackComponent
 from protocol0.domain.lom.track.abstract_track.AbstractTrackActionMixin import AbstractTrackActionMixin
 from protocol0.domain.lom.track.abstract_track.AbstractTrackName import AbstractTrackName
+from protocol0.domain.lom.track.abstract_track.AbstractTrackNameUpdatedEvent import AbstractTrackNameUpdatedEvent
 from protocol0.domain.lom.track.routing.TrackInputRouting import TrackInputRouting
 from protocol0.domain.lom.track.routing.TrackOutputRouting import TrackOutputRouting
+from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import volume_to_db, db_to_volume
 from protocol0.shared.sequence.Sequence import Sequence
@@ -23,7 +24,6 @@ from protocol0.shared.sequence.Sequence import Sequence
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
     from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
-    from protocol0.domain.lom.song.Song import Song
 
 
 class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents, TrackComponent):
@@ -38,7 +38,6 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents, TrackComponent
     def __init__(self, track):
         # type: (SimpleTrack) -> None
         super(AbstractTrack, self).__init__()
-        self._song = None  # type: Optional[Song]
         # TRACKS
         self._track = track._track  # type: Live.Track.Track
         self.base_track = track  # type: SimpleTrack
@@ -64,10 +63,6 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents, TrackComponent
     def __iter__(self):
         # type: () -> Iterator[AbstractTrack]
         return iter(self.sub_tracks)
-
-    def set_song(self, song):
-        # type: (Song) -> None
-        self._song = song
 
     def on_added(self):
         # type: () -> Optional[Sequence]
@@ -118,6 +113,7 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents, TrackComponent
         # type: (str) -> None
         if self._track and name:
             self._track.name = str(name).strip()
+            DomainEventBus.notify(AbstractTrackNameUpdatedEvent())
 
     @property
     def computed_base_name(self):

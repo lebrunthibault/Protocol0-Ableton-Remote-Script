@@ -1,9 +1,9 @@
 import re
 from math import floor
 
+import Live
 from typing import TYPE_CHECKING, Optional, List
 
-import Live
 from protocol0.domain.lom.SynchronizableObjectInterface import SynchronizableObjectInterface
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.clip.ClipActionMixin import ClipActionMixin

@@ -4,22 +4,22 @@ import Live
 from typing import List, Optional
 
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
-from protocol0.domain.lom.device.Device import Device
+from protocol0.domain.lom.device.TrackDevices import TrackDevices
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.instrument.InstrumentFactory import InstrumentFactory
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.domain.lom.track.simple_track.SimpleTrackActionMixin import SimpleTrackActionMixin
+from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import SimpleTrackCreatedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.decorators import p0_subject_slot
-from protocol0.domain.shared.utils import find_if
 from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.observer.Observable import Observable
 
 
-class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
+class SimpleTrack(AbstractTrack):
     # is_active is used to differentiate set tracks for return / master
     # we act only on active tracks
     IS_ACTIVE = True
@@ -36,14 +36,13 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         self.group_track = self.group_track  # type: Optional[SimpleTrack]
         self.sub_tracks = []  # type: List[SimpleTrack]
 
-        self.devices = []  # type: List[Device]
-        self.all_devices = []  # type: List[Device]
         self._instrument = None  # type: Optional[InstrumentInterface]
         self.clip_slots = []  # type: List[ClipSlot]
         self._map_clip_slots()
 
-        self._devices_listener.subject = self._track
-        self._devices_listener()
+        self.devices = TrackDevices(self._track)
+        self.devices.register_observer(self)
+        self.devices.build()
 
         self._output_meter_level_listener.subject = None
 
@@ -53,11 +52,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def live_id(self):
         # type: () -> int
         return self._track._live_ptr
-
-    @property
-    def is_active(self):
-        # type: () -> bool
-        return self._track not in list(self._song._song.return_tracks) + [self._song._song.master_track]
 
     def on_tracks_change(self):
         # type: () -> None
@@ -96,30 +90,18 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
                 new_clip_slots.append(ClipSlot.make(clip_slot=clip_slot, track=self))
         self.clip_slots[:] = new_clip_slots  # type: List[ClipSlot]
 
+    def update(self, observable):
+        # type: (Observable) -> None
+        if isinstance(observable, TrackDevices):
+            # Refreshing is only really useful from simpler devices that change when a new sample is loaded
+            if self.IS_ACTIVE and not self.is_foldable:
+                self.instrument = InstrumentFactory.make_instrument_from_simple_track(track=self)
+
     def refresh_appearance(self):
         # type: (SimpleTrack) -> None
         super(SimpleTrack, self).refresh_appearance()
         for clip_slot in self.clip_slots:
             clip_slot.refresh_appearance()
-
-    @p0_subject_slot("devices")
-    def _devices_listener(self):
-        # type: () -> None
-        for device in self.devices:
-            device.disconnect()
-
-        self.devices = [Device.make(device, self) for device in self._track.devices]
-
-        self.all_devices = self._find_all_devices(self.base_track)
-
-        # noinspection PyUnresolvedReferences
-        self.notify_devices()
-
-        # Refreshing is only really useful from simpler devices that change when a new sample is loaded
-        if self.IS_ACTIVE and not self.is_foldable:
-            self.instrument = InstrumentFactory.make_instrument_from_simple_track(track=self)
-            # if self.instrument:
-            #     self.abstract_track.refresh_appearance()
 
     @p0_subject_slot("output_meter_level")
     def _output_meter_level_listener(self):
@@ -154,6 +136,18 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
         else:
             return False
 
+    def arm_track(self):
+        # type: (SimpleTrack) -> None
+        if self.is_armed:
+            return None
+        if self.is_foldable:
+            self.is_folded = not self.is_folded  # type: ignore[has-type]
+        else:
+            self.muted = False
+            self.is_armed = True
+
+        DomainEventBus.notify(SimpleTrackArmedEvent(self))
+
     @property
     def current_monitoring_state(self):
         # type: () -> CurrentMonitoringStateEnum
@@ -185,7 +179,7 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     @property
     def device_parameters(self):
         # type: () -> List[DeviceParameter]
-        return list(chain(*[device.parameters for device in self.all_devices]))
+        return list(chain(*[device.parameters for device in self.devices.all()]))
 
     @property
     def instrument(self):
@@ -211,18 +205,6 @@ class SimpleTrack(SimpleTrackActionMixin, AbstractTrack):
     def is_recording(self):
         # type: () -> bool
         return any(clip for clip in self.clips if clip and clip.is_recording)
-
-    @property
-    def selected_device(self):
-        # type: (SimpleTrack) -> Optional[Device]
-        if self._track and self._track.view.selected_device:
-            device = find_if(
-                lambda d: d._device == self._track.view.selected_device, self.base_track.all_devices
-            )  # type: Optional[Device]
-            assert device
-            return device
-        else:
-            return None
 
     def disconnect(self):
         # type: () -> None

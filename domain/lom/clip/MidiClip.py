@@ -2,9 +2,9 @@ from __future__ import division
 
 from functools import partial
 
+import Live
 from typing import List, TYPE_CHECKING, Optional, Iterator, cast
 
-import Live
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.device_parameter.LinkedDeviceParameters import LinkedDeviceParameters
 from protocol0.domain.lom.note.Note import Note

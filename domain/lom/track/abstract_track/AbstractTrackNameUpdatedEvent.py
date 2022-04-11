@@ -1,0 +1,2 @@
+class AbstractTrackNameUpdatedEvent(object):
+    pass

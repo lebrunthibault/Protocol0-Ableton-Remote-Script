@@ -27,14 +27,14 @@ class AudioLatencyAnalyzerService(object):
 
     def test_audio_latency(self, track):
         # type: (ExternalSynthTrack) -> Optional[Sequence]
-        if SongFacade.usamo_track() is None:
+        if SongFacade.usamo_device() is None:
             raise Protocol0Warning("Missing usamo track")
 
         tempo = SongFacade.tempo()
         self._song.tempo = 120  # easier to see jitter
 
         seq = Sequence()
-        seq.add(track.duplicate)
+        seq.add(partial(self._song.duplicate_track, track))
         seq.wait_for_event(InstrumentActivatedEvent)
         seq.add(self._set_up_track_for_record)
         seq.add(self._create_audio_test_clip)

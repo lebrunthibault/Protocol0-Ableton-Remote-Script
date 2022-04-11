@@ -1,7 +1,9 @@
-from typing import Type, Dict, Any
-
 import Live
 from _Framework.ControlSurface import ControlSurface
+from typing import Type, Dict, Any
+
+from protocol0.application.CommandBus import CommandBus
+from protocol0.application.ContainerInterface import ContainerInterface
 from protocol0.application.ErrorService import ErrorService
 from protocol0.application.control_surface.ActionGroupFactory import ActionGroupFactory
 from protocol0.application.vocal_command.KeywordSearchService import KeywordSearchService
@@ -15,20 +17,19 @@ from protocol0.domain.lom.device.DeviceService import DeviceService
 from protocol0.domain.lom.instrument.InstrumentDisplayService import InstrumentDisplayService
 from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService import InstrumentPresetScrollerService
 from protocol0.domain.lom.instrument.preset.PresetService import PresetService
+from protocol0.domain.lom.scene.SceneService import SceneService
 from protocol0.domain.lom.set.MixingService import MixingService
 from protocol0.domain.lom.set.SessionToArrangementService import SessionToArrangementService
 from protocol0.domain.lom.song.Song import Song
-from protocol0.domain.lom.scene.SceneService import SceneService
 from protocol0.domain.lom.song.SongService import SongService
+from protocol0.domain.lom.track.TrackFactory import TrackFactory
 from protocol0.domain.lom.track.TrackPlayerService import TrackPlayerService
 from protocol0.domain.lom.track.TrackRepository import TrackRepository
 from protocol0.domain.lom.track.TrackService import TrackService
-from protocol0.domain.lom.track.TrackFactory import TrackFactory
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrackService import SimpleDummyTrackService
 from protocol0.domain.lom.validation.ValidatorFactory import ValidatorFactory
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
 from protocol0.domain.shared.ApplicationView import ApplicationView
-from protocol0.application.CommandBus import CommandBus
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -36,18 +37,17 @@ from protocol0.domain.track_recorder.TrackRecorderService import TrackRecorderSe
 from protocol0.infra.interface.BrowserLoaderService import BrowserLoaderService
 from protocol0.infra.interface.BrowserService import BrowserService
 from protocol0.infra.interface.InterfaceClicksService import InterfaceClicksService
-from protocol0.infra.midi.MidiService import MidiService
 from protocol0.infra.interface.SessionService import SessionService
-from protocol0.infra.persistence.SongDataService import SongDataService
 from protocol0.infra.logging.LoggerService import LoggerService
+from protocol0.infra.midi.MidiService import MidiService
+from protocol0.infra.persistence.SongDataService import SongDataService
 from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
 from protocol0.infra.scheduler.TickScheduler import TickScheduler
-from protocol0.application.ContainerInterface import ContainerInterface
-from protocol0.shared.SongViewFacade import SongViewFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.StatusBar import StatusBar
+from protocol0.shared.SongViewFacade import SongViewFacade
 from protocol0.shared.UndoFacade import UndoFacade
+from protocol0.shared.logging.Logger import Logger
+from protocol0.shared.logging.StatusBar import StatusBar
 from protocol0.shared.types import T
 
 
@@ -79,7 +79,7 @@ class Container(ContainerInterface):
         browser = control_surface.application().browser
         browser_service = BrowserService(browser, BrowserLoaderService(browser))
         device_service = DeviceService(browser_service, song.select_device)
-        track_factory = TrackFactory(song)
+        track_factory = TrackFactory(song, browser_service)
         SimpleDummyTrackService(browser_service)
         track_repository = TrackRepository()
         track_service = TrackService(track_factory, song)
@@ -95,7 +95,7 @@ class Container(ContainerInterface):
         instrument_preset_scroller_service = InstrumentPresetScrollerService()
         mixing_service = MixingService(live_song.master_track)
         validator_service = ValidatorService(ValidatorFactory(browser_service))
-        set_upgrade_service = SetUpgradeService(device_service, validator_service)
+        set_upgrade_service = SetUpgradeService(device_service, validator_service, song.duplicate_track)
         log_service = LogService()
         set_fixer_service = SetFixerService(
             validator_service=validator_service,

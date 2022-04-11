@@ -1,2 +1,0 @@
-class SongStateUpdatedEvent(object):
-    pass

@@ -1,10 +1,10 @@
 import collections
 from itertools import chain
 
+import Live
 from _Framework.SubjectSlot import subject_slot
 from typing import Optional, List, TYPE_CHECKING, Iterator, Dict
 
-import Live
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.lom.scene.ScenesMappedEvent import ScenesMappedEvent

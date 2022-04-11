@@ -40,6 +40,7 @@ class TrackService(UseFrameworkEvents):
         self._live_track_id_to_simple_track = collections.OrderedDict()  # type: Dict[int, SimpleTrack]
         self._template_dummy_clip = None  # type: Optional[AudioClip]
         self._usamo_device = None  # type: Optional[Device]
+        self._usamo_track = None  # type: Optional[SimpleTrack]
         self._drums_track = None  # type: Optional[DrumsTrack]
         self._master_track = None  # type: Optional[SimpleTrack]
 
@@ -90,6 +91,7 @@ class TrackService(UseFrameworkEvents):
         # type: () -> None
         """ instantiate SimpleTracks (including return / master, that are marked as inactive) """
         self._usamo_device = None
+        self._usamo_track = None
         self._drums_track = None
         self.template_dummy_clip = None  # type: Optional[AudioClip]
 
@@ -97,11 +99,12 @@ class TrackService(UseFrameworkEvents):
         for index, track in enumerate(list(self._song._song.tracks)):
             track = self._track_factory.create_simple_track(track=track, index=index)
 
-            usamo_device = track.get_device_from_enum(DeviceEnum.USAMO)
+            usamo_device = track.devices.get_from_enum(DeviceEnum.USAMO)
             if usamo_device:
                 if self._usamo_device:
                     raise Protocol0Warning("Duplicate usamo track")
                 self._usamo_device = usamo_device
+                self._usamo_track = track
 
             if isinstance(track, SimpleInstrumentBusTrack) and len(track.clips):
                 self._template_dummy_clip = track.clips[0]
@@ -137,7 +140,6 @@ class TrackService(UseFrameworkEvents):
     def _on_simple_track_created_event(self, event):
         # type: (SimpleTrackCreatedEvent) -> None
         """ So as to be able to generate simple tracks with the abstract group track aggregate """
-        event.track.set_song(self._song)
         # handling replacement of a SimpleTrack by another
         previous_simple_track = SongFacade.optional_simple_track_from_live_track(event.track._track)
         if previous_simple_track and previous_simple_track != event.track:
@@ -173,7 +175,6 @@ class TrackService(UseFrameworkEvents):
 
             previous_abstract_group_track = track.abstract_group_track
             abstract_group_track = self._track_factory.create_abstract_group_track(track)
-            abstract_group_track.set_song(self._song)
 
             if isinstance(previous_abstract_group_track, ExternalSynthTrack) and isinstance(abstract_group_track,
                                                                                             NormalGroupTrack):

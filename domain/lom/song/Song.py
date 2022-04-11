@@ -1,8 +1,8 @@
 from functools import partial
 
+import Live
 from typing import Optional, Any, Iterator
 
-import Live
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.ClipEnvelopeShowedEvent import ClipEnvelopeShowedEvent
@@ -17,9 +17,11 @@ from protocol0.domain.lom.song.SongStartedEvent import SongStartedEvent
 from protocol0.domain.lom.song.SongState import SongState
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
+from protocol0.domain.lom.track.abstract_track.AbstractTrackSelectedEvent import AbstractTrackSelectedEvent
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
 from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.decorators import p0_subject_slot, debounce
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -48,6 +50,8 @@ class Song(SongActionMixin, UseFrameworkEvents):
 
         DomainEventBus.subscribe(ClipEnvelopeShowedEvent, lambda _: self.re_enable_automation())
         DomainEventBus.subscribe(ClipSelectedEvent, self._on_selected_clip_event)
+        DomainEventBus.subscribe(AbstractTrackSelectedEvent, self._on_abstract_track_selected_event)
+        DomainEventBus.subscribe(SimpleTrackArmedEvent, self._on_simple_track_armed_event)
 
     def __repr__(self):
         # type: () -> str
@@ -101,6 +105,14 @@ class Song(SongActionMixin, UseFrameworkEvents):
                                                                                           SimpleTrack):
                 continue
             yield track
+
+    def _on_abstract_track_selected_event(self, event):
+        # type: (AbstractTrackSelectedEvent) -> None
+        self.select_track(event.track)
+
+    def _on_simple_track_armed_event(self, _):
+        # type: (SimpleTrackArmedEvent) -> None
+        self.unfocus_all_tracks()
 
     # SCENES
 
