@@ -25,15 +25,6 @@ class ActionGroupMain(ActionGroupMixin):
             # type: (RecordTypeEnum) -> Optional[Sequence]
             return self._container.get(TrackRecorderService).record_track(SongFacade.current_track(), record_type)
 
-        # # RECO encoder
-        # self.add_encoder(
-        #     identifier=1,
-        #     name="record audio and erase automation",
-        #     filter_active_tracks=True,
-        #     on_press=lambda: partial(record_track, RecordTypeEnum.AUDIO_ONLY),
-        #     on_long_press=lambda: partial(record_track, RecordTypeEnum.AUDIO_ONLY_MULTI),
-        # )
-
         # AUTOmation encoder
         self.add_encoder(
             identifier=3,

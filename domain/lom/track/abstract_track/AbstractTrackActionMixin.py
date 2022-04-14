@@ -19,8 +19,11 @@ class AbstractTrackActionMixin(object):
 
     # noinspection PyUnusedLocal
     def select(self):
-        # type: (AbstractTrack) -> None
+        # type: (AbstractTrack) -> Sequence
         DomainEventBus.notify(AbstractTrackSelectedEvent(self))
+        seq = Sequence()
+        seq.wait(3)
+        return seq.done()
 
     def toggle_arm(self):
         # type: (AbstractTrack) -> Optional[Sequence]

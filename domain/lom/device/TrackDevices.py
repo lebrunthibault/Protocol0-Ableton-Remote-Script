@@ -7,10 +7,7 @@ from typing import List, Optional, Iterator, Dict, cast
 
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
-from protocol0.domain.lom.device.PluginDevice import PluginDevice
-from protocol0.domain.lom.device.PluginDeviceAddedEvent import PluginDeviceAddedEvent
 from protocol0.domain.lom.device.RackDevice import RackDevice
-from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.LiveObjectMapping import LiveObjectMapping
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.utils import find_if
@@ -50,9 +47,6 @@ class TrackDevices(SlotManager, Observable):
         self._devices = cast(List[Device], self._devices_mapping.all)
         self._all_devices = self._find_all_devices(self._devices)
 
-        if len(self._devices_mapping.added) == 1 and isinstance(self._devices_mapping.added[0], PluginDevice):
-            DomainEventBus.notify(PluginDeviceAddedEvent(self._devices_mapping.added[0]))
-
         self.notify_observers()
 
     def all(self):
@@ -71,9 +65,13 @@ class TrackDevices(SlotManager, Observable):
         else:
             return None
 
-    def get_from_enum(self, device_enum):
+    def get_one_from_enum(self, device_enum):
         # type: (DeviceEnum) -> Optional[Device]
         return find_if(lambda d: d.name == device_enum.device_name, self._all_devices)
+
+    def get_from_enum(self, device_enum):
+        # type: (DeviceEnum) -> List[Device]
+        return list(filter(lambda d: d.name == device_enum.device_name, self._all_devices))
 
     def _find_all_devices(self, devices, only_visible=False):
         # type: (Optional[List[Device]], bool) -> List[Device]

@@ -95,7 +95,7 @@ class SetUpgradeService(object):
         # devices off
         for device_enum in DeviceEnum.deprecated_devices():
             for track in tracks:
-                device = track.devices.get_from_enum(device_enum)
+                device = track.devices.get_one_from_enum(device_enum)
                 if device:
                     yield track, device
 
@@ -107,7 +107,7 @@ class SetUpgradeService(object):
                 continue
 
             for track in tracks:
-                device = track.devices.get_from_enum(device_enum)
+                device = track.devices.get_one_from_enum(device_enum)
                 if not device:
                     continue
                 device_on = device.get_parameter_by_name(DeviceParameterEnum.DEVICE_ON)
@@ -118,7 +118,7 @@ class SetUpgradeService(object):
 
         # empty mix racks
         for track in SongFacade.all_simple_tracks():
-            mix_rack = track.devices.get_from_enum(DeviceEnum.MIX_RACK)  # type: Optional[RackDevice]
+            mix_rack = track.devices.get_one_from_enum(DeviceEnum.MIX_RACK)  # type: Optional[RackDevice]
             if mix_rack and len(mix_rack.chains[0].devices) == 0:
                 yield track, mix_rack
 

@@ -9,6 +9,7 @@ from protocol0.domain.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchron
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.TrackDevices import TrackDevices
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
+from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.lom.track.group_track.ExternalSynthTrackActionMixin import ExternalSynthTrackActionMixin
 from protocol0.domain.lom.track.group_track.ExternalSynthTrackMonitoringState import ExternalSynthTrackMonitoringState
@@ -18,6 +19,7 @@ from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummy
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -44,6 +46,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
 
         self._clip_slot_synchronizers = []  # type: List[ClipSlotSynchronizer]
 
+        self._instrument = None  # type: Optional[InstrumentInterface]
         self._external_device = None  # type: Optional[Device]
         self.midi_track.devices.register_observer(self)
         self.midi_track.devices.build()
@@ -148,10 +151,15 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
             if self._external_device is None:
                 raise Protocol0Warning("%s should have an external device" % self)
 
+            if self._instrument is None:
+                self._instrument = self.midi_track.instrument or InstrumentMinitaur(track=self.midi_track, device=None)
+            elif self.midi_track.instrument and self.midi_track.instrument != self._instrument:
+                raise Protocol0Error("Cannot switch instruments in an ExternalSynthTrack")
+
     @property
     def instrument(self):
         # type: () -> InstrumentInterface
-        return cast(InstrumentInterface, self.midi_track.instrument or self.audio_track.instrument)
+        return self._instrument
 
     @property
     def clips(self):

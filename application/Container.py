@@ -13,6 +13,7 @@ from protocol0.domain.audit.LogService import LogService
 from protocol0.domain.audit.SetFixerService import SetFixerService
 from protocol0.domain.audit.SetUpgradeService import SetUpgradeService
 from protocol0.domain.audit.SongStatsService import SongStatsService
+from protocol0.domain.lom.device.DeviceDisplayService import DeviceDisplayService
 from protocol0.domain.lom.device.DeviceService import DeviceService
 from protocol0.domain.lom.instrument.InstrumentDisplayService import InstrumentDisplayService
 from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService import InstrumentPresetScrollerService
@@ -78,6 +79,7 @@ class Container(ContainerInterface):
 
         browser = control_surface.application().browser
         browser_service = BrowserService(browser, BrowserLoaderService(browser))
+        device_display_service = DeviceDisplayService(browser_service, song.select_device)
         device_service = DeviceService(browser_service, song.select_device)
         track_factory = TrackFactory(song, browser_service)
         SimpleDummyTrackService(browser_service)
@@ -91,7 +93,7 @@ class Container(ContainerInterface):
 
         song_service = SongService(song)
         Backend.client().end_measurement()
-        instrument_display_service = InstrumentDisplayService(device_service)
+        instrument_display_service = InstrumentDisplayService(device_display_service)
         instrument_preset_scroller_service = InstrumentPresetScrollerService()
         mixing_service = MixingService(live_song.master_track)
         validator_service = ValidatorService(ValidatorFactory(browser_service))
@@ -117,20 +119,28 @@ class Container(ContainerInterface):
         # registering managers in container
         self._register(midi_service)
         self._register(browser_service)
-        self._register(track_service)
-        self._register(track_player_service)
-        self._register(scene_service)
-        self._register(song_data_service)
+
         self._register(song_service)
+        self._register(song_data_service)
+        self._register(song_stats_service)
+
+        self._register(track_service)
+        self._register(track_factory)
+        self._register(track_player_service)
+
+        self._register(scene_service)
+
         self._register(instrument_display_service)
         self._register(instrument_preset_scroller_service)
+
+        self._register(device_service)
+
         self._register(mixing_service)
         self._register(track_recorder_service)
         self._register(validator_service)
         self._register(set_upgrade_service)
         self._register(log_service)
         self._register(set_fixer_service)
-        self._register(song_stats_service)
         self._register(audio_latency_service)
         self._register(preset_service)
         self._register(session_to_arrangement_service)

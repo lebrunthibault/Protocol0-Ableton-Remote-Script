@@ -24,7 +24,7 @@ class SimpleTrackHasDeviceValidator(ValidatorInterface):
 
     def is_valid(self):
         # type: () -> bool
-        return self._track.devices.get_from_enum(self._device_enum) is not None
+        return self._track.devices.get_one_from_enum(self._device_enum) is not None
 
     def fix(self):
         # type: () -> Sequence

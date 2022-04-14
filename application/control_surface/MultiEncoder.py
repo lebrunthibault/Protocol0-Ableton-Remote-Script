@@ -15,7 +15,7 @@ from protocol0.shared.SongFacade import SongFacade
 
 
 class MultiEncoder(UseFrameworkEvents):
-    PRESS_MAX_TIME = 0.25  # maximum time in seconds we consider a simple press
+    LONG_PRESS_THRESHOLD = 0.25  # maximum time in seconds we consider a simple press
 
     def __init__(self, channel, identifier, name, filter_active_tracks, component_guard):
         # type: (int, int, str, bool, Callable) -> None
@@ -54,7 +54,7 @@ class MultiEncoder(UseFrameworkEvents):
     @property
     def _is_long_pressed(self):
         # type: () -> bool
-        return bool(self._pressed_at and (time.time() - self._pressed_at) > MultiEncoder.PRESS_MAX_TIME)
+        return bool(self._pressed_at and (time.time() - self._pressed_at) > MultiEncoder.LONG_PRESS_THRESHOLD)
 
     @subject_slot("value")
     def _press_listener(self, value):

@@ -99,7 +99,7 @@ class TrackService(UseFrameworkEvents):
         for index, track in enumerate(list(self._song._song.tracks)):
             track = self._track_factory.create_simple_track(track=track, index=index)
 
-            usamo_device = track.devices.get_from_enum(DeviceEnum.USAMO)
+            usamo_device = track.devices.get_one_from_enum(DeviceEnum.USAMO)
             if usamo_device:
                 if self._usamo_device:
                     raise Protocol0Warning("Duplicate usamo track")

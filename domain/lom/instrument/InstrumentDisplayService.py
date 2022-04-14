@@ -2,7 +2,7 @@ from functools import partial
 
 from typing import Optional
 
-from protocol0.domain.lom.device.DeviceService import DeviceService
+from protocol0.domain.lom.device.DeviceDisplayService import DeviceDisplayService
 from protocol0.domain.lom.instrument.InstrumentActivatedEvent import InstrumentActivatedEvent
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
@@ -13,9 +13,9 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 
 class InstrumentDisplayService(object):
-    def __init__(self, device_service):
-        # type: (DeviceService) -> None
-        self._device_service = device_service
+    def __init__(self, device_display_service):
+        # type: (DeviceDisplayService) -> None
+        self._device_display_service = device_display_service
         DomainEventBus.subscribe(SimpleTrackArmedEvent, self._on_simple_track_armed_event)
 
     def show_hide_instrument(self, instrument):
@@ -53,7 +53,7 @@ class InstrumentDisplayService(object):
 
         if force_activate or not instrument.activated:
             seq.add(instrument.track.select)
-            seq.add(partial(self._device_service.make_plugin_window_showable, instrument.track, instrument.device))
+            seq.add(partial(self._device_display_service.make_plugin_window_showable, instrument.track, instrument.device))
             seq.add(lambda: setattr(instrument, "activated", True), name="mark instrument as activated")
 
         if force_activate or instrument.needs_exclusive_activation:

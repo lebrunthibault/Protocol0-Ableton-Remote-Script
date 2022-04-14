@@ -24,7 +24,8 @@ class DeviceEnum(AbstractEnum):
     SERUM = "SERUM"
     SIMPLER = "SIMPLER"
     SSL_COMP = "SSL_COMP"
-    TRACKSPACER = "TRACKSPACER"
+    TRACK_SPACER = "TRACK_SPACER"
+    TRUE_VERB = "TRUE_VERB"
     USAMO = "USAMO"
     UTILITY = "UTILITY"
 
@@ -48,7 +49,8 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.SERUM: "Serum_x64",
             DeviceEnum.SIMPLER: "Simpler",
             DeviceEnum.SSL_COMP: "SSLComp Stereo",
-            DeviceEnum.TRACKSPACER: "Trackspacer 2.5",
+            DeviceEnum.TRACK_SPACER: "Trackspacer 2.5",
+            DeviceEnum.TRUE_VERB: "TrueVerb Stereo",
             DeviceEnum.USAMO: "usamo_x64",
             DeviceEnum.UTILITY: "Utility",
         })
@@ -68,7 +70,8 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.MIX_RACK: "Mix Rack.adg",
             DeviceEnum.SIMPLER: "Simpler",
             DeviceEnum.SSL_COMP: "SSLComp Stereo",
-            DeviceEnum.TRACKSPACER: "Trackspacer 2.5",
+            DeviceEnum.TRACK_SPACER: "Trackspacer 2.5",
+            DeviceEnum.TRUE_VERB: "TrueVerb Stereo",
             DeviceEnum.UTILITY: "Utility",
         })
 
@@ -78,8 +81,10 @@ class DeviceEnum(AbstractEnum):
         return [
             cls.COMPRESSOR,
             cls.EQ_EIGHT,
+            cls.LFO_TOOL,
             cls.SSL_COMP,
-            cls.TRACKSPACER,
+            cls.TRACK_SPACER,
+            cls.TRUE_VERB,
             cls.UTILITY,
         ]
 
