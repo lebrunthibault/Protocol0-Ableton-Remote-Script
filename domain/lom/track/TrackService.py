@@ -9,6 +9,7 @@ from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.song.Song import Song
+from protocol0.domain.lom.track.SelectedTrackChangedEvent import SelectedTrackChangedEvent
 from protocol0.domain.lom.track.TrackAddedEvent import TrackAddedEvent
 from protocol0.domain.lom.track.TrackFactory import TrackFactory
 from protocol0.domain.lom.track.TracksMappedEvent import TracksMappedEvent
@@ -45,7 +46,13 @@ class TrackService(UseFrameworkEvents):
         self._master_track = None  # type: Optional[SimpleTrack]
 
         self.tracks_listener.subject = self._song._song
+        self._selected_track_listener.subject = self._song._view
         DomainEventBus.subscribe(SimpleTrackCreatedEvent, self._on_simple_track_created_event)
+
+    @subject_slot("selected_track")
+    def _selected_track_listener(self):
+        # type: () -> None
+        DomainEventBus.notify(SelectedTrackChangedEvent())
 
     @subject_slot("tracks")
     @handle_error

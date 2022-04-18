@@ -21,7 +21,7 @@ class LoggerService(LoggerServiceInterface):
         if isinstance(message, List) or isinstance(message, Dict):
             try:
                 message = json.dumps(message, indent=4)
-            except (AttributeError, TypeError):
+            except TypeError:
                 pass
 
         if not isinstance(message, basestring):

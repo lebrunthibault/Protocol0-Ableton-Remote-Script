@@ -1,7 +1,7 @@
 from functools import wraps
 
 from p0_backend_client import P0BackendClient
-from typing import Optional, Callable
+from typing import Optional, Callable, Any
 
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.types import Func
@@ -10,10 +10,10 @@ from protocol0.shared.types import Func
 def show_and_log(backend_client_func, log_func):
     # type: (Func, Func) -> Func
     @wraps(backend_client_func)
-    def decorate(message):
-        # type: (str) -> None
+    def decorate(message, *a, **k):
+        # type: (str, Any, Any) -> None
         log_func(message)
-        backend_client_func(message)
+        backend_client_func(message, *a, **k)
 
     return decorate
 

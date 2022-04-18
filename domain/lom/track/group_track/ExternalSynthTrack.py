@@ -159,7 +159,7 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     @property
     def instrument(self):
         # type: () -> InstrumentInterface
-        return self._instrument
+        return cast(InstrumentInterface, self._instrument)
 
     @property
     def clips(self):

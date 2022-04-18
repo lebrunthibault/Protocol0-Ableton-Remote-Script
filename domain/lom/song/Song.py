@@ -75,7 +75,7 @@ class Song(SongActionMixin, UseFrameworkEvents):
             DomainEventBus.defer_notify(SongStartedEvent())
 
     @p0_subject_slot("tempo")
-    @debounce(wait_time=60)  # 1 second
+    @debounce(wait_time=1000)
     def _tempo_listener(self):
         # type: () -> None
         self._midi_recording_quantization_checked = False

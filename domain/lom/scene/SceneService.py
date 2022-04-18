@@ -28,10 +28,11 @@ if TYPE_CHECKING:
 
 
 class SceneService(UseFrameworkEvents):
-    def __init__(self, song, track_recorder_service):
-        # type: (Song, TrackRecorderService) -> None
+    def __init__(self, song, live_song, track_recorder_service):
+        # type: (Song, Live.Song.Song, TrackRecorderService) -> None
         super(SceneService, self).__init__()
         self._song = song
+        self._live_song = live_song
         self._track_recorder_service = track_recorder_service
         self.scenes_listener.subject = song._song
         self._live_scene_id_to_scene = collections.OrderedDict()  # type: Dict[int, Scene]
@@ -95,7 +96,7 @@ class SceneService(UseFrameworkEvents):
         for track in collections.OrderedDict.fromkeys(tracks):
             track.on_scenes_change()
 
-        live_scenes = SongFacade.live_song().scenes
+        live_scenes = self._live_song.scenes
         has_added_scene = 0 < len(SongFacade.scenes()) < len(live_scenes)
 
         # get the right scene or instantiate new scenes
@@ -109,7 +110,7 @@ class SceneService(UseFrameworkEvents):
 
     def _clean_deleted_scenes(self):
         # type: () -> None
-        existing_scene_ids = [scene._live_ptr for scene in SongFacade.live_song().scenes]
+        existing_scene_ids = [scene._live_ptr for scene in self._live_song.scenes]
         deleted_ids = []  # type: List[int]
 
         for scene_id, scene in self._live_scene_id_to_scene.items():
@@ -132,7 +133,7 @@ class SceneService(UseFrameworkEvents):
     def _sort_scenes(self):
         # type: () -> None
         sorted_dict = collections.OrderedDict()
-        for scene in SongFacade.live_song().scenes:
+        for scene in self._live_song.scenes:
             sorted_dict[scene._live_ptr] = self.get_scene(scene)
         self._live_scene_id_to_scene = sorted_dict
 

@@ -13,6 +13,7 @@ class DeviceEnum(AbstractEnum):
     AUTO_FILTER_HIGH_PASS = "AUTO_FILTER_HIGH_PASS"
     AUTO_FILTER_LOW_PASS = "AUTO_FILTER_LOW_PASS"
     COMPRESSOR = "COMPRESSOR"
+    DRUM_RACK = "DRUM_RACK"
     DUMMY_RACK = "DUMMY_RACK"
     EQ_EIGHT = "EQ_EIGHT"
     EXTERNAL_AUDIO_EFFECT = "EXTERNAL_AUDIO_EFFECT"
@@ -38,6 +39,7 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.AUTO_FILTER_HIGH_PASS: "Auto Filter High Pass",
             DeviceEnum.AUTO_FILTER_LOW_PASS: "Auto Filter Low Pass",
             DeviceEnum.COMPRESSOR: "Compressor",
+            DeviceEnum.DRUM_RACK: "Drum Rack",
             DeviceEnum.DUMMY_RACK: "Dummy Rack",
             DeviceEnum.EQ_EIGHT: "EQ Eight",
             DeviceEnum.EXTERNAL_AUDIO_EFFECT: "Ext. Audio Effect",
@@ -64,6 +66,7 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.EXTERNAL_AUDIO_EFFECT: "External Audio Effect",
             DeviceEnum.EXTERNAL_INSTRUMENT: "External Instrument",
             DeviceEnum.COMPRESSOR: "Compressor",
+            DeviceEnum.DRUM_RACK: "Drum Rack",
             DeviceEnum.DUMMY_RACK: "Dummy Rack.adg",
             DeviceEnum.EQ_EIGHT: "EQ Eight",
             DeviceEnum.LFO_TOOL: "LFOTool.adg",

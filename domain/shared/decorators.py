@@ -1,9 +1,9 @@
 from collections import defaultdict
 from functools import wraps, partial
 
+from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
 from typing import Any, Callable, TYPE_CHECKING, Optional
 
-from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import is_method
 from protocol0.shared.types import Func
@@ -92,7 +92,7 @@ def lock(func):
 
 
 def debounce(wait_time=100):
-    # type: (int) -> Func
+    # type: (float) -> Func
     """ here we make the method dynamic """
 
     def wrap(func):
@@ -102,7 +102,7 @@ def debounce(wait_time=100):
             # type: (Any, Any) -> None
             object_source = a[0] if is_method(func) else decorate
             decorate.count[object_source] += 1  # type: ignore[attr-defined]
-            Scheduler.wait(wait_time, partial(execute, func, *a, **k))
+            Scheduler.wait_seconds(float(wait_time) / 1000, partial(execute, func, *a, **k))
 
         decorate.count = defaultdict(int)  # type: ignore[attr-defined]
 

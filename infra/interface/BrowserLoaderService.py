@@ -1,10 +1,8 @@
-from functools import partial
-
 import Live
 from typing import Dict
 
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
-from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.logging.Logger import Logger
 
 AUDIO_FX = (u'Amp', u'Audio Effect Rack', u'Auto Filter', u'Auto Pan', u'Beat Repeat',
@@ -45,6 +43,11 @@ class BrowserLoaderService(object):
 
             self._do_load_item(item, 'Plugin')
 
+    def load_sample(self, name):
+        # type: (str) -> None
+        """ Loads items from the sample category. """
+        self._do_load_item(self._get_item_for_category('samples', name), 'Sample')
+
     def load_from_user_library(self, name):
         # type: (str) -> None
         """ Loads items from the user library category """
@@ -53,17 +56,26 @@ class BrowserLoaderService(object):
     def _do_load_item(self, item, header='Device'):
         # type: (Live.Browser.BrowserItem, str) -> None
         """ Handles loading an item and displaying load info in status bar. """
+        # NB : activating this will hotswap drum rack pads if a drum rack is selected
+        # ApplicationView.toggle_browse()
         if item and item.is_loadable:
             Logger.info('Loading %s: %s' % (header, item.name))
-            Scheduler.defer(partial(self._browser.load_item, item))
+            # noinspection PyArgumentList
+            self._browser.load_item(item)
+            # ApplicationView.toggle_browse()
+            # Scheduler.defer(partial(self._browser.load_item, item))
         else:
-            raise Protocol0Warning("Couldn't load %s item" % header)
+            raise Protocol0Error("Couldn't load %s item" % header)
 
-    def _get_item_for_category(self, category, item):
+    def _get_item_for_category(self, category, name):
         # type: (str, str) -> Live.Browser.BrowserItem
         """ Returns the cached item for the category. """
         self._cache_category(category)
-        return self._cached_browser_items[category].get(item, None)
+        item = self._cached_browser_items[category].get(name, None)
+        if item is None:
+            raise Protocol0Error("Couldn't find browser item %s (%s)" % (name, category))
+
+        return item
 
     def _cache_category(self, category):
         # type: (str) -> None

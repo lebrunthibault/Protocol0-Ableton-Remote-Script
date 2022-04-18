@@ -15,6 +15,7 @@ from protocol0.domain.audit.SetUpgradeService import SetUpgradeService
 from protocol0.domain.audit.SongStatsService import SongStatsService
 from protocol0.domain.lom.device.DeviceDisplayService import DeviceDisplayService
 from protocol0.domain.lom.device.DeviceService import DeviceService
+from protocol0.domain.lom.device.DrumRackService import DrumRackService
 from protocol0.domain.lom.instrument.InstrumentDisplayService import InstrumentDisplayService
 from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService import InstrumentPresetScrollerService
 from protocol0.domain.lom.instrument.preset.PresetService import PresetService
@@ -81,13 +82,14 @@ class Container(ContainerInterface):
         browser_service = BrowserService(browser, BrowserLoaderService(browser))
         device_display_service = DeviceDisplayService(browser_service, song.select_device)
         device_service = DeviceService(browser_service, song.select_device)
-        track_factory = TrackFactory(song, browser_service)
+        drum_rack_service = DrumRackService(browser_service)
+        track_factory = TrackFactory(song, browser_service, drum_rack_service)
         SimpleDummyTrackService(browser_service)
         track_repository = TrackRepository()
         track_service = TrackService(track_factory, song)
         track_player_service = TrackPlayerService(song, track_repository)
         track_recorder_service = TrackRecorderService(song)
-        scene_service = SceneService(song, track_recorder_service)
+        scene_service = SceneService(song, live_song, track_recorder_service)
         SongFacade(song, track_service, scene_service, track_recorder_service)
         SongViewFacade(song)
 
@@ -134,6 +136,7 @@ class Container(ContainerInterface):
         self._register(instrument_preset_scroller_service)
 
         self._register(device_service)
+        self._register(drum_rack_service)
 
         self._register(mixing_service)
         self._register(track_recorder_service)

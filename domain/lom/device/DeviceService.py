@@ -42,7 +42,6 @@ class DeviceService(object):
         # type: (str) -> Sequence
         device_enum = DeviceEnum.from_value(device_name.upper())  # type: DeviceEnum
         track = SongFacade.current_track().base_track
-        Logger.dev(track)
         seq = Sequence()
         seq.add(track.select)
         seq.add(partial(self._browser_service.load_device_from_enum, device_enum))
@@ -62,3 +61,4 @@ class DeviceService(object):
             next_device = scroll_values(devices, track.devices.selected, True)
 
         self._select_device(track, next_device)
+        return None

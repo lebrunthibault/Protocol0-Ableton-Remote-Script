@@ -37,11 +37,6 @@ class LogService(object):
                 "current_track.instrument.selected_category: %s"
                 % SongFacade.current_track().instrument.preset_list.selected_category
             )
-            Logger.info(
-                "len(current_track.instrument.presets): %s"
-                % len(SongFacade.current_track().instrument.preset_list.presets)
-            )
-            Logger.info(SongFacade.current_track().instrument.preset_list.presets)
 
         if SongFacade.current_track().base_track != SongFacade.current_track():
             Logger.info()

@@ -23,7 +23,7 @@ class MixingService(UseFrameworkEvents):
         # type: () -> None
         MixingService._VOLUME_LISTENER_ACTIVE = not MixingService._VOLUME_LISTENER_ACTIVE
         StatusBar.show_message("VOLUME_LISTENER_ACTIVE: %s" % MixingService._VOLUME_LISTENER_ACTIVE)
-        listenable_tracks = SongFacade.live_song().tracks
+        listenable_tracks = [t._track for t in SongFacade.all_simple_tracks()]
         if not MixingService._VOLUME_LISTENER_ACTIVE:
             listenable_tracks = []
         self._track_output_meter_level_listener.replace_subjects(listenable_tracks)

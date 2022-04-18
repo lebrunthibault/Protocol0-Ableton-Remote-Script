@@ -1,5 +1,5 @@
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 
 
 class PresetService(object):

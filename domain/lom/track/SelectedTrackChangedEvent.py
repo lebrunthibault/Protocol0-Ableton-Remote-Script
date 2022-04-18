@@ -1,0 +1,2 @@
+class SelectedTrackChangedEvent(object):
+    pass

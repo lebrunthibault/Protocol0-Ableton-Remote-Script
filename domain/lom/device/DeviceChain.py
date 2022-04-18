@@ -18,6 +18,14 @@ class DeviceChain(UseFrameworkEvents):
         self._devices_listener.subject = self._chain
         self._devices_listener()
 
+    def __repr__(self):
+        # type: () -> str
+        out = "DeviceChain(name=%s" % self.name
+        if len(self.devices):
+            out += ", first_device=%s" % self.devices[0]
+
+        return out + ")"
+
     @property
     def name(self):
         # type: () -> str

@@ -37,6 +37,29 @@ class BrowserService(BrowserServiceInterface):
         seq.add(ApplicationView.focus_detail)
         return seq.done()
 
+    def load_sample(self, name):
+        # type: (str) -> Sequence
+        self._browser_loader_service.load_sample(name)
+        seq = Sequence()
+        seq.wait(10)
+        return seq.done()
+
+    def load_from_user_library(self, name):
+        # type: (str) -> Sequence
+        self._browser_loader_service.load_from_user_library(name)
+        seq = Sequence()
+        seq.wait(20)
+        return seq.done()
+
+    def load_drum_pad_sample(self, name):
+        # type: (str) -> Sequence
+        ApplicationView.toggle_browse()
+        self._browser_loader_service.load_sample(name)
+        seq = Sequence()
+        # seq.wait(2)
+        seq.add(ApplicationView.toggle_browse)
+        return seq.done()
+
     def _on_sample_selected_event(self, event):
         # type: (SampleSelectedEvent) -> None
         item = self._get_sample(sample_name=event.sample_name)

@@ -1,9 +1,8 @@
-import collections
 from itertools import chain
 
 import Live
 from _Framework.SubjectSlot import SlotManager
-from typing import List, Optional, Iterator, Dict, cast
+from typing import List, Optional, Iterator, cast
 
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
@@ -21,7 +20,6 @@ class TrackDevices(SlotManager, Observable):
         self._track = live_track
         self._devices = []  # type: List[Device]
         self._all_devices = []  # type: List[Device]
-        self._live_device_id_to_device = collections.OrderedDict()  # type: Dict[int, Device]
         self._devices_listener.subject = live_track
         self._devices_mapping = LiveObjectMapping(Device.make)
 
@@ -84,9 +82,9 @@ class TrackDevices(SlotManager, Observable):
                 all_devices += [device]
                 continue
 
-            if device.can_have_drum_pads and device.can_have_chains:
+            if device.can_have_drum_pads and device.can_have_chains and device.selected_chain:
                 all_devices += chain([device], self._find_all_devices(device.selected_chain.devices))
-            elif not device.can_have_drum_pads and isinstance(device, RackDevice):
+            elif isinstance(device, RackDevice):
                 all_devices += [device]
                 for device_chain in device.chains:
                     all_devices += self._find_all_devices(device_chain.devices, only_visible=only_visible)

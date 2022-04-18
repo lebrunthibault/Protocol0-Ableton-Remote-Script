@@ -40,7 +40,7 @@ class Sequence(SequenceStateMachineMixin, SequenceActionMixin):
         return self.name
 
     def add(self, func=nop, name=None, notify_terminated=True):
-        # type: (Union[Iterable, Callable, object], str, bool) -> None
+        # type: (Union[Iterable, Callable, object], str, bool) -> Sequence
         """ callback can be a callable or a list of callable (will execute in parallel) """
         assert callable(func) or isinstance(func, Iterable), "You passed a non callable (%s) to %s" % (func, self)
         if isinstance(func, List):
@@ -53,6 +53,8 @@ class Sequence(SequenceStateMachineMixin, SequenceActionMixin):
 
         step = SequenceStep(func, step_name, notify_terminated)
         self._steps.append(step)
+
+        return self
 
     def done(self):
         # type: () -> Sequence

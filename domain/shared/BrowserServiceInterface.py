@@ -11,6 +11,18 @@ class BrowserServiceInterface(object):
         # type: (DeviceEnum) -> Sequence
         raise NotImplementedError
 
+    def load_from_user_library(self, name):
+        # type: (str) -> Sequence
+        raise NotImplementedError
+
+    def load_sample(self, sample_name):
+        # type: (str) -> Sequence
+        raise NotImplementedError
+
+    def load_drum_pad_sample(self, sample_name):
+        # type: (str) -> Sequence
+        raise NotImplementedError
+
     def update_audio_effect_preset(self, track, device):
         # type: (SimpleTrack, Device) -> Optional[Sequence]
         raise NotImplementedError

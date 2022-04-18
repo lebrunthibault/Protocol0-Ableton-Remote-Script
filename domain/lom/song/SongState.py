@@ -1,8 +1,11 @@
 from typing import Dict, Any
 
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
+from protocol0.domain.lom.device.DrumRackLoadedEvent import DrumRackLoadedEvent
+from protocol0.domain.lom.instrument.instrument.InstrumentDrumRack import InstrumentDrumRack
 from protocol0.domain.lom.instrument.instrument.InstrumentSimpler import InstrumentSimpler
 from protocol0.domain.lom.instrument.preset.preset_importer.DirectoryPresetImporter import DirectoryPresetImporter
+from protocol0.domain.lom.track.SelectedTrackChangedEvent import SelectedTrackChangedEvent
 from protocol0.domain.lom.track.TracksMappedEvent import TracksMappedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrackNameUpdatedEvent import AbstractTrackNameUpdatedEvent
 from protocol0.domain.lom.track.simple_track.SimpleTrackFirstClipAddedEvent import SimpleTrackFirstClipAddedEvent
@@ -10,6 +13,7 @@ from protocol0.domain.lom.track.simple_track.SimpleTrackLastClipDeletedEvent imp
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 
 
 class SongState(object):
@@ -19,12 +23,23 @@ class SongState(object):
         DomainEventBus.subscribe(AbstractTrackNameUpdatedEvent, lambda _: self.notify())
         DomainEventBus.subscribe(SimpleTrackFirstClipAddedEvent, lambda _: self.notify())
         DomainEventBus.subscribe(SimpleTrackLastClipDeletedEvent, lambda _: self.notify())
+        DomainEventBus.subscribe(SelectedTrackChangedEvent, lambda _: self._check_drum_rack_visible())
+        DomainEventBus.subscribe(DrumRackLoadedEvent, lambda _: self._check_drum_rack_visible())
         presets = DirectoryPresetImporter(InstrumentSimpler.PRESETS_PATH, InstrumentSimpler.PRESET_EXTENSION).import_presets()
         drum_categories = set()
         for preset in presets:
             drum_categories.add(preset.category)
         self._drum_categories = sorted(drum_categories)
+        self._drum_rack_visible = False
         self._cache = {}  # type: Dict[str, Any]
+
+    def _check_drum_rack_visible(self):
+        # type: () -> None
+        Logger.dev("selected track changed")
+        drum_rack_visible = isinstance(SongFacade.selected_track().instrument, InstrumentDrumRack)
+        if drum_rack_visible != self._drum_rack_visible:
+            self._drum_rack_visible = drum_rack_visible
+            self.notify()
 
     def to_dict(self):
         # type: () -> Dict
@@ -34,7 +49,8 @@ class SongState(object):
         return {
             "drum_track_names": drum_track_names,
             "drum_categories": self._drum_categories,
-            "favorite_device_names": [device.name for device in DeviceEnum.favorites()]
+            "favorite_device_names": [device.name for device in DeviceEnum.favorites()],
+            "drum_rack_visible": self._drum_rack_visible
         }
 
     def notify(self):

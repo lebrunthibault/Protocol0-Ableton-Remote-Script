@@ -1,6 +1,6 @@
+import Live
 from typing import Optional, TYPE_CHECKING
 
-import Live
 from protocol0.domain.shared.SessionServiceInterface import SessionServiceInterface
 
 if TYPE_CHECKING:
@@ -77,3 +77,8 @@ class ApplicationView(object):
     def is_session_visible(cls):
         # type: () -> bool
         return cls._INSTANCE._application_view.is_view_visible('Session')
+
+    @classmethod
+    def toggle_browse(cls):
+        # type: () -> bool
+        return cls._INSTANCE._application_view.toggle_browse()

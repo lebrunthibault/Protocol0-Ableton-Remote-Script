@@ -17,12 +17,12 @@ if TYPE_CHECKING:
 # noinspection PyTypeHints
 class SequenceActionMixin(object):
     def defer(self):
-        # type: (Sequence) -> None
-        self.add(partial(Scheduler.defer, self._execute_next_step), notify_terminated=False)
+        # type: (Sequence) -> Sequence
+        return self.add(partial(Scheduler.defer, self._execute_next_step), notify_terminated=False)
 
     def wait(self, ticks):
-        # type: (Sequence, int) -> None
-        self.add(partial(Scheduler.wait, ticks, self._execute_next_step), notify_terminated=False)
+        # type: (Sequence, int) -> Sequence
+        return self.add(partial(Scheduler.wait, ticks, self._execute_next_step), notify_terminated=False)
 
     def wait_bars(self, bars):
         # type: (Sequence, float) -> None

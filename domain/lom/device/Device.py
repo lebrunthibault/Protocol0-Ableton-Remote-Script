@@ -24,7 +24,7 @@ class Device(UseFrameworkEvents):
 
     def __repr__(self):
         # type: () -> str
-        return "%s: %s" % (self.__class__.__name__, self.name)
+        return "%s(%s)" % (self.__class__.__name__, self.name)
 
     @property
     def live_id(self):
@@ -36,8 +36,12 @@ class Device(UseFrameworkEvents):
         # type: (Any) -> Type[Device]
         if isinstance(device, Live.RackDevice.RackDevice):
             from protocol0.domain.lom.device.RackDevice import RackDevice
+            from protocol0.domain.lom.device.DrumRackDevice import DrumRackDevice
 
-            return RackDevice
+            if device.can_have_drum_pads:
+                return DrumRackDevice
+            else:
+                return RackDevice
         elif isinstance(device, Live.PluginDevice.PluginDevice):
             from protocol0.domain.lom.device.PluginDevice import PluginDevice
 
