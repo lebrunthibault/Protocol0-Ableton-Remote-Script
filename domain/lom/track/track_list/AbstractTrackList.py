@@ -9,7 +9,7 @@ class AbstractTrackList(TrackComponent):
 
     def __init__(self, abstract_tracks):
         # type: (Iterable[AbstractTrack]) -> None
-        tracks = list(dict.fromkeys(abstract_tracks))
+        tracks = list(abstract_tracks)
         self._tracks = tracks
 
     def __iter__(self):

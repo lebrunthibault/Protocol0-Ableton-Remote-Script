@@ -1,7 +1,8 @@
+import collections
 from functools import partial
 
 import Live
-from typing import List, Optional, TYPE_CHECKING
+from typing import List, Optional, TYPE_CHECKING, Dict
 
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.scene.SceneActionMixin import SceneActionMixin
@@ -11,6 +12,7 @@ from protocol0.domain.lom.scene.SceneLength import SceneLength
 from protocol0.domain.lom.scene.SceneName import SceneName
 from protocol0.domain.lom.scene.ScenePlayingPosition import ScenePlayingPosition
 from protocol0.domain.lom.scene.ScenePositionScroller import ScenePositionScroller
+from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -56,6 +58,15 @@ class Scene(SceneActionMixin, UseFrameworkEvents):
     def tracks(self):
         # type: () -> List[SimpleTrack]
         return [clip.track for clip in self.clips if not clip.muted]
+
+    @property
+    def abstract_tracks(self):
+        # type: () -> List[AbstractTrack]
+        tracks = collections.OrderedDict()  # type: Dict[int, AbstractTrack]
+        for track in self.tracks:
+            tracks[track.abstract_track.index] = track.abstract_track
+
+        return tracks.values()
 
     def update(self, observable):
         # type: (Observable) -> None

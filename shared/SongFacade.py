@@ -48,6 +48,11 @@ class SongFacade(object):
         return cls._INSTANCE._song._song
 
     @classmethod
+    def view(cls):
+        # type: () -> Live.Song.Song.view
+        return cls._INSTANCE._song._view
+
+    @classmethod
     def live_tracks(cls):
         # type: () -> Iterator[Live.Track.Track]
         return (track for track in

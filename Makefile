@@ -14,7 +14,7 @@ mypy:
 
 vulture:
 	cls
-	.\venv\Scripts\vulture . .\vulture_whitelist.py --make-whitelist --exclude=venv/,command/,command_handler/,InputRoutingTypeEnum.py,InputRoutingChannelEnum.py,OutputRoutingTypeEnum.py,Push2InstrumentModeEnum.py,Push2MainModeEnum.py,Push2MatrixModeEnum.py,BarLengthEnum.py,Push2Service.py --ignore-names=Optional,Tuple,Deque,Union,CollectionsSequence,Iterator,TracebackType,Func,decorate,to_json,device_on
+	.\venv\Scripts\vulture . .\vulture_whitelist.py --make-whitelist --exclude=venv/,command/,command_handler/,InputRoutingTypeEnum.py,InputRoutingChannelEnum.py,OutputRoutingTypeEnum.py,Push2MainModeEnum.py,Push2MatrixModeEnum.py,BarLengthEnum.py,Push2Service.py --ignore-names=Optional,Tuple,Deque,Union,CollectionsSequence,Iterator,TracebackType,Func,decorate,to_json,device_on
 
 #pycharm:
 #	# not working

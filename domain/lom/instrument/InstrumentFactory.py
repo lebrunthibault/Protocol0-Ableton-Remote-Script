@@ -8,7 +8,6 @@ from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.lom.device.SimplerDevice import SimplerDevice
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.shared.utils import find_if, import_package
-from protocol0.shared.logging.Logger import Logger
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -25,7 +24,6 @@ class InstrumentFactory(object):
         to keep instrument state
         """
 
-        Logger.dev(list(track.devices))
         instrument_device = find_if(lambda d: cls._get_instrument_class(d) is not None, track.devices)
         if not instrument_device:
             instrument_device = find_if(lambda d: cls._get_instrument_class(d) is not None, track.devices.all())
@@ -33,7 +31,6 @@ class InstrumentFactory(object):
             return None
 
         instrument_class = cls._get_instrument_class(instrument_device)
-        Logger.dev("instrument_class : %s" % instrument_class)
 
         if instrument_class and isinstance(track.instrument, instrument_class) and track.instrument.device == instrument_device:
             return track.instrument  # maintaining state

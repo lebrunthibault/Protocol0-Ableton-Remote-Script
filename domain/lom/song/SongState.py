@@ -13,7 +13,6 @@ from protocol0.domain.lom.track.simple_track.SimpleTrackLastClipDeletedEvent imp
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 
 
 class SongState(object):
@@ -35,7 +34,6 @@ class SongState(object):
 
     def _check_drum_rack_visible(self):
         # type: () -> None
-        Logger.dev("selected track changed")
         drum_rack_visible = isinstance(SongFacade.selected_track().instrument, InstrumentDrumRack)
         if drum_rack_visible != self._drum_rack_visible:
             self._drum_rack_visible = drum_rack_visible

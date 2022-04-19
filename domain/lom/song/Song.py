@@ -89,7 +89,7 @@ class Song(SongActionMixin, UseFrameworkEvents):
         for track in SongFacade.simple_tracks():
             if isinstance(track, SimpleInstrumentBusTrack) or track == SongFacade.usamo_track():
                 continue
-            if isinstance(track.abstract_track, NormalGroupTrack) and track != track.abstract_track.base_track:
+            if isinstance(track.abstract_track, NormalGroupTrack):
                 yield track
             elif track == track.abstract_track.base_track:
                 yield track.abstract_track
