@@ -8,14 +8,14 @@ if TYPE_CHECKING:
 
 
 # noinspection PyArgumentList
-class ApplicationView(object):
+class ApplicationViewFacade(object):
     """ Facade for accessing the application view """
 
-    _INSTANCE = None  # type: Optional[ApplicationView]
+    _INSTANCE = None  # type: Optional[ApplicationViewFacade]
 
     def __init__(self, song, application_view, session_service):
         # type: (Song, Live.Application.Application.View, SessionServiceInterface) -> None
-        ApplicationView._INSTANCE = self
+        ApplicationViewFacade._INSTANCE = self
         self._song = song
         self._application_view = application_view
         self._session_service = session_service

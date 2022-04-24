@@ -32,7 +32,7 @@ from protocol0.domain.lom.track.TrackService import TrackService
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrackService import SimpleDummyTrackService
 from protocol0.domain.lom.validation.ValidatorFactory import ValidatorFactory
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
-from protocol0.domain.shared.ApplicationView import ApplicationView
+from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -77,7 +77,7 @@ class Container(ContainerInterface):
 
         session_service = SessionService(control_surface.component_guard,
                                          control_surface.set_highlighting_session_component)
-        ApplicationView(song, control_surface.application().view, session_service)
+        ApplicationViewFacade(song, control_surface.application().view, session_service)
 
         browser = control_surface.application().browser
         browser_service = BrowserService(browser, BrowserLoaderService(browser))

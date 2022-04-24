@@ -2,7 +2,7 @@ from functools import partial
 
 from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
 from protocol0.domain.lom.loop.Looper import Looper
-from protocol0.domain.shared.ApplicationView import ApplicationView
+from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.shared.SongFacade import SongFacade
 
 
@@ -52,5 +52,5 @@ class ActionGroupSet(ActionGroupMixin):
         # Session/ARrangement encoder
         self.add_encoder(identifier=13,
                          name="toggle session / arrangement",
-                         on_press=ApplicationView.toggle_session_arrangement
+                         on_press=ApplicationViewFacade.toggle_session_arrangement
                          )

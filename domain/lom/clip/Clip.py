@@ -12,7 +12,7 @@ from protocol0.domain.lom.clip.ClipLoop import ClipLoop
 from protocol0.domain.lom.clip.ClipName import ClipName
 from protocol0.domain.lom.clip.ClipPlayingPosition import ClipPlayingPosition
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
-from protocol0.domain.shared.ApplicationView import ApplicationView
+from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
@@ -243,7 +243,7 @@ class Clip(ClipActionMixin, UseFrameworkEvents, SynchronizableObjectInterface):
 
     def show_parameter_envelope(self, parameter):
         # type: (DeviceParameter) -> None
-        ApplicationView.show_clip()
+        ApplicationViewFacade.show_clip()
         self.show_envelope()
         # noinspection PyArgumentList
         self.view.select_envelope_parameter(parameter._device_parameter)

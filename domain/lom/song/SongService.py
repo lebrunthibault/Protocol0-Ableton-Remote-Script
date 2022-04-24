@@ -4,7 +4,7 @@ from typing import Optional
 from protocol0.domain.lom.song.Song import Song
 from protocol0.domain.lom.song.SongInitializedEvent import SongInitializedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.domain.shared.ApplicationView import ApplicationView
+from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
@@ -36,7 +36,7 @@ class SongService(object):
             seq = Sequence()
             seq.wait(2)
             seq.add(startup_track.select)
-            seq.add(ApplicationView.focus_current_track)
+            seq.add(ApplicationViewFacade.focus_current_track)
             seq.done()
 
     def _get_startup_track(self):

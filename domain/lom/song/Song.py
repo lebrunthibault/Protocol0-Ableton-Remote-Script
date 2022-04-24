@@ -1,6 +1,7 @@
 from functools import partial
 
 import Live
+from _Framework.SubjectSlot import subject_slot
 from typing import Optional, Any, Iterator
 
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
@@ -24,6 +25,7 @@ from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.decorators import p0_subject_slot, debounce
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import find_if
 from protocol0.shared.Config import Config
@@ -47,6 +49,7 @@ class Song(SongActionMixin, UseFrameworkEvents):
 
         self.is_playing_listener.subject = self._song
         self._tempo_listener.subject = self._song
+        self._detail_clip_listener.subject = self._view
 
         DomainEventBus.subscribe(ClipEnvelopeShowedEvent, lambda _: self.re_enable_automation())
         DomainEventBus.subscribe(ClipSelectedEvent, self._on_selected_clip_event)
@@ -127,6 +130,16 @@ class Song(SongActionMixin, UseFrameworkEvents):
         self._view.selected_scene = scene._scene
 
     # CLIP SLOTS
+
+    @subject_slot("detail_clip")
+    def _detail_clip_listener(self):
+        # type: () -> None
+        try:
+            detail_clip = SongFacade.selected_midi_clip()
+        except Protocol0Error:
+            return
+
+        detail_clip.show_notes()
 
     @property
     def highlighted_clip_slot(self):

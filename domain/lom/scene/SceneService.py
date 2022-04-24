@@ -11,7 +11,7 @@ from protocol0.domain.lom.scene.ScenesMappedEvent import ScenesMappedEvent
 from protocol0.domain.lom.song.SongStartedEvent import SongStartedEvent
 from protocol0.domain.lom.track.TrackAddedEvent import TrackAddedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.domain.shared.ApplicationView import ApplicationView
+from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.decorators import handle_error
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
@@ -153,7 +153,7 @@ class SceneService(UseFrameworkEvents):
     def _on_song_started_event(self, _):
         # type: (SongStartedEvent) -> None
         # launch selected scene by clicking on play song
-        if not self._track_recorder_service.is_recording and ApplicationView.is_session_visible() and not SongFacade.selected_scene().has_playing_clips:
+        if not self._track_recorder_service.is_recording and ApplicationViewFacade.is_session_visible() and not SongFacade.selected_scene().has_playing_clips:
             self._song.stop_all_clips(quantized=False)
             self._song.stop_playing()
             SongFacade.selected_scene().fire()

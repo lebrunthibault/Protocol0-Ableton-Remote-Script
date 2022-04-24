@@ -5,7 +5,7 @@ from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
 from protocol0.domain.lom.clip.ClipSelectedEvent import ClipSelectedEvent
 from protocol0.domain.lom.clip.automation_envelope.ClipAutomationEnvelope import ClipAutomationEnvelope
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
-from protocol0.domain.shared.ApplicationView import ApplicationView
+from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
@@ -43,7 +43,7 @@ class ClipActionMixin(object):
         # type: (Clip) -> Sequence
         DomainEventBus.notify(ClipSelectedEvent(self))
         seq = Sequence()
-        seq.add(ApplicationView.show_clip)
+        seq.add(ApplicationViewFacade.show_clip)
         return seq.done()
 
     def stop(self, immediate=False):
@@ -84,6 +84,11 @@ class ClipActionMixin(object):
     def show_loop(self):
         # type: (Clip) -> None
         self.view.show_loop()
+
+    def show_notes(self):
+        # type: (Clip) -> None
+        self.show_envelope()
+        self.hide_envelope()
 
     def show_envelope(self):
         # type: (Clip) -> None

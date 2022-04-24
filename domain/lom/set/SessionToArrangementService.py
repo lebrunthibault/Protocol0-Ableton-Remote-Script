@@ -3,7 +3,7 @@ from functools import partial
 from typing import TYPE_CHECKING
 
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
-from protocol0.domain.shared.ApplicationView import ApplicationView
+from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
@@ -38,12 +38,12 @@ class SessionToArrangementService(object):
         self._song.unfocus_all_tracks()
         self._tempo = self._song.tempo
         self._song.tempo = 999
-        ApplicationView.show_arrangement()
+        ApplicationViewFacade.show_arrangement()
 
         seq = Sequence()
         seq.add(Backend.client().clear_arrangement)
         seq.wait(20)
-        seq.add(ApplicationView.show_session)
+        seq.add(ApplicationViewFacade.show_session)
         seq.add(self._song.reset)
 
         # make recording start at 1.1.1
@@ -70,5 +70,5 @@ class SessionToArrangementService(object):
         self._song.record_mode = False
         self._song.tempo = self._tempo
         self._song.back_to_arranger = False
-        ApplicationView.show_arrangement()
+        ApplicationViewFacade.show_arrangement()
         self._is_bouncing = False

@@ -7,7 +7,7 @@ from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.shared.ApplicationView import ApplicationView
+from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
@@ -32,7 +32,7 @@ class DeviceDisplayService(object):
         """ handles only one level of grouping in racks. Should be enough for now """
         parent_rack = self._find_parent_rack(track, device)
         seq = Sequence()
-        seq.add(ApplicationView.show_device)
+        seq.add(ApplicationViewFacade.show_device)
 
         if not parent_rack:
             seq.add(partial(self._make_top_device_window_showable, track, device))

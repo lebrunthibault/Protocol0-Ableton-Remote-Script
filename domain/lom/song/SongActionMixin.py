@@ -7,7 +7,7 @@ from protocol0.domain.lom.scene.ScenesMappedEvent import ScenesMappedEvent
 from protocol0.domain.lom.track.TracksMappedEvent import TracksMappedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.shared.ApplicationView import ApplicationView
+from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.utils import scroll_values
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
@@ -127,7 +127,7 @@ class SongActionMixin(object):
         if next_track:
             next_track.select()
             if next_track == list(SongFacade.scrollable_tracks())[-1]:
-                ApplicationView.focus_current_track()
+                ApplicationViewFacade.focus_current_track()
 
     def duplicate_scene(self, index):
         # type: (Song, int) -> Sequence
@@ -162,7 +162,7 @@ class SongActionMixin(object):
         seq = Sequence()
         seq.add(track.select)
         seq.add(partial(self._view.select_device, device._device))
-        seq.add(ApplicationView.focus_detail)
+        seq.add(ApplicationViewFacade.focus_detail)
         return seq.done()
 
     def scroll_scenes(self, go_next):

@@ -7,7 +7,7 @@ from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.instrument.preset.SampleSelectedEvent import SampleSelectedEvent
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.shared.ApplicationView import ApplicationView
+from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.utils import find_if
@@ -34,7 +34,7 @@ class BrowserService(BrowserServiceInterface):
 
         seq.add(load_func)
         seq.wait(20)
-        seq.add(ApplicationView.focus_detail)
+        seq.add(ApplicationViewFacade.focus_detail)
         return seq.done()
 
     def load_sample(self, name):
@@ -53,11 +53,11 @@ class BrowserService(BrowserServiceInterface):
 
     def load_drum_pad_sample(self, name):
         # type: (str) -> Sequence
-        ApplicationView.toggle_browse()
+        ApplicationViewFacade.toggle_browse()
         self._browser_loader_service.load_sample(name)
         seq = Sequence()
         # seq.wait(2)
-        seq.add(ApplicationView.toggle_browse)
+        seq.add(ApplicationViewFacade.toggle_browse)
         return seq.done()
 
     def _on_sample_selected_event(self, event):
