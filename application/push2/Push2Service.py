@@ -32,6 +32,12 @@ class Push2Service(SlotManager):
         self._update_session_ring = True
         self._update_selected_modes = True
         DomainEventBus.subscribe(Push2InitializedEvent, self._on_push2_initialized_event)
+        self._selected_track_listener.subject = SongFacade.view()
+
+    @subject_slot("selected_track")
+    def _selected_track_listener(self):
+        if SongFacade.selected_track().group_track:
+            SongFacade.selected_track().group_track.is_folded = False
 
     def _on_push2_initialized_event(self, event):
         # type: (Push2InitializedEvent) -> None

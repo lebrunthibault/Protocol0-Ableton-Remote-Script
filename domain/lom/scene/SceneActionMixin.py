@@ -107,6 +107,7 @@ class SceneActionMixin(object):
     def fire_to_position(self):
         # type: (Scene) -> Sequence
         self._song.stop_playing()
+        self._song.session_automation_record = True
         seq = Sequence()
         # removing click when changing position
         master_volume = SongFacade.master_track().volume

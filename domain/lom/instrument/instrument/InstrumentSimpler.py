@@ -6,7 +6,6 @@ from protocol0.domain.lom.instrument.InstrumentColorEnum import InstrumentColorE
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.instrument.preset.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from protocol0.domain.lom.instrument.preset.preset_changer.SamplePresetChanger import SamplePresetChanger
-from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.Config import Config
 
 if TYPE_CHECKING:
@@ -26,15 +25,3 @@ class InstrumentSimpler(UseFrameworkEvents, InstrumentInterface):
         # type: (SimpleTrack, Optional[SimplerDevice]) -> None
         super(InstrumentSimpler, self).__init__(track, device)
         self.device = cast(SimplerDevice, self.device)
-        Scheduler.defer(self._set_warping)
-    #     self._sample_listener.subject = device._device
-    #
-    # @subject_slot("sample")
-    # def _sample_listener(self):
-    #     # type: () -> None
-    #     self.preset_list.sync_presets()
-
-    def _set_warping(self):
-        # type: () -> None
-        if hasattr(self.device, "sample") and "loop" in self.device.sample.file_path:
-            self.device.sample.warping = True

@@ -32,11 +32,14 @@ class SequenceActionMixin(object):
         # type: (Sequence, float) -> None
         self.add(partial(Scheduler.wait_beats, beats, self._execute_next_step), notify_terminated=False)
 
-    def wait_for_listener(self, listener):
-        # type: (Sequence, Callable) -> None
+    def wait_for_listener(self, listener, timeout=True):
+        # type: (Sequence, Callable, bool) -> None
         assert CallableWithCallbacks.func_has_callback_queue(listener)
         listener = cast(CallableWithCallbacks, listener)
-        self._add_timeout_step(partial(listener.add_callback, self._execute_next_step), "wait_for_listener %s" % listener)
+        if not timeout:
+            self.add(partial(listener.add_callback, self._execute_next_step), notify_terminated=False)
+        else:
+            self._add_timeout_step(partial(listener.add_callback, self._execute_next_step), "wait_for_listener %s" % listener)
 
     def wait_for_event(self, event):
         # type: (Sequence, Type[object]) -> None

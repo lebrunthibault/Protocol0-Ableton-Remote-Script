@@ -13,6 +13,7 @@ class DeviceEnum(AbstractEnum):
     AUTO_FILTER_HIGH_PASS = "AUTO_FILTER_HIGH_PASS"
     AUTO_FILTER_LOW_PASS = "AUTO_FILTER_LOW_PASS"
     COMPRESSOR = "COMPRESSOR"
+    DECAPITATOR = "DECAPITATOR"
     DRUM_RACK = "DRUM_RACK"
     DUMMY_RACK = "DUMMY_RACK"
     EQ_EIGHT = "EQ_EIGHT"
@@ -22,11 +23,13 @@ class DeviceEnum(AbstractEnum):
     MINITAUR_EDITOR = "MINITAUR_EDITOR"
     MIX_RACK = "MIX_RACK"
     REV2_EDITOR = "REV2_EDITOR"
+    SATURATOR = "SATURATOR"
     SERUM = "SERUM"
     SIMPLER = "SIMPLER"
     SSL_COMP = "SSL_COMP"
     TRACK_SPACER = "TRACK_SPACER"
     TRUE_VERB = "TRUE_VERB"
+    TUNER = "TUNER"
     USAMO = "USAMO"
     UTILITY = "UTILITY"
 
@@ -48,11 +51,13 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.MINITAUR_EDITOR: "Minitaur Editor(x64)",
             DeviceEnum.MIX_RACK: "Mix Rack",
             DeviceEnum.REV2_EDITOR: "REV2Editor",
+            DeviceEnum.SATURATOR: "Saturator",
             DeviceEnum.SERUM: "Serum_x64",
             DeviceEnum.SIMPLER: "Simpler",
             DeviceEnum.SSL_COMP: "SSLComp Stereo",
             DeviceEnum.TRACK_SPACER: "Trackspacer 2.5",
             DeviceEnum.TRUE_VERB: "TrueVerb Stereo",
+            DeviceEnum.TUNER: "Tuner",
             DeviceEnum.USAMO: "usamo_x64",
             DeviceEnum.UTILITY: "Utility",
         })
@@ -71,10 +76,12 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.EQ_EIGHT: "EQ Eight",
             DeviceEnum.LFO_TOOL: "LFOTool.adg",
             DeviceEnum.MIX_RACK: "Mix Rack.adg",
+            DeviceEnum.SATURATOR: "Saturator",
             DeviceEnum.SIMPLER: "Simpler",
             DeviceEnum.SSL_COMP: "SSLComp Stereo",
             DeviceEnum.TRACK_SPACER: "Trackspacer 2.5",
             DeviceEnum.TRUE_VERB: "TrueVerb Stereo",
+            DeviceEnum.TUNER: "Tuner",
             DeviceEnum.UTILITY: "Utility",
         })
 
@@ -85,9 +92,11 @@ class DeviceEnum(AbstractEnum):
             cls.COMPRESSOR,
             cls.EQ_EIGHT,
             cls.LFO_TOOL,
+            cls.SATURATOR,
             cls.SSL_COMP,
             cls.TRACK_SPACER,
             cls.TRUE_VERB,
+            cls.TUNER,
             cls.UTILITY,
         ]
 

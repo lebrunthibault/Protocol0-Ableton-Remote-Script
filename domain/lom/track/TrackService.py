@@ -46,7 +46,7 @@ class TrackService(UseFrameworkEvents):
         self._master_track = None  # type: Optional[SimpleTrack]
 
         self.tracks_listener.subject = self._song._song
-        self._selected_track_listener.subject = self._song._view
+        self._selected_track_listener.subject = self._song._view  # SongFacade is not hydrated
         DomainEventBus.subscribe(SimpleTrackCreatedEvent, self._on_simple_track_created_event)
 
     @subject_slot("selected_track")

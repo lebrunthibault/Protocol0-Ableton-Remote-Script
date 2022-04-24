@@ -25,6 +25,10 @@ class ActionGroupMain(ActionGroupMixin):
             # type: (RecordTypeEnum) -> Optional[Sequence]
             return self._container.get(TrackRecorderService).record_track(SongFacade.current_track(), record_type)
 
+        # VELO encoder
+        self.add_encoder(identifier=2, name="smooth selected clip velocities",
+                         on_scroll=lambda: SongFacade.selected_midi_clip().scale_velocities)
+
         # AUTOmation encoder
         self.add_encoder(
             identifier=3,

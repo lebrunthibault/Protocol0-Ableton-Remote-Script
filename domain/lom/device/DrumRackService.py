@@ -49,7 +49,7 @@ class DrumRackService(object):
         if not device.contains_names(preset_names):
             seq = Sequence()
 
-            Backend.client().show_warning("Couldn't find synced '%s'" % drum_category.drum_rack_name)
+            Backend.client().show_warning("'%s' is not synced : regenerating drum rack" % drum_category.drum_rack_name)
             seq.add(partial(self._browser_service.load_device_from_enum, DeviceEnum.DRUM_RACK))
             seq.add(partial(self._populate_drum_rack, drum_category))
             return seq.done()
