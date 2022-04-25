@@ -229,8 +229,8 @@ class ForwardTo(object):
         self.object_name = object_name
         self.attr_name = attr_name
 
-    def __get__(self, instance):
-        # type: (object) -> None
+    def __get__(self, instance, _=None):
+        # type: (object, Optional[object]) -> None
         return getattr(getattr(instance, self.object_name), self.attr_name)
 
     def __set__(self, instance, value):
