@@ -24,7 +24,8 @@ class VocalCommandService(object):
             CommandBus.dispatch(action_enum.value())
             return
 
-        track_search_keyword_enum = cast(Optional[TrackSearchKeywordEnum], getattr(TrackSearchKeywordEnum, command, None))
+        track_search_keyword_enum = cast(Optional[TrackSearchKeywordEnum],
+                                         getattr(TrackSearchKeywordEnum, command, None))
         if track_search_keyword_enum:
             self._keyword_search_service.search_track(keyword_enum=track_search_keyword_enum)
             return

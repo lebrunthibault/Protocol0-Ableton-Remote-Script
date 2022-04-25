@@ -231,11 +231,6 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents, TrackComponent
         return False
 
     @property
-    def can_be_armed(self):
-        # type: () -> bool
-        return self._track and self._track.can_be_armed
-
-    @property
     def volume(self):
         # type: () -> float
         volume = self._track.mixer_device.volume.value if self._track else 0

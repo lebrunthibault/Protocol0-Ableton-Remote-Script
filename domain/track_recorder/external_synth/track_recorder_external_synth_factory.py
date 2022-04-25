@@ -1,6 +1,6 @@
 from typing import Optional, TYPE_CHECKING
 
-from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum

@@ -6,7 +6,6 @@ from protocol0.application.CommandBus import CommandBus
 from protocol0.application.ContainerInterface import ContainerInterface
 from protocol0.application.ErrorService import ErrorService
 from protocol0.application.control_surface.ActionGroupFactory import ActionGroupFactory
-from protocol0.application.push2.Push2Service import Push2Service
 from protocol0.application.vocal_command.KeywordSearchService import KeywordSearchService
 from protocol0.application.vocal_command.VocalCommandService import VocalCommandService
 from protocol0.domain.audit.AudioLatencyAnalyzerService import AudioLatencyAnalyzerService
@@ -40,7 +39,7 @@ from protocol0.domain.track_recorder.TrackRecorderService import TrackRecorderSe
 from protocol0.infra.interface.BrowserLoaderService import BrowserLoaderService
 from protocol0.infra.interface.BrowserService import BrowserService
 from protocol0.infra.interface.InterfaceClicksService import InterfaceClicksService
-from protocol0.infra.interface.SessionService import SessionService
+from protocol0.infra.interface.session.SessionService import SessionService
 from protocol0.infra.logging.LoggerService import LoggerService
 from protocol0.infra.midi.MidiService import MidiService
 from protocol0.infra.persistence.SongDataService import SongDataService
@@ -114,7 +113,6 @@ class Container(ContainerInterface):
         preset_service = PresetService()
         session_to_arrangement_service = SessionToArrangementService(song)
         song_data_service = SongDataService(live_song.get_data, live_song.set_data)
-        Push2Service()
 
         # vocal command
         keyword_search_service = KeywordSearchService()

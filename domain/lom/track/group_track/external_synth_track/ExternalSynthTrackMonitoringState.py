@@ -7,7 +7,7 @@ from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:
-    from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+    from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack
 
 
 class ExternalSynthTrackMonitoringState(object):

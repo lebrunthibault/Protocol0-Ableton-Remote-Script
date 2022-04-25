@@ -1,8 +1,8 @@
-from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
+from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 from protocol0.domain.lom.set.SessionToArrangementService import SessionToArrangementService
 
 
-class ActionGroupSet(ActionGroupMixin):
+class ActionGroupSet(ActionGroupInterface):
     CHANNEL = 3
 
     def configure(self):

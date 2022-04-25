@@ -29,7 +29,6 @@ class AbletonTrack(Subject):
         self._live_ptr = id(self)
         self.name = track_type
         self.devices = []  # type: List[AbletonDevice]
-        self.can_be_armed = True
         self.arm = False
         self.solo = False
         self.fold_state = False
@@ -48,7 +47,6 @@ class AbletonTrack(Subject):
 
         if track_type == TrackType.GROUP:
             self.is_foldable = True
-            self.can_be_armed = False
             self.has_audio_input = True
         if track_type == TrackType.MIDI:
             self.has_midi_input = True

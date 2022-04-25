@@ -11,11 +11,12 @@ from protocol0.domain.lom.device.TrackDevices import TrackDevices
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
-from protocol0.domain.lom.track.group_track.ExternalSynthTrackActionMixin import ExternalSynthTrackActionMixin
-from protocol0.domain.lom.track.group_track.ExternalSynthTrackMonitoringState import ExternalSynthTrackMonitoringState
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackArmState import \
+    ExternalSynthTrackArmState
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackMonitoringState import \
+    ExternalSynthTrackMonitoringState
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
-from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
@@ -23,12 +24,14 @@ from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.shared.utils import find_if
+from protocol0.domain.shared.utils import find_if, ForwardTo
+from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.StatusBar import StatusBar
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
 
-class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
+class ExternalSynthTrack(AbstractGroupTrack):
     REMOVE_CLIPS_ON_ADDED = True
 
     def __init__(self, base_group_track):
@@ -52,8 +55,14 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         self.midi_track.devices.build()
 
         self.monitoring_state = ExternalSynthTrackMonitoringState(self)  # type: ExternalSynthTrackMonitoringState
+        self._arm_state = ExternalSynthTrackArmState(self.base_track, self.midi_track, self.monitoring_state)
+        self.arm_track = self._arm_state.arm_track   # type: ignore[assignment]
+        self.unarm = self._arm_state.unarm   # type: ignore[assignment]
 
         DomainEventBus.subscribe(LastBeatPassedEvent, self._on_last_beat_passed_event)
+
+    is_armed = cast(bool, ForwardTo("_arm_state", "is_armed"))   # type: ignore[assignment]
+    is_partially_armed = ForwardTo("_arm_state", "is_partially_armed")   # type: ignore[assignment]
 
     def on_added(self):
         # type: () -> Sequence
@@ -172,28 +181,6 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
         return [clip_slot.clip for clip_slot in clip_slots if clip_slot.has_clip and clip_slot.clip]
 
     @property
-    def can_be_armed(self):
-        # type: () -> bool
-        return True
-
-    @property
-    def is_armed(self):
-        # type: () -> bool
-        return all(sub_track.is_armed for sub_track in self.sub_tracks if not isinstance(sub_track, SimpleDummyTrack))
-
-    @is_armed.setter
-    def is_armed(self, is_armed):
-        # type: (bool) -> None
-        for track in self.sub_tracks:
-            if not isinstance(track, SimpleDummyTrack):
-                track.is_armed = is_armed
-
-    @property
-    def is_partially_armed(self):
-        # type: () -> bool
-        return any(sub_track.is_armed for sub_track in self.sub_tracks if not isinstance(sub_track, SimpleDummyTrack))
-
-    @property
     def is_playing(self):
         # type: () -> bool
         return self.midi_track.is_playing or self.audio_track.is_playing
@@ -231,6 +218,32 @@ class ExternalSynthTrack(ExternalSynthTrackActionMixin, AbstractGroupTrack):
     def computed_color(self):
         # type: () -> int
         return self.instrument.TRACK_COLOR.color_int_value
+
+    @property
+    def can_change_presets(self):
+        # type: () -> bool
+        return len(self.audio_track.clips) == 0 or \
+               not self.protected_mode_active or \
+               not self.instrument.HAS_PROTECTED_MODE
+
+    def disable_protected_mode(self):
+        # type: () -> Sequence
+        seq = Sequence()
+        seq.prompt("Disable protected mode ?")
+        seq.add(partial(setattr, self, "protected_mode_active", False))
+        seq.add(partial(StatusBar.show_message, "track protected mode disabled"))
+        return seq.done()
+
+    def copy_and_paste_clips_to_new_scene(self):
+        # type: () -> Sequence
+        seq = Sequence()
+        seq.add(SongFacade.selected_scene().duplicate)
+        seq.add(lambda: SongFacade.current_external_synth_track().midi_track.clip_slots[
+            SongFacade.selected_scene().index].clip.crop())
+        seq.add(lambda: SongFacade.current_external_synth_track().audio_track.clip_slots[
+            SongFacade.selected_scene().index].clip.crop())
+        seq.add()
+        return seq.done()
 
     def disconnect(self):
         # type: () -> None

@@ -9,6 +9,7 @@ from protocol0.shared.SongFacade import SongFacade
 
 class AbstractTrackRecorderFactory(object):
     """ Abstract Factory """
+
     def create_recorder(self, record_type):
         # type: (RecordTypeEnum) -> AbstractTrackRecorder
         recorder = self._create_recorder(record_type)

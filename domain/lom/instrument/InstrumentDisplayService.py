@@ -53,7 +53,8 @@ class InstrumentDisplayService(object):
 
         if force_activate or not instrument.activated:
             seq.add(instrument.track.select)
-            seq.add(partial(self._device_display_service.make_plugin_window_showable, instrument.track, instrument.device))
+            seq.add(
+                partial(self._device_display_service.make_plugin_window_showable, instrument.track, instrument.device))
             seq.add(lambda: setattr(instrument, "activated", True), name="mark instrument as activated")
 
         if force_activate or instrument.needs_exclusive_activation:

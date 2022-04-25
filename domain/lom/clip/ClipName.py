@@ -4,7 +4,7 @@ from functools import partial
 from typing import TYPE_CHECKING, Optional
 
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
-from protocol0.domain.shared.decorators import p0_subject_slot
+from _Framework.SubjectSlot import subject_slot
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import get_length_legend
 from protocol0.shared.logging.Logger import Logger
@@ -20,10 +20,14 @@ class ClipName(UseFrameworkEvents):
         # type: (Clip) -> None
         super(ClipName, self).__init__()
         self.clip = clip
-        self.register_slot(self.clip._clip, partial(self._name_listener, force=True), "loop_start")  # type: ignore[arg-type]
-        self.register_slot(self.clip._clip, partial(self._name_listener, force=True), "loop_end")  # type: ignore[arg-type]
-        self.register_slot(self.clip._clip, partial(self._name_listener, force=True), "start_marker")  # type: ignore[arg-type]
-        self.register_slot(self.clip._clip, partial(self._name_listener, force=True), "end_marker")  # type: ignore[arg-type]
+        self.register_slot(self.clip._clip, partial(self._name_listener, force=True),
+                           "loop_start")  # type: ignore[arg-type]
+        self.register_slot(self.clip._clip, partial(self._name_listener, force=True),
+                           "loop_end")  # type: ignore[arg-type]
+        self.register_slot(self.clip._clip, partial(self._name_listener, force=True),
+                           "start_marker")  # type: ignore[arg-type]
+        self.register_slot(self.clip._clip, partial(self._name_listener, force=True),
+                           "end_marker")  # type: ignore[arg-type]
         self._name_listener.subject = self.clip._clip
         self._base_name = None  # type: Optional[str]
 
@@ -40,7 +44,7 @@ class ClipName(UseFrameworkEvents):
         # type: (str) -> None
         self._base_name = base_name
 
-    @p0_subject_slot("name")
+    @subject_slot("name")
     def _name_listener(self, force=False):
         # type: (bool) -> None
         base_name = self._get_base_name()

@@ -14,8 +14,8 @@ from protocol0.domain.lom.track.TrackAddedEvent import TrackAddedEvent
 from protocol0.domain.lom.track.TrackFactory import TrackFactory
 from protocol0.domain.lom.track.TracksMappedEvent import TracksMappedEvent
 from protocol0.domain.lom.track.drums.DrumsTrack import DrumsTrack
-from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.MasterTrack import MasterTrack
 from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.SimpleReturnTrack import SimpleReturnTrack
@@ -52,6 +52,8 @@ class TrackService(UseFrameworkEvents):
     @subject_slot("selected_track")
     def _selected_track_listener(self):
         # type: () -> None
+        if SongFacade.selected_track().group_track:
+            SongFacade.selected_track().group_track.is_folded = False
         DomainEventBus.notify(SelectedTrackChangedEvent())
 
     @subject_slot("tracks")

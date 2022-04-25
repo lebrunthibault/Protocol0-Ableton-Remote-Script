@@ -6,7 +6,7 @@ from protocol0.domain.lom.instrument.InstrumentActivatedEvent import InstrumentA
 from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
 from protocol0.domain.lom.note.Note import Note
 from protocol0.domain.lom.song.Song import Song
-from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.shared.InterfaceClicksServiceInterface import InterfaceClicksServiceInterface
 from protocol0.domain.shared.backend.Backend import Backend

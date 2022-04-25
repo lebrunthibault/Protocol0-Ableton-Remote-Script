@@ -57,4 +57,3 @@ def monkey_patch_static():
 def monkey_patch_p0(live_song=None):
     # type: (Optional[Live.Song.Song]) -> None
     Scheduler(TickSchedulerTest(), BeatScheduler(live_song))
-

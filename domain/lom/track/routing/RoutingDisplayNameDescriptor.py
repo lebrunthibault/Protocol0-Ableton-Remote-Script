@@ -16,7 +16,8 @@ class RoutingDisplayNameDescriptor(object):
     def __get__(self, track_routing, _):
         # type: (TrackRoutingInterface, Type) -> Optional[Any]
         try:
-            return self.routing_enum_class.from_value(getattr(track_routing._track, self.routing_attribute_name).display_name)
+            return self.routing_enum_class.from_value(
+                getattr(track_routing._track, self.routing_attribute_name).display_name)
         except Protocol0Error:
             return None
 
@@ -25,5 +26,9 @@ class RoutingDisplayNameDescriptor(object):
         routing = find_if(lambda r: r.display_name == routing_enum.value,
                           getattr(track_routing._track, self.available_routings_attribute_name))
         if not routing:
-            raise Protocol0Error("couldn't find %s routing matching %s for %s" % (self.routing_attribute_name, routing_enum, track_routing._track))
+            raise Protocol0Error("couldn't find %s routing matching %s for %s" % (
+                self.routing_attribute_name,
+                routing_enum,
+                track_routing._track
+            ))
         setattr(track_routing._track, self.routing_attribute_name, routing)

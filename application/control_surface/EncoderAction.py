@@ -63,8 +63,10 @@ class EncoderAction(object):
         if on_long_press:
             if not on_press:
                 raise Protocol0Error("Cannot set on_long_press without on_press")
-            actions.append(EncoderAction(on_long_press, move_type=EncoderMoveEnum.LONG_PRESS, name=name))  # type: ignore[arg-type]
+            actions.append(
+                EncoderAction(on_long_press, move_type=EncoderMoveEnum.LONG_PRESS, name=name))  # type: ignore[arg-type]
         if on_scroll:
-            actions.append(EncoderAction(on_scroll, move_type=EncoderMoveEnum.SCROLL, name=name))  # type: ignore[arg-type]
+            actions.append(
+                EncoderAction(on_scroll, move_type=EncoderMoveEnum.SCROLL, name=name))  # type: ignore[arg-type]
 
         return actions

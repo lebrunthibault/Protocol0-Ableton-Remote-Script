@@ -8,6 +8,7 @@ if TYPE_CHECKING:
 
 class ClipLoop(LoopableInterface):
     """ handle start / end markers and loop gracefully """
+
     def __init__(self, clip):
         # type: (Clip) -> None
         self._clip = clip

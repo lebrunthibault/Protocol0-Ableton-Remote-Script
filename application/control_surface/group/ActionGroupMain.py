@@ -2,7 +2,7 @@ from functools import partial
 
 from typing import Optional
 
-from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
+from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 from protocol0.domain.lom.instrument.InstrumentDisplayService import InstrumentDisplayService
 from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService import InstrumentPresetScrollerService
 from protocol0.domain.lom.set.MixingService import MixingService
@@ -12,7 +12,7 @@ from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
 
-class ActionGroupMain(ActionGroupMixin):
+class ActionGroupMain(ActionGroupInterface):
     """
     Main group: gathering most the functionalities. My faithful companion when producing on Live !
     """
@@ -91,9 +91,13 @@ class ActionGroupMain(ActionGroupMixin):
             identifier=14,
             name="instrument",
             filter_active_tracks=True,
-            on_press=lambda: partial(self._container.get(InstrumentDisplayService).show_hide_instrument, SongFacade.current_instrument()),
-            on_long_press=lambda: partial(self._container.get(InstrumentDisplayService).activate_instrument_plugin_window, SongFacade.current_instrument()),
-            on_scroll=lambda: partial(self._container.get(InstrumentPresetScrollerService).scroll_presets_or_samples, SongFacade.current_instrument()),
+            on_press=lambda: partial(self._container.get(InstrumentDisplayService).show_hide_instrument,
+                                     SongFacade.current_instrument()),
+            on_long_press=lambda: partial(
+                self._container.get(InstrumentDisplayService).activate_instrument_plugin_window,
+                SongFacade.current_instrument()),
+            on_scroll=lambda: partial(self._container.get(InstrumentPresetScrollerService).scroll_presets_or_samples,
+                                      SongFacade.current_instrument()),
         )
 
         # SCENe encoder

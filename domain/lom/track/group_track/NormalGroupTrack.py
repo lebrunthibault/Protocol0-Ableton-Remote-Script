@@ -63,7 +63,8 @@ class NormalGroupTrack(AbstractGroupTrack):
     @property
     def _common_subtracks_instrument_class(self):
         # type: () -> Optional[Type[InstrumentInterface]]
-        sub_tracks_instrument_classes = [sub_track.instrument.__class__ for sub_track in self.sub_tracks if sub_track.instrument]
+        sub_tracks_instrument_classes = [sub_track.instrument.__class__ for sub_track in self.sub_tracks if
+                                         sub_track.instrument]
 
         unique_sub_tracks_instrument_classes = list(set(sub_tracks_instrument_classes))
         if len(sub_tracks_instrument_classes) == len(self.sub_tracks) and len(

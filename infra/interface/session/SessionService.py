@@ -1,7 +1,10 @@
 from _Framework.SessionComponent import SessionComponent
 from typing import Optional, Callable
 
+from protocol0.domain.lom.clip.ClipCreatedEvent import ClipCreatedEvent
+from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.SessionServiceInterface import SessionServiceInterface
+from protocol0.infra.interface.session.SessionUpdatedEvent import SessionUpdatedEvent
 from protocol0.shared.SongFacade import SongFacade
 
 
@@ -12,6 +15,11 @@ class SessionService(SessionServiceInterface):
         self._component_guard = component_guard
         self._set_highlighting_session_component = set_highlighting_session_component
         self._session = None  # type: Optional[SessionComponent]
+        DomainEventBus.subscribe(ClipCreatedEvent, lambda _: self._emit_session_updated_event())
+
+    def _emit_session_updated_event(self):
+        # type: () -> None
+        DomainEventBus.notify(SessionUpdatedEvent())
 
     def toggle_session_ring(self):
         # type: () -> None

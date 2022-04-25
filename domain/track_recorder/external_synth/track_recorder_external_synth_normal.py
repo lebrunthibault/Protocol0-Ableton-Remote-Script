@@ -3,7 +3,8 @@ from typing import List
 from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.track_recorder.abstract_track_recorder import AbstractTrackRecorder
-from protocol0.domain.track_recorder.external_synth.track_recorder_external_synth_mixin import TrackRecorderExternalSynthMixin
+from protocol0.domain.track_recorder.external_synth.track_recorder_external_synth_mixin import \
+    TrackRecorderExternalSynthMixin
 
 
 class TrackRecorderExternalSynthNormal(TrackRecorderExternalSynthMixin, AbstractTrackRecorder):
@@ -15,4 +16,5 @@ class TrackRecorderExternalSynthNormal(TrackRecorderExternalSynthMixin, Abstract
     def post_audio_record(self):
         # type: () -> None
         super(TrackRecorderExternalSynthNormal, self).post_audio_record()
-        self.track.audio_track.clip_slots[self.recording_scene_index].clip.color = ClipColorEnum.AUDIO_UN_QUANTIZED.color_int_value
+        self.track.audio_track.clip_slots[
+            self.recording_scene_index].clip.color = ClipColorEnum.AUDIO_UN_QUANTIZED.color_int_value

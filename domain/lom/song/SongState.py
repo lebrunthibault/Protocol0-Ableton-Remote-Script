@@ -24,7 +24,8 @@ class SongState(object):
         DomainEventBus.subscribe(SimpleTrackLastClipDeletedEvent, lambda _: self.notify())
         DomainEventBus.subscribe(SelectedTrackChangedEvent, lambda _: self._check_drum_rack_visible())
         DomainEventBus.subscribe(DrumRackLoadedEvent, lambda _: self._check_drum_rack_visible())
-        presets = DirectoryPresetImporter(InstrumentSimpler.PRESETS_PATH, InstrumentSimpler.PRESET_EXTENSION).import_presets()
+        presets = DirectoryPresetImporter(InstrumentSimpler.PRESETS_PATH,
+                                          InstrumentSimpler.PRESET_EXTENSION).import_presets()
         drum_categories = set()
         for preset in presets:
             drum_categories.add(preset.category)
@@ -43,7 +44,8 @@ class SongState(object):
         # type: () -> Dict
         drum_track_names = []
         if SongFacade.drums_track():
-            drum_track_names = [track.name for track in SongFacade.drums_track().get_all_simple_sub_tracks() if len(track.clips)]
+            drum_track_names = [track.name for track in SongFacade.drums_track().get_all_simple_sub_tracks() if
+                                len(track.clips)]
         return {
             "drum_track_names": drum_track_names,
             "drum_categories": self._drum_categories,

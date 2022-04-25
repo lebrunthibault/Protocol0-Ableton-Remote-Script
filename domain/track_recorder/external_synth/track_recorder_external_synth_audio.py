@@ -10,7 +10,8 @@ from protocol0.domain.track_recorder.external_synth.ExternalSynthAudioRecordingE
 from protocol0.domain.track_recorder.external_synth.ExternalSynthAudioRecordingStartedEvent import \
     ExternalSynthAudioRecordingStartedEvent
 from protocol0.domain.track_recorder.abstract_track_recorder import AbstractTrackRecorder
-from protocol0.domain.track_recorder.external_synth.track_recorder_external_synth_mixin import TrackRecorderExternalSynthMixin
+from protocol0.domain.track_recorder.external_synth.track_recorder_external_synth_mixin import \
+    TrackRecorderExternalSynthMixin
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 

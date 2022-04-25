@@ -19,6 +19,7 @@ from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassed
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import scroll_values
 from protocol0.domain.track_recorder.TrackRecorderService import TrackRecorderService
+from protocol0.infra.interface.session.SessionUpdatedEvent import SessionUpdatedEvent
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
@@ -35,6 +36,7 @@ class SceneService(UseFrameworkEvents):
         self._live_song = live_song
         self._track_recorder_service = track_recorder_service
         self.scenes_listener.subject = song._song
+        self._selected_scene_listener.subject = song._view
         self._live_scene_id_to_scene = collections.OrderedDict()  # type: Dict[int, Scene]
 
         DomainEventBus.subscribe(BarChangedEvent, self._on_bar_changed_event)
@@ -76,6 +78,12 @@ class SceneService(UseFrameworkEvents):
 
         DomainEventBus.defer_notify(ScenesMappedEvent())
         Logger.info("mapped scenes")
+
+    @subject_slot("selected_scene")
+    @handle_error
+    def _selected_scene_listener(self):
+        # type: () -> None
+        DomainEventBus.notify(SessionUpdatedEvent())
 
     def _on_bar_changed_event(self, _):
         # type: (BarChangedEvent) -> None

@@ -4,6 +4,7 @@ from protocol0.shared.SongFacade import SongFacade
 
 class LOMAnalyzerService(object):
     """ Audit object model """
+
     def check_tracks_tree_consistency(self):
         # type: () -> None
         for simple_track in SongFacade.simple_tracks():

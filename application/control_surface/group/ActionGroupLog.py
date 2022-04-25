@@ -1,10 +1,10 @@
-from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
+from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 from protocol0.domain.audit.LogService import LogService
 from protocol0.domain.audit.SongStatsService import SongStatsService
 from protocol0.shared.logging.Logger import Logger
 
 
-class ActionGroupLog(ActionGroupMixin):
+class ActionGroupLog(ActionGroupInterface):
     CHANNEL = 9
 
     def configure(self):

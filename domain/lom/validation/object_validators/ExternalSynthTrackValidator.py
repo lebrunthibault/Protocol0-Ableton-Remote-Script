@@ -1,7 +1,7 @@
 from typing import Optional
 
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
-from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.routing.InputRoutingChannelEnum import InputRoutingChannelEnum
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.lom.validation.object_validators.SimpleAudioTailTrackValidator import \
@@ -32,10 +32,15 @@ class ExternalSynthTrackValidator(AggregateValidator):
             PropertyValueValidator(track.audio_track, "volume", 0, name="audio track volume"),
 
             # ROUTINGS
-            CallbackValidator(track, lambda t: t.midi_track.input_routing.type in (InputRoutingTypeEnum.ALL_INS, InputRoutingTypeEnum.REV2_AUX), None, "midi track input type"),
+            CallbackValidator(track, lambda t: t.midi_track.input_routing.type in (
+                InputRoutingTypeEnum.ALL_INS,
+                InputRoutingTypeEnum.REV2_AUX
+            ), None, "midi track input type"),
             # PropertyValueValidator(track.midi_track.input_routing, "type", track.instrument.MIDI_INPUT_ROUTING_TYPE, name="midi track input type"),
-            PropertyValueValidator(track.audio_track.input_routing, "track", track.midi_track, name="audio track input track"),
-            PropertyValueValidator(track.audio_track.input_routing, "channel", InputRoutingChannelEnum.POST_FX, name="audio track input channel"),
+            PropertyValueValidator(track.audio_track.input_routing, "track", track.midi_track,
+                                   name="audio track input track"),
+            PropertyValueValidator(track.audio_track.input_routing, "channel", InputRoutingChannelEnum.POST_FX,
+                                   name="audio track input channel"),
         ]
 
         # SUB TRACKS
@@ -45,9 +50,12 @@ class ExternalSynthTrackValidator(AggregateValidator):
             validators += SimpleAudioTailTrackValidator(track.audio_tail_track)._validators
 
         if len(track.dummy_tracks) == 0 and not track.is_armed:
-            validators.append(PropertyValueValidator(track.audio_track.output_routing, "track", track.base_track, name="audio track output routing"))
+            validators.append(PropertyValueValidator(track.audio_track.output_routing, "track", track.base_track,
+                                                     name="audio track output routing"))
             if track.audio_tail_track:
-                validators.append(PropertyValueValidator(track.audio_tail_track.output_routing, "track", track.base_track, name="tail track output routing"))
+                validators.append(
+                    PropertyValueValidator(track.audio_tail_track.output_routing, "track", track.base_track,
+                                           name="tail track output routing"))
 
         for dummy_track in track.dummy_tracks:
             validators.append(PropertyValueValidator(dummy_track, "volume", 0))

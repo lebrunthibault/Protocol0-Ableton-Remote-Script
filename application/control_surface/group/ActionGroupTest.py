@@ -1,9 +1,11 @@
-from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
+from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
+from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.infra.interface.session.SessionUpdatedEvent import SessionUpdatedEvent
 from protocol0.shared.logging.Logger import Logger
 
 
-class ActionGroupTest(ActionGroupMixin):
+class ActionGroupTest(ActionGroupInterface):
     # NB: each scroll encoder is sending a cc value of zero on startup / shutdown and that can interfere
 
     CHANNEL = 16
@@ -24,4 +26,4 @@ class ActionGroupTest(ActionGroupMixin):
 
     def action_test(self):
         # type: () -> None
-        pass
+        DomainEventBus.notify(SessionUpdatedEvent())

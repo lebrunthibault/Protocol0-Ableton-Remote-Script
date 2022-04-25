@@ -1,12 +1,12 @@
 from functools import partial
 
-from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
+from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService import InstrumentPresetScrollerService
 from protocol0.domain.lom.instrument.preset.PresetService import PresetService
 from protocol0.shared.SongFacade import SongFacade
 
 
-class ActionGroupPreset(ActionGroupMixin):
+class ActionGroupPreset(ActionGroupInterface):
     CHANNEL = 13
 
     def configure(self):

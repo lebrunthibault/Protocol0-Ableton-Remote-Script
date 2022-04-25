@@ -1,12 +1,12 @@
 from functools import partial
 
-from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
+from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 from protocol0.domain.lom.loop.Looper import Looper
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.shared.SongFacade import SongFacade
 
 
-class ActionGroupSet(ActionGroupMixin):
+class ActionGroupSet(ActionGroupInterface):
     CHANNEL = 8
 
     def configure(self):

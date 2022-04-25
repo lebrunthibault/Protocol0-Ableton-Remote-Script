@@ -1,8 +1,8 @@
-from protocol0.application.control_surface.ActionGroupMixin import ActionGroupMixin
+from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 from protocol0.domain.lom.set.MixingService import MixingService
 
 
-class ActionGroupMix(ActionGroupMixin):
+class ActionGroupMix(ActionGroupInterface):
     CHANNEL = 14
 
     def configure(self):

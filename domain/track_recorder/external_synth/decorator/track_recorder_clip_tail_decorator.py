@@ -4,7 +4,7 @@ from typing import Optional
 
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
-from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Last32thPassedEvent import Last32thPassedEvent

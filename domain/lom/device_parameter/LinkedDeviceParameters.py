@@ -14,6 +14,7 @@ class LinkedDeviceParameters(object):
         NB : targeted at my rev2 as it has two identical layers
         and we cannot edit multiple automation curves at the same time
     """
+
     def __init__(self, param_a, param_b):
         # type: (DeviceParameter, DeviceParameter) -> None
         self._param_a = param_a

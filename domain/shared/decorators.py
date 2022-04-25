@@ -4,7 +4,6 @@ from functools import wraps, partial
 from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
 from typing import Any, Callable, TYPE_CHECKING, Optional
 
-from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import is_method
 from protocol0.shared.types import Func
 
@@ -102,6 +101,7 @@ def debounce(wait_time=100):
             # type: (Any, Any) -> None
             object_source = a[0] if is_method(func) else decorate
             decorate.count[object_source] += 1  # type: ignore[attr-defined]
+            from protocol0.domain.shared.scheduler.Scheduler import Scheduler
             Scheduler.wait_seconds(float(wait_time) / 1000, partial(execute, func, *a, **k))
 
         decorate.count = defaultdict(int)  # type: ignore[attr-defined]
@@ -137,6 +137,7 @@ def throttle(wait_time=100):
                 # type: () -> None
                 decorate.paused[object_source] = False  # type: ignore[attr-defined]
 
+            from protocol0.domain.shared.scheduler.Scheduler import Scheduler
             Scheduler.wait(wait_time, activate)
             return res
 

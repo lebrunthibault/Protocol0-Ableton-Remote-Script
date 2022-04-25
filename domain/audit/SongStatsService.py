@@ -6,13 +6,13 @@ from collections import OrderedDict
 from typing import Union
 
 from protocol0.domain.lom.clip.AudioClip import AudioClip
-from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 
 
 class SongStatsService(object):
@@ -41,7 +41,7 @@ class SongStatsService(object):
             else:
                 abstract_clip_count += len(track.clips)
 
-        stats = collections.OrderedDict()   # type: OrderedDict[str, Union[int, str]]
+        stats = collections.OrderedDict()  # type: OrderedDict[str, Union[int, str]]
         stats["clipCount"] = len(song_clips)
         stats["abstractClipCount"] = abstract_clip_count
         stats["audioRecordClipCount"] = len(audio_recorded_clips)

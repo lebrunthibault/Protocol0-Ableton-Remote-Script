@@ -6,6 +6,7 @@ from typing import Optional, Any, List, Type
 
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.domain.shared.decorators import handle_error
 from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -26,7 +27,8 @@ class ErrorService(object):
 
     _IGNORED_ERROR_FILENAMES = (
         "\\venv\\",
-        "\\sequence\\"
+        "\\sequence\\",
+        "\\decorators.py"
     )
 
     def __init__(self):
@@ -53,6 +55,18 @@ class ErrorService(object):
         Logger.error("unhandled exception caught !!")
         self._handle_exception(exc_type, exc_value, tb)
 
+    @classmethod
+    def log_stack_trace(cls):
+        # type: () -> None
+        """This will be logged and displayed nicely by the Service"""
+
+        @handle_error
+        def raise_exception():
+            # type: () -> None
+            raise RuntimeError("debug stack trace")
+
+        raise_exception()
+
     def _handle_exception(self, exc_type, exc_value, tb, context=None):
         # type: (Type[BaseException], BaseException, TracebackType, Optional[str]) -> None
         show = [fs for fs in extract_tb(tb) if self._check_file(fs[0])]
@@ -60,20 +74,13 @@ class ErrorService(object):
         if context:
             error_message += (str(context) + "\n")
         error_message += "at " + "".join(self._format_list(show[-1:], print_line=False)).strip()
-        error_message += "\n\n"
+        error_message += "\n"
         error_message += "----- traceback -----\n"
         error_message += "".join(self._format_list(show))
 
         Logger.error(error_message)
 
         Scheduler.restart()
-    #
-    #     Scheduler.wait(10, self._restart)
-    #
-    # def _restart(self):
-    #     # type: () -> None
-    #     Logger.log_warning("Error handled: reinitializing song")
-    #     CommandBus.dispatch(InitializeSongCommand())
 
     def _check_file(self, name):
         # type: (str) -> bool

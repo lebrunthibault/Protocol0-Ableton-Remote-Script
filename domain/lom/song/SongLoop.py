@@ -8,6 +8,7 @@ if TYPE_CHECKING:
 
 class SongLoop(LoopableInterface):
     """ handle start / end markers and loop gracefully """
+
     def __init__(self, song):
         # type: (Song) -> None
         self._song = song

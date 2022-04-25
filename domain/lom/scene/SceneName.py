@@ -35,7 +35,7 @@ class SceneName(UseFrameworkEvents):
         # type: () -> str
         # can happen when scenes are created
         if not isinstance(self._scene.name, basestring):
-            return ""   # type: ignore[unreachable]
+            return ""  # type: ignore[unreachable]
         # catches base name with or without bar length legend
         forbidden_first_character = "(?!([\\d|-]+))"
         match = re.match("^(?P<base_name>%s[^()]*)" % forbidden_first_character,

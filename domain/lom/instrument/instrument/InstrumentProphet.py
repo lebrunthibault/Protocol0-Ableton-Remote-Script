@@ -25,6 +25,7 @@ class InstrumentProphet(InstrumentInterface):
     ACTIVE_INSTANCE = None  # type: Optional[InstrumentProphet]
 
     MIDI_INPUT_ROUTING_TYPE = InputRoutingTypeEnum.ALL_INS
+
     # MIDI_INPUT_ROUTING_TYPE = InputRoutingTypeEnum.REV2_AUX
 
     def __init__(self, track, device):

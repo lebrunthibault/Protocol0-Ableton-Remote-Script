@@ -113,6 +113,11 @@ class SimpleTrack(AbstractTrack):
             # Backend.client().show_warning("%s is clipping (%.3f)" % (self.abstract_track.name, self.output_meter_level))
 
     @property
+    def can_be_armed(self):
+        # type: () -> bool
+        return self._track and self._track.can_be_armed
+
+    @property
     def is_armed(self):
         # type: () -> bool
         return self._track and self.can_be_armed and self._track.arm

@@ -17,6 +17,7 @@ class DomainEventBus(object):
     def one(cls, domain_event, subscriber):
         # type: (Type[T], Callable) -> None
         """ helper method for unique reaction """
+
         def execute(_):
             # type: (T) -> None
             subscriber()

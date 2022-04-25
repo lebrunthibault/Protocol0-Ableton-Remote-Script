@@ -4,21 +4,21 @@ from typing import Optional, TYPE_CHECKING
 
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.domain.lom.track.group_track.ExternalSynthTrack import ExternalSynthTrack
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
-from protocol0.domain.track_recorder.recording_bar_length.RecordingBarLengthEnum import RecordingBarLengthEnum
-from protocol0.domain.track_recorder.recording_bar_length.RecordingBarLengthScroller import RecordingBarLengthScroller
-from protocol0.domain.track_recorder.count_in.count_in_interface import CountInInterface
+from protocol0.domain.track_recorder.abstract_track_recorder import AbstractTrackRecorder
 from protocol0.domain.track_recorder.abstract_track_recorder_factory import AbstractTrackRecorderFactory
-from protocol0.domain.track_recorder.simple.track_recoder_simple_factory import TrackRecorderSimpleFactory
+from protocol0.domain.track_recorder.count_in.count_in_interface import CountInInterface
 from protocol0.domain.track_recorder.external_synth.track_recorder_external_synth_factory import \
     TrackRecorderExternalSynthFactory
-from protocol0.domain.track_recorder.abstract_track_recorder import AbstractTrackRecorder
+from protocol0.domain.track_recorder.recording_bar_length.RecordingBarLengthEnum import RecordingBarLengthEnum
+from protocol0.domain.track_recorder.recording_bar_length.RecordingBarLengthScroller import RecordingBarLengthScroller
+from protocol0.domain.track_recorder.simple.track_recoder_simple_factory import TrackRecorderSimpleFactory
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -41,7 +41,8 @@ class TrackRecorderService(object):
     def _get_track_recorder_factory(self, track):
         # type: (AbstractTrack) -> AbstractTrackRecorderFactory
         if isinstance(track, SimpleTrack):
-            return TrackRecorderSimpleFactory(track, self._song, self.recording_bar_length_scroller.current_value.bar_length_value)
+            return TrackRecorderSimpleFactory(track, self._song,
+                                              self.recording_bar_length_scroller.current_value.bar_length_value)
         elif isinstance(track, ExternalSynthTrack):
             return TrackRecorderExternalSynthFactory(track, self._song,
                                                      self.recording_bar_length_scroller.current_value.bar_length_value)

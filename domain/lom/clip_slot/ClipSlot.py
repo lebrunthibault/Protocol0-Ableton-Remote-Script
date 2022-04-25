@@ -5,6 +5,7 @@ from typing import Any, TYPE_CHECKING, Optional
 
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.clip.Clip import Clip
+from protocol0.domain.lom.clip.ClipCreatedEvent import ClipCreatedEvent
 from protocol0.domain.lom.track.simple_track.SimpleTrackFirstClipAddedEvent import SimpleTrackFirstClipAddedEvent
 from protocol0.domain.lom.track.simple_track.SimpleTrackLastClipDeletedEvent import SimpleTrackLastClipDeletedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
@@ -62,6 +63,8 @@ class ClipSlot(UseFrameworkEvents):
             DomainEventBus.notify(SimpleTrackFirstClipAddedEvent())
         elif not self.has_clip and len(self.track.clips) == 0:
             DomainEventBus.notify(SimpleTrackLastClipDeletedEvent())
+
+        DomainEventBus.notify(ClipCreatedEvent())
 
         if not self.clip and self.has_stop_button:
             Scheduler.defer(partial(setattr, self, "has_stop_button", False))

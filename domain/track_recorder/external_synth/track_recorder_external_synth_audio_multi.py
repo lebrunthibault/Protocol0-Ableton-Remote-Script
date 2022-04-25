@@ -19,7 +19,8 @@ class TrackRecorderExternalSynthAudioMulti(TrackRecorderExternalSynthAudio):
         # type: (int) -> str
         number_of_scenes = 1
         current_scene = self.recording_scene
-        while self.recording_scene.next_scene != current_scene and self.track.midi_track.clip_slots[current_scene.next_scene.index].clip:
+        while self.recording_scene.next_scene != current_scene and \
+                self.track.midi_track.clip_slots[current_scene.next_scene.index].clip:
             current_scene = current_scene.next_scene
             number_of_scenes += 1
         return "audio multi (%s scenes)" % number_of_scenes

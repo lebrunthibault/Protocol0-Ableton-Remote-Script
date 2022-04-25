@@ -33,7 +33,11 @@ class AbstractTrackName(UseFrameworkEvents):
         base_name = match.group("base_name").strip() if match else ""
 
         if self.DEBUG:
-            Logger.info("%s <-> %s <-> %s" % (base_name, self._should_recompute_base_name(base_name=base_name), self._track.computed_base_name))
+            Logger.info("%s <-> %s <-> %s" % (
+                base_name,
+                self._should_recompute_base_name(base_name=base_name),
+                self._track.computed_base_name
+            ))
         # allows manual modification
         if self._should_recompute_base_name(base_name=base_name):
             return self._track.computed_base_name

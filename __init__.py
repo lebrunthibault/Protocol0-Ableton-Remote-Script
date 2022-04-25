@@ -67,6 +67,7 @@ if not live_environment_loaded:
     sys.modules["MidiRemoteScript"] = EmptyModule("MidiRemoteScript")  # type: ignore[assignment]
     sys.modules["multipledispatch"] = EmptyModule("multipledispatch")  # type: ignore[assignment]
 
+
 #
 # def _default(_, obj):
 #     # type: (Any, Any) -> Any
