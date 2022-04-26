@@ -21,6 +21,7 @@ from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import Sim
 from protocol0.domain.lom.track.simple_track.SimpleReturnTrack import SimpleReturnTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import SimpleTrackCreatedEvent
+from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.decorators import handle_error
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
@@ -52,8 +53,7 @@ class TrackService(UseFrameworkEvents):
     @subject_slot("selected_track")
     def _selected_track_listener(self):
         # type: () -> None
-        if SongFacade.selected_track().group_track:
-            SongFacade.selected_track().group_track.is_folded = False
+        ApplicationViewFacade.focus_current_track()
         DomainEventBus.notify(SelectedTrackChangedEvent())
 
     @subject_slot("tracks")

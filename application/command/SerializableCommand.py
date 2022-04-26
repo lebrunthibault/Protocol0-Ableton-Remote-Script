@@ -5,8 +5,13 @@ from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 
 
 class SerializableCommand(object):
+    def __repr__(self):
+        # type: () -> str
+        return self.serialize()
+
     def serialize(self):
         # type: () -> str
+        """Used from outside"""
         return json.dumps({
             "class": classname(self.__class__, ""),
             "args": self.__dict__

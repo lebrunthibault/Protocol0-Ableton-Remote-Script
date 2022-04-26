@@ -2,6 +2,7 @@ import Live
 from typing import Optional, TYPE_CHECKING
 
 from protocol0.domain.shared.SessionServiceInterface import SessionServiceInterface
+from protocol0.shared.SongFacade import SongFacade
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.song.Song import Song
@@ -63,6 +64,14 @@ class ApplicationViewFacade(object):
     def focus_current_track(cls):
         # type: () -> None
         """ Moves the focus to the detail view. """
+        selected_track = SongFacade.selected_track()
+        if SongFacade.selected_track().group_track \
+                and any(t.is_folded for t in SongFacade.selected_track().group_tracks):
+            SongFacade.selected_track().group_track.is_folded = False
+            # NB : unfolding parent classes will select them
+            if SongFacade.selected_track() != selected_track:
+                cls._INSTANCE._song.select_track(selected_track)
+
         cls._INSTANCE._session_service.toggle_session_ring()
 
     @classmethod

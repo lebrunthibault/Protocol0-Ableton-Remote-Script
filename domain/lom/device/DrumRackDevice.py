@@ -2,12 +2,15 @@ from typing import List
 
 from protocol0.domain.lom.device.DrumPad import DrumPad
 from protocol0.domain.lom.device.RackDevice import RackDevice
+from protocol0.shared.logging.Logger import Logger
 
 
 class DrumRackDevice(RackDevice):
-    def contains_names(self, names):
+    def pad_names_equal(self, names):
         # type: (List[str]) -> bool
         pad_names = [drum_pad.name for drum_pad in self.filled_drum_pads]
+        Logger.dev("pad_names: %s" % pad_names)
+        Logger.dev("names: %s" % names)
         return names == pad_names
 
     @property

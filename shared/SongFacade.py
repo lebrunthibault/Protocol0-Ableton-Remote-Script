@@ -3,7 +3,6 @@ from collections import Iterator
 import Live
 from typing import TYPE_CHECKING, Optional, List, cast
 
-from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 
 if TYPE_CHECKING:
@@ -285,6 +284,7 @@ class SongFacade(object):
     @classmethod
     def current_loop(cls):
         # type: () -> LoopableInterface
+        from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
         if ApplicationViewFacade.is_session_visible():
             return cls.selected_midi_clip().loop
         else:

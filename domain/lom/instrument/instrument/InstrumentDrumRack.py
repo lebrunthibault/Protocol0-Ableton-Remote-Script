@@ -8,3 +8,4 @@ class InstrumentDrumRack(InstrumentInterface):
     TRACK_COLOR = InstrumentColorEnum.SIMPLER
     CAN_BE_SHOWN = False
     PRESET_DISPLAY_OPTION = PresetDisplayOptionEnum.NONE
+    DEFAULT_NOTE = 36

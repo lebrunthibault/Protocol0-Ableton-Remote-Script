@@ -22,23 +22,15 @@ class SongState(object):
         DomainEventBus.subscribe(AbstractTrackNameUpdatedEvent, lambda _: self.notify())
         DomainEventBus.subscribe(SimpleTrackFirstClipAddedEvent, lambda _: self.notify())
         DomainEventBus.subscribe(SimpleTrackLastClipDeletedEvent, lambda _: self.notify())
-        DomainEventBus.subscribe(SelectedTrackChangedEvent, lambda _: self._check_drum_rack_visible())
-        DomainEventBus.subscribe(DrumRackLoadedEvent, lambda _: self._check_drum_rack_visible())
+        DomainEventBus.subscribe(SelectedTrackChangedEvent, lambda _: self.notify())
+        DomainEventBus.subscribe(DrumRackLoadedEvent, lambda _: self.notify())
         presets = DirectoryPresetImporter(InstrumentSimpler.PRESETS_PATH,
                                           InstrumentSimpler.PRESET_EXTENSION).import_presets()
         drum_categories = set()
         for preset in presets:
             drum_categories.add(preset.category)
         self._drum_categories = sorted(drum_categories)
-        self._drum_rack_visible = False
         self._cache = {}  # type: Dict[str, Any]
-
-    def _check_drum_rack_visible(self):
-        # type: () -> None
-        drum_rack_visible = isinstance(SongFacade.selected_track().instrument, InstrumentDrumRack)
-        if drum_rack_visible != self._drum_rack_visible:
-            self._drum_rack_visible = drum_rack_visible
-            self.notify()
 
     def to_dict(self):
         # type: () -> Dict
@@ -50,13 +42,13 @@ class SongState(object):
             "drum_track_names": drum_track_names,
             "drum_categories": self._drum_categories,
             "favorite_device_names": [device.name for device in DeviceEnum.favorites()],
-            "drum_rack_visible": self._drum_rack_visible
+            "drum_rack_visible": isinstance(SongFacade.selected_track().instrument, InstrumentDrumRack)
         }
 
-    def notify(self):
-        # type: () -> None
+    def notify(self, force=False):
+        # type: (bool) -> None
         data = self.to_dict()
-        if self._cache != data:
+        if self._cache != data or force:
             Backend.client().notify_song_state(data)
 
         self._cache = data

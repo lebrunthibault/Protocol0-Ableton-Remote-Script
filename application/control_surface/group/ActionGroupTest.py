@@ -1,7 +1,7 @@
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
-from protocol0.domain.shared.DomainEventBus import DomainEventBus
+
 from protocol0.domain.shared.backend.Backend import Backend
-from protocol0.infra.interface.session.SessionUpdatedEvent import SessionUpdatedEvent
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 
 
@@ -26,4 +26,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        DomainEventBus.notify(SessionUpdatedEvent())
+        SongFacade.selected_midi_clip().set_notes([])

@@ -5,4 +5,4 @@ from protocol0.application.command_handler.CommandHandlerInterface import Comman
 class GetSongStateCommandHandler(CommandHandlerInterface):
     def handle(self, command):
         # type: (GetSongStateCommand) -> None
-        self._song.state.notify()
+        self._song.state.notify(force=True)

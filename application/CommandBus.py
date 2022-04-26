@@ -9,6 +9,7 @@ from protocol0.domain.shared.decorators import handle_error
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils import import_package
 from protocol0.shared.UndoFacade import UndoFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -18,6 +19,7 @@ CommandMapping = Dict[Type[SerializableCommand], Type[CommandHandlerInterface]]
 
 
 class CommandBus(object):
+    _DEBUG = False
     _INSTANCE = None  # type: Optional[CommandBus]
 
     def __init__(self, container, song):
@@ -51,6 +53,9 @@ class CommandBus(object):
     @classmethod
     def dispatch(cls, command):
         # type: (SerializableCommand) -> Optional[Sequence]
+        if cls._DEBUG:
+            Logger.dev("Executing %s" % command)
+
         return cls._INSTANCE._dispatch_command(command)
 
     @handle_error

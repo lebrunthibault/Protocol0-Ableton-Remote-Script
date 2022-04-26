@@ -30,6 +30,7 @@ class InstrumentInterface(object):
     PRESET_EXTENSION = ""
     PRESET_DISPLAY_OPTION = PresetDisplayOptionEnum.NAME
     HAS_PROTECTED_MODE = True
+    DEFAULT_NOTE = 60
     PRESET_OFFSET = 0  # if we store presets not at the beginning of the list
     MIDI_INPUT_ROUTING_TYPE = InputRoutingTypeEnum.ALL_INS
     PRESET_CHANGER = ProgramChangePresetChanger  # type: Type[PresetChangerInterface]

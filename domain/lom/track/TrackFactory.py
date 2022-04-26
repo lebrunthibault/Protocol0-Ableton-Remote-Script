@@ -81,7 +81,9 @@ class TrackFactory(object):
 
         selected_scene_index = SongFacade.selected_scene().index
         seq = Sequence()
-        seq.add(partial(self._song.create_midi_track, drum_track.sub_tracks[-1].index))
+        # -1 sometimes doesn't create it in the drum group
+        track_index = drum_track.sub_tracks[-2].index if len(drum_track.sub_tracks) > 1 else 0
+        seq.add(partial(self._song.create_midi_track, track_index))
         seq.add(lambda: setattr(SongFacade.selected_track(), "volume", -15))
 
         if device_enum == DeviceEnum.SIMPLER:

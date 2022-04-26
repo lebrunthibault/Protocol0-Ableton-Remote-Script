@@ -54,7 +54,7 @@ class MidiClip(Clip):
         if not self._clip:
             return None
         self._cached_notes = notes
-        self._clip.get_selected_notes()
+        self._clip.select_all_notes()
         seq = Sequence()
         seq.add(partial(self._clip.replace_selected_notes, tuple(note.to_data() for note in notes)))
         # noinspection PyUnresolvedReferences
@@ -76,7 +76,8 @@ class MidiClip(Clip):
     def generate_base_notes(self):
         # type: () -> Optional[Sequence]
         if self.track.instrument:
-            base_notes = [Note(pitch=60, velocity=127, start=0, duration=min(1, int(self.length)))]
+            pitch = self.track.instrument.DEFAULT_NOTE
+            base_notes = [Note(pitch=pitch, velocity=127, start=0, duration=min(1, int(self.length)))]
             return self.set_notes(base_notes)
         else:
             return None

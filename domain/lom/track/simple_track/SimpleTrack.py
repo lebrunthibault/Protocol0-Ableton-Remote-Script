@@ -1,6 +1,7 @@
 from itertools import chain
 
 import Live
+from _Framework.CompoundElement import subject_slot_group
 from typing import List, Optional
 
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
@@ -13,7 +14,7 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrac
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import SimpleTrackCreatedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.decorators import p0_subject_slot
+from protocol0.domain.shared.decorators import p0_subject_slot, defer
 from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.observer.Observable import Observable
@@ -46,6 +47,7 @@ class SimpleTrack(AbstractTrack):
 
         self._output_meter_level_listener.subject = None
 
+        # DomainEventBus.subscribe(ClipCreatedEvent, self._on_clip_created_event)
         DomainEventBus.notify(SimpleTrackCreatedEvent(self))
 
     @property
@@ -90,6 +92,8 @@ class SimpleTrack(AbstractTrack):
                 new_clip_slots.append(ClipSlot.make(clip_slot=clip_slot, track=self))
         self.clip_slots[:] = new_clip_slots  # type: List[ClipSlot]
 
+        self._has_clip_listener.replace_subjects(self._track.clip_slots)
+
     def update(self, observable):
         # type: (Observable) -> None
         if isinstance(observable, TrackDevices):
@@ -98,10 +102,17 @@ class SimpleTrack(AbstractTrack):
                 self.instrument = InstrumentFactory.make_instrument_from_simple_track(track=self)
 
     def refresh_appearance(self):
-        # type: (SimpleTrack) -> None
+        # type: () -> None
         super(SimpleTrack, self).refresh_appearance()
         for clip_slot in self.clip_slots:
             clip_slot.refresh_appearance()
+
+    @subject_slot_group("has_clip")
+    @defer
+    def _has_clip_listener(self, clip_slot):
+        # type: (Live.ClipSlot.ClipSlot) -> None
+        if clip_slot.clip:
+            SongFacade.selected_clip().color = self.color
 
     @p0_subject_slot("output_meter_level")
     def _output_meter_level_listener(self):
@@ -142,7 +153,7 @@ class SimpleTrack(AbstractTrack):
             return False
 
     def arm_track(self):
-        # type: (SimpleTrack) -> None
+        # type: () -> None
         if self.is_armed:
             return None
         if self.is_foldable:

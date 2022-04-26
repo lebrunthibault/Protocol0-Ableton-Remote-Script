@@ -99,6 +99,13 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents, TrackComponent
         return self.abstract_group_track if self.abstract_group_track else self  # type: ignore
 
     @property
+    def group_tracks(self):
+        # type: () -> List[AbstractTrack]
+        if not self.group_track:
+            return []
+        return [self.group_track] + self.group_track.group_tracks
+
+    @property
     def instrument(self):
         # type: () -> Optional[InstrumentInterface]
         return None
@@ -164,13 +171,13 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents, TrackComponent
     @is_folded.setter
     def is_folded(self, is_folded):
         # type: (bool) -> None
-        if self.is_foldable and self._track:
-            self._track.fold_state = int(is_folded)
-            if is_folded:
-                group_track = self.group_track
-                while group_track:
-                    group_track.is_folded = False
-                    group_track = group_track.group_track
+        if not self.is_foldable or not self._track:
+            return
+
+        self._track.fold_state = int(is_folded)
+        if not is_folded:
+            for group_track in self.group_tracks:
+                group_track.is_folded = False
 
     @property
     def solo(self):
