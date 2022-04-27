@@ -15,7 +15,6 @@ from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -24,9 +23,8 @@ class DrumRackService(object):
         # type: (BrowserServiceInterface) -> None
         self._browser_service = browser_service
 
-    def load_category_drum_rack(self, drum_category_name):
-        # type: (str) -> Sequence
-        drum_category = DrumCategory(drum_category_name)
+    def load_category_drum_rack(self, drum_category):
+        # type: (DrumCategory) -> Sequence
         seq = Sequence()
         try:
             self._browser_service.load_from_user_library(drum_category.drum_rack_name)
@@ -65,7 +63,6 @@ class DrumRackService(object):
         assert device == list(SongFacade.selected_track().devices)[0]
         assert len(device.filled_drum_pads) == 0
         presets = drum_category.presets
-        Logger.dev("presets: %s" % presets)
         drum_pads = [d for d in device.drum_pads if d.note >= DrumPad.INITIAL_NOTE][:len(presets)]
 
         seq = Sequence()
@@ -95,10 +92,7 @@ class DrumRackService(object):
         # type: () -> None
         device = cast(DrumRackDevice, SongFacade.selected_track().instrument.device)
         note_to_keep = device.selected_drum_pad.note
-        Logger.dev("note_to_keep: %s" % note_to_keep)
         for clip in cast(SimpleMidiTrack, SongFacade.selected_track()).clips:
-            Logger.dev("handling %s" % clip)
-            Logger.dev("notes are : %s" % clip.get_notes())
             notes_to_set = []
             for note in clip.get_notes():
                 if note.pitch != note_to_keep:
@@ -106,7 +100,5 @@ class DrumRackService(object):
 
                 note.pitch = 60
                 notes_to_set.append(note)
-
-            Logger.dev("we keep %s" % notes_to_set)
 
             clip.set_notes(notes_to_set)

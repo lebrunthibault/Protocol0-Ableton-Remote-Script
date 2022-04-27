@@ -35,6 +35,8 @@ class TrackFactory(object):
         # checking first on existing tracks
         existing_simple_track = SongFacade.optional_simple_track_from_live_track(track)
         if existing_simple_track and (cls is None or isinstance(existing_simple_track, cls)):
+            # re indexing tracks
+            existing_simple_track._index = index
             return existing_simple_track
 
         if cls is None:
@@ -77,26 +79,27 @@ class TrackFactory(object):
         if name.lower() not in DrumCategory.all():
             raise Protocol0Warning("Cannot fin category for drum track %s" % name)
 
+        drum_category = DrumCategory(name)
+
         drum_track.is_folded = False
 
         selected_scene_index = SongFacade.selected_scene().index
         seq = Sequence()
-        # -1 sometimes doesn't create it in the drum group
-        track_index = drum_track.sub_tracks[-2].index if len(drum_track.sub_tracks) > 1 else 0
-        seq.add(partial(self._song.create_midi_track, track_index))
+        seq.add(partial(self._song.create_midi_track, drum_category.create_track_index))
         seq.add(lambda: setattr(SongFacade.selected_track(), "volume", -15))
 
         if device_enum == DeviceEnum.SIMPLER:
             seq.defer()
             seq.add(partial(self._browser_service.load_device_from_enum, device_enum))
-            seq.add(partial(self._on_simpler_drum_track_added, name))
+            seq.add(partial(self._on_simpler_drum_track_added, drum_category))
             seq.add(lambda: SongFacade.selected_track().clip_slots[selected_scene_index].create_clip())
         elif device_enum == DeviceEnum.DRUM_RACK:
-            seq.add(partial(self._drum_rack_service.load_category_drum_rack, name))
+            # not creating clip here
+            seq.add(partial(self._drum_rack_service.load_category_drum_rack, drum_category))
 
         return seq.done()
 
-    def _on_simpler_drum_track_added(self, name):
-        # type: (str) -> None
-        SongFacade.selected_track().instrument.preset_list.set_selected_category(name)
+    def _on_simpler_drum_track_added(self, drum_category):
+        # type: (DrumCategory) -> None
+        SongFacade.selected_track().instrument.preset_list.set_selected_category(drum_category.name)
         SongFacade.selected_track().instrument.scroll_presets(True)

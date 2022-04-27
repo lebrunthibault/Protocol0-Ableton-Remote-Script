@@ -187,7 +187,7 @@ class TrackService(UseFrameworkEvents):
 
             if isinstance(previous_abstract_group_track, ExternalSynthTrack) and isinstance(abstract_group_track,
                                                                                             NormalGroupTrack):
-                raise Protocol0Error("An ExternalSynthTrack is changed to a NormalGroupTrack")
+                raise Protocol0Error("An ExternalSynthTrack is changed into a NormalGroupTrack")
 
             if previous_abstract_group_track and previous_abstract_group_track != abstract_group_track:
                 previous_abstract_group_track.disconnect()

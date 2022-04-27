@@ -165,6 +165,7 @@ class ClipSlot(UseFrameworkEvents):
         if self._clip_slot:
             seq.add(partial(self._clip_slot.duplicate_clip_to, clip_slot._clip_slot))
             seq.wait_for_listener(clip_slot.has_clip_listener)  # type: ignore[arg-type]
+            seq.defer()
         return seq.done()
 
     def disconnect(self):

@@ -76,6 +76,10 @@ class MidiClip(Clip):
     def generate_base_notes(self):
         # type: () -> Optional[Sequence]
         if self.track.instrument:
+            if self.track.instrument.uses_scene_length_clips:
+                self.bar_length = SongFacade.selected_scene().bar_length
+                self.show_loop()
+
             pitch = self.track.instrument.DEFAULT_NOTE
             base_notes = [Note(pitch=pitch, velocity=127, start=0, duration=min(1, int(self.length)))]
             return self.set_notes(base_notes)

@@ -26,4 +26,5 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        SongFacade.selected_midi_clip().set_notes([])
+        SongFacade.selected_midi_clip().bar_length = SongFacade.selected_scene().bar_length
+        SongFacade.selected_midi_clip().show_loop()

@@ -78,6 +78,11 @@ class InstrumentInterface(object):
         pass
 
     @property
+    def uses_scene_length_clips(self):
+        # type: () -> bool
+        return False
+
+    @property
     def selected_preset(self):
         # type: () -> Optional[InstrumentPreset]
         return self.preset_list.selected_preset

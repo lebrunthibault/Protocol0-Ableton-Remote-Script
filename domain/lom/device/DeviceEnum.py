@@ -17,6 +17,7 @@ class DeviceEnum(AbstractEnum):
     DRUM_RACK = "DRUM_RACK"
     DUMMY_RACK = "DUMMY_RACK"
     EQ_EIGHT = "EQ_EIGHT"
+    EQ_EIGHT_RACK = "EQ_EIGHT_RACK"
     EXTERNAL_AUDIO_EFFECT = "EXTERNAL_AUDIO_EFFECT"
     EXTERNAL_INSTRUMENT = "EXTERNAL_INSTRUMENT"
     LFO_TOOL = "LFO_TOOL"
@@ -24,6 +25,7 @@ class DeviceEnum(AbstractEnum):
     MIX_RACK = "MIX_RACK"
     REV2_EDITOR = "REV2_EDITOR"
     SATURATOR = "SATURATOR"
+    SATURN_2 = "SATURN_2"
     SERUM = "SERUM"
     SIMPLER = "SIMPLER"
     SSL_COMP = "SSL_COMP"
@@ -45,6 +47,7 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.DRUM_RACK: "Drum Rack",
             DeviceEnum.DUMMY_RACK: "Dummy Rack",
             DeviceEnum.EQ_EIGHT: "EQ Eight",
+            DeviceEnum.EQ_EIGHT_RACK: "EQ Eight Rack",
             DeviceEnum.EXTERNAL_AUDIO_EFFECT: "Ext. Audio Effect",
             DeviceEnum.EXTERNAL_INSTRUMENT: "Ext. Instrument",
             DeviceEnum.LFO_TOOL: "LFOTool_x64",
@@ -52,6 +55,7 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.MIX_RACK: "Mix Rack",
             DeviceEnum.REV2_EDITOR: "REV2Editor",
             DeviceEnum.SATURATOR: "Saturator",
+            DeviceEnum.SATURN_2: "FabFilter Saturn 2",
             DeviceEnum.SERUM: "Serum_x64",
             DeviceEnum.SIMPLER: "Simpler",
             DeviceEnum.SSL_COMP: "SSLComp Stereo",
@@ -74,9 +78,11 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.DRUM_RACK: "Drum Rack",
             DeviceEnum.DUMMY_RACK: "Dummy Rack.adg",
             DeviceEnum.EQ_EIGHT: "EQ Eight",
+            DeviceEnum.EQ_EIGHT_RACK: "EQ Eight Rack.adg",
             DeviceEnum.LFO_TOOL: "LFOTool.adg",
             DeviceEnum.MIX_RACK: "Mix Rack.adg",
             DeviceEnum.SATURATOR: "Saturator",
+            DeviceEnum.SATURN_2: "FabFilter Saturn 2",
             DeviceEnum.SIMPLER: "Simpler",
             DeviceEnum.SSL_COMP: "SSLComp Stereo",
             DeviceEnum.TRACK_SPACER: "Trackspacer 2.5",
@@ -87,17 +93,25 @@ class DeviceEnum(AbstractEnum):
 
     @classmethod
     def favorites(cls):
-        # type: () -> List[DeviceEnum]
+        # type: () -> List[List[DeviceEnum]]
         return [
-            cls.COMPRESSOR,
-            cls.EQ_EIGHT,
-            cls.LFO_TOOL,
-            cls.SATURATOR,
-            cls.SSL_COMP,
-            cls.TRACK_SPACER,
-            cls.TRUE_VERB,
-            cls.TUNER,
-            cls.UTILITY,
+            [
+                cls.EQ_EIGHT_RACK,
+                cls.UTILITY,
+                cls.COMPRESSOR,
+                cls.SSL_COMP,
+            ],
+            [
+                cls.SATURATOR,
+                cls.SATURN_2,
+                cls.TRUE_VERB,
+
+            ],
+            [
+                cls.TRACK_SPACER,
+                cls.LFO_TOOL,
+                cls.TUNER,
+            ]
         ]
 
     @property

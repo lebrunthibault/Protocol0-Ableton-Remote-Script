@@ -54,7 +54,7 @@ class CommandBus(object):
     def dispatch(cls, command):
         # type: (SerializableCommand) -> Optional[Sequence]
         if cls._DEBUG:
-            Logger.dev("Executing %s" % command)
+            Logger.info("Executing %s" % command)
 
         return cls._INSTANCE._dispatch_command(command)
 

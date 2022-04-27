@@ -43,8 +43,8 @@ class RoutingTrackDescriptor(object):
         if not routing:
             raise Protocol0Error("couldn't find %s routing matching %s for %s" % (
                 self.routing_attribute_name,
-                track._track,
-                track_routing._track
+                track._track.name,
+                track_routing._track.name
             ))
 
         setattr(track_routing._track, self.routing_attribute_name, routing)

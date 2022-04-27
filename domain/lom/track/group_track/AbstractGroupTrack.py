@@ -66,6 +66,9 @@ class AbstractGroupTrack(AbstractTrack):
             dummy_track.abstract_group_track = self
             Scheduler.defer(dummy_track.track_name.update)
 
+        # remove outdated dummy SimpleAudioTracks
+        self.sub_tracks[:] = self.sub_tracks[:len(self.sub_tracks) - len(self.dummy_tracks)]
+
         Scheduler.wait(3, self._link_dummy_tracks_routings)
 
     def _get_dummy_tracks(self):

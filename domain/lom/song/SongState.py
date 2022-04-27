@@ -38,10 +38,11 @@ class SongState(object):
         if SongFacade.drums_track():
             drum_track_names = [track.name for track in SongFacade.drums_track().get_all_simple_sub_tracks() if
                                 len(track.clips)]
+
         return {
             "drum_track_names": drum_track_names,
             "drum_categories": self._drum_categories,
-            "favorite_device_names": [device.name for device in DeviceEnum.favorites()],
+            "favorite_device_names": [[device.name for device in row] for row in DeviceEnum.favorites()],
             "drum_rack_visible": isinstance(SongFacade.selected_track().instrument, InstrumentDrumRack)
         }
 

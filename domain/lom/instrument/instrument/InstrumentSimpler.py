@@ -2,6 +2,7 @@ from typing import Optional, TYPE_CHECKING, cast
 
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.device.SimplerDevice import SimplerDevice
+from protocol0.domain.lom.drum.DrumCategory import DrumCategory
 from protocol0.domain.lom.instrument.InstrumentColorEnum import InstrumentColorEnum
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.instrument.preset.PresetDisplayOptionEnum import PresetDisplayOptionEnum
@@ -25,3 +26,8 @@ class InstrumentSimpler(UseFrameworkEvents, InstrumentInterface):
         # type: (SimpleTrack, Optional[SimplerDevice]) -> None
         super(InstrumentSimpler, self).__init__(track, device)
         self.device = cast(SimplerDevice, self.device)
+
+    @property
+    def uses_scene_length_clips(self):
+        # type: () -> bool
+        return DrumCategory(self.track.name).uses_scene_length_clips

@@ -9,8 +9,8 @@ class DrumRackDevice(RackDevice):
     def pad_names_equal(self, names):
         # type: (List[str]) -> bool
         pad_names = [drum_pad.name for drum_pad in self.filled_drum_pads]
-        Logger.dev("pad_names: %s" % pad_names)
-        Logger.dev("names: %s" % names)
+        if names != pad_names:
+            Logger.dev("difference: %s" % list(set(names) - set(pad_names)))
         return names == pad_names
 
     @property

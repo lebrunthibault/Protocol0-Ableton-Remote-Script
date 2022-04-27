@@ -64,8 +64,8 @@ class SongFacade(object):
 
     @classmethod
     def selected_track(cls):
-        # type: () -> Optional[SimpleTrack]
-        return cls.optional_simple_track_from_live_track(cls.live_song().view.selected_track)
+        # type: () -> SimpleTrack
+        return cls.simple_track_from_live_track(cls.live_song().view.selected_track)
 
     @classmethod
     def current_track(cls):

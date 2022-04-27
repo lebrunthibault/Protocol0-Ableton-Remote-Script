@@ -55,7 +55,7 @@ class DeviceParameterEnum(AbstractEnum):
     def automatable_parameters(cls):
         # type: () -> List[DeviceParameterEnum]
         return [
-            cls.AUTO_FILTER_HIGH_PASS_FREQUENCY,
             cls.AUTO_FILTER_LOW_PASS_FREQUENCY,
             cls.UTILITY_GAIN,
+            cls.AUTO_FILTER_HIGH_PASS_FREQUENCY,
         ]

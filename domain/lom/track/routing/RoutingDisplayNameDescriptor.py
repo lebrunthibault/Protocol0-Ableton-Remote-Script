@@ -29,6 +29,6 @@ class RoutingDisplayNameDescriptor(object):
             raise Protocol0Error("couldn't find %s routing matching %s for %s" % (
                 self.routing_attribute_name,
                 routing_enum,
-                track_routing._track
+                track_routing._track.name
             ))
         setattr(track_routing._track, self.routing_attribute_name, routing)
