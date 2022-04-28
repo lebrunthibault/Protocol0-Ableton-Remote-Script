@@ -5,7 +5,6 @@ from protocol0.domain.lom.clip.AudioTailClip import AudioTailClip
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
-from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
 from protocol0.domain.shared.decorators import throttle
 from protocol0.shared.SongFacade import SongFacade
@@ -53,8 +52,7 @@ class SceneClips(SlotManager, Observable):
     def _map_clips(self):
         # type: () -> None
         clips = [clip_slot.clip for clip_slot in self.clip_slots if
-                 clip_slot.has_clip and clip_slot.clip and clip_slot.track.__class__ not in (
-                     SimpleDummyTrack, SimpleInstrumentBusTrack)]
+                 clip_slot.has_clip and clip_slot.clip and clip_slot.track.__class__ != SimpleInstrumentBusTrack]
 
         self._clips = [clip for clip in clips if not isinstance(clip, AudioTailClip)]
         self.audio_tail_clips = cast(List[AudioTailClip],

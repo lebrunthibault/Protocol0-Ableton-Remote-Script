@@ -7,6 +7,7 @@ from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleA
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -58,6 +59,7 @@ class SceneActionMixin(object):
         # type: (Scene, Scene, bool) -> None
         # manually stopping previous scene because we don't display clip slot stop buttons
         for track in previous_playing_scene.tracks:
+            Logger.dev((track, track.is_playing, track in self.tracks))
             if not track.is_playing or track in self.tracks or isinstance(track, SimpleAudioTailTrack):
                 continue
 

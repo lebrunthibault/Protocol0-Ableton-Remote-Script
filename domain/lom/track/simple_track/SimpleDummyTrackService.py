@@ -2,11 +2,14 @@ from functools import partial
 
 from typing import Optional, cast
 
+from protocol0.domain.lom.clip.AudioDummyClip import AudioDummyClip
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrackAddedEvent import SimpleDummyTrackAddedEvent
+from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
@@ -51,8 +54,18 @@ class SimpleDummyTrackService(object):
         cs = track.clip_slots[SongFacade.selected_scene().index]
         seq = Sequence()
         seq.add(partial(SongFacade.template_dummy_clip().clip_slot.duplicate_clip_to, cs))
-        seq.add(lambda: setattr(track.clips[0], "muted", False))
+        seq.add(lambda: self._configure_dummy_clip(track.clips[0]))
         seq.wait(2)
+        return seq.done()
+
+    def _configure_dummy_clip(self, clip):
+        # type: (AudioDummyClip) -> Sequence
+        clip.muted = False
+        clip.show_envelope()
+        ApplicationViewFacade.show_clip()
+        seq = Sequence()
+        seq.wait(10)
+        seq.add(partial(Backend.client().set_clip_envelope_bar_length, SongFacade.selected_scene().bar_length))
         return seq.done()
 
     def _create_dummy_automation(self, track):

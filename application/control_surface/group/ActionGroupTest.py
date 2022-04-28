@@ -1,7 +1,6 @@
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 
 from protocol0.domain.shared.backend.Backend import Backend
-from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 
 
@@ -26,5 +25,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        SongFacade.selected_midi_clip().bar_length = SongFacade.selected_scene().bar_length
-        SongFacade.selected_midi_clip().show_loop()
+        Backend.client().set_clip_envelope_bar_length(8)
