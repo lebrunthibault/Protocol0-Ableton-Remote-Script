@@ -8,7 +8,6 @@ from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.utils import find_if
 from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 
 
 class DrumCategory(object):
@@ -58,15 +57,6 @@ class DrumCategory(object):
     @property
     def uses_scene_length_clips(self):
         # type: () -> bool
-        uses = self.name.lower() in [
-            "crash",
-            "fill",
-            "impact",
-            "reverse",
-            "riser",
-            "texture"
-        ]
-        Logger.dev("uses_scene_length_clips %s" % uses)
         return self.name.lower() in [
             "crash",
             "fill",

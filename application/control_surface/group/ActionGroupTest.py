@@ -1,6 +1,7 @@
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 
 from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 
 
@@ -25,4 +26,5 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        Backend.client().set_clip_envelope_bar_length(8)
+        Logger.dev(SongFacade.selected_track().color)
+        Logger.dev(SongFacade.selected_track().computed_color)

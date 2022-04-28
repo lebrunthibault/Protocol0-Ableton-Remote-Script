@@ -7,6 +7,7 @@ from protocol0.domain.lom.clip.automation_envelope.ClipAutomationEnvelope import
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.decorators import handle_error
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -90,11 +91,13 @@ class ClipActionMixin(object):
         self.show_envelope()
         self.hide_envelope()
 
+    @handle_error
     def show_envelope(self):
         # type: (Clip) -> None
         self.hide_envelope()  # necessary
         self.view.show_envelope()
 
+    @handle_error
     def hide_envelope(self):
         # type: (Clip) -> None
         self.view.hide_envelope()

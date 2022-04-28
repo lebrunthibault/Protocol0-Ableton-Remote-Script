@@ -134,6 +134,9 @@ class Song(SongActionMixin, UseFrameworkEvents):
     @subject_slot("detail_clip")
     def _detail_clip_listener(self):
         # type: () -> None
+        if not Config.EXPERIMENTAL_FEATURES:
+            return
+
         try:
             detail_clip = SongFacade.selected_midi_clip()
         except Protocol0Error:

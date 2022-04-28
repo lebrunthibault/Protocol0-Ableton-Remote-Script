@@ -112,7 +112,7 @@ class SimpleTrack(AbstractTrack):
     def _has_clip_listener(self, clip_slot):
         # type: (Live.ClipSlot.ClipSlot) -> None
         if clip_slot.clip:
-            SongFacade.selected_clip().color = self.color
+            clip_slot.clip.color_index = self.color
 
     @p0_subject_slot("output_meter_level")
     def _output_meter_level_listener(self):

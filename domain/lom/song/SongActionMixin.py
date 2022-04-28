@@ -126,8 +126,6 @@ class SongActionMixin(object):
         next_track = scroll_values(SongFacade.scrollable_tracks(), SongFacade.current_track(), go_next, rotate=False)
         if next_track:
             next_track.select()
-            if next_track == list(SongFacade.scrollable_tracks())[-1]:
-                ApplicationViewFacade.focus_current_track()
 
     def duplicate_scene(self, index):
         # type: (Song, int) -> Sequence

@@ -215,7 +215,7 @@ class SongFacade(object):
         # type: () -> Clip
         clip = cls.highlighted_clip_slot() and cls.highlighted_clip_slot().clip
         if clip is None:
-            raise Protocol0Warning("no selected midi clip")
+            raise Protocol0Warning("no selected clip")
         return clip
 
     @classmethod

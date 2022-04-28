@@ -1,0 +1,2 @@
+class PlayingSceneChangedEvent(object):
+    pass

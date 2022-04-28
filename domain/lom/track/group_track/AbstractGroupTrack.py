@@ -1,12 +1,10 @@
 from typing import TYPE_CHECKING, List, Optional, Iterator
 
 from protocol0.domain.lom.clip.Clip import Clip
-from protocol0.domain.lom.scene.SceneLastBarPassedEvent import SceneLastBarPassedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.shared.logging.Logger import Logger
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -23,24 +21,12 @@ class AbstractGroupTrack(AbstractTrack):
         self.sub_tracks = []  # type: List[AbstractTrack]
         # for now: List[SimpleTrack] but AbstractGroupTracks will register themselves on_tracks_change
         self.dummy_tracks = []  # type: List[SimpleDummyTrack]
-        # DomainEventBus.subscribe(SceneLastBarPassedEvent, self._on_scene_last_bar_passed_event)
 
     def on_tracks_change(self):
         # type: () -> None
         self._link_sub_tracks()
         self._link_group_track()
         self._map_dummy_tracks()
-
-    def _on_scene_last_bar_passed_event(self, _):
-        # type: (SceneLastBarPassedEvent) -> None
-        # if it is the last bar
-
-        Logger.dev("last bar")
-        for dummy_track in self.dummy_tracks:
-            dummy_track.stop()
-            # dummy_clip = dummy_track.clip_slots[playing_cs.index].clip
-            # if dummy_clip:
-            #     dummy_clip.stop()
 
     def _link_sub_tracks(self):
         # type: () -> None

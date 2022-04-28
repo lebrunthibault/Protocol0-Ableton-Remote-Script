@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, Optional, List, cast
 
 from protocol0.domain.lom.track.abstract_track.AbstractTrackSelectedEvent import AbstractTrackSelectedEvent
+from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.SongFacade import SongFacade
@@ -21,6 +22,9 @@ class AbstractTrackActionMixin(object):
     def select(self):
         # type: (AbstractTrack) -> Sequence
         DomainEventBus.notify(AbstractTrackSelectedEvent(self))
+
+        if self == list(SongFacade.scrollable_tracks())[-1]:
+            ApplicationViewFacade.focus_current_track()
         seq = Sequence()
         seq.wait(3)
         return seq.done()

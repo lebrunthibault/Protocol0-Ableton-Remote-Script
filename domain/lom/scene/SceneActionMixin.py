@@ -2,12 +2,14 @@ from functools import partial
 
 from typing import TYPE_CHECKING, Optional
 
+from protocol0.domain.lom.scene.PlayingSceneChangedEvent import PlayingSceneChangedEvent
 from protocol0.domain.lom.scene.SceneWindow import SceneWindow
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
+from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.utils import scroll_values
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -57,9 +59,10 @@ class SceneActionMixin(object):
 
     def _stop_previous_scene(self, previous_playing_scene, immediate=False):
         # type: (Scene, Scene, bool) -> None
+        DomainEventBus.notify(PlayingSceneChangedEvent())
+
         # manually stopping previous scene because we don't display clip slot stop buttons
         for track in previous_playing_scene.tracks:
-            Logger.dev((track, track.is_playing, track in self.tracks))
             if not track.is_playing or track in self.tracks or isinstance(track, SimpleAudioTailTrack):
                 continue
 
@@ -128,3 +131,9 @@ class SceneActionMixin(object):
         # type: (Scene, float) -> None
         beat_offset = (bar_position * SongFacade.signature_numerator()) - self.playing_position.position
         self._song.scrub_by(beat_offset)
+
+    def scroll_tracks(self, go_next):
+        # type: (Scene, bool) -> None
+        next_track = scroll_values(self.abstract_tracks, SongFacade.current_track(), go_next, rotate=False)
+        if next_track:
+            next_track.select()

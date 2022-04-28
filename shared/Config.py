@@ -8,6 +8,8 @@ class Config(object):
     PROJECT_ROOT = dirname(dirname(realpath(__file__)))
     REMOTE_SCRIPTS_ROOT = dirname(PROJECT_ROOT)
 
+    EXPERIMENTAL_FEATURES = False
+
     SAMPLE_DIRECTORY = str(os.getenv("SAMPLE_DIRECTORY"))
 
     LOG_LEVEL = LogLevelEnum.DEV
