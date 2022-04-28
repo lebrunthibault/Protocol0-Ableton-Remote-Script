@@ -17,7 +17,7 @@ class ClipAutomationEnvelope(object):
         # type: (float, float, float) -> None
         self._envelope.insert_step(start_beat, beat_length, value)
 
-    def _create_start_and_end_points(self):
+    def create_start_and_end_points(self):
         # type: () -> None
         """ we need to emulate an automation value at the beginning and the end of the clip
             so that doing ctrl-a will select the automation on the whole clip duration
@@ -27,12 +27,12 @@ class ClipAutomationEnvelope(object):
 
     def copy(self):
         # type: () -> None
-        self._create_start_and_end_points()
+        self.create_start_and_end_points()
         Backend.client().select_and_copy()
 
     def paste(self):
         # type: () -> None
-        self._create_start_and_end_points()
+        self.create_start_and_end_points()
         Backend.client().select_and_paste()
 
     def focus(self):

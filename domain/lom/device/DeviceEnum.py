@@ -9,11 +9,11 @@ from protocol0.shared.Config import Config
 
 class DeviceEnum(AbstractEnum):
     ADDICTIVE_KEYS = "ADDICTIVE_KEYS"
+    API_2500 = "API_2500"
     ARPEGGIATOR_RACK = "ARPEGGIATOR_RACK"
     AUTO_FILTER_HIGH_PASS = "AUTO_FILTER_HIGH_PASS"
     AUTO_FILTER_LOW_PASS = "AUTO_FILTER_LOW_PASS"
     COMPRESSOR = "COMPRESSOR"
-    DECAPITATOR = "DECAPITATOR"
     DRUM_RACK = "DRUM_RACK"
     DUMMY_RACK = "DUMMY_RACK"
     EQ_EIGHT = "EQ_EIGHT"
@@ -40,6 +40,7 @@ class DeviceEnum(AbstractEnum):
         # type: () -> str
         return self.get_value_from_mapping({
             DeviceEnum.ADDICTIVE_KEYS: "Addictive Keys",
+            DeviceEnum.API_2500: "API-2500 Stereo",
             DeviceEnum.ARPEGGIATOR_RACK: "Arpeggiator rack",
             DeviceEnum.AUTO_FILTER_HIGH_PASS: "Auto Filter High Pass",
             DeviceEnum.AUTO_FILTER_LOW_PASS: "Auto Filter Low Pass",
@@ -70,6 +71,7 @@ class DeviceEnum(AbstractEnum):
     def browser_name(self):
         # type: () -> str
         return self.get_value_from_mapping({
+            DeviceEnum.API_2500: "API-2500 Stereo",
             DeviceEnum.AUTO_FILTER_HIGH_PASS: "Auto Filter High Pass.adv",
             DeviceEnum.AUTO_FILTER_LOW_PASS: "Auto Filter Low Pass.adv",
             DeviceEnum.EXTERNAL_AUDIO_EFFECT: "External Audio Effect",
@@ -100,6 +102,7 @@ class DeviceEnum(AbstractEnum):
                 cls.UTILITY,
                 cls.COMPRESSOR,
                 cls.SSL_COMP,
+                cls.API_2500,
             ],
             [
                 cls.SATURATOR,
@@ -122,6 +125,7 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.AUTO_FILTER_LOW_PASS,
             DeviceEnum.ARPEGGIATOR_RACK,
             DeviceEnum.DUMMY_RACK,
+            DeviceEnum.EQ_EIGHT_RACK,
             DeviceEnum.MIX_RACK,
         ]
 

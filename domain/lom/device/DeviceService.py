@@ -1,6 +1,7 @@
 from collections import Callable
 from functools import partial
 
+import Live
 from typing import Dict, Optional
 
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
@@ -40,6 +41,7 @@ class DeviceService(object):
 
     def load_device(self, device_name):
         # type: (str) -> Sequence
+        SongFacade.selected_track().device_insert_mode = Live.Track.DeviceInsertMode.selected_right
         device_enum = DeviceEnum.from_value(device_name.upper())  # type: DeviceEnum
         track = SongFacade.current_track().base_track
         seq = Sequence()

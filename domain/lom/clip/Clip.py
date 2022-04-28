@@ -211,8 +211,6 @@ class Clip(ClipActionMixin, UseFrameworkEvents, SynchronizableObjectInterface):
     @color.setter
     def color(self, color_index):
         # type: (int) -> None
-        Logger.dev("setting color to %s" % color_index)
-        return
         if self._clip:
             self._clip.color_index = color_index
 

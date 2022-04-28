@@ -1,4 +1,5 @@
 from protocol0.domain.lom.device.PluginDevice import PluginDevice
+from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
@@ -17,33 +18,37 @@ class LogService(object):
         # type: () -> None
         self.clear()
         self.focus_window()
+        current_track = SongFacade.current_track()
         Logger.info("********* CURRENT_TRACK *************")
-        Logger.info("current_track: %s" % SongFacade.current_track())
+        Logger.info("current_track: %s" % current_track)
         Logger.info()
-        Logger.info("current_track.abstract_group_track: %s" % SongFacade.current_track().abstract_group_track)
+        Logger.info("current_track.abstract_group_track: %s" % current_track.abstract_group_track)
         Logger.info()
-        Logger.info("current_track.sub_tracks: %s" % SongFacade.current_track().sub_tracks)
+        Logger.info("current_track.sub_tracks: %s" % current_track.sub_tracks)
         Logger.info()
-        Logger.info("current_track.clips: %s" % SongFacade.current_track().clips)
+        if isinstance(current_track, AbstractGroupTrack):
+            Logger.info("current_track.dummy_tracks: %s" % current_track.dummy_tracks)
+            Logger.info()
+        Logger.info("current_track.clips: %s" % current_track.clips)
         Logger.info()
-        Logger.info("current_track.instrument: %s" % SongFacade.current_track().instrument)
-        if SongFacade.current_track().instrument:
+        Logger.info("current_track.instrument: %s" % current_track.instrument)
+        if current_track.instrument:
             Logger.info()
             Logger.info(
-                "current_track.instrument.categories: %s" % SongFacade.current_track().instrument.preset_list.categories
+                "current_track.instrument.categories: %s" % current_track.instrument.preset_list.categories
             )
             Logger.info()
             Logger.info(
                 "current_track.instrument.selected_category: %s"
-                % SongFacade.current_track().instrument.preset_list.selected_category
+                % current_track.instrument.preset_list.selected_category
             )
 
-        if SongFacade.current_track().base_track != SongFacade.current_track():
+        if current_track.base_track != current_track:
             Logger.info()
-            Logger.info("current_track.base_track: %s" % SongFacade.current_track().base_track)
+            Logger.info("current_track.base_track: %s" % current_track.base_track)
             Logger.info()
             Logger.info(
-                "current_track.base_track.sub_tracks: %s" % SongFacade.current_track().base_track.sub_tracks
+                "current_track.base_track.sub_tracks: %s" % current_track.base_track.sub_tracks
             )
 
         Logger.info()
@@ -87,12 +92,12 @@ class LogService(object):
             Logger.info("selected_device.parameters: %s" % SongFacade.selected_track().devices.selected.parameters)
         Logger.info()
 
-        if SongFacade.current_track().instrument:
+        if current_track.instrument:
             Logger.info("********* INSTRUMENT *************")
             Logger.info()
-            Logger.info("current_track.instrument: %s" % SongFacade.current_track().instrument)
+            Logger.info("current_track.instrument: %s" % current_track.instrument)
             Logger.info()
-            device = SongFacade.current_track().instrument.device
+            device = current_track.instrument.device
             if isinstance(device, PluginDevice):
                 Logger.info(
                     "current_track.instrument.device.selected_preset: %s"
@@ -107,18 +112,18 @@ class LogService(object):
                     % device.selected_preset
                 )
                 Logger.info()
-            Logger.info("current_track.instrument: %s" % SongFacade.current_track().instrument)
+            Logger.info("current_track.instrument: %s" % current_track.instrument)
             Logger.info()
             Logger.info(
-                "current_track.instrument.selected_preset: %s" % SongFacade.current_track().instrument.selected_preset
+                "current_track.instrument.selected_preset: %s" % current_track.instrument.selected_preset
             )
             Logger.info()
             Logger.info(
-                "current_track.instrument.preset_list: %s" % SongFacade.current_track().instrument.preset_list
+                "current_track.instrument.preset_list: %s" % current_track.instrument.preset_list
             )
             Logger.info()
             Logger.info(
-                "current_track.instrument.presets_path: %s" % SongFacade.current_track().instrument.PRESETS_PATH
+                "current_track.instrument.presets_path: %s" % current_track.instrument.PRESETS_PATH
             )
             Logger.info()
 

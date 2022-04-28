@@ -3,6 +3,7 @@ from math import floor
 from typing import List, TYPE_CHECKING, cast
 
 from protocol0.domain.shared.ValueScroller import ValueScroller
+from protocol0.shared.logging.Logger import Logger
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.scene.Scene import Scene
@@ -12,10 +13,11 @@ class ScenePositionScroller(ValueScroller):
     def __init__(self, scene):
         # type: (Scene) -> None
         self._scene = scene
-        super(ScenePositionScroller, self).__init__(1)
+        super(ScenePositionScroller, self).__init__(0)
 
     def _get_values(self):
         # type: () -> List
+        Logger.dev("get values: %s" % range(0, self._scene.bar_length))
         return range(0, self._scene.bar_length)
 
     def _get_initial_value(self, go_next):
@@ -24,6 +26,7 @@ class ScenePositionScroller(ValueScroller):
             bar_position = self._scene.playing_position.bar_position
             return int(floor(bar_position) if go_next else round(bar_position))
         else:
+            Logger.dev("_get_initial_value: %s" % self.current_value)
             return cast(int, self.current_value)
 
     def _value_scrolled(self, bar_position):

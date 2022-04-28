@@ -33,6 +33,7 @@ class ExternalSynthTrackMonitoringState(object):
         # midi track
         self._un_mute_track(self._track.midi_track)
         self._track.midi_track.input_routing.type = self._track.instrument.MIDI_INPUT_ROUTING_TYPE
+
         for midi_clip in self._track.midi_track.clips:
             audio_clip = self._track.audio_track.clip_slots[midi_clip.index].clip
             # do not unmute muted clip slot
@@ -63,8 +64,6 @@ class ExternalSynthTrackMonitoringState(object):
         # type: () -> None
         # midi track
         self._mute_track(self._track.midi_track)
-        # for clip in self._track.midi_track.clips:
-        #     clip.muted = True
 
         # audio track
         self._un_mute_track(self._track.audio_track)
@@ -92,4 +91,8 @@ class ExternalSynthTrackMonitoringState(object):
         # type: (SimpleTrack) -> None
         track.muted = False
         track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
-        track.output_routing.track = track.group_track  # type: ignore[assignment]
+        output_track = track.group_track
+        if len(self._track.dummy_tracks):
+            output_track = self._track.dummy_tracks[0]
+
+        track.output_routing.track = output_track  # type: ignore[assignment]

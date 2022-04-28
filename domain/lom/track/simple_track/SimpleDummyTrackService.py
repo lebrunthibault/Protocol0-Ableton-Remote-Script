@@ -86,7 +86,8 @@ class SimpleDummyTrackService(object):
         if not existing_envelope:
             clip.create_automation_envelope(parameter=automated_parameter)
 
-        clip.loop_end = 1
+        existing_envelope = clip.automation_envelope(automated_parameter)
+        existing_envelope.create_start_and_end_points()
 
         clip.show_parameter_envelope(automated_parameter)
         if SongFacade.is_playing():

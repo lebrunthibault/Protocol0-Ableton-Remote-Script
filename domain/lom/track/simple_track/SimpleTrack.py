@@ -15,6 +15,7 @@ from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import Simple
 from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import SimpleTrackCreatedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.decorators import p0_subject_slot, defer
+from protocol0.domain.shared.utils import ForwardTo
 from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.observer.Observable import Observable
@@ -38,6 +39,7 @@ class SimpleTrack(AbstractTrack):
         self.sub_tracks = []  # type: List[SimpleTrack]
 
         self._instrument = None  # type: Optional[InstrumentInterface]
+        self._view = track.view
         self.clip_slots = []  # type: List[ClipSlot]
         self._map_clip_slots()
 
@@ -49,6 +51,8 @@ class SimpleTrack(AbstractTrack):
 
         # DomainEventBus.subscribe(ClipCreatedEvent, self._on_clip_created_event)
         DomainEventBus.notify(SimpleTrackCreatedEvent(self))
+
+    device_insert_mode = ForwardTo("_view", "device_insert_mode")  # type: ignore[assignment]
 
     @property
     def live_id(self):

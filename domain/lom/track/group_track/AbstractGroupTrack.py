@@ -56,18 +56,19 @@ class AbstractGroupTrack(AbstractTrack):
 
     def _map_dummy_tracks(self):
         # type: () -> None
-        dummy_tracks = list(self._get_dummy_tracks())
-        if len(self.dummy_tracks) == len(dummy_tracks):
+        dummy_audio_tracks = list(self._get_dummy_tracks())
+        if len(self.dummy_tracks) == len(dummy_audio_tracks):
             return
 
-        self.dummy_tracks[:] = [SimpleDummyTrack(track._track, track.index) for track in dummy_tracks]
-        for dummy_track in self.dummy_tracks:
+        self.dummy_tracks[:] = []
+        for track in dummy_audio_tracks:
+            dummy_track = SimpleDummyTrack(track._track, track.index)
+            self.dummy_tracks.append(dummy_track)
+            self.add_or_replace_sub_track(dummy_track, track)
+
             dummy_track.group_track = self.base_track
             dummy_track.abstract_group_track = self
             Scheduler.defer(dummy_track.track_name.update)
-
-        # remove outdated dummy SimpleAudioTracks
-        self.sub_tracks[:] = self.sub_tracks[:len(self.sub_tracks) - len(self.dummy_tracks)]
 
         Scheduler.wait(3, self._link_dummy_tracks_routings)
 
