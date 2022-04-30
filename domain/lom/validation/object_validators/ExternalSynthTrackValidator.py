@@ -36,6 +36,8 @@ class ExternalSynthTrackValidator(AggregateValidator):
                 InputRoutingTypeEnum.ALL_INS,
                 InputRoutingTypeEnum.REV2_AUX
             ), None, "midi track input type"),
+            PropertyValueValidator(track.midi_track.input_routing, "channel", InputRoutingChannelEnum.CHANNEL_1,
+                                   name="midi track input channel"),
             # PropertyValueValidator(track.midi_track.input_routing, "type", track.instrument.MIDI_INPUT_ROUTING_TYPE, name="midi track input type"),
             PropertyValueValidator(track.audio_track.input_routing, "track", track.midi_track,
                                    name="audio track input track"),

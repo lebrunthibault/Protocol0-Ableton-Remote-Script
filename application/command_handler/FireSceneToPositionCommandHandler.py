@@ -7,4 +7,4 @@ from protocol0.shared.sequence.Sequence import Sequence
 class FireSceneToPositionCommandHandler(CommandHandlerInterface):
     def handle(self, command):
         # type: (FireSceneToPositionCommand) -> Sequence
-        return SongFacade.last_manually_started_scene().fire_to_position()
+        return SongFacade.selected_scene().fire_to_position(command.bar_length)

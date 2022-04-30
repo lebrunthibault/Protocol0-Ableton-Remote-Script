@@ -42,8 +42,8 @@ class SessionService(SessionServiceInterface):
         track_offset = self._session_track_offset
 
         with self._component_guard():
-            self._session = SessionComponent(num_tracks=num_tracks, num_scenes=len(SongFacade.scenes()))
-        self._session.set_offsets(track_offset=track_offset, scene_offset=0)
+            self._session = SessionComponent(num_tracks=num_tracks, num_scenes=8)
+        self._session.set_offsets(track_offset=track_offset, scene_offset=SongFacade.selected_scene().index)
         if track_offset != len(list(SongFacade.visible_tracks())) - 1:
             self._set_highlighting_session_component(self._session)
 

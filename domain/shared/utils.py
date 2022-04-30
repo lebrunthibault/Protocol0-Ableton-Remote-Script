@@ -189,6 +189,8 @@ live_factor = 6 / math.log10(1.0 / Config.ZERO_VOLUME)
 
 def volume_to_db(volume):
     # type: (float) -> float
+    if volume == 0:
+        return Config.ZERO_VOLUME_DB
     return live_factor * math.log10(round(volume, 3) / round(Config.ZERO_VOLUME, 3))
 
 

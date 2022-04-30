@@ -72,7 +72,9 @@ class ApplicationViewFacade(object):
             if SongFacade.selected_track() != selected_track:
                 cls._INSTANCE._song.select_track(selected_track)
 
-        cls._INSTANCE._session_service.toggle_session_ring()
+            if not SongFacade.selected_track().is_visible:
+                # careful: this will impact the session display for long sets (scroll it up or down)
+                cls._INSTANCE._session_service.toggle_session_ring()
 
     @classmethod
     def _focus_view(cls, view):

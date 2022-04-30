@@ -50,7 +50,7 @@ class SongStatsService(object):
         stats["abstractTrackCount"] = len(
             [track for track in SongFacade.abstract_tracks() if not isinstance(track, NormalGroupTrack)])
         stats["extSynthTrackCount"] = len(list(SongFacade.external_synth_tracks()))
-        stats["devicesCount"] = sum([len(track.devices) for track in SongFacade.simple_tracks()])
+        stats["devicesCount"] = sum([len(list(track.devices)) for track in SongFacade.simple_tracks()])
         stats["recordedAudioDuration"] = str(datetime.timedelta(seconds=round(recorded_audio_duration)))
         stats["sessionSongDuration"] = str(datetime.timedelta(seconds=round(song_duration)))
 

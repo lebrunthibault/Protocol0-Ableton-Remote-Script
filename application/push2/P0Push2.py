@@ -1,14 +1,13 @@
 from fractions import Fraction
 
-from protocol0_push2.push2 import Push2
-from pushbase.push_base import NUM_TRACKS, NUM_SCENES
-from typing import Optional, List, cast
+import Live
 
 from protocol0.application.push2.P0SessionNavigationComponent import P0SessionNavigationComponent
 from protocol0.application.push2.P0SessionRingTrackProvider import P0SessionRingTrackProvider
-from protocol0.domain.lom.note.Note import Note
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.shared.logging.Logger import Logger
+from protocol0_push2.push2 import Push2
+from pushbase.push_base import NUM_TRACKS, NUM_SCENES
 
 
 class P0Push2(Push2):
@@ -40,24 +39,9 @@ class P0Push2(Push2):
         self._session_navigation = P0SessionNavigationComponent(session_ring=self._session_ring, is_enabled=False,
                                                                 layer=self._create_session_navigation_layer())
 
-    def update_clip_grid_quantization(self):
-        # type: () -> None
-        quantization_index = self._get_notes_quantization_index(SongFacade.selected_midi_clip().get_notes())
-        self._grid_resolution.index = quantization_index
-        self._grid_resolution.quantization_buttons[quantization_index].is_checked = True
-
-    def _get_notes_quantization_index(self, notes):
-        # type: (List[Note]) -> int
-        def get_note_quantization_index(n):
-            # type: (Note) -> Optional[int]
-            steps = [v * 4 for v in self._PUSH2_BEAT_QUANTIZATION_STEPS]
-            for step in reversed(steps):
-                if round(n.start / step, 6).is_integer():
-                    return steps.index(step)
-            return None
-
-        notes_quantization_index = [get_note_quantization_index(note) for note in notes]
-        if len(notes_quantization_index) == 0 or None in notes_quantization_index:
-            return 3  # 1/16 by default
-        else:
-            return max(cast(List[int], notes_quantization_index))
+    def on_select_clip_slot(self, clip_slot):
+        # type: (Live.ClipSlot.ClipSlot) -> None
+        """show the clip view when selecting a clip"""
+        super(P0Push2, self).on_select_clip_slot(clip_slot)
+        if clip_slot.has_clip:
+            ApplicationViewFacade.show_clip()

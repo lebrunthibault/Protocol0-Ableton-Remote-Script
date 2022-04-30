@@ -8,7 +8,7 @@ from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleA
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.shared.utils import scroll_values
+from protocol0.domain.shared.utils import scroll_values, volume_to_db
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -109,31 +109,34 @@ class SceneActionMixin(object):
 
         return seq.done()
 
-    def fire_to_position(self):
-        # type: (Scene) -> Sequence
+    def fire_to_position(self, bar_length=None):
+        # type: (Scene, Optional[int]) -> Sequence
+        from protocol0.domain.lom.scene.Scene import Scene
+
+        Scene.LAST_MANUALLY_STARTED_SCENE = self
+
         self._song.stop_playing()
         self._song.session_automation_record = True
+        SongFacade.master_track().volume = volume_to_db(0)
+        master_volume = SongFacade.master_track().volume
         seq = Sequence()
         # removing click when changing position
-        master_volume = SongFacade.master_track().volume
-        SongFacade.master_track().volume = 0
-        seq.defer()
-        # leveraging throttle to disable the next update (that would be 1 / *)
+        seq.wait(2)
+        # leveraging throttle to disable the next update (that would be "1 / *")
         seq.add(partial(self.scene_name.update, bar_position=self.position_scroller.current_value))
         seq.add(self.fire)
         seq.defer()
-        seq.add(partial(self.jump_to_bar, min(self.bar_length - 1, self.position_scroller.current_value)))
+        if bar_length is None:
+            bar_length = min(self.bar_length - 1, self.position_scroller.current_value)
+        else:
+            self.position_scroller.set_value(bar_length)
+        seq.add(partial(self.playing_position.jump_to_bar, bar_length))
         seq.add(partial(setattr, SongFacade.master_track(), "volume", master_volume))
         seq.add(partial(setattr, self._song, "session_record", True))
         return seq.done()
 
-    def jump_to_bar(self, bar_position):
-        # type: (Scene, float) -> None
-        beat_offset = (bar_position * SongFacade.signature_numerator()) - self.playing_position.position
-        self._song.scrub_by(beat_offset)
-
     def scroll_tracks(self, go_next):
         # type: (Scene, bool) -> None
-        next_track = scroll_values(self.abstract_tracks, SongFacade.current_track(), go_next, rotate=False)
+        next_track = scroll_values(self.abstract_tracks, SongFacade.current_track(), go_next)
         if next_track:
             next_track.select()

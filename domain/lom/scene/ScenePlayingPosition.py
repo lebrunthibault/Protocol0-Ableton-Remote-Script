@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Callable
 
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.scene.SceneClips import SceneClips
@@ -7,10 +7,11 @@ from protocol0.shared.SongFacade import SongFacade
 
 
 class ScenePlayingPosition(object):
-    def __init__(self, clips, scene_length):
-        # type: (SceneClips, SceneLength) -> None
+    def __init__(self, clips, scene_length, scrub_by):
+        # type: (SceneClips, SceneLength, Callable) -> None
         self._clips = clips
         self._scene_length = scene_length
+        self._scrub_by = scrub_by
 
     def __repr__(self):
         # type: () -> str
@@ -51,3 +52,8 @@ class ScenePlayingPosition(object):
             return None
         else:
             return max(clips, key=lambda c: c.length)
+
+    def jump_to_bar(self, bar_position):
+        # type: (float) -> None
+        beat_offset = (bar_position * SongFacade.signature_numerator()) - self.position
+        self._scrub_by(beat_offset - 0.5)

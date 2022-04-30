@@ -36,7 +36,7 @@ class SetFixerService(object):
         # noinspection PyTypeChecker
         return [self._song] + SongFacade.scenes() + list(SongFacade.abstract_tracks())
 
-    def validate_set(self):
+    def fix_set(self):
         # type: () -> None
         """ Fix the current set to the current standard regarding naming / coloring etc .."""
         Logger.clear()
@@ -60,4 +60,7 @@ class SetFixerService(object):
                     first_object.select()
             if len(devices_to_remove):
                 Logger.warning("Devices to remove: %s" % devices_to_remove)
-            Backend.client().show_warning("Invalid set")
+            Backend.client().show_warning("Invalid set: fixing")
+            for invalid_object in invalid_objects:
+                self._validator_service.fix_object(invalid_object)
+            Logger.info("set fixed")

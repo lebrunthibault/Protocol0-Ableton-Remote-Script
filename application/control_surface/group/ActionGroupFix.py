@@ -15,7 +15,7 @@ class ActionGroupFix(ActionGroupInterface):
         # type: () -> None
         # SET encoder
         self.add_encoder(identifier=1, name="refresh set appearance",
-                         on_press=self._container.get(SetFixerService).validate_set)
+                         on_press=self._container.get(SetFixerService).fix_set)
 
         # TRaCK encoder
         self.add_encoder(identifier=2, name="fix current track",

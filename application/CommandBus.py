@@ -19,7 +19,7 @@ CommandMapping = Dict[Type[SerializableCommand], Type[CommandHandlerInterface]]
 
 
 class CommandBus(object):
-    _DEBUG = False
+    _DEBUG = True
     _INSTANCE = None  # type: Optional[CommandBus]
 
     def __init__(self, container, song):
