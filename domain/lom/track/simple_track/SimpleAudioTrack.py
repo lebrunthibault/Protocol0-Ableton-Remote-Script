@@ -1,4 +1,4 @@
-from typing import List, Any, cast
+from typing import List, cast
 
 from protocol0.domain.lom.ColorEnumInterface import ColorEnumInterface
 from protocol0.domain.lom.clip.AudioClip import AudioClip
@@ -12,12 +12,12 @@ class SimpleAudioTrack(SimpleTrack):
     DEFAULT_COLOR = TrackColorEnum.DEFAULT  # type: ColorEnumInterface
     CLIP_SLOT_CLASS = AudioClipSlot
 
-    def __init__(self, *a, **k):
-        # type: (Any, Any) -> None
-        super(SimpleAudioTrack, self).__init__(*a, **k)
-        self.clip_slots = cast(List[AudioClipSlot], self.clip_slots)
+    @property
+    def clip_slots(self):
+        # type: () -> List[AudioClipSlot]
+        return cast(List[AudioClipSlot], super(SimpleAudioTrack, self).clip_slots)
 
     @property
     def clips(self):
         # type: () -> List[AudioClip]
-        return super(SimpleAudioTrack, self).clips  # type: ignore
+        return cast(List[AudioClip], super(SimpleAudioTrack, self).clips)

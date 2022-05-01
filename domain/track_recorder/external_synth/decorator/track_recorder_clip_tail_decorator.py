@@ -31,7 +31,7 @@ class TrackRecorderClipTailDecorator(TrackRecorderDecorator, UseFrameworkEvents)
         # type: (Last32thPassedEvent) -> None
         if self.is_audio_silent:
             # self.track.audio_tail_track.stop(immediate=True)
-            DomainEventBus.notify(AudioClipSilentEvent())
+            DomainEventBus.emit(AudioClipSilentEvent())
 
     @property
     def is_audio_silent(self):

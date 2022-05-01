@@ -70,12 +70,12 @@ class Song(SongActionMixin, UseFrameworkEvents):
             self._is_playing = self.is_playing
 
         if not self.is_playing:
-            DomainEventBus.defer_notify(SongStoppedEvent())
+            DomainEventBus.defer_emit(SongStoppedEvent())
             if SongFacade.playing_scene():
                 Scheduler.defer(SongFacade.playing_scene().mute_audio_tails)
             return
         else:
-            DomainEventBus.defer_notify(SongStartedEvent())
+            DomainEventBus.defer_emit(SongStartedEvent())
 
     @p0_subject_slot("tempo")
     @debounce(wait_time=1000)
@@ -90,12 +90,12 @@ class Song(SongActionMixin, UseFrameworkEvents):
     def abstract_tracks(self):
         # type: () -> Iterator[AbstractTrack]
         for track in SongFacade.simple_tracks():
-            if isinstance(track, SimpleInstrumentBusTrack) or track == SongFacade.usamo_track():
+            if isinstance(track, SimpleInstrumentBusTrack) or track == SongFacade.usamo_track():  # type: ignore[unreachable]
                 continue
-            if isinstance(track.abstract_track, NormalGroupTrack):
-                yield track
+            if isinstance(track.abstract_track, NormalGroupTrack):  # type: ignore[unreachable]
+                yield track  # yield all normal group track sub tracks
             elif track == track.abstract_track.base_track:
-                yield track.abstract_track
+                yield track.abstract_track  # return the abstract track for external synth tracks
 
     @property
     def scrollable_tracks(self):

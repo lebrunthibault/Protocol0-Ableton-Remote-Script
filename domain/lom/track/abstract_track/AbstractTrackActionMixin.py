@@ -21,12 +21,12 @@ class AbstractTrackActionMixin(object):
     # noinspection PyUnusedLocal
     def select(self):
         # type: (AbstractTrack) -> Sequence
-        DomainEventBus.notify(AbstractTrackSelectedEvent(self))
+        DomainEventBus.emit(AbstractTrackSelectedEvent(self))
 
         if self == list(SongFacade.scrollable_tracks())[-1]:
             ApplicationViewFacade.focus_current_track()
         seq = Sequence()
-        seq.wait(3)
+        seq.wait(2)
         return seq.done()
 
     def toggle_arm(self):

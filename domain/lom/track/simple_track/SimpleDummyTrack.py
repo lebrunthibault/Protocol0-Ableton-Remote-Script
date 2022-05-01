@@ -17,19 +17,23 @@ class SimpleDummyTrack(SimpleAudioTrack):
         super(SimpleAudioTrack, self).__init__(*a, **k)
         from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack
         self.abstract_group_track = cast(ExternalSynthTrack, self.abstract_group_track)
-        self.clip_slots = cast(List[AudioDummyClipSlot], self.clip_slots)
+
+    @property
+    def clip_slots(self):
+        # type: () -> List[AudioDummyClipSlot]
+        return cast(List[AudioDummyClipSlot], super(SimpleDummyTrack, self).clip_slots)
 
     @property
     def clips(self):
         # type: () -> List[AudioDummyClip]
-        return super(SimpleDummyTrack, self).clips  # type: ignore
+        return cast(List[AudioDummyClip], super(SimpleDummyTrack, self).clips)
 
     def on_added(self):
         # type: () -> None
         self.current_monitoring_state = CurrentMonitoringStateEnum.IN
         self.input_routing.type = InputRoutingTypeEnum.NO_INPUT
         super(SimpleDummyTrack, self).on_added()
-        DomainEventBus.notify(SimpleDummyTrackAddedEvent(self))
+        DomainEventBus.emit(SimpleDummyTrackAddedEvent(self))
 
     @property
     def computed_base_name(self):

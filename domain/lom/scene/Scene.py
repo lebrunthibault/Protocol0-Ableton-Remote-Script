@@ -38,7 +38,7 @@ class Scene(SceneActionMixin, UseFrameworkEvents):
         self.clips.register_observer(self)
         self.scene_name = SceneName(self)
         self._scene_length = SceneLength(self.clips)
-        self.playing_position = ScenePlayingPosition(self.clips, self._scene_length, self._song.scrub_by)
+        self.playing_position = ScenePlayingPosition(self.clips, self._scene_length)
         self.crop_scroller = SceneCropScroller(self)
         self.position_scroller = ScenePositionScroller(self)
 

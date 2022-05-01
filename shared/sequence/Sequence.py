@@ -12,6 +12,7 @@ from protocol0.domain.shared.utils import get_frame_info, nop, get_callable_repr
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.CallableWithCallbacks import CallableWithCallbacks
+from protocol0.shared.sequence.ParallelSequence import ParallelSequence
 from protocol0.shared.sequence.SequenceState import SequenceStateEnum
 from protocol0.shared.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
 from protocol0.shared.sequence.SequenceStep import SequenceStep
@@ -51,7 +52,6 @@ class Sequence(SequenceStateMachineMixin):
         """ callback can be a callable or a list of callable (will execute in parallel) """
         assert callable(func) or isinstance(func, Iterable), "You passed a non callable (%s) to %s" % (func, self)
         if isinstance(func, List):
-            from protocol0.shared.sequence.ParallelSequence import ParallelSequence
             func = ParallelSequence(func).start
 
         func = cast(Callable, func)

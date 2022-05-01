@@ -5,6 +5,7 @@ from protocol0.application.CommandBus import CommandBus
 from protocol0.application.Protocol0 import Protocol0
 from protocol0.application.control_surface.ActionGroupFactory import ActionGroupFactory
 from protocol0.domain.lom.song.SongService import SongService
+from protocol0.domain.lom.song.SongState import SongState
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -42,8 +43,8 @@ def monkey_patch_static():
 
     Backend(nop)
     UndoFacade(nop, nop)
-    # noinspection PyTypeChecker
-    CommandBus(None, None)
+    SongState.notify = nop
+    CommandBus._is_duplicate_command = lambda _, __: False
     # noinspection PyTypeChecker
     Scheduler(TickSchedulerTest(), None)  # ignore beat scheduling in tests
 

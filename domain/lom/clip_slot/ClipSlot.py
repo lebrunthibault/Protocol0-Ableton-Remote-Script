@@ -60,11 +60,11 @@ class ClipSlot(UseFrameworkEvents):
         self._map_clip(is_new=True)
 
         if self.has_clip and len(self.track.clips) == 1:
-            DomainEventBus.notify(SimpleTrackFirstClipAddedEvent())
+            DomainEventBus.emit(SimpleTrackFirstClipAddedEvent())
         elif not self.has_clip and len(self.track.clips) == 0:
-            DomainEventBus.notify(SimpleTrackLastClipDeletedEvent())
+            DomainEventBus.emit(SimpleTrackLastClipDeletedEvent())
 
-        DomainEventBus.notify(ClipCreatedEvent())
+        DomainEventBus.emit(ClipCreatedEvent())
 
         if not self.clip and self.has_stop_button:
             Scheduler.defer(partial(setattr, self, "has_stop_button", False))

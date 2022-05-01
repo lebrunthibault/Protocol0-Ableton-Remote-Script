@@ -10,4 +10,4 @@ class ProgramChangePresetChanger(PresetChangerInterface):
         # type: (InstrumentPreset) -> None
         if isinstance(self._device, PluginDevice):
             self._device.selected_preset_index = preset.index
-        DomainEventBus.notify(PresetProgramSelectedEvent(preset.index + self._preset_offset))
+        DomainEventBus.emit(PresetProgramSelectedEvent(preset.index + self._preset_offset))

@@ -65,7 +65,7 @@ def test_wait_for_event():
     seq2.add(lambda: test_res.append(True), name="appending res seq 2")
     seq2.done()
 
-    DomainEventBus.notify(BarEndingEvent())
+    DomainEventBus.emit(BarEndingEvent())
 
     assert test_res == [True]
 
@@ -85,12 +85,12 @@ def test_wait_for_events():
     seq._cancel()
 
     inner_seq()
-    DomainEventBus.notify(BarEndingEvent())
+    DomainEventBus.emit(BarEndingEvent())
 
     assert test_res == [True]
 
     inner_seq()
-    DomainEventBus.notify(SongStoppedEvent())
+    DomainEventBus.emit(SongStoppedEvent())
 
     assert test_res == [True, True]
 

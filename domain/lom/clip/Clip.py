@@ -247,7 +247,7 @@ class Clip(ClipActionMixin, UseFrameworkEvents, SynchronizableObjectInterface):
         self.show_envelope()
         # noinspection PyArgumentList
         self.view.select_envelope_parameter(parameter._device_parameter)
-        DomainEventBus.notify(ClipEnvelopeShowedEvent())
+        DomainEventBus.emit(ClipEnvelopeShowedEvent())
         self.displayed_automated_parameter = parameter
 
     def scroll_automation_envelopes(self, go_next):

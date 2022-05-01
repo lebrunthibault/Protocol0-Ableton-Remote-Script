@@ -7,9 +7,7 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrac
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.backend.Backend import Backend
-from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -31,7 +29,7 @@ class SongService(object):
         Scheduler.defer(self._song.unfocus_all_tracks)  # need defer
 
         startup_track = self._get_startup_track()
-        DomainEventBus.notify(SongInitializedEvent())
+        DomainEventBus.emit(SongInitializedEvent())
         if startup_track:
             seq = Sequence()
             seq.wait(2)
@@ -41,13 +39,6 @@ class SongService(object):
 
     def _get_startup_track(self):
         # type: () -> Optional[AbstractTrack]
-        if Config.FOCUS_PROPHET_ON_STARTUP:
-            first_prophet_track = next(SongFacade.prophet_tracks(), None)
-            if first_prophet_track:
-                return first_prophet_track
-            else:
-                raise Protocol0Warning("Couldn't find prophet track")
-
         armed_tracks = list(SongFacade.armed_tracks())
         if len(armed_tracks):
             return armed_tracks[0]

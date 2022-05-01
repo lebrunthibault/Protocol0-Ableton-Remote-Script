@@ -19,7 +19,7 @@ class SessionService(SessionServiceInterface):
 
     def _emit_session_updated_event(self):
         # type: () -> None
-        DomainEventBus.notify(SessionUpdatedEvent())
+        DomainEventBus.emit(SessionUpdatedEvent())
 
     def toggle_session_ring(self):
         # type: () -> None

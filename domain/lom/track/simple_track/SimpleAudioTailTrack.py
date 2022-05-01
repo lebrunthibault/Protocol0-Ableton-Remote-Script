@@ -1,5 +1,6 @@
 from typing import Any, List, Type, cast
 
+from protocol0.domain.lom.clip.AudioTailClip import AudioTailClip
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.domain.lom.clip_slot.AudioTailClipSlot import AudioTailClipSlot
 from protocol0.domain.lom.track.routing.InputRoutingChannelEnum import InputRoutingChannelEnum
@@ -17,12 +18,16 @@ class SimpleAudioTailTrack(SimpleAudioTrack):
         from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack
 
         self.abstract_group_track = cast(ExternalSynthTrack, self.abstract_group_track)
-        self.clip_slots = cast(List[AudioTailClipSlot], self.clip_slots)
+
+    @property
+    def clip_slots(self):
+        # type: () -> List[AudioTailClipSlot]
+        return cast(List[AudioTailClipSlot], super(SimpleAudioTailTrack, self).clip_slots)
 
     @property
     def clips(self):
-        # type: () -> List[AudioTailClipSlot]
-        return super(SimpleAudioTailTrack, self).clips  # type: ignore
+        # type: () -> List[AudioTailClip]
+        return cast(List[AudioTailClip], super(SimpleAudioTailTrack, self).clips)
 
     def configure(self):
         # type: () -> None

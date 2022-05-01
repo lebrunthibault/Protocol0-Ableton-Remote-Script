@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, cast
 
 from protocol0.domain.lom.scene.PlayingSceneChangedEvent import PlayingSceneChangedEvent
 from protocol0.domain.lom.scene.SceneWindow import SceneWindow
@@ -59,7 +59,7 @@ class SceneActionMixin(object):
 
     def _stop_previous_scene(self, previous_playing_scene, immediate=False):
         # type: (Scene, Scene, bool) -> None
-        DomainEventBus.notify(PlayingSceneChangedEvent())
+        DomainEventBus.emit(PlayingSceneChangedEvent())
 
         # manually stopping previous scene because we don't display clip slot stop buttons
         for track in previous_playing_scene.tracks:
@@ -128,15 +128,23 @@ class SceneActionMixin(object):
         seq.defer()
         if bar_length is None:
             bar_length = min(self.bar_length - 1, self.position_scroller.current_value)
-        else:
-            self.position_scroller.set_value(bar_length)
-        seq.add(partial(self.playing_position.jump_to_bar, bar_length))
+        elif bar_length == 8:
+            # we have only the keypad so 8 is the last bar
+            bar_length = self.bar_length - 1
+        self.position_scroller.set_value(cast(int, bar_length))
+        seq.add(partial(self._jump_to_bar, bar_length))
         seq.add(partial(setattr, SongFacade.master_track(), "volume", master_volume))
         seq.add(partial(setattr, self._song, "session_record", True))
         return seq.done()
 
+    def _jump_to_bar(self, bar_position):
+        # type: (Scene, float) -> None
+        beat_offset = (bar_position * SongFacade.signature_numerator()) - self.playing_position.position
+        self._song.scrub_by(beat_offset - 0.5)
+
     def scroll_tracks(self, go_next):
         # type: (Scene, bool) -> None
         next_track = scroll_values(self.abstract_tracks, SongFacade.current_track(), go_next)
-        if next_track:
-            next_track.select()
+        next_track.select()
+        if next_track.clip_slots[SongFacade.selected_scene().index].clip:
+            next_track.clip_slots[SongFacade.selected_scene().index].clip.select()

@@ -48,7 +48,7 @@ class SetFixerService(object):
             if not is_valid:
                 invalid_objects.append(obj)
 
-        devices_to_remove = list(self._set_upgrade_service.get_deletable_devices(full_scan=True))
+        devices_to_remove = list(self._set_upgrade_service.get_deletable_devices())
 
         if len(invalid_objects) == 0 and len(devices_to_remove) == 0:
             Backend.client().show_success("Set is valid")

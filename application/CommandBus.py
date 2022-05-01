@@ -1,3 +1,5 @@
+import time
+
 from typing import Dict, Type, Optional, TYPE_CHECKING
 
 import protocol0.application.command as command_package
@@ -5,6 +7,7 @@ import protocol0.application.command_handler as command_handler_package
 from protocol0.application.ContainerInterface import ContainerInterface
 from protocol0.application.command.SerializableCommand import SerializableCommand
 from protocol0.application.command_handler.CommandHandlerInterface import CommandHandlerInterface
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.decorators import handle_error
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils import import_package
@@ -28,6 +31,8 @@ class CommandBus(object):
         self._container = container
         self._song = song
         self._command_mapping = self._create_command_mapping()
+        self._last_command = None  # type: Optional[SerializableCommand]
+        self._last_command_processed_at = None  # type: Optional[float]
 
     def _create_command_mapping(self):
         # type: () -> CommandMapping
@@ -61,6 +66,26 @@ class CommandBus(object):
     @handle_error
     def _dispatch_command(self, command):
         # type: (SerializableCommand) -> Optional[Sequence]
+        if self._is_duplicate_command(command):
+            Backend.client().show_warning("skipping duplicate command: please reload the set")
+            return None
+
+        self._last_command = command
+        self._last_command_processed_at = time.time()
+
         handler = self._command_mapping[command.__class__](self._container, self._song)
         UndoFacade.begin_undo_step()
         return handler.handle(command)
+
+    def _is_duplicate_command(self, command):
+        # type: (SerializableCommand) -> bool
+        """
+            Sometimes command are duplicated, couldn't find why yet
+            Reloading ableton does the trick, it seems that the script is loaded twice
+        """
+        print("checking %s" % command)
+        if self._last_command_processed_at is None \
+                or time.time() - self._last_command_processed_at >= 0.02:
+            return False
+
+        return type(self._last_command) == type(command)

@@ -54,7 +54,7 @@ class TrackService(UseFrameworkEvents):
     def _selected_track_listener(self):
         # type: () -> None
         ApplicationViewFacade.focus_current_track()
-        DomainEventBus.notify(SelectedTrackChangedEvent())
+        DomainEventBus.emit(SelectedTrackChangedEvent())
 
     @subject_slot("tracks")
     @handle_error
@@ -76,9 +76,9 @@ class TrackService(UseFrameworkEvents):
         seq = Sequence()
         if has_added_tracks and SongFacade.selected_track():
             seq.add(self._on_track_added_event)
-            seq.add(partial(DomainEventBus.defer_notify, TrackAddedEvent()))
+            seq.add(partial(DomainEventBus.defer_emit, TrackAddedEvent()))
 
-        seq.add(partial(DomainEventBus.defer_notify, TracksMappedEvent()))
+        seq.add(partial(DomainEventBus.defer_emit, TracksMappedEvent()))
         seq.done()
 
     def _clean_deleted_tracks(self):

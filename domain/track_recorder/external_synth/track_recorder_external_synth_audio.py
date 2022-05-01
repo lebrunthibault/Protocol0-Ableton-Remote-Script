@@ -5,11 +5,11 @@ from typing import List
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.domain.track_recorder.abstract_track_recorder import AbstractTrackRecorder
 from protocol0.domain.track_recorder.external_synth.ExternalSynthAudioRecordingEndedEvent import \
     ExternalSynthAudioRecordingEndedEvent
 from protocol0.domain.track_recorder.external_synth.ExternalSynthAudioRecordingStartedEvent import \
     ExternalSynthAudioRecordingStartedEvent
-from protocol0.domain.track_recorder.abstract_track_recorder import AbstractTrackRecorder
 from protocol0.domain.track_recorder.external_synth.track_recorder_external_synth_mixin import \
     TrackRecorderExternalSynthMixin
 from protocol0.shared.SongFacade import SongFacade
@@ -24,8 +24,8 @@ class TrackRecorderExternalSynthAudio(TrackRecorderExternalSynthMixin, AbstractT
     def _pre_record(self):
         # type: () -> None
         super(TrackRecorderExternalSynthAudio, self)._pre_record()
-        SongFacade.usamo_device().device_on = True
-        DomainEventBus.notify(ExternalSynthAudioRecordingStartedEvent(self.track))
+        SongFacade.usamo_device().is_enabled = True
+        DomainEventBus.emit(ExternalSynthAudioRecordingStartedEvent(self.track))
 
     def _focus_main_clip(self):
         # type: () -> Sequence
@@ -59,4 +59,4 @@ class TrackRecorderExternalSynthAudio(TrackRecorderExternalSynthMixin, AbstractT
     def post_audio_record(self):
         # type: () -> None
         super(TrackRecorderExternalSynthAudio, self).post_audio_record()
-        DomainEventBus.notify(ExternalSynthAudioRecordingEndedEvent(self.track))
+        DomainEventBus.emit(ExternalSynthAudioRecordingEndedEvent(self.track))

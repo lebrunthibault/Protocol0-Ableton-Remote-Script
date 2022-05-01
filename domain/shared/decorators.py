@@ -159,7 +159,7 @@ def handle_error(func):
         except Exception:
             from protocol0.domain.shared.DomainEventBus import DomainEventBus
             from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
-            DomainEventBus.notify(ErrorRaisedEvent())
+            DomainEventBus.emit(ErrorRaisedEvent())
             # raise e
 
     return decorate

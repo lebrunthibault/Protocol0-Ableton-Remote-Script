@@ -58,16 +58,6 @@ class Device(UseFrameworkEvents):
         # type: (Live.Device.Device, Optional[DeviceChain]) -> Device
         return Device._get_class(device)(device=device, chain=chain)
 
-    @property
-    def device_on(self):
-        # type: () -> bool
-        return self.get_parameter_by_name(DeviceParameterEnum.DEVICE_ON).value == 1
-
-    @device_on.setter
-    def device_on(self, on):
-        # type: (bool) -> None
-        self.get_parameter_by_name(DeviceParameterEnum.DEVICE_ON).value = 1 if on else 0
-
     def get_parameter_by_name(self, device_parameter_name):
         # type: (Union[DeviceParameterEnum, str]) -> Optional[DeviceParameter]
         if isinstance(device_parameter_name, DeviceParameterEnum):
@@ -97,8 +87,22 @@ class Device(UseFrameworkEvents):
         return None
 
     @property
+    def is_enabled(self):
+        # type: () -> bool
+        return self.get_parameter_by_name(DeviceParameterEnum.DEVICE_ON).value == 1
+
+    @is_enabled.setter
+    def is_enabled(self, on):
+        # type: (bool) -> None
+        self.get_parameter_by_name(DeviceParameterEnum.DEVICE_ON).value = 1 if on else 0
+
+    @property
     def is_active(self):
         # type: () -> bool
+        """
+            Return const access to whether this device is active.
+            This will be false both when the device is off and when it's inside a rack device which is off.
+        """
         return self._device.is_active
 
     @property

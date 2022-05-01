@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from protocol0.domain.lom.ColorEnumInterface import ColorEnumInterface
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.clip.Clip import Clip
+from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.track.TrackColorEnum import TrackColorEnum
@@ -111,6 +112,16 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents, TrackComponent
         return None
 
     @property
+    def clip_slots(self):
+        # type: () -> List[ClipSlot]
+        raise NotImplementedError
+
+    @property
+    def clips(self):
+        # type: () -> List[Clip]
+        return [clip_slot.clip for clip_slot in self.clip_slots if clip_slot.has_clip and clip_slot.clip]
+
+    @property
     def name(self):
         # type: () -> str
         return self._track.name if self._track else ""
@@ -120,7 +131,7 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents, TrackComponent
         # type: (str) -> None
         if self._track and name:
             self._track.name = str(name).strip()
-            DomainEventBus.notify(AbstractTrackNameUpdatedEvent())
+            DomainEventBus.emit(AbstractTrackNameUpdatedEvent())
 
     @property
     def computed_base_name(self):
@@ -205,11 +216,6 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents, TrackComponent
     def is_partially_armed(self):
         # type: () -> bool
         return self.is_armed
-
-    @property
-    def clips(self):
-        # type: () -> List[Clip]
-        return [clip_slot.clip for clip_slot in self.base_track.clip_slots if clip_slot.has_clip and clip_slot.clip]
 
     @property
     def is_visible(self):

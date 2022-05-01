@@ -30,7 +30,7 @@ class SequenceStep(SequenceStateMachineMixin):
             self._execute()
         except Exception:
             self._error()
-            DomainEventBus.notify(ErrorRaisedEvent(str(self)))
+            DomainEventBus.emit(ErrorRaisedEvent(str(self)))
 
     def _execute(self):
         # type: () -> None

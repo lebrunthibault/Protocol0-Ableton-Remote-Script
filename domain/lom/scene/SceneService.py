@@ -76,14 +76,14 @@ class SceneService(UseFrameworkEvents):
                 Scheduler.defer(scene.on_added)
             Scheduler.defer(scene.refresh_appearance)
 
-        DomainEventBus.defer_notify(ScenesMappedEvent())
+        DomainEventBus.defer_emit(ScenesMappedEvent())
         Logger.info("mapped scenes")
 
     @subject_slot("selected_scene")
     @handle_error
     def _selected_scene_listener(self):
         # type: () -> None
-        DomainEventBus.notify(SessionUpdatedEvent())
+        DomainEventBus.emit(SessionUpdatedEvent())
 
     def _on_bar_changed_event(self, _):
         # type: (BarChangedEvent) -> None

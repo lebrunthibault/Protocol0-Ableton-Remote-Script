@@ -18,7 +18,7 @@ class Protocol0(ControlSurface):
         try:
             Container(self)
         except Exception:
-            DomainEventBus.notify(ErrorRaisedEvent())
+            DomainEventBus.emit(ErrorRaisedEvent())
             return
 
         CommandBus.dispatch(InitializeSongCommand())

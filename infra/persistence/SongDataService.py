@@ -12,7 +12,7 @@ from protocol0.shared.logging.Logger import Logger
 
 
 class SongDataService(object):
-    DEBUG = False
+    _DEBUG = False
 
     def __init__(self, get_data, set_data):
         # type: (Callable, Callable) -> None

@@ -64,6 +64,6 @@ class InstrumentDisplayService(object):
         if force_activate or not instrument.activated:
             seq.add(instrument.post_activate)
 
-        seq.add(partial(DomainEventBus.notify, InstrumentActivatedEvent(instrument)))
+        seq.add(partial(DomainEventBus.emit, InstrumentActivatedEvent(instrument)))
 
         return seq.done()

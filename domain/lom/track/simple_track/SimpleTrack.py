@@ -14,6 +14,7 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrac
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import SimpleTrackCreatedEvent
 from protocol0.domain.shared.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.decorators import p0_subject_slot, defer
 from protocol0.domain.shared.utils import ForwardTo
 from protocol0.shared.Config import Config
@@ -40,7 +41,7 @@ class SimpleTrack(AbstractTrack):
 
         self._instrument = None  # type: Optional[InstrumentInterface]
         self._view = track.view
-        self.clip_slots = []  # type: List[ClipSlot]
+        self._clip_slots = []  # type: List[ClipSlot]
         self._map_clip_slots()
 
         self.devices = TrackDevices(self._track)
@@ -50,7 +51,7 @@ class SimpleTrack(AbstractTrack):
         self._output_meter_level_listener.subject = None
 
         # DomainEventBus.subscribe(ClipCreatedEvent, self._on_clip_created_event)
-        DomainEventBus.notify(SimpleTrackCreatedEvent(self))
+        DomainEventBus.emit(SimpleTrackCreatedEvent(self))
 
     device_insert_mode = ForwardTo("_view", "device_insert_mode")  # type: ignore[assignment]
 
@@ -83,6 +84,11 @@ class SimpleTrack(AbstractTrack):
         self.group_track = SongFacade.simple_track_from_live_track(self._track.group_track)
         self.group_track.add_or_replace_sub_track(self)
 
+    @property
+    def clip_slots(self):
+        # type: () -> List[ClipSlot]
+        return self._clip_slots
+
     def _map_clip_slots(self):
         # type: () -> None
         """ create new ClipSlot objects and keep existing ones """
@@ -94,7 +100,7 @@ class SimpleTrack(AbstractTrack):
                 new_clip_slots.append(live_cs_to_cs[clip_slot])
             else:
                 new_clip_slots.append(ClipSlot.make(clip_slot=clip_slot, track=self))
-        self.clip_slots[:] = new_clip_slots  # type: List[ClipSlot]
+        self._clip_slots[:] = new_clip_slots  # type: List[ClipSlot]
 
         self._has_clip_listener.replace_subjects(self._track.clip_slots)
 
@@ -121,11 +127,13 @@ class SimpleTrack(AbstractTrack):
     @p0_subject_slot("output_meter_level")
     def _output_meter_level_listener(self):
         # type: () -> None
+        if not Config.TRACK_VOLUME_MONITORING:
+            return
         if self.output_meter_level > Config.CLIPPING_TRACK_VOLUME:
             # some clicks e.g. when starting / stopping the song have this value
             if round(self.output_meter_level, 3) == 0.921:
                 return
-            # Backend.client().show_warning("%s is clipping (%.3f)" % (self.abstract_track.name, self.output_meter_level))
+            Backend.client().show_warning("%s is clipping (%.3f)" % (self.abstract_track.name, self.output_meter_level))
 
     @property
     def can_be_armed(self):
@@ -166,7 +174,7 @@ class SimpleTrack(AbstractTrack):
             self.muted = False
             self.is_armed = True
 
-        DomainEventBus.notify(SimpleTrackArmedEvent(self))
+        DomainEventBus.emit(SimpleTrackArmedEvent(self))
 
     @property
     def current_monitoring_state(self):

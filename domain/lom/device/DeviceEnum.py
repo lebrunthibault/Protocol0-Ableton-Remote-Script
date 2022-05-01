@@ -18,6 +18,7 @@ class DeviceEnum(AbstractEnum):
     DUMMY_RACK = "DUMMY_RACK"
     EQ_EIGHT = "EQ_EIGHT"
     EQ_EIGHT_RACK = "EQ_EIGHT_RACK"
+    EQ_ROOM = "EQ_ROOM"
     EXTERNAL_AUDIO_EFFECT = "EXTERNAL_AUDIO_EFFECT"
     EXTERNAL_INSTRUMENT = "EXTERNAL_INSTRUMENT"
     LFO_TOOL = "LFO_TOOL"
@@ -49,6 +50,7 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.DUMMY_RACK: "Dummy Rack",
             DeviceEnum.EQ_EIGHT: "EQ Eight",
             DeviceEnum.EQ_EIGHT_RACK: "EQ Eight Rack",
+            DeviceEnum.EQ_ROOM: "EQ Room",
             DeviceEnum.EXTERNAL_AUDIO_EFFECT: "Ext. Audio Effect",
             DeviceEnum.EXTERNAL_INSTRUMENT: "Ext. Instrument",
             DeviceEnum.LFO_TOOL: "LFOTool_x64",
@@ -72,6 +74,7 @@ class DeviceEnum(AbstractEnum):
         # type: () -> str
         return self.get_value_from_mapping({
             DeviceEnum.API_2500: "API-2500 Stereo",
+            DeviceEnum.ARPEGGIATOR_RACK: "Arpeggiator rack.adg",
             DeviceEnum.AUTO_FILTER_HIGH_PASS: "Auto Filter High Pass.adv",
             DeviceEnum.AUTO_FILTER_LOW_PASS: "Auto Filter Low Pass.adv",
             DeviceEnum.EXTERNAL_AUDIO_EFFECT: "External Audio Effect",
@@ -81,6 +84,7 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.DUMMY_RACK: "Dummy Rack.adg",
             DeviceEnum.EQ_EIGHT: "EQ Eight",
             DeviceEnum.EQ_EIGHT_RACK: "EQ Eight Rack.adg",
+            DeviceEnum.EQ_ROOM: "EQ Room.adv",
             DeviceEnum.LFO_TOOL: "LFOTool.adg",
             DeviceEnum.MIX_RACK: "Mix Rack.adg",
             DeviceEnum.SATURATOR: "Saturator",
@@ -117,37 +121,10 @@ class DeviceEnum(AbstractEnum):
             ]
         ]
 
-    @property
-    def is_user(self):
-        # type: () -> bool
-        return self in [
-            DeviceEnum.AUTO_FILTER_HIGH_PASS,
-            DeviceEnum.AUTO_FILTER_LOW_PASS,
-            DeviceEnum.ARPEGGIATOR_RACK,
-            DeviceEnum.DUMMY_RACK,
-            DeviceEnum.EQ_EIGHT_RACK,
-            DeviceEnum.MIX_RACK,
-        ]
-
     @classmethod
     def updatable_devices(cls):
         # type: () -> List[DeviceEnum]
         return [cls.MIX_RACK, cls.LFO_TOOL]
-
-    @classmethod
-    def plugin_white_list(cls):
-        # type: () -> List[DeviceEnum]
-        return [
-            cls.ADDICTIVE_KEYS,
-            cls.REV2_EDITOR,
-            cls.SERUM,
-            cls.USAMO
-        ]
-
-    @classmethod
-    def deprecated_devices(cls):
-        # type: () -> List[DeviceEnum]
-        return [cls.MINITAUR_EDITOR]
 
     @property
     def main_parameters_default(self):

@@ -1,10 +1,10 @@
 import re
 from functools import partial
 
+from _Framework.SubjectSlot import subject_slot
 from typing import TYPE_CHECKING, Optional
 
 from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
-from _Framework.SubjectSlot import subject_slot
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import get_length_legend
 from protocol0.shared.logging.Logger import Logger
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class ClipName(UseFrameworkEvents):
-    DEBUG = False
+    _DEBUG = False
 
     def __init__(self, clip):
         # type: (Clip) -> None
@@ -80,7 +80,7 @@ class ClipName(UseFrameworkEvents):
         # type: (Optional[str]) -> None
         if self.clip.is_recording:
             return None
-        if self.DEBUG:
+        if self._DEBUG:
             Logger.info("%s : %s <-> %s <-> %s" % (self.clip, base_name, self.base_name, self.clip.name))
         if base_name is not None:
             self.base_name = base_name

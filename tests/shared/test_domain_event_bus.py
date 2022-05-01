@@ -9,6 +9,6 @@ def test_domain_event_bus():
         test_res.append(True)
 
     DomainEventBus.subscribe(BarEndingEvent, listener)
-    DomainEventBus.notify(BarEndingEvent())
+    DomainEventBus.emit(BarEndingEvent())
 
     assert test_res == [True]

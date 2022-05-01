@@ -42,7 +42,7 @@ class ClipActionMixin(object):
 
     def select(self):
         # type: (Clip) -> Sequence
-        DomainEventBus.notify(ClipSelectedEvent(self))
+        DomainEventBus.emit(ClipSelectedEvent(self))
         seq = Sequence()
         seq.add(ApplicationViewFacade.show_clip)
         return seq.done()

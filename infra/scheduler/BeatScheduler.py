@@ -69,7 +69,7 @@ class BeatScheduler(UseFrameworkEvents, BeatSchedulerInterface):
         # and the loop might not be finished
 
         for event in events:
-            DomainEventBus.notify(event)
+            DomainEventBus.emit(event)
 
     def wait_beats(self, beats_offset, callback):
         # type: (float, Callable) -> None

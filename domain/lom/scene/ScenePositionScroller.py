@@ -34,5 +34,5 @@ class ScenePositionScroller(ValueScroller):
         # type: (int) -> None
         from protocol0.domain.lom.scene.Scene import Scene
         Scene.LAST_MANUALLY_STARTED_SCENE = self._scene
-        self._scene.playing_position.jump_to_bar(bar_position)
+        self._scene._jump_to_bar(bar_position)
         self._scene.scene_name.update(bar_position=bar_position)

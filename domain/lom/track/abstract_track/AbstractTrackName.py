@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 class AbstractTrackName(UseFrameworkEvents):
-    DEBUG = False
+    _DEBUG = False
 
     def __init__(self, track):
         # type: (AbstractTrack) -> None
@@ -32,7 +32,7 @@ class AbstractTrackName(UseFrameworkEvents):
         )
         base_name = match.group("base_name").strip() if match else ""
 
-        if self.DEBUG:
+        if self._DEBUG:
             Logger.info("%s <-> %s <-> %s" % (
                 base_name,
                 self._should_recompute_base_name(base_name=base_name),

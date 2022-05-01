@@ -27,10 +27,11 @@ class BrowserService(BrowserServiceInterface):
     def load_device_from_enum(self, device_enum):
         # type: (DeviceEnum) -> Sequence
         seq = Sequence()
-        if device_enum.is_user:
-            load_func = partial(self._browser_loader_service.load_from_user_library, device_enum.browser_name)
+        browser_name = device_enum.browser_name
+        if browser_name.endswith(".adv") or browser_name.endswith(".adg"):
+            load_func = partial(self._browser_loader_service.load_from_user_library, browser_name)
         else:
-            load_func = partial(self._browser_loader_service.load_device, device_enum.browser_name)
+            load_func = partial(self._browser_loader_service.load_device, browser_name)
 
         seq.add(load_func)
         seq.wait(20)

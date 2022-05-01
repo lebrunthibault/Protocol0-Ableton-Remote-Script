@@ -16,4 +16,4 @@ class RecordingBarLengthScroller(ValueScroller):
     def _value_scrolled(self, value):
         # type: (RecordingBarLengthEnum) -> None
         StatusBar.show_message("Fixed Recording : %s" % value)
-        DomainEventBus.notify(SelectedRecordingBarLengthUpdatedEvent())
+        DomainEventBus.emit(SelectedRecordingBarLengthUpdatedEvent())

@@ -5,7 +5,6 @@ from typing import Iterator, List, Dict, Optional, Tuple, Callable
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.DeviceService import DeviceService
-from protocol0.domain.lom.device.PluginDevice import PluginDevice
 from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack
@@ -13,7 +12,6 @@ from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummy
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
-from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.logging.StatusBar import StatusBar
@@ -64,7 +62,7 @@ class SetUpgradeService(object):
 
     def delete_unnecessary_devices(self, full_scan=False):
         # type: (bool) -> None
-        devices_to_delete = list(self.get_deletable_devices(full_scan=full_scan))
+        devices_to_delete = list(self.get_deletable_devices())
         if len(devices_to_delete) == 0:
             if full_scan is False:
                 self.delete_unnecessary_devices(full_scan=True)
@@ -88,16 +86,9 @@ class SetUpgradeService(object):
         seq.add(self.delete_unnecessary_devices)  # now delete enclosing racks if empty
         seq.done()
 
-    def get_deletable_devices(self, full_scan):
-        # type: (bool) -> Iterator[Tuple[SimpleTrack, Device]]
+    def get_deletable_devices(self):
+        # type: () -> Iterator[Tuple[SimpleTrack, Device]]
         tracks = [track for track in SongFacade.all_simple_tracks() if not isinstance(track, SimpleDummyTrack)]
-
-        # devices off
-        for device_enum in DeviceEnum.deprecated_devices():
-            for track in tracks:
-                device = track.devices.get_one_from_enum(device_enum)
-                if device:
-                    yield track, device
 
         # devices with default values (unchanged)
         for device_enum in DeviceEnum:  # type: DeviceEnum  # type: ignore[no-redef]
@@ -121,14 +112,3 @@ class SetUpgradeService(object):
             mix_rack = track.devices.get_one_from_enum(DeviceEnum.MIX_RACK)  # type: Optional[RackDevice]
             if mix_rack and len(mix_rack.chains[0].devices) == 0:
                 yield track, mix_rack
-
-        if not full_scan:
-            return
-
-        # plugin devices
-        if Config.CHECK_PLUGINS_TO_REMOVE:
-            white_list_names = [d.device_name for d in DeviceEnum.plugin_white_list()]
-            for track in SongFacade.all_simple_tracks():
-                for device in track.devices.all():
-                    if isinstance(device, PluginDevice) and device.name not in white_list_names:
-                        yield track, device

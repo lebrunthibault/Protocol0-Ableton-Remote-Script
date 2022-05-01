@@ -97,7 +97,7 @@ class Container(ContainerInterface):
         Backend.client().end_measurement()
         instrument_display_service = InstrumentDisplayService(device_display_service)
         instrument_preset_scroller_service = InstrumentPresetScrollerService()
-        mixing_service = MixingService(live_song.master_track)
+        mixing_service = MixingService()
         validator_service = ValidatorService(ValidatorFactory(browser_service))
         set_upgrade_service = SetUpgradeService(device_service, validator_service, song.duplicate_track)
         log_service = LogService()

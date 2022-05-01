@@ -7,4 +7,4 @@ from protocol0.domain.shared.backend.BackendResponseEvent import BackendResponse
 class ProcessBackendResponseCommandHandler(CommandHandlerInterface):
     def handle(self, command):
         # type: (ProcessBackendResponseCommand) -> None
-        DomainEventBus.notify(BackendResponseEvent(command.res))
+        DomainEventBus.emit(BackendResponseEvent(command.res))

@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, List, Optional, Iterator
 
-from protocol0.domain.lom.clip.Clip import Clip
+from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
@@ -115,9 +115,9 @@ class AbstractGroupTrack(AbstractTrack):
         )
 
     @property
-    def clips(self):
-        # type: () -> List[Clip]
-        return [clip for track in self.sub_tracks for clip in track.clips]
+    def clip_slots(self):
+        # type: () -> List[ClipSlot]
+        return self.base_track.clip_slots
 
     def arm_track(self):
         # type: () -> None

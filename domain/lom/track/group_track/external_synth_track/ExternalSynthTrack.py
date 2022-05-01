@@ -3,7 +3,6 @@ from functools import partial
 
 from typing import Optional, cast, List, Iterator
 
-from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
 from protocol0.domain.lom.device.Device import Device
@@ -117,13 +116,13 @@ class ExternalSynthTrack(AbstractGroupTrack):
             return False
 
         if not isinstance(base_group_track.sub_tracks[0], SimpleMidiTrack):
-            return False
+            return False  # type: ignore[unreachable]
         if not isinstance(base_group_track.sub_tracks[1], SimpleAudioTrack):
-            return False
+            return False  # type: ignore[unreachable]
 
         for track in base_group_track.sub_tracks[2:]:
             if not isinstance(track, SimpleAudioTrack):
-                return False
+                return False  # type: ignore[unreachable]
 
         return True
 
@@ -171,14 +170,9 @@ class ExternalSynthTrack(AbstractGroupTrack):
         return cast(InstrumentInterface, self._instrument)
 
     @property
-    def clips(self):
-        # type: () -> List[Clip]
-        clip_slots = cast(List[ClipSlot],
-                          self.midi_track.clip_slots) + self.audio_track.clip_slots
-        if self.audio_tail_track:
-            clip_slots += self.audio_tail_track.clip_slots
-
-        return [clip_slot.clip for clip_slot in clip_slots if clip_slot.has_clip and clip_slot.clip]
+    def clip_slots(self):
+        # type: () -> List[ClipSlot]
+        return self.midi_track.clip_slots
 
     @property
     def is_playing(self):

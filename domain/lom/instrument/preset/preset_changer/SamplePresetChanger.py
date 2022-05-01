@@ -7,4 +7,4 @@ from protocol0.domain.shared.DomainEventBus import DomainEventBus
 class SamplePresetChanger(PresetChangerInterface):
     def load(self, preset):
         # type: (InstrumentPreset) -> None
-        DomainEventBus.notify(SampleSelectedEvent(str(preset.original_name)))
+        DomainEventBus.emit(SampleSelectedEvent(str(preset.original_name)))

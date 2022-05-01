@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.track.TrackComponent import TrackComponent
     from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
     from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack  # noqa
-    from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack
+    from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack  # noqa
     from protocol0.domain.lom.track.drums.DrumsTrack import DrumsTrack
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
     from protocol0.domain.lom.track.simple_track.MasterTrack import MasterTrack
@@ -75,7 +75,7 @@ class SongFacade(object):
     @classmethod
     def current_external_synth_track(cls):
         # type: () -> ExternalSynthTrack
-        from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack
+        from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack  # noqa
 
         if isinstance(SongFacade.current_track(), ExternalSynthTrack):
             return cast(ExternalSynthTrack, SongFacade.current_track())
@@ -116,7 +116,7 @@ class SongFacade(object):
     @classmethod
     def external_synth_tracks(cls):
         # type: () -> Iterator[ExternalSynthTrack]
-        from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack
+        from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack  # noqa
 
         for track in cls.abstract_tracks():
             if isinstance(track, ExternalSynthTrack):
@@ -141,15 +141,6 @@ class SongFacade(object):
     def partially_armed_tracks(cls):
         # type: () -> Iterator[AbstractTrack]
         return (track for track in cls.abstract_tracks() if track.is_partially_armed)
-
-    @classmethod
-    def prophet_tracks(cls):
-        # type: () -> Iterator[ExternalSynthTrack]
-        from protocol0.domain.lom.instrument.instrument.InstrumentProphet import InstrumentProphet
-
-        for track in cls.external_synth_tracks():
-            if isinstance(track.instrument, InstrumentProphet):
-                yield track
 
     @classmethod
     def usamo_track(cls):

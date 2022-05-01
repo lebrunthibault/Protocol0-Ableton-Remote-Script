@@ -38,7 +38,7 @@ class DrumRackService(object):
 
         seq.add(partial(setattr, SongFacade.selected_track(), "name", drum_category.name))
         seq.add(SongFacade.selected_track().refresh_appearance)
-        seq.add(partial(DomainEventBus.notify, DrumRackLoadedEvent()))
+        seq.add(partial(DomainEventBus.emit, DrumRackLoadedEvent()))
         return seq.done()
 
     def _assert_valid_rack_or_populate(self, drum_category):
