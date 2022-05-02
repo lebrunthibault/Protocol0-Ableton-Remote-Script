@@ -58,9 +58,6 @@ class CommandBus(object):
     @classmethod
     def dispatch(cls, command):
         # type: (SerializableCommand) -> Optional[Sequence]
-        if cls._DEBUG:
-            Logger.info("Executing %s" % command)
-
         return cls._INSTANCE._dispatch_command(command)
 
     @handle_error
@@ -72,6 +69,8 @@ class CommandBus(object):
 
         self._last_command = command
         self._last_command_processed_at = time.time()
+        if self._DEBUG:
+            Logger.info("Executing %s at %.5f" % (command, self._last_command_processed_at))
 
         handler = self._command_mapping[command.__class__](self._container, self._song)
         UndoFacade.begin_undo_step()
@@ -83,7 +82,6 @@ class CommandBus(object):
             Sometimes command are duplicated, couldn't find why yet
             Reloading ableton does the trick, it seems that the script is loaded twice
         """
-        print("checking %s" % command)
         if self._last_command_processed_at is None \
                 or time.time() - self._last_command_processed_at >= 0.02:
             return False
