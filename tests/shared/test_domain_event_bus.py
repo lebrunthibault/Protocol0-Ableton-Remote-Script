@@ -1,4 +1,4 @@
-from protocol0.domain.shared.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarEndingEvent import BarEndingEvent
 
 

@@ -18,33 +18,36 @@ class RoutingTrackDescriptor(object):
 
     def __get__(self, track_routing, _):
         # type: (TrackRoutingInterface, Type) -> Optional[Any]
-        track = getattr(track_routing._track, self.routing_attribute_name).attached_object
+        track = getattr(track_routing.live_track, self.routing_attribute_name).attached_object
         if track:
             return SongFacade.simple_track_from_live_track(track)
-        elif track_routing._track.output_routing_type.category == Live.Track.RoutingTypeCategory.parent_group_track:
-            return SongFacade.simple_track_from_live_track(track_routing._track.group_track)
+        elif track_routing.live_track.output_routing_type.category == Live.Track.RoutingTypeCategory.parent_group_track:
+            return SongFacade.simple_track_from_live_track(track_routing.live_track.group_track)
         else:
             return None
 
+    # noinspection PyShadowingNames
     def __set__(self, track_routing, track):
         # type: (TrackRoutingInterface, SimpleTrack) -> None
-        available_routings = getattr(track_routing._track, self.available_routings_attribute_name)
+        live_track = track._track
+        available_routings = getattr(track_routing.live_track, self.available_routings_attribute_name)
 
-        if track._track == track_routing._track.group_track:
+        if live_track == track_routing.live_track.group_track:
             routing = find_if(lambda r: r.category == Live.Track.RoutingTypeCategory.parent_group_track,
                               available_routings)
         else:
-            routing = find_if(lambda r: r.attached_object == track._track, available_routings)
+            routing = find_if(lambda r: r.attached_object == live_track, available_routings)
 
             # still needed ?
             # if not routing:
             #     routing = find_if(lambda r: r.display_name == track.name, available_routings)
 
         if not routing:
-            raise Protocol0Error("couldn't find %s routing matching %s for %s" % (
+            raise Protocol0Error("couldn't find %s routing matching %s for %s. Available routings are : %s" % (
                 self.routing_attribute_name,
-                track._track.name,
-                track_routing._track.name
+                live_track.name,
+                track_routing.live_track.name,
+                [(r.category, r.display_name) for r in available_routings]
             ))
 
-        setattr(track_routing._track, self.routing_attribute_name, routing)
+        setattr(track_routing.live_track, self.routing_attribute_name, routing)

@@ -1,25 +1,27 @@
 from functools import partial
 
 import Live
-from typing import Optional, List, Iterator
+from _Framework.SubjectSlot import SlotManager
+from typing import Optional, List, Iterator, cast
 from typing import TYPE_CHECKING
 
-from protocol0.domain.lom.ColorEnumInterface import ColorEnumInterface
-from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.clip.Clip import Clip
+from protocol0.domain.lom.clip.ClipSlotSelectedEvent import ClipSlotSelectedEvent
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
-from protocol0.domain.lom.track.TrackColorEnum import TrackColorEnum
-from protocol0.domain.lom.track.TrackComponent import TrackComponent
-from protocol0.domain.lom.track.abstract_track.AbstractTrackActionMixin import AbstractTrackActionMixin
+from protocol0.domain.lom.track.abstract_track.AbstrackTrackArmState import AbstractTrackArmState
+from protocol0.domain.lom.track.abstract_track.AbstractTrackAppearance import AbstractTrackAppearance
 from protocol0.domain.lom.track.abstract_track.AbstractTrackName import AbstractTrackName
-from protocol0.domain.lom.track.abstract_track.AbstractTrackNameUpdatedEvent import AbstractTrackNameUpdatedEvent
+from protocol0.domain.lom.track.abstract_track.AbstractTrackSelectedEvent import AbstractTrackSelectedEvent
 from protocol0.domain.lom.track.routing.TrackInputRouting import TrackInputRouting
 from protocol0.domain.lom.track.routing.TrackOutputRouting import TrackOutputRouting
-from protocol0.domain.shared.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.utils import ForwardTo
 from protocol0.domain.shared.utils import volume_to_db, db_to_volume
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -27,13 +29,9 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 
 
-class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents, TrackComponent):
-    # __metaclass__ = ABCMeta
-    __subject_events__ = ("devices",)
-
+class AbstractTrack(SlotManager):
     DEFAULT_NAME = "default"
     # when the color cannot be matched
-    DEFAULT_COLOR = TrackColorEnum.DISABLED  # type: ColorEnumInterface
     REMOVE_CLIPS_ON_ADDED = False
 
     def __init__(self, track):
@@ -51,9 +49,15 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents, TrackComponent
             return
 
         # MISC
-        self.track_name = AbstractTrackName(self)  # type: AbstractTrackName
-        self.input_routing = TrackInputRouting(self.base_track)
-        self.output_routing = TrackOutputRouting(self.base_track)
+        self.track_name = AbstractTrackName(
+            self._track,
+            self.DEFAULT_NAME,
+            lambda: self.computed_base_name
+        )  # type: AbstractTrackName
+        self.arm_state = AbstractTrackArmState(self._track)  # type: AbstractTrackArmState
+        self.appearance = AbstractTrackAppearance(self._track)  # type: AbstractTrackAppearance
+        self.input_routing = TrackInputRouting(self.base_track._track)
+        self.output_routing = TrackOutputRouting(self.base_track._track)
 
         self.protected_mode_active = True
 
@@ -116,22 +120,17 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents, TrackComponent
         # type: () -> List[ClipSlot]
         raise NotImplementedError
 
+    def select_clip_slot(self, clip_slot):
+        # type: (Live.ClipSlot.ClipSlot) -> None
+        self.is_folded = False
+        DomainEventBus.emit(ClipSlotSelectedEvent(clip_slot))
+
     @property
     def clips(self):
         # type: () -> List[Clip]
         return [clip_slot.clip for clip_slot in self.clip_slots if clip_slot.has_clip and clip_slot.clip]
 
-    @property
-    def name(self):
-        # type: () -> str
-        return self._track.name if self._track else ""
-
-    @name.setter
-    def name(self, name):
-        # type: (str) -> None
-        if self._track and name:
-            self._track.name = str(name).strip()
-            DomainEventBus.emit(AbstractTrackNameUpdatedEvent())
+    name = cast(str, ForwardTo("appearance", "name"))
 
     @property
     def computed_base_name(self):
@@ -143,31 +142,13 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents, TrackComponent
 
     @property
     def color(self):
-        # type: (AbstractTrack) -> int
-        if self._track:
-            return self._track.color_index
-        else:
-            return TrackColorEnum.DISABLED.color_int_value
+        # type: () -> int
+        return self.appearance.color
 
     @color.setter
     def color(self, color_index):
-        # type: (AbstractTrack, int) -> None
-        if self._track and color_index != self._track.color_index:
-            self._track.color_index = color_index
-
-    @property
-    def computed_color(self):
-        # type: () -> int
-        if self.is_foldable:
-            sub_track_colors = [sub_track.color for sub_track in self.sub_tracks]
-            if len(set(sub_track_colors)) == 1:
-                return sub_track_colors[0]
-
-        instrument = self.instrument or self.abstract_track.instrument
-        if instrument:
-            return instrument.TRACK_COLOR.color_int_value
-        else:
-            return self.DEFAULT_COLOR.color_int_value
+        # type: (int) -> None
+        self.appearance.color = color_index
 
     @property
     def is_foldable(self):
@@ -182,13 +163,11 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents, TrackComponent
     @is_folded.setter
     def is_folded(self, is_folded):
         # type: (bool) -> None
-        if not self.is_foldable or not self._track:
-            return
-
-        self._track.fold_state = int(is_folded)
         if not is_folded:
             for group_track in self.group_tracks:
                 group_track.is_folded = False
+        if self._track and self.is_foldable:
+            self._track.fold_state = int(is_folded)
 
     @property
     def solo(self):
@@ -200,22 +179,6 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents, TrackComponent
         # type: (bool) -> None
         if self._track:
             self._track.solo = solo
-
-    @property
-    def is_armed(self):
-        # type: () -> bool
-        return False
-
-    @is_armed.setter
-    def is_armed(self, is_armed):
-        # type: (bool) -> None
-        for track in self.sub_tracks:
-            track.is_armed = is_armed
-
-    @property
-    def is_partially_armed(self):
-        # type: () -> bool
-        return self.is_armed
 
     @property
     def is_visible(self):
@@ -261,10 +224,63 @@ class AbstractTrack(AbstractTrackActionMixin, UseFrameworkEvents, TrackComponent
         # type: () -> bool
         return self._track and self._track.has_audio_output
 
-    @property
-    def output_meter_level(self):
-        # type: () -> float
-        return self._track.output_meter_level if self._track else 0
+    # noinspection PyUnusedLocal
+    def select(self):
+        # type: () -> Sequence
+        DomainEventBus.emit(AbstractTrackSelectedEvent(self))
+
+        if self == list(SongFacade.scrollable_tracks())[-1]:
+            ApplicationViewFacade.focus_current_track()
+        return Sequence().wait(2).done()
+
+    def stop(self, immediate=False):
+        # type: (AbstractTrack, bool) -> None
+        # noinspection PyTypeChecker
+        self.base_track._track.stop_all_clips(not immediate)
+
+    def refresh_appearance(self):
+        # type: () -> None
+        if not self.base_track.IS_ACTIVE:
+            return
+        self.track_name.update()
+        self.appearance.color = self.appearance.computed_color
+
+    def scroll_volume(self, go_next):
+        # type: (AbstractTrack, bool) -> None
+        self.volume += 0.5 if go_next else -0.5
+
+    def get_all_simple_sub_tracks(self):
+        # type: () -> List[SimpleTrack]
+        from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack  # noqa
+
+        sub_tracks = []
+        for sub_track in self.sub_tracks:
+            if sub_track.is_foldable:
+                sub_tracks += sub_track.get_all_simple_sub_tracks()
+            else:
+                sub_tracks.append(sub_track)
+
+        return sub_tracks  # noqa
+
+    def add_or_replace_sub_track(self, sub_track, previous_sub_track=None):
+        # type: (AbstractTrack, AbstractTrack, Optional[AbstractTrack]) -> None
+        if sub_track in self.sub_tracks:
+            return
+
+        if previous_sub_track is None or previous_sub_track not in self.sub_tracks:
+            self.sub_tracks.append(sub_track)
+        else:
+            sub_track_index = self.sub_tracks.index(previous_sub_track)
+            self.sub_tracks[sub_track_index] = sub_track
+
+    def scroll_presets(self, go_next):
+        # type: (bool) -> Sequence
+        assert self.instrument
+        seq = Sequence()
+        seq.add(self.arm_state.arm)
+        seq.add(partial(self.instrument.preset_list.scroll, go_next))
+        seq.add(self.refresh_appearance)
+        return seq.done()
 
     def disconnect(self):
         # type: () -> None

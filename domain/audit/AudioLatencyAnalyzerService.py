@@ -2,10 +2,13 @@ from functools import partial
 
 from typing import Optional
 
+from protocol0.application.CommandBus import CommandBus
+from protocol0.application.command.ResetSongCommand import ResetSongCommand
 from protocol0.domain.lom.instrument.InstrumentActivatedEvent import InstrumentActivatedEvent
 from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
 from protocol0.domain.lom.note.Note import Note
-from protocol0.domain.lom.song.Song import Song
+from protocol0.domain.lom.song.components.TempoComponent import TempoComponent
+from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.shared.InterfaceClicksServiceInterface import InterfaceClicksServiceInterface
@@ -19,11 +22,12 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 
 class AudioLatencyAnalyzerService(object):
-    def __init__(self, track_recorder_service, song, interface_clicks_service):
-        # type: (TrackRecorderService, Song, InterfaceClicksServiceInterface) -> None
+    def __init__(self, track_recorder_service, interface_clicks_service, track_crud_component, tempo_component):
+        # type: (TrackRecorderService, InterfaceClicksServiceInterface, TrackCrudComponent, TempoComponent) -> None
         self._track_recorder_service = track_recorder_service
-        self._song = song
         self._interface_clicks_service = interface_clicks_service
+        self._track_crud_component = track_crud_component
+        self._tempo_component = tempo_component
 
     def test_audio_latency(self, track):
         # type: (ExternalSynthTrack) -> Optional[Sequence]
@@ -31,16 +35,16 @@ class AudioLatencyAnalyzerService(object):
             raise Protocol0Warning("Missing usamo track")
 
         tempo = SongFacade.tempo()
-        self._song.tempo = 120  # easier to see jitter
+        self._tempo_component.tempo = 120  # easier to see jitter
 
         seq = Sequence()
-        seq.add(partial(self._song.duplicate_track, track))
+        seq.add(partial(self._track_crud_component.duplicate_track, track))
         seq.wait_for_event(InstrumentActivatedEvent)
         seq.add(self._set_up_track_for_record)
         seq.add(self._create_audio_test_clip)
         seq.add(self._record_test_clip)
         seq.add(self._analyze_jitter)
-        seq.add(partial(setattr, self._song, "tempo", tempo))
+        seq.add(partial(setattr, self._tempo_component, "tempo", tempo))
         return seq.done()
 
     def _set_up_track_for_record(self):
@@ -80,8 +84,8 @@ class AudioLatencyAnalyzerService(object):
         seq = Sequence()
         seq.add(partial(self._track_recorder_service.record_track, track,
                         RecordTypeEnum.AUDIO_ONLY))
-        seq.add(lambda: track.audio_track.clips[0].select())
-        seq.add(self._song.reset)
+        seq.add(lambda: track.audio_track.select_clip_slot(track.audio_track.clip_slots[0]._clip_slot))
+        seq.add(partial(CommandBus.dispatch, ResetSongCommand()))
         seq.wait(10)
         return seq.done()
 

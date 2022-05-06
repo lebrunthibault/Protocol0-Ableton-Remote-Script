@@ -1,43 +1,53 @@
 from collections import deque
 
-from _Framework.SubjectSlot import subject_slot_group
+from _Framework.SubjectSlot import SlotManager
 from typing import List, Callable
 
 from protocol0.domain.shared.utils import get_callable_repr
-from protocol0.shared.sequence.SequenceState import SequenceStateEnum
-from protocol0.shared.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
+from protocol0.shared.observer.Observable import Observable
+from protocol0.shared.sequence.SequenceState import SequenceState
 from protocol0.shared.sequence.SequenceStep import SequenceStep
+from protocol0.shared.sequence.SequenceTransition import SequenceStateEnum
 
 
-class ParallelSequence(SequenceStateMachineMixin):
+class ParallelSequence(SlotManager, Observable):
     """ executes steps in parallel """
-    __subject_events__ = ("terminated",)
-
     def __init__(self, funcs):
         # type: (List[Callable]) -> None
         super(ParallelSequence, self).__init__()
         self._steps = deque([SequenceStep(func, get_callable_repr(func), True) for func in funcs])
         self._steps_terminated_count = 0
+        self.state = SequenceState()
+        self.res = None
+
+    def __repr__(self):
+        # type: () -> str
+        return "ParallelSequence(%s / %s)" % (self._steps_terminated_count, len(self._steps))
+
+    def update(self, observable):
+        # type: (Observable) -> None
+        if isinstance(observable, SequenceStep):
+            if observable.state.terminated:
+                self._steps_terminated_count += 1
+                self._check_for_parallel_step_completion()
+                observable.remove_observer(self)
 
     def start(self):
         # type: () -> ParallelSequence
-        self.change_state(SequenceStateEnum.STARTED)
-        self._check_for_parallel_step_completion()
+        self.state.change_to(SequenceStateEnum.STARTED)
+
+        if len(self._steps) == 0:
+            self._check_for_parallel_step_completion()
+
         for step in self._steps:
-            self._parallel_step_termination.add_subject(step)
+            step.register_observer(self)
             step.start()
 
         return self
 
-    @subject_slot_group("terminated")
-    def _parallel_step_termination(self, _):
-        # type: (SequenceStep) -> None
-        self._steps_terminated_count += 1
-        self._check_for_parallel_step_completion()
-
     def _check_for_parallel_step_completion(self):
         # type: () -> None
         if self._steps_terminated_count == len(self._steps):
-            self.change_state(SequenceStateEnum.TERMINATED)
-            self.notify_terminated()  # type: ignore[attr-defined]
+            self.state.change_to(SequenceStateEnum.TERMINATED)
+            self.notify_observers()
             self.disconnect()

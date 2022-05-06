@@ -2,6 +2,7 @@ from functools import partial
 
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 from protocol0.domain.lom.loop.Looper import Looper
+from protocol0.domain.lom.song.components.SceneCrudComponent import SceneCrudComponent
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.shared.SongFacade import SongFacade
 
@@ -29,24 +30,18 @@ class ActionGroupSet(ActionGroupInterface):
                          on_scroll=lambda: Looper(SongFacade.current_loop()).scroll_loop,
                          )
 
-        # CUT encoder
-        self.add_encoder(identifier=4,
-                         name="copy and paste clip to new scene",
-                         on_press=lambda: SongFacade.current_external_synth_track().copy_and_paste_clips_to_new_scene,
-                         )
-
         # SPLiT encoder
         self.add_encoder(identifier=8,
                          name="split scene",
                          on_scroll=lambda: SongFacade.selected_scene().crop_scroller.scroll,
-                         on_press=lambda: SongFacade.selected_scene().split
+                         on_press=lambda: partial(self._container.get(SceneCrudComponent).split_scene, SongFacade.selected_scene())
                          )
 
         # CROP encoder
         self.add_encoder(identifier=12,
                          name="crop scene",
                          on_scroll=lambda: SongFacade.selected_scene().crop_scroller.scroll,
-                         on_press=lambda: partial(SongFacade.selected_scene().crop)
+                         on_press=lambda: partial(self._container.get(SceneCrudComponent).crop_scene, SongFacade.selected_scene())
                          )
 
         # Session/ARrangement encoder

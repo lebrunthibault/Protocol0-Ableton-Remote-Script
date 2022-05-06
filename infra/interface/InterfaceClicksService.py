@@ -1,7 +1,7 @@
 from protocol0.domain.lom.clip.ClipEnvelopeShowedEvent import ClipEnvelopeShowedEvent
-from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.InterfaceClicksServiceInterface import InterfaceClicksServiceInterface
 from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.infra.interface.PixelEnum import PixelEnum
 
 

@@ -1,12 +1,13 @@
 from functools import partial
 
-from typing import Iterator, List, Dict, Optional, Tuple, Callable
+from typing import Iterator, List, Dict, Optional, Tuple
 
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.DeviceService import DeviceService
 from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
+from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -19,11 +20,11 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 
 class SetUpgradeService(object):
-    def __init__(self, device_service, validator_service, duplicate_track):
-        # type: (DeviceService, ValidatorService, Callable) -> None
+    def __init__(self, device_service, validator_service, track_crud_component):
+        # type: (DeviceService, ValidatorService, TrackCrudComponent) -> None
         self._device_service = device_service
         self._validator_service = validator_service
-        self._duplicate_track = duplicate_track
+        self._track_crud_component = track_crud_component
 
     def update_audio_effect_racks(self):
         # type: () -> Sequence
@@ -56,7 +57,7 @@ class SetUpgradeService(object):
         for track in tracks:
             if track.audio_tail_track is None:
                 track.is_folded = False
-                seq.add(partial(self._duplicate_track, track.audio_track))
+                seq.add(partial(self._track_crud_component.duplicate_track, track.audio_track))
                 seq.wait(10)
         return seq.done()
 
@@ -91,7 +92,7 @@ class SetUpgradeService(object):
         tracks = [track for track in SongFacade.all_simple_tracks() if not isinstance(track, SimpleDummyTrack)]
 
         # devices with default values (unchanged)
-        for device_enum in DeviceEnum:  # type: DeviceEnum  # type: ignore[no-redef]
+        for device_enum in DeviceEnum:  # type: DeviceEnum
             try:
                 default_parameter_values = device_enum.main_parameters_default
             except Protocol0Error:

@@ -1,6 +1,6 @@
 import time
 
-from typing import Dict, Type, Optional, TYPE_CHECKING
+from typing import Dict, Type, Optional
 
 import protocol0.application.command as command_package
 import protocol0.application.command_handler as command_handler_package
@@ -15,9 +15,6 @@ from protocol0.shared.UndoFacade import UndoFacade
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
-if TYPE_CHECKING:
-    from protocol0.domain.lom.song.Song import Song
-
 CommandMapping = Dict[Type[SerializableCommand], Type[CommandHandlerInterface]]
 
 
@@ -25,11 +22,10 @@ class CommandBus(object):
     _DEBUG = True
     _INSTANCE = None  # type: Optional[CommandBus]
 
-    def __init__(self, container, song):
-        # type: (ContainerInterface, Song) -> None
+    def __init__(self, container):
+        # type: (ContainerInterface) -> None
         CommandBus._INSTANCE = self
         self._container = container
-        self._song = song
         self._command_mapping = self._create_command_mapping()
         self._last_command = None  # type: Optional[SerializableCommand]
         self._last_command_processed_at = None  # type: Optional[float]
@@ -72,7 +68,7 @@ class CommandBus(object):
         if self._DEBUG:
             Logger.info("Executing %s at %.5f" % (command, self._last_command_processed_at))
 
-        handler = self._command_mapping[command.__class__](self._container, self._song)
+        handler = self._command_mapping[command.__class__](self._container)
         UndoFacade.begin_undo_step()
         return handler.handle(command)
 
@@ -86,4 +82,4 @@ class CommandBus(object):
                 or time.time() - self._last_command_processed_at >= 0.02:
             return False
 
-        return type(self._last_command) == type(command)
+        return type(self._last_command) is type(command)

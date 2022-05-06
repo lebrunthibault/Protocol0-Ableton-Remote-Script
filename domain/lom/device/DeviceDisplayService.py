@@ -1,4 +1,3 @@
-from collections import Callable
 from functools import partial
 
 from typing import Optional, Tuple, List
@@ -22,10 +21,9 @@ class DeviceDisplayService(object):
     COLLAPSED_RACK_DEVICE_PIXEL_WIDTH = 28
     WIDTH_PIXEL_OFFSET = 4
 
-    def __init__(self, browser_service, select_device):
-        # type: (BrowserServiceInterface, Callable) -> None
+    def __init__(self, browser_service):
+        # type: (BrowserServiceInterface) -> None
         self._browser_service = browser_service
-        self._select_device = select_device
 
     def make_plugin_window_showable(self, track, device):
         # type: (SimpleTrack, Device) -> Sequence

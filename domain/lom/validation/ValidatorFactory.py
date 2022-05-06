@@ -13,7 +13,6 @@ from protocol0.domain.lom.validation.object_validators.SimpleAudioTailTrackValid
 from protocol0.domain.lom.validation.object_validators.SimpleAudioTrackValidator import SimpleAudioTrackValidator
 from protocol0.domain.lom.validation.object_validators.SimpleInstrumentBusTrackValidator import \
     SimpleInstrumentBusTrackValidator
-from protocol0.domain.lom.validation.object_validators.SongValidator import SongValidator
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 
@@ -25,10 +24,6 @@ class ValidatorFactory(object):
 
     def create_from_object(self, obj):
         # type: (object) -> ValidatorInterface
-        from protocol0.domain.lom.song.Song import Song
-
-        if isinstance(obj, Song):
-            return SongValidator(obj)
         if isinstance(obj, Scene):
             return SceneValidator(obj)
         elif isinstance(obj, ExternalSynthTrack):

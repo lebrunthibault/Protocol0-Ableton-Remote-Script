@@ -1,10 +1,9 @@
 from typing import Iterable, Iterator
 
-from protocol0.domain.lom.track.TrackComponent import TrackComponent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 
 
-class AbstractTrackList(TrackComponent):
+class AbstractTrackList(object):
     """Composite pattern : manipulate a track list as an object"""
 
     def __init__(self, abstract_tracks):
@@ -19,4 +18,5 @@ class AbstractTrackList(TrackComponent):
     def fold(self):
         # type: () -> None
         for abg in self._tracks:
-            abg.fold()
+            if abg.is_foldable:
+                abg.is_folded = True

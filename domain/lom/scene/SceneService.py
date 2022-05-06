@@ -1,48 +1,48 @@
 import collections
+from functools import partial
 from itertools import chain
 
 import Live
-from _Framework.SubjectSlot import subject_slot
-from typing import Optional, List, TYPE_CHECKING, Iterator, Dict
+from _Framework.SubjectSlot import subject_slot, SlotManager
+from typing import Optional, List, Iterator, Dict
 
-from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.scene.Scene import Scene
+from protocol0.domain.lom.scene.ScenePositionScrolledEvent import ScenePositionScrolledEvent
 from protocol0.domain.lom.scene.ScenesMappedEvent import ScenesMappedEvent
 from protocol0.domain.lom.song.SongStartedEvent import SongStartedEvent
+from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackComponent
+from protocol0.domain.lom.song.components.SceneCrudComponent import SceneCrudComponent
 from protocol0.domain.lom.track.TrackAddedEvent import TrackAddedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
-from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.decorators import handle_error
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.shared.utils import scroll_values
-from protocol0.domain.track_recorder.TrackRecorderService import TrackRecorderService
 from protocol0.infra.interface.session.SessionUpdatedEvent import SessionUpdatedEvent
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
-if TYPE_CHECKING:
-    from protocol0.domain.lom.song.Song import Song
 
-
-class SceneService(UseFrameworkEvents):
-    def __init__(self, song, live_song, track_recorder_service):
-        # type: (Song, Live.Song.Song, TrackRecorderService) -> None
+class SceneService(SlotManager):
+    def __init__(self, live_song, playback_component, scene_crud_component):
+        # type: (Live.Song.Song, PlaybackComponent, SceneCrudComponent) -> None
         super(SceneService, self).__init__()
-        self._song = song
         self._live_song = live_song
-        self._track_recorder_service = track_recorder_service
-        self.scenes_listener.subject = song._song
-        self._selected_scene_listener.subject = song._view
+        self._playback_component = playback_component
+        self._scene_crud_component = scene_crud_component
+
+        self.scenes_listener.subject = live_song
+        self._selected_scene_listener.subject = live_song.view
         self._live_scene_id_to_scene = collections.OrderedDict()  # type: Dict[int, Scene]
 
         DomainEventBus.subscribe(BarChangedEvent, self._on_bar_changed_event)
         DomainEventBus.subscribe(LastBeatPassedEvent, self._on_last_beat_passed_event)
         DomainEventBus.subscribe(TrackAddedEvent, self._on_track_added_event)
         DomainEventBus.subscribe(SongStartedEvent, self._on_song_started_event)
+        DomainEventBus.subscribe(ScenePositionScrolledEvent, self._on_scene_position_scrolled_event)
 
     def get_scene(self, live_scene):
         # type: (Live.Scene.Scene) -> Scene
@@ -92,7 +92,7 @@ class SceneService(UseFrameworkEvents):
 
     def _on_last_beat_passed_event(self, _):
         # type: (LastBeatPassedEvent) -> None
-        if SongFacade.playing_scene() and SongFacade.playing_scene().has_playing_clips:
+        if SongFacade.playing_scene() and SongFacade.playing_scene().playing_state.has_playing_clips:
             SongFacade.playing_scene().on_last_beat()
 
     def _generate_scenes(self):
@@ -132,7 +132,7 @@ class SceneService(UseFrameworkEvents):
         # type: (Live.Scene.Scene, int) -> None
         scene = self.get_optional_scene(live_scene)
         if scene is None:
-            scene = Scene(live_scene, index=index, song=self._song)
+            scene = Scene(live_scene, index)
         else:
             scene.index = index
 
@@ -155,17 +155,33 @@ class SceneService(UseFrameworkEvents):
             else:
                 break
 
-        seq.add([scene.delete for scene in empty_scenes])
+        seq.add([partial(self._scene_crud_component.delete_scene, scene) for scene in empty_scenes])
         return seq.done()
 
     def _on_song_started_event(self, _):
         # type: (SongStartedEvent) -> None
         # launch selected scene by clicking on play song
-        if not self._track_recorder_service.is_recording and ApplicationViewFacade.is_session_visible() and not SongFacade.selected_scene().has_playing_clips:
-            self._song.stop_all_clips(quantized=False)
-            self._song.stop_playing()
+        if not SongFacade.is_recording() and ApplicationViewFacade.is_session_visible() and not SongFacade.selected_scene().playing_state.has_playing_clips:
+            self._playback_component.stop_all_clips(quantized=False)
+            self._playback_component.stop_playing()
             SongFacade.selected_scene().fire()
 
-    def scroll_scenes(self, go_next):
-        # type: (bool) -> None
-        scroll_values(SongFacade.scenes(), SongFacade.selected_scene(), go_next, rotate=False).select()
+    def _on_scene_position_scrolled_event(self, _):
+        # type: (ScenePositionScrolledEvent) -> None
+        scene = SongFacade.selected_scene()
+        Scene.LAST_MANUALLY_STARTED_SCENE = scene
+        scene.scene_name.update(bar_position=scene.position_scroller.current_value)
+
+    def fire_scene_to_position(self, scene, bar_length=None):
+        # type: (Scene, Optional[int]) -> Sequence
+        Scene.LAST_MANUALLY_STARTED_SCENE = scene
+        self._playback_component.stop_playing()
+
+        # SongFacade.master_track().volume = volume_to_db(0)
+        # master_volume = SongFacade.master_track().volume
+
+        seq = Sequence()
+        seq.wait(2)  # removing click when changing position
+        seq.add(partial(scene.fire_to_position, bar_length))
+        # seq.add(partial(setattr, SongFacade.master_track(), "volume", master_volume))
+        return seq.done()

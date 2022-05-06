@@ -17,4 +17,4 @@ class SimpleMidiTrack(SimpleTrack):
     @property
     def clips(self):
         # type: () -> List[MidiClip]
-        return super(SimpleMidiTrack, self).clips  # type: ignore
+        return super(SimpleMidiTrack, self).clips  # noqa

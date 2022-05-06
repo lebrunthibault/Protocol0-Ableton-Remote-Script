@@ -4,11 +4,11 @@ from types import TracebackType
 
 from typing import Optional, Any, List, Type
 
-from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.decorators import handle_error
 from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.Config import Config
 from protocol0.shared.UndoFacade import UndoFacade
@@ -16,6 +16,7 @@ from protocol0.shared.logging.Logger import Logger
 
 
 class ErrorService(object):
+    _DEBUG = True
     _SET_EXCEPTHOOK = False
     _IGNORED_ERROR_STRINGS = (
         "Cannot convert MIDI clip",
@@ -69,20 +70,22 @@ class ErrorService(object):
 
     def _handle_exception(self, exc_type, exc_value, tb, context=None):
         # type: (Type[BaseException], BaseException, TracebackType, Optional[str]) -> None
-        show = [fs for fs in extract_tb(tb) if self._check_file(fs[0])]
+        entries = [fs for fs in extract_tb(tb) if self._log_file(fs[0])]
+        if self._DEBUG:
+            entries = extract_tb(tb)
         error_message = "----- %s (%s) -----\n" % (exc_value, exc_type)
         if context:
             error_message += (str(context) + "\n")
-        error_message += "at " + "".join(self._format_list(show[-1:], print_line=False)).strip()
+        error_message += "at " + "".join(self._format_list(entries[-1:], print_line=False)).strip()
         error_message += "\n"
         error_message += "----- traceback -----\n"
-        error_message += "".join(self._format_list(show))
+        error_message += "".join(self._format_list(entries))
 
         Logger.error(error_message)
 
         Scheduler.restart()
 
-    def _check_file(self, name):
+    def _log_file(self, name):
         # type: (str) -> bool
         if not name:
             return False

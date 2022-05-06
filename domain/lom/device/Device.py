@@ -1,35 +1,27 @@
 import Live
+from _Framework.SubjectSlot import SlotManager, subject_slot
 from typing import List, Any, Type, Optional, Union
 
-from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
-from protocol0.domain.lom.device.DeviceChain import DeviceChain
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
-from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.utils import find_if
 
 
-class Device(UseFrameworkEvents):
-    def __init__(self, device, chain=None):
-        # type: (Live.Device.Device, Optional[DeviceChain]) -> None
+class Device(SlotManager):
+    def __init__(self, device):
+        # type: (Live.Device.Device) -> None
         super(Device, self).__init__()
         self._device = device
         self._view = self._device.view  # type: Live.Device.Device.View
         self.parameters = []  # type: List[DeviceParameter]
         self._parameters_listener.subject = self._device
         self._parameters_listener()
-        self.can_have_drum_pads = self._device.can_have_drum_pads
-        self.can_have_chains = self._device.can_have_chains
-        self.device_chain = chain
+        self.can_have_drum_pads = self._device.can_have_drum_pads  # type: bool
+        self.can_have_chains = self._device.can_have_chains  # type: bool
 
     def __repr__(self):
         # type: () -> str
         return "%s(%s)" % (self.__class__.__name__, self.name)
-
-    @property
-    def live_id(self):
-        # type: () -> int
-        return self._device._live_ptr
 
     @classmethod
     def _get_class(cls, device):
@@ -54,9 +46,9 @@ class Device(UseFrameworkEvents):
             return Device
 
     @classmethod
-    def make(cls, device, chain=None):
-        # type: (Live.Device.Device, Optional[DeviceChain]) -> Device
-        return Device._get_class(device)(device=device, chain=chain)
+    def make(cls, device):
+        # type: (Live.Device.Device) -> Device
+        return Device._get_class(device)(device=device)
 
     def get_parameter_by_name(self, device_parameter_name):
         # type: (Union[DeviceParameterEnum, str]) -> Optional[DeviceParameter]
@@ -120,7 +112,7 @@ class Device(UseFrameworkEvents):
         # type: (bool) -> None
         self._view.is_collapsed = is_collapsed
 
-    @p0_subject_slot("parameters")
+    @subject_slot("parameters")
     def _parameters_listener(self):
         # type: () -> None
         self.parameters = [DeviceParameter(parameter) for parameter in self._device.parameters]

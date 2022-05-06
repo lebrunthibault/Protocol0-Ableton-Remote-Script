@@ -17,7 +17,7 @@ class SimpleAudioTailTrack(SimpleAudioTrack):
         super(SimpleAudioTrack, self).__init__(*a, **k)
         from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack
 
-        self.abstract_group_track = cast(ExternalSynthTrack, self.abstract_group_track)
+        self.abstract_group_track = self.abstract_group_track  # type: ExternalSynthTrack
 
     @property
     def clip_slots(self):

@@ -5,9 +5,9 @@ from protocol0.application.CommandBus import CommandBus
 from protocol0.application.command.SerializableCommand import SerializableCommand
 from protocol0.domain.lom.instrument.preset.PresetProgramSelectedEvent import PresetProgramSelectedEvent
 from protocol0.domain.lom.song.SongInitializedEvent import SongInitializedEvent
-from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import find_if
 from protocol0.infra.midi.MidiBytesReceivedEvent import MidiBytesReceivedEvent

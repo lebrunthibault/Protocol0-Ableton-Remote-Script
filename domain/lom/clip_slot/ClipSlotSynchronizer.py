@@ -1,46 +1,51 @@
+import Live
 from _Framework.CompoundElement import subject_slot_group
-from typing import Optional, TYPE_CHECKING
+from _Framework.SubjectSlot import SlotManager
 
-from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
-from protocol0.domain.lom.clip.ClipSynchronizer import ClipSynchronizer
+from protocol0.domain.lom.clip.ClipLoop import ClipLoop
+from protocol0.domain.lom.clip.ClipName import ClipName
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.domain.lom.clip_slot.MidiClipSlot import MidiClipSlot
-
-if TYPE_CHECKING:
-    from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
+from protocol0.shared.observer.Observable import Observable
 
 
-class ClipSlotSynchronizer(UseFrameworkEvents):
+class ClipSlotSynchronizer(SlotManager):
     """ For ExternalSynthTrack """
 
     def __init__(self, midi_cs, audio_cs):
         # type: (MidiClipSlot, AudioClipSlot) -> None
         super(ClipSlotSynchronizer, self).__init__()
-        self.midi_cs = midi_cs
-        self.audio_cs = audio_cs
+        self._midi_cs = midi_cs
+        self._audio_cs = audio_cs
 
-        self._has_clip_listener.replace_subjects([midi_cs, audio_cs])
-        self._clip_synchronizer = None  # type: Optional[ClipSynchronizer]
-        self._init_clip_synchronizer()
+        self._has_clip_listener.replace_subjects([midi_cs._clip_slot, audio_cs._clip_slot])
+        self._sync_clips()
 
-    def _init_clip_synchronizer(self):
+    def _sync_clips(self):
         # type: () -> None
-        if self._clip_synchronizer:
-            self._clip_synchronizer.disconnect()
+        if self._midi_cs.clip and self._audio_cs.clip:
+            self._midi_cs.clip.register_observer(self)
 
-        if self.midi_cs.clip and self.audio_cs.clip:
-            self._clip_synchronizer = ClipSynchronizer(midi_clip=self.midi_cs.clip, audio_clip=self.audio_cs.clip)
-        else:
-            self._clip_synchronizer = None
+    @property
+    def _clip_exists(self):
+        # type: () -> bool
+        return self._audio_cs.clip is not None and self._midi_cs.clip is not None
+
+    def update(self, observable):
+        # type: (Observable) -> None
+        if not self._clip_exists:
+            return
+        audio_clip = self._audio_cs.clip
+        midi_clip = self._midi_cs.clip
+
+        if isinstance(observable, ClipLoop):
+            audio_clip.loop.looping = midi_clip.loop.looping
+            audio_clip.loop.start = midi_clip.loop.start
+            audio_clip.loop.end = midi_clip.loop.end
+        if isinstance(observable, ClipName):
+            audio_clip.name = midi_clip.name
 
     @subject_slot_group("has_clip")
     def _has_clip_listener(self, _):
-        # type: (ClipSlot) -> None
-        self._init_clip_synchronizer()
-
-    def disconnect(self):
-        # type: () -> None
-        super(ClipSlotSynchronizer, self).disconnect()
-        if self._clip_synchronizer:
-            self._clip_synchronizer.disconnect()
-            self._clip_synchronizer = None
+        # type: (Live.ClipSlot.ClipSlot) -> None
+        self._sync_clips()

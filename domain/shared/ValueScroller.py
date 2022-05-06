@@ -22,7 +22,7 @@ class ValueScroller(Generic[T]):
     def scroll(self, go_next):
         # type: (bool) -> None
         self._current_value = scroll_values(self._get_values(), self._get_initial_value(go_next), go_next=go_next)
-        self._value_scrolled(self.current_value)
+        self._value_scrolled()
 
     def _get_initial_value(self, go_next):
         # type: (bool) -> T
@@ -32,6 +32,6 @@ class ValueScroller(Generic[T]):
         # type: () -> List[T]
         raise NotImplementedError
 
-    def _value_scrolled(self, value):
-        # type: (T) -> None
-        StatusBar.show_message("%s : %s" % (self, self._current_value))
+    def _value_scrolled(self):
+        # type: () -> None
+        StatusBar.show_message("%s : %s" % (self, self.current_value))

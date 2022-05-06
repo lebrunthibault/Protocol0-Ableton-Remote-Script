@@ -1,36 +1,29 @@
 from functools import partial
 
 import Live
-from typing import Any, TYPE_CHECKING, Optional
+from _Framework.SubjectSlot import subject_slot, SlotManager
+from typing import Any, Optional, Type
 
-from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.clip.Clip import Clip
-from protocol0.domain.lom.clip.ClipCreatedEvent import ClipCreatedEvent
-from protocol0.domain.lom.track.simple_track.SimpleTrackFirstClipAddedEvent import SimpleTrackFirstClipAddedEvent
-from protocol0.domain.lom.track.simple_track.SimpleTrackLastClipDeletedEvent import SimpleTrackLastClipDeletedEvent
-from protocol0.domain.shared.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.decorators import p0_subject_slot
+from protocol0.domain.lom.clip.ClipConfig import ClipConfig
+from protocol0.domain.lom.clip.ClipCreatedOrDeletedEvent import ClipCreatedOrDeletedEvent
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
-if TYPE_CHECKING:
-    from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 
+class ClipSlot(SlotManager, Observable):
+    CLIP_CLASS = Clip  # type: Type[Clip]
 
-class ClipSlot(UseFrameworkEvents):
-    __subject_events__ = ("has_clip", "is_triggered")
-
-    CLIP_CLASS = Clip
-
-    def __init__(self, clip_slot, track):
-        # type: (Live.ClipSlot.ClipSlot, SimpleTrack) -> None
+    def __init__(self, clip_slot, clip_config):
+        # type: (Live.ClipSlot.ClipSlot, ClipConfig) -> None
         super(ClipSlot, self).__init__()
         self._clip_slot = clip_slot
-        self.track = track
+        self._clip_config = clip_config
         self.has_clip_listener.subject = self._clip_slot
-        self._is_triggered_listener.subject = self._clip_slot
         self.clip = None  # type: Optional[Clip]
         self._map_clip()
 
@@ -44,14 +37,9 @@ class ClipSlot(UseFrameworkEvents):
 
     def __repr__(self, **k):
         # type: (Any) -> str
-        return "%s (%s)" % (self.__class__.__name__, self.clip.name if self.clip else "empty (of %s)" % self.track.name)
+        return "%s (%s)" % (self.__class__.__name__, self.clip.name if self.clip else "empty")
 
-    @staticmethod
-    def make(clip_slot, track):
-        # type: (Live.ClipSlot.ClipSlot, SimpleTrack) -> ClipSlot
-        return track.CLIP_SLOT_CLASS(clip_slot=clip_slot, track=track)
-
-    @p0_subject_slot("has_clip")
+    @subject_slot("has_clip")
     def has_clip_listener(self):
         # type: () -> None
         if self.clip:
@@ -59,28 +47,29 @@ class ClipSlot(UseFrameworkEvents):
 
         self._map_clip(is_new=True)
 
-        if self.has_clip and len(self.track.clips) == 1:
-            DomainEventBus.emit(SimpleTrackFirstClipAddedEvent())
-        elif not self.has_clip and len(self.track.clips) == 0:
-            DomainEventBus.emit(SimpleTrackLastClipDeletedEvent())
-
-        DomainEventBus.emit(ClipCreatedEvent())
+        DomainEventBus.emit(ClipCreatedOrDeletedEvent(self))
+        self.notify_observers()
 
         if not self.clip and self.has_stop_button:
             Scheduler.defer(partial(setattr, self, "has_stop_button", False))
 
     def _map_clip(self, is_new=False):
         # type: (bool) -> None
-        self.clip = Clip.make(clip_slot=self, is_new=is_new) if self.has_clip else None
+        if self.has_clip:
+            self.clip = self.CLIP_CLASS(self._clip_slot.clip, self._clip_config)
 
-        # noinspection PyUnresolvedReferences
-        self.notify_has_clip()
+            if is_new:
+                self.clip.configure_new_clip()
 
-    @p0_subject_slot("is_triggered")
-    def _is_triggered_listener(self):
-        # type: () -> None
-        # noinspection PyUnresolvedReferences
-        self.notify_is_triggered()
+            self.clip.register_observer(self)
+        else:
+            self.clip = None
+
+    def update(self, observable):
+        # type: (Observable) -> None
+        if isinstance(observable, Clip):
+            if observable.deleted:
+                self.delete_clip()
 
     def refresh_appearance(self):
         # type: () -> None
@@ -107,13 +96,13 @@ class ClipSlot(UseFrameworkEvents):
         seq = Sequence()
         if self._clip_slot and self.has_clip and self.clip:
             seq.add(self._clip_slot.delete_clip)
-            seq.wait_for_listener(self.has_clip_listener)  # type: ignore[arg-type]
+            seq.wait_for_event(ClipCreatedOrDeletedEvent, self)
         return seq.done()
 
     @property
     def index(self):
         # type: () -> int
-        return self.track.clip_slots.index(self)
+        return self._clip_config.index
 
     @property
     def is_triggered(self):
@@ -153,9 +142,8 @@ class ClipSlot(UseFrameworkEvents):
 
         seq = Sequence()
         seq.add(partial(self._clip_slot.create_clip, SongFacade.signature_numerator()))
-        seq.wait_for_listener(self.has_clip_listener)  # type: ignore[arg-type]
+        seq.wait_for_event(ClipCreatedOrDeletedEvent, self)
         seq.defer()
-        seq.add(lambda: self.clip.select())
         seq.add(lambda: self.clip.clip_name._name_listener())
         return seq.done()
 
@@ -164,7 +152,7 @@ class ClipSlot(UseFrameworkEvents):
         seq = Sequence()
         if self._clip_slot:
             seq.add(partial(self._clip_slot.duplicate_clip_to, clip_slot._clip_slot))
-            seq.wait_for_listener(clip_slot.has_clip_listener)  # type: ignore[arg-type]
+            seq.wait_for_event(ClipCreatedOrDeletedEvent, clip_slot)
             seq.defer()
         return seq.done()
 

@@ -43,14 +43,6 @@ class LogService(object):
                 % current_track.instrument.preset_list.selected_category
             )
 
-        if current_track.base_track != current_track:
-            Logger.info()
-            Logger.info("current_track.base_track: %s" % current_track.base_track)
-            Logger.info()
-            Logger.info(
-                "current_track.base_track.sub_tracks: %s" % current_track.base_track.sub_tracks
-            )
-
         Logger.info()
         Logger.info("********* SELECTED_TRACK *************")
         Logger.info("selected_track: %s" % SongFacade.selected_track())
@@ -150,11 +142,11 @@ class LogService(object):
         Logger.info("********* SONG SCENES *************")
         Logger.info("scenes : %s" % list(SongFacade.scenes()))
         Logger.info()
-        Logger.info("selected_scene.tracks : %s" % SongFacade.selected_scene().tracks)
+        Logger.info("selected_scene.tracks : %s" % list(SongFacade.selected_scene().clips.tracks))
         Logger.info()
         Logger.info("selected_scene.abstract_tracks : %s" % SongFacade.selected_scene().abstract_tracks)
         Logger.info()
-        Logger.info("selected_scene.clip_slots : %s" % SongFacade.selected_scene().clips.clip_slots)
+        Logger.info("selected_scene.clip_slots : %s" % SongFacade.selected_scene().clips._clip_slots)
         Logger.info()
         Logger.info("selected_scene.clips : %s" % list(SongFacade.selected_scene().clips))
         Logger.info()
@@ -178,5 +170,5 @@ class LogService(object):
             Logger.info()
             Logger.info("song.selected_clip.length: %s" % SongFacade.selected_clip().length)
             Logger.info()
-            Logger.info("song.selected_clip.loop_start: %s" % SongFacade.selected_clip().loop_start)
-            Logger.info("song.selected_clip.loop_end: %s" % SongFacade.selected_clip().loop_end)
+            Logger.info("song.selected_clip.loop_start: %s" % SongFacade.selected_clip().loop.start)
+            Logger.info("song.selected_clip.loop_end: %s" % SongFacade.selected_clip().loop.end)

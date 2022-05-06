@@ -21,8 +21,7 @@ class SceneLength(object):
         # type: () -> int
         if self.length % SongFacade.signature_numerator() != 0:
             # can happen when changing the longest clip length
-            Logger.warning("%s invalid length: %s, longest_clip track: %s" % (
-                self, self.length, self._longest_clip.track.abstract_track))
+            Logger.warning("%s invalid length: %s" % (self, self.length))
         return int(self.length / SongFacade.signature_numerator())
 
     @property

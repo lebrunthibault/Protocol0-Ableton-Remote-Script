@@ -1,0 +1,53 @@
+from functools import partial
+
+import Live
+from typing import Optional
+
+from protocol0.application.CommandBus import CommandBus
+from protocol0.application.command.ResetSongCommand import ResetSongCommand
+from protocol0.domain.lom.song.SongInitializedEvent import SongInitializedEvent
+from protocol0.domain.lom.song.components.TrackComponent import TrackComponent
+from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
+from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.sequence.Sequence import Sequence
+
+
+class SongInitService(object):
+    def __init__(self, track_component):
+        # type: (TrackComponent) -> None
+        self._track_component = track_component
+
+    def init_song(self):
+        # type: () -> None
+        CommandBus.dispatch(ResetSongCommand())
+        # the song usually starts playing after this method is executed
+        Scheduler.wait(10, partial(CommandBus.dispatch, ResetSongCommand()))
+
+        if SongFacade.clip_trigger_quantization() == Live.Song.Quantization.q_no_q:
+            Backend.client().show_warning("The global launch quantization is set to None")
+
+        Scheduler.defer(self._track_component.unfocus_all_tracks)  # need defer
+
+        startup_track = self._get_startup_track()
+        DomainEventBus.emit(SongInitializedEvent())
+        if startup_track:
+            seq = Sequence()
+            seq.wait(2)
+            seq.add(startup_track.select)
+            seq.add(ApplicationViewFacade.focus_current_track)
+            seq.done()
+
+    def _get_startup_track(self):
+        # type: () -> Optional[AbstractTrack]
+        armed_tracks = list(SongFacade.armed_tracks())
+        if len(armed_tracks):
+            return armed_tracks[0]
+
+        if SongFacade.selected_track() == SongFacade.master_track():
+            return next(iter(SongFacade.abstract_tracks()))
+
+        return None

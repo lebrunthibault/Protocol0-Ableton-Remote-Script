@@ -1,14 +1,11 @@
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+import Live
 
 
 class TrackRoutingInterface(object):
-    def __init__(self, track):
-        # type: (SimpleTrack) -> None
+    def __init__(self, live_track):
+        # type: (Live.Track.Track) -> None
         super(TrackRoutingInterface, self).__init__()
-        self._track = track._track
+        self.live_track = live_track
 
     def __repr__(self):
         # type: () -> str

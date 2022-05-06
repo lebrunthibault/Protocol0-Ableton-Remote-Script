@@ -19,7 +19,6 @@ class LOMAnalyzerService(object):
             # 2nd layer checks
             abstract_group_track = simple_track.abstract_group_track
             if simple_track.is_foldable:
-                assert abstract_group_track.base_track == simple_track, "failed on %s" % simple_track
                 assert len(abstract_group_track.sub_tracks) == len(simple_track.sub_tracks)
                 for sub_track in abstract_group_track.sub_tracks:
                     if isinstance(sub_track, AbstractGroupTrack):

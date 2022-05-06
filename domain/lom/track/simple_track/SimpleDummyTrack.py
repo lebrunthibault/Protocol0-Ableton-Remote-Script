@@ -6,7 +6,8 @@ from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitor
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrackAddedEvent import SimpleDummyTrackAddedEvent
-from protocol0.domain.shared.DomainEventBus import DomainEventBus
+from protocol0.domain.lom.track.simple_track.SimpleDummyTrackAutomation import SimpleDummyTrackAutomation
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 
 
 class SimpleDummyTrack(SimpleAudioTrack):
@@ -17,6 +18,7 @@ class SimpleDummyTrack(SimpleAudioTrack):
         super(SimpleAudioTrack, self).__init__(*a, **k)
         from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack
         self.abstract_group_track = cast(ExternalSynthTrack, self.abstract_group_track)
+        self.automation = SimpleDummyTrackAutomation(self._track, self._clip_slots, self.devices)
 
     @property
     def clip_slots(self):
@@ -33,7 +35,7 @@ class SimpleDummyTrack(SimpleAudioTrack):
         self.current_monitoring_state = CurrentMonitoringStateEnum.IN
         self.input_routing.type = InputRoutingTypeEnum.NO_INPUT
         super(SimpleDummyTrack, self).on_added()
-        DomainEventBus.emit(SimpleDummyTrackAddedEvent(self))
+        DomainEventBus.emit(SimpleDummyTrackAddedEvent(self._track))
 
     @property
     def computed_base_name(self):

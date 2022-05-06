@@ -3,10 +3,9 @@ import math
 import pkgutil
 import types
 from collections import namedtuple
-from types import FrameType
 
 from qualname import qualname
-from typing import Optional, Any, cast, Callable, List, Iterable
+from typing import Optional, Any, Callable, List, Iterable
 
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
@@ -62,7 +61,7 @@ def get_frame_info(frame_count=1):
             break
         call_frame = next_frame
     try:
-        (filename, line, method_name, _, _) = inspect.getframeinfo(cast(FrameType, call_frame))
+        (filename, line, method_name, _, _) = inspect.getframeinfo(call_frame)
     except IndexError:
         return None
     filename = filename.replace(Config.PROJECT_ROOT + "\\", "").replace(Config.REMOTE_SCRIPTS_ROOT + "\\", "")
@@ -88,7 +87,7 @@ def smart_string(s):
     if not isinstance(s, basestring):
         s = str(s)
     try:
-        return s.decode("utf-8").encode("ascii", "ignore")  # type: ignore
+        return s.decode("utf-8").encode("ascii", "ignore")
     except UnicodeEncodeError:
         return s.encode("utf-8")
 
@@ -134,15 +133,11 @@ def get_callable_repr(func):
     # type: (Any) -> str
     from protocol0.shared.sequence.Sequence import Sequence
     from protocol0.shared.sequence.SequenceStep import SequenceStep
-    from protocol0.shared.sequence.CallbackDescriptor import CallableWithCallbacks
-    if isinstance(func, Sequence) or isinstance(func, SequenceStep) or isinstance(func, CallableWithCallbacks):
+    if isinstance(func, Sequence) or isinstance(func, SequenceStep):
         return func.__repr__()
 
     decorated_func = get_inner_func(func)
     class_name = get_class_name_from_method(decorated_func)
-
-    if isinstance(decorated_func, CallableWithCallbacks):
-        return decorated_func.__repr__()
 
     if not hasattr(decorated_func, "__name__"):
         return "only class_name %s" % class_name or "unknown"

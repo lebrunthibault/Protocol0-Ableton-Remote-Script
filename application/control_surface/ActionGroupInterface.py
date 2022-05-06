@@ -1,11 +1,8 @@
-from typing import List, Optional, Callable, TYPE_CHECKING
+from typing import List, Optional, Callable
 
 from protocol0.application.ContainerInterface import ContainerInterface
 from protocol0.application.control_surface.EncoderAction import EncoderAction
 from protocol0.application.control_surface.MultiEncoder import MultiEncoder
-
-if TYPE_CHECKING:
-    from protocol0.domain.lom.song.Song import Song
 
 
 class ActionGroupInterface(object):
@@ -16,11 +13,10 @@ class ActionGroupInterface(object):
     """
     CHANNEL = None  # type: Optional[int]
 
-    def __init__(self, container, song, component_guard):
-        # type: (ContainerInterface, Song, Callable) -> None
+    def __init__(self, container, component_guard):
+        # type: (ContainerInterface, Callable) -> None
         super(ActionGroupInterface, self).__init__()
         self._container = container
-        self._song = song
         self._component_guard = component_guard
         self._multi_encoders = []  # type: List[MultiEncoder]
 

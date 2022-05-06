@@ -2,12 +2,12 @@ from functools import partial
 
 from typing import Optional
 
-from protocol0.domain.lom.song.Song import Song
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
+from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackComponent
 from protocol0.domain.lom.track.TrackRepository import TrackRepository
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
@@ -15,9 +15,9 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 
 class TrackPlayerService(object):
-    def __init__(self, song, track_repository):
-        # type: (Song, TrackRepository) -> None
-        self._song = song
+    def __init__(self, playback_component, track_repository):
+        # type: (PlaybackComponent, TrackRepository) -> None
+        self._playback_component = playback_component
         self._track_repository = track_repository
 
     def toggle_track(self, track_name):
@@ -40,15 +40,15 @@ class TrackPlayerService(object):
             return None
 
         Logger.info("Playing %s" % track)
-        if not self._song.is_playing:
-            self._song.stop_all_clips()
+        if not self._playback_component.is_playing:
+            self._playback_component.stop_all_clips()
 
         seq = Sequence()
         clip = next((clip for clip in track.clips if not clip.muted), None)
         if not clip:
             clip = track.clips[0]
             clip.muted = False
-            DomainEventBus.one(SongStoppedEvent, partial(setattr, clip, "muted", True))
+            DomainEventBus.once(SongStoppedEvent, partial(setattr, clip, "muted", True))
             seq.defer()
 
         seq.add(clip.fire)
@@ -67,5 +67,5 @@ class TrackPlayerService(object):
 
                 # when the song is not playing clips are not starting at the same time
                 if not song_is_playing:
-                    self._song.stop_playing()
-                    Scheduler.defer(self._song.start_playing)
+                    self._playback_component.stop_playing()
+                    Scheduler.defer(self._playback_component.start_playing)

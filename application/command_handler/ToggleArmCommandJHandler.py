@@ -9,4 +9,4 @@ from protocol0.shared.sequence.Sequence import Sequence
 class ToggleArmCommandHandler(CommandHandlerInterface):
     def handle(self, command):
         # type: (ToggleArmCommand) -> Optional[Sequence]
-        return SongFacade.current_track().toggle_arm()
+        return SongFacade.current_track().arm_state.toggle()

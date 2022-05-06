@@ -1,7 +1,7 @@
 from protocol0.domain.lom.scene.PlayingSceneChangedEvent import PlayingSceneChangedEvent
 from protocol0.domain.lom.scene.Scene import Scene
-from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.ValueToggler import ValueToggler
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.shared.SongFacade import SongFacade
 
 

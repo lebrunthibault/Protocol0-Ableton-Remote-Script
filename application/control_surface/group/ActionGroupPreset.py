@@ -17,14 +17,14 @@ class ActionGroupPreset(ActionGroupInterface):
             name="scroll presets",
             filter_active_tracks=True,
             on_scroll=lambda: partial(self._container.get(InstrumentPresetScrollerService).scroll_presets_or_samples,
-                                      SongFacade.current_instrument()),
+                                      SongFacade.current_track()),
         )
 
         # CATegory encoder
         self.add_encoder(
             identifier=2, name="scroll preset categories",
             on_scroll=lambda: partial(self._container.get(InstrumentPresetScrollerService).scroll_preset_categories,
-                                      SongFacade.current_instrument()),
+                                      SongFacade.current_track()),
         )
 
         # SCAN encoder

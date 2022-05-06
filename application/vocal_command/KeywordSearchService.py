@@ -4,8 +4,8 @@ from protocol0.application.vocal_command.TrackSearchKeywordEnum import TrackSear
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.track_list.AbstractTrackList import AbstractTrackList
 from protocol0.domain.shared.utils import normalize_string
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 
 
 class KeywordSearchService(object):
@@ -24,7 +24,7 @@ class KeywordSearchService(object):
 
         matching_tracks = []
         for track in SongFacade.abstract_tracks():
-            if self._check_search_matches_track(search=search, track=track):
+            if self._check_search_matches_track(search, track):
                 matching_tracks.append(track)
 
         if len(matching_tracks) == 0:

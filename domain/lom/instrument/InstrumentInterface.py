@@ -1,6 +1,5 @@
-from functools import partial
-
-from typing import TYPE_CHECKING, Optional, Type
+from _Framework.SubjectSlot import SlotManager
+from typing import Optional, Type
 
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.instrument.InstrumentColorEnum import InstrumentColorEnum
@@ -14,14 +13,10 @@ from protocol0.domain.lom.instrument.preset.preset_initializer.PresetInitializer
     PresetInitializerDevicePresetName
 from protocol0.domain.lom.instrument.preset.preset_initializer.PresetInitializerInterface import \
     PresetInitializerInterface
-from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.shared.sequence.Sequence import Sequence
 
-if TYPE_CHECKING:
-    from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 
-
-class InstrumentInterface(object):
+class InstrumentInterface(SlotManager):
     NAME = ""
     DEVICE_NAME = ""
     TRACK_COLOR = InstrumentColorEnum.UNKNOWN
@@ -32,17 +27,17 @@ class InstrumentInterface(object):
     HAS_PROTECTED_MODE = True
     DEFAULT_NOTE = 60
     PRESET_OFFSET = 0  # if we store presets not at the beginning of the list
-    MIDI_INPUT_ROUTING_TYPE = InputRoutingTypeEnum.ALL_INS
     PRESET_CHANGER = ProgramChangePresetChanger  # type: Type[PresetChangerInterface]
     PRESET_INITIALIZER = PresetInitializerDevicePresetName  # type: Type[PresetInitializerInterface]
 
-    def __init__(self, track, device):
-        # type: (SimpleTrack, Optional[Device]) -> None
-        self.track = track  # this could be a group track
+    def __init__(self, device, track_name):
+        # type: (Optional[Device], str) -> None
+        super(InstrumentInterface, self).__init__()
+        self._track_name = track_name
         self.device = device
         self.activated = False
         preset_importer = PresetImporterFactory.create_importer(device, self.PRESETS_PATH, self.PRESET_EXTENSION)
-        preset_initializer = self.PRESET_INITIALIZER(device, track)
+        preset_initializer = self.PRESET_INITIALIZER(device, track_name)
         preset_changer = self.PRESET_CHANGER(device, self.PRESET_OFFSET)
 
         self.preset_list = InstrumentPresetList(preset_importer, preset_initializer, preset_changer)
@@ -86,11 +81,3 @@ class InstrumentInterface(object):
     def selected_preset(self):
         # type: () -> Optional[InstrumentPreset]
         return self.preset_list.selected_preset
-
-    def scroll_presets(self, go_next):
-        # type: (bool) -> Sequence
-        seq = Sequence()
-        seq.add(self.track.abstract_track.arm)
-        seq.add(partial(self.preset_list.scroll, go_next))
-        seq.add(self.track.abstract_track.refresh_appearance)
-        return seq.done()

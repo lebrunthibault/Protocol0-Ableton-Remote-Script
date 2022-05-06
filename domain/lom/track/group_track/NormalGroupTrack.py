@@ -1,10 +1,11 @@
+from _Framework.SubjectSlot import subject_slot
 from typing import Optional, Type
 
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.shared.decorators import p0_subject_slot, defer
+from protocol0.domain.shared.decorators import defer
 
 
 class NormalGroupTrack(AbstractGroupTrack):
@@ -24,16 +25,12 @@ class NormalGroupTrack(AbstractGroupTrack):
         else:
             return NormalGroupTrack(base_group_track)
 
-    @p0_subject_slot("solo")
+    @subject_slot("solo")
     @defer
     def _solo_listener(self):
         # type: () -> None
         for sub_track in self.sub_tracks:
             sub_track.solo = self.solo
-
-    def toggle_arm(self):
-        # type: (AbstractTrack) -> None
-        self.is_folded = False
 
     @property
     def computed_base_name(self):

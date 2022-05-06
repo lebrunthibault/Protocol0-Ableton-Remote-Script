@@ -4,7 +4,7 @@ from protocol0 import EmptyModule
 from protocol0.application.CommandBus import CommandBus
 from protocol0.application.Protocol0 import Protocol0
 from protocol0.application.control_surface.ActionGroupFactory import ActionGroupFactory
-from protocol0.domain.lom.song.SongService import SongService
+from protocol0.domain.lom.song.SongInitService import SongInitService
 from protocol0.domain.lom.song.SongState import SongState
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.shared.backend.Backend import Backend
@@ -51,7 +51,7 @@ def monkey_patch_static():
     # remove this until fixtures are thorough
     ActionGroupFactory.create_action_groups = classmethod(nop)
 
-    SongService.init_song = nop
+    SongInitService.init_song = nop
     AbstractGroupTrack._link_dummy_tracks_routings = nop
 
 

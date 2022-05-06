@@ -1,4 +1,4 @@
-from protocol0.domain.lom.ColorEnumInterface import ColorEnumInterface
+from protocol0.domain.shared.ColorEnumInterface import ColorEnumInterface
 from protocol0.shared.AbstractEnum import AbstractEnum
 
 

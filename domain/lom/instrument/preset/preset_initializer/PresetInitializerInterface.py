@@ -1,18 +1,15 @@
-from typing import List, Optional, TYPE_CHECKING
+from typing import List, Optional
 
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPreset
 
-if TYPE_CHECKING:
-    from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-
 
 class PresetInitializerInterface(object):
-    def __init__(self, device, track):
-        # type: (Optional[Device], SimpleTrack) -> None
+    def __init__(self, device, track_name):
+        # type: (Optional[Device], str) -> None
         """ Fetches the selected preset from the device or track """
         self._device = device
-        self._track = track
+        self._track_name = track_name
 
     def get_selected_preset(self, presets):
         # type: (List[InstrumentPreset]) -> Optional[InstrumentPreset]

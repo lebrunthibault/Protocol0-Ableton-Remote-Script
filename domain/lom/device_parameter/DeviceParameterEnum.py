@@ -1,9 +1,6 @@
-from typing import List, TYPE_CHECKING
+from typing import List
 
 from protocol0.shared.AbstractEnum import AbstractEnum
-
-if TYPE_CHECKING:
-    from protocol0.domain.lom.device.DeviceEnum import DeviceEnum  # noqa
 
 
 class DeviceParameterEnum(AbstractEnum):
@@ -20,17 +17,6 @@ class DeviceParameterEnum(AbstractEnum):
     LFO_TOOL_LFO_DEPTH = "LFO_TOOL_LFO_DEPTH"
     UTILITY_GAIN = "UTILITY_GAIN"
     UTILITY_MID_SIDE = "UTILITY_MID_SIDE"
-
-    @property
-    def device_enum(self):
-        # type: () -> DeviceEnum
-        from protocol0.domain.lom.device.DeviceEnum import DeviceEnum  # noqa
-
-        return self.get_value_from_mapping({
-            DeviceParameterEnum.AUTO_FILTER_HIGH_PASS_FREQUENCY: DeviceEnum.AUTO_FILTER_HIGH_PASS,
-            DeviceParameterEnum.AUTO_FILTER_LOW_PASS_FREQUENCY: DeviceEnum.AUTO_FILTER_LOW_PASS,
-            DeviceParameterEnum.UTILITY_GAIN: DeviceEnum.UTILITY,
-        })
 
     @property
     def label(self):

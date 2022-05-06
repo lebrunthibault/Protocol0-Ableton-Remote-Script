@@ -1,12 +1,8 @@
 from functools import partial
 
-from typing import TYPE_CHECKING
-
+from protocol0.domain.lom.clip.automation.ClipAutomation import ClipAutomation
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.shared.sequence.Sequence import Sequence
-
-if TYPE_CHECKING:
-    from protocol0.domain.lom.clip.MidiClip import MidiClip
 
 
 class LinkedDeviceParameters(object):
@@ -24,18 +20,18 @@ class LinkedDeviceParameters(object):
         # type: () -> str
         return "(param_a: %s, param_b: %s)" % (self._param_a, self._param_b)
 
-    def link_clip_automation(self, clip):
-        # type: (MidiClip) -> Sequence
-        a_env = clip.automation_envelope(self._param_a)
-        b_env = clip.automation_envelope(self._param_b)
+    def link_clip_automation(self, automation):
+        # type: (ClipAutomation) -> Sequence
+        a_env = automation.get_envelope(self._param_a)
+        b_env = automation.get_envelope(self._param_b)
 
         seq = Sequence()
-        seq.add(partial(clip.show_parameter_envelope, self._param_a))
+        seq.add(partial(automation.show_parameter_envelope, self._param_a))
         seq.add(a_env.focus)
         seq.wait(3)
         seq.add(a_env.copy)
         seq.wait(10)
-        seq.add(partial(clip.show_parameter_envelope, self._param_b))
+        seq.add(partial(automation.show_parameter_envelope, self._param_b))
         seq.add(b_env.paste)
         seq.wait(10)
         return seq.done()

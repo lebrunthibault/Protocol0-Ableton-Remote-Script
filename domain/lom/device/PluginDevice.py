@@ -1,6 +1,6 @@
+import Live
 from typing import List, Any, Optional, cast
 
-import Live
 from protocol0.domain.lom.device.Device import Device
 
 
@@ -8,7 +8,7 @@ class PluginDevice(Device):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(PluginDevice, self).__init__(*a, **k)
-        self._device = cast(Live.PluginDevice.PluginDevice, self._device)
+        self._device = cast(Live.PluginDevice.PluginDevice, self._device)  # type: Live.PluginDevice.PluginDevice
 
     @property
     def presets(self):

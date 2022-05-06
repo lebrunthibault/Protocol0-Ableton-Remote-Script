@@ -1,13 +1,13 @@
 from protocol0.application.command.InitializeSongCommand import InitializeSongCommand
 from protocol0.application.command_handler.CommandHandlerInterface import CommandHandlerInterface
 from protocol0.domain.lom.scene.SceneService import SceneService
-from protocol0.domain.lom.song.SongService import SongService
-from protocol0.domain.lom.track.TrackService import TrackService
+from protocol0.domain.lom.song.SongInitService import SongInitService
+from protocol0.domain.lom.track.TrackMapperService import TrackMapperService
 
 
 class InitializeSongCommandHandler(CommandHandlerInterface):
     def handle(self, command):
         # type: (InitializeSongCommand) -> None
-        self._container.get(TrackService).tracks_listener()
+        self._container.get(TrackMapperService).tracks_listener()
         self._container.get(SceneService).scenes_listener()
-        self._container.get(SongService).init_song()
+        self._container.get(SongInitService).init_song()

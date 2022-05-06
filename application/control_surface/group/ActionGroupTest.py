@@ -1,6 +1,7 @@
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 
 from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 
 
@@ -25,4 +26,11 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        pass
+        track = SongFacade.selected_track()
+        clip = track.clips[0]
+        parameter = clip.automation.get_automated_parameters(track.devices.parameters)[0]
+        envelope = clip.automation.get_envelope(parameter)
+        Logger.dev(envelope)
+        Logger.dev(envelope.value_at_time(0))
+
+        envelope.insert_step(2, 1, 135)

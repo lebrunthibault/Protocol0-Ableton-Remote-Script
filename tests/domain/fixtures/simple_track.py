@@ -61,5 +61,5 @@ class AbletonTrack(Subject):
 def add_track(track_type):
     # type: (str) -> AbletonTrack
     live_track = AbletonTrack(track_type=track_type)
-    SongFacade._INSTANCE._song._song.tracks.append(cast(Live.Track.Track, live_track))
+    SongFacade._live_song().tracks.append(cast(Live.Track.Track, live_track))
     return live_track

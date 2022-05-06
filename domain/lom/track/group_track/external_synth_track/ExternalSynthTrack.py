@@ -6,7 +6,7 @@ from typing import Optional, cast, List, Iterator
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
 from protocol0.domain.lom.device.Device import Device
-from protocol0.domain.lom.device.TrackDevices import TrackDevices
+from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
@@ -18,13 +18,12 @@ from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleA
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import find_if, ForwardTo
-from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.StatusBar import StatusBar
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
@@ -35,7 +34,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
     def __init__(self, base_group_track):
         # type: (SimpleTrack) -> None
-        super(ExternalSynthTrack, self).__init__(base_group_track=base_group_track)
+        super(ExternalSynthTrack, self).__init__(base_group_track)
         self.midi_track = cast(SimpleMidiTrack, base_group_track.sub_tracks[0])
         self.audio_track = cast(SimpleAudioTrack, base_group_track.sub_tracks[1])
         self.midi_track.track_name.disconnect()
@@ -53,21 +52,25 @@ class ExternalSynthTrack(AbstractGroupTrack):
         self.midi_track.devices.register_observer(self)
         self.midi_track.devices.build()
 
-        self.monitoring_state = ExternalSynthTrackMonitoringState(self)  # type: ExternalSynthTrackMonitoringState
-        self._arm_state = ExternalSynthTrackArmState(self.base_track, self.midi_track, self.monitoring_state)
-        self.arm_track = self._arm_state.arm_track   # type: ignore[assignment]
-        self.unarm = self._arm_state.unarm   # type: ignore[assignment]
+        self.monitoring_state = ExternalSynthTrackMonitoringState(
+            self.midi_track,
+            self.audio_track,
+            self.audio_tail_track,
+            self.dummy_tracks,
+            cast(Device, self._external_device),
+        )  # type: ExternalSynthTrackMonitoringState
+        self.arm_state = ExternalSynthTrackArmState(self.base_track, self.midi_track, self.monitoring_state)
 
         DomainEventBus.subscribe(LastBeatPassedEvent, self._on_last_beat_passed_event)
 
-    is_armed = cast(bool, ForwardTo("_arm_state", "is_armed"))   # type: ignore[assignment]
-    is_partially_armed = ForwardTo("_arm_state", "is_partially_armed")   # type: ignore[assignment]
+    is_armed = cast(bool, ForwardTo("_arm_state", "is_armed"))
+    is_partially_armed = cast(bool, ForwardTo("_arm_state", "is_partially_armed"))
 
     def on_added(self):
         # type: () -> Sequence
         seq = Sequence()
         seq.add(super(ExternalSynthTrack, self).on_added)
-        seq.add(self.abstract_track.arm)
+        seq.add(self.arm_state.arm)
 
         for dummy_track in self.dummy_tracks:
             seq.add([clip.delete for clip in dummy_track.clips])
@@ -78,7 +81,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
         # type: () -> None
         self._map_optional_audio_tail_track()
         super(ExternalSynthTrack, self).on_tracks_change()
-        self._link_clip_slots()
+        self._map_clip_slots()
 
     def _on_last_beat_passed_event(self, _):
         # type: (LastBeatPassedEvent) -> None
@@ -91,7 +94,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
         if playing_cs.clip.playing_position.in_last_bar:
             audio_tail_clip = self.audio_tail_track.clip_slots[playing_cs.index].clip
-            if audio_tail_clip:
+            if audio_tail_clip and not audio_tail_clip.is_recording:
                 audio_tail_clip.play_and_mute()
 
     def _map_optional_audio_tail_track(self):
@@ -128,7 +131,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
     def on_scenes_change(self):
         # type: () -> None
-        self._link_clip_slots()
+        self._map_clip_slots()
 
     def _get_dummy_tracks(self):
         # type: () -> Iterator[SimpleTrack]
@@ -136,7 +139,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
         for track in self.base_track.sub_tracks[main_tracks_length:]:
             yield track
 
-    def _link_clip_slots(self):
+    def _map_clip_slots(self):
         # type: () -> None
         if len(self._clip_slot_synchronizers) == len(self.midi_track.clip_slots):
             return
@@ -147,20 +150,20 @@ class ExternalSynthTrack(AbstractGroupTrack):
         self._clip_slot_synchronizers = [
             ClipSlotSynchronizer(midi_clip_slot, audio_clip_slot)
             for midi_clip_slot, audio_clip_slot in
-            itertools.izip(  # type: ignore[attr-defined]
+            itertools.izip(
                 self.midi_track.clip_slots, self.audio_track.clip_slots
             )
         ]
 
     def update(self, observable):
         # type: (Observable) -> None
-        if isinstance(observable, TrackDevices):
+        if isinstance(observable, SimpleTrackDevices):
             self._external_device = find_if(lambda d: d.is_external_device, list(self.midi_track.devices))
             if self._external_device is None:
                 raise Protocol0Warning("%s should have an external device" % self)
 
             if self._instrument is None:
-                self._instrument = self.midi_track.instrument or InstrumentMinitaur(track=self.midi_track, device=None)
+                self._instrument = self.midi_track.instrument or InstrumentMinitaur(device=None, track_name=self.name)
             elif self.midi_track.instrument and self.midi_track.instrument != self._instrument:
                 raise Protocol0Error("Cannot switch instruments in an ExternalSynthTrack")
 
@@ -209,11 +212,6 @@ class ExternalSynthTrack(AbstractGroupTrack):
             sub_track.color = color_index
 
     @property
-    def computed_color(self):
-        # type: () -> int
-        return self.instrument.TRACK_COLOR.color_int_value
-
-    @property
     def can_change_presets(self):
         # type: () -> bool
         return len(self.audio_track.clips) == 0 or \
@@ -226,17 +224,6 @@ class ExternalSynthTrack(AbstractGroupTrack):
         seq.prompt("Disable protected mode ?")
         seq.add(partial(setattr, self, "protected_mode_active", False))
         seq.add(partial(StatusBar.show_message, "track protected mode disabled"))
-        return seq.done()
-
-    def copy_and_paste_clips_to_new_scene(self):
-        # type: () -> Sequence
-        seq = Sequence()
-        seq.add(SongFacade.selected_scene().duplicate)
-        seq.add(lambda: SongFacade.current_external_synth_track().midi_track.clip_slots[
-            SongFacade.selected_scene().index].clip.crop())
-        seq.add(lambda: SongFacade.current_external_synth_track().audio_track.clip_slots[
-            SongFacade.selected_scene().index].clip.crop())
-        seq.add()
         return seq.done()
 
     def disconnect(self):

@@ -1,8 +1,9 @@
 from typing import Optional, Callable
 
 from protocol0.domain.lom.song.SongInitializedEvent import SongInitializedEvent
-from protocol0.domain.shared.DomainEventBus import DomainEventBus
+from protocol0.domain.lom.song.components.SceneComponent import SceneComponent
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.track_recorder.recording_bar_length.SelectedRecordingBarLengthUpdatedEvent import \
     SelectedRecordingBarLengthUpdatedEvent
 from protocol0.infra.persistence.SongDataEnum import SongDataEnum
@@ -14,11 +15,12 @@ from protocol0.shared.logging.Logger import Logger
 class SongDataService(object):
     _DEBUG = False
 
-    def __init__(self, get_data, set_data):
-        # type: (Callable, Callable) -> None
+    def __init__(self, get_data, set_data, scene_component):
+        # type: (Callable, Callable, SceneComponent) -> None
 
         self._set_data = set_data
         self._get_data = get_data
+        self._scene_component = scene_component
 
         self._selected_scene_index = None  # type: Optional[int]
         self._selected_track_index = None  # type: Optional[int]
@@ -50,7 +52,7 @@ class SongDataService(object):
         if self._selected_scene_index is not None and self._selected_scene_index < len(
                 SongFacade.scenes()):
             selected_scene = SongFacade.scenes()[self._selected_scene_index]
-            selected_scene.select()
+            self._scene_component.select_scene(selected_scene)
         if self._selected_track_index is not None and self._selected_track_index < len(
                 list(SongFacade.all_simple_tracks())):
             selected_track = list(SongFacade.all_simple_tracks())[self._selected_track_index]

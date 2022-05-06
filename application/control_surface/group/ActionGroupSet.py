@@ -1,5 +1,6 @@
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 from protocol0.domain.lom.set.SessionToArrangementService import SessionToArrangementService
+from protocol0.domain.lom.song.components.TempoComponent import TempoComponent
 
 
 class ActionGroupSet(ActionGroupInterface):
@@ -9,8 +10,8 @@ class ActionGroupSet(ActionGroupInterface):
         # type: () -> None
         # TAP tempo encoder
         self.add_encoder(identifier=1, name="tap tempo",
-                         on_press=self._song.tap_tempo,
-                         on_scroll=self._song.scroll_tempo
+                         on_press=self._container.get(TempoComponent).tap,
+                         on_scroll=self._container.get(TempoComponent).scroll
                          )
 
         # Session2ARrangement encoder

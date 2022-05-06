@@ -1,53 +1,33 @@
-import re
-from math import floor
-
 import Live
-from typing import TYPE_CHECKING, Optional, List
+from _Framework.SubjectSlot import SlotManager
+from typing import Optional, List, cast
 
-from protocol0.domain.lom.SynchronizableObjectInterface import SynchronizableObjectInterface
-from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
-from protocol0.domain.lom.clip.ClipActionMixin import ClipActionMixin
-from protocol0.domain.lom.clip.ClipEnvelopeShowedEvent import ClipEnvelopeShowedEvent
+from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
+from protocol0.domain.lom.clip.ClipConfig import ClipConfig
 from protocol0.domain.lom.clip.ClipLoop import ClipLoop
 from protocol0.domain.lom.clip.ClipName import ClipName
 from protocol0.domain.lom.clip.ClipPlayingPosition import ClipPlayingPosition
-from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
-from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
-from protocol0.domain.shared.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.decorators import p0_subject_slot
-from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
-from protocol0.domain.shared.utils import scroll_values
+from protocol0.domain.lom.clip.automation.ClipAutomation import ClipAutomation
+from protocol0.domain.shared.utils import ForwardTo
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
-
-if TYPE_CHECKING:
-    from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
-    from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.shared.observer.Observable import Observable
+from protocol0.shared.sequence.Sequence import Sequence
 
 
-# noinspection PyAbstractClass
-class Clip(ClipActionMixin, UseFrameworkEvents, SynchronizableObjectInterface):
-    __subject_events__ = ("notes", "length")
-
-    def __init__(self, clip_slot):
-        # type: (ClipSlot) -> None
+class Clip(SlotManager, Observable):
+    def __init__(self, live_clip, config):
+        # type: (Live.Clip.Clip, ClipConfig) -> None
         super(Clip, self).__init__()
-        self.clip_slot = clip_slot
-        self._clip_slot = clip_slot._clip_slot
-        self._clip = self._clip_slot.clip  # type: Live.Clip.Clip
-        self.view = self._clip.view  # type: Live.Clip.Clip.View
-        self.track = clip_slot.track  # type: SimpleTrack
+        self._clip = live_clip
+        self._config = config
 
-        self.loop = ClipLoop(self)  # type: ClipLoop
-        self.playing_position = ClipPlayingPosition(self)
+        self.deleted = False
+        self.loop = ClipLoop(live_clip)  # type: ClipLoop
+        self.automation = ClipAutomation(live_clip, self.loop)  # type: ClipAutomation
+        self.playing_position = ClipPlayingPosition(live_clip, self.loop)  # type: ClipPlayingPosition
+        self.clip_name = ClipName(live_clip)  # type: ClipName
 
-        # listeners
-        self._playing_status_listener.subject = self._clip
-        self._loop_start_listener.subject = self._clip
-        self._loop_end_listener.subject = self._clip
-
-        self.clip_name = ClipName(self)  # type: ClipName
-        self.displayed_automated_parameter = None  # type: Optional[DeviceParameter]
+        self.loop.register_observer(self)
 
     def __eq__(self, clip):
         # type: (object) -> bool
@@ -57,151 +37,28 @@ class Clip(ClipActionMixin, UseFrameworkEvents, SynchronizableObjectInterface):
         # type: () -> str
         return "%s: %s (%s)" % (self.__class__.__name__, self.name, self.index)
 
-    @property
-    def lom_property_name(self):
-        # type: () -> str
-        return "_clip"
-
-    @property
-    def is_syncable(self):
-        # type: () -> bool
-        return not self.track.is_recording and not SongFacade.record_mode()
+    def update(self, observable):
+        # type: (Observable) -> None
+        if isinstance(observable, ClipLoop):
+            self.notify_observers()
 
     @property
     def index(self):
         # type: () -> int
-        return self.clip_slot.index
-
-    @p0_subject_slot("playing_status")
-    def _playing_status_listener(self):
-        # type: () -> None
-        pass
-
-    @p0_subject_slot("loop_start")
-    def _loop_start_listener(self):
-        # type: () -> None
-        # noinspection PyUnresolvedReferences
-        self.notify_length()
-
-    @p0_subject_slot("loop_end")
-    def _loop_end_listener(self):
-        # type: () -> None
-        # noinspection PyUnresolvedReferences
-        self.notify_length()
-
-    @classmethod
-    def make(cls, clip_slot, is_new=False):
-        # type: (ClipSlot, bool) -> Clip
-        clip = clip_slot.CLIP_CLASS(clip_slot=clip_slot)
-
-        if is_new:
-            clip.configure_new_clip()
-
-        return clip
+        return self._config.index
 
     @property
     def name(self):
         # type: () -> str
-        return self._clip.name if getattr(self, "_clip", None) else None
+        return self._clip.name
 
-    # noinspection PyPropertyAccess
     @name.setter
     def name(self, name):
         # type: (str) -> None
         if self._clip and name:
             self._clip.name = str(name).strip()
 
-    @property
-    def has_default_recording_name(self):
-        # type: () -> bool
-        return bool(re.match(".*\\[\\d{4}-\\d{2}-\\d{2} \\d+]$", self.name))
-
-    @property
-    def length(self):
-        # type: () -> float
-        """
-        For looped clips: loop length in beats.
-        Casting to int to have whole beats.
-        not using unwarped audio clips
-        """
-        length = int(floor(self._clip.length)) if self._clip and getattr(self, "warping", True) else 0
-        return length
-
-    @length.setter
-    def length(self, length):
-        # type: (float) -> None
-        self.loop_end = self.loop_start + length
-        self.end_marker = self.loop_end
-
-    @property
-    def bar_length(self):
-        # type: () -> int
-        return int(self.length / SongFacade.signature_numerator())
-
-    @bar_length.setter
-    def bar_length(self, bar_length):
-        # type: (int) -> None
-        self.length = bar_length * SongFacade.signature_numerator()
-
-    @property
-    def looping(self):
-        # type: () -> bool
-        return self._clip.looping if self._clip else False
-
-    # noinspection PyPropertyAccess
-    @looping.setter
-    def looping(self, looping):
-        # type: (bool) -> None
-        if self._clip:
-            self._clip.looping = looping
-
-    @property
-    def loop_start(self):
-        # type: () -> float
-        return self._clip.loop_start if self._clip else 0
-
-    # noinspection PyPropertyAccess
-    @loop_start.setter
-    def loop_start(self, loop_start):
-        # type: (float) -> None
-        if self._clip and loop_start < self.loop_end:
-            self._clip.loop_start = loop_start
-
-    @property
-    def loop_end(self):
-        # type: () -> float
-        return self._clip.loop_end if self._clip else 0
-
-    # noinspection PyPropertyAccess
-    @loop_end.setter
-    def loop_end(self, loop_end):
-        # type: (float) -> None
-        if self._clip and loop_end > self.loop_start:
-            self._clip.loop_end = loop_end
-
-    @property
-    def start_marker(self):
-        # type: () -> float
-        return self._clip.start_marker if self._clip else 0
-
-    # noinspection PyPropertyAccess
-    @start_marker.setter
-    def start_marker(self, start_marker):
-        # type: (float) -> None
-        if self._clip and start_marker < self.end_marker:
-            self._clip.start_marker = start_marker
-
-    @property
-    def end_marker(self):
-        # type: () -> float
-        return self._clip.end_marker if self._clip else 0
-
-    # noinspection PyPropertyAccess
-    @end_marker.setter
-    def end_marker(self, end_marker):
-        # type: (float) -> None
-        if self._clip and end_marker > self.start_marker:
-            self._clip.end_marker = end_marker
+    length = cast(float, ForwardTo("loop", "length"))
 
     @property
     def color(self):
@@ -236,46 +93,86 @@ class Clip(ClipActionMixin, UseFrameworkEvents, SynchronizableObjectInterface):
         if self._clip:
             self._clip.muted = muted
 
+    _QUANTIZATION_OPTIONS = [
+        Live.Song.RecordingQuantization.rec_q_no_q,
+        Live.Song.RecordingQuantization.rec_q_quarter,
+        Live.Song.RecordingQuantization.rec_q_eight,
+        Live.Song.RecordingQuantization.rec_q_eight_triplet,
+        Live.Song.RecordingQuantization.rec_q_eight_eight_triplet,
+        Live.Song.RecordingQuantization.rec_q_sixtenth,
+        Live.Song.RecordingQuantization.rec_q_sixtenth_triplet,
+        Live.Song.RecordingQuantization.rec_q_sixtenth_sixtenth_triplet,
+        Live.Song.RecordingQuantization.rec_q_thirtysecond,
+    ]  # type: List[int]
+
     @property
-    def automated_parameters(self):
-        # type: () -> List[DeviceParameter]
-        return [parameter for parameter in self.track.device_parameters if self.automation_envelope(parameter)]
+    def is_playing(self):
+        # type: (Clip) -> bool
+        return self._clip and self._clip.is_playing
 
-    def show_parameter_envelope(self, parameter):
-        # type: (DeviceParameter) -> None
-        ApplicationViewFacade.show_clip()
-        self.show_envelope()
-        # noinspection PyArgumentList
-        self.view.select_envelope_parameter(parameter._device_parameter)
-        DomainEventBus.emit(ClipEnvelopeShowedEvent())
-        self.displayed_automated_parameter = parameter
+    @is_playing.setter
+    def is_playing(self, is_playing):
+        # type: (Clip, bool) -> None
+        if self._clip:
+            self._clip.is_playing = is_playing
 
-    def scroll_automation_envelopes(self, go_next):
+    def stop(self, immediate=False):
         # type: (bool) -> None
-        automated_parameters = self.automated_parameters
-        if len(automated_parameters) == 0:
-            raise Protocol0Warning("No automated parameters")
+        if immediate:
+            self.muted = True
+            self.muted = False
+            return None
 
-        if self.displayed_automated_parameter is None:
-            self.displayed_automated_parameter = automated_parameters[0]
-        else:
-            self.displayed_automated_parameter = scroll_values(
-                automated_parameters, self.displayed_automated_parameter, go_next
-            )
+        if self._clip:
+            self._clip.stop()
 
-        self.display_current_parameter_automation()
-
-    def display_current_parameter_automation(self):
+    def fire(self):
         # type: () -> None
-        selected_parameter = SongFacade.selected_parameter() or self.displayed_automated_parameter
-        if selected_parameter is None:
-            if len(self.automated_parameters):
-                selected_parameter = self.automated_parameters[0]
-            else:
-                Logger.warning("Selected clip has no automation")
-                return None
+        if self._clip:
+            self._clip.fire()
 
-        self.show_parameter_envelope(selected_parameter)
+    def delete(self):
+        # type: () -> Sequence
+        self.deleted = True
+        self.notify_observers()
+        return Sequence().wait(3).done()
+
+    def quantize(self, depth=1):
+        # type: (float) -> None
+        if self._clip:
+            record_quantization_index = self._QUANTIZATION_OPTIONS.index(SongFacade.midi_recording_quantization())
+            if record_quantization_index:
+                self._clip.quantize(record_quantization_index, depth)
+
+    def show_loop(self):
+        # type: () -> None
+        self._clip.view.show_loop()
+
+    def show_notes(self):
+        # type: () -> None
+        self.automation.show_envelope()
+        self.automation.hide_envelope()
+
+    def configure_new_clip(self):
+        # type: () -> Optional[Sequence]
+        """ overridden """
+        pass
+
+    def refresh_appearance(self):
+        # type: () -> None
+        self.clip_name._name_listener(force=True)
+        if self.color != ClipColorEnum.AUDIO_UN_QUANTIZED.color_int_value:
+            self.color = self._config.color
+
+    def post_record(self, bar_length):
+        # type: (int) -> None
+        """ overridden """
+        self.clip_name.update(base_name="")
+
+    def crop(self):
+        # type: () -> None
+        """ implemented in MidiClip and AudioClip """
+        raise NotImplementedError
 
     def disconnect(self):
         # type: () -> None

@@ -1,54 +1,10 @@
 from collections import defaultdict
 from functools import wraps, partial
 
-from _Framework.SubjectSlot import subject_slot as _framework_subject_slot
-from typing import Any, Callable, TYPE_CHECKING, Optional
+from typing import Any, Callable, Optional
 
 from protocol0.domain.shared.utils import is_method
 from protocol0.shared.types import Func
-
-if TYPE_CHECKING:
-    from protocol0.shared.sequence.CallbackDescriptor import CallbackDescriptor
-
-
-def p0_subject_slot(event):
-    # type: (str) -> Callable[[Callable], CallbackDescriptor]
-    """
-    Drop in replacement of _Framework subject_slot decorator
-    Extends its behavior to allow the registration of callbacks that will execute after the decorated function finished
-    By default the callbacks executions are deferred to prevent the dreaded "Changes cannot be triggered by notifications. You will need to defer your response"
-    immediate=True executes the callbacks immediately (synchronously)
-
-    This decorator / callback registration is mainly used by the Sequence pattern
-    It allows chaining functions by reacting to listeners being triggered and is paramount to executing asynchronous sequence of actions
-    Sequence.wait_for_listener(<@p0_subject_slot<listener>>) will actually register a callback on the decorated <listener>.
-    This callback will resume the sequence when executed.
-    """
-
-    def wrap(func):
-        # type: (Callable) -> CallbackDescriptor
-        def decorate(*a, **k):
-            # type: (Any, Any) -> None
-            func(*a, **k)
-
-        decorate.original_func = func  # type: ignore[attr-defined]
-
-        callback_descriptor = has_callback_queue()(_framework_subject_slot(event)(decorate))
-
-        return callback_descriptor
-
-    return wrap
-
-
-def has_callback_queue():
-    # type: () -> Callable[[Callable], CallbackDescriptor]
-    def wrap(func):
-        # type: (Callable) -> CallbackDescriptor
-        from protocol0.shared.sequence.CallbackDescriptor import CallbackDescriptor
-
-        return CallbackDescriptor(func)
-
-    return wrap
 
 
 def defer(func):
@@ -157,7 +113,7 @@ def handle_error(func):
         try:
             return func(*a, **k)
         except Exception:
-            from protocol0.domain.shared.DomainEventBus import DomainEventBus
+            from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
             from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
             DomainEventBus.emit(ErrorRaisedEvent())
             # raise e

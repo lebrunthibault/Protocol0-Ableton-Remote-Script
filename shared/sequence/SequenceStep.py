@@ -1,20 +1,20 @@
 from typing import Any, Callable, Optional
 
-from protocol0.domain.shared.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
-from protocol0.shared.sequence.SequenceState import SequenceStateEnum
-from protocol0.shared.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
+from protocol0.shared.observer.Observable import Observable
+from protocol0.shared.sequence.HasSequenceState import HasSequenceState
+from protocol0.shared.sequence.SequenceState import SequenceState
+from protocol0.shared.sequence.SequenceTransition import SequenceStateEnum
 
 
-class SequenceStep(SequenceStateMachineMixin):
-    __subject_events__ = ("terminated", "errored", "cancelled")
-
+class SequenceStep(Observable):
     def __init__(self, func, name, notify_terminated):
         # type: (Callable, str, bool) -> None
         super(SequenceStep, self).__init__()
         self._name = name
         self._callable = func
+        self.state = SequenceState()
         self._notify_terminated = notify_terminated
         self.res = None  # type: Optional[Any]
 
@@ -22,9 +22,16 @@ class SequenceStep(SequenceStateMachineMixin):
         # type: (Any) -> str
         return self._name
 
+    def update(self, observable):
+        # type: (Observable) -> None
+        if isinstance(observable, HasSequenceState):
+            if observable.state.terminated:
+                self._terminate(observable.res)
+                observable.remove_observer(self)
+
     def start(self):
         # type: () -> None
-        self.change_state(SequenceStateEnum.STARTED)
+        self.state.change_to(SequenceStateEnum.STARTED)
         # noinspection PyBroadException
         try:
             self._execute()
@@ -36,43 +43,35 @@ class SequenceStep(SequenceStateMachineMixin):
         # type: () -> None
         res = self._callable()
 
-        if isinstance(res, SequenceStateMachineMixin):
-            if res.errored:
+        if isinstance(res, HasSequenceState):
+            if res.state.errored:
                 self._error()
-            elif res.cancelled:
+            elif res.state.cancelled:
                 self.cancel()
-            elif res.terminated:
+            elif res.state.terminated:
                 self._terminate(res.res)
             else:
-                self._sequence_terminated_listener.subject = res  # type: ignore[attr-defined]
+                res.register_observer(self)
         else:
             self._terminate(res)
 
-    @p0_subject_slot("terminated")
-    def _sequence_terminated_listener(self):
-        # type: () -> None
-        self._terminate(self._sequence_terminated_listener.subject.res)
-
     def _error(self):
         # type: () -> None
-        if self.started:
-            self.change_state(SequenceStateEnum.ERRORED)
-            self.notify_errored()  # type: ignore[attr-defined]
-            self.disconnect()
+        if self.state.started:
+            self.state.change_to(SequenceStateEnum.ERRORED)
+            self.notify_observers()
 
     def cancel(self):
         # type: () -> None
-        if self.started:
-            self.change_state(SequenceStateEnum.CANCELLED)
-            self.notify_cancelled()  # type: ignore[attr-defined]
-            self.disconnect()
+        if self.state.started:
+            self.state.change_to(SequenceStateEnum.CANCELLED)
+            self.notify_observers()
 
     def _terminate(self, res):
         # type: (Any) -> None
-        if self.cancelled or self.errored:
+        if self.state.cancelled or self.state.errored:
             return
         self.res = res
-        self.change_state(SequenceStateEnum.TERMINATED)
+        self.state.change_to(SequenceStateEnum.TERMINATED)
         if self._notify_terminated:
-            self.notify_terminated()  # type: ignore[attr-defined]
-        self.disconnect()
+            self.notify_observers()

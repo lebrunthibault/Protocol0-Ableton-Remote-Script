@@ -1,15 +1,12 @@
 from typing import List, cast
 
-from protocol0.domain.lom.ColorEnumInterface import ColorEnumInterface
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
-from protocol0.domain.lom.track.TrackColorEnum import TrackColorEnum
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
 class SimpleAudioTrack(SimpleTrack):
     DEFAULT_NAME = "audio"
-    DEFAULT_COLOR = TrackColorEnum.DEFAULT  # type: ColorEnumInterface
     CLIP_SLOT_CLASS = AudioClipSlot
 
     @property

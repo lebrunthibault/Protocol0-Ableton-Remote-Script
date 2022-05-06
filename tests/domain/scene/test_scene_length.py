@@ -1,6 +1,7 @@
 from typing import cast
 
 from protocol0.domain.lom.clip.Clip import Clip
+from protocol0.domain.lom.clip.ClipConfig import ClipConfig
 from protocol0.domain.lom.scene.SceneClips import SceneClips
 from protocol0.domain.lom.scene.SceneLength import SceneLength
 from protocol0.shared.SongFacade import SongFacade
@@ -23,6 +24,6 @@ def test_scene_length():
 
     live_clip = AbletonClip()
     live_clip.length = 4
-    clips._clips.append(Clip.make(clip_slot))
+    clips._clips.append(Clip(live_clip_slot.clip, ClipConfig(1)))
     assert scene_length.length == 4
     assert scene_length.bar_length == 1

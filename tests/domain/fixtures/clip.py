@@ -25,7 +25,14 @@ class AbletonClip(Subject):
         self.muted = False
         self.playing_position = 0
         self.start_marker = 0
+        self.is_audio_clip = False
 
     # noinspection PyUnusedLocal
     def get_notes(self, *a, **k):
         return ()
+
+    def select_all_notes(self):
+        pass
+
+    def replace_selected_notes(self, _):
+        pass

@@ -14,4 +14,4 @@ class InstrumentDrumRack(InstrumentInterface):
     @property
     def uses_scene_length_clips(self):
         # type: () -> bool
-        return DrumCategory(self.track.name).uses_scene_length_clips
+        return DrumCategory(self._track_name).uses_scene_length_clips

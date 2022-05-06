@@ -1,9 +1,9 @@
 import Live
+from _Framework.SubjectSlot import subject_slot
 from typing import List, Optional, Any, cast
 
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceChain import DeviceChain
-from protocol0.domain.shared.decorators import p0_subject_slot
 from protocol0.domain.shared.utils import find_if
 
 
@@ -11,13 +11,13 @@ class RackDevice(Device):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(RackDevice, self).__init__(*a, **k)
-        self._device = cast(Live.RackDevice.RackDevice, self._device)
+        self._device = cast(Live.RackDevice.RackDevice, self._device)  # type: Live.RackDevice.RackDevice
         self.chains = []  # type: List[DeviceChain]
         self._view = self._device.view  # type: Live.RackDevice.RackDevice.View
         self._chains_listener.subject = self._device
         self._chains_listener()
 
-    @p0_subject_slot("chains")
+    @subject_slot("chains")
     def _chains_listener(self):
         # type: () -> None
         self.chains = [DeviceChain(chain, index) for index, chain in enumerate(self._device.chains)]

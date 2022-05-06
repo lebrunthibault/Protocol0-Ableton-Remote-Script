@@ -1,7 +1,6 @@
 from typing import List, Any
 
 from protocol0.domain.audit.SetUpgradeService import SetUpgradeService
-from protocol0.domain.lom.song.Song import Song
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
 from protocol0.domain.shared.backend.Backend import Backend
@@ -10,11 +9,10 @@ from protocol0.shared.logging.Logger import Logger
 
 
 class SetFixerService(object):
-    def __init__(self, validator_service, set_upgrade_service, song):
-        # type: (ValidatorService, SetUpgradeService, Song) -> None
+    def __init__(self, validator_service, set_upgrade_service):
+        # type: (ValidatorService, SetUpgradeService) -> None
         self._validator_service = validator_service
         self._set_upgrade_service = set_upgrade_service
-        self._song = song
 
     @property
     def _objects_to_refresh_appearance(self):
@@ -34,7 +32,7 @@ class SetFixerService(object):
     def _objects_to_validate(self):
         # type: () -> List[Any]
         # noinspection PyTypeChecker
-        return [self._song] + SongFacade.scenes() + list(SongFacade.abstract_tracks())
+        return SongFacade.scenes() + list(SongFacade.abstract_tracks())
 
     def fix_set(self):
         # type: () -> None

@@ -22,13 +22,23 @@ from protocol0.domain.lom.instrument.preset.PresetService import PresetService
 from protocol0.domain.lom.scene.SceneService import SceneService
 from protocol0.domain.lom.set.MixingService import MixingService
 from protocol0.domain.lom.set.SessionToArrangementService import SessionToArrangementService
-from protocol0.domain.lom.song.Song import Song
-from protocol0.domain.lom.song.SongService import SongService
+from protocol0.domain.lom.song.SongInitService import SongInitService
+from protocol0.domain.lom.song.SongState import SongState
+from protocol0.domain.lom.song.components.ClipComponent import ClipComponent
+from protocol0.domain.lom.song.components.DeviceComponent import DeviceComponent
+from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackComponent
+from protocol0.domain.lom.song.components.QuantizationComponent import QuantizationComponent
+from protocol0.domain.lom.song.components.RecordingComponent import RecordingComponent
+from protocol0.domain.lom.song.components.SceneComponent import SceneComponent
+from protocol0.domain.lom.song.components.SceneCrudComponent import SceneCrudComponent
+from protocol0.domain.lom.song.components.SongLoopComponent import SongLoopComponent
+from protocol0.domain.lom.song.components.TempoComponent import TempoComponent
+from protocol0.domain.lom.song.components.TrackComponent import TrackComponent
+from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
 from protocol0.domain.lom.track.TrackFactory import TrackFactory
+from protocol0.domain.lom.track.TrackMapperService import TrackMapperService
 from protocol0.domain.lom.track.TrackPlayerService import TrackPlayerService
 from protocol0.domain.lom.track.TrackRepository import TrackRepository
-from protocol0.domain.lom.track.TrackService import TrackService
-from protocol0.domain.lom.track.simple_track.SimpleDummyTrackService import SimpleDummyTrackService
 from protocol0.domain.lom.validation.ValidatorFactory import ValidatorFactory
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
@@ -46,7 +56,6 @@ from protocol0.infra.persistence.SongDataService import SongDataService
 from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
 from protocol0.infra.scheduler.TickScheduler import TickScheduler
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.SongViewFacade import SongViewFacade
 from protocol0.shared.UndoFacade import UndoFacade
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.logging.StatusBar import StatusBar
@@ -71,48 +80,102 @@ class Container(ContainerInterface):
         tick_scheduler = TickScheduler(beat_scheduler, live_song)
         Scheduler(tick_scheduler, beat_scheduler)  # setup Scheduler facade
 
-        song = Song(live_song)
-        CommandBus(self, song)
+        # song components
+        clip_component = ClipComponent(live_song.view)
+        device_component = DeviceComponent(live_song.view)
+        playback_component = PlaybackComponent(live_song)
+        tempo_component = TempoComponent(live_song)
+        quantization_component = QuantizationComponent(live_song, tempo_component)
+        recording_component = RecordingComponent(live_song)
+        scene_component = SceneComponent(live_song.view)
+        scene_crud_component = SceneCrudComponent(
+            live_song.create_scene,
+            live_song.duplicate_scene,
+            live_song.delete_scene
+        )
+        song_loop_component = SongLoopComponent(live_song)
+        track_component = TrackComponent(live_song.view)
+        track_crud_component = TrackCrudComponent(
+            live_song.create_midi_track,
+            live_song.create_audio_track,
+            live_song.duplicate_track,
+            live_song.delete_track
+        )
+        song_state = SongState()
+
+        CommandBus(self)
 
         session_service = SessionService(control_surface.component_guard,
                                          control_surface.set_highlighting_session_component)
-        ApplicationViewFacade(song, control_surface.application().view, session_service)
+        ApplicationViewFacade(
+            recording_component,
+            track_component.select_track,
+            control_surface.application().view,
+            session_service
+        )
 
         browser = control_surface.application().browser
         browser_service = BrowserService(browser, BrowserLoaderService(browser))
-        device_display_service = DeviceDisplayService(browser_service, song.select_device)
-        device_service = DeviceService(browser_service, song.select_device)
+        device_display_service = DeviceDisplayService(browser_service)
+        device_service = DeviceService(browser_service, device_component)
         drum_rack_service = DrumRackService(browser_service)
-        track_factory = TrackFactory(song, browser_service, drum_rack_service)
-        SimpleDummyTrackService(browser_service)
+        track_factory = TrackFactory(track_crud_component, browser_service, drum_rack_service)
         track_repository = TrackRepository()
-        track_service = TrackService(track_factory, song)
-        track_player_service = TrackPlayerService(song, track_repository)
-        track_recorder_service = TrackRecorderService(song)
-        scene_service = SceneService(song, live_song, track_recorder_service)
-        SongFacade(song, track_service, scene_service, track_recorder_service)
-        SongViewFacade(song)
+        track_mapper_service = TrackMapperService(live_song, track_factory)
+        track_player_service = TrackPlayerService(playback_component, track_repository)
+        track_recorder_service = TrackRecorderService(
+            playback_component,
+            recording_component,
+            scene_crud_component
+        )
+        scene_service = SceneService(live_song, playback_component, scene_crud_component)
+        SongFacade(
+            live_song,
 
-        song_service = SongService(song)
+            clip_component,
+            device_component,
+            playback_component,
+            quantization_component,
+            recording_component,
+            scene_component,
+            song_loop_component,
+            tempo_component,
+            track_component,
+
+            scene_service,
+            track_mapper_service,
+            track_recorder_service
+        )
+
+        song_service = SongInitService(track_component)
         Backend.client().end_measurement()
         instrument_display_service = InstrumentDisplayService(device_display_service)
         instrument_preset_scroller_service = InstrumentPresetScrollerService()
         mixing_service = MixingService()
         validator_service = ValidatorService(ValidatorFactory(browser_service))
-        set_upgrade_service = SetUpgradeService(device_service, validator_service, song.duplicate_track)
+        set_upgrade_service = SetUpgradeService(device_service, validator_service, track_crud_component)
         log_service = LogService()
         set_fixer_service = SetFixerService(
             validator_service=validator_service,
             set_upgrade_service=set_upgrade_service,
-            song=song
         )
         song_stats_service = SongStatsService()
         interface_clicks_service = InterfaceClicksService()
-        audio_latency_service = AudioLatencyAnalyzerService(track_recorder_service, song,
-                                                            interface_clicks_service)
+        audio_latency_service = AudioLatencyAnalyzerService(
+            track_recorder_service,
+            interface_clicks_service,
+            track_crud_component,
+            tempo_component
+        )
         preset_service = PresetService()
-        session_to_arrangement_service = SessionToArrangementService(song)
-        song_data_service = SongDataService(live_song.get_data, live_song.set_data)
+        session_to_arrangement_service = SessionToArrangementService(
+            playback_component,
+            recording_component,
+            scene_component,
+            tempo_component,
+            track_component
+        )
+        song_data_service = SongDataService(live_song.get_data, live_song.set_data, scene_component)
 
         # vocal command
         keyword_search_service = KeywordSearchService()
@@ -122,11 +185,19 @@ class Container(ContainerInterface):
         self._register(midi_service)
         self._register(browser_service)
 
+        # song components
+        self._register(playback_component)
+        self._register(scene_component)
+        self._register(scene_crud_component)
+        self._register(song_state)
+        self._register(track_component)
+        self._register(tempo_component)
+
         self._register(song_service)
         self._register(song_data_service)
         self._register(song_stats_service)
 
-        self._register(track_service)
+        self._register(track_mapper_service)
         self._register(track_factory)
         self._register(track_player_service)
 
@@ -150,7 +221,7 @@ class Container(ContainerInterface):
         self._register(keyword_search_service)
         self._register(vocal_command_service)
 
-        ActionGroupFactory.create_action_groups(self, song, control_surface.component_guard)
+        ActionGroupFactory.create_action_groups(self, control_surface.component_guard)
 
     def _register(self, service):
         # type: (object) -> None

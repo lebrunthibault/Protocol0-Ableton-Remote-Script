@@ -4,8 +4,8 @@ from typing import Any
 from protocol0.application.CommandBus import CommandBus
 from protocol0.application.Container import Container
 from protocol0.application.command.InitializeSongCommand import InitializeSongCommand
-from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.shared.logging.Logger import Logger
 
 

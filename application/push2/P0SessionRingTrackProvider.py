@@ -1,11 +1,10 @@
 import json
 
 import Live
-
 from protocol0_push2.track_selection import SessionRingTrackProvider
 from typing import List, Any, Optional
 
-from protocol0.domain.shared.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.infra.interface.session.SessionUpdatedEvent import SessionUpdatedEvent
 from protocol0.shared.SongFacade import SongFacade
 

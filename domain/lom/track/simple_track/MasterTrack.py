@@ -6,18 +6,16 @@ from protocol0.application.CommandBus import CommandBus
 from protocol0.application.command.LoadDeviceCommand import LoadDeviceCommand
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
-from protocol0.domain.lom.device.TrackDevices import TrackDevices
-from protocol0.domain.lom.track.TrackColorEnum import TrackColorEnum
+from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
 from protocol0.domain.lom.track.simple_track.MasterTrackRoomEqToggledEvent import MasterTrackRoomEqToggledEvent
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
-from protocol0.domain.shared.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
 
 class MasterTrack(SimpleAudioTrack):
     IS_ACTIVE = False
-    DEFAULT_COLOR = TrackColorEnum.DISABLED
 
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
@@ -27,7 +25,7 @@ class MasterTrack(SimpleAudioTrack):
 
     def update(self, observable):
         # type: (Observable) -> None
-        if isinstance(observable, TrackDevices):
+        if isinstance(observable, SimpleTrackDevices):
             room_eq = self.devices.get_one_from_enum(DeviceEnum.EQ_ROOM)
             if room_eq != self._room_eq:
                 self._room_eq = room_eq

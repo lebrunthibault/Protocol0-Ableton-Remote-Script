@@ -7,4 +7,4 @@ from protocol0.shared.sequence.Sequence import Sequence
 class LoadDeviceCommandHandler(CommandHandlerInterface):
     def handle(self, command):
         # type: (LoadDeviceCommand) -> Sequence
-        return self._container.get(DeviceService).load_device(command.device_name)
+        return self._container.get(DeviceService).load_device(command.device_name, command.on_selected_track)

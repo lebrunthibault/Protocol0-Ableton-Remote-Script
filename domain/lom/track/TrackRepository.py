@@ -11,7 +11,7 @@ class TrackRepository(object):
     def find_simple_by_name(self, name):
         # type: (str) -> SimpleTrack
         for track in SongFacade.simple_tracks():
-            if track.matches_name(name):
+            if track.name.lower().strip() == name.lower().strip():
                 return track
 
         raise Protocol0Warning("Couldn't find SimpleTrack %s" % name)

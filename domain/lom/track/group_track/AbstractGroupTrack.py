@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class AbstractGroupTrack(AbstractTrack):
     def __init__(self, base_group_track):
         # type: (SimpleTrack) -> None
-        super(AbstractGroupTrack, self).__init__(track=base_group_track)
+        super(AbstractGroupTrack, self).__init__(base_group_track)
         self.base_track.abstract_group_track = self
         base_group_track.track_name.disconnect()
         # filled when link_sub_tracks is called
@@ -118,7 +118,3 @@ class AbstractGroupTrack(AbstractTrack):
     def clip_slots(self):
         # type: () -> List[ClipSlot]
         return self.base_track.clip_slots
-
-    def arm_track(self):
-        # type: () -> None
-        pass

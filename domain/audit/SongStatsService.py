@@ -8,9 +8,6 @@ from typing import Union
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack
-from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
-from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
-from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 
@@ -25,26 +22,25 @@ class SongStatsService(object):
     def _get_stats(self):
         # type: () -> collections.OrderedDict
         song_clips = [clip for track in SongFacade.simple_tracks() for clip in track.clips]
-        audio_recorded_clips = [clip for clip in song_clips if
-                                isinstance(clip, AudioClip) and clip.track.__class__ not in
-                                (SimpleInstrumentBusTrack, SimpleAudioTailTrack, SimpleDummyTrack)]
-
         beat_duration = float(60) / SongFacade.tempo()
-        recorded_audio_length = sum([clip.length for clip in audio_recorded_clips])
-        recorded_audio_duration = recorded_audio_length * beat_duration
+
         song_duration = sum([scene.length for scene in SongFacade.scenes()]) * beat_duration
 
-        abstract_clip_count = 0
+        abstract_clips = []
         for track in SongFacade.abstract_tracks():
             if isinstance(track, ExternalSynthTrack):
-                abstract_clip_count += len(track.audio_track.clips)
+                abstract_clips.append(track.audio_track.clips)
             else:
-                abstract_clip_count += len(track.clips)
+                abstract_clips.append(track.clips)
+
+        audio_clips = [clip for clip in abstract_clips if isinstance(clip, AudioClip)]
+        recorded_audio_length = sum([clip.length for clip in audio_clips])
+        recorded_audio_duration = recorded_audio_length * beat_duration
 
         stats = collections.OrderedDict()  # type: OrderedDict[str, Union[int, str]]
         stats["clipCount"] = len(song_clips)
-        stats["abstractClipCount"] = abstract_clip_count
-        stats["audioRecordClipCount"] = len(audio_recorded_clips)
+        stats["abstractClipCount"] = len(abstract_clips)
+        stats["audioRecordClipCount"] = len(audio_clips)
         stats["sceneCount"] = len(SongFacade.scenes())
         stats["trackCount"] = len(list(SongFacade.simple_tracks()))
         stats["abstractTrackCount"] = len(

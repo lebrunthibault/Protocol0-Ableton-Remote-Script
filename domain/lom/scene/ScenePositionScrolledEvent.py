@@ -1,0 +1,2 @@
+class ScenePositionScrolledEvent(object):
+    pass

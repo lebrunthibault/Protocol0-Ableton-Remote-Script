@@ -38,8 +38,7 @@ class ExternalSynthTrackValidator(AggregateValidator):
             ), None, "midi track input type"),
             PropertyValueValidator(track.midi_track.input_routing, "channel", InputRoutingChannelEnum.CHANNEL_1,
                                    name="midi track input channel"),
-            # PropertyValueValidator(track.midi_track.input_routing, "type", track.instrument.MIDI_INPUT_ROUTING_TYPE, name="midi track input type"),
-            PropertyValueValidator(track.audio_track.input_routing, "track", track.midi_track,
+            PropertyValueValidator(track.audio_track.input_routing, "track", track.midi_track._live_track,
                                    name="audio track input track"),
             PropertyValueValidator(track.audio_track.input_routing, "channel", InputRoutingChannelEnum.POST_FX,
                                    name="audio track input channel"),
@@ -52,11 +51,11 @@ class ExternalSynthTrackValidator(AggregateValidator):
             validators += SimpleAudioTailTrackValidator(track.audio_tail_track)._validators
 
         if len(track.dummy_tracks) == 0 and not track.is_armed:
-            validators.append(PropertyValueValidator(track.audio_track.output_routing, "track", track.base_track,
+            validators.append(PropertyValueValidator(track.audio_track.output_routing, "track", track.base_track._track,
                                                      name="audio track output routing"))
             if track.audio_tail_track:
                 validators.append(
-                    PropertyValueValidator(track.audio_tail_track.output_routing, "track", track.base_track,
+                    PropertyValueValidator(track.audio_tail_track.output_routing, "track", track.base_track._track,
                                            name="tail track output routing"))
 
         for dummy_track in track.dummy_tracks:

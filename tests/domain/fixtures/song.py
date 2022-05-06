@@ -1,10 +1,8 @@
 from collections import namedtuple
 
-import Live
 from _Framework.SubjectSlot import Subject
-from typing import List, Any, cast
+from typing import List, Any
 
-from protocol0.domain.lom.song.Song import Song
 from protocol0.tests.domain.fixtures.scene import AbletonScene
 from protocol0.tests.domain.fixtures.simple_track import AbletonTrack
 from protocol0.tests.domain.fixtures.song_view import AbletonSongView
@@ -69,7 +67,30 @@ class AbletonSong(Subject):
         # type: () -> None
         pass
 
+    def create_midi_track(self, _):
+        # type: (int) -> None
+        pass
 
-def make_song():
-    # type: () -> Song
-    return Song(cast(Live.Song.Song, AbletonSong()))
+    def create_audio_track(self, _):
+        # type: (int) -> None
+        pass
+
+    def duplicate_track(self, _):
+        # type: (int) -> None
+        pass
+
+    def delete_track(self, _):
+        # type: (int) -> None
+        pass
+
+    def create_scene(self, _):
+        # type: (int) -> None
+        pass
+
+    def duplicate_scene(self, _):
+        # type: (int) -> None
+        pass
+
+    def delete_scene(self, _):
+        # type: (int) -> None
+        pass

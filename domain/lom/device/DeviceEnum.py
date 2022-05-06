@@ -3,6 +3,7 @@ from typing import List
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.lom.device_parameter.DeviceParameterValue import DeviceParameterValue
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.shared.AbstractEnum import AbstractEnum
 from protocol0.shared.Config import Config
 
@@ -150,3 +151,17 @@ class DeviceEnum(AbstractEnum):
     def matches_device(self, device):
         # type: (Device) -> bool
         return device.name == self.device_name
+
+    @classmethod
+    def from_device_parameter(cls, device_parameter_enum):
+        # type: (DeviceParameterEnum) -> DeviceEnum
+        mapping = ({
+            DeviceParameterEnum.AUTO_FILTER_HIGH_PASS_FREQUENCY: DeviceEnum.AUTO_FILTER_HIGH_PASS,
+            DeviceParameterEnum.AUTO_FILTER_LOW_PASS_FREQUENCY: DeviceEnum.AUTO_FILTER_LOW_PASS,
+            DeviceParameterEnum.UTILITY_GAIN: DeviceEnum.UTILITY,
+        })
+
+        if device_parameter_enum not in mapping:
+            raise Protocol0Error("parameter not in mapping")
+
+        return mapping[device_parameter_enum]

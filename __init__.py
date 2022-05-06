@@ -63,19 +63,9 @@ class EmptyModule(object):
 
 # allows accessing lint from this module from outside the Live python environment, e.g. Jupyter tests
 if not live_environment_loaded:
-    sys.modules["Live"] = EmptyModule("Live")  # type: ignore[assignment]
-    sys.modules["MidiRemoteScript"] = EmptyModule("MidiRemoteScript")  # type: ignore[assignment]
-    sys.modules["multipledispatch"] = EmptyModule("multipledispatch")  # type: ignore[assignment]
-
-
-#
-# def _default(_, obj):
-#     # type: (Any, Any) -> Any
-#     return getattr(obj.__class__, "to_json", _default.default)(obj)
-#
-#
-# _default.default = JSONEncoder().default
-# JSONEncoder.default = _default  # type: ignore[assignment]
+    sys.modules["Live"] = EmptyModule("Live")
+    sys.modules["MidiRemoteScript"] = EmptyModule("MidiRemoteScript")
+    sys.modules["multipledispatch"] = EmptyModule("multipledispatch")
 
 
 def create_instance(c_instance):  # noqa

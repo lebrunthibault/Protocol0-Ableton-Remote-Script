@@ -1,11 +1,12 @@
 from functools import partial
 
 import Live
-from typing import Optional, Type, TYPE_CHECKING
+from typing import Optional, Type
 
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.DrumRackService import DrumRackService
 from protocol0.domain.lom.drum.DrumCategory import DrumCategory
+from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack
@@ -19,14 +20,11 @@ from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
-if TYPE_CHECKING:
-    from protocol0.domain.lom.song.Song import Song
-
 
 class TrackFactory(object):
-    def __init__(self, song, browser_service, drum_rack_service):
-        # type: (Song, BrowserServiceInterface, DrumRackService) -> None
-        self._song = song
+    def __init__(self, track_crud_component, browser_service, drum_rack_service):
+        # type: (TrackCrudComponent, BrowserServiceInterface, DrumRackService) -> None
+        self._track_crud_component = track_crud_component
         self._browser_service = browser_service
         self._drum_rack_service = drum_rack_service
 
@@ -49,7 +47,7 @@ class TrackFactory(object):
             else:
                 raise Protocol0Error("Unknown track type")
 
-        return cls(track=track, index=index)
+        return cls(track, index)
 
     def create_abstract_group_track(self, base_group_track):
         # type: (SimpleTrack) -> AbstractGroupTrack
@@ -85,7 +83,7 @@ class TrackFactory(object):
 
         selected_scene_index = SongFacade.selected_scene().index
         seq = Sequence()
-        seq.add(partial(self._song.create_midi_track, drum_category.create_track_index))
+        seq.add(partial(self._track_crud_component.create_midi_track, drum_category.create_track_index))
         seq.add(lambda: setattr(SongFacade.selected_track(), "volume", -15))
 
         if device_enum == DeviceEnum.SIMPLER:
@@ -102,4 +100,12 @@ class TrackFactory(object):
     def _on_simpler_drum_track_added(self, drum_category):
         # type: (DrumCategory) -> None
         SongFacade.selected_track().instrument.preset_list.set_selected_category(drum_category.name)
-        SongFacade.selected_track().instrument.scroll_presets(True)
+        SongFacade.selected_track().scroll_presets(True)
+
+    def add_dummy_track(self):
+        # type: () -> Sequence
+        current_track = SongFacade.current_track()
+        if not isinstance(current_track, AbstractGroupTrack):
+            raise Protocol0Warning("Can add dummy track only on AbstractGroupTrack")
+
+        return self._track_crud_component.create_audio_track(current_track.sub_tracks[-1].index)

@@ -5,7 +5,11 @@ from typing import Optional
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 from protocol0.domain.lom.instrument.InstrumentDisplayService import InstrumentDisplayService
 from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService import InstrumentPresetScrollerService
+from protocol0.domain.lom.scene.SceneService import SceneService
 from protocol0.domain.lom.set.MixingService import MixingService
+from protocol0.domain.lom.song.components.SceneComponent import SceneComponent
+from protocol0.domain.lom.song.components.TrackComponent import TrackComponent
+from protocol0.domain.lom.track.TrackFactory import TrackFactory
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
 from protocol0.domain.track_recorder.TrackRecorderService import TrackRecorderService
 from protocol0.shared.SongFacade import SongFacade
@@ -33,9 +37,9 @@ class ActionGroupMain(ActionGroupInterface):
         self.add_encoder(
             identifier=3,
             name="automation",
-            on_press=lambda: SongFacade.selected_clip().display_current_parameter_automation,
-            on_long_press=lambda: SongFacade.selected_midi_clip().synchronize_automation_layers,
-            on_scroll=lambda: SongFacade.selected_clip().scroll_automation_envelopes,
+            on_press=lambda: self._container.get(TrackFactory).add_dummy_track,
+            on_long_press=lambda: partial(SongFacade.selected_midi_clip().synchronize_automation_layers, SongFacade.selected_track().devices.parameters),
+            on_scroll=lambda: partial(SongFacade.selected_clip().automation.scroll_envelopes, SongFacade.selected_track().devices),
         )
 
         # VOLume tempo encoder
@@ -75,15 +79,15 @@ class ActionGroupMain(ActionGroupInterface):
             identifier=12,
             name="scene scroll time",
             on_scroll=lambda: SongFacade.selected_scene().position_scroller.scroll,
-            on_press=lambda: SongFacade.last_manually_started_scene().fire_to_position,
+            on_press=lambda: partial(self._container.get(SceneService).fire_scene_to_position, SongFacade.last_manually_started_scene()),
         )
 
         # TRacK encoder
         self.add_encoder(
             identifier=13,
             name="track",
-            on_scroll=self._song.scroll_tracks,
-            on_press=lambda: SongFacade.current_track().toggle_arm,
+            on_scroll=self._container.get(TrackComponent).scroll_tracks,
+            on_press=lambda: SongFacade.current_track().arm_state.toggle(),
         )
 
         # INSTrument encoder
@@ -92,12 +96,12 @@ class ActionGroupMain(ActionGroupInterface):
             name="instrument",
             filter_active_tracks=True,
             on_press=lambda: partial(self._container.get(InstrumentDisplayService).show_hide_instrument,
-                                     SongFacade.current_instrument()),
+                                     SongFacade.current_track()),
             on_long_press=lambda: partial(
                 self._container.get(InstrumentDisplayService).activate_instrument_plugin_window,
-                SongFacade.current_instrument()),
+                SongFacade.current_track()),
             on_scroll=lambda: partial(self._container.get(InstrumentPresetScrollerService).scroll_presets_or_samples,
-                                      SongFacade.current_instrument()),
+                                      SongFacade.current_track()),
         )
 
         # SCENe encoder
@@ -105,6 +109,6 @@ class ActionGroupMain(ActionGroupInterface):
             identifier=16,
             name="scene",
             on_press=lambda: SongFacade.selected_scene().fire,
-            on_long_press=self._song.looping_scene_toggler.toggle,
-            on_scroll=self._song.scroll_scenes,
+            on_long_press=self._container.get(SceneComponent).looping_scene_toggler.toggle,
+            on_scroll=self._container.get(SceneComponent).scroll_scenes,
         )

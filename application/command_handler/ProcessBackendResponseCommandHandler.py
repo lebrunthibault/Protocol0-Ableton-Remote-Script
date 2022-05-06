@@ -1,7 +1,7 @@
 from protocol0.application.command.ProcessBackendResponseCommand import ProcessBackendResponseCommand
 from protocol0.application.command_handler.CommandHandlerInterface import CommandHandlerInterface
-from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.backend.BackendResponseEvent import BackendResponseEvent
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 
 
 class ProcessBackendResponseCommandHandler(CommandHandlerInterface):

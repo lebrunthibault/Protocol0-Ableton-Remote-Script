@@ -11,7 +11,7 @@ class SimpleAudioTailTrackValidator(AggregateValidator):
         validators = SimpleAudioTrackValidator(track)._validators
 
         validators += [
-            PropertyValueValidator(track.input_routing, "track", track.abstract_group_track.midi_track,
+            PropertyValueValidator(track.input_routing, "track", track.abstract_group_track.midi_track._live_track,
                                    name="tail track input track"),
             PropertyValueValidator(track.input_routing, "channel", InputRoutingChannelEnum.POST_FX,
                                    name="tail track input channel"),

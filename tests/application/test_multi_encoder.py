@@ -4,13 +4,15 @@ from protocol0.application.control_surface.ActionGroupInterface import ActionGro
 from protocol0.application.control_surface.EncoderAction import EncoderAction
 from protocol0.application.control_surface.EncoderMoveEnum import EncoderMoveEnum
 from protocol0.application.control_surface.MultiEncoder import MultiEncoder
-from protocol0.shared.SongFacade import SongFacade
 from protocol0.tests.domain.fixtures.container import TestContainer
 from protocol0.tests.domain.fixtures.p0 import make_protocol0
 
 
 class ActionGroupTest(ActionGroupInterface):
     CHANNEL = 1
+
+    def configure(self):
+        pass
 
 
 def _press_encoder(encoder):
@@ -27,7 +29,7 @@ def _scroll_encoder(encoder):
 def _make_multi_encoder(identifier=1):
     # type: (int) -> MultiEncoder
     p0 = make_protocol0()
-    return ActionGroupTest(TestContainer(), SongFacade._INSTANCE._song, p0.component_guard).add_encoder(
+    return ActionGroupTest(TestContainer(), p0.component_guard).add_encoder(
         identifier=identifier,
         name="pytest")
 

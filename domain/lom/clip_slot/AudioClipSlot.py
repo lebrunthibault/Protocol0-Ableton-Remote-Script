@@ -2,6 +2,7 @@ from typing import Any, Optional
 
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
+from protocol0.shared.sequence.Sequence import Sequence
 
 
 class AudioClipSlot(ClipSlot):
@@ -16,7 +17,7 @@ class AudioClipSlot(ClipSlot):
             self.previous_audio_file_path = self.clip.file_path
 
     def delete_clip(self):
-        # type: () -> None
+        # type: () -> Sequence
         if self.clip:
             self.previous_audio_file_path = self.clip.file_path
-        super(AudioClipSlot, self).delete_clip()
+        return super(AudioClipSlot, self).delete_clip()

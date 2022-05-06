@@ -3,7 +3,7 @@ from protocol0.domain.shared.LiveObjectMapping import LiveObjectMapping
 
 def test_build():
     class WrappedObject(object):
-        def __init__(self, obj):
+        def __init__(self, _):
             pass
 
     class LiveObject(object):

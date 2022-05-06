@@ -11,8 +11,8 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrackNameUpdatedEvent imp
 from protocol0.domain.lom.track.simple_track.MasterTrackRoomEqToggledEvent import MasterTrackRoomEqToggledEvent
 from protocol0.domain.lom.track.simple_track.SimpleTrackFirstClipAddedEvent import SimpleTrackFirstClipAddedEvent
 from protocol0.domain.lom.track.simple_track.SimpleTrackLastClipDeletedEvent import SimpleTrackLastClipDeletedEvent
-from protocol0.domain.shared.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.shared.SongFacade import SongFacade
 
 

@@ -1,10 +1,9 @@
 import Live
-from _Framework.SubjectSlot import subject_slot
+from _Framework.SubjectSlot import subject_slot, SlotManager
 from typing import Callable, List
 
-from protocol0.domain.lom.UseFrameworkEvents import UseFrameworkEvents
 from protocol0.domain.lom.scene.SceneLastBarPassedEvent import SceneLastBarPassedEvent
-from protocol0.domain.shared.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.BarEndingEvent import BarEndingEvent
 from protocol0.domain.shared.scheduler.BeatSchedulerInterface import BeatSchedulerInterface
@@ -15,7 +14,7 @@ from protocol0.infra.scheduler.BeatTime import BeatTime
 from protocol0.shared.SongFacade import SongFacade
 
 
-class BeatScheduler(UseFrameworkEvents, BeatSchedulerInterface):
+class BeatScheduler(SlotManager, BeatSchedulerInterface):
     """ BeatScheduler schedules action lists to be triggered after a specified
     number of bars. """
 
@@ -50,7 +49,7 @@ class BeatScheduler(UseFrameworkEvents, BeatSchedulerInterface):
         events = []  # type: List[object]
         if current_beats_song_time.bars != self._last_beats_song_time.bars:
             events.append(BarChangedEvent())
-            if SongFacade.playing_scene() and SongFacade.playing_scene().playing_position.in_last_bar:
+            if SongFacade.playing_scene() and SongFacade.playing_scene().playing_state.in_last_bar:
                 events.append(SceneLastBarPassedEvent())
 
         if current_beats_song_time.in_last_beat and not self._last_beats_song_time.in_last_beat:

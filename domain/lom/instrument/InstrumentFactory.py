@@ -36,7 +36,7 @@ class InstrumentFactory(object):
                                            instrument_class) and track.instrument.device == instrument_device:
             return track.instrument  # maintaining state
         else:
-            return instrument_class(track=track, device=instrument_device)
+            return instrument_class(instrument_device, track.abstract_track.name)
 
     @classmethod
     def _get_instrument_class(cls, device):

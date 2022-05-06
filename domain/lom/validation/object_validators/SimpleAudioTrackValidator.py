@@ -11,9 +11,9 @@ class SimpleAudioTrackValidator(AggregateValidator):
     def __init__(self, track):
         # type: (SimpleAudioTrack) -> None
         self._track = track
-        valid_clip_colors = (track.computed_color, ClipColorEnum.AUDIO_UN_QUANTIZED.color_int_value)
+        valid_clip_colors = (track.appearance.computed_color, ClipColorEnum.AUDIO_UN_QUANTIZED.color_int_value)
         validators = [
-            CallbackValidator(track, lambda t: t.is_armable, None, "track should be armable"),
+            CallbackValidator(track, lambda t: t.arm_state.is_armable, None, "track should be armable"),
             CallbackValidator(track, lambda t: all(clip.color in valid_clip_colors for clip in t.clips), None,
                               "clips should have the right color"),
         ]  # type: List[ValidatorInterface]

@@ -1,0 +1,2 @@
+class TrackRecordingCancelledEvent(object):
+    pass

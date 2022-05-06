@@ -3,31 +3,22 @@ from __future__ import division
 from functools import partial
 
 import Live
-from typing import List, TYPE_CHECKING, Optional, Iterator, cast
+from typing import List, Optional, Iterator, Any
 
 from protocol0.domain.lom.clip.Clip import Clip
+from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.device_parameter.LinkedDeviceParameters import LinkedDeviceParameters
 from protocol0.domain.lom.note.Note import Note
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.utils import find_if
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.SongViewFacade import SongViewFacade
 from protocol0.shared.sequence.Sequence import Sequence
-
-if TYPE_CHECKING:
-    from protocol0.domain.lom.clip_slot.MidiClipSlot import MidiClipSlot  # noqa
 
 
 class MidiClip(Clip):
-    def __init__(self, clip_slot):
-        # type: (MidiClipSlot) -> None
-        super(MidiClip, self).__init__(clip_slot)
-        from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
-        from protocol0.domain.lom.clip_slot.MidiClipSlot import MidiClipSlot  # noqa
-
-        self.track = cast(SimpleMidiTrack, self.track)
-        self.clip_slot = cast(MidiClipSlot, self.clip_slot)
-        # NOTES
+    def __init__(self, *a, **k):
+        # type: (Any, Any) -> None
+        super(MidiClip, self).__init__(*a, **k)
         self._cached_notes = []  # type: List[Note]
 
     def hash(self):
@@ -39,7 +30,7 @@ class MidiClip(Clip):
         if not self._clip:
             return []
         # noinspection PyArgumentList
-        clip_notes = [Note(*note) for note in self._clip.get_notes(self.loop_start, 0, self.length, 128)]
+        clip_notes = [Note(*note) for note in self._clip.get_notes(self.loop.start, 0, self.loop.length, 128)]
         notes = list(self._get_notes_from_cache(notes=clip_notes))
         notes.sort(key=lambda x: x.start)
         return notes
@@ -66,7 +57,7 @@ class MidiClip(Clip):
         if len(self.get_notes()) > 0 or self.is_recording:
             return None
 
-        self.view.grid_quantization = Live.Clip.GridQuantization.g_sixteenth
+        self._clip.view.grid_quantization = Live.Clip.GridQuantization.g_sixteenth
         seq = Sequence()
         seq.defer()
         seq.add(self.generate_base_notes)
@@ -75,26 +66,22 @@ class MidiClip(Clip):
 
     def generate_base_notes(self):
         # type: () -> Optional[Sequence]
-        if self.track.instrument:
-            if self.track.instrument.uses_scene_length_clips:
-                self.bar_length = SongFacade.selected_scene().bar_length
-                self.show_loop()
+        if self._config.uses_scene_length_clips:
+            self.loop.bar_length = SongFacade.selected_scene().bar_length
+            self.show_loop()
 
-            pitch = self.track.instrument.DEFAULT_NOTE
-            base_notes = [Note(pitch=pitch, velocity=127, start=0, duration=min(1, int(self.length)))]
-            return self.set_notes(base_notes)
-        else:
-            return None
+        pitch = self._config.default_note
+        base_notes = [Note(pitch=pitch, velocity=127, start=0, duration=min(1, int(self.length)))]
+        return self.set_notes(base_notes)
 
     def post_record(self, bar_length):
         # type: (int) -> None
         super(MidiClip, self).post_record(bar_length)
         if bar_length == 0:  # unlimited recording
-            clip_end = int(self.end_marker) - (int(self.end_marker) % SongFacade.signature_numerator())
-            self.loop_end = clip_end
-            self.end_marker = clip_end
+            clip_end = int(self.loop.end) - (int(self.loop.end) % SongFacade.signature_numerator())
+            self.loop.end = clip_end
 
-        self.view.grid_quantization = Live.Clip.GridQuantization.g_sixteenth
+        self._clip.view.grid_quantization = Live.Clip.GridQuantization.g_sixteenth
         self.scale_velocities(go_next=False, scaling_factor=2)
         self.quantize()
 
@@ -117,14 +104,14 @@ class MidiClip(Clip):
         if self._clip:
             self._clip.crop()
 
-    def get_linked_parameters(self):
-        # type: () -> List[LinkedDeviceParameters]
+    def get_linked_parameters(self, device_parameters):
+        # type: (List[DeviceParameter]) -> List[LinkedDeviceParameters]
         """
             NB : this is only really useful for my rev2 where I want to copy and paste easily automation curves
             between the 2 layers.
             The rev2 is bitimbral and has two layers that expose the same parameters.
         """
-        parameters = self.automated_parameters
+        parameters = self.automation.get_automated_parameters(device_parameters)
         parameters_couple = []
         for parameter in parameters:
             if parameter.name.startswith("A-"):
@@ -134,18 +121,18 @@ class MidiClip(Clip):
 
         return parameters_couple
 
-    def synchronize_automation_layers(self):
-        # type: () -> Sequence
-        parameters_couple = self.get_linked_parameters()
+    def synchronize_automation_layers(self, device_parameters):
+        # type: (List[DeviceParameter]) -> Sequence
+        parameters_couple = self.get_linked_parameters(device_parameters)
         if len(parameters_couple) == 0:
             raise Protocol0Warning("This clip has no linked automated parameters")
 
-        SongViewFacade.draw_mode(False)
+        SongFacade.draw_mode(False)
         seq = Sequence()
         for couple in parameters_couple:
-            seq.add(partial(couple.link_clip_automation, self))
+            seq.add(partial(couple.link_clip_automation, self.automation))
 
         # refocus an A parameter to avoid mistakenly modify a B one
-        seq.add(partial(self.show_parameter_envelope, parameters_couple[-1]._param_a))
+        seq.add(partial(self.automation.show_parameter_envelope, parameters_couple[-1]._param_a))
 
         return seq.done()

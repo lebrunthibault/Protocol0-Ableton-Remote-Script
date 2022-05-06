@@ -3,42 +3,45 @@ from functools import partial
 
 from typing import Deque, Iterable, Union, Any, Optional, List, Type, Callable, cast
 
-from protocol0.domain.shared.DomainEventBus import DomainEventBus
+from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.backend.BackendResponseEvent import BackendResponseEvent
-from protocol0.domain.shared.decorators import p0_subject_slot
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.event.HasEmitter import HasEmitter
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import get_frame_info, nop, get_callable_repr
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
-from protocol0.shared.sequence.CallableWithCallbacks import CallableWithCallbacks
+from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.ParallelSequence import ParallelSequence
-from protocol0.shared.sequence.SequenceState import SequenceStateEnum
-from protocol0.shared.sequence.SequenceStateMachineMixin import SequenceStateMachineMixin
+from protocol0.shared.sequence.SequenceState import SequenceState
 from protocol0.shared.sequence.SequenceStep import SequenceStep
+from protocol0.shared.sequence.SequenceTransition import SequenceStateEnum
 from protocol0.shared.types import Func
 
 
-class Sequence(SequenceStateMachineMixin):
+class Sequence(Observable):
     """
     Replacement of the _Framework Task.
-    I added asynchronous behavior by hooking in the listener system and my own event system,
+    I added asynchronous behavior by hooking in my own event system,
     including communication with the backend
     Encapsulates and composes all asynchronous tasks done in the script.
     """
-    __subject_events__ = ("terminated",)
     RUNNING_SEQUENCES = []  # type: List[Sequence]
     _DEBUG = False
 
-    def __init__(self):
-        # type: () -> None
+    def __init__(self, name=None):
+        # type: (Optional[str]) -> None
         super(Sequence, self).__init__()
 
         self._steps = deque()  # type: Deque[SequenceStep]
         self._current_step = None  # type: Optional[SequenceStep]
+        self.state = SequenceState()
         self.res = None  # type: Optional[Any]
         frame_info = get_frame_info(2)
-        if frame_info:
+        if name:
+            self.name = name
+        elif frame_info:
             self.name = "[seq %s.%s]" % (frame_info.class_name, frame_info.method_name)
         else:
             self.name = "Unknown"
@@ -65,22 +68,20 @@ class Sequence(SequenceStateMachineMixin):
 
     def done(self):
         # type: () -> Sequence
-        self.change_state(SequenceStateEnum.STARTED)
+        self.state.change_to(SequenceStateEnum.STARTED)
         self.RUNNING_SEQUENCES.append(self)
         self._execute_next_step()
         return self
 
     def _execute_next_step(self):
         # type: () -> None
-        if not self.started:
+        if not self.state.started:
             return
         if len(self._steps):
             self._current_step = self._steps.popleft()
             if self._DEBUG:
-                Logger.debug("Executing %s : %s" % (self, self._current_step))
-            self._step_terminated.subject = self._current_step
-            self._step_errored.subject = self._current_step
-            self._step_cancelled.subject = self._current_step
+                Logger.debug("%s : Executing %s" % (self, self._current_step))
+            self._current_step.register_observer(self)
             self._current_step.start()
         else:
             self._terminate()
@@ -92,34 +93,31 @@ class Sequence(SequenceStateMachineMixin):
             seq._cancel()
         Sequence.RUNNING_SEQUENCES = []
 
-    @p0_subject_slot("terminated")
-    def _step_terminated(self):
-        # type: () -> None
-        if self._DEBUG:
-            Logger.info("step terminated : %s" % self._current_step)
-        self._execute_next_step()
+    def update(self, observable):
+        # type: (Observable) -> None
+        if isinstance(observable, SequenceStep):
+            if observable.state.terminated:
+                if self._DEBUG:
+                    Logger.info("step terminated : %s" % self._current_step)
+                self._execute_next_step()
+            elif observable.state.errored:
+                self._error()
+            elif observable.state.cancelled:
+                self._cancel()
 
-    @p0_subject_slot("errored")
-    def _step_errored(self):
-        # type: () -> None
-        self._error()
+            observable.remove_observer(self)
 
     def _error(self):
         # type: () -> None
-        self.change_state(SequenceStateEnum.ERRORED)
+        self.state.change_to(SequenceStateEnum.ERRORED)
         self.disconnect()
         if self._DEBUG:
             Logger.error("%s" % self, debug=False)
 
-    @p0_subject_slot("cancelled")
-    def _step_cancelled(self):
-        # type: () -> None
-        self._cancel()
-
     def _cancel(self):
         # type: () -> None
-        if self.started:
-            self.change_state(SequenceStateEnum.CANCELLED)
+        if self.state.started:
+            self.state.change_to(SequenceStateEnum.CANCELLED)
             Logger.warning("%s has been cancelled" % self)
             if self._current_step:
                 self._current_step.cancel()
@@ -127,10 +125,10 @@ class Sequence(SequenceStateMachineMixin):
 
     def _terminate(self):
         # type: () -> None
-        self.change_state(SequenceStateEnum.TERMINATED)
+        self.state.change_to(SequenceStateEnum.TERMINATED)
 
         self.res = self._current_step.res if self._current_step else None
-        self.notify_terminated()  # type: ignore[attr-defined]
+        self.notify_observers()
         self.disconnect()
 
     """ ACTIONS """
@@ -151,35 +149,38 @@ class Sequence(SequenceStateMachineMixin):
         # type: (float) -> None
         self.add(partial(Scheduler.wait_beats, beats, self._execute_next_step), notify_terminated=False)
 
-    def wait_for_listener(self, listener, timeout=True):
-        # type: (Callable, bool) -> None
-        assert CallableWithCallbacks.func_has_callback_queue(listener)
-        listener = cast(CallableWithCallbacks, listener)
-        if not timeout:
-            self.add(partial(listener.add_callback, self._execute_next_step), notify_terminated=False)
-        else:
-            self._add_timeout_step(partial(listener.add_callback, self._execute_next_step),
-                                   "wait_for_listener %s" % listener)
+    def wait_for_event(self, event_class, expected_emitter=None, check_song_stop=False):
+        # type: (Type[object], object, bool) -> None
+        """
+            Will continue the sequence after an event of type event_class is fired
 
-    def wait_for_event(self, event):
-        # type: (Type[object]) -> None
-        self.wait_for_events([event])
+            expected_emitter : passing an object here will check that the event was
+            emitter from the right emitter before continuing the Sequence
 
-    def wait_for_events(self, events):
-        # type: (List[Type[object]]) -> None
+            check_song_stop: for events relying on a playing song, setting check_song_stop to True
+            will continue the sequence on a SongStoppedEvent
+        """
+        if expected_emitter is not None:
+            assert issubclass(event_class, HasEmitter)
+
         def subscribe():
             # type: () -> None
-            for event in events:
-                DomainEventBus.subscribe(event, on_event)
+            DomainEventBus.once(event_class, on_event)
+            if check_song_stop:
+                DomainEventBus.once(SongStoppedEvent, on_event)
 
-        def on_event(_):
+        def on_event(event):
             # type: (object) -> None
-            for event in events:
-                DomainEventBus.un_subscribe(event, on_event)
-            if self.started:
+            if expected_emitter and isinstance(event, HasEmitter):
+                if event.target() != expected_emitter:
+                    return  # not the right emitter
+
+            DomainEventBus.un_subscribe(event_class, on_event)
+            DomainEventBus.un_subscribe(SongStoppedEvent, on_event)
+            if self.state.started:
                 self._execute_next_step()
 
-        self._add_timeout_step(subscribe, "wait_for_events %s" % events)
+        self._add_timeout_step(subscribe, "wait_for_event %s" % event_class)
 
     def _add_timeout_step(self, func, legend):
         # type: (Callable, str) -> None
@@ -223,7 +224,7 @@ class Sequence(SequenceStateMachineMixin):
         def on_event(event):
             # type: (BackendResponseEvent) -> None
             DomainEventBus.un_subscribe(BackendResponseEvent, on_event)
-            if self.started:
+            if self.state.started:
                 self.res = event.res
                 if on_response:
                     on_response(self.res)
@@ -236,7 +237,6 @@ class Sequence(SequenceStateMachineMixin):
 
     def disconnect(self):
         # type: () -> None
-        super(Sequence, self).disconnect()
         self._current_step = None
         try:
             self.RUNNING_SEQUENCES.remove(self)
