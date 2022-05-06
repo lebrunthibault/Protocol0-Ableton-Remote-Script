@@ -19,7 +19,6 @@ class TempoComponent(SlotManager):
     @debounce(wait_time=1000)
     def _tempo_listener(self):
         # type: () -> None
-        self._midi_recording_quantization_checked = False
         Scheduler.defer(partial(setattr, self, "tempo", round(self.tempo)))
 
     @property

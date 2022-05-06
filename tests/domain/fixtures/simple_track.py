@@ -35,6 +35,7 @@ class AbletonTrack(Subject):
         self.is_visible = True
         self.has_midi_input = self.has_audio_output = self.is_foldable = self.fold_state = False
         self.available_input_routing_types = []
+        self.available_input_routing_channels = []
         self.clip_slots = [AbletonClipSlot()]
         self.view = None
         self.group_track = None

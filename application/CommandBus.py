@@ -60,7 +60,7 @@ class CommandBus(object):
     def _dispatch_command(self, command):
         # type: (SerializableCommand) -> Optional[Sequence]
         if self._is_duplicate_command(command):
-            Backend.client().show_warning("skipping duplicate command: please reload the set")
+            Backend.client().show_warning("skipping duplicate command %s: please reload the set" % command)
             return None
 
         self._last_command = command

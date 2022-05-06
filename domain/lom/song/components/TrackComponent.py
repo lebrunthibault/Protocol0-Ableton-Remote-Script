@@ -15,7 +15,6 @@ from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import scroll_values
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.sequence.Sequence import Sequence
 
 
 class TrackComponent(SlotManager):
@@ -36,7 +35,11 @@ class TrackComponent(SlotManager):
 
     def _on_abstract_track_selected_event(self, event):
         # type: (AbstractTrackSelectedEvent) -> None
-        self.select_track(event.track)
+        abstract_track = SongFacade.simple_track_from_live_track(event.live_track)
+        if abstract_track.group_track:
+            abstract_track.group_track.is_folded = False
+        if SongFacade.selected_track() != abstract_track.base_track:
+            self._song_view.selected_track = abstract_track._track
 
     def _on_simple_track_armed_event(self, _):
         # type: (SimpleTrackArmedEvent) -> None
@@ -64,16 +67,6 @@ class TrackComponent(SlotManager):
                                                                                           SimpleTrack):
                 continue
             yield track
-
-    def select_track(self, abstract_track):
-        # type: (AbstractTrack) -> Sequence
-        if abstract_track.group_track:
-            abstract_track.group_track.is_folded = False
-        seq = Sequence()
-        if SongFacade.selected_track() != abstract_track.base_track:
-            self._song_view.selected_track = abstract_track._track
-            seq.defer()
-        return seq.done()
 
     def unfocus_all_tracks(self):
         # type: () -> None

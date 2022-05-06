@@ -7,6 +7,7 @@ from protocol0.application.control_surface.ActionGroupFactory import ActionGroup
 from protocol0.domain.lom.song.SongInitService import SongInitService
 from protocol0.domain.lom.song.SongState import SongState
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
+from protocol0.domain.lom.track.routing.RoutingTrackDescriptor import RoutingTrackDescriptor
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import nop
@@ -53,6 +54,7 @@ def monkey_patch_static():
 
     SongInitService.init_song = nop
     AbstractGroupTrack._link_dummy_tracks_routings = nop
+    RoutingTrackDescriptor.__set__ = nop
 
 
 def monkey_patch_p0(live_song=None):

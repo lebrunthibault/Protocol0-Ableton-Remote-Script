@@ -110,7 +110,6 @@ class Container(ContainerInterface):
                                          control_surface.set_highlighting_session_component)
         ApplicationViewFacade(
             recording_component,
-            track_component.select_track,
             control_surface.application().view,
             session_service
         )

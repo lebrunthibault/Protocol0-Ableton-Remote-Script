@@ -50,6 +50,7 @@ class SimpleTrack(AbstractTrack):
         self.devices.build()
 
         self.arm_state = SimpleTrackArmState(live_track)
+        self.arm_state.register_observer(self)
 
         self._output_meter_level_listener.subject = None
 
@@ -91,9 +92,13 @@ class SimpleTrack(AbstractTrack):
         if isinstance(observable, SimpleTrackDevices):
             # Refreshing is only really useful from simpler devices that change when a new sample is loaded
             if self.IS_ACTIVE and not self.is_foldable:
-                self.instrument = InstrumentFactory.make_instrument_from_simple_track(self)
+                self.instrument = InstrumentFactory.make_instrument_from_simple_track(
+                    self.devices,
+                    self.instrument,
+                    self.abstract_track.name
+                )
         elif isinstance(observable, SimpleTrackArmState) and self.arm_state.is_armed:
-            DomainEventBus.emit(SimpleTrackArmedEvent(self))
+            DomainEventBus.emit(SimpleTrackArmedEvent(self._track))
 
     def refresh_appearance(self):
         # type: () -> None

@@ -122,6 +122,7 @@ class AbstractTrack(SlotManager):
 
     def select_clip_slot(self, clip_slot):
         # type: (Live.ClipSlot.ClipSlot) -> None
+        assert clip_slot in [cs._clip_slot for cs in self.clip_slots]
         self.is_folded = False
         DomainEventBus.emit(ClipSlotSelectedEvent(clip_slot))
 
@@ -227,7 +228,7 @@ class AbstractTrack(SlotManager):
     # noinspection PyUnusedLocal
     def select(self):
         # type: () -> Sequence
-        DomainEventBus.emit(AbstractTrackSelectedEvent(self))
+        DomainEventBus.emit(AbstractTrackSelectedEvent(self._track))
 
         if self == list(SongFacade.scrollable_tracks())[-1]:
             ApplicationViewFacade.focus_current_track()
@@ -251,8 +252,6 @@ class AbstractTrack(SlotManager):
 
     def get_all_simple_sub_tracks(self):
         # type: () -> List[SimpleTrack]
-        from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack  # noqa
-
         sub_tracks = []
         for sub_track in self.sub_tracks:
             if sub_track.is_foldable:

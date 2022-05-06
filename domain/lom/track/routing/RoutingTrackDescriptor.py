@@ -1,13 +1,11 @@
 import Live
-from typing import Type, Any, Optional, TYPE_CHECKING
+from typing import Type, Any, Optional
 
+from protocol0.domain.lom.track.P0TrackInterface import P0TrackInterface
 from protocol0.domain.lom.track.routing.TrackRoutingInterface import TrackRoutingInterface
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils import find_if
 from protocol0.shared.SongFacade import SongFacade
-
-if TYPE_CHECKING:
-    from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
 class RoutingTrackDescriptor(object):
@@ -28,7 +26,7 @@ class RoutingTrackDescriptor(object):
 
     # noinspection PyShadowingNames
     def __set__(self, track_routing, track):
-        # type: (TrackRoutingInterface, SimpleTrack) -> None
+        # type: (TrackRoutingInterface, P0TrackInterface) -> None
         live_track = track._track
         available_routings = getattr(track_routing.live_track, self.available_routings_attribute_name)
 

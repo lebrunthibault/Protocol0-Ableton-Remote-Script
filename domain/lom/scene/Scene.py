@@ -65,7 +65,7 @@ class Scene(SlotManager):
         # manually stopping previous scene because we don't display clip slot stop buttons
         for track in scene.clips.tracks:
             if track.is_playing and track not in self.clips.tracks and not isinstance(track, SimpleAudioTailTrack):
-                yield track
+                yield track  # type: ignore[unreachable]
 
     def update(self, observable):
         # type: (Observable) -> None

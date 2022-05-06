@@ -2,17 +2,27 @@ from fractions import Fraction
 from functools import partial
 
 import Live
-from protocol0_push2.push2 import Push2
-from pushbase.push_base import NUM_TRACKS, NUM_SCENES
+from ableton.v2.control_surface import Layer
 
-from protocol0.application.push2.P0SessionNavigationComponent import P0SessionNavigationComponent
 from protocol0.application.push2.P0SessionRingTrackProvider import P0SessionRingTrackProvider
+from protocol0.application.push2.P0TrackListComponent import P0TrackListComponent
 from protocol0.domain.shared.utils import nop
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
+from protocol0_push2.push2 import Push2
+from pushbase.push_base import NUM_TRACKS, NUM_SCENES
 
 
 class P0Push2(Push2):
+    """
+        Overriding Push2 by inheritance
+
+        The only push2 modification is done in __init__.py and swaps the Push2 class
+        for this one.
+
+        This is used to modify the way the session works (using only scene tracks)
+        and adding some behavior to a few buttons (track selection, clip selection)
+    """
     _PUSH2_BEAT_QUANTIZATION_STEPS = [
         Fraction(1, 48),
         Fraction(1, 32),
@@ -35,11 +45,20 @@ class P0Push2(Push2):
         self._session_ring = P0SessionRingTrackProvider(name=u'Session_Ring', num_tracks=NUM_TRACKS,
                                                         num_scenes=NUM_SCENES, is_enabled=True)
 
-    def _init_session(self):
+    def _init_track_list(self):
         # type: () -> None
-        super(P0Push2, self)._init_session()
-        self._session_navigation = P0SessionNavigationComponent(session_ring=self._session_ring, is_enabled=False,
-                                                                layer=self._create_session_navigation_layer())
+        self._track_list_component = P0TrackListComponent(tracks_provider=self._session_ring,
+                                                          trigger_recording_on_release_callback=self._session_recording.set_trigger_recording_on_release,
+                                                          color_chooser=self._create_color_chooser(), is_enabled=False,
+                                                          layer=Layer(track_action_buttons=u'select_buttons',
+                                                                      lock_override_button=u'select_button',
+                                                                      delete_button=u'delete_button',
+                                                                      duplicate_button=u'duplicate_button',
+                                                                      arm_button=u'record_button',
+                                                                      select_color_button=u'shift_button'))
+        self._clip_phase_enabler = self._track_list_component.clip_phase_enabler
+        self._track_list_component.set_enabled(True)
+        self._model.tracklistView = self._track_list_component
 
     def _create_session(self):
         # type: () -> None
@@ -49,14 +68,20 @@ class P0Push2(Push2):
             scene = session.scene(scene_index)
             for track_index in xrange(8):
                 clip_slot = scene.clip_slot(track_index)
-                clip_slot._do_select_clip = partial(self._on_select_clip_slot, track_index)
+                clip_slot._do_select_clip = partial(self._on_select_clip_slot, scene_index, track_index)
                 # don't highlight when we play the clip
                 clip_slot._show_launched_clip_as_highlighted_clip = nop
 
         return session
 
-    def _on_select_clip_slot(self, track_index, clip_slot):
-        # type: (int, Live.ClipSlot.ClipSlot) -> None
+    def _on_select_clip_slot(self, scene_index, track_index, _):
+        # type: (int, int, Live.ClipSlot.ClipSlot) -> None
         """show the clip view when selecting a clip"""
+        if track_index >= len(SongFacade.selected_scene().abstract_tracks):
+            return None
         track = SongFacade.selected_scene().abstract_tracks[track_index]
-        track.select_clip_slot(clip_slot)
+
+        scene_index += SongFacade.selected_scene().index
+        if scene_index >= len(track.clip_slots):
+            return None
+        track.select_clip_slot(track.clip_slots[scene_index]._clip_slot)

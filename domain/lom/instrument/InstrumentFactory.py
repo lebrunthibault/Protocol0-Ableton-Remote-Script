@@ -1,42 +1,40 @@
-from typing import Optional, List, Type, TYPE_CHECKING
+from typing import Optional, List, Type
 
 import protocol0.domain.lom.instrument.instrument as instrument_package
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DrumRackDevice import DrumRackDevice
 from protocol0.domain.lom.device.PluginDevice import PluginDevice
 from protocol0.domain.lom.device.RackDevice import RackDevice
+from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
 from protocol0.domain.lom.device.SimplerDevice import SimplerDevice
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.shared.utils import find_if, import_package
-
-if TYPE_CHECKING:
-    from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
 class InstrumentFactory(object):
     _INSTRUMENT_CLASSES = []  # type: List[Type[InstrumentInterface]]
 
     @classmethod
-    def make_instrument_from_simple_track(cls, track):
-        # type: (SimpleTrack) -> Optional[InstrumentInterface]
+    def make_instrument_from_simple_track(cls, devices, instrument, track_name):
+        # type: (SimpleTrackDevices, Optional[InstrumentInterface], str) -> Optional[InstrumentInterface]
         """
         If the instrument didn't change we keep the same instrument and don't instantiate a new one
         to keep instrument state
         """
 
-        instrument_device = find_if(lambda d: cls._get_instrument_class(d) is not None, track.devices)
+        instrument_device = find_if(lambda d: cls._get_instrument_class(d) is not None, devices)
         if not instrument_device:
-            instrument_device = find_if(lambda d: cls._get_instrument_class(d) is not None, track.devices.all())
+            instrument_device = find_if(lambda d: cls._get_instrument_class(d) is not None, devices.all())
         if not instrument_device:
             return None
 
         instrument_class = cls._get_instrument_class(instrument_device)
 
-        if instrument_class and isinstance(track.instrument,
-                                           instrument_class) and track.instrument.device == instrument_device:
-            return track.instrument  # maintaining state
+        if instrument_class and isinstance(instrument,
+                                           instrument_class) and instrument.device == instrument_device:
+            return instrument  # maintaining state
         else:
-            return instrument_class(instrument_device, track.abstract_track.name)
+            return instrument_class(instrument_device, track_name)
 
     @classmethod
     def _get_instrument_class(cls, device):

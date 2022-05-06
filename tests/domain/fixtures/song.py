@@ -13,6 +13,7 @@ class AbletonSong(Subject):
         "is_playing",
         "record_mode",
         "tempo",
+        "clip_trigger_quantization",
         "midi_recording_quantization",
         "re_enable_automation_enabled",
         "tracks",

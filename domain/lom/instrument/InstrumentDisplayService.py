@@ -43,9 +43,11 @@ class InstrumentDisplayService(object):
 
     def _on_simple_track_armed_event(self, event):
         # type: (SimpleTrackArmedEvent) -> Sequence
+        track = SongFacade.simple_track_from_live_track(event.live_track)
+
         seq = Sequence()
-        if event.track.instrument and event.track.instrument.needs_exclusive_activation:
-            seq.add(partial(self.activate_plugin_window, event.track))
+        if track.instrument and track.instrument.needs_exclusive_activation:
+            seq.add(partial(self.activate_plugin_window, track))
             seq.add(Backend.client().hide_plugins)
         return seq.done()
 

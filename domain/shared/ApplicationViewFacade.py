@@ -1,5 +1,5 @@
 import Live
-from typing import Optional, Callable
+from typing import Optional
 
 from protocol0.domain.lom.song.components.RecordingComponent import RecordingComponent
 from protocol0.domain.shared.SessionServiceInterface import SessionServiceInterface
@@ -12,10 +12,9 @@ class ApplicationViewFacade(object):
 
     _INSTANCE = None  # type: Optional[ApplicationViewFacade]
 
-    def __init__(self, recording_component, select_track, application_view, session_service):
-        # type: (RecordingComponent, Callable, Live.Application.Application.View, SessionServiceInterface) -> None
+    def __init__(self, recording_component, application_view, session_service):
+        # type: (RecordingComponent, Live.Application.Application.View, SessionServiceInterface) -> None
         ApplicationViewFacade._INSTANCE = self
-        self._select_track = select_track
         self._recording_component = recording_component
         self._application_view = application_view
         self._session_service = session_service
@@ -69,7 +68,7 @@ class ApplicationViewFacade(object):
             SongFacade.selected_track().group_track.is_folded = False
             # NB : unfolding parent classes will select them
             if SongFacade.selected_track() != selected_track:
-                cls._INSTANCE._select_track(selected_track)
+                selected_track.select()
 
             if not SongFacade.selected_track().is_visible:
                 # careful: this will impact the session display for long sets (scroll it up or down)

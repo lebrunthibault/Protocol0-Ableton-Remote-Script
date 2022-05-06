@@ -47,7 +47,7 @@ class ClipSlot(SlotManager, Observable):
 
         self._map_clip(is_new=True)
 
-        DomainEventBus.emit(ClipCreatedOrDeletedEvent(self))
+        DomainEventBus.emit(ClipCreatedOrDeletedEvent(self._clip_slot))
         self.notify_observers()
 
         if not self.clip and self.has_stop_button:
@@ -96,7 +96,7 @@ class ClipSlot(SlotManager, Observable):
         seq = Sequence()
         if self._clip_slot and self.has_clip and self.clip:
             seq.add(self._clip_slot.delete_clip)
-            seq.wait_for_event(ClipCreatedOrDeletedEvent, self)
+            seq.wait_for_event(ClipCreatedOrDeletedEvent, self._clip_slot)
         return seq.done()
 
     @property
@@ -142,7 +142,7 @@ class ClipSlot(SlotManager, Observable):
 
         seq = Sequence()
         seq.add(partial(self._clip_slot.create_clip, SongFacade.signature_numerator()))
-        seq.wait_for_event(ClipCreatedOrDeletedEvent, self)
+        seq.wait_for_event(ClipCreatedOrDeletedEvent, self._clip_slot)
         seq.defer()
         seq.add(lambda: self.clip.clip_name._name_listener())
         return seq.done()
@@ -152,7 +152,7 @@ class ClipSlot(SlotManager, Observable):
         seq = Sequence()
         if self._clip_slot:
             seq.add(partial(self._clip_slot.duplicate_clip_to, clip_slot._clip_slot))
-            seq.wait_for_event(ClipCreatedOrDeletedEvent, clip_slot)
+            seq.wait_for_event(ClipCreatedOrDeletedEvent, clip_slot._clip_slot)
             seq.defer()
         return seq.done()
 

@@ -1,10 +1,7 @@
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+import Live
 
 
 class SimpleTrackArmedEvent(object):
-    def __init__(self, track):
-        # type: (SimpleTrack) -> None
-        self.track = track
+    def __init__(self, live_track):
+        # type: (Live.Track.Track) -> None
+        self.live_track = live_track
