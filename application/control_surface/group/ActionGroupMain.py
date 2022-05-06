@@ -9,7 +9,7 @@ from protocol0.domain.lom.scene.SceneService import SceneService
 from protocol0.domain.lom.set.MixingService import MixingService
 from protocol0.domain.lom.song.components.SceneComponent import SceneComponent
 from protocol0.domain.lom.song.components.TrackComponent import TrackComponent
-from protocol0.domain.lom.track.TrackFactory import TrackFactory
+from protocol0.domain.lom.track.TrackAutomationService import TrackAutomationService
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
 from protocol0.domain.track_recorder.TrackRecorderService import TrackRecorderService
 from protocol0.shared.SongFacade import SongFacade
@@ -37,9 +37,9 @@ class ActionGroupMain(ActionGroupInterface):
         self.add_encoder(
             identifier=3,
             name="automation",
-            on_press=lambda: self._container.get(TrackFactory).add_dummy_track,
+            on_press=lambda: self._container.get(TrackAutomationService).show_automation,
             on_long_press=lambda: partial(SongFacade.selected_midi_clip().synchronize_automation_layers, SongFacade.selected_track().devices.parameters),
-            on_scroll=lambda: partial(SongFacade.selected_clip().automation.scroll_envelopes, SongFacade.selected_track().devices),
+            on_scroll=lambda: partial(SongFacade.selected_clip().automation.scroll_envelopes, SongFacade.selected_track().devices.parameters),
         )
 
         # VOLume tempo encoder
@@ -87,7 +87,7 @@ class ActionGroupMain(ActionGroupInterface):
             identifier=13,
             name="track",
             on_scroll=self._container.get(TrackComponent).scroll_tracks,
-            on_press=lambda: SongFacade.current_track().arm_state.toggle(),
+            on_press=lambda: SongFacade.current_track().arm_state.toggle,
         )
 
         # INSTrument encoder

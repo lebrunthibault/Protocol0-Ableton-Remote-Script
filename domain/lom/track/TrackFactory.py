@@ -108,4 +108,7 @@ class TrackFactory(object):
         if not isinstance(current_track, AbstractGroupTrack):
             raise Protocol0Warning("Can add dummy track only on AbstractGroupTrack")
 
+        if len(current_track.dummy_tracks) == 0:
+            raise Protocol0Warning("The first dummy track should be added manually")
+
         return self._track_crud_component.create_audio_track(current_track.sub_tracks[-1].index)

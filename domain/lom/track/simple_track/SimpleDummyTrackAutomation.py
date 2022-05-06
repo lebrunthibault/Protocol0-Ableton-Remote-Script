@@ -5,7 +5,7 @@ from typing import Optional, cast
 
 from protocol0.application.CommandBus import CommandBus
 from protocol0.application.command.LoadDeviceCommand import LoadDeviceCommand
-from protocol0.domain.lom.clip.AudioDummyClip import AudioDummyClip
+from protocol0.domain.lom.clip.DummyClip import DummyClip
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
@@ -68,15 +68,18 @@ class SimpleDummyTrackAutomation(object):
 
     def _configure_dummy_clip(self):
         # type: () -> None
-        clip = cast(AudioDummyClip, self._clip_slots.clips[0])
+        clip = cast(DummyClip, self._clip_slots.clips[0])
         clip.muted = False
-        clip.loop.bar_length = SongFacade.selected_scene().bar_length + 1  # to have to slack for ending envelopes
+        # to have to slack for ending envelopes with create one more bar which is not in the loop
+        clip.loop.bar_length = SongFacade.selected_scene().bar_length + 1
         clip.show_loop()
+        clip.loop.looping = False
         ApplicationViewFacade.show_clip()
 
     def _create_dummy_automation(self):
         # type: () -> None
         clip = list(self._clip_slots)[SongFacade.selected_scene().index].clip
+        clip.clip_name.update("")
         parameter_enum = cast(DeviceParameterEnum, DeviceParameterEnum.from_value(self._current_parameter_type))
 
         automated_device = self._devices.get_one_from_enum(DeviceEnum.from_device_parameter(parameter_enum))

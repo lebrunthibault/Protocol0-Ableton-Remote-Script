@@ -45,7 +45,7 @@ class ExternalSynthTrackMonitoringState(object):
         self._un_mute_track(self._midi_track)
 
         for midi_clip in self._midi_track.clips:
-            audio_clip = list(self._audio_track._clip_slots)[midi_clip.index].clip
+            audio_clip = list(self._audio_track.clip_slots)[midi_clip.index].clip
             # do not unmute muted clip slot
             if audio_clip and audio_clip.muted:
                 continue

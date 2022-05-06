@@ -227,7 +227,7 @@ class SongFacade(object):
         return cls._INSTANCE._scene_service.scenes
 
     @classmethod
-    def highlighted_clip_slot(cls):
+    def selected_clip_slot(cls):
         # type: () -> Optional[ClipSlot]
         if cls.selected_track() is None:
             return None
@@ -239,7 +239,7 @@ class SongFacade(object):
     @classmethod
     def selected_clip(cls):
         # type: () -> Clip
-        clip = cls.highlighted_clip_slot() and cls.highlighted_clip_slot().clip
+        clip = cls.selected_clip_slot() and cls.selected_clip_slot().clip
         if clip is None:
             raise Protocol0Warning("no selected clip")
         return clip
@@ -279,11 +279,6 @@ class SongFacade(object):
     def midi_recording_quantization(cls):
         # type: () -> int
         return cls._INSTANCE._quantization_component.midi_recording_quantization
-
-    @classmethod
-    def clip_trigger_quantization(cls):
-        # type: () -> int
-        return cls._INSTANCE._quantization_component.clip_trigger_quantization
 
     @classmethod
     def tempo(cls):

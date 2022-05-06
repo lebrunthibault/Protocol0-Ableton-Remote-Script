@@ -24,6 +24,7 @@ from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import find_if, ForwardTo
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.logging.StatusBar import StatusBar
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
@@ -95,6 +96,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
         if playing_cs.clip.playing_position.in_last_bar:
             audio_tail_clip = self.audio_tail_track.clip_slots[playing_cs.index].clip
             if audio_tail_clip and not audio_tail_clip.is_recording:
+                Logger.dev("play_and_mute %s in %s" % (audio_tail_clip, self))
                 audio_tail_clip.play_and_mute()
 
     def _map_optional_audio_tail_track(self):

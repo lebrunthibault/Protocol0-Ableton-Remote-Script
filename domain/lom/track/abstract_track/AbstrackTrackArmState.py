@@ -1,15 +1,16 @@
 import Live
-
 from typing import Optional
 
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
 
-class AbstractTrackArmState(object):
+class AbstractTrackArmState(Observable):
     def __init__(self, live_track):
         # type: (Live.Track.Track) -> None
+        super(AbstractTrackArmState, self).__init__()
         self._live_track = live_track
 
     @property

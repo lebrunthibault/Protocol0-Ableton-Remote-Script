@@ -4,7 +4,6 @@ from typing import Optional
 
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.ClipSlotSelectedEvent import ClipSlotSelectedEvent
-from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
@@ -36,11 +35,6 @@ class ClipComponent(SlotManager):
             return
 
         detail_clip.show_notes()
-
-    @property
-    def highlighted_clip_slot(self):
-        # type: () -> Optional[ClipSlot]
-        return SongFacade.highlighted_clip_slot()
 
     def on_clip_slot_selected_event(self, event):
         # type: (ClipSlotSelectedEvent) -> None

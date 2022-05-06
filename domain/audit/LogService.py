@@ -154,19 +154,19 @@ class LogService(object):
         Logger.info()
         Logger.info("looping_scene: %s" % SongFacade.looping_scene())
         Logger.info()
-        Logger.info("********* HIGHLIGHTED_CLIP_SLOT *************")
+        Logger.info("********* SELECTED_CLIP_SLOT *************")
         Logger.info()
-        Logger.info("song.highlighted_clip_slot: %s" % SongFacade.highlighted_clip_slot())
-        if SongFacade.highlighted_clip_slot():
+        Logger.info("song.selected_clip_slot: %s" % SongFacade.selected_clip_slot())
+        if SongFacade.selected_clip_slot():
             Logger.info(
-                "song.highlighted_clip_slot._clip_slot: %s" % SongFacade.highlighted_clip_slot()._clip_slot
+                "song.selected_clip_slot._clip_slot: %s" % SongFacade.selected_clip_slot()._clip_slot
             )
 
         Logger.info()
         Logger.info("********* SELECTED_CLIP *************")
         Logger.info()
-        Logger.info("song.selected_clip: %s" % SongFacade.highlighted_clip_slot().clip)
-        if SongFacade.highlighted_clip_slot().clip:
+        Logger.info("song.selected_clip: %s" % SongFacade.selected_clip_slot().clip)
+        if SongFacade.selected_clip_slot().clip:
             Logger.info()
             Logger.info("song.selected_clip.length: %s" % SongFacade.selected_clip().length)
             Logger.info()

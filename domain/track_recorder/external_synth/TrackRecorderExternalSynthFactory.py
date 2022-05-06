@@ -75,12 +75,12 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
         # type: (RecordTypeEnum) -> Optional[int]
         if record_type in (RecordTypeEnum.NORMAL, RecordTypeEnum.NORMAL_UNLIMITED):
             for i in range(SongFacade.selected_scene().index, len(SongFacade.scenes())):
-                if not self.track.midi_track._clip_slots[i].clip and not self.track.audio_track._clip_slots[i].clip:
+                if not self.track.midi_track.clip_slots[i].clip and not self.track.audio_track.clip_slots[i].clip:
                     return i
 
             return None
         else:
-            if not self.track.midi_track._clip_slots[SongFacade.selected_scene().index].clip:
+            if not self.track.midi_track.clip_slots[SongFacade.selected_scene().index].clip:
                 raise Protocol0Warning("No midi clip selected")
             return SongFacade.selected_scene().index
 
@@ -91,7 +91,7 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
         elif record_type == RecordTypeEnum.NORMAL_UNLIMITED:
             return 0
         elif record_type in (RecordTypeEnum.AUDIO_ONLY, RecordTypeEnum.AUDIO_ONLY_AUTOMATION):
-            midi_clip = self.track.midi_track._clip_slots[SongFacade.selected_scene().index].clip
+            midi_clip = self.track.midi_track.clip_slots[SongFacade.selected_scene().index].clip
             return midi_clip.loop.bar_length
         elif record_type in (RecordTypeEnum.AUDIO_ONLY_MULTI, RecordTypeEnum.AUDIO_ONLY_MULTI_AUTOMATION):
             return SongFacade.selected_scene().bar_length

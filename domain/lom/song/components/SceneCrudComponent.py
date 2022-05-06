@@ -45,7 +45,7 @@ class SceneCrudComponent(object):
 
     def crop_scene(self, scene):
         # type: (Scene) -> Sequence
-        window = SceneWindow.create_from_crop(scene, scene.crop_scroller.current_value)
+        window = SceneWindow.create_from_crop(scene.length, scene.crop_scroller.current_value)
         seq = Sequence()
         seq.add(partial(self.duplicate_scene, scene))
         seq.add(lambda: window.apply_to_scene(SongFacade.selected_scene().clips))

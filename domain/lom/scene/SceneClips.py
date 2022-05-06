@@ -4,10 +4,10 @@ import re
 from _Framework.SubjectSlot import SlotManager
 from typing import List, cast, Iterator
 
-from protocol0.domain.lom.clip.AudioDummyClip import AudioDummyClip
 from protocol0.domain.lom.clip.AudioTailClip import AudioTailClip
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
+from protocol0.domain.lom.clip.DummyClip import DummyClip
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -33,7 +33,12 @@ class SceneClips(SlotManager, Observable):
         # type: () -> Iterator[Clip]
         return iter(self._clips)
 
-    @throttle(wait_time=10)
+    @property
+    def all(self):
+        # type: () -> List[Clip]
+        return self._all_clips
+
+    @throttle(wait_time=4)
     def update(self, observable):
         # type: (Observable) -> None
         if isinstance(observable, ClipSlot) or isinstance(observable, Clip):
@@ -53,7 +58,7 @@ class SceneClips(SlotManager, Observable):
             clip = clip_slot.clip
             if clip and clip_slot.has_clip and not isinstance(track, SimpleInstrumentBusTrack):
                 self._all_clips.append(clip)  # type: ignore[unreachable]
-                if not isinstance(clip, AudioTailClip) and not isinstance(clip, AudioDummyClip):
+                if not isinstance(clip, AudioTailClip) and not isinstance(clip, DummyClip):
                     self._clips.append(clip)
                     self._tracks.append(track)
 

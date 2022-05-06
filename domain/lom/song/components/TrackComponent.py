@@ -2,6 +2,7 @@ import Live
 from _Framework.SubjectSlot import subject_slot, SlotManager
 from typing import Iterator
 
+from protocol0.domain.lom.song.SongInitializedEvent import SongInitializedEvent
 from protocol0.domain.lom.track.SelectedTrackChangedEvent import SelectedTrackChangedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.abstract_track.AbstractTrackSelectedEvent import AbstractTrackSelectedEvent
@@ -11,6 +12,7 @@ from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import scroll_values
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
@@ -21,6 +23,7 @@ class TrackComponent(SlotManager):
         # type: (Live.Song.Song.View) -> None
         super(TrackComponent, self).__init__()
         self._song_view = song_view
+        DomainEventBus.subscribe(SongInitializedEvent, lambda _: Scheduler.defer(self.unfocus_all_tracks))
         DomainEventBus.subscribe(AbstractTrackSelectedEvent, self._on_abstract_track_selected_event)
         DomainEventBus.subscribe(SimpleTrackArmedEvent, self._on_simple_track_armed_event)
         self._selected_track_listener.subject = self._song_view  # SongFacade is not hydrated

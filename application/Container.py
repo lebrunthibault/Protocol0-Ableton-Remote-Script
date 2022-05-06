@@ -35,6 +35,7 @@ from protocol0.domain.lom.song.components.SongLoopComponent import SongLoopCompo
 from protocol0.domain.lom.song.components.TempoComponent import TempoComponent
 from protocol0.domain.lom.song.components.TrackComponent import TrackComponent
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
+from protocol0.domain.lom.track.TrackAutomationService import TrackAutomationService
 from protocol0.domain.lom.track.TrackFactory import TrackFactory
 from protocol0.domain.lom.track.TrackMapperService import TrackMapperService
 from protocol0.domain.lom.track.TrackPlayerService import TrackPlayerService
@@ -121,6 +122,7 @@ class Container(ContainerInterface):
         drum_rack_service = DrumRackService(browser_service)
         track_factory = TrackFactory(track_crud_component, browser_service, drum_rack_service)
         track_repository = TrackRepository()
+        track_automation_service = TrackAutomationService(track_factory)
         track_mapper_service = TrackMapperService(live_song, track_factory)
         track_player_service = TrackPlayerService(playback_component, track_repository)
         track_recorder_service = TrackRecorderService(
@@ -147,7 +149,7 @@ class Container(ContainerInterface):
             track_recorder_service
         )
 
-        song_service = SongInitService(track_component)
+        song_service = SongInitService()
         Backend.client().end_measurement()
         instrument_display_service = InstrumentDisplayService(device_display_service)
         instrument_preset_scroller_service = InstrumentPresetScrollerService()
@@ -197,8 +199,9 @@ class Container(ContainerInterface):
         self._register(song_data_service)
         self._register(song_stats_service)
 
-        self._register(track_mapper_service)
         self._register(track_factory)
+        self._register(track_automation_service)
+        self._register(track_mapper_service)
         self._register(track_player_service)
 
         self._register(scene_service)

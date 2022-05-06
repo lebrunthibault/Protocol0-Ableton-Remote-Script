@@ -1,10 +1,9 @@
 import Live
 
 from protocol0.domain.lom.track.abstract_track.AbstrackTrackArmState import AbstractTrackArmState
-from protocol0.shared.observer.Observable import Observable
 
 
-class SimpleTrackArmState(AbstractTrackArmState, Observable):
+class SimpleTrackArmState(AbstractTrackArmState):
     def __init__(self, live_track):
         # type: (Live.Track.Track) -> None
         super(SimpleTrackArmState, self).__init__(live_track)

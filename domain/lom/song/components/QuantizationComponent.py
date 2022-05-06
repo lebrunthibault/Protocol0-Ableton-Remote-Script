@@ -1,9 +1,12 @@
 from functools import partial
 
 import Live
+from _Framework.SubjectSlot import subject_slot, SlotManager
 from typing import Optional
 
+from protocol0.domain.lom.song.SongInitializedEvent import SongInitializedEvent
 from protocol0.domain.lom.song.components.TempoComponent import TempoComponent
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.track_recorder.TrackRecordingStartedEvent import TrackRecordingStartedEvent
 from protocol0.shared.Config import Config
@@ -11,20 +14,32 @@ from protocol0.shared.logging.StatusBar import StatusBar
 from protocol0.shared.sequence.Sequence import Sequence
 
 
-class QuantizationComponent(object):
+class QuantizationComponent(SlotManager):
     def __init__(self, song, tempo_component):
         # type: (Live.Song.Song, TempoComponent) -> None
+        super(QuantizationComponent, self).__init__()
         self._song = song
         self._tempo_component = tempo_component
         self._midi_recording_quantization_checked = False  # type: bool
-        DomainEventBus.subscribe(TrackRecordingStartedEvent, self._on_track_recording_started_event)
+        DomainEventBus.subscribe(SongInitializedEvent, lambda _: self._check_quantization_is_valid())
+        DomainEventBus.subscribe(TrackRecordingStartedEvent, lambda _: self._check_quantization_is_valid())
 
-    def _on_track_recording_started_event(self, _):
-        # type: (TrackRecordingStartedEvent) -> Optional[Sequence]
-        if self._midi_recording_quantization_checked or self.midi_recording_quantization == self.tempo_default_midi_recording_quantization:
+    @subject_slot("clip_trigger_quantization")
+    def _clip_trigger_quantization_listener(self):
+        # type: () -> None
+        if self.clip_trigger_quantization != Live.Song.Quantization.q_bar:
+            Backend.client().show_warning("Fixing global launch quantization set to %s" % self.clip_trigger_quantization, centered=True)
+
+    def _check_quantization_is_valid(self):
+        # type: () -> Optional[Sequence]
+        if self.clip_trigger_quantization != Live.Song.Quantization.q_bar:
+            Backend.client().show_warning("Fixing global launch quantization set to %s" % self.clip_trigger_quantization, centered=True)
+            self.clip_trigger_quantization = Live.Song.Quantization.q_bar
             return None
 
-        self._midi_recording_quantization_checked = True
+        if self.midi_recording_quantization == self.tempo_default_midi_recording_quantization:
+            return None
+
         seq = Sequence()
         seq.prompt("Midi recording quantization %s is not tempo default : %s, Set to default ?" % (
             self.midi_recording_quantization, self.tempo_default_midi_recording_quantization))

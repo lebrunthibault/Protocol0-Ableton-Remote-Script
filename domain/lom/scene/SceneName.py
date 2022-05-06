@@ -34,9 +34,6 @@ class SceneName(SlotManager):
 
     def _get_base_name(self):
         # type: () -> str
-        # can happen when scenes are created
-        if not isinstance(self._scene.name, basestring):
-            return ""
         # catches base name with or without bar length legend
         forbidden_first_character = "(?!([\\d|-]+))"
         match = re.match("^(?P<base_name>%s[^()]*)" % forbidden_first_character,
