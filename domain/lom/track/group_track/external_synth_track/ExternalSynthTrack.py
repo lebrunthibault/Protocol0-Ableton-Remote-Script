@@ -119,14 +119,14 @@ class ExternalSynthTrack(AbstractGroupTrack):
         if len(base_group_track.sub_tracks) < 2:
             return False
 
-        if not isinstance(base_group_track.sub_tracks[0], SimpleMidiTrack):
-            return False  # type: ignore[unreachable]
-        if not isinstance(base_group_track.sub_tracks[1], SimpleAudioTrack):
-            return False  # type: ignore[unreachable]
+        if not type(base_group_track.sub_tracks[0]) == SimpleMidiTrack:
+            return False
+        if not type(base_group_track.sub_tracks[1]) == SimpleAudioTrack:
+            return False
 
         for track in base_group_track.sub_tracks[2:]:
             if not isinstance(track, SimpleAudioTrack):
-                return False  # type: ignore[unreachable]
+                return False
 
         return True
 
@@ -167,6 +167,11 @@ class ExternalSynthTrack(AbstractGroupTrack):
                 self._instrument = self.midi_track.instrument or InstrumentMinitaur(device=None, track_name=self.name)
             elif self.midi_track.instrument and self.midi_track.instrument != self._instrument:
                 raise Protocol0Error("Cannot switch instruments in an ExternalSynthTrack")
+
+    @property
+    def instrument_track(self):
+        # type: () -> SimpleTrack
+        return self.midi_track
 
     @property
     def instrument(self):

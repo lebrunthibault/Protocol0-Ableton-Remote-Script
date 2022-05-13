@@ -20,6 +20,7 @@ from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.utils import volume_to_db
 from protocol0.infra.interface.session.SessionUpdatedEvent import SessionUpdatedEvent
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
@@ -27,6 +28,8 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 
 class SceneService(SlotManager):
+    _LAST_SCENE_BAR_DIGIT = 8
+
     def __init__(self, live_song, playback_component, scene_crud_component):
         # type: (Live.Song.Song, PlaybackComponent, SceneCrudComponent) -> None
         super(SceneService, self).__init__()
@@ -173,15 +176,21 @@ class SceneService(SlotManager):
         scene.scene_name.update(bar_position=scene.position_scroller.current_value)
 
     def fire_scene_to_position(self, scene, bar_length=None):
-        # type: (Scene, Optional[int]) -> Sequence
+        # type: (Scene, Optional[int]) -> None
+        # as we use single digits
+        if bar_length == self._LAST_SCENE_BAR_DIGIT:
+            bar_length = scene.bar_length - 1
+        if bar_length is None:
+            bar_length = scene.position_scroller.current_value
+
         Scene.LAST_MANUALLY_STARTED_SCENE = scene
         self._playback_component.stop_playing()
 
-        # SongFacade.master_track().volume = volume_to_db(0)
-        # master_volume = SongFacade.master_track().volume
+        master_volume = SongFacade.master_track().volume
+        if bar_length != 0:
+            SongFacade.master_track().volume = volume_to_db(0)
 
-        seq = Sequence()
-        seq.wait(2)  # removing click when changing position
-        seq.add(partial(scene.fire_to_position, bar_length))
-        # seq.add(partial(setattr, SongFacade.master_track(), "volume", master_volume))
-        return seq.done()
+        # removing click when changing position
+        # (created by playing shortly the scene beginning)
+        Scheduler.wait(2, partial(scene.fire_to_position, bar_length))
+        Scheduler.wait(3, (partial(setattr, SongFacade.master_track(), "volume", master_volume)))

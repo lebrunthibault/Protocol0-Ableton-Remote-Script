@@ -5,6 +5,7 @@ from typing import Optional
 from protocol0.domain.lom.device.DeviceDisplayService import DeviceDisplayService
 from protocol0.domain.lom.instrument.InstrumentActivatedEvent import InstrumentActivatedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
+from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
@@ -23,6 +24,8 @@ class InstrumentDisplayService(object):
         if track.instrument is None or not track.instrument.CAN_BE_SHOWN:
             return None
 
+        track = track.instrument_track
+
         seq = Sequence()
         if not track.instrument.activated or track.instrument.needs_exclusive_activation:
             seq.add(partial(self.activate_plugin_window, track))
@@ -39,20 +42,25 @@ class InstrumentDisplayService(object):
         if track.instrument is None or not track.instrument.CAN_BE_SHOWN:
             return None
 
-        self.activate_plugin_window(track, force_activate=True)
+        self.activate_plugin_window(track.instrument_track, force_activate=True)
 
     def _on_simple_track_armed_event(self, event):
-        # type: (SimpleTrackArmedEvent) -> Sequence
+        # type: (SimpleTrackArmedEvent) -> Optional[Sequence]
         track = SongFacade.simple_track_from_live_track(event.live_track)
 
+        if not SongFacade.current_track().instrument or SongFacade.current_track().instrument_track != track:
+            return None
+
+        if not track.instrument or not track.instrument.needs_exclusive_activation:
+            return None
+
         seq = Sequence()
-        if track.instrument and track.instrument.needs_exclusive_activation:
-            seq.add(partial(self.activate_plugin_window, track))
-            seq.add(Backend.client().hide_plugins)
+        seq.add(partial(self.activate_plugin_window, track))
+        seq.add(Backend.client().hide_plugins)
         return seq.done()
 
     def activate_plugin_window(self, track, force_activate=False):
-        # type: (AbstractTrack, bool) -> Optional[Sequence]
+        # type: (SimpleTrack, bool) -> Optional[Sequence]
         seq = Sequence()
         instrument = track.instrument
         assert instrument

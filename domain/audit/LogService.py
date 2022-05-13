@@ -55,8 +55,6 @@ class LogService(object):
             Logger.info()
         Logger.info("selected_track.abstract_group_track: %s" % SongFacade.selected_track().abstract_group_track)
         Logger.info()
-        Logger.info("selected_track.abstract_track: %s" % SongFacade.selected_track().abstract_track)
-        Logger.info()
         Logger.info("selected_track.clip_slots: %s" % SongFacade.selected_track().clip_slots)
         Logger.info()
         Logger.info("selected_track.clips: %s" % SongFacade.selected_track().clips)

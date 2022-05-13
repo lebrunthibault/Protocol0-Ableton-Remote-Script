@@ -21,6 +21,7 @@ CommandMapping = Dict[Type[SerializableCommand], Type[CommandHandlerInterface]]
 class CommandBus(object):
     _DEBUG = True
     _INSTANCE = None  # type: Optional[CommandBus]
+    _DUPLICATE_COMMAND_WARNING_COUNT = 10
 
     def __init__(self, container):
         # type: (ContainerInterface) -> None
@@ -29,6 +30,7 @@ class CommandBus(object):
         self._command_mapping = self._create_command_mapping()
         self._last_command = None  # type: Optional[SerializableCommand]
         self._last_command_processed_at = None  # type: Optional[float]
+        self._duplicate_command_count = 0
 
     def _create_command_mapping(self):
         # type: () -> CommandMapping
@@ -60,7 +62,11 @@ class CommandBus(object):
     def _dispatch_command(self, command):
         # type: (SerializableCommand) -> Optional[Sequence]
         if self._is_duplicate_command(command):
-            Backend.client().show_warning("skipping duplicate command %s: please reload the set" % command)
+            self._duplicate_command_count += 1
+            Logger.warning("skipping duplicate command %s: please reload the set" % command)
+
+            if self._duplicate_command_count == self._DUPLICATE_COMMAND_WARNING_COUNT:
+                Backend.client().show_warning("Reached 10 duplicate commands. Set might need to be reloaded.")
             return None
 
         self._last_command = command

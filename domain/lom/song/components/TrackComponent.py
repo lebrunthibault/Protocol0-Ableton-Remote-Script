@@ -1,3 +1,5 @@
+from functools import partial
+
 import Live
 from _Framework.SubjectSlot import subject_slot, SlotManager
 from typing import Iterator
@@ -22,7 +24,8 @@ class TrackComponent(SlotManager):
         # type: (Live.Song.Song.View) -> None
         super(TrackComponent, self).__init__()
         self._song_view = song_view
-        DomainEventBus.subscribe(SongInitializedEvent, lambda _: Scheduler.defer(self.unfocus_all_tracks))
+        DomainEventBus.subscribe(SongInitializedEvent,
+                                 lambda _: Scheduler.defer(partial(self.unfocus_all_tracks, True)))
         DomainEventBus.subscribe(AbstractTrackSelectedEvent, self._on_abstract_track_selected_event)
         DomainEventBus.subscribe(SimpleTrackArmedEvent, self._on_simple_track_armed_event)
         self._selected_track_listener.subject = self._song_view  # SongFacade is not hydrated
@@ -49,12 +52,14 @@ class TrackComponent(SlotManager):
     def abstract_tracks(self):
         # type: () -> Iterator[AbstractTrack]
         for track in SongFacade.simple_tracks():
-            if isinstance(track, SimpleInstrumentBusTrack) or track == SongFacade.usamo_track():  # type: ignore[unreachable]
+            if type(track) == SimpleInstrumentBusTrack or track == SongFacade.usamo_track():
                 continue
-            if isinstance(track.abstract_track, NormalGroupTrack):  # type: ignore[unreachable]
-                yield track  # yield all normal group track sub tracks
-            elif track == track.abstract_track.base_track:
-                yield track.abstract_track  # return the abstract track for external synth tracks
+            if track.abstract_group_track:
+                # skipping ExternalSynthTrack sub tracks
+                if track.abstract_group_track.base_track == track:
+                    yield track.abstract_group_track
+            else:
+                yield track
 
     @property
     def scrollable_tracks(self):
@@ -68,22 +73,24 @@ class TrackComponent(SlotManager):
                 continue
             yield track
 
-    def unfocus_all_tracks(self):
-        # type: () -> None
-        self._unsolo_all_tracks()
-        self._unarm_all_tracks()
+    def unfocus_all_tracks(self, including_current=False):
+        # type: (bool) -> None
+        self._unsolo_all_tracks(including_current)
+        self._unarm_all_tracks(including_current)
 
-    def _unarm_all_tracks(self):
-        # type: () -> None
+    def _unarm_all_tracks(self, including_current):
+        # type: (bool) -> None
         for t in SongFacade.partially_armed_tracks():
-            if t.abstract_track != SongFacade.current_track():
-                t.arm_state.unarm()
+            if not including_current and t.abstract_track == SongFacade.current_track():
+                continue
+            t.arm_state.unarm()
 
-    def _unsolo_all_tracks(self):
-        # type: () -> None
+    def _unsolo_all_tracks(self, including_current):
+        # type: (bool) -> None
         for t in SongFacade.abstract_tracks():
-            if t.solo and t != SongFacade.current_track():
-                t.solo = False
+            if not including_current and t == SongFacade.current_track():
+                continue
+            t.solo = False
 
     def scroll_tracks(self, go_next):
         # type: (bool) -> None

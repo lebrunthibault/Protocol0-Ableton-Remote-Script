@@ -25,6 +25,7 @@ class DeviceEnum(AbstractEnum):
     LFO_TOOL = "LFO_TOOL"
     MINITAUR_EDITOR = "MINITAUR_EDITOR"
     MIX_RACK = "MIX_RACK"
+    PRO_Q_3 = "PRO_Q_3"
     REV2_EDITOR = "REV2_EDITOR"
     SATURATOR = "SATURATOR"
     SATURN_2 = "SATURN_2"
@@ -57,6 +58,7 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.LFO_TOOL: "LFOTool_x64",
             DeviceEnum.MINITAUR_EDITOR: "Minitaur Editor(x64)",
             DeviceEnum.MIX_RACK: "Mix Rack",
+            DeviceEnum.PRO_Q_3: "FabFilter Pro-Q 3",
             DeviceEnum.REV2_EDITOR: "REV2Editor",
             DeviceEnum.SATURATOR: "Saturator",
             DeviceEnum.SATURN_2: "FabFilter Saturn 2",
@@ -86,8 +88,9 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.EQ_EIGHT: "EQ Eight",
             DeviceEnum.EQ_EIGHT_RACK: "EQ Eight Rack.adg",
             DeviceEnum.EQ_ROOM: "EQ Room.adv",
-            DeviceEnum.LFO_TOOL: "LFOTool.adg",
+            DeviceEnum.LFO_TOOL: "LFOTool_X64",
             DeviceEnum.MIX_RACK: "Mix Rack.adg",
+            DeviceEnum.PRO_Q_3: "FabFilter Pro-Q 3",
             DeviceEnum.SATURATOR: "Saturator",
             DeviceEnum.SATURN_2: "FabFilter Saturn 2",
             DeviceEnum.SIMPLER: "Simpler",
@@ -103,7 +106,8 @@ class DeviceEnum(AbstractEnum):
         # type: () -> List[List[DeviceEnum]]
         return [
             [
-                cls.EQ_EIGHT_RACK,
+                cls.EQ_EIGHT,
+                cls.PRO_Q_3,
                 cls.UTILITY,
                 cls.COMPRESSOR,
                 cls.SSL_COMP,

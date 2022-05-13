@@ -148,7 +148,7 @@ class Container(ContainerInterface):
             track_recorder_service
         )
 
-        song_service = SongInitService()
+        song_service = SongInitService(playback_component)
         Backend.client().end_measurement()
         instrument_display_service = InstrumentDisplayService(device_display_service)
         instrument_preset_scroller_service = InstrumentPresetScrollerService()

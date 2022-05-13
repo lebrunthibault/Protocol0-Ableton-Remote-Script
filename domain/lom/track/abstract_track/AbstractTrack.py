@@ -97,11 +97,14 @@ class AbstractTrack(SlotManager):
     def abstract_track(self):
         # type: () -> AbstractTrack
         """
-        For lone tracks, will return self
-        For group_tracks or sub_tracks of AbstractGroupTracks (except NormalGroupTrack)
-        will return the AbstractGroupTrack
+        For top level SimpleTracks, will return self
+        For AbstractGroupTracks, will return self (NormalGroupTrack and ExternalSynthTrack)
+        Only for nested SimpleTracks, will return their abstract_group_track
         """
-        return self.abstract_group_track if self.abstract_group_track else self  # type: ignore
+        if self.abstract_group_track:
+            return self.abstract_group_track
+        else:
+            return self
 
     @property
     def group_tracks(self):
@@ -109,6 +112,12 @@ class AbstractTrack(SlotManager):
         if not self.group_track:
             return []
         return [self.group_track] + self.group_track.group_tracks
+
+    @property
+    def instrument_track(self):
+        # type: () -> SimpleTrack
+        assert self.instrument
+        return self.base_track
 
     @property
     def instrument(self):

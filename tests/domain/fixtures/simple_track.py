@@ -16,6 +16,7 @@ class TrackType(object):
 class AbletonTrack(Subject):
     __subject_events__ = (
         "name",
+        "solo",
         "devices",
         "clip_slots",
         "playing_slot_index",

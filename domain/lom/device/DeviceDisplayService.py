@@ -41,17 +41,16 @@ class DeviceDisplayService(object):
 
     def _make_top_device_window_showable(self, track, device):
         # type: (SimpleTrack, Device) -> Sequence
-        devices_to_uncollapse = []  # type: List[Device]
+        devices_to_collapse = [d for d in track.devices if not d.is_collapsed]
+        for d in devices_to_collapse:
+            d.is_collapsed = True
 
-        for d in track.devices:
-            if not d.is_collapsed:
-                devices_to_uncollapse.append(d)
-                d.is_collapsed = True
         (x_device, y_device) = self._get_device_show_button_click_coordinates(track, device)
+
         seq = Sequence()
         seq.add(lambda: Backend.client().toggle_ableton_button(x=x_device, y=y_device, activate=True))
-        seq.wait(6)
-        seq.add(partial(self._uncollapse_devices, devices_to_uncollapse))
+        seq.wait(10)
+        seq.add(partial(self._uncollapse_devices, devices_to_collapse))
 
         return seq.done()
 

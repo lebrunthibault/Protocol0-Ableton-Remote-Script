@@ -70,6 +70,8 @@ class ClipName(SlotManager, Observable):
 
     def update(self, base_name=None):
         # type: (Optional[str]) -> None
+        if not self._live_clip:
+            return None
         if self._live_clip.is_recording:
             return None
         if self._DEBUG:

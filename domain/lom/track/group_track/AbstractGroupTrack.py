@@ -49,7 +49,7 @@ class AbstractGroupTrack(AbstractTrack):
         # NB : self.group_track is necessarily not None here because a foldable track always has an abg
         assert self.base_track.group_track.abstract_group_track
         self.group_track = self.base_track.group_track.abstract_group_track
-        self.abstract_group_track = self.base_track.group_track.abstract_group_track
+        self.abstract_group_track = self  # because we already are the abstract group track
         self.group_track.add_or_replace_sub_track(self, self.base_track)
 
     def _map_dummy_tracks(self):

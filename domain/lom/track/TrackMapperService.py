@@ -178,7 +178,7 @@ class TrackMapperService(SlotManager):
 
             if isinstance(previous_abstract_group_track, ExternalSynthTrack) and isinstance(abstract_group_track,
                                                                                             NormalGroupTrack):
-                raise Protocol0Error("An ExternalSynthTrack is changed into a NormalGroupTrack")
+                raise Protocol0Error("An ExternalSynthTrack (%s) is changed into a NormalGroupTrack (%s)" % (previous_abstract_group_track, abstract_group_track))
 
             if previous_abstract_group_track and previous_abstract_group_track != abstract_group_track:
                 previous_abstract_group_track.disconnect()

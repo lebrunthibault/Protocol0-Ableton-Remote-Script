@@ -56,8 +56,8 @@ class SceneClips(SlotManager, Observable):
             clip_slot = track.clip_slots[self.index]
             self._clip_slots.append(clip_slot)
             clip = clip_slot.clip
-            if clip and clip_slot.has_clip and not isinstance(track, SimpleInstrumentBusTrack):
-                self._all_clips.append(clip)  # type: ignore[unreachable]
+            if clip and clip_slot.has_clip and not type(track) == SimpleInstrumentBusTrack:
+                self._all_clips.append(clip)
                 if not isinstance(clip, AudioTailClip) and not isinstance(clip, DummyClip):
                     self._clips.append(clip)
                     self._tracks.append(track)

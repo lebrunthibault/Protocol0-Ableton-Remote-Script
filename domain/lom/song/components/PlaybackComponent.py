@@ -9,9 +9,12 @@ from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.track_recorder.TrackRecordingCancelledEvent import TrackRecordingCancelledEvent
 from protocol0.domain.track_recorder.TrackRecordingStartedEvent import TrackRecordingStartedEvent
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 
 
 class PlaybackComponent(SlotManager):
+    _DEBUG = True
+
     def __init__(self, song):
         # type: (Live.Song.Song) -> None
         super(PlaybackComponent, self).__init__()
@@ -44,8 +47,18 @@ class PlaybackComponent(SlotManager):
     def _on_scene_position_scrolled_event(self, _):
         # type: (ScenePositionScrolledEvent) -> None
         scene = SongFacade.selected_scene()
-        beat_offset = (scene.position_scroller.current_value * SongFacade.signature_numerator()) - scene.playing_state.position
-        self._live_song.scrub_by(beat_offset - 0.5)
+        if scene.position_scroller.current_value == 0:
+            beat_offset = 0
+        else:
+            beat_offset = (scene.position_scroller.current_value * SongFacade.signature_numerator()) - scene.playing_state.position
+            # to catch the first beat transient
+            beat_offset -= 0.5
+
+        if self._DEBUG:
+            Logger.dev("scene.position_scroller.current_value: %s" % scene.position_scroller.current_value)
+            Logger.dev("beat offset: %s" % beat_offset)
+
+        self._live_song.scrub_by(beat_offset)
 
     @property
     def is_playing(self):

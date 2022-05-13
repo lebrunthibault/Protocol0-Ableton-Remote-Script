@@ -64,8 +64,8 @@ class Scene(SlotManager):
         # type: (Scene) -> Iterator[SimpleTrack]
         # manually stopping previous scene because we don't display clip slot stop buttons
         for track in scene.clips.tracks:
-            if track.is_playing and track not in self.clips.tracks and not isinstance(track, SimpleAudioTailTrack):
-                yield track  # type: ignore[unreachable]
+            if track.is_playing and track not in self.clips.tracks and not type(track) == SimpleAudioTailTrack:
+                yield track
 
     def update(self, observable):
         # type: (Observable) -> None
@@ -172,19 +172,12 @@ class Scene(SlotManager):
         for clip in self.clips.audio_tail_clips:
             clip.muted = True
 
-    def fire_to_position(self, bar_length=None):
-        # type: (Scene, Optional[int]) -> Sequence
-
-        # leveraging throttle to disable the next update (that would be "1 / *")
-        self.scene_name.update(bar_position=self.position_scroller.current_value)
+    def fire_to_position(self, bar_length):
+        # type: (Scene, int) -> Sequence
+        self.scene_name.update(bar_position=bar_length)
         seq = Sequence()
         seq.add(self.fire)
         seq.defer()
-        if bar_length is None:
-            bar_length = min(self.bar_length - 1, self.position_scroller.current_value)
-        elif bar_length == 8:
-            # we have only the keypad so 8 is the last bar
-            bar_length = self.bar_length - 1
         seq.add(partial(self.position_scroller.set_value, cast(int, bar_length)))
 
         return seq.done()

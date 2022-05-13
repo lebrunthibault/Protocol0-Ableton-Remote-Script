@@ -1,6 +1,7 @@
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 
 from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 
 
@@ -25,4 +26,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        pass
+        SongFacade.selected_track().arm_state.is_armed = True

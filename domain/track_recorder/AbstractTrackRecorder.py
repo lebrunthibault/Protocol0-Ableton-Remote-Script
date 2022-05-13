@@ -73,8 +73,7 @@ class AbstractTrackRecorder(object):
         # type: () -> Sequence
         self._recording_component.session_automation_record = True
         seq = Sequence()
-        if not self.track.arm_state.is_armed:
-            seq.add(self._arm_track)
+        seq.add(self._arm_track)
         seq.add(self.track.select)
         seq.add([clip_slot.prepare_for_record for clip_slot in self._recording_clip_slots])
         seq.add(self._pre_record)
@@ -83,7 +82,7 @@ class AbstractTrackRecorder(object):
     def _arm_track(self):
         # type: () -> Sequence
         seq = Sequence()
-        if len(list(SongFacade.armed_tracks())) != 0:
+        if not SongFacade.current_track().arm_state.is_armed and len(list(SongFacade.armed_tracks())) != 0:
             options = ["Arm current track", "Record on armed track"]
             seq.select("The current track is not armed", options=options)
             seq.add(lambda: self.track.arm_state.arm() if seq.res == options[0] else list(SongFacade.armed_tracks())[0].select())
