@@ -13,9 +13,9 @@ class TrackRecorderExternalSynthNormal(TrackRecorderExternalSynthMixin, Abstract
         # type: () -> List[SimpleTrack]
         return filter(None, [self.track.midi_track, self.track.audio_track, self.track.audio_tail_track])
 
-    def post_audio_record(self):
+    def _post_audio_record(self):
         # type: () -> None
-        super(TrackRecorderExternalSynthNormal, self).post_audio_record()
+        super(TrackRecorderExternalSynthNormal, self)._post_audio_record()
         self.track.audio_track.clip_slots[
             self.recording_scene_index].clip.appearance.color = \
             ClipColorEnum.AUDIO_UN_QUANTIZED.color_int_value

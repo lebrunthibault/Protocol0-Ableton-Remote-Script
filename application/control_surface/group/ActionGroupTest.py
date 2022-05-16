@@ -3,7 +3,6 @@ from protocol0.application.control_surface.ActionGroupInterface import ActionGro
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
-from protocol0.shared.sequence.Sequence import Sequence
 
 
 class ActionGroupTest(ActionGroupInterface):
@@ -27,9 +26,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        track = SongFacade.current_external_synth_track()
-        clip_slots = [track.midi_track.clip_slots[0], track.audio_track.clip_slots[0],
-                      track.audio_tail_track.clip_slots[0]]
-        seq = Sequence()
-        seq.add([clip_slot.prepare_for_record for clip_slot in clip_slots])
-        seq.done()
+        Backend.client().activate_rev2_editor()

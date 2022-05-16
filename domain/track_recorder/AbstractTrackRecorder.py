@@ -125,7 +125,12 @@ class AbstractTrackRecorder(object):
         # type: () -> Optional[Sequence]
         self._playback_component.metronome = False
         self._recording_component.session_automation_record = False
+        self._post_audio_record()
         return None
+
+    def _post_audio_record(self):
+        # type: () -> None
+        pass
 
     def post_record(self, bar_length):
         # type: (int) -> None

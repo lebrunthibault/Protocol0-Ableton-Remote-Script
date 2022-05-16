@@ -72,13 +72,9 @@ class SceneClips(SlotManager, Observable):
 
     def on_added_scene(self):
         # type: () -> None
-        """ Rename clips when doing consolidate time to new scene """
+        """ Renames clips when doing consolidate time to new scene """
         if any(clip for clip in self._all_clips if self._clip_has_default_recording_name(clip)):
             for clip in self._all_clips:
-                if isinstance(clip, AudioTailClip):
-                    clip.delete()
-                    continue
-
                 if self._clip_has_default_recording_name(clip):
                     clip.appearance.color = ClipColorEnum.AUDIO_UN_QUANTIZED.color_int_value
                 clip.clip_name.update("")

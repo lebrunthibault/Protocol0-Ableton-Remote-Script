@@ -28,7 +28,9 @@ class QuantizationComponent(SlotManager):
     def _clip_trigger_quantization_listener(self):
         # type: () -> None
         if self.clip_trigger_quantization != Live.Song.Quantization.q_bar:
-            Backend.client().show_warning("global launch quantization change to %s" % self.clip_trigger_quantization, centered=True)
+            Backend.client().show_warning("global launch quantization change to %s. Modifying" %
+                                          self.clip_trigger_quantization, centered=True)
+            self.clip_trigger_quantization = Live.Song.Quantization.q_bar
 
     def _check_quantization_is_valid(self):
         # type: () -> Optional[Sequence]

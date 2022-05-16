@@ -53,7 +53,7 @@ class TrackRecorderExternalSynthAudio(TrackRecorderExternalSynthMixin, AbstractT
         # type: () -> List[SimpleTrack]
         return filter(None, [self.track.audio_track, self.track.audio_tail_track])
 
-    def post_audio_record(self):
+    def _post_audio_record(self):
         # type: () -> None
-        super(TrackRecorderExternalSynthAudio, self).post_audio_record()
+        super(TrackRecorderExternalSynthAudio, self)._post_audio_record()
         DomainEventBus.emit(ExternalSynthAudioRecordingEndedEvent(self.track))

@@ -194,7 +194,7 @@ class Sequence(Observable):
             # type: () -> None
             if self._current_step and self._current_step._callable == execute:
                 self._cancel()
-                Backend.client().show_warning("cancelling after %s seconds : %s on %s" % (seconds, self, legend))
+                Logger.warning("cancelling after %s seconds : %s on %s" % (seconds, self, legend))
 
         def execute():
             # type: () -> None

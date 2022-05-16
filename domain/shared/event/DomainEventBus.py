@@ -8,7 +8,7 @@ from protocol0.shared.types import T
 
 
 class DomainEventBus(object):
-    _DEBUG = True
+    _DEBUG = False
     _registry = {}  # type: Dict[Type, List[Callable]]
 
     @classmethod

@@ -29,6 +29,7 @@ class Clip(SlotManager, Observable):
         self.automation = ClipAutomation(live_clip, self.loop)  # type: ClipAutomation
         self.playing_position = ClipPlayingPosition(live_clip, self.loop)  # type: ClipPlayingPosition
 
+        self.clip_name.register_observer(self)
         self.loop.register_observer(self)
 
     def __eq__(self, clip):
@@ -41,7 +42,7 @@ class Clip(SlotManager, Observable):
 
     def update(self, observable):
         # type: (Observable) -> None
-        if isinstance(observable, ClipLoop):
+        if isinstance(observable, ClipLoop) or isinstance(observable, ClipName):
             self.notify_observers()
 
     @property
@@ -142,7 +143,7 @@ class Clip(SlotManager, Observable):
     def post_record(self, bar_length):
         # type: (int) -> None
         """ overridden """
-        self.clip_name.update(base_name="")
+        self.clip_name.update("")
 
     def crop(self):
         # type: () -> None

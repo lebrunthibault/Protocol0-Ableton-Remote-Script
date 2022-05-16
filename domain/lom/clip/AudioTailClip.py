@@ -12,7 +12,7 @@ class AudioTailClip(AudioClip):
         if bar_length == 0:
             return None
 
-        self.clip_name.update(base_name="")
+        self.clip_name.update("")
 
         clip_end = bar_length * SongFacade.signature_numerator()
         if clip_end == self.loop.end:

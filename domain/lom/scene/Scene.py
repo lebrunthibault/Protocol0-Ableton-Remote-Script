@@ -81,6 +81,7 @@ class Scene(SlotManager):
     def on_added(self):
         # type: () -> None
         self.clips.on_added_scene()
+        self.scene_name.update("")
 
     @subject_slot("is_triggered")
     def is_triggered_listener(self):

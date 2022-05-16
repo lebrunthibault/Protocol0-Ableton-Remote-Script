@@ -44,7 +44,7 @@ class TrackRecorderPropagateNewAudioClipDecorator(TrackRecorderDecorator):
         seq.add([partial(source_audio_cs.duplicate_clip_to, clip) for clip in duplicate_audio_clip_slots])
 
         duplicate_midi_clips = [self.track.midi_track.clip_slots[cs.index].clip for cs in duplicate_audio_clip_slots]
-        seq.add([partial(clip.clip_name.update, base_name=source_audio_clip.clip_name.base_name) for clip in
+        seq.add([partial(clip.clip_name.update, source_audio_clip.clip_name.base_name) for clip in
                  duplicate_midi_clips])
 
         if self.track.audio_tail_track:

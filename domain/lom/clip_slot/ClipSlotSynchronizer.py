@@ -2,10 +2,9 @@ import Live
 from _Framework.CompoundElement import subject_slot_group
 from _Framework.SubjectSlot import SlotManager
 
-from protocol0.domain.lom.clip.ClipLoop import ClipLoop
-from protocol0.domain.lom.clip.ClipName import ClipName
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.domain.lom.clip_slot.MidiClipSlot import MidiClipSlot
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.observer.Observable import Observable
 
 
@@ -27,23 +26,29 @@ class ClipSlotSynchronizer(SlotManager):
             self._midi_cs.clip.register_observer(self)
 
     @property
-    def _clip_exists(self):
+    def _clips_exist(self):
         # type: () -> bool
         return self._audio_cs.clip is not None and self._midi_cs.clip is not None
 
-    def update(self, observable):
+    def update(self, _):
         # type: (Observable) -> None
-        if not self._clip_exists:
-            return
         audio_clip = self._audio_cs.clip
         midi_clip = self._midi_cs.clip
 
-        if isinstance(observable, ClipLoop):
+        def sync():
+            # type: () -> None
+            if not self._clips_exist:
+                return None
+            # don't mess with the clip when a scene is being split
+            if audio_clip.should_be_cropped:
+                return None
+
             audio_clip.loop.looping = midi_clip.loop.looping
             audio_clip.loop.start = midi_clip.loop.start
             audio_clip.loop.end = midi_clip.loop.end
-        if isinstance(observable, ClipName):
             audio_clip.name = midi_clip.name
+
+        Scheduler.defer(sync)
 
     @subject_slot_group("has_clip")
     def _has_clip_listener(self, _):

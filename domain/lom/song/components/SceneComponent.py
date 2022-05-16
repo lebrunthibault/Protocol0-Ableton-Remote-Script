@@ -27,5 +27,7 @@ class SceneComponent(object):
 
     def scroll_scenes(self, go_next):
         # type: (bool) -> None
+        # have the scroller work the other way around
+        go_next = not go_next
         next_scene = scroll_values(SongFacade.scenes(), SongFacade.selected_scene(), go_next, rotate=False)
         self.select_scene(next_scene)

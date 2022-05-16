@@ -20,6 +20,7 @@ from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleA
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
@@ -70,6 +71,9 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
     def on_added(self):
         # type: () -> Sequence
+        if len(self.clips):
+            Backend.client().show_warning("Deleting clips ..")
+
         seq = Sequence()
         seq.add(self.arm_state.arm)
 

@@ -67,8 +67,8 @@ class TrackMapperService(SlotManager):
 
         seq = Sequence()
         if has_added_tracks and SongFacade.selected_track():
-            seq.add(self._on_track_added_event)
             seq.add(partial(DomainEventBus.defer_emit, TrackAddedEvent()))
+            seq.add(self._on_track_added)
 
         seq.add(partial(DomainEventBus.defer_emit, TracksMappedEvent()))
         seq.done()
@@ -124,7 +124,7 @@ class TrackMapperService(SlotManager):
         if self._usamo_device is None:
             Logger.warning("Usamo track is not present")
 
-    def _on_track_added_event(self):
+    def _on_track_added(self):
         # type: () -> Optional[Sequence]
         if not SongFacade.selected_track().IS_ACTIVE:
             return None

@@ -1,4 +1,9 @@
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack
+from functools import partial
+
+from typing import cast
+
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
+    ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -25,21 +30,23 @@ class TrackRecorderExternalSynthMixin(object):
         ApplicationViewFacade.show_device()
 
     # noinspection PyTypeHints,PyArgumentList
-    def _post_record(self):
+    def _post_audio_record(self):
         # type: (AbstractTrackRecorder) -> None
-        from typing import cast
         track = cast(ExternalSynthTrack, self.track)
-        # this is delayed in the case an encoder is touched after the recording is finished by mistake
-        for tick in [1, 10, 50, 100]:
-            Scheduler.wait(tick, self._recording_component.re_enable_automation)
-
         midi_clip_slot = track.midi_track.clip_slots[self.recording_scene_index]
         midi_clip = midi_clip_slot.clip
         audio_clip = track.audio_track.clip_slots[self.recording_scene_index].clip
         if not midi_clip or not audio_clip:
             return None
 
-        audio_clip.clip_name.update(base_name=midi_clip.clip_name.base_name)
-
         track.midi_track.select_clip_slot(midi_clip_slot._clip_slot)
         midi_clip.show_loop()
+        Scheduler.wait(5, partial(midi_clip.clip_name.update, ""))
+        Scheduler.wait(5, partial(audio_clip.clip_name.update, ""))
+
+    # noinspection PyTypeHints,PyArgumentList
+    def _post_record(self):
+        # type: (AbstractTrackRecorder) -> None
+        # this is delayed in the case an encoder is touched after the recording is finished by mistake
+        for tick in [1, 10, 50, 100]:
+            Scheduler.wait(tick, self._recording_component.re_enable_automation)

@@ -120,7 +120,9 @@ class SceneService(SlotManager):
 
     def _clean_deleted_scenes(self):
         # type: () -> None
-        existing_scene_ids = [scene._live_ptr for scene in self._live_song.scenes]
+        # existing_scene_ids = [scene._live_ptr for scene in self._live_song.scenes]
+        # cleaning all scenes always
+        existing_scene_ids = []
         deleted_ids = []  # type: List[int]
 
         for scene_id, scene in self._live_scene_id_to_scene.items():
@@ -134,12 +136,15 @@ class SceneService(SlotManager):
 
     def generate_scene(self, live_scene, index):
         # type: (Live.Scene.Scene, int) -> None
-        scene = self.get_optional_scene(live_scene)
-        if scene is None:
-            scene = Scene(live_scene, index)
-        else:
-            # reindexing
-            scene.index = index
+        # switching to full remap because of persisting mapping problems when moving scenes
+        scene = Scene(live_scene, index)
+
+        # scene = self.get_optional_scene(live_scene)
+        # if scene is None:
+        #     scene = Scene(live_scene, index)
+        # else:
+        #     # reindexing
+        #     scene.index = index
 
         self.add_scene(scene)
 
