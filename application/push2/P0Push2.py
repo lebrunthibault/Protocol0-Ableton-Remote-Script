@@ -3,14 +3,14 @@ from functools import partial
 
 import Live
 from ableton.v2.control_surface import Layer
+from protocol0_push2.push2 import Push2
+from pushbase.push_base import NUM_TRACKS, NUM_SCENES
 
 from protocol0.application.push2.P0SessionRingTrackProvider import P0SessionRingTrackProvider
 from protocol0.application.push2.P0TrackListComponent import P0TrackListComponent
 from protocol0.domain.shared.utils import nop
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
-from protocol0_push2.push2 import Push2
-from pushbase.push_base import NUM_TRACKS, NUM_SCENES
 
 
 class P0Push2(Push2):
@@ -76,7 +76,7 @@ class P0Push2(Push2):
 
     def _on_select_clip_slot(self, scene_index, track_index, _):
         # type: (int, int, Live.ClipSlot.ClipSlot) -> None
-        """show the clip view when selecting a clip"""
+        """When clicking on select + clip pad"""
         if track_index >= len(SongFacade.selected_scene().abstract_tracks):
             return None
         track = SongFacade.selected_scene().abstract_tracks[track_index]
@@ -85,3 +85,4 @@ class P0Push2(Push2):
         if scene_index >= len(track.clip_slots):
             return None
         track.select_clip_slot(track.clip_slots[scene_index]._clip_slot)
+        SongFacade.selected_clip().show_loop()

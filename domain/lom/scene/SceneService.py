@@ -77,7 +77,6 @@ class SceneService(SlotManager):
         for scene in SongFacade.scenes():
             if len(previous_live_scenes_ids) and scene.live_id not in previous_live_scenes_ids:
                 Scheduler.defer(scene.on_added)
-            Scheduler.defer(scene.refresh_appearance)
 
         DomainEventBus.defer_emit(ScenesMappedEvent())
         Logger.info("mapped scenes")
@@ -127,6 +126,8 @@ class SceneService(SlotManager):
         for scene_id, scene in self._live_scene_id_to_scene.items():
             if scene_id not in existing_scene_ids:
                 scene.disconnect()
+                if scene == Scene.PLAYING_SCENE:
+                    Scene.PLAYING_SCENE = None
 
         for scene_id in deleted_ids:
             del self._live_scene_id_to_scene[scene_id]
@@ -137,6 +138,7 @@ class SceneService(SlotManager):
         if scene is None:
             scene = Scene(live_scene, index)
         else:
+            # reindexing
             scene.index = index
 
         self.add_scene(scene)

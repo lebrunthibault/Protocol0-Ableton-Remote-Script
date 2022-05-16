@@ -3,6 +3,7 @@ from collections import Iterator
 import Live
 from typing import TYPE_CHECKING, Optional, List, cast
 
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 
 if TYPE_CHECKING:
@@ -90,7 +91,8 @@ class SongFacade(object):
     def live_tracks(cls):
         # type: () -> Iterator[Live.Track.Track]
         return (track for track in
-                list(cls._live_song().tracks) + list(cls._live_song().return_tracks) + [cls._live_song().master_track])
+                list(cls._live_song().tracks) + list(cls._live_song().return_tracks) + [
+                    cls._live_song().master_track])
 
     @classmethod
     def signature_numerator(cls):
@@ -128,14 +130,21 @@ class SongFacade(object):
     def simple_track_from_live_track(cls, live_track):
         # type: (Live.Track.Track) -> SimpleTrack
         """ we use the live ptr instead of the track to be able to access outdated simple tracks on deletion """
-        return cls._INSTANCE._track_mapper_service._live_track_id_to_simple_track[live_track._live_ptr]
+        track_mapping = cls._INSTANCE._track_mapper_service._live_track_id_to_simple_track
+        if live_track._live_ptr not in track_mapping:
+            existing_tracks = [str(track) for track in track_mapping.values()]
+            raise Protocol0Error(
+                "Couldn't find live track %s in _live_track_id_to_simple_track mapping : \n "
+                "%s" % (live_track.name, "\n".join(existing_tracks)))
+
+        return track_mapping[live_track._live_ptr]
 
     @classmethod
     def optional_simple_track_from_live_track(cls, live_track):
         # type: (Live.Track.Track) -> Optional[SimpleTrack]
         try:
             return cls.simple_track_from_live_track(live_track)
-        except KeyError:
+        except Protocol0Error:
             return None
 
     @classmethod

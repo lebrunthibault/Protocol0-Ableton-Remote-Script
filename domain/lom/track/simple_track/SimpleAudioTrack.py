@@ -6,7 +6,6 @@ from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
 class SimpleAudioTrack(SimpleTrack):
-    DEFAULT_NAME = "audio"
     CLIP_SLOT_CLASS = AudioClipSlot
 
     @property

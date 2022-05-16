@@ -9,6 +9,8 @@ from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
+from protocol0.domain.lom.track.abstract_track.AbstractTrackAppearance import \
+    AbstractTrackAppearance
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackArmState import \
     ExternalSynthTrackArmState
@@ -37,8 +39,6 @@ class ExternalSynthTrack(AbstractGroupTrack):
         super(ExternalSynthTrack, self).__init__(base_group_track)
         self.midi_track = cast(SimpleMidiTrack, base_group_track.sub_tracks[0])
         self.audio_track = cast(SimpleAudioTrack, base_group_track.sub_tracks[1])
-        self.midi_track.track_name.disconnect()
-        self.audio_track.track_name.disconnect()
         self.audio_tail_track = None  # type: Optional[SimpleAudioTailTrack]
 
         # sub tracks are now handled by self
@@ -61,19 +61,20 @@ class ExternalSynthTrack(AbstractGroupTrack):
         )  # type: ExternalSynthTrackMonitoringState
         self.arm_state = ExternalSynthTrackArmState(self.base_track, self.midi_track, self.monitoring_state)
 
+        self.appearance.register_observer(self)
+
         DomainEventBus.subscribe(LastBeatPassedEvent, self._on_last_beat_passed_event)
 
-    is_armed = cast(bool, ForwardTo("_arm_state", "is_armed"))
-    is_partially_armed = cast(bool, ForwardTo("_arm_state", "is_partially_armed"))
+    is_armed = cast(bool, ForwardTo("arm_state", "is_armed"))
+    is_partially_armed = cast(bool, ForwardTo("arm_state", "is_partially_armed"))
 
     def on_added(self):
         # type: () -> Sequence
         seq = Sequence()
-        seq.add(super(ExternalSynthTrack, self).on_added)
         seq.add(self.arm_state.arm)
 
-        for dummy_track in self.dummy_tracks:
-            seq.add([clip.delete for clip in dummy_track.clips])
+        for track in self.sub_tracks:
+            seq.add([clip.delete for clip in track.clips])
 
         return seq.done()
 
@@ -93,9 +94,10 @@ class ExternalSynthTrack(AbstractGroupTrack):
             return
 
         if playing_cs.clip.playing_position.in_last_bar:
-            audio_tail_clip = self.audio_tail_track.clip_slots[playing_cs.index].clip
-            if audio_tail_clip and not audio_tail_clip.is_recording:
-                audio_tail_clip.play_and_mute()
+            if playing_cs.index < len(self.audio_tail_track.clip_slots):
+                audio_tail_clip = self.audio_tail_track.clip_slots[playing_cs.index].clip
+                if audio_tail_clip and not audio_tail_clip.is_recording:
+                    audio_tail_clip.play_and_mute()
 
     def _map_optional_audio_tail_track(self):
         # type: () -> None
@@ -108,8 +110,6 @@ class ExternalSynthTrack(AbstractGroupTrack):
             self.audio_tail_track.group_track = self.base_track
             Scheduler.defer(partial(setattr, self.audio_tail_track.input_routing, "track", self.midi_track))
             Scheduler.defer(self.audio_tail_track.configure)
-            self.audio_tail_track.track_name.disconnect()
-            Scheduler.defer(partial(setattr, self.audio_tail_track, "name", SimpleAudioTailTrack.DEFAULT_NAME))
         elif not has_tail_track:
             self.audio_tail_track = None
 
@@ -126,7 +126,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
         for track in base_group_track.sub_tracks[2:]:
             if not isinstance(track, SimpleAudioTrack):
-                return False
+                return False  # type: ignore[unreachable]
 
         return True
 
@@ -158,7 +158,10 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
     def update(self, observable):
         # type: (Observable) -> None
-        if isinstance(observable, SimpleTrackDevices):
+        if isinstance(observable, AbstractTrackAppearance):
+            for sub_track in self.sub_tracks:
+                sub_track.appearance.color = self.appearance.color
+        elif isinstance(observable, SimpleTrackDevices):
             self._external_device = find_if(lambda d: d.is_external_device, list(self.midi_track.devices))
             if self._external_device is None:
                 raise Protocol0Warning("%s should have an external device" % self)
@@ -204,18 +207,6 @@ class ExternalSynthTrack(AbstractGroupTrack):
         self.base_track.solo = solo
         for sub_track in self.sub_tracks:
             sub_track.solo = solo
-
-    @property
-    def color(self):
-        # type: () -> int
-        return self.base_track.color
-
-    @color.setter
-    def color(self, color_index):
-        # type: (int) -> None
-        self.base_track.color = color_index
-        for sub_track in self.sub_tracks:
-            sub_track.color = color_index
 
     @property
     def can_change_presets(self):

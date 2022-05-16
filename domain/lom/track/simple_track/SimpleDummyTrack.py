@@ -1,3 +1,5 @@
+from functools import partial
+
 from typing import List, Any, cast
 
 from protocol0.domain.lom.clip.DummyClip import DummyClip
@@ -5,20 +7,27 @@ from protocol0.domain.lom.clip_slot.DummyClipSlot import DummyClipSlot
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
-from protocol0.domain.lom.track.simple_track.SimpleDummyTrackAddedEvent import SimpleDummyTrackAddedEvent
-from protocol0.domain.lom.track.simple_track.SimpleDummyTrackAutomation import SimpleDummyTrackAutomation
+from protocol0.domain.lom.track.simple_track.SimpleDummyTrackAddedEvent import \
+    SimpleDummyTrackAddedEvent
+from protocol0.domain.lom.track.simple_track.SimpleDummyTrackAutomation import \
+    SimpleDummyTrackAutomation
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 
 
 class SimpleDummyTrack(SimpleAudioTrack):
     CLIP_SLOT_CLASS = DummyClipSlot
+    TRACK_NAME = "d"
 
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(SimpleAudioTrack, self).__init__(*a, **k)
-        from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack
+        from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
+            ExternalSynthTrack
         self.abstract_group_track = cast(ExternalSynthTrack, self.abstract_group_track)
         self.automation = SimpleDummyTrackAutomation(self._track, self._clip_slots, self.devices)
+        if self.name != self.TRACK_NAME:
+            Scheduler.defer(partial(setattr, self, "name", self.TRACK_NAME))
 
     @property
     def clip_slots(self):
@@ -38,11 +47,6 @@ class SimpleDummyTrack(SimpleAudioTrack):
         DomainEventBus.emit(SimpleDummyTrackAddedEvent(self._track))
 
     @property
-    def computed_base_name(self):
-        # type: () -> str
-        return "dummy %d" % (self.abstract_group_track.dummy_tracks.index(self) + 1)
-
-    @property
     def computed_color(self):
         # type: () -> int
-        return self.group_track.color
+        return self.group_track.appearance.color

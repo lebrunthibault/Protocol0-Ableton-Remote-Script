@@ -1,22 +1,35 @@
 import Live
+from _Framework.SubjectSlot import subject_slot, SlotManager
 from typing import Optional
 
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.track.TrackColorEnum import TrackColorEnum
-from protocol0.domain.lom.track.abstract_track.AbstractTrackNameUpdatedEvent import AbstractTrackNameUpdatedEvent
+from protocol0.domain.lom.track.abstract_track.AbstractTrackNameUpdatedEvent import \
+    AbstractTrackNameUpdatedEvent
+from protocol0.domain.shared.decorators import defer
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
+from protocol0.shared.observer.Observable import Observable
 
 
-class AbstractTrackAppearance(object):
+class AbstractTrackAppearance(SlotManager, Observable):
     def __init__(self, live_track):
         # type: (Live.Track.Track) -> None
+        super(AbstractTrackAppearance, self).__init__()
         self._live_track = live_track
         self._default_color = self.color
         self._instrument = None  # type: Optional[InstrumentInterface]
+        self._name_listener.subject = live_track
 
     def set_instrument(self, instrument):
         # type: (InstrumentInterface) -> None
         self._instrument = instrument
+
+    @subject_slot("name")
+    @defer
+    def _name_listener(self):
+        # type: () -> None
+        if len(self.name) > 2:
+            self.name = self.name.title()
 
     @property
     def name(self):
@@ -48,3 +61,8 @@ class AbstractTrackAppearance(object):
     def computed_color(self):
         # type: () -> int
         return self._default_color
+
+    def refresh(self):
+        # type: () -> None
+        self.color = self._default_color
+        self.notify_observers()

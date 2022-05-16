@@ -32,7 +32,7 @@ class ClipAutomation(object):
         DomainEventBus.emit(ClipEnvelopeShowedEvent())
         self.displayed_automated_parameter = parameter
 
-    def scroll_envelopes(self, device_parameters, go_next):
+    def scroll_envelopes(self, device_parameters, go_next=True):
         # type: (List[DeviceParameter], bool) -> None
         automated_parameters = self.get_automated_parameters(device_parameters)
         if len(automated_parameters) == 0:

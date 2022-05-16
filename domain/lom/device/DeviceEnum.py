@@ -88,7 +88,7 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.EQ_EIGHT: "EQ Eight",
             DeviceEnum.EQ_EIGHT_RACK: "EQ Eight Rack.adg",
             DeviceEnum.EQ_ROOM: "EQ Room.adv",
-            DeviceEnum.LFO_TOOL: "LFOTool_X64",
+            DeviceEnum.LFO_TOOL: "LFOTool_x64",
             DeviceEnum.MIX_RACK: "Mix Rack.adg",
             DeviceEnum.PRO_Q_3: "FabFilter Pro-Q 3",
             DeviceEnum.SATURATOR: "Saturator",

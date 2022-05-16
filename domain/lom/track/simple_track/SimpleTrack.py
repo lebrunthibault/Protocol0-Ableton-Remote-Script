@@ -31,19 +31,18 @@ class SimpleTrack(AbstractTrack):
         self._track = live_track  # type: Live.Track.Track
         self._index = index
         super(SimpleTrack, self).__init__(self)
+        self.live_id = live_track._live_ptr  # type: int
+        DomainEventBus.emit(SimpleTrackCreatedEvent(self))
         # Note : SimpleTracks represent the first layer of abstraction and know nothing about
         # AbstractGroupTracks except with self.abstract_group_track which links both layers
         # and is handled by the abg
-        self.live_id = live_track._live_ptr  # type: int
         self.group_track = self.group_track  # type: Optional[SimpleTrack]
         self.sub_tracks = []  # type: List[SimpleTrack]
 
         self._instrument = None  # type: Optional[InstrumentInterface]
         self._view = live_track.view
         self._clip_slots = SimpleTrackClipSlots(live_track, self.CLIP_SLOT_CLASS)
-
-        if self.IS_ACTIVE:
-            self._clip_slots.build()
+        self._clip_slots.build()
 
         self.devices = SimpleTrackDevices(live_track)
         self.devices.register_observer(self)
@@ -53,8 +52,6 @@ class SimpleTrack(AbstractTrack):
         self.arm_state.register_observer(self)
 
         self._output_meter_level_listener.subject = None
-
-        DomainEventBus.emit(SimpleTrackCreatedEvent(self))
 
     device_insert_mode = cast(int, ForwardTo("_view", "device_insert_mode"))
 
@@ -99,12 +96,6 @@ class SimpleTrack(AbstractTrack):
                 )
         elif isinstance(observable, SimpleTrackArmState) and self.arm_state.is_armed:
             DomainEventBus.emit(SimpleTrackArmedEvent(self._track))
-
-    def refresh_appearance(self):
-        # type: () -> None
-        super(SimpleTrack, self).refresh_appearance()
-        for clip_slot in self.clip_slots:
-            clip_slot.refresh_appearance()
 
     @subject_slot("output_meter_level")
     def _output_meter_level_listener(self):

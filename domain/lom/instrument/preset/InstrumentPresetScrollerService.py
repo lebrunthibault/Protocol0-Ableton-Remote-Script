@@ -2,7 +2,8 @@ from functools import partial
 
 from protocol0.domain.lom.instrument.preset.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
+    ExternalSynthTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.decorators import lock
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
@@ -41,6 +42,6 @@ class InstrumentPresetScrollerService(object):
         instrument.preset_list.set_selected_category(category)
         category = instrument.preset_list.selected_category.title()
         if instrument.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.CATEGORY:
-            track.track_name.update(name=category)
+            track.appearance.name = category
         else:
             StatusBar.show_message("selected preset category %s" % category)

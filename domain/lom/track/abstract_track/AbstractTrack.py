@@ -11,9 +11,10 @@ from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.track.abstract_track.AbstrackTrackArmState import AbstractTrackArmState
-from protocol0.domain.lom.track.abstract_track.AbstractTrackAppearance import AbstractTrackAppearance
-from protocol0.domain.lom.track.abstract_track.AbstractTrackName import AbstractTrackName
-from protocol0.domain.lom.track.abstract_track.AbstractTrackSelectedEvent import AbstractTrackSelectedEvent
+from protocol0.domain.lom.track.abstract_track.AbstractTrackAppearance import \
+    AbstractTrackAppearance
+from protocol0.domain.lom.track.abstract_track.AbstractTrackSelectedEvent import \
+    AbstractTrackSelectedEvent
 from protocol0.domain.lom.track.routing.TrackInputRouting import TrackInputRouting
 from protocol0.domain.lom.track.routing.TrackOutputRouting import TrackOutputRouting
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
@@ -30,7 +31,6 @@ if TYPE_CHECKING:
 
 
 class AbstractTrack(SlotManager):
-    DEFAULT_NAME = "default"
     # when the color cannot be matched
     REMOVE_CLIPS_ON_ADDED = False
 
@@ -45,15 +45,7 @@ class AbstractTrack(SlotManager):
         self.abstract_group_track = None  # type: Optional[AbstractGroupTrack]
         self.sub_tracks = []  # type: List[AbstractTrack]
 
-        if not self.base_track.IS_ACTIVE:
-            return
-
         # MISC
-        self.track_name = AbstractTrackName(
-            self._track,
-            self.DEFAULT_NAME,
-            lambda: self.computed_base_name
-        )  # type: AbstractTrackName
         self.arm_state = AbstractTrackArmState(self._track)  # type: AbstractTrackArmState
         self.appearance = AbstractTrackAppearance(self._track)  # type: AbstractTrackAppearance
         self.input_routing = TrackInputRouting(self.base_track._track)
@@ -71,7 +63,6 @@ class AbstractTrack(SlotManager):
 
     def on_added(self):
         # type: () -> Optional[Sequence]
-        self.refresh_appearance()
         if self.REMOVE_CLIPS_ON_ADDED:
             seq = Sequence()
             seq.add([clip.delete for clip in self.clips])
@@ -141,14 +132,6 @@ class AbstractTrack(SlotManager):
         return [clip_slot.clip for clip_slot in self.clip_slots if clip_slot.has_clip and clip_slot.clip]
 
     name = cast(str, ForwardTo("appearance", "name"))
-
-    @property
-    def computed_base_name(self):
-        # type: () -> str
-        if self.instrument:
-            return self.instrument.name
-        else:
-            return self.DEFAULT_NAME
 
     @property
     def color(self):
@@ -248,13 +231,6 @@ class AbstractTrack(SlotManager):
         # noinspection PyTypeChecker
         self.base_track._track.stop_all_clips(not immediate)
 
-    def refresh_appearance(self):
-        # type: () -> None
-        if not self.base_track.IS_ACTIVE:
-            return
-        self.track_name.update()
-        self.appearance.color = self.appearance.computed_color
-
     def scroll_volume(self, go_next):
         # type: (AbstractTrack, bool) -> None
         self.volume += 0.5 if go_next else -0.5
@@ -287,11 +263,4 @@ class AbstractTrack(SlotManager):
         seq = Sequence()
         seq.add(self.arm_state.arm)
         seq.add(partial(self.instrument.preset_list.scroll, go_next))
-        seq.add(self.refresh_appearance)
         return seq.done()
-
-    def disconnect(self):
-        # type: () -> None
-        super(AbstractTrack, self).disconnect()
-        if hasattr(self, "track_name"):
-            self.track_name.disconnect()

@@ -9,7 +9,8 @@ from protocol0.domain.lom.clip.DummyClip import DummyClip
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
-from protocol0.domain.lom.track.simple_track.SimpleDummyTrackAddedEvent import SimpleDummyTrackAddedEvent
+from protocol0.domain.lom.track.simple_track.SimpleDummyTrackAddedEvent import \
+    SimpleDummyTrackAddedEvent
 from protocol0.domain.lom.track.simple_track.SimpleTrackClipSlots import SimpleTrackClipSlots
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
@@ -79,6 +80,7 @@ class SimpleDummyTrackAutomation(object):
     def _create_dummy_automation(self):
         # type: () -> None
         clip = list(self._clip_slots)[SongFacade.selected_scene().index].clip
+        assert clip
         clip.clip_name.update("")
         parameter_enum = cast(DeviceParameterEnum, DeviceParameterEnum.from_value(self._current_parameter_type))
 

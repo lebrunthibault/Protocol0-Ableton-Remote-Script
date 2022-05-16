@@ -1,7 +1,7 @@
-from typing import List, Any
-
 from protocol0.domain.audit.SetUpgradeService import SetUpgradeService
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
+from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
+from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.SongFacade import SongFacade
@@ -14,26 +14,6 @@ class SetFixerService(object):
         self._validator_service = validator_service
         self._set_upgrade_service = set_upgrade_service
 
-    @property
-    def _objects_to_refresh_appearance(self):
-        # type: () -> List[Any]
-        # noinspection PyTypeChecker
-        return [clip for track in SongFacade.simple_tracks() for clip in track.clips] + \
-               SongFacade.scenes() + \
-               list(SongFacade.abstract_tracks())
-
-    def refresh_appearance(self):
-        # type: () -> None
-        for obj in self._objects_to_refresh_appearance:
-            if hasattr(obj, "refresh_appearance"):
-                obj.refresh_appearance()
-
-    @property
-    def _objects_to_validate(self):
-        # type: () -> List[Any]
-        # noinspection PyTypeChecker
-        return SongFacade.scenes() + list(SongFacade.abstract_tracks())
-
     def fix_set(self):
         # type: () -> None
         """ Fix the current set to the current standard regarding naming / coloring etc .."""
@@ -41,24 +21,45 @@ class SetFixerService(object):
 
         invalid_objects = []
 
-        for obj in self._objects_to_validate:
+        objects_to_validate = SongFacade.scenes() + list(SongFacade.abstract_tracks())
+        for obj in objects_to_validate:
             is_valid = self._validator_service.validate_object(obj)
             if not is_valid:
                 invalid_objects.append(obj)
 
-        devices_to_remove = list(self._set_upgrade_service.get_deletable_devices())
-
-        if len(invalid_objects) == 0 and len(devices_to_remove) == 0:
+        if len(invalid_objects) == 0:
             Backend.client().show_success("Set is valid")
-            self.refresh_appearance()
+            self._refresh_objects_appearance()
         else:
-            if len(invalid_objects):
-                first_object = invalid_objects[0]
-                if isinstance(first_object, AbstractTrack):
-                    first_object.select()
-            if len(devices_to_remove):
-                Logger.warning("Devices to remove: %s" % devices_to_remove)
+            first_invalid_objects = next(iter(invalid_objects), None)
+            if isinstance(first_invalid_objects, AbstractTrack):
+                first_invalid_objects.select()
             Backend.client().show_warning("Invalid set: fixing")
             for invalid_object in invalid_objects:
                 self._validator_service.fix_object(invalid_object)
             Logger.info("set fixed")
+
+    def find_devices_to_remove(self):
+        # type: () -> None
+        devices_to_remove = list(self._set_upgrade_service.get_deletable_devices())
+
+        if len(devices_to_remove):
+            Logger.warning("Devices to remove: %s" % devices_to_remove)
+
+    def _refresh_objects_appearance(self):
+        # type: () -> None
+        clips = [clip for track in SongFacade.simple_tracks() for clip in track.clips]
+        # noinspection PyTypeChecker
+        objects_to_refresh_appearance = clips + SongFacade.scenes() + list(
+            SongFacade.abstract_tracks())
+
+        for obj in objects_to_refresh_appearance:
+            obj.appearance.refresh()
+
+        for track in SongFacade.external_synth_tracks():
+            track.midi_track.name = "m"
+            track.audio_track.name = "a"
+            if track.audio_tail_track:
+                track.audio_tail_track.name = SimpleAudioTailTrack.TRACK_NAME
+            for dummy_track in track.dummy_tracks:
+                dummy_track.name = SimpleDummyTrack.TRACK_NAME

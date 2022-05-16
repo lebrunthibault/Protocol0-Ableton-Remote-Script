@@ -37,7 +37,6 @@ class DrumRackService(object):
             seq.add(partial(self._populate_drum_rack, drum_category))
 
         seq.add(partial(setattr, SongFacade.selected_track(), "name", drum_category.name))
-        seq.add(SongFacade.selected_track().refresh_appearance)
         seq.add(partial(DomainEventBus.emit, DrumRackLoadedEvent()))
         return seq.done()
 

@@ -7,6 +7,7 @@ from _Framework.SubjectSlot import SlotManager, subject_slot
 from typing import List, Optional, Dict, cast
 
 from protocol0.domain.lom.scene.PlayingSceneChangedEvent import PlayingSceneChangedEvent
+from protocol0.domain.lom.scene.SceneAppearance import SceneAppearance
 from protocol0.domain.lom.scene.SceneClips import SceneClips
 from protocol0.domain.lom.scene.SceneCropScroller import SceneCropScroller
 from protocol0.domain.lom.scene.SceneLength import SceneLength
@@ -19,7 +20,7 @@ from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.shared.utils import scroll_values
+from protocol0.domain.shared.utils import scroll_values, ForwardTo
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
@@ -40,6 +41,7 @@ class Scene(SlotManager):
         self._scene_length = SceneLength(self.clips)
         self.playing_state = ScenePlayingState(self.clips, self._scene_length)
         self.scene_name = SceneName(live_scene, self._scene_length, self.playing_state)
+        self.appearance = SceneAppearance(live_scene, self.scene_name)
         self.crop_scroller = SceneCropScroller(self._scene_length)
         self.position_scroller = ScenePositionScroller(self._scene_length, self.playing_state)
 
@@ -70,7 +72,7 @@ class Scene(SlotManager):
     def update(self, observable):
         # type: (Observable) -> None
         if isinstance(observable, SceneClips):
-            self.check_scene_length()
+            self.appearance.refresh()
 
     def on_tracks_change(self):
         # type: () -> None
@@ -79,10 +81,6 @@ class Scene(SlotManager):
     def on_added(self):
         # type: () -> None
         self.clips.on_added_scene()
-
-    def refresh_appearance(self):
-        # type: (Scene) -> None
-        self.scene_name.update()
 
     @subject_slot("is_triggered")
     def is_triggered_listener(self):
@@ -109,28 +107,14 @@ class Scene(SlotManager):
         # type: () -> bool
         return bool(self._scene.is_triggered) if self._scene else False
 
-    @property
-    def name(self):
-        # type: () -> str
-        return self._scene and self._scene.name
-
-    @name.setter
-    def name(self, name):
-        # type: (str) -> None
-        if self._scene and name:
-            self._scene.name = str(name).strip()
-
-    length = cast(float, property(lambda self: self._scene_length.length))  # type: float
-    bar_length = cast(int, property(lambda self: self._scene_length.bar_length))   # type: int
+    name = cast(str, ForwardTo("appearance", "name"))
+    length = cast(float, ForwardTo("_scene_length", "length"))
+    bar_length = cast(int, ForwardTo("_scene_length", "bar_length"))
 
     @property
     def has_playing_clips(self):
         # type: () -> bool
         return SongFacade.is_playing() and any(clip and clip.is_playing and not clip.muted for clip in self.clips)
-
-    def check_scene_length(self):
-        # type: (Scene) -> None
-        Scheduler.defer(self.scene_name.update)
 
     def on_last_beat(self):
         # type: (Scene) -> None
@@ -178,7 +162,7 @@ class Scene(SlotManager):
         seq = Sequence()
         seq.add(self.fire)
         seq.defer()
-        seq.add(partial(self.position_scroller.set_value, cast(int, bar_length)))
+        seq.add(partial(self.position_scroller.set_value, bar_length))
 
         return seq.done()
 
@@ -189,3 +173,9 @@ class Scene(SlotManager):
         next_clip_slot = next_track.clip_slots[SongFacade.selected_scene().index]
         if next_clip_slot.clip:
             next_track.select_clip_slot(next_clip_slot._clip_slot)
+
+    def disconnect(self):
+        # type: () -> None
+        super(Scene, self).disconnect()
+        self.clips.disconnect()
+        self.scene_name.disconnect()

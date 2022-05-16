@@ -2,6 +2,7 @@ from __future__ import print_function
 
 from functools import partial
 
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -31,3 +32,36 @@ def test_sequence_parallel():
     seq.done()
 
     assert test_res == [0, 2]
+
+
+def test_sequence_parallel_wait_for_event_match():
+    test_res = []
+
+    class TestEvent(object):
+        def __init__(self, value):
+            # type: (int) -> None
+            self.value = value
+
+        def target(self):
+            # type: () -> int
+            return self.value
+
+    def inner_sequence(value):
+        # type: (int) -> Sequence
+        inner_seq = Sequence()
+        inner_seq.wait_for_event(TestEvent, value)
+        inner_seq.add(lambda: test_res.append(value))
+        return inner_seq.done()
+
+    input_data = range(0, 2)
+    seq = Sequence()
+    seq.add([partial(inner_sequence, i) for i in input_data])
+    seq.wait_for_event(TestEvent, 2)
+    seq.done()
+    assert test_res == []
+
+    for i in input_data:
+        DomainEventBus.emit(TestEvent(i))
+
+    assert test_res == input_data
+    seq._cancel()

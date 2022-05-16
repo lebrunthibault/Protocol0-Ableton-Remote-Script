@@ -78,6 +78,8 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
         Casting to int to have whole beats.
         not using unwarped audio clips
         """
+        if not self._clip:
+            return 0
         if self._clip.is_audio_clip and not self._clip.warping:
             return 0
         else:
@@ -90,10 +92,10 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
 
     @property
     def bar_length(self):
-        # type: () -> int
+        # type: () -> float
         return int(self.length / SongFacade.signature_numerator())
 
     @bar_length.setter
     def bar_length(self, bar_length):
-        # type: (int) -> None
+        # type: (float) -> None
         self.length = bar_length * SongFacade.signature_numerator()

@@ -9,8 +9,8 @@ from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 
 
 class SimpleAudioTailTrack(SimpleAudioTrack):
-    DEFAULT_NAME = "tail"
     CLIP_SLOT_CLASS = AudioTailClipSlot  # type: Type[AudioClipSlot]
+    TRACK_NAME = "t"
 
     @property
     def clip_slots(self):
@@ -24,6 +24,7 @@ class SimpleAudioTailTrack(SimpleAudioTrack):
 
     def configure(self):
         # type: () -> None
+        self.name = self.TRACK_NAME
         try:
             self.input_routing.channel = InputRoutingChannelEnum.POST_FX
         except Protocol0Error:

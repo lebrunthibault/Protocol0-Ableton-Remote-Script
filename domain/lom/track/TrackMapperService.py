@@ -13,9 +13,10 @@ from protocol0.domain.lom.track.TrackFactory import TrackFactory
 from protocol0.domain.lom.track.TracksMappedEvent import TracksMappedEvent
 from protocol0.domain.lom.track.drums.DrumsTrack import DrumsTrack
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
+    ExternalSynthTrack
+from protocol0.domain.lom.track.simple_track.InstrumentBusTrack import InstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.MasterTrack import MasterTrack
-from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.SimpleReturnTrack import SimpleReturnTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import SimpleTrackCreatedEvent
@@ -106,7 +107,7 @@ class TrackMapperService(SlotManager):
                 self._usamo_device = usamo_device
                 self._usamo_track = track
 
-            if isinstance(track, SimpleInstrumentBusTrack) and len(track.clips):
+            if isinstance(track, InstrumentBusTrack) and len(track.clips):
                 self._template_dummy_clip_slot = find_if(lambda cs: cs.clip is not None, track.clip_slots)
 
         for index, track in enumerate(list(self._live_song.return_tracks)):

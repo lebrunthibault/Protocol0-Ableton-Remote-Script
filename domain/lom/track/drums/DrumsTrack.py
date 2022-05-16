@@ -2,9 +2,4 @@ from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupT
 
 
 class DrumsTrack(NormalGroupTrack):
-    DEFAULT_NAME = "Drums"
-
-    @property
-    def computed_base_name(self):
-        # type: () -> str
-        return self.DEFAULT_NAME
+    TRACK_NAME = "Drums"

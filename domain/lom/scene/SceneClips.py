@@ -9,7 +9,7 @@ from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
 from protocol0.domain.lom.clip.DummyClip import DummyClip
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
-from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
+from protocol0.domain.lom.track.simple_track.InstrumentBusTrack import InstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.decorators import throttle
 from protocol0.shared.SongFacade import SongFacade
@@ -56,7 +56,7 @@ class SceneClips(SlotManager, Observable):
             clip_slot = track.clip_slots[self.index]
             self._clip_slots.append(clip_slot)
             clip = clip_slot.clip
-            if clip and clip_slot.has_clip and not type(track) == SimpleInstrumentBusTrack:
+            if clip and clip_slot.has_clip and not type(track) == InstrumentBusTrack:
                 self._all_clips.append(clip)
                 if not isinstance(clip, AudioTailClip) and not isinstance(clip, DummyClip):
                     self._clips.append(clip)
@@ -80,7 +80,7 @@ class SceneClips(SlotManager, Observable):
                     continue
 
                 if self._clip_has_default_recording_name(clip):
-                    clip.color = ClipColorEnum.AUDIO_UN_QUANTIZED.color_int_value
+                    clip.appearance.color = ClipColorEnum.AUDIO_UN_QUANTIZED.color_int_value
                 clip.clip_name.update("")
 
     def _clip_has_default_recording_name(self, clip):

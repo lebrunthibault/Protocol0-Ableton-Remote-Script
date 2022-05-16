@@ -9,8 +9,6 @@ from protocol0.domain.shared.decorators import defer
 
 
 class NormalGroupTrack(AbstractGroupTrack):
-    DEFAULT_NAME = "Group"
-
     def __init__(self, base_group_track):
         # type: (SimpleTrack) -> None
         super(NormalGroupTrack, self).__init__(base_group_track=base_group_track)
@@ -20,7 +18,7 @@ class NormalGroupTrack(AbstractGroupTrack):
     def make(cls, base_group_track):
         # type: (SimpleTrack) -> NormalGroupTrack
         from protocol0.domain.lom.track.drums.DrumsTrack import DrumsTrack
-        if base_group_track.track_name.get_base_name() == DrumsTrack.DEFAULT_NAME:
+        if base_group_track.name == DrumsTrack.TRACK_NAME:
             return DrumsTrack(base_group_track)
         else:
             return NormalGroupTrack(base_group_track)
@@ -32,8 +30,13 @@ class NormalGroupTrack(AbstractGroupTrack):
         for sub_track in self.sub_tracks:
             sub_track.solo = self.solo
 
+    def on_added(self):
+        # type: () -> None
+        super(NormalGroupTrack, self).on_added()
+        self.name = self.computed_name
+
     @property
-    def computed_base_name(self):
+    def computed_name(self):
         # type: () -> str
         # tracks have all the same name
         unique_sub_track_names = list(set([sub_track.name for sub_track in self.sub_tracks]))
@@ -55,7 +58,7 @@ class NormalGroupTrack(AbstractGroupTrack):
         if len(unique_sub_tracks_name_prefixes) == 1 and unique_sub_tracks_name_prefixes[0]:
             return unique_sub_tracks_name_prefixes[0]
 
-        return self.DEFAULT_NAME
+        return self.name
 
     @property
     def _common_subtracks_instrument_class(self):

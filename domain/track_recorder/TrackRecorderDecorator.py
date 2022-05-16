@@ -15,6 +15,10 @@ class TrackRecorderDecorator(AbstractTrackRecorder):
         self.recorder = recorder
         self._track = recorder.track
 
+    def __repr__(self):
+        # type: () -> str
+        return "%s(recorder=%s)" % (self.__class__.__name__, self.recorder)
+
     def legend(self, bar_length):
         # type: (int) -> str
         return self.recorder.legend(bar_length)

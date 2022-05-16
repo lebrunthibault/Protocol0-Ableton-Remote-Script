@@ -7,9 +7,10 @@ from typing import Iterator
 from protocol0.domain.lom.song.SongInitializedEvent import SongInitializedEvent
 from protocol0.domain.lom.track.SelectedTrackChangedEvent import SelectedTrackChangedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.domain.lom.track.abstract_track.AbstractTrackSelectedEvent import AbstractTrackSelectedEvent
+from protocol0.domain.lom.track.abstract_track.AbstractTrackSelectedEvent import \
+    AbstractTrackSelectedEvent
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
-from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
+from protocol0.domain.lom.track.simple_track.InstrumentBusTrack import InstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
@@ -52,7 +53,7 @@ class TrackComponent(SlotManager):
     def abstract_tracks(self):
         # type: () -> Iterator[AbstractTrack]
         for track in SongFacade.simple_tracks():
-            if type(track) == SimpleInstrumentBusTrack or track == SongFacade.usamo_track():
+            if type(track) == InstrumentBusTrack or track == SongFacade.usamo_track():
                 continue
             if track.abstract_group_track:
                 # skipping ExternalSynthTrack sub tracks

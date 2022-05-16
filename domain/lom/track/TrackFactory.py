@@ -9,9 +9,10 @@ from protocol0.domain.lom.drum.DrumCategory import DrumCategory
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
+    ExternalSynthTrack
+from protocol0.domain.lom.track.simple_track.InstrumentBusTrack import InstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
-from protocol0.domain.lom.track.simple_track.SimpleInstrumentBusTrack import SimpleInstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
@@ -38,8 +39,8 @@ class TrackFactory(object):
             return existing_simple_track
 
         if cls is None:
-            if track.name == SimpleInstrumentBusTrack.DEFAULT_NAME:
-                cls = SimpleInstrumentBusTrack
+            if track.name == InstrumentBusTrack.TRACK_NAME:
+                cls = InstrumentBusTrack
             elif track.has_midi_input:
                 cls = SimpleMidiTrack
             elif track.has_audio_input:
@@ -101,14 +102,3 @@ class TrackFactory(object):
         # type: (DrumCategory) -> None
         SongFacade.selected_track().instrument.preset_list.set_selected_category(drum_category.name)
         SongFacade.selected_track().scroll_presets(True)
-
-    def add_dummy_track(self):
-        # type: () -> Sequence
-        current_track = SongFacade.current_track()
-        if not isinstance(current_track, AbstractGroupTrack):
-            raise Protocol0Warning("Can add dummy track only on AbstractGroupTrack")
-
-        if len(current_track.dummy_tracks) == 0:
-            raise Protocol0Warning("The first dummy track should be added manually")
-
-        return self._track_crud_component.create_audio_track(current_track.sub_tracks[-1].index)

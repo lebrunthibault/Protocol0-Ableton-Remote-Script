@@ -33,7 +33,7 @@ class AbstractTrackRecorder(object):
 
     def __repr__(self):
         # type: () -> str
-        return "%s of %s" % (self.__class__.__name__, self.track)
+        return "%s(track=%s)" % (self.__class__.__name__, self.track)
 
     def legend(self, bar_length):
         # type: (int) -> str

@@ -6,7 +6,6 @@ from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 
 
 class SimpleMidiTrack(SimpleTrack):
-    DEFAULT_NAME = "midi"
     CLIP_SLOT_CLASS = MidiClipSlot
 
     @property

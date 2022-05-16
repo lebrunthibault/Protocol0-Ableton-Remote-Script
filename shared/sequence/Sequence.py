@@ -29,6 +29,7 @@ class Sequence(Observable):
     """
     RUNNING_SEQUENCES = []  # type: List[Sequence]
     _DEBUG = False
+    _STEP_TIMEOUT = 50  # seconds
 
     def __init__(self, name=None):
         # type: (Optional[str]) -> None
@@ -165,13 +166,16 @@ class Sequence(Observable):
 
         def subscribe():
             # type: () -> None
-            DomainEventBus.once(event_class, on_event)
+            DomainEventBus.subscribe(event_class, on_event)
             if check_song_stop:
                 DomainEventBus.once(SongStoppedEvent, on_event)
 
         def on_event(event):
             # type: (object) -> None
-            if expected_emitter and isinstance(event, HasEmitter):
+            if expected_emitter is not None and isinstance(event, HasEmitter):
+                if self._DEBUG:
+                    Logger.info("expected_emitter: %s, event.target(): %s" % (expected_emitter,
+                                                                              event.target()))
                 if event.target() != expected_emitter:
                     return  # not the right emitter
 
@@ -184,7 +188,7 @@ class Sequence(Observable):
 
     def _add_timeout_step(self, func, legend):
         # type: (Callable, str) -> None
-        seconds = 50
+        seconds = self._STEP_TIMEOUT
 
         def cancel():
             # type: () -> None

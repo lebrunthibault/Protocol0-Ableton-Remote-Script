@@ -13,7 +13,6 @@ class AbstractGroupTrack(AbstractTrack):
         # type: (SimpleTrack) -> None
         super(AbstractGroupTrack, self).__init__(base_group_track)
         self.base_track.abstract_group_track = self
-        base_group_track.track_name.disconnect()
         # filled when link_sub_tracks is called
         self.group_track = self.group_track  # type: Optional[AbstractGroupTrack]
         self.sub_tracks = []  # type: List[AbstractTrack]
@@ -29,12 +28,8 @@ class AbstractGroupTrack(AbstractTrack):
     def _link_sub_tracks(self):
         # type: () -> None
         """ 2nd layer linking """
-        update_name = len(self.sub_tracks) and len(self.sub_tracks) != len(self.base_track.sub_tracks)
-
-        self.sub_tracks[:] = self.base_track.sub_tracks
         # here we don't necessarily link the sub tracks to self
-        if update_name:
-            Scheduler.defer(self.track_name.update)
+        self.sub_tracks[:] = self.base_track.sub_tracks
 
     def _link_group_track(self):
         # type: () -> None
@@ -66,7 +61,6 @@ class AbstractGroupTrack(AbstractTrack):
 
             dummy_track.group_track = self.base_track
             dummy_track.abstract_group_track = self
-            Scheduler.defer(dummy_track.track_name.update)
 
         Scheduler.wait(3, self._link_dummy_tracks_routings)
 

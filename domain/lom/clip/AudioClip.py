@@ -4,8 +4,8 @@ from _Framework.SubjectSlot import subject_slot
 from typing import Any
 
 from protocol0.domain.lom.clip.Clip import Clip
-from protocol0.domain.shared.ColorEnum import ColorEnum
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.ui.ColorEnum import ColorEnum
 from protocol0.shared.logging.Logger import Logger
 
 
@@ -14,7 +14,7 @@ class AudioClip(Clip):
         # type: (Any, Any) -> None
         super(AudioClip, self).__init__(*a, **k)
         self._warping_listener.subject = self._clip
-        Scheduler.defer(self.refresh_appearance)
+        Scheduler.defer(self.appearance.refresh)
 
     @subject_slot("warping")
     def _warping_listener(self):
@@ -32,5 +32,5 @@ class AudioClip(Clip):
         # type: () -> None
         """ Live.Clip.Clip.crop_sample doesn't exist so we notify the user """
         if self.loop.start != 0:
-            self.color = ColorEnum.WARNING.color_int_value
+            self.appearance.color = ColorEnum.WARNING.color_int_value
             Logger.warning("Please crop %s" % self)

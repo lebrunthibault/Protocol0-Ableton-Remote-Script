@@ -19,6 +19,10 @@ class AbstractTrackRecorderFactory(object):
         self._recording_component = recording_component
         self._recording_bar_length = recording_bar_length
 
+    def __repr__(self):
+        # type: () -> str
+        return "%s" % self.__class__.__name__
+
     def create_recorder(self, record_type):
         # type: (RecordTypeEnum) -> AbstractTrackRecorder
         recorder = self._get_recorder_class(record_type)(self.track, self._playback_component, self._recording_component)

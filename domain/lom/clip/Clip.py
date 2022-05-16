@@ -2,7 +2,7 @@ import Live
 from _Framework.SubjectSlot import SlotManager
 from typing import Optional, List, cast
 
-from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
+from protocol0.domain.lom.clip.ClipAppearance import ClipAppearance
 from protocol0.domain.lom.clip.ClipConfig import ClipConfig
 from protocol0.domain.lom.clip.ClipLoop import ClipLoop
 from protocol0.domain.lom.clip.ClipName import ClipName
@@ -22,10 +22,12 @@ class Clip(SlotManager, Observable):
         self._config = config
 
         self.deleted = False
+
+        self.clip_name = ClipName(live_clip)  # type: ClipName
+        self.appearance = ClipAppearance(live_clip, self.clip_name, config.color)
         self.loop = ClipLoop(live_clip)  # type: ClipLoop
         self.automation = ClipAutomation(live_clip, self.loop)  # type: ClipAutomation
         self.playing_position = ClipPlayingPosition(live_clip, self.loop)  # type: ClipPlayingPosition
-        self.clip_name = ClipName(live_clip)  # type: ClipName
 
         self.loop.register_observer(self)
 
@@ -47,29 +49,8 @@ class Clip(SlotManager, Observable):
         # type: () -> int
         return self._config.index
 
-    @property
-    def name(self):
-        # type: () -> str
-        return self._clip.name
-
-    @name.setter
-    def name(self, name):
-        # type: (str) -> None
-        if self._clip and name:
-            self._clip.name = str(name).strip()
-
+    name = cast(str, ForwardTo("appearance", "name"))
     length = cast(float, ForwardTo("loop", "length"))
-
-    @property
-    def color(self):
-        # type: () -> int
-        return self._clip.color_index if self._clip else 0
-
-    @color.setter
-    def color(self, color_index):
-        # type: (int) -> None
-        if self._clip:
-            self._clip.color_index = color_index
 
     @property
     def is_triggered(self):
@@ -157,12 +138,6 @@ class Clip(SlotManager, Observable):
         # type: () -> Optional[Sequence]
         """ overridden """
         pass
-
-    def refresh_appearance(self):
-        # type: () -> None
-        self.clip_name._name_listener(force=True)
-        if self.color != ClipColorEnum.AUDIO_UN_QUANTIZED.color_int_value:
-            self.color = self._config.color
 
     def post_record(self, bar_length):
         # type: (int) -> None

@@ -7,9 +7,11 @@ from typing import Optional
 
 from protocol0.domain.lom.scene.SceneLength import SceneLength
 from protocol0.domain.lom.scene.ScenePlayingState import ScenePlayingState
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import get_length_legend
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 
 
 class SceneName(SlotManager):
@@ -34,6 +36,9 @@ class SceneName(SlotManager):
 
     def _get_base_name(self):
         # type: () -> str
+        if not self._scene:
+            raise Protocol0Error("invalid scene object")
+
         # catches base name with or without bar length legend
         forbidden_first_character = "(?!([\\d|-]+))"
         match = re.match("^(?P<base_name>%s[^()]*)" % forbidden_first_character,
@@ -45,7 +50,13 @@ class SceneName(SlotManager):
     def update(self, base_name=None, bar_position=None):
         # type: (str, Optional[int]) -> None
         """ throttling to avoid multiple calls due to name listener """
-        base_name = base_name if base_name else self._get_base_name()
+        try:
+            base_name = base_name if base_name else self._get_base_name()
+        except Protocol0Error as e:
+            Logger.warning(str(e))
+            self.disconnect()
+            return
+
         length_legend = get_length_legend(beat_length=self._scene_length.length)
 
         if self._scene_playing_state.has_playing_clips:

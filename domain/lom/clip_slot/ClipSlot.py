@@ -7,6 +7,7 @@ from typing import Any, Optional, Type
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.ClipConfig import ClipConfig
 from protocol0.domain.lom.clip.ClipCreatedOrDeletedEvent import ClipCreatedOrDeletedEvent
+from protocol0.domain.lom.clip_slot.ClipSlotAppearance import ClipSlotAppearance
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -18,11 +19,13 @@ from protocol0.shared.sequence.Sequence import Sequence
 class ClipSlot(SlotManager, Observable):
     CLIP_CLASS = Clip  # type: Type[Clip]
 
-    def __init__(self, clip_slot, clip_config):
+    def __init__(self, live_clip_slot, clip_config):
         # type: (Live.ClipSlot.ClipSlot, ClipConfig) -> None
         super(ClipSlot, self).__init__()
-        self._clip_slot = clip_slot
+        self._clip_slot = live_clip_slot
         self._clip_config = clip_config
+        self.appearance = ClipSlotAppearance(live_clip_slot)
+
         self.has_clip_listener.subject = self._clip_slot
         self.clip = None  # type: Optional[Clip]
         self._map_clip()
@@ -50,8 +53,8 @@ class ClipSlot(SlotManager, Observable):
         DomainEventBus.emit(ClipCreatedOrDeletedEvent(self._clip_slot))
         self.notify_observers()
 
-        if not self.clip and self.has_stop_button:
-            Scheduler.defer(partial(setattr, self, "has_stop_button", False))
+        if not self.clip and self.appearance.has_stop_button:
+            Scheduler.defer(partial(setattr, self.appearance, "has_stop_button", False))
 
     def _map_clip(self, is_new=False):
         # type: (bool) -> None
@@ -71,25 +74,10 @@ class ClipSlot(SlotManager, Observable):
             if observable.deleted:
                 self.delete_clip()
 
-    def refresh_appearance(self):
-        # type: () -> None
-        self.has_stop_button = False
-
     @property
     def has_clip(self):
         # type: () -> bool
         return self._clip_slot and self._clip_slot.has_clip
-
-    @property
-    def has_stop_button(self):
-        # type: () -> bool
-        return self._clip_slot and self._clip_slot.has_stop_button
-
-    @has_stop_button.setter
-    def has_stop_button(self, has_stop_button):
-        # type: (bool) -> None
-        if self._clip_slot:
-            self._clip_slot.has_stop_button = has_stop_button
 
     def delete_clip(self):
         # type: () -> Sequence
@@ -125,7 +113,7 @@ class ClipSlot(SlotManager, Observable):
             seq.add(self.delete_clip)
             seq.wait(3)  # because has stop button is automatically removed on deletion
 
-        seq.add(partial(setattr, self, "has_stop_button", True))
+        seq.add(partial(setattr, self.appearance, "has_stop_button", True))
         seq.defer()
         return seq.done()
 
