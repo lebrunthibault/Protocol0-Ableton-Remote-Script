@@ -8,8 +8,10 @@ from protocol0.domain.lom.song.SongInitializedEvent import SongInitializedEvent
 from protocol0.domain.lom.song.components.TempoComponent import TempoComponent
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.track_recorder.TrackRecordingStartedEvent import TrackRecordingStartedEvent
 from protocol0.shared.Config import Config
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.logging.StatusBar import StatusBar
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -21,21 +23,27 @@ class QuantizationComponent(SlotManager):
         self._song = song
         self._tempo_component = tempo_component
         self._clip_trigger_quantization_listener.subject = song
-        DomainEventBus.subscribe(SongInitializedEvent, lambda _: self._check_quantization_is_valid())
-        DomainEventBus.subscribe(TrackRecordingStartedEvent, lambda _: self._check_quantization_is_valid())
+        DomainEventBus.subscribe(SongInitializedEvent,
+                                 lambda _: self._check_quantization_is_valid())
+        DomainEventBus.subscribe(TrackRecordingStartedEvent,
+                                 lambda _: self._check_quantization_is_valid())
 
     @subject_slot("clip_trigger_quantization")
     def _clip_trigger_quantization_listener(self):
         # type: () -> None
+        """This happens when I miss click ctrl+0 and is never intended"""
         if self.clip_trigger_quantization != Live.Song.Quantization.q_bar:
-            Backend.client().show_warning("global launch quantization change to %s. Modifying" %
-                                          self.clip_trigger_quantization, centered=True)
-            self.clip_trigger_quantization = Live.Song.Quantization.q_bar
+            Logger.warning("global launch quantization change to %s. Modifying" %
+                           self.clip_trigger_quantization, centered=True)
+            Scheduler.defer(partial(setattr, self, "clip_trigger_quantization",
+                                    Live.Song.Quantization.q_bar))
 
     def _check_quantization_is_valid(self):
         # type: () -> Optional[Sequence]
         if self.clip_trigger_quantization != Live.Song.Quantization.q_bar:
-            Backend.client().show_warning("Fixing global launch quantization set to %s" % self.clip_trigger_quantization, centered=True)
+            Backend.client().show_warning(
+                "Fixing global launch quantization set to %s" % self.clip_trigger_quantization,
+                centered=True)
             self.clip_trigger_quantization = Live.Song.Quantization.q_bar
             return None
 
@@ -46,7 +54,8 @@ class QuantizationComponent(SlotManager):
         seq.prompt("Midi recording quantization %s is not tempo default : %s, Set to default ?" % (
             self.midi_recording_quantization, self.tempo_default_midi_recording_quantization))
         seq.add(
-            partial(setattr, self, "midi_recording_quantization", self.tempo_default_midi_recording_quantization))
+            partial(setattr, self, "midi_recording_quantization",
+                    self.tempo_default_midi_recording_quantization))
         seq.add(partial(StatusBar.show_message,
                         "Quantization set to %s" % self.tempo_default_midi_recording_quantization))
 

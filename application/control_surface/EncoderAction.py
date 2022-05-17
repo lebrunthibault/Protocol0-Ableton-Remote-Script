@@ -51,6 +51,8 @@ class EncoderAction(object):
         seq = Sequence()
         seq.add(partial(func, *a, **k))
         seq.add(UndoFacade.end_undo_step)
+        seq.add(partial(Logger.info, "%s : executed %s" % (encoder_name, get_callable_repr(
+            func))))
         return seq.done()
 
     @classmethod

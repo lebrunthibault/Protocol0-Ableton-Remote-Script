@@ -41,8 +41,8 @@ class TrackRecorderExternalSynthMixin(object):
 
         track.midi_track.select_clip_slot(midi_clip_slot._clip_slot)
         midi_clip.show_loop()
-        Scheduler.wait(5, partial(midi_clip.clip_name.update, ""))
-        Scheduler.wait(5, partial(audio_clip.clip_name.update, ""))
+        Scheduler.wait(10, partial(midi_clip.clip_name.update, ""))
+        Scheduler.wait(10, partial(audio_clip.clip_name.update, ""))
 
     # noinspection PyTypeHints,PyArgumentList
     def _post_record(self):
