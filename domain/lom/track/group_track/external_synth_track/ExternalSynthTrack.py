@@ -24,7 +24,7 @@ from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
+from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import find_if, ForwardTo
 from protocol0.shared.logging.StatusBar import StatusBar
@@ -64,7 +64,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
         self.appearance.register_observer(self)
 
-        DomainEventBus.subscribe(LastBeatPassedEvent, self._on_last_beat_passed_event)
+        DomainEventBus.subscribe(BarChangedEvent, self._on_bar_changed_event)
 
     is_armed = cast(bool, ForwardTo("arm_state", "is_armed"))
     is_partially_armed = cast(bool, ForwardTo("arm_state", "is_partially_armed"))
@@ -88,9 +88,9 @@ class ExternalSynthTrack(AbstractGroupTrack):
         super(ExternalSynthTrack, self).on_tracks_change()
         self._map_clip_slots()
 
-    def _on_last_beat_passed_event(self, _):
-        # type: (LastBeatPassedEvent) -> None
-        # if it is the last bar
+    def _on_bar_changed_event(self, _):
+        # type: (BarChangedEvent) -> None
+        """Launches the tail clip on last playing clip slot bar"""
         playing_cs = find_if(lambda cs: cs.is_playing, self.audio_track.clip_slots)
         if playing_cs is None \
                 or playing_cs.clip is None \

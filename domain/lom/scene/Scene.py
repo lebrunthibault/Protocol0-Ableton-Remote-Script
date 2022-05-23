@@ -15,13 +15,13 @@ from protocol0.domain.lom.scene.SceneName import SceneName
 from protocol0.domain.lom.scene.ScenePlayingState import ScenePlayingState
 from protocol0.domain.lom.scene.ScenePositionScroller import ScenePositionScroller
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import scroll_values, ForwardTo
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -65,8 +65,9 @@ class Scene(SlotManager):
     def _tracks_to_stop(self, scene):
         # type: (Scene) -> Iterator[SimpleTrack]
         # manually stopping previous scene because we don't display clip slot stop buttons
+        Logger.dev("scene.clips.tracks: %s" % list(scene.clips.tracks))
         for track in scene.clips.tracks:
-            if track.is_playing and track not in self.clips.tracks and not type(track) == SimpleAudioTailTrack:
+            if track.is_playing and track not in self.clips.tracks:
                 yield track
 
     def update(self, observable):
@@ -119,7 +120,7 @@ class Scene(SlotManager):
 
     def on_last_beat(self):
         # type: (Scene) -> None
-        if SongFacade.is_recording():
+        if SongFacade.is_track_recording():
             return
 
         if self.playing_state.in_last_bar:
@@ -144,6 +145,7 @@ class Scene(SlotManager):
         DomainEventBus.emit(PlayingSceneChangedEvent())
 
         # manually stopping previous scene because we don't display clip slot stop buttons
+        Logger.dev("tracks to stop : %s" % list(self._tracks_to_stop(previous_playing_scene)))
         for track in self._tracks_to_stop(previous_playing_scene):
             track.stop(immediate=immediate)
 

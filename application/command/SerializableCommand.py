@@ -7,7 +7,11 @@ from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 class SerializableCommand(object):
     def __repr__(self):
         # type: () -> str
-        return self.serialize()
+        if len(self.__dict__) == 0:
+            return self.__class__.__name__
+        else:
+            kwargs = ",".join(["%s=%s" % (k, v) for k, v in self.__dict__.items()])
+            return "%s(%s)" % (self.__class__.__name__, kwargs)
 
     def serialize(self):
         # type: () -> str

@@ -207,6 +207,16 @@ class SongFacade(object):
         return cls._INSTANCE._track_mapper_service._master_track
 
     @classmethod
+    def scenes(cls):
+        # type: () -> List[Scene]
+        return cls._INSTANCE._scene_service.scenes
+
+    @classmethod
+    def last_scene(cls):
+        # type: () -> Scene
+        return cls._INSTANCE._scene_service.last_scene
+
+    @classmethod
     def selected_scene(cls):
         # type: () -> Scene
         return cls._INSTANCE._scene_service.get_scene(cls._live_song().view.selected_scene)
@@ -229,11 +239,6 @@ class SongFacade(object):
         from protocol0.domain.lom.scene.Scene import Scene
 
         return Scene.LAST_MANUALLY_STARTED_SCENE or cls.selected_scene()
-
-    @classmethod
-    def scenes(cls):
-        # type: () -> List[Scene]
-        return cls._INSTANCE._scene_service.scenes
 
     @classmethod
     def selected_clip_slot(cls):
@@ -279,10 +284,9 @@ class SongFacade(object):
         return cls._INSTANCE._playback_component.is_playing
 
     @classmethod
-    def is_recording(cls):
+    def is_track_recording(cls):
         # type: () -> bool
-        return cls._INSTANCE._track_recorder_service.is_recording or \
-            cls._INSTANCE._recording_component.record_mode
+        return cls._INSTANCE._track_recorder_service.is_recording
 
     @classmethod
     def midi_recording_quantization(cls):

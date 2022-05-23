@@ -36,6 +36,11 @@ class ExternalSynthTrackArmState(AbstractTrackArmState):
         # type: () -> bool
         return any(sub_track.arm_state.is_armed for sub_track in self._sub_tracks if not isinstance(sub_track, SimpleDummyTrack))
 
+    def unarm(self):
+        # type: () -> None
+        self.is_armed = False
+        self._monitoring_state.monitor_audio()
+
     def arm_track(self):
         # type: () -> Optional[Sequence]
         self._base_track.is_folded = False
@@ -50,8 +55,3 @@ class ExternalSynthTrackArmState(AbstractTrackArmState):
         seq = Sequence()
         seq.add([sub_track.arm_state.arm_track for sub_track in self._sub_tracks if not isinstance(sub_track, SimpleDummyTrack)])
         return seq.done()
-
-    def unarm(self):
-        # type: () -> None
-        self.is_armed = False
-        self._monitoring_state.monitor_audio()

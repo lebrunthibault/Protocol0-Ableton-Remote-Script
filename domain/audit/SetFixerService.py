@@ -48,9 +48,10 @@ class SetFixerService(object):
 
     def _refresh_objects_appearance(self):
         # type: () -> None
+        clip_slots = [cs for track in SongFacade.simple_tracks() for cs in track.clip_slots]
         clips = [clip for track in SongFacade.simple_tracks() for clip in track.clips]
         # noinspection PyTypeChecker
-        objects_to_refresh_appearance = clips + SongFacade.scenes() + list(
+        objects_to_refresh_appearance = clip_slots + clips + SongFacade.scenes() + list(
             SongFacade.abstract_tracks())
 
         for obj in objects_to_refresh_appearance:

@@ -8,8 +8,7 @@ from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudio
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.shared.SongFacade import SongFacade
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 
 
 class ExternalSynthTrackMonitoringState(object):
@@ -32,7 +31,10 @@ class ExternalSynthTrackMonitoringState(object):
         if self._monitors_midi:
             self.monitor_audio()
         else:
-            self.monitor_midi()
+            if self._midi_track.arm_state.is_armed:
+                self.monitor_midi()
+            else:
+                raise Protocol0Warning("Please arm the track first")
 
     @property
     def _monitors_midi(self):
@@ -44,14 +46,14 @@ class ExternalSynthTrackMonitoringState(object):
         # midi track
         self._un_mute_track(self._midi_track)
 
-        for midi_clip in self._midi_track.clips:
-            audio_clip = list(self._audio_track.clip_slots)[midi_clip.index].clip
-            # do not unmute muted clip slot
-            if audio_clip and audio_clip.muted:
-                continue
-            midi_clip.muted = False
-            if audio_clip and audio_clip.is_playing and SongFacade.is_playing() and not SongFacade.is_recording():
-                Scheduler.defer(SongFacade.scenes()[midi_clip.index].fire)
+        # for midi_clip in self._midi_track.clips:
+        #     audio_clip = list(self._audio_track.clip_slots)[midi_clip.index].clip
+        #     # do not unmute muted clip slot
+        #     if audio_clip and audio_clip.muted:
+        #         continue
+        #     midi_clip.muted = False
+        #     # if audio_clip and audio_clip.is_playing and SongFacade.is_playing():
+        #     #     Scheduler.defer(SongFacade.scenes()[midi_clip.index].fire)
 
         # audio track
         self._mute_track(self._audio_track)

@@ -1,2 +1,0 @@
-class SongStartedEvent(object):
-    pass

@@ -7,7 +7,6 @@ from typing import List, cast, Iterator
 from protocol0.domain.lom.clip.AudioTailClip import AudioTailClip
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
-from protocol0.domain.lom.clip.DummyClip import DummyClip
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.track.simple_track.InstrumentBusTrack import InstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -23,7 +22,7 @@ class SceneClips(SlotManager, Observable):
         self.index = index
         self._clips = []  # type: List[Clip]
         self._all_clips = []  # type: List[Clip]
-        self.audio_tail_clips = []  # type: List[Clip]
+        self.audio_tail_clips = []  # type: List[AudioTailClip]
         self._clip_slots = []  # type: List[ClipSlot]
         self._tracks = []  # type: List[SimpleTrack]
 
@@ -58,7 +57,7 @@ class SceneClips(SlotManager, Observable):
             clip = clip_slot.clip
             if clip and clip_slot.has_clip and not type(track) == InstrumentBusTrack:
                 self._all_clips.append(clip)
-                if not isinstance(clip, AudioTailClip) and not isinstance(clip, DummyClip):
+                if not isinstance(clip, AudioTailClip):
                     self._clips.append(clip)
                     self._tracks.append(track)
 

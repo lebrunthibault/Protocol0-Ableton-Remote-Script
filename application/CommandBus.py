@@ -1,4 +1,5 @@
 import time
+from functools import partial
 
 from typing import Dict, Type, Optional
 
@@ -70,13 +71,19 @@ class CommandBus(object):
             return None
 
         self._last_command = command
-        self._last_command_processed_at = time.time()
-        if self._DEBUG:
-            Logger.info("Executing %s at %.5f" % (command, self._last_command_processed_at))
+        start_at = time.time()
+        self._last_command_processed_at = start_at
 
         handler = self._command_mapping[command.__class__](self._container)
         UndoFacade.begin_undo_step()
-        return handler.handle(command)
+        seq = Sequence()
+        seq.add(partial(handler.handle, command))
+        seq.add(UndoFacade.end_undo_step)
+
+        if self._DEBUG:
+            seq.add(lambda: Logger.info("%s : took %.3fs" % (command, time.time() - start_at)))
+
+        return seq.done()
 
     def _is_duplicate_command(self, command):
         # type: (SerializableCommand) -> bool

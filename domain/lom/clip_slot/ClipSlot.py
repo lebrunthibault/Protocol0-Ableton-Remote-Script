@@ -53,7 +53,7 @@ class ClipSlot(SlotManager, Observable):
         DomainEventBus.emit(ClipCreatedOrDeletedEvent(self._clip_slot))
         self.notify_observers()
 
-        if not self.clip and self.appearance.has_stop_button:
+        if self.appearance.has_stop_button:
             Scheduler.defer(partial(setattr, self.appearance, "has_stop_button", False))
 
     def _map_clip(self, is_new=False):

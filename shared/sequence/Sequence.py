@@ -113,7 +113,7 @@ class Sequence(Observable):
         self.state.change_to(SequenceStateEnum.ERRORED)
         self.disconnect()
         if self._DEBUG:
-            Logger.error("%s" % self, debug=False)
+            Logger.warning("Sequence errored : %s" % self)
 
     def _cancel(self):
         # type: () -> None
@@ -174,7 +174,7 @@ class Sequence(Observable):
             # type: (object) -> None
             if expected_emitter is not None and isinstance(event, HasEmitter):
                 if self._DEBUG:
-                    Logger.info("expected_emitter: %s, event.target(): %s" % (expected_emitter,
+                    Logger.info("expected emitter: %s, event.target(): %s" % (expected_emitter,
                                                                               event.target()))
                 if event.target() != expected_emitter:
                     return  # not the right emitter

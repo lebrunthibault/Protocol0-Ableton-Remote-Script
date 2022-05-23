@@ -18,8 +18,14 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 
 class SessionToArrangementService(object):
-    def __init__(self, playback_component, recording_component, scene_component, tempo_component, track_component):
-        # type: (PlaybackComponent, RecordingComponent, SceneComponent, TempoComponent, TrackComponent) -> None
+    def __init__(self,
+                 playback_component,  # type: PlaybackComponent
+                 recording_component,  # type: RecordingComponent
+                 scene_component,  # type: SceneComponent
+                 tempo_component,  # type: TempoComponent
+                 track_component  # type: TrackComponent
+                 ):
+        # type: (...) -> None
         self._playback_component = playback_component
         self._recording_component = recording_component
         self._scene_component = scene_component
@@ -71,9 +77,9 @@ class SessionToArrangementService(object):
     def _stop_playing_on_last_scene_end(self):
         # type: () -> None
         """ Stop the song when the last scene finishes """
-        last_scene = SongFacade.scenes()[-1]
+        self._scene_component.looping_scene_toggler.reset()
         seq = Sequence()
-        seq.wait_for_event(SceneLastBarPassedEvent, last_scene)
+        seq.wait_for_event(SceneLastBarPassedEvent, SongFacade.last_scene()._scene)
         seq.wait_for_event(BarChangedEvent)
         seq.add(self._playback_component.stop_playing)
         seq.done()

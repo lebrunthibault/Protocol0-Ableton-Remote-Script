@@ -9,7 +9,6 @@ from typing import Optional, List, Iterator, Dict
 from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.lom.scene.ScenePositionScrolledEvent import ScenePositionScrolledEvent
 from protocol0.domain.lom.scene.ScenesMappedEvent import ScenesMappedEvent
-from protocol0.domain.lom.song.SongStartedEvent import SongStartedEvent
 from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackComponent
 from protocol0.domain.lom.song.components.SceneCrudComponent import SceneCrudComponent
 from protocol0.domain.lom.track.TrackAddedEvent import TrackAddedEvent
@@ -44,19 +43,11 @@ class SceneService(SlotManager):
         DomainEventBus.subscribe(BarChangedEvent, self._on_bar_changed_event)
         DomainEventBus.subscribe(LastBeatPassedEvent, self._on_last_beat_passed_event)
         DomainEventBus.subscribe(TrackAddedEvent, self._on_track_added_event)
-        DomainEventBus.subscribe(SongStartedEvent, self._on_song_started_event)
         DomainEventBus.subscribe(ScenePositionScrolledEvent, self._on_scene_position_scrolled_event)
 
     def get_scene(self, live_scene):
         # type: (Live.Scene.Scene) -> Scene
         return self._live_scene_id_to_scene[live_scene._live_ptr]
-
-    def get_optional_scene(self, scene):
-        # type: (Live.Scene.Scene) -> Optional[Scene]
-        try:
-            return self.get_scene(scene)
-        except KeyError:
-            return None
 
     def add_scene(self, scene):
         # type: (Scene) -> None
@@ -66,6 +57,15 @@ class SceneService(SlotManager):
     def scenes(self):
         # type: () -> List[Scene]
         return self._live_scene_id_to_scene.values()
+
+    @property
+    def last_scene(self):
+        # type: () -> Scene
+        current_scene = self.scenes[0]
+        while current_scene.next_scene and current_scene.next_scene != current_scene:
+            current_scene = current_scene.next_scene
+
+        return current_scene
 
     @subject_slot("scenes")
     @handle_error
@@ -120,32 +120,22 @@ class SceneService(SlotManager):
 
     def _clean_deleted_scenes(self):
         # type: () -> None
-        # existing_scene_ids = [scene._live_ptr for scene in self._live_song.scenes]
-        # cleaning all scenes always
-        existing_scene_ids = []
-        deleted_ids = []  # type: List[int]
+        existing_scene_ids = [scene._live_ptr for scene in self._live_song.scenes]
 
         for scene_id, scene in self._live_scene_id_to_scene.items():
-            if scene_id not in existing_scene_ids:
-                scene.disconnect()
-                if scene == Scene.PLAYING_SCENE:
-                    Scene.PLAYING_SCENE = None
+            # cleaning all scenes always
+            scene.disconnect()
+            if scene == Scene.PLAYING_SCENE:
+                Scene.PLAYING_SCENE = None
 
-        for scene_id in deleted_ids:
-            del self._live_scene_id_to_scene[scene_id]
+            # refresh the mapping
+            if scene_id not in existing_scene_ids:
+                del self._live_scene_id_to_scene[scene_id]
 
     def generate_scene(self, live_scene, index):
         # type: (Live.Scene.Scene, int) -> None
         # switching to full remap because of persisting mapping problems when moving scenes
         scene = Scene(live_scene, index)
-
-        # scene = self.get_optional_scene(live_scene)
-        # if scene is None:
-        #     scene = Scene(live_scene, index)
-        # else:
-        #     # reindexing
-        #     scene.index = index
-
         self.add_scene(scene)
 
     def _sort_scenes(self):
@@ -168,19 +158,23 @@ class SceneService(SlotManager):
         seq.add([partial(self._scene_crud_component.delete_scene, scene) for scene in empty_scenes])
         return seq.done()
 
-    def _on_song_started_event(self, _):
-        # type: (SongStartedEvent) -> None
-        # launch selected scene by clicking on play song
-        if not SongFacade.is_recording() and ApplicationViewFacade.is_session_visible() and not SongFacade.selected_scene().playing_state.has_playing_clips:
-            self._playback_component.stop_all_clips(quantized=False)
-            self._playback_component.stop_playing()
-            SongFacade.selected_scene().fire()
-
     def _on_scene_position_scrolled_event(self, _):
         # type: (ScenePositionScrolledEvent) -> None
         scene = SongFacade.selected_scene()
         Scene.LAST_MANUALLY_STARTED_SCENE = scene
         scene.scene_name.update(bar_position=scene.position_scroller.current_value)
+
+    def fire_selected_scene(self):
+        # type: () -> Optional[Sequence]
+        if not ApplicationViewFacade.is_session_visible() \
+                or SongFacade.is_playing():
+            self._live_song.is_playing = not self._live_song.is_playing
+            return None
+
+        self._playback_component.stop_all_clips(quantized=False)
+        self._playback_component.stop_playing()
+        SongFacade.selected_scene().fire()
+        return None
 
     def fire_scene_to_position(self, scene, bar_length=None):
         # type: (Scene, Optional[int]) -> None
@@ -200,4 +194,6 @@ class SceneService(SlotManager):
         # removing click when changing position
         # (created by playing shortly the scene beginning)
         Scheduler.wait(2, partial(scene.fire_to_position, bar_length))
+        # duplicate the volume set because sometimes it is skipped
         Scheduler.wait(3, (partial(setattr, SongFacade.master_track(), "volume", master_volume)))
+        Scheduler.wait(10, (partial(setattr, SongFacade.master_track(), "volume", master_volume)))

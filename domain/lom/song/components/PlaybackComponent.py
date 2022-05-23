@@ -2,7 +2,6 @@ import Live
 from _Framework.SubjectSlot import subject_slot, SlotManager
 
 from protocol0.domain.lom.scene.ScenePositionScrolledEvent import ScenePositionScrolledEvent
-from protocol0.domain.lom.song.SongStartedEvent import SongStartedEvent
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -42,8 +41,6 @@ class PlaybackComponent(SlotManager):
             for scene in SongFacade.scenes():
                 Scheduler.defer(scene.mute_audio_tails)
             return
-        else:
-            DomainEventBus.defer_emit(SongStartedEvent())
 
     def _on_scene_position_scrolled_event(self, _):
         # type: (ScenePositionScrolledEvent) -> None

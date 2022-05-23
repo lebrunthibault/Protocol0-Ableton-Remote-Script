@@ -1,3 +1,4 @@
+import time
 from functools import partial
 
 from typing import Optional, List, Any, Callable
@@ -39,20 +40,17 @@ class EncoderAction(object):
             func = self.func
         if func is None:
             return None  # the action is sync and is already processed
+
+        func_name = get_callable_repr(func)
         assert callable(func), "%s : action func should be callable, got %s" % (
             encoder_name,
-            get_callable_repr(func),
+            func_name,
         )
-        if self.move_type != EncoderMoveEnum.SCROLL:
-            Logger.info("%s : executing %s" % (encoder_name, get_callable_repr(func)))
-        else:
-            Logger.info("%s : scrolling %s" % (encoder_name, get_callable_repr(func)))
-
+        start_at = time.time()
         seq = Sequence()
         seq.add(partial(func, *a, **k))
         seq.add(UndoFacade.end_undo_step)
-        seq.add(partial(Logger.info, "%s : executed %s" % (encoder_name, get_callable_repr(
-            func))))
+        seq.add(lambda: Logger.info("%s : took %.3fs" % (func_name, time.time() - start_at)))
         return seq.done()
 
     @classmethod

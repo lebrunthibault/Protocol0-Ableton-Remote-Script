@@ -50,7 +50,7 @@ class BeatScheduler(SlotManager, BeatSchedulerInterface):
         if current_beats_song_time.bars != self._last_beats_song_time.bars:
             events.append(BarChangedEvent())
             if SongFacade.playing_scene() and SongFacade.playing_scene().playing_state.in_last_bar:
-                events.append(SceneLastBarPassedEvent())
+                events.append(SceneLastBarPassedEvent(SongFacade.playing_scene()._scene))
 
         if current_beats_song_time.in_last_beat and not self._last_beats_song_time.in_last_beat:
             events.append(LastBeatPassedEvent())

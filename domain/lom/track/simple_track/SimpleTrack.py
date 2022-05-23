@@ -25,6 +25,7 @@ class SimpleTrack(AbstractTrack):
     # we act only on active tracks
     IS_ACTIVE = True
     CLIP_SLOT_CLASS = ClipSlot
+    REMOVE_CLIPS_ON_ADDED = True
 
     def __init__(self, live_track, index):
         # type: (Live.Track.Track, int) -> None

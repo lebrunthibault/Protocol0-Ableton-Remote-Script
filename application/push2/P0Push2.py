@@ -77,11 +77,12 @@ class P0Push2(Push2):
     def _on_select_clip_slot(self, scene_index, track_index, _):
         # type: (int, int, Live.ClipSlot.ClipSlot) -> None
         """When clicking on select + clip pad"""
+        track_index += self._session_ring.track_offset
         if track_index >= len(SongFacade.selected_scene().abstract_tracks):
             return None
         track = SongFacade.selected_scene().abstract_tracks[track_index]
 
-        scene_index += SongFacade.selected_scene().index
+        scene_index += self._session_ring.scene_offset
         if scene_index >= len(track.clip_slots):
             return None
         track.select_clip_slot(track.clip_slots[scene_index]._clip_slot)
