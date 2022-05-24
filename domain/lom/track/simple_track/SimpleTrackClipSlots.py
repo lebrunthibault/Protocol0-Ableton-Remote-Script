@@ -7,10 +7,13 @@ from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.ClipConfig import ClipConfig
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
-from protocol0.domain.lom.track.simple_track.SimpleTrackFirstClipAddedEvent import SimpleTrackFirstClipAddedEvent
-from protocol0.domain.lom.track.simple_track.SimpleTrackLastClipDeletedEvent import SimpleTrackLastClipDeletedEvent
+from protocol0.domain.lom.track.simple_track.SimpleTrackFirstClipAddedEvent import \
+    SimpleTrackFirstClipAddedEvent
+from protocol0.domain.lom.track.simple_track.SimpleTrackLastClipDeletedEvent import \
+    SimpleTrackLastClipDeletedEvent
 from protocol0.domain.shared.decorators import defer
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.observer.Observable import Observable
 
 
@@ -65,6 +68,10 @@ class SimpleTrackClipSlots(SlotManager):
                 clip_slot.register_observer(self)
                 new_clip_slots.append(clip_slot)
         self._clip_slots[:] = new_clip_slots  # type: List[ClipSlot]
+
+        for cs in self._clip_slots:
+            if cs.appearance.has_stop_button:
+                Scheduler.defer(cs.appearance.refresh)
 
         self._has_clip_listener.replace_subjects(self._live_track.clip_slots)
 

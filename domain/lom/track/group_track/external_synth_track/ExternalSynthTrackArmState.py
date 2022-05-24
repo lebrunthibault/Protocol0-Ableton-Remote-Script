@@ -3,10 +3,12 @@ from typing import Optional
 from protocol0.domain.lom.track.abstract_track.AbstrackTrackArmState import AbstractTrackArmState
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackMonitoringState import \
     ExternalSynthTrackMonitoringState
+from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -43,6 +45,7 @@ class ExternalSynthTrackArmState(AbstractTrackArmState):
 
     def arm_track(self):
         # type: () -> Optional[Sequence]
+        Logger.dev("arming ext")
         self._base_track.is_folded = False
         self._base_track.muted = False
 
@@ -51,6 +54,8 @@ class ExternalSynthTrackArmState(AbstractTrackArmState):
             SongFacade.usamo_device().is_enabled = True  # this is the default: overridden by prophet
 
         self._monitoring_state.monitor_midi()
+        if self._midi_track.input_routing.type == InputRoutingTypeEnum.NO_INPUT:
+            self._midi_track.input_routing.type = InputRoutingTypeEnum.ALL_INS
 
         seq = Sequence()
         seq.add([sub_track.arm_state.arm_track for sub_track in self._sub_tracks if not isinstance(sub_track, SimpleDummyTrack)])

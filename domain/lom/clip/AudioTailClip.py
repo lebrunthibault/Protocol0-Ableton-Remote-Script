@@ -1,6 +1,7 @@
 from functools import partial
 
 from protocol0.domain.lom.clip.AudioClip import AudioClip
+from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -28,7 +29,7 @@ class AudioTailClip(AudioClip):
         seq = Sequence()
         seq.defer()  # wait for unmute
         seq.add(self.fire)
-        seq.wait_beats(1)
+        seq.wait_for_event(BarChangedEvent)  # wait for the clip start
         seq.wait_bars(self.loop.bar_length)
         seq.wait(10)
         seq.add(partial(setattr, self, "muted", True))

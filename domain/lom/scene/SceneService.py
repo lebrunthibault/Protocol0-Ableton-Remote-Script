@@ -27,7 +27,7 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 
 class SceneService(SlotManager):
-    _LAST_SCENE_BAR_DIGIT = 8
+    _DEBUG = True
 
     def __init__(self, live_song, playback_component, scene_crud_component):
         # type: (Live.Song.Song, PlaybackComponent, SceneCrudComponent) -> None
@@ -178,14 +178,12 @@ class SceneService(SlotManager):
 
     def fire_scene_to_position(self, scene, bar_length=None):
         # type: (Scene, Optional[int]) -> None
-        # as we use single digits
-        if bar_length == self._LAST_SCENE_BAR_DIGIT:
-            bar_length = scene.bar_length - 1
-        if bar_length is None:
-            bar_length = scene.position_scroller.current_value
-
+        bar_length = self._get_position_bar_length(scene, bar_length)
         Scene.LAST_MANUALLY_STARTED_SCENE = scene
         self._playback_component.stop_playing()
+
+        if self._DEBUG:
+            Logger.info("Firing %s to bar_length %s" % (scene, bar_length))
 
         master_volume = SongFacade.master_track().volume
         if bar_length != 0:
@@ -197,3 +195,13 @@ class SceneService(SlotManager):
         # duplicate the volume set because sometimes it is skipped
         Scheduler.wait(3, (partial(setattr, SongFacade.master_track(), "volume", master_volume)))
         Scheduler.wait(10, (partial(setattr, SongFacade.master_track(), "volume", master_volume)))
+
+    def _get_position_bar_length(self, scene, bar_length):
+        # type: (Scene, Optional[int]) -> int
+        # as we use single digits
+        if bar_length == 8:
+            return scene.bar_length - 1
+        if bar_length is None:
+            return scene.position_scroller.current_value
+
+        return bar_length

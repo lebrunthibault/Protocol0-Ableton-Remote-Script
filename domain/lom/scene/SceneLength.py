@@ -1,6 +1,7 @@
 from typing import Optional
 
 from protocol0.domain.lom.clip.Clip import Clip
+from protocol0.domain.lom.clip.DummyClip import DummyClip
 from protocol0.domain.lom.scene.SceneClips import SceneClips
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
@@ -27,7 +28,8 @@ class SceneLength(object):
     @property
     def _longest_clip(self):
         # type: () -> Optional[Clip]
-        clips = [clip for clip in self._clips if not clip.is_recording]
+        clips = [clip for clip in self._clips if not clip.is_recording and not isinstance(clip,
+                                                                                          DummyClip)]
         if len(clips) == 0:
             return None
         else:

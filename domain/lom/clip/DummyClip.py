@@ -9,3 +9,4 @@ class DummyClip(AudioClip):
         super(DummyClip, self).__init__(*a, **k)
         if not self.loop.looping:
             self.loop.looping = True
+            self.loop.length = self._clip.end_marker - self._clip.start_marker

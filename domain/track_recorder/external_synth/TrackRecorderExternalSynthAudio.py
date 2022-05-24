@@ -3,6 +3,7 @@ from functools import partial
 from typing import List
 
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.track_recorder.AbstractTrackRecorder import AbstractTrackRecorder
 from protocol0.domain.track_recorder.external_synth.ExternalSynthAudioRecordingEndedEvent import \
@@ -23,6 +24,10 @@ class TrackRecorderExternalSynthAudio(TrackRecorderExternalSynthMixin, AbstractT
     def _pre_record(self):
         # type: () -> None
         super(TrackRecorderExternalSynthAudio, self)._pre_record()
+        midi_clip = self.track.midi_track.clip_slots[self.recording_scene_index].clip
+        if midi_clip.loop.start != 0:
+            Backend.client().show_warning("Cropping midi clip")
+            midi_clip.crop()
         SongFacade.usamo_device().is_enabled = True
         DomainEventBus.emit(ExternalSynthAudioRecordingStartedEvent(self.track))
 

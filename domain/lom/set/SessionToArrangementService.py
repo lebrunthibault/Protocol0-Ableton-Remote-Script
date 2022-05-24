@@ -12,7 +12,6 @@ from protocol0.domain.lom.song.components.TrackComponent import TrackComponent
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -49,7 +48,7 @@ class SessionToArrangementService(object):
         # type: () -> None
         self._scene_component.looping_scene_toggler.reset()
         self._is_bouncing = True
-        self._track_component.unfocus_all_tracks()
+        self._track_component.unfocus_all_tracks(including_current=True)
         self._tempo = self._tempo_component.tempo
         self._tempo_component.tempo = 999
         ApplicationViewFacade.show_arrangement()
@@ -80,7 +79,8 @@ class SessionToArrangementService(object):
         self._scene_component.looping_scene_toggler.reset()
         seq = Sequence()
         seq.wait_for_event(SceneLastBarPassedEvent, SongFacade.last_scene()._scene)
-        seq.wait_for_event(BarChangedEvent)
+        seq.add(SongFacade.last_scene().stop)
+        seq.wait_bars(2)  # leaving some space for tails
         seq.add(self._playback_component.stop_playing)
         seq.done()
 

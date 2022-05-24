@@ -13,7 +13,8 @@ class P0SessionRingTrackProvider(SessionRingTrackProvider):
     """
         Handling the push2 session ring
 
-        Which tracks the pad controls and the bottom of the screen
+        Modifies which tracks are controlled by the session ring
+        Session will now control and display only the scene tracks
     """
 
     def __init__(self, *a, **k):

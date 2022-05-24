@@ -38,6 +38,7 @@ class P0Push2(Push2):
         # type: () -> None
         super(P0Push2, self).initialize()
         Logger.info("Push2 connected to Protocol0")
+        # switch to session view
         self._matrix_modes.selected_mode = "session"
 
     def _init_session_ring(self):
@@ -49,13 +50,15 @@ class P0Push2(Push2):
         # type: () -> None
         self._track_list_component = P0TrackListComponent(tracks_provider=self._session_ring,
                                                           trigger_recording_on_release_callback=self._session_recording.set_trigger_recording_on_release,
-                                                          color_chooser=self._create_color_chooser(), is_enabled=False,
-                                                          layer=Layer(track_action_buttons=u'select_buttons',
-                                                                      lock_override_button=u'select_button',
-                                                                      delete_button=u'delete_button',
-                                                                      duplicate_button=u'duplicate_button',
-                                                                      arm_button=u'record_button',
-                                                                      select_color_button=u'shift_button'))
+                                                          color_chooser=self._create_color_chooser(),
+                                                          is_enabled=False,
+                                                          layer=Layer(
+                                                              track_action_buttons=u'select_buttons',
+                                                              lock_override_button=u'select_button',
+                                                              delete_button=u'delete_button',
+                                                              duplicate_button=u'duplicate_button',
+                                                              arm_button=u'record_button',
+                                                              select_color_button=u'shift_button'))
         self._clip_phase_enabler = self._track_list_component.clip_phase_enabler
         self._track_list_component.set_enabled(True)
         self._model.tracklistView = self._track_list_component
@@ -68,7 +71,8 @@ class P0Push2(Push2):
             scene = session.scene(scene_index)
             for track_index in xrange(8):
                 clip_slot = scene.clip_slot(track_index)
-                clip_slot._do_select_clip = partial(self._on_select_clip_slot, scene_index, track_index)
+                clip_slot._do_select_clip = partial(self._on_select_clip_slot, scene_index,
+                                                    track_index)
                 # don't highlight when we play the clip
                 clip_slot._show_launched_clip_as_highlighted_clip = nop
 

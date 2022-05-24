@@ -21,7 +21,6 @@ from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils import scroll_values, ForwardTo
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -62,13 +61,15 @@ class Scene(SlotManager):
 
         return tracks.values()
 
-    def _tracks_to_stop(self, scene):
-        # type: (Scene) -> Iterator[SimpleTrack]
+    @property
+    def _tracks_to_stop(self):
+        # type: () -> Iterator[SimpleTrack]
         # manually stopping previous scene because we don't display clip slot stop buttons
-        Logger.dev("scene.clips.tracks: %s" % list(scene.clips.tracks))
-        for track in scene.clips.tracks:
-            if track.is_playing and track not in self.clips.tracks:
-                yield track
+        for track in self.clips.tracks:
+            if track.is_playing:
+                if self == SongFacade.playing_scene() or \
+                        track not in SongFacade.playing_scene().clips.tracks:
+                    yield track
 
     def update(self, observable):
         # type: (Observable) -> None
@@ -90,9 +91,10 @@ class Scene(SlotManager):
         if SongFacade.is_playing() is False or not self.playing_state.has_playing_clips:
             return
 
-        if SongFacade.playing_scene() and SongFacade.playing_scene() != self:
-            Scheduler.defer(partial(self._stop_previous_scene, SongFacade.playing_scene(), immediate=True))
+        previous_playing_scene = SongFacade.playing_scene()
         Scene.PLAYING_SCENE = self
+        if previous_playing_scene and previous_playing_scene != self:
+            Scheduler.defer(partial(previous_playing_scene.stop, immediate=True))
 
     @property
     def next_scene(self):
@@ -116,10 +118,11 @@ class Scene(SlotManager):
     @property
     def has_playing_clips(self):
         # type: () -> bool
-        return SongFacade.is_playing() and any(clip and clip.is_playing and not clip.muted for clip in self.clips)
+        return SongFacade.is_playing() and any(
+            clip and clip.is_playing and not clip.muted for clip in self.clips)
 
     def on_last_beat(self):
-        # type: (Scene) -> None
+        # type: () -> None
         if SongFacade.is_track_recording():
             return
 
@@ -130,37 +133,37 @@ class Scene(SlotManager):
                 next_scene.fire()  # do not fire same scene as it focus it again (can lose current parameter focus)
 
     def fire(self):
-        # type: (Scene) -> None
+        # type: () -> None
         # handles click sound when the previous scene plays shortly
         playing_scene = SongFacade.playing_scene()
-        if playing_scene and playing_scene != self:
-            self._stop_previous_scene(playing_scene)
-
         Scene.PLAYING_SCENE = self
+        if playing_scene and playing_scene != self:
+            playing_scene.stop()
 
         self._scene.fire()
 
-    def _stop_previous_scene(self, previous_playing_scene, immediate=False):
-        # type: (Scene, Scene, bool) -> None
+    def stop(self, immediate=False):
+        # type: (bool) -> None
+        """Used to manually stopping previous scene
+            because we don't display clip slot stop buttons
+        """
         DomainEventBus.emit(PlayingSceneChangedEvent())
 
-        # manually stopping previous scene because we don't display clip slot stop buttons
-        Logger.dev("tracks to stop : %s" % list(self._tracks_to_stop(previous_playing_scene)))
-        for track in self._tracks_to_stop(previous_playing_scene):
+        for track in self._tracks_to_stop:
             track.stop(immediate=immediate)
 
         seq = Sequence()
         seq.wait_for_event(BarChangedEvent)
-        seq.add(previous_playing_scene.scene_name.update)
+        seq.add(self.scene_name.update)
         seq.done()
 
     def mute_audio_tails(self):
-        # type: (Scene) -> None
+        # type: () -> None
         for clip in self.clips.audio_tail_clips:
             clip.muted = True
 
     def fire_to_position(self, bar_length):
-        # type: (Scene, int) -> Sequence
+        # type: (int) -> Sequence
         self.scene_name.update(bar_position=bar_length)
         seq = Sequence()
         seq.add(self.fire)
@@ -170,7 +173,7 @@ class Scene(SlotManager):
         return seq.done()
 
     def scroll_tracks(self, go_next):
-        # type: (Scene, bool) -> None
+        # type: (bool) -> None
         next_track = scroll_values(self.abstract_tracks, SongFacade.current_track(), go_next)
         next_track.select()
         next_clip_slot = next_track.clip_slots[SongFacade.selected_scene().index]
