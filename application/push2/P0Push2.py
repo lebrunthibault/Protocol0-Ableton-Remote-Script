@@ -82,9 +82,11 @@ class P0Push2(Push2):
         # type: (int, int, Live.ClipSlot.ClipSlot) -> None
         """When clicking on select + clip pad"""
         track_index += self._session_ring.track_offset
-        if track_index >= len(SongFacade.selected_scene().abstract_tracks):
+        tracks = self._session_ring.session_tracks
+
+        if track_index >= len(tracks):
             return None
-        track = SongFacade.selected_scene().abstract_tracks[track_index]
+        track = tracks[track_index]
 
         scene_index += self._session_ring.scene_offset
         if scene_index >= len(track.clip_slots):

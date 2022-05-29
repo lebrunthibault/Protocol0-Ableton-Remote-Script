@@ -53,7 +53,7 @@ class SimpleDummyTrackAutomation(object):
     def _insert_device(self):
         # type: () -> Optional[Sequence]
         parameter_enum = cast(DeviceParameterEnum, DeviceParameterEnum.from_value(self._current_parameter_type))
-        return CommandBus.dispatch(LoadDeviceCommand(DeviceEnum.from_device_parameter(parameter_enum).name, True))
+        return CommandBus.dispatch(LoadDeviceCommand(DeviceEnum.from_device_parameter(parameter_enum).name))
 
     def _insert_dummy_clip(self):
         # type: () -> Optional[Sequence]

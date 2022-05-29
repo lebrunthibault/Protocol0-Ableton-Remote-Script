@@ -9,4 +9,4 @@ from protocol0.shared.sequence.Sequence import Sequence
 class SelectOrLoadDeviceCommandHandler(CommandHandlerInterface):
     def handle(self, command):
         # type: (SelectOrLoadDeviceCommand) -> Optional[Sequence]
-        return self._container.get(DeviceService).show_or_load_device(command.device_name)
+        return self._container.get(DeviceService).select_or_load_device(command.device_name)

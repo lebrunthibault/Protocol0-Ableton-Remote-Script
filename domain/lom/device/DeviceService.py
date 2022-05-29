@@ -39,11 +39,9 @@ class DeviceService(object):
         for param_name, param_value in parameters.items():
             device.update_param_value(param_name=param_name, param_value=param_value)
 
-    def load_device(self, device_name, on_selected_track=False):
-        # type: (str, bool) -> Sequence
-        track = SongFacade.current_track().base_track
-        if on_selected_track:
-            track = SongFacade.selected_track()
+    def load_device(self, device_name):
+        # type: (str) -> Sequence
+        track = SongFacade.selected_track()
 
         track.device_insert_mode = Live.Track.DeviceInsertMode.selected_right
         device_enum = DeviceEnum.from_value(device_name.upper())  # type: DeviceEnum
@@ -52,10 +50,10 @@ class DeviceService(object):
         seq.add(partial(self._browser_service.load_device_from_enum, device_enum))
         return seq.done()
 
-    def show_or_load_device(self, device_name):
+    def select_or_load_device(self, device_name):
         # type: (str) -> Optional[Sequence]
         device_enum = DeviceEnum.from_value(device_name.upper())  # type: DeviceEnum
-        track = SongFacade.current_track().base_track
+        track = SongFacade.selected_track()
         devices = track.devices.get_from_enum(device_enum)
         if len(devices) == 0:
             return self.load_device(device_name)

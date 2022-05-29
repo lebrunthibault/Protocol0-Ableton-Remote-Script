@@ -123,6 +123,9 @@ class ExternalSynthTrack(AbstractGroupTrack):
         if len(base_group_track.sub_tracks) < 2:
             return False
 
+        if any(track.is_foldable for track in base_group_track.sub_tracks):
+            return False
+
         if not type(base_group_track.sub_tracks[0]) == SimpleMidiTrack:
             return False
         if not type(base_group_track.sub_tracks[1]) == SimpleAudioTrack:

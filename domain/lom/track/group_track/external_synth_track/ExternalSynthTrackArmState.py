@@ -8,7 +8,6 @@ from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummy
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -45,7 +44,6 @@ class ExternalSynthTrackArmState(AbstractTrackArmState):
 
     def arm_track(self):
         # type: () -> Optional[Sequence]
-        Logger.dev("arming ext")
         self._base_track.is_folded = False
         self._base_track.muted = False
 

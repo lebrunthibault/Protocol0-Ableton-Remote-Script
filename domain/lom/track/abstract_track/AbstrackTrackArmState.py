@@ -32,7 +32,6 @@ class AbstractTrackArmState(Observable):
         # type: () -> Optional[Sequence]
         if not SongFacade.selected_track().IS_ACTIVE:
             return None
-        Logger.dev("self.is_armed: %s" % self.is_armed)
         if self.is_armed:
             self.unarm()
             return None

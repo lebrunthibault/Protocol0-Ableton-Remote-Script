@@ -166,11 +166,6 @@ class SceneService(SlotManager):
 
     def fire_selected_scene(self):
         # type: () -> Optional[Sequence]
-        if not ApplicationViewFacade.is_session_visible() \
-                or SongFacade.is_playing():
-            self._live_song.is_playing = not self._live_song.is_playing
-            return None
-
         self._playback_component.stop_all_clips(quantized=False)
         self._playback_component.stop_playing()
         SongFacade.selected_scene().fire()

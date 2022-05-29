@@ -5,7 +5,6 @@ from _Framework.SubjectSlot import SlotManager
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.domain.lom.clip_slot.MidiClipSlot import MidiClipSlot
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 
 
@@ -44,7 +43,6 @@ class ClipSlotSynchronizer(SlotManager):
             if audio_clip.should_be_cropped:
                 return None
 
-            Logger.dev("syncing to %s" % audio_clip)
             audio_clip.loop.looping = midi_clip.loop.looping
             audio_clip.loop.end = midi_clip.loop.end
             audio_clip.loop.start = midi_clip.loop.start

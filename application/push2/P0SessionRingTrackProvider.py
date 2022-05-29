@@ -1,12 +1,14 @@
 import json
 
 import Live
-from protocol0_push2.track_selection import SessionRingTrackProvider
 from typing import List, Any, Optional
 
+from protocol0.domain.lom.track.SelectedTrackChangedEvent import SelectedTrackChangedEvent
+from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.infra.interface.session.SessionUpdatedEvent import SessionUpdatedEvent
 from protocol0.shared.SongFacade import SongFacade
+from protocol0_push2.track_selection import SessionRingTrackProvider
 
 
 class P0SessionRingTrackProvider(SessionRingTrackProvider):
@@ -21,6 +23,7 @@ class P0SessionRingTrackProvider(SessionRingTrackProvider):
         # type: (Any, Any) -> None
         super(P0SessionRingTrackProvider, self).__init__(*a, **k)
         self.set_enabled(False)
+        DomainEventBus.subscribe(SelectedTrackChangedEvent, self._on_selected_track_changed_event)
         DomainEventBus.subscribe(SessionUpdatedEvent, self._on_session_updated_event)
         self._sync_session_to_selected_scene()
         self.track_offset = self.track_offset  # type: int
@@ -54,15 +57,30 @@ class P0SessionRingTrackProvider(SessionRingTrackProvider):
         self._update_track_list()
         self._sync_session_to_selected_scene()
 
+    def _on_selected_track_changed_event(self, _):
+        # type: (SelectedTrackChangedEvent) -> None
+        """
+            Rebuild session on selected track change.
+            Useful because we want the selected track to be part of the push2 session
+        """
+        DomainEventBus.emit(SessionUpdatedEvent())
+
     def _sync_session_to_selected_scene(self):
         # type: () -> None
         self.scene_offset = SongFacade.selected_scene().index
 
+    @property
+    def session_tracks(self):
+        # type: () -> List[AbstractTrack]
+        """Only scene tracks + current tracks. Should be cached"""
+        tracks = set(SongFacade.selected_scene().abstract_tracks)
+        tracks.add(SongFacade.current_track())
+        return sorted(tracks, key=lambda t: t.index)
+
     def tracks_to_use(self):
         # type: () -> List[Any]
-        """Session tracks : only scene tracks with clips. Not cached for now"""
-        scene_tracks = [t._track for t in SongFacade.selected_scene().abstract_tracks]
-        return self._decorator_factory.decorate_all_mixer_tracks(scene_tracks)
+        tracks = [t._track for t in self.session_tracks]
+        return self._decorator_factory.decorate_all_mixer_tracks(tracks)
 
     def _ensure_valid_track_offset(self):
         # type: () -> None
