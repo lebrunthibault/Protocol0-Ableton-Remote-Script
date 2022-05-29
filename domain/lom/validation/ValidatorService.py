@@ -1,5 +1,6 @@
 from protocol0.domain.lom.track.TrackColorEnum import TrackColorEnum
 from protocol0.domain.lom.validation.ValidatorFactory import ValidatorFactory
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.ui.HasAppearance import HasAppearance
 from protocol0.shared.logging.Logger import Logger
 
@@ -24,6 +25,6 @@ class ValidatorService(object):
         # type: (object) -> None
         validator = self._validator_factory.create_from_object(obj)
         validator.fix()
-        Logger.info("Fixed %s" % obj)
+        Backend.client().show_success("Fixed %s" % obj)
         if isinstance(obj, HasAppearance):
             obj.appearance.refresh()

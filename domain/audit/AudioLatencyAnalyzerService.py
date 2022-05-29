@@ -9,7 +9,8 @@ from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import Instru
 from protocol0.domain.lom.note.Note import Note
 from protocol0.domain.lom.song.components.TempoComponent import TempoComponent
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
+    ExternalSynthTrack
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.shared.InterfaceClicksServiceInterface import InterfaceClicksServiceInterface
 from protocol0.domain.shared.backend.Backend import Backend
@@ -31,7 +32,7 @@ class AudioLatencyAnalyzerService(object):
 
     def test_audio_latency(self, track):
         # type: (ExternalSynthTrack) -> Optional[Sequence]
-        if SongFacade.usamo_device() is None:
+        if SongFacade.usamo_track() is None:
             raise Protocol0Warning("Missing usamo track")
 
         tempo = SongFacade.tempo()

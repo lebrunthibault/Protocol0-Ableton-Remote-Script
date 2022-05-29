@@ -1,6 +1,7 @@
 import json
 
 import Live
+from protocol0_push2.track_selection import SessionRingTrackProvider
 from typing import List, Any, Optional
 
 from protocol0.domain.lom.track.SelectedTrackChangedEvent import SelectedTrackChangedEvent
@@ -8,7 +9,6 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrac
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.infra.interface.session.SessionUpdatedEvent import SessionUpdatedEvent
 from protocol0.shared.SongFacade import SongFacade
-from protocol0_push2.track_selection import SessionRingTrackProvider
 
 
 class P0SessionRingTrackProvider(SessionRingTrackProvider):
@@ -74,7 +74,8 @@ class P0SessionRingTrackProvider(SessionRingTrackProvider):
         # type: () -> List[AbstractTrack]
         """Only scene tracks + current tracks. Should be cached"""
         tracks = set(SongFacade.selected_scene().abstract_tracks)
-        tracks.add(SongFacade.current_track())
+        if SongFacade.current_track() != SongFacade.master_track():
+            tracks.add(SongFacade.current_track())
         return sorted(tracks, key=lambda t: t.index)
 
     def tracks_to_use(self):

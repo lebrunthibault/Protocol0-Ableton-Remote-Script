@@ -15,6 +15,7 @@ from protocol0.domain.lom.track.simple_track.InstrumentBusTrack import Instrumen
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.domain.lom.track.simple_track.UsamoTrack import UsamoTrack
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
@@ -39,7 +40,9 @@ class TrackFactory(object):
             return existing_simple_track
 
         if cls is None:
-            if track.name == InstrumentBusTrack.TRACK_NAME:
+            if track.name == UsamoTrack.TRACK_NAME:
+                cls = UsamoTrack
+            elif track.name == InstrumentBusTrack.TRACK_NAME:
                 cls = InstrumentBusTrack
             elif track.has_midi_input:
                 cls = SimpleMidiTrack

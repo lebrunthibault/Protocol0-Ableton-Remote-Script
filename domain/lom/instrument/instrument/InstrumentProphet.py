@@ -54,7 +54,7 @@ class InstrumentProphet(InstrumentInterface):
 
         if track.instrument != self:
             return
-        SongFacade.usamo_device().is_enabled = False
+        SongFacade.usamo_track().inactivate()
         self.device.is_enabled = True
 
     def _on_audio_recording_started_event(self, event):
@@ -67,5 +67,5 @@ class InstrumentProphet(InstrumentInterface):
         # type: (ExternalSynthAudioRecordingEndedEvent) -> None
         if event.track.instrument != self:
             return
-        SongFacade.usamo_device().is_enabled = False
+        SongFacade.usamo_track().inactivate()
         self.device.is_enabled = True

@@ -1,6 +1,7 @@
 from typing import Optional
 
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
+from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
     ExternalSynthTrack
 from protocol0.domain.lom.track.routing.InputRoutingChannelEnum import InputRoutingChannelEnum
@@ -64,7 +65,10 @@ class ExternalSynthTrackValidator(AggregateValidator):
                                            name="tail track output routing"))
 
         for dummy_track in track.dummy_tracks:
-            validators.append(PropertyValueValidator(dummy_track, "volume", 0))
+            validators += [
+                PropertyValueValidator(dummy_track, "volume", 0),
+                PropertyValueValidator(dummy_track, "current_monitoring_state", CurrentMonitoringStateEnum.IN)
+                ]
 
         super(ExternalSynthTrackValidator, self).__init__(validators)
 
@@ -80,5 +84,4 @@ class ExternalSynthTrackValidator(AggregateValidator):
         self._track.monitoring_state.monitor_audio()
         seq = Sequence()
         seq.add(super(ExternalSynthTrackValidator, self).fix)
-        seq.add(self._track.midi_track.select)
         return seq.done()

@@ -49,7 +49,7 @@ class ExternalSynthTrackArmState(AbstractTrackArmState):
 
         if SongFacade.usamo_track():
             SongFacade.usamo_track().input_routing.track = self._midi_track
-            SongFacade.usamo_device().is_enabled = True  # this is the default: overridden by prophet
+            SongFacade.usamo_track().activate()  # this is the default: overridden by prophet
 
         self._monitoring_state.monitor_midi()
         if self._midi_track.input_routing.type == InputRoutingTypeEnum.NO_INPUT:

@@ -28,7 +28,7 @@ class TrackRecorderExternalSynthAudio(TrackRecorderExternalSynthMixin, AbstractT
         if midi_clip.loop.start != 0:
             Backend.client().show_warning("Cropping midi clip")
             midi_clip.crop()
-        SongFacade.usamo_device().is_enabled = True
+        SongFacade.usamo_track().activate()
         DomainEventBus.emit(ExternalSynthAudioRecordingStartedEvent(self.track))
 
     def _focus_main_clip(self):

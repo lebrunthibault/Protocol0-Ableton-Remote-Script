@@ -6,8 +6,6 @@ from _Framework.SubjectSlot import subject_slot, SlotManager
 from typing import Optional, Dict
 
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
-from protocol0.domain.lom.device.Device import Device
-from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.track.TrackAddedEvent import TrackAddedEvent
 from protocol0.domain.lom.track.TrackFactory import TrackFactory
 from protocol0.domain.lom.track.TracksMappedEvent import TracksMappedEvent
@@ -20,11 +18,10 @@ from protocol0.domain.lom.track.simple_track.MasterTrack import MasterTrack
 from protocol0.domain.lom.track.simple_track.SimpleReturnTrack import SimpleReturnTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import SimpleTrackCreatedEvent
+from protocol0.domain.lom.track.simple_track.UsamoTrack import UsamoTrack
 from protocol0.domain.shared.decorators import handle_error
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
-from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.utils import find_if
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.UndoFacade import UndoFacade
 from protocol0.shared.logging.Logger import Logger
@@ -40,7 +37,6 @@ class TrackMapperService(SlotManager):
 
         self._live_track_id_to_simple_track = collections.OrderedDict()  # type: Dict[int, SimpleTrack]
         self._template_dummy_clip_slot = None  # type: Optional[AudioClipSlot]
-        self._usamo_device = None  # type: Optional[Device]
         self._usamo_track = None  # type: Optional[SimpleTrack]
         self._drums_track = None  # type: Optional[DrumsTrack]
         self._master_track = None  # type: Optional[SimpleTrack]
@@ -91,7 +87,6 @@ class TrackMapperService(SlotManager):
     def _generate_simple_tracks(self):
         # type: () -> None
         """ instantiate SimpleTracks (including return / master, that are marked as inactive) """
-        self._usamo_device = None
         self._usamo_track = None
         self._drums_track = None
         self._template_dummy_clip_slot = None
@@ -100,15 +95,11 @@ class TrackMapperService(SlotManager):
         for index, track in enumerate(list(self._live_song.tracks)):
             track = self._track_factory.create_simple_track(track, index)
 
-            usamo_device = track.devices.get_one_from_enum(DeviceEnum.USAMO)
-            if usamo_device:
-                if self._usamo_device:
-                    raise Protocol0Warning("Duplicate usamo track")
-                self._usamo_device = usamo_device
+            if isinstance(track, UsamoTrack):
                 self._usamo_track = track
 
             if isinstance(track, InstrumentBusTrack) and len(track.clips):
-                self._template_dummy_clip_slot = find_if(lambda cs: cs.clip is not None, track.clip_slots)
+                self._template_dummy_clip_slot = track.template_dummy_clip_slot
 
         for index, track in enumerate(list(self._live_song.return_tracks)):
             self._track_factory.create_simple_track(track=track, index=index, cls=SimpleReturnTrack)
@@ -121,7 +112,7 @@ class TrackMapperService(SlotManager):
         for track in SongFacade.simple_tracks():
             track.on_tracks_change()
 
-        if self._usamo_device is None:
+        if self._usamo_track is None:
             Logger.warning("Usamo track is not present")
 
     def _on_track_added(self):
