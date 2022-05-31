@@ -1,7 +1,6 @@
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 
 from protocol0.domain.shared.backend.Backend import Backend
-from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.logging.Logger import Logger
 
 
@@ -24,6 +23,10 @@ class ActionGroupTest(ActionGroupInterface):
         # CLR encoder
         self.add_encoder(identifier=3, name="clear logs", on_press=Logger.clear)
 
+        # DUPLication encoder
+        self.add_encoder(identifier=4, name="test server duplication",
+                         on_press=Backend.client().test_duplication)
+
     def action_test(self):
         # type: () -> None
-        raise Protocol0Warning("toto")
+        pass

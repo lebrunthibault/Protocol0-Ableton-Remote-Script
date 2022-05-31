@@ -41,7 +41,8 @@ class CommandBus(object):
         handler_classes = CommandHandlerInterface.__subclasses__()
         command_classes = SerializableCommand.__subclasses__()
 
-        handler_names_to_class = {handler_class.__name__: handler_class for handler_class in handler_classes}
+        handler_names_to_class = {handler_class.__name__: handler_class for handler_class in
+                                  handler_classes}
 
         mapping = {}  # type: CommandMapping
         # matching on class name
@@ -67,7 +68,8 @@ class CommandBus(object):
             Logger.warning("skipping duplicate command %s: please reload the set" % command)
 
             if self._duplicate_command_count == self._DUPLICATE_COMMAND_WARNING_COUNT:
-                Backend.client().show_warning("Reached 10 duplicate commands. Set might need to be reloaded.")
+                Backend.client().show_warning(
+                    "Reached 10 duplicate commands. Set might need to be reloaded.")
             return None
 
         self._last_command = command
@@ -81,7 +83,7 @@ class CommandBus(object):
         seq.add(UndoFacade.end_undo_step)
 
         if self._DEBUG:
-            seq.add(lambda: Logger.info("%s : took %.3fs" % (command, time.time() - start_at)))
+            seq.add(partial(Logger.info, "%s : took %.3fs" % (command, time.time() - start_at)))
 
         return seq.done()
 
@@ -89,10 +91,14 @@ class CommandBus(object):
         # type: (SerializableCommand) -> bool
         """
             Sometimes command are duplicated, couldn't find why yet
-            Reloading ableton does the trick, it seems that the script is loaded twice
-        """
-        if self._last_command_processed_at is None \
-                or time.time() - self._last_command_processed_at >= 0.02:
-            return False
+            it seems either that :
+            - the midi server is sending duplicate sysex messages (but they are logged only once)
+            - the messages are getting duplicated in the midi chain (mido or the loopback midi
+            port ..)
+            Reloading ableton fixes it
 
-        return type(self._last_command) is type(command)
+            We mitigate it by forbidding duplicate messages in a certain delay
+        """
+        return type(self._last_command) is type(command) \
+            and self._last_command_processed_at is not None \
+            and time.time() - self._last_command_processed_at >= 0.100

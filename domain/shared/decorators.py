@@ -76,6 +76,7 @@ def debounce(wait_time=100):
 
 def throttle(wait_time=100):
     # type: (int) -> Func
+    """wait_time in ms"""
     def wrap(func):
         # type: (Func) -> Func
         @wraps(func)
@@ -94,7 +95,7 @@ def throttle(wait_time=100):
                 decorate.paused[object_source] = False  # type: ignore[attr-defined]
 
             from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-            Scheduler.wait(wait_time, activate)
+            Scheduler.wait_seconds(float(wait_time) / 1000, activate)
             return res
 
         decorate.paused = defaultdict(lambda: False)  # type: ignore[attr-defined]

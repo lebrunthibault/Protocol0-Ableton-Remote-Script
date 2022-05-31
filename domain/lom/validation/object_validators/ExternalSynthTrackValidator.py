@@ -68,7 +68,7 @@ class ExternalSynthTrackValidator(AggregateValidator):
             validators += [
                 PropertyValueValidator(dummy_track, "volume", 0),
                 PropertyValueValidator(dummy_track, "current_monitoring_state", CurrentMonitoringStateEnum.IN)
-                ]
+            ]
 
         super(ExternalSynthTrackValidator, self).__init__(validators)
 

@@ -35,7 +35,6 @@ class Scheduler(object):
     @classmethod
     def wait_seconds(cls, seconds, callback):
         # type: (float, Callable) -> TickSchedulerEventInterface
-        """ tick_count (* 17 sms) """
         return cls.wait(int(seconds * cls._TICKS_BY_SECOND), callback)
 
     @classmethod

@@ -1,10 +1,9 @@
-from protocol0.application.command.ClearLogsCommand import ClearLogsCommand
 from protocol0.shared.AbstractEnum import AbstractEnum
 
 
 class VocalActionEnum(AbstractEnum):
     """ NB: add previous commands """
-    CLEAR = ClearLogsCommand
+    pass
     # PLAY = "PLAY"  # play set
     # PAUSE = "PAUSE"  # pause set
     # STOP = "STOP"  # stop set

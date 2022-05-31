@@ -41,6 +41,7 @@ def monkey_patch_static():
     Logger.warning = classmethod(nop)
 
     MidiService._ping_midi_server = nop
+    Protocol0._check_for_duplicate_p0_instance = nop
 
     Backend(nop)
     UndoFacade(nop, nop)

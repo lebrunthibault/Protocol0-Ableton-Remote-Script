@@ -6,6 +6,7 @@ from protocol0.application.command.SerializableCommand import SerializableComman
 from protocol0.domain.lom.instrument.preset.PresetProgramSelectedEvent import PresetProgramSelectedEvent
 from protocol0.domain.lom.song.SongInitializedEvent import SongInitializedEvent
 from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.domain.shared.decorators import throttle
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -59,6 +60,7 @@ class MidiService(object):
         # type: (PresetProgramSelectedEvent) -> None
         self._send_program_change(event.preset_index)
 
+    @throttle(wait_time=50)
     def _on_song_initialized_event(self, _):
         # type: (SongInitializedEvent) -> None
         self._ping_midi_server()

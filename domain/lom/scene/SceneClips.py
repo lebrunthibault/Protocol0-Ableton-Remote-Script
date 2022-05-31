@@ -37,7 +37,7 @@ class SceneClips(SlotManager, Observable):
         # type: () -> List[Clip]
         return self._all_clips
 
-    @throttle(wait_time=4)
+    @throttle(wait_time=60)
     def update(self, observable):
         # type: (Observable) -> None
         if isinstance(observable, ClipSlot) or isinstance(observable, Clip):
