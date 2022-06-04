@@ -11,6 +11,7 @@ from protocol0.application.vocal_command.VocalCommandService import VocalCommand
 from protocol0.domain.audit.AudioLatencyAnalyzerService import AudioLatencyAnalyzerService
 from protocol0.domain.audit.LogService import LogService
 from protocol0.domain.audit.SetFixerService import SetFixerService
+from protocol0.domain.audit.SetProfilingService import SetProfilingService
 from protocol0.domain.audit.SetUpgradeService import SetUpgradeService
 from protocol0.domain.audit.SongStatsService import SongStatsService
 from protocol0.domain.lom.device.DeviceDisplayService import DeviceDisplayService
@@ -154,20 +155,8 @@ class Container(ContainerInterface):
         instrument_preset_scroller_service = InstrumentPresetScrollerService()
         mixing_service = MixingService()
         validator_service = ValidatorService(ValidatorFactory(browser_service))
-        set_upgrade_service = SetUpgradeService(device_service, validator_service, track_crud_component)
-        log_service = LogService()
-        set_fixer_service = SetFixerService(
-            validator_service=validator_service,
-            set_upgrade_service=set_upgrade_service,
-        )
-        song_stats_service = SongStatsService()
         interface_clicks_service = InterfaceClicksService()
-        audio_latency_service = AudioLatencyAnalyzerService(
-            track_recorder_service,
-            interface_clicks_service,
-            track_crud_component,
-            tempo_component
-        )
+
         preset_service = PresetService()
         session_to_arrangement_service = SessionToArrangementService(
             playback_component,
@@ -177,6 +166,22 @@ class Container(ContainerInterface):
             track_component
         )
         song_data_service = SongDataService(live_song.get_data, live_song.set_data, scene_component)
+
+        # audit
+        audio_latency_service = AudioLatencyAnalyzerService(
+            track_recorder_service,
+            interface_clicks_service,
+            track_crud_component,
+            tempo_component
+        )
+        log_service = LogService()
+        set_upgrade_service = SetUpgradeService(device_service, validator_service, track_crud_component)
+        set_fixer_service = SetFixerService(
+            validator_service=validator_service,
+            set_upgrade_service=set_upgrade_service,
+        )
+        set_profiling_service = SetProfilingService()
+        song_stats_service = SongStatsService()
 
         # vocal command
         keyword_search_service = KeywordSearchService()
@@ -196,7 +201,6 @@ class Container(ContainerInterface):
 
         self._register(song_service)
         self._register(song_data_service)
-        self._register(song_stats_service)
 
         self._register(track_factory)
         self._register(track_automation_service)
@@ -214,12 +218,18 @@ class Container(ContainerInterface):
         self._register(mixing_service)
         self._register(track_recorder_service)
         self._register(validator_service)
-        self._register(set_upgrade_service)
-        self._register(log_service)
-        self._register(set_fixer_service)
-        self._register(audio_latency_service)
         self._register(preset_service)
+
+        # audit
+        self._register(audio_latency_service)
+        self._register(log_service)
+        self._register(set_upgrade_service)
+        self._register(set_fixer_service)
+        self._register(set_profiling_service)
+        self._register(song_stats_service)
+
         self._register(session_to_arrangement_service)
+
         self._register(keyword_search_service)
         self._register(vocal_command_service)
 

@@ -190,6 +190,16 @@ class SceneService(SlotManager):
         Scheduler.wait(3, (partial(setattr, SongFacade.master_track(), "volume", master_volume)))
         Scheduler.wait(10, (partial(setattr, SongFacade.master_track(), "volume", master_volume)))
 
+    def fire_previous_scene_to_last_bar(self):
+        # type: () -> None
+        selected_scene = SongFacade.selected_scene()
+        if selected_scene.index == 0:
+            self.fire_selected_scene()
+            return None
+
+        previous_scene = SongFacade.scenes()[selected_scene.index - 1]
+        self.fire_scene_to_position(previous_scene, previous_scene.bar_length - 1)
+
     def _get_position_bar_length(self, scene, bar_length):
         # type: (Scene, Optional[int]) -> int
         # as we use single digits

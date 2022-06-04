@@ -24,7 +24,7 @@ class ExternalSynthTrackMonitoringState(object):
         self._audio_track = audio_track
         self._audio_tail_track = audio_tail_track
         self._dummy_tracks = dummy_tracks
-        self._external_device = external_device
+        self.external_device = external_device
 
     def switch(self):
         # type: () -> None
@@ -69,7 +69,7 @@ class ExternalSynthTrackMonitoringState(object):
             self._audio_track.solo = False
 
         # external device
-        self._external_device.is_enabled = True
+        self.external_device.is_enabled = True
 
     # noinspection DuplicatedCode
     def monitor_audio(self):
@@ -91,7 +91,7 @@ class ExternalSynthTrackMonitoringState(object):
             self._midi_track.solo = False
 
         # external device
-        self._external_device.is_enabled = False
+        self.external_device.is_enabled = False
 
     def _mute_track(self, track):
         # type: (SimpleTrack) -> None

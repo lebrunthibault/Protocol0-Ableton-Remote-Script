@@ -13,6 +13,7 @@ from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -46,12 +47,7 @@ class SessionToArrangementService(object):
 
     def _bounce(self):
         # type: () -> None
-        self._scene_component.looping_scene_toggler.reset()
-        self._is_bouncing = True
-        self._track_component.unfocus_all_tracks(including_current=True)
-        self._tempo = self._tempo_component.tempo
-        self._tempo_component.tempo = 999
-        ApplicationViewFacade.show_arrangement()
+        self._setup_bounce()
 
         seq = Sequence()
         seq.add(Backend.client().clear_arrangement)
@@ -63,6 +59,21 @@ class SessionToArrangementService(object):
         seq.add(self._pre_fire_first_scene)
         seq.add(partial(setattr, self._recording_component, "record_mode", True))
         seq.done()
+
+    def _setup_bounce(self):
+        # type: () -> None
+        self._scene_component.looping_scene_toggler.reset()
+        self._is_bouncing = True
+        self._track_component.unfocus_all_tracks(including_current=True)
+        self._tempo = self._tempo_component.tempo
+        self._tempo_component.tempo = 999
+        ApplicationViewFacade.show_arrangement()
+
+        for track in SongFacade.external_synth_tracks():
+            if track.external_device.is_enabled:
+                Backend.client().show_warning("Disabling external device of %s (for audio "
+                                              "export)" % track)
+                track.external_device.is_enabled = False
 
     def _pre_fire_first_scene(self):
         # type: () -> Sequence

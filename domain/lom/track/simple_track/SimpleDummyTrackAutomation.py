@@ -45,6 +45,7 @@ class SimpleDummyTrackAutomation(object):
     def _select_parameters(self):
         # type: () -> Sequence
         parameters = [enum.name for enum in DeviceParameterEnum.automatable_parameters()]
+        parameters.insert(0, "Empty")
         seq = Sequence()
         seq.select(question="Automated parameter", options=parameters)
         seq.add(lambda: setattr(self, "_current_parameter_type", seq.res))
@@ -52,6 +53,9 @@ class SimpleDummyTrackAutomation(object):
 
     def _insert_device(self):
         # type: () -> Optional[Sequence]
+        if self._current_parameter_type == "Empty":
+            return None
+
         parameter_enum = cast(DeviceParameterEnum, DeviceParameterEnum.from_value(self._current_parameter_type))
         return CommandBus.dispatch(LoadDeviceCommand(DeviceEnum.from_device_parameter(parameter_enum).name))
 
@@ -82,6 +86,10 @@ class SimpleDummyTrackAutomation(object):
         clip = list(self._clip_slots)[SongFacade.selected_scene().index].clip
         assert clip
         clip.clip_name.update("")
+
+        if self._current_parameter_type == "Empty":
+            return None
+
         parameter_enum = cast(DeviceParameterEnum, DeviceParameterEnum.from_value(self._current_parameter_type))
 
         automated_device = self._devices.get_one_from_enum(DeviceEnum.from_device_parameter(parameter_enum))

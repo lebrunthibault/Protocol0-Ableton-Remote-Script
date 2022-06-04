@@ -49,7 +49,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
         self._clip_slot_synchronizers = []  # type: List[ClipSlotSynchronizer]
 
         self._instrument = None  # type: Optional[InstrumentInterface]
-        self._external_device = None  # type: Optional[Device]
+        self.external_device = None  # type: Optional[Device]
         self.midi_track.devices.register_observer(self)
         self.midi_track.devices.build()
 
@@ -58,7 +58,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
             self.audio_track,
             self.audio_tail_track,
             self.dummy_tracks,
-            cast(Device, self._external_device),
+            cast(Device, self.external_device),
         )  # type: ExternalSynthTrackMonitoringState
         self.arm_state = ExternalSynthTrackArmState(self.base_track, self.midi_track, self.monitoring_state)
 
@@ -169,8 +169,8 @@ class ExternalSynthTrack(AbstractGroupTrack):
             for sub_track in self.sub_tracks:
                 sub_track.appearance.color = self.appearance.color
         elif isinstance(observable, SimpleTrackDevices):
-            self._external_device = find_if(lambda d: d.is_external_device, list(self.midi_track.devices))
-            if self._external_device is None:
+            self.external_device = find_if(lambda d: d.is_external_device, list(self.midi_track.devices))
+            if self.external_device is None:
                 raise Protocol0Warning("%s should have an external device" % self)
 
             if self._instrument is None:

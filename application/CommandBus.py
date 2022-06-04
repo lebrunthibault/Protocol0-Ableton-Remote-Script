@@ -63,6 +63,8 @@ class CommandBus(object):
     @handle_error
     def _dispatch_command(self, command):
         # type: (SerializableCommand) -> Optional[Sequence]
+        start_at = time.time()
+
         if self._is_duplicate_command(command):
             self._duplicate_command_count += 1
             Logger.warning("skipping duplicate command %s: please reload the set" % command)
@@ -73,7 +75,6 @@ class CommandBus(object):
             return None
 
         self._last_command = command
-        start_at = time.time()
         self._last_command_processed_at = start_at
 
         handler = self._command_mapping[command.__class__](self._container)
@@ -101,4 +102,4 @@ class CommandBus(object):
         """
         return type(self._last_command) is type(command) \
             and self._last_command_processed_at is not None \
-            and time.time() - self._last_command_processed_at >= 0.100
+            and time.time() - self._last_command_processed_at < 0.100
