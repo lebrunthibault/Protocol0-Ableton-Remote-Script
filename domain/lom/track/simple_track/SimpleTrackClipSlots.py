@@ -14,6 +14,7 @@ from protocol0.domain.lom.track.simple_track.SimpleTrackLastClipDeletedEvent imp
 from protocol0.domain.shared.decorators import defer
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.observer.Observable import Observable
 
 
@@ -47,6 +48,11 @@ class SimpleTrackClipSlots(SlotManager):
     def clips(self):
         # type: () -> List[Clip]
         return [clip_slot.clip for clip_slot in self.clip_slots if clip_slot.has_clip and clip_slot.clip]
+
+    @property
+    def selected(self):
+        # type: () -> ClipSlot
+        return list(self._clip_slots)[SongFacade.selected_scene().index]
 
     def build(self):
         # type: () -> None

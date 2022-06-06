@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
@@ -16,15 +16,25 @@ class ExternalSynthTrackMonitoringState(object):
                  midi_track,  # type: SimpleMidiTrack
                  audio_track,  # type: SimpleAudioTrack
                  audio_tail_track,  # type: Optional[SimpleAudioTailTrack]
-                 dummy_tracks,  # type: List[SimpleDummyTrack]
+                 dummy_track,  # type: Optional[SimpleDummyTrack]
                  external_device,  # type: Device
                  ):
         # type: (...) -> None
         self._midi_track = midi_track
         self._audio_track = audio_track
         self._audio_tail_track = audio_tail_track
-        self._dummy_tracks = dummy_tracks
+        self._dummy_track = dummy_track
         self.external_device = external_device
+
+    def set_dummy_track(self, track):
+        # type: (Optional[SimpleDummyTrack]) -> None
+        """Track is not mapped on __ini__"""
+        self._dummy_track = track
+
+    def set_audio_tail_track(self, track):
+        # type: (Optional[SimpleAudioTailTrack]) -> None
+        """Track is not mapped on __ini__"""
+        self._audio_tail_track = track
 
     def switch(self):
         # type: () -> None
@@ -45,15 +55,6 @@ class ExternalSynthTrackMonitoringState(object):
         # type: () -> None
         # midi track
         self._un_mute_track(self._midi_track)
-
-        # for midi_clip in self._midi_track.clips:
-        #     audio_clip = list(self._audio_track.clip_slots)[midi_clip.index].clip
-        #     # do not unmute muted clip slot
-        #     if audio_clip and audio_clip.muted:
-        #         continue
-        #     midi_clip.muted = False
-        #     # if audio_clip and audio_clip.is_playing and SongFacade.is_playing():
-        #     #     Scheduler.defer(SongFacade.scenes()[midi_clip.index].fire)
 
         # audio track
         self._mute_track(self._audio_track)
@@ -104,8 +105,8 @@ class ExternalSynthTrackMonitoringState(object):
         track.muted = False
         track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
         output_track = track.group_track
-        if len(self._dummy_tracks):
-            output_track = self._dummy_tracks[0]
+        if self._dummy_track:
+            output_track = self._dummy_track
 
         if output_track:
             track.output_routing.track = output_track

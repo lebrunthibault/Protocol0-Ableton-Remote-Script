@@ -56,10 +56,16 @@ class ClipAutomation(object):
 
         return None
 
-    def create_envelope(self, parameter):
-        # type: (DeviceParameter) -> Live.Clip.AutomationEnvelope
-        assert parameter
-        return self._live_clip.create_automation_envelope(parameter._device_parameter)
+    def select_or_create_envelope(self, parameter):
+        # type: (DeviceParameter) -> None
+        existing_envelope = self.get_envelope(parameter)
+        if not existing_envelope:
+            self._live_clip.create_automation_envelope(parameter._device_parameter)
+
+        existing_envelope = self.get_envelope(parameter)
+        existing_envelope.create_start_and_end_points()
+
+        self.show_parameter_envelope(parameter)
 
     def clear_all_envelopes(self):
         # type: () -> None

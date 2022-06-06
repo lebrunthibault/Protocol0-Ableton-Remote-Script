@@ -1,7 +1,7 @@
 import itertools
 from functools import partial
 
-from typing import Optional, cast, List, Iterator
+from typing import Optional, cast, List
 
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
@@ -57,7 +57,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
             self.midi_track,
             self.audio_track,
             self.audio_tail_track,
-            self.dummy_tracks,
+            self.dummy_track,
             cast(Device, self.external_device),
         )  # type: ExternalSynthTrackMonitoringState
         self.arm_state = ExternalSynthTrackArmState(self.base_track, self.midi_track, self.monitoring_state)
@@ -86,6 +86,8 @@ class ExternalSynthTrack(AbstractGroupTrack):
         # type: () -> None
         self._map_optional_audio_tail_track()
         super(ExternalSynthTrack, self).on_tracks_change()
+        self.monitoring_state.set_audio_tail_track(self.audio_tail_track)
+        self.monitoring_state.set_dummy_track(self.dummy_track)
         self._map_clip_slots()
 
     def _on_bar_changed_event(self, _):
@@ -141,11 +143,14 @@ class ExternalSynthTrack(AbstractGroupTrack):
         # type: () -> None
         self._map_clip_slots()
 
-    def _get_dummy_tracks(self):
-        # type: () -> Iterator[SimpleTrack]
+    def _get_dummy_track(self):
+        # type: () -> Optional[SimpleAudioTrack]
         main_tracks_length = 3 if self.audio_tail_track else 2
-        for track in self.base_track.sub_tracks[main_tracks_length:]:
-            yield track
+        if len(self.sub_tracks) == main_tracks_length + 1 and isinstance(self.sub_tracks[-1],
+                                                                         SimpleAudioTrack):
+            return cast(SimpleAudioTrack, self.sub_tracks[-1])
+        else:
+            return None
 
     def _map_clip_slots(self):
         # type: () -> None

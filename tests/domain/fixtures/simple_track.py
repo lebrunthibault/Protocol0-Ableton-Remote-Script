@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 import Live
 from _Framework.SubjectSlot import Subject
 from typing import cast, List
@@ -30,6 +32,9 @@ class AbletonTrack(Subject):
         self._live_ptr = id(self)
         self.name = track_type
         self.devices = []  # type: List[AbletonDevice]
+        mixer_device = namedtuple('mixer_device', ['sends', 'volume',
+                                                   'panning'])
+        self.mixer_device = mixer_device([], 0, 0)
         self.arm = False
         self.solo = False
         self.fold_state = False

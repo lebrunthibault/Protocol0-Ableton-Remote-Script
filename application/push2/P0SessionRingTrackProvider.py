@@ -21,12 +21,21 @@ class P0SessionRingTrackProvider(SessionRingTrackProvider):
 
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
+        self._tracks_to_use_cache = []
         super(P0SessionRingTrackProvider, self).__init__(*a, **k)
+
+        # we cache this for performance and to handle race conditions
+        self._tracks_to_use_cache = self._get_tracks_to_use()
+
         self.set_enabled(False)
+        self._sync_session_to_selected_scene()
+        self.scene_offset = self.scene_offset  # type: int
+        self.track_offset = self.track_offset  # type: int
+
         DomainEventBus.subscribe(SelectedTrackChangedEvent, self._on_selected_track_changed_event)
         DomainEventBus.subscribe(SessionUpdatedEvent, self._on_session_updated_event)
-        self._sync_session_to_selected_scene()
-        self.track_offset = self.track_offset  # type: int
+
+        DomainEventBus.emit(SessionUpdatedEvent)
 
     def __repr__(self):
         # type: () -> str
@@ -54,6 +63,7 @@ class P0SessionRingTrackProvider(SessionRingTrackProvider):
     def _on_session_updated_event(self, _):
         # type: (SessionUpdatedEvent) -> None
         """Event to send so that the push2 session is updated"""
+        self._tracks_to_use_cache = self._get_tracks_to_use()
         self._update_track_list()
         self._sync_session_to_selected_scene()
 
@@ -79,6 +89,16 @@ class P0SessionRingTrackProvider(SessionRingTrackProvider):
         return sorted(tracks, key=lambda t: t.index)
 
     def tracks_to_use(self):
+        # type: () -> List[Any]
+        """
+            Called by the push to have the track list to display
+
+            There are race conditions between the push and the script so this is cached
+            We update the list when it's fit for the script
+        """
+        return self._tracks_to_use_cache
+
+    def _get_tracks_to_use(self):
         # type: () -> List[Any]
         tracks = [t._track for t in self.session_tracks]
         return self._decorator_factory.decorate_all_mixer_tracks(tracks)

@@ -6,6 +6,7 @@ from typing import List, Optional, Iterator, cast
 
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
+from protocol0.domain.lom.device.MixerDevice import MixerDevice
 from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.shared.LiveObjectMapping import LiveObjectMapping
@@ -22,6 +23,7 @@ class SimpleTrackDevices(SlotManager, Observable):
         self._all_devices = []  # type: List[Device]
         self._devices_listener.subject = live_track
         self._devices_mapping = LiveObjectMapping(Device.make)
+        self._mixer_device = MixerDevice(live_track.mixer_device)
 
     def __repr__(self):
         # type: () -> str
@@ -47,6 +49,7 @@ class SimpleTrackDevices(SlotManager, Observable):
 
         self.notify_observers()
 
+    @property
     def all(self):
         # type: () -> List[Device]
         return self._all_devices
@@ -56,7 +59,7 @@ class SimpleTrackDevices(SlotManager, Observable):
         # type: () -> Optional[Device]
         if self._track and self._track.view.selected_device:
             device = find_if(
-                lambda d: d._device == self._track.view.selected_device, self.all()
+                lambda d: d._device == self._track.view.selected_device, self.all
             )  # type: Optional[Device]
             assert device
             return device
@@ -93,7 +96,7 @@ class SimpleTrackDevices(SlotManager, Observable):
 
     def delete(self, device):
         # type: (Device) -> None
-        if device not in self.all():
+        if device not in self.all:
             return None
 
         device_index = self._devices.index(device)
@@ -103,4 +106,5 @@ class SimpleTrackDevices(SlotManager, Observable):
     @property
     def parameters(self):
         # type: () -> List[DeviceParameter]
-        return list(chain(*[device.parameters for device in self.all()]))
+        return list(
+            chain(*[device.parameters for device in self.all])) + self._mixer_device.parameters

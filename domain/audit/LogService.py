@@ -27,7 +27,7 @@ class LogService(object):
         Logger.info("current_track.sub_tracks: %s" % current_track.sub_tracks)
         Logger.info()
         if isinstance(current_track, AbstractGroupTrack):
-            Logger.info("current_track.dummy_tracks: %s" % current_track.dummy_tracks)
+            Logger.info("current_track.dummy_track: %s" % current_track.dummy_track)
             Logger.info()
         Logger.info("current_track.clips: %s" % current_track.clips)
         Logger.info()

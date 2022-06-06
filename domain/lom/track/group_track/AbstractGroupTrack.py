@@ -1,4 +1,4 @@
-from typing import List, Optional, Iterator
+from typing import List, Optional, cast
 
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
@@ -17,13 +17,13 @@ class AbstractGroupTrack(AbstractTrack):
         self.group_track = self.group_track  # type: Optional[AbstractGroupTrack]
         self.sub_tracks = []  # type: List[AbstractTrack]
         # for now: List[SimpleTrack] but AbstractGroupTracks will register themselves on_tracks_change
-        self.dummy_tracks = []  # type: List[SimpleDummyTrack]
+        self.dummy_track = None  # type: Optional[SimpleDummyTrack]
 
     def on_tracks_change(self):
         # type: () -> None
         self._link_sub_tracks()
         self._link_group_track()
-        self._map_dummy_tracks()
+        self._map_dummy_track()
 
     def _link_sub_tracks(self):
         # type: () -> None
@@ -47,54 +47,39 @@ class AbstractGroupTrack(AbstractTrack):
         self.abstract_group_track = self  # because we already are the abstract group track
         self.group_track.add_or_replace_sub_track(self, self.base_track)
 
-    def _map_dummy_tracks(self):
+    def _map_dummy_track(self):
         # type: () -> None
-        dummy_audio_tracks = list(self._get_dummy_tracks())
-        if len(self.dummy_tracks) == len(dummy_audio_tracks):
-            return
+        dummy_audio_track = self._get_dummy_track()
+        if getattr(dummy_audio_track, "_track", None) == getattr(self.dummy_track, "_track", None):
+            return  # no change
 
-        self.dummy_tracks[:] = []
-        for track in dummy_audio_tracks:
-            dummy_track = SimpleDummyTrack(track._track, track.index)
-            self.dummy_tracks.append(dummy_track)
-            self.add_or_replace_sub_track(dummy_track, track)
+        if dummy_audio_track:
+            self.dummy_track = SimpleDummyTrack(dummy_audio_track._track, dummy_audio_track.index)
+            self.add_or_replace_sub_track(self.dummy_track, dummy_audio_track)
+            self.dummy_track.group_track = self.base_track
+            self.dummy_track.abstract_group_track = self
 
-            dummy_track.group_track = self.base_track
-            dummy_track.abstract_group_track = self
+        Scheduler.wait(3, self._route_sub_tracks)
 
-        Scheduler.wait(3, self._link_dummy_tracks_routings)
+    def _get_dummy_track(self):
+        # type: () -> Optional[SimpleAudioTrack]
+        if len(self.sub_tracks) == 1:
+            return None
 
-    def _get_dummy_tracks(self):
-        # type: () -> Iterator[SimpleTrack]
-        dummy_tracks = []
-        for track in reversed(self.sub_tracks):
-            if isinstance(track, SimpleAudioTrack) and not track.is_foldable and track.instrument is None:
-                dummy_tracks.append(track)
+        track = self.sub_tracks[-1]
+        if isinstance(track, SimpleAudioTrack) and not track.is_foldable and track.instrument is None:
+            return track
 
-            # checks automated tracks are all the same type to avoid triggering on wrong track layouts
-            main_tracks = self.sub_tracks[:self.sub_tracks.index(track)]
-            if len(main_tracks) == 0 or not all([isinstance(track, main_tracks[0].__class__) for track in main_tracks]):
-                return iter([])
+        return None
 
-        return reversed(dummy_tracks)
-
-    def _link_dummy_tracks_routings(self):
+    def _route_sub_tracks(self):
         # type: () -> None
-        simple_tracks = [track for track in self.sub_tracks if track not in self.dummy_tracks]
-        if len(self.dummy_tracks) == 0:
-            for track in simple_tracks:
-                if track.has_audio_output:
-                    track.output_routing.track = self.base_track
-            return
+        simple_tracks = [track for track in self.sub_tracks if track != self.dummy_track]
+        output_track = self.dummy_track if self.dummy_track is not None else self.base_track
 
-        dummy_track = self.dummy_tracks[0]
         for track in simple_tracks:
             if track.has_audio_output:
-                track.output_routing.track = dummy_track
-        for next_dummy_track in self.dummy_tracks[1:]:
-            dummy_track.output_routing.track = next_dummy_track
-            dummy_track = next_dummy_track
-        dummy_track.output_routing.track = self.base_track
+                track.output_routing.track = cast(SimpleTrack, output_track)
 
     def is_parent(self, abstract_track):
         # type: (AbstractTrack) -> bool

@@ -1,10 +1,12 @@
 from typing import Optional, Any, cast, Type
 
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
+    ExternalSynthTrack
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.track_recorder.AbstractTrackRecorder import AbstractTrackRecorder
-from protocol0.domain.track_recorder.AbstractTrackRecorderFactory import AbstractTrackRecorderFactory
+from protocol0.domain.track_recorder.AbstractTrackRecorderFactory import \
+    AbstractTrackRecorderFactory
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
 from protocol0.domain.track_recorder.count_in.CountInInterface import CountInInterface
 from protocol0.domain.track_recorder.count_in.CountInOneBar import CountInOneBar
@@ -80,7 +82,7 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
 
             return None
         else:
-            if not self.track.midi_track.clip_slots[SongFacade.selected_scene().index].clip:
+            if not self.track.midi_track.selected_clip_slot.clip:
                 raise Protocol0Warning("No midi clip selected")
             return SongFacade.selected_scene().index
 
@@ -91,7 +93,7 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
         elif record_type == RecordTypeEnum.NORMAL_UNLIMITED:
             return 0
         elif record_type in (RecordTypeEnum.AUDIO_ONLY, RecordTypeEnum.AUDIO_ONLY_AUTOMATION):
-            midi_clip = self.track.midi_track.clip_slots[SongFacade.selected_scene().index].clip
+            midi_clip = self.track.midi_track.selected_clip_slot.clip
             return midi_clip.loop.bar_length
         elif record_type in (RecordTypeEnum.AUDIO_ONLY_MULTI, RecordTypeEnum.AUDIO_ONLY_MULTI_AUTOMATION):
             return SongFacade.selected_scene().bar_length

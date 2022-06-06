@@ -54,7 +54,7 @@ def monkey_patch_static():
     ActionGroupFactory.create_action_groups = classmethod(nop)
 
     SongInitService.init_song = nop
-    AbstractGroupTrack._link_dummy_tracks_routings = nop
+    AbstractGroupTrack._route_sub_tracks = nop
     RoutingTrackDescriptor.__set__ = nop
 
 

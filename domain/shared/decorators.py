@@ -3,7 +3,8 @@ from functools import wraps, partial
 
 from typing import Any, Callable, Optional
 
-from protocol0.domain.shared.utils import is_method
+from protocol0.domain.shared.utils import is_method, get_callable_repr
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.types import Func
 
 
@@ -85,6 +86,7 @@ def throttle(wait_time=100):
             object_source = a[0] if is_method(func) else decorate
 
             if decorate.paused[object_source] and k.get("throttle", True):  # type: ignore[attr-defined]
+                Logger.warning("%s throttled" % get_callable_repr(func))
                 return
 
             decorate.paused[object_source] = True  # type: ignore[attr-defined]

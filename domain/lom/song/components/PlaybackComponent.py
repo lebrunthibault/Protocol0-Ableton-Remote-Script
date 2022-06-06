@@ -8,7 +8,8 @@ from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.track_recorder.TrackRecordingCancelledEvent import \
     TrackRecordingCancelledEvent
-from protocol0.domain.track_recorder.TrackRecordingStartedEvent import TrackRecordingStartedEvent
+from protocol0.domain.track_recorder.TrackRecordingStartedEvent import \
+    TrackRecordingStartedEvent
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 
@@ -43,7 +44,7 @@ class PlaybackComponent(SlotManager):
                 Scheduler.defer(scene.mute_audio_tails)
             return
 
-    @throttle(wait_time=50)
+    @throttle(wait_time=100)
     def _on_scene_position_scrolled_event(self, _):
         # type: (ScenePositionScrolledEvent) -> None
         scene = SongFacade.selected_scene()

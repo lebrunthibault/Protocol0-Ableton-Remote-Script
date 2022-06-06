@@ -4,8 +4,8 @@ from typing import Optional
 
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 from protocol0.domain.lom.instrument.InstrumentDisplayService import InstrumentDisplayService
-from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService import InstrumentPresetScrollerService
-from protocol0.domain.lom.scene.SceneService import SceneService
+from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService import \
+    InstrumentPresetScrollerService
 from protocol0.domain.lom.set.MixingService import MixingService
 from protocol0.domain.lom.song.components.SceneComponent import SceneComponent
 from protocol0.domain.lom.song.components.TrackComponent import TrackComponent
@@ -38,7 +38,8 @@ class ActionGroupMain(ActionGroupInterface):
             identifier=3,
             name="automation",
             on_press=lambda: self._container.get(TrackAutomationService).show_automation,
-            on_long_press=lambda: partial(SongFacade.selected_midi_clip().synchronize_automation_layers, SongFacade.selected_track().devices.parameters),
+            on_long_press=lambda: self._container.get(
+                TrackAutomationService).select_or_sync_automation,
             on_scroll=lambda: partial(SongFacade.selected_clip().automation.scroll_envelopes, SongFacade.selected_track().devices.parameters),
         )
 
@@ -72,14 +73,6 @@ class ActionGroupMain(ActionGroupInterface):
             on_scroll=self._container.get(TrackRecorderService).recording_bar_length_scroller.scroll,
             on_press=lambda: partial(record_track, RecordTypeEnum.NORMAL),
             on_long_press=lambda: partial(record_track, RecordTypeEnum.NORMAL_UNLIMITED),
-        )
-
-        # SCENe 2 encoder
-        self.add_encoder(
-            identifier=12,
-            name="scene scroll time",
-            on_scroll=lambda: SongFacade.selected_scene().position_scroller.scroll,
-            on_press=lambda: partial(self._container.get(SceneService).fire_scene_to_position, SongFacade.last_manually_started_scene()),
         )
 
         # TRacK encoder

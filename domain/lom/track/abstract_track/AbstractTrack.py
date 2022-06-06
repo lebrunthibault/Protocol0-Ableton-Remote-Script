@@ -10,7 +10,8 @@ from protocol0.domain.lom.clip.ClipSlotSelectedEvent import ClipSlotSelectedEven
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
-from protocol0.domain.lom.track.abstract_track.AbstrackTrackArmState import AbstractTrackArmState
+from protocol0.domain.lom.track.abstract_track.AbstrackTrackArmState import \
+    AbstractTrackArmState
 from protocol0.domain.lom.track.abstract_track.AbstractTrackAppearance import \
     AbstractTrackAppearance
 from protocol0.domain.lom.track.abstract_track.AbstractTrackSelectedEvent import \
@@ -119,6 +120,11 @@ class AbstractTrack(SlotManager):
     def clip_slots(self):
         # type: () -> List[ClipSlot]
         raise NotImplementedError
+
+    @property
+    def selected_clip_slot(self):
+        # type: () -> Optional[ClipSlot]
+        return self.clip_slots[SongFacade.selected_scene().index]
 
     def select_clip_slot(self, clip_slot):
         # type: (Live.ClipSlot.ClipSlot) -> None

@@ -50,6 +50,11 @@ class Device(SlotManager):
         # type: (Live.Device.Device) -> Device
         return Device._get_class(device)(device=device)
 
+    @subject_slot("parameters")
+    def _parameters_listener(self):
+        # type: () -> None
+        self.parameters = [DeviceParameter(parameter) for parameter in self._device.parameters]
+
     def get_parameter_by_name(self, device_parameter_name):
         # type: (Union[DeviceParameterEnum, str]) -> Optional[DeviceParameter]
         if isinstance(device_parameter_name, DeviceParameterEnum):
@@ -111,8 +116,3 @@ class Device(SlotManager):
     def is_collapsed(self, is_collapsed):
         # type: (bool) -> None
         self._view.is_collapsed = is_collapsed
-
-    @subject_slot("parameters")
-    def _parameters_listener(self):
-        # type: () -> None
-        self.parameters = [DeviceParameter(parameter) for parameter in self._device.parameters]

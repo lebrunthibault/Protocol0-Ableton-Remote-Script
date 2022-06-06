@@ -8,7 +8,7 @@ if sys.version_info.major == 2:
 
 live_environment_loaded = "Live" in sys.modules
 
-from typing import Any  # noqa: E402
+from typing import Any, Iterator  # noqa: E402
 
 
 def load_dotenv():
@@ -59,6 +59,11 @@ class EmptyModule(object):
     def __hash__(self):
         # type: () -> int
         return 0
+
+    def __iter__(self):
+        # type: () -> Iterator
+        """Handles push2 scales"""
+        return iter([("", "")])
 
 
 # allows accessing lint from this module from outside the Live python environment, e.g. Jupyter tests

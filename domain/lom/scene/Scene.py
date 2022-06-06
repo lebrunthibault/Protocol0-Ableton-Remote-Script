@@ -176,7 +176,7 @@ class Scene(SlotManager):
         # type: (bool) -> None
         next_track = scroll_values(self.abstract_tracks, SongFacade.current_track(), go_next)
         next_track.select()
-        next_clip_slot = next_track.clip_slots[SongFacade.selected_scene().index]
+        next_clip_slot = next_track.selected_clip_slot
         if next_clip_slot.clip:
             next_track.select_clip_slot(next_clip_slot._clip_slot)
 

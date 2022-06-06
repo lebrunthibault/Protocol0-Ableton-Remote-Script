@@ -8,7 +8,8 @@ from protocol0.domain.lom.device.DeviceService import DeviceService
 from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
+    ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
@@ -31,7 +32,7 @@ class SetUpgradeService(object):
         seq = Sequence()
         seq.prompt("Update updatable racks ?")
         for track in SongFacade.all_simple_tracks():
-            for device in track.devices.all():
+            for device in track.devices.all:
                 if not isinstance(device, RackDevice):
                     continue
                 if any(enum.matches_device(device) for enum in DeviceEnum.updatable_devices()):

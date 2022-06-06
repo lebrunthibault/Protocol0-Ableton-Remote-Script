@@ -24,7 +24,7 @@ class InstrumentFactory(object):
 
         instrument_device = find_if(lambda d: cls._get_instrument_class(d) is not None, devices)
         if not instrument_device:
-            instrument_device = find_if(lambda d: cls._get_instrument_class(d) is not None, devices.all())
+            instrument_device = find_if(lambda d: cls._get_instrument_class(d) is not None, devices.all)
         if not instrument_device:
             return None
 

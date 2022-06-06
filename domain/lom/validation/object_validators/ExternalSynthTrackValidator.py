@@ -10,7 +10,8 @@ from protocol0.domain.lom.validation.object_validators.SimpleAudioTailTrackValid
     SimpleAudioTailTrackValidator
 from protocol0.domain.lom.validation.object_validators.SimpleAudioTrackValidator import \
     SimpleAudioTrackValidator
-from protocol0.domain.lom.validation.sub_validators.AggregateValidator import AggregateValidator
+from protocol0.domain.lom.validation.sub_validators.AggregateValidator import \
+    AggregateValidator
 from protocol0.domain.lom.validation.sub_validators.CallbackValidator import CallbackValidator
 from protocol0.domain.lom.validation.sub_validators.PropertyValueValidator import \
     PropertyValueValidator
@@ -56,18 +57,18 @@ class ExternalSynthTrackValidator(AggregateValidator):
         if track.audio_tail_track:
             validators += SimpleAudioTailTrackValidator(track.audio_tail_track)._validators
 
-        if len(track.dummy_tracks) == 0 and not track.is_armed:
+        if track.dummy_track is None and not track.is_armed:
             validators.append(PropertyValueValidator(track.audio_track.output_routing, "track", track.base_track,
                                                      name="audio track output routing"))
             if track.audio_tail_track:
                 validators.append(
                     PropertyValueValidator(track.audio_tail_track.output_routing, "track", track.base_track,
                                            name="tail track output routing"))
-
-        for dummy_track in track.dummy_tracks:
+        else:
             validators += [
-                PropertyValueValidator(dummy_track, "volume", 0),
-                PropertyValueValidator(dummy_track, "current_monitoring_state", CurrentMonitoringStateEnum.IN)
+                PropertyValueValidator(track.dummy_track, "volume", 0),
+                PropertyValueValidator(track.dummy_track, "current_monitoring_state",
+                                       CurrentMonitoringStateEnum.IN)
             ]
 
         super(ExternalSynthTrackValidator, self).__init__(validators)

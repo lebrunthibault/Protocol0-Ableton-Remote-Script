@@ -51,10 +51,10 @@ class ExternalSynthTrackArmState(AbstractTrackArmState):
             SongFacade.usamo_track().input_routing.track = self._midi_track
             SongFacade.usamo_track().activate()  # this is the default: overridden by prophet
 
-        self._monitoring_state.monitor_midi()
         if self._midi_track.input_routing.type == InputRoutingTypeEnum.NO_INPUT:
             self._midi_track.input_routing.type = InputRoutingTypeEnum.ALL_INS
 
         seq = Sequence()
         seq.add([sub_track.arm_state.arm_track for sub_track in self._sub_tracks if not isinstance(sub_track, SimpleDummyTrack)])
+        seq.add(self._monitoring_state.monitor_midi)
         return seq.done()
