@@ -21,8 +21,8 @@ from protocol0.domain.lom.track.routing.TrackOutputRouting import TrackOutputRou
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.shared.utils import ForwardTo
-from protocol0.domain.shared.utils import volume_to_db, db_to_volume
+from protocol0.domain.shared.utils.forward_to import ForwardTo
+from protocol0.domain.shared.utils.utils import volume_to_db, db_to_volume
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 

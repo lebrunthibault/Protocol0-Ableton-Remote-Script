@@ -1,6 +1,6 @@
 from typing import Optional, List
 
-from protocol0.domain.shared.utils import find_if
+from protocol0.domain.shared.utils.utils import find_if
 from protocol0.shared.AbstractEnum import AbstractEnum
 
 

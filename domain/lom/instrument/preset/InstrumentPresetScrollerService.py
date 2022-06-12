@@ -1,13 +1,14 @@
 from functools import partial
 
-from protocol0.domain.lom.instrument.preset.PresetDisplayOptionEnum import PresetDisplayOptionEnum
+from protocol0.domain.lom.instrument.preset.PresetDisplayOptionEnum import \
+    PresetDisplayOptionEnum
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
     ExternalSynthTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.decorators import lock
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
-from protocol0.domain.shared.utils import scroll_values
 from protocol0.shared.logging.StatusBar import StatusBar
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -36,7 +37,7 @@ class InstrumentPresetScrollerService(object):
             raise Protocol0Warning("this instrument does not have categories")
 
         ApplicationViewFacade.show_device()
-        category = scroll_values(
+        category = ValueScroller.scroll_values(
             instrument.preset_list.categories, instrument.preset_list.selected_category, go_next
         ).lower()
         instrument.preset_list.set_selected_category(category)

@@ -2,7 +2,7 @@ from typing import Any, Callable
 
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.shared.utils import get_callable_repr
+from protocol0.domain.shared.utils.func import get_callable_repr
 from protocol0.shared.logging.Logger import Logger
 
 

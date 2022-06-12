@@ -1,8 +1,8 @@
 from typing import Any, Optional
 
-from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
-from protocol0.domain.shared.utils import compare_values
 from protocol0.domain.lom.validation.ValidatorInterface import ValidatorInterface
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
+from protocol0.domain.shared.utils.utils import compare_values
 
 
 class PropertyValueValidator(ValidatorInterface):

@@ -10,7 +10,7 @@ from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGr
 from protocol0.domain.lom.track.routing.RoutingTrackDescriptor import RoutingTrackDescriptor
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.shared.utils import nop
+from protocol0.domain.shared.utils.func import nop
 from protocol0.infra.logging.LoggerService import LoggerService
 from protocol0.infra.midi.MidiService import MidiService
 from protocol0.infra.scheduler.BeatScheduler import BeatScheduler

@@ -6,10 +6,10 @@ from protocol0.domain.lom.clip.ClipLoop import ClipLoop
 from protocol0.domain.lom.clip.automation.ClipAutomationEnvelope import ClipAutomationEnvelope
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.decorators import handle_error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.utils import scroll_values
 
 
 class ClipAutomation(object):
@@ -41,7 +41,7 @@ class ClipAutomation(object):
         if self.displayed_automated_parameter is None:
             self.displayed_automated_parameter = automated_parameters[0]
         else:
-            self.displayed_automated_parameter = scroll_values(
+            self.displayed_automated_parameter = ValueScroller.scroll_values(
                 automated_parameters, self.displayed_automated_parameter, go_next
             )
 

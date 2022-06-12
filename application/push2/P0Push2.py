@@ -8,7 +8,7 @@ from pushbase.push_base import NUM_TRACKS, NUM_SCENES
 
 from protocol0.application.push2.P0SessionRingTrackProvider import P0SessionRingTrackProvider
 from protocol0.application.push2.P0TrackListComponent import P0TrackListComponent
-from protocol0.domain.shared.utils import nop
+from protocol0.domain.shared.utils.func import nop
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 

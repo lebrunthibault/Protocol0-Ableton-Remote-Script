@@ -13,7 +13,7 @@ from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudio
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.shared.utils import volume_to_db
+from protocol0.domain.shared.utils.utils import volume_to_db
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -59,10 +59,10 @@ class MasterTrack(SimpleAudioTrack):
         """
         self.volume = volume_to_db(0)
         Scheduler.wait_ms(duration, (partial(setattr, self, "volume", 0)))
-        Scheduler.wait(10, self._check_volume)
+        Scheduler.wait(10, self._check_volume, unique=True)
 
     def _check_volume(self):
         # type: () -> None
         if self.volume != 0:
             Backend.client().show_warning("Master volume is not at 0 db, fixing")
-            self.volume = 0
+            # self.volume = 0

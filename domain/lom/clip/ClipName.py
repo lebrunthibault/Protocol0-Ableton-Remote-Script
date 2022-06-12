@@ -6,7 +6,7 @@ from _Framework.SubjectSlot import subject_slot, SlotManager
 from typing import Optional
 
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.shared.utils import get_length_legend
+from protocol0.domain.shared.utils.utils import get_length_legend
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 

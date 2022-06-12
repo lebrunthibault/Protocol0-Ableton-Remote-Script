@@ -2,7 +2,8 @@ import Live
 from typing import List, Callable, Optional
 
 from protocol0.domain.shared.decorators import handle_error
-from protocol0.domain.shared.scheduler.TickSchedulerEventInterface import TickSchedulerEventInterface
+from protocol0.domain.shared.scheduler.TickSchedulerEventInterface import \
+    TickSchedulerEventInterface
 from protocol0.domain.shared.scheduler.TickSchedulerInterface import TickSchedulerInterface
 from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
 from protocol0.infra.scheduler.TickSchedulerEvent import TickSchedulerEvent
@@ -53,11 +54,13 @@ class TickScheduler(TickSchedulerInterface):
             else:
                 scheduled_event.decrement_timeout()
 
-    def schedule(self, tick_count, callback):
-        # type: (int, Callable) -> TickSchedulerEventInterface
-        """ timeout_duration in ms """
+    def schedule(self, tick_count, callback, unique=False):
+        # type: (int, Callable, bool) -> TickSchedulerEventInterface
         assert callable(callback)
         assert tick_count > 0
+
+        # if unique:
+        #     if any(type(event) == type(call))
 
         scheduled_event = TickSchedulerEvent(callback=callback, tick_count=tick_count)
         self._scheduled_events.append(scheduled_event)

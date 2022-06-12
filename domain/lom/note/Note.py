@@ -1,7 +1,7 @@
 from typing import Any, Tuple
 
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
-from protocol0.domain.shared.utils import clamp
+from protocol0.domain.shared.utils.utils import clamp
 
 
 class Note(object):

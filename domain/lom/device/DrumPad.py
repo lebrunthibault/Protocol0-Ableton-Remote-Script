@@ -1,7 +1,7 @@
 import Live
 
 from protocol0.domain.shared.backend.Backend import Backend
-from protocol0.domain.shared.utils import smart_string
+from protocol0.domain.shared.utils.utils import smart_string
 from protocol0.shared.sequence.Sequence import Sequence
 
 

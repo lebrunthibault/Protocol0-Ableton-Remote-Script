@@ -8,7 +8,8 @@ from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.lom.song.components.DeviceComponent import DeviceComponent
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
-from protocol0.domain.shared.utils import find_if, scroll_values
+from protocol0.domain.shared.ValueScroller import ValueScroller
+from protocol0.domain.shared.utils.utils import find_if
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
@@ -61,7 +62,7 @@ class DeviceService(object):
         if track.devices.selected in devices and SongFacade.selected_track() != track:
             next_device = track.devices.selected
         else:
-            next_device = scroll_values(devices, track.devices.selected, True)
+            next_device = ValueScroller.scroll_values(devices, track.devices.selected, True)
 
         self._device_component.select_device(track, next_device)
         return None

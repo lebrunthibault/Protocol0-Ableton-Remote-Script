@@ -1,6 +1,7 @@
 from typing import Callable
 
-from protocol0.domain.shared.scheduler.TickSchedulerEventInterface import TickSchedulerEventInterface
+from protocol0.domain.shared.scheduler.TickSchedulerEventInterface import \
+    TickSchedulerEventInterface
 from protocol0.domain.shared.scheduler.TickSchedulerInterface import TickSchedulerInterface
 from protocol0.tests.infra.scheduler.TickSchedulerEventTest import TickSchedulerEventTest
 
@@ -8,8 +9,8 @@ from protocol0.tests.infra.scheduler.TickSchedulerEventTest import TickScheduler
 class TickSchedulerTest(TickSchedulerInterface):
     """ use threading instead of Live Timer """
 
-    def schedule(self, tick_count, callback):
-        # type: (int, Callable) -> TickSchedulerEventInterface
+    def schedule(self, tick_count, callback, unique=False):
+        # type: (int, Callable, bool) -> TickSchedulerEventInterface
         """ timeout_duration in ms """
         return TickSchedulerEventTest(callback, tick_count)
 

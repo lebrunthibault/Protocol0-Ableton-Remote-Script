@@ -9,7 +9,7 @@ from protocol0.domain.lom.scene.SceneLength import SceneLength
 from protocol0.domain.lom.scene.ScenePlayingState import ScenePlayingState
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.shared.utils import get_length_legend
+from protocol0.domain.shared.utils.utils import get_length_legend
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 

@@ -28,7 +28,8 @@ class AudioTailClip(AudioClip):
 
         seq.defer()  # wait for unmute
         seq.add(self.fire)
-        seq.wait_for_event(BarChangedEvent)  # wait for the clip start
+        seq.wait_for_event(BarChangedEvent, continue_on_song_stop=True)  # wait for the clip
+        # start
         seq.wait_bars(self.loop.bar_length)
         seq.wait(5)
         seq.add(self._mute_if_stopped)

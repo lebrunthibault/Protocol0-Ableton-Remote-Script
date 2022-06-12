@@ -10,7 +10,7 @@ from protocol0.domain.lom.device.MixerDevice import MixerDevice
 from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.shared.LiveObjectMapping import LiveObjectMapping
-from protocol0.domain.shared.utils import find_if
+from protocol0.domain.shared.utils.utils import find_if
 from protocol0.shared.observer.Observable import Observable
 
 

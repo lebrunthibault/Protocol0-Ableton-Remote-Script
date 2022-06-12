@@ -3,7 +3,7 @@ from collections import deque
 from _Framework.SubjectSlot import SlotManager
 from typing import List, Callable
 
-from protocol0.domain.shared.utils import get_callable_repr
+from protocol0.domain.shared.utils.func import get_callable_repr
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.SequenceState import SequenceState
 from protocol0.shared.sequence.SequenceStep import SequenceStep

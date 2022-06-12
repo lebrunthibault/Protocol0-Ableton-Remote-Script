@@ -8,7 +8,7 @@ from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
 from protocol0.domain.lom.device.SimplerDevice import SimplerDevice
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
-from protocol0.domain.shared.utils import find_if, import_package
+from protocol0.domain.shared.utils.utils import find_if, import_package
 
 
 class InstrumentFactory(object):

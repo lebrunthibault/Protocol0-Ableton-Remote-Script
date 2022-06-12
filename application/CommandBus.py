@@ -13,7 +13,7 @@ from protocol0.application.command_handler.CommandHandlerInterface import \
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.decorators import handle_error
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
-from protocol0.domain.shared.utils import import_package
+from protocol0.domain.shared.utils.utils import import_package
 from protocol0.shared.UndoFacade import UndoFacade
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence

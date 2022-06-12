@@ -1,12 +1,14 @@
 from typing import List, Optional, Any
 
 from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPreset
-from protocol0.domain.lom.instrument.preset.preset_changer.PresetChangerInterface import PresetChangerInterface
-from protocol0.domain.lom.instrument.preset.preset_importer.PresetImportInterface import PresetImportInterface
+from protocol0.domain.lom.instrument.preset.preset_changer.PresetChangerInterface import \
+    PresetChangerInterface
+from protocol0.domain.lom.instrument.preset.preset_importer.PresetImportInterface import \
+    PresetImportInterface
 from protocol0.domain.lom.instrument.preset.preset_initializer.PresetInitializerInterface import \
     PresetInitializerInterface
+from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
-from protocol0.domain.shared.utils import scroll_values
 
 
 class InstrumentPresetList(object):
@@ -58,7 +60,7 @@ class InstrumentPresetList(object):
     def scroll(self, go_next):
         # type: (bool) -> None
         # presets belonging to the current category
-        self.selected_preset = scroll_values(self._category_presets(), self.selected_preset, go_next)
+        self.selected_preset = ValueScroller.scroll_values(self._category_presets(), self.selected_preset, go_next)
         self.load_preset(self.selected_preset)
 
     def load_preset(self, preset):

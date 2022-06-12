@@ -2,7 +2,7 @@ import re
 
 from typing import Any, Optional
 
-from protocol0.domain.shared.utils import smart_string
+from protocol0.domain.shared.utils.utils import smart_string
 
 
 class InstrumentPreset(object):

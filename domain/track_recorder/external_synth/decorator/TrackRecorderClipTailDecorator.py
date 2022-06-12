@@ -2,13 +2,15 @@ from functools import partial
 
 from typing import Optional
 
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
+    ExternalSynthTrack
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Last32thPassedEvent import Last32thPassedEvent
 from protocol0.domain.track_recorder.AbstractTrackRecorder import AbstractTrackRecorder
 from protocol0.domain.track_recorder.TrackRecorderDecorator import TrackRecorderDecorator
-from protocol0.domain.track_recorder.external_synth.decorator.AudioClipSilentEvent import AudioClipSilentEvent
+from protocol0.domain.track_recorder.external_synth.decorator.AudioClipSilentEvent import \
+    AudioClipSilentEvent
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -60,7 +62,7 @@ class TrackRecorderClipTailDecorator(TrackRecorderDecorator):
 
         DomainEventBus.subscribe(Last32thPassedEvent, self._on_last_32th_passed_event)
         seq = Sequence()
-        seq.wait_for_event(AudioClipSilentEvent, check_song_stop=True)
+        seq.wait_for_event(AudioClipSilentEvent, continue_on_song_stop=True)
         seq.add(partial(setattr, self.track.midi_track.input_routing, "type", input_routing_type))
         seq.add(partial(audio_tail_clip.stop, immediate=True))
         seq.add(partial(DomainEventBus.un_subscribe, Last32thPassedEvent, self._on_last_32th_passed_event))

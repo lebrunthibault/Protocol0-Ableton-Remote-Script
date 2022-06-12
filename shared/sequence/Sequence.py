@@ -9,7 +9,8 @@ from protocol0.domain.shared.backend.BackendResponseEvent import BackendResponse
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.event.HasEmitter import HasEmitter
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.shared.utils import get_frame_info, nop, get_callable_repr
+from protocol0.domain.shared.utils.debug import get_frame_info
+from protocol0.domain.shared.utils.func import nop, get_callable_repr
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
@@ -29,7 +30,7 @@ class Sequence(Observable):
     """
     RUNNING_SEQUENCES = []  # type: List[Sequence]
     _DEBUG = False
-    _STEP_TIMEOUT = 50  # seconds
+    _STEP_TIMEOUT = 3  # seconds
 
     def __init__(self, name=None):
         # type: (Optional[str]) -> None
@@ -148,9 +149,16 @@ class Sequence(Observable):
 
     def wait_beats(self, beats):
         # type: (float) -> None
-        self.add(partial(Scheduler.wait_beats, beats, self._execute_next_step), notify_terminated=False)
+        def execute():
+            # type: () -> None
+            if not SongFacade.is_playing():
+                Backend.client().show_warning("Cannot wait %s beats, song is not playing" %
+                                              beats)
+            else:
+                Scheduler.wait_beats(beats, self._execute_next_step)
+        self.add(execute, notify_terminated=False)
 
-    def wait_for_event(self, event_class, expected_emitter=None, check_song_stop=False):
+    def wait_for_event(self, event_class, expected_emitter=None, continue_on_song_stop=False):
         # type: (Type[object], object, bool) -> None
         """
             Will continue the sequence after an event of type event_class is fired
@@ -158,7 +166,9 @@ class Sequence(Observable):
             expected_emitter : passing an object here will check that the event was
             emitter from the right emitter before continuing the Sequence
 
-            check_song_stop: for events relying on a playing song, setting check_song_stop to True
+            continue_on_song_stop: for events relying on a playing song, setting
+            continue_on_song_stop to
+            True
             will continue the sequence on a SongStoppedEvent
         """
         if expected_emitter is not None:
@@ -167,7 +177,7 @@ class Sequence(Observable):
         def subscribe():
             # type: () -> None
             DomainEventBus.subscribe(event_class, on_event)
-            if check_song_stop:
+            if continue_on_song_stop:
                 DomainEventBus.once(SongStoppedEvent, on_event)
 
         def on_event(event):
@@ -236,8 +246,6 @@ class Sequence(Observable):
                     self._execute_next_step()
 
         DomainEventBus.subscribe(BackendResponseEvent, on_event)
-
-    """ ACTIONS """
 
     def disconnect(self):
         # type: () -> None

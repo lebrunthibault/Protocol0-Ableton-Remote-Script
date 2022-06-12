@@ -3,9 +3,10 @@ import os
 from typing import List
 
 from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPreset
-from protocol0.domain.lom.instrument.preset.preset_importer.DirectoryPresetImporter import DirectoryPresetImporter
+from protocol0.domain.lom.instrument.preset.preset_importer.DirectoryPresetImporter import \
+    DirectoryPresetImporter
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.shared.utils import find_if
+from protocol0.domain.shared.utils.utils import find_if
 from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
 

@@ -7,7 +7,7 @@ from typing import Any, Optional, cast
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.Sample.Sample import Sample
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.shared.utils import smart_string
+from protocol0.domain.shared.utils.utils import smart_string
 
 
 class SimplerDevice(Device):

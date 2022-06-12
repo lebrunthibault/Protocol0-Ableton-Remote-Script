@@ -3,7 +3,7 @@ from typing import Callable
 import protocol0.application.control_surface.group as group_package
 from protocol0.application.ContainerInterface import ContainerInterface
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
-from protocol0.domain.shared.utils import import_package
+from protocol0.domain.shared.utils.utils import import_package
 
 
 class ActionGroupFactory(object):

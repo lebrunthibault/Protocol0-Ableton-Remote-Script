@@ -14,9 +14,9 @@ from protocol0.domain.lom.track.simple_track.InstrumentBusTrack import Instrumen
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.shared.utils import scroll_values
 from protocol0.shared.SongFacade import SongFacade
 
 
@@ -99,6 +99,6 @@ class TrackComponent(SlotManager):
             next(SongFacade.simple_tracks()).select()
             return None
 
-        next_track = scroll_values(SongFacade.scrollable_tracks(), SongFacade.current_track(), go_next, rotate=False)
+        next_track = ValueScroller.scroll_values(SongFacade.scrollable_tracks(), SongFacade.current_track(), go_next, rotate=False)
         if next_track:
             next_track.select()

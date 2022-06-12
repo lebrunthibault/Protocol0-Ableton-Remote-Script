@@ -2,13 +2,28 @@ from functools import partial
 
 from typing import Dict, List, Type, Callable
 
+from protocol0.domain.lom.scene.PlayingSceneChangedEvent import PlayingSceneChangedEvent
+from protocol0.domain.lom.scene.SceneLastBarPassedEvent import SceneLastBarPassedEvent
+from protocol0.domain.lom.scene.ScenePositionScrolledEvent import ScenePositionScrolledEvent
+from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
+from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
+from protocol0.domain.shared.scheduler.BarEndingEvent import BarEndingEvent
+from protocol0.domain.shared.scheduler.Last32thPassedEvent import Last32thPassedEvent
+from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.infra.interface.session.SessionUpdatedEvent import SessionUpdatedEvent
+from protocol0.infra.midi.MidiBytesReceivedEvent import MidiBytesReceivedEvent
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.types import T
 
 
 class DomainEventBus(object):
-    _DEBUG = False
+    _DEBUG = True
+    _DEBUGGED_EVENTS = (ScenePositionScrolledEvent,)
+    # these periodic events are not logged even in debug mode
+    _SILENT_EVENTS = (BarChangedEvent, LastBeatPassedEvent, BarEndingEvent,
+                      Last32thPassedEvent, SceneLastBarPassedEvent, PlayingSceneChangedEvent,
+                      SongStoppedEvent, SessionUpdatedEvent, MidiBytesReceivedEvent)
     _registry = {}  # type: Dict[Type, List[Callable]]
 
     @classmethod
@@ -41,11 +56,14 @@ class DomainEventBus(object):
     @classmethod
     def emit(cls, domain_event):
         # type: (object) -> None
-        if cls._DEBUG:
-            Logger.info("Event emitted: %s" % domain_event)
+        if cls._DEBUG and type(domain_event) not in cls._SILENT_EVENTS:
+            Logger.info("Event emitted: %s" % domain_event.__class__.__name__)
+
         if type(domain_event) in cls._registry:
             # protect the list from unsubscribe in subscribers
             subscribers = cls._registry[type(domain_event)][:]
+            if type(domain_event) in cls._DEBUGGED_EVENTS:
+                Logger.info("Found subscribers: %s" % subscribers)
             for subscriber in subscribers:
                 subscriber(domain_event)
 

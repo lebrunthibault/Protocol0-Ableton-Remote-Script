@@ -5,7 +5,7 @@ import types
 from typing import Optional, Any, List, Dict
 
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
-from protocol0.domain.shared.utils import smart_string
+from protocol0.domain.shared.utils.utils import smart_string
 from protocol0.shared.Config import Config
 from protocol0.shared.logging.LogLevelEnum import LogLevelEnum
 from protocol0.shared.logging.LoggerServiceInterface import LoggerServiceInterface
@@ -34,7 +34,7 @@ class LoggerService(LoggerServiceInterface):
         if not isinstance(debug, bool):
             raise Protocol0Error("logger: parameter mismatch")
         if debug:
-            from protocol0.domain.shared.utils import get_frame_info
+            from protocol0.domain.shared.utils.debug import get_frame_info
 
             frame_info = get_frame_info(4)
             if frame_info:

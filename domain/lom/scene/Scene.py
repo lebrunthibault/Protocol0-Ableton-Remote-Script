@@ -16,11 +16,12 @@ from protocol0.domain.lom.scene.ScenePlayingState import ScenePlayingState
 from protocol0.domain.lom.scene.ScenePositionScroller import ScenePositionScroller
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.decorators import throttle
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.shared.utils import scroll_values, ForwardTo
+from protocol0.domain.shared.utils.forward_to import ForwardTo
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
@@ -179,7 +180,7 @@ class Scene(SlotManager):
             track.stop(immediate=immediate)
 
         seq = Sequence()
-        seq.wait_for_event(BarChangedEvent)
+        seq.wait_for_event(BarChangedEvent, continue_on_song_stop=True)
         seq.add(self.scene_name.update)
         seq.done()
 
@@ -201,7 +202,7 @@ class Scene(SlotManager):
 
     def scroll_tracks(self, go_next):
         # type: (bool) -> None
-        next_track = scroll_values(self.abstract_tracks, SongFacade.current_track(), go_next)
+        next_track = ValueScroller.scroll_values(self.abstract_tracks, SongFacade.current_track(), go_next)
         next_track.select()
         next_clip_slot = next_track.selected_clip_slot
         if next_clip_slot.clip:

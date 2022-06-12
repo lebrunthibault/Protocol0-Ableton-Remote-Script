@@ -35,10 +35,14 @@ class Scheduler(object):
                                                  callback)
 
     @classmethod
-    def wait(cls, tick_count, callback):
-        # type: (int, Callable) -> TickSchedulerEventInterface
-        """ tick_count (* 17 sms) """
-        return cls._INSTANCE._tick_scheduler.schedule(tick_count, callback)
+    def wait(cls, tick_count, callback, unique=False):
+        # type: (int, Callable, bool) -> TickSchedulerEventInterface
+        """
+            tick_count ~= 17 ms
+            unique: accept only one callback of a type. the next callback will cancel the
+            previous one scheduling
+        """
+        return cls._INSTANCE._tick_scheduler.schedule(tick_count, callback, unique)
 
     @classmethod
     def wait_ms(cls, duration, callback):

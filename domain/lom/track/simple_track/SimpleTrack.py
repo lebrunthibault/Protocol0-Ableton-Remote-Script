@@ -15,7 +15,7 @@ from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import \
     SimpleTrackCreatedEvent
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.utils import ForwardTo
+from protocol0.domain.shared.utils.forward_to import ForwardTo
 from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.observer.Observable import Observable

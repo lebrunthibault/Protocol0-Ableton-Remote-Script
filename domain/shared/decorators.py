@@ -3,7 +3,7 @@ from functools import wraps, partial
 
 from typing import Any, Callable, Optional
 
-from protocol0.domain.shared.utils import is_method, get_callable_repr
+from protocol0.domain.shared.utils.func import is_method, get_callable_repr
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.types import Func
 
