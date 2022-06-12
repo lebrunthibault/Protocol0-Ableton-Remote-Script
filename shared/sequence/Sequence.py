@@ -198,7 +198,7 @@ class Sequence(Observable):
 
         def execute():
             # type: () -> None
-            Scheduler.wait_seconds(seconds, cancel)
+            Scheduler.wait_ms(seconds * 1000, cancel)
             func()
 
         self.add(execute, notify_terminated=False)

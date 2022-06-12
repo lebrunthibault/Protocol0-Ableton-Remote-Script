@@ -76,7 +76,7 @@ class TrackFactory(object):
 
         drum_track = SongFacade.drums_track()
         if drum_track is None:
-            raise Protocol0Warning("Drum track doesn't exist")
+            raise Protocol0Warning("Drums track doesn't exist")
 
         if name.lower() not in DrumCategory.all():
             raise Protocol0Warning("Cannot fin category for drum track %s" % name)

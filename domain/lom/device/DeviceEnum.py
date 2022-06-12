@@ -23,6 +23,7 @@ class DeviceEnum(AbstractEnum):
     EXTERNAL_AUDIO_EFFECT = "EXTERNAL_AUDIO_EFFECT"
     EXTERNAL_INSTRUMENT = "EXTERNAL_INSTRUMENT"
     LFO_TOOL = "LFO_TOOL"
+    LIMITER = "LIMITER"
     MINITAUR_EDITOR = "MINITAUR_EDITOR"
     MIX_RACK = "MIX_RACK"
     PRO_Q_3 = "PRO_Q_3"
@@ -56,6 +57,7 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.EXTERNAL_AUDIO_EFFECT: "Ext. Audio Effect",
             DeviceEnum.EXTERNAL_INSTRUMENT: "Ext. Instrument",
             DeviceEnum.LFO_TOOL: "LFOTool_x64",
+            DeviceEnum.LIMITER: "Limiter",
             DeviceEnum.MINITAUR_EDITOR: "Minitaur Editor(x64)",
             DeviceEnum.MIX_RACK: "Mix Rack",
             DeviceEnum.PRO_Q_3: "FabFilter Pro-Q 3",
@@ -89,6 +91,7 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.EQ_EIGHT_RACK: "EQ Eight Rack.adg",
             DeviceEnum.EQ_ROOM: "EQ Room.adv",
             DeviceEnum.LFO_TOOL: "LFOTool_x64",
+            DeviceEnum.LIMITER: "Limiter",
             DeviceEnum.MIX_RACK: "Mix Rack.adg",
             DeviceEnum.PRO_Q_3: "FabFilter Pro-Q 3",
             DeviceEnum.SATURATOR: "Saturator",
@@ -109,9 +112,11 @@ class DeviceEnum(AbstractEnum):
                 cls.EQ_EIGHT,
                 cls.PRO_Q_3,
                 cls.UTILITY,
+            ], [
                 cls.COMPRESSOR,
                 cls.SSL_COMP,
                 cls.API_2500,
+                cls.LIMITER,
             ],
             [
                 cls.SATURATOR,

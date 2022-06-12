@@ -35,6 +35,11 @@ class LogService(object):
         if current_track.instrument:
             Logger.info()
             Logger.info(
+                "current_track.instrument.presets: %s" %
+                current_track.instrument.preset_list.presets
+            )
+            Logger.info()
+            Logger.info(
                 "current_track.instrument.categories: %s" % current_track.instrument.preset_list.categories
             )
             Logger.info()

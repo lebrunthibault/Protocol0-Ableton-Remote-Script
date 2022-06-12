@@ -18,7 +18,6 @@ from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.shared.utils import volume_to_db
 from protocol0.infra.interface.session.SessionUpdatedEvent import SessionUpdatedEvent
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
@@ -179,25 +178,21 @@ class SceneService(SlotManager):
         if self._DEBUG:
             Logger.info("Firing %s to bar_length %s" % (scene, bar_length))
 
-        master_volume = SongFacade.master_track().volume
+        SongFacade.master_track().mute_for(50)
         if bar_length != 0:
-            SongFacade.master_track().volume = volume_to_db(0)
+            # removing click when changing position
+            # (created by playing shortly the scene beginning)
+            SongFacade.master_track().mute_for(50)
 
-        # removing click when changing position
-        # (created by playing shortly the scene beginning)
         Scheduler.wait(2, partial(scene.fire_to_position, bar_length))
-        # duplicate the volume set because sometimes it is skipped
-        Scheduler.wait(3, (partial(setattr, SongFacade.master_track(), "volume", master_volume)))
-        Scheduler.wait(10, (partial(setattr, SongFacade.master_track(), "volume", master_volume)))
 
     def fire_previous_scene_to_last_bar(self):
         # type: () -> None
-        selected_scene = SongFacade.selected_scene()
-        if selected_scene.index == 0:
+        previous_scene = SongFacade.selected_scene().previous_scene
+        if previous_scene == SongFacade.selected_scene():
             self.fire_selected_scene()
             return None
 
-        previous_scene = SongFacade.scenes()[selected_scene.index - 1]
         self.fire_scene_to_position(previous_scene, previous_scene.bar_length - 1)
 
     def _get_position_bar_length(self, scene, bar_length):

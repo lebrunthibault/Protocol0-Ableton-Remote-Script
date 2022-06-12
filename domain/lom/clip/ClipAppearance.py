@@ -14,7 +14,10 @@ class ClipAppearance(object):
     @property
     def name(self):
         # type: () -> str
-        return self._live_clip and self._live_clip.name
+        if self._live_clip:
+            return self._live_clip.name
+        else:
+            return ""
 
     @name.setter
     def name(self, name):

@@ -1,3 +1,5 @@
+import os
+
 import Live
 from _Framework.SubjectSlot import subject_slot, SlotManager
 
@@ -44,7 +46,7 @@ class PlaybackComponent(SlotManager):
                 Scheduler.defer(scene.mute_audio_tails)
             return
 
-    @throttle(wait_time=100)
+    @throttle(duration=100)
     def _on_scene_position_scrolled_event(self, _):
         # type: (ScenePositionScrolledEvent) -> None
         scene = SongFacade.selected_scene()
@@ -57,6 +59,8 @@ class PlaybackComponent(SlotManager):
             beat_offset -= 0.5
 
         if self._DEBUG:
+            Logger.dev("debugging _on_scene_position_scrolled_event. pid: %s" % os.getpid())
+
             Logger.info("scene.position_scroller.current_value: %s" %
                         scene.position_scroller.current_value)
             Logger.info("beat offset: %s" % beat_offset)

@@ -1,11 +1,9 @@
-from functools import partial
-
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 from protocol0.domain.audit.SetProfilingService import SetProfilingService
 
 from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
-from protocol0.shared.sequence.Sequence import Sequence
 
 
 class ActionGroupTest(ActionGroupInterface):
@@ -33,7 +31,5 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        seq = Sequence()
-        seq.wait_bars(2)
-        seq.add(partial(Logger.dev, "waited !"))
-        seq.done()
+        Logger.dev(SongFacade.master_track().volume)
+        SongFacade.master_track().volume = 0

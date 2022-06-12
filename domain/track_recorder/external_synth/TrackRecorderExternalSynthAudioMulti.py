@@ -3,7 +3,7 @@ from functools import partial
 from typing import Optional
 
 from protocol0.domain.lom.scene.SceneLastBarPassedEvent import SceneLastBarPassedEvent
-from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
+from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthAudio import \
     TrackRecorderExternalSynthAudio
 from protocol0.shared.sequence.Sequence import Sequence
@@ -29,13 +29,20 @@ class TrackRecorderExternalSynthAudioMulti(TrackRecorderExternalSynthAudio):
             cs.fire()
         seq = Sequence()
         seq.wait_for_event(SceneLastBarPassedEvent)
-        seq.wait_for_event(LastBeatPassedEvent)
+        seq.wait_beats(2)
         seq.add(self._launch_record_on_next_scene)
         return seq.done()
 
     def _launch_record_on_next_scene(self):
         # type: () -> Optional[Sequence]
         next_scene = self.recording_scene.next_scene
+        audio_clip = self.track.audio_track.clip_slots[self.recording_scene_index].clip
+
+        seq = Sequence()
+        seq.wait_for_event(BarChangedEvent)
+        seq.add(partial(audio_clip.clip_name.update, ""))
+        seq.done()
+
         if next_scene == self.recording_scene:
             return None
         if not self.track.midi_track.clip_slots[next_scene.index].clip:

@@ -1,13 +1,15 @@
 import time
 from functools import partial
 
+from _Framework.ControlSurface import get_control_surfaces
 from typing import Dict, Type, Optional
 
 import protocol0.application.command as command_package
 import protocol0.application.command_handler as command_handler_package
 from protocol0.application.ContainerInterface import ContainerInterface
 from protocol0.application.command.SerializableCommand import SerializableCommand
-from protocol0.application.command_handler.CommandHandlerInterface import CommandHandlerInterface
+from protocol0.application.command_handler.CommandHandlerInterface import \
+    CommandHandlerInterface
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.decorators import handle_error
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
@@ -68,6 +70,10 @@ class CommandBus(object):
         if self._is_duplicate_command(command):
             self._duplicate_command_count += 1
             Logger.warning("skipping duplicate command %s: please reload the set" % command)
+
+            from protocol0.application.Protocol0 import Protocol0
+            p0_instances = filter(lambda cs: isinstance(cs, Protocol0), get_control_surfaces())
+            Logger.warning("number of p0 instances loaded : %s" % len(p0_instances))
 
             if self._duplicate_command_count == self._DUPLICATE_COMMAND_WARNING_COUNT:
                 Backend.client().show_warning(

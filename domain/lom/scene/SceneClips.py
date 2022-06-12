@@ -37,7 +37,12 @@ class SceneClips(SlotManager, Observable):
         # type: () -> List[Clip]
         return self._all_clips
 
-    @throttle(wait_time=60)
+    @property
+    def un_muted_clips(self):
+        # type: () -> List[Clip]
+        return [clip for clip in self._clips if not clip.muted]
+
+    @throttle(duration=60)
     def update(self, observable):
         # type: (Observable) -> None
         if isinstance(observable, ClipSlot) or isinstance(observable, Clip):

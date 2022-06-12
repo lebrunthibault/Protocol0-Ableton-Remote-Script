@@ -16,7 +16,7 @@ class TempoComponent(SlotManager):
         self._tempo_listener.subject = self._song
 
     @subject_slot("tempo")
-    @debounce(wait_time=1000)
+    @debounce(duration=1000)
     def _tempo_listener(self):
         # type: () -> None
         Scheduler.defer(partial(setattr, self, "tempo", round(self.tempo)))

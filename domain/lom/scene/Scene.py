@@ -16,6 +16,7 @@ from protocol0.domain.lom.scene.ScenePlayingState import ScenePlayingState
 from protocol0.domain.lom.scene.ScenePositionScroller import ScenePositionScroller
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.domain.shared.decorators import throttle
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -104,7 +105,23 @@ class Scene(SlotManager):
                 or SongFacade.scenes()[self.index + 1].bar_length == 0:
             return self
         else:
-            return SongFacade.scenes()[self.index + 1]
+            next_scene = SongFacade.scenes()[self.index + 1]
+            if next_scene.skipped:
+                return next_scene.next_scene
+            else:
+                return next_scene
+
+    @property
+    def previous_scene(self):
+        # type: () -> Scene
+        if self == SongFacade.scenes()[0]:
+            return self
+        else:
+            previous_scene = SongFacade.scenes()[self.index - 1]
+            if previous_scene.skipped:
+                return previous_scene.previous_scene
+            else:
+                return previous_scene
 
     @property
     def is_triggered(self):
@@ -120,6 +137,11 @@ class Scene(SlotManager):
         # type: () -> bool
         return SongFacade.is_playing() and any(
             clip and clip.is_playing and not clip.muted for clip in self.clips)
+
+    @property
+    def skipped(self):
+        # type: () -> bool
+        return self.name.strip().lower().startswith("skip")
 
     def on_last_beat(self):
         # type: () -> None
@@ -142,6 +164,10 @@ class Scene(SlotManager):
 
         self._scene.fire()
 
+        # ending scene
+        if len(self.clips.un_muted_clips) == 0:
+            Scheduler.wait_bars(self.bar_length, self.stop)
+
     def stop(self, immediate=False):
         # type: (bool) -> None
         """Used to manually stopping previous scene
@@ -162,6 +188,7 @@ class Scene(SlotManager):
         for clip in self.clips.audio_tail_clips:
             clip.muted = True
 
+    @throttle(duration=60)
     def fire_to_position(self, bar_length):
         # type: (int) -> Sequence
         self.scene_name.update(bar_position=bar_length)

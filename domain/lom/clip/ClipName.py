@@ -75,12 +75,15 @@ class ClipName(SlotManager, Observable):
         if self._live_clip.is_recording:
             return None
         if self._DEBUG:
-            Logger.info("%s <-> %s <-> %s" % (base_name, self.base_name, self._live_clip.name))
+            Logger.info("%s <-> %s <-> %s" % (base_name, self.base_name,
+                                              self._live_clip.name))
         if base_name is not None:
             self.base_name = base_name
+
         if self.base_name:
             clip_name = "%s (%s)" % (self.base_name, self._length_legend)
         else:
             clip_name = self._length_legend
+
         self._live_clip.name = clip_name
         self.notify_observers()

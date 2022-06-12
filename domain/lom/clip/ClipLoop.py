@@ -52,18 +52,25 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
     @property
     def start(self):
         # type: () -> float
-        return self._clip.loop_start
+        if self._clip:
+            return self._clip.loop_start
+        else:
+            return 0
 
     @start.setter
     def start(self, start):
         # type: (float) -> None
-        self._clip.start_marker = start
-        self._clip.loop_start = start
+        if self._clip:
+            self._clip.start_marker = start
+            self._clip.loop_start = start
 
     @property
     def end(self):
         # type: () -> float
-        return self._clip.loop_end
+        if self._clip:
+            return self._clip.loop_end
+        else:
+            return 0
 
     @end.setter
     def end(self, end):

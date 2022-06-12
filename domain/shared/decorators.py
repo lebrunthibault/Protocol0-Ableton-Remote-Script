@@ -47,9 +47,9 @@ def lock(func):
     return decorate
 
 
-def debounce(wait_time=100):
-    # type: (float) -> Func
-    """ here we make the method dynamic """
+def debounce(duration=100):
+    # type: (int) -> Func
+    """duration: ms"""
 
     def wrap(func):
         # type: (Func) -> Func
@@ -59,7 +59,7 @@ def debounce(wait_time=100):
             object_source = a[0] if is_method(func) else decorate
             decorate.count[object_source] += 1  # type: ignore[attr-defined]
             from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-            Scheduler.wait_seconds(float(wait_time) / 1000, partial(execute, func, *a, **k))
+            Scheduler.wait_ms(duration, partial(execute, func, *a, **k))
 
         decorate.count = defaultdict(int)  # type: ignore[attr-defined]
 
@@ -75,9 +75,9 @@ def debounce(wait_time=100):
     return wrap
 
 
-def throttle(wait_time=100):
+def throttle(duration=100):
     # type: (int) -> Func
-    """wait_time in ms"""
+    """duration in ms"""
     def wrap(func):
         # type: (Func) -> Func
         @wraps(func)
@@ -97,7 +97,7 @@ def throttle(wait_time=100):
                 decorate.paused[object_source] = False  # type: ignore[attr-defined]
 
             from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-            Scheduler.wait_seconds(float(wait_time) / 1000, activate)
+            Scheduler.wait_ms(duration, activate)
             return res
 
         decorate.paused = defaultdict(lambda: False)  # type: ignore[attr-defined]
