@@ -1,6 +1,6 @@
 from protocol0.application.command.FireSceneToPositionCommand import FireSceneToPositionCommand
 from protocol0.application.command_handler.CommandHandlerInterface import CommandHandlerInterface
-from protocol0.domain.lom.scene.SceneService import SceneService
+from protocol0.domain.lom.scene.ScenePlaybackService import ScenePlaybackService
 from protocol0.domain.lom.song.components.SceneComponent import SceneComponent
 from protocol0.shared.SongFacade import SongFacade
 
@@ -15,12 +15,12 @@ class FireSceneToPositionCommandHandler(CommandHandlerInterface):
             == - 1 : we fire the last bar of the previous scene
             other number : we fire the selected scene at the selected bar position
         """
-        fire_to_position = self._container.get(SceneService).fire_scene_to_position
+        fire_to_position = self._container.get(ScenePlaybackService).fire_scene_to_position
         selected_scene = SongFacade.selected_scene()
 
         if command.bar_length is not None:
             if command.bar_length == -1:
-                self._container.get(SceneService).fire_previous_scene_to_last_bar()
+                self._container.get(ScenePlaybackService).fire_previous_scene_to_last_bar()
             else:
                 # Launching the last bar almost always means we don't want to loop
                 if command.bar_length == 8 and selected_scene == SongFacade.looping_scene():

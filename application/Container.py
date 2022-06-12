@@ -20,6 +20,7 @@ from protocol0.domain.lom.device.DrumRackService import DrumRackService
 from protocol0.domain.lom.instrument.InstrumentDisplayService import InstrumentDisplayService
 from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService import InstrumentPresetScrollerService
 from protocol0.domain.lom.instrument.preset.PresetService import PresetService
+from protocol0.domain.lom.scene.ScenePlaybackService import ScenePlaybackService
 from protocol0.domain.lom.scene.SceneService import SceneService
 from protocol0.domain.lom.set.MixingService import MixingService
 from protocol0.domain.lom.set.SessionToArrangementService import SessionToArrangementService
@@ -130,7 +131,8 @@ class Container(ContainerInterface):
             recording_component,
             scene_crud_component
         )
-        scene_service = SceneService(live_song, playback_component, scene_crud_component)
+        scene_service = SceneService(live_song, scene_crud_component)
+        scene_playback_service = ScenePlaybackService(playback_component)
         SongFacade(
             live_song,
 
@@ -208,6 +210,7 @@ class Container(ContainerInterface):
         self._register(track_player_service)
 
         self._register(scene_service)
+        self._register(scene_playback_service)
 
         self._register(instrument_display_service)
         self._register(instrument_preset_scroller_service)
