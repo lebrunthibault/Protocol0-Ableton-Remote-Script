@@ -1,9 +1,8 @@
-import os
-
 import Live
 from _Framework.SubjectSlot import subject_slot, SlotManager
 
 from protocol0.domain.lom.scene.ScenePositionScrolledEvent import ScenePositionScrolledEvent
+from protocol0.domain.lom.song.SongStartedEvent import SongStartedEvent
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.shared.decorators import throttle
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
@@ -44,7 +43,8 @@ class PlaybackComponent(SlotManager):
             # iterating all scenes because we don't know which tail might be playing
             for scene in SongFacade.scenes():
                 Scheduler.defer(scene.mute_audio_tails)
-            return
+        else:
+            DomainEventBus.defer_emit(SongStartedEvent())
 
     @throttle(duration=100)
     def _on_scene_position_scrolled_event(self, _):
@@ -59,8 +59,6 @@ class PlaybackComponent(SlotManager):
             beat_offset -= 0.5
 
         if self._DEBUG:
-            Logger.dev("debugging _on_scene_position_scrolled_event. pid: %s" % os.getpid())
-
             Logger.info("scene.position_scroller.current_value: %s" %
                         scene.position_scroller.current_value)
             Logger.info("beat offset: %s" % beat_offset)

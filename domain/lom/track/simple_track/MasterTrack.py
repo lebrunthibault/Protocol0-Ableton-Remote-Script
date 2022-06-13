@@ -65,4 +65,4 @@ class MasterTrack(SimpleAudioTrack):
         # type: () -> None
         if self.volume != 0:
             Backend.client().show_warning("Master volume is not at 0 db, fixing")
-            # self.volume = 0
+            self.volume = 0

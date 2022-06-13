@@ -1,12 +1,13 @@
 from typing import Callable
 
-from protocol0.domain.shared.scheduler.TickSchedulerEventInterface import TickSchedulerEventInterface
+from protocol0.domain.shared.scheduler.TickSchedulerEventInterface import \
+    TickSchedulerEventInterface
 
 
 class TickSchedulerEvent(TickSchedulerEventInterface):
     def __init__(self, callback, tick_count):
         # type: (Callable, int) -> None
-        self._callback = callback
+        self.callback = callback
         self._ticks_left = tick_count
         self._cancelled = False
 
@@ -23,7 +24,7 @@ class TickSchedulerEvent(TickSchedulerEventInterface):
     def execute(self):
         # type: () -> None
         if not self._cancelled:
-            self._callback()
+            self.callback()
 
     def cancel(self):
         # type: () -> None

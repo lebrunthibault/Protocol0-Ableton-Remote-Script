@@ -1,16 +1,12 @@
 import inspect
 import types
+from functools import partial
 
 from qualname import qualname
-from typing import Any, Callable
+from typing import Any, Callable, Optional, Type
 
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
-
-
-def is_method(func):
-    # type: (Callable) -> bool
-    spec = inspect.getargspec(func)
-    return bool(spec.args and (spec.args[0] == "self" or spec.args[0] == "cls"))
+from protocol0.shared.logging.Logger import Logger
 
 
 def is_lambda(func):
@@ -32,15 +28,23 @@ def get_inner_func(func):
     return func
 
 
+def get_class_from_func(func):
+    # type: (Any) -> Optional[Type]
+    if hasattr(func, "__self__"):
+        return func.__self__.__class__
+    elif hasattr(func, "__class__"):
+        return func.__class__
+    else:
+        return None
+
+
 def get_class_name_from_method(func):
     # type: (Any) -> str
-    if hasattr(func, "__self__"):
-        class_name = func.__self__.__class__.__name__
-    elif hasattr(func, "__class__"):
-        class_name = func.__class__.__name__
-    else:
+    class_ = get_class_from_func(func)
+    if class_ is None:
         raise Protocol0Error("Cannot get class_name from func")
 
+    class_name = class_.__name__
     if class_name and all(word not in class_name for word in ["function", "None"]):
         return class_name
 
@@ -72,3 +76,24 @@ def get_callable_repr(func):
 def nop(*_, **__):
     # type: (Any, Any) -> None
     pass
+
+
+def is_func_equal(func1, func2, compare_methods=False):
+    # type: (Callable, Callable, bool) -> bool
+    """
+        compare_methods == True will return True for the same method of different objects
+    """
+    if func1 == func2:
+        return True
+    elif isinstance(func1, partial) and isinstance(func2, partial):
+        return func1.func == func2.func
+    elif inspect.ismethod(func1) and inspect.ismethod(func2) and compare_methods:
+        c1 = get_class_from_func(func1)
+        c2 = get_class_from_func(func2)
+
+        Logger.dev("c1: %s" % c1)
+        Logger.dev("c2: %s" % c2)
+
+        return c1 == c2 and func1.__name__ == func2.__name__
+    else:
+        return False

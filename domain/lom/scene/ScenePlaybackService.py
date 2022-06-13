@@ -63,7 +63,6 @@ class ScenePlaybackService(SlotManager):
         if self._DEBUG:
             Logger.info("Firing %s to bar_length %s" % (scene, bar_length))
 
-        SongFacade.master_track().mute_for(50)
         if bar_length != 0:
             # removing click when changing position
             # (created by playing shortly the scene beginning)

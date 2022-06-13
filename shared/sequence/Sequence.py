@@ -30,7 +30,7 @@ class Sequence(Observable):
     """
     RUNNING_SEQUENCES = []  # type: List[Sequence]
     _DEBUG = False
-    _STEP_TIMEOUT = 3  # seconds
+    _STEP_TIMEOUT = 50  # seconds
 
     def __init__(self, name=None):
         # type: (Optional[str]) -> None
@@ -55,7 +55,9 @@ class Sequence(Observable):
     def add(self, func=nop, name=None, notify_terminated=True):
         # type: (Union[Iterable, Callable, object], str, bool) -> Sequence
         """ callback can be a callable or a list of callable (will execute in parallel) """
-        assert callable(func) or isinstance(func, Iterable), "You passed a non callable (%s) to %s" % (func, self)
+        assert callable(func) or isinstance(func,
+                                            Iterable), "You passed a non callable (%s) to %s" % (
+            func, self)
         if isinstance(func, List):
             func = ParallelSequence(func).start
 
@@ -137,11 +139,13 @@ class Sequence(Observable):
 
     def defer(self):
         # type: () -> Sequence
-        return self.add(partial(Scheduler.defer, self._execute_next_step), notify_terminated=False)
+        return self.add(partial(Scheduler.defer, self._execute_next_step),
+                        notify_terminated=False)
 
     def wait(self, ticks):
         # type: (int) -> Sequence
-        return self.add(partial(Scheduler.wait, ticks, self._execute_next_step), notify_terminated=False)
+        return self.add(partial(Scheduler.wait, ticks, self._execute_next_step),
+                        notify_terminated=False)
 
     def wait_bars(self, bars):
         # type: (float) -> None
@@ -152,10 +156,11 @@ class Sequence(Observable):
         def execute():
             # type: () -> None
             if not SongFacade.is_playing():
-                Backend.client().show_warning("Cannot wait %s beats, song is not playing" %
-                                              beats)
+                Logger.warning("Cannot wait %s beats, song is not playing. %s" %
+                               (beats, self))
             else:
                 Scheduler.wait_beats(beats, self._execute_next_step)
+
         self.add(execute, notify_terminated=False)
 
     def wait_for_event(self, event_class, expected_emitter=None, continue_on_song_stop=False):
@@ -204,7 +209,8 @@ class Sequence(Observable):
             # type: () -> None
             if self._current_step and self._current_step._callable == execute:
                 self._cancel()
-                Logger.warning("cancelling after %s seconds : %s on %s" % (seconds, self, legend))
+                Logger.warning(
+                    "cancelling after %s seconds : %s on %s" % (seconds, self, legend))
 
         def execute():
             # type: () -> None
@@ -229,7 +235,8 @@ class Sequence(Observable):
     def select(self, question, options, vertical=True):
         # type: (str, List, bool) -> None
         """ helper method for selects """
-        self._execute_backend_step(partial(Backend.client().select, question, options, vertical=vertical))
+        self._execute_backend_step(
+            partial(Backend.client().select, question, options, vertical=vertical))
 
     def _execute_backend_step(self, func, on_response=None):
         # type: (Func, Optional[Func]) -> None

@@ -5,8 +5,10 @@ from protocol0.domain.shared.decorators import handle_error
 from protocol0.domain.shared.scheduler.TickSchedulerEventInterface import \
     TickSchedulerEventInterface
 from protocol0.domain.shared.scheduler.TickSchedulerInterface import TickSchedulerInterface
+from protocol0.domain.shared.utils.func import is_func_equal
 from protocol0.infra.scheduler.BeatScheduler import BeatScheduler
 from protocol0.infra.scheduler.TickSchedulerEvent import TickSchedulerEvent
+from protocol0.shared.logging.Logger import Logger
 
 
 class TickScheduler(TickSchedulerInterface):
@@ -59,8 +61,13 @@ class TickScheduler(TickSchedulerInterface):
         assert callable(callback)
         assert tick_count > 0
 
-        # if unique:
-        #     if any(type(event) == type(call))
+        if unique:
+            for event in self._scheduled_events:
+                if is_func_equal(event.callback, callback):
+                    Logger.warning("Cancelling duplicate callback : %s -> %s" % (
+                        event.callback, callback))
+                    event.cancel()
+                    self._scheduled_events.remove(event)
 
         scheduled_event = TickSchedulerEvent(callback=callback, tick_count=tick_count)
         self._scheduled_events.append(scheduled_event)

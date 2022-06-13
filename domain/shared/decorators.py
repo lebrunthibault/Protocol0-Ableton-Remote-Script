@@ -1,9 +1,10 @@
+import inspect
 from collections import defaultdict
 from functools import wraps, partial
 
 from typing import Any, Callable, Optional
 
-from protocol0.domain.shared.utils.func import is_method, get_callable_repr
+from protocol0.domain.shared.utils.func import get_callable_repr
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.types import Func
 
@@ -27,7 +28,7 @@ def lock(func):
     @wraps(func)
     def decorate(*a, **k):
         # type: (Any, Any) -> Optional[Sequence]
-        object_source = a[0] if is_method(func) else decorate
+        object_source = a[0] if inspect.ismethod(func) else decorate
         if decorate.lock[object_source]:  # type: ignore[attr-defined]
             return None
 
@@ -56,7 +57,7 @@ def debounce(duration=100):
         @wraps(func)
         def decorate(*a, **k):
             # type: (Any, Any) -> None
-            object_source = a[0] if is_method(func) else decorate
+            object_source = a[0] if inspect.ismethod(func) else decorate
             decorate.count[object_source] += 1  # type: ignore[attr-defined]
             from protocol0.domain.shared.scheduler.Scheduler import Scheduler
             Scheduler.wait_ms(duration, partial(execute, func, *a, **k))
@@ -65,7 +66,7 @@ def debounce(duration=100):
 
         def execute(real_func, *a, **k):
             # type: (Callable, Any, Any) -> Any
-            object_source = a[0] if is_method(real_func) else decorate
+            object_source = a[0] if inspect.ismethod(real_func) else decorate
             decorate.count[object_source] -= 1  # type: ignore[attr-defined]
             if decorate.count[object_source] == 0:  # type: ignore[attr-defined]
                 return real_func(*a, **k)
@@ -83,7 +84,7 @@ def throttle(duration=100):
         @wraps(func)
         def decorate(*a, **k):
             # type: (Any, Any) -> Any
-            object_source = a[0] if is_method(func) else decorate
+            object_source = a[0] if inspect.ismethod(func) else decorate
 
             if decorate.paused[object_source] and k.get("throttle", True):  # type: ignore[attr-defined]
                 Logger.warning("%s throttled" % get_callable_repr(func))

@@ -22,6 +22,8 @@ class Protocol0(ControlSurface):
             DomainEventBus.emit(ErrorRaisedEvent())
             return
 
+        Logger.dev("Container created")
+
         self._check_for_duplicate_p0_instance()
 
         CommandBus.dispatch(InitializeSongCommand())

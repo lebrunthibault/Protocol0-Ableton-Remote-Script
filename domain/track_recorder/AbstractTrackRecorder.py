@@ -5,6 +5,7 @@ from typing import Optional, List
 from protocol0.domain.lom.clip.ClipCreatedOrDeletedEvent import ClipCreatedOrDeletedEvent
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.scene.Scene import Scene
+from protocol0.domain.lom.song.SongStartedEvent import SongStartedEvent
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackComponent
 from protocol0.domain.lom.song.components.RecordingComponent import RecordingComponent
@@ -105,6 +106,7 @@ class AbstractTrackRecorder(object):
         self._focus_main_clip()
         seq = Sequence()
         if bar_length:
+            seq.wait_for_event(SongStartedEvent)
             seq.wait_bars(bar_length)  # this works because the method is called before the beginning of the bar
             seq.wait_for_event(Last32thPassedEvent)
         else:
