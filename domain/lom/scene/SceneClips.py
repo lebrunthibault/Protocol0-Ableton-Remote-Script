@@ -1,7 +1,6 @@
 import itertools
 import re
 
-from _Framework.SubjectSlot import SlotManager
 from typing import List, cast, Iterator
 
 from protocol0.domain.lom.clip.AudioTailClip import AudioTailClip
@@ -15,7 +14,7 @@ from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.observer.Observable import Observable
 
 
-class SceneClips(SlotManager, Observable):
+class SceneClips(Observable):
     def __init__(self, index):
         # type: (int) -> None
         super(SceneClips, self).__init__()

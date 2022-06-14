@@ -179,10 +179,9 @@ class ExternalSynthTrack(AbstractGroupTrack):
             if self.external_device is None:
                 raise Protocol0Warning("%s should have an external device" % self)
 
-            if self._instrument is None:
-                self._instrument = self.midi_track.instrument or InstrumentMinitaur(device=None, track_name=self.name)
-            elif self.midi_track.instrument and self.midi_track.instrument != self._instrument:
-                raise Protocol0Error("Cannot switch instruments in an ExternalSynthTrack")
+            self._instrument = self.midi_track.instrument or InstrumentMinitaur(device=None, track_name=self.name)
+        else:
+            raise Protocol0Error("Unmatched observable: %s" % observable)
 
     @property
     def instrument_track(self):

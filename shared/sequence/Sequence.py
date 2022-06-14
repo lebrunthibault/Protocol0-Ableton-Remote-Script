@@ -91,7 +91,7 @@ class Sequence(Observable):
             self._terminate()
 
     @classmethod
-    def restart(cls):
+    def reset(cls):
         # type: () -> None
         for seq in reversed(Sequence.RUNNING_SEQUENCES):
             seq._cancel()

@@ -134,7 +134,7 @@ class SimpleTrack(AbstractTrack):
 
     @instrument.setter
     def instrument(self, instrument):
-        # type: (InstrumentInterface) -> None
+        # type: (Optional[InstrumentInterface]) -> None
         self._instrument = instrument
         self.appearance.set_instrument(instrument)
         self._clip_slots.set_instrument(instrument)
@@ -157,7 +157,9 @@ class SimpleTrack(AbstractTrack):
     def disconnect(self):
         # type: () -> None
         super(SimpleTrack, self).disconnect()
-        for device in self.devices:
-            device.disconnect()
-        for clip_slot in self.clip_slots:
-            clip_slot.disconnect()
+        self.devices.disconnect()
+        self._clip_slots.disconnect()
+        if self.instrument:
+            self.instrument.disconnect()
+        if self.abstract_group_track:
+            self.abstract_group_track.disconnect()

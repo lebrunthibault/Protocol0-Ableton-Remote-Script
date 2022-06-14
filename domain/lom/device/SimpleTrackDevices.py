@@ -27,7 +27,7 @@ class SimpleTrackDevices(SlotManager, Observable):
 
     def __repr__(self):
         # type: () -> str
-        return "TrackDevices(%s, %s)" % (len(self._devices), len(self._all_devices))
+        return "SimpleTrackDevices(%s, %s)" % (len(self._devices), len(self._all_devices))
 
     def __iter__(self):
         # type: () -> Iterator[Device]
@@ -108,3 +108,9 @@ class SimpleTrackDevices(SlotManager, Observable):
         # type: () -> List[DeviceParameter]
         return list(
             chain(*[device.parameters for device in self.all])) + self._mixer_device.parameters
+
+    def disconnect(self):
+        # type: () -> None
+        super(SimpleTrackDevices, self).disconnect()
+        for device in self.all:
+            device.disconnect()

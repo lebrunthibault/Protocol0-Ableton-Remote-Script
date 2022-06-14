@@ -2,6 +2,7 @@ import Live
 from _Framework.SubjectSlot import subject_slot, SlotManager
 from typing import Optional
 
+from protocol0.application.ScriptDisconnectedEvent import ScriptDisconnectedEvent
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.ClipSlotSelectedEvent import ClipSlotSelectedEvent
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
@@ -20,6 +21,7 @@ class ClipComponent(SlotManager):
         self._detail_clip_listener.subject = self._view
 
         DomainEventBus.subscribe(ClipSlotSelectedEvent, self.on_clip_slot_selected_event)
+        DomainEventBus.subscribe(ScriptDisconnectedEvent, lambda _: self.disconnect())
 
     # CLIP SLOTS
 

@@ -13,3 +13,7 @@ class TickSchedulerInterface(object):
     def start(self):
         # type: () -> None
         raise NotImplementedError
+
+    def stop(self):
+        # type: () -> None
+        raise NotImplementedError

@@ -30,14 +30,19 @@ class SimpleTrackClipSlots(SlotManager):
         self._has_clip_listener.replace_subjects(live_track.clip_slots)
 
         self._instrument = None  # type: Optional[InstrumentInterface]
+        self._clip_config = ClipConfig(self._live_track.color_index)
 
     def __iter__(self):
         # type: () -> Iterator[ClipSlot]
         return iter(self._clip_slots)
 
     def set_instrument(self, instrument):
-        # type: (InstrumentInterface) -> None
+        # type: (Optional[InstrumentInterface]) -> None
         self._instrument = instrument
+
+        if self._instrument:
+            self._clip_config.uses_scene_length_clips = self._instrument.uses_scene_length_clips
+            self._clip_config.default_note = self._instrument.DEFAULT_NOTE
 
     @property
     def clip_slots(self):
@@ -64,13 +69,7 @@ class SimpleTrackClipSlots(SlotManager):
             if live_clip_slot in live_cs_to_cs:
                 new_clip_slots.append(live_cs_to_cs[live_clip_slot])
             else:
-                clip_config = ClipConfig(
-                    index,
-                    self._live_track.color_index,
-                    self._instrument.uses_scene_length_clips if self._instrument else False,
-                    self._instrument.DEFAULT_NOTE if self._instrument else 0
-                )
-                clip_slot = self._clip_slot_class(live_clip_slot, clip_config)
+                clip_slot = self._clip_slot_class(live_clip_slot, index, self._clip_config)
                 clip_slot.register_observer(self)
                 new_clip_slots.append(clip_slot)
         self._clip_slots[:] = new_clip_slots  # type: List[ClipSlot]
@@ -95,3 +94,9 @@ class SimpleTrackClipSlots(SlotManager):
         # type: (Live.ClipSlot.ClipSlot) -> None
         if clip_slot.clip:
             clip_slot.clip.color_index = self._live_track.color_index
+
+    def disconnect(self):
+        # type: () -> None
+        super(SimpleTrackClipSlots, self).disconnect()
+        for clip_slot in self.clip_slots:
+            clip_slot.disconnect()

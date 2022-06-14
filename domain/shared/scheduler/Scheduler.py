@@ -54,6 +54,12 @@ class Scheduler(object):
     def restart(cls):
         # type: () -> None
         from protocol0.shared.sequence.Sequence import Sequence
-        Sequence.restart()
+        Sequence.reset()
         cls._INSTANCE._tick_scheduler.start()
-        cls._INSTANCE._beat_scheduler.restart()
+        cls._INSTANCE._beat_scheduler.reset()
+
+    @classmethod
+    def reset(cls):
+        # type: () -> None
+        cls._INSTANCE._tick_scheduler.stop()
+        cls._INSTANCE._beat_scheduler.reset()

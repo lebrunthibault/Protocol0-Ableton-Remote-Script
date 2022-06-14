@@ -31,7 +31,7 @@ class BeatScheduler(SlotManager, BeatSchedulerInterface):
     def _is_playing_listener(self):
         # type: () -> None
         if not self._song.is_playing:
-            self.restart()
+            self.reset()
 
     def _on_tick(self):
         # type: () -> None
@@ -82,6 +82,11 @@ class BeatScheduler(SlotManager, BeatSchedulerInterface):
         event = BeatSchedulerEvent(callback, BeatTime.make_from_beat_offset(beats_offset))
         self._scheduled_events.append(event)
 
-    def restart(self):
+    def disconnect(self):
+        # type: () -> None
+        super(BeatScheduler, self).disconnect()
+        self.reset()
+
+    def reset(self):
         # type: () -> None
         self._scheduled_events[:] = []

@@ -86,3 +86,9 @@ class DomainEventBus(object):
         # type: (object) -> None
         """ for events notified in listeners we can defer to avoid the changes by notification error"""
         Scheduler.defer(partial(cls.emit, domain_event))
+
+    @classmethod
+    def reset(cls):
+        # type: () -> None
+        """Resets the bus (removing all events and listeners)"""
+        cls._registry = {}

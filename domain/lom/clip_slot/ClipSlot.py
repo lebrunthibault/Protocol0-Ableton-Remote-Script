@@ -19,10 +19,11 @@ from protocol0.shared.sequence.Sequence import Sequence
 class ClipSlot(SlotManager, Observable):
     CLIP_CLASS = Clip  # type: Type[Clip]
 
-    def __init__(self, live_clip_slot, clip_config):
-        # type: (Live.ClipSlot.ClipSlot, ClipConfig) -> None
+    def __init__(self, live_clip_slot, index, clip_config):
+        # type: (Live.ClipSlot.ClipSlot, int, ClipConfig) -> None
         super(ClipSlot, self).__init__()
         self._clip_slot = live_clip_slot
+        self._index = index
         self._clip_config = clip_config
         self.appearance = ClipSlotAppearance(live_clip_slot)
 
@@ -58,7 +59,7 @@ class ClipSlot(SlotManager, Observable):
     def _map_clip(self, is_new=False):
         # type: (bool) -> None
         if self.has_clip:
-            self.clip = self.CLIP_CLASS(self._clip_slot.clip, self._clip_config)
+            self.clip = self.CLIP_CLASS(self._clip_slot.clip, self.index, self._clip_config)
 
             if is_new:
                 self.clip.configure_new_clip()
@@ -89,7 +90,7 @@ class ClipSlot(SlotManager, Observable):
     @property
     def index(self):
         # type: () -> int
-        return self._clip_config.index
+        return self._index
 
     @property
     def is_triggered(self):

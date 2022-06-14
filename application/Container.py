@@ -5,9 +5,8 @@ from typing import Type, Dict, Any
 from protocol0.application.CommandBus import CommandBus
 from protocol0.application.ContainerInterface import ContainerInterface
 from protocol0.application.ErrorService import ErrorService
+from protocol0.application.ScriptDisconnectedEvent import ScriptDisconnectedEvent
 from protocol0.application.control_surface.ActionGroupFactory import ActionGroupFactory
-from protocol0.application.vocal_command.KeywordSearchService import KeywordSearchService
-from protocol0.application.vocal_command.VocalCommandService import VocalCommandService
 from protocol0.domain.audit.AudioLatencyAnalyzerService import AudioLatencyAnalyzerService
 from protocol0.domain.audit.LogService import LogService
 from protocol0.domain.audit.SetFixerService import SetFixerService
@@ -18,7 +17,8 @@ from protocol0.domain.lom.device.DeviceDisplayService import DeviceDisplayServic
 from protocol0.domain.lom.device.DeviceService import DeviceService
 from protocol0.domain.lom.device.DrumRackService import DrumRackService
 from protocol0.domain.lom.instrument.InstrumentDisplayService import InstrumentDisplayService
-from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService import InstrumentPresetScrollerService
+from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService import \
+    InstrumentPresetScrollerService
 from protocol0.domain.lom.instrument.preset.PresetService import PresetService
 from protocol0.domain.lom.scene.ScenePlaybackService import ScenePlaybackService
 from protocol0.domain.lom.scene.SceneService import SceneService
@@ -47,6 +47,7 @@ from protocol0.domain.lom.validation.ValidatorService import ValidatorService
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.track_recorder.TrackRecorderService import TrackRecorderService
 from protocol0.infra.interface.BrowserLoaderService import BrowserLoaderService
@@ -71,6 +72,8 @@ class Container(ContainerInterface):
     def __init__(self, control_surface):
         # type: (ControlSurface) -> None
         self._registry = {}  # type: Dict[Type, Any]
+
+        DomainEventBus.subscribe(ScriptDisconnectedEvent, lambda _: self.disconnect())
 
         live_song = control_surface.song()  # type: Live.Song.Song
         Logger(LoggerService())
@@ -185,10 +188,6 @@ class Container(ContainerInterface):
         set_profiling_service = SetProfilingService()
         song_stats_service = SongStatsService()
 
-        # vocal command
-        keyword_search_service = KeywordSearchService()
-        vocal_command_service = VocalCommandService(keyword_search_service)
-
         # registering managers in container
         self._register(midi_service)
         self._register(browser_service)
@@ -233,9 +232,6 @@ class Container(ContainerInterface):
 
         self._register(session_to_arrangement_service)
 
-        self._register(keyword_search_service)
-        self._register(vocal_command_service)
-
         ActionGroupFactory.create_action_groups(self, control_surface.component_guard)
 
     def _register(self, service):
@@ -257,3 +253,14 @@ class Container(ContainerInterface):
             raise Protocol0Error("Couldn't find %s in container" % cls)
 
         return self._registry[cls]
+
+    def disconnect(self):
+        # type: () -> None
+        Scheduler.reset()
+        self.get(SceneService).disconnect()
+        self.get(PlaybackComponent).disconnect()
+        self.get(TempoComponent).disconnect()
+        self.get(TrackComponent).disconnect()
+        self.get(TrackMapperService).disconnect()
+
+        self._registry = {}

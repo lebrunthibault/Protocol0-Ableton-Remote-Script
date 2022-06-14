@@ -15,10 +15,11 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 
 class Clip(SlotManager, Observable):
-    def __init__(self, live_clip, config):
-        # type: (Live.Clip.Clip, ClipConfig) -> None
+    def __init__(self, live_clip, index, config):
+        # type: (Live.Clip.Clip, int, ClipConfig) -> None
         super(Clip, self).__init__()
         self._clip = live_clip
+        self._index = index
         self._config = config
 
         self.deleted = False
@@ -48,7 +49,7 @@ class Clip(SlotManager, Observable):
     @property
     def index(self):
         # type: () -> int
-        return self._config.index
+        return self._index
 
     name = cast(str, ForwardTo("appearance", "name"))
     length = cast(float, ForwardTo("loop", "length"))
@@ -153,5 +154,5 @@ class Clip(SlotManager, Observable):
     def disconnect(self):
         # type: () -> None
         super(Clip, self).disconnect()
-        if self.clip_name:
-            self.clip_name.disconnect()
+        self.clip_name.disconnect()
+        self.loop.disconnect()

@@ -24,6 +24,6 @@ def test_scene_length():
 
     live_clip = AbletonClip()
     live_clip.length = 4
-    clips._clips.append(Clip(live_clip_slot.clip, ClipConfig(1)))
+    clips._clips.append(Clip(live_clip_slot.clip, 1, ClipConfig(1)))
     assert scene_length.length == 4
     assert scene_length.bar_length == 1

@@ -270,3 +270,8 @@ class AbstractTrack(SlotManager):
         seq.add(self.arm_state.arm)
         seq.add(partial(self.instrument.preset_list.scroll, go_next))
         return seq.done()
+
+    def disconnect(self):
+        # type: () -> None
+        super(AbstractTrack, self).disconnect()
+        self.appearance.disconnect()

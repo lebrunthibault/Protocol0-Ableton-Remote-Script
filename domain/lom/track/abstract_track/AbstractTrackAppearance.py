@@ -21,7 +21,7 @@ class AbstractTrackAppearance(SlotManager, Observable):
         self._name_listener.subject = live_track
 
     def set_instrument(self, instrument):
-        # type: (InstrumentInterface) -> None
+        # type: (Optional[InstrumentInterface]) -> None
         self._instrument = instrument
 
     @subject_slot("name")

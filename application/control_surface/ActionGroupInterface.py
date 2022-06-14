@@ -1,8 +1,10 @@
 from typing import List, Optional, Callable
 
 from protocol0.application.ContainerInterface import ContainerInterface
+from protocol0.application.ScriptDisconnectedEvent import ScriptDisconnectedEvent
 from protocol0.application.control_surface.EncoderAction import EncoderAction
 from protocol0.application.control_surface.MultiEncoder import MultiEncoder
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 
 
 class ActionGroupInterface(object):
@@ -19,6 +21,7 @@ class ActionGroupInterface(object):
         self._container = container
         self._component_guard = component_guard
         self._multi_encoders = []  # type: List[MultiEncoder]
+        DomainEventBus.subscribe(ScriptDisconnectedEvent, lambda _: self.disconnect())
 
     def _add_multi_encoder(self, multi_encoder):
         # type: (MultiEncoder) -> MultiEncoder
@@ -48,3 +51,8 @@ class ActionGroupInterface(object):
     def configure(self):
         # type: () -> None
         raise NotImplementedError
+
+    def disconnect(self):
+        # type: () -> None
+        for encoder in self._multi_encoders:
+            encoder.disconnect()

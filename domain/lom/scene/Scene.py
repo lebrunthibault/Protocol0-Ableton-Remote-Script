@@ -211,5 +211,4 @@ class Scene(SlotManager):
     def disconnect(self):
         # type: () -> None
         super(Scene, self).disconnect()
-        self.clips.disconnect()
         self.scene_name.disconnect()

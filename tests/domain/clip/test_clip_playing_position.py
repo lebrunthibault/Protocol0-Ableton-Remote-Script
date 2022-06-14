@@ -13,7 +13,7 @@ def test_clip_playing_position():
     live_clip_slot = cast(AbletonClipSlot, clip_slot._clip_slot)
     live_clip_slot.add_clip()
     live_clip_slot.clip.length = 4
-    clip = Clip(live_clip_slot.clip, ClipConfig(1))
+    clip = Clip(live_clip_slot.clip, 1, ClipConfig(1))
     assert clip.playing_position.position == 0
     assert clip.playing_position.bar_position == 0
     assert clip.playing_position.current_bar == 0
@@ -21,13 +21,13 @@ def test_clip_playing_position():
 
     live_clip_slot.clip.length = 16
     live_clip_slot.clip.playing_position = 5.0
-    clip = Clip(live_clip_slot.clip, ClipConfig(2))
+    clip = Clip(live_clip_slot.clip, 2, ClipConfig(2))
     assert clip.playing_position.position == 5
     assert clip.playing_position.bar_position == 1.25
     assert clip.playing_position.current_bar == 1
     assert not clip.playing_position.in_last_bar
 
     live_clip_slot.clip.playing_position = 13.0
-    clip = Clip(live_clip_slot.clip, ClipConfig(3))
+    clip = Clip(live_clip_slot.clip, 3, ClipConfig(3))
     assert clip.playing_position.in_last_bar
     return
