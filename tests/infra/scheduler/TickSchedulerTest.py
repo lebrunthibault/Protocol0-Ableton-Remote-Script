@@ -8,7 +8,6 @@ from protocol0.tests.infra.scheduler.TickSchedulerEventTest import TickScheduler
 
 class TickSchedulerTest(TickSchedulerInterface):
     """ use threading instead of Live Timer """
-
     def schedule(self, tick_count, callback, unique=False):
         # type: (int, Callable, bool) -> TickSchedulerEventInterface
         """ timeout_duration in ms """
@@ -16,4 +15,7 @@ class TickSchedulerTest(TickSchedulerInterface):
 
     def start(self):
         # type: () -> None
+        pass
+
+    def stop(self):
         pass

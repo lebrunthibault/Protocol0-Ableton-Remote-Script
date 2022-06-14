@@ -1,7 +1,12 @@
+from functools import partial
+
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
+from protocol0.domain.audit.AudioLatencyAnalyzerService import AudioLatencyAnalyzerService
 from protocol0.domain.audit.SetProfilingService import SetProfilingService
 
 from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.infra.interface.PixelEnum import PixelEnum
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 
 
@@ -28,6 +33,13 @@ class ActionGroupTest(ActionGroupInterface):
         self.add_encoder(identifier=4, name="test server duplication",
                          on_press=Backend.client().test_duplication)
 
+        # USAMo encoder
+        self.add_encoder(identifier=13, name="check usamo latency",
+                         on_press=lambda: partial(self._container.get(
+                             AudioLatencyAnalyzerService).test_audio_latency,
+                                                  SongFacade.current_external_synth_track()))
+
     def action_test(self):
         # type: () -> None
-        pass
+        Backend.client().click_vertical_zone(*PixelEnum.SAVE_SAMPLE.coordinates)
+

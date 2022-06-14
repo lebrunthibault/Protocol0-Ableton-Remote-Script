@@ -59,6 +59,5 @@ _.available_input_routing_channels  # unused attribute (tests\domain\fixtures\si
 _.find_devices_to_remove  # unused method (domain\audit\SetFixerService.py:42)
 _.fire_selected_scene  # unused method (domain\lom\scene\SceneService.py:167)
 _.select_or_load_device  # unused method (domain\lom\device\DeviceService.py:53)
-_.usamo_device  # unused property (domain\lom\track\simple_track\UsamoTrack.py:29)
 _.fire_previous_scene_to_last_bar  # unused method (domain\lom\scene\SceneService.py:193)
 _.last_manually_started_scene  # unused method (shared\SongFacade.py:231)

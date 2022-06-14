@@ -3,6 +3,7 @@ from functools import partial
 
 from typing import Deque, Iterable, Union, Any, Optional, List, Type, Callable, cast
 
+from protocol0.domain.lom.song.SongStartedEvent import SongStartedEvent
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.backend.BackendResponseEvent import BackendResponseEvent
@@ -147,8 +148,11 @@ class Sequence(Observable):
         return self.add(partial(Scheduler.wait, ticks, self._execute_next_step),
                         notify_terminated=False)
 
-    def wait_bars(self, bars):
-        # type: (float) -> None
+    def wait_bars(self, bars, wait_for_song_start=None):
+        # type: (float, bool) -> None
+        if not SongFacade.is_playing() and wait_for_song_start:
+            self.wait_for_event(SongStartedEvent)
+
         self.wait_beats(bars * SongFacade.signature_numerator())
 
     def wait_beats(self, beats):

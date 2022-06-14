@@ -56,21 +56,28 @@ def get_class_name_from_method(func):
 
 def get_callable_repr(func):
     # type: (Any) -> str
+    assert not isinstance(func, str)
     from protocol0.shared.sequence.Sequence import Sequence
     from protocol0.shared.sequence.SequenceStep import SequenceStep
     if isinstance(func, Sequence) or isinstance(func, SequenceStep):
         return func.__repr__()
 
+    if is_lambda(func):
+        return "unknown lambda"
+
     decorated_func = get_inner_func(func)
     class_name = get_class_name_from_method(decorated_func)
+    class_name = class_name.replace(".<locals>", "")
 
     if not hasattr(decorated_func, "__name__"):
-        return "only class_name %s" % class_name or "unknown"
+        func_name = decorated_func
+    else:
+        func_name = decorated_func.__name__
 
     if class_name:
-        return "%s.%s" % (class_name, decorated_func.__name__)
+        return "%s.%s" % (class_name, func_name)
     else:
-        return decorated_func.__name__
+        return func_name
 
 
 def nop(*_, **__):

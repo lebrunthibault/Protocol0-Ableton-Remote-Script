@@ -58,7 +58,7 @@ class Device(SlotManager):
     def get_parameter_by_name(self, device_parameter_name):
         # type: (Union[DeviceParameterEnum, str]) -> Optional[DeviceParameter]
         if isinstance(device_parameter_name, DeviceParameterEnum):
-            device_parameter_name = device_parameter_name.label
+            device_parameter_name = device_parameter_name.parameter_name
         return find_if(lambda p: p.name == device_parameter_name, self.parameters)
 
     def update_param_value(self, param_name, param_value):

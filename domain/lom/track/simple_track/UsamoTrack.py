@@ -1,4 +1,3 @@
-from protocol0_push2.model import Device
 from typing import Any
 
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
@@ -23,11 +22,6 @@ class UsamoTrack(SimpleAudioTrack):
         self._usamo_device = self.devices.get_one_from_enum(DeviceEnum.USAMO)
         if self._usamo_device is None:
             raise Protocol0Error("Cannot find usamo device on usamo track")
-
-    @property
-    def usamo_device(self):
-        # type: () -> Device
-        return self.devices.get_one_from_enum(DeviceEnum.USAMO)
 
     def activate(self):
         # type: () -> None

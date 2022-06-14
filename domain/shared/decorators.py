@@ -4,6 +4,7 @@ from functools import wraps, partial
 
 from typing import Any, Callable, Optional
 
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.func import get_callable_repr
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.types import Func
@@ -58,7 +59,9 @@ def debounce(duration=100):
         def decorate(*a, **k):
             # type: (Any, Any) -> None
             object_source = a[0] if inspect.ismethod(func) else decorate
+
             decorate.count[object_source] += 1  # type: ignore[attr-defined]
+
             from protocol0.domain.shared.scheduler.Scheduler import Scheduler
             Scheduler.wait_ms(duration, partial(execute, func, *a, **k))
 
@@ -76,6 +79,37 @@ def debounce(duration=100):
     return wrap
 
 
+class ThrottleInfo(object):
+    def __init__(self, func, duration):
+        # type: (Callable, int) -> None
+        self._func = func
+        self._func_repr = get_callable_repr(func)
+        self._duration = duration
+        self._last_res = None
+        self._last_args = None
+        self._throttled = False
+
+    def execute(self, *a, **k):
+        # type: (Any, Any) -> Any
+        if not self._throttled:
+            self._last_res = self._func(*a, **k)
+            Scheduler.wait_ms(self._duration, self._on_duration_elapsed)
+            self._throttled = True
+            return self._last_res
+        else:
+            Logger.warning("%s throttled" % self._func_repr)
+            self._last_args = (a, k)
+            return self._last_res
+
+    def _on_duration_elapsed(self):
+        # type: () -> None
+        self._throttled = False
+        if self._last_args is not None:
+            a, k = self._last_args
+            self._last_args = None
+            self.execute(*a, **k)
+
+
 def throttle(duration=100):
     # type: (int) -> Func
     """duration in ms"""
@@ -86,22 +120,9 @@ def throttle(duration=100):
             # type: (Any, Any) -> Any
             object_source = a[0] if inspect.ismethod(func) else decorate
 
-            if decorate.paused[object_source] and k.get("throttle", True):  # type: ignore[attr-defined]
-                Logger.warning("%s throttled" % get_callable_repr(func))
-                return
+            return decorate._info[object_source].execute(*a, **k)
 
-            decorate.paused[object_source] = True  # type: ignore[attr-defined]
-            res = func(*a, **k)
-
-            def activate():
-                # type: () -> None
-                decorate.paused[object_source] = False  # type: ignore[attr-defined]
-
-            from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-            Scheduler.wait_ms(duration, activate)
-            return res
-
-        decorate.paused = defaultdict(lambda: False)  # type: ignore[attr-defined]
+        decorate._info = defaultdict(lambda: ThrottleInfo(func, duration))  # type: ignore[attr-defined]
 
         return decorate
 

@@ -4,7 +4,6 @@ from _Framework.SubjectSlot import subject_slot, SlotManager
 from protocol0.domain.lom.scene.ScenePositionScrolledEvent import ScenePositionScrolledEvent
 from protocol0.domain.lom.song.SongStartedEvent import SongStartedEvent
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
-from protocol0.domain.shared.decorators import throttle
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.track_recorder.TrackRecordingCancelledEvent import \
@@ -46,7 +45,6 @@ class PlaybackComponent(SlotManager):
         else:
             DomainEventBus.defer_emit(SongStartedEvent())
 
-    @throttle(duration=100)
     def _on_scene_position_scrolled_event(self, _):
         # type: (ScenePositionScrolledEvent) -> None
         scene = SongFacade.selected_scene()

@@ -106,7 +106,6 @@ class AbstractTrackRecorder(object):
         self._focus_main_clip()
         seq = Sequence()
         if bar_length:
-            seq.wait_for_event(SongStartedEvent)
             seq.wait_bars(bar_length)  # this works because the method is called before the beginning of the bar
             seq.wait_for_event(Last32thPassedEvent)
         else:

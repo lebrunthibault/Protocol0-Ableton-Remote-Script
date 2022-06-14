@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from functools import partial
 
 import Live
@@ -27,8 +28,13 @@ class SimpleDummyTrackAutomation(object):
         self._clip_slots = clip_slots
         self._devices = devices
         self._current_parameter_type = None  # type: Optional[str]
+        self._ask_for_device = True
         DomainEventBus.subscribe(SimpleDummyTrackAddedEvent,
                                  self._on_simply_dummy_track_added_event)
+
+    def disable_device(self):
+        # type: (bool) -> None
+        self._ask_for_device = False
 
     def _on_simply_dummy_track_added_event(self, event):
         # type: (SimpleDummyTrackAddedEvent) -> Optional[Sequence]
@@ -37,25 +43,28 @@ class SimpleDummyTrackAutomation(object):
             return None
 
         seq = Sequence()
-        seq.add(self._select_parameters)
-        seq.add(self._insert_device)
-        seq.wait(5)
+        if self._ask_for_device:
+            seq.add(self._select_parameters)
+            seq.add(self._insert_device)
+            seq.wait(5)
         seq.add(self.insert_dummy_clip)
         seq.add(self._create_dummy_automation)
         return seq.done()
 
     def _select_parameters(self):
         # type: () -> Sequence
-        parameters = [enum.name for enum in DeviceParameterEnum.automatable_parameters()]
-        parameters.insert(0, "Empty")
+        parameters = OrderedDict({"Empty": None})
+        for enum in DeviceParameterEnum.automatable_parameters():
+            parameters[enum.label] = enum.name
+
         seq = Sequence()
-        seq.select(question="Automated parameter", options=parameters)
-        seq.add(lambda: setattr(self, "_current_parameter_type", seq.res))
+        seq.select(question="Automated parameter", options=parameters.keys())
+        seq.add(lambda: setattr(self, "_current_parameter_type", parameters[seq.res]))
         return seq.done()
 
     def _insert_device(self):
         # type: () -> Optional[Sequence]
-        if self._current_parameter_type == "Empty":
+        if self._current_parameter_type is None:
             return None
 
         parameter_enum = cast(DeviceParameterEnum,
@@ -91,7 +100,7 @@ class SimpleDummyTrackAutomation(object):
         assert clip, "Cannot find clip"
         clip.clip_name.update("")
 
-        if self._current_parameter_type == "Empty":
+        if self._current_parameter_type is None:
             return None
 
         parameter_enum = cast(DeviceParameterEnum,
