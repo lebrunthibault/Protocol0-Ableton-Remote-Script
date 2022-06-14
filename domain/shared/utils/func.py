@@ -70,7 +70,7 @@ def get_callable_repr(func):
     class_name = class_name.replace(".<locals>", "")
 
     if not hasattr(decorated_func, "__name__"):
-        func_name = decorated_func
+        func_name = str(decorated_func)
     else:
         func_name = decorated_func.__name__
 

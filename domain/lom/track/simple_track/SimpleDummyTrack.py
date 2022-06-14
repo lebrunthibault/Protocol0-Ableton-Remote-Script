@@ -5,6 +5,7 @@ from typing import List, Any, cast
 from protocol0.domain.lom.clip.DummyClip import DummyClip
 from protocol0.domain.lom.clip_slot.DummyClipSlot import DummyClipSlot
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
+from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrackAddedEvent import \
@@ -25,9 +26,20 @@ class SimpleDummyTrack(SimpleAudioTrack):
         from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
             ExternalSynthTrack
         self.abstract_group_track = cast(ExternalSynthTrack, self.abstract_group_track)
-        self.automation = SimpleDummyTrackAutomation(self._track, self._clip_slots, self.devices)
+        self.automation = SimpleDummyTrackAutomation(self._track, self._clip_slots,
+                                                     self.devices)
         if self.name != self.TRACK_NAME:
             Scheduler.defer(partial(setattr, self, "name", self.TRACK_NAME))
+
+    @classmethod
+    def is_track_valid(cls, track):
+        # type: (AbstractTrack) -> bool
+        if isinstance(track, SimpleDummyTrack):
+            return True
+
+        # we don't accept specialized subclasses as we expect a non mapped class (e.g. no tail)
+        return type(track) == SimpleAudioTrack and not track.is_foldable and \
+               track.instrument is None
 
     @property
     def clip_slots(self):

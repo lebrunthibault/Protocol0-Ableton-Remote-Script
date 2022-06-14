@@ -6,6 +6,7 @@ from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTr
     ExternalSynthTrack
 from protocol0.domain.lom.track.routing.InputRoutingChannelEnum import InputRoutingChannelEnum
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
+from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
 from protocol0.domain.lom.validation.object_validators.SimpleAudioTailTrackValidator import \
     SimpleAudioTailTrackValidator
 from protocol0.domain.lom.validation.object_validators.SimpleAudioTrackValidator import \
@@ -29,21 +30,22 @@ class ExternalSynthTrackValidator(AggregateValidator):
         validators = [
             # INSTRUMENT AND DEVICES
             CallbackValidator(track, lambda t: t.instrument is not None, None, "track should have an instrument"),
+
+            # MIDI TRACK
+            PropertyValueValidator(track.midi_track, "volume", 0, name="midi track volume"),
             SimpleTrackHasDeviceValidator(track.midi_track, DeviceEnum.EXTERNAL_AUDIO_EFFECT, browser_service),
             CallbackValidator(track.midi_track,
                               lambda t: t.devices.get_one_from_enum(DeviceEnum.EXTERNAL_INSTRUMENT) is None),
-
-            # VOLUMES
-            PropertyValueValidator(track.midi_track, "volume", 0, name="midi track volume"),
-            PropertyValueValidator(track.audio_track, "volume", 0, name="audio track volume"),
-
-            # ROUTINGS
-            CallbackValidator(track, lambda t: t.midi_track.input_routing.type in (
-                InputRoutingTypeEnum.ALL_INS,
-                InputRoutingTypeEnum.REV2_AUX
-            ), None, "midi track input type"),
+            PropertyValueValidator(track.midi_track.input_routing, "type",
+                                   InputRoutingTypeEnum.ALL_INS, "midi track input type"),
             PropertyValueValidator(track.midi_track.input_routing, "channel", InputRoutingChannelEnum.CHANNEL_1,
                                    name="midi track input channel"),
+            PropertyValueValidator(track.midi_track.output_routing, "type",
+                                   OutputRoutingTypeEnum.SENDS_ONLY,
+                                   name="midi track output type"),
+
+            # AUDIO TRACK
+            PropertyValueValidator(track.audio_track, "volume", 0, name="audio track volume"),
             PropertyValueValidator(track.audio_track.input_routing, "track",
                                    track.midi_track,
                                    name="audio track input track"),
@@ -54,9 +56,11 @@ class ExternalSynthTrackValidator(AggregateValidator):
         # SUB TRACKS
         validators += SimpleAudioTrackValidator(track.audio_track)._validators
 
+        # AUDIO TAIL TRACK
         if track.audio_tail_track:
             validators += SimpleAudioTailTrackValidator(track.audio_tail_track)._validators
 
+        # DUMMY TRACK ROUTINGS
         if track.dummy_track is None and not track.is_armed:
             validators.append(PropertyValueValidator(track.audio_track.output_routing, "track", track.base_track,
                                                      name="audio track output routing"))
@@ -64,11 +68,27 @@ class ExternalSynthTrackValidator(AggregateValidator):
                 validators.append(
                     PropertyValueValidator(track.audio_tail_track.output_routing, "track", track.base_track,
                                            name="tail track output routing"))
-        else:
+        # DUMMY TRACK
+        if track.dummy_track is not None:
             validators += [
                 PropertyValueValidator(track.dummy_track, "volume", 0),
                 PropertyValueValidator(track.dummy_track, "current_monitoring_state",
-                                       CurrentMonitoringStateEnum.IN)
+                                       CurrentMonitoringStateEnum.IN),
+                PropertyValueValidator(track.dummy_track.input_routing, "type",
+                                       InputRoutingTypeEnum.NO_INPUT),
+                PropertyValueValidator(track.dummy_track.output_routing, "track",
+                                       track),
+            ]
+
+        # DUMMY RETURN TRACK
+        if track.dummy_return_track is not None:
+            validators += [
+                PropertyValueValidator(track.dummy_return_track, "volume", 0),
+                PropertyValueValidator(track.dummy_return_track, "current_monitoring_state",
+                                       CurrentMonitoringStateEnum.IN),
+                PropertyValueValidator(track.dummy_return_track.input_routing, "track", track),
+                PropertyValueValidator(track.dummy_return_track.output_routing, "type",
+                                       OutputRoutingTypeEnum.SENDS_ONLY),
             ]
 
         super(ExternalSynthTrackValidator, self).__init__(validators)

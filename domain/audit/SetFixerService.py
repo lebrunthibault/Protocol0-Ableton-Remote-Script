@@ -1,7 +1,6 @@
 from protocol0.domain.audit.SetUpgradeService import SetUpgradeService
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
-from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.SongFacade import SongFacade
@@ -63,4 +62,6 @@ class SetFixerService(object):
             if track.audio_tail_track:
                 track.audio_tail_track.name = SimpleAudioTailTrack.TRACK_NAME
             if track.dummy_track:
-                track.dummy_track.name = SimpleDummyTrack.TRACK_NAME
+                track.dummy_track.name = track.dummy_track.TRACK_NAME
+            if track.dummy_return_track:
+                track.dummy_return_track.name = track.dummy_return_track.TRACK_NAME

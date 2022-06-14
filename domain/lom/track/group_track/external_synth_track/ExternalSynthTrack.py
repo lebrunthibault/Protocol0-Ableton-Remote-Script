@@ -1,7 +1,7 @@
 import itertools
 from functools import partial
 
-from typing import Optional, cast, List
+from typing import Optional, cast, List, Tuple
 
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
@@ -16,6 +16,8 @@ from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTr
     ExternalSynthTrackArmState
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackMonitoringState import \
     ExternalSynthTrackMonitoringState
+from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
+from protocol0.domain.lom.track.simple_track.SimpleAudioExtTrack import SimpleAudioExtTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
@@ -40,7 +42,11 @@ class ExternalSynthTrack(AbstractGroupTrack):
         # type: (SimpleTrack) -> None
         super(ExternalSynthTrack, self).__init__(base_group_track)
         self.midi_track = cast(SimpleMidiTrack, base_group_track.sub_tracks[0])
-        self.audio_track = cast(SimpleAudioTrack, base_group_track.sub_tracks[1])
+
+        audio_track = base_group_track.sub_tracks[1]
+        self.audio_track = SimpleAudioExtTrack(audio_track._track, audio_track.index)
+        self._link_sub_track(self.audio_track)
+
         self.audio_tail_track = None  # type: Optional[SimpleAudioTailTrack]
 
         # sub tracks are now handled by self
@@ -61,7 +67,8 @@ class ExternalSynthTrack(AbstractGroupTrack):
             self.dummy_track,
             cast(Device, self.external_device),
         )  # type: ExternalSynthTrackMonitoringState
-        self.arm_state = ExternalSynthTrackArmState(self.base_track, self.midi_track, self.monitoring_state)
+        self.arm_state = ExternalSynthTrackArmState(self.base_track, self.midi_track,
+                                                    self.monitoring_state)
 
         self.appearance.register_observer(self)
 
@@ -108,14 +115,15 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
     def _map_optional_audio_tail_track(self):
         # type: () -> None
-        has_tail_track = len(self.base_track.sub_tracks) > 2 and len(list(self.base_track.sub_tracks[2].devices)) == 0
+        has_tail_track = len(self.base_track.sub_tracks) > 2 and len(
+            list(self.base_track.sub_tracks[2].devices)) == 0
 
         if has_tail_track and not self.audio_tail_track:
             track = self.base_track.sub_tracks[2]
-            self.audio_tail_track = SimpleAudioTailTrack(track._track, track._index)
-            self.audio_tail_track.abstract_group_track = self
-            self.audio_tail_track.group_track = self.base_track
-            Scheduler.defer(partial(setattr, self.audio_tail_track.input_routing, "track", self.midi_track))
+            self.audio_tail_track = SimpleAudioTailTrack(track._track, track.index)
+            self._link_sub_track(self.audio_tail_track)
+            Scheduler.defer(partial(setattr, self.audio_tail_track.input_routing, "track",
+                                    self.midi_track))
             Scheduler.defer(self.audio_tail_track.configure)
         elif not has_tail_track:
             self.audio_tail_track = None
@@ -129,10 +137,10 @@ class ExternalSynthTrack(AbstractGroupTrack):
         if any(track.is_foldable for track in base_group_track.sub_tracks):
             return False
 
-        if not type(base_group_track.sub_tracks[0]) == SimpleMidiTrack:
-            return False
-        if not type(base_group_track.sub_tracks[1]) == SimpleAudioTrack:
-            return False
+        if not isinstance(base_group_track.sub_tracks[0], SimpleMidiTrack):
+            return False  # type: ignore[unreachable]
+        if not isinstance(base_group_track.sub_tracks[1], SimpleAudioTrack):
+            return False  # type: ignore[unreachable]
 
         for track in base_group_track.sub_tracks[2:]:
             if not isinstance(track, SimpleAudioTrack):
@@ -144,14 +152,25 @@ class ExternalSynthTrack(AbstractGroupTrack):
         # type: () -> None
         self._map_clip_slots()
 
-    def _get_dummy_track(self):
-        # type: () -> Optional[SimpleAudioTrack]
+    def _get_dummy_tracks(self):
+        # type: () -> Tuple[Optional[SimpleAudioTrack], Optional[SimpleAudioTrack]]
         main_tracks_length = 3 if self.audio_tail_track else 2
-        if len(self.sub_tracks) == main_tracks_length + 1 and isinstance(self.sub_tracks[-1],
-                                                                         SimpleAudioTrack):
-            return cast(SimpleAudioTrack, self.sub_tracks[-1])
-        else:
-            return None
+
+        if len(self.sub_tracks) == main_tracks_length + 2:
+            assert isinstance(self.sub_tracks[-2], SimpleAudioTrack)
+            assert isinstance(self.sub_tracks[-1], SimpleAudioTrack)
+            return cast(SimpleAudioTrack, self.sub_tracks[-2]), cast(SimpleAudioTrack,
+                                                                     self.sub_tracks[-1])
+        if len(self.sub_tracks) >= main_tracks_length + 1:
+            assert isinstance(self.sub_tracks[-1], SimpleAudioTrack)
+            dummy_track = cast(SimpleAudioTrack, self.sub_tracks[-1])
+            # is it the dummy return track ?
+            if self.sub_tracks[-1].output_routing.type == OutputRoutingTypeEnum.SENDS_ONLY:
+                return None, dummy_track
+            else:
+                return dummy_track, None
+
+        return None, None
 
     def _map_clip_slots(self):
         # type: () -> None
@@ -175,11 +194,13 @@ class ExternalSynthTrack(AbstractGroupTrack):
             for sub_track in self.sub_tracks:
                 sub_track.appearance.color = self.appearance.color
         elif isinstance(observable, SimpleTrackDevices):
-            self.external_device = find_if(lambda d: d.is_external_device, list(self.midi_track.devices))
+            self.external_device = find_if(lambda d: d.is_external_device,
+                                           list(self.midi_track.devices))
             if self.external_device is None:
                 raise Protocol0Warning("%s should have an external device" % self)
 
-            self._instrument = self.midi_track.instrument or InstrumentMinitaur(device=None, track_name=self.name)
+            self._instrument = self.midi_track.instrument or InstrumentMinitaur(device=None,
+                                                                                track_name=self.name)
         else:
             raise Protocol0Error("Unmatched observable: %s" % observable)
 

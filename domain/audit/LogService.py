@@ -29,14 +29,16 @@ class LogService(object):
         if isinstance(current_track, AbstractGroupTrack):
             Logger.info("current_track.dummy_track: %s" % current_track.dummy_track)
             Logger.info()
+            Logger.info("current_track.dummy_return_track: %s" % current_track.dummy_return_track)
+            Logger.info()
         Logger.info("current_track.clips: %s" % current_track.clips)
         Logger.info()
         Logger.info("current_track.instrument: %s" % current_track.instrument)
         if current_track.instrument:
             Logger.info()
             Logger.info(
-                "current_track.instrument.presets: %s" %
-                current_track.instrument.preset_list.presets
+                "current_track.instrument.presets count: %s" %
+                len(current_track.instrument.preset_list.presets)
             )
             Logger.info()
             Logger.info(

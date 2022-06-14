@@ -2,7 +2,7 @@ import inspect
 from collections import defaultdict
 from functools import wraps, partial
 
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, Tuple
 
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.func import get_callable_repr
@@ -79,14 +79,14 @@ def debounce(duration=100):
     return wrap
 
 
-class ThrottleInfo(object):
+class Throttler(object):
     def __init__(self, func, duration):
         # type: (Callable, int) -> None
         self._func = func
         self._func_repr = get_callable_repr(func)
         self._duration = duration
         self._last_res = None
-        self._last_args = None
+        self._last_args = None  # type: Optional[Tuple[Any, Any]]
         self._throttled = False
 
     def execute(self, *a, **k):
@@ -120,9 +120,9 @@ def throttle(duration=100):
             # type: (Any, Any) -> Any
             object_source = a[0] if inspect.ismethod(func) else decorate
 
-            return decorate._info[object_source].execute(*a, **k)
+            return decorate._throttler[object_source].execute(*a, **k)  # type: ignore
 
-        decorate._info = defaultdict(lambda: ThrottleInfo(func, duration))  # type: ignore[attr-defined]
+        decorate._throttler = defaultdict(lambda: Throttler(func, duration))  # type: ignore
 
         return decorate
 

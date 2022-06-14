@@ -1,8 +1,9 @@
-from typing import List, Optional, cast
+from typing import List, Optional, cast, Tuple
 
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+from protocol0.domain.lom.track.simple_track.SimpleDummyReturnTrack import \
+    SimpleDummyReturnTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -18,18 +19,24 @@ class AbstractGroupTrack(AbstractTrack):
         self.sub_tracks = []  # type: List[AbstractTrack]
         # for now: List[SimpleTrack] but AbstractGroupTracks will register themselves on_tracks_change
         self.dummy_track = None  # type: Optional[SimpleDummyTrack]
+        self.dummy_return_track = None  # type: Optional[SimpleDummyReturnTrack]
 
     def on_tracks_change(self):
         # type: () -> None
         self._link_sub_tracks()
         self._link_group_track()
-        self._map_dummy_track()
+        self._map_dummy_tracks()
 
     def _link_sub_tracks(self):
         # type: () -> None
         """ 2nd layer linking """
         # here we don't necessarily link the sub tracks to self
         self.sub_tracks[:] = self.base_track.sub_tracks
+
+    def _link_sub_track(self, sub_track):
+        # type: (SimpleTrack) -> None
+        sub_track.group_track = self.base_track
+        sub_track.abstract_group_track = self
 
     def _link_group_track(self):
         # type: () -> None
@@ -47,30 +54,46 @@ class AbstractGroupTrack(AbstractTrack):
         self.abstract_group_track = self  # because we already are the abstract group track
         self.group_track.add_or_replace_sub_track(self, self.base_track)
 
-    def _map_dummy_track(self):
+    def _map_dummy_tracks(self):
         # type: () -> None
-        dummy_audio_track = self._get_dummy_track()
-        if getattr(dummy_audio_track, "_track", None) == getattr(self.dummy_track, "_track", None):
-            return  # no change
+        dummy_track, dummy_return_track = self._get_dummy_tracks()
 
-        if dummy_audio_track:
-            self.dummy_track = SimpleDummyTrack(dummy_audio_track._track, dummy_audio_track.index)
-            self.add_or_replace_sub_track(self.dummy_track, dummy_audio_track)
-            self.dummy_track.group_track = self.base_track
-            self.dummy_track.abstract_group_track = self
+        if dummy_track is not None:
+            if dummy_track._track != getattr(self.dummy_track, "_track", None):
+                self.dummy_track = SimpleDummyTrack(dummy_track._track, dummy_track.index)
+                self.add_or_replace_sub_track(self.dummy_track, dummy_track)
+                self._link_sub_track(self.dummy_track)
+        else:
+            if self.dummy_track is not None:
+                self.dummy_track.disconnect()
+                self.dummy_track = None
+
+        if dummy_return_track is not None:
+            if dummy_return_track._track != getattr(self.dummy_return_track, "_track", None):
+                self.dummy_return_track = SimpleDummyReturnTrack(dummy_return_track._track,
+                                                                 dummy_return_track.index)
+                self.add_or_replace_sub_track(self.dummy_return_track, dummy_track)
+                self._link_sub_track(self.dummy_return_track)
+        else:
+            if self.dummy_return_track is not None:
+                self.dummy_return_track.disconnect()
+                self.dummy_return_track = None
 
         Scheduler.wait(3, self._route_sub_tracks)
 
-    def _get_dummy_track(self):
-        # type: () -> Optional[SimpleAudioTrack]
-        if len(self.sub_tracks) == 1:
-            return None
+    def _get_dummy_tracks(self):
+        # type: () -> Tuple[Optional[AbstractTrack], Optional[AbstractTrack]]
+        if SimpleDummyTrack.is_track_valid(self.sub_tracks[-1]):
+            if SimpleDummyTrack.is_track_valid(self.sub_tracks[-2]):
+                return self.sub_tracks[-2], self.sub_tracks[-1]
+            else:
+                # is it the dummy return track ?
+                if SimpleDummyReturnTrack.is_track_valid(self.sub_tracks[-1]):
+                    return None, self.sub_tracks[-1]
+                else:
+                    return self.sub_tracks[-1], None
 
-        track = self.sub_tracks[-1]
-        if isinstance(track, SimpleAudioTrack) and not track.is_foldable and track.instrument is None:
-            return track
-
-        return None
+        return None, None
 
     def _route_sub_tracks(self):
         # type: () -> None
@@ -87,8 +110,9 @@ class AbstractGroupTrack(AbstractTrack):
         return (
                 abstract_track == self
                 or abstract_track in self.sub_tracks
-                or any(isinstance(sub_track, AbstractGroupTrack) and sub_track.is_parent(abstract_track)
-                       for sub_track in self.sub_tracks)
+                or any(
+            isinstance(sub_track, AbstractGroupTrack) and sub_track.is_parent(abstract_track)
+            for sub_track in self.sub_tracks)
         )
 
     @property

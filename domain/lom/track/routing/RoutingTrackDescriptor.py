@@ -29,11 +29,13 @@ class RoutingTrackDescriptor(object):
         # type: (TrackRoutingInterface, P0TrackInterface) -> None
         live_track = track._track
         available_routings = getattr(track_routing.live_track, self.available_routings_attribute_name)
+        routing = None
 
+        # NB : for input routings a group track doesn't have this shortcut routing
         if live_track == track_routing.live_track.group_track:
             routing = find_if(lambda r: r.category == Live.Track.RoutingTypeCategory.parent_group_track,
                               available_routings)
-        else:
+        if routing is None:
             routing = find_if(lambda r: r.attached_object == live_track, available_routings)
 
             # still needed ?

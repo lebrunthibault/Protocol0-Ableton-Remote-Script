@@ -39,6 +39,7 @@ class DeviceParameterEnum(AbstractEnum):
 
     @property
     def label(self):
+        # type: () -> str
         return self.get_value_from_mapping({
             DeviceParameterEnum.AUTO_FILTER_LOW_PASS_FREQUENCY: "Low Pass Frequency",
             DeviceParameterEnum.UTILITY_GAIN: "Gain",

@@ -33,7 +33,7 @@ class SimpleDummyTrackAutomation(object):
                                  self._on_simply_dummy_track_added_event)
 
     def disable_device(self):
-        # type: (bool) -> None
+        # type: () -> None
         self._ask_for_device = False
 
     def _on_simply_dummy_track_added_event(self, event):
@@ -53,13 +53,14 @@ class SimpleDummyTrackAutomation(object):
 
     def _select_parameters(self):
         # type: () -> Sequence
-        parameters = OrderedDict({"Empty": None})
+        parameters = OrderedDict({"Empty": None})  # type: OrderedDict[str, Optional[str]]
         for enum in DeviceParameterEnum.automatable_parameters():
             parameters[enum.label] = enum.name
 
         seq = Sequence()
         seq.select(question="Automated parameter", options=parameters.keys())
-        seq.add(lambda: setattr(self, "_current_parameter_type", parameters[seq.res]))
+        seq.add(lambda: setattr(self, "_current_parameter_type", parameters[cast(str,
+                                                                                 seq.res)]))
         return seq.done()
 
     def _insert_device(self):
@@ -88,10 +89,9 @@ class SimpleDummyTrackAutomation(object):
         # type: () -> None
         clip = cast(DummyClip, self._clip_slots.clips[0])
         clip.muted = False
-        # to have to slack for ending envelopes with create one more bar which is not in the loop
-        clip.loop.bar_length = SongFacade.selected_scene().bar_length + 1
+        clip.loop.bar_length = SongFacade.selected_scene().bar_length
         clip.show_loop()
-        clip.loop.looping = False
+        clip.loop.looping = True
         ApplicationViewFacade.show_clip()
 
     def _create_dummy_automation(self):

@@ -3,7 +3,6 @@ from protocol0.domain.shared.decorators import throttle
 
 def test_throttle():
     def func(val):
-        print("Real exec : %s" % val)
         return val + 10
 
     t = throttle(100)(func)

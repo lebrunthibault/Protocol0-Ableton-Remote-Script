@@ -3,9 +3,8 @@ from functools import partial
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 from protocol0.domain.audit.AudioLatencyAnalyzerService import AudioLatencyAnalyzerService
 from protocol0.domain.audit.SetProfilingService import SetProfilingService
-
+from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
 from protocol0.domain.shared.backend.Backend import Backend
-from protocol0.infra.interface.PixelEnum import PixelEnum
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 
@@ -41,5 +40,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        Backend.client().click_vertical_zone(*PixelEnum.SAVE_SAMPLE.coordinates)
-
+        SongFacade.selected_track().output_routing.type = OutputRoutingTypeEnum.SENDS_ONLY
