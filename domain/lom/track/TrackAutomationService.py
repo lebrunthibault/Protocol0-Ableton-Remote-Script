@@ -8,6 +8,7 @@ from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGr
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
     ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
+from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
@@ -29,17 +30,20 @@ class TrackAutomationService(object):
         if not isinstance(current_track, AbstractGroupTrack):
             raise Protocol0Warning("Can only show automation of AbstractGroupTrack")
 
-        if current_track.dummy_track is None:
+        dummy_tracks = list(filter(None, (current_track.dummy_track,
+                                          current_track.dummy_return_track)))
+        if len(dummy_tracks) == 0:
             raise Protocol0Warning("Current track has no dummy track")
 
-        track = current_track.dummy_track
-        clip = track.selected_clip_slot.clip
+        # noinspection PyTypeChecker
+        dummy_track = ValueScroller.scroll_values(dummy_tracks, SongFacade.selected_track(), True)
+        clip = dummy_track.selected_clip_slot.clip
         if clip is None:
             raise Protocol0Warning("Selected scene has no dummy clip")
 
         seq = Sequence()
-        seq.add(track.select)
-        seq.add(partial(clip.automation.scroll_envelopes, track.devices.parameters))
+        seq.add(dummy_track.select)
+        seq.add(partial(clip.automation.scroll_envelopes, dummy_track.devices.parameters))
         return seq.done()
 
     def select_or_sync_automation(self):
