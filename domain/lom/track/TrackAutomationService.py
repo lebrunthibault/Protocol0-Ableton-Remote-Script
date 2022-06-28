@@ -36,7 +36,9 @@ class TrackAutomationService(object):
             raise Protocol0Warning("Current track has no dummy track")
 
         # noinspection PyTypeChecker
-        dummy_track = ValueScroller.scroll_values(dummy_tracks, SongFacade.selected_track(), True)
+        dummy_track = cast(SimpleDummyTrack, ValueScroller.scroll_values(dummy_tracks,
+                                                                         SongFacade.selected_track(),
+                                                                         True))
         clip = dummy_track.selected_clip_slot.clip
         if clip is None:
             raise Protocol0Warning("Selected scene has no dummy clip")

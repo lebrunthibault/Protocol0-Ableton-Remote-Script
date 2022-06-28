@@ -56,6 +56,8 @@ class AudioLatencyAnalyzerService(object):
         # type: () -> None
         track = SongFacade.current_external_synth_track()
 
+        track.name = "Test USAMO"
+
         # we need this here but not in InstrumentInterface for some reason
         track.midi_track.input_routing.type = InputRoutingTypeEnum.ALL_INS
         # switching to test preset (last)
