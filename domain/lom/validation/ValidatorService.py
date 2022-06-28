@@ -24,7 +24,13 @@ class ValidatorService(object):
     def fix_object(self, obj):
         # type: (object) -> None
         validator = self._validator_factory.create_from_object(obj)
-        validator.fix()
-        Backend.client().show_success("Fixed %s" % obj)
+        if validator.is_valid():
+            message = "%s is valid" % obj
+        else:
+            validator.fix()
+            message = "Fixed %s" % obj
+
+        Backend.client().show_success(message)
+
         if isinstance(obj, HasAppearance):
             obj.appearance.refresh()

@@ -1,18 +1,21 @@
 from typing import Optional
 
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
-from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
     ExternalSynthTrack
 from protocol0.domain.lom.track.routing.InputRoutingChannelEnum import InputRoutingChannelEnum
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
+from protocol0.domain.lom.validation.object_validators.AbstractGroupTrackValidator import \
+    AbstractGroupTrackValidator
 from protocol0.domain.lom.validation.object_validators.SimpleAudioTailTrackValidator import \
     SimpleAudioTailTrackValidator
 from protocol0.domain.lom.validation.object_validators.SimpleAudioTrackValidator import \
     SimpleAudioTrackValidator
-from protocol0.domain.lom.validation.sub_validators.AggregateValidator import \
-    AggregateValidator
+from protocol0.domain.lom.validation.object_validators.SimpleDummyReturnTrackValidator import \
+    SimpleDummyReturnTrackValidator
+from protocol0.domain.lom.validation.object_validators.SimpleDummyTrackValidator import \
+    SimpleDummyTrackValidator
 from protocol0.domain.lom.validation.sub_validators.CallbackValidator import CallbackValidator
 from protocol0.domain.lom.validation.sub_validators.PropertyValueValidator import \
     PropertyValueValidator
@@ -22,7 +25,7 @@ from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterf
 from protocol0.shared.sequence.Sequence import Sequence
 
 
-class ExternalSynthTrackValidator(AggregateValidator):
+class ExternalSynthTrackValidator(AbstractGroupTrackValidator):
     def __init__(self, track, browser_service):
         # type: (ExternalSynthTrack, BrowserServiceInterface) -> None
         self._track = track
@@ -70,28 +73,13 @@ class ExternalSynthTrackValidator(AggregateValidator):
                                            name="tail track output routing"))
         # DUMMY TRACK
         if track.dummy_track is not None:
-            validators += [
-                PropertyValueValidator(track.dummy_track, "volume", 0),
-                PropertyValueValidator(track.dummy_track, "current_monitoring_state",
-                                       CurrentMonitoringStateEnum.IN),
-                PropertyValueValidator(track.dummy_track.input_routing, "type",
-                                       InputRoutingTypeEnum.NO_INPUT),
-                PropertyValueValidator(track.dummy_track.output_routing, "track",
-                                       track),
-            ]
+            validators.append(SimpleDummyTrackValidator(track.dummy_track))
 
         # DUMMY RETURN TRACK
         if track.dummy_return_track is not None:
-            validators += [
-                PropertyValueValidator(track.dummy_return_track, "volume", 0),
-                PropertyValueValidator(track.dummy_return_track, "current_monitoring_state",
-                                       CurrentMonitoringStateEnum.IN),
-                PropertyValueValidator(track.dummy_return_track.input_routing, "track", track),
-                PropertyValueValidator(track.dummy_return_track.output_routing, "type",
-                                       OutputRoutingTypeEnum.SENDS_ONLY),
-            ]
+            validators.append(SimpleDummyReturnTrackValidator(track.dummy_return_track))
 
-        super(ExternalSynthTrackValidator, self).__init__(validators)
+        super(ExternalSynthTrackValidator, self).__init__(track, validators)
 
     def get_error_message(self):
         # type: () -> Optional[str]
