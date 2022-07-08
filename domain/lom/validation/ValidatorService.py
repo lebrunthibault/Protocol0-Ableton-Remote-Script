@@ -27,6 +27,7 @@ class ValidatorService(object):
         if validator.is_valid():
             message = "%s is valid" % obj
         else:
+            Logger.warning(validator.get_error_message())
             validator.fix()
             message = "Fixed %s" % obj
 

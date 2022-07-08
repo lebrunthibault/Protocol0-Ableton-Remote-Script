@@ -138,6 +138,10 @@ class Sequence(Observable):
 
     """ ACTIONS """
 
+    def log(self, message):
+        # type: (str) -> Sequence
+        return self.add(lambda: Logger.warning(message))
+
     def defer(self):
         # type: () -> Sequence
         return self.add(partial(Scheduler.defer, self._execute_next_step),

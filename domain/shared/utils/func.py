@@ -6,7 +6,6 @@ from qualname import qualname
 from typing import Any, Callable, Optional, Type
 
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
-from protocol0.shared.logging.Logger import Logger
 
 
 def is_lambda(func):
@@ -97,9 +96,6 @@ def is_func_equal(func1, func2, compare_methods=False):
     elif inspect.ismethod(func1) and inspect.ismethod(func2) and compare_methods:
         c1 = get_class_from_func(func1)
         c2 = get_class_from_func(func2)
-
-        Logger.dev("c1: %s" % c1)
-        Logger.dev("c2: %s" % c2)
 
         return c1 == c2 and func1.__name__ == func2.__name__
     else:

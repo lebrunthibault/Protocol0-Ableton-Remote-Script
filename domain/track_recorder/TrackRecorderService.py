@@ -44,7 +44,7 @@ class TrackRecorderService(object):
         self._recording_component = recording_component
         self._scene_crud_component = scene_crud_component
 
-        self.recording_bar_length_scroller = RecordingBarLengthScroller(RecordingBarLengthEnum.ONE)
+        self.recording_bar_length_scroller = RecordingBarLengthScroller(RecordingBarLengthEnum.TWO)
         self._recorder = None  # type: Optional[AbstractTrackRecorder]
 
     @property

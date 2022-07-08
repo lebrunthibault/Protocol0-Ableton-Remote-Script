@@ -172,6 +172,15 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
         return None, None
 
+    def _route_sub_tracks(self):
+        # type: () -> None
+        """Overriding this because parent method doesn't take arm state into account"""
+        super(ExternalSynthTrack, self)._route_sub_tracks()
+        if self.is_armed:
+            self.monitoring_state.monitor_midi()
+        else:
+            self.monitoring_state.monitor_audio()
+
     def _map_clip_slots(self):
         # type: () -> None
         if len(self._clip_slot_synchronizers) == len(self.midi_track.clip_slots):
