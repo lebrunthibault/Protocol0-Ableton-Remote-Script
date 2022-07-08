@@ -28,8 +28,11 @@ jobs:
         run: pwd
 
       - name: Set PYTHONPATH
-        run: echo "::set-env name=PYTHONPATH:/home/runner/work/Protocol0-Ableton-Surface-Script/Protocol0-Ableton-Surface-Script"
-        
+        run: |
+          echo $PYTHONPATH
+          echo "$GITHUB_WORKSPACE" >> $PYTHONPATH
+          echo $PYTHONPATH
+
       - name: Run tests
         run: |
           python -m pytest -s .
