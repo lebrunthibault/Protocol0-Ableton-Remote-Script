@@ -13,6 +13,10 @@ class RoutingDisplayNameDescriptor(object):
         self.routing_attribute_name = routing_attribute_name
         self.available_routings_attribute_name = "available_%ss" % routing_attribute_name
 
+    def __repr__(self):
+        # type: () -> str
+        return "RoutingDisplayName.%s" % self.routing_attribute_name
+
     def __get__(self, track_routing, _):
         # type: (TrackRoutingInterface, Type) -> Optional[Any]
         try:

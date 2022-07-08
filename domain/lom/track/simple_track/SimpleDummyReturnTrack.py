@@ -1,12 +1,10 @@
-from functools import partial
-
 from typing import Any, cast
 
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
-from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.PropertyMonitor import PropertyMonitor
 
 
 class SimpleDummyReturnTrack(SimpleDummyTrack):
@@ -16,6 +14,9 @@ class SimpleDummyReturnTrack(SimpleDummyTrack):
         # type: (Any, Any) -> None
         super(SimpleDummyReturnTrack, self).__init__(*a, **k)
         self.automation.disable_device()
+        PropertyMonitor(self._track, "output_routing_type",
+                        lambda r: r.display_name == OutputRoutingTypeEnum.SENDS_ONLY.label,
+                        label="%s.output_routing_type" % self)
 
     @classmethod
     def is_track_valid(cls, track):
@@ -27,6 +28,3 @@ class SimpleDummyReturnTrack(SimpleDummyTrack):
         # type: () -> None
         super(SimpleDummyReturnTrack, self).on_added()
         self.input_routing.track = cast(SimpleAudioTrack, self.group_track)
-        # we need to defer this
-        Scheduler.defer(partial(setattr, self.output_routing, "type",
-                                OutputRoutingTypeEnum.SENDS_ONLY))

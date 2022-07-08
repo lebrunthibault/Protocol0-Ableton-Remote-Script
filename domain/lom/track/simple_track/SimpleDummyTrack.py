@@ -23,9 +23,6 @@ class SimpleDummyTrack(SimpleAudioTrack):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(SimpleAudioTrack, self).__init__(*a, **k)
-        from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
-            ExternalSynthTrack
-        self.abstract_group_track = cast(ExternalSynthTrack, self.abstract_group_track)
         self.automation = SimpleDummyTrackAutomation(self._track, self._clip_slots,
                                                      self.devices)
         if self.name != self.TRACK_NAME:

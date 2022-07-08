@@ -97,7 +97,7 @@ class AbstractGroupTrack(AbstractTrack):
 
     def _route_sub_tracks(self):
         # type: () -> None
-        simple_tracks = [track for track in self.sub_tracks if track != self.dummy_track]
+        simple_tracks = [track for track in self.sub_tracks if not isinstance(track, SimpleDummyTrack)]
         output_track = self.dummy_track if self.dummy_track is not None else self.base_track
 
         for track in simple_tracks:
