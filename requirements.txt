@@ -1,4 +1,3 @@
-atomicwrites==1.4.0
 attrs==21.2.0
 backports.entry-points-selectable==1.1.0
 backports.functools-lru-cache==1.6.4
