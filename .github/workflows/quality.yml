@@ -21,6 +21,13 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+          
+
+      - name: test
+        run: pwd
+
+      - name: Set PYTHONPATH
+        run: echo "::set-env name=PYTHONPATH::home/runner/work/Protocol0-Ableton-Surface-Script
       - name: Run tests
         run: |
           python -m pytest -s .
