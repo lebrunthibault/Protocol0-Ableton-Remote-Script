@@ -23,4 +23,4 @@ jobs:
           pip install -r requirements.txt
       - name: Run tests
         run: |
-          ./venv/bin/pytest -s .
+          python -m pytest -s .
