@@ -1,19 +1,19 @@
 .PHONY: test flake8 mypy vulture pycharm check
 
 test:
-	cls
+	clear
 	.\venv\Scripts\pytest -s .
 
 flake8:
-	cls
+	clear
 	.\venv\Scripts\flake8 .
 
 mypy:
-	cls
+	clear
 	mypy .
 
 vulture:
-	cls
+	clear
 	.\venv\Scripts\vulture . .\vulture_whitelist.py --make-whitelist --exclude=venv/,command/,command_handler/,push2/,InputRoutingTypeEnum.py,InputRoutingChannelEnum.py,OutputRoutingTypeEnum.py,BarLengthEnum.py --ignore-names=Optional,Tuple,Deque,Union,CollectionsSequence,Iterator,TracebackType,Func,decorate,subject,TRACK_COLOR
 
 #pycharm:
