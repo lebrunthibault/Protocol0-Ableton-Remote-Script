@@ -7,6 +7,9 @@ from typing import Dict, Type, Optional
 import protocol0.application.command as command_package
 import protocol0.application.command_handler as command_handler_package
 from protocol0.application.ContainerInterface import ContainerInterface
+from protocol0.application.command.ScrollScenePositionCommand import ScrollScenePositionCommand
+from protocol0.application.command.ScrollSceneTracksCommand import ScrollSceneTracksCommand
+from protocol0.application.command.ScrollScenesCommand import ScrollScenesCommand
 from protocol0.application.command.SerializableCommand import SerializableCommand
 from protocol0.application.command_handler.CommandHandlerInterface import \
     CommandHandlerInterface
@@ -24,6 +27,9 @@ CommandMapping = Dict[Type[SerializableCommand], Type[CommandHandlerInterface]]
 class CommandBus(object):
     _DEBUG = True
     _INSTANCE = None  # type: Optional[CommandBus]
+    _DUPLICATE_COMMAND_WHITELIST = (
+        ScrollScenePositionCommand, ScrollScenesCommand, ScrollSceneTracksCommand
+    )
     _DUPLICATE_COMMAND_WARNING_COUNT = 10
 
     def __init__(self, container):
@@ -106,6 +112,7 @@ class CommandBus(object):
 
             We mitigate it by forbidding duplicate messages in a certain delay
         """
-        return type(self._last_command) is type(command) \
+        return type(command) not in self._DUPLICATE_COMMAND_WHITELIST \
+            and type(self._last_command) is type(command) \
             and self._last_command_processed_at is not None \
             and time.time() - self._last_command_processed_at < 0.100

@@ -2,6 +2,8 @@ from typing import Callable
 
 from protocol0.domain.lom.track.TracksMappedEvent import TracksMappedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
+from protocol0.domain.lom.track.simple_track.SimpleTrackDeletedEvent import SimpleTrackDeletedEvent
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -12,6 +14,12 @@ class TrackCrudComponent(object):
         self._create_audio_track = create_audio_track
         self._duplicate_track = duplicate_track
         self._delete_track = delete_track
+
+        DomainEventBus.subscribe(SimpleTrackDeletedEvent, self._on_simple_track_deleted_event)
+
+    def _on_simple_track_deleted_event(self, event):
+        # type: (SimpleTrackDeletedEvent) -> None
+        self.delete_track(event.track.index)
 
     def create_midi_track(self, index):
         # type: (int) -> Sequence

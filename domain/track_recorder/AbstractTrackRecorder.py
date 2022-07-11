@@ -14,7 +14,6 @@ from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.scheduler.Last32thPassedEvent import Last32thPassedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -104,8 +103,6 @@ class AbstractTrackRecorder(object):
         # only for unlimited recordings so that we can play with other tracks as well
         if bar_length == 0:
             self._recording_component.record_mode = True
-
-        Logger.dev("bar_length: %s" % bar_length)
 
         self._focus_main_clip()
         seq = Sequence()

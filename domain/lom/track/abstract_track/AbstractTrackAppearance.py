@@ -29,7 +29,8 @@ class AbstractTrackAppearance(SlotManager, Observable):
     def _name_listener(self):
         # type: () -> None
         if len(self.name) > 2:
-            self.name = self.name.title()
+            # .title is not good because of words starting with numbers
+            self.name = " ".join([word.capitalize() for word in self.name.split(" ")])
 
     @property
     def name(self):

@@ -18,7 +18,7 @@ class NormalGroupTrack(AbstractGroupTrack):
     def make(cls, base_group_track):
         # type: (SimpleTrack) -> NormalGroupTrack
         from protocol0.domain.lom.track.drums.DrumsTrack import DrumsTrack
-        if base_group_track.name == DrumsTrack.TRACK_NAME:
+        if DrumsTrack.is_track_valid(base_group_track):
             return DrumsTrack(base_group_track)
         else:
             return NormalGroupTrack(base_group_track)

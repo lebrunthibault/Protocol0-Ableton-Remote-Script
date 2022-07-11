@@ -2,8 +2,7 @@ from functools import partial
 
 import Live
 from _Framework.SubjectSlot import SlotManager
-from typing import Optional, List, Iterator, cast
-from typing import TYPE_CHECKING
+from typing import Optional, List, Iterator, cast, TYPE_CHECKING
 
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.ClipSlotSelectedEvent import ClipSlotSelectedEvent

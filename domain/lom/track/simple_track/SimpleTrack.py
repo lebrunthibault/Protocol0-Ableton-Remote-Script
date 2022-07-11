@@ -7,18 +7,21 @@ from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
 from protocol0.domain.lom.instrument.InstrumentFactory import InstrumentFactory
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
+from protocol0.domain.lom.track.TracksMappedEvent import TracksMappedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmState import SimpleTrackArmState
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.lom.track.simple_track.SimpleTrackClipSlots import SimpleTrackClipSlots
 from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import \
     SimpleTrackCreatedEvent
+from protocol0.domain.lom.track.simple_track.SimpleTrackDeletedEvent import SimpleTrackDeletedEvent
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.utils.forward_to import ForwardTo
 from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.observer.Observable import Observable
+from protocol0.shared.sequence.Sequence import Sequence
 
 
 class SimpleTrack(AbstractTrack):
@@ -153,6 +156,11 @@ class SimpleTrack(AbstractTrack):
     def is_recording(self):
         # type: () -> bool
         return any(clip for clip in self.clips if clip and clip.is_recording)
+
+    def delete(self):
+        # type: () -> Sequence
+        DomainEventBus.emit(SimpleTrackDeletedEvent(self))
+        return Sequence().wait_for_event(TracksMappedEvent).done()
 
     def disconnect(self):
         # type: () -> None

@@ -78,6 +78,8 @@ class SimpleDummyTrackAutomation(object):
         if SongFacade.template_dummy_clip_slot() is None:
             raise Protocol0Error("Template dummy clip does not exists")
 
+        assert SongFacade.template_dummy_clip_slot().clip, "Cannot find template dummy clip"
+
         seq = Sequence()
         seq.add(partial(SongFacade.template_dummy_clip_slot().duplicate_clip_to,
                         self._clip_slots.selected))
@@ -89,7 +91,8 @@ class SimpleDummyTrackAutomation(object):
         # type: () -> None
         clip = cast(DummyClip, self._clip_slots.clips[0])
         clip.muted = False
-        clip.loop.bar_length = SongFacade.selected_scene().bar_length
+        if SongFacade.selected_scene().bar_length:
+            clip.loop.bar_length = SongFacade.selected_scene().bar_length
         clip.show_loop()
         clip.loop.looping = True
         ApplicationViewFacade.show_clip()

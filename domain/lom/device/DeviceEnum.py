@@ -22,6 +22,7 @@ class DeviceEnum(AbstractEnum):
     EQ_ROOM = "EQ_ROOM"
     EXTERNAL_AUDIO_EFFECT = "EXTERNAL_AUDIO_EFFECT"
     EXTERNAL_INSTRUMENT = "EXTERNAL_INSTRUMENT"
+    FREE_CLIP = "FREE_CLIP"
     LFO_TOOL = "LFO_TOOL"
     LIMITER = "LIMITER"
     MINITAUR_EDITOR = "MINITAUR_EDITOR"
@@ -56,6 +57,7 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.EQ_ROOM: "EQ Room",
             DeviceEnum.EXTERNAL_AUDIO_EFFECT: "Ext. Audio Effect",
             DeviceEnum.EXTERNAL_INSTRUMENT: "Ext. Instrument",
+            DeviceEnum.FREE_CLIP: "FreeClip",
             DeviceEnum.LFO_TOOL: "LFOTool_x64",
             DeviceEnum.LIMITER: "Limiter",
             DeviceEnum.MINITAUR_EDITOR: "Minitaur Editor(x64)",
@@ -82,14 +84,15 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.ARPEGGIATOR_RACK: "Arpeggiator rack.adg",
             DeviceEnum.AUTO_FILTER_HIGH_PASS: "Auto Filter High Pass.adv",
             DeviceEnum.AUTO_FILTER_LOW_PASS: "Auto Filter Low Pass.adv",
-            DeviceEnum.EXTERNAL_AUDIO_EFFECT: "External Audio Effect",
-            DeviceEnum.EXTERNAL_INSTRUMENT: "External Instrument",
             DeviceEnum.COMPRESSOR: "Compressor",
             DeviceEnum.DRUM_RACK: "Drum Rack",
             DeviceEnum.DUMMY_RACK: "Dummy Rack.adg",
             DeviceEnum.EQ_EIGHT: "EQ Eight",
             DeviceEnum.EQ_EIGHT_RACK: "EQ Eight Rack.adg",
             DeviceEnum.EQ_ROOM: "EQ Room.adv",
+            DeviceEnum.EXTERNAL_AUDIO_EFFECT: "External Audio Effect",
+            DeviceEnum.EXTERNAL_INSTRUMENT: "External Instrument",
+            DeviceEnum.FREE_CLIP: "FreeClip",
             DeviceEnum.LFO_TOOL: "LFOTool_x64",
             DeviceEnum.LIMITER: "Limiter",
             DeviceEnum.MIX_RACK: "Mix Rack.adg",
@@ -115,8 +118,8 @@ class DeviceEnum(AbstractEnum):
             ], [
                 cls.COMPRESSOR,
                 cls.SSL_COMP,
-                cls.API_2500,
                 cls.LIMITER,
+                cls.FREE_CLIP,
             ],
             [
                 cls.SATURATOR,

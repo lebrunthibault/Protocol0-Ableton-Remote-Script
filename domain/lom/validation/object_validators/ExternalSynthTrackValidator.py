@@ -37,7 +37,7 @@ class ExternalSynthTrackValidator(AbstractGroupTrackValidator):
                               "track should have an instrument"),
 
             # GROUP TRACK
-            PropertyValueValidator(track.output_routing, "track", track.group_track or SongFacade.master_track(),
+            PropertyValueValidator(track.output_routing, "track", track.base_track.group_track or SongFacade.master_track(),
                                    name="group track output routing"),
 
             # MIDI TRACK

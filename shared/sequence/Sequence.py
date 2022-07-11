@@ -152,7 +152,7 @@ class Sequence(Observable):
         return self.add(partial(Scheduler.wait, ticks, self._execute_next_step),
                         notify_terminated=False)
 
-    def wait_bars(self, bars, wait_for_song_start=None):
+    def wait_bars(self, bars, wait_for_song_start=False):
         # type: (float, bool) -> None
         if not SongFacade.is_playing() and wait_for_song_start:
             self.wait_for_event(SongStartedEvent)
@@ -172,7 +172,7 @@ class Sequence(Observable):
         self.add(execute, notify_terminated=False)
 
     def wait_for_event(self, event_class, expected_emitter=None, continue_on_song_stop=False):
-        # type: (Type[object], object, bool) -> None
+        # type: (Type[object], object, bool) -> Sequence
         """
             Will continue the sequence after an event of type event_class is fired
 
@@ -208,6 +208,7 @@ class Sequence(Observable):
                 self._execute_next_step()
 
         self._add_timeout_step(subscribe, "wait_for_event %s" % event_class)
+        return self
 
     def _add_timeout_step(self, func, legend):
         # type: (Callable, str) -> None

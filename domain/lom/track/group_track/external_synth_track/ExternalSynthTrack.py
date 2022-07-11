@@ -82,11 +82,19 @@ class ExternalSynthTrack(AbstractGroupTrack):
         if len(self.clips):
             Backend.client().show_warning("Deleting clips ..")
 
+        self.instrument.force_show = True
+
         seq = Sequence()
         seq.add(self.arm_state.arm)
 
         for track in self.sub_tracks:
             seq.add([clip.delete for clip in track.clips])
+
+        if self.dummy_track:
+            seq.add(self.dummy_track.delete)
+
+        if self.dummy_return_track:
+            seq.add(self.dummy_return_track.delete)
 
         return seq.done()
 

@@ -6,9 +6,12 @@ from protocol0.domain.lom.instrument.InstrumentColorEnum import InstrumentColorE
 from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPreset
 from protocol0.domain.lom.instrument.preset.InstrumentPresetList import InstrumentPresetList
 from protocol0.domain.lom.instrument.preset.PresetDisplayOptionEnum import PresetDisplayOptionEnum
-from protocol0.domain.lom.instrument.preset.preset_changer.PresetChangerInterface import PresetChangerInterface
-from protocol0.domain.lom.instrument.preset.preset_changer.ProgramChangePresetChanger import ProgramChangePresetChanger
-from protocol0.domain.lom.instrument.preset.preset_importer.PresetImporterFactory import PresetImporterFactory
+from protocol0.domain.lom.instrument.preset.preset_changer.PresetChangerInterface import \
+    PresetChangerInterface
+from protocol0.domain.lom.instrument.preset.preset_changer.ProgramChangePresetChanger import \
+    ProgramChangePresetChanger
+from protocol0.domain.lom.instrument.preset.preset_importer.PresetImporterFactory import \
+    PresetImporterFactory
 from protocol0.domain.lom.instrument.preset.preset_initializer.PresetInitializerDevicePresetName import \
     PresetInitializerDevicePresetName
 from protocol0.domain.lom.instrument.preset.preset_initializer.PresetInitializerInterface import \
@@ -36,6 +39,9 @@ class InstrumentInterface(SlotManager):
         self._track_name = track_name
         self.device = device
         self.activated = False
+        # setting to True will keep the editor shown for the next time only.
+        # used when duplicating a track
+        self.force_show = False
         preset_importer = PresetImporterFactory.create_importer(device, self.PRESETS_PATH, self.PRESET_EXTENSION)
         preset_initializer = self.PRESET_INITIALIZER(device, track_name)
         preset_changer = self.PRESET_CHANGER(device, self.PRESET_OFFSET)

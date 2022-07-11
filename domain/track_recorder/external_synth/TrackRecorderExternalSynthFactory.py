@@ -92,10 +92,11 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
             return self._recording_bar_length
         elif record_type == RecordTypeEnum.NORMAL_UNLIMITED:
             return 0
-        elif record_type in (RecordTypeEnum.AUDIO_ONLY, RecordTypeEnum.AUDIO_ONLY_AUTOMATION):
+        elif record_type in (RecordTypeEnum.AUDIO_ONLY,
+                             RecordTypeEnum.AUDIO_ONLY_AUTOMATION,
+                             RecordTypeEnum.AUDIO_ONLY_MULTI,
+                             RecordTypeEnum.AUDIO_ONLY_MULTI_AUTOMATION):
             midi_clip = self.track.midi_track.selected_clip_slot.clip
             return midi_clip.loop.bar_length
-        elif record_type in (RecordTypeEnum.AUDIO_ONLY_MULTI, RecordTypeEnum.AUDIO_ONLY_MULTI_AUTOMATION):
-            return SongFacade.selected_scene().bar_length
         else:
             raise Protocol0Warning("Unmatched record type %s" % record_type)

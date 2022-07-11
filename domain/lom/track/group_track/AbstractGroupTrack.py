@@ -58,6 +58,10 @@ class AbstractGroupTrack(AbstractTrack):
         # type: () -> None
         dummy_track, dummy_return_track = self._get_dummy_tracks()
 
+        # no change
+        if dummy_track == self.dummy_track and dummy_return_track == self.dummy_return_track:
+            return None
+
         if dummy_track is not None:
             if dummy_track._track != getattr(self.dummy_track, "_track", None):
                 self.dummy_track = SimpleDummyTrack(dummy_track._track, dummy_track.index)
@@ -72,7 +76,7 @@ class AbstractGroupTrack(AbstractTrack):
             if dummy_return_track._track != getattr(self.dummy_return_track, "_track", None):
                 self.dummy_return_track = SimpleDummyReturnTrack(dummy_return_track._track,
                                                                  dummy_return_track.index)
-                self.add_or_replace_sub_track(self.dummy_return_track, dummy_track)
+                self.add_or_replace_sub_track(self.dummy_return_track, dummy_return_track)
                 self._link_sub_track(self.dummy_return_track)
         else:
             if self.dummy_return_track is not None:
@@ -101,8 +105,7 @@ class AbstractGroupTrack(AbstractTrack):
         output_track = self.dummy_track if self.dummy_track is not None else self.base_track
 
         for track in simple_tracks:
-            if track.has_audio_output:
-                track.output_routing.track = cast(SimpleTrack, output_track)
+            track.output_routing.track = cast(SimpleTrack, output_track)
 
     def is_parent(self, abstract_track):
         # type: (AbstractTrack) -> bool
