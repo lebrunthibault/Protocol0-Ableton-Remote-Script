@@ -6,6 +6,10 @@ from typing import Dict, Optional
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.lom.song.components.DeviceComponent import DeviceComponent
+from protocol0.domain.lom.track.simple_track.SimpleAudioExtTrack import SimpleAudioExtTrack
+from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
+from protocol0.domain.lom.track.simple_track.SimpleDummyReturnTrack import SimpleDummyReturnTrack
+from protocol0.domain.lom.track.simple_track.SimpleMidiExtTrack import SimpleMidiExtTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.ValueScroller import ValueScroller
@@ -44,6 +48,11 @@ class DeviceService(object):
         # type: (str) -> Sequence
         track = SongFacade.selected_track()
 
+        if isinstance(track, (
+                SimpleMidiExtTrack, SimpleAudioExtTrack, SimpleAudioTailTrack,
+                SimpleDummyReturnTrack)):
+            track = track.group_track
+
         track.device_insert_mode = Live.Track.DeviceInsertMode.selected_right
         device_enum = DeviceEnum.from_value(device_name.upper())  # type: DeviceEnum
         seq = Sequence()
@@ -55,6 +64,11 @@ class DeviceService(object):
         # type: (str) -> Optional[Sequence]
         device_enum = DeviceEnum.from_value(device_name.upper())  # type: DeviceEnum
         track = SongFacade.selected_track()
+
+        # we always want the group track except if it's the dummy track
+        if isinstance(track, (SimpleMidiExtTrack, SimpleAudioExtTrack, SimpleDummyReturnTrack)):
+            track = track.group_track
+
         devices = track.devices.get_from_enum(device_enum)
         if len(devices) == 0:
             return self.load_device(device_name)

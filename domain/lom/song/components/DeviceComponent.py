@@ -29,4 +29,5 @@ class DeviceComponent(object):
         seq.add(track.select)
         seq.add(partial(self._view.select_device, device._device))
         seq.add(ApplicationViewFacade.focus_detail)
+        seq.add(ApplicationViewFacade.show_device)
         return seq.done()

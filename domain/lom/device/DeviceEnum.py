@@ -97,6 +97,7 @@ class DeviceEnum(AbstractEnum):
             DeviceEnum.LIMITER: "Limiter",
             DeviceEnum.MIX_RACK: "Mix Rack.adg",
             DeviceEnum.PRO_Q_3: "FabFilter Pro-Q 3",
+            DeviceEnum.REV2_EDITOR: "REV2Editor",
             DeviceEnum.SATURATOR: "Saturator",
             DeviceEnum.SATURN_2: "FabFilter Saturn 2",
             DeviceEnum.SIMPLER: "Simpler",
@@ -125,12 +126,12 @@ class DeviceEnum(AbstractEnum):
                 cls.SATURATOR,
                 cls.SATURN_2,
                 cls.TRUE_VERB,
-
             ],
             [
                 cls.TRACK_SPACER,
                 cls.LFO_TOOL,
                 cls.TUNER,
+                cls.REV2_EDITOR
             ]
         ]
 
