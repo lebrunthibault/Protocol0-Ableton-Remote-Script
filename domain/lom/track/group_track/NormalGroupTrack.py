@@ -1,19 +1,12 @@
-from _Framework.SubjectSlot import subject_slot
 from typing import Optional, Type
 
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.shared.decorators import defer
 
 
 class NormalGroupTrack(AbstractGroupTrack):
-    def __init__(self, base_group_track):
-        # type: (SimpleTrack) -> None
-        super(NormalGroupTrack, self).__init__(base_group_track=base_group_track)
-        self._solo_listener.subject = base_group_track._track
-
     @classmethod
     def make(cls, base_group_track):
         # type: (SimpleTrack) -> NormalGroupTrack
@@ -23,13 +16,6 @@ class NormalGroupTrack(AbstractGroupTrack):
             return DrumsTrack(base_group_track)
         else:
             return NormalGroupTrack(base_group_track)
-
-    @subject_slot("solo")
-    @defer
-    def _solo_listener(self):
-        # type: () -> None
-        for sub_track in self.sub_tracks:
-            sub_track.solo = self.solo
 
     def on_added(self):
         # type: () -> None

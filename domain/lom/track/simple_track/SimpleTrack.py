@@ -168,5 +168,5 @@ class SimpleTrack(AbstractTrack):
         self._clip_slots.disconnect()
         if self.instrument:
             self.instrument.disconnect()
-        if self.abstract_group_track:
+        if self.abstract_group_track and self.abstract_group_track.base_track == self:
             self.abstract_group_track.disconnect()

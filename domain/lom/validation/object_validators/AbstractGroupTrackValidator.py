@@ -9,6 +9,10 @@ from protocol0.domain.lom.validation.object_validators.SimpleDummyTrackValidator
     SimpleDummyTrackValidator,
 )
 from protocol0.domain.lom.validation.sub_validators.AggregateValidator import AggregateValidator
+from protocol0.domain.lom.validation.sub_validators.PropertyValueValidator import (
+    PropertyValueValidator,
+)
+from protocol0.shared.SongFacade import SongFacade
 
 
 class AbstractGroupTrackValidator(AggregateValidator):
@@ -18,6 +22,15 @@ class AbstractGroupTrackValidator(AggregateValidator):
 
         if validators is None:
             validators = []
+
+        validators.append(
+            PropertyValueValidator(
+                track.output_routing,
+                "track",
+                track.base_track.group_track or SongFacade.master_track(),
+                name="group track output routing",
+            ),
+        )
 
         # DUMMY TRACK
         if track.dummy_track is not None:

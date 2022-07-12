@@ -216,6 +216,11 @@ class SongFacade(object):
         return cls._INSTANCE._track_mapper_service._master_track
 
     @classmethod
+    def return_tracks(cls):
+        # type: () -> List[Live.Track.Track]
+        return cls._live_song().return_tracks
+
+    @classmethod
     def scenes(cls):
         # type: () -> List[Scene]
         return cls._INSTANCE._scene_service.scenes

@@ -1,3 +1,4 @@
+from _Framework.SubjectSlot import subject_slot
 from typing import List, Optional, cast, Tuple
 
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
@@ -5,7 +6,9 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrac
 from protocol0.domain.lom.track.simple_track.SimpleDummyReturnTrack import SimpleDummyReturnTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.domain.shared.decorators import defer
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.shared.SongFacade import SongFacade
 
 
 class AbstractGroupTrack(AbstractTrack):
@@ -19,6 +22,8 @@ class AbstractGroupTrack(AbstractTrack):
         # for now: List[SimpleTrack] but AbstractGroupTracks will register themselves on_tracks_change
         self.dummy_track = None  # type: Optional[SimpleDummyTrack]
         self.dummy_return_track = None  # type: Optional[SimpleDummyReturnTrack]
+
+        self._solo_listener.subject = base_group_track._track
 
     def on_tracks_change(self):
         # type: () -> None
@@ -120,6 +125,13 @@ class AbstractGroupTrack(AbstractTrack):
                 for sub_track in self.sub_tracks
             )
         )
+
+    @subject_slot("solo")
+    @defer
+    def _solo_listener(self):
+        # type: () -> None
+        for return_track in SongFacade.return_tracks():
+            return_track.solo = self.solo
 
     @property
     def clip_slots(self):

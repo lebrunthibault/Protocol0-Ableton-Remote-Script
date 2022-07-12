@@ -30,7 +30,6 @@ from protocol0.domain.lom.validation.sub_validators.SimpleTrackHasDeviceValidato
     SimpleTrackHasDeviceValidator,
 )
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
-from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -43,13 +42,6 @@ class ExternalSynthTrackValidator(AbstractGroupTrackValidator):
             # INSTRUMENT AND DEVICES
             CallbackValidator(
                 track, lambda t: t.instrument is not None, None, "track should have an instrument"
-            ),
-            # GROUP TRACK
-            PropertyValueValidator(
-                track.output_routing,
-                "track",
-                track.base_track.group_track or SongFacade.master_track(),
-                name="group track output routing",
             ),
             # MIDI TRACK
             PropertyValueValidator(track.midi_track, "volume", 0, name="midi track volume"),
