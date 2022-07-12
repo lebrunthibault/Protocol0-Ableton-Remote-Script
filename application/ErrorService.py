@@ -18,19 +18,11 @@ from protocol0.shared.logging.Logger import Logger
 class ErrorService(object):
     _DEBUG = True
     _SET_EXCEPTHOOK = False
-    _IGNORED_ERROR_STRINGS = (
-        "Cannot convert MIDI clip",
-    )
+    _IGNORED_ERROR_STRINGS = ("Cannot convert MIDI clip",)
 
-    _IGNORED_ERROR_TYPES = (
-        "Push2.push2.QmlError"
-    )
+    _IGNORED_ERROR_TYPES = "Push2.push2.QmlError"
 
-    _IGNORED_ERROR_FILENAMES = (
-        "\\venv\\",
-        "\\sequence\\",
-        "\\decorators.py"
-    )
+    _IGNORED_ERROR_FILENAMES = ("\\venv\\", "\\sequence\\", "\\decorators.py")
 
     def __init__(self):
         # type: () -> None
@@ -50,8 +42,9 @@ class ErrorService(object):
 
     def _handle_uncaught_exception(self, exc_type, exc_value, tb):
         # type: (Type[BaseException], BaseException, TracebackType) -> None
-        if any([string in str(exc_value) for string in self._IGNORED_ERROR_STRINGS]) or \
-                any([string in str(exc_type) for string in self._IGNORED_ERROR_TYPES]):
+        if any([string in str(exc_value) for string in self._IGNORED_ERROR_STRINGS]) or any(
+            [string in str(exc_type) for string in self._IGNORED_ERROR_TYPES]
+        ):
             pass
         Logger.error("unhandled exception caught !!")
         self._handle_exception(exc_type, exc_value, tb)
@@ -75,7 +68,7 @@ class ErrorService(object):
             entries = extract_tb(tb)
         error_message = "----- %s (%s) -----\n" % (exc_value, exc_type)
         if context:
-            error_message += (str(context) + "\n")
+            error_message += str(context) + "\n"
         error_message += "at " + "".join(self._format_list(entries[-1:], print_line=False)).strip()
         error_message += "\n"
         error_message += "----- traceback -----\n"
@@ -110,7 +103,11 @@ class ErrorService(object):
         trace_list = []
 
         for filename, lineno, name, line in extracted_list:  # type: (str, int, str, str)
-            item = "  %s, line %d, in %s\n" % (filename.replace(Config.PROJECT_ROOT, "../components"), lineno, name)
+            item = "  %s, line %d, in %s\n" % (
+                filename.replace(Config.PROJECT_ROOT, "../components"),
+                lineno,
+                name,
+            )
             if line and print_line:
                 item = item + "    %s\n" % line.strip()
             trace_list.append(item)

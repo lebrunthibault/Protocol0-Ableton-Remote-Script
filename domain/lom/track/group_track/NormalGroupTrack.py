@@ -18,6 +18,7 @@ class NormalGroupTrack(AbstractGroupTrack):
     def make(cls, base_group_track):
         # type: (SimpleTrack) -> NormalGroupTrack
         from protocol0.domain.lom.track.drums.DrumsTrack import DrumsTrack
+
         if DrumsTrack.is_track_valid(base_group_track):
             return DrumsTrack(base_group_track)
         else:
@@ -54,7 +55,9 @@ class NormalGroupTrack(AbstractGroupTrack):
             return track.base_track.name.split(" ")[0]
 
         # checking if all sub tracks have the same prefix
-        unique_sub_tracks_name_prefixes = list(set([_name_prefix(sub_track) for sub_track in self.sub_tracks]))
+        unique_sub_tracks_name_prefixes = list(
+            set([_name_prefix(sub_track) for sub_track in self.sub_tracks])
+        )
         if len(unique_sub_tracks_name_prefixes) == 1 and unique_sub_tracks_name_prefixes[0]:
             return unique_sub_tracks_name_prefixes[0]
 
@@ -63,12 +66,15 @@ class NormalGroupTrack(AbstractGroupTrack):
     @property
     def _common_subtracks_instrument_class(self):
         # type: () -> Optional[Type[InstrumentInterface]]
-        sub_tracks_instrument_classes = [sub_track.instrument.__class__ for sub_track in self.sub_tracks if
-                                         sub_track.instrument]
+        sub_tracks_instrument_classes = [
+            sub_track.instrument.__class__ for sub_track in self.sub_tracks if sub_track.instrument
+        ]
 
         unique_sub_tracks_instrument_classes = list(set(sub_tracks_instrument_classes))
-        if len(sub_tracks_instrument_classes) == len(self.sub_tracks) and len(
-                unique_sub_tracks_instrument_classes) == 1:
+        if (
+            len(sub_tracks_instrument_classes) == len(self.sub_tracks)
+            and len(unique_sub_tracks_instrument_classes) == 1
+        ):
             return unique_sub_tracks_instrument_classes[0]
         else:
             return None

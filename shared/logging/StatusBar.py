@@ -6,7 +6,8 @@ from protocol0.shared.logging.Logger import Logger
 
 
 class StatusBar(object):
-    """ Facade for writing to the status bar """
+    """Facade for writing to the status bar"""
+
     _INSTANCE = None  # type: Optional[StatusBar]
 
     def __init__(self, show_messsage):

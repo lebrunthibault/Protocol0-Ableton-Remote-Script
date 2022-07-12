@@ -17,7 +17,11 @@ class DeviceParameterValidator(ValidatorInterface):
         # type: () -> Optional[str]
         if self.is_valid():
             return None
-        return "Expected %s.%s to be %s" % (self._device, self._device_parameter_enum, self._expected_value)
+        return "Expected %s.%s to be %s" % (
+            self._device,
+            self._device_parameter_enum,
+            self._expected_value,
+        )
 
     def is_valid(self):
         # type: () -> bool
@@ -31,6 +35,8 @@ class DeviceParameterValidator(ValidatorInterface):
         # type: () -> None
         parameter = self._device.get_parameter_by_name(self._device_parameter_enum)
         if parameter is None:
-            raise Protocol0Error("Parameter %s not found in %s" % (self._device_parameter_enum, self._device))
+            raise Protocol0Error(
+                "Parameter %s not found in %s" % (self._device_parameter_enum, self._device)
+            )
 
         parameter.value = self._expected_value

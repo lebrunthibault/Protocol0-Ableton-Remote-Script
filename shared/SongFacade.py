@@ -22,8 +22,9 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
     from protocol0.domain.lom.track.track_list.AbstractTrackList import AbstractTrackList  # noqa
     from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack  # noqa
-    from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
-        ExternalSynthTrack  # noqa
+    from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
+        ExternalSynthTrack,
+    )  # noqa
     from protocol0.domain.lom.track.simple_track.UsamoTrack import UsamoTrack
     from protocol0.domain.lom.track.drums.DrumsTrack import DrumsTrack
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -38,26 +39,26 @@ if TYPE_CHECKING:
 
 
 class SongFacade(object):
-    """ Read only facade for accessing song properties """
+    """Read only facade for accessing song properties"""
+
     _INSTANCE = None  # type: Optional[SongFacade]
 
-    def __init__(self,
-                 live_song,  # type:  Live.Song.Song
-
-                 clip_component,  # type: ClipComponent
-                 device_component,  # type: DeviceComponent
-                 playback_component,  # type: PlaybackComponent
-                 quantization_component,  # type: QuantizationComponent
-                 recording_component,  # type: RecordingComponent
-                 scene_component,  # type: SceneComponent
-                 song_loop_component,  # type: SongLoopComponent
-                 tempo_component,  # type: TempoComponent
-                 track_component,  # type: TrackComponent
-
-                 scene_service,  # type: SceneService
-                 track_mapper_service,  # type: TrackMapperService
-                 track_recorder_service,  # type: TrackRecorderService
-                 ):
+    def __init__(
+        self,
+        live_song,  # type:  Live.Song.Song
+        clip_component,  # type: ClipComponent
+        device_component,  # type: DeviceComponent
+        playback_component,  # type: PlaybackComponent
+        quantization_component,  # type: QuantizationComponent
+        recording_component,  # type: RecordingComponent
+        scene_component,  # type: SceneComponent
+        song_loop_component,  # type: SongLoopComponent
+        tempo_component,  # type: TempoComponent
+        track_component,  # type: TrackComponent
+        scene_service,  # type: SceneService
+        track_mapper_service,  # type: TrackMapperService
+        track_recorder_service,  # type: TrackRecorderService
+    ):
         # type: (...) -> None
         SongFacade._INSTANCE = self
 
@@ -90,9 +91,12 @@ class SongFacade(object):
     @classmethod
     def live_tracks(cls):
         # type: () -> Iterator[Live.Track.Track]
-        return (track for track in
-                list(cls._live_song().tracks) + list(cls._live_song().return_tracks) + [
-                    cls._live_song().master_track])
+        return (
+            track
+            for track in list(cls._live_song().tracks)
+            + list(cls._live_song().return_tracks)
+            + [cls._live_song().master_track]
+        )
 
     @classmethod
     def signature_numerator(cls):
@@ -112,7 +116,9 @@ class SongFacade(object):
     @classmethod
     def current_external_synth_track(cls):
         # type: () -> ExternalSynthTrack
-        from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack  # noqa
+        from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
+            ExternalSynthTrack,
+        )  # noqa
 
         if isinstance(SongFacade.current_track(), ExternalSynthTrack):
             return cast(ExternalSynthTrack, SongFacade.current_track())
@@ -122,20 +128,23 @@ class SongFacade(object):
     @classmethod
     def abstract_tracks(cls):
         # type: () -> AbstractTrackList
-        from protocol0.domain.lom.track.track_list.AbstractTrackList import AbstractTrackList  # noqa
+        from protocol0.domain.lom.track.track_list.AbstractTrackList import (
+            AbstractTrackList,
+        )  # noqa
 
         return AbstractTrackList(cls._INSTANCE._track_component.abstract_tracks)
 
     @classmethod
     def simple_track_from_live_track(cls, live_track):
         # type: (Live.Track.Track) -> SimpleTrack
-        """ we use the live ptr instead of the track to be able to access outdated simple tracks on deletion """
+        """we use the live ptr instead of the track to be able to access outdated simple tracks on deletion"""
         track_mapping = cls._INSTANCE._track_mapper_service._live_track_id_to_simple_track
         if live_track._live_ptr not in track_mapping:
             existing_tracks = [str(track) for track in track_mapping.values()]
             raise Protocol0Error(
                 "Couldn't find live track %s in _live_track_id_to_simple_track mapping : \n "
-                "%s" % (live_track.name, "\n".join(existing_tracks)))
+                "%s" % (live_track.name, "\n".join(existing_tracks))
+            )
 
         return track_mapping[live_track._live_ptr]
 
@@ -155,12 +164,17 @@ class SongFacade(object):
     @classmethod
     def all_simple_tracks(cls):
         # type: () -> Iterator[SimpleTrack]
-        return (track for track in cls._INSTANCE._track_mapper_service._live_track_id_to_simple_track.values())
+        return (
+            track
+            for track in cls._INSTANCE._track_mapper_service._live_track_id_to_simple_track.values()
+        )
 
     @classmethod
     def external_synth_tracks(cls):
         # type: () -> Iterator[ExternalSynthTrack]
-        from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import ExternalSynthTrack  # noqa
+        from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
+            ExternalSynthTrack,
+        )  # noqa
 
         for track in cls.abstract_tracks():
             if isinstance(track, ExternalSynthTrack):
@@ -241,9 +255,14 @@ class SongFacade(object):
         if cls.selected_track() is None:
             return None
         else:
-            return next((cs for cs in cls.selected_track().clip_slots if
-                         cs._clip_slot == cls._live_song().view.highlighted_clip_slot),
-                        None)
+            return next(
+                (
+                    cs
+                    for cs in cls.selected_track().clip_slots
+                    if cs._clip_slot == cls._live_song().view.highlighted_clip_slot
+                ),
+                None,
+            )
 
     @classmethod
     def selected_clip(cls):
@@ -303,6 +322,7 @@ class SongFacade(object):
     def current_loop(cls):
         # type: () -> LoopableInterface
         from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+
         if ApplicationViewFacade.is_session_visible():
             return cls.selected_midi_clip().loop
         else:

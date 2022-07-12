@@ -30,7 +30,7 @@ class AbletonTrack(Subject):
         "playing_slot_index",
         "fired_slot_index",
         "color",
-        "output_meter_level"
+        "output_meter_level",
     )
 
     def __init__(self, track_type=TrackType.MIDI):
@@ -38,8 +38,7 @@ class AbletonTrack(Subject):
         self._live_ptr = id(self)
         self.name = track_type
         self.devices = []  # type: List[AbletonDevice]
-        mixer_device = namedtuple('mixer_device', ['sends', 'volume',
-                                                   'panning'])
+        mixer_device = namedtuple("mixer_device", ["sends", "volume", "panning"])
         self.mixer_device = mixer_device([], 0, 0)
         self.can_be_armed = True
         self.arm = False

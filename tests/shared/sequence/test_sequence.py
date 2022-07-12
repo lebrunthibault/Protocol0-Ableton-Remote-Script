@@ -1,5 +1,7 @@
 from protocol0.application.CommandBus import CommandBus
-from protocol0.application.command.ProcessBackendResponseCommand import ProcessBackendResponseCommand
+from protocol0.application.command.ProcessBackendResponseCommand import (
+    ProcessBackendResponseCommand,
+)
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarEndingEvent import BarEndingEvent
 from protocol0.shared.sequence.Sequence import Sequence

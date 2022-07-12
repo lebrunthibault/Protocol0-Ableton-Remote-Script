@@ -11,8 +11,7 @@ from protocol0.application.command.ScrollScenePositionCommand import ScrollScene
 from protocol0.application.command.ScrollSceneTracksCommand import ScrollSceneTracksCommand
 from protocol0.application.command.ScrollScenesCommand import ScrollScenesCommand
 from protocol0.application.command.SerializableCommand import SerializableCommand
-from protocol0.application.command_handler.CommandHandlerInterface import \
-    CommandHandlerInterface
+from protocol0.application.command_handler.CommandHandlerInterface import CommandHandlerInterface
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.decorators import handle_error
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
@@ -28,7 +27,9 @@ class CommandBus(object):
     _DEBUG = True
     _INSTANCE = None  # type: Optional[CommandBus]
     _DUPLICATE_COMMAND_WHITELIST = (
-        ScrollScenePositionCommand, ScrollScenesCommand, ScrollSceneTracksCommand
+        ScrollScenePositionCommand,
+        ScrollScenesCommand,
+        ScrollSceneTracksCommand,
     )
     _DUPLICATE_COMMAND_WARNING_COUNT = 10
 
@@ -49,8 +50,9 @@ class CommandBus(object):
         handler_classes = CommandHandlerInterface.__subclasses__()
         command_classes = SerializableCommand.__subclasses__()
 
-        handler_names_to_class = {handler_class.__name__: handler_class for handler_class in
-                                  handler_classes}
+        handler_names_to_class = {
+            handler_class.__name__: handler_class for handler_class in handler_classes
+        }
 
         mapping = {}  # type: CommandMapping
         # matching on class name
@@ -78,12 +80,14 @@ class CommandBus(object):
             Logger.warning("skipping duplicate command %s: please reload the set" % command)
 
             from protocol0.application.Protocol0 import Protocol0
+
             p0_instances = filter(lambda cs: isinstance(cs, Protocol0), get_control_surfaces())
             Logger.warning("number of p0 instances loaded : %s" % len(p0_instances))
 
             if self._duplicate_command_count == self._DUPLICATE_COMMAND_WARNING_COUNT:
                 Backend.client().show_warning(
-                    "Reached 10 duplicate commands. Set might need to be reloaded.")
+                    "Reached 10 duplicate commands. Set might need to be reloaded."
+                )
             return None
 
         self._last_command = command
@@ -103,16 +107,18 @@ class CommandBus(object):
     def _is_duplicate_command(self, command):
         # type: (SerializableCommand) -> bool
         """
-            Sometimes command are duplicated, couldn't find why yet
-            it seems either that :
-            - the midi server is sending duplicate sysex messages (but they are logged only once)
-            - the messages are getting duplicated in the midi chain (mido or the loopback midi
-            port ..)
-            Reloading ableton fixes it
+        Sometimes command are duplicated, couldn't find why yet
+        it seems either that :
+        - the midi server is sending duplicate sysex messages (but they are logged only once)
+        - the messages are getting duplicated in the midi chain (mido or the loopback midi
+        port ..)
+        Reloading ableton fixes it
 
-            We mitigate it by forbidding duplicate messages in a certain delay
+        We mitigate it by forbidding duplicate messages in a certain delay
         """
-        return type(command) not in self._DUPLICATE_COMMAND_WHITELIST \
-            and type(self._last_command) is type(command) \
-            and self._last_command_processed_at is not None \
+        return (
+            type(command) not in self._DUPLICATE_COMMAND_WHITELIST
+            and type(self._last_command) is type(command)
+            and self._last_command_processed_at is not None
             and time.time() - self._last_command_processed_at < 0.100
+        )

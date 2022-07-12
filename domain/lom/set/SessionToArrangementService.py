@@ -17,13 +17,14 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 
 class SessionToArrangementService(object):
-    def __init__(self,
-                 playback_component,  # type: PlaybackComponent
-                 recording_component,  # type: RecordingComponent
-                 scene_component,  # type: SceneComponent
-                 tempo_component,  # type: TempoComponent
-                 track_component  # type: TrackComponent
-                 ):
+    def __init__(
+        self,
+        playback_component,  # type: PlaybackComponent
+        recording_component,  # type: RecordingComponent
+        scene_component,  # type: SceneComponent
+        tempo_component,  # type: TempoComponent
+        track_component,  # type: TrackComponent
+    ):
         # type: (...) -> None
         self._playback_component = playback_component
         self._recording_component = recording_component
@@ -70,8 +71,9 @@ class SessionToArrangementService(object):
 
         for track in SongFacade.external_synth_tracks():
             if track.external_device.is_enabled:
-                Backend.client().show_warning("Disabling external device of %s (for audio "
-                                              "export)" % track)
+                Backend.client().show_warning(
+                    "Disabling external device of %s (for audio " "export)" % track
+                )
                 track.external_device.is_enabled = False
 
     def _pre_fire_first_scene(self):
@@ -85,7 +87,7 @@ class SessionToArrangementService(object):
 
     def _stop_playing_on_last_scene_end(self):
         # type: () -> None
-        """ Stop the song when the last scene finishes """
+        """Stop the song when the last scene finishes"""
         self._scene_component.looping_scene_toggler.reset()
         seq = Sequence()
         seq.wait_for_event(SceneLastBarPassedEvent, SongFacade.last_scene()._scene)

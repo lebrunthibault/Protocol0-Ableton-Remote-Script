@@ -11,7 +11,7 @@ class TimeoutLimit(object):
 
     def __init__(self, func, timeout_limit, awaited_listener=None, on_timeout=None):
         # type: (Callable, int, Callable, Callable) -> None
-        """ timeout_limit in ms """
+        """timeout_limit in ms"""
         super(TimeoutLimit, self).__init__()
         self.func = func
         self.awaited_listener = awaited_listener

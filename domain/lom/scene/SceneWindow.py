@@ -16,7 +16,11 @@ class SceneWindow(object):
 
     def __repr__(self):
         # type: () -> str
-        return "start: %s, end: %s, contains_scene_end: %s" % (self._start_length, self._end_length, self._contains_scene_end)
+        return "start: %s, end: %s, contains_scene_end: %s" % (
+            self._start_length,
+            self._end_length,
+            self._contains_scene_end,
+        )
 
     def apply_to_scene(self, clips):
         # type: (SceneClips) -> None

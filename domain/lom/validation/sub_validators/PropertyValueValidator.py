@@ -22,7 +22,13 @@ class PropertyValueValidator(ValidatorInterface):
         else:
             error = "%s has no attribute %s" % (self._obj, self._attr)
         name_prefix = "%s : " % self._name if self._name else ""
-        return "%sExpected %s.%s to be %s. %s" % (name_prefix, self._obj, self._attr, self._expected_value, error)
+        return "%sExpected %s.%s to be %s. %s" % (
+            name_prefix,
+            self._obj,
+            self._attr,
+            self._expected_value,
+            error,
+        )
 
     def is_valid(self):
         # type: () -> bool

@@ -10,14 +10,21 @@ class ActionGroupLog(ActionGroupInterface):
     def configure(self):
         # type: () -> None
         # LOG encoder
-        self.add_encoder(identifier=1, name="log current", on_press=self._container.get(LogService).log_current)
+        self.add_encoder(
+            identifier=1, name="log current", on_press=self._container.get(LogService).log_current
+        )
 
         # LOGS encoder
-        self.add_encoder(identifier=2, name="log set", on_press=self._container.get(LogService).log_set)
+        self.add_encoder(
+            identifier=2, name="log set", on_press=self._container.get(LogService).log_set
+        )
 
         # CLR encoder
         self.add_encoder(identifier=3, name="clear logs", on_press=Logger.clear)
 
         # STATs encoder
-        self.add_encoder(identifier=4, name="display song stats",
-                         on_press=self._container.get(SongStatsService).display_song_stats)
+        self.add_encoder(
+            identifier=4,
+            name="display song stats",
+            on_press=self._container.get(SongStatsService).display_song_stats,
+        )

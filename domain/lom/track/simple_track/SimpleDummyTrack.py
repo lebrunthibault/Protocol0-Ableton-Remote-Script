@@ -8,10 +8,12 @@ from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitor
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
-from protocol0.domain.lom.track.simple_track.SimpleDummyTrackAddedEvent import \
-    SimpleDummyTrackAddedEvent
-from protocol0.domain.lom.track.simple_track.SimpleDummyTrackAutomation import \
-    SimpleDummyTrackAutomation
+from protocol0.domain.lom.track.simple_track.SimpleDummyTrackAddedEvent import (
+    SimpleDummyTrackAddedEvent,
+)
+from protocol0.domain.lom.track.simple_track.SimpleDummyTrackAutomation import (
+    SimpleDummyTrackAutomation,
+)
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 
@@ -23,8 +25,7 @@ class SimpleDummyTrack(SimpleAudioTrack):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(SimpleAudioTrack, self).__init__(*a, **k)
-        self.automation = SimpleDummyTrackAutomation(self._track, self._clip_slots,
-                                                     self.devices)
+        self.automation = SimpleDummyTrackAutomation(self._track, self._clip_slots, self.devices)
         if self.name != self.TRACK_NAME:
             Scheduler.defer(partial(setattr, self, "name", self.TRACK_NAME))
 
@@ -35,8 +36,9 @@ class SimpleDummyTrack(SimpleAudioTrack):
             return True
 
         # we don't accept specialized subclasses as we expect a non mapped class (e.g. no tail)
-        return type(track) == SimpleAudioTrack and not track.is_foldable and \
-               track.instrument is None
+        return (
+            type(track) == SimpleAudioTrack and not track.is_foldable and track.instrument is None
+        )
 
     @property
     def clip_slots(self):

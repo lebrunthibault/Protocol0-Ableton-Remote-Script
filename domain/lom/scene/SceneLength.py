@@ -28,8 +28,11 @@ class SceneLength(object):
     @property
     def _longest_clip(self):
         # type: () -> Optional[Clip]
-        clips = [clip for clip in self._clips if not clip.is_recording and not isinstance(clip,
-                                                                                          DummyClip)]
+        clips = [
+            clip
+            for clip in self._clips
+            if not clip.is_recording and not isinstance(clip, DummyClip)
+        ]
         if len(clips) == 0:
             return None
         else:

@@ -10,8 +10,9 @@ from protocol0.domain.lom.clip.DummyClip import DummyClip
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
-from protocol0.domain.lom.track.simple_track.SimpleDummyTrackAddedEvent import \
-    SimpleDummyTrackAddedEvent
+from protocol0.domain.lom.track.simple_track.SimpleDummyTrackAddedEvent import (
+    SimpleDummyTrackAddedEvent,
+)
 from protocol0.domain.lom.track.simple_track.SimpleTrackClipSlots import SimpleTrackClipSlots
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
@@ -29,8 +30,9 @@ class SimpleDummyTrackAutomation(object):
         self._devices = devices
         self._current_parameter_type = None  # type: Optional[str]
         self._ask_for_device = True
-        DomainEventBus.subscribe(SimpleDummyTrackAddedEvent,
-                                 self._on_simply_dummy_track_added_event)
+        DomainEventBus.subscribe(
+            SimpleDummyTrackAddedEvent, self._on_simply_dummy_track_added_event
+        )
 
     def disable_device(self):
         # type: () -> None
@@ -59,8 +61,7 @@ class SimpleDummyTrackAutomation(object):
 
         seq = Sequence()
         seq.select(question="Automated parameter", options=parameters.keys())
-        seq.add(lambda: setattr(self, "_current_parameter_type", parameters[cast(str,
-                                                                                 seq.res)]))
+        seq.add(lambda: setattr(self, "_current_parameter_type", parameters[cast(str, seq.res)]))
         return seq.done()
 
     def _insert_device(self):
@@ -68,10 +69,12 @@ class SimpleDummyTrackAutomation(object):
         if self._current_parameter_type is None:
             return None
 
-        parameter_enum = cast(DeviceParameterEnum,
-                              DeviceParameterEnum.from_value(self._current_parameter_type))
+        parameter_enum = cast(
+            DeviceParameterEnum, DeviceParameterEnum.from_value(self._current_parameter_type)
+        )
         return CommandBus.dispatch(
-            LoadDeviceCommand(DeviceEnum.from_device_parameter(parameter_enum).name))
+            LoadDeviceCommand(DeviceEnum.from_device_parameter(parameter_enum).name)
+        )
 
     def insert_dummy_clip(self):
         # type: () -> Optional[Sequence]
@@ -81,8 +84,11 @@ class SimpleDummyTrackAutomation(object):
         assert SongFacade.template_dummy_clip_slot().clip, "Cannot find template dummy clip"
 
         seq = Sequence()
-        seq.add(partial(SongFacade.template_dummy_clip_slot().duplicate_clip_to,
-                        self._clip_slots.selected))
+        seq.add(
+            partial(
+                SongFacade.template_dummy_clip_slot().duplicate_clip_to, self._clip_slots.selected
+            )
+        )
         seq.add(self._configure_dummy_clip)
         seq.wait(2)
         return seq.done()
@@ -106,19 +112,22 @@ class SimpleDummyTrackAutomation(object):
         if self._current_parameter_type is None:
             return None
 
-        parameter_enum = cast(DeviceParameterEnum,
-                              DeviceParameterEnum.from_value(self._current_parameter_type))
+        parameter_enum = cast(
+            DeviceParameterEnum, DeviceParameterEnum.from_value(self._current_parameter_type)
+        )
 
         automated_device = self._devices.get_one_from_enum(
-            DeviceEnum.from_device_parameter(parameter_enum))
+            DeviceEnum.from_device_parameter(parameter_enum)
+        )
         if automated_device is None:
             raise Protocol0Warning("The automated device was not inserted")
 
         automated_parameter = automated_device.get_parameter_by_name(parameter_enum)
 
         if automated_parameter is None:
-            raise Protocol0Warning("The automated device has not matching parameter : %s" %
-                                   parameter_enum.name)
+            raise Protocol0Warning(
+                "The automated device has not matching parameter : %s" % parameter_enum.name
+            )
 
         clip.automation.select_or_create_envelope(automated_parameter)
         if SongFacade.is_playing():

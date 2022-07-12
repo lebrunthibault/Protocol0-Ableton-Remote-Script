@@ -32,7 +32,9 @@ class DrumRackService(object):
             seq.add(partial(self._assert_valid_rack_or_populate, drum_category))
 
         except Protocol0Error:
-            Backend.client().show_warning("'%s' does not exist. Creating rack" % drum_category.drum_rack_name, True)
+            Backend.client().show_warning(
+                "'%s' does not exist. Creating rack" % drum_category.drum_rack_name, True
+            )
             seq.add(partial(self._browser_service.load_device_from_enum, DeviceEnum.DRUM_RACK))
             seq.add(partial(self._populate_drum_rack, drum_category))
 
@@ -48,7 +50,9 @@ class DrumRackService(object):
         if not device.pad_names_equal(preset_names):
             seq = Sequence()
 
-            Backend.client().show_warning("'%s' is not synced : regenerating drum rack" % drum_category.drum_rack_name)
+            Backend.client().show_warning(
+                "'%s' is not synced : regenerating drum rack" % drum_category.drum_rack_name
+            )
             seq.add(partial(self._browser_service.load_device_from_enum, DeviceEnum.DRUM_RACK))
             seq.add(partial(self._populate_drum_rack, drum_category))
             return seq.done()
@@ -62,7 +66,7 @@ class DrumRackService(object):
         assert device == list(SongFacade.selected_track().devices)[0]
         assert len(device.filled_drum_pads) == 0
         presets = drum_category.presets
-        drum_pads = [d for d in device.drum_pads if d.note >= DrumPad.INITIAL_NOTE][:len(presets)]
+        drum_pads = [d for d in device.drum_pads if d.note >= DrumPad.INITIAL_NOTE][: len(presets)]
 
         seq = Sequence()
         seq.add(DrumPad.select_first_pad)

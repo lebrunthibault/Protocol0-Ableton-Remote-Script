@@ -41,15 +41,16 @@ class SceneName(SlotManager):
 
         # catches base name with or without bar length legend
         forbidden_first_character = "(?!([\\d|-]+))"
-        match = re.match("^(?P<base_name>%s[^()]*)" % forbidden_first_character,
-                         str(self._scene.name))
+        match = re.match(
+            "^(?P<base_name>%s[^()]*)" % forbidden_first_character, str(self._scene.name)
+        )
         base_name = match.group("base_name").strip() if match else ""
 
         return base_name
 
     def update(self, base_name=None, bar_position=None):
         # type: (str, Optional[int]) -> None
-        """ throttling to avoid multiple calls due to name listener """
+        """throttling to avoid multiple calls due to name listener"""
         try:
             base_name = base_name if base_name else self._get_base_name()
         except Protocol0Error as e:
@@ -79,4 +80,5 @@ class SceneName(SlotManager):
     def has_playing_clips(self):
         # type: () -> bool
         return SongFacade.is_playing() and any(
-            cs.clip and cs.clip.is_playing and not cs.clip.muted for cs in self._scene.clip_slots)
+            cs.clip and cs.clip.is_playing and not cs.clip.muted for cs in self._scene.clip_slots
+        )

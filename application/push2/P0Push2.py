@@ -15,14 +15,15 @@ from protocol0.shared.logging.Logger import Logger
 
 class P0Push2(Push2):
     """
-        Overriding Push2 by inheritance
+    Overriding Push2 by inheritance
 
-        The only push2 modification is done in __init__.py and swaps the Push2 class
-        for this one.
+    The only push2 modification is done in __init__.py and swaps the Push2 class
+    for this one.
 
-        This is used to modify the way the session works (using only scene tracks)
-        and adding some behavior to a few buttons (track selection, clip selection)
+    This is used to modify the way the session works (using only scene tracks)
+    and adding some behavior to a few buttons (track selection, clip selection)
     """
+
     _PUSH2_BEAT_QUANTIZATION_STEPS = [
         Fraction(1, 48),
         Fraction(1, 32),
@@ -43,22 +44,26 @@ class P0Push2(Push2):
 
     def _init_session_ring(self):
         # type: () -> None
-        self._session_ring = P0SessionRingTrackProvider(name=u'Session_Ring', num_tracks=NUM_TRACKS,
-                                                        num_scenes=NUM_SCENES, is_enabled=True)
+        self._session_ring = P0SessionRingTrackProvider(
+            name="Session_Ring", num_tracks=NUM_TRACKS, num_scenes=NUM_SCENES, is_enabled=True
+        )
 
     def _init_track_list(self):
         # type: () -> None
-        self._track_list_component = P0TrackListComponent(tracks_provider=self._session_ring,
-                                                          trigger_recording_on_release_callback=self._session_recording.set_trigger_recording_on_release,
-                                                          color_chooser=self._create_color_chooser(),
-                                                          is_enabled=False,
-                                                          layer=Layer(
-                                                              track_action_buttons=u'select_buttons',
-                                                              lock_override_button=u'select_button',
-                                                              delete_button=u'delete_button',
-                                                              duplicate_button=u'duplicate_button',
-                                                              arm_button=u'record_button',
-                                                              select_color_button=u'shift_button'))
+        self._track_list_component = P0TrackListComponent(
+            tracks_provider=self._session_ring,
+            trigger_recording_on_release_callback=self._session_recording.set_trigger_recording_on_release,
+            color_chooser=self._create_color_chooser(),
+            is_enabled=False,
+            layer=Layer(
+                track_action_buttons="select_buttons",
+                lock_override_button="select_button",
+                delete_button="delete_button",
+                duplicate_button="duplicate_button",
+                arm_button="record_button",
+                select_color_button="shift_button",
+            ),
+        )
         self._clip_phase_enabler = self._track_list_component.clip_phase_enabler
         self._track_list_component.set_enabled(True)
         self._model.tracklistView = self._track_list_component
@@ -71,8 +76,9 @@ class P0Push2(Push2):
             scene = session.scene(scene_index)
             for track_index in xrange(8):
                 clip_slot = scene.clip_slot(track_index)
-                clip_slot._do_select_clip = partial(self._on_select_clip_slot, scene_index,
-                                                    track_index)
+                clip_slot._do_select_clip = partial(
+                    self._on_select_clip_slot, scene_index, track_index
+                )
                 # don't highlight when we play the clip
                 clip_slot._show_launched_clip_as_highlighted_clip = nop
 

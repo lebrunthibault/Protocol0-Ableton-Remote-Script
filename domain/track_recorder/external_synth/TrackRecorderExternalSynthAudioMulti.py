@@ -6,8 +6,9 @@ from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.lom.scene.SceneLastBarPassedEvent import SceneLastBarPassedEvent
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
-from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthAudio import \
-    TrackRecorderExternalSynthAudio
+from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthAudio import (
+    TrackRecorderExternalSynthAudio,
+)
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -17,8 +18,10 @@ class TrackRecorderExternalSynthAudioMulti(TrackRecorderExternalSynthAudio):
         # type: () -> List[Scene]
         """A list of scenes that are going to be recorded"""
         recording_scenes = [self.recording_scene]
-        while self.recording_scene.next_scene != recording_scenes[-1] and \
-                self.track.midi_track.clip_slots[recording_scenes[-1].next_scene.index].clip:
+        while (
+            self.recording_scene.next_scene != recording_scenes[-1]
+            and self.track.midi_track.clip_slots[recording_scenes[-1].next_scene.index].clip
+        ):
             recording_scenes.append(recording_scenes[-1].next_scene)
 
         return recording_scenes
@@ -30,23 +33,26 @@ class TrackRecorderExternalSynthAudioMulti(TrackRecorderExternalSynthAudio):
     def _pre_record(self):
         # type: () -> None
         """
-            Alerting when a midi clip does not have the same bar length as its scene (except for the last one)
-            In this case the audio tail might not be recorded fully due to switching scenes
+        Alerting when a midi clip does not have the same bar length as its scene (except for the last one)
+        In this case the audio tail might not be recorded fully due to switching scenes
 
-            This is not usual practice the case but could be addressed by using
-            the clip tail decorator to delay the recording of the next scene
+        This is not usual practice the case but could be addressed by using
+        the clip tail decorator to delay the recording of the next scene
         """
         super(TrackRecorderExternalSynthAudioMulti, self)._pre_record()
         scene_clip_bar_length_mismatch = False
         for scene in self.recording_scenes[:-1]:
-            if scene.bar_length != self.track.midi_track.clip_slots[
-                scene.index].clip.loop.bar_length:
+            if (
+                scene.bar_length
+                != self.track.midi_track.clip_slots[scene.index].clip.loop.bar_length
+            ):
                 scene_clip_bar_length_mismatch = True
                 break
 
         if scene_clip_bar_length_mismatch:
             Backend.client().show_warning(
-                "At least one midi clip has a smaller bar length than its scene. Pay attention to the tail recording")
+                "At least one midi clip has a smaller bar length than its scene. Pay attention to the tail recording"
+            )
 
     def record(self, bar_length):
         # type: (float) -> Sequence
@@ -87,9 +93,12 @@ class TrackRecorderExternalSynthAudioMulti(TrackRecorderExternalSynthAudio):
         # Else, we keep it, because the clip is going to be looped
         if self.track.audio_tail_track:
             clip_bar_length = self.track.midi_track.clip_slots[
-                self.recording_scene_index].clip.loop.bar_length
+                self.recording_scene_index
+            ].clip.loop.bar_length
 
-            audio_tail_clip = self.track.audio_tail_track.clip_slots[self.recording_scene_index].clip
+            audio_tail_clip = self.track.audio_tail_track.clip_slots[
+                self.recording_scene_index
+            ].clip
             # there is no tail recording in this setup
             if clip_bar_length == self.recording_scene.bar_length:
                 audio_tail_clip.delete()

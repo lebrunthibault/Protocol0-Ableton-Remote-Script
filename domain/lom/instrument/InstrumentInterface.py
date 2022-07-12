@@ -6,16 +6,21 @@ from protocol0.domain.lom.instrument.InstrumentColorEnum import InstrumentColorE
 from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPreset
 from protocol0.domain.lom.instrument.preset.InstrumentPresetList import InstrumentPresetList
 from protocol0.domain.lom.instrument.preset.PresetDisplayOptionEnum import PresetDisplayOptionEnum
-from protocol0.domain.lom.instrument.preset.preset_changer.PresetChangerInterface import \
-    PresetChangerInterface
-from protocol0.domain.lom.instrument.preset.preset_changer.ProgramChangePresetChanger import \
-    ProgramChangePresetChanger
-from protocol0.domain.lom.instrument.preset.preset_importer.PresetImporterFactory import \
-    PresetImporterFactory
-from protocol0.domain.lom.instrument.preset.preset_initializer.PresetInitializerDevicePresetName import \
-    PresetInitializerDevicePresetName
-from protocol0.domain.lom.instrument.preset.preset_initializer.PresetInitializerInterface import \
-    PresetInitializerInterface
+from protocol0.domain.lom.instrument.preset.preset_changer.PresetChangerInterface import (
+    PresetChangerInterface,
+)
+from protocol0.domain.lom.instrument.preset.preset_changer.ProgramChangePresetChanger import (
+    ProgramChangePresetChanger,
+)
+from protocol0.domain.lom.instrument.preset.preset_importer.PresetImporterFactory import (
+    PresetImporterFactory,
+)
+from protocol0.domain.lom.instrument.preset.preset_initializer.PresetInitializerDevicePresetName import (
+    PresetInitializerDevicePresetName,
+)
+from protocol0.domain.lom.instrument.preset.preset_initializer.PresetInitializerInterface import (
+    PresetInitializerInterface,
+)
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -42,7 +47,9 @@ class InstrumentInterface(SlotManager):
         # setting to True will keep the editor shown for the next time only.
         # used when duplicating a track
         self.force_show = False
-        preset_importer = PresetImporterFactory.create_importer(device, self.PRESETS_PATH, self.PRESET_EXTENSION)
+        preset_importer = PresetImporterFactory.create_importer(
+            device, self.PRESETS_PATH, self.PRESET_EXTENSION
+        )
         preset_initializer = self.PRESET_INITIALIZER(device, track_name)
         preset_changer = self.PRESET_CHANGER(device, self.PRESET_OFFSET)
 
@@ -57,8 +64,10 @@ class InstrumentInterface(SlotManager):
         # type: () -> str
         if self.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.NAME and self.selected_preset:
             return self.selected_preset.name
-        elif self.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.CATEGORY and \
-                self.preset_list.selected_category:
+        elif (
+            self.PRESET_DISPLAY_OPTION == PresetDisplayOptionEnum.CATEGORY
+            and self.preset_list.selected_category
+        ):
             return self.preset_list.selected_category
         elif self.NAME:
             return self.NAME

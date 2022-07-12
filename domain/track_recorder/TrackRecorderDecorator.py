@@ -11,7 +11,9 @@ from protocol0.shared.sequence.Sequence import Sequence
 class TrackRecorderDecorator(AbstractTrackRecorder):
     def __init__(self, recorder, playback_component, recording_component):
         # type: (AbstractTrackRecorder, PlaybackComponent, RecordingComponent) -> None
-        super(TrackRecorderDecorator, self).__init__(recorder.track, playback_component, recording_component)
+        super(TrackRecorderDecorator, self).__init__(
+            recorder.track, playback_component, recording_component
+        )
         self.recorder = recorder
         self._track = recorder.track
 

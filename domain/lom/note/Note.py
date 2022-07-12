@@ -19,11 +19,11 @@ class Note(object):
     def __eq__(self, other):
         # type: (object) -> bool
         return (
-                isinstance(other, Note)
-                and self.pitch == other.pitch
-                and self._is_value_equal(self.start, other.start)
-                and self._is_value_equal(self.duration, other.duration)
-                and self.muted == other.muted
+            isinstance(other, Note)
+            and self.pitch == other.pitch
+            and self._is_value_equal(self.start, other.start)
+            and self._is_value_equal(self.duration, other.duration)
+            and self.muted == other.muted
         )
 
     def __repr__(self, **k):

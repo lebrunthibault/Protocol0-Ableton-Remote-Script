@@ -83,10 +83,17 @@ class AbstractTrackRecorder(object):
     def _arm_track(self):
         # type: () -> Sequence
         seq = Sequence()
-        if not SongFacade.current_track().arm_state.is_armed and len(list(SongFacade.armed_tracks())) != 0:
+        if (
+            not SongFacade.current_track().arm_state.is_armed
+            and len(list(SongFacade.armed_tracks())) != 0
+        ):
             options = ["Arm current track", "Record on armed track"]
             seq.select("The current track is not armed", options=options)
-            seq.add(lambda: self.track.arm_state.arm() if seq.res == options[0] else list(SongFacade.armed_tracks())[0].select())
+            seq.add(
+                lambda: self.track.arm_state.arm()
+                if seq.res == options[0]
+                else list(SongFacade.armed_tracks())[0].select()
+            )
         else:
             seq.add(self.track.arm_state.arm)
 
@@ -110,7 +117,8 @@ class AbstractTrackRecorder(object):
             if not SongFacade.is_playing():
                 seq.wait_for_event(SongStartedEvent)
             seq.wait_bars(
-                bar_length)  # this works because the method is called before the beginning of the bar
+                bar_length
+            )  # this works because the method is called before the beginning of the bar
             seq.wait_for_event(Last32thPassedEvent)
         else:
             seq.wait_for_event(SongStoppedEvent)

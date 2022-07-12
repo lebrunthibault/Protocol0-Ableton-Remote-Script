@@ -1,21 +1,26 @@
 from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
-    ExternalSynthTrack
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
+    ExternalSynthTrack,
+)
 from protocol0.domain.lom.track.simple_track.InstrumentBusTrack import InstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.validation.ValidatorInterface import ValidatorInterface
-from protocol0.domain.lom.validation.object_validators.AbstractGroupTrackValidator import \
-    AbstractGroupTrackValidator
+from protocol0.domain.lom.validation.object_validators.AbstractGroupTrackValidator import (
+    AbstractGroupTrackValidator,
+)
 from protocol0.domain.lom.validation.object_validators.EmptyValidator import EmptyValidator
-from protocol0.domain.lom.validation.object_validators.ExternalSynthTrackValidator import \
-    ExternalSynthTrackValidator
+from protocol0.domain.lom.validation.object_validators.ExternalSynthTrackValidator import (
+    ExternalSynthTrackValidator,
+)
 from protocol0.domain.lom.validation.object_validators.SceneValidator import SceneValidator
-from protocol0.domain.lom.validation.object_validators.SimpleAudioTrackValidator import \
-    SimpleAudioTrackValidator
-from protocol0.domain.lom.validation.object_validators.SimpleInstrumentBusTrackValidator import \
-    SimpleInstrumentBusTrackValidator
+from protocol0.domain.lom.validation.object_validators.SimpleAudioTrackValidator import (
+    SimpleAudioTrackValidator,
+)
+from protocol0.domain.lom.validation.object_validators.SimpleInstrumentBusTrackValidator import (
+    SimpleInstrumentBusTrackValidator,
+)
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 

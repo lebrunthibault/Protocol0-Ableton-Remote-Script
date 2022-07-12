@@ -6,16 +6,17 @@ from protocol0.application.CommandBus import CommandBus
 from protocol0.application.command.ResetSongCommand import ResetSongCommand
 from protocol0.domain.lom.instrument.InstrumentActivatedEvent import InstrumentActivatedEvent
 from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
-from protocol0.domain.lom.instrument.preset.PresetProgramSelectedEvent import \
-    PresetProgramSelectedEvent
+from protocol0.domain.lom.instrument.preset.PresetProgramSelectedEvent import (
+    PresetProgramSelectedEvent,
+)
 from protocol0.domain.lom.note.Note import Note
 from protocol0.domain.lom.song.components.TempoComponent import TempoComponent
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
-    ExternalSynthTrack
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
+    ExternalSynthTrack,
+)
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
-from protocol0.domain.shared.InterfaceClicksServiceInterface import \
-    InterfaceClicksServiceInterface
+from protocol0.domain.shared.InterfaceClicksServiceInterface import InterfaceClicksServiceInterface
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
@@ -26,7 +27,13 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 
 class AudioLatencyAnalyzerService(object):
-    def __init__(self, track_recorder_service, interface_clicks_service, track_crud_component, tempo_component):
+    def __init__(
+        self,
+        track_recorder_service,
+        interface_clicks_service,
+        track_crud_component,
+        tempo_component,
+    ):
         # type: (TrackRecorderService, InterfaceClicksServiceInterface, TrackCrudComponent, TempoComponent) -> None
         self._track_recorder_service = track_recorder_service
         self._interface_clicks_service = interface_clicks_service
@@ -80,7 +87,9 @@ class AudioLatencyAnalyzerService(object):
         pitch = 84
         if isinstance(track.instrument, InstrumentMinitaur):
             pitch += 24
-        notes = [Note(pitch=pitch, velocity=127, start=float(i) / 2, duration=0.25) for i in range(0, 8)]
+        notes = [
+            Note(pitch=pitch, velocity=127, start=float(i) / 2, duration=0.25) for i in range(0, 8)
+        ]
 
         seq = Sequence()
         seq.add(partial(track.midi_track.clips[0].set_notes, notes))
@@ -90,9 +99,12 @@ class AudioLatencyAnalyzerService(object):
         # type: () -> Sequence
         track = SongFacade.current_external_synth_track()
         seq = Sequence()
-        seq.add(partial(self._track_recorder_service.record_track, track,
-                        RecordTypeEnum.AUDIO_ONLY))
-        seq.add(lambda: track.audio_track.select_clip_slot(track.audio_track.clip_slots[0]._clip_slot))
+        seq.add(
+            partial(self._track_recorder_service.record_track, track, RecordTypeEnum.AUDIO_ONLY)
+        )
+        seq.add(
+            lambda: track.audio_track.select_clip_slot(track.audio_track.clip_slots[0]._clip_slot)
+        )
         seq.add(partial(CommandBus.dispatch, ResetSongCommand()))
         seq.wait(10)
         return seq.done()
@@ -104,5 +116,7 @@ class AudioLatencyAnalyzerService(object):
         seq = Sequence()
         seq.add(partial(audio_clip.quantize, depth=0))
         seq.add(self._interface_clicks_service.save_sample)
-        seq.add(partial(Backend.client().analyze_test_audio_clip_jitter, clip_path=audio_clip.file_path))
+        seq.add(
+            partial(Backend.client().analyze_test_audio_clip_jitter, clip_path=audio_clip.file_path)
+        )
         return seq.done()

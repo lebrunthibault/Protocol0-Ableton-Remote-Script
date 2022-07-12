@@ -2,9 +2,7 @@ from _Framework.SubjectSlot import Subject
 
 
 class AbletonDevice(Subject):
-    __subject_events__ = (
-        "parameters",
-    )
+    __subject_events__ = ("parameters",)
 
     def __init__(self, name):
         # type: (str) -> None

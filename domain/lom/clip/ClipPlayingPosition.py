@@ -13,7 +13,10 @@ class ClipPlayingPosition(object):
     def __repr__(self):
         # type: () -> str
         return "position: %s, bar_position: %s, current_bar: %s, in_last_bar: %s" % (
-            self.position, self.bar_position, self.current_bar, self.in_last_bar
+            self.position,
+            self.bar_position,
+            self.current_bar,
+            self.in_last_bar,
         )
 
     @property

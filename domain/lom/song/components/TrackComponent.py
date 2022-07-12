@@ -7,8 +7,9 @@ from typing import Iterator
 from protocol0.domain.lom.song.SongInitializedEvent import SongInitializedEvent
 from protocol0.domain.lom.track.SelectedTrackChangedEvent import SelectedTrackChangedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.domain.lom.track.abstract_track.AbstractTrackSelectedEvent import \
-    AbstractTrackSelectedEvent
+from protocol0.domain.lom.track.abstract_track.AbstractTrackSelectedEvent import (
+    AbstractTrackSelectedEvent,
+)
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
 from protocol0.domain.lom.track.simple_track.InstrumentBusTrack import InstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -25,8 +26,9 @@ class TrackComponent(SlotManager):
         # type: (Live.Song.Song.View) -> None
         super(TrackComponent, self).__init__()
         self._song_view = song_view
-        DomainEventBus.subscribe(SongInitializedEvent,
-                                 lambda _: Scheduler.defer(partial(self.unfocus_all_tracks, True)))
+        DomainEventBus.subscribe(
+            SongInitializedEvent, lambda _: Scheduler.defer(partial(self.unfocus_all_tracks, True))
+        )
         DomainEventBus.subscribe(AbstractTrackSelectedEvent, self._on_abstract_track_selected_event)
         DomainEventBus.subscribe(SimpleTrackArmedEvent, self._on_simple_track_armed_event)
         self._selected_track_listener.subject = self._song_view  # SongFacade is not hydrated
@@ -69,8 +71,11 @@ class TrackComponent(SlotManager):
             if not track.is_visible:
                 continue
             # when a group track is unfolded, will directly select the first sub_trackB
-            if isinstance(track, NormalGroupTrack) and not track.is_folded and isinstance(track.sub_tracks[0],
-                                                                                          SimpleTrack):
+            if (
+                isinstance(track, NormalGroupTrack)
+                and not track.is_folded
+                and isinstance(track.sub_tracks[0], SimpleTrack)
+            ):
                 continue
             yield track
 
@@ -99,6 +104,8 @@ class TrackComponent(SlotManager):
             next(SongFacade.simple_tracks()).select()
             return None
 
-        next_track = ValueScroller.scroll_values(SongFacade.scrollable_tracks(), SongFacade.current_track(), go_next, rotate=False)
+        next_track = ValueScroller.scroll_values(
+            SongFacade.scrollable_tracks(), SongFacade.current_track(), go_next, rotate=False
+        )
         if next_track:
             next_track.select()

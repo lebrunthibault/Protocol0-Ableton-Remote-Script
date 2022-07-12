@@ -13,16 +13,24 @@ class ActionGroupSet(ActionGroupInterface):
     def configure(self):
         # type: () -> None
         # TAP tempo encoder
-        self.add_encoder(identifier=1, name="tap tempo",
-                         on_press=self._container.get(TempoComponent).tap,
-                         on_scroll=self._container.get(TempoComponent).scroll
-                         )
+        self.add_encoder(
+            identifier=1,
+            name="tap tempo",
+            on_press=self._container.get(TempoComponent).tap,
+            on_scroll=self._container.get(TempoComponent).scroll,
+        )
 
         # INIT song encoder
         # when something (e.g. scene mapping goes haywire, rebuild mappings)
-        self.add_encoder(identifier=13, name="(re) initialize the song",
-                         on_press=partial(CommandBus.dispatch, InitializeSongCommand()))
+        self.add_encoder(
+            identifier=13,
+            name="(re) initialize the song",
+            on_press=partial(CommandBus.dispatch, InitializeSongCommand()),
+        )
 
         # Session2ARrangement encoder
-        self.add_encoder(identifier=16, name="bounce session to arrangement",
-                         on_press=self._container.get(SessionToArrangementService).bounce_session_to_arrangement)
+        self.add_encoder(
+            identifier=16,
+            name="bounce session to arrangement",
+            on_press=self._container.get(SessionToArrangementService).bounce_session_to_arrangement,
+        )

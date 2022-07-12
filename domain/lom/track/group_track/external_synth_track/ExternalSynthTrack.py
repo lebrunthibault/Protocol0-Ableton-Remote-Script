@@ -9,13 +9,16 @@ from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
-from protocol0.domain.lom.track.abstract_track.AbstractTrackAppearance import \
-    AbstractTrackAppearance
+from protocol0.domain.lom.track.abstract_track.AbstractTrackAppearance import (
+    AbstractTrackAppearance,
+)
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackArmState import \
-    ExternalSynthTrackArmState
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackMonitoringState import \
-    ExternalSynthTrackMonitoringState
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackArmState import (
+    ExternalSynthTrackArmState,
+)
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackMonitoringState import (
+    ExternalSynthTrackMonitoringState,
+)
 from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleAudioExtTrack import SimpleAudioExtTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
@@ -70,8 +73,9 @@ class ExternalSynthTrack(AbstractGroupTrack):
             self.dummy_track,
             cast(Device, self.external_device),
         )  # type: ExternalSynthTrackMonitoringState
-        self.arm_state = ExternalSynthTrackArmState(self.base_track, self.midi_track,
-                                                    self.monitoring_state)
+        self.arm_state = ExternalSynthTrackArmState(
+            self.base_track, self.midi_track, self.monitoring_state
+        )
 
         self.appearance.register_observer(self)
 
@@ -113,9 +117,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
         # type: (BarChangedEvent) -> None
         """Launches the tail clip on last playing clip slot bar"""
         playing_cs = find_if(lambda cs: cs.is_playing, self.audio_track.clip_slots)
-        if playing_cs is None \
-                or playing_cs.clip is None \
-                or not self.audio_tail_track:
+        if playing_cs is None or playing_cs.clip is None or not self.audio_tail_track:
             return
 
         if playing_cs.clip.playing_position.in_last_bar:
@@ -126,15 +128,18 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
     def _map_optional_audio_tail_track(self):
         # type: () -> None
-        has_tail_track = len(self.base_track.sub_tracks) > 2 and len(
-            list(self.base_track.sub_tracks[2].devices)) == 0
+        has_tail_track = (
+            len(self.base_track.sub_tracks) > 2
+            and len(list(self.base_track.sub_tracks[2].devices)) == 0
+        )
 
         if has_tail_track and not self.audio_tail_track:
             track = self.base_track.sub_tracks[2]
             self.audio_tail_track = SimpleAudioTailTrack(track._track, track.index)
             self._link_sub_track(self.audio_tail_track)
-            Scheduler.defer(partial(setattr, self.audio_tail_track.input_routing, "track",
-                                    self.midi_track))
+            Scheduler.defer(
+                partial(setattr, self.audio_tail_track.input_routing, "track", self.midi_track)
+            )
             Scheduler.defer(self.audio_tail_track.configure)
         elif not has_tail_track:
             self.audio_tail_track = None
@@ -170,8 +175,9 @@ class ExternalSynthTrack(AbstractGroupTrack):
         if len(self.sub_tracks) == main_tracks_length + 2:
             assert isinstance(self.sub_tracks[-2], SimpleAudioTrack)
             assert isinstance(self.sub_tracks[-1], SimpleAudioTrack)
-            return cast(SimpleAudioTrack, self.sub_tracks[-2]), cast(SimpleAudioTrack,
-                                                                     self.sub_tracks[-1])
+            return cast(SimpleAudioTrack, self.sub_tracks[-2]), cast(
+                SimpleAudioTrack, self.sub_tracks[-1]
+            )
         if len(self.sub_tracks) >= main_tracks_length + 1:
             assert isinstance(self.sub_tracks[-1], SimpleAudioTrack)
             dummy_track = cast(SimpleAudioTrack, self.sub_tracks[-1])
@@ -202,8 +208,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
         self._clip_slot_synchronizers = [
             ClipSlotSynchronizer(midi_clip_slot, audio_clip_slot)
-            for midi_clip_slot, audio_clip_slot in
-            itertools.izip(
+            for midi_clip_slot, audio_clip_slot in itertools.izip(
                 self.midi_track.clip_slots, self.audio_track.clip_slots
             )
         ]
@@ -214,13 +219,15 @@ class ExternalSynthTrack(AbstractGroupTrack):
             for sub_track in self.sub_tracks:
                 sub_track.appearance.color = self.appearance.color
         elif isinstance(observable, SimpleTrackDevices):
-            self.external_device = find_if(lambda d: d.is_external_device,
-                                           list(self.midi_track.devices))
+            self.external_device = find_if(
+                lambda d: d.is_external_device, list(self.midi_track.devices)
+            )
             if self.external_device is None:
                 raise Protocol0Warning("%s should have an external device" % self)
 
-            self._instrument = self.midi_track.instrument or InstrumentMinitaur(device=None,
-                                                                                track_name=self.name)
+            self._instrument = self.midi_track.instrument or InstrumentMinitaur(
+                device=None, track_name=self.name
+            )
         else:
             raise Protocol0Error("Unmatched observable: %s" % observable)
 
@@ -264,9 +271,11 @@ class ExternalSynthTrack(AbstractGroupTrack):
     @property
     def can_change_presets(self):
         # type: () -> bool
-        return len(self.audio_track.clips) == 0 or \
-               not self.protected_mode_active or \
-               not self.instrument.HAS_PROTECTED_MODE
+        return (
+            len(self.audio_track.clips) == 0
+            or not self.protected_mode_active
+            or not self.instrument.HAS_PROTECTED_MODE
+        )
 
     def disable_protected_mode(self):
         # type: () -> Sequence

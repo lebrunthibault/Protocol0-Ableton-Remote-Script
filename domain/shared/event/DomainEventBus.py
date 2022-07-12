@@ -13,8 +13,7 @@ from protocol0.domain.shared.scheduler.BarEndingEvent import BarEndingEvent
 from protocol0.domain.shared.scheduler.Last32thPassedEvent import Last32thPassedEvent
 from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.shared.utils.func import is_func_equal, get_callable_repr, \
-    get_class_from_func
+from protocol0.domain.shared.utils.func import is_func_equal, get_callable_repr, get_class_from_func
 from protocol0.infra.interface.session.SessionUpdatedEvent import SessionUpdatedEvent
 from protocol0.infra.midi.MidiBytesReceivedEvent import MidiBytesReceivedEvent
 from protocol0.shared.logging.Logger import Logger
@@ -25,15 +24,23 @@ class DomainEventBus(object):
     _DEBUG = True
     _DEBUGGED_EVENTS = (ScenePositionScrolledEvent,)
     # these periodic events are not logged even in debug mode
-    _SILENT_EVENTS = (BarChangedEvent, LastBeatPassedEvent, BarEndingEvent,
-                      Last32thPassedEvent, SceneLastBarPassedEvent, PlayingSceneChangedEvent,
-                      SongStoppedEvent, SessionUpdatedEvent, MidiBytesReceivedEvent)
+    _SILENT_EVENTS = (
+        BarChangedEvent,
+        LastBeatPassedEvent,
+        BarEndingEvent,
+        Last32thPassedEvent,
+        SceneLastBarPassedEvent,
+        PlayingSceneChangedEvent,
+        SongStoppedEvent,
+        SessionUpdatedEvent,
+        MidiBytesReceivedEvent,
+    )
     _registry = {}  # type: Dict[Type, List[Callable]]
 
     @classmethod
     def once(cls, domain_event, subscriber):
         # type: (Type[T], Callable) -> None
-        """ helper method for unique reaction """
+        """helper method for unique reaction"""
 
         def execute(event):
             # type: (T) -> None
@@ -50,12 +57,14 @@ class DomainEventBus(object):
 
         for sub in cls._registry[domain_event]:
             if is_func_equal(sub, subscriber, unique_method):
-                Backend.client().show_warning("duplicate subscriber : %s for event %s" % (sub,
-                                                                                          domain_event))
+                Backend.client().show_warning(
+                    "duplicate subscriber : %s for event %s" % (sub, domain_event)
+                )
                 if inspect.ismethod(sub):
-                    Logger.warning("method class: %s <-> %s" % (get_class_from_func(sub),
-                                                                get_class_from_func(
-                                                                    subscriber)))
+                    Logger.warning(
+                        "method class: %s <-> %s"
+                        % (get_class_from_func(sub), get_class_from_func(subscriber))
+                    )
                 return
 
         cls._registry[domain_event].append(subscriber)
@@ -76,15 +85,16 @@ class DomainEventBus(object):
             # protect the list from unsubscribe in subscribers
             subscribers = cls._registry[type(domain_event)][:]
             if type(domain_event) in cls._DEBUGGED_EVENTS:
-                Logger.info("Found subscribers: %s" % [get_callable_repr(sub) for sub in
-                                                       subscribers])
+                Logger.info(
+                    "Found subscribers: %s" % [get_callable_repr(sub) for sub in subscribers]
+                )
             for subscriber in subscribers:
                 subscriber(domain_event)
 
     @classmethod
     def defer_emit(cls, domain_event):
         # type: (object) -> None
-        """ for events notified in listeners we can defer to avoid the changes by notification error"""
+        """for events notified in listeners we can defer to avoid the changes by notification error"""
         Scheduler.defer(partial(cls.emit, domain_event))
 
     @classmethod

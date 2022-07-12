@@ -16,7 +16,11 @@ class BeatTime(object):
     def __repr__(self):
         # type: () -> str
         return "bars: %s, beats: %s, sixteenths: %s, ticks: %s" % (
-            self.bars, self.beats, self._sixteenths, self._ticks)
+            self.bars,
+            self.beats,
+            self._sixteenths,
+            self._ticks,
+        )
 
     def __eq__(self, other):
         # type: (object) -> bool
@@ -36,7 +40,12 @@ class BeatTime(object):
         sixteenths_coeff = 60
         beat_coeff = 4 * sixteenths_coeff
         bar_coeff = beat_coeff * SongFacade.signature_numerator()
-        return self._ticks + self._sixteenths * sixteenths_coeff + self.beats * beat_coeff + self.bars * bar_coeff
+        return (
+            self._ticks
+            + self._sixteenths * sixteenths_coeff
+            + self.beats * beat_coeff
+            + self.bars * bar_coeff
+        )
 
     @classmethod
     def from_song_beat_time(cls, beat_time):
@@ -53,7 +62,7 @@ class BeatTime(object):
             ticks_offset = 0
         else:
             beats_floor_offset = floor(beat_total_offset)
-            beats_reminder = (beat_total_offset - beats_floor_offset)
+            beats_reminder = beat_total_offset - beats_floor_offset
             bars_offset = int(beats_floor_offset / SongFacade.signature_numerator())
             beats_offset = int(beats_floor_offset % SongFacade.signature_numerator())
             sixteenth_float_value = float(1) / SongFacade.signature_numerator()
@@ -86,5 +95,5 @@ class BeatTime(object):
     @property
     def in_bar_ending(self):
         # type: () -> bool
-        """ Defined as during the last 64th """
+        """Defined as during the last 64th"""
         return self.in_last_32th and self._ticks >= 45

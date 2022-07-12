@@ -7,29 +7,36 @@ from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackCompo
 from protocol0.domain.lom.song.components.RecordingComponent import RecordingComponent
 from protocol0.domain.lom.song.components.SceneCrudComponent import SceneCrudComponent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
-    ExternalSynthTrack
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
+    ExternalSynthTrack,
+)
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.track_recorder.AbstractTrackRecorder import AbstractTrackRecorder
-from protocol0.domain.track_recorder.AbstractTrackRecorderFactory import \
-    AbstractTrackRecorderFactory
+from protocol0.domain.track_recorder.AbstractTrackRecorderFactory import (
+    AbstractTrackRecorderFactory,
+)
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
-from protocol0.domain.track_recorder.TrackRecordingCancelledEvent import \
-    TrackRecordingCancelledEvent
+from protocol0.domain.track_recorder.TrackRecordingCancelledEvent import (
+    TrackRecordingCancelledEvent,
+)
 from protocol0.domain.track_recorder.TrackRecordingStartedEvent import TrackRecordingStartedEvent
 from protocol0.domain.track_recorder.count_in.CountInInterface import CountInInterface
-from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthFactory import \
-    TrackRecorderExternalSynthFactory
-from protocol0.domain.track_recorder.recording_bar_length.RecordingBarLengthEnum import \
-    RecordingBarLengthEnum
-from protocol0.domain.track_recorder.recording_bar_length.RecordingBarLengthScroller import \
-    RecordingBarLengthScroller
-from protocol0.domain.track_recorder.simple.TrackRecoderSimpleFactory import \
-    TrackRecorderSimpleFactory
+from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthFactory import (
+    TrackRecorderExternalSynthFactory,
+)
+from protocol0.domain.track_recorder.recording_bar_length.RecordingBarLengthEnum import (
+    RecordingBarLengthEnum,
+)
+from protocol0.domain.track_recorder.recording_bar_length.RecordingBarLengthScroller import (
+    RecordingBarLengthScroller,
+)
+from protocol0.domain.track_recorder.simple.TrackRecoderSimpleFactory import (
+    TrackRecorderSimpleFactory,
+)
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
@@ -65,7 +72,7 @@ class TrackRecorderService(object):
             track,
             self._playback_component,
             self._recording_component,
-            self.recording_bar_length_scroller.current_value.bar_length_value
+            self.recording_bar_length_scroller.current_value.bar_length_value,
         )
 
     def record_track(self, track, record_type):
@@ -125,7 +132,7 @@ class TrackRecorderService(object):
 
     def _on_song_stopped_event(self, _):
         # type: (SongStoppedEvent) -> None
-        """ happens when manually stopping song while recording."""
+        """happens when manually stopping song while recording."""
         if self._recorder is None:
             return
         else:

@@ -28,7 +28,9 @@ class Clip(SlotManager, Observable):
         self.appearance = ClipAppearance(live_clip, self.clip_name, config.color)
         self.loop = ClipLoop(live_clip)  # type: ClipLoop
         self.automation = ClipAutomation(live_clip, self.loop)  # type: ClipAutomation
-        self.playing_position = ClipPlayingPosition(live_clip, self.loop)  # type: ClipPlayingPosition
+        self.playing_position = ClipPlayingPosition(
+            live_clip, self.loop
+        )  # type: ClipPlayingPosition
 
         self.clip_name.register_observer(self)
         self.loop.register_observer(self)
@@ -123,7 +125,9 @@ class Clip(SlotManager, Observable):
     def quantize(self, depth=1):
         # type: (float) -> None
         if self._clip:
-            record_quantization_index = self._QUANTIZATION_OPTIONS.index(SongFacade.midi_recording_quantization())
+            record_quantization_index = self._QUANTIZATION_OPTIONS.index(
+                SongFacade.midi_recording_quantization()
+            )
             if record_quantization_index:
                 self._clip.quantize(record_quantization_index, depth)
 
@@ -138,17 +142,17 @@ class Clip(SlotManager, Observable):
 
     def configure_new_clip(self):
         # type: () -> Optional[Sequence]
-        """ overridden """
+        """overridden"""
         pass
 
     def post_record(self, bar_length):
         # type: (int) -> None
-        """ overridden """
+        """overridden"""
         self.clip_name.update("")
 
     def crop(self):
         # type: () -> None
-        """ implemented in MidiClip and AudioClip """
+        """implemented in MidiClip and AudioClip"""
         raise NotImplementedError
 
     def disconnect(self):

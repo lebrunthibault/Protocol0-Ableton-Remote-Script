@@ -71,7 +71,9 @@ class BrowserService(BrowserServiceInterface):
     def _get_sample(self, sample_name):
         # type: (str) -> Live.Browser.BrowserItem
         self._browser_loader_service._cache_category("samples")
-        return self._browser_loader_service._cached_browser_items["samples"].get(str(sample_name.decode("utf-8")), None)
+        return self._browser_loader_service._cached_browser_items["samples"].get(
+            str(sample_name.decode("utf-8")), None
+        )
 
     def update_audio_effect_preset(self, track, device):
         # type: (SimpleTrack, Device) -> Optional[Sequence]
@@ -88,11 +90,14 @@ class BrowserService(BrowserServiceInterface):
 
     def _get_audio_effect_preset_item(self, preset_name):
         # type: (str) -> Optional[Live.Browser.BrowserItem]
-        audio_effect_rack_item = find_if(lambda i: i.name == "Audio Effect Rack",
-                                         self._browser.audio_effects.iter_children)
+        audio_effect_rack_item = find_if(
+            lambda i: i.name == "Audio Effect Rack", self._browser.audio_effects.iter_children
+        )
         if not audio_effect_rack_item:
             Logger.info("Couldn't access preset items for Audio Effect Rack")
             return None
         else:
-            preset = find_if(lambda i: i.name == "%s.adg" % preset_name, audio_effect_rack_item.iter_children)
+            preset = find_if(
+                lambda i: i.name == "%s.adg" % preset_name, audio_effect_rack_item.iter_children
+            )
             return preset

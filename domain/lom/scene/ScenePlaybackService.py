@@ -28,8 +28,7 @@ class ScenePlaybackService(SlotManager):
 
         DomainEventBus.subscribe(BarChangedEvent, self._on_bar_changed_event)
         DomainEventBus.subscribe(LastBeatPassedEvent, self._on_last_beat_passed_event)
-        DomainEventBus.subscribe(ScenePositionScrolledEvent,
-                                 self._on_scene_position_scrolled_event)
+        DomainEventBus.subscribe(ScenePositionScrolledEvent, self._on_scene_position_scrolled_event)
 
     def _on_bar_changed_event(self, _):
         # type: (BarChangedEvent) -> None
@@ -38,7 +37,10 @@ class ScenePlaybackService(SlotManager):
 
     def _on_last_beat_passed_event(self, _):
         # type: (LastBeatPassedEvent) -> None
-        if SongFacade.playing_scene() and SongFacade.playing_scene().playing_state.has_playing_clips:
+        if (
+            SongFacade.playing_scene()
+            and SongFacade.playing_scene().playing_state.has_playing_clips
+        ):
             SongFacade.playing_scene().on_last_beat()
 
     def _on_scene_position_scrolled_event(self, _):

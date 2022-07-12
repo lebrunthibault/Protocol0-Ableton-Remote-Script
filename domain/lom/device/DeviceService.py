@@ -27,9 +27,13 @@ class DeviceService(object):
 
     def update_audio_effect_rack(self, track, device):
         # type: (SimpleTrack, RackDevice) -> Sequence
-        """ update rack with the version stored in browser, keeping old values for identical parameters """
+        """update rack with the version stored in browser, keeping old values for identical parameters"""
         Logger.info("selecting and updating device %s (track %s)" % (device, track))
-        parameters = {param.name: param.value for param in device.parameters if "macro" not in param.name.lower()}
+        parameters = {
+            param.name: param.value
+            for param in device.parameters
+            if "macro" not in param.name.lower()
+        }
         seq = Sequence()
         seq.add(partial(self._device_component.select_device, track, device))
         seq.add(partial(self._browser_service.update_audio_effect_preset, track, device))
@@ -48,9 +52,10 @@ class DeviceService(object):
         # type: (str) -> Sequence
         track = SongFacade.selected_track()
 
-        if isinstance(track, (
-                SimpleMidiExtTrack, SimpleAudioExtTrack, SimpleAudioTailTrack,
-                SimpleDummyReturnTrack)):
+        if isinstance(
+            track,
+            (SimpleMidiExtTrack, SimpleAudioExtTrack, SimpleAudioTailTrack, SimpleDummyReturnTrack),
+        ):
             track = track.group_track
 
         track.device_insert_mode = Live.Track.DeviceInsertMode.selected_right

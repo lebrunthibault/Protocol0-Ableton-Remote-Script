@@ -65,8 +65,9 @@ class SceneClips(Observable):
                     self._clips.append(clip)
                     self._tracks.append(track)
 
-        self.audio_tail_clips = cast(List[AudioTailClip],
-                                     [c for c in self._all_clips if isinstance(c, AudioTailClip)])
+        self.audio_tail_clips = cast(
+            List[AudioTailClip], [c for c in self._all_clips if isinstance(c, AudioTailClip)]
+        )
 
         for clip in self._clips:
             clip.register_observer(self)
@@ -75,7 +76,7 @@ class SceneClips(Observable):
 
     def on_added_scene(self):
         # type: () -> None
-        """ Renames clips when doing consolidate time to new scene """
+        """Renames clips when doing consolidate time to new scene"""
         if any(clip for clip in self._all_clips if self._clip_has_default_recording_name(clip)):
             for clip in self._all_clips:
                 if self._clip_has_default_recording_name(clip):

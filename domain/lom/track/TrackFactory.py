@@ -9,8 +9,9 @@ from protocol0.domain.lom.drum.DrumCategory import DrumCategory
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
-    ExternalSynthTrack
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
+    ExternalSynthTrack,
+)
 from protocol0.domain.lom.track.simple_track.InstrumentBusTrack import InstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
@@ -87,14 +88,18 @@ class TrackFactory(object):
 
         selected_scene_index = SongFacade.selected_scene().index
         seq = Sequence()
-        seq.add(partial(self._track_crud_component.create_midi_track, drum_category.create_track_index))
+        seq.add(
+            partial(self._track_crud_component.create_midi_track, drum_category.create_track_index)
+        )
         seq.add(lambda: setattr(SongFacade.selected_track(), "volume", -15))
 
         if device_enum == DeviceEnum.SIMPLER:
             seq.defer()
             seq.add(partial(self._browser_service.load_device_from_enum, device_enum))
             seq.add(partial(self._on_simpler_drum_track_added, drum_category))
-            seq.add(lambda: SongFacade.selected_track().clip_slots[selected_scene_index].create_clip())
+            seq.add(
+                lambda: SongFacade.selected_track().clip_slots[selected_scene_index].create_clip()
+            )
         elif device_enum == DeviceEnum.DRUM_RACK:
             # not creating clip here
             seq.add(partial(self._drum_rack_service.load_category_drum_rack, drum_category))

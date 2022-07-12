@@ -16,10 +16,11 @@ class SerializableCommand(object):
     def serialize(self):
         # type: () -> str
         """Used from outside"""
-        return json.dumps({
-            "class": classname(self.__class__, ""),
-            "args": self.__dict__
-        }, sort_keys=True, indent=4)
+        return json.dumps(
+            {"class": classname(self.__class__, ""), "args": self.__dict__},
+            sort_keys=True,
+            indent=4,
+        )
 
     @classmethod
     def unserialize(cls, json_string):

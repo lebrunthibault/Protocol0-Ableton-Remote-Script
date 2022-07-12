@@ -14,7 +14,7 @@ from protocol0.shared.logging.LoggerServiceInterface import LoggerServiceInterfa
 class LoggerService(LoggerServiceInterface):
     def log(self, message, debug=True, level=None):
         # type: (Any, bool, Optional[LogLevelEnum]) -> None
-        """ a log function and not method allowing us to call this even with no access to the ControlSurface object """
+        """a log function and not method allowing us to call this even with no access to the ControlSurface object"""
         if isinstance(message, types.GeneratorType):
             message = list(message)
 

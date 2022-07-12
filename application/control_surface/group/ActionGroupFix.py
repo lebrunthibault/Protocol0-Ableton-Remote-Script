@@ -11,14 +11,27 @@ class ActionGroupFix(ActionGroupInterface):
     def configure(self):
         # type: () -> None
         # SET encoder
-        self.add_encoder(identifier=1, name="refresh set appearance",
-                         on_press=self._container.get(SetFixerService).fix_set)
+        self.add_encoder(
+            identifier=1,
+            name="refresh set appearance",
+            on_press=self._container.get(SetFixerService).fix_set,
+        )
 
         # TRaCK encoder
-        self.add_encoder(identifier=2, name="fix current track",
-                         filter_active_tracks=True,
-                         on_press=lambda: self._container.get(ValidatorService).fix_object(SongFacade.current_track()))
+        self.add_encoder(
+            identifier=2,
+            name="fix current track",
+            filter_active_tracks=True,
+            on_press=lambda: self._container.get(ValidatorService).fix_object(
+                SongFacade.current_track()
+            ),
+        )
 
         # TAIL encoder
-        self.add_encoder(identifier=4, name="add clip tail tracks",
-                         on_press=self._container.get(SetUpgradeService).update_external_synth_tracks_add_clip_tails)
+        self.add_encoder(
+            identifier=4,
+            name="add clip tail tracks",
+            on_press=self._container.get(
+                SetUpgradeService
+            ).update_external_synth_tracks_add_clip_tails,
+        )

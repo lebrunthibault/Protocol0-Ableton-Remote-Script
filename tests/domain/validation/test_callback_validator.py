@@ -16,7 +16,9 @@ def test_callback_validator():
 
     obj = Test()
 
-    validator = CallbackValidator(obj, lambda t: t.test == "test", lambda t: setattr(t, "test", "test"))
+    validator = CallbackValidator(
+        obj, lambda t: t.test == "test", lambda t: setattr(t, "test", "test")
+    )
     assert validator.is_valid()
     assert validator.get_error_message() is None
 
@@ -24,7 +26,9 @@ def test_callback_validator():
     assert validator.is_valid()
     assert validator.get_error_message() is None
 
-    validator = CallbackValidator(obj, lambda t: t.test == "toto", lambda t: setattr(t, "test", "toto"))
+    validator = CallbackValidator(
+        obj, lambda t: t.test == "toto", lambda t: setattr(t, "test", "toto")
+    )
     assert not validator.is_valid()
     assert validator.get_error_message() is not None
     validator.fix()

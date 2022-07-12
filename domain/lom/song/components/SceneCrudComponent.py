@@ -35,7 +35,9 @@ class SceneCrudComponent(object):
 
     def split_scene(self, scene):
         # type: (Scene) -> Sequence
-        start_window, end_window = SceneWindow.create_from_split(scene.length, scene.crop_scroller.current_value)
+        start_window, end_window = SceneWindow.create_from_split(
+            scene.length, scene.crop_scroller.current_value
+        )
         seq = Sequence()
         seq.add(partial(self.duplicate_scene, scene))
         seq.add(partial(start_window.apply_to_scene, scene.clips))

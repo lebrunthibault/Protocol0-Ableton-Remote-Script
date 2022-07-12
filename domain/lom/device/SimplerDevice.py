@@ -14,7 +14,9 @@ class SimplerDevice(Device):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(SimplerDevice, self).__init__(*a, **k)
-        self._device = cast(Live.SimplerDevice.SimplerDevice, self._device)  # type: Live.SimplerDevice.SimplerDevice
+        self._device = cast(
+            Live.SimplerDevice.SimplerDevice, self._device
+        )  # type: Live.SimplerDevice.SimplerDevice
         self._sample = Sample(self._device.sample)
         Scheduler.defer(self._set_warping)
 
@@ -30,7 +32,7 @@ class SimplerDevice(Device):
     @property
     def preset_name(self):
         # type: () -> Optional[str]
-        """ overridden """
+        """overridden"""
         # noinspection PyBroadException
         try:
             sample = self._device.sample

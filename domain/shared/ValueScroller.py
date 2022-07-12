@@ -44,8 +44,9 @@ class ValueScroller(Generic[T]):
 
     def scroll(self, go_next):
         # type: (bool) -> None
-        self._current_value = self.scroll_values(self._get_values(), self._get_initial_value(
-            go_next), go_next=go_next)
+        self._current_value = self.scroll_values(
+            self._get_values(), self._get_initial_value(go_next), go_next=go_next
+        )
         self._value_scrolled()
 
     def _get_initial_value(self, go_next):

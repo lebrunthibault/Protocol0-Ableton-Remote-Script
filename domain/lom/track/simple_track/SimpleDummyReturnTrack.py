@@ -18,8 +18,10 @@ class SimpleDummyReturnTrack(SimpleDummyTrack):
     @classmethod
     def is_track_valid(cls, track):
         # type: (AbstractTrack) -> bool
-        return SimpleDummyTrack.is_track_valid(track) and track.output_routing.type == \
-               OutputRoutingTypeEnum.SENDS_ONLY
+        return (
+            SimpleDummyTrack.is_track_valid(track)
+            and track.output_routing.type == OutputRoutingTypeEnum.SENDS_ONLY
+        )
 
     def on_added(self):
         # type: () -> None
@@ -27,6 +29,9 @@ class SimpleDummyReturnTrack(SimpleDummyTrack):
         self.input_routing.track = cast(SimpleAudioTrack, self.group_track)
         self.output_routing.type = OutputRoutingTypeEnum.SENDS_ONLY
 
-        PropertyMonitor(self._track, "output_routing_type",
-                        lambda r: r.display_name == OutputRoutingTypeEnum.SENDS_ONLY.label,
-                        label="%s.output_routing_type" % self)
+        PropertyMonitor(
+            self._track,
+            "output_routing_type",
+            lambda r: r.display_name == OutputRoutingTypeEnum.SENDS_ONLY.label,
+            label="%s.output_routing_type" % self,
+        )

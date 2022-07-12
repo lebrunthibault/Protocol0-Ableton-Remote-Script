@@ -1,5 +1,6 @@
-from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthAudioMulti import \
-    TrackRecorderExternalSynthAudioMulti
+from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthAudioMulti import (
+    TrackRecorderExternalSynthAudioMulti,
+)
 
 
 class TrackRecorderExternalSynthAudioMultiAutomation(TrackRecorderExternalSynthAudioMulti):

@@ -1,8 +1,9 @@
 from typing import List
 
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthNormal import \
-    TrackRecorderExternalSynthNormal
+from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthNormal import (
+    TrackRecorderExternalSynthNormal,
+)
 from protocol0.shared.sequence.Sequence import Sequence
 
 

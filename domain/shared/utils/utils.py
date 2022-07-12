@@ -39,7 +39,7 @@ def normalize_string(s):
 
 def import_package(package):
     # type: (types.ModuleType) -> None
-    """ import all modules in a package """
+    """import all modules in a package"""
     prefix = package.__name__ + "."
     for _, mod_name, _ in pkgutil.iter_modules(package.__path__, prefix):
         __import__(mod_name, fromlist="dummy")

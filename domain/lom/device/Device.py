@@ -80,7 +80,7 @@ class Device(SlotManager):
     @property
     def preset_name(self):
         # type: () -> Optional[str]
-        """ overridden """
+        """overridden"""
         return None
 
     @property
@@ -97,8 +97,8 @@ class Device(SlotManager):
     def is_active(self):
         # type: () -> bool
         """
-            Return const access to whether this device is active.
-            This will be false both when the device is off and when it's inside a rack device which is off.
+        Return const access to whether this device is active.
+        This will be false both when the device is off and when it's inside a rack device which is off.
         """
         return self._device.is_active
 

@@ -7,13 +7,14 @@ from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 
 class UsamoTrack(SimpleAudioTrack):
     """
-        This track serves 2 purposes
+    This track serves 2 purposes
 
-        1. it holds the usamo device that I enabled
-        when I'm recording audio (to have sample accurate audio)
-        2. it holds a "template dummy clip" that I'm copying
-        over when I create dummy tracks
+    1. it holds the usamo device that I enabled
+    when I'm recording audio (to have sample accurate audio)
+    2. it holds a "template dummy clip" that I'm copying
+    over when I create dummy tracks
     """
+
     TRACK_NAME = "Usamo"
 
     def __init__(self, *a, **k):

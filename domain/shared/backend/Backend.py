@@ -19,7 +19,7 @@ def show_and_log(backend_client_func, log_func):
 
 
 class Backend(object):
-    """ Backend API facade """
+    """Backend API facade"""
 
     _INSTANCE = None  # type: Optional[Backend]
 

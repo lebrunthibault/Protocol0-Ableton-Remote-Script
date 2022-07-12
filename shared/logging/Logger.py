@@ -5,7 +5,8 @@ from protocol0.shared.logging.LoggerServiceInterface import LoggerServiceInterfa
 
 
 class Logger(object):
-    """ Facade for logging """
+    """Facade for logging"""
+
     _INSTANCE = None  # type: Optional[Logger]
 
     def __init__(self, logger_service):
@@ -39,6 +40,7 @@ class Logger(object):
         cls._log(message, level=LogLevelEnum.ERROR, debug=debug)
 
         from protocol0.domain.shared.backend.Backend import Backend
+
         Backend.client().show_error(message)
         if "\n" not in message:
             from protocol0.shared.logging.StatusBar import StatusBar

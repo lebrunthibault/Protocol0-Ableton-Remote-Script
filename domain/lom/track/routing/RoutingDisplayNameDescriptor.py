@@ -21,18 +21,20 @@ class RoutingDisplayNameDescriptor(object):
         # type: (TrackRoutingInterface, Type) -> Optional[Any]
         try:
             return self.routing_enum_class.from_value(
-                getattr(track_routing.live_track, self.routing_attribute_name).display_name)
+                getattr(track_routing.live_track, self.routing_attribute_name).display_name
+            )
         except Protocol0Error:
             return None
 
     def __set__(self, track_routing, routing_enum):
         # type: (TrackRoutingInterface, AbstractEnum) -> None
-        routing = find_if(lambda r: r.display_name == routing_enum.value,
-                          getattr(track_routing.live_track, self.available_routings_attribute_name))
+        routing = find_if(
+            lambda r: r.display_name == routing_enum.value,
+            getattr(track_routing.live_track, self.available_routings_attribute_name),
+        )
         if not routing:
-            raise Protocol0Error("couldn't find %s routing matching %s for %s" % (
-                self.routing_attribute_name,
-                routing_enum,
-                track_routing.live_track.name
-            ))
+            raise Protocol0Error(
+                "couldn't find %s routing matching %s for %s"
+                % (self.routing_attribute_name, routing_enum, track_routing.live_track.name)
+            )
         setattr(track_routing.live_track, self.routing_attribute_name, routing)

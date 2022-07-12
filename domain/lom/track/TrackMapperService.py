@@ -11,8 +11,9 @@ from protocol0.domain.lom.track.TrackFactory import TrackFactory
 from protocol0.domain.lom.track.TracksMappedEvent import TracksMappedEvent
 from protocol0.domain.lom.track.drums.DrumsTrack import DrumsTrack
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
-    ExternalSynthTrack
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
+    ExternalSynthTrack,
+)
 from protocol0.domain.lom.track.simple_track.InstrumentBusTrack import InstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.MasterTrack import MasterTrack
 from protocol0.domain.lom.track.simple_track.SimpleReturnTrack import SimpleReturnTrack
@@ -35,7 +36,9 @@ class TrackMapperService(SlotManager):
         self._live_song = live_song
         self._track_factory = track_factory
 
-        self._live_track_id_to_simple_track = collections.OrderedDict()  # type: Dict[int, SimpleTrack]
+        self._live_track_id_to_simple_track = (
+            collections.OrderedDict()
+        )  # type: Dict[int, SimpleTrack]
         self._template_dummy_clip_slot = None  # type: Optional[AudioClipSlot]
         self._usamo_track = None  # type: Optional[SimpleTrack]
         self._drums_track = None  # type: Optional[DrumsTrack]
@@ -86,7 +89,7 @@ class TrackMapperService(SlotManager):
 
     def _generate_simple_tracks(self):
         # type: () -> None
-        """ instantiate SimpleTracks (including return / master, that are marked as inactive) """
+        """instantiate SimpleTracks (including return / master, that are marked as inactive)"""
         self._usamo_track = None
         self._drums_track = None
         self._template_dummy_clip_slot = None
@@ -104,8 +107,9 @@ class TrackMapperService(SlotManager):
         for index, track in enumerate(list(self._live_song.return_tracks)):
             self._track_factory.create_simple_track(track=track, index=index, cls=SimpleReturnTrack)
 
-        self._master_track = self._track_factory.create_simple_track(self._live_song.master_track, 0,
-                                                                     cls=MasterTrack)
+        self._master_track = self._track_factory.create_simple_track(
+            self._live_song.master_track, 0, cls=MasterTrack
+        )
 
         self._sort_simple_tracks()
 
@@ -131,7 +135,7 @@ class TrackMapperService(SlotManager):
 
     def _on_simple_track_created_event(self, event):
         # type: (SimpleTrackCreatedEvent) -> None
-        """ So as to be able to generate simple tracks with the abstract group track aggregate """
+        """So as to be able to generate simple tracks with the abstract group track aggregate"""
         # handling replacement of a SimpleTrack by another
         previous_simple_track = SongFacade.optional_simple_track_from_live_track(event.track._track)
         if previous_simple_track and previous_simple_track != event.track:
@@ -141,15 +145,19 @@ class TrackMapperService(SlotManager):
 
     def _replace_simple_track(self, previous_simple_track, new_simple_track):
         # type: (SimpleTrack, SimpleTrack) -> None
-        """ disconnecting and removing from SimpleTrack group track and abstract_group_track """
+        """disconnecting and removing from SimpleTrack group track and abstract_group_track"""
         new_simple_track._index = previous_simple_track._index
         previous_simple_track.disconnect()
 
         if previous_simple_track.group_track:
-            previous_simple_track.group_track.add_or_replace_sub_track(new_simple_track, previous_simple_track)
+            previous_simple_track.group_track.add_or_replace_sub_track(
+                new_simple_track, previous_simple_track
+            )
 
         if previous_simple_track.abstract_group_track:
-            previous_simple_track.abstract_group_track.add_or_replace_sub_track(new_simple_track, previous_simple_track)
+            previous_simple_track.abstract_group_track.add_or_replace_sub_track(
+                new_simple_track, previous_simple_track
+            )
 
     def _sort_simple_tracks(self):
         # type: () -> None
@@ -168,11 +176,18 @@ class TrackMapperService(SlotManager):
             previous_abstract_group_track = track.abstract_group_track
             abstract_group_track = self._track_factory.create_abstract_group_track(track)
 
-            if isinstance(previous_abstract_group_track, ExternalSynthTrack) and isinstance(abstract_group_track,
-                                                                                            NormalGroupTrack):
-                raise Protocol0Error("An ExternalSynthTrack (%s) is changed into a NormalGroupTrack (%s)" % (previous_abstract_group_track, abstract_group_track))
+            if isinstance(previous_abstract_group_track, ExternalSynthTrack) and isinstance(
+                abstract_group_track, NormalGroupTrack
+            ):
+                raise Protocol0Error(
+                    "An ExternalSynthTrack (%s) is changed into a NormalGroupTrack (%s)"
+                    % (previous_abstract_group_track, abstract_group_track)
+                )
 
-            if previous_abstract_group_track and previous_abstract_group_track != abstract_group_track:
+            if (
+                previous_abstract_group_track
+                and previous_abstract_group_track != abstract_group_track
+            ):
                 previous_abstract_group_track.disconnect()
 
             abstract_group_track.on_tracks_change()

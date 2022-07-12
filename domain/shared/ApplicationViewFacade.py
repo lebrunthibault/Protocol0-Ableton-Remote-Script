@@ -8,7 +8,7 @@ from protocol0.shared.SongFacade import SongFacade
 
 # noinspection PyArgumentList
 class ApplicationViewFacade(object):
-    """ Facade for accessing the application view """
+    """Facade for accessing the application view"""
 
     _INSTANCE = None  # type: Optional[ApplicationViewFacade]
 
@@ -29,9 +29,9 @@ class ApplicationViewFacade(object):
     @classmethod
     def show_device(cls):
         # type: () -> None
-        """ Shows track view. """
-        cls._INSTANCE._application_view.show_view('Detail')
-        cls._INSTANCE._application_view.show_view('Detail/DeviceChain')
+        """Shows track view."""
+        cls._INSTANCE._application_view.show_view("Detail")
+        cls._INSTANCE._application_view.show_view("Detail/DeviceChain")
 
     @classmethod
     def toggle_session_arrangement(cls):
@@ -44,27 +44,28 @@ class ApplicationViewFacade(object):
     @classmethod
     def show_session(cls):
         # type: () -> None
-        cls._INSTANCE._application_view.show_view('Session')
+        cls._INSTANCE._application_view.show_view("Session")
 
     @classmethod
     def show_arrangement(cls):
         # type: () -> None
-        cls._INSTANCE._application_view.show_view('Arranger')
+        cls._INSTANCE._application_view.show_view("Arranger")
         cls._INSTANCE._recording_component.back_to_arranger = False
 
     @classmethod
     def focus_detail(cls):
         # type: () -> None
-        """ Moves the focus to the detail view. """
+        """Moves the focus to the detail view."""
         cls._focus_view("Detail")
 
     @classmethod
     def focus_current_track(cls):
         # type: () -> None
-        """ Moves the focus to the detail view. """
+        """Moves the focus to the detail view."""
         selected_track = SongFacade.selected_track()
-        if SongFacade.selected_track().group_track \
-                and any(t.is_folded for t in SongFacade.selected_track().group_tracks):
+        if SongFacade.selected_track().group_track and any(
+            t.is_folded for t in SongFacade.selected_track().group_tracks
+        ):
             SongFacade.selected_track().group_track.is_folded = False
             # NB : unfolding parent classes will select them
             if SongFacade.selected_track() != selected_track:
@@ -77,7 +78,7 @@ class ApplicationViewFacade(object):
     @classmethod
     def _focus_view(cls, view):
         # type: (str) -> None
-        """ Moves the focus to the given view, showing it first if needed. """
+        """Moves the focus to the given view, showing it first if needed."""
         if not cls._INSTANCE._application_view.is_view_visible(view):
             cls._INSTANCE._application_view.show_view(view)
         cls._INSTANCE._application_view.focus_view(view)
@@ -85,7 +86,7 @@ class ApplicationViewFacade(object):
     @classmethod
     def is_session_visible(cls):
         # type: () -> bool
-        return cls._INSTANCE._application_view.is_view_visible('Session')
+        return cls._INSTANCE._application_view.is_view_visible("Session")
 
     @classmethod
     def toggle_browse(cls):

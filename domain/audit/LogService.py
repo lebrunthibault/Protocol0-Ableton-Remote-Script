@@ -37,12 +37,13 @@ class LogService(object):
         if current_track.instrument:
             Logger.info()
             Logger.info(
-                "current_track.instrument.presets count: %s" %
-                len(current_track.instrument.preset_list.presets)
+                "current_track.instrument.presets count: %s"
+                % len(current_track.instrument.preset_list.presets)
             )
             Logger.info()
             Logger.info(
-                "current_track.instrument.categories: %s" % current_track.instrument.preset_list.categories
+                "current_track.instrument.categories: %s"
+                % current_track.instrument.preset_list.categories
             )
             Logger.info()
             Logger.info(
@@ -58,9 +59,14 @@ class LogService(object):
         Logger.info()
         if SongFacade.selected_track().group_track:
             Logger.info(
-                "selected_track.group_track.abstract_group_track: %s" % SongFacade.selected_track().group_track.abstract_group_track)
+                "selected_track.group_track.abstract_group_track: %s"
+                % SongFacade.selected_track().group_track.abstract_group_track
+            )
             Logger.info()
-        Logger.info("selected_track.abstract_group_track: %s" % SongFacade.selected_track().abstract_group_track)
+        Logger.info(
+            "selected_track.abstract_group_track: %s"
+            % SongFacade.selected_track().abstract_group_track
+        )
         Logger.info()
         Logger.info("selected_track.clip_slots: %s" % SongFacade.selected_track().clip_slots)
         Logger.info()
@@ -68,7 +74,10 @@ class LogService(object):
         Logger.info()
         Logger.info("selected_track.instrument: %s" % SongFacade.selected_track().instrument)
         if SongFacade.selected_track().instrument:
-            Logger.info("selected_track.instrument.device: %s" % SongFacade.selected_track().instrument.device)
+            Logger.info(
+                "selected_track.instrument.device: %s"
+                % SongFacade.selected_track().instrument.device
+            )
         Logger.info()
         Logger.info("********* SELECTED_SCENE *************")
         Logger.info()
@@ -86,7 +95,10 @@ class LogService(object):
             Logger.info()
             Logger.info("selected_parameter: %s" % SongFacade.selected_parameter())
             Logger.info()
-            Logger.info("selected_device.parameters: %s" % SongFacade.selected_track().devices.selected.parameters)
+            Logger.info(
+                "selected_device.parameters: %s"
+                % SongFacade.selected_track().devices.selected.parameters
+            )
         Logger.info()
 
         if current_track.instrument:
@@ -97,22 +109,21 @@ class LogService(object):
             device = current_track.instrument.device
             if isinstance(device, PluginDevice):
                 Logger.info(
-                    "current_track.instrument.device.selected_preset: %s"
-                    % device.selected_preset
+                    "current_track.instrument.device.selected_preset: %s" % device.selected_preset
                 )
                 Logger.info(
                     "current_track.instrument.device.selected_preset_index: %s"
                     % device.selected_preset_index
                 )
                 Logger.info(
-                    "current_track.instrument.device.selected_preset: %s"
-                    % device.selected_preset
+                    "current_track.instrument.device.selected_preset: %s" % device.selected_preset
                 )
                 Logger.info()
             Logger.info("current_track.instrument: %s" % current_track.instrument)
             Logger.info()
             Logger.info(
-                "current_track.instrument.selected_preset: %s" % current_track.instrument.selected_preset
+                "current_track.instrument.selected_preset: %s"
+                % current_track.instrument.selected_preset
             )
             Logger.info()
             Logger.info(
@@ -131,7 +142,9 @@ class LogService(object):
         Logger.info("********* GLOBAL objects *************")
         Logger.info("song.is_playing: %s" % SongFacade.is_playing())
         Logger.info()
-        Logger.info("song.midi_recording_quantization: %s" % SongFacade.midi_recording_quantization())
+        Logger.info(
+            "song.midi_recording_quantization: %s" % SongFacade.midi_recording_quantization()
+        )
         Logger.info()
         Logger.info("********* SONG TRACKS *************")
         Logger.info("simple_tracks : %s" % list(SongFacade.simple_tracks()))
@@ -149,9 +162,13 @@ class LogService(object):
         Logger.info()
         Logger.info("selected_scene.tracks : %s" % list(SongFacade.selected_scene().clips.tracks))
         Logger.info()
-        Logger.info("selected_scene.abstract_tracks : %s" % SongFacade.selected_scene().abstract_tracks)
+        Logger.info(
+            "selected_scene.abstract_tracks : %s" % SongFacade.selected_scene().abstract_tracks
+        )
         Logger.info()
-        Logger.info("selected_scene.clip_slots : %s" % SongFacade.selected_scene().clips._clip_slots)
+        Logger.info(
+            "selected_scene.clip_slots : %s" % SongFacade.selected_scene().clips._clip_slots
+        )
         Logger.info()
         Logger.info("selected_scene.clips : %s" % list(SongFacade.selected_scene().clips))
         Logger.info()
@@ -164,7 +181,8 @@ class LogService(object):
         Logger.info("song.selected_clip_slot: %s" % SongFacade.selected_clip_slot())
         if SongFacade.selected_clip_slot():
             Logger.info(
-                "song.selected_clip_slot._clip_slot: %s" % SongFacade.selected_clip_slot()._clip_slot
+                "song.selected_clip_slot._clip_slot: %s"
+                % SongFacade.selected_clip_slot()._clip_slot
             )
 
         Logger.info()

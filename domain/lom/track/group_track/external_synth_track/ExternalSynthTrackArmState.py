@@ -1,8 +1,9 @@
 from typing import Optional
 
 from protocol0.domain.lom.track.abstract_track.AbstrackTrackArmState import AbstractTrackArmState
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackMonitoringState import \
-    ExternalSynthTrackMonitoringState
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackMonitoringState import (
+    ExternalSynthTrackMonitoringState,
+)
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
@@ -23,7 +24,11 @@ class ExternalSynthTrackArmState(AbstractTrackArmState):
     @property
     def is_armed(self):
         # type: () -> bool
-        return all(sub_track.arm_state.is_armed for sub_track in self._sub_tracks if not isinstance(sub_track, SimpleDummyTrack))
+        return all(
+            sub_track.arm_state.is_armed
+            for sub_track in self._sub_tracks
+            if not isinstance(sub_track, SimpleDummyTrack)
+        )
 
     @is_armed.setter
     def is_armed(self, is_armed):
@@ -35,7 +40,11 @@ class ExternalSynthTrackArmState(AbstractTrackArmState):
     @property
     def is_partially_armed(self):
         # type: () -> bool
-        return any(sub_track.arm_state.is_armed for sub_track in self._sub_tracks if not isinstance(sub_track, SimpleDummyTrack))
+        return any(
+            sub_track.arm_state.is_armed
+            for sub_track in self._sub_tracks
+            if not isinstance(sub_track, SimpleDummyTrack)
+        )
 
     def unarm(self):
         # type: () -> None
@@ -55,6 +64,12 @@ class ExternalSynthTrackArmState(AbstractTrackArmState):
             self._midi_track.input_routing.type = InputRoutingTypeEnum.ALL_INS
 
         seq = Sequence()
-        seq.add([sub_track.arm_state.arm_track for sub_track in self._sub_tracks if not isinstance(sub_track, SimpleDummyTrack)])
+        seq.add(
+            [
+                sub_track.arm_state.arm_track
+                for sub_track in self._sub_tracks
+                if not isinstance(sub_track, SimpleDummyTrack)
+            ]
+        )
         seq.add(self._monitoring_state.monitor_midi)
         return seq.done()

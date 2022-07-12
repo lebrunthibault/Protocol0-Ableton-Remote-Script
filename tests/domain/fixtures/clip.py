@@ -12,7 +12,7 @@ class AbletonClip(Subject):
         "end_marker",
         "name",
         "warping",
-        "muted"
+        "muted",
     )
 
     def __init__(self):
