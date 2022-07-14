@@ -86,13 +86,13 @@ def test_prompt():
 
     test_res = []
     seq = create_seq()
-    CommandBus.dispatch(ProcessBackendResponseCommand(True))
+    CommandBus.dispatch(ProcessBackendResponseCommand("Yes"))
     assert test_res == [True]
     seq._cancel()
 
     test_res = []
     seq = create_seq()
-    CommandBus.dispatch(ProcessBackendResponseCommand(False))
+    CommandBus.dispatch(ProcessBackendResponseCommand("No"))
     assert seq.state.cancelled
     assert test_res == []
 

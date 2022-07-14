@@ -7,6 +7,7 @@ from protocol0.domain.lom.song.SongStartedEvent import SongStartedEvent
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.backend.BackendResponseEvent import BackendResponseEvent
+from protocol0.domain.shared.backend.NotificationColorEnum import NotificationColorEnum
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.event.HasEmitter import HasEmitter
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -29,6 +30,7 @@ class Sequence(Observable):
     including communication with the backend
     Encapsulates and composes all asynchronous tasks done in the script.
     """
+
     RUNNING_SEQUENCES = []  # type: List[Sequence]
     _DEBUG = False
     _STEP_TIMEOUT = 50  # seconds
@@ -55,10 +57,10 @@ class Sequence(Observable):
 
     def add(self, func=nop, name=None, notify_terminated=True):
         # type: (Union[Iterable, Callable, object], str, bool) -> Sequence
-        """ callback can be a callable or a list of callable (will execute in parallel) """
-        assert callable(func) or isinstance(func,
-                                            Iterable), "You passed a non callable (%s) to %s" % (
-            func, self)
+        """callback can be a callable or a list of callable (will execute in parallel)"""
+        assert callable(func) or isinstance(
+            func, Iterable
+        ), "You passed a non callable (%s) to %s" % (func, self)
         if isinstance(func, List):
             func = ParallelSequence(func).start
 
@@ -144,13 +146,19 @@ class Sequence(Observable):
 
     def defer(self):
         # type: () -> Sequence
-        return self.add(partial(Scheduler.defer, self._execute_next_step),
-                        notify_terminated=False)
+        return self.add(partial(Scheduler.defer, self._execute_next_step), notify_terminated=False)
 
     def wait(self, ticks):
         # type: (int) -> Sequence
-        return self.add(partial(Scheduler.wait, ticks, self._execute_next_step),
-                        notify_terminated=False)
+        return self.add(
+            partial(Scheduler.wait, ticks, self._execute_next_step), notify_terminated=False
+        )
+
+    def wait_ms(self, ms):
+        # type: (int) -> Sequence
+        return self.add(
+            partial(Scheduler.wait_ms, ms, self._execute_next_step), notify_terminated=False
+        )
 
     def wait_bars(self, bars, wait_for_song_start=False):
         # type: (float, bool) -> None
@@ -164,8 +172,7 @@ class Sequence(Observable):
         def execute():
             # type: () -> None
             if not SongFacade.is_playing():
-                Logger.warning("Cannot wait %s beats, song is not playing. %s" %
-                               (beats, self))
+                Logger.warning("Cannot wait %s beats, song is not playing. %s" % (beats, self))
             else:
                 Scheduler.wait_beats(beats, self._execute_next_step)
 
@@ -174,15 +181,15 @@ class Sequence(Observable):
     def wait_for_event(self, event_class, expected_emitter=None, continue_on_song_stop=False):
         # type: (Type[object], object, bool) -> Sequence
         """
-            Will continue the sequence after an event of type event_class is fired
+        Will continue the sequence after an event of type event_class is fired
 
-            expected_emitter : passing an object here will check that the event was
-            emitter from the right emitter before continuing the Sequence
+        expected_emitter : passing an object here will check that the event was
+        emitter from the right emitter before continuing the Sequence
 
-            continue_on_song_stop: for events relying on a playing song, setting
-            continue_on_song_stop to
-            True
-            will continue the sequence on a SongStoppedEvent
+        continue_on_song_stop: for events relying on a playing song, setting
+        continue_on_song_stop to
+        True
+        will continue the sequence on a SongStoppedEvent
         """
         if expected_emitter is not None:
             assert issubclass(event_class, HasEmitter)
@@ -197,8 +204,10 @@ class Sequence(Observable):
             # type: (object) -> None
             if expected_emitter is not None and isinstance(event, HasEmitter):
                 if self._DEBUG:
-                    Logger.info("expected emitter: %s, event.target(): %s" % (expected_emitter,
-                                                                              event.target()))
+                    Logger.info(
+                        "expected emitter: %s, event.target(): %s"
+                        % (expected_emitter, event.target())
+                    )
                 if event.target() != expected_emitter:
                     return  # not the right emitter
 
@@ -218,8 +227,7 @@ class Sequence(Observable):
             # type: () -> None
             if self._current_step and self._current_step._callable == execute:
                 self._cancel()
-                Logger.warning(
-                    "cancelling after %s seconds : %s on %s" % (seconds, self, legend))
+                Logger.warning("cancelling after %s seconds : %s on %s" % (seconds, self, legend))
 
         def execute():
             # type: () -> None
@@ -228,24 +236,33 @@ class Sequence(Observable):
 
         self.add(execute, notify_terminated=False)
 
-    def prompt(self, question):
-        # type: (str) -> None
-        """ helper method for prompts """
+    def prompt(self, question, vertical=True, color=NotificationColorEnum.INFO):
+        # type: (str, bool, NotificationColorEnum) -> None
+        """helper method for prompts"""
+        options = ["Yes", "No"]
 
         def on_response(res):
-            # type: (bool) -> None
-            if res:
+            # type: (str) -> None
+            if res == options[0]:
                 self._execute_next_step()
             else:
                 self._cancel()
 
-        self._execute_backend_step(partial(Backend.client().prompt, question), on_response)
-
-    def select(self, question, options, vertical=True):
-        # type: (str, List, bool) -> None
-        """ helper method for selects """
         self._execute_backend_step(
-            partial(Backend.client().select, question, options, vertical=vertical))
+            partial(
+                Backend.client().select, question, options, vertical=vertical, color=color.value
+            ),
+            on_response,
+        )
+
+    def select(self, question, options, vertical=True, color=NotificationColorEnum.INFO):
+        # type: (str, List, bool, NotificationColorEnum) -> None
+        """helper method for selects"""
+        self._execute_backend_step(
+            partial(
+                Backend.client().select, question, options, vertical=vertical, color=color.value
+            )
+        )
 
     def _execute_backend_step(self, func, on_response=None):
         # type: (Func, Optional[Func]) -> None

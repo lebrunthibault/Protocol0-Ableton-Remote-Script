@@ -1,3 +1,5 @@
+from functools import partial
+
 from typing import Optional
 
 from protocol0.application.CommandBus import CommandBus
@@ -6,8 +8,8 @@ from protocol0.domain.lom.song.SongInitializedEvent import SongInitializedEvent
 from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackComponent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -18,19 +20,23 @@ class SongInitService(object):
         self._playback_component = playback_component
 
     def init_song(self):
-        # type: () -> None
+        # type: () -> Sequence
         CommandBus.dispatch(ResetSongCommand())
         # the song usually starts playing after this method is executed
-        Scheduler.wait(10, self._playback_component.reset)
 
         startup_track = self._get_startup_track()
         DomainEventBus.emit(SongInitializedEvent())
+        seq = Sequence()
         if startup_track:
-            seq = Sequence()
             seq.wait(2)
             seq.add(startup_track.select)
             seq.add(ApplicationViewFacade.focus_current_track)
-            seq.done()
+
+        seq.wait(10)
+        seq.add(self._playback_component.reset)
+        seq.add(partial(Backend.client().show_success, "Started"))
+
+        return seq.done()
 
     def _get_startup_track(self):
         # type: () -> Optional[AbstractTrack]

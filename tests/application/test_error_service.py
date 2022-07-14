@@ -5,7 +5,7 @@ from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
 from protocol0.tests.domain.fixtures.p0 import make_protocol0
 
 
-def test_error_manager():
+def test_error_service():
     make_protocol0()
     error_manager = ErrorService()
     with pytest.raises(AssertionError):

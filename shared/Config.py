@@ -10,6 +10,9 @@ class Config(object):
     REMOTE_SCRIPTS_ROOT = dirname(PROJECT_ROOT)
     SAMPLE_DIRECTORY = str(os.getenv("SAMPLE_DIRECTORY"))
 
+    # SERVICES
+    SENTRY_DSN = os.getenv("SENTRY_DSN")
+
     # MISC
     EXPERIMENTAL_FEATURES = False
 

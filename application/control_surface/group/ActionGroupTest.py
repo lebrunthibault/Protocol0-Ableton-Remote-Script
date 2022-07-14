@@ -16,27 +16,35 @@ class ActionGroupTest(ActionGroupInterface):
     def configure(self):
         # type: () -> None
         # TEST encoder
-        self.add_encoder(identifier=1, name="test",
-                         on_press=self.action_test,
-                         )
+        self.add_encoder(
+            identifier=1,
+            name="test",
+            on_press=self.action_test,
+        )
 
         # PROFiling encoder
-        self.add_encoder(identifier=2, name="start set launch time profiling",
-                         on_press=self._container.get(SetProfilingService).profile_set)
+        self.add_encoder(
+            identifier=2,
+            name="start set launch time profiling",
+            on_press=self._container.get(SetProfilingService).profile_set,
+        )
 
         # CLR encoder
         self.add_encoder(identifier=3, name="clear logs", on_press=Logger.clear)
 
         # DUPLication encoder
-        self.add_encoder(identifier=4, name="test server duplication",
-                         on_press=Backend.client().test_duplication)
+        self.add_encoder(identifier=4, name="test server duplication", on_press=Backend.client().test_duplication)
 
         # USAMo encoder
-        self.add_encoder(identifier=13, name="check usamo latency",
-                         on_press=lambda: partial(self._container.get(
-                             AudioLatencyAnalyzerService).test_audio_latency,
-                                                  SongFacade.current_external_synth_track()))
+        self.add_encoder(
+            identifier=13,
+            name="check usamo latency",
+            on_press=lambda: partial(
+                self._container.get(AudioLatencyAnalyzerService).test_audio_latency,
+                SongFacade.current_external_synth_track(),
+            ),
+        )
 
     def action_test(self):
         # type: () -> None
-        pass
+        division_by_zero = 1 / 0

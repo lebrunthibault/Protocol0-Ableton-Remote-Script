@@ -34,9 +34,12 @@ class Logger(object):
         cls._log(message, LogLevelEnum.WARNING)
 
     @classmethod
-    def error(cls, message="", debug=True):
-        # type: (str, bool) -> None
+    def error(cls, message="", debug=True, show_notification=True):
+        # type: (str, bool, bool) -> None
         cls._log(message, level=LogLevelEnum.ERROR, debug=debug)
+
+        if not show_notification:
+            return None
 
         from protocol0.domain.shared.backend.Backend import Backend
         Backend.client().show_error(message)

@@ -34,12 +34,12 @@ class CommandBus(object):
 
     def __init__(self, container):
         # type: (ContainerInterface) -> None
-        CommandBus._INSTANCE = self
         self._container = container
         self._command_mapping = self._create_command_mapping()
         self._last_command = None  # type: Optional[SerializableCommand]
         self._last_command_processed_at = None  # type: Optional[float]
         self._duplicate_command_count = 0
+        CommandBus._INSTANCE = self
 
     def _create_command_mapping(self):
         # type: () -> CommandMapping
@@ -66,7 +66,10 @@ class CommandBus(object):
     @classmethod
     def dispatch(cls, command):
         # type: (SerializableCommand) -> Optional[Sequence]
-        return cls._INSTANCE._dispatch_command(command)
+        if cls._INSTANCE is None:
+            return None
+        else:
+            return cls._INSTANCE._dispatch_command(command)
 
     @handle_error
     def _dispatch_command(self, command):
