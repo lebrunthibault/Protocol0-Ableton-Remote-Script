@@ -1,10 +1,13 @@
 import itertools
+import time
 from functools import partial
 
 from typing import Optional, cast, List, Tuple
 import Live
 
+from _Framework.SubjectSlot import subject_slot
 from _Framework.CompoundElement import subject_slot_group
+
 
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
@@ -86,6 +89,9 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
         DomainEventBus.subscribe(BarChangedEvent, self._on_bar_changed_event)
 
+        self._solo_listener.subject = self._track
+        self._un_soloed_at = None  # this is necessary to monitor the group track solo state
+
     is_armed = cast(bool, ForwardTo("arm_state", "is_armed"))
     is_partially_armed = cast(bool, ForwardTo("arm_state", "is_partially_armed"))
 
@@ -118,8 +124,10 @@ class ExternalSynthTrack(AbstractGroupTrack):
         self.monitoring_state.set_dummy_track(self.dummy_track)
         self._map_clip_slots()
 
-        Logger.dev([sub_track._track for sub_track in self.sub_tracks])
-        self._sub_track_solo_listener.replace_subjects([sub_track._track for sub_track in self.sub_tracks])
+        Logger.dev([sub_track._track.name for sub_track in self.sub_tracks])
+        self._sub_track_solo_listener.replace_subjects(
+            [sub_track._track for sub_track in self.sub_tracks]
+        )
 
     def _on_bar_changed_event(self, _):
         # type: (BarChangedEvent) -> None
@@ -273,17 +281,26 @@ class ExternalSynthTrack(AbstractGroupTrack):
     def solo(self, solo):
         # type: (bool) -> None
         self.base_track.solo = solo
-        for sub_track in self.sub_tracks:
-            sub_track.solo = solo
+
+    @subject_slot("solo")
+    def _solo_listener(self):
+        # type: () -> None
+        """We want to solo only the base track"""
+        if not self.solo:
+            self._un_soloed_at = time.time()
 
     @subject_slot_group("solo")
     @defer
     def _sub_track_solo_listener(self, track):
         # type: (Live.Track.Track) -> None
-        Logger.dev((track.name, track.solo))
+        """We want to solo only the base track"""
         if track.solo:
             track.solo = False
-            self.solo = True
+            # when soloing a sub track, the group track is un soloed so we need to handle this case
+            if self._un_soloed_at is not None and time.time() - self._un_soloed_at < 0.1:
+                self.solo = False
+            else:
+                self.solo = True
 
     @property
     def can_change_presets(self):
