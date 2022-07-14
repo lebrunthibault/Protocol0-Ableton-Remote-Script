@@ -58,6 +58,7 @@ def get_callable_repr(func):
     assert not isinstance(func, str)
     from protocol0.shared.sequence.Sequence import Sequence
     from protocol0.shared.sequence.SequenceStep import SequenceStep
+
     if isinstance(func, Sequence) or isinstance(func, SequenceStep):
         return func.__repr__()
 
@@ -87,7 +88,7 @@ def nop(*_, **__):
 def is_func_equal(func1, func2, compare_methods=False):
     # type: (Callable, Callable, bool) -> bool
     """
-        compare_methods == True will return True for the same method of different objects
+    compare_methods == True will return True for the same method of different objects
     """
     if func1 == func2:
         return True

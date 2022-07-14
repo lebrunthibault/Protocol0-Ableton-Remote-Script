@@ -78,7 +78,9 @@ class SceneService(SlotManager):
         self._clean_deleted_scenes()
 
         # mapping cs should be done before generating the scenes
-        tracks = chain(SongFacade.simple_tracks(), SongFacade.abstract_tracks())  # type: Iterator[AbstractTrack]
+        tracks = chain(
+            SongFacade.simple_tracks(), SongFacade.abstract_tracks()
+        )  # type: Iterator[AbstractTrack]
         for track in collections.OrderedDict.fromkeys(tracks):
             track.on_scenes_change()
 

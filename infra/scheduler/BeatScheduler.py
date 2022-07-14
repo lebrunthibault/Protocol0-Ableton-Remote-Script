@@ -15,19 +15,21 @@ from protocol0.shared.SongFacade import SongFacade
 
 
 class BeatScheduler(SlotManager, BeatSchedulerInterface):
-    """ BeatScheduler schedules action lists to be triggered after a specified
-    number of bars. """
+    """BeatScheduler schedules action lists to be triggered after a specified
+    number of bars."""
 
     def __init__(self, song):
         # type: (Live.Song.Song) -> None
         super(BeatScheduler, self).__init__()
         self._song = song
         # noinspection PyArgumentList
-        self._last_beats_song_time = BeatTime.from_song_beat_time(song.get_current_beats_song_time())
+        self._last_beats_song_time = BeatTime.from_song_beat_time(
+            song.get_current_beats_song_time()
+        )
         self._scheduled_events = []  # type: List[BeatSchedulerEvent]
         self._is_playing_listener.subject = song
 
-    @subject_slot('is_playing')
+    @subject_slot("is_playing")
     def _is_playing_listener(self):
         # type: () -> None
         if not self._song.is_playing:

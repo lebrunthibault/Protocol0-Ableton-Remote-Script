@@ -4,8 +4,9 @@ from protocol0.domain.lom.song.SongInitializedEvent import SongInitializedEvent
 from protocol0.domain.lom.song.components.SceneComponent import SceneComponent
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.domain.track_recorder.recording_bar_length.SelectedRecordingBarLengthUpdatedEvent import \
-    SelectedRecordingBarLengthUpdatedEvent
+from protocol0.domain.track_recorder.recording_bar_length.SelectedRecordingBarLengthUpdatedEvent import (
+    SelectedRecordingBarLengthUpdatedEvent,
+)
 from protocol0.infra.persistence.SongDataEnum import SongDataEnum
 from protocol0.infra.persistence.SongDataError import SongDataError
 from protocol0.shared.SongFacade import SongFacade
@@ -32,15 +33,23 @@ class SongDataService(object):
         # type: () -> None
         # can happen on record e.g.
         if SongFacade.selected_scene():
-            self._set_data(SongDataEnum.SELECTED_SCENE_INDEX.value, SongFacade.selected_scene().index)
+            self._set_data(
+                SongDataEnum.SELECTED_SCENE_INDEX.value, SongFacade.selected_scene().index
+            )
         if SongFacade.selected_track():
-            self._set_data(SongDataEnum.SELECTED_TRACK_INDEX.value, SongFacade.selected_track().index)
+            self._set_data(
+                SongDataEnum.SELECTED_TRACK_INDEX.value, SongFacade.selected_track().index
+            )
 
     def _restore(self):
         # type: () -> None
         try:
-            self._selected_scene_index = self._get_data(SongDataEnum.SELECTED_SCENE_INDEX.value, None)
-            self._selected_track_index = self._get_data(SongDataEnum.SELECTED_TRACK_INDEX.value, None)
+            self._selected_scene_index = self._get_data(
+                SongDataEnum.SELECTED_SCENE_INDEX.value, None
+            )
+            self._selected_track_index = self._get_data(
+                SongDataEnum.SELECTED_TRACK_INDEX.value, None
+            )
 
             self._restore_set_state()
         except SongDataError as e:
@@ -50,10 +59,12 @@ class SongDataService(object):
     def _restore_set_state(self):
         # type: () -> None
         if self._selected_scene_index is not None and self._selected_scene_index < len(
-                SongFacade.scenes()):
+            SongFacade.scenes()
+        ):
             selected_scene = SongFacade.scenes()[self._selected_scene_index]
             self._scene_component.select_scene(selected_scene)
         if self._selected_track_index is not None and self._selected_track_index < len(
-                list(SongFacade.all_simple_tracks())):
+            list(SongFacade.all_simple_tracks())
+        ):
             selected_track = list(SongFacade.all_simple_tracks())[self._selected_track_index]
             selected_track.select()

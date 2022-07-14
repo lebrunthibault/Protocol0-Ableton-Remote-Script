@@ -40,8 +40,12 @@ class LiveObjectMapping(object):
         for live_object in live_objects:
             live_id_to_object[live_object._live_ptr] = self._create_object(live_object)
 
-        self._added_objects = list(set(live_id_to_object.values()) - set(self._live_id_to_object.values()))
-        self._removed_objects = list(set(self._live_id_to_object.values()) - set(live_id_to_object.values()))
+        self._added_objects = list(
+            set(live_id_to_object.values()) - set(self._live_id_to_object.values())
+        )
+        self._removed_objects = list(
+            set(self._live_id_to_object.values()) - set(live_id_to_object.values())
+        )
 
         self._live_id_to_object = live_id_to_object
         self._objects = self._live_id_to_object.values()

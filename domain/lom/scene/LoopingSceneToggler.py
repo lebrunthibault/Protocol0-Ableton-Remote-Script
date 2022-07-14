@@ -22,7 +22,7 @@ class LoopingSceneToggler(ValueToggler):
 
     def _value_set(self, scene):
         # type: (Scene) -> None
-        if scene != SongFacade.playing_scene():
+        if scene != SongFacade.playing_scene() and SongFacade.is_playing():
             scene.fire()
 
         scene.scene_name.update()

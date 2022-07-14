@@ -12,13 +12,14 @@ from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 
 
 class ExternalSynthTrackMonitoringState(object):
-    def __init__(self,
-                 midi_track,  # type: SimpleMidiTrack
-                 audio_track,  # type: SimpleAudioTrack
-                 audio_tail_track,  # type: Optional[SimpleAudioTailTrack]
-                 dummy_track,  # type: Optional[SimpleDummyTrack]
-                 external_device,  # type: Device
-                 ):
+    def __init__(
+        self,
+        midi_track,  # type: SimpleMidiTrack
+        audio_track,  # type: SimpleAudioTrack
+        audio_tail_track,  # type: Optional[SimpleAudioTailTrack]
+        dummy_track,  # type: Optional[SimpleDummyTrack]
+        external_device,  # type: Device
+    ):
         # type: (...) -> None
         self._midi_track = midi_track
         self._audio_track = audio_track

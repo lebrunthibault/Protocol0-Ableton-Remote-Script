@@ -13,6 +13,6 @@ class AbletonClipSlot(Subject):
         self.playing_position = 0
 
     def add_clip(self):
-        """ test method """
+        """test method"""
         self.clip = AbletonClip()
         self.has_clip = True

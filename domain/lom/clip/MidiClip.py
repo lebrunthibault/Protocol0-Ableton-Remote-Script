@@ -21,16 +21,14 @@ class MidiClip(Clip):
         super(MidiClip, self).__init__(*a, **k)
         self._cached_notes = []  # type: List[Note]
 
-    def hash(self):
-        # type: () -> int
-        return hash(tuple(note.to_data() for note in self.get_notes()))
-
     def get_notes(self):
         # type: () -> List[Note]
         if not self._clip:
             return []
         # noinspection PyArgumentList
-        clip_notes = [Note(*note) for note in self._clip.get_notes(self.loop.start, 0, self.loop.length, 128)]
+        clip_notes = [
+            Note(*note) for note in self._clip.get_notes(self.loop.start, 0, self.loop.length, 128)
+        ]
         notes = list(self._get_notes_from_cache(notes=clip_notes))
         notes.sort(key=lambda x: x.start)
         return notes
@@ -38,7 +36,9 @@ class MidiClip(Clip):
     def _get_notes_from_cache(self, notes):
         # type: (List[Note]) -> Iterator[Note]
         for note in notes:
-            yield next((cached_note for cached_note in self._cached_notes if cached_note == note), note)
+            yield next(
+                (cached_note for cached_note in self._cached_notes if cached_note == note), note
+            )
 
     def set_notes(self, notes):
         # type: (List[Note]) -> Optional[Sequence]
@@ -107,15 +107,17 @@ class MidiClip(Clip):
     def get_linked_parameters(self, device_parameters):
         # type: (List[DeviceParameter]) -> List[LinkedDeviceParameters]
         """
-            NB : this is only really useful for my rev2 where I want to copy and paste easily automation curves
-            between the 2 layers.
-            The rev2 is bitimbral and has two layers that expose the same parameters.
+        NB : this is only really useful for my rev2 where I want to copy and paste easily automation curves
+        between the 2 layers.
+        The rev2 is bitimbral and has two layers that expose the same parameters.
         """
         parameters = self.automation.get_automated_parameters(device_parameters)
         parameters_couple = []
         for parameter in parameters:
             if parameter.name.startswith("A-"):
-                b_parameter = find_if(lambda p: p.name == parameter.name.replace("A-", "B-"), parameters)
+                b_parameter = find_if(
+                    lambda p: p.name == parameter.name.replace("A-", "B-"), parameters
+                )
                 if b_parameter:
                     parameters_couple.append(LinkedDeviceParameters(parameter, b_parameter))
 

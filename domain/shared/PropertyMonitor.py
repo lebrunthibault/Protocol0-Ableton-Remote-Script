@@ -24,4 +24,6 @@ class PropertyMonitor(object):
         # type: () -> None
         current_value = getattr(self._obj, self._property_name)
         if not self._allowed_value_validator(current_value):
-            Backend.client().show_warning("Unexpected value change for %s : %s" % (self, current_value))
+            Backend.client().show_warning(
+                "Unexpected value change for %s : %s" % (self, current_value)
+            )

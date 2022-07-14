@@ -4,7 +4,7 @@ from protocol0.domain.lom.loop.LoopableInterface import LoopableInterface
 
 
 class SongLoopComponent(LoopableInterface):
-    """ handle start / end markers and loop gracefully """
+    """handle start / end markers and loop gracefully"""
 
     def __init__(self, song):
         # type: (Live.Song.Song) -> None

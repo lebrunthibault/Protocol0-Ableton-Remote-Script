@@ -6,4 +6,6 @@ class InstrumentSerum(InstrumentInterface):
     NAME = "Serum"
     DEVICE_NAME = "serum_x64"
     TRACK_COLOR = InstrumentColorEnum.SERUM
-    PRESETS_PATH = "C:\\Users\\thiba\\OneDrive\\Documents\\Xfer\\Serum Presets\\System\\ProgramChanges.txt"
+    PRESETS_PATH = (
+        "C:\\Users\\thiba\\OneDrive\\Documents\\Xfer\\Serum Presets\\System\\ProgramChanges.txt"
+    )

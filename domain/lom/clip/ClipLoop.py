@@ -9,7 +9,7 @@ from protocol0.shared.observer.Observable import Observable
 
 
 class ClipLoop(SlotManager, Observable, LoopableInterface):
-    """ handle start / end markers and loop gracefully """
+    """handle start / end markers and loop gracefully"""
 
     def __init__(self, clip):
         # type: (Live.Clip.Clip) -> None
@@ -25,7 +25,7 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
             self._clip.name,
             self.start,
             self.end,
-            self.length
+            self.length,
         )
 
     @subject_slot("loop_start")

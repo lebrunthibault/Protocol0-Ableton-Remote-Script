@@ -5,7 +5,9 @@ from protocol0.domain.lom.drum.DrumCategory import DrumCategory
 from protocol0.domain.lom.instrument.InstrumentColorEnum import InstrumentColorEnum
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.instrument.preset.PresetDisplayOptionEnum import PresetDisplayOptionEnum
-from protocol0.domain.lom.instrument.preset.preset_changer.SamplePresetChanger import SamplePresetChanger
+from protocol0.domain.lom.instrument.preset.preset_changer.SamplePresetChanger import (
+    SamplePresetChanger,
+)
 from protocol0.shared.Config import Config
 
 

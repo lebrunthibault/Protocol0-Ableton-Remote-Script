@@ -19,7 +19,7 @@ class AbletonSong(Subject):
         "tracks",
         "visible_tracks",
         "scenes",
-        "current_song_time"
+        "current_song_time",
     )
 
     def __init__(self):
@@ -49,7 +49,7 @@ class AbletonSong(Subject):
 
     def get_current_beats_song_time(self):
         # type: () -> namedtuple
-        beats_song_time = namedtuple('beats_song_time', ['bars', 'beats', 'sub_division', 'ticks'])
+        beats_song_time = namedtuple("beats_song_time", ["bars", "beats", "sub_division", "ticks"])
         return beats_song_time(1, 1, 1, 1)
 
     def get_data(self, _, default):

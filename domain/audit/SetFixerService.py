@@ -15,7 +15,7 @@ class SetFixerService(object):
 
     def fix_set(self):
         # type: () -> None
-        """ Fix the current set to the current standard regarding naming / coloring etc .."""
+        """Fix the current set to the current standard regarding naming / coloring etc .."""
         Logger.clear()
 
         invalid_objects = []
@@ -50,8 +50,9 @@ class SetFixerService(object):
         clip_slots = [cs for track in SongFacade.simple_tracks() for cs in track.clip_slots]
         clips = [clip for track in SongFacade.simple_tracks() for clip in track.clips]
         # noinspection PyTypeChecker
-        objects_to_refresh_appearance = clip_slots + clips + SongFacade.scenes() + list(
-            SongFacade.abstract_tracks())
+        objects_to_refresh_appearance = (
+            clip_slots + clips + SongFacade.scenes() + list(SongFacade.abstract_tracks())
+        )
 
         for obj in objects_to_refresh_appearance:
             obj.appearance.refresh()

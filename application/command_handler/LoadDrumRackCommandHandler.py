@@ -8,4 +8,6 @@ from protocol0.shared.sequence.Sequence import Sequence
 class LoadDrumRackCommandHandler(CommandHandlerInterface):
     def handle(self, command):
         # type: (LoadDrumRackCommand) -> Sequence
-        return self._container.get(TrackFactory).add_drum_track(command.drum_name, DeviceEnum.DRUM_RACK)
+        return self._container.get(TrackFactory).add_drum_track(
+            command.drum_name, DeviceEnum.DRUM_RACK
+        )

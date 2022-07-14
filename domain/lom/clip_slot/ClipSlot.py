@@ -119,10 +119,11 @@ class ClipSlot(SlotManager, Observable):
 
     def create_clip(self):
         # type: () -> Optional[Sequence]
-        """ creating one bar clip """
+        """creating one bar clip"""
         if self._clip_slot is None:
             return None
         from protocol0.domain.lom.clip_slot.MidiClipSlot import MidiClipSlot
+
         if not isinstance(self, MidiClipSlot):
             raise Protocol0Warning("Clips can only be created on midi tracks")
         if self.clip:

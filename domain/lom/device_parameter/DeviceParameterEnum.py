@@ -21,30 +21,34 @@ class DeviceParameterEnum(AbstractEnum):
     @property
     def parameter_name(self):
         # type: () -> str
-        return self.get_value_from_mapping({
-            DeviceParameterEnum.AUTO_FILTER_HIGH_PASS_FREQUENCY: "Frequency",
-            DeviceParameterEnum.AUTO_FILTER_LOW_PASS_FREQUENCY: "Frequency",
-            DeviceParameterEnum.CHAIN_SELECTOR: "Chain Selector",
-            DeviceParameterEnum.COMPRESSOR_OUTPUT_GAIN: "Output Gain",
-            DeviceParameterEnum.COMPRESSOR_THRESHOLD: "Threshold",
-            DeviceParameterEnum.DEVICE_ON: "Device On",
-            DeviceParameterEnum.DUMMY_RACK_GAIN: "Gain",
-            DeviceParameterEnum.EQ_EIGHT_FREQUENCY_1_A: "1 Frequency A",
-            DeviceParameterEnum.EQ_EIGHT_GAIN_4_A: "4 Gain A",
-            DeviceParameterEnum.EQ_EIGHT_FREQUENCY_8_A: "8 Frequency A",
-            DeviceParameterEnum.LFO_TOOL_LFO_DEPTH: "LFO Depth",
-            DeviceParameterEnum.UTILITY_GAIN: "Gain",
-            DeviceParameterEnum.UTILITY_MID_SIDE: "Mid/Side Balance",
-        })
+        return self.get_value_from_mapping(
+            {
+                DeviceParameterEnum.AUTO_FILTER_HIGH_PASS_FREQUENCY: "Frequency",
+                DeviceParameterEnum.AUTO_FILTER_LOW_PASS_FREQUENCY: "Frequency",
+                DeviceParameterEnum.CHAIN_SELECTOR: "Chain Selector",
+                DeviceParameterEnum.COMPRESSOR_OUTPUT_GAIN: "Output Gain",
+                DeviceParameterEnum.COMPRESSOR_THRESHOLD: "Threshold",
+                DeviceParameterEnum.DEVICE_ON: "Device On",
+                DeviceParameterEnum.DUMMY_RACK_GAIN: "Gain",
+                DeviceParameterEnum.EQ_EIGHT_FREQUENCY_1_A: "1 Frequency A",
+                DeviceParameterEnum.EQ_EIGHT_GAIN_4_A: "4 Gain A",
+                DeviceParameterEnum.EQ_EIGHT_FREQUENCY_8_A: "8 Frequency A",
+                DeviceParameterEnum.LFO_TOOL_LFO_DEPTH: "LFO Depth",
+                DeviceParameterEnum.UTILITY_GAIN: "Gain",
+                DeviceParameterEnum.UTILITY_MID_SIDE: "Mid/Side Balance",
+            }
+        )
 
     @property
     def label(self):
         # type: () -> str
-        return self.get_value_from_mapping({
-            DeviceParameterEnum.AUTO_FILTER_LOW_PASS_FREQUENCY: "Low Pass Frequency",
-            DeviceParameterEnum.UTILITY_GAIN: "Gain",
-            DeviceParameterEnum.AUTO_FILTER_HIGH_PASS_FREQUENCY: "High Pass Frequency",
-        })
+        return self.get_value_from_mapping(
+            {
+                DeviceParameterEnum.AUTO_FILTER_LOW_PASS_FREQUENCY: "Low Pass Frequency",
+                DeviceParameterEnum.UTILITY_GAIN: "Gain",
+                DeviceParameterEnum.AUTO_FILTER_HIGH_PASS_FREQUENCY: "High Pass Frequency",
+            }
+        )
 
     @classmethod
     def automatable_parameters(cls):

@@ -11,7 +11,9 @@ class AggregateValidator(ValidatorInterface):
 
     def get_error_message(self):
         # type: () -> Optional[str]
-        error_messages = filter(None, [validator.get_error_message() for validator in self._validators])
+        error_messages = filter(
+            None, [validator.get_error_message() for validator in self._validators]
+        )
         if len(error_messages) == 0:
             return None
         else:

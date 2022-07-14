@@ -1,28 +1,35 @@
 from typing import Optional
 
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
-    ExternalSynthTrack
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
+    ExternalSynthTrack,
+)
 from protocol0.domain.lom.track.routing.InputRoutingChannelEnum import InputRoutingChannelEnum
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
-from protocol0.domain.lom.validation.object_validators.AbstractGroupTrackValidator import \
-    AbstractGroupTrackValidator
-from protocol0.domain.lom.validation.object_validators.SimpleAudioTailTrackValidator import \
-    SimpleAudioTailTrackValidator
-from protocol0.domain.lom.validation.object_validators.SimpleAudioTrackValidator import \
-    SimpleAudioTrackValidator
-from protocol0.domain.lom.validation.object_validators.SimpleDummyReturnTrackValidator import \
-    SimpleDummyReturnTrackValidator
-from protocol0.domain.lom.validation.object_validators.SimpleDummyTrackValidator import \
-    SimpleDummyTrackValidator
+from protocol0.domain.lom.validation.object_validators.AbstractGroupTrackValidator import (
+    AbstractGroupTrackValidator,
+)
+from protocol0.domain.lom.validation.object_validators.SimpleAudioTailTrackValidator import (
+    SimpleAudioTailTrackValidator,
+)
+from protocol0.domain.lom.validation.object_validators.SimpleAudioTrackValidator import (
+    SimpleAudioTrackValidator,
+)
+from protocol0.domain.lom.validation.object_validators.SimpleDummyReturnTrackValidator import (
+    SimpleDummyReturnTrackValidator,
+)
+from protocol0.domain.lom.validation.object_validators.SimpleDummyTrackValidator import (
+    SimpleDummyTrackValidator,
+)
 from protocol0.domain.lom.validation.sub_validators.CallbackValidator import CallbackValidator
-from protocol0.domain.lom.validation.sub_validators.PropertyValueValidator import \
-    PropertyValueValidator
-from protocol0.domain.lom.validation.sub_validators.SimpleTrackHasDeviceValidator import \
-    SimpleTrackHasDeviceValidator
+from protocol0.domain.lom.validation.sub_validators.PropertyValueValidator import (
+    PropertyValueValidator,
+)
+from protocol0.domain.lom.validation.sub_validators.SimpleTrackHasDeviceValidator import (
+    SimpleTrackHasDeviceValidator,
+)
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
-from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -33,36 +40,50 @@ class ExternalSynthTrackValidator(AbstractGroupTrackValidator):
 
         validators = [
             # INSTRUMENT AND DEVICES
-            CallbackValidator(track, lambda t: t.instrument is not None, None,
-                              "track should have an instrument"),
-
-            # GROUP TRACK
-            PropertyValueValidator(track.output_routing, "track", track.base_track.group_track or SongFacade.master_track(),
-                                   name="group track output routing"),
-
+            CallbackValidator(
+                track, lambda t: t.instrument is not None, None, "track should have an instrument"
+            ),
             # MIDI TRACK
             PropertyValueValidator(track.midi_track, "volume", 0, name="midi track volume"),
-            SimpleTrackHasDeviceValidator(track.midi_track, DeviceEnum.EXTERNAL_AUDIO_EFFECT,
-                                          browser_service),
-            CallbackValidator(track.midi_track,
-                              lambda t: t.devices.get_one_from_enum(
-                                  DeviceEnum.EXTERNAL_INSTRUMENT) is None),
-            PropertyValueValidator(track.midi_track.input_routing, "type",
-                                   InputRoutingTypeEnum.ALL_INS, "midi track input type"),
-            PropertyValueValidator(track.midi_track.input_routing, "channel",
-                                   InputRoutingChannelEnum.CHANNEL_1,
-                                   name="midi track input channel"),
-            PropertyValueValidator(track.midi_track.output_routing, "type",
-                                   OutputRoutingTypeEnum.SENDS_ONLY,
-                                   name="midi track output type"),
-
+            SimpleTrackHasDeviceValidator(
+                track.midi_track, DeviceEnum.EXTERNAL_AUDIO_EFFECT, browser_service
+            ),
+            CallbackValidator(
+                track.midi_track,
+                lambda t: t.devices.get_one_from_enum(DeviceEnum.EXTERNAL_INSTRUMENT) is None,
+            ),
+            PropertyValueValidator(
+                track.midi_track.input_routing,
+                "type",
+                InputRoutingTypeEnum.ALL_INS,
+                "midi track input type",
+            ),
+            PropertyValueValidator(
+                track.midi_track.input_routing,
+                "channel",
+                InputRoutingChannelEnum.CHANNEL_1,
+                name="midi track input channel",
+            ),
+            PropertyValueValidator(
+                track.midi_track.output_routing,
+                "type",
+                OutputRoutingTypeEnum.SENDS_ONLY,
+                name="midi track output type",
+            ),
             # AUDIO TRACK
             PropertyValueValidator(track.audio_track, "volume", 0, name="audio track volume"),
-            PropertyValueValidator(track.audio_track.input_routing, "track",
-                                   track.midi_track,
-                                   name="audio track input track"),
-            PropertyValueValidator(track.audio_track.input_routing, "channel", InputRoutingChannelEnum.POST_FX,
-                                   name="audio track input channel"),
+            PropertyValueValidator(
+                track.audio_track.input_routing,
+                "track",
+                track.midi_track,
+                name="audio track input track",
+            ),
+            PropertyValueValidator(
+                track.audio_track.input_routing,
+                "channel",
+                InputRoutingChannelEnum.POST_FX,
+                name="audio track input channel",
+            ),
         ]
 
         # SUB TRACKS
@@ -74,12 +95,23 @@ class ExternalSynthTrackValidator(AbstractGroupTrackValidator):
 
         # DUMMY TRACK ROUTINGS
         if track.dummy_track is None and not track.is_armed:
-            validators.append(PropertyValueValidator(track.audio_track.output_routing, "track", track.base_track,
-                                                     name="audio track output routing"))
+            validators.append(
+                PropertyValueValidator(
+                    track.audio_track.output_routing,
+                    "track",
+                    track.base_track,
+                    name="audio track output routing",
+                )
+            )
             if track.audio_tail_track:
                 validators.append(
-                    PropertyValueValidator(track.audio_tail_track.output_routing, "track", track.base_track,
-                                           name="tail track output routing"))
+                    PropertyValueValidator(
+                        track.audio_tail_track.output_routing,
+                        "track",
+                        track.base_track,
+                        name="tail track output routing",
+                    )
+                )
         # DUMMY TRACK
         if track.dummy_track is not None:
             validators.append(SimpleDummyTrackValidator(track.dummy_track))

@@ -18,7 +18,9 @@ def get_frame_info(frame_count=1):
         (filename, line, method_name, _, _) = inspect.getframeinfo(call_frame)
     except IndexError:
         return None
-    filename = filename.replace(Config.PROJECT_ROOT + "\\", "").replace(Config.REMOTE_SCRIPTS_ROOT + "\\", "")
+    filename = filename.replace(Config.PROJECT_ROOT + "\\", "").replace(
+        Config.REMOTE_SCRIPTS_ROOT + "\\", ""
+    )
     class_name = filename.replace(".py", "").split("\\")[-1]
 
     FrameInfo = namedtuple("FrameInfo", ["filename", "class_name", "line", "method_name"])

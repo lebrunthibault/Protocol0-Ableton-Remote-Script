@@ -20,18 +20,21 @@ class QuantizationComponent(SlotManager):
         super(QuantizationComponent, self).__init__()
         self._song = song
         self._tempo_component = tempo_component
-        DomainEventBus.subscribe(SongInitializedEvent,
-                                 lambda _: self._check_quantization_is_valid())
-        DomainEventBus.subscribe(TrackRecordingStartedEvent,
-                                 lambda _: self._check_quantization_is_valid())
+        DomainEventBus.subscribe(
+            SongInitializedEvent, lambda _: self._check_quantization_is_valid()
+        )
+        DomainEventBus.subscribe(
+            TrackRecordingStartedEvent, lambda _: self._check_quantization_is_valid()
+        )
 
     def _check_quantization_is_valid(self):
         # type: () -> Optional[Sequence]
         if self.clip_trigger_quantization != Live.Song.Quantization.q_bar:
             Backend.client().show_warning(
-                "Fixing global launch quantization wrongly set to %s" %
-                self.clip_trigger_quantization,
-                centered=True)
+                "Fixing global launch quantization wrongly set to %s"
+                % self.clip_trigger_quantization,
+                centered=True,
+            )
             self.clip_trigger_quantization = Live.Song.Quantization.q_bar
             return None
 
@@ -39,13 +42,24 @@ class QuantizationComponent(SlotManager):
             return None
 
         seq = Sequence()
-        seq.prompt("Midi recording quantization %s is not tempo default : %s, Set to default ?" % (
-            self.midi_recording_quantization, self.tempo_default_midi_recording_quantization))
+        seq.prompt(
+            "Midi recording quantization %s is not tempo default : %s, Set to default ?"
+            % (self.midi_recording_quantization, self.tempo_default_midi_recording_quantization)
+        )
         seq.add(
-            partial(setattr, self, "midi_recording_quantization",
-                    self.tempo_default_midi_recording_quantization))
-        seq.add(partial(StatusBar.show_message,
-                        "Quantization set to %s" % self.tempo_default_midi_recording_quantization))
+            partial(
+                setattr,
+                self,
+                "midi_recording_quantization",
+                self.tempo_default_midi_recording_quantization,
+            )
+        )
+        seq.add(
+            partial(
+                StatusBar.show_message,
+                "Quantization set to %s" % self.tempo_default_midi_recording_quantization,
+            )
+        )
 
         return seq.done()
 

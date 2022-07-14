@@ -9,11 +9,11 @@ class FireSceneToPositionCommandHandler(CommandHandlerInterface):
     def handle(self, command):
         # type: (FireSceneToPositionCommand) -> None
         """
-            command.bar_length :
+        command.bar_length :
 
-            is None : we fire again the last scene
-            == - 1 : we fire the last bar of the previous scene
-            other number : we fire the selected scene at the selected bar position
+        is None : we fire again the last scene
+        == - 1 : we fire the last bar of the previous scene
+        other number : we fire the selected scene at the selected bar position
         """
         fire_to_position = self._container.get(ScenePlaybackService).fire_scene_to_position
         selected_scene = SongFacade.selected_scene()

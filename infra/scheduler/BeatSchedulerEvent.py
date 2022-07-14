@@ -13,7 +13,10 @@ class BeatSchedulerEvent(object):
     @property
     def should_execute(self):
         # type: () -> bool
-        return BeatTime.from_song_beat_time(SongFacade.current_beats_song_time()) >= self._beats_song_execution_time
+        return (
+            BeatTime.from_song_beat_time(SongFacade.current_beats_song_time())
+            >= self._beats_song_execution_time
+        )
 
     def execute(self):
         # type: () -> None

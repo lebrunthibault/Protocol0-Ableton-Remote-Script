@@ -16,10 +16,11 @@ class SerializableCommand(object):
     def serialize(self):
         # type: () -> str
         """Used from outside"""
-        return json.dumps({
-            "class": classname(self.__class__, ""),
-            "args": self.__dict__
-        }, sort_keys=True, indent=4)
+        return json.dumps(
+            {"class": classname(self.__class__, ""), "args": self.__dict__},
+            sort_keys=True,
+            indent=4,
+        )
 
     @classmethod
     def unserialize(cls, json_string):
@@ -28,19 +29,11 @@ class SerializableCommand(object):
         assert "class" in json_dict, "class is missing from json serialization"
         assert "args" in json_dict, "attrs is missing from json serialization"
 
-        server_pid = None
-        if "server_pid" in json_dict["args"]:
-            server_pid = json_dict["args"]["server_pid"]
-            del json_dict["args"]["server_pid"]
-
         sub_class = locate(json_dict["class"])
         if not sub_class:
             raise Protocol0Error("Couldn't locate %s" % json_dict["class"])
 
         # noinspection PyCallingNonCallable
         command = sub_class(**json_dict["args"])  # type: ignore[operator]
-
-        if server_pid:
-            command.server_pid = server_pid
 
         return command

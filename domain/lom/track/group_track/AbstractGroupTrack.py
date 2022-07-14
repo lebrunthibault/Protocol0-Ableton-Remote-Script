@@ -2,8 +2,7 @@ from typing import List, Optional, cast, Tuple
 
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.domain.lom.track.simple_track.SimpleDummyReturnTrack import \
-    SimpleDummyReturnTrack
+from protocol0.domain.lom.track.simple_track.SimpleDummyReturnTrack import SimpleDummyReturnTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -29,7 +28,7 @@ class AbstractGroupTrack(AbstractTrack):
 
     def _link_sub_tracks(self):
         # type: () -> None
-        """ 2nd layer linking """
+        """2nd layer linking"""
         # here we don't necessarily link the sub tracks to self
         self.sub_tracks[:] = self.base_track.sub_tracks
 
@@ -41,8 +40,8 @@ class AbstractGroupTrack(AbstractTrack):
     def _link_group_track(self):
         # type: () -> None
         """
-            2nd layer linking
-            Connect to the enclosing abg group track is any
+        2nd layer linking
+        Connect to the enclosing abg group track is any
         """
         if self.base_track.group_track is None:
             self.group_track = None
@@ -74,8 +73,9 @@ class AbstractGroupTrack(AbstractTrack):
 
         if dummy_return_track is not None:
             if dummy_return_track._track != getattr(self.dummy_return_track, "_track", None):
-                self.dummy_return_track = SimpleDummyReturnTrack(dummy_return_track._track,
-                                                                 dummy_return_track.index)
+                self.dummy_return_track = SimpleDummyReturnTrack(
+                    dummy_return_track._track, dummy_return_track.index
+                )
                 self.add_or_replace_sub_track(self.dummy_return_track, dummy_return_track)
                 self._link_sub_track(self.dummy_return_track)
         else:
@@ -101,7 +101,9 @@ class AbstractGroupTrack(AbstractTrack):
 
     def _route_sub_tracks(self):
         # type: () -> None
-        simple_tracks = [track for track in self.sub_tracks if not isinstance(track, SimpleDummyTrack)]
+        simple_tracks = [
+            track for track in self.sub_tracks if not isinstance(track, SimpleDummyTrack)
+        ]
         output_track = self.dummy_track if self.dummy_track is not None else self.base_track
 
         for track in simple_tracks:
@@ -109,13 +111,14 @@ class AbstractGroupTrack(AbstractTrack):
 
     def is_parent(self, abstract_track):
         # type: (AbstractTrack) -> bool
-        """ checks if the given track is not itself or a possibly nested child """
+        """checks if the given track is not itself or a possibly nested child"""
         return (
-                abstract_track == self
-                or abstract_track in self.sub_tracks
-                or any(
-            isinstance(sub_track, AbstractGroupTrack) and sub_track.is_parent(abstract_track)
-            for sub_track in self.sub_tracks)
+            abstract_track == self
+            or abstract_track in self.sub_tracks
+            or any(
+                isinstance(sub_track, AbstractGroupTrack) and sub_track.is_parent(abstract_track)
+                for sub_track in self.sub_tracks
+            )
         )
 
     @property

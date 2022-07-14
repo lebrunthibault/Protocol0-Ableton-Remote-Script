@@ -13,7 +13,7 @@ from typing import Any, Iterator  # noqa: E402
 
 def load_dotenv():
     # type: () -> None
-    """ doing this manually because dotenv throws an encoding error """
+    """doing this manually because dotenv throws an encoding error"""
     with open("%s/.env.json" % dirname(os.path.realpath(__file__))) as f:
         env_vars = json.loads(f.read())
         for key, value in env_vars.iteritems():
@@ -40,12 +40,12 @@ class EmptyModule(object):
 
     def __nonzero__(self):
         # type: () -> bool
-        """ allows Live environment check """
+        """allows Live environment check"""
         return not self.is_false
 
     def __ge__(self, other):
         # type: (Any) -> bool
-        """ allows Live environment check """
+        """allows Live environment check"""
         return False
 
     def __call__(self, *a, **k):

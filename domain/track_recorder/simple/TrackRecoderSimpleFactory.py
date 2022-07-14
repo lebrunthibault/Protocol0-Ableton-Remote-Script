@@ -2,7 +2,9 @@ from typing import Optional, Any, cast, Type
 
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.track_recorder.AbstractTrackRecorder import AbstractTrackRecorder
-from protocol0.domain.track_recorder.AbstractTrackRecorderFactory import AbstractTrackRecorderFactory
+from protocol0.domain.track_recorder.AbstractTrackRecorderFactory import (
+    AbstractTrackRecorderFactory,
+)
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
 from protocol0.domain.track_recorder.count_in.CountInInterface import CountInInterface
 from protocol0.domain.track_recorder.count_in.CountInOneBar import CountInOneBar

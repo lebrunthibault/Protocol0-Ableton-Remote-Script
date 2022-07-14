@@ -26,6 +26,7 @@ from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRouti
 from protocol0.domain.lom.track.simple_track.SimpleAudioExtTrack import SimpleAudioExtTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+from protocol0.domain.lom.track.simple_track.SimpleMidiExtTrack import SimpleMidiExtTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.backend.Backend import Backend
@@ -49,7 +50,9 @@ class ExternalSynthTrack(AbstractGroupTrack):
     def __init__(self, base_group_track):
         # type: (SimpleTrack) -> None
         super(ExternalSynthTrack, self).__init__(base_group_track)
-        self.midi_track = cast(SimpleMidiTrack, base_group_track.sub_tracks[0])
+        midi_track = base_group_track.sub_tracks[0]
+        self.midi_track = SimpleMidiExtTrack(midi_track._track, midi_track.index)
+        self._link_sub_track(self.midi_track)
 
         audio_track = base_group_track.sub_tracks[1]
         self.audio_track = SimpleAudioExtTrack(audio_track._track, audio_track.index)

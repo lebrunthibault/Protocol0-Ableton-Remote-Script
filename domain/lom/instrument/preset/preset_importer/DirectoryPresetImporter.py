@@ -3,7 +3,9 @@ import os
 from typing import List
 
 from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPreset
-from protocol0.domain.lom.instrument.preset.preset_importer.PresetImportInterface import PresetImportInterface
+from protocol0.domain.lom.instrument.preset.preset_importer.PresetImportInterface import (
+    PresetImportInterface,
+)
 
 
 class DirectoryPresetImporter(PresetImportInterface):
@@ -28,11 +30,16 @@ class DirectoryPresetImporter(PresetImportInterface):
                 category = root.replace(self._path + "\\", "").split("\\")[0]
                 if category.startswith("_"):
                     continue
-                for filename in [filename for filename in files if self._is_preset_filename(filename)]:
+                for filename in [
+                    filename for filename in files if self._is_preset_filename(filename)
+                ]:
                     presets.append(
-                        InstrumentPreset(index=len(presets), category=category, name=filename))
+                        InstrumentPreset(index=len(presets), category=category, name=filename)
+                    )
             else:
-                for filename in [filename for filename in files if self._is_preset_filename(filename)]:
+                for filename in [
+                    filename for filename in files if self._is_preset_filename(filename)
+                ]:
                     presets.append(InstrumentPreset(index=len(presets), name=filename))
 
         return presets

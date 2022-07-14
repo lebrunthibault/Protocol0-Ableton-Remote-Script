@@ -1,14 +1,16 @@
 from typing import Callable, Optional
 
 from protocol0.domain.shared.scheduler.BeatSchedulerInterface import BeatSchedulerInterface
-from protocol0.domain.shared.scheduler.TickSchedulerEventInterface import \
-    TickSchedulerEventInterface
+from protocol0.domain.shared.scheduler.TickSchedulerEventInterface import (
+    TickSchedulerEventInterface,
+)
 from protocol0.domain.shared.scheduler.TickSchedulerInterface import TickSchedulerInterface
 from protocol0.shared.SongFacade import SongFacade
 
 
 class Scheduler(object):
-    """ Facade for scheduling calls """
+    """Facade for scheduling calls"""
+
     _INSTANCE = None  # type: Optional[Scheduler]
     _TICKS_BY_SECOND = float(1000) / 17
 
@@ -31,16 +33,15 @@ class Scheduler(object):
     @classmethod
     def wait_bars(cls, bars, callback):
         # type: (float, Callable) -> None
-        cls._INSTANCE._beat_scheduler.wait_beats(bars * SongFacade.signature_numerator(),
-                                                 callback)
+        cls._INSTANCE._beat_scheduler.wait_beats(bars * SongFacade.signature_numerator(), callback)
 
     @classmethod
     def wait(cls, tick_count, callback, unique=False):
         # type: (int, Callable, bool) -> TickSchedulerEventInterface
         """
-            tick_count ~= 17 ms
-            unique: accept only one callback of a type. the next callback will cancel the
-            previous one scheduling
+        tick_count ~= 17 ms
+        unique: accept only one callback of a type. the next callback will cancel the
+        previous one scheduling
         """
         return cls._INSTANCE._tick_scheduler.schedule(tick_count, callback, unique)
 
@@ -54,6 +55,7 @@ class Scheduler(object):
     def restart(cls):
         # type: () -> None
         from protocol0.shared.sequence.Sequence import Sequence
+
         Sequence.reset()
         cls._INSTANCE._tick_scheduler.start()
         cls._INSTANCE._beat_scheduler.reset()

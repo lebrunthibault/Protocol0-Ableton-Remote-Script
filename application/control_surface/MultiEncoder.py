@@ -36,15 +36,11 @@ class MultiEncoder(SlotManager):
 
     def __repr__(self):
         # type: () -> str
-        return json.dumps({
-            "channel": self._channel,
-            "name": self.name,
-            "id": self.identifier
-        })
+        return json.dumps({"channel": self._channel, "name": self.name, "id": self.identifier})
 
     def add_action(self, action):
         # type: (EncoderAction) -> MultiEncoder
-        assert self._find_matching_action(action.move_type) is None, ("duplicate move %s" % action)
+        assert self._find_matching_action(action.move_type) is None, "duplicate move %s" % action
         if action.move_type == EncoderMoveEnum.LONG_PRESS:
             self._has_long_press = True
         self._actions.append(action)
@@ -53,7 +49,10 @@ class MultiEncoder(SlotManager):
     @property
     def _is_long_pressed(self):
         # type: () -> bool
-        return bool(self._pressed_at and (time.time() - self._pressed_at) > MultiEncoder.LONG_PRESS_THRESHOLD)
+        return bool(
+            self._pressed_at
+            and (time.time() - self._pressed_at) > MultiEncoder.LONG_PRESS_THRESHOLD
+        )
 
     @subject_slot("value")
     def _press_listener(self, value):
@@ -66,7 +65,9 @@ class MultiEncoder(SlotManager):
         else:
             if self._has_long_press:
                 # action executed on press and not release when only press defined
-                move_type = EncoderMoveEnum.LONG_PRESS if self._is_long_pressed else EncoderMoveEnum.PRESS
+                move_type = (
+                    EncoderMoveEnum.LONG_PRESS if self._is_long_pressed else EncoderMoveEnum.PRESS
+                )
                 self._find_and_execute_action(move_type=move_type)
 
     @subject_slot("value")
@@ -91,8 +92,12 @@ class MultiEncoder(SlotManager):
                 return None
 
             selected_track = SongFacade.selected_track()
-            if self._filter_active_tracks and (selected_track is None or not selected_track.IS_ACTIVE):
-                raise Protocol0Warning("action not dispatched for master / return tracks (%s)" % action.name)
+            if self._filter_active_tracks and (
+                selected_track is None or not selected_track.IS_ACTIVE
+            ):
+                raise Protocol0Warning(
+                    "action not dispatched for master / return tracks (%s)" % action.name
+                )
 
             params = {}
             if go_next is not None:

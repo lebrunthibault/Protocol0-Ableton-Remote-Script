@@ -18,21 +18,19 @@ class ClipName(SlotManager, Observable):
         # type: (Live.Clip.Clip) -> None
         super(ClipName, self).__init__()
         self._live_clip = live_clip
-        self.register_slot(self._live_clip, partial(self._name_listener, force=True),
-                           "loop_start")
-        self.register_slot(self._live_clip, partial(self._name_listener, force=True),
-                           "loop_end")
-        self.register_slot(self._live_clip, partial(self._name_listener, force=True),
-                           "start_marker")
-        self.register_slot(self._live_clip, partial(self._name_listener, force=True),
-                           "end_marker")
+        self.register_slot(self._live_clip, partial(self._name_listener, force=True), "loop_start")
+        self.register_slot(self._live_clip, partial(self._name_listener, force=True), "loop_end")
+        self.register_slot(
+            self._live_clip, partial(self._name_listener, force=True), "start_marker"
+        )
+        self.register_slot(self._live_clip, partial(self._name_listener, force=True), "end_marker")
         self._name_listener.subject = self._live_clip
         self._base_name = None  # type: Optional[str]
 
     @property
     def base_name(self):
         # type: () -> str
-        """ lazy loading """
+        """lazy loading"""
         if self._base_name is None:
             self._base_name = self._get_base_name()
         return self._base_name
@@ -75,8 +73,7 @@ class ClipName(SlotManager, Observable):
         if self._live_clip.is_recording:
             return None
         if self._DEBUG:
-            Logger.info("%s <-> %s <-> %s" % (base_name, self.base_name,
-                                              self._live_clip.name))
+            Logger.info("%s <-> %s <-> %s" % (base_name, self.base_name, self._live_clip.name))
         if base_name is not None:
             self.base_name = base_name
 

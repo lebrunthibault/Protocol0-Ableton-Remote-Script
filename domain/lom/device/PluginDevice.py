@@ -8,7 +8,9 @@ class PluginDevice(Device):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(PluginDevice, self).__init__(*a, **k)
-        self._device = cast(Live.PluginDevice.PluginDevice, self._device)  # type: Live.PluginDevice.PluginDevice
+        self._device = cast(
+            Live.PluginDevice.PluginDevice, self._device
+        )  # type: Live.PluginDevice.PluginDevice
 
     @property
     def presets(self):
@@ -33,5 +35,5 @@ class PluginDevice(Device):
     @property
     def preset_name(self):
         # type: () -> Optional[str]
-        """ overridden """
+        """overridden"""
         return self.selected_preset

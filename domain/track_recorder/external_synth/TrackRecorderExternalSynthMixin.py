@@ -2,8 +2,9 @@ from functools import partial
 
 from typing import cast
 
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
-    ExternalSynthTrack
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
+    ExternalSynthTrack,
+)
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler

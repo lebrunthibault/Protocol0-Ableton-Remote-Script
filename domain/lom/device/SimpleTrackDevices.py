@@ -76,7 +76,7 @@ class SimpleTrackDevices(SlotManager, Observable):
 
     def _find_all_devices(self, devices, only_visible=False):
         # type: (Optional[List[Device]], bool) -> List[Device]
-        u""" Returns a list with all devices from a track or chain """
+        """Returns a list with all devices from a track or chain"""
         all_devices = []
         if devices is None:
             return []
@@ -86,11 +86,15 @@ class SimpleTrackDevices(SlotManager, Observable):
                 continue
 
             if device.can_have_drum_pads and device.can_have_chains and device.selected_chain:
-                all_devices += chain([device], self._find_all_devices(device.selected_chain.devices))
+                all_devices += chain(
+                    [device], self._find_all_devices(device.selected_chain.devices)
+                )
             elif isinstance(device, RackDevice):
                 all_devices += [device]
                 for device_chain in device.chains:
-                    all_devices += self._find_all_devices(device_chain.devices, only_visible=only_visible)
+                    all_devices += self._find_all_devices(
+                        device_chain.devices, only_visible=only_visible
+                    )
 
         return all_devices
 
@@ -106,8 +110,9 @@ class SimpleTrackDevices(SlotManager, Observable):
     @property
     def parameters(self):
         # type: () -> List[DeviceParameter]
-        return list(
-            chain(*[device.parameters for device in self.all])) + self._mixer_device.parameters
+        return (
+            list(chain(*[device.parameters for device in self.all])) + self._mixer_device.parameters
+        )
 
     def disconnect(self):
         # type: () -> None

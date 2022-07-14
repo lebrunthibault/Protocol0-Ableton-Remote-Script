@@ -22,7 +22,7 @@ def test_beat_time_simple_2():
     assert beat_time._sixteenths == 1
     assert beat_time._ticks == 1
 
-    beats_song_time = namedtuple('beats_song_time', ['bars', 'beats', 'sub_division', 'ticks'])
+    beats_song_time = namedtuple("beats_song_time", ["bars", "beats", "sub_division", "ticks"])
     get_current_beats_song_time = AbletonSong.get_current_beats_song_time
     AbletonSong.get_current_beats_song_time = lambda s: beats_song_time(1, 3, 1, 5)
     beat_time = BeatTime.make_from_beat_offset(8)

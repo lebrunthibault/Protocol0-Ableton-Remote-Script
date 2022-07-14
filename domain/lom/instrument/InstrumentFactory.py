@@ -24,14 +24,19 @@ class InstrumentFactory(object):
 
         instrument_device = find_if(lambda d: cls._get_instrument_class(d) is not None, devices)
         if not instrument_device:
-            instrument_device = find_if(lambda d: cls._get_instrument_class(d) is not None, devices.all)
+            instrument_device = find_if(
+                lambda d: cls._get_instrument_class(d) is not None, devices.all
+            )
         if not instrument_device:
             return None
 
         instrument_class = cls._get_instrument_class(instrument_device)
 
-        if instrument_class and isinstance(instrument,
-                                           instrument_class) and instrument.device == instrument_device:
+        if (
+            instrument_class
+            and isinstance(instrument, instrument_class)
+            and instrument.device == instrument_device
+        ):
             return instrument  # maintaining state
         else:
             return instrument_class(instrument_device, track_name)
@@ -41,7 +46,9 @@ class InstrumentFactory(object):
         # type: (Device) -> Optional[Type[InstrumentInterface]]
         # checking for grouped devices
         if isinstance(device, DrumRackDevice):
-            from protocol0.domain.lom.instrument.instrument.InstrumentDrumRack import InstrumentDrumRack
+            from protocol0.domain.lom.instrument.instrument.InstrumentDrumRack import (
+                InstrumentDrumRack,
+            )
 
             return InstrumentDrumRack
 
@@ -53,7 +60,9 @@ class InstrumentFactory(object):
                 if _class.DEVICE_NAME.lower() == device.name.lower():
                     return _class
         elif isinstance(device, SimplerDevice):
-            from protocol0.domain.lom.instrument.instrument.InstrumentSimpler import InstrumentSimpler
+            from protocol0.domain.lom.instrument.instrument.InstrumentSimpler import (
+                InstrumentSimpler,
+            )
 
             return InstrumentSimpler
 
@@ -65,8 +74,12 @@ class InstrumentFactory(object):
         """Here, we fetch the appropriate instrument device from the instrument rack"""
         if len(rack_device.chains) and len(rack_device.chains[0].devices):
             # keeping only racks containing the same device
-            device_types = list(set([type(chain.devices[0]) for chain in rack_device.chains if len(chain.devices)]))
-            device_names = list(set([chain.devices[0].name for chain in rack_device.chains if len(chain.devices)]))
+            device_types = list(
+                set([type(chain.devices[0]) for chain in rack_device.chains if len(chain.devices)])
+            )
+            device_names = list(
+                set([chain.devices[0].name for chain in rack_device.chains if len(chain.devices)])
+            )
             if len(device_types) == 1 and len(device_names) == 1:
                 return rack_device.chains[0].devices[0]
 

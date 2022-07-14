@@ -12,8 +12,7 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrac
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmState import SimpleTrackArmState
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
 from protocol0.domain.lom.track.simple_track.SimpleTrackClipSlots import SimpleTrackClipSlots
-from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import \
-    SimpleTrackCreatedEvent
+from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import SimpleTrackCreatedEvent
 from protocol0.domain.lom.track.simple_track.SimpleTrackDeletedEvent import SimpleTrackDeletedEvent
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
@@ -74,8 +73,8 @@ class SimpleTrack(AbstractTrack):
     def _link_to_group_track(self):
         # type: () -> None
         """
-            1st layer linking
-            Connect to the enclosing simple group track is any
+        1st layer linking
+        Connect to the enclosing simple group track is any
         """
         if self._track.group_track is None:
             self.group_track = None
@@ -95,9 +94,7 @@ class SimpleTrack(AbstractTrack):
             # Refreshing is only really useful from simpler devices that change when a new sample is loaded
             if self.IS_ACTIVE and not self.is_foldable:
                 self.instrument = InstrumentFactory.make_instrument_from_simple_track(
-                    self.devices,
-                    self.instrument,
-                    self.abstract_track.name
+                    self.devices, self.instrument, self.abstract_track.name
                 )
         elif isinstance(observable, SimpleTrackArmState) and self.arm_state.is_armed:
             DomainEventBus.emit(SimpleTrackArmedEvent(self._track))
@@ -111,7 +108,9 @@ class SimpleTrack(AbstractTrack):
             # some clicks e.g. when starting / stopping the song have this value
             if round(self._track.output_meter_level, 3) == 0.921:
                 return
-            Backend.client().show_warning("%s is clipping (%.3f)" % (self.abstract_track.name, self._track.output_meter_level))
+            Backend.client().show_warning(
+                "%s is clipping (%.3f)" % (self.abstract_track.name, self._track.output_meter_level)
+            )
 
     @property
     def current_monitoring_state(self):
@@ -169,5 +168,5 @@ class SimpleTrack(AbstractTrack):
         self._clip_slots.disconnect()
         if self.instrument:
             self.instrument.disconnect()
-        if self.abstract_group_track:
+        if self.abstract_group_track and self.abstract_group_track.base_track == self:
             self.abstract_group_track.disconnect()

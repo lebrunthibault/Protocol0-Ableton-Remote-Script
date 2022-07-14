@@ -7,10 +7,12 @@ from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.ClipConfig import ClipConfig
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
-from protocol0.domain.lom.track.simple_track.SimpleTrackFirstClipAddedEvent import \
-    SimpleTrackFirstClipAddedEvent
-from protocol0.domain.lom.track.simple_track.SimpleTrackLastClipDeletedEvent import \
-    SimpleTrackLastClipDeletedEvent
+from protocol0.domain.lom.track.simple_track.SimpleTrackFirstClipAddedEvent import (
+    SimpleTrackFirstClipAddedEvent,
+)
+from protocol0.domain.lom.track.simple_track.SimpleTrackLastClipDeletedEvent import (
+    SimpleTrackLastClipDeletedEvent,
+)
 from protocol0.domain.shared.decorators import defer
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -52,7 +54,9 @@ class SimpleTrackClipSlots(SlotManager):
     @property
     def clips(self):
         # type: () -> List[Clip]
-        return [clip_slot.clip for clip_slot in self.clip_slots if clip_slot.has_clip and clip_slot.clip]
+        return [
+            clip_slot.clip for clip_slot in self.clip_slots if clip_slot.has_clip and clip_slot.clip
+        ]
 
     @property
     def selected(self):
@@ -61,7 +65,7 @@ class SimpleTrackClipSlots(SlotManager):
 
     def build(self):
         # type: () -> None
-        """ create new ClipSlot objects and keep existing ones """
+        """create new ClipSlot objects and keep existing ones"""
         live_cs_to_cs = {cs._clip_slot: cs for cs in self.clip_slots}
 
         new_clip_slots = []  # type: List[ClipSlot]

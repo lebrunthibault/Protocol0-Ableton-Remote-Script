@@ -8,8 +8,9 @@ from protocol0.domain.lom.device.DeviceService import DeviceService
 from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
-    ExternalSynthTrack
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
+    ExternalSynthTrack,
+)
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
@@ -79,7 +80,9 @@ class SetUpgradeService(object):
                 devices_by_name[name] = []
             devices_by_name[name].append(device)
 
-        info = "\n".join(("%s %s" % (len(devices), cls) for cls, devices in devices_by_name.items()))
+        info = "\n".join(
+            ("%s %s" % (len(devices), cls) for cls, devices in devices_by_name.items())
+        )
 
         seq = Sequence()
         seq.prompt("%s devices to delete,\n\n%s\n\nproceed ?" % (len(devices_to_delete), info))
@@ -90,7 +93,11 @@ class SetUpgradeService(object):
 
     def get_deletable_devices(self):
         # type: () -> Iterator[Tuple[SimpleTrack, Device]]
-        tracks = [track for track in SongFacade.all_simple_tracks() if not isinstance(track, SimpleDummyTrack)]
+        tracks = [
+            track
+            for track in SongFacade.all_simple_tracks()
+            if not isinstance(track, SimpleDummyTrack)
+        ]
 
         # devices with default values (unchanged)
         for device_enum in DeviceEnum:  # type: DeviceEnum
@@ -106,11 +113,18 @@ class SetUpgradeService(object):
                 device_on = device.get_parameter_by_name(DeviceParameterEnum.DEVICE_ON)
                 if device_on.value is False and not device_on.is_automated:
                     yield track, device
-                if all([parameter_value.matches(device) for parameter_value in default_parameter_values]):
+                if all(
+                    [
+                        parameter_value.matches(device)
+                        for parameter_value in default_parameter_values
+                    ]
+                ):
                     yield track, device
 
         # empty mix racks
         for track in SongFacade.all_simple_tracks():
-            mix_rack = track.devices.get_one_from_enum(DeviceEnum.MIX_RACK)  # type: Optional[RackDevice]
+            mix_rack = track.devices.get_one_from_enum(
+                DeviceEnum.MIX_RACK
+            )  # type: Optional[RackDevice]
             if mix_rack and len(mix_rack.chains[0].devices) == 0:
                 yield track, mix_rack

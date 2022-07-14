@@ -3,8 +3,9 @@ import os
 from typing import List
 
 from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPreset
-from protocol0.domain.lom.instrument.preset.preset_importer.DirectoryPresetImporter import \
-    DirectoryPresetImporter
+from protocol0.domain.lom.instrument.preset.preset_importer.DirectoryPresetImporter import (
+    DirectoryPresetImporter,
+)
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.utils.utils import find_if
 from protocol0.shared.Config import Config
@@ -53,19 +54,14 @@ class DrumCategory(object):
     @property
     def live_presets(self):
         # type: () -> List[InstrumentPreset]
-        return DirectoryPresetImporter(self._sample_directory, ".wav").import_presets(use_cache=False)
+        return DirectoryPresetImporter(self._sample_directory, ".wav").import_presets(
+            use_cache=False
+        )
 
     @property
     def uses_scene_length_clips(self):
         # type: () -> bool
-        return self.name.lower() in [
-            "crash",
-            "fill",
-            "impact",
-            "reverse",
-            "riser",
-            "texture"
-        ]
+        return self.name.lower() in ["crash", "fill", "impact", "reverse", "riser", "texture"]
 
     @property
     def create_track_index(self):
@@ -81,7 +77,9 @@ class DrumCategory(object):
                 return matched_track.index + 1
 
         # match by category
-        same_category_track = find_if(lambda t: t.name.lower() == self.name.lower(), reversed(drum_tracks))
+        same_category_track = find_if(
+            lambda t: t.name.lower() == self.name.lower(), reversed(drum_tracks)
+        )
         if same_category_track:
             return index_from_track(same_category_track)
 

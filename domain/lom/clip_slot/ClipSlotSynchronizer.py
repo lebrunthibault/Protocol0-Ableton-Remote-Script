@@ -9,7 +9,7 @@ from protocol0.shared.observer.Observable import Observable
 
 
 class ClipSlotSynchronizer(SlotManager):
-    """ For ExternalSynthTrack """
+    """For ExternalSynthTrack"""
 
     def __init__(self, midi_cs, audio_cs):
         # type: (MidiClipSlot, AudioClipSlot) -> None

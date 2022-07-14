@@ -27,7 +27,7 @@ class DeviceDisplayService(object):
 
     def make_plugin_window_showable(self, track, device):
         # type: (SimpleTrack, Device) -> Sequence
-        """ handles only one level of grouping in racks. Should be enough for now """
+        """handles only one level of grouping in racks. Should be enough for now"""
         parent_rack = self._find_parent_rack(track, device)
         seq = Sequence()
         seq.add(ApplicationViewFacade.show_device)
@@ -48,7 +48,9 @@ class DeviceDisplayService(object):
         (x_device, y_device) = self._get_device_show_button_click_coordinates(track, device)
 
         seq = Sequence()
-        seq.add(lambda: Backend.client().toggle_ableton_button(x=x_device, y=y_device, activate=True))
+        seq.add(
+            lambda: Backend.client().toggle_ableton_button(x=x_device, y=y_device, activate=True)
+        )
         seq.wait(10)
         seq.add(partial(self._uncollapse_devices, devices_to_collapse))
 
@@ -68,16 +70,23 @@ class DeviceDisplayService(object):
                 d.is_collapsed = True
 
         (x_rack, y_rack) = self._get_rack_show_macros_button_click_coordinates(track, parent_rack)
-        (x_device, y_device) = self._get_device_show_button_click_coordinates(track, device, parent_rack)
+        (x_device, y_device) = self._get_device_show_button_click_coordinates(
+            track, device, parent_rack
+        )
 
         seq = Sequence()
         seq.add(lambda: Backend.client().toggle_ableton_button(x=x_rack, y=y_rack, activate=False))
         seq.wait(5)
-        seq.add(lambda: Backend.client().toggle_ableton_button(x=x_device, y=y_device, activate=True))
+        seq.add(
+            lambda: Backend.client().toggle_ableton_button(x=x_device, y=y_device, activate=True)
+        )
         seq.wait(10)
         seq.add(lambda: Backend.client().toggle_ableton_button(x=x_rack, y=y_rack, activate=True))
         # at this point the rack macro controls could still be hidden if the plugin window masks the button
-        seq.add(partial(self._uncollapse_devices, devices_to_uncollapse), name="restore device collapse state")
+        seq.add(
+            partial(self._uncollapse_devices, devices_to_uncollapse),
+            name="restore device collapse state",
+        )
 
         return seq.done()
 
@@ -88,7 +97,7 @@ class DeviceDisplayService(object):
 
     def _get_device_show_button_click_coordinates(self, track, device, rack_device=None):
         # type: (SimpleTrack, Device, RackDevice) -> Tuple[int, int]
-        """ one grouping level only : expects all devices to be folded and macro controls hidden """
+        """one grouping level only : expects all devices to be folded and macro controls hidden"""
         if device.name == DeviceEnum.REV2_EDITOR.device_name:
             y = self.SHOW_HIDE_PLUGIN_BUTTON_PIXEL_HEIGHT
         else:
@@ -102,11 +111,14 @@ class DeviceDisplayService(object):
             (x_rack, _) = self._get_rack_show_macros_button_click_coordinates(track, rack_device)
             x = x_rack + device_position * self.COLLAPSED_RACK_DEVICE_PIXEL_WIDTH
 
-        return x - 3, y - 2  # we click not exactly in the center so as to know if the button is activated or not
+        return (
+            x - 3,
+            y - 2,
+        )  # we click not exactly in the center so as to know if the button is activated or not
 
     def _get_rack_show_macros_button_click_coordinates(self, track, rack_device):
         # type: (SimpleTrack, Device) -> Tuple[int, int]
-        """ top racks only : expects all devices to be folded """
+        """top racks only : expects all devices to be folded"""
         parent_rack_position = list(track.devices).index(rack_device) + 1
         x = self._get_device_click_x_position(parent_rack_position)
         y = self.SHOW_HIDE_MACRO_BUTTON_PIXEL_HEIGHT
@@ -126,4 +138,6 @@ class DeviceDisplayService(object):
             if device in rack_device.chains[0].devices:
                 return rack_device
 
-        raise Protocol0Error("Couldn't find device %s (may be too nested to be detected)" % device.name)
+        raise Protocol0Error(
+            "Couldn't find device %s (may be too nested to be detected)" % device.name
+        )

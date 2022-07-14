@@ -11,7 +11,8 @@ from protocol0.shared.sequence.SequenceTransition import SequenceStateEnum
 
 
 class ParallelSequence(SlotManager, Observable):
-    """ executes steps in parallel """
+    """executes steps in parallel"""
+
     def __init__(self, funcs):
         # type: (List[Callable]) -> None
         super(ParallelSequence, self).__init__()

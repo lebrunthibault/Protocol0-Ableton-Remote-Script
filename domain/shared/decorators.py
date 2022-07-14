@@ -16,6 +16,7 @@ def defer(func):
     def decorate(*a, **k):
         # type: (Any, Any) -> None
         from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+
         Scheduler.defer(partial(func, *a, **k))
         return None
 
@@ -63,6 +64,7 @@ def debounce(duration=100):
             decorate.count[object_source] += 1  # type: ignore[attr-defined]
 
             from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+
             Scheduler.wait_ms(duration, partial(execute, func, *a, **k))
 
         decorate.count = defaultdict(int)  # type: ignore[attr-defined]
@@ -113,6 +115,7 @@ class Throttler(object):
 def throttle(duration=100):
     # type: (int) -> Func
     """duration in ms"""
+
     def wrap(func):
         # type: (Func) -> Func
         @wraps(func)
@@ -140,6 +143,7 @@ def handle_error(func):
         except Exception:
             from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
             from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
+
             DomainEventBus.emit(ErrorRaisedEvent())
             # raise e
 

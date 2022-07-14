@@ -11,8 +11,13 @@ class SceneValidator(AggregateValidator):
         # type: (Scene) -> None
         validators = []  # type: List[ValidatorInterface]
         if scene.bar_length != 0 and scene.bar_length <= 32:
-            validators.append(CallbackValidator(scene, lambda s: s.bar_length < 2 or s.bar_length % 2 == 0, None,
-                                                "%s bar_length is not a multiple of 2" % scene),
-                              )
+            validators.append(
+                CallbackValidator(
+                    scene,
+                    lambda s: s.bar_length < 2 or s.bar_length % 2 == 0,
+                    None,
+                    "%s bar_length is not a multiple of 2" % scene,
+                ),
+            )
 
         super(SceneValidator, self).__init__(validators)

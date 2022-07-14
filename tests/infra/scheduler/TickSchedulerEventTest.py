@@ -2,7 +2,9 @@ from threading import Timer
 
 from typing import Callable
 
-from protocol0.domain.shared.scheduler.TickSchedulerEventInterface import TickSchedulerEventInterface
+from protocol0.domain.shared.scheduler.TickSchedulerEventInterface import (
+    TickSchedulerEventInterface,
+)
 
 
 class TickSchedulerEventTest(TickSchedulerEventInterface):

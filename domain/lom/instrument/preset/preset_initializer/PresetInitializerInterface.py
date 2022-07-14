@@ -7,7 +7,7 @@ from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPr
 class PresetInitializerInterface(object):
     def __init__(self, device, track_name):
         # type: (Optional[Device], str) -> None
-        """ Fetches the selected preset from the device or track """
+        """Fetches the selected preset from the device or track"""
         self._device = device
         self._track_name = track_name
 

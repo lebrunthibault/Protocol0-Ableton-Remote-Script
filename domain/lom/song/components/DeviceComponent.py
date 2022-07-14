@@ -20,8 +20,12 @@ class DeviceComponent(object):
     @property
     def selected_parameter(self):
         # type: () -> Optional[DeviceParameter]
-        all_parameters = [param for track in SongFacade.simple_tracks() for param in track.devices.parameters]
-        return find_if(lambda p: p._device_parameter == self._view.selected_parameter, all_parameters)
+        all_parameters = [
+            param for track in SongFacade.simple_tracks() for param in track.devices.parameters
+        ]
+        return find_if(
+            lambda p: p._device_parameter == self._view.selected_parameter, all_parameters
+        )
 
     def select_device(self, track, device):
         # type: (SimpleTrack, Device) -> Sequence
@@ -29,4 +33,5 @@ class DeviceComponent(object):
         seq.add(track.select)
         seq.add(partial(self._view.select_device, device._device))
         seq.add(ApplicationViewFacade.focus_detail)
+        seq.add(ApplicationViewFacade.show_device)
         return seq.done()

@@ -15,7 +15,9 @@ class SessionService(SessionServiceInterface):
         self._component_guard = component_guard
         self._set_highlighting_session_component = set_highlighting_session_component
         self._session = None  # type: Optional[SessionComponent]
-        DomainEventBus.subscribe(ClipCreatedOrDeletedEvent, lambda _: DomainEventBus.emit(SessionUpdatedEvent()))
+        DomainEventBus.subscribe(
+            ClipCreatedOrDeletedEvent, lambda _: DomainEventBus.emit(SessionUpdatedEvent())
+        )
 
     def toggle_session_ring(self):
         # type: () -> None
@@ -39,7 +41,9 @@ class SessionService(SessionServiceInterface):
 
         with self._component_guard():
             self._session = SessionComponent(num_tracks=num_tracks, num_scenes=8)
-        self._session.set_offsets(track_offset=track_offset, scene_offset=SongFacade.selected_scene().index)
+        self._session.set_offsets(
+            track_offset=track_offset, scene_offset=SongFacade.selected_scene().index
+        )
         if track_offset != len(list(SongFacade.visible_tracks())) - 1:
             self._set_highlighting_session_component(self._session)
 

@@ -1,7 +1,9 @@
 from typing import List
 
 from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPreset
-from protocol0.domain.lom.instrument.preset.preset_importer.PresetImportInterface import PresetImportInterface
+from protocol0.domain.lom.instrument.preset.preset_importer.PresetImportInterface import (
+    PresetImportInterface,
+)
 
 
 class FilePresetImporter(PresetImportInterface):

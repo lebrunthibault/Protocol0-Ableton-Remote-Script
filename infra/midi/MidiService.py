@@ -3,8 +3,9 @@ from typing import Optional, Tuple, Callable
 
 from protocol0.application.CommandBus import CommandBus
 from protocol0.application.command.SerializableCommand import SerializableCommand
-from protocol0.domain.lom.instrument.preset.PresetProgramSelectedEvent import \
-    PresetProgramSelectedEvent
+from protocol0.domain.lom.instrument.preset.PresetProgramSelectedEvent import (
+    PresetProgramSelectedEvent,
+)
 from protocol0.domain.lom.song.SongInitializedEvent import SongInitializedEvent
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.decorators import throttle
@@ -82,6 +83,7 @@ class MidiService(object):
     def _check_protocol_midi_is_up(self):
         # type: () -> None
         from protocol0_midi import Protocol0Midi
+
         protocol0_midi = find_if(lambda cs: isinstance(cs, Protocol0Midi), get_control_surfaces())
         if protocol0_midi is None:
             Logger.error("Protocol0Midi is not loaded")

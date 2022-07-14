@@ -23,7 +23,7 @@ class SimpleTrackArmState(AbstractTrackArmState):
     @property
     def is_armable(self):
         # type: () -> bool
-        """ Checks for disabled input routing """
+        """Checks for disabled input routing"""
         if not self._live_track.can_be_armed:
             return True
         self.is_armed = True

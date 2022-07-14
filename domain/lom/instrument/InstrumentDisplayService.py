@@ -48,7 +48,10 @@ class InstrumentDisplayService(object):
         # type: (SimpleTrackArmedEvent) -> Optional[Sequence]
         track = SongFacade.simple_track_from_live_track(event.live_track)
 
-        if not SongFacade.current_track().instrument or SongFacade.current_track().instrument_track != track:
+        if (
+            not SongFacade.current_track().instrument
+            or SongFacade.current_track().instrument_track != track
+        ):
             return None
 
         if not track.instrument or not track.instrument.needs_exclusive_activation:
@@ -70,8 +73,15 @@ class InstrumentDisplayService(object):
         if force_activate or not instrument.activated:
             seq.add(track.select)
             seq.add(
-                partial(self._device_display_service.make_plugin_window_showable, track, instrument.device))
-            seq.add(lambda: setattr(instrument, "activated", True), name="mark instrument as activated")
+                partial(
+                    self._device_display_service.make_plugin_window_showable,
+                    track,
+                    instrument.device,
+                )
+            )
+            seq.add(
+                lambda: setattr(instrument, "activated", True), name="mark instrument as activated"
+            )
 
         if force_activate or instrument.needs_exclusive_activation:
             seq.add(track.select)

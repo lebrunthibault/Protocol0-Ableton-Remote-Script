@@ -13,10 +13,10 @@ from protocol0.shared.SongFacade import SongFacade
 
 class P0SessionRingTrackProvider(SessionRingTrackProvider):
     """
-        Handling the push2 session ring
+    Handling the push2 session ring
 
-        Modifies which tracks are controlled by the session ring
-        Session will now control and display only the scene tracks
+    Modifies which tracks are controlled by the session ring
+    Session will now control and display only the scene tracks
     """
 
     def __init__(self, *a, **k):
@@ -49,7 +49,9 @@ class P0SessionRingTrackProvider(SessionRingTrackProvider):
         try:
             data = {
                 "selected_scene": str(SongFacade.selected_scene()),
-                "tracks_to_use": [live_track_to_string(t._live_object) for t in self.tracks_to_use()],
+                "tracks_to_use": [
+                    live_track_to_string(t._live_object) for t in self.tracks_to_use()
+                ],
                 "num_tracks": self.num_tracks,
                 "num_scenes": self.num_scenes,
                 "scene_offset": self.scene_offset,
@@ -70,8 +72,8 @@ class P0SessionRingTrackProvider(SessionRingTrackProvider):
     def _on_selected_track_changed_event(self, _):
         # type: (SelectedTrackChangedEvent) -> None
         """
-            Rebuild session on selected track change.
-            Useful because we want the selected track to be part of the push2 session
+        Rebuild session on selected track change.
+        Useful because we want the selected track to be part of the push2 session
         """
         DomainEventBus.emit(SessionUpdatedEvent())
 
@@ -91,10 +93,10 @@ class P0SessionRingTrackProvider(SessionRingTrackProvider):
     def tracks_to_use(self):
         # type: () -> List[Any]
         """
-            Called by the push to have the track list to display
+        Called by the push to have the track list to display
 
-            There are race conditions between the push and the script so this is cached
-            We update the list when it's fit for the script
+        There are race conditions between the push and the script so this is cached
+        We update the list when it's fit for the script
         """
         return self._tracks_to_use_cache
 

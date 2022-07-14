@@ -3,14 +3,16 @@ from protocol0.shared.SongFacade import SongFacade
 
 
 class LOMAnalyzerService(object):
-    """ Audit object model """
+    """Audit object model"""
 
     def check_tracks_tree_consistency(self):
         # type: () -> None
         for simple_track in SongFacade.simple_tracks():
             # 1st layer checks
             if simple_track.group_track:
-                assert simple_track in simple_track.group_track.sub_tracks, "failed on %s" % simple_track
+                assert simple_track in simple_track.group_track.sub_tracks, (
+                    "failed on %s" % simple_track
+                )
 
             if simple_track.is_foldable:
                 for sub_track in simple_track.sub_tracks:
@@ -22,4 +24,6 @@ class LOMAnalyzerService(object):
                 assert len(abstract_group_track.sub_tracks) == len(simple_track.sub_tracks)
                 for sub_track in abstract_group_track.sub_tracks:
                     if isinstance(sub_track, AbstractGroupTrack):
-                        assert sub_track.group_track == abstract_group_track, "failed on %s" % simple_track
+                        assert sub_track.group_track == abstract_group_track, (
+                            "failed on %s" % simple_track
+                        )

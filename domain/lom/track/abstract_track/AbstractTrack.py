@@ -9,12 +9,13 @@ from protocol0.domain.lom.clip.ClipSlotSelectedEvent import ClipSlotSelectedEven
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
-from protocol0.domain.lom.track.abstract_track.AbstrackTrackArmState import \
-    AbstractTrackArmState
-from protocol0.domain.lom.track.abstract_track.AbstractTrackAppearance import \
-    AbstractTrackAppearance
-from protocol0.domain.lom.track.abstract_track.AbstractTrackSelectedEvent import \
-    AbstractTrackSelectedEvent
+from protocol0.domain.lom.track.abstract_track.AbstrackTrackArmState import AbstractTrackArmState
+from protocol0.domain.lom.track.abstract_track.AbstractTrackAppearance import (
+    AbstractTrackAppearance,
+)
+from protocol0.domain.lom.track.abstract_track.AbstractTrackSelectedEvent import (
+    AbstractTrackSelectedEvent,
+)
 from protocol0.domain.lom.track.routing.TrackInputRouting import TrackInputRouting
 from protocol0.domain.lom.track.routing.TrackOutputRouting import TrackOutputRouting
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
@@ -134,7 +135,9 @@ class AbstractTrack(SlotManager):
     @property
     def clips(self):
         # type: () -> List[Clip]
-        return [clip_slot.clip for clip_slot in self.clip_slots if clip_slot.has_clip and clip_slot.clip]
+        return [
+            clip_slot.clip for clip_slot in self.clip_slots if clip_slot.has_clip and clip_slot.clip
+        ]
 
     name = cast(str, ForwardTo("appearance", "name"))
 
@@ -186,7 +189,9 @@ class AbstractTrack(SlotManager):
     @property
     def is_playing(self):
         # type: () -> bool
-        return self.base_track.is_playing or any(sub_track.is_playing for sub_track in self.sub_tracks)
+        return self.base_track.is_playing or any(
+            sub_track.is_playing for sub_track in self.sub_tracks
+        )
 
     @property
     def muted(self):
@@ -215,7 +220,13 @@ class AbstractTrack(SlotManager):
         # type: (float) -> None
         volume = db_to_volume(volume)
         if self._track:
-            Scheduler.defer(partial(DeviceParameter.set_live_device_parameter, self._track.mixer_device.volume, volume))
+            Scheduler.defer(
+                partial(
+                    DeviceParameter.set_live_device_parameter,
+                    self._track.mixer_device.volume,
+                    volume,
+                )
+            )
 
     @property
     def has_audio_output(self):

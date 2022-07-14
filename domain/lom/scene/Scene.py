@@ -15,6 +15,7 @@ from protocol0.domain.lom.scene.SceneName import SceneName
 from protocol0.domain.lom.scene.ScenePlayingState import ScenePlayingState
 from protocol0.domain.lom.scene.ScenePositionScroller import ScenePositionScroller
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
+from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.decorators import throttle
@@ -68,9 +69,18 @@ class Scene(SlotManager):
         # type: () -> Iterator[SimpleTrack]
         # manually stopping previous scene because we don't display clip slot stop buttons
         for track in self.clips.tracks:
+            clip = track.clip_slots[self.index].clip
+
+            # let dummy track play until the end
+            if isinstance(track, SimpleDummyTrack) and clip and clip.loop.bar_length > self.bar_length:
+                Scheduler.wait_bars(clip.loop.bar_length > self.bar_length, track.stop)
+                continue
+
             if track.is_playing:
-                if self == SongFacade.playing_scene() or \
-                        track not in SongFacade.playing_scene().clips.tracks:
+                if (
+                        self == SongFacade.playing_scene()
+                        or track not in SongFacade.playing_scene().clips.tracks
+                ):
                     yield track
 
     def update(self, observable):
@@ -101,9 +111,11 @@ class Scene(SlotManager):
     @property
     def next_scene(self):
         # type: () -> Scene
-        if self == SongFacade.looping_scene() \
-                or self == SongFacade.scenes()[-1] \
-                or SongFacade.scenes()[self.index + 1].bar_length == 0:
+        if (
+            self == SongFacade.looping_scene()
+            or self == SongFacade.scenes()[-1]
+            or SongFacade.scenes()[self.index + 1].bar_length == 0
+        ):
             return self
         else:
             next_scene = SongFacade.scenes()[self.index + 1]
@@ -137,7 +149,8 @@ class Scene(SlotManager):
     def has_playing_clips(self):
         # type: () -> bool
         return SongFacade.is_playing() and any(
-            clip and clip.is_playing and not clip.muted for clip in self.clips)
+            clip and clip.is_playing and not clip.muted for clip in self.clips
+        )
 
     @property
     def skipped(self):
@@ -172,7 +185,7 @@ class Scene(SlotManager):
     def stop(self, immediate=False):
         # type: (bool) -> None
         """Used to manually stopping previous scene
-            because we don't display clip slot stop buttons
+        because we don't display clip slot stop buttons
         """
         DomainEventBus.emit(PlayingSceneChangedEvent())
 
@@ -202,7 +215,9 @@ class Scene(SlotManager):
 
     def scroll_tracks(self, go_next):
         # type: (bool) -> None
-        next_track = ValueScroller.scroll_values(self.abstract_tracks, SongFacade.current_track(), go_next)
+        next_track = ValueScroller.scroll_values(
+            self.abstract_tracks, SongFacade.current_track(), go_next
+        )
         next_track.select()
         next_clip_slot = next_track.selected_clip_slot
         if next_clip_slot.clip:

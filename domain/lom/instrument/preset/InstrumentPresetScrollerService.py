@@ -1,10 +1,10 @@
 from functools import partial
 
-from protocol0.domain.lom.instrument.preset.PresetDisplayOptionEnum import \
-    PresetDisplayOptionEnum
+from protocol0.domain.lom.instrument.preset.PresetDisplayOptionEnum import PresetDisplayOptionEnum
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
-    ExternalSynthTrack
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
+    ExternalSynthTrack,
+)
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.decorators import lock

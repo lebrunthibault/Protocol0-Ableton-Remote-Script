@@ -10,7 +10,7 @@ from protocol0.domain.track_recorder.count_in.CountInInterface import CountInInt
 
 
 class AbstractTrackRecorderFactory(object):
-    """ Abstract Factory """
+    """Abstract Factory"""
 
     def __init__(self, track, playback_component, recording_component, recording_bar_length):
         # type: (AbstractTrack, PlaybackComponent, RecordingComponent, int) -> None
@@ -25,7 +25,9 @@ class AbstractTrackRecorderFactory(object):
 
     def create_recorder(self, record_type):
         # type: (RecordTypeEnum) -> AbstractTrackRecorder
-        recorder = self._get_recorder_class(record_type)(self.track, self._playback_component, self._recording_component)
+        recorder = self._get_recorder_class(record_type)(
+            self.track, self._playback_component, self._recording_component
+        )
 
         if recorder is None:
             raise Protocol0Error("Couldn't generate recorder in %s" % self)

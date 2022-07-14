@@ -33,7 +33,9 @@ class ActionGroupTest(ActionGroupInterface):
         self.add_encoder(identifier=3, name="clear logs", on_press=Logger.clear)
 
         # DUPLication encoder
-        self.add_encoder(identifier=4, name="test server duplication", on_press=Backend.client().test_duplication)
+        self.add_encoder(
+            identifier=4, name="test server duplication", on_press=Backend.client().test_duplication
+        )
 
         # USAMo encoder
         self.add_encoder(
@@ -47,4 +49,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        division_by_zero = 1 / 0
+        pass

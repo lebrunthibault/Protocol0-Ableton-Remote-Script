@@ -30,8 +30,8 @@ def _make_multi_encoder(identifier=1):
     # type: (int) -> MultiEncoder
     p0 = make_protocol0()
     return ActionGroupTest(TestContainer(), p0.component_guard).add_encoder(
-        identifier=identifier,
-        name="pytest")
+        identifier=identifier, name="pytest"
+    )
 
 
 def test_multi_encoder_press():
@@ -42,10 +42,14 @@ def test_multi_encoder_press():
         # type: () -> None
         res["pressed"] = True
 
-    multi_encoder = _make_multi_encoder().add_action(EncoderAction(press, move_type=EncoderMoveEnum.PRESS, name="test"))
+    multi_encoder = _make_multi_encoder().add_action(
+        EncoderAction(press, move_type=EncoderMoveEnum.PRESS, name="test")
+    )
 
     with pytest.raises(AssertionError):
-        multi_encoder.add_action(EncoderAction(func=lambda: None, move_type=EncoderMoveEnum.PRESS, name="test"))
+        multi_encoder.add_action(
+            EncoderAction(func=lambda: None, move_type=EncoderMoveEnum.PRESS, name="test")
+        )
 
     _press_encoder(multi_encoder)
     assert res["pressed"] is True
@@ -61,7 +65,8 @@ def test_multi_encoder_scroll():
         res["scrolled"] = True
 
     multi_encoder = _make_multi_encoder().add_action(
-        EncoderAction(scroll, move_type=EncoderMoveEnum.SCROLL, name="test"))
+        EncoderAction(scroll, move_type=EncoderMoveEnum.SCROLL, name="test")
+    )
     _scroll_encoder(multi_encoder)
     assert res["scrolled"] is True
 
@@ -80,8 +85,9 @@ def test_multi_encoder_press_and_scroll():
         res["pressed"] = True
 
     multi_encoder = (
-        _make_multi_encoder().add_action(EncoderAction(press, move_type=EncoderMoveEnum.PRESS, name="test")).add_action(
-            EncoderAction(scroll, move_type=EncoderMoveEnum.SCROLL, name="test"))
+        _make_multi_encoder()
+        .add_action(EncoderAction(press, move_type=EncoderMoveEnum.PRESS, name="test"))
+        .add_action(EncoderAction(scroll, move_type=EncoderMoveEnum.SCROLL, name="test"))
     )
     _scroll_encoder(multi_encoder)
     assert res["scrolled"] is True

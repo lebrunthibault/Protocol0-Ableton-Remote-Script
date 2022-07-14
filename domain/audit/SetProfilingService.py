@@ -10,9 +10,9 @@ class SetProfilingService(object):
     def profile_set(self):
         # type: () -> None
         """
-            Reloads the set multiple time to find the average load time
+        Reloads the set multiple time to find the average load time
 
-            Useful to test a single vst impact on load time
+        Useful to test a single vst impact on load time
         """
         push2_script_loaded = find_if(lambda s: isinstance(s, P0Push2), get_control_surfaces())
 
