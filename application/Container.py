@@ -120,7 +120,8 @@ class Container(ContainerInterface):
         browser = control_surface.application().browser
         browser_service = BrowserService(browser, BrowserLoaderService(browser))
         device_display_service = DeviceDisplayService(browser_service)
-        device_service = DeviceService(browser_service, device_component)
+        instrument_display_service = InstrumentDisplayService(device_display_service)
+        device_service = DeviceService(device_component, browser_service, instrument_display_service)
         drum_rack_service = DrumRackService(browser_service)
         track_factory = TrackFactory(track_crud_component, browser_service, drum_rack_service)
         track_repository = TrackRepository()
@@ -150,7 +151,6 @@ class Container(ContainerInterface):
 
         song_service = SongInitService(playback_component)
         Backend.client().end_measurement()
-        instrument_display_service = InstrumentDisplayService(device_display_service)
         instrument_preset_scroller_service = InstrumentPresetScrollerService()
         mixing_service = MixingService()
         validator_service = ValidatorService(ValidatorFactory(browser_service))

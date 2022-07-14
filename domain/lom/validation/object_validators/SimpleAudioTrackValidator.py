@@ -30,6 +30,6 @@ class SimpleAudioTrackValidator(SimpleTrackValidator):
                 None,
                 "clips should have the right color",
             ),
-        ]  # type: List[ValidatorInterface]
+        ]
 
         super(SimpleAudioTrackValidator, self).__init__(track, validators)

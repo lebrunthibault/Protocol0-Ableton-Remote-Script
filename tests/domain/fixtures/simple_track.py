@@ -4,6 +4,7 @@ import Live
 from _Framework.SubjectSlot import Subject
 from typing import cast, List
 
+from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.tests.domain.fixtures.clip_slot import AbletonClipSlot
 from protocol0.tests.domain.fixtures.device import AbletonDevice
@@ -16,9 +17,9 @@ class TrackType(object):
 
 
 class TrackRoutingType(object):
-    def __init__(self):
+    def __init__(self, display_name=""):
         # type: () -> None
-        self.display_name = ""
+        self.display_name = display_name
 
 
 class AbletonTrack(Subject):
@@ -34,7 +35,7 @@ class AbletonTrack(Subject):
     )
 
     def __init__(self, track_type=TrackType.MIDI):
-        # type: (str, str) -> None
+        # type: (str) -> None
         self._live_ptr = id(self)
         self.name = track_type
         self.devices = []  # type: List[AbletonDevice]
@@ -48,7 +49,8 @@ class AbletonTrack(Subject):
         self.has_midi_input = self.has_audio_output = self.is_foldable = self.fold_state = False
         self.available_input_routing_types = []
         self.available_input_routing_channels = []
-        self.output_routing_type = TrackRoutingType()
+        self.available_output_routing_types = [TrackRoutingType(OutputRoutingTypeEnum.SENDS_ONLY.label)]
+        self.output_routing_type = self.available_output_routing_types[0]
         self.clip_slots = [AbletonClipSlot()]
         self.view = None
         self.group_track = None

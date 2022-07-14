@@ -34,9 +34,6 @@ from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthNo
 from protocol0.domain.track_recorder.external_synth.decorator.TrackRecorderClipTailDecorator import (
     TrackRecorderClipTailDecorator,
 )
-from protocol0.domain.track_recorder.external_synth.decorator.TrackRecorderPropagateNewAudioClipDecorator import (
-    TrackRecorderPropagateNewAudioClipDecorator,
-)
 from protocol0.shared.SongFacade import SongFacade
 
 
@@ -56,14 +53,6 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
     def create_recorder(self, record_type):
         # type: (RecordTypeEnum) -> AbstractTrackRecorder
         recorder = super(TrackRecorderExternalSynthFactory, self).create_recorder(record_type)
-        if record_type == RecordTypeEnum.AUDIO_ONLY:
-            recorder = TrackRecorderPropagateNewAudioClipDecorator(
-                recorder, self._playback_component, self._recording_component
-            )
-        elif record_type == RecordTypeEnum.AUDIO_ONLY_AUTOMATION:
-            recorder = TrackRecorderPropagateNewAudioClipDecorator(
-                recorder, self._playback_component, self._recording_component
-            )
 
         if self.track.audio_tail_track and record_type != RecordTypeEnum.NORMAL_UNLIMITED:
             recorder = TrackRecorderClipTailDecorator(

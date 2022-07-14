@@ -2,15 +2,16 @@ from fractions import Fraction
 from functools import partial
 
 import Live
-from ableton.v2.control_surface import Layer
-from protocol0_push2.push2 import Push2
-from pushbase.push_base import NUM_TRACKS, NUM_SCENES
 
+from ableton.v2.control_surface import Layer
 from protocol0.application.push2.P0SessionRingTrackProvider import P0SessionRingTrackProvider
 from protocol0.application.push2.P0TrackListComponent import P0TrackListComponent
+from protocol0.application.push2.P0TransportComponent import P0TransportComponent
 from protocol0.domain.shared.utils.func import nop
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
+from protocol0_push2.push2 import Push2
+from pushbase.push_base import NUM_TRACKS, NUM_SCENES
 
 
 class P0Push2(Push2):
@@ -67,6 +68,14 @@ class P0Push2(Push2):
         self._clip_phase_enabler = self._track_list_component.clip_phase_enabler
         self._track_list_component.set_enabled(True)
         self._model.tracklistView = self._track_list_component
+
+    # noinspection DuplicatedCode
+    def _init_transport_and_recording(self):
+        # type: () -> None
+        """Swapping the transport class and adding shift button parameter"""
+        super(P0Push2, self)._init_transport_and_recording()
+        self._transport = P0TransportComponent(name=u'Transport')
+        self._transport.layer = Layer(play_button=u'play_button', stop_button=self._with_shift(u'play_button'), tap_tempo_button=u'tap_tempo_button', metronome_button=u'metronome_button')
 
     def _create_session(self):
         # type: () -> None

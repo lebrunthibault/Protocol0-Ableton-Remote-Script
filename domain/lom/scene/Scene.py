@@ -15,6 +15,7 @@ from protocol0.domain.lom.scene.SceneName import SceneName
 from protocol0.domain.lom.scene.ScenePlayingState import ScenePlayingState
 from protocol0.domain.lom.scene.ScenePositionScroller import ScenePositionScroller
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
+from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.decorators import throttle
@@ -68,10 +69,17 @@ class Scene(SlotManager):
         # type: () -> Iterator[SimpleTrack]
         # manually stopping previous scene because we don't display clip slot stop buttons
         for track in self.clips.tracks:
+            clip = track.clip_slots[self.index].clip
+
+            # let dummy track play until the end
+            if isinstance(track, SimpleDummyTrack) and clip and clip.loop.bar_length > self.bar_length:
+                Scheduler.wait_bars(clip.loop.bar_length > self.bar_length, track.stop)
+                continue
+
             if track.is_playing:
                 if (
-                    self == SongFacade.playing_scene()
-                    or track not in SongFacade.playing_scene().clips.tracks
+                        self == SongFacade.playing_scene()
+                        or track not in SongFacade.playing_scene().clips.tracks
                 ):
                     yield track
 

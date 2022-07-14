@@ -1,13 +1,13 @@
 from functools import partial
 
 import Live
-from typing import Dict, Optional
+from typing import Dict, Optional, cast
 
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.RackDevice import RackDevice
+from protocol0.domain.lom.instrument.InstrumentDisplayService import InstrumentDisplayService
 from protocol0.domain.lom.song.components.DeviceComponent import DeviceComponent
 from protocol0.domain.lom.track.simple_track.SimpleAudioExtTrack import SimpleAudioExtTrack
-from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyReturnTrack import SimpleDummyReturnTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiExtTrack import SimpleMidiExtTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -20,10 +20,11 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 
 class DeviceService(object):
-    def __init__(self, browser_service, device_component):
-        # type: (BrowserServiceInterface, DeviceComponent) -> None
+    def __init__(self, device_component, browser_service, instrument_display_service):
+        # type: (DeviceComponent, BrowserServiceInterface, InstrumentDisplayService) -> None
         self._browser_service = browser_service
         self._device_component = device_component
+        self._instrument_display_service = instrument_display_service
 
     def update_audio_effect_rack(self, track, device):
         # type: (SimpleTrack, RackDevice) -> Sequence
@@ -50,32 +51,28 @@ class DeviceService(object):
 
     def load_device(self, device_name):
         # type: (str) -> Sequence
-        track = SongFacade.selected_track()
-
-        if isinstance(
-            track,
-            (SimpleMidiExtTrack, SimpleAudioExtTrack, SimpleAudioTailTrack, SimpleDummyReturnTrack),
-        ):
-            track = track.group_track
+        device_enum = DeviceEnum.from_value(device_name.upper())  # type: DeviceEnum
+        track = self._track_to_select(device_enum)
 
         track.device_insert_mode = Live.Track.DeviceInsertMode.selected_right
-        device_enum = DeviceEnum.from_value(device_name.upper())  # type: DeviceEnum
+
         seq = Sequence()
         seq.add(track.select)
+        if device_enum == DeviceEnum.REV2_EDITOR:
+            seq.add(partial(track.devices.delete, track.instrument.device))
         seq.add(partial(self._browser_service.load_device_from_enum, device_enum))
+        if device_enum == DeviceEnum.REV2_EDITOR:
+            seq.add(partial(self._instrument_display_service.activate_plugin_window, track))
+
         return seq.done()
 
     def select_or_load_device(self, device_name):
         # type: (str) -> Optional[Sequence]
         device_enum = DeviceEnum.from_value(device_name.upper())  # type: DeviceEnum
-        track = SongFacade.selected_track()
-
-        # we always want the group track except if it's the dummy track
-        if isinstance(track, (SimpleMidiExtTrack, SimpleAudioExtTrack, SimpleDummyReturnTrack)):
-            track = track.group_track
+        track = self._track_to_select(device_enum)
 
         devices = track.devices.get_from_enum(device_enum)
-        if len(devices) == 0:
+        if len(devices) == 0 or device_enum == DeviceEnum.REV2_EDITOR:
             return self.load_device(device_name)
 
         if track.devices.selected in devices and SongFacade.selected_track() != track:
@@ -85,3 +82,17 @@ class DeviceService(object):
 
         self._device_component.select_device(track, next_device)
         return None
+
+    def _track_to_select(self, device_enum):
+        # type: (DeviceEnum) -> SimpleTrack
+        track = SongFacade.selected_track()
+
+        # only case when we want to select the midi track of an ext track
+        if isinstance(track, SimpleMidiExtTrack) and device_enum == DeviceEnum.REV2_EDITOR:
+            return track
+
+        # we always want the group track except if it's the dummy track
+        elif isinstance(track, (SimpleMidiExtTrack, SimpleAudioExtTrack, SimpleDummyReturnTrack)):
+            return cast(SimpleTrack, track.group_track)
+
+        return track  # type: ignore[unreachable]
