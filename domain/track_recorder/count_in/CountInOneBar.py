@@ -13,15 +13,19 @@ class CountInOneBar(CountInInterface):
         self._playback_component.stop_playing()
         self._playback_component.stop_all_clips(quantized=False)  # stopping previous scene clips
         # solo for count in
+        track_solo = self._track.solo
         self._track.solo = True
         self._playback_component.start_playing()
         seq = Sequence()
         seq.wait_for_event(LastBeatPassedEvent, continue_on_song_stop=True)
-        seq.add(partial(setattr, self._track, "solo", False))
+        seq.add(partial(setattr, self._track, "solo", track_solo))
         seq.add(self._stop_count_in)
         return seq.done()
 
     def _stop_count_in(self):
         # type: () -> None
-        if len([clip for clip in SongFacade.selected_scene().clips if not clip.muted]) >= 1:
+        if (
+            len([clip for clip in SongFacade.selected_scene().clips if not clip.muted]) >= 1
+            and not self._track.solo
+        ):
             self._playback_component.metronome = False
