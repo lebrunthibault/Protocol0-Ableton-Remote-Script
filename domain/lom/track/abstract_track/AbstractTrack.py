@@ -100,10 +100,10 @@ class AbstractTrack(SlotManager):
 
     @property
     def group_tracks(self):
-        # type: () -> List[AbstractTrack]
+        # type: () -> List[AbstractGroupTrack]
         if not self.group_track:
             return []
-        return [self.group_track] + self.group_track.group_tracks
+        return [self.group_track.abstract_track] + self.group_track.group_tracks
 
     @property
     def instrument_track(self):

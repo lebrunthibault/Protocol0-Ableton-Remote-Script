@@ -43,7 +43,7 @@ class ErrorService(object):
         """Activate sentry only on real sets to prevent pollution"""
         # Sentry
         if Config.SENTRY_DSN:
-            Logger.info("activating sentry")
+            Logger.info("Sentry: activated")
             sentry_sdk.init(
                 dsn=Config.SENTRY_DSN,
                 # Set traces_sample_rate to 1.0 to capture 100%

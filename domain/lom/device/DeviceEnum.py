@@ -182,6 +182,7 @@ class DeviceEnum(AbstractEnum):
             DeviceParameterEnum.AUTO_FILTER_HIGH_PASS_FREQUENCY: DeviceEnum.AUTO_FILTER_HIGH_PASS,
             DeviceParameterEnum.AUTO_FILTER_LOW_PASS_FREQUENCY: DeviceEnum.AUTO_FILTER_LOW_PASS,
             DeviceParameterEnum.UTILITY_GAIN: DeviceEnum.UTILITY,
+            DeviceParameterEnum.LFO_TOOL_DEVICE_ON: DeviceEnum.LFO_TOOL,
         }
 
         if device_parameter_enum not in mapping:

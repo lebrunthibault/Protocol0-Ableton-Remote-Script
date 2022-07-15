@@ -2,12 +2,10 @@ import itertools
 import time
 from functools import partial
 
-from typing import Optional, cast, List, Tuple
 import Live
-
-from _Framework.SubjectSlot import subject_slot
 from _Framework.CompoundElement import subject_slot_group
-
+from _Framework.SubjectSlot import subject_slot
+from typing import Optional, cast, List, Tuple
 
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
@@ -41,7 +39,7 @@ from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.forward_to import ForwardTo
 from protocol0.domain.shared.utils.utils import find_if
-from protocol0.shared.logging.Logger import Logger
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.StatusBar import StatusBar
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
@@ -125,7 +123,6 @@ class ExternalSynthTrack(AbstractGroupTrack):
         self.monitoring_state.set_dummy_track(self.dummy_track)
         self._map_clip_slots()
 
-        Logger.dev([sub_track._track.name for sub_track in self.sub_tracks])
         self._sub_track_solo_listener.replace_subjects(
             [sub_track._track for sub_track in self.sub_tracks]
         )
@@ -133,13 +130,13 @@ class ExternalSynthTrack(AbstractGroupTrack):
     def _on_bar_changed_event(self, _):
         # type: (BarChangedEvent) -> None
         """Launches the tail clip on last playing clip slot bar"""
-        playing_cs = find_if(lambda cs: cs.is_playing, self.audio_track.clip_slots)
-        if playing_cs is None or playing_cs.clip is None or not self.audio_tail_track:
+        cs = self.audio_track.clip_slots[SongFacade.playing_scene().index]
+        if cs.clip is None or not self.audio_tail_track:
             return
 
-        if playing_cs.clip.playing_position.in_last_bar:
-            if playing_cs.index < len(self.audio_tail_track.clip_slots):
-                audio_tail_clip = self.audio_tail_track.clip_slots[playing_cs.index].clip
+        if cs.clip.playing_position.in_last_bar:
+            if cs.index < len(self.audio_tail_track.clip_slots):
+                audio_tail_clip = self.audio_tail_track.clip_slots[cs.index].clip
                 if audio_tail_clip and not audio_tail_clip.is_recording:
                     audio_tail_clip.play_and_mute()
 

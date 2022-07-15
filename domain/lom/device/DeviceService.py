@@ -58,7 +58,7 @@ class DeviceService(object):
 
         seq = Sequence()
         seq.add(track.select)
-        if device_enum == DeviceEnum.REV2_EDITOR:
+        if device_enum == DeviceEnum.REV2_EDITOR and track.instrument:
             seq.add(partial(track.devices.delete, track.instrument.device))
         seq.add(partial(self._browser_service.load_device_from_enum, device_enum))
         if device_enum == DeviceEnum.REV2_EDITOR:

@@ -12,6 +12,7 @@ from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummy
 from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -23,13 +24,18 @@ class TrackAutomationService(object):
     def show_automation(self):
         # type: () -> Optional[Sequence]
         selected_parameter = SongFacade.selected_parameter()
+        Logger.dev(selected_parameter)
         if selected_parameter and SongFacade.selected_clip_slot().clip:
             SongFacade.selected_clip().automation.show_parameter_envelope(selected_parameter)
             return None
 
         current_track = SongFacade.current_track()
+        # following behavior is only for group tracks
         if not isinstance(current_track, AbstractGroupTrack):
-            raise Protocol0Warning("Can only show automation of AbstractGroupTrack")
+            if selected_parameter is None:
+                raise Protocol0Warning("no selected parameter")
+            else:
+                raise Protocol0Warning("no selected clip")
 
         dummy_tracks = list(
             filter(None, (current_track.dummy_track, current_track.dummy_return_track))

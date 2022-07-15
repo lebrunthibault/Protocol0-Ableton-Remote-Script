@@ -76,6 +76,10 @@ class DrumCategory(object):
             else:
                 return matched_track.index + 1
 
+        # we clicked on a track means : we add to the right
+        if SongFacade.drums_track() in SongFacade.selected_track().group_tracks:
+            return index_from_track(SongFacade.selected_track())
+
         # match by category
         same_category_track = find_if(
             lambda t: t.name.lower() == self.name.lower(), reversed(drum_tracks)
@@ -87,10 +91,6 @@ class DrumCategory(object):
         for track in reversed(drum_tracks):
             if track.name.split(" ")[0].lower() == self.suffix:
                 return index_from_track(track)
-
-        # we clicked on a track means : we add to the right
-        if SongFacade.drums_track() in SongFacade.selected_track().group_tracks:
-            return index_from_track(SongFacade.selected_track())
 
         # -1 sometimes doesn't create it in the drum group
         return drum_tracks[-2].index if len(drum_tracks) > 1 else 0
