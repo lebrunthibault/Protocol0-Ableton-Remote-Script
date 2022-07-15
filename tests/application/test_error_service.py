@@ -9,4 +9,4 @@ def test_error_service():
     make_protocol0()
     error_manager = ErrorService()
     with pytest.raises(AssertionError):
-        error_manager._handle_error_event(ErrorRaisedEvent("context"))
+        error_manager._on_error_raised_event(ErrorRaisedEvent("context"))

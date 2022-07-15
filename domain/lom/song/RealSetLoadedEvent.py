@@ -1,0 +1,2 @@
+class RealSetLoadedEvent(object):
+    pass

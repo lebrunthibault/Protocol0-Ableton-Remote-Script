@@ -8,6 +8,7 @@ from typing import Optional, Any, List, Type
 
 from protocol0.application.CommandBus import CommandBus
 from protocol0.application.command.InitializeSongCommand import InitializeSongCommand
+from protocol0.domain.lom.song.RealSetLoadedEvent import RealSetLoadedEvent
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.backend.NotificationColorEnum import NotificationColorEnum
 from protocol0.domain.shared.decorators import handle_error
@@ -34,10 +35,15 @@ class ErrorService(object):
         # type: () -> None
         if self._SET_EXCEPTHOOK:
             sys.excepthook = self._handle_uncaught_exception
-        DomainEventBus.subscribe(ErrorRaisedEvent, self._handle_error_event)
+        DomainEventBus.subscribe(RealSetLoadedEvent, self._on_real_set_loaded_event)
+        DomainEventBus.subscribe(ErrorRaisedEvent, self._on_error_raised_event)
 
+    def _on_real_set_loaded_event(self, _):
+        # type: (RealSetLoadedEvent) -> None
+        """Activate sentry only on real sets to prevent pollution"""
         # Sentry
         if Config.SENTRY_DSN:
+            Logger.info("activating sentry")
             sentry_sdk.init(
                 dsn=Config.SENTRY_DSN,
                 # Set traces_sample_rate to 1.0 to capture 100%
@@ -46,7 +52,7 @@ class ErrorService(object):
                 traces_sample_rate=1.0,
             )
 
-    def _handle_error_event(self, event):
+    def _on_error_raised_event(self, event):
         # type: (ErrorRaisedEvent) -> None
         UndoFacade.end_undo_step()
         exc_type, exc_value, tb = sys.exc_info()

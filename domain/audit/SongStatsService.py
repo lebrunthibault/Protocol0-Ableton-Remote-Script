@@ -31,9 +31,9 @@ class SongStatsService(object):
         abstract_clips = []
         for track in SongFacade.abstract_tracks():
             if isinstance(track, ExternalSynthTrack):
-                abstract_clips.append(track.audio_track.clips)
+                abstract_clips += track.audio_track.clips
             else:
-                abstract_clips.append(track.clips)
+                abstract_clips += track.clips
 
         audio_clips = [clip for clip in abstract_clips if isinstance(clip, AudioClip)]
         recorded_audio_length = sum([clip.length for clip in audio_clips])

@@ -21,7 +21,7 @@ from protocol0.shared.types import T
 
 
 class DomainEventBus(object):
-    _DEBUG = True
+    _DEBUG = False
     _DEBUGGED_EVENTS = (ScenePositionScrolledEvent,)
     # these periodic events are not logged even in debug mode
     _SILENT_EVENTS = (

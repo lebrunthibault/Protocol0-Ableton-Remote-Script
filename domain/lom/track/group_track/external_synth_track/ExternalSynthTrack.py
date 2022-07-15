@@ -90,7 +90,8 @@ class ExternalSynthTrack(AbstractGroupTrack):
         DomainEventBus.subscribe(BarChangedEvent, self._on_bar_changed_event)
 
         self._solo_listener.subject = self._track
-        self._un_soloed_at = None  # this is necessary to monitor the group track solo state
+        # this is necessary to monitor the group track solo state
+        self._un_soloed_at = None  # type: Optional[float]
 
     is_armed = cast(bool, ForwardTo("arm_state", "is_armed"))
     is_partially_armed = cast(bool, ForwardTo("arm_state", "is_partially_armed"))
