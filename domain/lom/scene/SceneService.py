@@ -21,8 +21,6 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 
 class SceneService(SlotManager):
-    _DEBUG = True
-
     def __init__(self, live_song, scene_crud_component):
         # type: (Live.Song.Song, SceneCrudComponent) -> None
         super(SceneService, self).__init__()

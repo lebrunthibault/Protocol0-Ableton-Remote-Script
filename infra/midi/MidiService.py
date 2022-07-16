@@ -18,7 +18,7 @@ from protocol0.shared.logging.Logger import Logger
 
 
 class MidiService(object):
-    _DEBUG = True
+    _DEBUG = False
     _MIDI_STATUS_BYTES = {"note": 144, "cc": 176, "pc": 192}
 
     def __init__(self, send_midi):

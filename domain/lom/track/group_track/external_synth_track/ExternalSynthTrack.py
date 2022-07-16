@@ -40,6 +40,7 @@ from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.forward_to import ForwardTo
 from protocol0.domain.shared.utils.utils import find_if
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.logging.StatusBar import StatusBar
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
@@ -130,15 +131,33 @@ class ExternalSynthTrack(AbstractGroupTrack):
     def _on_bar_changed_event(self, _):
         # type: (BarChangedEvent) -> None
         """Launches the tail clip on last playing clip slot bar"""
-        cs = self.audio_track.clip_slots[SongFacade.playing_scene().index]
-        if cs.clip is None or not self.audio_tail_track:
+        audio_cs = self.audio_track.clip_slots[SongFacade.playing_scene().index]
+        if audio_cs.clip is None or not self.audio_tail_track:
             return
 
-        if cs.clip.playing_position.in_last_bar:
-            if cs.index < len(self.audio_tail_track.clip_slots):
-                audio_tail_clip = self.audio_tail_track.clip_slots[cs.index].clip
-                if audio_tail_clip and not audio_tail_clip.is_recording:
-                    audio_tail_clip.play_and_mute()
+        debug = False
+
+        if audio_cs.clip.playing_position.in_last_bar:
+            audio_tail_cs = self.audio_tail_track.clip_slots[audio_cs.index]
+            audio_tail_clip = self.audio_tail_track.clip_slots[audio_cs.index].clip
+            if debug:
+                Logger.warning(
+                    ("playing scene", SongFacade.playing_scene(), SongFacade.playing_scene().index)
+                )
+                Logger.warning(("audio_cs", audio_cs, audio_cs.index))
+                Logger.warning(("audio_cs.clip", audio_cs.clip, audio_cs.clip.index))
+                Logger.warning(("audio_tail cs", audio_tail_cs, audio_tail_cs.index))
+
+            if audio_tail_clip and not audio_tail_clip.is_recording:
+                if audio_tail_clip.index != audio_cs.index:
+                    Logger.error(
+                        "Index mismatch for audio tail clip. Got audio index: %s and audio tail index: %s. For %s"
+                        % (audio_cs.index, audio_tail_clip.index, self)
+                    )
+                    raise Protocol0Warning("Tail clip index mismatch for %s" % self)
+                if debug:
+                    Logger.warning(("audio_tail clip", audio_tail_clip, audio_tail_clip.index))
+                audio_tail_clip.play_and_mute()
 
     def _map_optional_audio_tail_track(self):
         # type: () -> None

@@ -5,7 +5,6 @@ from typing import Dict, List, Type, Callable
 
 from protocol0.domain.lom.scene.PlayingSceneChangedEvent import PlayingSceneChangedEvent
 from protocol0.domain.lom.scene.SceneLastBarPassedEvent import SceneLastBarPassedEvent
-from protocol0.domain.lom.scene.ScenePositionScrolledEvent import ScenePositionScrolledEvent
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
@@ -22,7 +21,7 @@ from protocol0.shared.types import T
 
 class DomainEventBus(object):
     _DEBUG = False
-    _DEBUGGED_EVENTS = (ScenePositionScrolledEvent,)
+    _DEBUGGED_EVENTS = ()
     # these periodic events are not logged even in debug mode
     _SILENT_EVENTS = (
         BarChangedEvent,

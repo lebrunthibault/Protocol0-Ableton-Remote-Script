@@ -24,7 +24,7 @@ CommandMapping = Dict[Type[SerializableCommand], Type[CommandHandlerInterface]]
 
 
 class CommandBus(object):
-    _DEBUG = True
+    _DEBUG = False
     _INSTANCE = None  # type: Optional[CommandBus]
     _DUPLICATE_COMMAND_WHITELIST = (
         ScrollScenePositionCommand,

@@ -12,7 +12,6 @@ from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummy
 from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -24,7 +23,6 @@ class TrackAutomationService(object):
     def show_automation(self):
         # type: () -> Optional[Sequence]
         selected_parameter = SongFacade.selected_parameter()
-        Logger.dev(selected_parameter)
         if selected_parameter and SongFacade.selected_clip_slot().clip:
             SongFacade.selected_clip().automation.show_parameter_envelope(selected_parameter)
             return None
