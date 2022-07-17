@@ -3,6 +3,7 @@ from functools import partial
 from traceback import extract_tb
 from types import TracebackType
 
+import Live
 import sentry_sdk
 from typing import Optional, Any, List, Type
 
@@ -31,8 +32,10 @@ class ErrorService(object):
 
     _IGNORED_ERROR_FILENAMES = ("\\venv\\", "\\sequence\\", "\\decorators.py")
 
-    def __init__(self):
-        # type: () -> None
+    def __init__(self, song):
+        # type: (Live.Song.Song) -> None
+        self._song = song
+
         if self._SET_EXCEPTHOOK:
             sys.excepthook = self._handle_uncaught_exception
         DomainEventBus.subscribe(RealSetLoadedEvent, self._on_real_set_loaded_event)
@@ -99,6 +102,8 @@ class ErrorService(object):
         error_message += "".join(self._format_list(entries))
 
         Scheduler.restart()
+        # noinspection PyArgumentList
+        self._song.stop_playing()  # prevent more errors coming through
 
         self._log_error(error_message)
 
@@ -146,6 +151,7 @@ class ErrorService(object):
             "%s\n\nReload script ?" % message,
             vertical=False,
             color=NotificationColorEnum.ERROR,
+            default=False
         )
         seq.add(partial(CommandBus.dispatch, InitializeSongCommand()))
         seq.done()

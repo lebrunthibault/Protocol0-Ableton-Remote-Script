@@ -236,21 +236,28 @@ class Sequence(Observable):
 
         self.add(execute, notify_terminated=False)
 
-    def prompt(self, question, vertical=True, color=NotificationColorEnum.INFO):
-        # type: (str, bool, NotificationColorEnum) -> None
+    def prompt(self, question, vertical=True, color=NotificationColorEnum.INFO, default=True):
+        # type: (str, bool, NotificationColorEnum, bool) -> None
         """helper method for prompts"""
-        options = ["Yes", "No"]
+        if default:
+            options = ["Yes", "No"]
+        else:
+            options = ["No", "Yes"]
 
         def on_response(res):
             # type: (str) -> None
-            if res == options[0]:
+            if res == "Yes":
                 self._execute_next_step()
             else:
                 self._cancel()
 
         self._execute_backend_step(
             partial(
-                Backend.client().select, question, options, vertical=vertical, color=color.value
+                Backend.client().select,
+                question,
+                options,
+                vertical=vertical,
+                color=color.value,
             ),
             on_response,
         )

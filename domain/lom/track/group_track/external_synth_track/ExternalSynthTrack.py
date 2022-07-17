@@ -35,7 +35,7 @@ from protocol0.domain.shared.decorators import defer
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
+from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.forward_to import ForwardTo
 from protocol0.domain.shared.utils.utils import find_if
@@ -86,7 +86,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
         self.appearance.register_observer(self)
 
-        DomainEventBus.subscribe(BarChangedEvent, self._on_bar_changed_event)
+        DomainEventBus.subscribe(LastBeatPassedEvent, self._on_last_beat_passed_event)
 
         self._solo_listener.subject = self._track
         # this is necessary to monitor the group track solo state
@@ -128,11 +128,12 @@ class ExternalSynthTrack(AbstractGroupTrack):
             [sub_track._track for sub_track in self.sub_tracks]
         )
 
-    def _on_bar_changed_event(self, _):
-        # type: (BarChangedEvent) -> None
-        """Launches the tail clip on last playing clip slot bar"""
-        audio_cs = self.audio_track.clip_slots[SongFacade.playing_scene().index]
-        if audio_cs.clip is None or not self.audio_tail_track:
+    def _on_last_beat_passed_event(self, _):
+        # type: (LastBeatPassedEvent) -> None
+        """Launches the tail clip on last playing clip slot beat"""
+        audio_cs = find_if(lambda cs: cs.is_playing, self.audio_track.clip_slots)
+
+        if audio_cs is None or audio_cs.clip is None or not self.audio_tail_track:
             return
 
         debug = False
@@ -314,7 +315,9 @@ class ExternalSynthTrack(AbstractGroupTrack):
         if track.solo:
             track.solo = False
             # when soloing a sub track, the group track is un soloed so we need to handle this case
-            if self._un_soloed_at is not None and time.time() - self._un_soloed_at < 0.1:
+            if self._un_soloed_at is not None:
+                Logger.dev("unsolo duration: %s" % (time.time() - self._un_soloed_at))
+            if self._un_soloed_at is not None and time.time() - self._un_soloed_at < 0.5:
                 self.solo = False
             else:
                 self.solo = True

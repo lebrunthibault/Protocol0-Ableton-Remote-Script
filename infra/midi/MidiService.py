@@ -28,7 +28,7 @@ class MidiService(object):
 
         DomainEventBus.subscribe(MidiBytesReceivedEvent, self._on_midi_bytes_received_event)
         DomainEventBus.subscribe(PresetProgramSelectedEvent, self._on_preset_program_selected_event)
-        DomainEventBus.subscribe(SongInitializedEvent, self._on_song_initialized_event)
+        DomainEventBus.once(SongInitializedEvent, self._on_song_initialized_event)
 
     def _sysex_to_string(self, sysex):
         # type: (Tuple) -> str

@@ -68,7 +68,7 @@ class Scene(SlotManager):
     def _tracks_to_stop(self):
         # type: () -> Iterator[SimpleTrack]
         # manually stopping previous scene because we don't display clip slot stop buttons
-        for track in self.clips.tracks:
+        for track in SongFacade.simple_tracks():
             clip = track.clip_slots[self.index].clip
 
             # let dummy track play until the end
@@ -188,6 +188,9 @@ class Scene(SlotManager):
         because we don't display clip slot stop buttons
         """
         DomainEventBus.emit(PlayingSceneChangedEvent())
+
+        for track in SongFacade.abstract_tracks():
+            track.stop(immediate=immediate)
 
         for track in self._tracks_to_stop:
             track.stop(immediate=immediate)

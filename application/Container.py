@@ -81,7 +81,7 @@ class Container(ContainerInterface):
         UndoFacade(live_song.begin_undo_step, live_song.end_undo_step)
         StatusBar(control_surface.show_message)
         Backend(control_surface._send_midi)
-        ErrorService()
+        ErrorService(live_song)
         midi_service = MidiService(control_surface._send_midi)
         beat_scheduler = BeatScheduler(live_song)
         tick_scheduler = TickScheduler(beat_scheduler, live_song)
