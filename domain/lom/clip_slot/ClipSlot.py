@@ -92,6 +92,13 @@ class ClipSlot(SlotManager, Observable):
         # type: () -> int
         return self._index
 
+    @index.setter
+    def index(self, index):
+        # type: (int) -> None
+        self._index = index
+        if self.clip:
+            self.clip.index = index
+
     @property
     def is_triggered(self):
         # type: () -> bool

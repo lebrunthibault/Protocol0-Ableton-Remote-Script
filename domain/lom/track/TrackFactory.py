@@ -36,7 +36,7 @@ class TrackFactory(object):
         # checking first on existing tracks
         existing_simple_track = SongFacade.optional_simple_track_from_live_track(track)
         if existing_simple_track and (cls is None or isinstance(existing_simple_track, cls)):
-            # re indexing tracks
+            # reindexing tracks
             existing_simple_track._index = index
             return existing_simple_track
 

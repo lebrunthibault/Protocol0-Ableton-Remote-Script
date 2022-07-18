@@ -19,7 +19,7 @@ class Clip(SlotManager, Observable):
         # type: (Live.Clip.Clip, int, ClipConfig) -> None
         super(Clip, self).__init__()
         self._clip = live_clip
-        self._index = index
+        self.index = index
         self._config = config
 
         self.deleted = False
@@ -47,11 +47,6 @@ class Clip(SlotManager, Observable):
         # type: (Observable) -> None
         if isinstance(observable, ClipLoop) or isinstance(observable, ClipName):
             self.notify_observers()
-
-    @property
-    def index(self):
-        # type: () -> int
-        return self._index
 
     name = cast(str, ForwardTo("appearance", "name"))
     length = cast(float, ForwardTo("loop", "length"))

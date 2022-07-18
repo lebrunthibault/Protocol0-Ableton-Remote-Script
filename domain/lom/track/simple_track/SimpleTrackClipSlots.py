@@ -71,7 +71,12 @@ class SimpleTrackClipSlots(SlotManager):
         new_clip_slots = []  # type: List[ClipSlot]
         for (index, live_clip_slot) in enumerate(list(self._live_track.clip_slots)):
             if live_clip_slot in live_cs_to_cs:
-                new_clip_slots.append(live_cs_to_cs[live_clip_slot])
+                clip_slot = live_cs_to_cs[live_clip_slot]
+                # reindexing is necessary
+                clip_slot.index = index
+                if clip_slot.clip:
+                    clip_slot.clip.index = index
+                new_clip_slots.append(clip_slot)
             else:
                 clip_slot = self._clip_slot_class(live_clip_slot, index, self._clip_config)
                 clip_slot.register_observer(self)
@@ -79,8 +84,7 @@ class SimpleTrackClipSlots(SlotManager):
         self._clip_slots[:] = new_clip_slots  # type: List[ClipSlot]
 
         for cs in self._clip_slots:
-            if cs.appearance.has_stop_button:
-                Scheduler.defer(cs.appearance.refresh)
+            Scheduler.defer(cs.appearance.refresh)
 
         self._has_clip_listener.replace_subjects(self._live_track.clip_slots)
 
