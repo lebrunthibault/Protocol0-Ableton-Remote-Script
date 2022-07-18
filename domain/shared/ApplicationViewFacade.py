@@ -7,6 +7,8 @@ from protocol0.shared.SongFacade import SongFacade
 
 
 # noinspection PyArgumentList
+
+
 class ApplicationViewFacade(object):
     """Facade for accessing the application view"""
 
@@ -63,6 +65,7 @@ class ApplicationViewFacade(object):
         # type: () -> None
         """Moves the focus to the detail view."""
         selected_track = SongFacade.selected_track()
+        is_visible = SongFacade.selected_track().is_visible
         if SongFacade.selected_track().group_track and any(
             t.is_folded for t in SongFacade.selected_track().group_tracks
         ):
@@ -71,7 +74,7 @@ class ApplicationViewFacade(object):
             if SongFacade.selected_track() != selected_track:
                 selected_track.select()
 
-            if not SongFacade.selected_track().is_visible:
+            if not is_visible:
                 # careful: this will impact the session display for long sets (scroll it up or down)
                 cls._INSTANCE._session_service.toggle_session_ring()
 
