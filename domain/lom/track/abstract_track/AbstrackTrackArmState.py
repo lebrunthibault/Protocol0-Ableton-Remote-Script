@@ -43,7 +43,7 @@ class AbstractTrackArmState(Observable):
         if self.is_armed:
             return None
         if self._live_track.is_foldable:
-            self._live_track.fold_state = 1
+            self._live_track.fold_state = int(not bool(self._live_track.fold_state))
 
         return self.arm_track()
 

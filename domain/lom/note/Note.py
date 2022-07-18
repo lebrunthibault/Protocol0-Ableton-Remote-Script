@@ -65,6 +65,16 @@ class Note(object):
         self._start = max(float(0), start)
 
     @property
+    def end(self):
+        # type: () -> float
+        return self.start + self.duration
+
+    @end.setter
+    def end(self, end):
+        # type: (float) -> None
+        self.duration = end - self.start
+
+    @property
     def duration(self):
         # type: () -> float
         if self._duration <= Note.MIN_DURATION:

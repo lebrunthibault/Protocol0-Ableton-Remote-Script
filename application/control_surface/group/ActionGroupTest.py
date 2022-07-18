@@ -49,4 +49,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        1 / 0
+        SongFacade.selected_midi_clip().to_mono()

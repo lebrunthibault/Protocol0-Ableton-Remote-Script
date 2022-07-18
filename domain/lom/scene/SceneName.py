@@ -39,10 +39,13 @@ class SceneName(SlotManager):
         if not self._scene:
             raise Protocol0Error("invalid scene object")
 
+        # remove the looping marker
+        scene_name = re.sub("^\\*+", "", str(self._scene.name))
+
         # catches base name with or without bar length legend
         forbidden_first_character = "(?!([\\d|-]+))"
         match = re.match(
-            "^(?P<base_name>%s[^()]*)" % forbidden_first_character, str(self._scene.name)
+            "^(?P<base_name>%s[^()]*)" % forbidden_first_character, scene_name
         )
         base_name = match.group("base_name").strip() if match else ""
 
@@ -71,7 +74,7 @@ class SceneName(SlotManager):
             scene_name = "%s" % length_legend
 
         if SongFacade.looping_scene() and SongFacade.looping_scene()._scene == self._scene:
-            scene_name += "*"
+            scene_name = "*%s" % scene_name
 
         self._scene.name = scene_name
         self._last_updated_at = time.time()

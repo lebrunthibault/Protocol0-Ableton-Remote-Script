@@ -153,7 +153,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
                 if audio_tail_clip.index != audio_cs.index:
                     Logger.error(
                         "Index mismatch for audio tail clip. Got audio index: %s and audio tail index: %s. For %s"
-                        % (audio_cs.index, audio_tail_clip.index, self)
+                        % (audio_cs.index, audio_tail_clip.index, self), show_notification=False
                     )
                     raise Protocol0Warning("Tail clip index mismatch for %s" % self)
                 if debug:
