@@ -104,11 +104,11 @@ class ActionGroupMain(ActionGroupInterface):
             name="instrument",
             filter_active_tracks=True,
             on_press=lambda: partial(
-                self._container.get(InstrumentDisplayService).show_hide_instrument,
+                self._container.get(InstrumentDisplayService).activate_instrument_plugin_window,
                 SongFacade.current_track(),
             ),
             on_long_press=lambda: partial(
-                self._container.get(InstrumentDisplayService).activate_instrument_plugin_window,
+                self._container.get(InstrumentDisplayService).show_hide_instrument,
                 SongFacade.current_track(),
             ),
             on_scroll=lambda: partial(

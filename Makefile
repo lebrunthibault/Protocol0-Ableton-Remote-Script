@@ -21,7 +21,6 @@ black:
 	black .
 
 check:
-	#make flake8
 	make mypy
 	make vulture
 	make test

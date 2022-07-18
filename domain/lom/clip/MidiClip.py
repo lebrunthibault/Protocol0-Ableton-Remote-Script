@@ -21,6 +21,11 @@ class MidiClip(Clip):
         super(MidiClip, self).__init__(*a, **k)
         self._cached_notes = []  # type: List[Note]
 
+    @property
+    def starts_at_1(self):
+        # type: () -> bool
+        return any(note.start == 0 for note in self.get_notes())
+
     def get_notes(self):
         # type: () -> List[Note]
         if not self._clip:

@@ -44,7 +44,17 @@ class TrackRecorderClipTailDecorator(TrackRecorderDecorator):
         # type: () -> Optional[Sequence]
         super(TrackRecorderClipTailDecorator, self).post_audio_record()
         if self.is_audio_silent:
-            return None
+            midi_clip = self.track.midi_track.clip_slots[self.recording_scene_index].clip
+            if midi_clip.starts_at_1:
+                # Here not waiting will sometimes create a glitch at the very end of the audio clip
+                # if the midi clip starts at 1.1.1
+                # unfortunately we cannot play the scene right after
+                seq = Sequence()
+                seq.add(self.track.stop)
+                seq.wait_bars(1)
+                return seq.done()
+            else:
+                return None
         else:
             return self._wait_for_clip_tail_end()
 

@@ -2,16 +2,18 @@ from fractions import Fraction
 from functools import partial
 
 import Live
+from protocol0_push2.browser_modes import BrowserModeBehaviour, AddDeviceMode, AddTrackMode
+from protocol0_push2.push2 import Push2
+from pushbase.push_base import NUM_TRACKS, NUM_SCENES
 
 from ableton.v2.control_surface import Layer
 from protocol0.application.push2.P0SessionRingTrackProvider import P0SessionRingTrackProvider
+from protocol0.application.push2.P0ShowInstrumentMode import P0ShowInstrumentMode
 from protocol0.application.push2.P0TrackListComponent import P0TrackListComponent
 from protocol0.application.push2.P0TransportComponent import P0TransportComponent
 from protocol0.domain.shared.utils.func import nop
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
-from protocol0_push2.push2 import Push2
-from pushbase.push_base import NUM_TRACKS, NUM_SCENES
 
 
 class P0Push2(Push2):
@@ -48,6 +50,20 @@ class P0Push2(Push2):
         self._session_ring = P0SessionRingTrackProvider(
             name="Session_Ring", num_tracks=NUM_TRACKS, num_scenes=NUM_SCENES, is_enabled=True
         )
+
+    def _init_browse_mode(self):
+        # type: () -> None
+        """Overriding this to make clicking on Browse open the instrument instead"""
+        application = Live.Application.get_application()
+        browser = application.browser
+        self._main_modes.add_mode(u'browse', [P0ShowInstrumentMode(self._main_modes)])
+        self._main_modes.add_mode(u'add_device', [
+            AddDeviceMode(application=application, song=self.song, browser=browser,
+                          drum_group_component=self._drum_component, enabling_mode=self._browser_component_mode)],
+                                  behaviour=BrowserModeBehaviour())
+        self._main_modes.add_mode(u'add_track',
+                                  [AddTrackMode(browser=browser, enabling_mode=self._new_track_browser_component_mode)],
+                                  behaviour=BrowserModeBehaviour())
 
     def _init_track_list(self):
         # type: () -> None

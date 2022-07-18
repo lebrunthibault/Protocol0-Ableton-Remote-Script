@@ -161,14 +161,14 @@ class Sequence(Observable):
         )
 
     def wait_bars(self, bars, wait_for_song_start=False):
-        # type: (float, bool) -> None
+        # type: (float, bool) -> Sequence
         if not SongFacade.is_playing() and wait_for_song_start:
             self.wait_for_event(SongStartedEvent)
 
-        self.wait_beats(bars * SongFacade.signature_numerator())
+        return self.wait_beats(bars * SongFacade.signature_numerator())
 
     def wait_beats(self, beats):
-        # type: (float) -> None
+        # type: (float) -> Sequence
         def execute():
             # type: () -> None
             if not SongFacade.is_playing():
@@ -176,7 +176,7 @@ class Sequence(Observable):
             else:
                 Scheduler.wait_beats(beats, self._execute_next_step)
 
-        self.add(execute, notify_terminated=False)
+        return self.add(execute, notify_terminated=False)
 
     def wait_for_event(self, event_class, expected_emitter=None, continue_on_song_stop=False):
         # type: (Type[object], object, bool) -> Sequence
@@ -216,11 +216,10 @@ class Sequence(Observable):
             if self.state.started:
                 self._execute_next_step()
 
-        self._add_timeout_step(subscribe, "wait_for_event %s" % event_class)
-        return self
+        return self._add_timeout_step(subscribe, "wait_for_event %s" % event_class)
 
     def _add_timeout_step(self, func, legend):
-        # type: (Callable, str) -> None
+        # type: (Callable, str) -> Sequence
         seconds = self._STEP_TIMEOUT
 
         def cancel():
@@ -234,7 +233,7 @@ class Sequence(Observable):
             Scheduler.wait_ms(seconds * 1000, cancel)
             func()
 
-        self.add(execute, notify_terminated=False)
+        return self.add(execute, notify_terminated=False)
 
     def prompt(self, question, vertical=True, color=NotificationColorEnum.INFO, default=True):
         # type: (str, bool, NotificationColorEnum, bool) -> None

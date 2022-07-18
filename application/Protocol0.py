@@ -29,7 +29,7 @@ class Protocol0(ControlSurface):
 
         CommandBus.dispatch(InitializeSongCommand())
 
-        Logger.info("Protocol0 script loaded: %s" % self)
+        Logger.info("Protocol0 script loaded")
 
     def _check_for_duplicate_p0_instance(self):
         # type: () -> None

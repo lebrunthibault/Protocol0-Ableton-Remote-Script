@@ -4,6 +4,7 @@ from typing import Optional
 
 from protocol0.domain.lom.device.DeviceDisplayService import DeviceDisplayService
 from protocol0.domain.lom.instrument.InstrumentActivatedEvent import InstrumentActivatedEvent
+from protocol0.domain.lom.instrument.InstrumentSelectedEvent import InstrumentSelectedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import SimpleTrackArmedEvent
@@ -18,6 +19,7 @@ class InstrumentDisplayService(object):
         # type: (DeviceDisplayService) -> None
         self._device_display_service = device_display_service
         DomainEventBus.subscribe(SimpleTrackArmedEvent, self._on_simple_track_armed_event)
+        DomainEventBus.subscribe(InstrumentSelectedEvent, self._on_instrument_selected_event)
 
     def show_hide_instrument(self, track):
         # type: (AbstractTrack) -> Optional[Sequence]
@@ -38,11 +40,11 @@ class InstrumentDisplayService(object):
         return seq.done()
 
     def activate_instrument_plugin_window(self, track):
-        # type: (AbstractTrack) -> None
+        # type: (AbstractTrack) -> Optional[Sequence]
         if track.instrument is None or not track.instrument.CAN_BE_SHOWN:
             return None
 
-        self.activate_plugin_window(track.instrument_track, force_activate=True)
+        return self.activate_plugin_window(track.instrument_track, force_activate=True)
 
     def _on_simple_track_armed_event(self, event):
         # type: (SimpleTrackArmedEvent) -> Optional[Sequence]
@@ -63,6 +65,10 @@ class InstrumentDisplayService(object):
             seq.add(Backend.client().hide_plugins)
         track.instrument.force_show
         return seq.done()
+
+    def _on_instrument_selected_event(self, _):
+        # type: (InstrumentSelectedEvent) -> Optional[Sequence]
+        return self.activate_instrument_plugin_window(SongFacade.current_track())
 
     def activate_plugin_window(self, track, force_activate=False):
         # type: (SimpleTrack, bool) -> Optional[Sequence]

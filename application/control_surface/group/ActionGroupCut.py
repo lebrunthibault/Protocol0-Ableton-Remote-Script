@@ -7,7 +7,7 @@ from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.shared.SongFacade import SongFacade
 
 
-class ActionGroupSet(ActionGroupInterface):
+class ActionGroupCut(ActionGroupInterface):
     CHANNEL = 8
 
     def configure(self):

@@ -1,7 +1,6 @@
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -41,5 +40,4 @@ class AudioTailClip(AudioClip):
     def _mute_if_stopped(self):
         # type: () -> None
         if not self.is_playing:
-            Logger.dev("muting")
             self.muted = True

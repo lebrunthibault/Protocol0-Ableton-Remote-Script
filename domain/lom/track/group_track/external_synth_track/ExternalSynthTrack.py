@@ -316,8 +316,8 @@ class ExternalSynthTrack(AbstractGroupTrack):
             track.solo = False
             # when soloing a sub track, the group track is un soloed so we need to handle this case
             if self._un_soloed_at is not None:
-                Logger.dev("unsolo duration: %s" % (time.time() - self._un_soloed_at))
-            if self._un_soloed_at is not None and time.time() - self._un_soloed_at < 0.5:
+                Logger.warning("unsolo duration: %s" % (time.time() - self._un_soloed_at))
+            if self._un_soloed_at is not None and time.time() - self._un_soloed_at < 0.4:
                 self.solo = False
             else:
                 self.solo = True

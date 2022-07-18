@@ -1,0 +1,2 @@
+class InstrumentSelectedEvent(object):
+    pass

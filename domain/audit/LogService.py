@@ -10,13 +10,9 @@ class LogService(object):
         # type: () -> None
         Backend.client().focus_window(window_name="logs terminal")
 
-    def clear(self):
-        # type: () -> None
-        Logger.info("clear_logs")
-
     def log_current(self):
         # type: () -> None
-        self.clear()
+        Logger.clear()
         self.focus_window()
         current_track = SongFacade.current_track()
         Logger.info("********* CURRENT_TRACK *************")
@@ -137,7 +133,7 @@ class LogService(object):
 
     def log_set(self):
         # type: () -> None
-        self.clear()
+        Logger.clear()
         self.focus_window()
         Logger.info("********* GLOBAL objects *************")
         Logger.info("song.is_playing: %s" % SongFacade.is_playing())

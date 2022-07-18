@@ -11,7 +11,7 @@ from protocol0.domain.lom.scene.ScenesMappedEvent import ScenesMappedEvent
 from protocol0.domain.lom.song.components.SceneCrudComponent import SceneCrudComponent
 from protocol0.domain.lom.track.TrackAddedEvent import TrackAddedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.domain.shared.decorators import handle_error
+from protocol0.domain.shared.decorators import handle_error, debounce
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.infra.interface.session.SessionUpdatedEvent import SessionUpdatedEvent
@@ -67,8 +67,13 @@ class SceneService(SlotManager):
 
     @subject_slot("selected_scene")
     @handle_error
+    @debounce(duration=50)
     def _selected_scene_listener(self):
         # type: () -> None
+        """
+            debounce necessary when multiple scenes are added at the same time
+            (e.g. when importing a track)
+        """
         DomainEventBus.emit(SessionUpdatedEvent())
 
     def _generate_scenes(self):

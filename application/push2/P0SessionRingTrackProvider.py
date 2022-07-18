@@ -1,8 +1,5 @@
-import json
-
-import Live
 from protocol0_push2.track_selection import SessionRingTrackProvider
-from typing import List, Any, Optional
+from typing import List, Any
 
 from protocol0.domain.lom.track.SelectedTrackChangedEvent import SelectedTrackChangedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
@@ -37,35 +34,16 @@ class P0SessionRingTrackProvider(SessionRingTrackProvider):
 
         DomainEventBus.emit(SessionUpdatedEvent)
 
-    def __repr__(self):
-        # type: () -> str
-        def live_track_to_string(track):
-            # type: (Optional[Live.Track.Track]) -> str
-            if track:
-                return track.name
-            else:
-                return "None"
-
-        try:
-            data = {
-                "selected_scene": str(SongFacade.selected_scene()),
-                "tracks_to_use": [
-                    live_track_to_string(t._live_object) for t in self.tracks_to_use()
-                ],
-                "num_tracks": self.num_tracks,
-                "num_scenes": self.num_scenes,
-                "scene_offset": self.scene_offset,
-                "track_offset": self.track_offset,
-                # "controlled_tracks": [live_track_to_string(t) for t in self.controlled_tracks()]
-            }
-            return "P0SessionRingTrackProvider(%s)" % json.dumps(data, indent=4)
-        except AttributeError as e:
-            return "(initializing..) -> %s" % e
-
     def _on_session_updated_event(self, _):
         # type: (SessionUpdatedEvent) -> None
-        """Event to send so that the push2 session is updated"""
-        self._tracks_to_use_cache = self._get_tracks_to_use()
+        """
+            Event to send so that the push2 session is updated
+            The event is sometimes sent when the set is not yet mapped
+        """
+        try:
+            self._tracks_to_use_cache = self._get_tracks_to_use()
+        except KeyError:
+            return None
         self._update_track_list()
         self._sync_session_to_selected_scene()
 
@@ -88,6 +66,7 @@ class P0SessionRingTrackProvider(SessionRingTrackProvider):
         tracks = set(SongFacade.selected_scene().abstract_tracks)
         if SongFacade.current_track() != SongFacade.master_track():
             tracks.add(SongFacade.current_track())
+
         return sorted(tracks, key=lambda t: t.index)
 
     def tracks_to_use(self):
