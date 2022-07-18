@@ -71,9 +71,12 @@ class Scene(SlotManager):
         for track in SongFacade.simple_tracks():
             clip = track.clip_slots[self.index].clip
 
+            if track.is_foldable:
+                continue
+
             # let dummy track play until the end
             if isinstance(track, SimpleDummyTrack) and clip and clip.loop.bar_length > self.bar_length:
-                Scheduler.wait_bars(clip.loop.bar_length > self.bar_length, track.stop)
+                Scheduler.wait_bars(clip.loop.bar_length - self.bar_length, track.stop)
                 continue
 
             if track.is_playing:
@@ -188,9 +191,6 @@ class Scene(SlotManager):
         because we don't display clip slot stop buttons
         """
         DomainEventBus.emit(PlayingSceneChangedEvent())
-
-        for track in SongFacade.abstract_tracks():
-            track.stop(immediate=immediate)
 
         for track in self._tracks_to_stop:
             track.stop(immediate=immediate)
