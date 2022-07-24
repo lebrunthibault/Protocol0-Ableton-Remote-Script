@@ -38,7 +38,7 @@ from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.forward_to import ForwardTo
-from protocol0.domain.shared.utils.utils import find_if
+from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.logging.StatusBar import StatusBar
@@ -315,9 +315,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
         if track.solo:
             track.solo = False
             # when soloing a sub track, the group track is un soloed so we need to handle this case
-            if self._un_soloed_at is not None:
-                Logger.warning("unsolo duration: %s" % (time.time() - self._un_soloed_at))
-            if self._un_soloed_at is not None and time.time() - self._un_soloed_at < 0.4:
+            if self._un_soloed_at is not None and time.time() - self._un_soloed_at < 0.3:
                 self.solo = False
             else:
                 self.solo = True

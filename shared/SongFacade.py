@@ -20,7 +20,6 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.track.TrackMapperService import TrackMapperService
     from protocol0.domain.track_recorder.TrackRecorderService import TrackRecorderService
     from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-    from protocol0.domain.lom.track.track_list.AbstractTrackList import AbstractTrackList  # noqa
     from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack  # noqa
     from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (  # noqa
         ExternalSynthTrack,
@@ -127,12 +126,8 @@ class SongFacade(object):
 
     @classmethod
     def abstract_tracks(cls):
-        # type: () -> AbstractTrackList
-        from protocol0.domain.lom.track.track_list.AbstractTrackList import (  # noqa
-            AbstractTrackList,
-        )
-
-        return AbstractTrackList(cls._INSTANCE._track_component.abstract_tracks)
+        # type: () -> Iterator[AbstractTrack]
+        return cls._INSTANCE._track_component.abstract_tracks
 
     @classmethod
     def simple_track_from_live_track(cls, live_track):

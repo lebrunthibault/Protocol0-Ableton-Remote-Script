@@ -226,6 +226,19 @@ class Scene(SlotManager):
         if next_clip_slot.clip:
             next_track.select_clip_slot(next_clip_slot._clip_slot)
 
+    def unfold(self):
+        # type: () -> None
+        """Show only scene tracks"""
+        for track in SongFacade.abstract_tracks():
+            if track.is_foldable:
+                track.is_folded = True
+
+        for track in self.abstract_tracks:
+            if track.is_foldable:
+                track.is_folded = False
+            if track.group_track:
+                track.group_track.is_folded = False
+
     def disconnect(self):
         # type: () -> None
         super(Scene, self).disconnect()

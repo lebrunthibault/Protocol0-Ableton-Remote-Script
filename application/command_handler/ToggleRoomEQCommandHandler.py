@@ -4,6 +4,6 @@ from protocol0.shared.SongFacade import SongFacade
 
 
 class ToggleRoomEQCommandHandler(CommandHandlerInterface):
-    def handle(self, command):
+    def handle(self, _):
         # type: (ToggleRoomEQCommand) -> None
         SongFacade.master_track().toggle_room_eq()

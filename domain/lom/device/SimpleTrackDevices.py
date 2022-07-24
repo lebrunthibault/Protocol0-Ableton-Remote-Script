@@ -10,7 +10,7 @@ from protocol0.domain.lom.device.MixerDevice import MixerDevice
 from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.shared.LiveObjectMapping import LiveObjectMapping
-from protocol0.domain.shared.utils.utils import find_if
+from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.observer.Observable import Observable
 
 
@@ -61,7 +61,7 @@ class SimpleTrackDevices(SlotManager, Observable):
             device = find_if(
                 lambda d: d._device == self._track.view.selected_device, self.all
             )  # type: Optional[Device]
-            assert device
+            assert device, "%s is not in %s devices" % (self._track.view.selected_device.name, self._track.name)
             return device
         else:
             return None

@@ -5,7 +5,7 @@ import types
 from typing import Optional, Any, List, Dict
 
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
-from protocol0.domain.shared.utils.utils import smart_string
+from protocol0.domain.shared.utils.string import smart_string
 from protocol0.shared.Config import Config
 from protocol0.shared.logging.LogLevelEnum import LogLevelEnum
 from protocol0.shared.logging.LoggerServiceInterface import LoggerServiceInterface

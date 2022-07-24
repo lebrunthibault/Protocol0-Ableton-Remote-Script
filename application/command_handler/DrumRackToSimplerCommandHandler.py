@@ -4,6 +4,6 @@ from protocol0.domain.lom.device.DrumRackService import DrumRackService
 
 
 class DrumRackToSimplerCommandHandler(CommandHandlerInterface):
-    def handle(self, command):
+    def handle(self, _):
         # type: (DrumRackToSimplerCommand) -> None
         self._container.get(DrumRackService).drum_rack_to_simpler()

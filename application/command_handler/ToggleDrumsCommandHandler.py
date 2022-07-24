@@ -4,6 +4,6 @@ from protocol0.domain.lom.track.TrackPlayerService import TrackPlayerService
 
 
 class ToggleDrumsCommandHandler(CommandHandlerInterface):
-    def handle(self, command):
+    def handle(self, _):
         # type: (ToggleDrumsCommand) -> None
         self._container.get(TrackPlayerService).toggle_drums()

@@ -26,6 +26,7 @@ class TrackCrudComponent(object):
         seq = Sequence()
         self._create_midi_track(Index=index)
         seq.wait_for_event(TracksMappedEvent)
+        seq.defer()
         return seq.done()
 
     def create_audio_track(self, index):
@@ -33,6 +34,7 @@ class TrackCrudComponent(object):
         seq = Sequence()
         self._create_audio_track(Index=index)
         seq.wait_for_event(TracksMappedEvent)
+        seq.defer()
         return seq.done()
 
     def duplicate_track(self, track):
@@ -40,6 +42,7 @@ class TrackCrudComponent(object):
         seq = Sequence()
         self._duplicate_track(track.index)
         seq.wait_for_event(TracksMappedEvent)
+        seq.defer()
         return seq.done()
 
     def delete_track(self, index):

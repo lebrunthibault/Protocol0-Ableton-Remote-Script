@@ -70,7 +70,7 @@ class TrackComponent(SlotManager):
         for track in self.abstract_tracks:
             if not track.is_visible:
                 continue
-            # when a group track is unfolded, will directly select the first sub_trackB
+            # when a group track is unfolded, will directly select the first sub_track
             if (
                 isinstance(track, NormalGroupTrack)
                 and not track.is_folded
@@ -93,10 +93,10 @@ class TrackComponent(SlotManager):
 
     def _unsolo_all_tracks(self, including_current):
         # type: (bool) -> None
-        for t in SongFacade.abstract_tracks():
-            if not including_current and t == SongFacade.current_track():
+        for track in SongFacade.abstract_tracks():
+            if not including_current and track == SongFacade.current_track():
                 continue
-            t.solo = False
+            track.solo = False
 
     def scroll_tracks(self, go_next):
         # type: (bool) -> None

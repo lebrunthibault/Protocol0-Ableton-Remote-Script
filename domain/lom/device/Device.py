@@ -4,7 +4,7 @@ from typing import List, Any, Type, Optional, Union
 
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
-from protocol0.domain.shared.utils.utils import find_if
+from protocol0.domain.shared.utils.list import find_if
 
 
 class Device(SlotManager):

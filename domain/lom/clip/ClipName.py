@@ -7,6 +7,7 @@ from typing import Optional
 
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.utils import get_length_legend
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 
@@ -64,7 +65,7 @@ class ClipName(SlotManager, Observable):
         if hasattr(self._live_clip, "warping") and not self._live_clip.warping:
             return "unwarped"
 
-        return get_length_legend(beat_length=self._live_clip.length)
+        return get_length_legend(self._live_clip.length, SongFacade.signature_numerator())
 
     def update(self, base_name=None):
         # type: (Optional[str]) -> None

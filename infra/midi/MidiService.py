@@ -12,7 +12,7 @@ from protocol0.domain.shared.decorators import throttle
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.domain.shared.utils.utils import find_if
+from protocol0.domain.shared.utils.list import find_if
 from protocol0.infra.midi.MidiBytesReceivedEvent import MidiBytesReceivedEvent
 from protocol0.shared.logging.Logger import Logger
 
@@ -94,3 +94,7 @@ class MidiService(object):
         # not working properly
         # if not self._midi_server_up:
         #     Logger.warning("Midi server is not running.")
+
+    def disconnect(self):
+        # type: () -> None
+        self._midi_server_up = False

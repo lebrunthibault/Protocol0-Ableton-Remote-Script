@@ -11,22 +11,17 @@ from protocol0.shared.Config import Config
 class DeviceEnum(AbstractEnum):
     ADDICTIVE_KEYS = "ADDICTIVE_KEYS"
     API_2500 = "API_2500"
-    ARPEGGIATOR_RACK = "ARPEGGIATOR_RACK"
     AUTO_FILTER_HIGH_PASS = "AUTO_FILTER_HIGH_PASS"
     AUTO_FILTER_LOW_PASS = "AUTO_FILTER_LOW_PASS"
     COMPRESSOR = "COMPRESSOR"
     DRUM_RACK = "DRUM_RACK"
-    DUMMY_RACK = "DUMMY_RACK"
     EQ_EIGHT = "EQ_EIGHT"
-    EQ_EIGHT_RACK = "EQ_EIGHT_RACK"
     EQ_ROOM = "EQ_ROOM"
     EXTERNAL_AUDIO_EFFECT = "EXTERNAL_AUDIO_EFFECT"
     EXTERNAL_INSTRUMENT = "EXTERNAL_INSTRUMENT"
     FREE_CLIP = "FREE_CLIP"
     LFO_TOOL = "LFO_TOOL"
     LIMITER = "LIMITER"
-    MINITAUR_EDITOR = "MINITAUR_EDITOR"
-    MIX_RACK = "MIX_RACK"
     PRO_Q_3 = "PRO_Q_3"
     REV2_EDITOR = "REV2_EDITOR"
     SATURATOR = "SATURATOR"
@@ -47,22 +42,17 @@ class DeviceEnum(AbstractEnum):
             {
                 DeviceEnum.ADDICTIVE_KEYS: "Addictive Keys",
                 DeviceEnum.API_2500: "API-2500 Stereo",
-                DeviceEnum.ARPEGGIATOR_RACK: "Arpeggiator rack",
                 DeviceEnum.AUTO_FILTER_HIGH_PASS: "Auto Filter High Pass",
                 DeviceEnum.AUTO_FILTER_LOW_PASS: "Auto Filter Low Pass",
                 DeviceEnum.COMPRESSOR: "Compressor",
                 DeviceEnum.DRUM_RACK: "Drum Rack",
-                DeviceEnum.DUMMY_RACK: "Dummy Rack",
                 DeviceEnum.EQ_EIGHT: "EQ Eight",
-                DeviceEnum.EQ_EIGHT_RACK: "EQ Eight Rack",
                 DeviceEnum.EQ_ROOM: "EQ Room",
                 DeviceEnum.EXTERNAL_AUDIO_EFFECT: "Ext. Audio Effect",
                 DeviceEnum.EXTERNAL_INSTRUMENT: "Ext. Instrument",
                 DeviceEnum.FREE_CLIP: "FreeClip",
                 DeviceEnum.LFO_TOOL: "LFOTool_x64",
                 DeviceEnum.LIMITER: "Limiter",
-                DeviceEnum.MINITAUR_EDITOR: "Minitaur Editor(x64)",
-                DeviceEnum.MIX_RACK: "Mix Rack",
                 DeviceEnum.PRO_Q_3: "FabFilter Pro-Q 3",
                 DeviceEnum.REV2_EDITOR: "REV2Editor",
                 DeviceEnum.SATURATOR: "Saturator",
@@ -84,21 +74,17 @@ class DeviceEnum(AbstractEnum):
         return self.get_value_from_mapping(
             {
                 DeviceEnum.API_2500: "API-2500 Stereo",
-                DeviceEnum.ARPEGGIATOR_RACK: "Arpeggiator rack.adg",
                 DeviceEnum.AUTO_FILTER_HIGH_PASS: "Auto Filter High Pass.adv",
                 DeviceEnum.AUTO_FILTER_LOW_PASS: "Auto Filter Low Pass.adv",
                 DeviceEnum.COMPRESSOR: "Compressor",
                 DeviceEnum.DRUM_RACK: "Drum Rack",
-                DeviceEnum.DUMMY_RACK: "Dummy Rack.adg",
                 DeviceEnum.EQ_EIGHT: "EQ Eight",
-                DeviceEnum.EQ_EIGHT_RACK: "EQ Eight Rack.adg",
                 DeviceEnum.EQ_ROOM: "EQ Room.adv",
                 DeviceEnum.EXTERNAL_AUDIO_EFFECT: "External Audio Effect",
                 DeviceEnum.EXTERNAL_INSTRUMENT: "External Instrument",
                 DeviceEnum.FREE_CLIP: "FreeClip",
                 DeviceEnum.LFO_TOOL: "LFOTool_x64",
                 DeviceEnum.LIMITER: "Limiter",
-                DeviceEnum.MIX_RACK: "Mix Rack.adg",
                 DeviceEnum.PRO_Q_3: "FabFilter Pro-Q 3",
                 DeviceEnum.REV2_EDITOR: "REV2Editor",
                 DeviceEnum.SATURATOR: "Saturator",
@@ -138,16 +124,13 @@ class DeviceEnum(AbstractEnum):
     @classmethod
     def updatable_devices(cls):
         # type: () -> List[DeviceEnum]
-        return [cls.MIX_RACK, cls.LFO_TOOL]
+        return [cls.LFO_TOOL]
 
     @property
     def main_parameters_default(self):
         # type: () -> List[DeviceParameterValue]
         return self.get_value_from_mapping(
             {
-                DeviceEnum.ARPEGGIATOR_RACK: [
-                    DeviceParameterValue(DeviceParameterEnum.CHAIN_SELECTOR, 0)
-                ],
                 DeviceEnum.COMPRESSOR: [
                     DeviceParameterValue(DeviceParameterEnum.COMPRESSOR_OUTPUT_GAIN, 0),
                     DeviceParameterValue(
@@ -189,3 +172,38 @@ class DeviceEnum(AbstractEnum):
             raise Protocol0Error("parameter not in mapping")
 
         return mapping[device_parameter_enum]
+
+    @property
+    def load_time(self):
+        # type: () -> int
+        """in ms"""
+        return self.get_value_from_mapping(
+            {
+                DeviceEnum.ADDICTIVE_KEYS: 1263,
+                DeviceEnum.API_2500: 95,
+                DeviceEnum.AUTO_FILTER_HIGH_PASS: 16,
+                DeviceEnum.AUTO_FILTER_LOW_PASS: 16,
+                DeviceEnum.COMPRESSOR: 11,
+                # this is for 4 samples and will vary greatly depending on the number of samples
+                DeviceEnum.DRUM_RACK: 143,
+                DeviceEnum.EQ_EIGHT: 31,
+                DeviceEnum.EQ_ROOM: 31,
+                DeviceEnum.EXTERNAL_AUDIO_EFFECT: 0,
+                DeviceEnum.EXTERNAL_INSTRUMENT: 0,
+                DeviceEnum.FREE_CLIP: 40,
+                DeviceEnum.LFO_TOOL: 0.180,
+                DeviceEnum.LIMITER: 5,
+                DeviceEnum.PRO_Q_3: 53,
+                DeviceEnum.REV2_EDITOR: 80,
+                DeviceEnum.SATURATOR: 8,
+                DeviceEnum.SATURN_2: 50,
+                DeviceEnum.SERUM: 147,
+                DeviceEnum.SIMPLER: 56,
+                DeviceEnum.SSL_COMP: 81,
+                DeviceEnum.TRACK_SPACER: 207,
+                DeviceEnum.TRUE_VERB: 82,
+                DeviceEnum.TUNER: 0,
+                DeviceEnum.USAMO: 78,
+                DeviceEnum.UTILITY: 4,
+            }
+        )

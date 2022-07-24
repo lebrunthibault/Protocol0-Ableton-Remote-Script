@@ -49,11 +49,11 @@ class ScenePlaybackService(SlotManager):
         Scene.LAST_MANUALLY_STARTED_SCENE = scene
         scene.scene_name.update(bar_position=scene.position_scroller.current_value)
 
-    def fire_selected_scene(self):
-        # type: () -> Optional[Sequence]
+    def fire_scene(self, scene):
+        # type: (Scene) -> Optional[Sequence]
         self._playback_component.stop_all_clips(quantized=False)
         self._playback_component.stop_playing()
-        SongFacade.selected_scene().fire()
+        scene.fire()
         return None
 
     def fire_scene_to_position(self, scene, bar_length=None):
@@ -76,7 +76,7 @@ class ScenePlaybackService(SlotManager):
         # type: () -> None
         previous_scene = SongFacade.selected_scene().previous_scene
         if previous_scene == SongFacade.selected_scene():
-            self.fire_selected_scene()
+            self.fire_scene(previous_scene)
             return None
 
         self.fire_scene_to_position(previous_scene, previous_scene.bar_length - 1)

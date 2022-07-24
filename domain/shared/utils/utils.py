@@ -2,39 +2,14 @@ import math
 import pkgutil
 import types
 
-from typing import Optional, Any, Callable, Iterable
+from typing import Any
 
 from protocol0.shared.Config import Config
-from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.types import T
 
 
 def clamp(val, minv, maxv):
     # type: (float, float, float) -> float
     return max(minv, min(val, maxv))
-
-
-def find_if(predicate, seq):
-    # type: (Callable[[T], bool], Iterable[T]) -> Optional[T]
-    for x in seq:
-        if predicate(x):
-            return x
-    return None
-
-
-def smart_string(s):
-    # type: (Any) -> str
-    if not isinstance(s, basestring):
-        s = str(s)
-    try:
-        return s.decode("utf-8").encode("ascii", "ignore")
-    except UnicodeEncodeError:
-        return s.encode("utf-8")
-
-
-def normalize_string(s):
-    # type: (basestring) -> str
-    return smart_string(s).strip().lower()
 
 
 def import_package(package):
@@ -54,12 +29,12 @@ def compare_values(value, expected_value):
     return value == expected_value
 
 
-def get_length_legend(beat_length):
-    # type: (float) -> str
-    if int(beat_length) % SongFacade.signature_numerator() != 0:
+def get_length_legend(beat_length, signature_numerator):
+    # type: (float, int) -> str
+    if int(beat_length) % signature_numerator != 0:
         return "%d beat%s" % (beat_length, "s" if beat_length > 1 else "")
     else:
-        bar_length = beat_length / SongFacade.signature_numerator()
+        bar_length = beat_length / signature_numerator
         return "%d bar%s" % (bar_length, "s" if bar_length > 1 else "")
 
 

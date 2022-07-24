@@ -2,7 +2,7 @@ import os
 
 import Live
 
-from protocol0.domain.shared.utils.utils import smart_string
+from protocol0.domain.shared.utils.string import smart_string
 
 
 class Sample(object):

@@ -255,5 +255,6 @@ class Container(ContainerInterface):
         self.get(TempoComponent).disconnect()
         self.get(TrackComponent).disconnect()
         self.get(TrackMapperService).disconnect()
+        self.get(MidiService).disconnect()
 
         self._registry = {}

@@ -61,7 +61,7 @@ class SceneName(SlotManager):
             self.disconnect()
             return
 
-        length_legend = get_length_legend(beat_length=self._scene_length.length)
+        length_legend = get_length_legend(self._scene_length.length, SongFacade.signature_numerator())
 
         if self._scene_playing_state.has_playing_clips:
             length_legend = "%s|%s" % (self._scene_playing_state.current_bar + 1, length_legend)

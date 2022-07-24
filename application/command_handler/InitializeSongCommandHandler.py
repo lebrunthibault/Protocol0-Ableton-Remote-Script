@@ -7,7 +7,7 @@ from protocol0.shared.logging.Logger import Logger
 
 
 class InitializeSongCommandHandler(CommandHandlerInterface):
-    def handle(self, command):
+    def handle(self, _):
         # type: (InitializeSongCommand) -> None
         Logger.clear()
         self._container.get(TrackMapperService).tracks_listener()

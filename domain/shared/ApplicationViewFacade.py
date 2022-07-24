@@ -66,9 +66,7 @@ class ApplicationViewFacade(object):
         """Moves the focus to the detail view."""
         selected_track = SongFacade.selected_track()
         is_visible = SongFacade.selected_track().is_visible
-        if SongFacade.selected_track().group_track and any(
-            t.is_folded for t in SongFacade.selected_track().group_tracks
-        ):
+        if SongFacade.selected_track().group_track:
             SongFacade.selected_track().group_track.is_folded = False
             # NB : unfolding parent classes will select them
             if SongFacade.selected_track() != selected_track:

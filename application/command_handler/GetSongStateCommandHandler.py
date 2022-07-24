@@ -4,6 +4,6 @@ from protocol0.domain.lom.song.SongState import SongState
 
 
 class GetSongStateCommandHandler(CommandHandlerInterface):
-    def handle(self, command):
+    def handle(self, _):
         # type: (GetSongStateCommand) -> None
         self._container.get(SongState).notify(force=True)

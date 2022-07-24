@@ -7,7 +7,7 @@ from protocol0.domain.lom.instrument.preset.preset_importer.DirectoryPresetImpor
     DirectoryPresetImporter,
 )
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.shared.utils.utils import find_if
+from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
 
@@ -61,7 +61,7 @@ class DrumCategory(object):
     @property
     def uses_scene_length_clips(self):
         # type: () -> bool
-        return self.name.lower() in ["crash", "fill", "impact", "reverse", "riser", "texture"]
+        return self.name.lower() in ["crash", "fill", "glitch", "impact", "perc", "reverse", "riser", "texture"]
 
     @property
     def create_track_index(self):

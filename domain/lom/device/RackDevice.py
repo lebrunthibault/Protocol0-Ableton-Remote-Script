@@ -4,7 +4,7 @@ from typing import List, Optional, Any, cast
 
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceChain import DeviceChain
-from protocol0.domain.shared.utils.utils import find_if
+from protocol0.domain.shared.utils.list import find_if
 
 
 class RackDevice(Device):

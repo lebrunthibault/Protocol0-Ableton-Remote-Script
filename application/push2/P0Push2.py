@@ -95,6 +95,7 @@ class P0Push2(Push2):
 
     def _create_session(self):
         # type: () -> None
+        """Swap _on_select_clip_slot"""
         # noinspection PyUnresolvedReferences
         session = super(Push2, self)._create_session()
         for scene_index in xrange(8):
@@ -108,6 +109,12 @@ class P0Push2(Push2):
                 clip_slot._show_launched_clip_as_highlighted_clip = nop
 
         return session
+
+    def on_select_scene(self, scene):
+        # type: (Live.Scene.Scene) -> None
+        """unfold scene on select"""
+        super(P0Push2, self).on_select_scene(scene)
+        SongFacade.selected_scene().unfold()
 
     def _on_select_clip_slot(self, scene_index, track_index, _):
         # type: (int, int, Live.ClipSlot.ClipSlot) -> None

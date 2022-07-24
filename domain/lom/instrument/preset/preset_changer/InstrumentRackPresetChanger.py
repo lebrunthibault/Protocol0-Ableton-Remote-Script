@@ -5,7 +5,7 @@ from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPr
 from protocol0.domain.lom.instrument.preset.preset_changer.PresetChangerInterface import (
     PresetChangerInterface,
 )
-from protocol0.domain.shared.utils.utils import find_if
+from protocol0.domain.shared.utils.list import find_if
 
 
 class InstrumentRackPresetChanger(PresetChangerInterface):

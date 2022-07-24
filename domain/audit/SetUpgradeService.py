@@ -120,11 +120,3 @@ class SetUpgradeService(object):
                     ]
                 ):
                     yield track, device
-
-        # empty mix racks
-        for track in SongFacade.all_simple_tracks():
-            mix_rack = track.devices.get_one_from_enum(
-                DeviceEnum.MIX_RACK
-            )  # type: Optional[RackDevice]
-            if mix_rack and len(mix_rack.chains[0].devices) == 0:
-                yield track, mix_rack

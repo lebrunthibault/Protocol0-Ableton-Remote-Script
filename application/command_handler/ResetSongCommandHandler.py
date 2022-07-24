@@ -5,7 +5,7 @@ from protocol0.infra.persistence.SongDataService import SongDataService
 
 
 class ResetSongCommandHandler(CommandHandlerInterface):
-    def handle(self, command):
+    def handle(self, _):
         # type: (ResetSongCommand) -> None
         self._container.get(PlaybackComponent).reset()
         self._container.get(SongDataService).save()

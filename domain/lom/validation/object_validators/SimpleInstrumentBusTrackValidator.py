@@ -16,7 +16,6 @@ class SimpleInstrumentBusTrackValidator(AggregateValidator):
             PropertyValueValidator(
                 track, "current_monitoring_state", CurrentMonitoringStateEnum.IN
             ),
-            # SimpleTrackHasDeviceValidator(track, DeviceEnum.DUMMY_RACK),
             CallbackValidator(
                 track, lambda t: len(t.clips) == 1, None, "track should have one empty dummy clip"
             ),

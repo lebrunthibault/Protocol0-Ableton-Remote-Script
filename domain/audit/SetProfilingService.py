@@ -3,7 +3,7 @@ from _Framework.ControlSurface import get_control_surfaces
 from protocol0.application.push2.P0Push2 import P0Push2
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
-from protocol0.domain.shared.utils.utils import find_if
+from protocol0.domain.shared.utils.list import find_if
 
 
 class SetProfilingService(object):
