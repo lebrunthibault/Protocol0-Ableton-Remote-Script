@@ -10,6 +10,7 @@ from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -20,6 +21,12 @@ class DeviceDisplayService(object):
     COLLAPSED_DEVICE_PIXEL_WIDTH = 38
     COLLAPSED_RACK_DEVICE_PIXEL_WIDTH = 28
     WIDTH_PIXEL_OFFSET = 4
+    # SHOW_HIDE_MACRO_BUTTON_PIXEL_HEIGHT = 1660
+    # SHOW_HIDE_PLUGIN_BUTTON_PIXEL_HEIGHT = 1984
+    # SHOW_HIDE_SAVABLE_PLUGIN_BUTTON_PIXEL_HEIGHT = 1940
+    # COLLAPSED_DEVICE_PIXEL_WIDTH = 76
+    # COLLAPSED_RACK_DEVICE_PIXEL_WIDTH = 56
+    # WIDTH_PIXEL_OFFSET = 8
 
     def __init__(self, browser_service):
         # type: (BrowserServiceInterface) -> None
@@ -46,12 +53,13 @@ class DeviceDisplayService(object):
             d.is_collapsed = True
 
         (x_device, y_device) = self._get_device_show_button_click_coordinates(track, device)
+        Logger.dev((x_device, y_device))
 
         seq = Sequence()
         seq.add(
             lambda: Backend.client().toggle_ableton_button(x=x_device, y=y_device, activate=True)
         )
-        seq.wait(10)
+        seq.wait(30)
         seq.add(partial(self._uncollapse_devices, devices_to_collapse))
 
         return seq.done()

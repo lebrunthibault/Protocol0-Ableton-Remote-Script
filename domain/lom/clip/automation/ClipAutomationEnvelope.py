@@ -38,4 +38,3 @@ class ClipAutomationEnvelope(object):
     def focus(self):
         # type: () -> None
         Backend.client().move_to(1225, 1013)
-        # Backend.client().click(1225, 1013)

@@ -101,7 +101,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+.env.json
 .venv
 env/
 venv/
@@ -139,8 +139,6 @@ logs/
 # Pycharm
 .idea
 InspectionProfile.xml
-
-make_path.py
 
 # Jupyter Notebook
 jupyter/

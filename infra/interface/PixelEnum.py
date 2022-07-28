@@ -4,8 +4,8 @@ from protocol0.shared.AbstractEnum import AbstractEnum
 
 
 class PixelEnum(AbstractEnum):
-    SHOW_CLIP_ENVELOPE = (86, 1014)
-    SAVE_SAMPLE = (267, 658)
+    SHOW_CLIP_ENVELOPE = (172, 2028)
+    SAVE_SAMPLE = (534, 1316)
 
     @property
     def coordinates(self):

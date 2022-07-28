@@ -63,7 +63,7 @@ class InstrumentDisplayService(object):
         seq.add(partial(self.activate_plugin_window, track))
         if not track.instrument.force_show:
             seq.add(Backend.client().hide_plugins)
-        track.instrument.force_show
+        track.instrument.force_show = False
         return seq.done()
 
     def _on_instrument_selected_event(self, _):

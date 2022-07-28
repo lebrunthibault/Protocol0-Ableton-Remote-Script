@@ -75,6 +75,15 @@ if not live_environment_loaded:
 
 def create_instance(c_instance):  # noqa
     # type: (Any) -> Any
+    print(sys.path)
+    print(sys.path)
+    print(sys.path)
+    print(sys.path)
+    print(sys.path)
+    print(sys.path)
+    print(sys.path)
+    print(sys.path)
+    print(sys.path)
     from protocol0.application.Protocol0 import Protocol0
 
     return Protocol0(c_instance)
