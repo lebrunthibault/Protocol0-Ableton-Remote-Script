@@ -18,7 +18,7 @@ vulture:
 
 black:
 	cls||clear
-	black .
+	./venv/scripts/black .
 
 check:
 	make mypy

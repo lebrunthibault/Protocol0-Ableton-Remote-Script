@@ -150,7 +150,6 @@ class Container(ContainerInterface):
         )
 
         song_service = SongInitService(playback_component)
-        Backend.client().end_measurement()
         instrument_preset_scroller_service = InstrumentPresetScrollerService()
         mixing_service = MixingService()
         validator_service = ValidatorService(ValidatorFactory(browser_service))
@@ -255,6 +254,5 @@ class Container(ContainerInterface):
         self.get(TempoComponent).disconnect()
         self.get(TrackComponent).disconnect()
         self.get(TrackMapperService).disconnect()
-        self.get(MidiService).disconnect()
 
         self._registry = {}

@@ -10,7 +10,6 @@ from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -21,12 +20,6 @@ class DeviceDisplayService(object):
     COLLAPSED_DEVICE_PIXEL_WIDTH = 38
     COLLAPSED_RACK_DEVICE_PIXEL_WIDTH = 28
     WIDTH_PIXEL_OFFSET = 4
-    # SHOW_HIDE_MACRO_BUTTON_PIXEL_HEIGHT = 1660
-    # SHOW_HIDE_PLUGIN_BUTTON_PIXEL_HEIGHT = 1984
-    # SHOW_HIDE_SAVABLE_PLUGIN_BUTTON_PIXEL_HEIGHT = 1940
-    # COLLAPSED_DEVICE_PIXEL_WIDTH = 76
-    # COLLAPSED_RACK_DEVICE_PIXEL_WIDTH = 56
-    # WIDTH_PIXEL_OFFSET = 8
 
     def __init__(self, browser_service):
         # type: (BrowserServiceInterface) -> None
@@ -53,28 +46,27 @@ class DeviceDisplayService(object):
             d.is_collapsed = True
 
         (x_device, y_device) = self._get_device_show_button_click_coordinates(track, device)
-        Logger.dev((x_device, y_device))
 
         seq = Sequence()
         seq.add(
             lambda: Backend.client().toggle_ableton_button(x=x_device, y=y_device, activate=True)
         )
         seq.wait(30)
-        seq.add(partial(self._uncollapse_devices, devices_to_collapse))
+        seq.add(partial(self._un_collapse_devices, devices_to_collapse))
 
         return seq.done()
 
     def _make_nested_device_window_showable(self, track, device, parent_rack):
         # type: (SimpleTrack, Device, RackDevice) -> Sequence
-        devices_to_uncollapse = []  # type: List[Device]
+        devices_to_un_collapse = []  # type: List[Device]
 
         for d in track.devices:
             if d != parent_rack and not d.is_collapsed:
-                devices_to_uncollapse.append(d)
+                devices_to_un_collapse.append(d)
                 d.is_collapsed = True
         for d in parent_rack.chains[0].devices:
             if not d.is_collapsed:
-                devices_to_uncollapse.append(d)
+                devices_to_un_collapse.append(d)
                 d.is_collapsed = True
 
         (x_rack, y_rack) = self._get_rack_show_macros_button_click_coordinates(track, parent_rack)
@@ -92,15 +84,15 @@ class DeviceDisplayService(object):
         seq.add(lambda: Backend.client().toggle_ableton_button(x=x_rack, y=y_rack, activate=True))
         # at this point the rack macro controls could still be hidden if the plugin window masks the button
         seq.add(
-            partial(self._uncollapse_devices, devices_to_uncollapse),
+            partial(self._un_collapse_devices, devices_to_un_collapse),
             name="restore device collapse state",
         )
 
         return seq.done()
 
-    def _uncollapse_devices(self, devices_to_uncollapse):
+    def _un_collapse_devices(self, devices_to_un_collapse):
         # type: (List[Device]) -> None
-        for d in devices_to_uncollapse:
+        for d in devices_to_un_collapse:
             d.is_collapsed = False
 
     def _get_device_show_button_click_coordinates(self, track, device, rack_device=None):

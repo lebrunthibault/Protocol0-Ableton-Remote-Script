@@ -8,8 +8,6 @@ from protocol0.domain.lom.instrument.preset.PresetProgramSelectedEvent import (
 )
 from protocol0.domain.lom.song.SongInitializedEvent import SongInitializedEvent
 from protocol0.domain.shared.backend.Backend import Backend
-from protocol0.domain.shared.decorators import throttle
-from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.list import find_if
@@ -24,7 +22,6 @@ class MidiService(object):
     def __init__(self, send_midi):
         # type: (Callable) -> None
         self._send_midi = send_midi
-        self._midi_server_up = False
 
         DomainEventBus.subscribe(MidiBytesReceivedEvent, self._on_midi_bytes_received_event)
         DomainEventBus.subscribe(PresetProgramSelectedEvent, self._on_preset_program_selected_event)
@@ -62,23 +59,10 @@ class MidiService(object):
         # type: (PresetProgramSelectedEvent) -> None
         self._send_program_change(event.preset_index)
 
-    @throttle(duration=50)
     def _on_song_initialized_event(self, _):
         # type: (SongInitializedEvent) -> None
-        self._ping_midi_server()
-        Scheduler.wait(10, self._check_protocol_midi_is_up)  # waiting for Protocol0_midi to boot
-        Scheduler.wait(100, self._midi_server_ping_timeout)
-
-    def _ping_midi_server(self):
-        # type: () -> None
         Backend.client().ping()
-
-    def pong_from_midi_server(self):
-        # type: () -> None
-        Logger.info("Midi server is up")
-        if self._midi_server_up:
-            raise Protocol0Error("Duplicate pong : midi server is loaded multiple times")
-        self._midi_server_up = True
+        Scheduler.wait(10, self._check_protocol_midi_is_up)  # waiting for Protocol0_midi to boot
 
     def _check_protocol_midi_is_up(self):
         # type: () -> None
@@ -87,14 +71,3 @@ class MidiService(object):
         protocol0_midi = find_if(lambda cs: isinstance(cs, Protocol0Midi), get_control_surfaces())
         if protocol0_midi is None:
             Logger.error("Protocol0Midi is not loaded")
-
-    def _midi_server_ping_timeout(self):
-        # type: () -> None
-        pass
-        # not working properly
-        # if not self._midi_server_up:
-        #     Logger.warning("Midi server is not running.")
-
-    def disconnect(self):
-        # type: () -> None
-        self._midi_server_up = False

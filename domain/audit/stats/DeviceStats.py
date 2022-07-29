@@ -8,7 +8,6 @@ from protocol0.domain.lom.device.DrumRackDevice import DrumRackDevice
 from protocol0.domain.lom.device.SimplerDevice import SimplerDevice
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 
 
 class DeviceStats(object):
@@ -25,7 +24,6 @@ class DeviceStats(object):
     def increment(self):
         # type: () -> None
         self.count += 1
-        Logger.dev(self.count)
 
     @property
     def total_load_time(self):
@@ -45,7 +43,6 @@ class DevicesStats(object):
             if device.name not in device_stats_dict:
                 device_stats_dict[device.name] = DeviceStats(device.name)
 
-            Logger.dev("increment %s" % device.name)
             device_stats_dict[device.name].increment()
 
         devices_stats = device_stats_dict.values()

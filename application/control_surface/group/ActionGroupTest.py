@@ -1,7 +1,5 @@
 from functools import partial
 
-from protocol0.application.CommandBus import CommandBus
-from protocol0.application.command.UnfoldSelectedSceneCommand import UnfoldSelectedSceneCommand
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 from protocol0.domain.audit.AudioLatencyAnalyzerService import AudioLatencyAnalyzerService
 from protocol0.domain.audit.SetProfilingService import SetProfilingService
@@ -51,4 +49,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        CommandBus.dispatch(UnfoldSelectedSceneCommand())
+        1 / 0  # noqa

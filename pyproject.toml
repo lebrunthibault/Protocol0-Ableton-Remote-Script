@@ -1,6 +1,27 @@
 [tool.black]
 line-length = 100
 
+[tool.mypy]
+python_version = 2.7
+exclude = ['venv', 'tests', 'vulture_whitelist.py']
+pretty = false
+ignore_missing_imports = true
+follow_imports = 'skip'
+# cannot remove misc because of _Framework. union-attr possibly
+disable_error_code = ['misc','union-attr']
+show_error_codes = true
+#warn_return_any = true # this is not possible because of the Live stub (and xml) doesn't specify types for properties
+warn_unreachable = true
+strict_equality = true
+disallow_any_explicit = false
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_decorators = true
+warn_redundant_casts=true
+warn_unused_ignores=true
+
+
 [tool.vulture]
 #exclude = ["venv/"]
 ignore_names = ["Optional"]
