@@ -40,9 +40,7 @@ class SampleStats(object):
 
         devices_count = len(self.drum_racks) + len(self.simplers)
         self.count = len(self.simplers) + sum(stat.sample_count for stat in self.drum_rack_stats)
-        self.potential_load_time_optimization = (
-            self.count - devices_count
-        ) * SAMPLE_LOAD_TIME
+        self.potential_load_time_optimization = (self.count - devices_count) * SAMPLE_LOAD_TIME
 
     def to_dict(self):
         # type: () -> Dict

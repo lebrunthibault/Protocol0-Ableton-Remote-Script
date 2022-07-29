@@ -61,7 +61,10 @@ class SimpleTrackDevices(SlotManager, Observable):
             device = find_if(
                 lambda d: d._device == self._track.view.selected_device, self.all
             )  # type: Optional[Device]
-            assert device, "%s is not in %s devices" % (self._track.view.selected_device.name, self._track.name)
+            assert device, "%s is not in %s devices" % (
+                self._track.view.selected_device.name,
+                self._track.name,
+            )
             return device
         else:
             return None

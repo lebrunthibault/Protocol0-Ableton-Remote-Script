@@ -71,8 +71,8 @@ class SceneService(SlotManager):
     def _selected_scene_listener(self):
         # type: () -> None
         """
-            debounce necessary when multiple scenes are added at the same time
-            (e.g. when importing a track)
+        debounce necessary when multiple scenes are added at the same time
+        (e.g. when importing a track)
         """
         DomainEventBus.emit(SessionUpdatedEvent())
 

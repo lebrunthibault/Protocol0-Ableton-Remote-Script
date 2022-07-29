@@ -151,7 +151,7 @@ class ErrorService(object):
             "%s\n\nReload script ?" % message,
             vertical=False,
             color=NotificationColorEnum.ERROR,
-            default=False
+            default=False,
         )
         seq.add(partial(CommandBus.dispatch, InitializeSongCommand()))
         seq.done()

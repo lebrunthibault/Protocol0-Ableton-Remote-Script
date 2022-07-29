@@ -21,6 +21,7 @@ from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService impo
     InstrumentPresetScrollerService,
 )
 from protocol0.domain.lom.instrument.preset.PresetService import PresetService
+from protocol0.domain.lom.sample.SampleService import SampleService
 from protocol0.domain.lom.scene.ScenePlaybackService import ScenePlaybackService
 from protocol0.domain.lom.scene.SceneService import SceneService
 from protocol0.domain.lom.set.MixingService import MixingService
@@ -121,7 +122,9 @@ class Container(ContainerInterface):
         browser_service = BrowserService(browser, BrowserLoaderService(browser))
         device_display_service = DeviceDisplayService(browser_service)
         instrument_display_service = InstrumentDisplayService(device_display_service)
-        device_service = DeviceService(device_component, browser_service, instrument_display_service)
+        device_service = DeviceService(
+            device_component, browser_service, instrument_display_service
+        )
         drum_rack_service = DrumRackService(browser_service)
         track_factory = TrackFactory(track_crud_component, browser_service, drum_rack_service)
         track_repository = TrackRepository()
@@ -155,7 +158,10 @@ class Container(ContainerInterface):
         validator_service = ValidatorService(ValidatorFactory(browser_service))
         interface_clicks_service = InterfaceClicksService()
 
+        # presets
         preset_service = PresetService()
+        sample_service = SampleService(browser_service, device_component)
+
         session_to_arrangement_service = SessionToArrangementService(
             playback_component,
             recording_component,
@@ -213,6 +219,7 @@ class Container(ContainerInterface):
         self._register(track_recorder_service)
         self._register(validator_service)
         self._register(preset_service)
+        self._register(sample_service)
 
         # audit
         self._register(audio_latency_service)

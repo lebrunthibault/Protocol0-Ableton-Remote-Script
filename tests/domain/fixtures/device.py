@@ -12,8 +12,6 @@ class AbletonDevice(Subject):
         self._live_ptr = id(self)
         self.name = name
         self.view = None
-        self.parameters = [
-            AbletonDeviceParameter(DeviceParameterEnum.DEVICE_ON.parameter_name)
-        ]
+        self.parameters = [AbletonDeviceParameter(DeviceParameterEnum.DEVICE_ON.parameter_name)]
         self.can_have_drum_pads = False
         self.can_have_chains = False

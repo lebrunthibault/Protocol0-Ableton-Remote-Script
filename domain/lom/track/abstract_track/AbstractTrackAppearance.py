@@ -67,7 +67,10 @@ class AbstractTrackAppearance(SlotManager, Observable):
 
     def refresh(self):
         # type: () -> None
-        if self._live_track.group_track and self._live_track.group_track.color_index != self._default_color:
+        if (
+            self._live_track.group_track
+            and self._live_track.group_track.color_index != self._default_color
+        ):
             self._default_color = self._live_track.group_track.color_index
 
         self.color = self._default_color

@@ -2,7 +2,9 @@ from typing import List, Optional, cast, Tuple
 
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.domain.lom.track.abstract_track.AbstractTrackAppearance import AbstractTrackAppearance
+from protocol0.domain.lom.track.abstract_track.AbstractTrackAppearance import (
+    AbstractTrackAppearance,
+)
 from protocol0.domain.lom.track.simple_track.SimpleDummyReturnTrack import SimpleDummyReturnTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack

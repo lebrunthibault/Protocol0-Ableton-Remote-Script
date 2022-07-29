@@ -56,14 +56,25 @@ class P0Push2(Push2):
         """Overriding this to make clicking on Browse open the instrument instead"""
         application = Live.Application.get_application()
         browser = application.browser
-        self._main_modes.add_mode(u'browse', [P0ShowInstrumentMode(self._main_modes)])
-        self._main_modes.add_mode(u'add_device', [
-            AddDeviceMode(application=application, song=self.song, browser=browser,
-                          drum_group_component=self._drum_component, enabling_mode=self._browser_component_mode)],
-                                  behaviour=BrowserModeBehaviour())
-        self._main_modes.add_mode(u'add_track',
-                                  [AddTrackMode(browser=browser, enabling_mode=self._new_track_browser_component_mode)],
-                                  behaviour=BrowserModeBehaviour())
+        self._main_modes.add_mode("browse", [P0ShowInstrumentMode(self._main_modes)])
+        self._main_modes.add_mode(
+            "add_device",
+            [
+                AddDeviceMode(
+                    application=application,
+                    song=self.song,
+                    browser=browser,
+                    drum_group_component=self._drum_component,
+                    enabling_mode=self._browser_component_mode,
+                )
+            ],
+            behaviour=BrowserModeBehaviour(),
+        )
+        self._main_modes.add_mode(
+            "add_track",
+            [AddTrackMode(browser=browser, enabling_mode=self._new_track_browser_component_mode)],
+            behaviour=BrowserModeBehaviour(),
+        )
 
     def _init_track_list(self):
         # type: () -> None
@@ -90,8 +101,13 @@ class P0Push2(Push2):
         # type: () -> None
         """Swapping the transport class and adding shift button parameter"""
         super(P0Push2, self)._init_transport_and_recording()
-        self._transport = P0TransportComponent(name=u'Transport')
-        self._transport.layer = Layer(play_button=u'play_button', stop_button=self._with_shift(u'play_button'), tap_tempo_button=u'tap_tempo_button', metronome_button=u'metronome_button')
+        self._transport = P0TransportComponent(name="Transport")
+        self._transport.layer = Layer(
+            play_button="play_button",
+            stop_button=self._with_shift("play_button"),
+            tap_tempo_button="tap_tempo_button",
+            metronome_button="metronome_button",
+        )
 
     def _create_session(self):
         # type: () -> None

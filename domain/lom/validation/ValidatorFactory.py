@@ -14,13 +14,15 @@ from protocol0.domain.lom.validation.object_validators.ExternalSynthTrackValidat
     ExternalSynthTrackValidator,
 )
 from protocol0.domain.lom.validation.object_validators.SceneValidator import SceneValidator
-from protocol0.domain.lom.validation.object_validators.SimpleAudioTrackValidator import \
-    SimpleAudioTrackValidator
+from protocol0.domain.lom.validation.object_validators.SimpleAudioTrackValidator import (
+    SimpleAudioTrackValidator,
+)
 from protocol0.domain.lom.validation.object_validators.SimpleInstrumentBusTrackValidator import (
     SimpleInstrumentBusTrackValidator,
 )
-from protocol0.domain.lom.validation.object_validators.SimpleTrackValidator import \
-    SimpleTrackValidator
+from protocol0.domain.lom.validation.object_validators.SimpleTrackValidator import (
+    SimpleTrackValidator,
+)
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 

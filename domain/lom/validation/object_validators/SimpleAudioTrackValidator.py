@@ -3,8 +3,9 @@ from typing import List, Optional
 from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.validation.ValidatorInterface import ValidatorInterface
-from protocol0.domain.lom.validation.object_validators.SimpleTrackValidator import \
-    SimpleTrackValidator
+from protocol0.domain.lom.validation.object_validators.SimpleTrackValidator import (
+    SimpleTrackValidator,
+)
 from protocol0.domain.lom.validation.sub_validators.CallbackValidator import CallbackValidator
 
 

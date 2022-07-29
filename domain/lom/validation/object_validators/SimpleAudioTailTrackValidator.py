@@ -18,17 +18,23 @@ class SimpleAudioTailTrackValidator(SimpleAudioTrackValidator):
     def __init__(self, track):
         # type: (SimpleAudioTailTrack) -> None
         ext_track = cast(ExternalSynthTrack, track.abstract_group_track)
-        validators = cast(List[ValidatorInterface], [
-            PropertyValueValidator(
-                track.input_routing, "track", ext_track.midi_track, name="tail track input track"
-            ),
-            PropertyValueValidator(
-                track.input_routing,
-                "channel",
-                InputRoutingChannelEnum.POST_FX,
-                name="tail track input channel",
-            ),
-        ])
+        validators = cast(
+            List[ValidatorInterface],
+            [
+                PropertyValueValidator(
+                    track.input_routing,
+                    "track",
+                    ext_track.midi_track,
+                    name="tail track input track",
+                ),
+                PropertyValueValidator(
+                    track.input_routing,
+                    "channel",
+                    InputRoutingChannelEnum.POST_FX,
+                    name="tail track input channel",
+                ),
+            ],
+        )
         for clip in track.clips:
             validators.append(PropertyValueValidator(clip, "muted", True))
 

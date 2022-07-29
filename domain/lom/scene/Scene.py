@@ -75,14 +75,18 @@ class Scene(SlotManager):
                 continue
 
             # let dummy track play until the end
-            if isinstance(track, SimpleDummyTrack) and clip and clip.loop.bar_length > self.bar_length:
+            if (
+                isinstance(track, SimpleDummyTrack)
+                and clip
+                and clip.loop.bar_length > self.bar_length
+            ):
                 Scheduler.wait_bars(clip.loop.bar_length - self.bar_length, track.stop)
                 continue
 
             if track.is_playing:
                 if (
-                        self == SongFacade.playing_scene()
-                        or track not in SongFacade.playing_scene().clips.tracks
+                    self == SongFacade.playing_scene()
+                    or track not in SongFacade.playing_scene().clips.tracks
                 ):
                     yield track
 

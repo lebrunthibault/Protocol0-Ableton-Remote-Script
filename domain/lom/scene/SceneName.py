@@ -44,9 +44,7 @@ class SceneName(SlotManager):
 
         # catches base name with or without bar length legend
         forbidden_first_character = "(?!([\\d|-]+))"
-        match = re.match(
-            "^(?P<base_name>%s[^()]*)" % forbidden_first_character, scene_name
-        )
+        match = re.match("^(?P<base_name>%s[^()]*)" % forbidden_first_character, scene_name)
         base_name = match.group("base_name").strip() if match else ""
 
         return base_name
@@ -61,7 +59,9 @@ class SceneName(SlotManager):
             self.disconnect()
             return
 
-        length_legend = get_length_legend(self._scene_length.length, SongFacade.signature_numerator())
+        length_legend = get_length_legend(
+            self._scene_length.length, SongFacade.signature_numerator()
+        )
 
         if self._scene_playing_state.has_playing_clips:
             length_legend = "%s|%s" % (self._scene_playing_state.current_bar + 1, length_legend)

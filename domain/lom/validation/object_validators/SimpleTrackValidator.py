@@ -25,7 +25,7 @@ class SimpleTrackValidator(AggregateValidator):
                     "track",
                     track.base_track.group_track or SongFacade.master_track(),
                     name="group track output routing",
-                    ),
+                ),
             )
 
         super(SimpleTrackValidator, self).__init__(validators)

@@ -24,6 +24,7 @@ class DeviceEnum(AbstractEnum):
     LIMITER = "LIMITER"
     PRO_Q_3 = "PRO_Q_3"
     REV2_EDITOR = "REV2_EDITOR"
+    SAMPLE_PITCH_RACK = "SAMPLE_PITCH_RACK"
     SATURATOR = "SATURATOR"
     SATURN_2 = "SATURN_2"
     SERUM = "SERUM"
@@ -55,6 +56,7 @@ class DeviceEnum(AbstractEnum):
                 DeviceEnum.LIMITER: "Limiter",
                 DeviceEnum.PRO_Q_3: "FabFilter Pro-Q 3",
                 DeviceEnum.REV2_EDITOR: "REV2Editor",
+                DeviceEnum.SAMPLE_PITCH_RACK: "Sample Pitch Rack",
                 DeviceEnum.SATURATOR: "Saturator",
                 DeviceEnum.SATURN_2: "FabFilter Saturn 2",
                 DeviceEnum.SERUM: "Serum_x64",
@@ -87,6 +89,7 @@ class DeviceEnum(AbstractEnum):
                 DeviceEnum.LIMITER: "Limiter",
                 DeviceEnum.PRO_Q_3: "FabFilter Pro-Q 3",
                 DeviceEnum.REV2_EDITOR: "REV2Editor",
+                DeviceEnum.SAMPLE_PITCH_RACK: "Sample Pitch Rack.adg",
                 DeviceEnum.SATURATOR: "Saturator",
                 DeviceEnum.SATURN_2: "FabFilter Saturn 2",
                 DeviceEnum.SIMPLER: "Simpler",

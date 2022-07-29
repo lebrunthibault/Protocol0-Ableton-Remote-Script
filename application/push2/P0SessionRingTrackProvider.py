@@ -37,8 +37,8 @@ class P0SessionRingTrackProvider(SessionRingTrackProvider):
     def _on_session_updated_event(self, _):
         # type: (SessionUpdatedEvent) -> None
         """
-            Event to send so that the push2 session is updated
-            The event is sometimes sent when the set is not yet mapped
+        Event to send so that the push2 session is updated
+        The event is sometimes sent when the set is not yet mapped
         """
         try:
             self._tracks_to_use_cache = self._get_tracks_to_use()

@@ -49,7 +49,9 @@ class AbletonTrack(Subject):
         self.has_midi_input = self.has_audio_output = self.is_foldable = self.fold_state = False
         self.available_input_routing_types = []
         self.available_input_routing_channels = []
-        self.available_output_routing_types = [TrackRoutingType(OutputRoutingTypeEnum.SENDS_ONLY.label)]
+        self.available_output_routing_types = [
+            TrackRoutingType(OutputRoutingTypeEnum.SENDS_ONLY.label)
+        ]
         self.output_routing_type = self.available_output_routing_types[0]
         self.clip_slots = [AbletonClipSlot()]
         self.view = None

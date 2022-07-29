@@ -57,5 +57,5 @@ class DeviceParameterEnum(AbstractEnum):
             cls.UTILITY_GAIN,
             cls.AUTO_FILTER_LOW_PASS_FREQUENCY,
             cls.AUTO_FILTER_HIGH_PASS_FREQUENCY,
-            cls.LFO_TOOL_DEVICE_ON
+            cls.LFO_TOOL_DEVICE_ON,
         ]

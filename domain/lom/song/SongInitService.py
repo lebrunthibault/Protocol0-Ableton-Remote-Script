@@ -24,13 +24,13 @@ class SongInitService(object):
         # the song usually starts playing after this method is executed
         CommandBus.dispatch(ResetSongCommand())
         clip_count = len(
-                [
-                    clip
-                    for track in SongFacade.abstract_tracks()
-                    for clip in track.clips
-                    if not clip.muted
-                ]
-            )
+            [
+                clip
+                for track in SongFacade.abstract_tracks()
+                for clip in track.clips
+                if not clip.muted
+            ]
+        )
 
         if clip_count > self._REAL_SET_CLIP_THRESHOLD:
             DomainEventBus.emit(RealSetLoadedEvent())
