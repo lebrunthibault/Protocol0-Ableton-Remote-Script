@@ -20,7 +20,7 @@ class SetFixerService(object):
 
         invalid_objects = []
 
-        objects_to_validate = SongFacade.scenes() + list(SongFacade.abstract_tracks())
+        objects_to_validate = SongFacade.scenes() + list(SongFacade.abstract_tracks())  # noqa
         for obj in objects_to_validate:
             is_valid = self._validator_service.validate_object(obj)
             if not is_valid:

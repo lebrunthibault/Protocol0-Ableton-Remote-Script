@@ -1,7 +1,7 @@
-import Live
 from _Framework.SubjectSlot import subject_slot, SlotManager
 from typing import Optional
 
+import Live
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.track.TrackColorEnum import TrackColorEnum
 from protocol0.domain.lom.track.abstract_track.AbstractTrackNameUpdatedEvent import (
@@ -57,6 +57,7 @@ class AbstractTrackAppearance(SlotManager, Observable):
     def color(self, color_index):
         # type: (int) -> None
         if self._live_track and color_index != self._live_track.color_index:
+            self._default_color = color_index
             self._live_track.color_index = color_index
 
     @property
@@ -66,5 +67,8 @@ class AbstractTrackAppearance(SlotManager, Observable):
 
     def refresh(self):
         # type: () -> None
+        if self._live_track.group_track and self._live_track.group_track.color_index != self._default_color:
+            self._default_color = self._live_track.group_track.color_index
+
         self.color = self._default_color
         self.notify_observers()

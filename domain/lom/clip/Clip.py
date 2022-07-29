@@ -49,6 +49,7 @@ class Clip(SlotManager, Observable):
             self.notify_observers()
 
     name = cast(str, ForwardTo("appearance", "name"))
+    color = cast(int, ForwardTo("appearance", "color"))
     length = cast(float, ForwardTo("loop", "length"))
 
     @property

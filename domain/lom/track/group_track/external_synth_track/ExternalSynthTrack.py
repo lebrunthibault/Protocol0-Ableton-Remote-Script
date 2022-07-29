@@ -2,20 +2,17 @@ import itertools
 import time
 from functools import partial
 
-import Live
 from _Framework.CompoundElement import subject_slot_group
 from _Framework.SubjectSlot import subject_slot
 from typing import Optional, cast, List, Tuple
 
+import Live
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
-from protocol0.domain.lom.track.abstract_track.AbstractTrackAppearance import (
-    AbstractTrackAppearance,
-)
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackArmState import (
     ExternalSynthTrackArmState,
@@ -32,7 +29,6 @@ from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTr
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.decorators import defer
-from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
@@ -84,13 +80,13 @@ class ExternalSynthTrack(AbstractGroupTrack):
             self.base_track, self.midi_track, self.monitoring_state
         )
 
-        self.appearance.register_observer(self)
-
         DomainEventBus.subscribe(LastBeatPassedEvent, self._on_last_beat_passed_event)
 
         self._solo_listener.subject = self._track
         # this is necessary to monitor the group track solo state
         self._un_soloed_at = None  # type: Optional[float]
+
+        self._force_clip_colors = False
 
     is_armed = cast(bool, ForwardTo("arm_state", "is_armed"))
     is_partially_armed = cast(bool, ForwardTo("arm_state", "is_partially_armed"))
@@ -249,10 +245,8 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
     def update(self, observable):
         # type: (Observable) -> None
-        if isinstance(observable, AbstractTrackAppearance):
-            for sub_track in self.sub_tracks:
-                sub_track.appearance.color = self.appearance.color
-        elif isinstance(observable, SimpleTrackDevices):
+        super(ExternalSynthTrack, self).update(observable)
+        if isinstance(observable, SimpleTrackDevices):
             self.external_device = find_if(
                 lambda d: d.is_external_device, list(self.midi_track.devices)
             )
@@ -262,8 +256,6 @@ class ExternalSynthTrack(AbstractGroupTrack):
             self._instrument = self.midi_track.instrument or InstrumentMinitaur(
                 device=None, track_name=self.name
             )
-        else:
-            raise Protocol0Error("Unmatched observable: %s" % observable)
 
     @property
     def instrument_track(self):
@@ -313,7 +305,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
         # type: (Live.Track.Track) -> None
         """We want to solo only the base track"""
         if track.solo:
-            track.solo = False
+            track.solo = False  # noqa
             # when soloing a sub track, the group track is un soloed so we need to handle this case
             if self._un_soloed_at is not None and time.time() - self._un_soloed_at < 0.3:
                 self.solo = False

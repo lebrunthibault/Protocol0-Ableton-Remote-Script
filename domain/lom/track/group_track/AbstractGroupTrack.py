@@ -2,10 +2,12 @@ from typing import List, Optional, cast, Tuple
 
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
+from protocol0.domain.lom.track.abstract_track.AbstractTrackAppearance import AbstractTrackAppearance
 from protocol0.domain.lom.track.simple_track.SimpleDummyReturnTrack import SimpleDummyReturnTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.shared.observer.Observable import Observable
 
 
 class AbstractGroupTrack(AbstractTrack):
@@ -19,6 +21,9 @@ class AbstractGroupTrack(AbstractTrack):
         # for now: List[SimpleTrack] but AbstractGroupTracks will register themselves on_tracks_change
         self.dummy_track = None  # type: Optional[SimpleDummyTrack]
         self.dummy_return_track = None  # type: Optional[SimpleDummyReturnTrack]
+
+        self.appearance.register_observer(self)
+        self._force_clip_colors = True
 
     def on_tracks_change(self):
         # type: () -> None
@@ -88,7 +93,7 @@ class AbstractGroupTrack(AbstractTrack):
     def _get_dummy_tracks(self):
         # type: () -> Tuple[Optional[AbstractTrack], Optional[AbstractTrack]]
         if SimpleDummyTrack.is_track_valid(self.sub_tracks[-1]):
-            if SimpleDummyTrack.is_track_valid(self.sub_tracks[-2]):
+            if len(self.sub_tracks) > 1 and SimpleDummyTrack.is_track_valid(self.sub_tracks[-2]):
                 return self.sub_tracks[-2], self.sub_tracks[-1]
             else:
                 # is it the dummy return track ?
@@ -120,6 +125,16 @@ class AbstractGroupTrack(AbstractTrack):
                 for sub_track in self.sub_tracks
             )
         )
+
+    def update(self, observable):
+        # type: (Observable) -> None
+        if isinstance(observable, AbstractTrackAppearance):
+            for sub_track in self.sub_tracks:
+                sub_track.appearance.color = self.appearance.color
+                # this is when moving tracks into a different group
+                if self._force_clip_colors:
+                    for clip in sub_track.clips:
+                        clip.color = self.appearance.color
 
     @property
     def clip_slots(self):

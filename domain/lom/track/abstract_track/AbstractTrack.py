@@ -1,9 +1,9 @@
 from functools import partial
 
-import Live
 from _Framework.SubjectSlot import SlotManager
 from typing import Optional, List, Iterator, cast, TYPE_CHECKING
 
+import Live
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.ClipSlotSelectedEvent import ClipSlotSelectedEvent
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
@@ -64,6 +64,9 @@ class AbstractTrack(SlotManager):
 
     def on_added(self):
         # type: () -> Optional[Sequence]
+        if self.group_track is not None and self.group_track.color != self.color:
+            self.color = self.group_track.color
+
         if self.REMOVE_CLIPS_ON_ADDED:
             seq = Sequence()
             seq.add([clip.delete for clip in self.clips])
@@ -238,7 +241,8 @@ class AbstractTrack(SlotManager):
         # type: () -> Sequence
         DomainEventBus.emit(AbstractTrackSelectedEvent(self._track))
 
-        if self == list(SongFacade.scrollable_tracks())[-1]:
+        scrollable_tracks = list(SongFacade.scrollable_tracks())
+        if len(scrollable_tracks) != 0 and self == scrollable_tracks[-1]:
             ApplicationViewFacade.focus_current_track()
         return Sequence().wait(2).done()
 
