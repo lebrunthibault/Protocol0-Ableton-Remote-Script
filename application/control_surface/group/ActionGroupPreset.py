@@ -38,7 +38,7 @@ class ActionGroupPreset(ActionGroupInterface):
         # SCAN encoder
         self.add_encoder(
             identifier=15,
-            activated=False,
+            active=False,
             name="Find the pitch of a drum sample",
             on_press=self._container.get(SampleService).find_out_sample_pitch,
         )

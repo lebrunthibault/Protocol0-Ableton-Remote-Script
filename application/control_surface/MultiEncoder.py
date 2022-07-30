@@ -16,7 +16,7 @@ from protocol0.shared.SongFacade import SongFacade
 class MultiEncoder(SlotManager):
     LONG_PRESS_THRESHOLD = 0.25  # maximum time in seconds we consider a simple press
 
-    def __init__(self, channel, identifier, name, activated, filter_active_tracks, component_guard):
+    def __init__(self, channel, identifier, name, active, filter_active_tracks, component_guard):
         # type: (int, int, str, bool, bool, Callable) -> None
         """
         Actions are triggered at the end of the press not the start. Allows press vs long_press (Note) vs scroll (CC)
@@ -26,7 +26,7 @@ class MultiEncoder(SlotManager):
         self._actions = []  # type: List[EncoderAction]
         self.identifier = identifier
         self.name = name.title()
-        self._activated = activated
+        self._active = active
         self._channel = channel
         self._filter_active_tracks = filter_active_tracks
         with component_guard():
@@ -80,7 +80,7 @@ class MultiEncoder(SlotManager):
         # type: (EncoderMoveEnum, Optional[bool]) -> None
         # noinspection PyBroadException
         try:
-            if not self._activated:
+            if not self._active:
                 raise Protocol0Warning("The encoder '%s' is not activated" % self.name)
 
             action = self._find_matching_action(move_type=move_type)

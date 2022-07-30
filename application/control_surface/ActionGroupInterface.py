@@ -43,7 +43,7 @@ class ActionGroupInterface(object):
         self,
         identifier,
         name,
-        activated=True,
+        active=True,
         filter_active_tracks=False,
         on_press=None,
         on_long_press=None,
@@ -55,7 +55,7 @@ class ActionGroupInterface(object):
             channel=self.CHANNEL - 1,
             identifier=identifier,
             name=name,
-            activated=activated,
+            active=active,
             filter_active_tracks=filter_active_tracks,
             component_guard=self._component_guard,
         )
