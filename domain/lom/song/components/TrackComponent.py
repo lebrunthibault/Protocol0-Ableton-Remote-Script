@@ -27,7 +27,7 @@ class TrackComponent(SlotManager):
         super(TrackComponent, self).__init__()
         self._song_view = song_view
         DomainEventBus.subscribe(
-            SongInitializedEvent, lambda _: Scheduler.defer(partial(self.unfocus_all_tracks, True))
+            SongInitializedEvent, lambda _: Scheduler.defer(partial(self.un_focus_all_tracks, True))
         )
         DomainEventBus.subscribe(AbstractTrackSelectedEvent, self._on_abstract_track_selected_event)
         DomainEventBus.subscribe(SimpleTrackArmedEvent, self._on_simple_track_armed_event)
@@ -49,7 +49,7 @@ class TrackComponent(SlotManager):
 
     def _on_simple_track_armed_event(self, _):
         # type: (SimpleTrackArmedEvent) -> None
-        self.unfocus_all_tracks()
+        self.un_focus_all_tracks()
 
     @property
     def abstract_tracks(self):
@@ -79,19 +79,19 @@ class TrackComponent(SlotManager):
                 continue
             yield track
 
-    def unfocus_all_tracks(self, including_current=False):
+    def un_focus_all_tracks(self, including_current=False):
         # type: (bool) -> None
-        self._unsolo_all_tracks(including_current)
-        self._unarm_all_tracks(including_current)
+        self._un_solo_all_tracks(including_current)
+        self._un_arm_all_tracks(including_current)
 
-    def _unarm_all_tracks(self, including_current):
+    def _un_arm_all_tracks(self, including_current):
         # type: (bool) -> None
         for t in SongFacade.partially_armed_tracks():
             if not including_current and t.abstract_track == SongFacade.current_track():
                 continue
             t.arm_state.unarm()
 
-    def _unsolo_all_tracks(self, including_current):
+    def _un_solo_all_tracks(self, including_current):
         # type: (bool) -> None
         for track in SongFacade.abstract_tracks():
             if not including_current and track == SongFacade.current_track():

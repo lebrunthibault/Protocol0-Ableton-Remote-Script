@@ -11,18 +11,26 @@ from protocol0.shared.Config import Config
 class DeviceEnum(AbstractEnum):
     ADDICTIVE_KEYS = "ADDICTIVE_KEYS"
     API_2500 = "API_2500"
+    AUDIO_EFFECT_RACK = "AUDIO_EFFECT_RACK"
     AUTO_FILTER_HIGH_PASS = "AUTO_FILTER_HIGH_PASS"
     AUTO_FILTER_LOW_PASS = "AUTO_FILTER_LOW_PASS"
+    BEAT_REPEAT = "BEAT_REPEAT"
     COMPRESSOR = "COMPRESSOR"
+    DELAY = "DELAY"
     DRUM_RACK = "DRUM_RACK"
+    EFFECTRIX = "EFFECTRIX"
     EQ_EIGHT = "EQ_EIGHT"
     EQ_ROOM = "EQ_ROOM"
     EXTERNAL_AUDIO_EFFECT = "EXTERNAL_AUDIO_EFFECT"
     EXTERNAL_INSTRUMENT = "EXTERNAL_INSTRUMENT"
     FREE_CLIP = "FREE_CLIP"
+    GATE = "GATE"
+    GLUE_COMPRESSOR = "GLUE_COMPRESSOR"
     LFO_TOOL = "LFO_TOOL"
     LIMITER = "LIMITER"
+    PITCH = "PITCH"
     PRO_Q_3 = "PRO_Q_3"
+    REVERB = "REVERB"
     REV2_EDITOR = "REV2_EDITOR"
     SAMPLE_PITCH_RACK = "SAMPLE_PITCH_RACK"
     SATURATOR = "SATURATOR"
@@ -43,18 +51,26 @@ class DeviceEnum(AbstractEnum):
             {
                 DeviceEnum.ADDICTIVE_KEYS: "Addictive Keys",
                 DeviceEnum.API_2500: "API-2500 Stereo",
+                DeviceEnum.AUDIO_EFFECT_RACK: "Audio Effect Rack",
                 DeviceEnum.AUTO_FILTER_HIGH_PASS: "Auto Filter High Pass",
                 DeviceEnum.AUTO_FILTER_LOW_PASS: "Auto Filter Low Pass",
+                DeviceEnum.BEAT_REPEAT: "Beat Repeat",
                 DeviceEnum.COMPRESSOR: "Compressor",
+                DeviceEnum.DELAY: "Delay",
                 DeviceEnum.DRUM_RACK: "Drum Rack",
+                DeviceEnum.EFFECTRIX: "Effectrix",
                 DeviceEnum.EQ_EIGHT: "EQ Eight",
                 DeviceEnum.EQ_ROOM: "EQ Room",
                 DeviceEnum.EXTERNAL_AUDIO_EFFECT: "Ext. Audio Effect",
                 DeviceEnum.EXTERNAL_INSTRUMENT: "Ext. Instrument",
                 DeviceEnum.FREE_CLIP: "FreeClip",
+                DeviceEnum.GATE: "Gate",
+                DeviceEnum.GLUE_COMPRESSOR: "Glue Compressor",
                 DeviceEnum.LFO_TOOL: "LFOTool_x64",
                 DeviceEnum.LIMITER: "Limiter",
+                DeviceEnum.PITCH: "Pitch",
                 DeviceEnum.PRO_Q_3: "FabFilter Pro-Q 3",
+                DeviceEnum.REVERB: "Reverb",
                 DeviceEnum.REV2_EDITOR: "REV2Editor",
                 DeviceEnum.SAMPLE_PITCH_RACK: "Sample Pitch Rack",
                 DeviceEnum.SATURATOR: "Saturator",
@@ -73,33 +89,19 @@ class DeviceEnum(AbstractEnum):
     @property
     def browser_name(self):
         # type: () -> str
-        return self.get_value_from_mapping(
-            {
-                DeviceEnum.API_2500: "API-2500 Stereo",
-                DeviceEnum.AUTO_FILTER_HIGH_PASS: "Auto Filter High Pass.adv",
-                DeviceEnum.AUTO_FILTER_LOW_PASS: "Auto Filter Low Pass.adv",
-                DeviceEnum.COMPRESSOR: "Compressor",
-                DeviceEnum.DRUM_RACK: "Drum Rack",
-                DeviceEnum.EQ_EIGHT: "EQ Eight",
-                DeviceEnum.EQ_ROOM: "EQ Room.adv",
-                DeviceEnum.EXTERNAL_AUDIO_EFFECT: "External Audio Effect",
-                DeviceEnum.EXTERNAL_INSTRUMENT: "External Instrument",
-                DeviceEnum.FREE_CLIP: "FreeClip",
-                DeviceEnum.LFO_TOOL: "LFOTool_x64",
-                DeviceEnum.LIMITER: "Limiter",
-                DeviceEnum.PRO_Q_3: "FabFilter Pro-Q 3",
-                DeviceEnum.REV2_EDITOR: "REV2Editor",
-                DeviceEnum.SAMPLE_PITCH_RACK: "Sample Pitch Rack.adg",
-                DeviceEnum.SATURATOR: "Saturator",
-                DeviceEnum.SATURN_2: "FabFilter Saturn 2",
-                DeviceEnum.SIMPLER: "Simpler",
-                DeviceEnum.SSL_COMP: "SSLComp Stereo",
-                DeviceEnum.TRACK_SPACER: "Trackspacer 2.5",
-                DeviceEnum.TRUE_VERB: "TrueVerb Stereo",
-                DeviceEnum.TUNER: "Tuner",
-                DeviceEnum.UTILITY: "Utility",
-            }
-        )
+        try:
+            return self.get_value_from_mapping(
+                {
+                    DeviceEnum.AUTO_FILTER_HIGH_PASS: "Auto Filter High Pass.adv",
+                    DeviceEnum.AUTO_FILTER_LOW_PASS: "Auto Filter Low Pass.adv",
+                    DeviceEnum.EQ_ROOM: "EQ Room.adv",
+                    DeviceEnum.EXTERNAL_AUDIO_EFFECT: "External Audio Effect",
+                    DeviceEnum.EXTERNAL_INSTRUMENT: "External Instrument",
+                    DeviceEnum.SAMPLE_PITCH_RACK: "Sample Pitch Rack.adg",
+                }
+            )
+        except Protocol0Error:
+            return self.device_name
 
     @classmethod
     def favorites(cls):
@@ -179,24 +181,34 @@ class DeviceEnum(AbstractEnum):
     @property
     def load_time(self):
         # type: () -> int
-        """in ms"""
+        """
+            load time in ms : by how much loading a single device / plugin instance slows down the set startup
+            measured by loading multiple device instances (20) in an empty set and timing multiple times the set load
+            very rough approximation of the performance impact of a device on the whole set
+        """
         return self.get_value_from_mapping(
             {
                 DeviceEnum.ADDICTIVE_KEYS: 1263,
                 DeviceEnum.API_2500: 95,
+                DeviceEnum.AUDIO_EFFECT_RACK: 8,
                 DeviceEnum.AUTO_FILTER_HIGH_PASS: 16,
                 DeviceEnum.AUTO_FILTER_LOW_PASS: 16,
+                DeviceEnum.BEAT_REPEAT: 7,
                 DeviceEnum.COMPRESSOR: 11,
-                # this is for 4 samples and will vary greatly depending on the number of samples
-                DeviceEnum.DRUM_RACK: 143,
+                DeviceEnum.DELAY: 10,
+                DeviceEnum.EFFECTRIX: 133,
                 DeviceEnum.EQ_EIGHT: 31,
                 DeviceEnum.EQ_ROOM: 31,
                 DeviceEnum.EXTERNAL_AUDIO_EFFECT: 0,
-                DeviceEnum.EXTERNAL_INSTRUMENT: 0,
+                DeviceEnum.EXTERNAL_INSTRUMENT: 20,
                 DeviceEnum.FREE_CLIP: 40,
-                DeviceEnum.LFO_TOOL: 0.180,
+                DeviceEnum.GATE: 7,
+                DeviceEnum.GLUE_COMPRESSOR: 6,
+                DeviceEnum.LFO_TOOL: 180,
                 DeviceEnum.LIMITER: 5,
+                DeviceEnum.PITCH: 2,
                 DeviceEnum.PRO_Q_3: 53,
+                DeviceEnum.REVERB: 9,
                 DeviceEnum.REV2_EDITOR: 80,
                 DeviceEnum.SATURATOR: 8,
                 DeviceEnum.SATURN_2: 50,
@@ -210,3 +222,13 @@ class DeviceEnum(AbstractEnum):
                 DeviceEnum.UTILITY: 4,
             }
         )
+
+    @classmethod
+    def missing_plugin_names(cls):
+        # type: () -> List[str]
+        """Plugins that I've used, but I don't currently have (formerly cracks)"""
+        return [
+            "Vocal Rider Stereo",
+            "API-2500 Stereo",
+            DeviceEnum.SATURN_2.device_name
+        ]

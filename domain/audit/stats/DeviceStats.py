@@ -33,6 +33,8 @@ class DeviceStats(object):
 
 
 class DevicesStats(object):
+    _EXCLUDED_DEVICE_NAMES = [DeviceEnum.USAMO.device_name]
+
     def __init__(self):
         # type: () -> None
         devices = list(self._get_devices())
@@ -40,6 +42,8 @@ class DevicesStats(object):
 
         # group by name
         for device in devices:
+            if device.name in self._EXCLUDED_DEVICE_NAMES:
+                continue
             if device.name not in device_stats_dict:
                 device_stats_dict[device.name] = DeviceStats(device.name)
 
@@ -57,7 +61,7 @@ class DevicesStats(object):
         """Return only devices that matters for stats"""
         blacklist_names = (DeviceEnum.EXTERNAL_AUDIO_EFFECT.device_name, "Instrument Rack")
 
-        for track in SongFacade.simple_tracks():
+        for track in SongFacade.all_simple_tracks():
             for device in track.devices.all:
                 if (
                     not isinstance(device, (SimplerDevice, DrumRackDevice))

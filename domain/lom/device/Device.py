@@ -115,4 +115,4 @@ class Device(SlotManager):
     @is_collapsed.setter
     def is_collapsed(self, is_collapsed):
         # type: (bool) -> None
-        self._view.is_collapsed = is_collapsed
+        self._view.is_collapsed = is_collapsed  # noqa

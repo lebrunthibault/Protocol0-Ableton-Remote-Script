@@ -28,3 +28,10 @@ class ActionGroupLog(ActionGroupInterface):
             name="display song stats",
             on_press=self._container.get(SongStatsService).display_song_stats,
         )
+
+        # VSTs missing encoder
+        self.add_encoder(
+            identifier=5,
+            name="log missing vsts",
+            on_press=self._container.get(LogService).log_missing_vsts,
+        )

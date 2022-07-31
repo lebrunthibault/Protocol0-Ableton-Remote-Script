@@ -17,7 +17,7 @@ class DrumRackStats(object):
 
     def __repr__(self):
         # type: () -> str
-        return "%s: %s (%s)" % (
+        return "%s: %s (%sms)" % (
             self.track_name,
             self.sample_count,
             SAMPLE_LOAD_TIME * self.sample_count,
@@ -49,7 +49,7 @@ class SampleStats(object):
         output["total load time"] = "%.2fs" % (float(SAMPLE_LOAD_TIME * self.count) / 1000)
         output["drum rack count"] = len(self.drum_racks)
         output["simpler count"] = len(self.simplers)
-        output["drum rack stats"] = self.drum_rack_stats
+        output["drum rack stats"] = [str(stat) for stat in self.drum_rack_stats]
         output["potential load time optimization"] = "%.2fs" % (
             float(self.potential_load_time_optimization) / 1000
         )

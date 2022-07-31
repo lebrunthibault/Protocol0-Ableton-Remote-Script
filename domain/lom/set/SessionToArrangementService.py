@@ -64,7 +64,7 @@ class SessionToArrangementService(object):
         # type: () -> None
         self._scene_component.looping_scene_toggler.reset()
         self._is_bouncing = True
-        self._track_component.unfocus_all_tracks(including_current=True)
+        self._track_component.un_focus_all_tracks(including_current=True)
         self._tempo = self._tempo_component.tempo
         self._tempo_component.tempo = 999
         ApplicationViewFacade.show_arrangement()

@@ -1,6 +1,7 @@
 from typing import Optional
 
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
+from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
     ExternalSynthTrack,
 )
@@ -90,6 +91,13 @@ class ExternalSynthTrackValidator(AbstractGroupTrackValidator):
         validators += SimpleAudioTrackValidator(track.audio_track)._validators
 
         # AUDIO TAIL TRACK
+        # always preset except for Minitaur (mono)
+        validators .append(CallbackValidator(
+            track,
+            lambda t: isinstance(t.instrument, InstrumentMinitaur) or t.audio_tail_track is not None,
+            None,
+            "track should have an audio tail track",
+        ))
         if track.audio_tail_track:
             validators += SimpleAudioTailTrackValidator(track.audio_tail_track)._validators
 

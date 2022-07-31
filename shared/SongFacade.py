@@ -93,7 +93,7 @@ class SongFacade(object):
         return (
             track
             for track in list(cls._live_song().tracks)
-            + list(cls._live_song().return_tracks)
+            + cls.return_tracks()
             + [cls._live_song().master_track]
         )
 
@@ -213,7 +213,7 @@ class SongFacade(object):
     @classmethod
     def return_tracks(cls):
         # type: () -> List[Live.Track.Track]
-        return cls._live_song().return_tracks
+        return list(cls._live_song().return_tracks)
 
     @classmethod
     def scenes(cls):

@@ -1,3 +1,4 @@
+from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.PluginDevice import PluginDevice
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.shared.backend.Backend import Backend
@@ -191,3 +192,10 @@ class LogService(object):
             Logger.info()
             Logger.info("song.selected_clip.loop_start: %s" % SongFacade.selected_clip().loop.start)
             Logger.info("song.selected_clip.loop_end: %s" % SongFacade.selected_clip().loop.end)
+
+    def log_missing_vsts(self):
+        # type: () -> None
+        for track in SongFacade.all_simple_tracks():
+            for device in track.devices.all:
+                if device.name in DeviceEnum.missing_plugin_names():
+                    Logger.dev((track, device))

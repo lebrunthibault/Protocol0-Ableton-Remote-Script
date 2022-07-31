@@ -1,4 +1,3 @@
-from protocol0.domain.lom.track.TrackColorEnum import TrackColorEnum
 from protocol0.domain.lom.validation.ValidatorFactory import ValidatorFactory
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.ui.HasAppearance import HasAppearance
@@ -17,21 +16,22 @@ class ValidatorService(object):
             return True
         else:
             Logger.warning(validator.get_error_message())
-            if hasattr(obj, "color"):
-                obj.color = TrackColorEnum.ERROR.color_int_value  # type: ignore[attr-defined]
             return False
 
-    def fix_object(self, obj):
-        # type: (object) -> None
+    def fix_object(self, obj, log=True):
+        # type: (object, bool) -> None
         validator = self._validator_factory.create_from_object(obj)
         if validator.is_valid():
             message = "%s is valid" % obj
         else:
-            Logger.warning(validator.get_error_message())
+            if log:
+                Logger.warning(validator.get_error_message())
             validator.fix()
             message = "Fixed %s" % obj
 
-        Backend.client().show_success(message)
+        Logger.info(message)
+        if log:
+            Backend.client().show_success(message)
 
         if isinstance(obj, HasAppearance):
             obj.appearance.refresh()

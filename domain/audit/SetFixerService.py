@@ -35,7 +35,7 @@ class SetFixerService(object):
                 first_invalid_objects.select()
             Backend.client().show_warning("Invalid set: fixing")
             for invalid_object in invalid_objects:
-                self._validator_service.fix_object(invalid_object)
+                self._validator_service.fix_object(invalid_object, log=False)
             Logger.info("set fixed")
 
     def find_devices_to_remove(self):
