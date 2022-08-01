@@ -107,7 +107,7 @@ class SimpleTrackDevices(SlotManager, Observable):
             return None
 
         device_index = self._devices.index(device)
-        self._track.delete_device(device_index)
+        self._track.delete_device(device_index)  # noqa
         self.build()
 
     @property

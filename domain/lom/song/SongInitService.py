@@ -13,7 +13,8 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 
 class SongInitService(object):
-    _REAL_SET_CLIP_THRESHOLD = 10  # below this, we consider it a test set
+    # _REAL_SET_CLIP_THRESHOLD = 10  # below this, we consider it a test set
+    _REAL_SET_CLIP_THRESHOLD = -1  # below this, we consider it a test set
 
     def __init__(self, playback_component):
         # type: (PlaybackComponent) -> None

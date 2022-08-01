@@ -4,11 +4,11 @@ from traceback import extract_tb
 from types import TracebackType
 
 import Live
-import sentry_sdk
 from typing import Optional, Any, List, Type
 
 from protocol0.application.CommandBus import CommandBus
 from protocol0.application.command.InitializeSongCommand import InitializeSongCommand
+from protocol0.application.error.SentryService import SentryService
 from protocol0.domain.lom.song.RealSetLoadedEvent import RealSetLoadedEvent
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.backend.NotificationColorEnum import NotificationColorEnum
@@ -32,8 +32,9 @@ class ErrorService(object):
 
     _IGNORED_ERROR_FILENAMES = ("\\venv\\", "\\sequence\\", "\\decorators.py")
 
-    def __init__(self, song):
-        # type: (Live.Song.Song) -> None
+    def __init__(self, sentry_service, song):
+        # type: (SentryService, Live.Song.Song) -> None
+        self._sentry_service = sentry_service
         self._song = song
 
         if self._SET_EXCEPTHOOK:
@@ -46,14 +47,7 @@ class ErrorService(object):
         """Activate sentry only on real sets to prevent pollution"""
         # Sentry
         if Config.SENTRY_DSN:
-            Logger.info("Sentry: activated")
-            sentry_sdk.init(
-                dsn=Config.SENTRY_DSN,
-                # Set traces_sample_rate to 1.0 to capture 100%
-                # of transactions for performance monitoring.
-                # We recommend adjusting this value in production.
-                traces_sample_rate=1.0,
-            )
+            self._sentry_service.activate()
 
     def _on_error_raised_event(self, event):
         # type: (ErrorRaisedEvent) -> None
@@ -71,7 +65,7 @@ class ErrorService(object):
             [string in str(exc_type) for string in self._IGNORED_ERROR_TYPES]
         ):
             pass
-        Logger.error("unhandled exception caught !!")
+        Logger.error("unhandled exception caught")
         self._handle_exception(exc_type, exc_value, tb)
 
     @classmethod
@@ -88,7 +82,10 @@ class ErrorService(object):
 
     def _handle_exception(self, exc_type, exc_value, tb, context=None):
         # type: (Type[BaseException], BaseException, TracebackType, Optional[str]) -> None
-        sentry_sdk.capture_exception()
+        Logger.dev(self._sentry_service.activated)
+        if self._sentry_service.activated:
+            Logger.dev("capturing")
+            self._sentry_service.sdk.capture_exception()
 
         entries = [fs for fs in extract_tb(tb) if self._log_file(fs[0])]
         if self._DEBUG:

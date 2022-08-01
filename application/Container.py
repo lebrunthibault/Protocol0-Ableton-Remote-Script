@@ -4,9 +4,10 @@ from typing import Type, Dict, Any
 
 from protocol0.application.CommandBus import CommandBus
 from protocol0.application.ContainerInterface import ContainerInterface
-from protocol0.application.ErrorService import ErrorService
+from protocol0.application.error.ErrorService import ErrorService
 from protocol0.application.ScriptDisconnectedEvent import ScriptDisconnectedEvent
 from protocol0.application.control_surface.ActionGroupFactory import ActionGroupFactory
+from protocol0.application.error.SentryService import SentryService
 from protocol0.domain.audit.AudioLatencyAnalyzerService import AudioLatencyAnalyzerService
 from protocol0.domain.audit.LogService import LogService
 from protocol0.domain.audit.SetFixerService import SetFixerService
@@ -82,7 +83,7 @@ class Container(ContainerInterface):
         UndoFacade(live_song.begin_undo_step, live_song.end_undo_step)
         StatusBar(control_surface.show_message)
         Backend(control_surface._send_midi)
-        ErrorService(live_song)
+        ErrorService(SentryService(), live_song)
         midi_service = MidiService(control_surface._send_midi)
         beat_scheduler = BeatScheduler(live_song)
         tick_scheduler = TickScheduler(beat_scheduler, live_song)

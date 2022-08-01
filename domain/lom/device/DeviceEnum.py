@@ -120,10 +120,9 @@ class DeviceEnum(AbstractEnum):
             ],
             [
                 cls.SATURATOR,
-                cls.SATURN_2,
-                cls.TRUE_VERB,
+                cls.REVERB,
             ],
-            [cls.TRACK_SPACER, cls.LFO_TOOL, cls.TUNER, cls.REV2_EDITOR],
+            [cls.REV2_EDITOR],
         ]
 
     @classmethod
