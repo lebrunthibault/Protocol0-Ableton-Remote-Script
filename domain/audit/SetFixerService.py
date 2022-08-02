@@ -1,5 +1,4 @@
 from protocol0.domain.audit.SetUpgradeService import SetUpgradeService
-from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
 from protocol0.domain.shared.backend.Backend import Backend
@@ -30,9 +29,6 @@ class SetFixerService(object):
             Backend.client().show_success("Set is valid")
             self._refresh_objects_appearance()
         else:
-            first_invalid_objects = next(iter(invalid_objects), None)
-            if isinstance(first_invalid_objects, AbstractTrack):
-                first_invalid_objects.select()
             Backend.client().show_warning("Invalid set: fixing")
             for invalid_object in invalid_objects:
                 self._validator_service.fix_object(invalid_object, log=False)

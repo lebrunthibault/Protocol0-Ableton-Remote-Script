@@ -30,8 +30,8 @@ class ActionGroupFix(ActionGroupInterface):
         # TAIL encoder
         self.add_encoder(
             identifier=4,
-            name="add clip tail tracks",
+            name="migrate tail clips",
             on_press=self._container.get(
                 SetUpgradeService
-            ).update_external_synth_tracks_add_clip_tails,
+            ).migrate_tail_clips,
         )

@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import Iterator, List, Dict, Optional, Tuple
+from typing import Iterator, List, Dict, Tuple
 
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
@@ -8,9 +8,6 @@ from protocol0.domain.lom.device.DeviceService import DeviceService
 from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
-    ExternalSynthTrack,
-)
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
@@ -41,28 +38,6 @@ class SetUpgradeService(object):
 
         return seq.done()
 
-    def update_external_synth_tracks_add_clip_tails(self):
-        # type: () -> Optional[Sequence]
-        tracks = []
-        for track in SongFacade.abstract_tracks():
-            if not isinstance(track, ExternalSynthTrack):
-                continue
-            if not track.audio_tail_track:
-                tracks.append(track)
-
-        if not all(self._validator_service.validate_object(track) for track in tracks):
-            Logger.error("invalid ExternalSynthTrack(s)")
-            return None
-
-        seq = Sequence()
-        seq.prompt("Add clip tail track to %s external synth tracks?" % len(tracks))
-        for track in tracks:
-            if track.audio_tail_track is None:
-                track.is_folded = False
-                seq.add(partial(self._track_crud_component.duplicate_track, track.audio_track))
-                seq.wait(10)
-        return seq.done()
-
     def delete_unnecessary_devices(self, full_scan=False):
         # type: (bool) -> None
         devices_to_delete = list(self.get_deletable_devices())
@@ -85,7 +60,7 @@ class SetUpgradeService(object):
         )
 
         seq = Sequence()
-        seq.prompt("%s devices to delete,\n\n%s\n\nproceed ?" % (len(devices_to_delete), info))
+        seq.prompt("%s devices to delete,\n\n%s\n\nProceed ?" % (len(devices_to_delete), info))
         seq.add([partial(track.devices.delete, device) for track, device in devices_to_delete])
         seq.add(lambda: StatusBar.show_message("Devices deleted"))
         seq.add(self.delete_unnecessary_devices)  # now delete enclosing racks if empty
@@ -120,3 +95,35 @@ class SetUpgradeService(object):
                     ]
                 ):
                     yield track, device
+
+    def migrate_tail_clips(self):
+        # type: () -> Sequence
+        seq = Sequence()
+
+        ext_tracks = [
+            track
+            for track in SongFacade.external_synth_tracks()
+            if track.audio_tail_track is not None
+        ]
+        for track in ext_tracks:
+            if track.audio_tail_track is None:
+                continue
+
+            Logger.info("handling %s" % track)
+            tail_clips = [
+                cs.clip for cs in track.audio_tail_track.clip_slots if cs.clip is not None
+            ]
+
+            Logger.info("tail clips: %s" % tail_clips)
+            for tail_clip in tail_clips:
+                tail_clip.loop.looping = False
+                tail_clip.loop.start = 0
+                tail_clip.muted = False
+
+                tail_clip_slot = track.audio_tail_track.clip_slots[tail_clip.index]
+                audio_clip_slot = track.audio_track.clip_slots[tail_clip.index]
+
+                seq.add(partial(tail_clip_slot.duplicate_clip_to, audio_clip_slot))
+                seq.add(partial(setattr, tail_clip, "muted", True))
+
+        return seq.done()

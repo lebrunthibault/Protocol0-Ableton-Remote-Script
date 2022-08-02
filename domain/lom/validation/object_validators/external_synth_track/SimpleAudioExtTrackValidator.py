@@ -4,10 +4,12 @@ from protocol0.domain.lom.track.routing.InputRoutingChannelEnum import InputRout
 from protocol0.domain.lom.track.simple_track.SimpleAudioExtTrack import SimpleAudioExtTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiExtTrack import SimpleMidiExtTrack
 from protocol0.domain.lom.validation.ValidatorInterface import ValidatorInterface
-from protocol0.domain.lom.validation.object_validators.SimpleAudioTrackValidator import \
-    SimpleAudioTrackValidator
-from protocol0.domain.lom.validation.sub_validators.PropertyValueValidator import \
-    PropertyValueValidator
+from protocol0.domain.lom.validation.object_validators.SimpleAudioTrackValidator import (
+    SimpleAudioTrackValidator,
+)
+from protocol0.domain.lom.validation.sub_validators.PropertyValueValidator import (
+    PropertyValueValidator,
+)
 
 
 class SimpleAudioExtTrackValidator(SimpleAudioTrackValidator):
@@ -31,5 +33,8 @@ class SimpleAudioExtTrackValidator(SimpleAudioTrackValidator):
                 name="audio track input channel",
             ),
         ]  # type: List[ValidatorInterface]
+
+        for clip in track.clips:
+            validators.append(PropertyValueValidator(clip.loop, "looping", False))
 
         super(SimpleAudioExtTrackValidator, self).__init__(track, validators)

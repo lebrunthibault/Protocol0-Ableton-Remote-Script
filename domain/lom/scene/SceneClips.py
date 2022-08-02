@@ -8,6 +8,8 @@ from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.track.simple_track.InstrumentBusTrack import InstrumentBusTrack
+from protocol0.domain.lom.track.simple_track.SimpleAudioExtTrack import SimpleAudioExtTrack
+from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.decorators import throttle
 from protocol0.shared.SongFacade import SongFacade
@@ -36,11 +38,6 @@ class SceneClips(Observable):
         # type: () -> List[Clip]
         return self._all_clips
 
-    @property
-    def un_muted_clips(self):
-        # type: () -> List[Clip]
-        return [clip for clip in self._clips if not clip.muted]
-
     @throttle(duration=60)
     def update(self, observable):
         # type: (Observable) -> None
@@ -61,8 +58,8 @@ class SceneClips(Observable):
             clip = clip_slot.clip
             if clip and clip_slot.has_clip and not type(track) == InstrumentBusTrack:
                 self._all_clips.append(clip)
-                if not isinstance(clip, AudioTailClip):
-                    self._clips.append(clip)
+                if not isinstance(track, (SimpleAudioExtTrack, SimpleAudioTailTrack)):
+                    self._clips.append(clip)  # type: ignore[unreachable]
                     self._tracks.append(track)
 
         self.audio_tail_clips = cast(

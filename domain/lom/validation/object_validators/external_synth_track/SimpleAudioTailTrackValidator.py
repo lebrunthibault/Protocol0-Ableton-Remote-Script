@@ -37,5 +37,6 @@ class SimpleAudioTailTrackValidator(SimpleAudioTrackValidator):
         )
         for clip in track.clips:
             validators.append(PropertyValueValidator(clip, "muted", True))
+            validators.append(PropertyValueValidator(clip.loop, "looping", False))
 
         super(SimpleAudioTailTrackValidator, self).__init__(track, validators=validators)

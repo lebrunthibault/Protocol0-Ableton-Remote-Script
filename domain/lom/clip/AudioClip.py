@@ -1,6 +1,3 @@
-from functools import partial
-
-from _Framework.SubjectSlot import subject_slot
 from typing import Any
 
 from protocol0.domain.lom.clip.Clip import Clip
@@ -15,15 +12,7 @@ class AudioClip(Clip):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(AudioClip, self).__init__(*a, **k)
-        self._warping_listener.subject = self._clip
         Scheduler.defer(self.appearance.refresh)
-
-    @subject_slot("warping")
-    def _warping_listener(self):
-        # type: () -> None
-        if self._clip.warping:
-            Scheduler.defer(partial(setattr, self, "looping", True))
-        self.notify_observers()
 
     @property
     def file_path(self):
@@ -51,8 +40,8 @@ class AudioClip(Clip):
         # seq.add(self._mute_if_stopped)
 
         return seq.done()
-
-    def _mute_if_stopped(self):
-        # type: () -> None
-        if not self.is_playing:
-            self.muted = True
+    #
+    # def _mute_if_stopped(self):
+    #     # type: () -> None
+    #     if not self.is_playing:
+    #         self.muted = True

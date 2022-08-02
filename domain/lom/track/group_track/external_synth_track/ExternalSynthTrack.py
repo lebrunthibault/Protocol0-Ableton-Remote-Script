@@ -121,7 +121,17 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
     def _on_last_beat_passed_event(self, _):
         # type: (LastBeatPassedEvent) -> None
-        """Launches the tail clip on last playing clip slot beat"""
+        """
+        Unlike with midi clips, managing seamless loops with a single audio clip is not possible.
+        It would mean losing the clip tail when starting it again.
+        We need two.
+
+        Solution : we duplicate the audio track and play both (identical) clips alternately
+        We launch the duplicate clip when the audio playing clip reaches its last beat
+
+        NB : This solution is close to perfect but will not handle well short clips with
+        very long tails. That doesn't really happen irl anyway
+        """
         if self.audio_tail_track is None:
             return
 
@@ -132,15 +142,27 @@ class ExternalSynthTrack(AbstractGroupTrack):
         if midi_cs is None or (audio_cs is None and audio_tail_cs is None):
             return
 
+        Logger.dev(midi_cs.clip.playing_position)
         if midi_cs.clip.playing_position.in_last_bar and (
             not SongFacade.playing_scene().playing_state.in_last_bar
-            or SongFacade.playing_scene().looping
+            or SongFacade.playing_scene().should_loop
         ):
-            playing_cs = audio_cs or audio_tail_cs
+            Logger.dev((audio_cs, audio_tail_cs))
+            if audio_cs and audio_tail_cs:
+                Logger.dev((audio_cs.clip.playing_position.position, audio_tail_cs.clip.playing_position.position))
+                # this happens on long tails (see comment above).
+                # here we just relaunch the one still playing the tail
+                playing_cs = min((audio_cs, audio_tail_cs), key=lambda cs: cs.clip.playing_position.position)
+            else:
+                playing_cs = cast(ClipSlot, audio_cs or audio_tail_cs)
+
             # rotating the two tracks
             track_to_launch = cast(
-                SimpleAudioTrack, self.audio_tail_track if audio_cs else self.audio_track
+                SimpleAudioTrack,
+                self.audio_tail_track if playing_cs is audio_cs else self.audio_track,
             )
+
+            Logger.dev("track_to_launch: %s" % track_to_launch)
 
             clip_to_launch = track_to_launch.clip_slots[playing_cs.index].clip
 
