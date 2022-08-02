@@ -1,6 +1,7 @@
 import os
 from os.path import dirname, realpath
 
+from protocol0.domain.track_recorder.recording_bar_length.RecordingBarLengthEnum import RecordingBarLengthEnum
 from protocol0.shared.logging.LogLevelEnum import LogLevelEnum
 
 
@@ -14,6 +15,8 @@ class Config(object):
     SENTRY_DSN = os.getenv("SENTRY_DSN")
 
     # MISC
+    DEFAULT_RECORDING_BAR_LENGTH = RecordingBarLengthEnum.ONE
+
     EXPERIMENTAL_FEATURES = False
 
     LOG_LEVEL = LogLevelEnum.DEV

@@ -1,14 +1,12 @@
-import itertools
 import time
 from functools import partial
 
+import Live
 from _Framework.CompoundElement import subject_slot_group
 from _Framework.SubjectSlot import subject_slot
 from typing import Optional, cast, List, Tuple
 
-import Live
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
-from protocol0.domain.lom.clip_slot.ClipSlotSynchronizer import ClipSlotSynchronizer
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
@@ -17,7 +15,7 @@ from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGr
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackArmState import (
     ExternalSynthTrackArmState,
 )
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackMonitoringState import (
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackMonitoringState import (  # noqa
     ExternalSynthTrackMonitoringState,
 )
 from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
@@ -61,8 +59,6 @@ class ExternalSynthTrack(AbstractGroupTrack):
         # sub tracks are now handled by self
         for sub_track in base_group_track.sub_tracks:
             sub_track.abstract_group_track = self
-
-        self._clip_slot_synchronizers = []  # type: List[ClipSlotSynchronizer]
 
         self._instrument = None  # type: Optional[InstrumentInterface]
         self.external_device = None  # type: Optional[Device]
@@ -118,7 +114,6 @@ class ExternalSynthTrack(AbstractGroupTrack):
         super(ExternalSynthTrack, self).on_tracks_change()
         self.monitoring_state.set_audio_tail_track(self.audio_tail_track)
         self.monitoring_state.set_dummy_track(self.dummy_track)
-        self._map_clip_slots()
 
         self._sub_track_solo_listener.replace_subjects(
             [sub_track._track for sub_track in self.sub_tracks]
@@ -127,35 +122,37 @@ class ExternalSynthTrack(AbstractGroupTrack):
     def _on_last_beat_passed_event(self, _):
         # type: (LastBeatPassedEvent) -> None
         """Launches the tail clip on last playing clip slot beat"""
-        audio_cs = find_if(lambda cs: cs.is_playing, self.audio_track.clip_slots)
-
-        if audio_cs is None or audio_cs.clip is None or not self.audio_tail_track:
+        if self.audio_tail_track is None:
             return
 
-        debug = False
+        midi_cs = find_if(lambda cs: cs.is_playing, self.midi_track.clip_slots)
+        audio_cs = find_if(lambda cs: cs.is_playing, self.audio_track.clip_slots)
+        audio_tail_cs = find_if(lambda cs: cs.is_playing, self.audio_tail_track.clip_slots)
 
-        if audio_cs.clip.playing_position.in_last_bar:
-            audio_tail_cs = self.audio_tail_track.clip_slots[audio_cs.index]
-            audio_tail_clip = self.audio_tail_track.clip_slots[audio_cs.index].clip
-            if debug:
-                Logger.warning(
-                    ("playing scene", SongFacade.playing_scene(), SongFacade.playing_scene().index)
-                )
-                Logger.warning(("audio_cs", audio_cs, audio_cs.index))
-                Logger.warning(("audio_cs.clip", audio_cs.clip, audio_cs.clip.index))
-                Logger.warning(("audio_tail cs", audio_tail_cs, audio_tail_cs.index))
+        if midi_cs is None or (audio_cs is None and audio_tail_cs is None):
+            return
 
-            if audio_tail_clip and not audio_tail_clip.is_recording:
-                if audio_tail_clip.index != audio_cs.index:
+        if midi_cs.clip.playing_position.in_last_bar and (
+            not SongFacade.playing_scene().playing_state.in_last_bar
+            or SongFacade.playing_scene().looping
+        ):
+            playing_cs = audio_cs or audio_tail_cs
+            # rotating the two tracks
+            track_to_launch = cast(
+                SimpleAudioTrack, self.audio_tail_track if audio_cs else self.audio_track
+            )
+
+            clip_to_launch = track_to_launch.clip_slots[playing_cs.index].clip
+
+            if clip_to_launch and not clip_to_launch.is_recording:
+                if clip_to_launch.index != playing_cs.index:
                     Logger.error(
-                        "Index mismatch for audio tail clip. Got audio index: %s and audio tail index: %s. For %s"
-                        % (audio_cs.index, audio_tail_clip.index, self),
+                        "Index mismatch for audio tail clip. Got audio index: %s and audio tail "
+                        "index: %s. For %s " % (playing_cs.index, clip_to_launch.index, self),
                         show_notification=False,
                     )
                     raise Protocol0Warning("Tail clip index mismatch for %s" % self)
-                if debug:
-                    Logger.warning(("audio_tail clip", audio_tail_clip, audio_tail_clip.index))
-                audio_tail_clip.play_and_mute()
+                clip_to_launch.play_and_mute()
 
     def _map_optional_audio_tail_track(self):
         # type: () -> None
@@ -195,10 +192,6 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
         return True
 
-    def on_scenes_change(self):
-        # type: () -> None
-        self._map_clip_slots()
-
     def _get_dummy_tracks(self):
         # type: () -> Tuple[Optional[SimpleAudioTrack], Optional[SimpleAudioTrack]]
         main_tracks_length = 3 if self.audio_tail_track else 2
@@ -228,21 +221,6 @@ class ExternalSynthTrack(AbstractGroupTrack):
             self.monitoring_state.monitor_midi()
         else:
             self.monitoring_state.monitor_audio()
-
-    def _map_clip_slots(self):
-        # type: () -> None
-        if len(self._clip_slot_synchronizers) == len(self.midi_track.clip_slots):
-            return
-
-        for clip_slot_synchronizer in self._clip_slot_synchronizers:
-            clip_slot_synchronizer.disconnect()
-
-        self._clip_slot_synchronizers = [
-            ClipSlotSynchronizer(midi_clip_slot, audio_clip_slot)
-            for midi_clip_slot, audio_clip_slot in itertools.izip(
-                self.midi_track.clip_slots, self.audio_track.clip_slots
-            )
-        ]
 
     def update(self, observable):
         # type: (Observable) -> None
@@ -329,10 +307,3 @@ class ExternalSynthTrack(AbstractGroupTrack):
         seq.add(partial(setattr, self, "protected_mode_active", False))
         seq.add(partial(StatusBar.show_message, "track protected mode disabled"))
         return seq.done()
-
-    def disconnect(self):
-        # type: () -> None
-        super(ExternalSynthTrack, self).disconnect()
-        for clip_slot_synchronizer in self._clip_slot_synchronizers:
-            clip_slot_synchronizer.disconnect()
-        self._clip_slot_synchronizers = []

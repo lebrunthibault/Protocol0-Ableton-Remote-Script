@@ -82,9 +82,7 @@ class ErrorService(object):
 
     def _handle_exception(self, exc_type, exc_value, tb, context=None):
         # type: (Type[BaseException], BaseException, TracebackType, Optional[str]) -> None
-        Logger.dev(self._sentry_service.activated)
         if self._sentry_service.activated:
-            Logger.dev("capturing")
             self._sentry_service.sdk.capture_exception()
 
         entries = [fs for fs in extract_tb(tb) if self._log_file(fs[0])]

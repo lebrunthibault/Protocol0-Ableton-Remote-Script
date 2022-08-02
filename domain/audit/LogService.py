@@ -198,4 +198,4 @@ class LogService(object):
         for track in SongFacade.all_simple_tracks():
             for device in track.devices.all:
                 if device.name in DeviceEnum.missing_plugin_names():
-                    Logger.dev((track, device))
+                    Logger.warning((track, device))

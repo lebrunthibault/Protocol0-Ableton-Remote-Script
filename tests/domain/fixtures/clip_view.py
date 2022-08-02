@@ -1,2 +1,3 @@
 class AbletonClipView(object):
-    pass
+    def show_loop(self):
+        pass

@@ -28,15 +28,13 @@ from protocol0.domain.track_recorder.count_in.CountInInterface import CountInInt
 from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthFactory import (
     TrackRecorderExternalSynthFactory,
 )
-from protocol0.domain.track_recorder.recording_bar_length.RecordingBarLengthEnum import (
-    RecordingBarLengthEnum,
-)
 from protocol0.domain.track_recorder.recording_bar_length.RecordingBarLengthScroller import (
     RecordingBarLengthScroller,
 )
 from protocol0.domain.track_recorder.simple.TrackRecoderSimpleFactory import (
     TrackRecorderSimpleFactory,
 )
+from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
@@ -51,7 +49,9 @@ class TrackRecorderService(object):
         self._recording_component = recording_component
         self._scene_crud_component = scene_crud_component
 
-        self.recording_bar_length_scroller = RecordingBarLengthScroller(RecordingBarLengthEnum.TWO)
+        self.recording_bar_length_scroller = RecordingBarLengthScroller(
+            Config.DEFAULT_RECORDING_BAR_LENGTH
+        )
         self._recorder = None  # type: Optional[AbstractTrackRecorder]
 
     @property

@@ -164,6 +164,11 @@ class Scene(SlotManager):
         # type: () -> bool
         return self.name.strip().lower().startswith("skip")
 
+    @property
+    def looping(self):
+        # type: () -> bool
+        return self == SongFacade.looping_scene()
+
     def on_last_beat(self):
         # type: () -> None
         if SongFacade.is_track_recording():
@@ -183,7 +188,7 @@ class Scene(SlotManager):
         if playing_scene and playing_scene != self:
             playing_scene.stop()
 
-        self._scene.fire()
+        self._scene.fire()  # noqa
 
         # ending scene
         if len(self.clips.un_muted_clips) == 0:

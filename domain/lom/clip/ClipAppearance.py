@@ -23,7 +23,7 @@ class ClipAppearance(object):
     def name(self, name):
         # type: (str) -> None
         if self._live_clip and name:
-            self._live_clip.name = str(name).strip()
+            self._live_clip.name = str(name).strip()  # noqa
 
     @property
     def color(self):
@@ -34,7 +34,7 @@ class ClipAppearance(object):
     def color(self, color_index):
         # type: (int) -> None
         if self._live_clip:
-            self._live_clip.color_index = color_index
+            self._live_clip.color_index = color_index  # noqa
 
     def refresh(self):
         # type: () -> None

@@ -2,10 +2,10 @@ from typing import List, Optional
 
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.lom.validation.ValidatorInterface import ValidatorInterface
-from protocol0.domain.lom.validation.object_validators.SimpleDummyReturnTrackValidator import (
+from protocol0.domain.lom.validation.object_validators.external_synth_track.SimpleDummyReturnTrackValidator import (
     SimpleDummyReturnTrackValidator,
 )
-from protocol0.domain.lom.validation.object_validators.SimpleDummyTrackValidator import (
+from protocol0.domain.lom.validation.object_validators.external_synth_track.SimpleDummyTrackValidator import (
     SimpleDummyTrackValidator,
 )
 from protocol0.domain.lom.validation.sub_validators.AggregateValidator import AggregateValidator

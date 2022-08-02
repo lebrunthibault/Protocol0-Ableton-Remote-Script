@@ -4,6 +4,7 @@ from typing import Any
 from protocol0.application.CommandBus import CommandBus
 from protocol0.application.Container import Container
 from protocol0.application.ScriptDisconnectedEvent import ScriptDisconnectedEvent
+from protocol0.application.ScriptResetActivatedEvent import ScriptResetActivatedEvent
 from protocol0.application.command.InitializeSongCommand import InitializeSongCommand
 from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
@@ -16,6 +17,12 @@ class Protocol0(ControlSurface):
     def __init__(self, c_instance=None):
         # type: (Any) -> None
         super(Protocol0, self).__init__(c_instance=c_instance)
+        self._initialize()
+
+    def _initialize(self, reset=False):
+        # type: (bool) -> None
+        if reset:
+            self.disconnect(reset)
 
         # noinspection PyBroadException
         try:
@@ -24,13 +31,16 @@ class Protocol0(ControlSurface):
             DomainEventBus.emit(ErrorRaisedEvent())
             return
 
+        DomainEventBus.subscribe(ScriptResetActivatedEvent, self._initialize)
         CommandBus.dispatch(InitializeSongCommand())
 
         Logger.info("Protocol0 script loaded")
 
-    def disconnect(self):
-        # type: () -> None
-        super(Protocol0, self).disconnect()
+    def disconnect(self, reset=False):
+        # type: (bool) -> None
+        if not reset:
+            super(Protocol0, self).disconnect()
+
         DomainEventBus.emit(ScriptDisconnectedEvent())
         # without this, the events are going to be handled twice
         DomainEventBus.reset()

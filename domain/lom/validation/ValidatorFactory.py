@@ -10,7 +10,7 @@ from protocol0.domain.lom.validation.ValidatorInterface import ValidatorInterfac
 from protocol0.domain.lom.validation.object_validators.AbstractGroupTrackValidator import (
     AbstractGroupTrackValidator,
 )
-from protocol0.domain.lom.validation.object_validators.ExternalSynthTrackValidator import (
+from protocol0.domain.lom.validation.object_validators.external_synth_track.ExternalSynthTrackValidator import (
     ExternalSynthTrackValidator,
 )
 from protocol0.domain.lom.validation.object_validators.SceneValidator import SceneValidator
