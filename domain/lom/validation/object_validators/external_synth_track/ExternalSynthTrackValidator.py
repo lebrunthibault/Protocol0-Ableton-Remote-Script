@@ -14,13 +14,15 @@ from protocol0.domain.lom.validation.object_validators.external_synth_track.Simp
 from protocol0.domain.lom.validation.object_validators.external_synth_track.SimpleDummyTrackValidator import (
     SimpleDummyTrackValidator,
 )
-from protocol0.domain.lom.validation.object_validators.external_synth_track.SimpleAudioExtTrackValidator import \
-    SimpleAudioExtTrackValidator
+from protocol0.domain.lom.validation.object_validators.external_synth_track.SimpleAudioExtTrackValidator import (
+    SimpleAudioExtTrackValidator,
+)
 from protocol0.domain.lom.validation.object_validators.external_synth_track.SimpleAudioTailTrackValidator import (
     SimpleAudioTailTrackValidator,
 )
-from protocol0.domain.lom.validation.object_validators.external_synth_track.SimpleMidiExtTrackValidator import \
-    SimpleMidiExtTrackValidator
+from protocol0.domain.lom.validation.object_validators.external_synth_track.SimpleMidiExtTrackValidator import (
+    SimpleMidiExtTrackValidator,
+)
 from protocol0.domain.lom.validation.sub_validators.CallbackValidator import CallbackValidator
 from protocol0.domain.lom.validation.sub_validators.PropertyValueValidator import (
     PropertyValueValidator,
@@ -42,16 +44,21 @@ class ExternalSynthTrackValidator(AbstractGroupTrackValidator):
 
         # SUB TRACKS
         validators += SimpleMidiExtTrackValidator(track.midi_track, browser_service)._validators
-        validators += SimpleAudioExtTrackValidator(track.audio_track, track.midi_track)._validators
+        validators += SimpleAudioExtTrackValidator(
+            track.audio_track, track.midi_track, track.audio_tail_track is not None
+        )._validators
 
         # AUDIO TAIL TRACK
         # always preset except for Minitaur (mono)
-        validators.append(CallbackValidator(
-            track,
-            lambda t: isinstance(t.instrument, InstrumentMinitaur) or t.audio_tail_track is not None,
-            None,
-            "track should have an audio tail track",
-        ))
+        validators.append(
+            CallbackValidator(
+                track,
+                lambda t: isinstance(t.instrument, InstrumentMinitaur)
+                or t.audio_tail_track is not None,
+                None,
+                "track should have an audio tail track",
+            )
+        )
         if track.audio_tail_track:
             validators += SimpleAudioTailTrackValidator(track.audio_tail_track)._validators
 
