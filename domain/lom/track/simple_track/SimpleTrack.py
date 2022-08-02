@@ -122,7 +122,7 @@ class SimpleTrack(AbstractTrack):
     @current_monitoring_state.setter
     def current_monitoring_state(self, monitoring_state):
         # type: (CurrentMonitoringStateEnum) -> None
-        self._track.current_monitoring_state = monitoring_state.value
+        self._track.current_monitoring_state = monitoring_state.value  # noqa
 
     @property
     def output_meter_left(self):

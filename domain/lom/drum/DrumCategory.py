@@ -59,20 +59,6 @@ class DrumCategory(object):
         )
 
     @property
-    def uses_scene_length_clips(self):
-        # type: () -> bool
-        return self.name.lower() in [
-            "crash",
-            "fill",
-            "glitch",
-            "impact",
-            "perc",
-            "reverse",
-            "riser",
-            "texture",
-        ]
-
-    @property
     def create_track_index(self):
         # type: () -> int
         assert SongFacade.drums_track() is not None, "Drum track doesn't exist"

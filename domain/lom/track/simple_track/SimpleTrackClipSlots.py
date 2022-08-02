@@ -43,7 +43,6 @@ class SimpleTrackClipSlots(SlotManager):
         self._instrument = instrument
 
         if self._instrument:
-            self._clip_config.uses_scene_length_clips = self._instrument.uses_scene_length_clips
             self._clip_config.default_note = self._instrument.DEFAULT_NOTE
 
     @property

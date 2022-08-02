@@ -50,7 +50,7 @@ class MidiClip(Clip):
         if not self._clip:
             return None
         self._cached_notes = notes
-        self._clip.select_all_notes()
+        self._clip.select_all_notes()  # noqa
         seq = Sequence()
         seq.add(partial(self._clip.replace_selected_notes, tuple(note.to_data() for note in notes)))
         # noinspection PyUnresolvedReferences
@@ -71,9 +71,8 @@ class MidiClip(Clip):
 
     def generate_base_notes(self):
         # type: () -> Optional[Sequence]
-        if self._config.uses_scene_length_clips:
-            self.loop.bar_length = SongFacade.selected_scene().bar_length
-            self.show_loop()
+        self.loop.bar_length = SongFacade.selected_scene().bar_length
+        self.show_loop()
 
         pitch = self._config.default_note
         base_notes = [Note(pitch=pitch, velocity=127, start=0, duration=min(1, int(self.length)))]
@@ -107,7 +106,7 @@ class MidiClip(Clip):
     def crop(self):
         # type: () -> None
         if self._clip:
-            self._clip.crop()
+            self._clip.crop()  # noqa
 
     def get_linked_parameters(self, device_parameters):
         # type: (List[DeviceParameter]) -> List[LinkedDeviceParameters]

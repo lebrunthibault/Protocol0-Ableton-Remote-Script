@@ -39,6 +39,7 @@ class SimpleAudioTailTrack(SimpleAudioTrack):
     def update(self, observable):
         # type: (Observable) -> None
         super(SimpleAudioTailTrack, self).update(observable)
+        return None
         if isinstance(observable, SimpleTrackDevices):
             if len(list(self.devices)) != 0:
                 Backend.client().show_warning("you cannot add a device to a tail track")
