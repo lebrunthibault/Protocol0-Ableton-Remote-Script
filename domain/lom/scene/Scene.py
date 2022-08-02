@@ -82,7 +82,7 @@ class Scene(SlotManager):
                 continue
 
             # let dummy track play until the end
-            if (  # type: ignore[unreachable]
+            if (
                 isinstance(track, SimpleDummyTrack)
                 and clip.loop.bar_length > self.bar_length
             ):
