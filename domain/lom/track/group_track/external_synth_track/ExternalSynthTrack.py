@@ -6,6 +6,7 @@ from _Framework.CompoundElement import subject_slot_group
 from _Framework.SubjectSlot import subject_slot
 from typing import Optional, cast, List, Tuple
 
+from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
@@ -144,17 +145,17 @@ class ExternalSynthTrack(AbstractGroupTrack):
             or SongFacade.playing_scene().should_loop
         ):
             playing_clip = self._playing_audio_track.playing_clip
-            clip_to_launch = self._audio_track_to_launch.clip_slots[playing_clip.index].clip
+            clip_to_fire = self._audio_clip_to_fire(playing_clip.index)
 
-            if clip_to_launch is not None:
-                if clip_to_launch.index != playing_clip.index:
+            if clip_to_fire is not None:
+                if clip_to_fire.index != playing_clip.index:
                     Logger.error(
                         "Index mismatch for audio / tail clip. Got index: %s and tail "
-                        "index: %s. For %s " % (playing_clip.index, clip_to_launch.index, self),
+                        "index: %s. For %s " % (playing_clip.index, clip_to_fire.index, self),
                         show_notification=False,
                     )
                     raise Protocol0Warning("Tail clip index mismatch for %s" % self)
-                clip_to_launch.fire()
+                clip_to_fire.fire()
 
     @property
     def _playing_audio_track(self):
@@ -179,14 +180,18 @@ class ExternalSynthTrack(AbstractGroupTrack):
         else:
             return self.audio_track if self.audio_track.is_playing else self.audio_tail_track
 
-    @property
-    def _audio_track_to_launch(self):
-        # type: () -> SimpleAudioTrack
+    def _audio_clip_to_fire(self, scene_index):
+        # type: (int) -> AudioClip
         """The opposite track from the playing one in the couple audio / audio tail"""
-        if self._playing_audio_track is self.audio_track and self.audio_tail_track is not None:
-            return self.audio_tail_track
+        if (
+            self._playing_audio_track is self.audio_track
+            and self.audio_tail_track is not None
+            and self.audio_tail_track.clip_slots[scene_index].clip is not None
+        ):
+            return cast(AudioClip, self.audio_tail_track.clip_slots[scene_index].clip)
         else:
-            return self.audio_track
+            assert self.audio_track.clip_slots[scene_index].clip, "invalid audio clip configuration"
+            return cast(AudioClip, self.audio_track.clip_slots[scene_index].clip)
 
     def fire(self, index):
         # type: (int) -> None
@@ -195,10 +200,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
             return
         super(ExternalSynthTrack, self).fire(index)
         self.midi_track.clip_slots[index].clip.fire()
-
-        if self._audio_track_to_launch.clip_slots[index].clip is not None:
-            # can be None when a tail track is present but a multi scene was recorded
-            self._audio_track_to_launch.clip_slots[index].clip.fire()
+        self._audio_clip_to_fire(index).fire()
 
     def _map_optional_audio_tail_track(self):
         # type: () -> None

@@ -207,7 +207,6 @@ class Scene(SlotManager):
         if previous_playing_scene is None:
             Scene.PLAYING_SCENE = self
         elif previous_playing_scene != self:
-            Logger.warning(("set as playing scene", self, previous_playing_scene))
             seq = Sequence()
             seq.wait_for_event(BarChangedEvent)
             seq.add(partial(setattr, Scene, "PLAYING_SCENE", self))
