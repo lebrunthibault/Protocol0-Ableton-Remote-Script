@@ -3,9 +3,7 @@ from protocol0.domain.lom.track.routing.InputRoutingChannelEnum import InputRout
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleMidiExtTrack import SimpleMidiExtTrack
-from protocol0.domain.lom.validation.object_validators.SimpleTrackValidator import (
-    SimpleTrackValidator,
-)
+from protocol0.domain.lom.validation.sub_validators.AggregateValidator import AggregateValidator
 from protocol0.domain.lom.validation.sub_validators.PropertyValueValidator import \
     PropertyValueValidator
 from protocol0.domain.lom.validation.sub_validators.SimpleTrackHasDeviceValidator import \
@@ -13,7 +11,7 @@ from protocol0.domain.lom.validation.sub_validators.SimpleTrackHasDeviceValidato
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 
 
-class SimpleMidiExtTrackValidator(SimpleTrackValidator):
+class SimpleMidiExtTrackValidator(AggregateValidator):
     def __init__(self, track, browser_service):
         # type: (SimpleMidiExtTrack, BrowserServiceInterface) -> None
         self._track = track
@@ -43,4 +41,4 @@ class SimpleMidiExtTrackValidator(SimpleTrackValidator):
             ),
         ]
 
-        super(SimpleMidiExtTrackValidator, self).__init__(track, validators)
+        super(SimpleMidiExtTrackValidator, self).__init__(validators)

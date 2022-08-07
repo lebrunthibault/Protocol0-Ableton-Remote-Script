@@ -193,8 +193,12 @@ class ExternalSynthTrack(AbstractGroupTrack):
         """Firing midi and alternating between audio and audio tail for the audio clip"""
         if self.midi_track.clip_slots[index].clip is None:
             return
+        super(ExternalSynthTrack, self).fire(index)
         self.midi_track.clip_slots[index].clip.fire()
-        self._audio_track_to_launch.clip_slots[index].clip.fire()
+
+        if self._audio_track_to_launch.clip_slots[index].clip is not None:
+            # can be None when a tail track is present but a multi scene was recorded
+            self._audio_track_to_launch.clip_slots[index].clip.fire()
 
     def _map_optional_audio_tail_track(self):
         # type: () -> None

@@ -12,7 +12,6 @@ from protocol0.domain.lom.validation.sub_validators.AggregateValidator import Ag
 from protocol0.domain.lom.validation.sub_validators.PropertyValueValidator import (
     PropertyValueValidator,
 )
-from protocol0.shared.SongFacade import SongFacade
 
 
 class AbstractGroupTrackValidator(AggregateValidator):
@@ -23,14 +22,16 @@ class AbstractGroupTrackValidator(AggregateValidator):
         if validators is None:
             validators = []
 
-        validators.append(
-            PropertyValueValidator(
-                track.output_routing,
-                "track",
-                track.base_track.group_track or SongFacade.master_track(),
-                name="group track output routing",
-            ),
-        )
+        for sub_track in track.sub_tracks:
+            if sub_track != track.dummy_track and sub_track != track.dummy_return_track:
+                validators.append(
+                    PropertyValueValidator(
+                        sub_track.output_routing,
+                        "track",
+                        track.dummy_track or track.base_track,
+                        name="track output routing",
+                    ),
+                )
 
         # DUMMY TRACK
         if track.dummy_track is not None:

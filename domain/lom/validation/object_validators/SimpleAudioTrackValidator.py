@@ -3,13 +3,11 @@ from typing import List, Optional
 from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.validation.ValidatorInterface import ValidatorInterface
-from protocol0.domain.lom.validation.object_validators.SimpleTrackValidator import (
-    SimpleTrackValidator,
-)
+from protocol0.domain.lom.validation.sub_validators.AggregateValidator import AggregateValidator
 from protocol0.domain.lom.validation.sub_validators.CallbackValidator import CallbackValidator
 
 
-class SimpleAudioTrackValidator(SimpleTrackValidator):
+class SimpleAudioTrackValidator(AggregateValidator):
     def __init__(self, track, validators=None):
         # type: (SimpleAudioTrack, Optional[List[ValidatorInterface]]) -> None
         self._track = track
@@ -33,4 +31,4 @@ class SimpleAudioTrackValidator(SimpleTrackValidator):
             ),
         ]
 
-        super(SimpleAudioTrackValidator, self).__init__(track, validators)
+        super(SimpleAudioTrackValidator, self).__init__(validators)

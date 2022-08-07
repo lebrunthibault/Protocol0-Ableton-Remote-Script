@@ -142,3 +142,12 @@ class AbstractGroupTrack(AbstractTrack):
     def clip_slots(self):
         # type: () -> List[ClipSlot]
         return self.base_track.clip_slots
+
+    def fire(self, index):
+        # type: (int) -> None
+        """Firing midi and alternating between audio and audio tail for the audio clip"""
+        super(AbstractGroupTrack, self).fire(index)
+        if self.dummy_track and self.dummy_track.clip_slots[index].clip:
+            self.dummy_track.clip_slots[index].clip.fire()
+        if self.dummy_return_track and self.dummy_return_track.clip_slots[index].clip:
+            self.dummy_return_track.clip_slots[index].clip.fire()

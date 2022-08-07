@@ -24,4 +24,7 @@ class SimpleDummyReturnTrackValidator(AggregateValidator):
             PropertyValueValidator(track.output_routing, "type", OutputRoutingTypeEnum.SENDS_ONLY),
         ]  # type: List[ValidatorInterface]
 
+        for clip in track.clips:
+            validators.append(PropertyValueValidator(clip.loop, "looping", True))
+
         super(SimpleDummyReturnTrackValidator, self).__init__(validators)
