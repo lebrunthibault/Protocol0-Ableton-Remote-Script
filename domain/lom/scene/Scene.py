@@ -24,6 +24,7 @@ from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.forward_to import ForwardTo
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -159,11 +160,6 @@ class Scene(SlotManager):
         # type: () -> bool
         return self.name.strip().lower().startswith("skip")
 
-    @property
-    def looping(self):
-        # type: () -> bool
-        return self == SongFacade.looping_scene()
-
     def on_last_beat(self):
         # type: () -> None
         if SongFacade.is_track_recording():
@@ -189,7 +185,12 @@ class Scene(SlotManager):
     def fire(self):
         # type: () -> None
         """Called internally"""
-        self._scene.fire()
+        # only way to start all clips together
+        if not SongFacade.is_playing():
+            self._scene.fire()
+        else:
+            for track in self.abstract_tracks:
+                track.fire(self.index)
 
         self._stop_previous_playing_scene()
         # handles click sound when the previous scene plays shortly
@@ -206,10 +207,11 @@ class Scene(SlotManager):
         if previous_playing_scene is None:
             Scene.PLAYING_SCENE = self
         elif previous_playing_scene != self:
-            delay_till_start = (
-                Scene.PLAYING_SCENE.bar_length - Scene.PLAYING_SCENE.playing_state.bar_position
-            )
-            Scheduler.wait_bars(delay_till_start, partial(setattr, Scene, "PLAYING_SCENE", self))
+            Logger.warning(("set as playing scene", self, previous_playing_scene))
+            seq = Sequence()
+            seq.wait_for_event(BarChangedEvent)
+            seq.add(partial(setattr, Scene, "PLAYING_SCENE", self))
+            seq.done()
 
     def _stop_previous_playing_scene(self, immediate=False):
         # type: (bool) -> None

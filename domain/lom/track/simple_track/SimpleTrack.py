@@ -17,6 +17,7 @@ from protocol0.domain.lom.track.simple_track.SimpleTrackDeletedEvent import Simp
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.utils.forward_to import ForwardTo
+from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.observer.Observable import Observable
@@ -145,6 +146,12 @@ class SimpleTrack(AbstractTrack):
     def is_playing(self):
         # type: () -> bool
         return any(clip_slot.is_playing for clip_slot in self.clip_slots)
+
+    @property
+    def playing_clip(self):
+        # type: () -> Optional[ClipSlot]
+        clip_slot = find_if(lambda cs: cs.is_playing, self.clip_slots)
+        return clip_slot.clip if clip_slot is not None else None
 
     @property
     def is_triggered(self):

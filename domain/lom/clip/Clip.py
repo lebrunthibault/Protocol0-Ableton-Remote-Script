@@ -108,9 +108,10 @@ class Clip(SlotManager, Observable):
             self._clip.stop()
 
     def fire(self):
-        # type: () -> None
+        # type: () -> Optional[Sequence]
         if self._clip:
             self._clip.fire()
+        return None
 
     def delete(self):
         # type: () -> Sequence

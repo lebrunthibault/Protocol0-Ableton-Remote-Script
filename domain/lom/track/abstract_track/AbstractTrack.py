@@ -285,6 +285,12 @@ class AbstractTrack(SlotManager):
         seq.add(partial(self.instrument.preset_list.scroll, go_next))
         return seq.done()
 
+    def fire(self, index):
+        # type: (int) -> None
+        clip = self.clip_slots[index].clip
+        if clip:
+            clip.fire()
+
     def disconnect(self):
         # type: () -> None
         super(AbstractTrack, self).disconnect()

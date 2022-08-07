@@ -129,52 +129,72 @@ class ExternalSynthTrack(AbstractGroupTrack):
         Solution : we duplicate the audio track and play both (identical) clips alternately
         We launch the duplicate clip when the audio playing clip reaches its last beat
 
-        NB : This solution is close to perfect but will not handle well short clips with
+        NB : This solution is almost perfect but will not handle well short clips with
         very long tails. That doesn't really happen irl anyway
         """
-        if self.audio_tail_track is None:
+        if self.audio_tail_track is None or self.is_recording:
+            return
+
+        if not self.midi_track.is_playing or self._playing_audio_track is None:
             return
 
         midi_cs = find_if(lambda cs: cs.is_playing, self.midi_track.clip_slots)
-        audio_cs = find_if(lambda cs: cs.is_playing, self.audio_track.clip_slots)
-        audio_tail_cs = find_if(lambda cs: cs.is_playing, self.audio_tail_track.clip_slots)
-
-        if midi_cs is None or (audio_cs is None and audio_tail_cs is None):
-            return
-
-        Logger.dev(midi_cs.clip.playing_position)
         if midi_cs.clip.playing_position.in_last_bar and (
             not SongFacade.playing_scene().playing_state.in_last_bar
             or SongFacade.playing_scene().should_loop
         ):
-            Logger.dev((audio_cs, audio_tail_cs))
-            if audio_cs and audio_tail_cs:
-                Logger.dev((audio_cs.clip.playing_position.position, audio_tail_cs.clip.playing_position.position))
-                # this happens on long tails (see comment above).
-                # here we just relaunch the one still playing the tail
-                playing_cs = min((audio_cs, audio_tail_cs), key=lambda cs: cs.clip.playing_position.position)
-            else:
-                playing_cs = cast(ClipSlot, audio_cs or audio_tail_cs)
+            playing_clip = self._playing_audio_track.playing_clip
+            clip_to_launch = self._audio_track_to_launch.clip_slots[playing_clip.index].clip
 
-            # rotating the two tracks
-            track_to_launch = cast(
-                SimpleAudioTrack,
-                self.audio_tail_track if playing_cs is audio_cs else self.audio_track,
-            )
-
-            Logger.dev("track_to_launch: %s" % track_to_launch)
-
-            clip_to_launch = track_to_launch.clip_slots[playing_cs.index].clip
-
-            if clip_to_launch and not clip_to_launch.is_recording:
-                if clip_to_launch.index != playing_cs.index:
+            if clip_to_launch is not None:
+                if clip_to_launch.index != playing_clip.index:
                     Logger.error(
-                        "Index mismatch for audio tail clip. Got audio index: %s and audio tail "
-                        "index: %s. For %s " % (playing_cs.index, clip_to_launch.index, self),
+                        "Index mismatch for audio / tail clip. Got index: %s and tail "
+                        "index: %s. For %s " % (playing_clip.index, clip_to_launch.index, self),
                         show_notification=False,
                     )
                     raise Protocol0Warning("Tail clip index mismatch for %s" % self)
-                clip_to_launch.play_and_mute()
+                clip_to_launch.fire()
+
+    @property
+    def _playing_audio_track(self):
+        # type: () -> Optional[SimpleAudioTrack]
+        """Determining which track is currently playing the clip between audio and audio tail"""
+        # reset on playback stop
+        if not SongFacade.is_playing():
+            return None
+
+        if self.audio_tail_track is None:
+            return self.audio_track if self.audio_track.is_playing else None
+
+        if not self.audio_track.is_playing and not self.audio_tail_track.is_playing:
+            return None
+
+        # On long tails both clips are playing. We take the most recently launched one
+        if self.audio_track.is_playing and self.audio_tail_track.is_playing:
+            return min(
+                (self.audio_track, self.audio_tail_track),
+                key=lambda track: track.playing_clip.playing_position.position,
+            )
+        else:
+            return self.audio_track if self.audio_track.is_playing else self.audio_tail_track
+
+    @property
+    def _audio_track_to_launch(self):
+        # type: () -> SimpleAudioTrack
+        """The opposite track from the playing one in the couple audio / audio tail"""
+        if self._playing_audio_track is self.audio_track and self.audio_tail_track is not None:
+            return self.audio_tail_track
+        else:
+            return self.audio_track
+
+    def fire(self, index):
+        # type: (int) -> None
+        """Firing midi and alternating between audio and audio tail for the audio clip"""
+        if self.midi_track.clip_slots[index].clip is None:
+            return
+        self.midi_track.clip_slots[index].clip.fire()
+        self._audio_track_to_launch.clip_slots[index].clip.fire()
 
     def _map_optional_audio_tail_track(self):
         # type: () -> None

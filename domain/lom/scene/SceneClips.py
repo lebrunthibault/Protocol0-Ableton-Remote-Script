@@ -10,8 +10,9 @@ from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.track.simple_track.InstrumentBusTrack import InstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioExtTrack import SimpleAudioExtTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
+from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.shared.decorators import throttle
+from protocol0.domain.shared.decorators import debounce
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.observer.Observable import Observable
 
@@ -38,7 +39,8 @@ class SceneClips(Observable):
         # type: () -> List[Clip]
         return self._all_clips
 
-    @throttle(duration=60)
+    # @throttle(duration=60)
+    @debounce(duration=50)
     def update(self, observable):
         # type: (Observable) -> None
         if isinstance(observable, ClipSlot) or isinstance(observable, Clip):
@@ -58,9 +60,9 @@ class SceneClips(Observable):
             clip = clip_slot.clip
             if clip and clip_slot.has_clip and not type(track) == InstrumentBusTrack:
                 self._all_clips.append(clip)
-                if not isinstance(track, (SimpleAudioExtTrack, SimpleAudioTailTrack)):
+                self._tracks.append(track)
+                if not isinstance(track, (SimpleAudioExtTrack, SimpleAudioTailTrack, SimpleDummyTrack)):
                     self._clips.append(clip)  # type: ignore[unreachable]
-                    self._tracks.append(track)
 
         self.audio_tail_clips = cast(
             List[AudioTailClip], [c for c in self._all_clips if isinstance(c, AudioTailClip)]
@@ -87,6 +89,6 @@ class SceneClips(Observable):
     @property
     def tracks(self):
         # type: () -> Iterator[SimpleTrack]
-        for track, clip in itertools.izip(self._tracks, list(self._clips)):
+        for track, clip in itertools.izip(self._tracks, self.all):
             if not clip.muted:
                 yield track
