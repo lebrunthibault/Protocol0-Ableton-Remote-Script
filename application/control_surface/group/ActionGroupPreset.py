@@ -1,6 +1,7 @@
 from functools import partial
 
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
+from protocol0.domain.lom.device.DrumRackService import DrumRackService
 from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService import (
     InstrumentPresetScrollerService,
 )
@@ -33,6 +34,13 @@ class ActionGroupPreset(ActionGroupInterface):
                 self._container.get(InstrumentPresetScrollerService).scroll_preset_categories,
                 SongFacade.current_track(),
             ),
+        )
+
+        # CLEAn encoder
+        self.add_encoder(
+            identifier=13,
+            name="Clean drum rack",
+            on_press=self._container.get(DrumRackService).clean_racks,
         )
 
         # SCAN encoder

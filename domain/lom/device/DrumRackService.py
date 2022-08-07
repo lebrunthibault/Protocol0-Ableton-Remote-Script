@@ -3,18 +3,22 @@ from functools import partial
 
 from typing import cast, Optional
 
+from protocol0.domain.lom.clip.MidiClip import MidiClip
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.DrumPad import DrumPad
 from protocol0.domain.lom.device.DrumRackDevice import DrumRackDevice
 from protocol0.domain.lom.device.DrumRackLoadedEvent import DrumRackLoadedEvent
 from protocol0.domain.lom.drum.DrumCategory import DrumCategory
+from protocol0.domain.lom.instrument.instrument.InstrumentDrumRack import InstrumentDrumRack
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
+from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -80,28 +84,63 @@ class DrumRackService(object):
         seq.add(partial(Backend.client().save_drum_rack, drum_category.drum_rack_name))
         return seq.done()
 
-    def drum_rack_to_simpler(self):
-        # type: () -> None
-        assert SongFacade.selected_track().instrument
-        device = cast(DrumRackDevice, SongFacade.selected_track().instrument.device)
+    def drum_rack_to_simpler(self, track):
+        # type: (SimpleTrack) -> None
+        assert track.instrument
+        device = cast(DrumRackDevice, track.instrument.device)
         if not isinstance(device, DrumRackDevice):
             raise Protocol0Warning("Selected device should be a drum rack")
+        assert track == SongFacade.selected_track(), "track should already be selected"
+
+        pitches = list(set(
+            note.pitch for clip in track.clips for note in cast(MidiClip, clip).get_notes()
+        ))
+
+        if len(pitches) != 1:
+            Logger.warning("Expected only one pitch used, got %s" % len(pitches))
+            return
 
         self._from_drum_rack_to_simpler_notes()
+        pitch = pitches[0]
+        sample_name = device.drum_pads[pitch].name
 
-        self._browser_service.load_sample("%s.wav" % device.selected_chain.name)
+        self._browser_service.load_sample("%s.wav" % sample_name)
 
     def _from_drum_rack_to_simpler_notes(self):
         # type: () -> None
-        device = cast(DrumRackDevice, SongFacade.selected_track().instrument.device)
-        note_to_keep = device.selected_drum_pad.note
         for clip in cast(SimpleMidiTrack, SongFacade.selected_track()).clips:
-            notes_to_set = []
-            for note in clip.get_notes():
-                if note.pitch != note_to_keep:
-                    continue
-
+            notes = clip.get_notes()
+            for note in notes:
                 note.pitch = 60
-                notes_to_set.append(note)
 
-            clip.set_notes(notes_to_set)
+            clip.set_notes(notes)
+
+    def clean_racks(self):
+        # type: () -> None
+        seq = Sequence()
+
+        for track in SongFacade.simple_tracks():
+            if not isinstance(track.instrument, InstrumentDrumRack):
+                continue
+
+            drum_rack = cast(DrumRackDevice, track.instrument.device)
+            pads_count = len(drum_rack.filled_drum_pads)
+
+            pitches = set(
+                note.pitch for clip in track.clips for note in cast(MidiClip, clip).get_notes()
+            )
+
+            Logger.info("Treating track %s: %s pads" % (track, pads_count))
+            if len(pitches) == 0:
+                Logger.warning("No notes. Please remove the track")
+            elif len(pitches) > 1:
+                Logger.info("%s notes detected" % len(pitches))
+                if pads_count > len(pitches):
+                    Logger.warning("You can remove %s unused pads" % pads_count)
+            else:
+                Logger.info("1 note : converting to simpler")
+                seq.add(track.select)
+                seq.add(partial(self.drum_rack_to_simpler, track))
+                seq.wait_ms(100)
+
+        seq.done()
