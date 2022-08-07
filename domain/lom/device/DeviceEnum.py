@@ -12,6 +12,7 @@ class DeviceEnum(AbstractEnum):
     ADDICTIVE_KEYS = "ADDICTIVE_KEYS"
     API_2500 = "API_2500"
     AUDIO_EFFECT_RACK = "AUDIO_EFFECT_RACK"
+    AUTO_FILTER = "AUTO_FILTER"
     AUTO_FILTER_HIGH_PASS = "AUTO_FILTER_HIGH_PASS"
     AUTO_FILTER_LOW_PASS = "AUTO_FILTER_LOW_PASS"
     BEAT_REPEAT = "BEAT_REPEAT"
@@ -26,6 +27,7 @@ class DeviceEnum(AbstractEnum):
     FREE_CLIP = "FREE_CLIP"
     GATE = "GATE"
     GLUE_COMPRESSOR = "GLUE_COMPRESSOR"
+    INSTRUMENT_RACK = "INSTRUMENT_RACK"
     LFO_TOOL = "LFO_TOOL"
     LIMITER = "LIMITER"
     PITCH = "PITCH"
@@ -52,6 +54,7 @@ class DeviceEnum(AbstractEnum):
                 DeviceEnum.ADDICTIVE_KEYS: "Addictive Keys",
                 DeviceEnum.API_2500: "API-2500 Stereo",
                 DeviceEnum.AUDIO_EFFECT_RACK: "Audio Effect Rack",
+                DeviceEnum.AUTO_FILTER: "Auto Filter",
                 DeviceEnum.AUTO_FILTER_HIGH_PASS: "Auto Filter High Pass",
                 DeviceEnum.AUTO_FILTER_LOW_PASS: "Auto Filter Low Pass",
                 DeviceEnum.BEAT_REPEAT: "Beat Repeat",
@@ -66,6 +69,7 @@ class DeviceEnum(AbstractEnum):
                 DeviceEnum.FREE_CLIP: "FreeClip",
                 DeviceEnum.GATE: "Gate",
                 DeviceEnum.GLUE_COMPRESSOR: "Glue Compressor",
+                DeviceEnum.INSTRUMENT_RACK: "Instrument Rack",
                 DeviceEnum.LFO_TOOL: "LFOTool_x64",
                 DeviceEnum.LIMITER: "Limiter",
                 DeviceEnum.PITCH: "Pitch",
@@ -98,6 +102,24 @@ class DeviceEnum(AbstractEnum):
                     DeviceEnum.EXTERNAL_AUDIO_EFFECT: "External Audio Effect",
                     DeviceEnum.EXTERNAL_INSTRUMENT: "External Instrument",
                     DeviceEnum.SAMPLE_PITCH_RACK: "Sample Pitch Rack.adg",
+                }
+            )
+        except Protocol0Error:
+            return self.device_name
+
+    @property
+    def class_name(self):
+        # type: () -> str
+        try:
+            return self.get_value_from_mapping(
+                {
+                    DeviceEnum.AUDIO_EFFECT_RACK: "AudioEffectGroupDevice",
+                    DeviceEnum.AUTO_FILTER: "AutoFilter",
+                    DeviceEnum.EQ_EIGHT: "Eq8",
+                    DeviceEnum.EXTERNAL_AUDIO_EFFECT: "ProxyAudioEffectDevice",
+                    DeviceEnum.EXTERNAL_INSTRUMENT: "ProxyInstrumentDevice",
+                    DeviceEnum.INSTRUMENT_RACK: "InstrumentGroupDevice",
+                    DeviceEnum.PITCH: "MidiPitcher",
                 }
             )
         except Protocol0Error:
@@ -190,19 +212,19 @@ class DeviceEnum(AbstractEnum):
                 DeviceEnum.ADDICTIVE_KEYS: 1263,
                 DeviceEnum.API_2500: 95,
                 DeviceEnum.AUDIO_EFFECT_RACK: 8,
-                DeviceEnum.AUTO_FILTER_HIGH_PASS: 16,
-                DeviceEnum.AUTO_FILTER_LOW_PASS: 16,
+                DeviceEnum.AUTO_FILTER: 7,
                 DeviceEnum.BEAT_REPEAT: 7,
                 DeviceEnum.COMPRESSOR: 11,
                 DeviceEnum.DELAY: 10,
                 DeviceEnum.EFFECTRIX: 133,
                 DeviceEnum.EQ_EIGHT: 31,
                 DeviceEnum.EQ_ROOM: 31,
-                DeviceEnum.EXTERNAL_AUDIO_EFFECT: 0,
+                DeviceEnum.EXTERNAL_AUDIO_EFFECT: 5,
                 DeviceEnum.EXTERNAL_INSTRUMENT: 20,
                 DeviceEnum.FREE_CLIP: 40,
                 DeviceEnum.GATE: 7,
                 DeviceEnum.GLUE_COMPRESSOR: 6,
+                DeviceEnum.INSTRUMENT_RACK: 10,
                 DeviceEnum.LFO_TOOL: 180,
                 DeviceEnum.LIMITER: 5,
                 DeviceEnum.PITCH: 2,

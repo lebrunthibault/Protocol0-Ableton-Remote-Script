@@ -24,6 +24,6 @@ class TrackStats(object):
         output = collections.OrderedDict()
         output["track count"] = self.count
         output["abstract track count"] = self.abstract_track_count
-        output["ext synth track count"] = self.ext_synth_track_count
+        output["ext-synth track count"] = self.ext_synth_track_count
 
         return output

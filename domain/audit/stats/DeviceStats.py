@@ -13,9 +13,9 @@ from protocol0.shared.SongFacade import SongFacade
 class DeviceStats(object):
     def __init__(self, name):
         # type: (str) -> None
-        self.name = name
         self.count = 0
-        self.device_enum = find_if(lambda enums: enums.device_name == name, list(DeviceEnum))
+        self.device_enum = find_if(lambda enums: enums.class_name == name, list(DeviceEnum))
+        self.name = self.device_enum.device_name if self.device_enum else name
 
     def __repr__(self):
         # type: () -> str
@@ -33,7 +33,11 @@ class DeviceStats(object):
 
 
 class DevicesStats(object):
-    _EXCLUDED_DEVICE_NAMES = [DeviceEnum.USAMO.device_name]
+    _EXCLUDED_DEVICE_NAMES = [
+        DeviceEnum.USAMO.device_name,
+        DeviceEnum.EXTERNAL_AUDIO_EFFECT.device_name,
+        "Instrument Rack"
+    ]
 
     def __init__(self):
         # type: () -> None
@@ -42,12 +46,10 @@ class DevicesStats(object):
 
         # group by name
         for device in devices:
-            if device.name in self._EXCLUDED_DEVICE_NAMES:
-                continue
-            if device.name not in device_stats_dict:
-                device_stats_dict[device.name] = DeviceStats(device.name)
+            if device.type_name not in device_stats_dict:
+                device_stats_dict[device.type_name] = DeviceStats(device.type_name)
 
-            device_stats_dict[device.name].increment()
+            device_stats_dict[device.type_name].increment()
 
         devices_stats = device_stats_dict.values()
         devices_stats.sort(key=lambda x: x.total_load_time, reverse=True)
@@ -59,13 +61,12 @@ class DevicesStats(object):
     def _get_devices(self):
         # type: () -> Iterator[Device]
         """Return only devices that matters for stats"""
-        blacklist_names = (DeviceEnum.EXTERNAL_AUDIO_EFFECT.device_name, "Instrument Rack")
 
         for track in SongFacade.all_simple_tracks():
             for device in track.devices.all:
                 if (
                     not isinstance(device, (SimplerDevice, DrumRackDevice))
-                    and device.name not in blacklist_names
+                    and device.type_name not in self._EXCLUDED_DEVICE_NAMES
                 ):
                     yield device
 

@@ -37,3 +37,8 @@ class PluginDevice(Device):
         # type: () -> Optional[str]
         """overridden"""
         return self.selected_preset
+
+    @property
+    def type_name(self):
+        # type: () -> str
+        return self.name

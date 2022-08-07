@@ -70,12 +70,20 @@ class Device(SlotManager):
     @property
     def name(self):
         # type: () -> str
+        """Name of the device : used defined"""
         return self._device.name if self._device else ""
 
     @property
     def class_name(self):
         # type: () -> str
+        """type of the device for live devices else PluginDevice"""
         return self._device.class_name if self._device else ""
+
+    @property
+    def type_name(self):
+        # type: () -> str
+        """type of the device (Reverb..) for Live or name of the plugin (FabFilter Pro-Q 3..)"""
+        return self.class_name
 
     @property
     def preset_name(self):
