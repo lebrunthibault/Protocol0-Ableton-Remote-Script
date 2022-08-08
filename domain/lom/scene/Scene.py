@@ -247,14 +247,15 @@ class Scene(SlotManager):
     @throttle(duration=60)
     def fire_to_position(self, bar_length):
         # type: (int) -> Sequence
+        seq = Sequence()
 
         if bar_length != 0:
             for track in self.abstract_tracks:
                 if isinstance(track, ExternalSynthTrack):
                     track.prepare_for_scrub(self.index)
+            seq.defer()  # for prepare_for_scrub to finish
 
         self.scene_name.update(bar_position=bar_length)
-        seq = Sequence()
         seq.add(partial(self.fire, stop_tails=True))
         seq.defer()
         seq.add(partial(self.position_scroller.set_value, bar_length))
