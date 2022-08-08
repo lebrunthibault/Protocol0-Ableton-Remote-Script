@@ -10,6 +10,7 @@ from protocol0.domain.lom.scene.PlayingSceneChangedEvent import PlayingSceneChan
 from protocol0.domain.lom.scene.SceneAppearance import SceneAppearance
 from protocol0.domain.lom.scene.SceneClips import SceneClips
 from protocol0.domain.lom.scene.SceneCropScroller import SceneCropScroller
+from protocol0.domain.lom.scene.SceneFiredEvent import SceneFiredEvent
 from protocol0.domain.lom.scene.SceneLength import SceneLength
 from protocol0.domain.lom.scene.SceneName import SceneName
 from protocol0.domain.lom.scene.ScenePlayingState import ScenePlayingState
@@ -190,6 +191,7 @@ class Scene(SlotManager):
         if not SongFacade.is_playing():
             self._scene.fire()
         else:
+
             for track in self.abstract_tracks:
                 track.fire(self.index)
 
@@ -210,6 +212,7 @@ class Scene(SlotManager):
         elif previous_playing_scene != self:
             seq = Sequence()
             seq.wait_for_event(BarChangedEvent)
+            seq.add(partial(DomainEventBus.emit, SceneFiredEvent(self._scene)))
             seq.add(partial(setattr, Scene, "PLAYING_SCENE", self))
             seq.done()
 

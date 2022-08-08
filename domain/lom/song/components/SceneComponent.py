@@ -2,6 +2,7 @@ import Live
 
 from protocol0.domain.lom.scene.LoopingSceneToggler import LoopingSceneToggler
 from protocol0.domain.lom.scene.Scene import Scene
+from protocol0.domain.lom.scene.SceneFiredEvent import SceneFiredEvent
 from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.track_recorder.TrackRecordingStartedEvent import TrackRecordingStartedEvent
@@ -13,7 +14,13 @@ class SceneComponent(object):
         # type: (Live.Song.Song.View) -> None
         self._song_view = song_view
         self.looping_scene_toggler = LoopingSceneToggler()  # type: LoopingSceneToggler
+
+        DomainEventBus.subscribe(SceneFiredEvent, self._on_scene_fired_event)
         DomainEventBus.subscribe(TrackRecordingStartedEvent, self._on_track_recording_started_event)
+
+    def _on_scene_fired_event(self, event):
+        # type: (SceneFiredEvent) -> None
+        self._song_view.selected_scene = event.live_scene
 
     def _on_track_recording_started_event(self, event):
         # type: (TrackRecordingStartedEvent) -> None
