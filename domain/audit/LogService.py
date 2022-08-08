@@ -80,6 +80,8 @@ class LogService(object):
         Logger.info()
         Logger.info("selected_scene: %s" % SongFacade.selected_scene())
         Logger.info()
+        Logger.info("selected_scene.abstract_tracks: %s" % SongFacade.selected_scene().abstract_tracks)
+        Logger.info()
         Logger.info("********* SELECTED_DEVICE *************")
         Logger.info()
         try:

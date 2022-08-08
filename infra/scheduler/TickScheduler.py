@@ -45,7 +45,6 @@ class TickScheduler(TickSchedulerInterface):
             # this throws on startup
             is_song_playing = self._song.is_playing
         except Exception:
-            # logging.info("is playing error: %s" % e)
             return
 
         if is_song_playing:

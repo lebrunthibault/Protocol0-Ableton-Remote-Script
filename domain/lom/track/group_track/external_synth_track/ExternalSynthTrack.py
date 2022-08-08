@@ -191,7 +191,9 @@ class ExternalSynthTrack(AbstractGroupTrack):
         ):
             return cast(AudioClip, self.audio_tail_track.clip_slots[scene_index].clip)
         else:
-            assert self.audio_track.clip_slots[scene_index].clip, "invalid audio clip configuration"
+            assert self.audio_track.clip_slots[
+                scene_index
+            ].clip, "audio_clip_to_fire: invalid audio clip configuration"
             return cast(AudioClip, self.audio_track.clip_slots[scene_index].clip)
 
     def fire(self, index):
@@ -201,17 +203,27 @@ class ExternalSynthTrack(AbstractGroupTrack):
             return
         super(ExternalSynthTrack, self).fire(index)
         self.midi_track.clip_slots[index].clip.fire()
-        self._audio_clip_to_fire(index).fire()
+        if not self.is_recording:
+            self._audio_clip_to_fire(index).fire()
 
     def prepare_for_scrub(self, scene_index):
         # type: (int) -> None
         """
-            when scrubbing playback (handling FireSceneToPositionCommand)
-            the audio clip need to be looping else it will stop on scrub_by
+        when scrubbing playback (handling FireSceneToPositionCommand)
+        the audio clip need to be looping else it will stop on scrub_by
+        and have the same length as the midi clip
         """
         audio_clip_to_fire = self._audio_clip_to_fire(scene_index)
         audio_clip_to_fire.loop.looping = True
-        Scheduler.wait_ms(1000, partial(setattr, audio_clip_to_fire.loop, "looping", False))
+        audio_clip_length = audio_clip_to_fire.length
+        audio_clip_to_fire.length = self.midi_track.clip_slots[scene_index].clip.length
+
+        seq = Sequence()
+        seq.wait_ms(1000)
+        # NB : modify length before looping to have loop modification
+        seq.add(partial(setattr, audio_clip_to_fire, "length", audio_clip_length))
+        seq.add(partial(setattr, audio_clip_to_fire.loop, "looping", False))
+        seq.done()
 
     def _map_optional_audio_tail_track(self):
         # type: () -> None
@@ -345,8 +357,11 @@ class ExternalSynthTrack(AbstractGroupTrack):
         if track.solo:
             track.solo = False  # noqa
             # when soloing a sub track, the group track is un soloed so we need to handle this case
-            if self._un_soloed_at is not None and time.time() - self._un_soloed_at < 0.3:
-                self.solo = False
+            if self._un_soloed_at is not None:
+                duration_since_last_un_solo = time.time() - self._un_soloed_at
+                Logger.info("duration_since_last_un_solo: %s" % duration_since_last_un_solo)
+                if duration_since_last_un_solo < 0.3:
+                    self.solo = False
             else:
                 self.solo = True
 

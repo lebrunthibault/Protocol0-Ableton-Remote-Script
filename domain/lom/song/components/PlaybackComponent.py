@@ -15,7 +15,7 @@ from protocol0.shared.logging.Logger import Logger
 
 
 class PlaybackComponent(SlotManager):
-    _DEBUG = True
+    _DEBUG = False
 
     def __init__(self, song):
         # type: (Live.Song.Song) -> None

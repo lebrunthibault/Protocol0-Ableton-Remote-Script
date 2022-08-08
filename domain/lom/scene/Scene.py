@@ -191,7 +191,6 @@ class Scene(SlotManager):
         if not SongFacade.is_playing():
             self._scene.fire()
         else:
-
             for track in self.abstract_tracks:
                 track.fire(self.index)
 

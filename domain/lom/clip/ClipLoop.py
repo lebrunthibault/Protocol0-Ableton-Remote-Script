@@ -5,6 +5,7 @@ from _Framework.SubjectSlot import subject_slot, SlotManager
 
 from protocol0.domain.lom.loop.LoopableInterface import LoopableInterface
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 
 
@@ -77,6 +78,7 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
         # type: (float) -> None
         self._clip.end_marker = end
         self._clip.loop_end = end
+        Logger.dev("setting end marker and loop end to %s" % end)
 
     @property
     def length(self):
@@ -96,6 +98,7 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
     @length.setter
     def length(self, length):
         # type: (float) -> None
+        Logger.dev("setting length to %s" % length)
         self.end = self.start + length
 
     @property
