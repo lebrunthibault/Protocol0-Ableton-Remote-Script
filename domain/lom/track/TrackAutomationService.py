@@ -72,9 +72,8 @@ class TrackAutomationService(object):
                 SongFacade.selected_track().devices.parameters
             )
         else:
-            self._create_automation_from_selected_parameter
+            self._create_automation_from_selected_parameter()
 
-    @property
     def _create_automation_from_selected_parameter(self):
         # type: () -> Sequence
         selected_track = SongFacade.selected_track()
