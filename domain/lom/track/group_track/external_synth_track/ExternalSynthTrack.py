@@ -202,6 +202,16 @@ class ExternalSynthTrack(AbstractGroupTrack):
         self.midi_track.clip_slots[index].clip.fire()
         self._audio_clip_to_fire(index).fire()
 
+    def prepare_for_scrub(self, scene_index):
+        # type: (int) -> None
+        """
+            when scrubbing playback (handling FireSceneToPositionCommand)
+            the audio clip need to be looping else it will stop on scrub_by
+        """
+        audio_clip_to_fire = self._audio_clip_to_fire(scene_index)
+        audio_clip_to_fire.loop.looping = True
+        Scheduler.wait_ms(1000, partial(setattr, audio_clip_to_fire.loop, "looping", False))
+
     def _map_optional_audio_tail_track(self):
         # type: () -> None
         has_tail_track = (

@@ -3,9 +3,9 @@ from collections import Iterator
 from functools import partial
 
 import Live
-from _Framework.SubjectSlot import SlotManager, subject_slot
 from typing import List, Optional, Dict, cast
 
+from _Framework.SubjectSlot import SlotManager, subject_slot
 from protocol0.domain.lom.scene.PlayingSceneChangedEvent import PlayingSceneChangedEvent
 from protocol0.domain.lom.scene.SceneAppearance import SceneAppearance
 from protocol0.domain.lom.scene.SceneClips import SceneClips
@@ -15,6 +15,8 @@ from protocol0.domain.lom.scene.SceneName import SceneName
 from protocol0.domain.lom.scene.ScenePlayingState import ScenePlayingState
 from protocol0.domain.lom.scene.ScenePositionScroller import ScenePositionScroller
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
+    ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ValueScroller import ValueScroller
@@ -24,7 +26,6 @@ from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.forward_to import ForwardTo
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -243,6 +244,12 @@ class Scene(SlotManager):
     @throttle(duration=60)
     def fire_to_position(self, bar_length):
         # type: (int) -> Sequence
+
+        if bar_length != 0:
+            for track in self.abstract_tracks:
+                if isinstance(track, ExternalSynthTrack):
+                    track.prepare_for_scrub(self.index)
+
         self.scene_name.update(bar_position=bar_length)
         seq = Sequence()
         seq.add(self.fire)
