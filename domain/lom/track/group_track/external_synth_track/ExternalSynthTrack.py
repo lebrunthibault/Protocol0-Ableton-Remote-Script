@@ -81,7 +81,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
         self._solo_listener.subject = self._track
         # this is necessary to monitor the group track solo state
-        self._un_soloed_at = None  # type: Optional[float]
+        self._un_soloed_at = time.time()  # type: float
 
         self._force_clip_colors = False
 
@@ -356,14 +356,18 @@ class ExternalSynthTrack(AbstractGroupTrack):
         """We want to solo only the base track"""
         if track.solo:
             track.solo = False  # noqa
-            # when soloing a sub track, the group track is un soloed so we need to handle this case
-            if self._un_soloed_at is not None:
+
+            if self.solo:
+                self.solo = False
+            else:
+                # Case : when the group track is soloed
+                # and we want to un_solo it by toggling the solo state on the sub track
+                # the group track is going to be un_soloed.
+                # we need to check if it was un_soloed very recently meaning we should leave it like this
+                # or not meaning we should solo it
                 duration_since_last_un_solo = time.time() - self._un_soloed_at
                 Logger.info("duration_since_last_un_solo: %s" % duration_since_last_un_solo)
-                if duration_since_last_un_solo < 0.3:
-                    self.solo = False
-            else:
-                self.solo = True
+                self.solo = duration_since_last_un_solo > 0.3
 
     @property
     def can_change_presets(self):
