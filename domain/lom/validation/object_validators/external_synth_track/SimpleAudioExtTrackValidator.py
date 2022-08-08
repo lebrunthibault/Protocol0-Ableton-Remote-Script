@@ -13,8 +13,8 @@ from protocol0.domain.lom.validation.sub_validators.PropertyValueValidator impor
 
 
 class SimpleAudioExtTrackValidator(SimpleAudioTrackValidator):
-    def __init__(self, track, midi_track, has_tail_track):
-        # type: (SimpleAudioExtTrack, SimpleMidiExtTrack, bool) -> None
+    def __init__(self, track, midi_track):
+        # type: (SimpleAudioExtTrack, SimpleMidiExtTrack) -> None
         self._track = track
         self._midi_track = midi_track
 
@@ -35,7 +35,6 @@ class SimpleAudioExtTrackValidator(SimpleAudioTrackValidator):
         ]  # type: List[ValidatorInterface]
 
         for clip in track.clips:
-            # if no tail track then we want looping
-            validators.append(PropertyValueValidator(clip.loop, "looping", not has_tail_track))
+            validators.append(PropertyValueValidator(clip.loop, "looping", False))
 
         super(SimpleAudioExtTrackValidator, self).__init__(track, validators)

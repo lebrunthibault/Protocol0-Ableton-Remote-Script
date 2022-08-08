@@ -133,14 +133,15 @@ class ExternalSynthTrack(AbstractGroupTrack):
         NB : This solution is almost perfect but will not handle well short clips with
         very long tails. That doesn't really happen irl anyway
         """
-        if self.audio_tail_track is None or self.is_recording:
+        if self.is_recording:
             return
 
         if not self.midi_track.is_playing or self._playing_audio_track is None:
             return
 
-        midi_cs = find_if(lambda cs: cs.is_playing, self.midi_track.clip_slots)
-        if midi_cs.clip.playing_position.in_last_bar and (
+        midi_clip = find_if(lambda cs: cs.is_playing, self.midi_track.clip_slots).clip
+
+        if midi_clip.playing_position.in_last_bar and (
             not SongFacade.playing_scene().playing_state.in_last_bar
             or SongFacade.playing_scene().should_loop
         ):

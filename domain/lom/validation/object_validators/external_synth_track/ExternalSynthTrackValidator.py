@@ -42,9 +42,7 @@ class ExternalSynthTrackValidator(AggregateValidator):
 
         # SUB TRACKS
         validators += SimpleMidiExtTrackValidator(track.midi_track, browser_service)._validators
-        validators += SimpleAudioExtTrackValidator(
-            track.audio_track, track.midi_track, track.audio_tail_track is not None
-        )._validators
+        validators += SimpleAudioExtTrackValidator(track.audio_track, track.midi_track)._validators
 
         # AUDIO TAIL TRACK
         # always preset except for Minitaur (mono)
