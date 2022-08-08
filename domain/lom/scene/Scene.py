@@ -66,8 +66,8 @@ class Scene(SlotManager):
 
         return tracks.values()
 
-    def _tracks_to_stop(self, next_playing_scene):
-        # type: (Scene) -> Iterator[SimpleTrack]
+    def _tracks_to_stop(self, next_playing_scene, stop_tails):
+        # type: (Scene, bool) -> Iterator[SimpleTrack]
         # manually stopping previous scene because we don't display clip slot stop buttons
         for track in SongFacade.simple_tracks():
             clip = track.clip_slots[self.index].clip
@@ -80,7 +80,7 @@ class Scene(SlotManager):
                 continue
 
             # for tail track combination, we let them finish
-            if not clip.loop.looping:
+            if not clip.loop.looping and not stop_tails:
                 continue
 
             # let dummy track play until the end
@@ -183,8 +183,8 @@ class Scene(SlotManager):
         self._stop_previous_playing_scene(immediate=True)
         self._set_as_playing_scene()
 
-    def fire(self):
-        # type: () -> None
+    def fire(self, stop_tails=False):
+        # type: (bool) -> None
         """Called internally"""
         # only way to start all clips together
         if not SongFacade.is_playing():
@@ -193,7 +193,7 @@ class Scene(SlotManager):
             for track in self.abstract_tracks:
                 track.fire(self.index)
 
-        self._stop_previous_playing_scene()
+        self._stop_previous_playing_scene(immediate=stop_tails)
         # handles click sound when the previous scene plays shortly
         self._set_as_playing_scene()
 
@@ -228,7 +228,7 @@ class Scene(SlotManager):
         """
         DomainEventBus.emit(PlayingSceneChangedEvent())
 
-        for track in self._tracks_to_stop(next_playing_scene):
+        for track in self._tracks_to_stop(next_playing_scene, immediate):
             track.stop(immediate=immediate)
 
         seq = Sequence()
@@ -252,7 +252,7 @@ class Scene(SlotManager):
 
         self.scene_name.update(bar_position=bar_length)
         seq = Sequence()
-        seq.add(self.fire)
+        seq.add(partial(self.fire, stop_tails=True))
         seq.defer()
         seq.add(partial(self.position_scroller.set_value, bar_length))
 

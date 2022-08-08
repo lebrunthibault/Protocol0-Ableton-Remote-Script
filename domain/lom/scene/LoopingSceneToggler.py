@@ -1,3 +1,5 @@
+from typing import cast
+
 from protocol0.domain.lom.scene.PlayingSceneChangedEvent import PlayingSceneChangedEvent
 from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.shared.ValueToggler import ValueToggler
@@ -18,13 +20,13 @@ class LoopingSceneToggler(ValueToggler):
 
     def _get_value(self):
         # type: () -> Scene
-        return SongFacade.selected_scene()
+        if SongFacade.is_playing():
+            return cast(Scene, SongFacade.playing_scene())
+        else:
+            return SongFacade.selected_scene()
 
     def _value_set(self, scene):
         # type: (Scene) -> None
-        if scene != SongFacade.playing_scene() and SongFacade.is_playing():
-            scene.fire()
-
         scene.scene_name.update()
 
     def _value_unset(self, scene):
