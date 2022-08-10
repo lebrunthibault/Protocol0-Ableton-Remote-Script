@@ -7,7 +7,6 @@ from protocol0.domain.lom.instrument.InstrumentDisplayService import InstrumentD
 from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService import (
     InstrumentPresetScrollerService,
 )
-from protocol0.domain.lom.set.MixingService import MixingService
 from protocol0.domain.lom.song.components.SceneComponent import SceneComponent
 from protocol0.domain.lom.song.components.TrackComponent import TrackComponent
 from protocol0.domain.lom.track.TrackAutomationService import TrackAutomationService
@@ -17,6 +16,7 @@ from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
 
+# noinspection SpellCheckingInspection
 class ActionGroupMain(ActionGroupInterface):
     """
     Main group: gathering most the functionalities. My faithful companion when producing on Live !
@@ -58,7 +58,7 @@ class ActionGroupMain(ActionGroupInterface):
             identifier=4,
             name="volume",
             filter_active_tracks=True,
-            on_scroll=self._container.get(MixingService).scroll_all_tracks_volume,
+            on_scroll=lambda: SongFacade.current_track().scroll_volume,
         )
 
         # MONitor encoder

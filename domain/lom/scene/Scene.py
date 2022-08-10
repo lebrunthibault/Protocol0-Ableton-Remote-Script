@@ -27,6 +27,7 @@ from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.forward_to import ForwardTo
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -209,6 +210,7 @@ class Scene(SlotManager):
         if previous_playing_scene is None:
             Scene.PLAYING_SCENE = self
         elif previous_playing_scene != self:
+            Logger.dev("set playing scene from %s to %s" % (previous_playing_scene, self))
             seq = Sequence()
             seq.wait_for_event(BarChangedEvent)
             seq.add(partial(DomainEventBus.emit, SceneFiredEvent(self._scene)))

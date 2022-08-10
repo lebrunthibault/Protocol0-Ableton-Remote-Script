@@ -193,7 +193,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
         else:
             assert self.audio_track.clip_slots[
                 scene_index
-            ].clip, "audio_clip_to_fire: invalid audio clip configuration"
+            ].clip, "audio_clip_to_fire: invalid audio clip configuration on %s" % self
             return cast(AudioClip, self.audio_track.clip_slots[scene_index].clip)
 
     def fire(self, index):
@@ -346,6 +346,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
     def _solo_listener(self):
         # type: () -> None
         """We want to solo only the base track"""
+        Logger.dev("%s, solo: %s" % (self, self.solo))
         if not self.solo:
             self._un_soloed_at = time.time()
 
@@ -366,7 +367,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
                 # we need to check if it was un_soloed very recently meaning we should leave it like this
                 # or not meaning we should solo it
                 duration_since_last_un_solo = time.time() - self._un_soloed_at
-                Logger.info("duration_since_last_un_solo: %s" % duration_since_last_un_solo)
+                Logger.info("duration since last un solo: %s" % duration_since_last_un_solo)
                 self.solo = duration_since_last_un_solo > 0.3
 
     @property

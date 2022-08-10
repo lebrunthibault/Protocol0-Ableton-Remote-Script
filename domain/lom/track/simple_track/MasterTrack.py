@@ -45,6 +45,7 @@ class MasterTrack(SimpleAudioTrack):
             return seq.done()
 
         self.room_eq.is_enabled = not self.room_eq.is_enabled
+        DomainEventBus.emit(MasterTrackRoomEqToggledEvent())
         return None
 
     @property

@@ -10,4 +10,4 @@ class MixingService(object):
                 continue
             if "kick" in track.name.lower():
                 continue
-            track.scroll_volume(go_next=go_next)
+            track.scroll_volume(go_next)

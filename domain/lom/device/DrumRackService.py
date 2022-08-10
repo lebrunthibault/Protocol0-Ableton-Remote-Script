@@ -92,12 +92,15 @@ class DrumRackService(object):
             raise Protocol0Warning("Selected device should be a drum rack")
         assert track == SongFacade.selected_track(), "track should already be selected"
 
-        pitches = list(set(
-            note.pitch for clip in track.clips for note in cast(MidiClip, clip).get_notes()
-        ))
+        pitches = list(
+            set(note.pitch for clip in track.clips for note in cast(MidiClip, clip).get_notes())
+        )
 
         if len(pitches) != 1:
-            Logger.warning("Expected only one pitch used, got %s" % len(pitches))
+            Backend.client().show_warning(
+                "Expected only one pitch used, got %s in %s clips"
+                % (len(pitches), len(track.clips))
+            )
             return
 
         self._from_drum_rack_to_simpler_notes()

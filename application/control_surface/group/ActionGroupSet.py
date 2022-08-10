@@ -2,6 +2,7 @@ from functools import partial
 
 from protocol0.application.ScriptResetActivatedEvent import ScriptResetActivatedEvent
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
+from protocol0.domain.lom.set.MixingService import MixingService
 from protocol0.domain.lom.set.SessionToArrangementService import SessionToArrangementService
 from protocol0.domain.lom.song.components.TempoComponent import TempoComponent
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
@@ -19,6 +20,13 @@ class ActionGroupSet(ActionGroupInterface):
             name="tap tempo",
             on_press=self._container.get(TempoComponent).tap,
             on_scroll=self._container.get(TempoComponent).scroll,
+        )
+
+        # VOLume tempo encoder
+        self.add_encoder(
+            identifier=3,
+            name="volume",
+            on_scroll=self._container.get(MixingService).scroll_all_tracks_volume,
         )
 
         # midi clip to MONO encoder

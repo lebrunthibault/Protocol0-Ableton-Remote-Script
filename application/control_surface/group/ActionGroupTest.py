@@ -47,4 +47,5 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        SongFacade.selected_clip()._clip.loop_end = 20
+        Logger.info("playing_scene: %s" % SongFacade.playing_scene())
+        Logger.info("last_manually_started_scene: %s" % SongFacade.last_manually_started_scene())

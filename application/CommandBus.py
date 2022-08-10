@@ -10,6 +10,7 @@ from protocol0.application.ContainerInterface import ContainerInterface
 from protocol0.application.command.ScrollScenePositionCommand import ScrollScenePositionCommand
 from protocol0.application.command.ScrollSceneTracksCommand import ScrollSceneTracksCommand
 from protocol0.application.command.ScrollScenesCommand import ScrollScenesCommand
+from protocol0.application.command.ScrollTrackVolumeCommand import ScrollTrackVolumeCommand
 from protocol0.application.command.SerializableCommand import SerializableCommand
 from protocol0.application.command_handler.CommandHandlerInterface import CommandHandlerInterface
 from protocol0.domain.shared.backend.Backend import Backend
@@ -30,6 +31,7 @@ class CommandBus(object):
         ScrollScenePositionCommand,
         ScrollScenesCommand,
         ScrollSceneTracksCommand,
+        ScrollTrackVolumeCommand,
     )
     _DUPLICATE_COMMAND_WARNING_COUNT = 10
 
@@ -89,7 +91,7 @@ class CommandBus(object):
 
             if self._duplicate_command_count == self._DUPLICATE_COMMAND_WARNING_COUNT:
                 Backend.client().show_warning(
-                    "Reached 10 duplicate commands. Set might need to be reloaded."
+                    "Reached 10 duplicate commands."
                 )
             return None
 
