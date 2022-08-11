@@ -1,6 +1,7 @@
 from typing import Optional, List, TYPE_CHECKING
 
 from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 
@@ -9,12 +10,12 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.scene.Scene import Scene
 
 
-class PlayingScene(object):
-    _INSTANCE = None  # type: Optional[PlayingScene]
+class PlayingSceneFacade(object):
+    _INSTANCE = None  # type: Optional[PlayingSceneFacade]
 
     def __init__(self, scene_component):
         # type: (SceneComponent) -> None
-        PlayingScene._INSTANCE = self
+        PlayingSceneFacade._INSTANCE = self
 
         self._scene_component = scene_component
         self._last_playing_scenes = [None] * 5  # type: List[Optional[Scene]]
@@ -23,6 +24,11 @@ class PlayingScene(object):
     def get(cls):
         # type: () -> Optional[Scene]
         return cls._INSTANCE._last_playing_scenes[-1]
+
+    @classmethod
+    def get_previous(cls):
+        # type: () -> Optional[Scene]
+        return cls._INSTANCE._last_playing_scenes[-2]
 
     @classmethod
     def set(cls, scene):
@@ -39,7 +45,8 @@ class PlayingScene(object):
         if scene is not None:
             cls._INSTANCE._scene_component.select_scene(scene)
 
-        cls._check_for_unknown_playing_scenes()
+        # deferring this until the previous playing scene has stopped
+        Scheduler.wait_ms(500, cls._check_for_unknown_playing_scenes)
 
     @classmethod
     def history(cls):
@@ -67,5 +74,3 @@ class PlayingScene(object):
         if len(unknown_playing_scenes) > 0:
             Logger.info("PlayingScene history: %s" % cls.history())
             Backend.client().show_warning("unknown playing scene found. Please check logs")
-
-

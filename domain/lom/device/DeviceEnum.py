@@ -1,6 +1,5 @@
 from typing import List
 
-from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.lom.device_parameter.DeviceParameterValue import DeviceParameterValue
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
@@ -147,11 +146,6 @@ class DeviceEnum(AbstractEnum):
             [cls.REV2_EDITOR],
         ]
 
-    @classmethod
-    def updatable_devices(cls):
-        # type: () -> List[DeviceEnum]
-        return [cls.LFO_TOOL]
-
     @property
     def main_parameters_default(self):
         # type: () -> List[DeviceParameterValue]
@@ -171,7 +165,7 @@ class DeviceEnum(AbstractEnum):
                     DeviceParameterValue(DeviceParameterEnum.EQ_EIGHT_FREQUENCY_8_A, 1),
                 ],  # 90 Hz
                 DeviceEnum.LFO_TOOL: [
-                    DeviceParameterValue(DeviceParameterEnum.LFO_TOOL_LFO_DEPTH, 0)
+                    DeviceParameterValue(DeviceParameterEnum.LFO_TOOL_LFO_DEPTH, 0),
                 ],
                 DeviceEnum.UTILITY: [
                     DeviceParameterValue(DeviceParameterEnum.UTILITY_GAIN, 0),
@@ -180,10 +174,6 @@ class DeviceEnum(AbstractEnum):
             }
         )
 
-    def matches_device(self, device):
-        # type: (Device) -> bool
-        return device.name == self.device_name
-
     @classmethod
     def from_device_parameter(cls, device_parameter_enum):
         # type: (DeviceParameterEnum) -> DeviceEnum
@@ -191,7 +181,6 @@ class DeviceEnum(AbstractEnum):
             DeviceParameterEnum.AUTO_FILTER_HIGH_PASS_FREQUENCY: DeviceEnum.AUTO_FILTER_HIGH_PASS,
             DeviceParameterEnum.AUTO_FILTER_LOW_PASS_FREQUENCY: DeviceEnum.AUTO_FILTER_LOW_PASS,
             DeviceParameterEnum.UTILITY_GAIN: DeviceEnum.UTILITY,
-            DeviceParameterEnum.LFO_TOOL_DEVICE_ON: DeviceEnum.LFO_TOOL,
         }
 
         if device_parameter_enum not in mapping:

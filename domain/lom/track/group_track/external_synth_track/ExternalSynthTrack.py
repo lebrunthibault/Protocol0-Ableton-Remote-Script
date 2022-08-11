@@ -136,7 +136,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
         if self.is_recording:
             return
 
-        if not self.midi_track.is_playing or self._playing_audio_track is None:
+        if not self.midi_track.is_playing or self.playing_audio_track is None:
             return
 
         midi_clip = find_if(lambda cs: cs.is_playing, self.midi_track.clip_slots).clip
@@ -145,7 +145,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
             not SongFacade.playing_scene().playing_state.in_last_bar
             or SongFacade.playing_scene().should_loop
         ):
-            playing_clip = self._playing_audio_track.playing_clip
+            playing_clip = self.playing_audio_track.playing_clip
             clip_to_fire = self._audio_clip_to_fire(playing_clip.index)
 
             if clip_to_fire is not None:
@@ -159,7 +159,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
                 clip_to_fire.fire()
 
     @property
-    def _playing_audio_track(self):
+    def playing_audio_track(self):
         # type: () -> Optional[SimpleAudioTrack]
         """Determining which track is currently playing the clip between audio and audio tail"""
         # reset on playback stop
@@ -185,7 +185,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
         # type: (int) -> AudioClip
         """The opposite track from the playing one in the couple audio / audio tail"""
         if (
-            self._playing_audio_track is self.audio_track
+            self.playing_audio_track is self.audio_track
             and self.audio_tail_track is not None
             and self.audio_tail_track.clip_slots[scene_index].clip is not None
         ):

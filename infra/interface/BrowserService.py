@@ -1,18 +1,13 @@
 from functools import partial
 
 import Live
-from typing import Optional
 
-from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.instrument.preset.SampleSelectedEvent import SampleSelectedEvent
-from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.utils.list import find_if
 from protocol0.infra.interface.BrowserLoaderService import BrowserLoaderService
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -74,30 +69,3 @@ class BrowserService(BrowserServiceInterface):
         return self._browser_loader_service._cached_browser_items["samples"].get(
             str(sample_name.decode("utf-8")), None
         )
-
-    def update_audio_effect_preset(self, track, device):
-        # type: (SimpleTrack, Device) -> Optional[Sequence]
-        seq = Sequence()
-        device_name = device.name
-        track.devices.delete(device)
-        preset_item = self._get_audio_effect_preset_item(device_name)
-        if not preset_item:
-            Logger.warning("Couldn't find preset item")
-            return None
-        seq.add(partial(self._browser.load_item, preset_item))
-        seq.wait(3)
-        return seq.done()
-
-    def _get_audio_effect_preset_item(self, preset_name):
-        # type: (str) -> Optional[Live.Browser.BrowserItem]
-        audio_effect_rack_item = find_if(
-            lambda i: i.name == "Audio Effect Rack", self._browser.audio_effects.iter_children
-        )
-        if not audio_effect_rack_item:
-            Logger.info("Couldn't access preset items for Audio Effect Rack")
-            return None
-        else:
-            preset = find_if(
-                lambda i: i.name == "%s.adg" % preset_name, audio_effect_rack_item.iter_children
-            )
-            return preset

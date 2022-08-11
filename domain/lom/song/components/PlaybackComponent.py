@@ -24,13 +24,13 @@ class PlaybackComponent(SlotManager):
         self._is_playing = (
             False  # caching this because _is_playing_listener activates multiple times
         )
-        self.is_playing_listener.subject = self._live_song
+        self._is_playing_listener.subject = self._live_song
         DomainEventBus.subscribe(TrackRecordingStartedEvent, lambda _: song.stop_playing())
         DomainEventBus.subscribe(TrackRecordingCancelledEvent, lambda _: song.stop_playing())
         DomainEventBus.subscribe(ScenePositionScrolledEvent, self._on_scene_position_scrolled_event)
 
     @subject_slot("is_playing")
-    def is_playing_listener(self):
+    def _is_playing_listener(self):
         # type: () -> None
         # deduplicate calls with is_playing True
         if self.is_playing == self._is_playing:
@@ -107,3 +107,7 @@ class PlaybackComponent(SlotManager):
     def metronome(self, metronome):
         # type: (bool) -> None
         self._live_song.metronome = metronome
+
+    def re_enable_automation(self):
+        # type: () -> None
+        self._live_song.re_enable_automation()

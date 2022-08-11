@@ -61,12 +61,6 @@ class Device(SlotManager):
             device_parameter_name = device_parameter_name.parameter_name
         return find_if(lambda p: p.name == device_parameter_name, self.parameters)
 
-    def update_param_value(self, param_name, param_value):
-        # type: (Union[DeviceParameterEnum, str], Any) -> None
-        param = self.get_parameter_by_name(device_parameter_name=param_name)
-        if param and param.is_enabled:
-            param.value = param_value
-
     @property
     def name(self):
         # type: () -> str

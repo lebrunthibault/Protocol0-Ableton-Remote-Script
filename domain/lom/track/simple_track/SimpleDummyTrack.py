@@ -14,8 +14,10 @@ from protocol0.domain.lom.track.simple_track.SimpleDummyTrackAddedEvent import (
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrackAutomation import (
     SimpleDummyTrackAutomation,
 )
+from protocol0.domain.lom.track.simple_track.SimpleTrackClipSlots import SimpleTrackClipSlots
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.shared.observer.Observable import Observable
 
 
 class SimpleDummyTrack(SimpleAudioTrack):
@@ -25,9 +27,21 @@ class SimpleDummyTrack(SimpleAudioTrack):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(SimpleAudioTrack, self).__init__(*a, **k)
+
+        self._clip_slots.register_observer(self)
+
         self.automation = SimpleDummyTrackAutomation(self._track, self._clip_slots, self.devices)
         if self.name != self.TRACK_NAME:
             Scheduler.defer(partial(setattr, self, "name", self.TRACK_NAME))
+
+    def update(self, observable):
+        # type: (Observable) -> None
+        # manually setting the has_automation attribute
+        if isinstance(observable, SimpleTrackClipSlots):
+            for clip in self.clips:
+                clip.has_automation = len(clip.automation.get_automated_parameters(
+                    self.devices.parameters
+                )) != 0
 
     @classmethod
     def is_track_valid(cls, track):

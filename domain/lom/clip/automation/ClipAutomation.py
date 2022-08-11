@@ -76,6 +76,7 @@ class ClipAutomation(object):
     def show_envelope(self):
         # type: () -> None
         self.hide_envelope()  # necessary
+        self._live_clip.view.show_loop()  # this before seem to work better
         self._live_clip.view.show_envelope()
 
     @handle_error

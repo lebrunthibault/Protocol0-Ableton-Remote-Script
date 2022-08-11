@@ -25,12 +25,12 @@ class Logger(object):
         cls._log(message, LogLevelEnum.DEBUG, debug=debug)
 
     @classmethod
-    def info(cls, message="", debug=True):
+    def info(cls, message="", debug=False):
         # type: (Any, bool) -> None
         cls._log(message, LogLevelEnum.INFO, debug=debug)
 
     @classmethod
-    def warning(cls, message, debug=True):
+    def warning(cls, message, debug=False):
         # type: (Any, bool) -> None
         cls._log(message, LogLevelEnum.WARNING, debug=debug)
 

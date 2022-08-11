@@ -6,8 +6,9 @@ import Live
 from _Framework.SubjectSlot import SlotManager, subject_slot
 from typing import List, Optional, Dict, cast
 
-from protocol0.domain.lom.scene.PlayingScene import PlayingScene
+from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.scene.PlayingSceneChangedEvent import PlayingSceneChangedEvent
+from protocol0.domain.lom.scene.PlayingSceneFacade import PlayingSceneFacade
 from protocol0.domain.lom.scene.SceneAppearance import SceneAppearance
 from protocol0.domain.lom.scene.SceneClips import SceneClips
 from protocol0.domain.lom.scene.SceneCropScroller import SceneCropScroller
@@ -19,8 +20,6 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrac
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
     ExternalSynthTrack,
 )
-from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
-from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.decorators import throttle
@@ -69,29 +68,35 @@ class Scene(SlotManager):
 
         return tracks.values()
 
-    def _tracks_to_stop(self, next_playing_scene, stop_tails):
-        # type: (Scene, bool) -> Iterator[SimpleTrack]
+    def _clips_to_stop(self, immediate):
+        # type: (bool) -> Iterator[Clip]
         # manually stopping previous scene because we don't display clip slot stop buttons
-        for track in SongFacade.simple_tracks():
-            clip = track.clip_slots[self.index].clip
-
-            if clip is None or track.is_foldable or not track.is_playing:
+        clips = self.clips.all if immediate else list(self.clips)
+        for clip in clips:
+            if not clip.is_playing:
                 continue
 
-            # don't stop the next scene tracks
-            if track in next_playing_scene.clips.tracks:
-                continue
-
-            # for tail track combination, we let them finish
-            if not clip.loop.looping and not stop_tails:
-                continue
-
-            # let dummy track play until the end
-            if isinstance(track, SimpleDummyTrack) and clip.loop.bar_length > self.bar_length:
-                Scheduler.wait_bars(clip.loop.bar_length - self.bar_length, track.stop)
-                continue
-
-            yield track
+            yield clip
+        # for track in SongFacade.simple_tracks():
+        #     clip = track.clip_slots[self.index].clip
+        #
+        #     if clip is None or track.is_foldable or not track.is_playing:
+        #         continue
+        #
+        #     # don't stop the next scene tracks
+        #     if track in next_playing_scene.clips.tracks:
+        #         continue
+        #
+        #     # for tail track combination, we let them finish
+        #     if not clip.loop.looping and not stop_tails:
+        #         continue
+        #
+        #     # let dummy track play until the end
+        #     if isinstance(track, SimpleDummyTrack) and clip.loop.bar_length > self.bar_length:
+        #         Scheduler.wait_bars(clip.loop.bar_length - self.bar_length, track.stop)
+        #         continue
+        #
+        #     yield track
 
     def update(self, observable):
         # type: (Observable) -> None
@@ -182,8 +187,9 @@ class Scene(SlotManager):
         # immediate False would play the clips at least one more bar
         # This doesn't execute (duplicated) when the scene was fired from a command
         if SongFacade.playing_scene() != self:
-            self._stop_previous_playing_scene(immediate=True)
-            PlayingScene.set(self)
+            Logger.warning("is triggered : scene change")
+            Scheduler.defer(partial(self._stop_playing_scene, immediate=True))
+            PlayingSceneFacade.set(self)
 
     def fire(self, stop_tails=False):
         # type: (bool) -> None
@@ -193,44 +199,42 @@ class Scene(SlotManager):
             stop_tails == True will stop the tails immediately and is used
             when the scenes are not contiguous
         """
+        Logger.info("firing %s" % self)
+
+        # stop the previous scene in advance, using clip launch quantization
+        self._stop_playing_scene(immediate=stop_tails)
+
         # only way to start all clips together
-        Logger.info("firing %s, is_playing: %s" % (self, SongFacade.is_playing()))
         if not SongFacade.is_playing():
             self._scene.fire()
         else:
             for track in self.abstract_tracks:
                 track.fire(self.index)
 
-        # stop the previous scene in advance, using clip launch quantization
-        self._stop_previous_playing_scene(immediate=stop_tails)
         # update the playing scene singleton at the next bar
         seq = Sequence()
         seq.wait_for_event(BarChangedEvent, continue_on_song_stop=True)
-        seq.add(partial(PlayingScene.set, self))
+        seq.add(partial(PlayingSceneFacade.set, self))
         seq.done()
 
-    def _stop_previous_playing_scene(self, immediate=False):
+    def _stop_playing_scene(self, immediate=False):
         # type: (bool) -> None
         """Stop the previous scene : quantized or immediate"""
-        previous_playing_scene = SongFacade.playing_scene()
+        if SongFacade.playing_scene() is not None and SongFacade.playing_scene() != self:
+            Logger.dev("stop playing scene: %s (immediate: %s)" % (SongFacade.playing_scene(), immediate))
+            SongFacade.playing_scene().stop(immediate)
 
-        if previous_playing_scene is not None and previous_playing_scene != self:
-            Logger.dev("stop previous: %s (immediate: %s)" % (previous_playing_scene, immediate))
-            previous_playing_scene.stop(self, immediate)
-            # Scheduler.defer(partial(previous_playing_scene.stop, self, immediate=immediate))
-
-    def stop(self, next_playing_scene, immediate=False):
-        # type: (Scene, bool) -> None
+    def stop(self, immediate=False):
+        # type: (bool) -> None
         """Used to manually stopping previous scene
         because we don't display clip slot stop buttons
         """
-        Logger.dev("stopping %s (immediate=%s)" % (self, immediate))
-        Logger.dev("self._tracks_to_stop(next_playing_scene, immediate): %s" % list(self._tracks_to_stop(next_playing_scene, immediate)))
-        Logger.dev("", debug=False)
+        Logger.dev("stopping %s (immediate=%s) > clips: %s" % (self, immediate, list(self._clips_to_stop(immediate))))
+
         DomainEventBus.emit(PlayingSceneChangedEvent())
 
-        for track in self._tracks_to_stop(next_playing_scene, immediate):
-            track.stop(immediate=immediate)
+        for clip in self._clips_to_stop(immediate):
+            clip.stop(immediate=immediate)
 
         seq = Sequence()
         seq.wait_for_event(BarChangedEvent, continue_on_song_stop=True)

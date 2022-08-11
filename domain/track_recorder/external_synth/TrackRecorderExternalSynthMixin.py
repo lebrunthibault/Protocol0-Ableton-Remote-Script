@@ -50,4 +50,4 @@ class TrackRecorderExternalSynthMixin(object):
         # type: (AbstractTrackRecorder) -> None
         # this is delayed in the case an encoder is touched after the recording is finished by mistake
         for tick in [1, 10, 50, 100]:
-            Scheduler.wait(tick, self._recording_component.re_enable_automation)
+            Scheduler.wait(tick, self._playback_component.re_enable_automation)

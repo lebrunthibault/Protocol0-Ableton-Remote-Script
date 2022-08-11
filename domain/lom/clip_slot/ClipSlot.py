@@ -62,7 +62,7 @@ class ClipSlot(SlotManager, Observable):
             self.clip = self.CLIP_CLASS(self._clip_slot.clip, self.index, self._clip_config)
 
             if is_new:
-                self.clip.configure_new_clip()
+                self.clip.on_added()
 
             self.clip.register_observer(self)
         else:

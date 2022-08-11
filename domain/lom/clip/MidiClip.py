@@ -57,7 +57,7 @@ class MidiClip(Clip):
         seq.defer()
         return seq.done()
 
-    def configure_new_clip(self):
+    def on_added(self):
         # type: () -> Optional[Sequence]
         if len(self.get_notes()) > 0 or self.is_recording:
             return None

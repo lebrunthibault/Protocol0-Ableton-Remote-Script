@@ -1,9 +1,9 @@
 from functools import partial
 
+import Live
 from _Framework.SubjectSlot import SlotManager
 from typing import Optional, List, Iterator, cast, TYPE_CHECKING, Dict
 
-import Live
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.ClipSlotSelectedEvent import ClipSlotSelectedEvent
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
@@ -24,7 +24,6 @@ from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.forward_to import ForwardTo
 from protocol0.domain.shared.utils.utils import volume_to_db, db_to_volume
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:

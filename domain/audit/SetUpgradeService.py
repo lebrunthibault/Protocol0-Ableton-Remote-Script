@@ -4,8 +4,6 @@ from typing import Iterator, List, Dict, Tuple
 
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
-from protocol0.domain.lom.device.DeviceService import DeviceService
-from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
@@ -19,24 +17,10 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 
 class SetUpgradeService(object):
-    def __init__(self, device_service, validator_service, track_crud_component):
-        # type: (DeviceService, ValidatorService, TrackCrudComponent) -> None
-        self._device_service = device_service
+    def __init__(self, validator_service, track_crud_component):
+        # type: (ValidatorService, TrackCrudComponent) -> None
         self._validator_service = validator_service
         self._track_crud_component = track_crud_component
-
-    def update_audio_effect_racks(self):
-        # type: () -> Sequence
-        seq = Sequence()
-        seq.prompt("Update updatable racks ?")
-        for track in SongFacade.all_simple_tracks():
-            for device in track.devices.all:
-                if not isinstance(device, RackDevice):
-                    continue
-                if any(enum.matches_device(device) for enum in DeviceEnum.updatable_devices()):
-                    seq.add(partial(self._device_service.update_audio_effect_rack, track, device))
-
-        return seq.done()
 
     def delete_unnecessary_devices(self, full_scan=False):
         # type: (bool) -> None

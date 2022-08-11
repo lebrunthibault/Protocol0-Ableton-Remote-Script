@@ -3,7 +3,6 @@ from _Framework.SubjectSlot import subject_slot
 from typing import cast, List, Optional, Dict
 
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
-from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.instrument.InstrumentFactory import InstrumentFactory
@@ -48,6 +47,7 @@ class SimpleTrack(AbstractTrack):
 
         self._instrument = None  # type: Optional[InstrumentInterface]
         self._view = live_track.view
+
         self._clip_slots = SimpleTrackClipSlots(live_track, self.CLIP_SLOT_CLASS)
         self._clip_slots.build()
 

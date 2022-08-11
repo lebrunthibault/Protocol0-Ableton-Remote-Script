@@ -20,7 +20,7 @@ from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.observer.Observable import Observable
 
 
-class SimpleTrackClipSlots(SlotManager):
+class SimpleTrackClipSlots(SlotManager, Observable):
     def __init__(self, live_track, clip_slot_class):
         # type: (Live.Track.Track, Type[ClipSlot]) -> None
         super(SimpleTrackClipSlots, self).__init__()
@@ -94,6 +94,7 @@ class SimpleTrackClipSlots(SlotManager):
                 DomainEventBus.emit(SimpleTrackFirstClipAddedEvent())
             elif not observable.has_clip and len(self.clips) == 0:
                 DomainEventBus.emit(SimpleTrackLastClipDeletedEvent())
+            self.notify_observers()
 
     @subject_slot_group("has_clip")
     @defer

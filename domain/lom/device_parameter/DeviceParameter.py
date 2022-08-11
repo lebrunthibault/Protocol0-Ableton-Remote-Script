@@ -112,4 +112,9 @@ class DeviceParameter(object):
 
     def reset(self):
         # type: () -> None
-        self.value = self.default_value
+        if self.name == "Device On":
+            # we define arbitrarily that toggling a device always starts from disabled state
+            # not the opposite
+            self.value = 0
+        else:
+            self.value = self.default_value

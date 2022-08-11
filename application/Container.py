@@ -4,9 +4,9 @@ from typing import Type, Dict, Any
 
 from protocol0.application.CommandBus import CommandBus
 from protocol0.application.ContainerInterface import ContainerInterface
-from protocol0.application.error.ErrorService import ErrorService
 from protocol0.application.ScriptDisconnectedEvent import ScriptDisconnectedEvent
 from protocol0.application.control_surface.ActionGroupFactory import ActionGroupFactory
+from protocol0.application.error.ErrorService import ErrorService
 from protocol0.application.error.SentryService import SentryService
 from protocol0.domain.audit.AudioLatencyAnalyzerService import AudioLatencyAnalyzerService
 from protocol0.domain.audit.LogService import LogService
@@ -23,7 +23,7 @@ from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService impo
 )
 from protocol0.domain.lom.instrument.preset.PresetService import PresetService
 from protocol0.domain.lom.sample.SampleService import SampleService
-from protocol0.domain.lom.scene.PlayingScene import PlayingScene
+from protocol0.domain.lom.scene.PlayingSceneFacade import PlayingSceneFacade
 from protocol0.domain.lom.scene.ScenePlaybackService import ScenePlaybackService
 from protocol0.domain.lom.scene.SceneService import SceneService
 from protocol0.domain.lom.set.MixingService import MixingService
@@ -141,7 +141,7 @@ class Container(ContainerInterface):
         )
         scene_service = SceneService(live_song, scene_crud_component)
         scene_playback_service = ScenePlaybackService(playback_component)
-        PlayingScene(scene_component)
+        PlayingSceneFacade(scene_component)
         SongFacade(
             live_song,
             clip_component,
@@ -182,9 +182,7 @@ class Container(ContainerInterface):
             track_recorder_service, interface_clicks_service, track_crud_component, tempo_component
         )
         log_service = LogService()
-        set_upgrade_service = SetUpgradeService(
-            device_service, validator_service, track_crud_component
-        )
+        set_upgrade_service = SetUpgradeService(validator_service, track_crud_component)
         set_fixer_service = SetFixerService(
             validator_service=validator_service,
             set_upgrade_service=set_upgrade_service,

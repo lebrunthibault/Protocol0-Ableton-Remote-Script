@@ -137,7 +137,7 @@ class Clip(SlotManager, Observable):
         self.automation.show_envelope()
         self.automation.hide_envelope()
 
-    def configure_new_clip(self):
+    def on_added(self):
         # type: () -> Optional[Sequence]
         """overridden"""
         pass

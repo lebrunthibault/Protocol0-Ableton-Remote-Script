@@ -7,7 +7,7 @@ from typing import List, Iterator, Dict
 
 from _Framework.SubjectSlot import subject_slot, SlotManager
 
-from protocol0.domain.lom.scene.PlayingScene import PlayingScene
+from protocol0.domain.lom.scene.PlayingSceneFacade import PlayingSceneFacade
 from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.lom.scene.ScenesMappedEvent import ScenesMappedEvent
 from protocol0.domain.lom.song.components.SceneCrudComponent import SceneCrudComponent
@@ -110,7 +110,7 @@ class SceneService(SlotManager):
             # cleaning all scenes always
             scene.disconnect()
             if scene == SongFacade.playing_scene():
-                PlayingScene.set(None)
+                PlayingSceneFacade.set(None)
 
             # refresh the mapping
             if scene_id not in existing_scene_ids:

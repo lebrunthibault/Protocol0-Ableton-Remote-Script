@@ -2,10 +2,12 @@ import collections
 from functools import partial
 
 from _Framework.SubjectSlot import SlotManager
-from typing import Optional, Dict
+from typing import Optional, Dict, cast
 
+from protocol0.domain.lom.scene.PlayingSceneFacade import PlayingSceneFacade
 from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.lom.scene.ScenePositionScrolledEvent import ScenePositionScrolledEvent
+from protocol0.domain.lom.song.SongStartedEvent import SongStartedEvent
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackComponent
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
@@ -31,6 +33,7 @@ class ScenePlaybackService(SlotManager):
         DomainEventBus.subscribe(BarChangedEvent, self._on_bar_changed_event)
         DomainEventBus.subscribe(LastBeatPassedEvent, self._on_last_beat_passed_event)
         DomainEventBus.subscribe(ScenePositionScrolledEvent, self._on_scene_position_scrolled_event)
+        DomainEventBus.subscribe(SongStartedEvent, self._on_song_started_event)
         DomainEventBus.subscribe(SongStoppedEvent, self._on_song_stopped_event)
 
     def _on_bar_changed_event(self, _):
@@ -41,8 +44,8 @@ class ScenePlaybackService(SlotManager):
     def _on_last_beat_passed_event(self, _):
         # type: (LastBeatPassedEvent) -> None
         if (
-            SongFacade.playing_scene()
-            and SongFacade.playing_scene().playing_state.is_playing
+                SongFacade.playing_scene()
+                and SongFacade.playing_scene().playing_state.is_playing
         ):
             SongFacade.playing_scene().on_last_beat()
 
@@ -56,7 +59,7 @@ class ScenePlaybackService(SlotManager):
         # type: (Scene) -> Optional[Sequence]
         self._playback_component.stop_all_clips(quantized=False)
         self._playback_component.stop_playing()
-        scene.fire()
+        Scheduler.defer(scene.fire)
         return None
 
     def fire_scene_to_position(self, scene, bar_length=None):
@@ -95,8 +98,41 @@ class ScenePlaybackService(SlotManager):
 
         return bar_length
 
+    def _on_song_started_event(self, _):
+        # type: (SongStartedEvent) -> None
+        """
+            When starting a scene manually (normal song play)
+            the scene can be in a inconsistent play state especially if an audio tail clip was
+            previously playing but got muted
+
+            In this case we relaunch the scene cleanly
+        """
+        should_restart = any(
+            not clip.is_playing and not clip.muted for clip in SongFacade.playing_scene().clips.all
+        )
+        if should_restart:
+            self.fire_scene(cast(Scene, SongFacade.playing_scene()))
+
     def _on_song_stopped_event(self, _):
         # type: (SongStoppedEvent) -> None
+        Scheduler.wait_ms(200, self._stop_previous_playing_scene)
+        self._reset_automation_values()
+
+    def _stop_previous_playing_scene(self):
+        # type: () -> None
+        """
+            Stop previous playing scene else on play
+            tracks with tail from the previous scene are going to play again
+        """
+        # don't activate when doing quick play / stop (e.g. in FireSelectedSceneCommand)
+        if SongFacade.is_playing():
+            return
+
+        if PlayingSceneFacade.get_previous() is not None:
+            PlayingSceneFacade.get_previous().stop(immediate=True)
+
+    def _reset_automation_values(self):
+        # type: () -> None
         """
             On song stop reset all playing scene parameter automation
 
@@ -117,4 +153,3 @@ class ScenePlaybackService(SlotManager):
 
             for parameter in clip.automation.get_automated_parameters(track.devices.parameters):
                 parameter.reset()
-
