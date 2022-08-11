@@ -15,7 +15,6 @@ from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.utils import volume_to_db
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -51,7 +50,6 @@ class MasterTrack(SimpleAudioTrack):
         DomainEventBus.emit(MasterTrackRoomEqToggledEvent())
 
         if self.room_eq.is_enabled:
-            Logger.dev("waiting %s" % (self._ROOM_EQ_WARNING_DELAY * 1000))
             Scheduler.wait_ms(self._ROOM_EQ_WARNING_DELAY * 1000, self._warn_room_eq_enabled)
 
         return None

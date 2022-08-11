@@ -17,6 +17,12 @@ class AudioClip(Clip):
         # type: () -> str
         return self._clip.file_path if self._clip else ""
 
+    def post_record(self, bar_length):
+        # type: (int) -> None
+        super(AudioClip, self).post_record(bar_length)
+        # looping is managed manually by the ext track (in combo with tail clip)
+        self.loop.looping = False
+
     def crop(self):
         # type: () -> None
         """Live.Clip.Clip.crop_sample doesn't exist, so we notify the user"""

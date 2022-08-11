@@ -346,7 +346,6 @@ class ExternalSynthTrack(AbstractGroupTrack):
     def _solo_listener(self):
         # type: () -> None
         """We want to solo only the base track"""
-        Logger.dev("%s, solo: %s" % (self, self.solo))
         if not self.solo:
             self._un_soloed_at = time.time()
 
