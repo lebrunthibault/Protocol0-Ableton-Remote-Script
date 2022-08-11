@@ -109,3 +109,7 @@ class DeviceParameter(object):
         value = min(param.max, value)
         # noinspection PyPropertyAccess
         param.value = value
+
+    def reset(self):
+        # type: () -> None
+        self.value = self.default_value

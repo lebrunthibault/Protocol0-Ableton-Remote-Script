@@ -3,9 +3,9 @@ from functools import partial
 from itertools import chain
 
 import Live
-from _Framework.SubjectSlot import subject_slot, SlotManager
 from typing import List, Iterator, Dict
 
+from _Framework.SubjectSlot import subject_slot, SlotManager
 from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.lom.scene.ScenesMappedEvent import ScenesMappedEvent
 from protocol0.domain.lom.song.components.SceneCrudComponent import SceneCrudComponent
@@ -63,6 +63,7 @@ class SceneService(SlotManager):
                 Scheduler.defer(scene.on_added)
 
         DomainEventBus.defer_emit(ScenesMappedEvent())
+
         Logger.info("mapped scenes")
 
     @subject_slot("selected_scene")

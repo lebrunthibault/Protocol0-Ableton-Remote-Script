@@ -285,7 +285,11 @@ class SongFacade(object):
     @classmethod
     def template_dummy_clip_slot(cls):
         # type: () -> Optional[AudioClipSlot]
-        return cls._INSTANCE._track_mapper_service._template_dummy_clip_slot
+        track = cls._INSTANCE._track_mapper_service._instrument_bus_track
+        if track is None:
+            return None
+        else:
+            return track.template_dummy_clip_slot
 
     @classmethod
     def selected_parameter(cls):

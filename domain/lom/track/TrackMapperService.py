@@ -5,7 +5,6 @@ import Live
 from _Framework.SubjectSlot import subject_slot, SlotManager
 from typing import Optional, Dict
 
-from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.domain.lom.track.TrackAddedEvent import TrackAddedEvent
 from protocol0.domain.lom.track.TrackFactory import TrackFactory
 from protocol0.domain.lom.track.TracksMappedEvent import TracksMappedEvent
@@ -20,6 +19,7 @@ from protocol0.domain.lom.track.simple_track.SimpleReturnTrack import SimpleRetu
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import SimpleTrackCreatedEvent
 from protocol0.domain.lom.track.simple_track.UsamoTrack import UsamoTrack
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.decorators import handle_error
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
@@ -39,8 +39,8 @@ class TrackMapperService(SlotManager):
         self._live_track_id_to_simple_track = (
             collections.OrderedDict()
         )  # type: Dict[int, SimpleTrack]
-        self._template_dummy_clip_slot = None  # type: Optional[AudioClipSlot]
         self._usamo_track = None  # type: Optional[SimpleTrack]
+        self._instrument_bus_track = None  # type: Optional[InstrumentBusTrack]
         self._drums_track = None  # type: Optional[DrumsTrack]
         self._master_track = None  # type: Optional[SimpleTrack]
 
@@ -92,7 +92,9 @@ class TrackMapperService(SlotManager):
         """instantiate SimpleTracks (including return / master, that are marked as inactive)"""
         self._usamo_track = None
         self._drums_track = None
-        self._template_dummy_clip_slot = None
+        self._prev_instrument_bus_track = self._instrument_bus_track
+        self._instrument_bus_track = None
+        Logger.dev("generate simple tracks")
 
         # instantiate set tracks
         for index, track in enumerate(list(self._live_song.tracks)):
@@ -101,8 +103,8 @@ class TrackMapperService(SlotManager):
             if isinstance(track, UsamoTrack):
                 self._usamo_track = track
 
-            if isinstance(track, InstrumentBusTrack) and len(track.clips):
-                self._template_dummy_clip_slot = track.template_dummy_clip_slot
+            if isinstance(track, InstrumentBusTrack):
+                self._instrument_bus_track = track
 
         for index, track in enumerate(list(self._live_song.return_tracks)):
             self._track_factory.create_simple_track(track=track, index=index, cls=SimpleReturnTrack)
@@ -118,6 +120,11 @@ class TrackMapperService(SlotManager):
 
         if self._usamo_track is None:
             Logger.warning("Usamo track is not present")
+        if (
+            self._prev_instrument_bus_track is not None
+            and self._instrument_bus_track is None
+        ):
+            Backend.client().show_warning("InstrumentBusTrack removed")
 
     def _on_track_added(self):
         # type: () -> Optional[Sequence]

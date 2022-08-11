@@ -6,7 +6,9 @@ from typing import Optional, Dict
 
 from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.lom.scene.ScenePositionScrolledEvent import ScenePositionScrolledEvent
+from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackComponent
+from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
@@ -29,6 +31,7 @@ class ScenePlaybackService(SlotManager):
         DomainEventBus.subscribe(BarChangedEvent, self._on_bar_changed_event)
         DomainEventBus.subscribe(LastBeatPassedEvent, self._on_last_beat_passed_event)
         DomainEventBus.subscribe(ScenePositionScrolledEvent, self._on_scene_position_scrolled_event)
+        DomainEventBus.subscribe(SongStoppedEvent, self._on_song_stopped_event)
 
     def _on_bar_changed_event(self, _):
         # type: (BarChangedEvent) -> None
@@ -90,3 +93,27 @@ class ScenePlaybackService(SlotManager):
             return scene.position_scroller.current_value
 
         return bar_length
+
+    def _on_song_stopped_event(self, _):
+        # type: (SongStoppedEvent) -> None
+        """
+            On song stop reset all playing scene parameter automation
+
+            This is important because we don't always explicitly set automated dummy clips
+            and without this the automation change would stay set which is not what is expected
+            NB : This will activate the Re enable automation button
+        """
+        if SongFacade.playing_scene() is None:
+            return None
+
+        for track in SongFacade.playing_scene().clips.tracks:
+            if not isinstance(track, SimpleDummyTrack):
+                continue
+
+            clip = track.clip_slots[SongFacade.playing_scene().index].clip
+            if clip is None:
+                continue
+
+            for parameter in clip.automation.get_automated_parameters(track.devices.parameters):
+                parameter.reset()
+

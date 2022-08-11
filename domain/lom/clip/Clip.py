@@ -2,6 +2,7 @@ import Live
 from _Framework.SubjectSlot import SlotManager
 from typing import Optional, List, cast
 
+from ableton.v2.base import liveobj_valid
 from protocol0.domain.lom.clip.ClipAppearance import ClipAppearance
 from protocol0.domain.lom.clip.ClipConfig import ClipConfig
 from protocol0.domain.lom.clip.ClipLoop import ClipLoop
@@ -42,6 +43,11 @@ class Clip(SlotManager, Observable):
     def __repr__(self):
         # type: () -> str
         return "%s: %s (%s)" % (self.__class__.__name__, self.name, self.index)
+
+    @property
+    def is_valid(self):
+        # type: () -> bool
+        return liveobj_valid(self._clip)
 
     def update(self, observable):
         # type: (Observable) -> None
