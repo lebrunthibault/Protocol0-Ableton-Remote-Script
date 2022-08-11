@@ -115,6 +115,12 @@ class AbstractTrack(SlotManager):
         return self.base_track
 
     @property
+    def view_track(self):
+        # type: () -> Optional[SimpleTrack]
+        """Depending on the current view returns the appropriate track"""
+        return self.base_track
+
+    @property
     def instrument(self):
         # type: () -> Optional[InstrumentInterface]
         return None

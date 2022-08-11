@@ -26,6 +26,7 @@ from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudio
 from protocol0.domain.lom.track.simple_track.SimpleMidiExtTrack import SimpleMidiExtTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.decorators import defer
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
@@ -311,6 +312,14 @@ class ExternalSynthTrack(AbstractGroupTrack):
     def instrument_track(self):
         # type: () -> SimpleTrack
         return self.midi_track
+
+    @property
+    def view_track(self):
+        # type: () -> Optional[SimpleTrack]
+        if ApplicationViewFacade.is_clip_view_visible():
+            return self.midi_track
+        else:
+            return super(ExternalSynthTrack, self).view_track
 
     @property
     def instrument(self):

@@ -134,7 +134,7 @@ class Container(ContainerInterface):
         track_repository = TrackRepository()
         track_automation_service = TrackAutomationService(track_factory)
         track_mapper_service = TrackMapperService(live_song, track_factory)
-        TrackService()
+        track_service = TrackService()
         track_player_service = TrackPlayerService(playback_component, track_repository)
         track_recorder_service = TrackRecorderService(
             playback_component, recording_component, scene_crud_component
@@ -208,6 +208,7 @@ class Container(ContainerInterface):
         self._register(track_factory)
         self._register(track_automation_service)
         self._register(track_mapper_service)
+        self._register(track_service)
         self._register(track_player_service)
 
         self._register(scene_service)

@@ -94,6 +94,11 @@ class ApplicationViewFacade(object):
         return cls._INSTANCE._application_view.is_view_visible("Session")
 
     @classmethod
+    def is_clip_view_visible(cls):
+        # type: () -> bool
+        return cls._INSTANCE._application_view.is_view_visible("Detail/Clip")
+
+    @classmethod
     def toggle_browse(cls):
         # type: () -> bool
         return cls._INSTANCE._application_view.toggle_browse()

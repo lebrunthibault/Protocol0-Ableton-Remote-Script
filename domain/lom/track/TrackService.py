@@ -14,3 +14,9 @@ class TrackService(object):
         # type: (SelectedTrackChangedEvent) -> None
         if SongFacade.selected_track().is_foldable:
             ApplicationViewFacade.show_device()
+
+    def go_to_group_track(self):
+        # type: () -> None
+        if SongFacade.selected_track().group_track is not None:
+            SongFacade.selected_track().group_track.select()
+            ApplicationViewFacade.focus_session()

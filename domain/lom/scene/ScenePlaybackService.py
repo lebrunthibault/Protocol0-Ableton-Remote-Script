@@ -107,6 +107,9 @@ class ScenePlaybackService(SlotManager):
 
             In this case we relaunch the scene cleanly
         """
+        if SongFacade.playing_scene() is None:
+            return
+
         should_restart = any(
             not clip.is_playing and not clip.muted for clip in SongFacade.playing_scene().clips.all
         )

@@ -66,7 +66,7 @@ class Scene(SlotManager):
         for track in self.clips.tracks:
             tracks[track.abstract_track.index] = track.abstract_track
 
-        return tracks.values()
+        return list(sorted(tracks.values(), key=lambda t: t.index))
 
     def _clips_to_stop(self, immediate):
         # type: (bool) -> Iterator[Clip]
@@ -194,10 +194,10 @@ class Scene(SlotManager):
     def fire(self, stop_tails=False):
         # type: (bool) -> None
         """
-            Fire the scene
+        Fire the scene
 
-            stop_tails == True will stop the tails immediately and is used
-            when the scenes are not contiguous
+        stop_tails == True will stop the tails immediately and is used
+        when the scenes are not contiguous
         """
         Logger.info("firing %s" % self)
 
@@ -221,7 +221,9 @@ class Scene(SlotManager):
         # type: (bool) -> None
         """Stop the previous scene : quantized or immediate"""
         if SongFacade.playing_scene() is not None and SongFacade.playing_scene() != self:
-            Logger.dev("stop playing scene: %s (immediate: %s)" % (SongFacade.playing_scene(), immediate))
+            Logger.dev(
+                "stop playing scene: %s (immediate: %s)" % (SongFacade.playing_scene(), immediate)
+            )
             SongFacade.playing_scene().stop(immediate)
 
     def stop(self, immediate=False):
@@ -229,7 +231,10 @@ class Scene(SlotManager):
         """Used to manually stopping previous scene
         because we don't display clip slot stop buttons
         """
-        Logger.dev("stopping %s (immediate=%s) > clips: %s" % (self, immediate, list(self._clips_to_stop(immediate))))
+        Logger.dev(
+            "stopping %s (immediate=%s) > clips: %s"
+            % (self, immediate, list(self._clips_to_stop(immediate)))
+        )
 
         DomainEventBus.emit(PlayingSceneChangedEvent())
 
@@ -266,15 +271,16 @@ class Scene(SlotManager):
 
     def scroll_tracks(self, go_next):
         # type: (bool) -> None
-        next_track = ValueScroller.scroll_values(
-            self.abstract_tracks, SongFacade.current_track(), go_next
-        )
+        tracks = [track.view_track for track in self.abstract_tracks]
+        tracks = filter(None, tracks)
+        tracks.sort(key=lambda t: t.index)
+        next_track = ValueScroller.scroll_values(tracks, SongFacade.selected_track(), go_next)
         next_track.select()
 
         # selects the track owning the main clip slot (midi track for ext track)
-        next_clip_slot = next_track.selected_clip_slot
-        if next_clip_slot.clip:
-            next_track.select_clip_slot(next_clip_slot._clip_slot)
+        # next_clip_slot = next_track.selected_clip_slot
+        # if next_clip_slot.clip:
+        #     next_track.select_clip_slot(next_clip_slot._clip_slot)
 
         ApplicationViewFacade.focus_session()
 

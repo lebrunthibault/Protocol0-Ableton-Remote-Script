@@ -9,6 +9,7 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrackAppearance import (
 from protocol0.domain.lom.track.simple_track.SimpleDummyReturnTrack import SimpleDummyReturnTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.observer.Observable import Observable
 
@@ -128,6 +129,14 @@ class AbstractGroupTrack(AbstractTrack):
                 for sub_track in self.sub_tracks
             )
         )
+
+    @property
+    def view_track(self):
+        # type: () -> Optional[SimpleTrack]
+        if ApplicationViewFacade.is_clip_view_visible():
+            return None
+        else:
+            return self.dummy_track or self.dummy_return_track or self.base_track
 
     def update(self, observable):
         # type: (Observable) -> None
