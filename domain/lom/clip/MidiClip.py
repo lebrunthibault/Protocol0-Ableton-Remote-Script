@@ -113,7 +113,7 @@ class MidiClip(Clip):
         """
         NB : this is only really useful for my rev2 where I want to copy and paste easily automation curves
         between the 2 layers.
-        The rev2 is bitimbral and has two layers that expose the same parameters.
+        The rev2 is bi timbral and has two layers that expose the same parameters.
         """
         parameters = self.automation.get_automated_parameters(device_parameters)
         parameters_couple = []

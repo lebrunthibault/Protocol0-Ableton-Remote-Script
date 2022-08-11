@@ -1,6 +1,7 @@
-from typing import List, Optional, cast, Tuple
+from typing import List, Optional, cast, Tuple, Dict
 
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
+from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.abstract_track.AbstractTrackAppearance import (
     AbstractTrackAppearance,
@@ -151,3 +152,14 @@ class AbstractGroupTrack(AbstractTrack):
             self.dummy_track.clip_slots[index].clip.fire()
         if self.dummy_return_track and self.dummy_return_track.clip_slots[index].clip:
             self.dummy_return_track.clip_slots[index].clip.fire()
+
+    def get_automated_parameters(self, index):
+        # type: (int) -> Dict[DeviceParameter, SimpleTrack]
+        automated_parameters = {}
+
+        if self.dummy_track is not None:
+            automated_parameters.update(self.dummy_track.get_automated_parameters(index))
+        if self.dummy_return_track is not None:
+            automated_parameters.update(self.dummy_return_track.get_automated_parameters(index))
+
+        return automated_parameters

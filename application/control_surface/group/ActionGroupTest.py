@@ -47,5 +47,6 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        Logger.info("playing_scene: %s" % SongFacade.playing_scene())
-        Logger.info("last_manually_started_scene: %s" % SongFacade.last_manually_started_scene())
+        Logger.dev(SongFacade.selected_parameter())
+        Logger.dev(SongFacade.selected_track().devices._mixer_device)
+        Logger.dev(SongFacade.selected_track().devices._mixer_device.parameters)

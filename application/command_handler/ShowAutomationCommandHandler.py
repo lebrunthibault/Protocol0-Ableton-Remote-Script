@@ -4,6 +4,6 @@ from protocol0.domain.lom.track.TrackAutomationService import TrackAutomationSer
 
 
 class ShowAutomationCommandHandler(CommandHandlerInterface):
-    def handle(self, _):
+    def handle(self, command):
         # type: (ShowAutomationCommand) -> None
-        self._container.get(TrackAutomationService).show_automation()
+        self._container.get(TrackAutomationService).show_automation(command.go_next)

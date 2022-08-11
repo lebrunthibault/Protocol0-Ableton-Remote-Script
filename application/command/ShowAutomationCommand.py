@@ -2,4 +2,6 @@ from protocol0.application.command.SerializableCommand import SerializableComman
 
 
 class ShowAutomationCommand(SerializableCommand):
-    pass
+    def __init__(self, go_next=False):
+        # type: (bool) -> None
+        self.go_next = go_next

@@ -1,7 +1,7 @@
 from functools import partial
 
 from _Framework.SubjectSlot import SlotManager
-from typing import Optional, List, Iterator, cast, TYPE_CHECKING
+from typing import Optional, List, Iterator, cast, TYPE_CHECKING, Dict
 
 import Live
 from protocol0.domain.lom.clip.Clip import Clip
@@ -238,7 +238,10 @@ class AbstractTrack(SlotManager):
 
     # noinspection PyUnusedLocal
     def select(self):
-        # type: () -> Sequence
+        # type: () -> Optional[Sequence]
+        if SongFacade.selected_track() == self:
+            return None
+
         DomainEventBus.emit(AbstractTrackSelectedEvent(self._track))
 
         scrollable_tracks = list(SongFacade.scrollable_tracks())
@@ -253,7 +256,7 @@ class AbstractTrack(SlotManager):
 
     def scroll_volume(self, go_next):
         # type: (AbstractTrack, bool) -> None
-        self.volume += 0.5 if go_next else -0.5
+        self.volume += 0.7 if go_next else -0.7
 
     def get_all_simple_sub_tracks(self):
         # type: () -> List[SimpleTrack]
@@ -276,6 +279,11 @@ class AbstractTrack(SlotManager):
         else:
             sub_track_index = self.sub_tracks.index(previous_sub_track)
             self.sub_tracks[sub_track_index] = sub_track
+
+    def get_automated_parameters(self, index):
+        # type: (int) -> Dict[DeviceParameter, SimpleTrack]
+        """Due to AbstractGroupTrack we cannot do this only at clip level"""
+        raise NotImplementedError
 
     def scroll_presets(self, go_next):
         # type: (bool) -> Sequence

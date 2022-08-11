@@ -10,7 +10,9 @@ from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTr
 )
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.shared.ValueScroller import ValueScroller
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -19,40 +21,75 @@ class TrackAutomationService(object):
     def __init__(self, track_factory):
         # type: (TrackFactory) -> None
         self._track_factory = track_factory
+        self._last_selected_parameter = None  # type: Optional[DeviceParameter]
 
-    def show_automation(self):
-        # type: () -> Optional[Sequence]
+    def show_automation(self, go_next):
+        # type: (bool) -> Optional[Sequence]
         selected_parameter = SongFacade.selected_parameter()
-        if selected_parameter and SongFacade.selected_clip_slot().clip:
+        if selected_parameter is not None:
+            return self._show_selected_parameter_automation(selected_parameter)
+        else:
+            return self._scroll_automated_parameters(go_next)
+
+    def _show_selected_parameter_automation(self, selected_parameter):
+        # type: (DeviceParameter) -> Optional[Sequence]
+        # check if its a return or not
+        current_track = SongFacade.current_track()
+        selected_track = SongFacade.selected_track()
+
+        if not isinstance(current_track, AbstractGroupTrack):
             SongFacade.selected_clip().automation.show_parameter_envelope(selected_parameter)
             return None
 
-        current_track = SongFacade.current_track()
-        # following behavior is only for group tracks
-        if not isinstance(current_track, AbstractGroupTrack):
-            if selected_parameter is None:
-                raise Protocol0Warning("no selected parameter")
-            else:
-                raise Protocol0Warning("no selected clip")
+        # we have an AbstractGroupTrack
 
-        dummy_tracks = list(
-            filter(None, (current_track.dummy_track, current_track.dummy_return_track))
-        )
-        if len(dummy_tracks) == 0:
-            raise Protocol0Warning("Current track has no dummy track")
+        # Special case if we clicked by mistake on a send parameter of any sub track
+        # consider we wanted to show the automation of the dummy return track instead
+        if selected_parameter.is_mixer_parameter:
+            if current_track.dummy_return_track is None:
+                Backend.client().show_warning("Send parameters need a dummy return track")
+                return None
 
-        # noinspection PyTypeChecker
-        dummy_track = cast(
-            SimpleDummyTrack,
-            ValueScroller.scroll_values(dummy_tracks, SongFacade.selected_track(), True),
-        )
-        clip = dummy_track.selected_clip_slot.clip
-        if clip is None:
-            raise Protocol0Warning("Selected scene has no dummy clip")
+            selected_track = current_track.dummy_return_track
+            selected_parameter = find_if(  # type: ignore[assignment]
+                lambda p: p.is_mixer_parameter and p.name == selected_parameter.name,
+                current_track.dummy_return_track.devices.parameters,
+            )
+
+        if selected_track not in (current_track.dummy_track, current_track.dummy_return_track):
+            Backend.client().show_warning("Can only show automation on dummy tracks")
+
+        selected_clip = selected_track.clip_slots[SongFacade.selected_scene().index].clip
+        if selected_clip is None:
+            clip = "dummy return clip" if selected_parameter.is_mixer_parameter else "dummy clip"
+            raise Protocol0Warning("Selected scene has no %s" % clip)
 
         seq = Sequence()
-        seq.add(dummy_track.select)
-        seq.add(partial(clip.automation.scroll_envelopes, dummy_track.devices.parameters))
+        seq.add(selected_track.select)
+        seq.add(partial(selected_clip.automation.show_parameter_envelope, selected_parameter))
+        return seq.done()
+
+    def _scroll_automated_parameters(self, go_next):
+        # type: (bool) -> Sequence
+        """Scroll the automated parameters of the dummy clips"""
+        current_track = SongFacade.current_track()
+        index = SongFacade.selected_scene().index
+        automated_parameters = current_track.get_automated_parameters(index)
+        if len(automated_parameters.items()) == 0:
+            raise Protocol0Warning("No automated parameters")
+
+        selected_parameter = ValueScroller.scroll_values(
+            automated_parameters.keys(), self._last_selected_parameter, go_next
+        )
+        track = automated_parameters[selected_parameter]
+        seq = Sequence()
+        seq.add(track.select)
+        seq.add(
+            partial(
+                track.clip_slots[index].clip.automation.show_parameter_envelope, selected_parameter
+            )
+        )
+        self._last_selected_parameter = selected_parameter
         return seq.done()
 
     def select_or_sync_automation(self):

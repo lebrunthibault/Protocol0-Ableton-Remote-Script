@@ -3,9 +3,10 @@ from typing import Any
 
 
 class DeviceParameter(object):
-    def __init__(self, device_parameter):
-        # type: (Live.DeviceParameter.DeviceParameter) -> None
+    def __init__(self, device_parameter, is_mixer_parameter=False):
+        # type: (Live.DeviceParameter.DeviceParameter, bool) -> None
         self._device_parameter = device_parameter  # type: Live.DeviceParameter.DeviceParameter
+        self._is_mixer_parameter = is_mixer_parameter
 
     def __repr__(self, **k):
         # type: (Any) -> str
@@ -93,6 +94,11 @@ class DeviceParameter(object):
             return self._device_parameter.is_enabled
         else:
             return False
+
+    @property
+    def is_mixer_parameter(self):
+        # type: () -> bool
+        return self._is_mixer_parameter
 
     @classmethod
     def set_live_device_parameter(cls, param, value):
