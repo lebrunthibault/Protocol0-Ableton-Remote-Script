@@ -45,6 +45,7 @@ from protocol0.domain.lom.track.TrackFactory import TrackFactory
 from protocol0.domain.lom.track.TrackMapperService import TrackMapperService
 from protocol0.domain.lom.track.TrackPlayerService import TrackPlayerService
 from protocol0.domain.lom.track.TrackRepository import TrackRepository
+from protocol0.domain.lom.track.TrackService import TrackService
 from protocol0.domain.lom.validation.ValidatorFactory import ValidatorFactory
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
@@ -131,6 +132,7 @@ class Container(ContainerInterface):
         track_repository = TrackRepository()
         track_automation_service = TrackAutomationService(track_factory)
         track_mapper_service = TrackMapperService(live_song, track_factory)
+        TrackService()
         track_player_service = TrackPlayerService(playback_component, track_repository)
         track_recorder_service = TrackRecorderService(
             playback_component, recording_component, scene_crud_component

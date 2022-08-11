@@ -94,7 +94,6 @@ class TrackMapperService(SlotManager):
         self._drums_track = None
         self._prev_instrument_bus_track = self._instrument_bus_track
         self._instrument_bus_track = None
-        Logger.dev("generate simple tracks")
 
         # instantiate set tracks
         for index, track in enumerate(list(self._live_song.tracks)):

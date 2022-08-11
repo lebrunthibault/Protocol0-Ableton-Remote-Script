@@ -57,8 +57,12 @@ class ApplicationViewFacade(object):
     @classmethod
     def focus_detail(cls):
         # type: () -> None
-        """Moves the focus to the detail view."""
         cls._focus_view("Detail")
+
+    @classmethod
+    def focus_session(cls):
+        # type: () -> None
+        cls._focus_view("Session")
 
     @classmethod
     def focus_current_track(cls):

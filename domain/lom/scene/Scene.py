@@ -20,6 +20,7 @@ from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTr
     ExternalSynthTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.decorators import throttle
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
@@ -272,6 +273,8 @@ class Scene(SlotManager):
         next_clip_slot = next_track.selected_clip_slot
         if next_clip_slot.clip:
             next_track.select_clip_slot(next_clip_slot._clip_slot)
+
+        ApplicationViewFacade.focus_session()
 
     def unfold(self):
         # type: () -> None

@@ -24,7 +24,12 @@ class ValueScroller(Generic[T]):
             raise Protocol0Warning("empty list handed to scroll_values")
 
         if current_value not in values:
-            return values[0]
+            # find the neighbor
+            if current_value is not None and hasattr(current_value, "index"):
+                values.append(current_value)
+                values.sort(key=lambda x: x.index)  # type: ignore[attr-defined]
+            else:
+                return values[0]
 
         increment = 1 if go_next else -1
         current_index = values.index(current_value)

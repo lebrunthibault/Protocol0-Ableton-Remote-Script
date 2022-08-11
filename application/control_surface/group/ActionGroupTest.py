@@ -47,7 +47,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        Logger.dev(SongFacade.template_dummy_clip_slot())
-        # Logger.dev(SongFacade.selected_parameter())
-        # Logger.dev(SongFacade.selected_parameter().value)
-        # Logger.dev(SongFacade.selected_parameter().default_value)
+        pass
