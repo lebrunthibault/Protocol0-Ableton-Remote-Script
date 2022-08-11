@@ -33,7 +33,7 @@ class ScenePositionScroller(ValueScroller):
 
     def _get_initial_value(self, go_next):
         # type: (bool) -> int
-        if self._scene_playing_state.has_playing_clips:
+        if self._scene_playing_state.is_playing:
             bar_position = self._scene_playing_state.bar_position
             return int(floor(bar_position) if go_next else round(bar_position))
         else:

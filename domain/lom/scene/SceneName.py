@@ -63,7 +63,7 @@ class SceneName(SlotManager):
             self._scene_length.length, SongFacade.signature_numerator()
         )
 
-        if self._scene_playing_state.has_playing_clips:
+        if self._scene_playing_state.is_playing:
             length_legend = "%s|%s" % (self._scene_playing_state.current_bar + 1, length_legend)
         elif bar_position is not None:
             length_legend = "%s|%s" % (bar_position + 1, length_legend)
@@ -78,10 +78,3 @@ class SceneName(SlotManager):
 
         self._scene.name = scene_name
         self._last_updated_at = time.time()
-
-    @property
-    def has_playing_clips(self):
-        # type: () -> bool
-        return SongFacade.is_playing() and any(
-            cs.clip and cs.clip.is_playing and not cs.clip.muted for cs in self._scene.clip_slots
-        )

@@ -46,10 +46,10 @@ class Scheduler(object):
         return cls._INSTANCE._tick_scheduler.schedule(tick_count, callback, unique)
 
     @classmethod
-    def wait_ms(cls, duration, callback):
-        # type: (int, Callable) -> TickSchedulerEventInterface
+    def wait_ms(cls, duration, callback, unique=False):
+        # type: (int, Callable, bool) -> TickSchedulerEventInterface
         duration_second = float(duration) / 1000
-        return cls.wait(int(duration_second * cls._TICKS_BY_SECOND), callback)
+        return cls.wait(int(duration_second * cls._TICKS_BY_SECOND), callback, unique)
 
     @classmethod
     def restart(cls):

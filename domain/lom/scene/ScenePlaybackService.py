@@ -42,7 +42,7 @@ class ScenePlaybackService(SlotManager):
         # type: (LastBeatPassedEvent) -> None
         if (
             SongFacade.playing_scene()
-            and SongFacade.playing_scene().playing_state.has_playing_clips
+            and SongFacade.playing_scene().playing_state.is_playing
         ):
             SongFacade.playing_scene().on_last_beat()
 
@@ -71,9 +71,10 @@ class ScenePlaybackService(SlotManager):
         if bar_length != 0:
             # removing click when changing position
             # (created by playing shortly the scene beginning)
-            SongFacade.master_track().mute_for(50)
+            SongFacade.master_track().mute_for(250)
 
-        Scheduler.wait(2, partial(scene.fire_to_position, bar_length))
+        # removes an artefact by changing too fast the playback state
+        Scheduler.wait(1, partial(scene.fire_to_position, bar_length))
 
     def fire_previous_scene_to_last_bar(self):
         # type: () -> None

@@ -3,21 +3,22 @@ from collections import Iterator
 from functools import partial
 
 import Live
+from _Framework.SubjectSlot import SlotManager, subject_slot
 from typing import List, Optional, Dict, cast
 
-from _Framework.SubjectSlot import SlotManager, subject_slot
+from protocol0.domain.lom.scene.PlayingScene import PlayingScene
 from protocol0.domain.lom.scene.PlayingSceneChangedEvent import PlayingSceneChangedEvent
 from protocol0.domain.lom.scene.SceneAppearance import SceneAppearance
 from protocol0.domain.lom.scene.SceneClips import SceneClips
 from protocol0.domain.lom.scene.SceneCropScroller import SceneCropScroller
-from protocol0.domain.lom.scene.SceneFiredEvent import SceneFiredEvent
 from protocol0.domain.lom.scene.SceneLength import SceneLength
 from protocol0.domain.lom.scene.SceneName import SceneName
 from protocol0.domain.lom.scene.ScenePlayingState import ScenePlayingState
 from protocol0.domain.lom.scene.ScenePositionScroller import ScenePositionScroller
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
-    ExternalSynthTrack
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
+    ExternalSynthTrack,
+)
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
@@ -34,7 +35,6 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 
 class Scene(SlotManager):
-    PLAYING_SCENE = None  # type: Optional[Scene]
     LAST_MANUALLY_STARTED_SCENE = None  # type: Optional[Scene]
 
     def __init__(self, live_scene, index):
@@ -87,10 +87,7 @@ class Scene(SlotManager):
                 continue
 
             # let dummy track play until the end
-            if (
-                isinstance(track, SimpleDummyTrack)
-                and clip.loop.bar_length > self.bar_length
-            ):
+            if isinstance(track, SimpleDummyTrack) and clip.loop.bar_length > self.bar_length:
                 Scheduler.wait_bars(clip.loop.bar_length - self.bar_length, track.stop)
                 continue
 
@@ -153,13 +150,6 @@ class Scene(SlotManager):
     bar_length = cast(int, ForwardTo("_scene_length", "bar_length"))
 
     @property
-    def has_playing_clips(self):
-        # type: () -> bool
-        return SongFacade.is_playing() and any(
-            clip and clip.is_playing and not clip.muted for clip in self.clips
-        )
-
-    @property
     def skipped(self):
         # type: () -> bool
         return self.name.strip().lower().startswith("skip")
@@ -178,45 +168,46 @@ class Scene(SlotManager):
     @subject_slot("is_triggered")
     def is_triggered_listener(self):
         # type: () -> None
-        """This is called on scene trigger and is there to handle manual launches"""
-        if SongFacade.is_playing() is False or not self.playing_state.has_playing_clips:
+        """
+        This is called on scene trigger
+
+        It is there to handle manual launches (direct click on scene)
+        It could almost be removed as this case happens very rarely
+        (I fire my scenes almost always from keyboard shortcuts --> from commands)
+        """
+        if SongFacade.is_playing() is False or not self.playing_state.is_playing:
             return
 
         # this will stop the previous scene in case of manual trigger
-        self._stop_previous_playing_scene(immediate=True)
-        self._set_as_playing_scene()
+        # immediate False would play the clips at least one more bar
+        # This doesn't execute (duplicated) when the scene was fired from a command
+        if SongFacade.playing_scene() != self:
+            self._stop_previous_playing_scene(immediate=True)
+            PlayingScene.set(self)
 
     def fire(self, stop_tails=False):
         # type: (bool) -> None
-        """Called internally"""
+        """
+            Fire the scene
+
+            stop_tails == True will stop the tails immediately and is used
+            when the scenes are not contiguous
+        """
         # only way to start all clips together
+        Logger.info("firing %s, is_playing: %s" % (self, SongFacade.is_playing()))
         if not SongFacade.is_playing():
             self._scene.fire()
         else:
             for track in self.abstract_tracks:
                 track.fire(self.index)
 
+        # stop the previous scene in advance, using clip launch quantization
         self._stop_previous_playing_scene(immediate=stop_tails)
-        # handles click sound when the previous scene plays shortly
-        self._set_as_playing_scene()
-
-    def _set_as_playing_scene(self):
-        # type: () -> None
-        """
-        Updates SongFacade.playing_scene.
-        The update is done as close to the bar change as possible
-        """
-        previous_playing_scene = SongFacade.playing_scene()
-
-        if previous_playing_scene is None:
-            Scene.PLAYING_SCENE = self
-        elif previous_playing_scene != self:
-            Logger.dev("set playing scene from %s to %s" % (previous_playing_scene, self))
-            seq = Sequence()
-            seq.wait_for_event(BarChangedEvent)
-            seq.add(partial(DomainEventBus.emit, SceneFiredEvent(self._scene)))
-            seq.add(partial(setattr, Scene, "PLAYING_SCENE", self))
-            seq.done()
+        # update the playing scene singleton at the next bar
+        seq = Sequence()
+        seq.wait_for_event(BarChangedEvent, continue_on_song_stop=True)
+        seq.add(partial(PlayingScene.set, self))
+        seq.done()
 
     def _stop_previous_playing_scene(self, immediate=False):
         # type: (bool) -> None
@@ -224,13 +215,18 @@ class Scene(SlotManager):
         previous_playing_scene = SongFacade.playing_scene()
 
         if previous_playing_scene is not None and previous_playing_scene != self:
-            Scheduler.defer(partial(previous_playing_scene.stop, self, immediate=immediate))
+            Logger.dev("stop previous: %s (immediate: %s)" % (previous_playing_scene, immediate))
+            previous_playing_scene.stop(self, immediate)
+            # Scheduler.defer(partial(previous_playing_scene.stop, self, immediate=immediate))
 
     def stop(self, next_playing_scene, immediate=False):
         # type: (Scene, bool) -> None
         """Used to manually stopping previous scene
         because we don't display clip slot stop buttons
         """
+        Logger.dev("stopping %s (immediate=%s)" % (self, immediate))
+        Logger.dev("self._tracks_to_stop(next_playing_scene, immediate): %s" % list(self._tracks_to_stop(next_playing_scene, immediate)))
+        Logger.dev("", debug=False)
         DomainEventBus.emit(PlayingSceneChangedEvent())
 
         for track in self._tracks_to_stop(next_playing_scene, immediate):
@@ -246,7 +242,7 @@ class Scene(SlotManager):
         for clip in self.clips.audio_tail_clips:
             clip.muted = True
 
-    @throttle(duration=60)
+    @throttle(duration=40)
     def fire_to_position(self, bar_length):
         # type: (int) -> Sequence
         seq = Sequence()

@@ -73,7 +73,7 @@ class MasterTrack(SimpleAudioTrack):
         """
         self.volume = volume_to_db(0)
         Scheduler.wait_ms(duration, (partial(setattr, self, "volume", 0)))
-        Scheduler.wait(10, self._check_volume, unique=True)
+        Scheduler.wait_ms(500, self._check_volume, unique=True)
 
     def _check_volume(self):
         # type: () -> None

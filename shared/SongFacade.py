@@ -233,9 +233,9 @@ class SongFacade(object):
     @classmethod
     def playing_scene(cls):
         # type: () -> Optional[Scene]
-        from protocol0.domain.lom.scene.Scene import Scene
+        from protocol0.domain.lom.scene.PlayingScene import PlayingScene
 
-        return Scene.PLAYING_SCENE
+        return PlayingScene.get()
 
     @classmethod
     def looping_scene(cls):

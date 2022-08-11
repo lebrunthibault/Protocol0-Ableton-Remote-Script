@@ -22,7 +22,7 @@ class ScenePlayingState(object):
         )
 
     @property
-    def has_playing_clips(self):
+    def is_playing(self):
         # type: () -> bool
         return SongFacade.is_playing() and any(
             clip and clip.is_playing and not clip.muted for clip in self._clips

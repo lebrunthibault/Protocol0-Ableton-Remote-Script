@@ -23,6 +23,7 @@ from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService impo
 )
 from protocol0.domain.lom.instrument.preset.PresetService import PresetService
 from protocol0.domain.lom.sample.SampleService import SampleService
+from protocol0.domain.lom.scene.PlayingScene import PlayingScene
 from protocol0.domain.lom.scene.ScenePlaybackService import ScenePlaybackService
 from protocol0.domain.lom.scene.SceneService import SceneService
 from protocol0.domain.lom.set.MixingService import MixingService
@@ -80,6 +81,7 @@ class Container(ContainerInterface):
         DomainEventBus.subscribe(ScriptDisconnectedEvent, lambda _: self.disconnect())
 
         live_song = control_surface.song()  # type: Live.Song.Song
+
         Logger(LoggerService())
         UndoFacade(live_song.begin_undo_step, live_song.end_undo_step)
         StatusBar(control_surface.show_message)
@@ -139,6 +141,7 @@ class Container(ContainerInterface):
         )
         scene_service = SceneService(live_song, scene_crud_component)
         scene_playback_service = ScenePlaybackService(playback_component)
+        PlayingScene(scene_component)
         SongFacade(
             live_song,
             clip_component,
