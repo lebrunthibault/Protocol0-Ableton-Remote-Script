@@ -102,12 +102,6 @@ class ExternalSynthTrack(AbstractGroupTrack):
         for track in self.sub_tracks:
             seq.add([clip.delete for clip in track.clips])
 
-        if self.dummy_track:
-            seq.add(self.dummy_track.delete)
-
-        if self.dummy_return_track:
-            seq.add(self.dummy_return_track.delete)
-
         return seq.done()
 
     def on_tracks_change(self):

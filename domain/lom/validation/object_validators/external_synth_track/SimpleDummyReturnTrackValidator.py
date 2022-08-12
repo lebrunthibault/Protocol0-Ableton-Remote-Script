@@ -4,7 +4,10 @@ from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitor
 from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleDummyReturnTrack import SimpleDummyReturnTrack
 from protocol0.domain.lom.validation.ValidatorInterface import ValidatorInterface
+from protocol0.domain.lom.validation.object_validators.external_synth_track.DummyClipValidator import \
+    DummyClipValidator
 from protocol0.domain.lom.validation.sub_validators.AggregateValidator import AggregateValidator
+from protocol0.domain.lom.validation.sub_validators.CallbackValidator import CallbackValidator
 from protocol0.domain.lom.validation.sub_validators.PropertyValueValidator import (
     PropertyValueValidator,
 )
@@ -22,9 +25,20 @@ class SimpleDummyReturnTrackValidator(AggregateValidator):
             ),
             PropertyValueValidator(track.input_routing, "track", track.group_track),
             PropertyValueValidator(track.output_routing, "type", OutputRoutingTypeEnum.SENDS_ONLY),
+            CallbackValidator(
+                track,
+                lambda c: len(list(track.devices)) == 0,
+                self._remove_devices,
+                "%s should have no devices. Got %s" % (track, len(track.devices)),
+            ),
         ]  # type: List[ValidatorInterface]
 
         for clip in track.clips:
-            validators.append(PropertyValueValidator(clip.loop, "looping", True))
+            validators += DummyClipValidator(clip, track.devices)._validators
 
         super(SimpleDummyReturnTrackValidator, self).__init__(validators)
+
+    def _remove_devices(self, track):
+        # type: (SimpleDummyReturnTrack) -> None
+        for device in track.devices:
+            track.devices.delete(device)

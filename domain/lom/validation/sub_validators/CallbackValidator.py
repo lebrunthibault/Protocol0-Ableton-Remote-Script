@@ -25,7 +25,7 @@ class CallbackValidator(ValidatorInterface):
 
     def fix(self):
         # type: () -> Optional[Sequence]
-        if self._callback_fixer:
+        if self._callback_fixer is not None:
             return self._callback_fixer(self._obj)
         else:
             return None
