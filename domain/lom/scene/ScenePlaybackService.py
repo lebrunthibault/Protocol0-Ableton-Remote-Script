@@ -4,6 +4,8 @@ from functools import partial
 from _Framework.SubjectSlot import SlotManager
 from typing import Optional, Dict, cast
 
+from protocol0.application.CommandBus import CommandBus
+from protocol0.application.command.FireSceneToPositionCommand import FireSceneToPositionCommand
 from protocol0.domain.lom.scene.PlayingSceneFacade import PlayingSceneFacade
 from protocol0.domain.lom.scene.Scene import Scene
 from protocol0.domain.lom.scene.ScenePositionScrolledEvent import ScenePositionScrolledEvent
@@ -100,14 +102,27 @@ class ScenePlaybackService(SlotManager):
 
     def _on_song_started_event(self, _):
         # type: (SongStartedEvent) -> None
+        # deferring because it can conflict with tail clips on fire scene to position
+        self._restart_inconsistent_scene()
+
+    def _restart_inconsistent_scene(self):
+        # type: () -> None
         """
-            When starting a scene manually (normal song play)
+            When the playback starts,
+                - either manually (normal song play)
+                - or from the script (command etc..)
             the scene can be in a inconsistent play state especially if an audio tail clip was
             previously playing but got muted
 
-            In this case we relaunch the scene cleanly
+            We ignore playback from the script (handled) else
+            we relaunch the scene cleanly
         """
-        if SongFacade.playing_scene() is None:
+        if not SongFacade.is_playing() or SongFacade.playing_scene() is None:
+            return
+
+        # do not trigger on already handled playback
+        # playback can be inconsistent in some setups but we are handling it
+        if CommandBus.has_recent_command(FireSceneToPositionCommand, 100):
             return
 
         should_restart = any(
@@ -118,7 +133,7 @@ class ScenePlaybackService(SlotManager):
 
     def _on_song_stopped_event(self, _):
         # type: (SongStoppedEvent) -> None
-        Scheduler.wait_ms(200, self._stop_previous_playing_scene)
+        self._stop_previous_playing_scene()
         self._reset_automation_values()
 
     def _stop_previous_playing_scene(self):

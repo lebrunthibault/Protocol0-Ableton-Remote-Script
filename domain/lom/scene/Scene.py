@@ -232,7 +232,7 @@ class Scene(SlotManager):
         because we don't display clip slot stop buttons
         """
         Logger.dev(
-            "stopping %s (immediate=%s) > clips: %s"
+            "stopping %s (immediate=%s) -> clips: %s"
             % (self, immediate, list(self._clips_to_stop(immediate)))
         )
 
