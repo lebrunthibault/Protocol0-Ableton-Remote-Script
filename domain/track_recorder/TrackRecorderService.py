@@ -2,6 +2,7 @@ from functools import partial
 
 from typing import Optional
 
+from protocol0.domain.lom.scene.PlayingSceneFacade import PlayingSceneFacade
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackComponent
 from protocol0.domain.lom.song.components.RecordingComponent import RecordingComponent
@@ -111,6 +112,8 @@ class TrackRecorderService(object):
     def _start_recording(self, count_in, recorder, bar_length):
         # type: (CountInInterface, AbstractTrackRecorder, int) -> Optional[Sequence]
         DomainEventBus.emit(TrackRecordingStartedEvent(recorder.recording_scene_index))
+        # this will stop the previous playing scene on playback stop
+        PlayingSceneFacade.set(recorder.recording_scene)
         seq = Sequence()
         seq.add(recorder.pre_record)
         seq.add(count_in.launch)
