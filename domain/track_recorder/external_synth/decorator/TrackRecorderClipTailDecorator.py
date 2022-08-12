@@ -56,9 +56,9 @@ class TrackRecorderClipTailDecorator(TrackRecorderDecorator):
             else:
                 return None
         else:
-            return self._wait_for_clip_tail_end()
+            return self._wait_for_tail_clip_end()
 
-    def _wait_for_clip_tail_end(self):
+    def _wait_for_tail_clip_end(self):
         # type: () -> Optional[Sequence]
         """wait for clip tail end and temporarily disable midi input"""
         input_routing_type = self.track.midi_track.input_routing.type
@@ -68,6 +68,7 @@ class TrackRecorderClipTailDecorator(TrackRecorderDecorator):
             return None
 
         audio_clip.loop.looping = False
+        audio_tail_clip = self.track.audio_tail_track.clip_slots[self.recording_scene_index].clip
 
         self.track.midi_track.stop()
         self.track.midi_track.input_routing.type = InputRoutingTypeEnum.NO_INPUT
@@ -75,8 +76,11 @@ class TrackRecorderClipTailDecorator(TrackRecorderDecorator):
         DomainEventBus.subscribe(Last32thPassedEvent, self._on_last_32th_passed_event)
         seq = Sequence()
         seq.wait_for_event(AudioClipSilentEvent, continue_on_song_stop=True)
+        seq.add(partial(audio_clip.stop, immediate=True))  # don't catch end bar glitch
+        seq.add(partial(audio_tail_clip.stop, immediate=True))  # idem
+        seq.defer()
+        # idem
         seq.add(partial(setattr, self.track.midi_track.input_routing, "type", input_routing_type))
-        seq.add(partial(audio_clip.stop, immediate=True))
         seq.add(
             partial(
                 DomainEventBus.un_subscribe, Last32thPassedEvent, self._on_last_32th_passed_event
