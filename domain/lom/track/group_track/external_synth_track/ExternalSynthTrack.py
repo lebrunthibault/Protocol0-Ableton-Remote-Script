@@ -241,13 +241,12 @@ class ExternalSynthTrack(AbstractGroupTrack):
         # type: () -> SimpleTrack
         return self.midi_track
 
-    @property
-    def view_track(self):
-        # type: () -> Optional[SimpleTrack]
+    def get_view_track(self, scene_index):
+        # type: (int) -> Optional[SimpleTrack]
         if ApplicationViewFacade.is_clip_view_visible():
             return self.midi_track
         else:
-            return super(ExternalSynthTrack, self).view_track
+            return super(ExternalSynthTrack, self).get_view_track(scene_index)
 
     @property
     def instrument(self):

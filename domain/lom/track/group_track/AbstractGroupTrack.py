@@ -130,13 +130,16 @@ class AbstractGroupTrack(AbstractTrack):
             )
         )
 
-    @property
-    def view_track(self):
-        # type: () -> Optional[SimpleTrack]
+    def get_view_track(self, scene_index):
+        # type: (int) -> Optional[SimpleTrack]
         if ApplicationViewFacade.is_clip_view_visible():
             return None
         else:
-            return self.dummy_track or self.dummy_return_track or self.base_track
+            # in device view, show the dummy track only if there is a dummy clip
+            if self.dummy_track is not None and self.dummy_track.clip_slots[scene_index].clip:
+                return self.dummy_track
+            else:
+                return self.base_track
 
     def update(self, observable):
         # type: (Observable) -> None

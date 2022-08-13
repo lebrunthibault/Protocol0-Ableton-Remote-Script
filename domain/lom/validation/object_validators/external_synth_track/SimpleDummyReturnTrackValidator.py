@@ -29,7 +29,7 @@ class SimpleDummyReturnTrackValidator(AggregateValidator):
                 track,
                 lambda c: len(list(track.devices)) == 0,
                 self._remove_devices,
-                "%s should have no devices. Got %s" % (track, len(track.devices)),
+                "%s should have no devices. Got %s" % (track, len(list(track.devices))),
             ),
         ]  # type: List[ValidatorInterface]
 

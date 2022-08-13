@@ -271,7 +271,7 @@ class Scene(SlotManager):
 
     def scroll_tracks(self, go_next):
         # type: (bool) -> None
-        tracks = [track.view_track for track in self.abstract_tracks]
+        tracks = [track.get_view_track(self.index) for track in self.abstract_tracks]
         tracks = filter(None, tracks)
         tracks.sort(key=lambda t: t.index)
         next_track = ValueScroller.scroll_values(tracks, SongFacade.selected_track(), go_next)

@@ -114,9 +114,8 @@ class AbstractTrack(SlotManager):
         assert self.instrument
         return self.base_track
 
-    @property
-    def view_track(self):
-        # type: () -> Optional[SimpleTrack]
+    def get_view_track(self, scene_index):
+        # type: (int) -> Optional[SimpleTrack]
         """Depending on the current view returns the appropriate track"""
         return self.base_track
 
