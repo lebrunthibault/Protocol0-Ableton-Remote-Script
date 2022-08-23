@@ -77,26 +77,6 @@ class Scene(SlotManager):
                 continue
 
             yield clip
-        # for track in SongFacade.simple_tracks():
-        #     clip = track.clip_slots[self.index].clip
-        #
-        #     if clip is None or track.is_foldable or not track.is_playing:
-        #         continue
-        #
-        #     # don't stop the next scene tracks
-        #     if track in next_playing_scene.clips.tracks:
-        #         continue
-        #
-        #     # for tail track combination, we let them finish
-        #     if not clip.loop.looping and not stop_tails:
-        #         continue
-        #
-        #     # let dummy track play until the end
-        #     if isinstance(track, SimpleDummyTrack) and clip.loop.bar_length > self.bar_length:
-        #         Scheduler.wait_bars(clip.loop.bar_length - self.bar_length, track.stop)
-        #         continue
-        #
-        #     yield track
 
     def update(self, observable):
         # type: (Observable) -> None
@@ -187,7 +167,6 @@ class Scene(SlotManager):
         # immediate False would play the clips at least one more bar
         # This doesn't execute (duplicated) when the scene was fired from a command
         if SongFacade.playing_scene() != self:
-            Logger.warning("is triggered : scene change")
             Scheduler.defer(partial(self._stop_playing_scene, immediate=True))
             PlayingSceneFacade.set(self)
 

@@ -32,7 +32,6 @@ from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.decorators import defer
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.forward_to import ForwardTo
@@ -353,21 +352,6 @@ class ExternalSynthTrack(AbstractGroupTrack):
         self.midi_track.clip_slots[scene_index].clip.fire()
         if not self.is_recording:
             self._audio_clip_to_fire(scene_index).fire()
-
-        if SongFacade.playing_scene() is None:
-            return
-
-        # when a dummy clip slot is empty, we take care of resetting automation values
-        # and stopping the (looping) previous clip
-        seq = Sequence()
-        seq.wait_for_event(BarChangedEvent)
-        for dummy_track in (self.dummy_track, self.dummy_return_track):
-            if dummy_track is not None and dummy_track.clip_slots[scene_index].clip is None:
-                dummy_track.stop()
-                # delaying this until the track stopped
-                seq.add(partial(dummy_track.reset_automation, SongFacade.playing_scene().index))
-
-        seq.done()
 
     def prepare_for_scrub(self, scene_index):
         # type: (int) -> None

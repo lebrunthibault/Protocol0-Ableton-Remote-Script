@@ -102,6 +102,9 @@ class ScenePlaybackService(SlotManager):
 
     def _on_song_started_event(self, _):
         # type: (SongStartedEvent) -> None
+        # re enable automation overridden by default values
+        # see _reset_automation_values
+        self._playback_component.re_enable_automation()
         # deferring because it can conflict with tail clips on fire scene to position
         self._restart_inconsistent_scene()
 
@@ -163,4 +166,4 @@ class ScenePlaybackService(SlotManager):
 
         for track in SongFacade.playing_scene().clips.tracks:
             if isinstance(track, SimpleDummyTrack):
-                track.reset_automation(SongFacade.playing_scene().index)
+                track.reset_automation(None, SongFacade.playing_scene().index)

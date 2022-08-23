@@ -1,3 +1,5 @@
+from functools import partial
+
 from typing import List, Optional, cast, Tuple, Dict
 
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
@@ -10,8 +12,11 @@ from protocol0.domain.lom.track.simple_track.SimpleDummyReturnTrack import Simpl
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.observer.Observable import Observable
+from protocol0.shared.sequence.Sequence import Sequence
 
 
 class AbstractGroupTrack(AbstractTrack):
@@ -156,14 +161,26 @@ class AbstractGroupTrack(AbstractTrack):
         # type: () -> List[ClipSlot]
         return self.base_track.clip_slots
 
-    def fire(self, index):
+    def fire(self, scene_index):
         # type: (int) -> None
         """Firing midi and alternating between audio and audio tail for the audio clip"""
-        super(AbstractGroupTrack, self).fire(index)
-        if self.dummy_track and self.dummy_track.clip_slots[index].clip:
-            self.dummy_track.clip_slots[index].clip.fire()
-        if self.dummy_return_track and self.dummy_return_track.clip_slots[index].clip:
-            self.dummy_return_track.clip_slots[index].clip.fire()
+        super(AbstractGroupTrack, self).fire(scene_index)
+
+        seq = Sequence()
+        seq.wait_for_event(BarChangedEvent)
+
+        for dummy_track in filter(None, (self.dummy_track, self.dummy_return_track)):
+            if dummy_track.clip_slots[scene_index].clip:
+                dummy_track.clip_slots[scene_index].clip.fire()
+            else:
+                # stopping the (looping) previous clip
+                dummy_track.stop()
+
+            # delaying this until the track stopped
+            if SongFacade.playing_scene():
+                seq.add(partial(dummy_track.reset_automation, scene_index, SongFacade.playing_scene().index))
+
+        seq.done()
 
     def get_automated_parameters(self, index):
         # type: (int) -> Dict[DeviceParameter, SimpleTrack]

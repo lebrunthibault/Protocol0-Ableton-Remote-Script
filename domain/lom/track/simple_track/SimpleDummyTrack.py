@@ -1,9 +1,10 @@
 from functools import partial
 
-from typing import List, Any, cast
+from typing import List, Any, cast, Optional
 
 from protocol0.domain.lom.clip.DummyClip import DummyClip
 from protocol0.domain.lom.clip_slot.DummyClipSlot import DummyClipSlot
+from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
@@ -71,13 +72,20 @@ class SimpleDummyTrack(SimpleAudioTrack):
         super(SimpleDummyTrack, self).on_added()
         DomainEventBus.emit(SimpleDummyTrackAddedEvent(self._track))
 
-    def reset_automation(self, scene_index):
-        # type: (int) -> None
-        clip = self.clip_slots[scene_index].clip
-        if clip is None:
+    def reset_automation(self, scene_index, previous_scene_index):
+        # type: (Optional[int], int) -> None
+        previous_clip = self.clip_slots[previous_scene_index].clip
+        if previous_clip is None:
             return None
 
-        for parameter in clip.automation.get_automated_parameters(self.devices.parameters):
+        previous_clip_parameters = previous_clip.automation.get_automated_parameters(self.devices.parameters)
+        clip_parameters = []  # type: List[DeviceParameter]
+        if scene_index and self.clip_slots[scene_index].clip is not None:
+            clip_parameters = self.clip_slots[scene_index].clip.automation.get_automated_parameters(self.devices.parameters)
+
+        parameters_to_reset = set(previous_clip_parameters) - set(clip_parameters)
+
+        for parameter in parameters_to_reset:
             parameter.reset()
 
     @property
