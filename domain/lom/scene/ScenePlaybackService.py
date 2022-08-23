@@ -12,6 +12,7 @@ from protocol0.domain.lom.scene.ScenePositionScrolledEvent import ScenePositionS
 from protocol0.domain.lom.song.SongStartedEvent import SongStartedEvent
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackComponent
+from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
@@ -102,6 +103,9 @@ class ScenePlaybackService(SlotManager):
     def _on_song_started_event(self, _):
         # type: (SongStartedEvent) -> None
         # deferring because it can conflict with tail clips on fire scene to position
+        if not ApplicationViewFacade.is_session_visible():
+            return
+        
         self._restart_inconsistent_scene()
 
     def _restart_inconsistent_scene(self):

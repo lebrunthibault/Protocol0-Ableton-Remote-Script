@@ -310,7 +310,7 @@ class AbstractTrack(SlotManager):
     def fire(self, index):
         # type: (int) -> None
         clip = self.clip_slots[index].clip
-        if clip:
+        if clip is not None:
             clip.fire()
 
     def disconnect(self):

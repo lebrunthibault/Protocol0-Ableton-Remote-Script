@@ -66,7 +66,7 @@ class SessionToArrangementService(object):
         self._is_bouncing = True
         self._track_component.un_focus_all_tracks(including_current=True)
         self._tempo = self._tempo_component.tempo
-        self._tempo_component.tempo = 999
+        self._tempo_component.tempo = 800
         ApplicationViewFacade.show_arrangement()
 
         for track in SongFacade.external_synth_tracks():

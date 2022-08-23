@@ -17,6 +17,7 @@ from protocol0.domain.lom.scene.SceneName import SceneName
 from protocol0.domain.lom.scene.ScenePlayingState import ScenePlayingState
 from protocol0.domain.lom.scene.ScenePositionScroller import ScenePositionScroller
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
+from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
     ExternalSynthTrack,
 )
@@ -192,8 +193,12 @@ class Scene(SlotManager):
         if not SongFacade.is_playing():
             self._scene.fire()
         else:
-            for track in self.abstract_tracks:
-                track.fire(self.index)
+            for track in SongFacade.abstract_tracks():
+                if track in self.abstract_tracks:
+                    track.fire(self.index)
+                elif isinstance(track, AbstractGroupTrack) and track.dummy_track:
+                    # stop automation of remaining tracks
+                    track.reset_automation(self.index)
 
         # update the playing scene singleton at the next bar
         seq = Sequence()

@@ -15,6 +15,7 @@ from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -163,13 +164,17 @@ class AbstractGroupTrack(AbstractTrack):
 
     def fire(self, scene_index):
         # type: (int) -> None
-        """Firing midi and alternating between audio and audio tail for the audio clip"""
         super(AbstractGroupTrack, self).fire(scene_index)
 
+        self.reset_automation(scene_index)
+
+    def reset_automation(self, scene_index):
+        # type: (int) -> None
+        """Handling gracefully automation"""
         seq = Sequence()
         seq.wait_for_event(BarChangedEvent)
-
         for dummy_track in filter(None, (self.dummy_track, self.dummy_return_track)):
+            Logger.dev(dummy_track)
             if dummy_track.clip_slots[scene_index].clip:
                 dummy_track.clip_slots[scene_index].clip.fire()
             else:

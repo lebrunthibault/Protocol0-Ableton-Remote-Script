@@ -1,22 +1,23 @@
 from typing import List, Optional, Any
 
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.shared.AbstractEnum import AbstractEnum
 
 
 class DeviceParameterEnum(AbstractEnum):
-    AUTO_FILTER_HIGH_PASS_FREQUENCY = "AUTO_FILTER_HIGH_PASS_FREQUENCY"
-    AUTO_FILTER_LOW_PASS_FREQUENCY = "AUTO_FILTER_LOW_PASS_FREQUENCY"
-    CHAIN_SELECTOR = "CHAIN_SELECTOR"
-    COMPRESSOR_OUTPUT_GAIN = "COMPRESSOR_OUTPUT_GAIN"
-    COMPRESSOR_THRESHOLD = "COMPRESSOR_THRESHOLD"
-    DEVICE_ON = "DEVICE_ON"
-    EFFECTRIX_GLOBALWET = "EFFECTRIX_GLOBALWET"
-    EQ_EIGHT_FREQUENCY_1_A = "EQ_EIGHT_FREQUENCY_1_A"
-    EQ_EIGHT_FREQUENCY_8_A = "EQ_EIGHT_FREQUENCY_8_A"
-    EQ_EIGHT_GAIN_4_A = "EQ_EIGHT_GAIN_4_A"
-    LFO_TOOL_LFO_DEPTH = "LFO_TOOL_LFO_DEPTH"
-    UTILITY_GAIN = "UTILITY_GAIN"
-    UTILITY_MID_SIDE = "UTILITY_MID_SIDE"
+    AUTO_FILTER_HIGH_PASS_FREQUENCY = "AUTO FILTER HIGH PASS FREQUENCY"
+    AUTO_FILTER_LOW_PASS_FREQUENCY = "AUTO FILTER LOW PASS FREQUENCY"
+    CHAIN_SELECTOR = "CHAIN SELECTOR"
+    COMPRESSOR_OUTPUT_GAIN = "COMPRESSOR OUTPUT GAIN"
+    COMPRESSOR_THRESHOLD = "COMPRESSOR THRESHOLD"
+    DEVICE_ON = "DEVICE ON"
+    EFFECTRIX_GLOBALWET = "EFFECTRIX GLOBALWET"
+    EQ_EIGHT_FREQUENCY_1_A = "EQ EIGHT FREQUENCY 1 A"
+    EQ_EIGHT_FREQUENCY_8_A = "EQ EIGHT FREQUENCY 8 A"
+    EQ_EIGHT_GAIN_4_A = "EQ EIGHT GAIN 4 A"
+    LFO_TOOL_LFO_DEPTH = "LFO TOOL LFO DEPTH"
+    UTILITY_GAIN = "UTILITY GAIN"
+    UTILITY_MID_SIDE = "UTILITY MID SIDE"
 
     @property
     def parameter_name(self):
@@ -60,10 +61,10 @@ class DeviceParameterEnum(AbstractEnum):
     @classmethod
     def from_name(cls, device_name, name):
         # type: (str, str) -> Optional[DeviceParameterEnum]
-        enum_name = "%s_%s" % (device_name.upper(), name.upper())
+        enum_name = "%s %s" % (device_name.upper(), name.upper())
         try:
-            return getattr(DeviceParameterEnum, enum_name)
-        except AttributeError as e:
+            return DeviceParameterEnum.from_value(enum_name)
+        except Protocol0Error:
             return None
 
     @property
@@ -71,6 +72,7 @@ class DeviceParameterEnum(AbstractEnum):
         # type: () -> Any
         return self.get_value_from_mapping(
             {
+                DeviceParameterEnum.AUTO_FILTER_HIGH_PASS_FREQUENCY: 20,
                 DeviceParameterEnum.EFFECTRIX_GLOBALWET: 0,
             }
         )
