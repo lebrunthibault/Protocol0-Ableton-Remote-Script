@@ -18,6 +18,7 @@ from protocol0.domain.lom.track.simple_track.SimpleDummyTrackAutomation import (
 from protocol0.domain.lom.track.simple_track.SimpleTrackClipSlots import SimpleTrackClipSlots
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 
 
@@ -75,6 +76,7 @@ class SimpleDummyTrack(SimpleAudioTrack):
     def reset_automation(self, scene_index, previous_scene_index):
         # type: (Optional[int], int) -> None
         previous_clip = self.clip_slots[previous_scene_index].clip
+        Logger.dev(previous_clip)
         if previous_clip is None:
             return None
 
@@ -84,6 +86,7 @@ class SimpleDummyTrack(SimpleAudioTrack):
             clip_parameters = self.clip_slots[scene_index].clip.automation.get_automated_parameters(self.devices.parameters)
 
         parameters_to_reset = set(previous_clip_parameters) - set(clip_parameters)
+        Logger.dev("%s -> %s" % (self, parameters_to_reset))
 
         for parameter in parameters_to_reset:
             parameter.reset()

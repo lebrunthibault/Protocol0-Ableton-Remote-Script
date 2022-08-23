@@ -20,6 +20,7 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrac
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
     ExternalSynthTrack,
 )
+from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.decorators import throttle
@@ -28,7 +29,6 @@ from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.forward_to import ForwardTo
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -169,6 +169,13 @@ class Scene(SlotManager):
         if SongFacade.playing_scene() != self:
             Scheduler.defer(partial(self._stop_playing_scene, immediate=True))
             PlayingSceneFacade.set(self)
+
+    def reset_automations(self, previous_playing_scene):
+        # type: (Scene) -> None
+        """Will reset automations not present in the scene tracks"""
+        for track in previous_playing_scene.clips.tracks:
+            if isinstance(track, SimpleDummyTrack):
+                track.reset_automation(self.index, previous_playing_scene.index)
 
     def fire(self, stop_tails=False):
         # type: (bool) -> None

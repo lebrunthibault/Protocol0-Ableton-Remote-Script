@@ -12,7 +12,6 @@ from protocol0.domain.lom.scene.ScenePositionScrolledEvent import ScenePositionS
 from protocol0.domain.lom.song.SongStartedEvent import SongStartedEvent
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackComponent
-from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
@@ -102,9 +101,6 @@ class ScenePlaybackService(SlotManager):
 
     def _on_song_started_event(self, _):
         # type: (SongStartedEvent) -> None
-        # re enable automation overridden by default values
-        # see _reset_automation_values
-        self._playback_component.re_enable_automation()
         # deferring because it can conflict with tail clips on fire scene to position
         self._restart_inconsistent_scene()
 
@@ -137,7 +133,6 @@ class ScenePlaybackService(SlotManager):
     def _on_song_stopped_event(self, _):
         # type: (SongStoppedEvent) -> None
         self._stop_previous_playing_scene()
-        self._reset_automation_values()
 
     def _stop_previous_playing_scene(self):
         # type: () -> None
@@ -151,19 +146,3 @@ class ScenePlaybackService(SlotManager):
 
         if PlayingSceneFacade.get_previous() is not None:
             PlayingSceneFacade.get_previous().stop(immediate=True)
-
-    def _reset_automation_values(self):
-        # type: () -> None
-        """
-            On song stop reset all playing scene parameter automation
-
-            This is important because we don't always explicitly set automated dummy clips
-            and without this the automation change would stay set which is not what is expected
-            NB : This will activate the Re enable automation button
-        """
-        if SongFacade.playing_scene() is None:
-            return None
-
-        for track in SongFacade.playing_scene().clips.tracks:
-            if isinstance(track, SimpleDummyTrack):
-                track.reset_automation(None, SongFacade.playing_scene().index)

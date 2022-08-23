@@ -1,3 +1,5 @@
+from functools import partial
+
 from typing import Optional, List, TYPE_CHECKING
 
 from protocol0.domain.shared.backend.Backend import Backend
@@ -37,6 +39,9 @@ class PlayingSceneFacade(object):
             return None
 
         Logger.warning("set playing scene from %s to %s" % (cls.get(), scene))
+
+        if cls.get() is not None:
+            Scheduler.defer(partial(scene.reset_automations, cls.get()))
 
         scenes = cls._INSTANCE._last_playing_scenes
         cls._INSTANCE._last_playing_scenes = scenes[1:] + [scene]
