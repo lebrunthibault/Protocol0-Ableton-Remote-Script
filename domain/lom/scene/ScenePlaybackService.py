@@ -162,12 +162,5 @@ class ScenePlaybackService(SlotManager):
             return None
 
         for track in SongFacade.playing_scene().clips.tracks:
-            if not isinstance(track, SimpleDummyTrack):
-                continue
-
-            clip = track.clip_slots[SongFacade.playing_scene().index].clip
-            if clip is None:
-                continue
-
-            for parameter in clip.automation.get_automated_parameters(track.devices.parameters):
-                parameter.reset()
+            if isinstance(track, SimpleDummyTrack):
+                track.reset_automation(SongFacade.playing_scene().index)

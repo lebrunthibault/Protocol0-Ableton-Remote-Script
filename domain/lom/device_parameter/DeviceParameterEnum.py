@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional, Any
 
 from protocol0.shared.AbstractEnum import AbstractEnum
 
@@ -10,6 +10,7 @@ class DeviceParameterEnum(AbstractEnum):
     COMPRESSOR_OUTPUT_GAIN = "COMPRESSOR_OUTPUT_GAIN"
     COMPRESSOR_THRESHOLD = "COMPRESSOR_THRESHOLD"
     DEVICE_ON = "DEVICE_ON"
+    EFFECTRIX_GLOBALWET = "EFFECTRIX_GLOBALWET"
     EQ_EIGHT_FREQUENCY_1_A = "EQ_EIGHT_FREQUENCY_1_A"
     EQ_EIGHT_FREQUENCY_8_A = "EQ_EIGHT_FREQUENCY_8_A"
     EQ_EIGHT_GAIN_4_A = "EQ_EIGHT_GAIN_4_A"
@@ -55,3 +56,21 @@ class DeviceParameterEnum(AbstractEnum):
             cls.AUTO_FILTER_LOW_PASS_FREQUENCY,
             cls.AUTO_FILTER_HIGH_PASS_FREQUENCY,
         ]
+
+    @classmethod
+    def from_name(cls, device_name, name):
+        # type: (str, str) -> Optional[DeviceParameterEnum]
+        enum_name = "%s_%s" % (device_name.upper(), name.upper())
+        try:
+            return getattr(DeviceParameterEnum, enum_name)
+        except AttributeError as e:
+            return None
+
+    @property
+    def default_value(self):
+        # type: () -> Any
+        return self.get_value_from_mapping(
+            {
+                DeviceParameterEnum.EFFECTRIX_GLOBALWET: 0,
+            }
+        )

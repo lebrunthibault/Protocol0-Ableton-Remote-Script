@@ -1,16 +1,33 @@
 import Live
-from typing import Any
+from typing import Any, Optional
+
+from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 
 
 class DeviceParameter(object):
-    def __init__(self, device_parameter, is_mixer_parameter=False):
-        # type: (Live.DeviceParameter.DeviceParameter, bool) -> None
+    def __init__(self, device_parameter, enum=None, is_mixer_parameter=False):
+        # type: (Live.DeviceParameter.DeviceParameter, Optional[DeviceParameterEnum], bool) -> None
         self._device_parameter = device_parameter  # type: Live.DeviceParameter.DeviceParameter
         self._is_mixer_parameter = is_mixer_parameter
+
+        try:
+            if enum is not None:
+                self._default_value = enum.default_value
+            else:
+                self._default_value = 1
+                self._default_value = device_parameter.default_value
+        except (RuntimeError, AttributeError):
+            self._default_value = 0
 
     def __repr__(self, **k):
         # type: (Any) -> str
         return "%s: %s" % (self.name, self.value)
+
+    @classmethod
+    def create_from_name(cls, device_name, device_parameter):
+        # type: (str, Live.DeviceParameter.DeviceParameter) -> DeviceParameter
+        enum = DeviceParameterEnum.from_name(device_name, device_parameter.name)
+        return cls(device_parameter, enum=enum)
 
     @property
     def name(self):
@@ -41,14 +58,6 @@ class DeviceParameter(object):
         # type: (float) -> None
         if self.is_enabled and self._device_parameter:
             self._device_parameter.value = value
-
-    @property
-    def default_value(self):
-        # type: () -> float
-        if self._device_parameter:
-            return self._device_parameter.default_value
-        else:
-            return 0
 
     @property
     def automation_state(self):
@@ -117,4 +126,4 @@ class DeviceParameter(object):
             # not the opposite
             self.value = 0
         else:
-            self.value = self.default_value
+            self.value = self._default_value

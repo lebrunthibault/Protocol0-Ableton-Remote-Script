@@ -7,3 +7,4 @@ class AbletonDeviceParameter(Subject):
         self._live_ptr = id(self)
         self.name = name
         self.is_enabled = True
+        self.default_value = 0

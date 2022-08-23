@@ -53,7 +53,10 @@ class Device(SlotManager):
     @subject_slot("parameters")
     def _parameters_listener(self):
         # type: () -> None
-        self.parameters = [DeviceParameter(parameter) for parameter in self._device.parameters]
+        self.parameters = [
+            DeviceParameter.create_from_name(self.name, parameter)
+            for parameter in self._device.parameters
+        ]
 
     def get_parameter_by_name(self, device_parameter_name):
         # type: (Union[DeviceParameterEnum, str]) -> Optional[DeviceParameter]

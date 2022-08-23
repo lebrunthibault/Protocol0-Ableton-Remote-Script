@@ -71,6 +71,15 @@ class SimpleDummyTrack(SimpleAudioTrack):
         super(SimpleDummyTrack, self).on_added()
         DomainEventBus.emit(SimpleDummyTrackAddedEvent(self._track))
 
+    def reset_automation(self, scene_index):
+        # type: (int) -> None
+        clip = self.clip_slots[scene_index].clip
+        if clip is None:
+            return None
+
+        for parameter in clip.automation.get_automated_parameters(self.devices.parameters):
+            parameter.reset()
+
     @property
     def computed_color(self):
         # type: () -> int

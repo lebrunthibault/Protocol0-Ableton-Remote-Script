@@ -199,8 +199,6 @@ class Scene(SlotManager):
         stop_tails == True will stop the tails immediately and is used
         when the scenes are not contiguous
         """
-        Logger.info("firing %s" % self)
-
         # stop the previous scene in advance, using clip launch quantization
         self._stop_playing_scene(immediate=stop_tails)
 
@@ -221,9 +219,6 @@ class Scene(SlotManager):
         # type: (bool) -> None
         """Stop the previous scene : quantized or immediate"""
         if SongFacade.playing_scene() is not None and SongFacade.playing_scene() != self:
-            Logger.dev(
-                "stop playing scene: %s (immediate: %s)" % (SongFacade.playing_scene(), immediate)
-            )
             SongFacade.playing_scene().stop(immediate)
 
     def stop(self, immediate=False):
@@ -231,11 +226,6 @@ class Scene(SlotManager):
         """Used to manually stopping previous scene
         because we don't display clip slot stop buttons
         """
-        Logger.dev(
-            "stopping %s (immediate=%s) -> clips: %s"
-            % (self, immediate, list(self._clips_to_stop(immediate)))
-        )
-
         DomainEventBus.emit(PlayingSceneChangedEvent())
 
         for clip in self._clips_to_stop(immediate):
