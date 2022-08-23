@@ -67,13 +67,7 @@ class AbstractTrack(SlotManager):
         if self.group_track is not None and self.group_track.color != self.color:
             self.color = self.group_track.color
 
-        if self.REMOVE_CLIPS_ON_ADDED:
-            seq = Sequence()
-            seq.add([clip.delete for clip in self.clips])
-            seq.defer()
-            return seq.done()
-        else:
-            return None
+        return None
 
     def on_tracks_change(self):
         # type: () -> None
@@ -146,6 +140,21 @@ class AbstractTrack(SlotManager):
         return [
             clip_slot.clip for clip_slot in self.clip_slots if clip_slot.has_clip and clip_slot.clip
         ]
+
+    def has_same_clips(self, track):
+        # type: (AbstractTrack) -> bool
+        return False
+
+    def clear_clips(self):
+        # type: () -> Sequence
+        seq = Sequence()
+        if self.is_foldable:
+            for sub_track in self.sub_tracks:
+                seq.add(sub_track.clear_clips)
+        else:
+            seq.add([clip.delete for clip in self.clips])
+
+        return seq.done()
 
     name = cast(str, ForwardTo("appearance", "name"))
 

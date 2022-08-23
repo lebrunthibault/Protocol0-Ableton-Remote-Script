@@ -13,6 +13,7 @@ from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
+from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackArmState import (
     ExternalSynthTrackArmState,
@@ -28,7 +29,6 @@ from protocol0.domain.lom.track.simple_track.SimpleMidiExtTrack import SimpleMid
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
-from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.decorators import defer
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
@@ -92,16 +92,10 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
     def on_added(self):
         # type: () -> Sequence
-        if len(self.clips):
-            Backend.client().show_warning("Deleting clips ..")
-
         self.instrument.force_show = True
 
         seq = Sequence()
         seq.add(self.arm_state.arm)
-
-        for track in self.sub_tracks:
-            seq.add([clip.delete for clip in track.clips])
 
         return seq.done()
 
@@ -258,6 +252,12 @@ class ExternalSynthTrack(AbstractGroupTrack):
         # type: () -> List[ClipSlot]
         return self.midi_track.clip_slots
 
+    def has_same_clips(self, track):
+        # type: (AbstractTrack) -> bool
+        return isinstance(track, ExternalSynthTrack) and self.midi_track.has_same_clips(
+            track.midi_track
+        )
+
     @property
     def is_playing(self):
         # type: () -> bool
@@ -338,9 +338,9 @@ class ExternalSynthTrack(AbstractGroupTrack):
         ):
             return cast(AudioClip, self.audio_tail_track.clip_slots[scene_index].clip)
         else:
-            assert self.audio_track.clip_slots[
-                scene_index
-            ].clip, "audio_clip_to_fire: invalid audio clip configuration on %s" % self
+            assert self.audio_track.clip_slots[scene_index].clip, (
+                "audio_clip_to_fire: invalid audio clip configuration on %s" % self
+            )
             return cast(AudioClip, self.audio_track.clip_slots[scene_index].clip)
 
     def fire(self, index):

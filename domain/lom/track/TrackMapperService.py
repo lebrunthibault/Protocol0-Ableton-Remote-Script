@@ -8,6 +8,7 @@ from typing import Optional, Dict
 from protocol0.domain.lom.track.TrackAddedEvent import TrackAddedEvent
 from protocol0.domain.lom.track.TrackFactory import TrackFactory
 from protocol0.domain.lom.track.TracksMappedEvent import TracksMappedEvent
+from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.drums.DrumsTrack import DrumsTrack
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
@@ -136,8 +137,26 @@ class TrackMapperService(SlotManager):
             added_track = SongFacade.current_track()
         seq.defer()
         seq.add(added_track.on_added)
+
+        if self._is_track_duplicated(added_track) and added_track.REMOVE_CLIPS_ON_ADDED:
+            Backend.client().show_warning("Deleting clips ..")
+            seq.add(added_track.clear_clips)
+            seq.defer()
+
         seq.add(UndoFacade.end_undo_step)
         return seq.done()
+
+    def _is_track_duplicated(self, track):
+        # type: (AbstractTrack) -> bool
+        if track.group_track is not None:
+            sibling_tracks = track.group_track.sub_tracks
+        else:
+            sibling_tracks = list(SongFacade.abstract_tracks())
+
+        index = sibling_tracks.index(track)
+        previous_track = sibling_tracks[index - 1]
+
+        return track.has_same_clips(previous_track)
 
     def _on_simple_track_created_event(self, event):
         # type: (SimpleTrackCreatedEvent) -> None

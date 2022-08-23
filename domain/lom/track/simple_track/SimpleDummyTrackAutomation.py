@@ -19,6 +19,7 @@ from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -97,6 +98,8 @@ class SimpleDummyTrackAutomation(object):
         # type: () -> None
         clip = cast(DummyClip, self._clip_slots.clips[0])
         clip.muted = False
+        Logger.dev(SongFacade.selected_scene())
+        Logger.dev(SongFacade.selected_scene().bar_length)
         if SongFacade.selected_scene().bar_length:
             clip.loop.bar_length = SongFacade.selected_scene().bar_length
         clip.show_loop()
