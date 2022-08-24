@@ -2,6 +2,7 @@ from functools import partial
 
 from protocol0.application.CommandBus import CommandBus
 from protocol0.application.command.ResetSongCommand import ResetSongCommand
+from protocol0.domain.audit.stats.SceneStats import SceneStats
 from protocol0.domain.lom.scene.SceneLastBarPassedEvent import SceneLastBarPassedEvent
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackComponent
@@ -12,7 +13,9 @@ from protocol0.domain.lom.song.components.TrackComponent import TrackComponent
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -35,6 +38,13 @@ class SessionToArrangementService(object):
         self._tempo = self._tempo_component.tempo
         self._is_bouncing = False
         DomainEventBus.subscribe(SongStoppedEvent, self._song_stopped_event_listener)
+
+        self._recorded_bar_length = 0
+        DomainEventBus.subscribe(BarChangedEvent, self._on_bar_changed_event)
+
+    def _on_bar_changed_event(self, _):
+        # type: (BarChangedEvent) -> None
+        self._recorded_bar_length += 1
 
     def bounce_session_to_arrangement(self):
         # type: () -> None
@@ -66,7 +76,12 @@ class SessionToArrangementService(object):
         self._is_bouncing = True
         self._track_component.un_focus_all_tracks(including_current=True)
         self._tempo = self._tempo_component.tempo
-        self._tempo_component.tempo = 800
+        self._tempo_component.tempo = 999
+        self._recorded_bar_length = 0
+        # unmute all clips in advance so that playback works at this speed
+        for scene in SongFacade.scenes():
+            for clip in scene.clips.audio_tail_clips:
+                clip.muted = False
         ApplicationViewFacade.show_arrangement()
 
         for track in SongFacade.external_synth_tracks():
@@ -92,6 +107,9 @@ class SessionToArrangementService(object):
         seq = Sequence()
         seq.wait_for_event(SceneLastBarPassedEvent, SongFacade.last_scene()._scene)
         seq.add(SongFacade.last_scene().stop)
+        if SongFacade.last_scene().bar_length > 1:
+            seq.wait_for_event(BarChangedEvent)
+        seq.add(self._validate_recording_duration)
         seq.wait_bars(4)  # leaving some space for tails
         seq.add(self._playback_component.stop_playing)
         seq.done()
@@ -107,3 +125,15 @@ class SessionToArrangementService(object):
         self._recording_component.back_to_arranger = False
         ApplicationViewFacade.show_arrangement()
         self._is_bouncing = False
+
+    def _validate_recording_duration(self):
+        # type: () -> None
+        expected_bar_length = SceneStats().bar_length
+
+        if expected_bar_length != self._recorded_bar_length:
+            Backend.client().show_error(
+                "Recording error, expected %s bars, got %s"
+                % (expected_bar_length, self._recorded_bar_length)
+            )
+        else:
+            Logger.info("Recording valid")

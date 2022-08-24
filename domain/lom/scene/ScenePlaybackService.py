@@ -15,8 +15,8 @@ from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackCompo
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
-from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.scheduler.ThirdBeatPassedEvent import ThirdBeatPassedEvent
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
@@ -33,7 +33,7 @@ class ScenePlaybackService(SlotManager):
         self._live_scene_id_to_scene = collections.OrderedDict()  # type: Dict[int, Scene]
 
         DomainEventBus.subscribe(BarChangedEvent, self._on_bar_changed_event)
-        DomainEventBus.subscribe(LastBeatPassedEvent, self._on_last_beat_passed_event)
+        DomainEventBus.subscribe(ThirdBeatPassedEvent, self._on_third_beat_passed_event)
         DomainEventBus.subscribe(ScenePositionScrolledEvent, self._on_scene_position_scrolled_event)
         DomainEventBus.subscribe(SongStartedEvent, self._on_song_started_event)
         DomainEventBus.subscribe(SongStoppedEvent, self._on_song_stopped_event)
@@ -43,13 +43,13 @@ class ScenePlaybackService(SlotManager):
         if SongFacade.playing_scene():
             SongFacade.playing_scene().scene_name.update()
 
-    def _on_last_beat_passed_event(self, _):
-        # type: (LastBeatPassedEvent) -> None
+    def _on_third_beat_passed_event(self, _):
+        # type: (ThirdBeatPassedEvent) -> None
         if (
                 SongFacade.playing_scene()
                 and SongFacade.playing_scene().playing_state.is_playing
         ):
-            SongFacade.playing_scene().on_last_beat()
+            SongFacade.playing_scene().on_end()
 
     def _on_scene_position_scrolled_event(self, _):
         # type: (ScenePositionScrolledEvent) -> None
@@ -105,7 +105,7 @@ class ScenePlaybackService(SlotManager):
         # deferring because it can conflict with tail clips on fire scene to position
         if not ApplicationViewFacade.is_session_visible():
             return
-        
+
         self._restart_inconsistent_scene()
 
     def _restart_inconsistent_scene(self):

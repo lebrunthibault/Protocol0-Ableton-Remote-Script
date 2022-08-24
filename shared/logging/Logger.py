@@ -36,7 +36,7 @@ class Logger(object):
 
     @classmethod
     def error(cls, message="", debug=True, show_notification=True):
-        # type: (str, bool, bool) -> None
+        # type: (Any, bool, bool) -> None
         cls._log(message, level=LogLevelEnum.ERROR, debug=debug)
 
         if not show_notification:

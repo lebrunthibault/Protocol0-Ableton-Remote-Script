@@ -32,8 +32,8 @@ from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.decorators import defer
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.scheduler.ThirdBeatPassedEvent import ThirdBeatPassedEvent
 from protocol0.domain.shared.utils.forward_to import ForwardTo
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.SongFacade import SongFacade
@@ -79,7 +79,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
             self.base_track, self.midi_track, self.monitoring_state
         )
 
-        DomainEventBus.subscribe(LastBeatPassedEvent, self._on_last_beat_passed_event)
+        DomainEventBus.subscribe(ThirdBeatPassedEvent, self._on_third_beat_passed_event)
 
         self._solo_listener.subject = self._track
         # this is necessary to monitor the group track solo state
@@ -110,8 +110,8 @@ class ExternalSynthTrack(AbstractGroupTrack):
             [sub_track._track for sub_track in self.sub_tracks]
         )
 
-    def _on_last_beat_passed_event(self, _):
-        # type: (LastBeatPassedEvent) -> None
+    def _on_third_beat_passed_event(self, _):
+        # type: (ThirdBeatPassedEvent) -> None
         """
         Unlike with midi clips, managing seamless loops with a single audio clip is not possible.
         It would mean losing the clip tail when starting it again.

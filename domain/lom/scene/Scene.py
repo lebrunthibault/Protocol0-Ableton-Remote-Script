@@ -140,7 +140,7 @@ class Scene(SlotManager):
         # type: () -> bool
         return self.name.strip().lower().startswith("skip")
 
-    def on_last_beat(self):
+    def on_end(self):
         # type: () -> None
         if SongFacade.is_track_recording():
             return
@@ -202,7 +202,8 @@ class Scene(SlotManager):
 
         # update the playing scene singleton at the next bar
         seq = Sequence()
-        seq.wait_for_event(BarChangedEvent, continue_on_song_stop=True)
+        if SongFacade.is_playing():
+            seq.wait_for_event(BarChangedEvent, continue_on_song_stop=True)
         seq.add(partial(PlayingSceneFacade.set, self))
         seq.done()
 

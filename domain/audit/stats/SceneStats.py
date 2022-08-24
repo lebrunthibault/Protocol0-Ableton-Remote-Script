@@ -10,8 +10,16 @@ class SceneStats(object):
         # type: () -> None
         beat_duration = float(60) / SongFacade.tempo()
 
-        self.count = len(SongFacade.scenes())
-        self.total_duration = sum([scene.length for scene in SongFacade.scenes()]) * beat_duration
+        current_scene = SongFacade.scenes()[0]
+        scenes = [current_scene]
+
+        while current_scene.next_scene and current_scene.next_scene != current_scene:
+            current_scene = current_scene.next_scene
+            scenes.append(current_scene)
+
+        self.count = len(scenes)
+        self.bar_length = sum([scene.bar_length for scene in scenes])
+        self.total_duration = sum([scene.length for scene in scenes]) * beat_duration
 
     def to_dict(self):
         # type: () -> Dict

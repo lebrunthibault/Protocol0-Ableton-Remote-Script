@@ -73,6 +73,7 @@ class DeviceParameterEnum(AbstractEnum):
         return self.get_value_from_mapping(
             {
                 DeviceParameterEnum.AUTO_FILTER_HIGH_PASS_FREQUENCY: 20,
+                DeviceParameterEnum.AUTO_FILTER_LOW_PASS_FREQUENCY: 135,
                 DeviceParameterEnum.EFFECTRIX_GLOBALWET: 0,
             }
         )

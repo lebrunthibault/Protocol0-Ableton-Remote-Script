@@ -2,6 +2,7 @@ import Live
 from typing import Any, Optional
 
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
+from protocol0.shared.logging.Logger import Logger
 
 
 class DeviceParameter(object):
@@ -9,6 +10,7 @@ class DeviceParameter(object):
         # type: (Live.DeviceParameter.DeviceParameter, Optional[DeviceParameterEnum], bool) -> None
         self._device_parameter = device_parameter  # type: Live.DeviceParameter.DeviceParameter
         self._is_mixer_parameter = is_mixer_parameter
+        self.device_name = ""
 
         try:
             if enum is not None:
@@ -27,7 +29,9 @@ class DeviceParameter(object):
     def create_from_name(cls, device_name, device_parameter):
         # type: (str, Live.DeviceParameter.DeviceParameter) -> DeviceParameter
         enum = DeviceParameterEnum.from_name(device_name, device_parameter.name)
-        return cls(device_parameter, enum=enum)
+        param = cls(device_parameter, enum=enum)
+        param.device_name = device_name
+        return param
 
     @property
     def name(self):
@@ -126,4 +130,8 @@ class DeviceParameter(object):
             # not the opposite
             self.value = 0
         else:
-            self.value = self._default_value
+            try:
+                self.value = self._default_value
+            except RuntimeError as e:
+                Logger.error((e, self, self.device_name, self.min, self.max, self._default_value))
+                raise e

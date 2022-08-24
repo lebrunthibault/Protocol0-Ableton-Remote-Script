@@ -47,6 +47,11 @@ class BeatTime(object):
             + self.bars * bar_coeff
         )
 
+    @property
+    def is_start(self):
+        # type: () -> bool
+        return self == BeatTime(1, 1, 1, 1)
+
     @classmethod
     def from_song_beat_time(cls, beat_time):
         # type: (Live.Song.BeatTime) -> BeatTime
