@@ -37,6 +37,11 @@ class ClipPlayingPosition(object):
         return int(self.bar_position)
 
     @property
+    def bars_left(self):
+        # type: () -> int
+        return int(self._clip_loop.bar_length) - 1 - self.current_bar
+
+    @property
     def in_last_bar(self):
         # type: () -> bool
-        return self.current_bar == self._clip_loop.bar_length - 1
+        return self.bars_left == 0

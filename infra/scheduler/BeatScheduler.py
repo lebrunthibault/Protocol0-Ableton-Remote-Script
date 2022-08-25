@@ -87,9 +87,11 @@ class BeatScheduler(SlotManager, BeatSchedulerInterface):
         Tip: never rely on wait_beats but use it in conjunction with listeners and Live quantization on launch
         It's the only way to have precise scheduling
         """
-        # beats_offset -= 0.2  ?
         event = BeatSchedulerEvent(callback, BeatTime.make_from_beat_offset(beats_offset))
-        self._scheduled_events.append(event)
+        if beats_offset == 0:
+            event.execute()
+        else:
+            self._scheduled_events.append(event)
 
     def disconnect(self):
         # type: () -> None

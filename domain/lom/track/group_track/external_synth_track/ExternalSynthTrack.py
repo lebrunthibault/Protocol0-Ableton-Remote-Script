@@ -329,19 +329,16 @@ class ExternalSynthTrack(AbstractGroupTrack):
             return self.audio_track if self.audio_track.is_playing else self.audio_tail_track
 
     def _audio_clip_to_fire(self, scene_index):
-        # type: (int) -> AudioClip
+        # type: (int) -> Optional[AudioClip]
         """The opposite track from the playing one in the couple audio / audio tail"""
         if (
             self.playing_audio_track is self.audio_track
             and self.audio_tail_track is not None
             and self.audio_tail_track.clip_slots[scene_index].clip is not None
         ):
-            return cast(AudioClip, self.audio_tail_track.clip_slots[scene_index].clip)
+            return self.audio_tail_track.clip_slots[scene_index].clip
         else:
-            assert self.audio_track.clip_slots[scene_index].clip, (
-                "audio_clip_to_fire: invalid audio clip configuration on %s" % self
-            )
-            return cast(AudioClip, self.audio_track.clip_slots[scene_index].clip)
+            return self.audio_track.clip_slots[scene_index].clip
 
     def fire(self, scene_index):
         # type: (int) -> None
@@ -354,7 +351,9 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
         midi_clip.fire()
         if not self.is_recording:
-            self._audio_clip_to_fire(scene_index).fire()
+            audio_clip_to_fire = self._audio_clip_to_fire(scene_index)
+            if audio_clip_to_fire is not None:
+                audio_clip_to_fire.fire()
 
     def prepare_for_scrub(self, scene_index):
         # type: (int) -> None
@@ -364,6 +363,9 @@ class ExternalSynthTrack(AbstractGroupTrack):
         and have the same length as the midi clip
         """
         audio_clip_to_fire = self._audio_clip_to_fire(scene_index)
+        if audio_clip_to_fire is None:
+            return None
+
         audio_clip_to_fire.loop.looping = True
         audio_clip_length = audio_clip_to_fire.length
         audio_clip_to_fire.length = self.midi_track.clip_slots[scene_index].clip.length

@@ -18,6 +18,7 @@ from protocol0.domain.lom.track.simple_track.SimpleDummyTrackAutomation import (
 from protocol0.domain.lom.track.simple_track.SimpleTrackClipSlots import SimpleTrackClipSlots
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 
 
@@ -72,8 +73,30 @@ class SimpleDummyTrack(SimpleAudioTrack):
         super(SimpleDummyTrack, self).on_added()
         DomainEventBus.emit(SimpleDummyTrackAddedEvent(self._track))
 
-    def reset_automation(self, scene_index, previous_scene_index):
+    def prepare_automation_for_clip_start(self, dummy_clip):
+        # type: (DummyClip) -> None
+        """
+            This will set automation values to equal the clip start
+            It is used to prevent automation glitches when a track starts playing after silence
+        """
+        Logger.dev((self, dummy_clip))
+        clip_parameters = dummy_clip.automation.get_automated_parameters(self.devices.parameters)
+
+        for parameter in clip_parameters:
+            envelope = dummy_clip.automation.get_envelope(parameter)
+            # we don't take value_at_time(0) because we often have 2 points at zero,
+            # the first one being wrong
+            parameter.value = round(envelope.value_at_time(0.000001), 3)
+
+    def reset_automation_to_default(self, scene_index, previous_scene_index):
         # type: (Optional[int], int) -> None
+        """
+            This will selectively reset automation parameters to their default
+            if their are not present in the current clip (relative to the previous dummy clip)
+            Called on each scene change and allows us to define only one dummy clip automation
+            for a one shot effect instead of creating the automation for each scene
+        """
+
         previous_clip = self.clip_slots[previous_scene_index].clip
         if previous_clip is None:
             return None

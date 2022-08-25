@@ -1,5 +1,3 @@
-from functools import partial
-
 from typing import List, Optional, cast, Tuple, Dict
 
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
@@ -12,11 +10,8 @@ from protocol0.domain.lom.track.simple_track.SimpleDummyReturnTrack import Simpl
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
-from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.observer.Observable import Observable
-from protocol0.shared.sequence.Sequence import Sequence
 
 
 class AbstractGroupTrack(AbstractTrack):
@@ -165,32 +160,35 @@ class AbstractGroupTrack(AbstractTrack):
         # type: (int) -> None
         super(AbstractGroupTrack, self).fire(scene_index)
 
-        self.reset_automation(scene_index)
+        self.handle_dummy_clip(scene_index)
 
-    def reset_automation(self, scene_index):
+    def handle_dummy_clip(self, scene_index):
         # type: (int) -> None
-        """Handling gracefully automation"""
-        seq = Sequence()
-        seq.wait_for_event(BarChangedEvent)
-        for dummy_track in filter(None, (self.dummy_track, self.dummy_return_track)):
-            if dummy_track.clip_slots[scene_index].clip:
-                dummy_track.clip_slots[scene_index].clip.fire()
+        """
+            Handling gracefully automation
+
+            if a dummy clip exists : fire it
             else:
-                # stopping the (looping) previous clip
-                dummy_track.stop()
+                stop the previous dummy clip when it finished playing
+        """
+        for dummy_track in filter(None, (self.dummy_track, self.dummy_return_track)):
+            dummy_clip = dummy_track.clip_slots[scene_index].clip
+            if dummy_clip:
+                if not self.is_playing and not dummy_track.is_playing:
+                    # handles automation glitches on track restart
+                    dummy_track.prepare_automation_for_clip_start(dummy_clip)
+                dummy_clip.fire()
+            else:
+                delay = 0
+                if dummy_track.playing_clip is not None:
+                    delay = dummy_track.playing_clip.playing_position.bars_left
 
-            # delaying this until the track stopped
-            if SongFacade.playing_scene():
-                seq.add(
-                    partial(
-                        dummy_track.reset_automation, scene_index, SongFacade.playing_scene().index
-                    )
-                )
-
-        seq.done()
+                # stopping the (looping) previous clip, only after it finished
+                Scheduler.wait_bars(delay, dummy_track.stop)
 
     def get_automated_parameters(self, index):
         # type: (int) -> Dict[DeviceParameter, SimpleTrack]
+        """Accessible automated parameters"""
         automated_parameters = {}
 
         if self.dummy_track is not None:

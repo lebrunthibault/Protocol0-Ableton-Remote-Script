@@ -176,7 +176,7 @@ class Scene(SlotManager):
         """Will reset automations not present in the scene tracks"""
         for track in previous_playing_scene.clips.tracks:
             if isinstance(track, SimpleDummyTrack):
-                track.reset_automation(self.index, previous_playing_scene.index)
+                track.reset_automation_to_default(self.index, previous_playing_scene.index)
 
     def fire(self, stop_tails=False):
         # type: (bool) -> None
@@ -196,9 +196,10 @@ class Scene(SlotManager):
             for track in SongFacade.abstract_tracks():
                 if track in self.abstract_tracks:
                     track.fire(self.index)
+                # here we need special processing because we want to stop
+                # dummy tracks that will not keep playing on the next scene
                 elif isinstance(track, AbstractGroupTrack) and track.dummy_track:
-                    # stop automation of remaining tracks
-                    track.reset_automation(self.index)
+                    track.handle_dummy_clip(self.index)
 
         # update the playing scene singleton at the next bar
         seq = Sequence()

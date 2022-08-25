@@ -2,6 +2,7 @@ import Live
 from _Framework.SubjectSlot import subject_slot
 from typing import cast, List, Optional, Dict
 
+from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
@@ -151,7 +152,7 @@ class SimpleTrack(AbstractTrack):
 
     @property
     def playing_clip(self):
-        # type: () -> Optional[ClipSlot]
+        # type: () -> Optional[Clip]
         clip_slot = find_if(lambda cs: cs.is_playing, self.clip_slots)
         return clip_slot.clip if clip_slot is not None else None
 
