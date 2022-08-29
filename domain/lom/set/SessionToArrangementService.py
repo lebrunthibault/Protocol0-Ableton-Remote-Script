@@ -67,7 +67,7 @@ class SessionToArrangementService(object):
 
         seq = Sequence()
         seq.add(Backend.client().clear_arrangement)
-        seq.wait(20)
+        seq.wait_ms(1000)
         seq.add(ApplicationViewFacade.show_session)
         seq.add(partial(CommandBus.dispatch, ResetSongCommand()))
 
