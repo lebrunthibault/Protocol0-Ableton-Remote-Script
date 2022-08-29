@@ -121,7 +121,7 @@ class AbstractGroupTrack(AbstractTrack):
         super(AbstractGroupTrack, self).stop(scene_index, immediate=immediate)
 
         if scene_index is not None:
-            bars_left = self.bars_left(scene_index) if plays_on_next_scene else 0
+            bars_left = 0 if plays_on_next_scene else self.bars_left(scene_index)
             self.dummy_group.stop(scene_index, bars_left, immediate)
 
     def get_automated_parameters(self, scene_index):

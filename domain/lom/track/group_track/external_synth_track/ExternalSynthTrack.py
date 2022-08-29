@@ -356,7 +356,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
         Will stop the track immediately or quantized
         the scene_index is useful for fine tuning the stop of abstract group tracks
         """
-        super(AbstractGroupTrack, self).stop(scene_index, immediate=immediate)
+        super(ExternalSynthTrack, self).stop(scene_index, immediate=immediate, plays_on_next_scene=plays_on_next_scene)
         if immediate:
             self.audio_track.stop(True)
             if self.audio_tail_track:

@@ -47,8 +47,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        Logger.dev(list(SongFacade.selected_track().devices)[0].name)
-        Logger.dev(SongFacade.selected_parameter()._device_parameter.default_value)
-        Logger.dev(SongFacade.selected_parameter()._default_value)
-        Logger.dev(SongFacade.selected_parameter()._device_parameter.value)
-        Logger.dev(SongFacade.selected_parameter()._device_parameter.automation_state)
+        pass

@@ -156,7 +156,7 @@ class ScenePlaybackService(SlotManager):
         playing_scene = SongFacade.playing_scene()
         fired_scene = SongFacade.scenes()[event.scene_index]
 
-        if playing_scene is not None and playing_scene != self:
+        if playing_scene is not None and playing_scene.index != event.scene_index:
             playing_scene.stop(immediate=not SongFacade.is_playing(), next_scene=fired_scene)
 
         # update the playing scene singleton at the next bar

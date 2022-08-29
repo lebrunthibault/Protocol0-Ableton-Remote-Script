@@ -99,14 +99,18 @@ class DummyGroup(object):
         # type: (int, int, bool) -> None
         """
             Will stop the track immediately or quantized
-            the scene_index is useful for fine tuning the stop of abstract group tracks
+            Stops the clip at the end of the scene or at the end of the tail clip
         """
         for dummy_track in filter(None, (self._dummy_track, self._dummy_return_track)):
             dummy_clip = dummy_track.clip_slots[scene_index].clip
             if dummy_clip is None:
                 continue
 
-            dummy_clip.stop(immediate=immediate, wait_until_end=True)
+            seq = Sequence()
+            if not immediate:
+                seq.wait_bars(tails_bars_left)
+            seq.add(partial(dummy_clip.stop, immediate=immediate))
+            seq.done()
 
         self.reset_automation(scene_index, tails_bars_left, immediate)
 
