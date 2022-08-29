@@ -102,6 +102,15 @@ class AbstractTrack(SlotManager):
             return []
         return [self.group_track.abstract_track] + self.group_track.group_tracks
 
+    def contains_track(self, track):
+        # type: (AbstractTrack) -> bool
+        """check if self contains track as a direct or nested sub track"""
+        right_most_track = self
+        while len(right_most_track.sub_tracks) > 1:
+            right_most_track = right_most_track.sub_tracks[-1]
+
+        return self.index <= track.index <= right_most_track.index
+
     @property
     def instrument_track(self):
         # type: () -> SimpleTrack
@@ -263,13 +272,36 @@ class AbstractTrack(SlotManager):
             ApplicationViewFacade.focus_current_track()
         return Sequence().wait(2).done()
 
-    def stop(self, immediate=False):
-        # type: (AbstractTrack, bool) -> None
-        # noinspection PyTypeChecker
-        self.base_track._track.stop_all_clips(not immediate)
+    def bars_left(self, scene_index):
+        # type: (int) -> int
+        """Returns the truncated number of bars left before the track stops on this particular scene"""
+        clip = self.clip_slots[scene_index].clip
+        if clip is not None and clip.is_playing:
+            return clip.playing_position.bars_left
+        else:
+            return 0
+
+    def fire(self, scene_index):
+        # type: (int) -> None
+        clip = self.clip_slots[scene_index].clip
+        if clip is not None:
+            clip.fire()
+
+    def stop(self, scene_index=None, immediate=False, plays_on_next_scene=False):
+        # type: (Optional[int], bool, bool) -> None
+        """
+        Will stop the track immediately or quantized
+        the scene_index is useful for fine tuning the stop of abstract group tracks
+        """
+        if scene_index is None:
+            self.base_track._track.stop_all_clips(not immediate)  # noqa
+        else:
+            clip = self.clip_slots[scene_index].clip
+            if clip is not None:
+                clip.stop(immediate=immediate)
 
     def scroll_volume(self, go_next):
-        # type: (AbstractTrack, bool) -> None
+        # type: (bool) -> None
         self.volume += 0.7 if go_next else -0.7
 
     def get_all_simple_sub_tracks(self):
@@ -284,7 +316,7 @@ class AbstractTrack(SlotManager):
         return sub_tracks  # noqa
 
     def add_or_replace_sub_track(self, sub_track, previous_sub_track=None):
-        # type: (AbstractTrack, AbstractTrack, Optional[AbstractTrack]) -> None
+        # type: (AbstractTrack, Optional[AbstractTrack]) -> None
         if sub_track in self.sub_tracks:
             return
 
@@ -294,7 +326,7 @@ class AbstractTrack(SlotManager):
             sub_track_index = self.sub_tracks.index(previous_sub_track)
             self.sub_tracks[sub_track_index] = sub_track
 
-    def get_automated_parameters(self, index):
+    def get_automated_parameters(self, scene_index):
         # type: (int) -> Dict[DeviceParameter, SimpleTrack]
         """Due to AbstractGroupTrack we cannot do this only at clip level"""
         raise NotImplementedError
@@ -306,12 +338,6 @@ class AbstractTrack(SlotManager):
         seq.add(self.arm_state.arm)
         seq.add(partial(self.instrument.preset_list.scroll, go_next))
         return seq.done()
-
-    def fire(self, index):
-        # type: (int) -> None
-        clip = self.clip_slots[index].clip
-        if clip is not None:
-            clip.fire()
 
     def disconnect(self):
         # type: () -> None

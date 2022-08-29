@@ -12,7 +12,6 @@ from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummy
 from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
-from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -41,22 +40,12 @@ class TrackAutomationService(object):
             SongFacade.selected_clip().automation.show_parameter_envelope(selected_parameter)
             return None
 
-        # we have an AbstractGroupTrack
-
         # Special case if we clicked by mistake on a send parameter of any sub track
         # consider we wanted to show the automation of the dummy return track instead
         if selected_parameter.is_mixer_parameter:
-            if current_track.dummy_return_track is None:
-                Backend.client().show_warning("Send parameters need a dummy return track")
-                return None
+            selected_track, selected_parameter = current_track.dummy_group.get_selected_mixer_parameter(selected_parameter)
 
-            selected_track = current_track.dummy_return_track
-            selected_parameter = find_if(  # type: ignore[assignment]
-                lambda p: p.is_mixer_parameter and p.name == selected_parameter.name,
-                current_track.dummy_return_track.devices.parameters,
-            )
-
-        if selected_track not in (current_track.dummy_track, current_track.dummy_return_track):
+        if not isinstance(selected_track, SimpleDummyTrack):
             Backend.client().show_warning("Can only show automation on dummy tracks")
 
         selected_clip = selected_track.clip_slots[SongFacade.selected_scene().index].clip

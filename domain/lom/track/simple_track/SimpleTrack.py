@@ -171,9 +171,9 @@ class SimpleTrack(AbstractTrack):
         DomainEventBus.emit(SimpleTrackDeletedEvent(self))
         return Sequence().wait_for_event(TracksMappedEvent).done()
 
-    def get_automated_parameters(self, index):
+    def get_automated_parameters(self, scene_index):
         # type: (int) -> Dict[DeviceParameter, SimpleTrack]
-        clip = self.clip_slots[index].clip
+        clip = self.clip_slots[scene_index].clip
         if clip is None:
             return {}
 

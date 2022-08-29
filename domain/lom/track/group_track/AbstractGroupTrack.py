@@ -1,4 +1,4 @@
-from typing import List, Optional, cast, Tuple, Dict
+from typing import List, Optional, Dict
 
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
@@ -6,11 +6,10 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrac
 from protocol0.domain.lom.track.abstract_track.AbstractTrackAppearance import (
     AbstractTrackAppearance,
 )
-from protocol0.domain.lom.track.simple_track.SimpleDummyReturnTrack import SimpleDummyReturnTrack
+from protocol0.domain.lom.track.group_track.DummyGroup import DummyGroup
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
-from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.observer.Observable import Observable
 
 
@@ -23,8 +22,7 @@ class AbstractGroupTrack(AbstractTrack):
         self.group_track = self.group_track  # type: Optional[AbstractGroupTrack]
         self.sub_tracks = []  # type: List[AbstractTrack]
         # for now: List[SimpleTrack] but AbstractGroupTracks will register themselves on_tracks_change
-        self.dummy_track = None  # type: Optional[SimpleDummyTrack]
-        self.dummy_return_track = None  # type: Optional[SimpleDummyReturnTrack]
+        self.dummy_group = DummyGroup(self)
 
         self.appearance.register_observer(self)
         self._force_clip_colors = True
@@ -33,7 +31,7 @@ class AbstractGroupTrack(AbstractTrack):
         # type: () -> None
         self._link_sub_tracks()
         self._link_group_track()
-        self._map_dummy_tracks()
+        self.dummy_group.map_tracks()
 
     def _link_sub_tracks(self):
         # type: () -> None
@@ -41,7 +39,7 @@ class AbstractGroupTrack(AbstractTrack):
         # here we don't necessarily link the sub tracks to self
         self.sub_tracks[:] = self.base_track.sub_tracks
 
-    def _link_sub_track(self, sub_track):
+    def link_sub_track(self, sub_track):
         # type: (SimpleTrack) -> None
         sub_track.group_track = self.base_track
         sub_track.abstract_group_track = self
@@ -62,61 +60,11 @@ class AbstractGroupTrack(AbstractTrack):
         self.abstract_group_track = self  # because we already are the abstract group track
         self.group_track.add_or_replace_sub_track(self, self.base_track)
 
-    def _map_dummy_tracks(self):
+    def route_sub_tracks(self):
         # type: () -> None
-        dummy_track, dummy_return_track = self._get_dummy_tracks()
-
-        # no change
-        if dummy_track == self.dummy_track and dummy_return_track == self.dummy_return_track:
-            return None
-
-        if dummy_track is not None:
-            if dummy_track._track != getattr(self.dummy_track, "_track", None):
-                self.dummy_track = SimpleDummyTrack(dummy_track._track, dummy_track.index)
-                self.add_or_replace_sub_track(self.dummy_track, dummy_track)
-                self._link_sub_track(self.dummy_track)
-        else:
-            if self.dummy_track is not None:
-                self.dummy_track.disconnect()
-                self.dummy_track = None
-
-        if dummy_return_track is not None:
-            if dummy_return_track._track != getattr(self.dummy_return_track, "_track", None):
-                self.dummy_return_track = SimpleDummyReturnTrack(
-                    dummy_return_track._track, dummy_return_track.index
-                )
-                self.add_or_replace_sub_track(self.dummy_return_track, dummy_return_track)
-                self._link_sub_track(self.dummy_return_track)
-        else:
-            if self.dummy_return_track is not None:
-                self.dummy_return_track.disconnect()
-                self.dummy_return_track = None
-
-        Scheduler.wait(3, self._route_sub_tracks)
-
-    def _get_dummy_tracks(self):
-        # type: () -> Tuple[Optional[AbstractTrack], Optional[AbstractTrack]]
-        if SimpleDummyTrack.is_track_valid(self.sub_tracks[-1]):
-            if len(self.sub_tracks) > 1 and SimpleDummyTrack.is_track_valid(self.sub_tracks[-2]):
-                return self.sub_tracks[-2], self.sub_tracks[-1]
-            else:
-                # is it the dummy return track ?
-                if SimpleDummyReturnTrack.is_track_valid(self.sub_tracks[-1]):
-                    return None, self.sub_tracks[-1]
-                else:
-                    return self.sub_tracks[-1], None
-
-        return None, None
-
-    def _route_sub_tracks(self):
-        # type: () -> None
-        simple_tracks = [
-            track for track in self.sub_tracks if not isinstance(track, SimpleDummyTrack)
-        ]
-        output_track = self.dummy_track if self.dummy_track is not None else self.base_track
-
-        for track in simple_tracks:
-            track.output_routing.track = cast(SimpleTrack, output_track)
+        for sub_track in self.sub_tracks:
+            if not isinstance(sub_track, SimpleDummyTrack):
+                sub_track.output_routing.track = self.dummy_group.input_routing_track
 
     def is_parent(self, abstract_track):
         # type: (AbstractTrack) -> bool
@@ -132,14 +80,11 @@ class AbstractGroupTrack(AbstractTrack):
 
     def get_view_track(self, scene_index):
         # type: (int) -> Optional[SimpleTrack]
+        """track to show when scrolling scene tracks"""
         if ApplicationViewFacade.is_clip_view_visible():
             return None
         else:
-            # in device view, show the dummy track only if there is a dummy clip
-            if self.dummy_track is not None and self.dummy_track.clip_slots[scene_index].clip:
-                return self.dummy_track
-            else:
-                return self.base_track
+            return self.dummy_group.get_view_track(scene_index)
 
     def update(self, observable):
         # type: (Observable) -> None
@@ -156,44 +101,34 @@ class AbstractGroupTrack(AbstractTrack):
         # type: () -> List[ClipSlot]
         return self.base_track.clip_slots
 
+    def bars_left(self, scene_index):
+        # type: (int) -> int
+        """Returns the truncated number of bars left before the track stops on this particular scene"""
+        return max([sub_track.bars_left(scene_index) for sub_track in self.sub_tracks] or [0])
+
     def fire(self, scene_index):
         # type: (int) -> None
         super(AbstractGroupTrack, self).fire(scene_index)
 
-        self.handle_dummy_clip(scene_index)
+        self.dummy_group.fire(scene_index)
 
-    def handle_dummy_clip(self, scene_index):
-        # type: (int) -> None
+    def stop(self, scene_index=None, immediate=False, plays_on_next_scene=False):
+        # type: (Optional[int], bool, bool) -> None
         """
-            Handling gracefully automation
-
-            if a dummy clip exists : fire it
-            else:
-                stop the previous dummy clip when it finished playing
+        Will stop the track immediately or quantized
+        the scene_index is useful for fine tuning the stop of abstract group tracks
         """
-        for dummy_track in filter(None, (self.dummy_track, self.dummy_return_track)):
-            dummy_clip = dummy_track.clip_slots[scene_index].clip
-            if dummy_clip:
-                if not self.is_playing and not dummy_track.is_playing:
-                    # handles automation glitches on track restart
-                    dummy_track.prepare_automation_for_clip_start(dummy_clip)
-                dummy_clip.fire()
-            else:
-                delay = 0
-                if dummy_track.playing_clip is not None:
-                    delay = dummy_track.playing_clip.playing_position.bars_left
+        super(AbstractGroupTrack, self).stop(scene_index, immediate=immediate)
 
-                # stopping the (looping) previous clip, only after it finished
-                Scheduler.wait_bars(delay, dummy_track.stop)
+        if scene_index is not None:
+            self.dummy_group.stop(
+                scene_index,
+                self.bars_left(scene_index),
+                immediate=immediate,
+                plays_on_next_scene=plays_on_next_scene,
+            )
 
-    def get_automated_parameters(self, index):
+    def get_automated_parameters(self, scene_index):
         # type: (int) -> Dict[DeviceParameter, SimpleTrack]
         """Accessible automated parameters"""
-        automated_parameters = {}
-
-        if self.dummy_track is not None:
-            automated_parameters.update(self.dummy_track.get_automated_parameters(index))
-        if self.dummy_return_track is not None:
-            automated_parameters.update(self.dummy_return_track.get_automated_parameters(index))
-
-        return automated_parameters
+        return self.dummy_group.get_automated_parameters(scene_index)

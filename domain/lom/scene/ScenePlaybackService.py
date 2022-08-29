@@ -8,6 +8,7 @@ from protocol0.application.CommandBus import CommandBus
 from protocol0.application.command.FireSceneToPositionCommand import FireSceneToPositionCommand
 from protocol0.domain.lom.scene.PlayingSceneFacade import PlayingSceneFacade
 from protocol0.domain.lom.scene.Scene import Scene
+from protocol0.domain.lom.scene.SceneFiredEvent import SceneFiredEvent
 from protocol0.domain.lom.scene.ScenePositionScrolledEvent import ScenePositionScrolledEvent
 from protocol0.domain.lom.song.SongStartedEvent import SongStartedEvent
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
@@ -37,6 +38,7 @@ class ScenePlaybackService(SlotManager):
         DomainEventBus.subscribe(ScenePositionScrolledEvent, self._on_scene_position_scrolled_event)
         DomainEventBus.subscribe(SongStartedEvent, self._on_song_started_event)
         DomainEventBus.subscribe(SongStoppedEvent, self._on_song_stopped_event)
+        DomainEventBus.subscribe(SceneFiredEvent, self._on_scene_fired_event)
 
     def _on_bar_changed_event(self, _):
         # type: (BarChangedEvent) -> None
@@ -136,7 +138,35 @@ class ScenePlaybackService(SlotManager):
 
     def _on_song_stopped_event(self, _):
         # type: (SongStoppedEvent) -> None
-        self._stop_previous_playing_scene()
+        # don't activate when doing quick play / stop (e.g. in FireSelectedSceneCommand)
+        if not SongFacade.is_playing():
+            self._stop_previous_playing_scene()
+
+        Scheduler.defer(self._mute_audio_tails)
+
+    def _mute_audio_tails(self):
+        # type: () -> None
+        """On song stop : iterating all scenes because we don't know which tail might be playing"""
+        for scene in SongFacade.scenes():
+            for clip in scene.clips.audio_tail_clips:
+                clip.muted = True
+
+    def _on_scene_fired_event(self, event):
+        # type: (SceneFiredEvent) -> None
+        """Event is fired *before* the scene starts playing"""
+        # Stop the previous scene : quantized or immediate
+        playing_scene = SongFacade.playing_scene()
+        fired_scene = SongFacade.scenes()[event.scene_index]
+
+        if playing_scene is not None and playing_scene != self:
+            playing_scene.stop(immediate=not SongFacade.is_playing(), next_scene=fired_scene)
+
+        # update the playing scene singleton at the next bar
+        seq = Sequence()
+        if SongFacade.is_playing():
+            seq.wait_for_event(BarChangedEvent, continue_on_song_stop=True)
+        seq.add(partial(PlayingSceneFacade.set, fired_scene))
+        seq.done()
 
     def _stop_previous_playing_scene(self):
         # type: () -> None
@@ -144,9 +174,5 @@ class ScenePlaybackService(SlotManager):
             Stop previous playing scene else on play
             tracks with tail from the previous scene are going to play again
         """
-        # don't activate when doing quick play / stop (e.g. in FireSelectedSceneCommand)
-        if SongFacade.is_playing():
-            return
-
         if PlayingSceneFacade.get_previous() is not None:
             PlayingSceneFacade.get_previous().stop(immediate=True)

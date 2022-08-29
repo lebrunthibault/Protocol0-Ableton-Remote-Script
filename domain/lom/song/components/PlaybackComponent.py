@@ -5,7 +5,6 @@ from protocol0.domain.lom.scene.ScenePositionScrolledEvent import ScenePositionS
 from protocol0.domain.lom.song.SongStartedEvent import SongStartedEvent
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.track_recorder.TrackRecordingCancelledEvent import (
     TrackRecordingCancelledEvent,
 )
@@ -40,10 +39,6 @@ class PlaybackComponent(SlotManager):
 
         if not self.is_playing:
             DomainEventBus.defer_emit(SongStoppedEvent())
-
-            # iterating all scenes because we don't know which tail might be playing
-            for scene in SongFacade.scenes():
-                Scheduler.defer(scene.mute_audio_tails)
         else:
             DomainEventBus.defer_emit(SongStartedEvent())
 

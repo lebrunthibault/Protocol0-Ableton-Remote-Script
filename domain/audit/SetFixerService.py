@@ -58,7 +58,3 @@ class SetFixerService(object):
             track.audio_track.name = "a"
             if track.audio_tail_track:
                 track.audio_tail_track.name = SimpleAudioTailTrack.TRACK_NAME
-            if track.dummy_track:
-                track.dummy_track.name = track.dummy_track.TRACK_NAME
-            if track.dummy_return_track:
-                track.dummy_return_track.name = track.dummy_return_track.TRACK_NAME

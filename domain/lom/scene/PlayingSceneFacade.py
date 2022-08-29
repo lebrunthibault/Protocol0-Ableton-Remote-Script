@@ -1,8 +1,8 @@
-from functools import partial
-
 from typing import Optional, List, TYPE_CHECKING
 
+from protocol0.domain.lom.scene.PlayingSceneChangedEvent import PlayingSceneChangedEvent
 from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
@@ -40,15 +40,14 @@ class PlayingSceneFacade(object):
 
         Logger.warning("set playing scene from %s to %s" % (cls.get(), scene))
 
-        if scene is not None and cls.get() is not None:
-            Scheduler.defer(partial(scene.reset_automations, cls.get()))
-
         scenes = cls._INSTANCE._last_playing_scenes
         cls._INSTANCE._last_playing_scenes = scenes[1:] + [scene]
 
         # and select it
         if scene is not None:
             cls._INSTANCE._scene_component.select_scene(scene)
+
+        DomainEventBus.emit(PlayingSceneChangedEvent())
 
         # deferring this until the previous playing scene has stopped
         Scheduler.wait_ms(500, cls._check_for_unknown_playing_scenes)

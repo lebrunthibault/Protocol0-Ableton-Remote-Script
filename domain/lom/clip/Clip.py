@@ -1,3 +1,5 @@
+from functools import partial
+
 import Live
 from _Framework.SubjectSlot import SlotManager
 from typing import Optional, List, cast
@@ -8,6 +10,7 @@ from protocol0.domain.lom.clip.ClipLoop import ClipLoop
 from protocol0.domain.lom.clip.ClipName import ClipName
 from protocol0.domain.lom.clip.ClipPlayingPosition import ClipPlayingPosition
 from protocol0.domain.lom.clip.automation.ClipAutomation import ClipAutomation
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.forward_to import ForwardTo
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.observer.Observable import Observable
@@ -97,11 +100,21 @@ class Clip(SlotManager, Observable):
         if self._clip:
             self._clip.is_playing = is_playing
 
-    def stop(self, immediate=False):
-        # type: (bool) -> None
+    def stop(self, immediate=False, wait_until_end=False):
+        # type: (bool, bool) -> None
+        """
+            immediate: stop is quantized or not
+            until_end: stops the clip when it finished playing
+            (equivalent to doing nothing on a non looped clip)
+        """
         if immediate:
-            self.muted = True
-            self.muted = False
+            if not self.muted:
+                self.muted = True
+                self.muted = False
+            return None
+
+        if wait_until_end:
+            Scheduler.wait_bars(self.playing_position.bars_left, self._clip.stop)
             return None
 
         if self._clip:
@@ -112,6 +125,24 @@ class Clip(SlotManager, Observable):
         if self._clip:
             self._clip.fire()
         return None
+
+    def set_temporary_length(self, bar_length):
+        # type: (float) -> None
+        """
+            This will temporarily set the loop length
+            Allows going around Live scrub by behavior
+        """
+
+        self.loop.looping = True
+        audio_clip_length = self.length
+        self.loop.bar_length = bar_length
+
+        seq = Sequence()
+        seq.wait_ms(1000)
+        # NB : modify length before looping to have loop modification
+        seq.add(partial(setattr, self, "length", audio_clip_length))
+        seq.add(partial(setattr, self.loop, "looping", False))
+        seq.done()
 
     def delete(self):
         # type: () -> Sequence

@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import List, Any, cast, Optional
+from typing import List, Any, cast
 
 from protocol0.domain.lom.clip.DummyClip import DummyClip
 from protocol0.domain.lom.clip_slot.DummyClipSlot import DummyClipSlot
@@ -18,7 +18,6 @@ from protocol0.domain.lom.track.simple_track.SimpleDummyTrackAutomation import (
 from protocol0.domain.lom.track.simple_track.SimpleTrackClipSlots import SimpleTrackClipSlots
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 
 
@@ -79,7 +78,6 @@ class SimpleDummyTrack(SimpleAudioTrack):
             This will set automation values to equal the clip start
             It is used to prevent automation glitches when a track starts playing after silence
         """
-        Logger.dev((self, dummy_clip))
         clip_parameters = dummy_clip.automation.get_automated_parameters(self.devices.parameters)
 
         for parameter in clip_parameters:
@@ -88,25 +86,20 @@ class SimpleDummyTrack(SimpleAudioTrack):
             # the first one being wrong
             parameter.value = round(envelope.value_at_time(0.000001), 3)
 
-    def reset_automation_to_default(self, scene_index, previous_scene_index):
-        # type: (Optional[int], int) -> None
+    def reset_automated_parameters(self, parameters):
+        # type: (List[DeviceParameter]) -> None
         """
-            This will selectively reset automation parameters to their default
-            if their are not present in the current clip (relative to the previous dummy clip)
-            Called on each scene change and allows us to define only one dummy clip automation
-            for a one shot effect instead of creating the automation for each scene
+            This executes at the start of each scene and resets automation previously defined
+            (minus the one defined in the optional playing clip)
+            Doing this is useful because automation using dummy clips is always specific to the clip
+            as opposed to doing it in arrangement (it's a whole)
+            and the parameter will stay at the same value when the clip stops which is not
+            the behavior we seek here
         """
-
-        previous_clip = self.clip_slots[previous_scene_index].clip
-        if previous_clip is None:
-            return None
-
-        previous_clip_parameters = previous_clip.automation.get_automated_parameters(self.devices.parameters)
-        clip_parameters = []  # type: List[DeviceParameter]
-        if scene_index and self.clip_slots[scene_index].clip is not None:
-            clip_parameters = self.clip_slots[scene_index].clip.automation.get_automated_parameters(self.devices.parameters)
-
-        parameters_to_reset = set(previous_clip_parameters) - set(clip_parameters)
+        parameters_to_reset = set(parameters)
+        if self.is_playing:
+            clip_parameters = self.playing_clip.automation.get_automated_parameters(self.devices.parameters)
+            parameters_to_reset -= set(clip_parameters)
 
         for parameter in parameters_to_reset:
             parameter.reset()

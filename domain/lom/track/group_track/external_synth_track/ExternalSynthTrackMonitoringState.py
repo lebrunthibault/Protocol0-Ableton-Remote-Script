@@ -2,10 +2,10 @@ from typing import Optional
 
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
+from protocol0.domain.lom.track.group_track.DummyGroup import DummyGroup
 from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
-from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
@@ -17,20 +17,15 @@ class ExternalSynthTrackMonitoringState(object):
         midi_track,  # type: SimpleMidiTrack
         audio_track,  # type: SimpleAudioTrack
         audio_tail_track,  # type: Optional[SimpleAudioTailTrack]
-        dummy_track,  # type: Optional[SimpleDummyTrack]
+        dummy_group,  # type: DummyGroup
         external_device,  # type: Device
     ):
         # type: (...) -> None
         self._midi_track = midi_track
         self._audio_track = audio_track
         self._audio_tail_track = audio_tail_track
-        self._dummy_track = dummy_track
+        self._dummy_group = dummy_group
         self.external_device = external_device
-
-    def set_dummy_track(self, track):
-        # type: (Optional[SimpleDummyTrack]) -> None
-        """Track is not mapped on __ini__"""
-        self._dummy_track = track
 
     def set_audio_tail_track(self, track):
         # type: (Optional[SimpleAudioTailTrack]) -> None
@@ -105,9 +100,4 @@ class ExternalSynthTrackMonitoringState(object):
         # type: (SimpleTrack) -> None
         track.muted = False
         track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
-        output_track = track.group_track
-        if self._dummy_track:
-            output_track = self._dummy_track
-
-        if output_track:
-            track.output_routing.track = output_track
+        track.output_routing.track = self._dummy_group.input_routing_track

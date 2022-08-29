@@ -5,31 +5,23 @@ from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTr
     ExternalSynthTrack,
 )
 from protocol0.domain.lom.validation.ValidatorInterface import ValidatorInterface
+from protocol0.domain.lom.validation.object_validators.AbstractGroupTrackValidator import \
+    AbstractGroupTrackValidator
 from protocol0.domain.lom.validation.object_validators.external_synth_track.SimpleAudioExtTrackValidator import (
     SimpleAudioExtTrackValidator,
 )
 from protocol0.domain.lom.validation.object_validators.external_synth_track.SimpleAudioTailTrackValidator import (
     SimpleAudioTailTrackValidator,
 )
-from protocol0.domain.lom.validation.object_validators.external_synth_track.SimpleDummyReturnTrackValidator import (
-    SimpleDummyReturnTrackValidator,
-)
-from protocol0.domain.lom.validation.object_validators.external_synth_track.SimpleDummyTrackValidator import (
-    SimpleDummyTrackValidator,
-)
 from protocol0.domain.lom.validation.object_validators.external_synth_track.SimpleMidiExtTrackValidator import (
     SimpleMidiExtTrackValidator,
 )
-from protocol0.domain.lom.validation.sub_validators.AggregateValidator import AggregateValidator
 from protocol0.domain.lom.validation.sub_validators.CallbackValidator import CallbackValidator
-from protocol0.domain.lom.validation.sub_validators.PropertyValueValidator import (
-    PropertyValueValidator,
-)
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.shared.sequence.Sequence import Sequence
 
 
-class ExternalSynthTrackValidator(AggregateValidator):
+class ExternalSynthTrackValidator(AbstractGroupTrackValidator):
     def __init__(self, track, browser_service):
         # type: (ExternalSynthTrack, BrowserServiceInterface) -> None
         self._track = track
@@ -58,34 +50,7 @@ class ExternalSynthTrackValidator(AggregateValidator):
         if track.audio_tail_track:
             validators += SimpleAudioTailTrackValidator(track.audio_tail_track)._validators
 
-        # DUMMY TRACK ROUTINGS
-        if track.dummy_track is None and not track.is_armed:
-            validators.append(
-                PropertyValueValidator(
-                    track.audio_track.output_routing,
-                    "track",
-                    track.base_track,
-                    name="audio track output routing",
-                )
-            )
-            if track.audio_tail_track:
-                validators.append(
-                    PropertyValueValidator(
-                        track.audio_tail_track.output_routing,
-                        "track",
-                        track.base_track,
-                        name="tail track output routing",
-                    )
-                )
-        # DUMMY TRACK
-        if track.dummy_track is not None:
-            validators.append(SimpleDummyTrackValidator(track.dummy_track))
-
-        # DUMMY RETURN TRACK
-        if track.dummy_return_track is not None:
-            validators.append(SimpleDummyReturnTrackValidator(track.dummy_return_track))
-
-        super(ExternalSynthTrackValidator, self).__init__(validators)
+        super(ExternalSynthTrackValidator, self).__init__(track, validators)
 
     def get_error_message(self):
         # type: () -> Optional[str]

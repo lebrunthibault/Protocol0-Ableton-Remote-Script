@@ -4,7 +4,7 @@ from functools import partial
 import Live
 from _Framework.CompoundElement import subject_slot_group
 from _Framework.SubjectSlot import subject_slot
-from typing import Optional, cast, List, Tuple, Dict
+from typing import Optional, cast, List, Dict
 
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
@@ -18,10 +18,12 @@ from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGr
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackArmState import (
     ExternalSynthTrackArmState,
 )
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackDummyGroup import (
+    ExternalSynthTrackDummyGroup,
+)
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackMonitoringState import (  # noqa
     ExternalSynthTrackMonitoringState,
 )
-from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleAudioExtTrack import SimpleAudioExtTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
@@ -51,13 +53,14 @@ class ExternalSynthTrack(AbstractGroupTrack):
         super(ExternalSynthTrack, self).__init__(base_group_track)
         midi_track = base_group_track.sub_tracks[0]
         self.midi_track = SimpleMidiExtTrack(midi_track._track, midi_track.index)
-        self._link_sub_track(self.midi_track)
+        self.link_sub_track(self.midi_track)
 
         audio_track = base_group_track.sub_tracks[1]
         self.audio_track = SimpleAudioExtTrack(audio_track._track, audio_track.index)
-        self._link_sub_track(self.audio_track)
+        self.link_sub_track(self.audio_track)
 
         self.audio_tail_track = None  # type: Optional[SimpleAudioTailTrack]
+        self.dummy_group = ExternalSynthTrackDummyGroup(self)  # type: ExternalSynthTrackDummyGroup
 
         # sub tracks are now handled by self
         for sub_track in base_group_track.sub_tracks:
@@ -72,7 +75,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
             self.midi_track,
             self.audio_track,
             self.audio_tail_track,
-            self.dummy_track,
+            self.dummy_group,
             cast(Device, self.external_device),
         )  # type: ExternalSynthTrackMonitoringState
         self.arm_state = ExternalSynthTrackArmState(
@@ -104,7 +107,6 @@ class ExternalSynthTrack(AbstractGroupTrack):
         self._map_optional_audio_tail_track()
         super(ExternalSynthTrack, self).on_tracks_change()
         self.monitoring_state.set_audio_tail_track(self.audio_tail_track)
-        self.monitoring_state.set_dummy_track(self.dummy_track)
 
         self._sub_track_solo_listener.replace_subjects(
             [sub_track._track for sub_track in self.sub_tracks]
@@ -115,7 +117,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
         """
         Unlike with midi clips, managing seamless loops with a single audio clip is not possible.
         It would mean losing the clip tail when starting it again.
-        We need two.
+        We need two clips.
 
         Solution : we duplicate the audio track and play both (identical) clips alternately
         We launch the duplicate clip when the audio playing clip reaches its last beat
@@ -138,6 +140,9 @@ class ExternalSynthTrack(AbstractGroupTrack):
             playing_clip = self.playing_audio_track.playing_clip
             clip_to_fire = self._audio_clip_to_fire(playing_clip.index)
 
+            # re fire dummy clips (edge case if handle also the tail)
+            self.dummy_group.loop_if_tail(playing_clip.index, midi_clip.loop.bar_length)
+
             if clip_to_fire is not None:
                 if clip_to_fire.index != playing_clip.index:
                     Logger.error(
@@ -158,7 +163,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
         if has_tail_track and not self.audio_tail_track:
             track = self.base_track.sub_tracks[2]
             self.audio_tail_track = SimpleAudioTailTrack(track._track, track.index)
-            self._link_sub_track(self.audio_tail_track)
+            self.link_sub_track(self.audio_tail_track)
             Scheduler.defer(
                 partial(setattr, self.audio_tail_track.input_routing, "track", self.midi_track)
             )
@@ -186,31 +191,10 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
         return True
 
-    def _get_dummy_tracks(self):
-        # type: () -> Tuple[Optional[SimpleAudioTrack], Optional[SimpleAudioTrack]]
-        main_tracks_length = 3 if self.audio_tail_track else 2
-
-        if len(self.sub_tracks) == main_tracks_length + 2:
-            assert isinstance(self.sub_tracks[-2], SimpleAudioTrack)
-            assert isinstance(self.sub_tracks[-1], SimpleAudioTrack)
-            return cast(SimpleAudioTrack, self.sub_tracks[-2]), cast(
-                SimpleAudioTrack, self.sub_tracks[-1]
-            )
-        if len(self.sub_tracks) >= main_tracks_length + 1:
-            assert isinstance(self.sub_tracks[-1], SimpleAudioTrack)
-            dummy_track = cast(SimpleAudioTrack, self.sub_tracks[-1])
-            # is it the dummy return track ?
-            if self.sub_tracks[-1].output_routing.type == OutputRoutingTypeEnum.SENDS_ONLY:
-                return None, dummy_track
-            else:
-                return dummy_track, None
-
-        return None, None
-
-    def _route_sub_tracks(self):
+    def route_sub_tracks(self):
         # type: () -> None
         """Overriding this because parent method doesn't take arm state into account"""
-        super(ExternalSynthTrack, self)._route_sub_tracks()
+        super(ExternalSynthTrack, self).route_sub_tracks()
         if self.is_armed:
             self.monitoring_state.monitor_midi()
         else:
@@ -261,7 +245,11 @@ class ExternalSynthTrack(AbstractGroupTrack):
     @property
     def is_playing(self):
         # type: () -> bool
-        return self.midi_track.is_playing or self.audio_track.is_playing
+        return (
+            self.midi_track.is_playing
+            or self.audio_track.is_playing
+            or (self.audio_tail_track is not None and self.audio_tail_track.is_playing)
+        )
 
     @property
     def is_recording(self):
@@ -340,14 +328,21 @@ class ExternalSynthTrack(AbstractGroupTrack):
         else:
             return self.audio_track.clip_slots[scene_index].clip
 
+    def bars_left(self, scene_index):
+        # type: (int) -> int
+        if self.playing_audio_track is not None and self.playing_audio_track.is_playing:
+            return self.playing_audio_track.playing_clip.playing_position.bars_left
+        else:
+            return 0
+
     def fire(self, scene_index):
         # type: (int) -> None
         """Firing midi and alternating between audio and audio tail for the audio clip"""
-        super(ExternalSynthTrack, self).fire(scene_index)
-
         midi_clip = self.midi_track.clip_slots[scene_index].clip
         if midi_clip is None or midi_clip.muted:
             return
+
+        super(ExternalSynthTrack, self).fire(scene_index)
 
         midi_clip.fire()
         if not self.is_recording:
@@ -366,21 +361,14 @@ class ExternalSynthTrack(AbstractGroupTrack):
         if audio_clip_to_fire is None:
             return None
 
-        audio_clip_to_fire.loop.looping = True
-        audio_clip_length = audio_clip_to_fire.length
-        audio_clip_to_fire.length = self.midi_track.clip_slots[scene_index].clip.length
+        midi_clip_bar_length = self.midi_track.clip_slots[scene_index].clip.loop.bar_length
+        audio_clip_to_fire.set_temporary_length(midi_clip_bar_length)
+        self.dummy_group.prepare_for_scrub(scene_index, midi_clip_bar_length)
 
-        seq = Sequence()
-        seq.wait_ms(1000)
-        # NB : modify length before looping to have loop modification
-        seq.add(partial(setattr, audio_clip_to_fire, "length", audio_clip_length))
-        seq.add(partial(setattr, audio_clip_to_fire.loop, "looping", False))
-        seq.done()
-
-    def get_automated_parameters(self, index):
+    def get_automated_parameters(self, scene_index):
         # type: (int) -> Dict[DeviceParameter, SimpleTrack]
-        automated_parameters = super(ExternalSynthTrack, self).get_automated_parameters(index)
-        automated_parameters.update(self.midi_track.get_automated_parameters(index))
+        automated_parameters = super(ExternalSynthTrack, self).get_automated_parameters(scene_index)
+        automated_parameters.update(self.midi_track.get_automated_parameters(scene_index))
 
         return automated_parameters
 
