@@ -2,6 +2,7 @@ from functools import partial
 
 from protocol0.application.CommandBus import CommandBus
 from protocol0.application.command.ResetSongCommand import ResetSongCommand
+from protocol0.domain.audit.SetFixerService import SetFixerService
 from protocol0.domain.audit.stats.SceneStats import SceneStats
 from protocol0.domain.lom.scene.SceneLastBarPassedEvent import SceneLastBarPassedEvent
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
@@ -27,6 +28,7 @@ class SessionToArrangementService(object):
         scene_component,  # type: SceneComponent
         tempo_component,  # type: TempoComponent
         track_component,  # type: TrackComponent
+        set_fixer_service,  # type: SetFixerService
     ):
         # type: (...) -> None
         self._playback_component = playback_component
@@ -34,6 +36,7 @@ class SessionToArrangementService(object):
         self._scene_component = scene_component
         self._tempo_component = tempo_component
         self._track_component = track_component
+        self._set_fixer_service = set_fixer_service
 
         self._tempo = self._tempo_component.tempo
         self._is_bouncing = False
@@ -50,6 +53,9 @@ class SessionToArrangementService(object):
         # type: () -> None
         if self._is_bouncing:
             self._playback_component.stop_playing()
+            return None
+
+        if not self._set_fixer_service.fix_set():
             return None
 
         self._stop_playing_on_last_scene_end()

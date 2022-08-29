@@ -13,7 +13,7 @@ class SetFixerService(object):
         self._set_upgrade_service = set_upgrade_service
 
     def fix_set(self):
-        # type: () -> None
+        # type: () -> bool
         """Fix the current set to the current standard regarding naming / coloring etc .."""
         Logger.clear()
 
@@ -28,11 +28,13 @@ class SetFixerService(object):
         if len(invalid_objects) == 0:
             Backend.client().show_success("Set is valid")
             self._refresh_objects_appearance()
+            return True
         else:
             Backend.client().show_warning("Invalid set: fixing")
             for invalid_object in invalid_objects:
                 self._validator_service.fix_object(invalid_object, log=False)
             Logger.info("set fixed")
+            return False
 
     def find_devices_to_remove(self):
         # type: () -> None

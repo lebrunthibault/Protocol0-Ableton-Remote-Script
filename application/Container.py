@@ -168,13 +168,6 @@ class Container(ContainerInterface):
         preset_service = PresetService()
         sample_service = SampleService(browser_service, device_component)
 
-        session_to_arrangement_service = SessionToArrangementService(
-            playback_component,
-            recording_component,
-            scene_component,
-            tempo_component,
-            track_component,
-        )
         song_data_service = SongDataService(live_song.get_data, live_song.set_data, scene_component)
 
         # audit
@@ -189,6 +182,15 @@ class Container(ContainerInterface):
         )
         set_profiling_service = SetProfilingService()
         song_stats_service = SongStatsService()
+
+        session_to_arrangement_service = SessionToArrangementService(
+            playback_component,
+            recording_component,
+            scene_component,
+            tempo_component,
+            track_component,
+            set_fixer_service
+        )
 
         # registering managers in container
         self._register(midi_service)
