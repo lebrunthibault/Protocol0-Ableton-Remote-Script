@@ -61,8 +61,8 @@ class ScenePlaybackService(SlotManager):
 
     def fire_scene(self, scene):
         # type: (Scene) -> Optional[Sequence]
-        self._playback_component.stop_all_clips(quantized=False)
-        self._playback_component.stop_playing()
+        Logger.dev("fire scene")
+        self._playback_component.stop()
         Scheduler.defer(scene.fire)
         return None
 
@@ -70,7 +70,7 @@ class ScenePlaybackService(SlotManager):
         # type: (Scene, Optional[int]) -> None
         bar_length = self._get_position_bar_length(scene, bar_length)
         Scene.LAST_MANUALLY_STARTED_SCENE = scene
-        self._playback_component.stop_playing()
+        self._playback_component.stop()
 
         if self._DEBUG:
             Logger.info("Firing %s to bar_length %s" % (scene, bar_length))
@@ -87,6 +87,7 @@ class ScenePlaybackService(SlotManager):
         # type: () -> None
         previous_scene = SongFacade.selected_scene().previous_scene
         if previous_scene == SongFacade.selected_scene():
+            Logger.dev("fire_previous_scene_to_last_bar")
             self.fire_scene(previous_scene)
             return None
 
@@ -130,9 +131,10 @@ class ScenePlaybackService(SlotManager):
         if CommandBus.has_recent_command(FireSceneToPositionCommand, 100):
             return
 
+        # some clips are playing (scene is playing) but not all
         should_restart = any(
             not clip.is_playing and not clip.muted for clip in SongFacade.playing_scene().clips.all
-        )
+        ) and any(clip.is_playing for clip in SongFacade.playing_scene().clips.all)
         if should_restart:
             self.fire_scene(cast(Scene, SongFacade.playing_scene()))
 

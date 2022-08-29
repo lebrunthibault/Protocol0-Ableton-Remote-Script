@@ -69,9 +69,7 @@ class SimpleDummyTrackAutomation(object):
         if self._current_parameter_type is None:
             return None
 
-        parameter_enum = cast(
-            DeviceParameterEnum, DeviceParameterEnum.from_value(self._current_parameter_type)
-        )
+        parameter_enum = DeviceParameterEnum[self._current_parameter_type]
         return CommandBus.dispatch(
             LoadDeviceCommand(DeviceEnum.from_device_parameter(parameter_enum).name)
         )
@@ -112,9 +110,7 @@ class SimpleDummyTrackAutomation(object):
         if self._current_parameter_type is None:
             return None
 
-        parameter_enum = cast(
-            DeviceParameterEnum, DeviceParameterEnum.from_value(self._current_parameter_type)
-        )
+        parameter_enum = DeviceParameterEnum[self._current_parameter_type]
 
         automated_device = self._devices.get_one_from_enum(
             DeviceEnum.from_device_parameter(parameter_enum)

@@ -54,7 +54,7 @@ class DummyGroup(object):
             current_track = getattr(self, track_prop)
             if detected_track is not None:
                 if detected_track._track != getattr(current_track, "_track", None):
-                    current_track = SimpleDummyTrack(detected_track._track, detected_track.index)
+                    current_track = cls(detected_track._track, detected_track.index)
                     setattr(self, track_prop, current_track)
                     self._track.add_or_replace_sub_track(current_track, detected_track)
                     self._track.link_sub_track(current_track)

@@ -169,6 +169,7 @@ class Scene(SlotManager):
         # stop the previous scene in advance, using clip launch quantization
         DomainEventBus.emit(SceneFiredEvent(self.index))
 
+        Logger.dev(SongFacade.is_playing())
         # only way to start all clips together
         if not SongFacade.is_playing():
             self._scene.fire()
@@ -181,7 +182,6 @@ class Scene(SlotManager):
         """Used to manually stopping previous scene
         because we don't display clip slot stop buttons
         """
-        Logger.dev("stop: %s -> %s" % (self, self.abstract_tracks))
         for track in self.abstract_tracks:
             plays_on_next_scene = False
             # checks that the track or any of its sub tracks plays on next scene or that
@@ -209,6 +209,7 @@ class Scene(SlotManager):
             seq.defer()  # for prepare_for_scrub to finish
 
         self.scene_name.update(bar_position=bar_length)
+        Logger.dev("fire to position")
         seq.add(self.fire)
         seq.defer()
         seq.add(partial(self.position_scroller.set_value, bar_length))

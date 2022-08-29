@@ -76,6 +76,11 @@ class PlaybackComponent(SlotManager):
         # type: () -> None
         self._live_song.is_playing = True
 
+    def stop(self):
+        # type: () -> None
+        self.stop_all_clips(quantized=False)
+        self.stop_playing()
+
     def stop_playing(self):
         # type: () -> None
         self._live_song.stop_playing()
