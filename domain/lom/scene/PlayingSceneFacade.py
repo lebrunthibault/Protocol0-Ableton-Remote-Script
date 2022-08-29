@@ -78,3 +78,5 @@ class PlayingSceneFacade(object):
         if len(unknown_playing_scenes) > 0:
             Logger.info("PlayingScene history: %s" % cls.history())
             Backend.client().show_warning("unknown playing scene found")
+            for scene in unknown_playing_scenes:
+                scene.stop(immediate=True)

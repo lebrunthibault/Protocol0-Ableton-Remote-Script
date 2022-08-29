@@ -47,5 +47,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        Logger.dev(SongFacade.selected_scene().abstract_tracks)
-        Logger.dev(SongFacade.selected_scene().clips.tracks)
+        Logger.dev(SongFacade.selected_clip().index)

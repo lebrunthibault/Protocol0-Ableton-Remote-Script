@@ -15,7 +15,6 @@ from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.list import find_if
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -111,7 +110,6 @@ class DummyGroup(object):
 
             seq = Sequence()
             if not immediate and not plays_on_next_scene:
-                Logger.dev("%s waiting bars %s" % (dummy_track, tails_bars_left))
                 seq.wait_bars(tails_bars_left)
             # in the (invalid) case the dummy clip is longer than the scene with tail
             seq.add(partial(dummy_clip.stop))

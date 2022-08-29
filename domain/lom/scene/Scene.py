@@ -24,7 +24,6 @@ from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.utils.forward_to import ForwardTo
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -181,7 +180,6 @@ class Scene(SlotManager):
         """Used to manually stopping previous scene
         because we don't display clip slot stop buttons
         """
-        Logger.dev("stopping : %s" % self.abstract_tracks)
         for track in self.abstract_tracks:
             plays_on_next_scene = False
             # checks that the track or any of its sub tracks plays on next scene or that

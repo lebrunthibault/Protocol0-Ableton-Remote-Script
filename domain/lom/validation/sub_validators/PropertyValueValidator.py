@@ -6,12 +6,13 @@ from protocol0.domain.shared.utils.utils import compare_values
 
 
 class PropertyValueValidator(ValidatorInterface):
-    def __init__(self, obj, attribute, expected_value, name=None):
-        # type: (Any, str, Any, Optional[str]) -> None
+    def __init__(self, obj, attribute, expected_value, name=None, fix=True):
+        # type: (Any, str, Any, Optional[str], bool) -> None
         self._obj = obj
         self._attr = attribute
         self._expected_value = expected_value
         self._name = name
+        self._fix = fix
 
     def get_error_message(self):
         # type: () -> Optional[str]
@@ -39,6 +40,8 @@ class PropertyValueValidator(ValidatorInterface):
 
     def fix(self):
         # type: () -> None
+        if not self._fix:
+            return
         if hasattr(self._obj, self._attr):
             setattr(self._obj, self._attr, self._expected_value)
         else:
