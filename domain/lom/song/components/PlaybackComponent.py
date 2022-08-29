@@ -40,6 +40,8 @@ class PlaybackComponent(SlotManager):
         if not self.is_playing:
             DomainEventBus.defer_emit(SongStoppedEvent())
         else:
+            # will re enable automation for reset dummy automations
+            self.re_enable_automation()
             DomainEventBus.defer_emit(SongStartedEvent())
 
     def _on_scene_position_scrolled_event(self, _):

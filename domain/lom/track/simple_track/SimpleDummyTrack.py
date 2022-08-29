@@ -18,6 +18,7 @@ from protocol0.domain.lom.track.simple_track.SimpleDummyTrackAutomation import (
 from protocol0.domain.lom.track.simple_track.SimpleTrackClipSlots import SimpleTrackClipSlots
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.observer.Observable import Observable
 
 
@@ -97,7 +98,7 @@ class SimpleDummyTrack(SimpleAudioTrack):
             the behavior we seek here
         """
         parameters_to_reset = set(parameters)
-        if self.is_playing:
+        if SongFacade.is_playing() and self.is_playing:
             clip_parameters = self.playing_clip.automation.get_automated_parameters(self.devices.parameters)
             parameters_to_reset -= set(clip_parameters)
 

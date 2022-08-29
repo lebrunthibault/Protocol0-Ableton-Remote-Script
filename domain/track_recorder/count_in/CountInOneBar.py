@@ -3,7 +3,6 @@ from functools import partial
 from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
 from protocol0.domain.track_recorder.count_in.CountInInterface import CountInInterface
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -13,7 +12,6 @@ class CountInOneBar(CountInInterface):
         self._playback_component.stop()
         self._playback_component.metronome = True
         # solo for count in
-        Logger.dev("count in one bar")
         track_solo = self._track.solo
         self._track.solo = True
         self._playback_component.start_playing()

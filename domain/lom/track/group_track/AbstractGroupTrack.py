@@ -121,12 +121,8 @@ class AbstractGroupTrack(AbstractTrack):
         super(AbstractGroupTrack, self).stop(scene_index, immediate=immediate)
 
         if scene_index is not None:
-            self.dummy_group.stop(
-                scene_index,
-                self.bars_left(scene_index),
-                immediate=immediate,
-                plays_on_next_scene=plays_on_next_scene,
-            )
+            bars_left = self.bars_left(scene_index) if plays_on_next_scene else 0
+            self.dummy_group.stop(scene_index, bars_left, immediate)
 
     def get_automated_parameters(self, scene_index):
         # type: (int) -> Dict[DeviceParameter, SimpleTrack]

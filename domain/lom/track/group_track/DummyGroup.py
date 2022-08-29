@@ -95,8 +95,8 @@ class DummyGroup(object):
                     dummy_track.prepare_automation_for_clip_start(dummy_clip)
                 dummy_clip.fire()
 
-    def stop(self, scene_index, tails_bars_left, immediate=False, plays_on_next_scene=False):
-        # type: (int, int, bool, bool) -> None
+    def stop(self, scene_index, tails_bars_left, immediate=False):
+        # type: (int, int, bool) -> None
         """
             Will stop the track immediately or quantized
             the scene_index is useful for fine tuning the stop of abstract group tracks
@@ -108,12 +108,19 @@ class DummyGroup(object):
 
             dummy_clip.stop(immediate=immediate, wait_until_end=True)
 
+        self.reset_automation(scene_index, tails_bars_left, immediate)
+
+    def reset_automation(self, scene_index, tails_bars_left=0, immediate=False):
+        # type: (int, int, bool) -> None
+        """Reset automation when the audio tail clip (tails_bars_left) finished playing"""
+        for dummy_track in filter(None, (self._dummy_track, self._dummy_return_track)):
+            dummy_clip = dummy_track.clip_slots[scene_index].clip
+            if dummy_clip is None:
+                continue
+
             seq = Sequence()
-            if not immediate and not plays_on_next_scene:
-                seq.wait_bars(tails_bars_left)
-            # in the (invalid) case the dummy clip is longer than the scene with tail
-            seq.add(partial(dummy_clip.stop))
             if not immediate:
+                seq.wait_bars(tails_bars_left)
                 seq.wait_for_event(BarChangedEvent)
             automated_parameters = dummy_clip.automation.get_automated_parameters(dummy_track.devices.parameters)
             seq.add(partial(dummy_track.reset_automated_parameters, automated_parameters))

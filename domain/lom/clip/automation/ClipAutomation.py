@@ -49,7 +49,7 @@ class ClipAutomation(object):
 
     def get_envelope(self, parameter):
         # type: (DeviceParameter) -> Optional[ClipAutomationEnvelope]
-        if self._live_clip:
+        if self._live_clip and parameter._device_parameter:
             env = self._live_clip.automation_envelope(parameter._device_parameter)
             if env:
                 return ClipAutomationEnvelope(env, self._loop.length)

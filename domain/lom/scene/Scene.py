@@ -24,7 +24,6 @@ from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.utils.forward_to import ForwardTo
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -169,7 +168,6 @@ class Scene(SlotManager):
         # stop the previous scene in advance, using clip launch quantization
         DomainEventBus.emit(SceneFiredEvent(self.index))
 
-        Logger.dev(SongFacade.is_playing())
         # only way to start all clips together
         if not SongFacade.is_playing():
             self._scene.fire()
@@ -209,7 +207,6 @@ class Scene(SlotManager):
             seq.defer()  # for prepare_for_scrub to finish
 
         self.scene_name.update(bar_position=bar_length)
-        Logger.dev("fire to position")
         seq.add(self.fire)
         seq.defer()
         seq.add(partial(self.position_scroller.set_value, bar_length))

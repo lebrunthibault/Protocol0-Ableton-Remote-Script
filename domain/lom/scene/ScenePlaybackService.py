@@ -13,6 +13,7 @@ from protocol0.domain.lom.scene.ScenePositionScrolledEvent import ScenePositionS
 from protocol0.domain.lom.song.SongStartedEvent import SongStartedEvent
 from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackComponent
+from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
@@ -47,10 +48,7 @@ class ScenePlaybackService(SlotManager):
 
     def _on_third_beat_passed_event(self, _):
         # type: (ThirdBeatPassedEvent) -> None
-        if (
-                SongFacade.playing_scene()
-                and SongFacade.playing_scene().playing_state.is_playing
-        ):
+        if SongFacade.playing_scene() and SongFacade.playing_scene().playing_state.is_playing:
             SongFacade.playing_scene().on_end()
 
     def _on_scene_position_scrolled_event(self, _):
@@ -61,7 +59,6 @@ class ScenePlaybackService(SlotManager):
 
     def fire_scene(self, scene):
         # type: (Scene) -> Optional[Sequence]
-        Logger.dev("fire scene")
         self._playback_component.stop()
         Scheduler.defer(scene.fire)
         return None
@@ -87,7 +84,6 @@ class ScenePlaybackService(SlotManager):
         # type: () -> None
         previous_scene = SongFacade.selected_scene().previous_scene
         if previous_scene == SongFacade.selected_scene():
-            Logger.dev("fire_previous_scene_to_last_bar")
             self.fire_scene(previous_scene)
             return None
 
@@ -114,14 +110,14 @@ class ScenePlaybackService(SlotManager):
     def _restart_inconsistent_scene(self):
         # type: () -> None
         """
-            When the playback starts,
-                - either manually (normal song play)
-                - or from the script (command etc..)
-            the scene can be in a inconsistent play state especially if an audio tail clip was
-            previously playing but got muted
+        When the playback starts,
+            - either manually (normal song play)
+            - or from the script (command etc..)
+        the scene can be in a inconsistent play state especially if an audio tail clip was
+        previously playing but got muted
 
-            We ignore playback from the script (handled) else
-            we relaunch the scene cleanly
+        We ignore playback from the script (handled) else
+        we relaunch the scene cleanly
         """
         if not SongFacade.is_playing() or SongFacade.playing_scene() is None:
             return
@@ -173,8 +169,14 @@ class ScenePlaybackService(SlotManager):
     def _stop_previous_playing_scene(self):
         # type: () -> None
         """
-            Stop previous playing scene else on play
-            tracks with tail from the previous scene are going to play again
+        Stop previous playing scene else on play
+        tracks with tail from the previous scene are going to play again
         """
+        if PlayingSceneFacade.get() is not None:
+            for track in PlayingSceneFacade.get().abstract_tracks:
+                if isinstance(track, AbstractGroupTrack):
+                    track.dummy_group.reset_automation(
+                        PlayingSceneFacade.get().index, immediate=True
+                    )
         if PlayingSceneFacade.get_previous() is not None:
             PlayingSceneFacade.get_previous().stop(immediate=True)

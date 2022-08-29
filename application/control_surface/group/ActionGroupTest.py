@@ -3,7 +3,6 @@ from functools import partial
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 from protocol0.domain.audit.AudioLatencyAnalyzerService import AudioLatencyAnalyzerService
 from protocol0.domain.audit.SetProfilingService import SetProfilingService
-from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackComponent
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
@@ -48,4 +47,8 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        self._container.get(PlaybackComponent).start_playing()
+        Logger.dev(list(SongFacade.selected_track().devices)[0].name)
+        Logger.dev(SongFacade.selected_parameter()._device_parameter.default_value)
+        Logger.dev(SongFacade.selected_parameter()._default_value)
+        Logger.dev(SongFacade.selected_parameter()._device_parameter.value)
+        Logger.dev(SongFacade.selected_parameter()._device_parameter.automation_state)
