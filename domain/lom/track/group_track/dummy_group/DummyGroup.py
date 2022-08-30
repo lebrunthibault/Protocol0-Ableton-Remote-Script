@@ -1,7 +1,8 @@
 from functools import partial
 
-from typing import Optional, Tuple, TYPE_CHECKING, Dict
+from typing import Optional, Tuple, TYPE_CHECKING, Dict, List
 
+from protocol0.domain.lom.clip.DummyClip import DummyClip
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyReturnTrack import SimpleDummyReturnTrack
@@ -18,7 +19,6 @@ from protocol0.domain.shared.scheduler.Last8thPassedEvent import Last8thPassedEv
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -42,6 +42,21 @@ class DummyGroup(object):
             self._dummy_track,
             self._dummy_return_track,
         )
+
+    @property
+    def _dummy_tracks(self):
+        # type: () -> List[SimpleDummyTrack]
+        return list(filter(None, (self._dummy_track, self._dummy_return_track)))
+
+    def _dummy_clips(self, scene_index):
+        # type: (int) -> List[Tuple[SimpleDummyTrack, DummyClip]]
+        clips = []
+        for track in self._dummy_tracks:
+            clip = track.clip_slots[scene_index].clip
+            if clip is not None:
+                clips.append((track, clip))
+
+        return clips
 
     def map_tracks(self):
         # type: () -> None
@@ -87,11 +102,7 @@ class DummyGroup(object):
 
     def has_automation(self, scene_index):
         # type: (int) -> bool
-        for dummy_track in filter(None, (self._dummy_track, self._dummy_return_track)):
-            if dummy_track.clip_slots[scene_index].clip is not None:
-                return True
-
-        return False
+        return len(self._dummy_clips(scene_index)) != 0
 
     def fire(self, scene_index):
         # type: (int) -> None
@@ -99,13 +110,11 @@ class DummyGroup(object):
         if a dummy clip exists : fire it
         Handles gracefully automation
         """
-        for dummy_track in filter(None, (self._dummy_track, self._dummy_return_track)):
-            dummy_clip = dummy_track.clip_slots[scene_index].clip
-            if dummy_clip is not None:
-                if not self._track.is_playing:
-                    # handles automation glitches on track restart
-                    dummy_track.prepare_automation_for_clip_start(dummy_clip)
-                dummy_clip.fire()
+        for dummy_track, dummy_clip in self._dummy_clips(scene_index):
+            if not self._track.is_playing:
+                # handles automation glitches on track restart
+                dummy_track.prepare_automation_for_clip_start(dummy_clip)
+            dummy_clip.fire()
 
     def stop(self, scene_index, next_scene_index, tail_bars_left, immediate=False):
         # type: (int, Optional[int], int, bool) -> None
@@ -113,11 +122,7 @@ class DummyGroup(object):
         Will stop the track immediately or quantized
         Stops the clip at the end of the scene or at the end of the tail clip
         """
-        for dummy_track in filter(None, (self._dummy_track, self._dummy_return_track)):
-            dummy_clip = dummy_track.clip_slots[scene_index].clip
-            if dummy_clip is None:
-                continue
-
+        for dummy_track, dummy_clip in self._dummy_clips(scene_index):
             seq = Sequence()
             if not immediate:
                 # in the edge case the dummy clip is set longer than the tail clip
@@ -127,7 +132,9 @@ class DummyGroup(object):
 
         self.reset_automation(scene_index, next_scene_index, tail_bars_left, immediate)
 
-    def reset_automation(self, scene_index, next_scene_index=None, tails_bars_left=0, immediate=False):
+    def reset_automation(
+        self, scene_index, next_scene_index=None, tails_bars_left=0, immediate=False
+    ):
         # type: (int, Optional[int], int, bool) -> None
         """Reset automation when the audio tail clip (tails_bars_left) finished playing"""
         if not immediate and tails_bars_left == 0:
@@ -139,17 +146,18 @@ class DummyGroup(object):
             seq.add(partial(self._touch_automation, scene_index, next_scene_index))
             seq.done()
 
-        for dummy_track in filter(None, (self._dummy_track, self._dummy_return_track)):
-            dummy_clip = dummy_track.clip_slots[scene_index].clip
-            if dummy_clip is None:
-                continue
-
+        for dummy_track, dummy_clip in self._dummy_clips(scene_index):
             seq = Sequence()
             if not immediate:
                 seq.wait_bars(tails_bars_left)
                 seq.wait_for_event(BarChangedEvent)
             seq.add(partial(dummy_track.reset_automated_parameters, scene_index))
             seq.done()
+
+    def reset_all_automation(self):
+        # type: () -> None
+        for dummy_track in self._dummy_tracks:
+            dummy_track.reset_all_automated_parameters()
 
     def _touch_automation(self, scene_index, next_scene_index):
         # type: (int, Optional[int]) -> None
@@ -161,20 +169,12 @@ class DummyGroup(object):
         We work around this by faking a parameter change at the bar end so that at the next bar
         Live sets this value instead, resulting in no sudden parameter value change
         """
-        for dummy_track in filter(None, (self._dummy_track, self._dummy_return_track)):
-            dummy_clip = dummy_track.clip_slots[scene_index].clip
-            if dummy_clip is None:
-                continue
-
+        for dummy_track, dummy_clip in self._dummy_clips(scene_index):
             for parameter in dummy_track.get_stopping_automated_parameters(
                 scene_index, next_scene_index
             ):
                 envelope = dummy_clip.automation.get_envelope(parameter)
                 value = envelope.value_at_time(dummy_clip.loop.length - 0.01)
-                # value = parameter.value
-                Logger.dev(
-                    "setting %s - %s - %s - %s" % (dummy_track, dummy_clip, parameter, value)
-                )
                 parameter.touch(value)
 
     def prepare_for_scrub(self, scene_index, clip_bar_length):
@@ -185,9 +185,8 @@ class DummyGroup(object):
         and have the good length
         Only for dummy clips with tail (length % clip_length != 0)
         """
-        for dummy_track in filter(None, (self._dummy_track, self._dummy_return_track)):
-            dummy_clip = dummy_track.clip_slots[scene_index].clip
-            if dummy_clip is not None and dummy_clip.has_tail(clip_bar_length):
+        for dummy_track, dummy_clip in self._dummy_clips(scene_index):
+            if dummy_clip.has_tail(clip_bar_length):
                 dummy_clip.set_temporary_length(clip_bar_length)
 
     @property
@@ -199,7 +198,10 @@ class DummyGroup(object):
     def get_view_track(self, scene_index):
         # type: (int) -> Optional[SimpleTrack]
         # in device view, show the dummy track only if there is a dummy clip
-        if self._dummy_track is not None and self._dummy_track.clip_slots[scene_index].clip:
+        if (
+            self._dummy_track is not None
+            and self._dummy_track.clip_slots[scene_index].clip is not None
+        ):
             return self._dummy_track
         else:
             return self._track.base_track
@@ -209,12 +211,8 @@ class DummyGroup(object):
         """Accessible automated parameters"""
         automated_parameters = {}
 
-        if self._dummy_track is not None:
-            automated_parameters.update(self._dummy_track.get_automated_parameters(scene_index))
-        if self._dummy_return_track is not None:
-            automated_parameters.update(
-                self._dummy_return_track.get_automated_parameters(scene_index)
-            )
+        for dummy_track in self._dummy_tracks:
+            automated_parameters.update(dummy_track.get_automated_parameters(scene_index))
 
         return automated_parameters
 

@@ -138,7 +138,7 @@ class DeviceParameter(object):
 
         # sets the value or a slightly different one if it's the same
         if value == self.value:
-            increment = 0.001
+            increment = 0.01
             if value == self.max:
                 value -= increment
             else:

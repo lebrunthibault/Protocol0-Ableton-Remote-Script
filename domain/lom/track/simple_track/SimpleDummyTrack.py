@@ -117,6 +117,18 @@ class SimpleDummyTrack(SimpleAudioTrack):
         for parameter in self.get_stopping_automated_parameters(scene_index, next_scene_index):
             parameter.reset()
 
+    def reset_all_automated_parameters(self):
+        # type: () -> None
+        """Will reset all automated parameters in the track by checking all dummy clips"""
+        parameters = {}
+        for dummy_clip in self.clips:
+            parameters.update(
+                self.get_automated_parameters(dummy_clip.index)
+            )
+
+        for parameter in parameters:
+            parameter.reset()
+
     @property
     def computed_color(self):
         # type: () -> int

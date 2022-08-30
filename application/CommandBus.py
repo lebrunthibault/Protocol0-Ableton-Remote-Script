@@ -12,7 +12,6 @@ from protocol0.application.command_handler.CommandHandlerInterface import Comman
 from protocol0.domain.shared.decorators import handle_error
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils.utils import import_package
-from protocol0.shared.UndoFacade import UndoFacade
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -71,10 +70,8 @@ class CommandBus(object):
         self._history.push(command)
 
         handler = self._command_mapping[command.__class__](self._container)
-        UndoFacade.begin_undo_step()
         seq = Sequence()
         seq.add(partial(handler.handle, command))
-        seq.add(UndoFacade.end_undo_step)
 
         if self._DEBUG:
             seq.add(partial(Logger.info, "%s : took %.3fs" % (command, time.time() - start_at)))

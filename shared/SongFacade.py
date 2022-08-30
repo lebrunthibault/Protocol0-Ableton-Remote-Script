@@ -165,6 +165,17 @@ class SongFacade(object):
         )
 
     @classmethod
+    def abstract_group_tracks(cls):
+        # type: () -> Iterator[AbstractGroupTrack]
+        from protocol0.domain.lom.track.group_track.AbstractGroupTrack import (  # noqa
+            AbstractGroupTrack,
+        )
+
+        for track in cls.abstract_tracks():
+            if isinstance(track, AbstractGroupTrack):
+                yield track
+
+    @classmethod
     def external_synth_tracks(cls):
         # type: () -> Iterator[ExternalSynthTrack]
         from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (  # noqa
