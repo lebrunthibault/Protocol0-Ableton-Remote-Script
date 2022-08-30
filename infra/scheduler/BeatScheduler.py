@@ -7,6 +7,7 @@ from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.BarEndingEvent import BarEndingEvent
 from protocol0.domain.shared.scheduler.BeatSchedulerInterface import BeatSchedulerInterface
+from protocol0.domain.shared.scheduler.Last16thPassedEvent import Last16thPassedEvent
 from protocol0.domain.shared.scheduler.Last32thPassedEvent import Last32thPassedEvent
 from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
 from protocol0.domain.shared.scheduler.ThirdBeatPassedEvent import ThirdBeatPassedEvent
@@ -55,14 +56,18 @@ class BeatScheduler(SlotManager, BeatSchedulerInterface):
             and not self._last_beats_song_time.is_start
         ):
             events.append(BarChangedEvent())
-            if SongFacade.playing_scene() and SongFacade.playing_scene().playing_state.in_last_bar:
-                events.append(SceneLastBarPassedEvent(SongFacade.playing_scene()._scene))
+            playing_scene = SongFacade.playing_scene()
+            if playing_scene is not None and playing_scene.playing_state.in_last_bar:
+                events.append(SceneLastBarPassedEvent(playing_scene._scene))
 
         if current_beats_song_time.beats == 3 and not self._last_beats_song_time.beats == 3:
             events.append(ThirdBeatPassedEvent())
 
         if current_beats_song_time.in_last_beat and not self._last_beats_song_time.in_last_beat:
             events.append(LastBeatPassedEvent())
+
+        if current_beats_song_time.in_last_16th and not self._last_beats_song_time.in_last_16th:
+            events.append(Last16thPassedEvent())
 
         if current_beats_song_time.in_last_32th and not self._last_beats_song_time.in_last_32th:
             events.append(Last32thPassedEvent())

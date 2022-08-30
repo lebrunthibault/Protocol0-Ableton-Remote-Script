@@ -9,6 +9,7 @@ from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.BarEndingEvent import BarEndingEvent
+from protocol0.domain.shared.scheduler.Last16thPassedEvent import Last16thPassedEvent
 from protocol0.domain.shared.scheduler.Last32thPassedEvent import Last32thPassedEvent
 from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -25,8 +26,9 @@ class DomainEventBus(object):
     # these periodic events are not logged even in debug mode
     _SILENT_EVENTS = (
         BarChangedEvent,
-        LastBeatPassedEvent,
         BarEndingEvent,
+        LastBeatPassedEvent,
+        Last16thPassedEvent,
         Last32thPassedEvent,
         SceneLastBarPassedEvent,
         PlayingSceneChangedEvent,

@@ -133,9 +133,13 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
         midi_clip = find_if(lambda cs: cs.is_playing, self.midi_track.clip_slots).clip
 
-        if midi_clip.playing_position.in_last_bar and (
-            not SongFacade.playing_scene().playing_state.in_last_bar
-            or SongFacade.playing_scene().should_loop
+        if (
+            midi_clip.playing_position.in_last_bar
+            and SongFacade.playing_scene() is not None
+            and (
+                not SongFacade.playing_scene().playing_state.in_last_bar
+                or SongFacade.playing_scene().should_loop
+            )
         ):
             playing_clip = self.playing_audio_track.playing_clip
             clip_to_fire = self._audio_clip_to_fire(playing_clip.index)
@@ -356,7 +360,9 @@ class ExternalSynthTrack(AbstractGroupTrack):
         Will stop the track immediately or quantized
         the scene_index is useful for fine tuning the stop of abstract group tracks
         """
-        super(ExternalSynthTrack, self).stop(scene_index, immediate=immediate, plays_on_next_scene=plays_on_next_scene)
+        super(ExternalSynthTrack, self).stop(
+            scene_index, immediate=immediate, plays_on_next_scene=plays_on_next_scene
+        )
         if immediate:
             self.audio_track.stop(True)
             if self.audio_tail_track:

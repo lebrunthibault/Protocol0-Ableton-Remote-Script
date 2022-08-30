@@ -123,6 +123,24 @@ class DeviceParameter(object):
         # noinspection PyPropertyAccess
         param.value = value
 
+    def touch(self):
+        # type:() -> None
+        """
+            Modify the parameter the most slightly possible
+            so as to have live record the value as the base one if the automation stops
+            This is a solution to the partial automation problem in session view
+            When preparing clip automation on start, touching the parameter at the very end of the clip
+            will make live stay on the value instead of folding back to an old value
+        """
+        # only for continuous parameters
+        if self.is_quantized:
+            return None
+        increment = 0.001
+        if self.value == self.max:
+            self.value -= increment
+        else:
+            self.value = min(self.max, self.value + increment)
+
     def reset(self):
         # type: () -> None
         if self.name == "Device On":
