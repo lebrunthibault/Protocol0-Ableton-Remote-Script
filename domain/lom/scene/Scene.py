@@ -60,6 +60,10 @@ class Scene(SlotManager):
         tracks = collections.OrderedDict()  # type: Dict[int, AbstractTrack]
         for track in self.clips.tracks:
             tracks[track.abstract_track.index] = track.abstract_track
+            # add group tracks if they have automation on the scene
+            for group_track in track.abstract_track.group_tracks:
+                if group_track.dummy_group.has_automation(self.index):
+                    tracks[group_track.index] = group_track
 
         return list(sorted(tracks.values(), key=lambda t: t.index))
 

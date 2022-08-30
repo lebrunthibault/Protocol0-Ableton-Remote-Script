@@ -90,5 +90,5 @@ class SceneClips(Observable):
     def tracks(self):
         # type: () -> Iterator[SimpleTrack]
         for track, clip in itertools.izip(self._tracks, self.all):
-            if not clip.muted:
+            if not clip.muted and not isinstance(track, SimpleDummyTrack):
                 yield track

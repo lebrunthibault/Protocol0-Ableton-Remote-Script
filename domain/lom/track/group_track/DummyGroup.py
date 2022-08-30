@@ -81,25 +81,33 @@ class DummyGroup(object):
 
         return None, None
 
+    def has_automation(self, scene_index):
+        # type: (int) -> bool
+        for dummy_track in filter(None, (self._dummy_track, self._dummy_return_track)):
+            if dummy_track.clip_slots[scene_index].clip is not None:
+                return True
+
+        return False
+
     def fire(self, scene_index):
         # type: (int) -> None
         """
-            if a dummy clip exists : fire it
-            Handles gracefully automation
+        if a dummy clip exists : fire it
+        Handles gracefully automation
         """
         for dummy_track in filter(None, (self._dummy_track, self._dummy_return_track)):
             dummy_clip = dummy_track.clip_slots[scene_index].clip
             if dummy_clip is not None:
                 # if not self._track.is_playing:
-                    # handles automation glitches on track restart
-                    # dummy_track.prepare_automation_for_clip_start(dummy_clip)
+                # handles automation glitches on track restart
+                # dummy_track.prepare_automation_for_clip_start(dummy_clip)
                 dummy_clip.fire()
 
     def stop(self, scene_index, tail_bars_left, immediate=False):
         # type: (int, int, bool) -> None
         """
-            Will stop the track immediately or quantized
-            Stops the clip at the end of the scene or at the end of the tail clip
+        Will stop the track immediately or quantized
+        Stops the clip at the end of the scene or at the end of the tail clip
         """
         for dummy_track in filter(None, (self._dummy_track, self._dummy_return_track)):
             dummy_clip = dummy_track.clip_slots[scene_index].clip
@@ -109,7 +117,7 @@ class DummyGroup(object):
             seq = Sequence()
             if not immediate:
                 # in the edge case the dummy clip is set longer than the tail clip
-                seq.wait_bars( min(dummy_clip.playing_position.bars_left, tail_bars_left))
+                seq.wait_bars(min(dummy_clip.playing_position.bars_left, tail_bars_left))
             seq.add(partial(dummy_clip.stop, immediate=immediate))
             seq.done()
 
@@ -127,7 +135,9 @@ class DummyGroup(object):
             if not immediate:
                 seq.wait_bars(tails_bars_left)
                 seq.wait_for_event(BarChangedEvent)
-            automated_parameters = dummy_clip.automation.get_automated_parameters(dummy_track.devices.parameters)
+            automated_parameters = dummy_clip.automation.get_automated_parameters(
+                dummy_track.devices.parameters
+            )
             seq.add(partial(dummy_track.reset_automated_parameters, automated_parameters))
             seq.done()
 
@@ -166,7 +176,9 @@ class DummyGroup(object):
         if self._dummy_track is not None:
             automated_parameters.update(self._dummy_track.get_automated_parameters(scene_index))
         if self._dummy_return_track is not None:
-            automated_parameters.update(self._dummy_return_track.get_automated_parameters(scene_index))
+            automated_parameters.update(
+                self._dummy_return_track.get_automated_parameters(scene_index)
+            )
 
         return automated_parameters
 

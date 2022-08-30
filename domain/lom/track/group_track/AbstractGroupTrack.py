@@ -10,6 +10,7 @@ from protocol0.domain.lom.track.group_track.DummyGroup import DummyGroup
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 
 
@@ -122,6 +123,7 @@ class AbstractGroupTrack(AbstractTrack):
 
         if scene_index is not None:
             bars_left = 0 if plays_on_next_scene else self.bars_left(scene_index)
+            Logger.dev((self, plays_on_next_scene, bars_left, immediate))
             self.dummy_group.stop(scene_index, bars_left, immediate)
 
     def get_automated_parameters(self, scene_index):
