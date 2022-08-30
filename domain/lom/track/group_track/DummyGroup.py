@@ -90,12 +90,12 @@ class DummyGroup(object):
         for dummy_track in filter(None, (self._dummy_track, self._dummy_return_track)):
             dummy_clip = dummy_track.clip_slots[scene_index].clip
             if dummy_clip is not None:
-                if not self._track.is_playing:
+                # if not self._track.is_playing:
                     # handles automation glitches on track restart
-                    dummy_track.prepare_automation_for_clip_start(dummy_clip)
+                    # dummy_track.prepare_automation_for_clip_start(dummy_clip)
                 dummy_clip.fire()
 
-    def stop(self, scene_index, tails_bars_left, immediate=False):
+    def stop(self, scene_index, tail_bars_left, immediate=False):
         # type: (int, int, bool) -> None
         """
             Will stop the track immediately or quantized
@@ -108,11 +108,12 @@ class DummyGroup(object):
 
             seq = Sequence()
             if not immediate:
-                seq.wait_bars(tails_bars_left)
+                # in the edge case the dummy clip is set longer than the tail clip
+                seq.wait_bars( min(dummy_clip.playing_position.bars_left, tail_bars_left))
             seq.add(partial(dummy_clip.stop, immediate=immediate))
             seq.done()
 
-        self.reset_automation(scene_index, tails_bars_left, immediate)
+        self.reset_automation(scene_index, tail_bars_left, immediate)
 
     def reset_automation(self, scene_index, tails_bars_left=0, immediate=False):
         # type: (int, int, bool) -> None

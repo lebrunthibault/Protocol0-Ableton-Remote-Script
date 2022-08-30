@@ -73,19 +73,19 @@ class SimpleDummyTrack(SimpleAudioTrack):
         super(SimpleDummyTrack, self).on_added()
         DomainEventBus.emit(SimpleDummyTrackAddedEvent(self._track))
 
-    def prepare_automation_for_clip_start(self, dummy_clip):
-        # type: (DummyClip) -> None
-        """
-            This will set automation values to equal the clip start
-            It is used to prevent automation glitches when a track starts playing after silence
-        """
-        clip_parameters = dummy_clip.automation.get_automated_parameters(self.devices.parameters)
-
-        for parameter in clip_parameters:
-            envelope = dummy_clip.automation.get_envelope(parameter)
-            # we don't take value_at_time(0) because we often have 2 points at zero,
-            # the first one being wrong
-            parameter.value = round(envelope.value_at_time(0.000001), 3)
+    # def prepare_automation_for_clip_start(self, dummy_clip):
+    #     # type: (DummyClip) -> None
+    #     """
+    #         This will set automation values to equal the clip start
+    #         It is used to prevent automation glitches when a track starts playing after silence
+    #     """
+    #     clip_parameters = dummy_clip.automation.get_automated_parameters(self.devices.parameters)
+    #
+    #     for parameter in clip_parameters:
+    #         envelope = dummy_clip.automation.get_envelope(parameter)
+    #         # we don't take value_at_time(0) because we often have 2 points at zero,
+    #         # the first one being wrong
+    #         parameter.value = round(envelope.value_at_time(0.000001), 3)
 
     def reset_automated_parameters(self, parameters):
         # type: (List[DeviceParameter]) -> None
