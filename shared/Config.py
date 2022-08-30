@@ -1,6 +1,8 @@
 import os
 from os.path import dirname, realpath
 
+import Live
+
 from protocol0.domain.track_recorder.recording_bar_length.RecordingBarLengthEnum import RecordingBarLengthEnum
 from protocol0.shared.logging.LogLevelEnum import LogLevelEnum
 
@@ -24,6 +26,8 @@ class Config(object):
     SPLIT_QUANTIZATION_TEMPO = 110
 
     TRACK_VOLUME_MONITORING = False
+
+    DEFAULT_WARP_MODE = Live.Clip.WarpMode.tones
 
     # VOLUME CONSTANTS
     ZERO_VOLUME = 0.850000023842

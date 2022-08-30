@@ -13,6 +13,7 @@ from protocol0.domain.lom.validation.object_validators.SimpleAudioTrackValidator
 from protocol0.domain.lom.validation.sub_validators.PropertyValueValidator import (
     PropertyValueValidator,
 )
+from protocol0.shared.Config import Config
 
 
 class SimpleAudioTailTrackValidator(SimpleAudioTrackValidator):
@@ -39,6 +40,8 @@ class SimpleAudioTailTrackValidator(SimpleAudioTrackValidator):
         for clip in track.clips:
             validators.append(PropertyValueValidator(clip, "muted", True))
             validators.append(PropertyValueValidator(clip.loop, "looping", False))
+            validators.append(PropertyValueValidator(clip, "warp_mode", Config.DEFAULT_WARP_MODE))
+
             audio_clip = audio_track.clip_slots[clip.index].clip
             assert audio_clip, "Got audio tail clip without audio clip"
             validators.append(

@@ -1,3 +1,5 @@
+import Live
+
 from typing import Any
 
 from protocol0.domain.lom.clip.Clip import Clip
@@ -11,6 +13,16 @@ class AudioClip(Clip):
         # type: (Any, Any) -> None
         super(AudioClip, self).__init__(*a, **k)
         Scheduler.defer(self.appearance.refresh)
+
+    @property
+    def warp_mode(self):
+        # type: () -> Live.Clip.WarpMode
+        return self._clip.warp_mode
+
+    @warp_mode.setter
+    def warp_mode(self, warp_mode):
+        # type: (Live.Clip.WarpMode) -> None
+        self._clip.warp_mode = warp_mode
 
     @property
     def file_path(self):

@@ -10,6 +10,7 @@ from protocol0.domain.lom.validation.object_validators.SimpleAudioTrackValidator
 from protocol0.domain.lom.validation.sub_validators.PropertyValueValidator import (
     PropertyValueValidator,
 )
+from protocol0.shared.Config import Config
 
 
 class SimpleAudioExtTrackValidator(SimpleAudioTrackValidator):
@@ -36,5 +37,6 @@ class SimpleAudioExtTrackValidator(SimpleAudioTrackValidator):
 
         for clip in track.clips:
             validators.append(PropertyValueValidator(clip.loop, "looping", False))
+            validators.append(PropertyValueValidator(clip, "warp_mode", Config.DEFAULT_WARP_MODE))
 
         super(SimpleAudioExtTrackValidator, self).__init__(track, validators)
