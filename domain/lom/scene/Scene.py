@@ -185,13 +185,9 @@ class Scene(SlotManager):
         because we don't display clip slot stop buttons
         """
         for track in self.abstract_tracks:
-            plays_on_next_scene = False
-            # checks that the track or any of its sub tracks plays on next scene or that
-            # the sub track check is here to handle dummy clip termination
-            if next_scene and any(track.contains_track(t) for t in next_scene.abstract_tracks):
-                plays_on_next_scene = True
+            next_scene_index = next_scene.index if next_scene is not None else None
             track.stop(
-                scene_index=self.index, immediate=immediate, plays_on_next_scene=plays_on_next_scene
+                scene_index=self.index, immediate=immediate, next_scene_index=next_scene_index
             )
 
         seq = Sequence()

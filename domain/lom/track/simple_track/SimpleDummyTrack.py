@@ -1,6 +1,6 @@
 from functools import partial
 
-from typing import List, Any, cast
+from typing import List, Any, cast, Optional
 
 from protocol0.domain.lom.clip.DummyClip import DummyClip
 from protocol0.domain.lom.clip_slot.DummyClipSlot import DummyClipSlot
@@ -87,8 +87,21 @@ class SimpleDummyTrack(SimpleAudioTrack):
             # the first one being wrong
             parameter.value = round(envelope.value_at_time(0.000001), 3)
 
-    def reset_automated_parameters(self, parameters):
-        # type: (List[DeviceParameter]) -> None
+    def get_stopping_automated_parameters(self, scene_index, next_scene_index):
+        # type: (int, Optional[int]) -> List[DeviceParameter]
+        dummy_clip = self.clip_slots[scene_index].clip
+        parameters = dummy_clip.automation.get_automated_parameters(self.devices.parameters)
+
+        next_parameters = []  # type: List[DeviceParameter]
+        if next_scene_index is not None:
+            next_dummy_clip = self.clip_slots[next_scene_index].clip
+            if next_dummy_clip is not None:
+                next_parameters = next_dummy_clip.automation.get_automated_parameters(self.devices.parameters)
+
+        return list(set(parameters) - set(next_parameters))
+
+    def reset_automated_parameters(self, scene_index):
+        # type: (int) -> None
         """
             This executes at the start of each scene and resets automation previously defined
             (minus the one defined in the optional playing clip)
@@ -97,12 +110,11 @@ class SimpleDummyTrack(SimpleAudioTrack):
             and the parameter will stay at the same value when the clip stops which is not
             the behavior we seek here
         """
-        parameters_to_reset = set(parameters)
+        next_scene_index = None
         if SongFacade.is_playing() and self.is_playing:
-            clip_parameters = self.playing_clip.automation.get_automated_parameters(self.devices.parameters)
-            parameters_to_reset -= set(clip_parameters)
+            next_scene_index = self.playing_clip.index
 
-        for parameter in parameters_to_reset:
+        for parameter in self.get_stopping_automated_parameters(scene_index, next_scene_index):
             parameter.reset()
 
     @property

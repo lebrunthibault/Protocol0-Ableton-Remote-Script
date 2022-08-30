@@ -287,8 +287,8 @@ class AbstractTrack(SlotManager):
         if clip is not None:
             clip.fire()
 
-    def stop(self, scene_index=None, immediate=False, plays_on_next_scene=False):
-        # type: (Optional[int], bool, bool) -> None
+    def stop(self, scene_index=None, next_scene_index=None, immediate=False):
+        # type: (Optional[int], Optional[int], bool) -> None
         """
         Will stop the track immediately or quantized
         the scene_index is useful for fine tuning the stop of abstract group tracks

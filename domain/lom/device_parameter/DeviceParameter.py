@@ -123,8 +123,8 @@ class DeviceParameter(object):
         # noinspection PyPropertyAccess
         param.value = value
 
-    def touch(self):
-        # type:() -> None
+    def touch(self, value):
+        # type:(Any) -> None
         """
             Modify the parameter the most slightly possible
             so as to have live record the value as the base one if the automation stops
@@ -135,11 +135,16 @@ class DeviceParameter(object):
         # only for continuous parameters
         if self.is_quantized:
             return None
-        increment = 0.001
-        if self.value == self.max:
-            self.value -= increment
-        else:
-            self.value = min(self.max, self.value + increment)
+
+        # sets the value or a slightly different one if it's the same
+        if value == self.value:
+            increment = 0.001
+            if value == self.max:
+                value -= increment
+            else:
+                value = min(self.max, value + increment)
+
+        self.value = value
 
     def reset(self):
         # type: () -> None

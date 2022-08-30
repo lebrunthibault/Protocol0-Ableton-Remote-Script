@@ -354,15 +354,13 @@ class ExternalSynthTrack(AbstractGroupTrack):
             if audio_clip_to_fire is not None:
                 audio_clip_to_fire.fire()
 
-    def stop(self, scene_index=None, immediate=False, plays_on_next_scene=False):
-        # type: (Optional[int], bool, bool) -> None
+    def stop(self, scene_index=None, next_scene_index=None, immediate=False):
+        # type: (Optional[int], Optional[int], bool) -> None
         """
         Will stop the track immediately or quantized
         the scene_index is useful for fine tuning the stop of abstract group tracks
         """
-        super(ExternalSynthTrack, self).stop(
-            scene_index, immediate=immediate, plays_on_next_scene=plays_on_next_scene
-        )
+        super(ExternalSynthTrack, self).stop(scene_index, next_scene_index, immediate=immediate)
         if immediate:
             self.audio_track.stop(True)
             if self.audio_tail_track:

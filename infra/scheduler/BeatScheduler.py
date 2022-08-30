@@ -9,6 +9,7 @@ from protocol0.domain.shared.scheduler.BarEndingEvent import BarEndingEvent
 from protocol0.domain.shared.scheduler.BeatSchedulerInterface import BeatSchedulerInterface
 from protocol0.domain.shared.scheduler.Last16thPassedEvent import Last16thPassedEvent
 from protocol0.domain.shared.scheduler.Last32thPassedEvent import Last32thPassedEvent
+from protocol0.domain.shared.scheduler.Last8thPassedEvent import Last8thPassedEvent
 from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
 from protocol0.domain.shared.scheduler.ThirdBeatPassedEvent import ThirdBeatPassedEvent
 from protocol0.infra.scheduler.BeatSchedulerEvent import BeatSchedulerEvent
@@ -65,6 +66,9 @@ class BeatScheduler(SlotManager, BeatSchedulerInterface):
 
         if current_beats_song_time.in_last_beat and not self._last_beats_song_time.in_last_beat:
             events.append(LastBeatPassedEvent())
+
+        if current_beats_song_time.in_last_8th and not self._last_beats_song_time.in_last_8th:
+            events.append(Last8thPassedEvent())
 
         if current_beats_song_time.in_last_16th and not self._last_beats_song_time.in_last_16th:
             events.append(Last16thPassedEvent())

@@ -10,6 +10,7 @@ from protocol0.domain.lom.track.group_track.DummyGroup import DummyGroup
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.observer.Observable import Observable
 
 
@@ -112,8 +113,8 @@ class AbstractGroupTrack(AbstractTrack):
 
         self.dummy_group.fire(scene_index)
 
-    def stop(self, scene_index=None, immediate=False, plays_on_next_scene=False):
-        # type: (Optional[int], bool, bool) -> None
+    def stop(self, scene_index=None, next_scene_index=None, immediate=False):
+        # type: (Optional[int], Optional[int], bool) -> None
         """
         Will stop the track immediately or quantized
         the scene_index is useful for fine tuning the stop of abstract group tracks
@@ -121,8 +122,14 @@ class AbstractGroupTrack(AbstractTrack):
         super(AbstractGroupTrack, self).stop(scene_index, immediate=immediate)
 
         if scene_index is not None:
-            bars_left = 0 if plays_on_next_scene else self.bars_left(scene_index)
-            self.dummy_group.stop(scene_index, bars_left, immediate)
+            bars_left = self.bars_left(scene_index)
+            if next_scene_index is not None:
+                next_scene = SongFacade.scenes()[next_scene_index]
+                # checks that the track or any of its sub tracks plays on next scene or that
+                # the sub track check is here to handle dummy clip termination
+                if next_scene and any(self.contains_track(t) for t in next_scene.abstract_tracks):
+                    bars_left = 0
+            self.dummy_group.stop(scene_index, next_scene_index, bars_left, immediate)
 
     def get_automated_parameters(self, scene_index):
         # type: (int) -> Dict[DeviceParameter, SimpleTrack]

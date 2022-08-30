@@ -93,6 +93,11 @@ class BeatTime(object):
         return self.beats == SongFacade.signature_numerator()
 
     @property
+    def in_last_8th(self):
+        # type: () -> bool
+        return self.in_last_beat and self._sixteenths >= 3
+
+    @property
     def in_last_16th(self):
         # type: () -> bool
         return self.in_last_beat and self._sixteenths == 4

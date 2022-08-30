@@ -11,6 +11,7 @@ from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.BarEndingEvent import BarEndingEvent
 from protocol0.domain.shared.scheduler.Last16thPassedEvent import Last16thPassedEvent
 from protocol0.domain.shared.scheduler.Last32thPassedEvent import Last32thPassedEvent
+from protocol0.domain.shared.scheduler.Last8thPassedEvent import Last8thPassedEvent
 from protocol0.domain.shared.scheduler.LastBeatPassedEvent import LastBeatPassedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.func import is_func_equal, get_callable_repr, get_class_from_func
@@ -28,6 +29,7 @@ class DomainEventBus(object):
         BarChangedEvent,
         BarEndingEvent,
         LastBeatPassedEvent,
+        Last8thPassedEvent,
         Last16thPassedEvent,
         Last32thPassedEvent,
         SceneLastBarPassedEvent,

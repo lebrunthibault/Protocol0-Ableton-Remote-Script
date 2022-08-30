@@ -13,10 +13,11 @@ from protocol0.domain.lom.validation.object_validators.DummyGroupValidator impor
 )
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
-from protocol0.domain.shared.scheduler.Last16thPassedEvent import Last16thPassedEvent
 from protocol0.domain.shared.scheduler.Last32thPassedEvent import Last32thPassedEvent
+from protocol0.domain.shared.scheduler.Last8thPassedEvent import Last8thPassedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.list import find_if
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -106,8 +107,8 @@ class DummyGroup(object):
                     dummy_track.prepare_automation_for_clip_start(dummy_clip)
                 dummy_clip.fire()
 
-    def stop(self, scene_index, tail_bars_left, immediate=False):
-        # type: (int, int, bool) -> None
+    def stop(self, scene_index, next_scene_index, tail_bars_left, immediate=False):
+        # type: (int, Optional[int], int, bool) -> None
         """
         Will stop the track immediately or quantized
         Stops the clip at the end of the scene or at the end of the tail clip
@@ -124,58 +125,57 @@ class DummyGroup(object):
             seq.add(partial(dummy_clip.stop, immediate=immediate))
             seq.done()
 
-        self.reset_automation(scene_index, tail_bars_left, immediate)
+        self.reset_automation(scene_index, next_scene_index, tail_bars_left, immediate)
 
-    def reset_automation(self, scene_index, tails_bars_left=0, immediate=False):
-        # type: (int, int, bool) -> None
+    def reset_automation(self, scene_index, next_scene_index=None, tails_bars_left=0, immediate=False):
+        # type: (int, Optional[int], int, bool) -> None
         """Reset automation when the audio tail clip (tails_bars_left) finished playing"""
-
-        # the double call is to be as precise as possible while working on high tempi
-        if not immediate:
+        if not immediate and tails_bars_left == 0:
             seq = Sequence()
-            seq.wait_for_event(Last16thPassedEvent)
-            seq.add(partial(self._touch_automation, scene_index))
-            seq.wait_for_event(Last32thPassedEvent)
-            seq.add(partial(self._touch_automation, scene_index))
+            if SongFacade.tempo() > 200:
+                seq.wait_for_event(Last8thPassedEvent)
+            else:
+                seq.wait_for_event(Last32thPassedEvent)
+            seq.add(partial(self._touch_automation, scene_index, next_scene_index))
             seq.done()
 
         for dummy_track in filter(None, (self._dummy_track, self._dummy_return_track)):
             dummy_clip = dummy_track.clip_slots[scene_index].clip
             if dummy_clip is None:
                 continue
-
-            automated_parameters = dummy_clip.automation.get_automated_parameters(
-                dummy_track.devices.parameters
-            )
 
             seq = Sequence()
             if not immediate:
                 seq.wait_bars(tails_bars_left)
                 seq.wait_for_event(BarChangedEvent)
-            seq.add(partial(dummy_track.reset_automated_parameters, automated_parameters))
+            seq.add(partial(dummy_track.reset_automated_parameters, scene_index))
             seq.done()
 
-    def _touch_automation(self, scene_index):
-        # type: (int) -> None
+    def _touch_automation(self, scene_index, next_scene_index):
+        # type: (int, Optional[int]) -> None
         """
-            Kinda technical : when there is a next dummy clip and it doesn't contain the automated parameter
-            on the next bar, Live will set the value at the last time it was modified
-            As remote script timing is not precise,
-            the reset_automated_parameters stop is not instant this can create glitches
-            We work around this by faking a parameter change at the bar end so that at the next bar
-            Live sets this value instead, resulting in no sudden parameter value change
+        Kinda technical : when there is a next dummy clip and it doesn't contain the automated parameter
+        on the next bar, Live will set the value at the last time it was modified
+        As remote script timing is not precise,
+        the reset_automated_parameters stop is not instant this can create glitches
+        We work around this by faking a parameter change at the bar end so that at the next bar
+        Live sets this value instead, resulting in no sudden parameter value change
         """
         for dummy_track in filter(None, (self._dummy_track, self._dummy_return_track)):
             dummy_clip = dummy_track.clip_slots[scene_index].clip
             if dummy_clip is None:
                 continue
 
-            automated_parameters = dummy_clip.automation.get_automated_parameters(
-                dummy_track.devices.parameters
-            )
-            for parameter in automated_parameters:
-                Logger.dev("setting %s - %s - %s" % (dummy_track, dummy_clip, parameter))
-                parameter.touch()
+            for parameter in dummy_track.get_stopping_automated_parameters(
+                scene_index, next_scene_index
+            ):
+                envelope = dummy_clip.automation.get_envelope(parameter)
+                value = envelope.value_at_time(dummy_clip.loop.length - 0.01)
+                # value = parameter.value
+                Logger.dev(
+                    "setting %s - %s - %s - %s" % (dummy_track, dummy_clip, parameter, value)
+                )
+                parameter.touch(value)
 
     def prepare_for_scrub(self, scene_index, clip_bar_length):
         # type: (int, float) -> None

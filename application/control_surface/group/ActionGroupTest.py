@@ -47,6 +47,6 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        SongFacade.selected_parameter().touch()
+        SongFacade.selected_parameter().touch(2)
         Logger.dev(SongFacade.selected_parameter().value)
         # Logger.dev(SongFacade.selected_parameter()._device_parameter.value_items)
