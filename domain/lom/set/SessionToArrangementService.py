@@ -83,7 +83,7 @@ class SessionToArrangementService(object):
         self._track_component.un_focus_all_tracks(including_current=True)
         self._reset_automation()
         self._tempo = self._tempo_component.tempo
-        self._tempo_component.tempo = 999
+        self._tempo_component.tempo = 800
         self._recorded_bar_length = 0
         # unmute all clips in advance so that playback works at this speed
         for scene in SongFacade.scenes():
