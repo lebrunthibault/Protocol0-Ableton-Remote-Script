@@ -43,7 +43,6 @@ class InstrumentInterface(SlotManager):
         super(InstrumentInterface, self).__init__()
         self._track_name = track_name
         self.device = device
-        self.activated = False
         # setting to True will keep the editor shown for the next time only.
         # used when duplicating a track
         self.force_show = False

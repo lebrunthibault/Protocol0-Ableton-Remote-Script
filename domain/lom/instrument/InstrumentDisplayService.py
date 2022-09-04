@@ -11,6 +11,7 @@ from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import Simple
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -20,24 +21,6 @@ class InstrumentDisplayService(object):
         self._device_display_service = device_display_service
         DomainEventBus.subscribe(SimpleTrackArmedEvent, self._on_simple_track_armed_event)
         DomainEventBus.subscribe(InstrumentSelectedEvent, self._on_instrument_selected_event)
-
-    def show_hide_instrument(self, track):
-        # type: (AbstractTrack) -> Optional[Sequence]
-        if track.instrument is None or not track.instrument.CAN_BE_SHOWN:
-            return None
-
-        track = track.instrument_track
-
-        seq = Sequence()
-        if not track.instrument.activated or track.instrument.needs_exclusive_activation:
-            seq.add(partial(self.activate_plugin_window, track))
-        else:
-            seq.add(track.select)
-            if SongFacade.selected_track() != track:
-                seq.add(Backend.client().show_plugins)
-            else:
-                seq.add(Backend.client().show_hide_plugins)
-        return seq.done()
 
     def activate_instrument_plugin_window(self, track):
         # type: (AbstractTrack) -> Optional[Sequence]
@@ -59,6 +42,9 @@ class InstrumentDisplayService(object):
         if not track.instrument or not track.instrument.needs_exclusive_activation:
             return None
 
+        Logger.dev("", debug=False)
+        Logger.dev("arming")
+
         seq = Sequence()
         seq.add(partial(self.activate_plugin_window, track))
         if not track.instrument.force_show:
@@ -76,25 +62,20 @@ class InstrumentDisplayService(object):
         instrument = track.instrument
         assert instrument
 
-        if force_activate or not instrument.activated:
-            seq.add(track.select)
-            seq.add(
-                partial(
-                    self._device_display_service.make_plugin_window_showable,
-                    track,
-                    instrument.device,
-                )
+        seq.add(track.select)
+        seq.add(
+            partial(
+                self._device_display_service.make_plugin_window_showable,
+                track,
+                instrument.device,
             )
-            seq.add(
-                lambda: setattr(instrument, "activated", True), name="mark instrument as activated"
-            )
+        )
 
         if force_activate or instrument.needs_exclusive_activation:
             seq.add(track.select)
             seq.add(instrument.exclusive_activate)
 
-        if force_activate or not instrument.activated:
-            seq.add(instrument.post_activate)
+        seq.add(instrument.post_activate)
 
         seq.add(partial(DomainEventBus.emit, InstrumentActivatedEvent(instrument)))
 

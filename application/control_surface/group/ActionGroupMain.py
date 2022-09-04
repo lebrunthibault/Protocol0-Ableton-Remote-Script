@@ -107,10 +107,6 @@ class ActionGroupMain(ActionGroupInterface):
                 self._container.get(InstrumentDisplayService).activate_instrument_plugin_window,
                 SongFacade.current_track(),
             ),
-            on_long_press=lambda: partial(
-                self._container.get(InstrumentDisplayService).show_hide_instrument,
-                SongFacade.current_track(),
-            ),
             on_scroll=lambda: partial(
                 self._container.get(InstrumentPresetScrollerService).scroll_presets_or_samples,
                 SongFacade.current_track(),
