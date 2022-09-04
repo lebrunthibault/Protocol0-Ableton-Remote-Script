@@ -15,5 +15,6 @@ class TrackRecorderExternalSynthNormalUnlimited(TrackRecorderExternalSynthNormal
 
     def record(self, bar_length):
         # type: (float) -> Sequence
-        self.track.audio_tail_track.arm_state.unarm()
+        if self.track.audio_tail_track is not None:
+            self.track.audio_tail_track.arm_state.unarm()
         return super(TrackRecorderExternalSynthNormalUnlimited, self).record(bar_length)

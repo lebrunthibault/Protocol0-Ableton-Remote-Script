@@ -17,7 +17,7 @@ class Config(object):
     SENTRY_DSN = os.getenv("SENTRY_DSN")
 
     # MISC
-    DEFAULT_RECORDING_BAR_LENGTH = RecordingBarLengthEnum.ONE
+    DEFAULT_RECORDING_BAR_LENGTH = RecordingBarLengthEnum.EIGHT
 
     EXPERIMENTAL_FEATURES = False
 
