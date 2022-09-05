@@ -48,5 +48,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        Logger.dev(SongFacade.selected_parameter())
-        Logger.dev(SongFacade.selected_parameter().name)
+        pass

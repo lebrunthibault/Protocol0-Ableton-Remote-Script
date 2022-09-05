@@ -120,7 +120,6 @@ class SessionToArrangementService(object):
         # type: () -> None
         """Stop the song when the last scene finishes"""
         self._scene_component.looping_scene_toggler.reset()
-        Logger.dev(SongFacade.last_scene())
         seq = Sequence()
         seq.wait_for_event(SceneLastBarPassedEvent, SongFacade.last_scene()._scene)
         seq.add(SongFacade.last_scene().stop)

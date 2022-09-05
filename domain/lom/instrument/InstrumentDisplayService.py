@@ -11,7 +11,6 @@ from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import Simple
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -41,9 +40,6 @@ class InstrumentDisplayService(object):
 
         if not track.instrument or not track.instrument.needs_exclusive_activation:
             return None
-
-        Logger.dev("", debug=False)
-        Logger.dev("arming")
 
         seq = Sequence()
         seq.add(partial(self.activate_plugin_window, track))
