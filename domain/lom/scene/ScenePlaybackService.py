@@ -63,7 +63,7 @@ class ScenePlaybackService(SlotManager):
         # also it will stop the tails
         self._playback_component.stop()
         # not defer to avoid playback play / stop loops
-        Scheduler.wait(3, scene.fire)
+        Scheduler.wait(5, scene.fire)
         return None
 
     def fire_scene_to_position(self, scene, bar_length=None):

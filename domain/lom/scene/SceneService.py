@@ -16,6 +16,7 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrac
 from protocol0.domain.shared.decorators import handle_error, debounce
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.domain.shared.utils.list import find_if
 from protocol0.infra.interface.session.SessionUpdatedEvent import SessionUpdatedEvent
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
@@ -81,6 +82,10 @@ class SceneService(SlotManager):
 
     def _generate_scenes(self):
         # type: () -> None
+        # save playing scene
+        playing_live_scene = (
+            SongFacade.playing_scene()._scene if SongFacade.playing_scene() else None
+        )
         self._clean_deleted_scenes()
 
         # mapping cs should be done before generating the scenes
@@ -91,7 +96,6 @@ class SceneService(SlotManager):
             track.on_scenes_change()
 
         live_scenes = self._live_song.scenes
-        has_added_scene = 0 < len(SongFacade.scenes()) < len(live_scenes)
 
         # get the right scene or instantiate new scenes
         for index, live_scene in enumerate(live_scenes):
@@ -99,15 +103,17 @@ class SceneService(SlotManager):
 
         self._sort_scenes()
 
-        if has_added_scene and SongFacade.selected_scene().length and SongFacade.is_playing():
-            Scheduler.defer(SongFacade.selected_scene().fire)
+        # restore playing scene
+        if playing_live_scene is not None:
+            playing_scene = find_if(lambda s: s._scene == playing_live_scene, SongFacade.scenes())
+            PlayingSceneFacade.set(playing_scene)
 
     def _clean_deleted_scenes(self):
         # type: () -> None
+        """cleaning all scenes always"""
         existing_scene_ids = [scene._live_ptr for scene in self._live_song.scenes]
 
         for scene_id, scene in self._live_scene_id_to_scene.items():
-            # cleaning all scenes always
             scene.disconnect()
             if scene == SongFacade.playing_scene():
                 PlayingSceneFacade.set(None)
