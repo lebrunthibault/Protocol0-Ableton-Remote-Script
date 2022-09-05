@@ -81,6 +81,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
         self.arm_state = ExternalSynthTrackArmState(
             self.base_track, self.midi_track, self.monitoring_state
         )
+        self._is_stopping = False  # quantized, this is not part of Live API
 
         DomainEventBus.subscribe(ThirdBeatPassedEvent, self._on_third_beat_passed_event)
 
@@ -140,7 +141,9 @@ class ExternalSynthTrack(AbstractGroupTrack):
                 not SongFacade.playing_scene().playing_state.in_last_bar
                 or SongFacade.playing_scene().should_loop
             )
+            and not self._is_stopping
         ):
+            Logger.dev("third beat passed")
             playing_clip = self.playing_audio_track.playing_clip
             clip_to_fire = self._audio_clip_to_fire(playing_clip.index)
 
@@ -348,6 +351,8 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
         super(ExternalSynthTrack, self).fire(scene_index)
 
+        self._is_stopping = False
+
         midi_clip.fire()
         if not self.is_recording:
             audio_clip_to_fire = self._audio_clip_to_fire(scene_index)
@@ -361,10 +366,25 @@ class ExternalSynthTrack(AbstractGroupTrack):
         the scene_index is useful for fine tuning the stop of abstract group tracks
         """
         super(ExternalSynthTrack, self).stop(scene_index, next_scene_index, immediate=immediate)
-        if immediate:
-            self.audio_track.stop(True)
+
+        should_stop_audio = False
+        if scene_index is not None:
+            midi_clip = self.midi_track.clip_slots[scene_index].clip
+            if not midi_clip.playing_position.in_last_bar:
+                should_stop_audio = True
+
+        if not should_stop_audio:
+            # have the tail keep playing without launching the clip again
+            self._is_stopping = True
+            Scheduler.wait_bars(
+                1, partial(setattr, self, "_is_stopping", False), execute_on_song_stop=True
+            )
+
+        if immediate or should_stop_audio:
+            Logger.dev("stopping audio track")
+            self.audio_track.stop(immediate=immediate)
             if self.audio_tail_track:
-                self.audio_tail_track.stop(True)
+                self.audio_tail_track.stop(immediate=immediate)
 
     def prepare_for_scrub(self, scene_index):
         # type: (int) -> None

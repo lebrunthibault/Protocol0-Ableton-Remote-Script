@@ -26,14 +26,14 @@ class Scheduler(object):
         cls._INSTANCE._tick_scheduler.schedule(1, callback)
 
     @classmethod
-    def wait_beats(cls, beats, callback):
-        # type: (float, Callable) -> None
-        cls._INSTANCE._beat_scheduler.wait_beats(beats, callback)
+    def wait_beats(cls, beats, callback, execute_on_song_stop=False):
+        # type: (float, Callable, bool) -> None
+        cls._INSTANCE._beat_scheduler.wait_beats(beats, callback, execute_on_song_stop)
 
     @classmethod
-    def wait_bars(cls, bars, callback):
-        # type: (float, Callable) -> None
-        cls._INSTANCE._beat_scheduler.wait_beats(bars * SongFacade.signature_numerator(), callback)
+    def wait_bars(cls, bars, callback, execute_on_song_stop=False):
+        # type: (float, Callable, bool) -> None
+        cls._INSTANCE._beat_scheduler.wait_beats(bars * SongFacade.signature_numerator(), callback, execute_on_song_stop)
 
     @classmethod
     def wait(cls, tick_count, callback, unique=False):

@@ -21,7 +21,7 @@ class TrackRecorderClipTailDecorator(TrackRecorderDecorator):
     # This value is not zero just after the sound is finished
     # and this thus not precise for sounds with a low release
     # But if it were higher we would lose tail ends of sounds with a high release ..
-    OUTPUT_METER_LEFT_THRESHOLD = 0.3
+    OUTPUT_METER_LEFT_THRESHOLD = 0.25
 
     @property
     def track(self):

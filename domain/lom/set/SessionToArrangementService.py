@@ -66,6 +66,7 @@ class SessionToArrangementService(object):
         self._setup_bounce()
 
         seq = Sequence()
+        seq.add(ApplicationViewFacade.show_arrangement)
         seq.add(Backend.client().clear_arrangement)
         seq.wait_ms(700)
         seq.add(ApplicationViewFacade.show_session)
@@ -83,13 +84,12 @@ class SessionToArrangementService(object):
         self._track_component.un_focus_all_tracks(including_current=True)
         self._reset_automation()
         self._tempo = self._tempo_component.tempo
-        self._tempo_component.tempo = 800
+        # self._tempo_component.tempo = 800
         self._recorded_bar_length = 0
         # unmute all clips in advance so that playback works at this speed
-        for scene in SongFacade.scenes():
-            for clip in scene.clips.audio_tail_clips:
-                clip.muted = False
-        ApplicationViewFacade.show_arrangement()
+        # for scene in SongFacade.scenes():
+        #     for clip in scene.clips.audio_tail_clips:
+        #         clip.muted = False
 
         for track in SongFacade.external_synth_tracks():
             if track.external_device.is_enabled:
@@ -124,11 +124,15 @@ class SessionToArrangementService(object):
         # type: () -> None
         """Stop the song when the last scene finishes"""
         self._scene_component.looping_scene_toggler.reset()
+        Logger.dev(SongFacade.last_scene())
         seq = Sequence()
         seq.wait_for_event(SceneLastBarPassedEvent, SongFacade.last_scene()._scene)
         seq.add(SongFacade.last_scene().stop)
+        seq.log("stopped last scene")
         if SongFacade.last_scene().bar_length > 1:
             seq.wait_for_event(BarChangedEvent)
+        seq.add(partial(SongFacade.last_scene().stop, immediate=True))
+        seq.log("stopped last scene immediate")
         seq.add(self._validate_recording_duration)
         seq.wait_bars(4)  # leaving some space for tails
         seq.add(self._playback_component.stop_playing)

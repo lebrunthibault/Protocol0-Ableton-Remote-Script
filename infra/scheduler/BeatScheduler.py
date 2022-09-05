@@ -36,12 +36,16 @@ class BeatScheduler(SlotManager, BeatSchedulerInterface):
     def _is_playing_listener(self):
         # type: () -> None
         if not self._song.is_playing:
+            self._execute_events()  # execute song stopped events
             self.reset()
 
     def _on_tick(self):
         # type: () -> None
         self._dispatch_timing_events()
+        self._execute_events()
 
+    def _execute_events(self):
+        # type: () -> None
         for event in self._scheduled_events:
             if event.should_execute:
                 event.execute()
@@ -88,15 +92,17 @@ class BeatScheduler(SlotManager, BeatSchedulerInterface):
         for event in events:
             DomainEventBus.emit(event)
 
-    def wait_beats(self, beats_offset, callback):
-        # type: (float, Callable) -> None
+    def wait_beats(self, beats_offset, callback, execute_on_song_stop):
+        # type: (float, Callable, bool) -> None
         """
         NB : the system internally relies on the Live timer's tick (every 17ms)
         So we cannot have precise execution
         Tip: never rely on wait_beats but use it in conjunction with listeners and Live quantization on launch
         It's the only way to have precise scheduling
         """
-        event = BeatSchedulerEvent(callback, BeatTime.make_from_beat_offset(beats_offset))
+        event = BeatSchedulerEvent(
+            callback, BeatTime.make_from_beat_offset(beats_offset), execute_on_song_stop
+        )
         if beats_offset == 0:
             event.execute()
         else:
