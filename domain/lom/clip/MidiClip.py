@@ -119,15 +119,18 @@ class MidiClip(Clip):
         between the 2 layers.
         The rev2 is bi timbral and has two layers that expose the same parameters.
         """
-        parameters = self.automation.get_automated_parameters(device_parameters)
+        automated_parameters = self.automation.get_automated_parameters(device_parameters)
         parameters_couple = []
-        for parameter in parameters:
-            if parameter.name.startswith("A-"):
+        for automated_parameter in automated_parameters:
+            if automated_parameter.name.startswith("A-"):
                 b_parameter = find_if(
-                    lambda p: p.name == parameter.name.replace("A-", "B-"), parameters
+                    lambda p: p.name == automated_parameter.name.replace("A-", "B-"), device_parameters
                 )
-                if b_parameter:
-                    parameters_couple.append(LinkedDeviceParameters(parameter, b_parameter))
+                assert b_parameter
+                if b_parameter not in automated_parameters:
+                    self.automation.create_envelope(b_parameter)
+
+                parameters_couple.append(LinkedDeviceParameters(automated_parameter, b_parameter))
 
         return parameters_couple
 

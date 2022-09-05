@@ -1,5 +1,5 @@
 import Live
-from typing import Optional, List
+from typing import Optional, List, cast
 
 from protocol0.domain.lom.clip.ClipEnvelopeShowedEvent import ClipEnvelopeShowedEvent
 from protocol0.domain.lom.clip.ClipLoop import ClipLoop
@@ -21,7 +21,17 @@ class ClipAutomation(object):
 
     def get_automated_parameters(self, device_parameters):
         # type: (List[DeviceParameter]) -> List[DeviceParameter]
-        return [parameter for parameter in device_parameters if self.get_envelope(parameter)]
+        automated_parameters = []
+        for parameter in device_parameters:
+            # ignore prophet b layer (we edit only A)
+            if parameter.name.startswith("B-"):
+                continue
+            if self.get_envelope(parameter) is None:
+                continue
+
+            automated_parameters.append(parameter)
+
+        return automated_parameters
 
     def show_parameter_envelope(self, parameter):
         # type: (DeviceParameter) -> None
@@ -58,14 +68,22 @@ class ClipAutomation(object):
 
     def select_or_create_envelope(self, parameter):
         # type: (DeviceParameter) -> None
-        existing_envelope = self.get_envelope(parameter)
-        if not existing_envelope:
-            self._live_clip.create_automation_envelope(parameter._device_parameter)
+        envelope = self.get_envelope(parameter)
+        if envelope is None:
+            envelope = self.create_envelope(parameter)
 
-        existing_envelope = self.get_envelope(parameter)
-        existing_envelope.create_start_and_end_points()
+        envelope.create_start_and_end_points()
 
         self.show_parameter_envelope(parameter)
+
+    def create_envelope(self, parameter):
+        # type: (DeviceParameter) -> ClipAutomationEnvelope
+        try:
+            self._live_clip.create_automation_envelope(parameter._device_parameter)
+        except RuntimeError:
+            # envelope already exists
+            pass
+        return cast(ClipAutomationEnvelope, self.get_envelope(parameter))
 
     def clear_all_envelopes(self):
         # type: () -> None

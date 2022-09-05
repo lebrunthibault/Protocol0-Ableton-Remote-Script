@@ -48,4 +48,5 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        Scheduler.wait_bars(1, lambda: Logger.dev("toto"), execute_on_song_stop=True)
+        Logger.dev(SongFacade.selected_parameter())
+        Logger.dev(SongFacade.selected_parameter().name)

@@ -9,6 +9,7 @@ from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTr
     ExternalSynthTrack,
 )
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
+from protocol0.domain.lom.track.simple_track.SimpleMidiExtTrack import SimpleMidiExtTrack
 from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
@@ -36,14 +37,20 @@ class TrackAutomationService(object):
         current_track = SongFacade.current_track()
         selected_track = SongFacade.selected_track()
 
-        if not isinstance(current_track, AbstractGroupTrack):
+        # simple access
+        if not isinstance(current_track, AbstractGroupTrack) or isinstance(
+            selected_track, SimpleMidiExtTrack
+        ):
             SongFacade.selected_clip().automation.show_parameter_envelope(selected_parameter)
             return None
 
         # Special case if we clicked by mistake on a send parameter of any sub track
         # consider we wanted to show the automation of the dummy return track instead
-        if selected_parameter.is_mixer_parameter:
-            selected_track, selected_parameter = current_track.dummy_group.get_selected_mixer_parameter(selected_parameter)
+        if selected_parameter.is_mixer_parameter:  # type: ignore[unreachable]
+            (
+                selected_track,
+                selected_parameter,
+            ) = current_track.dummy_group.get_selected_mixer_parameter(selected_parameter)
 
         if not isinstance(selected_track, SimpleDummyTrack):
             Backend.client().show_warning("Can only show automation on dummy tracks")
