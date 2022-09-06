@@ -4,6 +4,7 @@ from protocol0.domain.lom.clip.DummyClip import DummyClip
 from protocol0.domain.lom.scene.SceneClips import SceneClips
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 
 
 class SceneWindow(object):
@@ -24,6 +25,7 @@ class SceneWindow(object):
 
     def apply_to_scene(self, clips):
         # type: (SceneClips) -> None
+        Logger.dev("applying %s" % self)
         for clip in clips.all:
             if clip.length <= self._length:
                 continue

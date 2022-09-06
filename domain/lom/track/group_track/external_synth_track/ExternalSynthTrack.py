@@ -148,7 +148,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
             clip_to_fire = self._audio_clip_to_fire(playing_clip.index)
 
             # re fire dummy clips (edge case if handle also the tail)
-            self.dummy_group.loop_if_tail(playing_clip.index, midi_clip.loop.bar_length)
+            self.dummy_group.loop_if_tail(playing_clip.index, midi_clip.bar_length)
 
             if clip_to_fire is not None:
                 if clip_to_fire.index != playing_clip.index:
@@ -396,7 +396,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
         if audio_clip_to_fire is None:
             return None
 
-        midi_clip_bar_length = self.midi_track.clip_slots[scene_index].clip.loop.bar_length
+        midi_clip_bar_length = self.midi_track.clip_slots[scene_index].clip.bar_length
         try:
             audio_clip_to_fire.set_temporary_length(midi_clip_bar_length)
         except IndexError:

@@ -44,7 +44,7 @@ class TrackRecorderExternalSynthAudioMulti(TrackRecorderExternalSynthAudio):
         for scene in self.recording_scenes[:-1]:
             if (
                 scene.bar_length
-                != self.track.midi_track.clip_slots[scene.index].clip.loop.bar_length
+                != self.track.midi_track.clip_slots[scene.index].clip.bar_length
             ):
                 scene_clip_bar_length_mismatch = True
                 break
@@ -94,7 +94,7 @@ class TrackRecorderExternalSynthAudioMulti(TrackRecorderExternalSynthAudio):
         if self.track.audio_tail_track:
             clip_bar_length = self.track.midi_track.clip_slots[
                 self.recording_scene_index
-            ].clip.loop.bar_length
+            ].clip.bar_length
 
             audio_tail_clip = self.track.audio_tail_track.clip_slots[
                 self.recording_scene_index
@@ -110,5 +110,5 @@ class TrackRecorderExternalSynthAudioMulti(TrackRecorderExternalSynthAudio):
         seq.add([clip_slot.prepare_for_record for clip_slot in self._recording_clip_slots])
 
         midi_clip = self.track.midi_track.selected_clip_slot.clip
-        seq.add(partial(self.record, midi_clip.loop.bar_length))
+        seq.add(partial(self.record, midi_clip.bar_length))
         return seq.done()

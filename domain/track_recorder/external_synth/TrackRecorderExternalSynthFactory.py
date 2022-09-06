@@ -107,6 +107,6 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
             RecordTypeEnum.AUDIO_ONLY_MULTI_AUTOMATION,
         ):
             midi_clip = self.track.midi_track.selected_clip_slot.clip
-            return midi_clip.loop.bar_length
+            return midi_clip.bar_length
         else:
             raise Protocol0Warning("Unmatched record type %s" % record_type)

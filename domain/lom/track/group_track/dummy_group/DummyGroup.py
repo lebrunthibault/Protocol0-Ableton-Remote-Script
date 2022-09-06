@@ -174,7 +174,7 @@ class DummyGroup(object):
                 scene_index, next_scene_index
             ):
                 envelope = dummy_clip.automation.get_envelope(parameter)
-                value = envelope.value_at_time(dummy_clip.loop.length - 0.01)
+                value = envelope.value_at_time(dummy_clip.length - 0.01)
                 parameter.touch(value)
 
     def prepare_for_scrub(self, scene_index, clip_bar_length):

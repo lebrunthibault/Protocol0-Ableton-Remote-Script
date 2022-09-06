@@ -8,6 +8,7 @@ from typing import List, Optional, Iterator, Any
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.device_parameter.LinkedDeviceParameters import LinkedDeviceParameters
+from protocol0.domain.lom.instrument.instrument.InstrumentSimpler import InstrumentSimpler
 from protocol0.domain.lom.note.Note import Note
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.utils.list import find_if
@@ -36,7 +37,7 @@ class MidiClip(Clip):
             return []
         # noinspection PyArgumentList
         clip_notes = [
-            Note(*note) for note in self._clip.get_notes(self.loop.start, 0, self.loop.length, 128)
+            Note(*note) for note in self._clip.get_notes(self.loop.start, 0, self.length, 128)
         ]
         notes = list(self._get_notes_from_cache(notes=clip_notes))
         notes.sort(key=lambda x: x.start)
@@ -67,6 +68,10 @@ class MidiClip(Clip):
             return None
 
         self._clip.view.grid_quantization = Live.Clip.GridQuantization.g_sixteenth
+
+        if not isinstance(SongFacade.selected_track().instrument, InstrumentSimpler):
+            return None
+
         seq = Sequence()
         seq.defer()
         seq.add(self.generate_base_notes)
@@ -75,7 +80,7 @@ class MidiClip(Clip):
 
     def generate_base_notes(self):
         # type: () -> Optional[Sequence]
-        self.loop.bar_length = SongFacade.selected_scene().bar_length
+        self.bar_length = SongFacade.selected_scene().bar_length
         self.show_loop()
 
         pitch = self._config.default_note

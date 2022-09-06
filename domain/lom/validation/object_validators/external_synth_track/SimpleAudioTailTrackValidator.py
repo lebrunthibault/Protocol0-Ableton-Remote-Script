@@ -4,12 +4,12 @@ from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTr
     ExternalSynthTrack,
 )
 from protocol0.domain.lom.track.routing.InputRoutingChannelEnum import InputRoutingChannelEnum
-from protocol0.domain.lom.track.simple_track.SimpleAudioExtTrack import SimpleAudioExtTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.lom.validation.ValidatorInterface import ValidatorInterface
 from protocol0.domain.lom.validation.object_validators.SimpleAudioTrackValidator import (
     SimpleAudioTrackValidator,
 )
+from protocol0.domain.lom.validation.sub_validators.CallbackValidator import CallbackValidator
 from protocol0.domain.lom.validation.sub_validators.PropertyValueValidator import (
     PropertyValueValidator,
 )
@@ -17,8 +17,8 @@ from protocol0.shared.Config import Config
 
 
 class SimpleAudioTailTrackValidator(SimpleAudioTrackValidator):
-    def __init__(self, track, audio_track):
-        # type: (SimpleAudioTailTrack, SimpleAudioExtTrack) -> None
+    def __init__(self, track):
+        # type: (SimpleAudioTailTrack) -> None
         ext_track = cast(ExternalSynthTrack, track.abstract_group_track)
         validators = cast(
             List[ValidatorInterface],
@@ -42,16 +42,27 @@ class SimpleAudioTailTrackValidator(SimpleAudioTrackValidator):
             validators.append(PropertyValueValidator(clip.loop, "looping", False))
             validators.append(PropertyValueValidator(clip, "warp_mode", Config.DEFAULT_WARP_MODE))
 
-            audio_clip = audio_track.clip_slots[clip.index].clip
+            audio_clip = ext_track.audio_track.clip_slots[clip.index].clip
             assert audio_clip, "Got audio tail clip without audio clip"
             validators.append(
-                PropertyValueValidator(
-                    clip.loop,
-                    "bar_length",
-                    audio_clip.loop.bar_length,
+                CallbackValidator(
+                    track,
+                    lambda c: audio_clip.bar_length == clip.bar_length,
+                    self._fix_clip_lengths,
                     "%s should have the same bar_length as %s" % (clip, audio_clip),
-                    fix=False
-                )
+                ),
             )
 
         super(SimpleAudioTailTrackValidator, self).__init__(track, validators=validators)
+
+    def _fix_clip_lengths(self, track):
+        # type: (SimpleAudioTailTrack) -> None
+        audio_track = cast(ExternalSynthTrack, track.abstract_group_track).audio_track
+        for clip in track.clips:
+            audio_clip = audio_track.clip_slots[clip.index].clip
+            if audio_clip.bar_length != clip.bar_length:
+                # when this happens it always means one is shorter
+                # (e.g. the prepare for scrub was not reset)
+                bar_length = max(audio_clip.bar_length, clip.bar_length)
+                audio_clip.bar_length = bar_length
+                clip.bar_length = bar_length

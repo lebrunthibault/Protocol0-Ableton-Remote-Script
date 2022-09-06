@@ -18,10 +18,10 @@ class DummyClip(AudioClip):
     def on_added(self):
         # type: () -> Optional[Sequence]
         # we keep existing automation when it makes sense (e.g. short loops duplicated)
-        if self.has_automation and self.loop.length < SongFacade.selected_scene().length:
+        if self.has_automation and self.length < SongFacade.selected_scene().length:
             return None
         else:
-            self.loop.bar_length = SongFacade.selected_scene().bar_length
+            self.bar_length = SongFacade.selected_scene().bar_length
 
         self.clip_name.update("")
 
@@ -34,5 +34,5 @@ class DummyClip(AudioClip):
         Only useful for ExternalSynthTracks
         """
         return (
-            self.loop.bar_length > clip_bar_length and self.loop.bar_length % clip_bar_length != 0
+            self.bar_length > clip_bar_length and self.bar_length % clip_bar_length != 0
         )

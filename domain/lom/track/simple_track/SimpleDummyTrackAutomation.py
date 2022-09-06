@@ -96,7 +96,7 @@ class SimpleDummyTrackAutomation(object):
         clip = cast(DummyClip, self._clip_slots.clips[0])
         clip.muted = False
         if SongFacade.selected_scene().bar_length:
-            clip.loop.bar_length = SongFacade.selected_scene().bar_length
+            clip.bar_length = SongFacade.selected_scene().bar_length
         clip.show_loop()
         clip.loop.looping = True
         ApplicationViewFacade.show_clip()

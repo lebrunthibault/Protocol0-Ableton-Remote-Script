@@ -49,9 +49,7 @@ class ExternalSynthTrackValidator(AbstractGroupTrackValidator):
             )
         )
         if track.audio_tail_track:
-            validators += SimpleAudioTailTrackValidator(
-                track.audio_tail_track, track.audio_track
-            )._validators
+            validators += SimpleAudioTailTrackValidator(track.audio_tail_track)._validators
 
         super(ExternalSynthTrackValidator, self).__init__(track, validators)
 

@@ -54,6 +54,7 @@ class Clip(SlotManager, Observable):
     name = cast(str, ForwardTo("appearance", "name"))
     color = cast(int, ForwardTo("appearance", "color"))
     length = cast(float, ForwardTo("loop", "length"))
+    bar_length = cast(float, ForwardTo("loop", "bar_length"))
 
     @property
     def is_triggered(self):
@@ -135,7 +136,7 @@ class Clip(SlotManager, Observable):
 
         self.loop.looping = True
         audio_clip_length = self.length
-        self.loop.bar_length = bar_length
+        self.bar_length = bar_length
 
         seq = Sequence()
         seq.wait_ms(1000)
