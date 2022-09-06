@@ -44,6 +44,7 @@ class DeviceEnum(AbstractEnum):
     TUNER = "TUNER"
     USAMO = "USAMO"
     UTILITY = "UTILITY"
+    VALHALLA_VINTAGE_VERB = "VALHALLA_VINTAGE_VERB"
 
     @property
     def device_name(self):
@@ -86,6 +87,7 @@ class DeviceEnum(AbstractEnum):
                 DeviceEnum.TUNER: "Tuner",
                 DeviceEnum.USAMO: "usamo_x64",
                 DeviceEnum.UTILITY: "Utility",
+                DeviceEnum.VALHALLA_VINTAGE_VERB: "ValhallaVintageVerb",
             }
         )
 
@@ -230,6 +232,7 @@ class DeviceEnum(AbstractEnum):
                 DeviceEnum.TUNER: 0,
                 DeviceEnum.USAMO: 78,
                 DeviceEnum.UTILITY: 4,
+                DeviceEnum.VALHALLA_VINTAGE_VERB: 71,
             }
         )
 

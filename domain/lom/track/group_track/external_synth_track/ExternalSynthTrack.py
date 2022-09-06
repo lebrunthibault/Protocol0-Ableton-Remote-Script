@@ -31,6 +31,7 @@ from protocol0.domain.lom.track.simple_track.SimpleMidiExtTrack import SimpleMid
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.decorators import defer
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
@@ -396,7 +397,12 @@ class ExternalSynthTrack(AbstractGroupTrack):
             return None
 
         midi_clip_bar_length = self.midi_track.clip_slots[scene_index].clip.loop.bar_length
-        audio_clip_to_fire.set_temporary_length(midi_clip_bar_length)
+        try:
+            audio_clip_to_fire.set_temporary_length(midi_clip_bar_length)
+        except IndexError:
+            Backend.client().show_warning("%s: invalid clip length" % self)
+            return None
+
         self.dummy_group.prepare_for_scrub(scene_index, midi_clip_bar_length)
 
     def get_automated_parameters(self, scene_index):

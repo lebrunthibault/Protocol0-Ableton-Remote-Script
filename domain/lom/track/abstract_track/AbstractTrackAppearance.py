@@ -9,6 +9,7 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrackNameUpdatedEvent imp
 )
 from protocol0.domain.shared.decorators import defer
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.utils.string import title
 from protocol0.shared.observer.Observable import Observable
 
 
@@ -30,8 +31,7 @@ class AbstractTrackAppearance(SlotManager, Observable):
     def _name_listener(self):
         # type: () -> None
         if len(self.name) > 2:
-            # .title is not good because of words starting with numbers
-            self.name = " ".join([word.capitalize() for word in self.name.split(" ")])
+            self.name = title(self.name)
 
     @property
     def name(self):
@@ -67,11 +67,5 @@ class AbstractTrackAppearance(SlotManager, Observable):
 
     def refresh(self):
         # type: () -> None
-        if (
-            self._live_track.group_track
-            and self._live_track.group_track.color_index != self._default_color
-        ):
-            self._default_color = self._live_track.group_track.color_index
-
         self.color = self._default_color
         self.notify_observers()
