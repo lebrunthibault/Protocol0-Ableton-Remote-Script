@@ -20,6 +20,7 @@ class QuantizationComponent(SlotManager):
         super(QuantizationComponent, self).__init__()
         self._song = song
         self._tempo_component = tempo_component
+        self._quantization_checked = False
         DomainEventBus.subscribe(
             SongInitializedEvent, lambda _: self._check_quantization_is_valid()
         )
@@ -38,8 +39,12 @@ class QuantizationComponent(SlotManager):
             self.clip_trigger_quantization = Live.Song.Quantization.q_bar
             return None
 
-        if self.midi_recording_quantization == self.tempo_default_midi_recording_quantization:
+        if self.midi_recording_quantization == self.tempo_default_midi_recording_quantization\
+                or self._quantization_checked:
             return None
+
+        # doing this only once
+        self._quantization_checked = True
 
         seq = Sequence()
         seq.prompt(
