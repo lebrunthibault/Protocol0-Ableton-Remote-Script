@@ -3,7 +3,8 @@ from os.path import dirname, realpath
 
 import Live
 
-from protocol0.domain.track_recorder.recording_bar_length.RecordingBarLengthEnum import RecordingBarLengthEnum
+from protocol0.domain.track_recorder.recording_bar_length.RecordingBarLengthEnum import \
+    RecordingBarLengthEnum
 from protocol0.shared.logging.LogLevelEnum import LogLevelEnum
 
 
@@ -22,8 +23,6 @@ class Config(object):
     EXPERIMENTAL_FEATURES = False
 
     LOG_LEVEL = LogLevelEnum.DEV
-
-    SPLIT_QUANTIZATION_TEMPO = 110
 
     TRACK_VOLUME_MONITORING = False
 

@@ -5,7 +5,6 @@ from _Framework.SubjectSlot import subject_slot, SlotManager
 
 from protocol0.domain.shared.decorators import debounce
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.shared.Config import Config
 
 
 class TempoComponent(SlotManager):
@@ -33,14 +32,6 @@ class TempoComponent(SlotManager):
             self._song.tempo = tempo
         except RuntimeError:
             pass
-
-    @property
-    def tempo_default_midi_recording_quantization(self):
-        # type: () -> property
-        if self.tempo < Config.SPLIT_QUANTIZATION_TEMPO:
-            return Live.Song.RecordingQuantization.rec_q_sixtenth
-        else:
-            return Live.Song.RecordingQuantization.rec_q_eight
 
     def tap(self):
         # type: () -> None

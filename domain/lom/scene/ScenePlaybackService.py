@@ -63,7 +63,7 @@ class ScenePlaybackService(SlotManager):
         # also it will stop the tails
         self._playback_component.stop()
         # not defer to avoid playback play / stop loops
-        Scheduler.wait(5, scene.fire)
+        scene.fire()
         return None
 
     def fire_scene_to_position(self, scene, bar_length=None):
@@ -135,6 +135,8 @@ class ScenePlaybackService(SlotManager):
             not clip.is_playing and not clip.muted for clip in SongFacade.playing_scene().clips.all
         ) and any(clip.is_playing for clip in SongFacade.playing_scene().clips.all)
         if should_restart:
+            Logger.info("restarting %s" % self)
+            Logger.dev([clip for clip in SongFacade.playing_scene().clips.all if not clip.is_playing and not clip.muted])
             self.fire_scene(cast(Scene, SongFacade.playing_scene()))
 
     def _on_song_stopped_event(self, _):
