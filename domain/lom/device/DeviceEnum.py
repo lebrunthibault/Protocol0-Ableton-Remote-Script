@@ -134,6 +134,7 @@ class DeviceEnum(AbstractEnum):
         return [
             [
                 cls.EQ_EIGHT,
+                cls.AUTO_FILTER_LOW_PASS,
                 cls.PRO_Q_3,
                 cls.UTILITY,
             ],
