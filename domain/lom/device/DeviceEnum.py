@@ -14,6 +14,7 @@ class DeviceEnum(AbstractEnum):
     AUTO_FILTER = "AUTO_FILTER"
     AUTO_FILTER_HIGH_PASS = "AUTO_FILTER_HIGH_PASS"
     AUTO_FILTER_LOW_PASS = "AUTO_FILTER_LOW_PASS"
+    AUTO_PAN = "AUTO_PAN"
     BEAT_REPEAT = "BEAT_REPEAT"
     COMPRESSOR = "COMPRESSOR"
     DELAY = "DELAY"
@@ -57,6 +58,7 @@ class DeviceEnum(AbstractEnum):
                 DeviceEnum.AUTO_FILTER: "Auto Filter",
                 DeviceEnum.AUTO_FILTER_HIGH_PASS: "Auto Filter High Pass",
                 DeviceEnum.AUTO_FILTER_LOW_PASS: "Auto Filter Low Pass",
+                DeviceEnum.AUTO_PAN: "Auto Pan",
                 DeviceEnum.BEAT_REPEAT: "Beat Repeat",
                 DeviceEnum.COMPRESSOR: "Compressor",
                 DeviceEnum.DELAY: "Delay",
@@ -144,6 +146,7 @@ class DeviceEnum(AbstractEnum):
             [
                 cls.SATURATOR,
                 cls.REVERB,
+                cls.AUTO_PAN,
             ],
             [cls.REV2_EDITOR],
         ]
