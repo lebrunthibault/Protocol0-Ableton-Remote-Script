@@ -38,6 +38,14 @@ def get_length_legend(beat_length, signature_numerator):
         return "%d bar%s" % (bar_length, "s" if bar_length > 1 else "")
 
 
+def get_minutes_legend(seconds):
+    # type: (float) -> str
+    minutes = int(seconds / 60)
+    seconds = int(seconds % 60)
+
+    return "%d:%d" % (minutes, seconds)
+
+
 live_factor = 6 / math.log10(1.0 / Config.ZERO_VOLUME)
 
 

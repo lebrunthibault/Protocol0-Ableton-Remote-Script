@@ -6,6 +6,7 @@ from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
     ExternalSynthTrack,
 )
+from protocol0.domain.shared.utils.utils import get_minutes_legend
 from protocol0.shared.SongFacade import SongFacade
 
 
@@ -32,6 +33,6 @@ class ClipStats(object):
         output["clips count"] = len(self.clips)
         output["abstract clips count"] = len(self.abstract_clips)
         output["audio clips count"] = len(self.audio_clips)
-        output["recorded audio duration"] = "%.2fs" % self.recorded_audio_duration
+        output["recorded audio duration"] = get_minutes_legend(self.recorded_audio_duration)
 
         return output
