@@ -45,7 +45,8 @@ class ClipName(SlotManager, Observable):
     def _name_listener(self, force=False):
         # type: (bool) -> None
         base_name = self._get_base_name()
-        if not force and base_name == self.base_name and self._live_clip.name != base_name:
+        # base_name != "" is for renaming empty clips
+        if not force and base_name == self.base_name and base_name != "" and self._live_clip.name != base_name:
             return
         self.base_name = base_name
         Scheduler.defer(self.update)
