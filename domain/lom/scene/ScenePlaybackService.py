@@ -62,8 +62,8 @@ class ScenePlaybackService(SlotManager):
         # stop to start the scene right again
         # also it will stop the tails
         self._playback_component.stop()
-        # not defer to avoid playback play / stop loops
-        scene.fire()
+        # defer so that all clips start at the same time
+        Scheduler.defer(scene.fire)
         return None
 
     def fire_scene_to_position(self, scene, bar_length=None):

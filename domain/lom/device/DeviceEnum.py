@@ -146,7 +146,7 @@ class DeviceEnum(AbstractEnum):
             ],
             [
                 cls.SATURATOR,
-                cls.REVERB,
+                cls.VALHALLA_VINTAGE_VERB,
                 cls.AUTO_PAN,
             ],
             [cls.REV2_EDITOR],

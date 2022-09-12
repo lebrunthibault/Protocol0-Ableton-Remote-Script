@@ -4,7 +4,6 @@ from protocol0.application.ScriptResetActivatedEvent import ScriptResetActivated
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 from protocol0.domain.lom.set.MixingService import MixingService
 from protocol0.domain.lom.set.SessionToArrangementService import SessionToArrangementService
-from protocol0.domain.lom.song.components.TempoComponent import TempoComponent
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.shared.SongFacade import SongFacade
 
@@ -14,14 +13,6 @@ class ActionGroupSet(ActionGroupInterface):
 
     def configure(self):
         # type: () -> None
-        # TAP tempo encoder
-        self.add_encoder(
-            identifier=1,
-            name="tap tempo",
-            on_press=self._container.get(TempoComponent).tap,
-            on_scroll=self._container.get(TempoComponent).scroll,
-        )
-
         # VOLume tempo encoder
         self.add_encoder(
             identifier=3,

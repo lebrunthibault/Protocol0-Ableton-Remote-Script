@@ -8,6 +8,7 @@ from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService impo
     InstrumentPresetScrollerService,
 )
 from protocol0.domain.lom.song.components.SceneComponent import SceneComponent
+from protocol0.domain.lom.song.components.TempoComponent import TempoComponent
 from protocol0.domain.lom.song.components.TrackComponent import TrackComponent
 from protocol0.domain.lom.track.TrackAutomationService import TrackAutomationService
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
@@ -31,6 +32,14 @@ class ActionGroupMain(ActionGroupInterface):
             return self._container.get(TrackRecorderService).record_track(
                 SongFacade.current_track(), record_type
             )
+
+        # TAP tempo encoder
+        self.add_encoder(
+            identifier=1,
+            name="tap tempo",
+            on_press=self._container.get(TempoComponent).tap,
+            on_scroll=self._container.get(TempoComponent).scroll,
+        )
 
         # VELO encoder
         self.add_encoder(
@@ -90,7 +99,7 @@ class ActionGroupMain(ActionGroupInterface):
             on_long_press=lambda: partial(record_track, RecordTypeEnum.NORMAL_UNLIMITED),
         )
 
-        # TRacK encoder
+        # TRacK encoder (not shown)
         self.add_encoder(
             identifier=13,
             name="track",
@@ -113,7 +122,7 @@ class ActionGroupMain(ActionGroupInterface):
             ),
         )
 
-        # SCENe encoder
+        # SCENe encoder (not shown)
         self.add_encoder(
             identifier=16,
             name="scene",
