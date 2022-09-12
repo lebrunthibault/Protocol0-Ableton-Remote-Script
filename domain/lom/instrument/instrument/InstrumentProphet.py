@@ -43,7 +43,7 @@ class InstrumentProphet(InstrumentInterface):
         seq = Sequence()
         seq.wait(5)
         seq.add(Backend.client().activate_rev2_editor)
-        seq.wait(5)
+        seq.wait(10)
         return seq.done()
 
     def post_activate(self):

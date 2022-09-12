@@ -80,6 +80,8 @@ class LogService(object):
         Logger.info()
         Logger.info("selected_scene.abstract_tracks: %s" % SongFacade.selected_scene().abstract_tracks)
         Logger.info()
+        Logger.info("selected_scene.clips.all: %s" % SongFacade.selected_scene().clips.all)
+        Logger.info()
         Logger.info("********* SELECTED_DEVICE *************")
         Logger.info()
         try:
@@ -161,10 +163,6 @@ class LogService(object):
         Logger.info()
         Logger.info(
             "selected_scene.abstract_tracks : %s" % SongFacade.selected_scene().abstract_tracks
-        )
-        Logger.info()
-        Logger.info(
-            "selected_scene.clip_slots : %s" % SongFacade.selected_scene().clips._clip_slots
         )
         Logger.info()
         Logger.info("selected_scene.clips : %s" % list(SongFacade.selected_scene().clips))

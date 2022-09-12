@@ -1,4 +1,3 @@
-import itertools
 import re
 
 from typing import List, cast, Iterator
@@ -17,29 +16,50 @@ from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.observer.Observable import Observable
 
 
+class SceneClip(object):
+    def __init__(self, track, clip):
+        # type: (SimpleTrack, Clip) -> None
+        self.track = track
+        self.clip = clip
+        self.is_main_clip = not isinstance(
+            track, (SimpleAudioExtTrack, SimpleAudioTailTrack, SimpleDummyTrack)
+        )
+
+    @property
+    def is_scene_track(self):
+        # type: () -> bool
+        return not self.clip.muted and not isinstance(self.track, SimpleDummyTrack)
+
+
 class SceneClips(Observable):
     def __init__(self, index):
         # type: (int) -> None
         super(SceneClips, self).__init__()
         self.index = index
+        self._clip_tracks = []  # type: List[SceneClip]
         self._clips = []  # type: List[Clip]
-        self._all_clips = []  # type: List[Clip]
-        self.audio_tail_clips = []  # type: List[AudioTailClip]
-        self._clip_slots = []  # type: List[ClipSlot]
-        self._tracks = []  # type: List[SimpleTrack]
+        self.all = []  # type: List[Clip]
 
         self.build()
+
+    def __repr__(self):
+        # type: () -> str
+        return "SceneClips(%s)" % self.index
 
     def __iter__(self):
         # type: () -> Iterator[Clip]
         return iter(self._clips)
 
     @property
-    def all(self):
+    def audio_tail_clips(self):
         # type: () -> List[Clip]
-        return self._all_clips
+        return cast(List[AudioTailClip], [c for c in self.all if isinstance(c, AudioTailClip)])
 
-    # @throttle(duration=60)
+    @property
+    def tracks(self):
+        # type: () -> List[SimpleTrack]
+        return [scene_clip.track for scene_clip in self._clip_tracks if scene_clip.is_scene_track]
+
     @debounce(duration=50)
     def update(self, observable):
         # type: (Observable) -> None
@@ -49,35 +69,28 @@ class SceneClips(Observable):
 
     def build(self):
         # type: () -> None
-        self._tracks = []
-        self._clip_slots = []
-        self._all_clips = []
-        self._clips = []
+        self._clip_tracks = []
 
         for track in SongFacade.simple_tracks():
             clip_slot = track.clip_slots[self.index]
-            self._clip_slots.append(clip_slot)
-            clip = clip_slot.clip
-            if clip and clip_slot.has_clip and not type(track) == InstrumentBusTrack:
-                self._all_clips.append(clip)
-                self._tracks.append(track)
-                if not isinstance(track, (SimpleAudioExtTrack, SimpleAudioTailTrack, SimpleDummyTrack)):
-                    self._clips.append(clip)  # type: ignore[unreachable]
-
-        self.audio_tail_clips = cast(
-            List[AudioTailClip], [c for c in self._all_clips if isinstance(c, AudioTailClip)]
-        )
-
-        for clip in self._clips:
-            clip.register_observer(self)
-        for clip_slot in self._clip_slots:
             clip_slot.register_observer(self)
+            clip = clip_slot.clip
+            if clip is not None and clip_slot.has_clip and not type(track) == InstrumentBusTrack:
+                self._clip_tracks.append(SceneClip(track, clip))
+
+        self.all = [scene_clip.clip for scene_clip in self._clip_tracks]
+        self._clips = [
+            scene_clip.clip for scene_clip in self._clip_tracks if scene_clip.is_main_clip
+        ]
+
+        for clip in self:
+            clip.register_observer(self)
 
     def on_added_scene(self):
         # type: () -> None
         """Renames clips when doing consolidate time to new scene"""
-        if any(clip for clip in self._all_clips if self._clip_has_default_recording_name(clip)):
-            for clip in self._all_clips:
+        if any(clip for clip in self.all if self._clip_has_default_recording_name(clip)):
+            for clip in self.all:
                 if self._clip_has_default_recording_name(clip):
                     clip.appearance.color = ClipColorEnum.AUDIO_UN_QUANTIZED.color_int_value
                 clip.clip_name.update("")
@@ -85,10 +98,3 @@ class SceneClips(Observable):
     def _clip_has_default_recording_name(self, clip):
         # type: (Clip) -> bool
         return bool(re.match(".*\\[\\d{4}-\\d{2}-\\d{2} \\d+]$", clip.name))
-
-    @property
-    def tracks(self):
-        # type: () -> Iterator[SimpleTrack]
-        for track, clip in itertools.izip(self._tracks, self.all):
-            if not clip.muted and not isinstance(track, SimpleDummyTrack):
-                yield track

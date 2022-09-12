@@ -7,9 +7,7 @@ from protocol0.domain.lom.instrument.InstrumentDisplayService import InstrumentD
 from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService import (
     InstrumentPresetScrollerService,
 )
-from protocol0.domain.lom.song.components.SceneComponent import SceneComponent
 from protocol0.domain.lom.song.components.TempoComponent import TempoComponent
-from protocol0.domain.lom.song.components.TrackComponent import TrackComponent
 from protocol0.domain.lom.track.TrackAutomationService import TrackAutomationService
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
 from protocol0.domain.track_recorder.TrackRecorderService import TrackRecorderService

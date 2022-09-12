@@ -4,7 +4,6 @@ from protocol0.application.control_surface.ActionGroupInterface import ActionGro
 from protocol0.domain.audit.AudioLatencyAnalyzerService import AudioLatencyAnalyzerService
 from protocol0.domain.audit.SetProfilingService import SetProfilingService
 from protocol0.domain.shared.backend.Backend import Backend
-from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 
@@ -48,4 +47,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        Scheduler.wait_ms(1000, lambda: Logger.dev("toto"))
+        pass

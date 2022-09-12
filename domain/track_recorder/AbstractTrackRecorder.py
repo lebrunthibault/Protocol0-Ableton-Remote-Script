@@ -76,8 +76,15 @@ class AbstractTrackRecorder(object):
         seq = Sequence()
         seq.add(self._arm_track)
         seq.add(self.track.select)
-        seq.add([clip_slot.prepare_for_record for clip_slot in self._recording_clip_slots])
+        seq.add(self._prepare_clip_slots_for_record)
         seq.add(self._pre_record)
+        return seq.done()
+
+    def _prepare_clip_slots_for_record(self):
+        # type: () -> Sequence
+        """isolating this, we need clip slots to be computed at runtime (if the track changes)"""
+        seq = Sequence()
+        seq.add([clip_slot.prepare_for_record for clip_slot in self._recording_clip_slots])
         return seq.done()
 
     def _arm_track(self):
@@ -92,7 +99,7 @@ class AbstractTrackRecorder(object):
             seq.add(
                 lambda: self.track.arm_state.arm()
                 if seq.res == options[0]
-                else list(SongFacade.armed_tracks())[0].select()
+                else setattr(self, "_track", list(SongFacade.armed_tracks())[0])
             )
         else:
             seq.add(self.track.arm_state.arm)

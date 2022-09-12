@@ -42,7 +42,9 @@ class InstrumentDisplayService(object):
             return None
 
         seq = Sequence()
-        seq.add(partial(self.activate_plugin_window, track))
+        seq.add(
+            partial(self.activate_plugin_window, track, force_activate=track.instrument.force_show)
+        )
         if not track.instrument.force_show:
             seq.add(Backend.client().hide_plugins)
         track.instrument.force_show = False
@@ -71,7 +73,8 @@ class InstrumentDisplayService(object):
             seq.add(track.select)
             seq.add(instrument.exclusive_activate)
 
-        seq.add(instrument.post_activate)
+        if force_activate:
+            seq.add(instrument.post_activate)
 
         seq.add(partial(DomainEventBus.emit, InstrumentActivatedEvent(instrument)))
 
