@@ -80,7 +80,7 @@ class ActionGroupMain(ActionGroupInterface):
 
         # RECordAudio encoder
         self.add_encoder(
-            identifier=5,
+            identifier=9,
             name="record audio and keep automation",
             filter_active_tracks=True,
             on_press=lambda: partial(record_track, RecordTypeEnum.AUDIO_ONLY_AUTOMATION),
@@ -89,7 +89,7 @@ class ActionGroupMain(ActionGroupInterface):
 
         # RECord normal encoder
         self.add_encoder(
-            identifier=9,
+            identifier=13,
             name="record normal",
             filter_active_tracks=True,
             on_scroll=self._container.get(
@@ -99,17 +99,17 @@ class ActionGroupMain(ActionGroupInterface):
             on_long_press=lambda: partial(record_track, RecordTypeEnum.NORMAL_UNLIMITED),
         )
 
-        # TRacK encoder (not shown)
-        self.add_encoder(
-            identifier=13,
-            name="track",
-            on_scroll=self._container.get(TrackComponent).scroll_tracks,
-            on_press=lambda: SongFacade.current_track().arm_state.toggle,
-        )
+        # TRacK encoder
+        # self.add_encoder(
+        #     identifier=13,
+        #     name="track",
+        #     on_scroll=self._container.get(TrackComponent).scroll_tracks,
+        #     on_press=lambda: SongFacade.current_track().arm_state.toggle,
+        # )
 
         # INSTrument encoder
         self.add_encoder(
-            identifier=14,
+            identifier=16,
             name="instrument",
             filter_active_tracks=True,
             on_press=lambda: partial(
@@ -123,10 +123,10 @@ class ActionGroupMain(ActionGroupInterface):
         )
 
         # SCENe encoder (not shown)
-        self.add_encoder(
-            identifier=16,
-            name="scene",
-            on_press=lambda: SongFacade.selected_scene().fire,
-            on_long_press=self._container.get(SceneComponent).looping_scene_toggler.toggle,
-            on_scroll=self._container.get(SceneComponent).scroll_scenes,
-        )
+        # self.add_encoder(
+        #     identifier=16,
+        #     name="scene",
+        #     on_press=lambda: SongFacade.selected_scene().fire,
+        #     on_long_press=self._container.get(SceneComponent).looping_scene_toggler.toggle,
+        #     on_scroll=self._container.get(SceneComponent).scroll_scenes,
+        # )

@@ -128,10 +128,11 @@ class MidiClip(Clip):
         parameters_couple = []
         for automated_parameter in automated_parameters:
             if automated_parameter.name.startswith("A-"):
+                b_parameter_name = automated_parameter.name.replace("A-", "B-")
                 b_parameter = find_if(
-                    lambda p: p.name == automated_parameter.name.replace("A-", "B-"), device_parameters
+                    lambda p: p.name == b_parameter_name, device_parameters
                 )
-                assert b_parameter
+                assert b_parameter, "Cannot find %s" % b_parameter_name
                 if b_parameter not in automated_parameters:
                     self.automation.create_envelope(b_parameter)
 
