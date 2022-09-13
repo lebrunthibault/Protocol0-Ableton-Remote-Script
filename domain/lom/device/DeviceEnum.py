@@ -3,6 +3,7 @@ from typing import List
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.lom.device_parameter.DeviceParameterValue import DeviceParameterValue
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
+from protocol0.domain.shared.utils.string import to_pascal_case
 from protocol0.shared.AbstractEnum import AbstractEnum
 from protocol0.shared.Config import Config
 
@@ -27,6 +28,8 @@ class DeviceEnum(AbstractEnum):
     FREE_CLIP = "FREE_CLIP"
     GATE = "GATE"
     GLUE_COMPRESSOR = "GLUE_COMPRESSOR"
+    INSERT_DELAY = "INSERT_DELAY"
+    INSERT_REVERB = "INSERT_REVERB"
     INSTRUMENT_RACK = "INSTRUMENT_RACK"
     LFO_TOOL = "LFO_TOOL"
     LIMITER = "LIMITER"
@@ -50,48 +53,46 @@ class DeviceEnum(AbstractEnum):
     @property
     def device_name(self):
         # type: () -> str
-        return self.get_value_from_mapping(
-            {
-                DeviceEnum.ADDICTIVE_KEYS: "Addictive Keys",
-                DeviceEnum.API_2500: "API-2500 Stereo",
-                DeviceEnum.AUDIO_EFFECT_RACK: "Audio Effect Rack",
-                DeviceEnum.AUTO_FILTER: "Auto Filter",
-                DeviceEnum.AUTO_FILTER_HIGH_PASS: "Auto Filter High Pass",
-                DeviceEnum.AUTO_FILTER_LOW_PASS: "Auto Filter Low Pass",
-                DeviceEnum.AUTO_PAN: "Auto Pan",
-                DeviceEnum.BEAT_REPEAT: "Beat Repeat",
-                DeviceEnum.COMPRESSOR: "Compressor",
-                DeviceEnum.DELAY: "Delay",
-                DeviceEnum.DRUM_RACK: "Drum Rack",
-                DeviceEnum.EFFECTRIX: "Effectrix",
-                DeviceEnum.EQ_EIGHT: "EQ Eight",
-                DeviceEnum.EQ_ROOM: "EQ Room",
-                DeviceEnum.EXTERNAL_AUDIO_EFFECT: "Ext. Audio Effect",
-                DeviceEnum.EXTERNAL_INSTRUMENT: "Ext. Instrument",
-                DeviceEnum.FREE_CLIP: "FreeClip",
-                DeviceEnum.GATE: "Gate",
-                DeviceEnum.GLUE_COMPRESSOR: "Glue Compressor",
-                DeviceEnum.INSTRUMENT_RACK: "Instrument Rack",
-                DeviceEnum.LFO_TOOL: "LFOTool_x64",
-                DeviceEnum.LIMITER: "Limiter",
-                DeviceEnum.PITCH: "Pitch",
-                DeviceEnum.PRO_Q_3: "FabFilter Pro-Q 3",
-                DeviceEnum.REVERB: "Reverb",
-                DeviceEnum.REV2_EDITOR: "REV2Editor",
-                DeviceEnum.SAMPLE_PITCH_RACK: "Sample Pitch Rack",
-                DeviceEnum.SATURATOR: "Saturator",
-                DeviceEnum.SATURN_2: "FabFilter Saturn 2",
-                DeviceEnum.SERUM: "Serum_x64",
-                DeviceEnum.SIMPLER: "Simpler",
-                DeviceEnum.SSL_COMP: "SSLComp Stereo",
-                DeviceEnum.TRACK_SPACER: "Trackspacer 2.5",
-                DeviceEnum.TRUE_VERB: "TrueVerb Stereo",
-                DeviceEnum.TUNER: "Tuner",
-                DeviceEnum.USAMO: "usamo_x64",
-                DeviceEnum.UTILITY: "Utility",
-                DeviceEnum.VALHALLA_VINTAGE_VERB: "ValhallaVintageVerb",
-            }
-        )
+        try:
+            return self.get_value_from_mapping(
+                {
+                    DeviceEnum.API_2500: "API-2500 Stereo",
+                    DeviceEnum.EQ_EIGHT: "EQ Eight",
+                    DeviceEnum.EXTERNAL_AUDIO_EFFECT: "Ext. Audio Effect",
+                    DeviceEnum.EXTERNAL_INSTRUMENT: "Ext. Instrument",
+                    DeviceEnum.FREE_CLIP: "FreeClip",
+                    DeviceEnum.LFO_TOOL: "LFOTool_x64",
+                    DeviceEnum.PRO_Q_3: "FabFilter Pro-Q 3",
+                    DeviceEnum.REV2_EDITOR: "REV2Editor",
+                    DeviceEnum.SATURN_2: "FabFilter Saturn 2",
+                    DeviceEnum.SERUM: "Serum_x64",
+                    DeviceEnum.SSL_COMP: "SSLComp Stereo",
+                    DeviceEnum.TRACK_SPACER: "Trackspacer 2.5",
+                    DeviceEnum.TRUE_VERB: "TrueVerb Stereo",
+                    DeviceEnum.USAMO: "usamo_x64",
+                    DeviceEnum.VALHALLA_VINTAGE_VERB: "ValhallaVintageVerb",
+                }
+            )
+        except Protocol0Error:
+            return to_pascal_case(self.name)
+
+    @property
+    def is_device_preset(self):
+        # type: () -> bool
+        return self in [
+            DeviceEnum.AUTO_FILTER_HIGH_PASS,
+            DeviceEnum.AUTO_FILTER_LOW_PASS,
+            DeviceEnum.EQ_ROOM,
+        ]
+
+    @property
+    def is_rack_preset(self):
+        # type: () -> bool
+        return self in [
+            DeviceEnum.SAMPLE_PITCH_RACK,
+            DeviceEnum.INSERT_DELAY,
+            DeviceEnum.INSERT_REVERB,
+        ]
 
     @property
     def browser_name(self):
@@ -99,16 +100,17 @@ class DeviceEnum(AbstractEnum):
         try:
             return self.get_value_from_mapping(
                 {
-                    DeviceEnum.AUTO_FILTER_HIGH_PASS: "Auto Filter High Pass.adv",
-                    DeviceEnum.AUTO_FILTER_LOW_PASS: "Auto Filter Low Pass.adv",
-                    DeviceEnum.EQ_ROOM: "EQ Room.adv",
                     DeviceEnum.EXTERNAL_AUDIO_EFFECT: "External Audio Effect",
                     DeviceEnum.EXTERNAL_INSTRUMENT: "External Instrument",
-                    DeviceEnum.SAMPLE_PITCH_RACK: "Sample Pitch Rack.adg",
                 }
             )
         except Protocol0Error:
-            return self.device_name
+            if self.is_device_preset:
+                return "%s.adv" % self.device_name
+            elif self.is_rack_preset:
+                return "%s.adg" % self.device_name
+            else:
+                return self.device_name
 
     @property
     def class_name(self):
@@ -151,6 +153,11 @@ class DeviceEnum(AbstractEnum):
             ],
             [cls.REV2_EDITOR],
         ]
+
+    @classmethod
+    def insert_favorites(cls):
+        # type: () -> List[DeviceEnum]
+        return [cls.INSERT_DELAY, cls.INSERT_REVERB]
 
     @property
     def main_parameters_default(self):

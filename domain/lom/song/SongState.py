@@ -64,6 +64,9 @@ class SongState(object):
             "favorite_device_names": [
                 [device.name for device in row] for row in DeviceEnum.favorites()
             ],
+            "insert_favorite_device_names": [
+                device.name for device in DeviceEnum.insert_favorites()
+            ],
             "drum_rack_visible": isinstance(
                 SongFacade.selected_track().instrument, InstrumentDrumRack
             ),
