@@ -1,5 +1,7 @@
 from functools import partial
 
+from protocol0.application.CommandBus import CommandBus
+from protocol0.application.command.InitializeSongCommand import InitializeSongCommand
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 from protocol0.domain.audit.AudioLatencyAnalyzerService import AudioLatencyAnalyzerService
 from protocol0.domain.audit.SetProfilingService import SetProfilingService
@@ -47,4 +49,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        pass
+        SongFacade.scenes()[1].fire()
