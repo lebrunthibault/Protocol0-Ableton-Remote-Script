@@ -14,11 +14,11 @@ from protocol0.shared.observer.Observable import Observable
 
 
 class AbstractTrackAppearance(SlotManager, Observable):
-    def __init__(self, live_track):
-        # type: (Live.Track.Track) -> None
+    def __init__(self, live_track, default_color):
+        # type: (Live.Track.Track, Optional[TrackColorEnum]) -> None
         super(AbstractTrackAppearance, self).__init__()
         self._live_track = live_track
-        self._default_color = self.color
+        self._default_color = default_color.color_int_value if default_color else self.color
         self._instrument = None  # type: Optional[InstrumentInterface]
         self._name_listener.subject = live_track
 

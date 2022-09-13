@@ -8,7 +8,6 @@ from protocol0.domain.lom.sample.SampleCategoryEnum import SampleCategoryEnum
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 
 
 class SampleCategory(object):
@@ -63,7 +62,6 @@ class SampleCategory(object):
         # type: () -> int
         assert self._category.parent_track is not None, "Sample group track doesn't exist"
         sample_tracks = self._category.parent_track.get_all_simple_sub_tracks()
-        Logger.dev(self._category.parent_track)
 
         def index_from_track(matched_track):
             # type: (SimpleTrack) -> int

@@ -9,6 +9,7 @@ from protocol0.domain.lom.clip.ClipSlotSelectedEvent import ClipSlotSelectedEven
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
+from protocol0.domain.lom.track.TrackColorEnum import TrackColorEnum
 from protocol0.domain.lom.track.abstract_track.AbstrackTrackArmState import AbstractTrackArmState
 from protocol0.domain.lom.track.abstract_track.AbstractTrackAppearance import (
     AbstractTrackAppearance,
@@ -34,6 +35,7 @@ if TYPE_CHECKING:
 class AbstractTrack(SlotManager):
     # when the color cannot be matched
     REMOVE_CLIPS_ON_ADDED = False
+    DEFAULT_COLOR = None  # type: Optional[TrackColorEnum]
 
     def __init__(self, track):
         # type: (SimpleTrack) -> None
@@ -48,7 +50,7 @@ class AbstractTrack(SlotManager):
 
         # MISC
         self.arm_state = AbstractTrackArmState(self._track)  # type: AbstractTrackArmState
-        self.appearance = AbstractTrackAppearance(self._track)  # type: AbstractTrackAppearance
+        self.appearance = AbstractTrackAppearance(self._track, self.DEFAULT_COLOR)
         self.input_routing = TrackInputRouting(self.base_track._track)
         self.output_routing = TrackOutputRouting(self.base_track._track)
 

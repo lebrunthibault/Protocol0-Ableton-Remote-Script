@@ -8,8 +8,8 @@ from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.DrumPad import DrumPad
 from protocol0.domain.lom.device.DrumRackDevice import DrumRackDevice
 from protocol0.domain.lom.device.DrumRackLoadedEvent import DrumRackLoadedEvent
-from protocol0.domain.lom.sample.SampleCategory import SampleCategory
 from protocol0.domain.lom.instrument.instrument.InstrumentDrumRack import InstrumentDrumRack
+from protocol0.domain.lom.sample.SampleCategory import SampleCategory
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
@@ -70,8 +70,6 @@ class DrumRackService(object):
         assert device == list(SongFacade.selected_track().devices)[0]
         assert len(device.filled_drum_pads) == 0
         presets = drum_category.presets
-        Logger.dev(drum_category)
-        Logger.dev(drum_category.presets)
         drum_pads = [d for d in device.drum_pads if d.note >= DrumPad.INITIAL_NOTE][: len(presets)]
 
         seq = Sequence()
