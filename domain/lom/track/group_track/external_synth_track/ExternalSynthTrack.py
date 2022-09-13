@@ -370,7 +370,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
         should_stop_audio = False
         if scene_index is not None:
             midi_clip = self.midi_track.clip_slots[scene_index].clip
-            if midi_clip is not None and not midi_clip.playing_position.in_last_bar:
+            if midi_clip is not None and midi_clip.is_playing and not midi_clip.playing_position.in_last_bar:
                 should_stop_audio = True
 
         if not should_stop_audio:
@@ -379,8 +379,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
             Scheduler.wait_bars(
                 1, partial(setattr, self, "_is_stopping", False), execute_on_song_stop=True
             )
-
-        if immediate or should_stop_audio:
+        else:
             self.audio_track.stop(immediate=immediate)
             if self.audio_tail_track:
                 self.audio_tail_track.stop(immediate=immediate)

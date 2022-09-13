@@ -15,6 +15,7 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 
 class TrackPlayerService(object):
+    """deprecated"""
     def __init__(self, playback_component, track_repository):
         # type: (PlaybackComponent, TrackRepository) -> None
         self._playback_component = playback_component

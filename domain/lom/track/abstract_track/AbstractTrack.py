@@ -299,7 +299,7 @@ class AbstractTrack(SlotManager):
             self.base_track._track.stop_all_clips(not immediate)  # noqa
         else:
             clip = self.clip_slots[scene_index].clip
-            if clip is not None:
+            if clip is not None and clip.is_playing:
                 clip.stop(immediate=immediate)
 
     def scroll_volume(self, go_next):
