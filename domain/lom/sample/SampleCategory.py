@@ -1,25 +1,30 @@
-import os
-
 from typing import List
 
 from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPreset
 from protocol0.domain.lom.instrument.preset.preset_importer.DirectoryPresetImporter import (
     DirectoryPresetImporter,
 )
+from protocol0.domain.lom.sample.SampleCategoryEnum import SampleCategoryEnum
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.utils.list import find_if
-from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 
 
-class DrumCategory(object):
-    def __init__(self, name):
-        # type: (str) -> None
+class SampleCategory(object):
+    """
+        Represents a sample folder that can be loaded in one click in a drum rack
+
+        Used to access my library easily
+    """
+    def __init__(self, category, name):
+        # type: (SampleCategoryEnum, str) -> None
+        self._category = category
         self._name = name
 
     def __repr__(self):
         # type: () -> str
-        return "DrumCategory(name=%s)" % self._name
+        return "SampleCategory(category=%s, name=%s)" % (self._category, self._name)
 
     @property
     def name(self):
@@ -31,20 +36,15 @@ class DrumCategory(object):
         # type: () -> str
         return self.name.split(" ")[0].lower()
 
-    @classmethod
-    def all(cls):
-        # type: () -> List[str]
-        return [d.lower() for d in os.listdir(Config.SAMPLE_DIRECTORY) if not d.startswith("_")]
-
     @property
     def _sample_directory(self):
         # type: () -> str
-        return "%s\\%s" % (Config.SAMPLE_DIRECTORY, self._name)
+        return "%s\\%s" % (self._category.sample_directory, self._name)
 
     @property
     def drum_rack_name(self):
         # type: () -> str
-        return "DR %s.adg" % self._name.title()
+        return "%s %s.adg" % (self._category.drum_rack_prefix, self._name.title())
 
     @property
     def presets(self):
@@ -61,31 +61,32 @@ class DrumCategory(object):
     @property
     def create_track_index(self):
         # type: () -> int
-        assert SongFacade.drums_track() is not None, "Drum track doesn't exist"
-        drum_tracks = SongFacade.drums_track().get_all_simple_sub_tracks()
+        assert self._category.parent_track is not None, "Sample group track doesn't exist"
+        sample_tracks = self._category.parent_track.get_all_simple_sub_tracks()
+        Logger.dev(self._category.parent_track)
 
         def index_from_track(matched_track):
             # type: (SimpleTrack) -> int
-            if drum_tracks[-1] == matched_track:
-                return drum_tracks[-1].index
+            if sample_tracks[-1] == matched_track:
+                return sample_tracks[-1].index
             else:
                 return matched_track.index + 1
 
         # we clicked on a track means : we add to the right
-        if SongFacade.drums_track() in SongFacade.selected_track().group_tracks:
+        if self._category.parent_track in SongFacade.selected_track().group_tracks:
             return index_from_track(SongFacade.selected_track())
 
         # match by category
         same_category_track = find_if(
-            lambda t: t.name.lower() == self.name.lower(), reversed(drum_tracks)
+            lambda t: t.name.lower() == self.name.lower(), reversed(sample_tracks)
         )
         if same_category_track:
             return index_from_track(same_category_track)
 
         # match by prefix
-        for track in reversed(drum_tracks):
+        for track in reversed(sample_tracks):
             if track.name.split(" ")[0].lower() == self.suffix:
                 return index_from_track(track)
 
         # -1 sometimes doesn't create it in the drum group
-        return drum_tracks[-2].index if len(drum_tracks) > 1 else 0
+        return sample_tracks[-2].index if len(sample_tracks) > 1 else 0

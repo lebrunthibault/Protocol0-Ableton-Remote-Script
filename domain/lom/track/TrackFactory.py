@@ -3,9 +3,9 @@ from functools import partial
 import Live
 from typing import Optional, Type
 
-from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.DrumRackService import DrumRackService
-from protocol0.domain.lom.drum.DrumCategory import DrumCategory
+from protocol0.domain.lom.sample.SampleCategory import SampleCategory
+from protocol0.domain.lom.sample.SampleCategoryEnum import SampleCategoryEnum
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
@@ -71,42 +71,26 @@ class TrackFactory(object):
         else:
             return NormalGroupTrack.make(base_group_track)
 
-    def add_drum_track(self, name, device_enum=DeviceEnum.SIMPLER):
-        # type: (str, DeviceEnum) -> Sequence
-        assert device_enum in (DeviceEnum.SIMPLER, DeviceEnum.DRUM_RACK)
+    def add_sample_track(self, category, sample_sub_category):
+        # type: (SampleCategoryEnum, str) -> Sequence
+        sample_group_track = SongFacade.drums_track()
+        if sample_group_track is None:
+            raise Protocol0Warning("Sample group track doesn't exist")
 
-        drum_track = SongFacade.drums_track()
-        if drum_track is None:
-            raise Protocol0Warning("Drums track doesn't exist")
+        if sample_sub_category.lower() not in category.subcategories:
+            raise Protocol0Warning("Cannot find %s sample category for '%s'" % (category, sample_sub_category))
 
-        if name.lower() not in DrumCategory.all():
-            raise Protocol0Warning("Cannot fin category for drum track %s" % name)
+        sample_category = SampleCategory(category, sample_sub_category)
 
-        drum_category = DrumCategory(name)
+        sample_group_track.is_folded = False
 
-        drum_track.is_folded = False
-
-        selected_scene_index = SongFacade.selected_scene().index
         seq = Sequence()
         seq.add(
-            partial(self._track_crud_component.create_midi_track, drum_category.create_track_index)
+            partial(self._track_crud_component.create_midi_track, sample_category.create_track_index)
         )
         seq.add(lambda: setattr(SongFacade.selected_track(), "volume", -15))
 
-        if device_enum == DeviceEnum.SIMPLER:
-            seq.defer()
-            seq.add(partial(self._browser_service.load_device_from_enum, device_enum))
-            seq.add(partial(self._on_simpler_drum_track_added, drum_category))
-            seq.add(
-                lambda: SongFacade.selected_track().clip_slots[selected_scene_index].create_clip()
-            )
-        elif device_enum == DeviceEnum.DRUM_RACK:
-            # not creating clip here
-            seq.add(partial(self._drum_rack_service.load_category_drum_rack, drum_category))
+        # not creating clip here
+        seq.add(partial(self._drum_rack_service.load_category_drum_rack, sample_category))
 
         return seq.done()
-
-    def _on_simpler_drum_track_added(self, drum_category):
-        # type: (DrumCategory) -> None
-        SongFacade.selected_track().instrument.preset_list.set_selected_category(drum_category.name)
-        SongFacade.selected_track().scroll_presets(True)

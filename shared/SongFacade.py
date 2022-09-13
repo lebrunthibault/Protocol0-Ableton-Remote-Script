@@ -25,7 +25,8 @@ if TYPE_CHECKING:
         ExternalSynthTrack,
     )
     from protocol0.domain.lom.track.simple_track.UsamoTrack import UsamoTrack
-    from protocol0.domain.lom.track.drums.DrumsTrack import DrumsTrack
+    from protocol0.domain.lom.track.group_track.DrumsTrack import DrumsTrack
+    from protocol0.domain.lom.track.group_track.VocalsTrack import VocalsTrack
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
     from protocol0.domain.lom.track.simple_track.MasterTrack import MasterTrack
     from protocol0.domain.lom.scene.Scene import Scene
@@ -215,6 +216,11 @@ class SongFacade(object):
     def drums_track(cls):
         # type: () -> Optional[DrumsTrack]
         return cls._INSTANCE._track_mapper_service._drums_track
+
+    @classmethod
+    def vocals_track(cls):
+        # type: () -> Optional[VocalsTrack]
+        return cls._INSTANCE._track_mapper_service._vocals_track
 
     @classmethod
     def master_track(cls):

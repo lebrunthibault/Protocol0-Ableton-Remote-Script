@@ -9,8 +9,9 @@ from protocol0.domain.lom.track.TrackAddedEvent import TrackAddedEvent
 from protocol0.domain.lom.track.TrackFactory import TrackFactory
 from protocol0.domain.lom.track.TracksMappedEvent import TracksMappedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
-from protocol0.domain.lom.track.drums.DrumsTrack import DrumsTrack
+from protocol0.domain.lom.track.group_track.DrumsTrack import DrumsTrack
 from protocol0.domain.lom.track.group_track.NormalGroupTrack import NormalGroupTrack
+from protocol0.domain.lom.track.group_track.VocalsTrack import VocalsTrack
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
     ExternalSynthTrack,
 )
@@ -24,6 +25,7 @@ from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.decorators import handle_error
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.UndoFacade import UndoFacade
 from protocol0.shared.logging.Logger import Logger
@@ -43,6 +45,7 @@ class TrackMapperService(SlotManager):
         self._usamo_track = None  # type: Optional[SimpleTrack]
         self._instrument_bus_track = None  # type: Optional[InstrumentBusTrack]
         self._drums_track = None  # type: Optional[DrumsTrack]
+        self._vocals_track = None  # type: Optional[VocalsTrack]
         self._master_track = None  # type: Optional[SimpleTrack]
 
         self.tracks_listener.subject = self._live_song
@@ -73,6 +76,8 @@ class TrackMapperService(SlotManager):
         seq.add(partial(DomainEventBus.defer_emit, TracksMappedEvent()))
         seq.done()
 
+        self._get_special_tracks()
+
     def _clean_deleted_tracks(self):
         # type: () -> None
         existing_track_ids = [track._live_ptr for track in list(SongFacade.live_tracks())]
@@ -91,20 +96,11 @@ class TrackMapperService(SlotManager):
     def _generate_simple_tracks(self):
         # type: () -> None
         """instantiate SimpleTracks (including return / master, that are marked as inactive)"""
-        self._usamo_track = None
-        self._drums_track = None
         self._prev_instrument_bus_track = self._instrument_bus_track
-        self._instrument_bus_track = None
 
         # instantiate set tracks
         for index, track in enumerate(list(self._live_song.tracks)):
-            track = self._track_factory.create_simple_track(track, index)
-
-            if isinstance(track, UsamoTrack):
-                self._usamo_track = track
-
-            if isinstance(track, InstrumentBusTrack):
-                self._instrument_bus_track = track
+            self._track_factory.create_simple_track(track, index)
 
         for index, track in enumerate(list(self._live_song.return_tracks)):
             self._track_factory.create_simple_track(track=track, index=index, cls=SimpleReturnTrack)
@@ -118,11 +114,20 @@ class TrackMapperService(SlotManager):
         for track in SongFacade.simple_tracks():
             track.on_tracks_change()
 
+    def _get_special_tracks(self):
+        # type: () -> None
+        self._usamo_track = find_if(lambda t: isinstance(t, UsamoTrack), SongFacade.simple_tracks())
+        self._instrument_bus_track = find_if(lambda t: isinstance(t, InstrumentBusTrack),
+                                             SongFacade.simple_tracks())
+        abgs = SongFacade.abstract_group_tracks()
+        self._drums_track = find_if(lambda t: isinstance(t, DrumsTrack), abgs)
+        self._vocals_track = find_if(lambda t: isinstance(t, VocalsTrack), abgs)
+
         if self._usamo_track is None:
             Logger.warning("Usamo track is not present")
         if (
-            self._prev_instrument_bus_track is not None
-            and self._instrument_bus_track is None
+                self._prev_instrument_bus_track is not None
+                and self._instrument_bus_track is None
         ):
             Backend.client().show_warning("InstrumentBusTrack removed")
 
@@ -216,6 +221,3 @@ class TrackMapperService(SlotManager):
                 previous_abstract_group_track.disconnect()
 
             abstract_group_track.on_tracks_change()
-
-            if isinstance(abstract_group_track, DrumsTrack):
-                self._drums_track = abstract_group_track

@@ -3,10 +3,7 @@ from typing import Dict, Any
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.DrumRackLoadedEvent import DrumRackLoadedEvent
 from protocol0.domain.lom.instrument.instrument.InstrumentDrumRack import InstrumentDrumRack
-from protocol0.domain.lom.instrument.instrument.InstrumentSimpler import InstrumentSimpler
-from protocol0.domain.lom.instrument.preset.preset_importer.DirectoryPresetImporter import (
-    DirectoryPresetImporter,
-)
+from protocol0.domain.lom.sample.SampleCategoryEnum import SampleCategoryEnum
 from protocol0.domain.lom.track.SelectedTrackChangedEvent import SelectedTrackChangedEvent
 from protocol0.domain.lom.track.TracksMappedEvent import TracksMappedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrackNameUpdatedEvent import (
@@ -29,13 +26,6 @@ from protocol0.shared.SongFacade import SongFacade
 class SongState(object):
     def __init__(self):
         # type: () -> None
-        drum_categories = set()
-        drum_presets = DirectoryPresetImporter(
-            InstrumentSimpler.PRESETS_PATH, InstrumentSimpler.PRESET_EXTENSION
-        ).import_presets()
-        for preset in drum_presets:
-            drum_categories.add(preset.category)
-        self._drum_categories = sorted(drum_categories)
         self._cache = {}  # type: Dict[str, Any]
 
         DomainEventBus.subscribe(TracksMappedEvent, lambda _: self.notify())
@@ -60,7 +50,9 @@ class SongState(object):
 
         return {
             "drum_track_names": drum_track_names,
-            "drum_categories": self._drum_categories,
+            "sample_categories": {
+                category.name.lower(): category.subcategories for category in SampleCategoryEnum
+            },
             "favorite_device_names": [
                 [device.name for device in row] for row in DeviceEnum.favorites()
             ],
