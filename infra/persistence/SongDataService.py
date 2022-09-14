@@ -6,7 +6,6 @@ from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.infra.persistence.SongDataEnum import SongDataEnum
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 
 
 class SongDataElement(object):
@@ -42,7 +41,6 @@ class SongDataService(object):
     def save(self):
         # type: () -> None
         """Save watched elements in the set data"""
-        Logger.dev("saving !")
         for enum, element in self._elements.items():
             self._set_data(enum.value, element.get_value())
 
@@ -58,17 +56,13 @@ class SongDataService(object):
     def _restore_set_state(self):
         # type: () -> None
         selected_scene_index = self._elements.get(SongDataEnum.SELECTED_SCENE_INDEX).saved_value
-        Logger.dev(selected_scene_index)
         if selected_scene_index is not None and selected_scene_index < len(SongFacade.scenes()):
-            Logger.dev("restore scene")
             selected_scene = SongFacade.scenes()[selected_scene_index]
             self._scene_component.select_scene(selected_scene)
 
         selected_track_index = self._elements.get(SongDataEnum.SELECTED_TRACK_INDEX).saved_value
-        Logger.dev(selected_track_index)
         if selected_track_index is not None and selected_track_index < len(
             list(SongFacade.all_simple_tracks())
         ):
-            Logger.dev("restore track")
             selected_track = list(SongFacade.all_simple_tracks())[selected_track_index]
             selected_track.select()

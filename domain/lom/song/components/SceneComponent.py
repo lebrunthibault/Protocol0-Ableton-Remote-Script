@@ -1,7 +1,9 @@
 import Live
 
 from protocol0.domain.lom.scene.LoopingSceneToggler import LoopingSceneToggler
+from protocol0.domain.lom.scene.NextSceneStartedEvent import NextSceneStartedEvent
 from protocol0.domain.lom.scene.Scene import Scene
+from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.ValueScroller import ValueScroller
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.track_recorder.TrackRecordingStartedEvent import TrackRecordingStartedEvent
@@ -15,6 +17,7 @@ class SceneComponent(object):
         self.looping_scene_toggler = LoopingSceneToggler()  # type: LoopingSceneToggler
 
         DomainEventBus.subscribe(TrackRecordingStartedEvent, self._on_track_recording_started_event)
+        DomainEventBus.subscribe(NextSceneStartedEvent, self._on_next_scene_started_event)
 
     def _on_track_recording_started_event(self, event):
         # type: (TrackRecordingStartedEvent) -> None
@@ -34,3 +37,15 @@ class SceneComponent(object):
             SongFacade.scenes(), SongFacade.selected_scene(), go_next, rotate=False
         )
         self.select_scene(next_scene)
+
+    def _on_next_scene_started_event(self, event):
+        # type: (NextSceneStartedEvent) -> None
+        """Event is fired *before* the scene starts playing"""
+        # Stop the previous scene : quantized or immediate
+        previous_selected_scene = SongFacade.scenes()[event.selected_scene_index]
+
+        if (
+            previous_selected_scene != SongFacade.selected_scene()
+            and ApplicationViewFacade.is_clip_view_visible()
+        ):
+            self.select_scene(previous_selected_scene)

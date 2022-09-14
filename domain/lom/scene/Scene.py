@@ -5,6 +5,7 @@ import Live
 from _Framework.SubjectSlot import SlotManager, subject_slot
 from typing import List, Optional, Dict, cast
 
+from protocol0.domain.lom.scene.NextSceneStartedEvent import NextSceneStartedEvent
 from protocol0.domain.lom.scene.SceneAppearance import SceneAppearance
 from protocol0.domain.lom.scene.SceneClips import SceneClips
 from protocol0.domain.lom.scene.SceneCropScroller import SceneCropScroller
@@ -24,6 +25,7 @@ from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.utils.forward_to import ForwardTo
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -138,6 +140,11 @@ class Scene(SlotManager):
 
             if next_scene != self:
                 next_scene.fire()  # do not fire same scene as it focus it again (can lose current parameter focus)
+
+                seq = Sequence()
+                seq.wait_for_event(BarChangedEvent)
+                seq.add(partial(DomainEventBus.emit, NextSceneStartedEvent(SongFacade.selected_scene().index)))
+                seq.done()
 
     @subject_slot("is_triggered")
     def is_triggered_listener(self):
