@@ -32,7 +32,7 @@ from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTr
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.backend.Backend import Backend
-from protocol0.domain.shared.decorators import defer
+from protocol0.domain.shared.utils.timing import defer
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler

@@ -22,7 +22,7 @@ from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import SimpleTrackCreatedEvent
 from protocol0.domain.lom.track.simple_track.UsamoTrack import UsamoTrack
 from protocol0.domain.shared.backend.Backend import Backend
-from protocol0.domain.shared.decorators import handle_error
+from protocol0.domain.shared.errors.error_handler import handle_error
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.utils.list import find_if

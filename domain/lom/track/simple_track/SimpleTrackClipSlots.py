@@ -13,7 +13,7 @@ from protocol0.domain.lom.track.simple_track.SimpleTrackFirstClipAddedEvent impo
 from protocol0.domain.lom.track.simple_track.SimpleTrackLastClipDeletedEvent import (
     SimpleTrackLastClipDeletedEvent,
 )
-from protocol0.domain.shared.decorators import defer
+from protocol0.domain.shared.utils.timing import defer
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.SongFacade import SongFacade

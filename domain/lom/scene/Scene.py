@@ -20,12 +20,11 @@ from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTr
 )
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.ValueScroller import ValueScroller
-from protocol0.domain.shared.decorators import throttle
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.utils.forward_to import ForwardTo
+from protocol0.domain.shared.utils.timing import throttle
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 

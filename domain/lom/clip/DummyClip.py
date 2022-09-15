@@ -1,7 +1,7 @@
 from typing import Any, Optional
 
 from protocol0.domain.lom.clip.AudioClip import AudioClip
-from protocol0.domain.shared.decorators import defer
+from protocol0.domain.shared.utils.timing import defer
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 

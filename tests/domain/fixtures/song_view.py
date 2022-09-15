@@ -2,7 +2,7 @@ from _Framework.SubjectSlot import Subject
 
 
 class AbletonSongView(Subject):
-    __subject_events__ = ("selected_track", "selected_scene", "detail_clip")
+    __subject_events__ = ("selected_track", "selected_scene", "selected_parameter", "detail_clip")
 
     def __init__(self):
         # type: () -> None

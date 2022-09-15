@@ -7,9 +7,9 @@ from typing import Any
 from protocol0.shared.Config import Config
 
 
-def clamp(val, minv, maxv):
+def clamp(val, min_v, max_v):
     # type: (float, float, float) -> float
-    return max(minv, min(val, maxv))
+    return max(min_v, min(val, max_v))
 
 
 def import_package(package):

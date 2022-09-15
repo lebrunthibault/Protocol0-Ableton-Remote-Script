@@ -1,4 +1,4 @@
-from protocol0.domain.shared.decorators import throttle
+from protocol0.domain.shared.utils.timing import throttle
 
 
 def test_throttle():

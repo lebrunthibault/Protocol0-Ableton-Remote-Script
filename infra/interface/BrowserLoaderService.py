@@ -127,7 +127,7 @@ class BrowserLoaderService(object):
         self._cache_category(category)
         item = self._cached_browser_items[category].get(name, None)
         if item is None:
-            raise Protocol0Error("Couldn't find browser item %s (%s)" % (name, category))
+            raise Protocol0Error("Cannot find browser item in the live library: %s (%s)\n" % (name, category))
 
         return item
 

@@ -3,7 +3,7 @@ from functools import partial
 import Live
 from _Framework.SubjectSlot import subject_slot, SlotManager
 
-from protocol0.domain.shared.decorators import debounce
+from protocol0.domain.shared.utils.timing import debounce
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 
 

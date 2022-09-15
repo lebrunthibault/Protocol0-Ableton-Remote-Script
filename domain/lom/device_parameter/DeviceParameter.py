@@ -2,6 +2,8 @@ import Live
 from typing import Any, Optional
 
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
+from protocol0.domain.shared.utils.timing import accelerate
+from protocol0.domain.shared.utils.utils import clamp
 from protocol0.shared.logging.Logger import Logger
 
 
@@ -122,6 +124,17 @@ class DeviceParameter(object):
         value = min(param.max, value)
         # noinspection PyPropertyAccess
         param.value = value
+
+    @accelerate
+    def scroll(self, go_next, factor=1):
+        # type: (bool, int) -> None
+        # using factor acceleration
+        Logger.dev(factor)
+        value_range = self.max - self.min
+        step = (value_range / 1000)
+        step *= factor
+        value = self.value + step if go_next else self.value - step
+        self.value = clamp(value, self.min, self.max)
 
     def touch(self, value):
         # type:(Any) -> None

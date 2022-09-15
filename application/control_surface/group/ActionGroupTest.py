@@ -1,10 +1,9 @@
 from functools import partial
 
-from protocol0.application.CommandBus import CommandBus
-from protocol0.application.command.InitializeSongCommand import InitializeSongCommand
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 from protocol0.domain.audit.AudioLatencyAnalyzerService import AudioLatencyAnalyzerService
 from protocol0.domain.audit.SetProfilingService import SetProfilingService
+from protocol0.domain.lom.device.RackDevice import RackDevice
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
@@ -20,6 +19,7 @@ class ActionGroupTest(ActionGroupInterface):
             identifier=1,
             name="test",
             on_press=self.action_test,
+            on_scroll=self.action_test_scroll,
         )
 
         # PROFiling encoder
@@ -49,4 +49,11 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        SongFacade.scenes()[1].fire()
+        device = list(SongFacade.selected_track().devices)[0]  # type: RackDevice
+        Logger.dev(device._device.has_macro_mappings)
+        Logger.dev(device._device.parameters)
+        Logger.dev([p.name for p in device._device.parameters])
+
+    def action_test_scroll(self, go_next):
+        # type: (bool) -> None
+        SongFacade.selected_parameter().scroll(go_next)

@@ -3,6 +3,7 @@ from functools import partial
 from typing import Optional
 
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
+from protocol0.domain.lom.device.DeviceService import DeviceService
 from protocol0.domain.lom.instrument.InstrumentDisplayService import InstrumentDisplayService
 from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService import (
     InstrumentPresetScrollerService,
@@ -68,6 +69,15 @@ class ActionGroupMain(ActionGroupInterface):
             on_scroll=lambda: SongFacade.current_track().scroll_volume,
         )
 
+        # RECordAudio encoder
+        self.add_encoder(
+            identifier=5,
+            name="record audio and keep automation",
+            filter_active_tracks=True,
+            on_press=lambda: partial(record_track, RecordTypeEnum.AUDIO_ONLY_AUTOMATION),
+            on_long_press=lambda: partial(record_track, RecordTypeEnum.AUDIO_ONLY_MULTI_AUTOMATION),
+        )
+
         # MONitor encoder
         self.add_encoder(
             identifier=8,
@@ -76,18 +86,9 @@ class ActionGroupMain(ActionGroupInterface):
             on_press=lambda: SongFacade.current_external_synth_track().monitoring_state.switch,
         )
 
-        # RECordAudio encoder
-        self.add_encoder(
-            identifier=9,
-            name="record audio and keep automation",
-            filter_active_tracks=True,
-            on_press=lambda: partial(record_track, RecordTypeEnum.AUDIO_ONLY_AUTOMATION),
-            on_long_press=lambda: partial(record_track, RecordTypeEnum.AUDIO_ONLY_MULTI_AUTOMATION),
-        )
-
         # RECord normal encoder
         self.add_encoder(
-            identifier=13,
+            identifier=9,
             name="record normal",
             filter_active_tracks=True,
             on_scroll=self._container.get(
@@ -95,6 +96,13 @@ class ActionGroupMain(ActionGroupInterface):
             ).recording_bar_length_scroller.scroll,
             on_press=lambda: partial(record_track, RecordTypeEnum.NORMAL),
             on_long_press=lambda: partial(record_track, RecordTypeEnum.NORMAL_UNLIMITED),
+        )
+
+        # SELected parameter encoder
+        self.add_encoder(
+            identifier=13,
+            name="selected parameter",
+            on_scroll=self._container.get(DeviceService).scroll_selected_parameter,
         )
 
         # TRacK encoder

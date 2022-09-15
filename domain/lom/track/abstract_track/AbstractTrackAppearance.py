@@ -7,7 +7,7 @@ from protocol0.domain.lom.track.TrackColorEnum import TrackColorEnum
 from protocol0.domain.lom.track.abstract_track.AbstractTrackNameUpdatedEvent import (
     AbstractTrackNameUpdatedEvent,
 )
-from protocol0.domain.shared.decorators import defer
+from protocol0.domain.shared.utils.timing import defer
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.utils.string import title
 from protocol0.shared.observer.Observable import Observable

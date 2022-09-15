@@ -4,6 +4,7 @@ import Live
 from typing import Optional, cast
 
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
+from protocol0.domain.lom.device.DeviceLoadedEvent import DeviceLoadedEvent
 from protocol0.domain.lom.instrument.InstrumentDisplayService import InstrumentDisplayService
 from protocol0.domain.lom.song.components.DeviceComponent import DeviceComponent
 from protocol0.domain.lom.track.simple_track.SimpleAudioExtTrack import SimpleAudioExtTrack
@@ -12,6 +13,8 @@ from protocol0.domain.lom.track.simple_track.SimpleMidiExtTrack import SimpleMid
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.ValueScroller import ValueScroller
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -22,6 +25,7 @@ class DeviceService(object):
         self._browser_service = browser_service
         self._device_component = device_component
         self._instrument_display_service = instrument_display_service
+        DomainEventBus.subscribe(DeviceLoadedEvent, self._on_device_loaded_event)
 
     def load_device(self, device_name):
         # type: (str) -> Sequence
@@ -34,7 +38,9 @@ class DeviceService(object):
         seq.add(track.select)
         if device_enum == DeviceEnum.REV2_EDITOR and track.instrument:
             seq.add(partial(track.devices.delete, track.instrument.device))
+
         seq.add(partial(self._browser_service.load_device_from_enum, device_enum))
+
         if device_enum == DeviceEnum.REV2_EDITOR:
             seq.add(partial(self._instrument_display_service.activate_plugin_window, track))
 
@@ -70,3 +76,19 @@ class DeviceService(object):
             return cast(SimpleTrack, track.group_track)
 
         return track  # type: ignore[unreachable]
+
+    def _on_device_loaded_event(self, event):
+        # type: (DeviceLoadedEvent) -> None
+        """Select the default parameter if it exists"""
+        device = SongFacade.selected_track().devices.selected
+        if event.device_enum.default_parameter:
+            parameter = device.get_parameter_by_name(event.device_enum.default_parameter)
+            self._device_component.selected_parameter = parameter
+
+    def scroll_selected_parameter(self, go_next):
+        # type: (bool) -> None
+        param = SongFacade.selected_parameter()
+        if param is None:
+            raise Protocol0Warning("There is no selected parameter")
+
+        param.scroll(go_next)

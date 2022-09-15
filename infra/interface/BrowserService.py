@@ -3,6 +3,7 @@ from functools import partial
 import Live
 
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
+from protocol0.domain.lom.device.DeviceLoadedEvent import DeviceLoadedEvent
 from protocol0.domain.lom.instrument.preset.SampleSelectedEvent import SampleSelectedEvent
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
@@ -31,6 +32,7 @@ class BrowserService(BrowserServiceInterface):
         seq.add(load_func)
         seq.wait(20)
         seq.add(ApplicationViewFacade.focus_detail)
+        seq.add(partial(DomainEventBus.emit, DeviceLoadedEvent(device_enum)))
         return seq.done()
 
     def load_sample(self, name):

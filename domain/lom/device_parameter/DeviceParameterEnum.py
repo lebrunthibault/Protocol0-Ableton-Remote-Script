@@ -7,6 +7,7 @@ from protocol0.shared.AbstractEnum import AbstractEnum
 class DeviceParameterEnum(AbstractEnum):
     AUTO_FILTER_HIGH_PASS_FREQUENCY = "AUTO FILTER HIGH PASS FREQUENCY"
     AUTO_FILTER_LOW_PASS_FREQUENCY = "AUTO FILTER LOW PASS FREQUENCY"
+    AUTO_PAN_AMOUNT = "AUTO PAN AMOUNT"
     CHAIN_SELECTOR = "CHAIN SELECTOR"
     COMPRESSOR_OUTPUT_GAIN = "COMPRESSOR OUTPUT GAIN"
     COMPRESSOR_THRESHOLD = "COMPRESSOR THRESHOLD"
@@ -16,6 +17,8 @@ class DeviceParameterEnum(AbstractEnum):
     EQ_EIGHT_FREQUENCY_8_A = "EQ EIGHT FREQUENCY 8 A"
     EQ_EIGHT_GAIN_4_A = "EQ EIGHT GAIN 4 A"
     LFO_TOOL_LFO_DEPTH = "LFO TOOL LFO DEPTH"
+    LIMITER_GAIN = "LIMITER GAIN"
+    SATURATOR_DRIVE = "SATURATOR DRIVE"
     UTILITY_GAIN = "UTILITY GAIN"
     UTILITY_SILENT_GAIN = "UTILITY SILENT GAIN"
     UTILITY_MID_SIDE = "UTILITY MID SIDE"
@@ -27,6 +30,7 @@ class DeviceParameterEnum(AbstractEnum):
             {
                 DeviceParameterEnum.AUTO_FILTER_HIGH_PASS_FREQUENCY: "Frequency",
                 DeviceParameterEnum.AUTO_FILTER_LOW_PASS_FREQUENCY: "Frequency",
+                DeviceParameterEnum.AUTO_PAN_AMOUNT: "Amount",
                 DeviceParameterEnum.CHAIN_SELECTOR: "Chain Selector",
                 DeviceParameterEnum.COMPRESSOR_OUTPUT_GAIN: "Output Gain",
                 DeviceParameterEnum.COMPRESSOR_THRESHOLD: "Threshold",
@@ -34,6 +38,8 @@ class DeviceParameterEnum(AbstractEnum):
                 DeviceParameterEnum.EQ_EIGHT_FREQUENCY_1_A: "1 Frequency A",
                 DeviceParameterEnum.EQ_EIGHT_GAIN_4_A: "4 Gain A",
                 DeviceParameterEnum.EQ_EIGHT_FREQUENCY_8_A: "8 Frequency A",
+                DeviceParameterEnum.LIMITER_GAIN: "Gain",
+                DeviceParameterEnum.SATURATOR_DRIVE: "Drive",
                 DeviceParameterEnum.UTILITY_GAIN: "Gain",
                 DeviceParameterEnum.UTILITY_SILENT_GAIN: "Gain",
                 DeviceParameterEnum.UTILITY_MID_SIDE: "Mid/Side Balance",

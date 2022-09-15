@@ -7,7 +7,7 @@ from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTr
 )
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.ValueScroller import ValueScroller
-from protocol0.domain.shared.decorators import lock
+from protocol0.domain.shared.utils.concurrency import lock
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.shared.logging.StatusBar import StatusBar
 from protocol0.shared.sequence.Sequence import Sequence

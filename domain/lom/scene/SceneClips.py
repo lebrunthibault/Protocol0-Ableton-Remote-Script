@@ -11,7 +11,7 @@ from protocol0.domain.lom.track.simple_track.SimpleAudioExtTrack import SimpleAu
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.shared.decorators import debounce
+from protocol0.domain.shared.utils.timing import debounce
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.observer.Observable import Observable
 

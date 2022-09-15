@@ -7,7 +7,7 @@ from protocol0.domain.lom.clip.automation.ClipAutomationEnvelope import ClipAuto
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.ValueScroller import ValueScroller
-from protocol0.domain.shared.decorators import handle_error
+from protocol0.domain.shared.errors.error_handler import handle_error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 

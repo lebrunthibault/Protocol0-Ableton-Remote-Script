@@ -2,7 +2,7 @@ from typing import Optional, Callable
 
 from protocol0.domain.shared.LiveObject import LiveObject
 from protocol0.domain.shared.backend.Backend import Backend
-from protocol0.domain.shared.decorators import defer
+from protocol0.domain.shared.utils.timing import defer
 
 
 class PropertyMonitor(object):

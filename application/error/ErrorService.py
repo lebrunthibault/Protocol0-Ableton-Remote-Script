@@ -4,7 +4,8 @@ from traceback import extract_tb
 from types import TracebackType
 
 import Live
-from typing import Optional, Any, List, Type
+from typing import Any
+from typing import Optional, List, Type
 
 from protocol0.application.CommandBus import CommandBus
 from protocol0.application.command.InitializeSongCommand import InitializeSongCommand
@@ -12,9 +13,9 @@ from protocol0.application.error.SentryService import SentryService
 from protocol0.domain.lom.song.RealSetLoadedEvent import RealSetLoadedEvent
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.backend.NotificationColorEnum import NotificationColorEnum
-from protocol0.domain.shared.decorators import handle_error
 from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.shared.errors.error_handler import handle_error
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.Config import Config
@@ -88,11 +89,12 @@ class ErrorService(object):
         entries = [fs for fs in extract_tb(tb) if self._log_file(fs[0])]
         if self._DEBUG:
             entries = extract_tb(tb)
-        error_message = "----- %s (%s) -----\n" % (exc_value, exc_type)
+        error_message = "  %s  \n\n" % exc_value
+        error_message += "Exception: %s\n\n" % exc_type.__name__
         if context:
             error_message += str(context) + "\n"
         error_message += "at " + "".join(self._format_list(entries[-1:], print_line=False)).strip()
-        error_message += "\n"
+        error_message += "\n\n"
         error_message += "----- traceback -----\n"
         error_message += "".join(self._format_list(entries))
 
@@ -139,7 +141,7 @@ class ErrorService(object):
 
     def _log_error(self, message):
         # type: (str) -> None
-        Logger.error(message, show_notification=False)
+        Logger.error(message, show_notification=False, debug=False)
 
         seq = Sequence()
         seq.prompt(

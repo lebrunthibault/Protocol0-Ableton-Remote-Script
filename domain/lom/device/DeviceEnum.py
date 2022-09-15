@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.lom.device_parameter.DeviceParameterValue import DeviceParameterValue
@@ -130,6 +130,65 @@ class DeviceEnum(AbstractEnum):
         except Protocol0Error:
             return self.device_name
 
+    @property
+    def main_parameters_default(self):
+        # type: () -> List[DeviceParameterValue]
+        return self.get_value_from_mapping(
+            {
+                DeviceEnum.COMPRESSOR: [
+                    DeviceParameterValue(DeviceParameterEnum.COMPRESSOR_OUTPUT_GAIN, 0),
+                    DeviceParameterValue(
+                        DeviceParameterEnum.COMPRESSOR_THRESHOLD, Config.ZERO_VOLUME
+                    ),  # 0db
+                ],
+                DeviceEnum.EQ_EIGHT: [
+                    DeviceParameterValue(
+                        DeviceParameterEnum.EQ_EIGHT_FREQUENCY_1_A, 0.285494267941
+                    ),
+                    DeviceParameterValue(DeviceParameterEnum.EQ_EIGHT_GAIN_4_A, 0),
+                    DeviceParameterValue(DeviceParameterEnum.EQ_EIGHT_FREQUENCY_8_A, 1),
+                ],  # 90 Hz
+                DeviceEnum.LFO_TOOL: [
+                    DeviceParameterValue(DeviceParameterEnum.LFO_TOOL_LFO_DEPTH, 0),
+                ],
+                DeviceEnum.UTILITY: [
+                    DeviceParameterValue(DeviceParameterEnum.UTILITY_GAIN, 0),
+                    DeviceParameterValue(DeviceParameterEnum.UTILITY_MID_SIDE, 1),
+                ],
+            }
+        )
+
+    @property
+    def default_parameter(self):
+        # type: () -> Optional[DeviceParameterEnum]
+        """Represents the main parameter for a specific device. We want to make it easily accessible"""
+        try:
+            return self.get_value_from_mapping(
+                {
+                    DeviceEnum.UTILITY: DeviceParameterEnum.UTILITY_GAIN,
+                    DeviceEnum.AUTO_FILTER_LOW_PASS: DeviceParameterEnum.AUTO_FILTER_LOW_PASS_FREQUENCY,
+                    DeviceEnum.LIMITER: DeviceParameterEnum.LIMITER_GAIN,
+                    DeviceEnum.SATURATOR: DeviceParameterEnum.SATURATOR_DRIVE,
+                    DeviceEnum.AUTO_PAN: DeviceParameterEnum.AUTO_PAN_AMOUNT,
+                }
+            )
+        except Protocol0Error:
+            return None
+
+    @classmethod
+    def from_device_parameter(cls, device_parameter_enum):
+        # type: (DeviceParameterEnum) -> DeviceEnum
+        mapping = {
+            DeviceParameterEnum.AUTO_FILTER_HIGH_PASS_FREQUENCY: DeviceEnum.AUTO_FILTER_HIGH_PASS,
+            DeviceParameterEnum.AUTO_FILTER_LOW_PASS_FREQUENCY: DeviceEnum.AUTO_FILTER_LOW_PASS,
+            DeviceParameterEnum.UTILITY_GAIN: DeviceEnum.UTILITY,
+        }
+
+        if device_parameter_enum not in mapping:
+            raise Protocol0Error("parameter not in mapping")
+
+        return mapping[device_parameter_enum]
+
     @classmethod
     def favorites(cls):
         # type: () -> List[List[DeviceEnum]]
@@ -160,54 +219,12 @@ class DeviceEnum(AbstractEnum):
         return [cls.INSERT_DELAY, cls.INSERT_REVERB]
 
     @property
-    def main_parameters_default(self):
-        # type: () -> List[DeviceParameterValue]
-        return self.get_value_from_mapping(
-            {
-                DeviceEnum.COMPRESSOR: [
-                    DeviceParameterValue(DeviceParameterEnum.COMPRESSOR_OUTPUT_GAIN, 0),
-                    DeviceParameterValue(
-                        DeviceParameterEnum.COMPRESSOR_THRESHOLD, Config.ZERO_VOLUME
-                    ),  # 0db
-                ],
-                DeviceEnum.EQ_EIGHT: [
-                    DeviceParameterValue(
-                        DeviceParameterEnum.EQ_EIGHT_FREQUENCY_1_A, 0.285494267941
-                    ),
-                    DeviceParameterValue(DeviceParameterEnum.EQ_EIGHT_GAIN_4_A, 0),
-                    DeviceParameterValue(DeviceParameterEnum.EQ_EIGHT_FREQUENCY_8_A, 1),
-                ],  # 90 Hz
-                DeviceEnum.LFO_TOOL: [
-                    DeviceParameterValue(DeviceParameterEnum.LFO_TOOL_LFO_DEPTH, 0),
-                ],
-                DeviceEnum.UTILITY: [
-                    DeviceParameterValue(DeviceParameterEnum.UTILITY_GAIN, 0),
-                    DeviceParameterValue(DeviceParameterEnum.UTILITY_MID_SIDE, 1),
-                ],
-            }
-        )
-
-    @classmethod
-    def from_device_parameter(cls, device_parameter_enum):
-        # type: (DeviceParameterEnum) -> DeviceEnum
-        mapping = {
-            DeviceParameterEnum.AUTO_FILTER_HIGH_PASS_FREQUENCY: DeviceEnum.AUTO_FILTER_HIGH_PASS,
-            DeviceParameterEnum.AUTO_FILTER_LOW_PASS_FREQUENCY: DeviceEnum.AUTO_FILTER_LOW_PASS,
-            DeviceParameterEnum.UTILITY_GAIN: DeviceEnum.UTILITY,
-        }
-
-        if device_parameter_enum not in mapping:
-            raise Protocol0Error("parameter not in mapping")
-
-        return mapping[device_parameter_enum]
-
-    @property
     def load_time(self):
         # type: () -> int
         """
-            load time in ms : by how much loading a single device / plugin instance slows down the set startup
-            measured by loading multiple device instances (20) in an empty set and timing multiple times the set load
-            very rough approximation of the performance impact of a device on the whole set
+        load time in ms : by how much loading a single device / plugin instance slows down the set startup
+        measured by loading multiple device instances (20) in an empty set and timing multiple times the set load
+        very rough approximation of the performance impact of a device on the whole set
         """
         return self.get_value_from_mapping(
             {
@@ -251,8 +268,4 @@ class DeviceEnum(AbstractEnum):
     def missing_plugin_names(cls):
         # type: () -> List[str]
         """Plugins that I've used, but I don't currently have (formerly cracks)"""
-        return [
-            "Vocal Rider Stereo",
-            "API-2500 Stereo",
-            DeviceEnum.SATURN_2.device_name
-        ]
+        return ["Vocal Rider Stereo", "API-2500 Stereo", DeviceEnum.SATURN_2.device_name]
