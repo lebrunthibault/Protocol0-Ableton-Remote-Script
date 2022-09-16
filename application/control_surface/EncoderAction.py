@@ -50,7 +50,10 @@ class EncoderAction(object):
         seq = Sequence()
         seq.add(partial(func, *a, **k))
         seq.add(UndoFacade.end_undo_step)
-        seq.add(lambda: Logger.info("%s : took %.3fs" % (func_name, time.time() - start_at)))
+
+        if self.move_type != EncoderMoveEnum.SCROLL:
+            seq.add(lambda: Logger.info("%s : took %.3fs" % (func_name, time.time() - start_at)))
+
         return seq.done()
 
     @classmethod

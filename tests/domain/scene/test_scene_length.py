@@ -13,7 +13,7 @@ from protocol0.tests.domain.fixtures.p0 import make_protocol0
 def test_scene_length():
     make_protocol0()
     clips = SceneClips(0)
-    scene_length = SceneLength(clips)
+    scene_length = SceneLength(clips, 0)
     assert scene_length.length == 0
     assert scene_length.bar_length == 0
 

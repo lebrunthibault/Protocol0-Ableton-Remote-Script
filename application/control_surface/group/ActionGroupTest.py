@@ -1,3 +1,4 @@
+from typing import cast
 from functools import partial
 
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
@@ -19,7 +20,6 @@ class ActionGroupTest(ActionGroupInterface):
             identifier=1,
             name="test",
             on_press=self.action_test,
-            on_scroll=self.action_test_scroll,
         )
 
         # PROFiling encoder
@@ -49,11 +49,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        device = list(SongFacade.selected_track().devices)[0]  # type: RackDevice
-        Logger.dev(device._device.has_macro_mappings)
-        Logger.dev(device._device.parameters)
-        Logger.dev([p.name for p in device._device.parameters])
-
-    def action_test_scroll(self, go_next):
-        # type: (bool) -> None
-        SongFacade.selected_parameter().scroll(go_next)
+        rack = cast(RackDevice, list(SongFacade.selected_track().devices)[0])

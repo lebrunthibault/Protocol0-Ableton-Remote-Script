@@ -8,9 +8,14 @@ from protocol0.shared.logging.Logger import Logger
 
 
 class SceneLength(object):
-    def __init__(self, clips):
-        # type: (SceneClips) -> None
+    def __init__(self, clips, scene_index):
+        # type: (SceneClips, int) -> None
         self._clips = clips
+        self._scene_index = scene_index
+
+    def __repr__(self):
+        # type: () -> str
+        return "SceneLength(index=%s, length=%f)" % (self._scene_index, self.length)
 
     @property
     def length(self):

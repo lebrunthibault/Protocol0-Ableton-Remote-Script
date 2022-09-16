@@ -129,7 +129,6 @@ class DeviceParameter(object):
     def scroll(self, go_next, factor=1):
         # type: (bool, int) -> None
         # using factor acceleration
-        Logger.dev(factor)
         value_range = self.max - self.min
         step = (value_range / 1000)
         step *= factor

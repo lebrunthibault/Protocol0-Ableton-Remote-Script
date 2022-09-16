@@ -40,7 +40,7 @@ class Scene(SlotManager):
         self.live_id = self._scene._live_ptr  # type: int
 
         self.clips = SceneClips(self.index)
-        self._scene_length = SceneLength(self.clips)
+        self._scene_length = SceneLength(self.clips, self.index)
         self.playing_state = ScenePlayingState(self.clips, self._scene_length)
         self.scene_name = SceneName(live_scene, self._scene_length, self.playing_state)
         self.appearance = SceneAppearance(live_scene, self.scene_name)

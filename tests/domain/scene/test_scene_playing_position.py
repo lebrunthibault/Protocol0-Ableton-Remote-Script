@@ -17,7 +17,7 @@ def test_scene_playing_state():
     clip_slot.has_clip_listener()
     clips = SceneClips(0)
 
-    scene_length = SceneLength(clips)
+    scene_length = SceneLength(clips, 0)
     scene_position = ScenePlayingState(clips, scene_length)
     assert scene_position.position == 0
     assert scene_position.bar_position == 0

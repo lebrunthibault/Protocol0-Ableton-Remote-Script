@@ -108,9 +108,9 @@ class ScenePlaybackService(SlotManager):
         if not ApplicationViewFacade.is_session_visible():
             return
 
-        self._restart_inconsistent_scene()
+        self._check_for_out_of_sync_scenes()
 
-    def _restart_inconsistent_scene(self):
+    def _check_for_out_of_sync_scenes(self):
         # type: () -> None
         """
         When the playback starts,
@@ -118,8 +118,10 @@ class ScenePlaybackService(SlotManager):
             - or from the script (command etc..)
         the scene can be in a inconsistent play state especially if an audio tail clip was
         previously playing but got muted
+        It might also be that the SceneClips object contain stale information
 
         We ignore playback from the script (handled) else
+        we rebuild the SceneClips
         we relaunch the scene cleanly
         """
         if not SongFacade.is_playing() or SongFacade.playing_scene() is None:
@@ -137,6 +139,8 @@ class ScenePlaybackService(SlotManager):
         if should_restart:
             Logger.info("restarting %s" % self)
             Logger.dev([clip for clip in SongFacade.playing_scene().clips.all if not clip.is_playing and not clip.muted])
+            # rebuild clips that are out of sync
+            SongFacade.playing_scene().clips.build()
             self.fire_scene(cast(Scene, SongFacade.playing_scene()))
 
     def _on_song_stopped_event(self, _):
