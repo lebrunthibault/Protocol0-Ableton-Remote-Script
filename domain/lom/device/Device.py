@@ -121,3 +121,8 @@ class Device(SlotManager):
     def is_collapsed(self, is_collapsed):
         # type: (bool) -> None
         self._view.is_collapsed = is_collapsed  # noqa
+
+    @property
+    def is_top(self):
+        # type: () -> bool
+        return isinstance(self._device.canonical_parent, Live.Track.Track)

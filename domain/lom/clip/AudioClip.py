@@ -38,5 +38,6 @@ class AudioClip(Clip):
     def crop(self):
         # type: () -> None
         """Live.Clip.Clip.crop_sample doesn't exist, so we notify the user"""
+        self.loop.fix()
         self.appearance.color = ColorEnum.WARNING.color_int_value
         Logger.warning("Please crop %s" % self)

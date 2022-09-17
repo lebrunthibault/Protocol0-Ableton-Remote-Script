@@ -107,3 +107,8 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
     def bar_length(self, bar_length):
         # type: (float) -> None
         self.length = bar_length * SongFacade.signature_numerator()
+
+    def fix(self):
+        # type: () -> None
+        self.start = self._clip.start_marker
+        self.end = self._clip.end_marker

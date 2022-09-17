@@ -2,7 +2,7 @@ from functools import partial
 
 import Live
 from _Framework.SubjectSlot import subject_slot, SlotManager
-from typing import Optional
+from typing import Optional, Callable
 
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
@@ -14,10 +14,11 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 
 class DeviceComponent(SlotManager):
-    def __init__(self, song_view):
-        # type: (Live.Song.Song.View) -> None
+    def __init__(self, song_view, move_device):
+        # type: (Live.Song.Song.View, Callable) -> None
         super(DeviceComponent, self).__init__()
         self._view = song_view
+        self._move_device = move_device
 
         self._selected_parameter_listener.subject = self._view
 
@@ -58,3 +59,7 @@ class DeviceComponent(SlotManager):
         seq.add(ApplicationViewFacade.focus_detail)
         seq.add(ApplicationViewFacade.show_device)
         return seq.done()
+
+    def move_device(self, device, index):
+        # type: (Device, int) -> None
+        self._move_device(device._device, index)
