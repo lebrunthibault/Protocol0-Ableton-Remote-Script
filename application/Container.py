@@ -94,7 +94,7 @@ class Container(ContainerInterface):
 
         # song components
         clip_component = ClipComponent(live_song.view)
-        device_component = DeviceComponent(live_song.view, live_song.move_device)
+        device_component = DeviceComponent(live_song.view)
         playback_component = PlaybackComponent(live_song)
         tempo_component = TempoComponent(live_song)
         quantization_component = QuantizationComponent(live_song, tempo_component)

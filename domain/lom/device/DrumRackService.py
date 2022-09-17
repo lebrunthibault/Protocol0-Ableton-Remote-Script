@@ -105,10 +105,6 @@ class DrumRackService(object):
 
         self._from_drum_rack_to_simpler_notes()
         pitch = pitches[0]
-        Logger.dev(track.instrument)
-        Logger.dev(track.instrument.device._device.canonical_parent)
-        Logger.dev(track.instrument.device.is_top)
-        Logger.dev(pitch)
         sample_name = device.drum_pads[pitch].name
 
         if track.instrument.device.is_top:
