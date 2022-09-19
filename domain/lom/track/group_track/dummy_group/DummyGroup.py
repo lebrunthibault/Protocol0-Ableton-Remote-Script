@@ -19,6 +19,7 @@ from protocol0.domain.shared.scheduler.Last8thPassedEvent import Last8thPassedEv
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -147,6 +148,7 @@ class DummyGroup(object):
             seq.done()
 
         for dummy_track, dummy_clip in self._dummy_clips(scene_index):
+            Logger.dev("reset %s - %s" % (dummy_track, dummy_clip))
             seq = Sequence()
             if not immediate:
                 seq.wait_bars(tails_bars_left)

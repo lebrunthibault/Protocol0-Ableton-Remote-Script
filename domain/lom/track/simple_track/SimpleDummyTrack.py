@@ -19,6 +19,7 @@ from protocol0.domain.lom.track.simple_track.SimpleTrackClipSlots import SimpleT
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 
 
@@ -91,6 +92,9 @@ class SimpleDummyTrack(SimpleAudioTrack):
         # type: (int, Optional[int]) -> List[DeviceParameter]
         dummy_clip = self.clip_slots[scene_index].clip
         parameters = dummy_clip.automation.get_automated_parameters(self.devices.parameters)
+        for p in parameters:
+            Logger.dev((p, p.is_mixer_parameter))
+        parameters = [p for p in parameters if not p.is_mixer_parameter]
 
         next_parameters = []  # type: List[DeviceParameter]
         if next_scene_index is not None:
@@ -114,6 +118,7 @@ class SimpleDummyTrack(SimpleAudioTrack):
         if SongFacade.is_playing() and self.is_playing:
             next_scene_index = self.playing_clip.index
 
+        Logger.dev("stopping params : %s" % self.get_stopping_automated_parameters(scene_index, next_scene_index))
         for parameter in self.get_stopping_automated_parameters(scene_index, next_scene_index):
             parameter.reset()
 

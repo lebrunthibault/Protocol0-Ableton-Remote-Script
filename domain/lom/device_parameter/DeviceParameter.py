@@ -18,7 +18,6 @@ class DeviceParameter(object):
             if enum is not None:
                 self._default_value = enum.default_value
             else:
-                self._default_value = 1
                 self._default_value = device_parameter.default_value
         except (RuntimeError, AttributeError):
             self._default_value = 0
@@ -165,6 +164,7 @@ class DeviceParameter(object):
             # not the opposite
             self.value = 0
         else:
+
             try:
                 self.value = self._default_value
             except RuntimeError as e:
