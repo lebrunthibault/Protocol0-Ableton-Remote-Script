@@ -16,7 +16,7 @@ class DrumRackDevice(RackDevice):
     @property
     def drum_pads(self):
         # type: () -> List[DrumPad]
-        return [DrumPad(drum_pad) for drum_pad in self._device.drum_pads]
+        return [DrumPad(drum_pad) for drum_pad in self._device.drum_pads if drum_pad]
 
     @property
     def filled_drum_pads(self):

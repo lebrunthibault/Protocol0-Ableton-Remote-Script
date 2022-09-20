@@ -24,6 +24,7 @@ class DummyClip(AudioClip):
             self.bar_length = SongFacade.selected_scene().bar_length
 
         self.clip_name.update("")
+        self.muted = False
 
         return None
 
