@@ -71,12 +71,12 @@ class AbstractGroupTrack(AbstractTrack):
         # type: (AbstractTrack) -> bool
         """checks if the given track is not itself or a possibly nested child"""
         return (
-            abstract_track == self
-            or abstract_track in self.sub_tracks
-            or any(
-                isinstance(sub_track, AbstractGroupTrack) and sub_track.is_parent(abstract_track)
-                for sub_track in self.sub_tracks
-            )
+                abstract_track == self
+                or abstract_track in self.sub_tracks
+                or any(
+                    isinstance(sub_track, AbstractGroupTrack) and sub_track.is_parent(abstract_track)
+                    for sub_track in self.sub_tracks
+                )
         )
 
     def get_view_track(self, scene_index):
