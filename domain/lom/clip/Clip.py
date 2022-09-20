@@ -35,7 +35,6 @@ class Clip(SlotManager, Observable):
             live_clip, self.loop
         )  # type: ClipPlayingPosition
 
-        self.clip_name.register_observer(self)
         self.loop.register_observer(self)
 
     def __eq__(self, clip):
@@ -48,7 +47,7 @@ class Clip(SlotManager, Observable):
 
     def update(self, observable):
         # type: (Observable) -> None
-        if isinstance(observable, ClipLoop) or isinstance(observable, ClipName):
+        if isinstance(observable, ClipLoop):
             self.notify_observers()
 
     name = cast(str, ForwardTo("appearance", "name"))

@@ -3,7 +3,10 @@ from math import floor
 import Live
 
 from _Framework.SubjectSlot import subject_slot, SlotManager
+
+from protocol0.domain.lom.clip.ClipLoopChangedEvent import ClipLoopChangedEvent
 from protocol0.domain.lom.loop.LoopableInterface import LoopableInterface
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.observer.Observable import Observable
 
@@ -31,12 +34,18 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
     @subject_slot("loop_start")
     def _loop_start_listener(self):
         # type: () -> None
-        self.notify_observers()
+        self._loop_listener()
 
     @subject_slot("loop_end")
     def _loop_end_listener(self):
         # type: () -> None
+        self._loop_listener()
+
+    def _loop_listener(self):
+        # type: () -> None
         self.notify_observers()
+        if not self._clip.is_recording:
+            DomainEventBus.emit(ClipLoopChangedEvent(self._clip))
 
     @property
     def looping(self):
@@ -60,9 +69,13 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
     @start.setter
     def start(self, start):
         # type: (float) -> None
-        if self._clip:
-            self._clip.start_marker = start
-            self._clip.loop_start = start
+        looping = self.looping
+        self.looping = True
+
+        self._clip.start_marker = start
+        self._clip.loop_start = start
+
+        self.looping = looping
 
     @property
     def end(self):
@@ -75,8 +88,13 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
     @end.setter
     def end(self, end):
         # type: (float) -> None
+        looping = self.looping
+        self.looping = True
+
         self._clip.end_marker = end
         self._clip.loop_end = end
+
+        self.looping = looping
 
     @property
     def length(self):
@@ -107,6 +125,11 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
     def bar_length(self, bar_length):
         # type: (float) -> None
         self.length = bar_length * SongFacade.signature_numerator()
+
+    def match(self, loop):
+        # type: (ClipLoop) -> None
+        self.start = loop.start
+        self.end = loop.end
 
     def fix(self):
         # type: () -> None

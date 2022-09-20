@@ -1,3 +1,4 @@
+from _Framework.SubjectSlot import subject_slot
 from typing import List, Optional, Dict
 
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
@@ -10,6 +11,7 @@ from protocol0.domain.lom.track.group_track.dummy_group.DummyGroup import DummyG
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.domain.shared.utils.timing import defer
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.observer.Observable import Observable
 
@@ -24,6 +26,8 @@ class AbstractGroupTrack(AbstractTrack):
         self.sub_tracks = []  # type: List[AbstractTrack]
         # for now: List[SimpleTrack] but AbstractGroupTracks will register themselves on_tracks_change
         self.dummy_group = DummyGroup(self)
+
+        self._solo_listener.subject = self._track
 
         self.appearance.register_observer(self)
         self._force_clip_colors = True
@@ -71,12 +75,12 @@ class AbstractGroupTrack(AbstractTrack):
         # type: (AbstractTrack) -> bool
         """checks if the given track is not itself or a possibly nested child"""
         return (
-                abstract_track == self
-                or abstract_track in self.sub_tracks
-                or any(
-                    isinstance(sub_track, AbstractGroupTrack) and sub_track.is_parent(abstract_track)
-                    for sub_track in self.sub_tracks
-                )
+            abstract_track == self
+            or abstract_track in self.sub_tracks
+            or any(
+                isinstance(sub_track, AbstractGroupTrack) and sub_track.is_parent(abstract_track)
+                for sub_track in self.sub_tracks
+            )
         )
 
     def get_view_track(self, scene_index):
@@ -101,6 +105,17 @@ class AbstractGroupTrack(AbstractTrack):
     def clip_slots(self):
         # type: () -> List[ClipSlot]
         return self.base_track.clip_slots
+
+    @subject_slot("solo")
+    @defer
+    def _solo_listener(self):
+        # type: () -> None
+        if self.solo:
+            self.dummy_group.solo()
+
+            for sub_track in self.sub_tracks:
+                if sub_track.is_foldable:
+                    sub_track.solo = True
 
     def bars_left(self, scene_index):
         # type: (int) -> int

@@ -47,6 +47,8 @@ from protocol0.domain.lom.track.TrackMapperService import TrackMapperService
 from protocol0.domain.lom.track.TrackPlayerService import TrackPlayerService
 from protocol0.domain.lom.track.TrackRepository import TrackRepository
 from protocol0.domain.lom.track.TrackService import TrackService
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackClipSynchronizerService import \
+    ExternalSynthTrackClipSynchronizerService
 from protocol0.domain.lom.validation.ValidatorFactory import ValidatorFactory
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
@@ -157,6 +159,7 @@ class Container(ContainerInterface):
             track_mapper_service,
             track_recorder_service,
         )
+        ExternalSynthTrackClipSynchronizerService()
 
         song_service = SongInitService(playback_component)
         instrument_preset_scroller_service = InstrumentPresetScrollerService()

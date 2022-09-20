@@ -32,13 +32,13 @@ from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTr
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.backend.Backend import Backend
-from protocol0.domain.shared.utils.timing import defer
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.scheduler.ThirdBeatPassedEvent import ThirdBeatPassedEvent
 from protocol0.domain.shared.utils.forward_to import ForwardTo
 from protocol0.domain.shared.utils.list import find_if
+from protocol0.domain.shared.utils.timing import defer
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.logging.StatusBar import StatusBar
@@ -86,7 +86,6 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
         DomainEventBus.subscribe(ThirdBeatPassedEvent, self._on_third_beat_passed_event)
 
-        self._solo_listener.subject = self._track
         # this is necessary to monitor the group track solo state
         self._un_soloed_at = time.time()  # type: float
 
@@ -277,6 +276,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
     def _solo_listener(self):
         # type: () -> None
         """We want to solo only the base track"""
+        super(ExternalSynthTrack, self)._solo_listener()
         if not self.solo:
             self._un_soloed_at = time.time()
 
@@ -285,7 +285,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
     def _sub_track_solo_listener(self, track):
         # type: (Live.Track.Track) -> None
         """We want to solo only the base track"""
-        if track.solo:
+        if track.solo and not self.dummy_group.live_track_belongs(track):
             track.solo = False  # noqa
 
             if self.solo:

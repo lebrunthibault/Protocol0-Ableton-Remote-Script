@@ -1,3 +1,5 @@
+import Live
+
 from functools import partial
 
 from typing import Optional, Tuple, TYPE_CHECKING, Dict, List
@@ -106,6 +108,12 @@ class DummyGroup(object):
 
         return None, None
 
+    def live_track_belongs(self, track):
+        # type: (Live.Track.Track) -> bool
+        return (self._dummy_track is not None and track == self._dummy_track._track) or (
+            self._dummy_return_track is not None and track == self._dummy_return_track._track
+        )
+
     def has_automation(self, scene_index):
         # type: (int) -> bool
         return len(self._dummy_clips(scene_index)) != 0
@@ -137,6 +145,11 @@ class DummyGroup(object):
             seq.done()
 
         self.reset_automation(scene_index, next_scene_index, tail_bars_left, immediate)
+
+    def solo(self):
+        # type: () -> None
+        if self._dummy_return_track is not None:
+            self._dummy_return_track.solo = True
 
     def reset_automation(
         self, scene_index, next_scene_index=None, tails_bars_left=0, immediate=False
