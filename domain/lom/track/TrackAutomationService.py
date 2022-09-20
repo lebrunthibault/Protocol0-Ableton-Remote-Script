@@ -24,12 +24,20 @@ class TrackAutomationService(object):
         self._last_selected_parameter = None  # type: Optional[DeviceParameter]
 
     def show_automation(self, go_next):
-        # type: (bool) -> Optional[Sequence]
+        # type: (bool) -> Sequence
         selected_parameter = SongFacade.selected_parameter()
+        seq = Sequence()
+
+        # adds the dummy clip if none is present
+        if isinstance(SongFacade.selected_track(), SimpleDummyTrack) and SongFacade.selected_clip_slot().clip is None:
+            seq.add(partial(SongFacade.template_dummy_clip_slot().duplicate_clip_to, SongFacade.selected_clip_slot()))
+
         if selected_parameter is not None:
-            return self._show_selected_parameter_automation(selected_parameter)
+            seq.add(partial(self._show_selected_parameter_automation, selected_parameter))
         else:
-            return self._scroll_automated_parameters(go_next)
+            seq.add(partial(self._scroll_automated_parameters, go_next))
+
+        return seq.done()
 
     def _show_selected_parameter_automation(self, selected_parameter):
         # type: (DeviceParameter) -> Optional[Sequence]

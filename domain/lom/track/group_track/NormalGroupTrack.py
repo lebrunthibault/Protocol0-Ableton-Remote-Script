@@ -29,15 +29,24 @@ class NormalGroupTrack(AbstractGroupTrack):
     def computed_name(self):
         # type: () -> str
         # tracks have all the same name
+        base_name = self._computed_base_name
+        if base_name != self.name:
+            return "%s Group" % base_name
+        else:
+            return self.name
+
+    @property
+    def _computed_base_name(self):
+        # type: () -> str
         unique_sub_track_names = list(set([sub_track.name for sub_track in self.sub_tracks]))
         if len(unique_sub_track_names) == 1:
             return unique_sub_track_names[0]
 
         # tracks have all the same instrument
-        common_subtracks_instrument_class = self._common_subtracks_instrument_class
+        common_sub_tracks_instrument_class = self._common_sub_tracks_instrument_class
 
-        if common_subtracks_instrument_class:
-            return common_subtracks_instrument_class.NAME
+        if common_sub_tracks_instrument_class:
+            return common_sub_tracks_instrument_class.NAME
 
         def _name_prefix(track):
             # type: (AbstractTrack) -> str
@@ -53,7 +62,7 @@ class NormalGroupTrack(AbstractGroupTrack):
         return self.name
 
     @property
-    def _common_subtracks_instrument_class(self):
+    def _common_sub_tracks_instrument_class(self):
         # type: () -> Optional[Type[InstrumentInterface]]
         sub_tracks_instrument_classes = [
             sub_track.instrument.__class__ for sub_track in self.sub_tracks if sub_track.instrument

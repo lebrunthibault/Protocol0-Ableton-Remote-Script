@@ -51,7 +51,7 @@ class ActionGroupMain(ActionGroupInterface):
         self.add_encoder(
             identifier=3,
             name="automation",
-            on_press=lambda: self._container.get(TrackAutomationService).show_automation,
+            on_press=lambda: self._container.get(TrackAutomationService).show_automation(go_next=True),
             on_long_press=lambda: self._container.get(
                 TrackAutomationService
             ).select_or_sync_automation,

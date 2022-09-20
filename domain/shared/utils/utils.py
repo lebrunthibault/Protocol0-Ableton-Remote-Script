@@ -43,7 +43,7 @@ def get_minutes_legend(seconds):
     minutes = int(seconds / 60)
     seconds = int(seconds % 60)
 
-    return "%d:%d" % (minutes, seconds)
+    return "%02d:%02d" % (minutes, seconds)
 
 
 live_factor = 6 / math.log10(1.0 / Config.ZERO_VOLUME)

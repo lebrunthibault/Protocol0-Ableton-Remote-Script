@@ -2,6 +2,7 @@ import collections
 
 from typing import Dict, Any
 
+from protocol0.domain.shared.utils.utils import get_minutes_legend
 from protocol0.shared.SongFacade import SongFacade
 
 
@@ -25,6 +26,6 @@ class SceneStats(object):
         # type: () -> Dict
         output = collections.OrderedDict()  # type: Dict[str, Any]
         output["count"] = self.count
-        output["total duration"] = "%.2fs" % self.total_duration
+        output["total duration"] = get_minutes_legend(self.total_duration)
 
         return output
