@@ -1,3 +1,4 @@
+from functools import partial
 from math import floor
 
 import Live
@@ -7,6 +8,7 @@ from _Framework.SubjectSlot import subject_slot, SlotManager
 from protocol0.domain.lom.clip.ClipLoopChangedEvent import ClipLoopChangedEvent
 from protocol0.domain.lom.loop.LoopableInterface import LoopableInterface
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.observer.Observable import Observable
 
@@ -19,6 +21,8 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
         super(ClipLoop, self).__init__()
         self._clip = clip
 
+        self._events_disabled = False
+
         self._loop_start_listener.subject = self._clip
         self._loop_end_listener.subject = self._clip
 
@@ -30,6 +34,11 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
             self.end,
             self.length,
         )
+
+    def disable_events(self):
+        # type: () -> None
+        self._events_disabled = True
+        Scheduler.defer(partial(setattr, self, "_events_disabled", False))
 
     @subject_slot("loop_start")
     def _loop_start_listener(self):
@@ -44,7 +53,7 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
     def _loop_listener(self):
         # type: () -> None
         self.notify_observers()
-        if not self._clip.is_recording:
+        if not self._clip.is_recording and not self._events_disabled:
             DomainEventBus.emit(ClipLoopChangedEvent(self._clip))
 
     @property

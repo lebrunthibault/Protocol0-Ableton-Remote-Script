@@ -35,7 +35,7 @@ class ExternalSynthTrackClipSynchronizerService(object):
         midi_clip = current_track.midi_track.clip_slots[SongFacade.selected_scene().index].clip
 
         # not a manual edition ..?
-        if midi_clip is None:
+        if midi_clip is None or current_track.is_armed:
             return
 
         if event.live_clip != midi_clip._clip and (
@@ -49,6 +49,9 @@ class ExternalSynthTrackClipSynchronizerService(object):
         audio_clip = current_track.audio_track.clip_slots[SongFacade.selected_scene().index].clip
 
         Scheduler.defer(partial(audio_clip.loop.match, midi_clip.loop))
+
+        if current_track.audio_tail_track is None:
+            return
 
         audio_tail_clip = current_track.audio_tail_track.clip_slots[
             SongFacade.selected_scene().index

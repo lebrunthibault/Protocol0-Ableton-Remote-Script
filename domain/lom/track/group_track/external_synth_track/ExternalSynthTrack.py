@@ -396,10 +396,11 @@ class ExternalSynthTrack(AbstractGroupTrack):
         and have the same length as the midi clip
         """
         audio_clip_to_fire = self._audio_clip_to_fire(scene_index)
-        if audio_clip_to_fire is None:
+        midi_clip = self.midi_track.clip_slots[scene_index].clip
+        if audio_clip_to_fire is None or midi_clip is None:
             return None
 
-        midi_clip_bar_length = self.midi_track.clip_slots[scene_index].clip.bar_length
+        midi_clip_bar_length = midi_clip.bar_length
         try:
             audio_clip_to_fire.set_temporary_length(midi_clip_bar_length)
         except IndexError:

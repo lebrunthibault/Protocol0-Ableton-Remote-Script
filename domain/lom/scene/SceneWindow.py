@@ -28,6 +28,7 @@ class SceneWindow(object):
             if clip.length <= self._length:
                 continue
 
+            clip.loop.disable_events()
             if not (self._contains_scene_end and isinstance(clip, DummyClip)):
                 clip.loop.end = clip.loop.start + self._end_length
             clip.loop.start += self._start_length
