@@ -8,7 +8,7 @@ from typing import Any
 from typing import Optional, List, Type
 
 from protocol0.application.CommandBus import CommandBus
-from protocol0.application.command.InitializeSongCommand import InitializeSongCommand
+from protocol0.application.command.ReloadScriptCommand import ReloadScriptCommand
 from protocol0.application.error.SentryService import SentryService
 from protocol0.domain.lom.song.RealSetLoadedEvent import RealSetLoadedEvent
 from protocol0.domain.shared.backend.Backend import Backend
@@ -150,5 +150,5 @@ class ErrorService(object):
             color=NotificationColorEnum.ERROR,
             default=False,
         )
-        seq.add(partial(CommandBus.dispatch, InitializeSongCommand()))
+        seq.add(partial(CommandBus.dispatch, ReloadScriptCommand()))
         seq.done()

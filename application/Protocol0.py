@@ -5,7 +5,7 @@ from protocol0.application.CommandBus import CommandBus
 from protocol0.application.Container import Container
 from protocol0.application.ScriptDisconnectedEvent import ScriptDisconnectedEvent
 from protocol0.application.ScriptResetActivatedEvent import ScriptResetActivatedEvent
-from protocol0.application.command.InitializeSongCommand import InitializeSongCommand
+from protocol0.application.command.ReloadScriptCommand import ReloadScriptCommand
 from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.shared.SongFacade import SongFacade
@@ -32,7 +32,7 @@ class Protocol0(ControlSurface):
             return
 
         DomainEventBus.subscribe(ScriptResetActivatedEvent, self._initialize)
-        CommandBus.dispatch(InitializeSongCommand())
+        CommandBus.dispatch(ReloadScriptCommand())
 
         Logger.info("Protocol0 script loaded")
 

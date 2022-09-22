@@ -1,7 +1,7 @@
 from functools import partial
 
 from protocol0.application.CommandBus import CommandBus
-from protocol0.application.command.ResetSongCommand import ResetSongCommand
+from protocol0.application.command.ResetPlaybackCommand import ResetPlaybackCommand
 from protocol0.domain.audit.SetFixerService import SetFixerService
 from protocol0.domain.audit.stats.SceneStats import SceneStats
 from protocol0.domain.lom.scene.SceneLastBarPassedEvent import SceneLastBarPassedEvent
@@ -70,7 +70,7 @@ class SessionToArrangementService(object):
         seq.add(Backend.client().clear_arrangement)
         seq.wait_ms(700)
         seq.add(ApplicationViewFacade.show_session)
-        seq.add(partial(CommandBus.dispatch, ResetSongCommand()))
+        seq.add(partial(CommandBus.dispatch, ResetPlaybackCommand()))
 
         # make recording start at 1.1.1
         seq.add(self._pre_fire_first_scene)
@@ -135,7 +135,7 @@ class SessionToArrangementService(object):
         if not self._is_bouncing:
             return None
 
-        CommandBus.dispatch(ResetSongCommand())
+        CommandBus.dispatch(ResetPlaybackCommand())
         self._recording_component.record_mode = False
         self._tempo_component.tempo = self._tempo
         self._recording_component.back_to_arranger = False

@@ -1,7 +1,7 @@
 from typing import Optional
 
 from protocol0.application.CommandBus import CommandBus
-from protocol0.application.command.ResetSongCommand import ResetSongCommand
+from protocol0.application.command.ResetPlaybackCommand import ResetPlaybackCommand
 from protocol0.domain.lom.song.RealSetLoadedEvent import RealSetLoadedEvent
 from protocol0.domain.lom.song.SongInitializedEvent import SongInitializedEvent
 from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackComponent
@@ -22,7 +22,7 @@ class SongInitService(object):
     def init_song(self):
         # type: () -> Sequence
         # the song usually starts playing after this method is executed
-        CommandBus.dispatch(ResetSongCommand())
+        CommandBus.dispatch(ResetPlaybackCommand())
         clip_count = len(
             [
                 clip

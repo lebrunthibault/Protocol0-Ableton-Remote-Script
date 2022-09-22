@@ -3,7 +3,7 @@ from functools import partial
 from typing import Optional
 
 from protocol0.application.CommandBus import CommandBus
-from protocol0.application.command.ResetSongCommand import ResetSongCommand
+from protocol0.application.command.ResetPlaybackCommand import ResetPlaybackCommand
 from protocol0.domain.lom.instrument.InstrumentActivatedEvent import InstrumentActivatedEvent
 from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
 from protocol0.domain.lom.instrument.preset.PresetProgramSelectedEvent import (
@@ -105,7 +105,7 @@ class AudioLatencyAnalyzerService(object):
         seq.add(
             lambda: track.audio_track.select_clip_slot(track.audio_track.clip_slots[0]._clip_slot)
         )
-        seq.add(partial(CommandBus.dispatch, ResetSongCommand()))
+        seq.add(partial(CommandBus.dispatch, ResetPlaybackCommand()))
         seq.wait(10)
         return seq.done()
 
