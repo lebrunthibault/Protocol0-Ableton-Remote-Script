@@ -6,7 +6,6 @@ from protocol0.domain.lom.instrument.preset.preset_importer.DirectoryPresetImpor
 )
 from protocol0.domain.lom.sample.SampleCategoryEnum import SampleCategoryEnum
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.SongFacade import SongFacade
 
 
@@ -29,11 +28,6 @@ class SampleCategory(object):
     def name(self):
         # type: () -> str
         return self._name
-
-    @property
-    def suffix(self):
-        # type: () -> str
-        return self.name.split(" ")[0].lower()
 
     @property
     def _sample_directory(self):
@@ -65,6 +59,9 @@ class SampleCategory(object):
 
         def index_from_track(matched_track):
             # type: (SimpleTrack) -> int
+            if matched_track.is_foldable:
+                return index_from_track(matched_track.sub_tracks[-1])
+
             if sample_tracks[-1] == matched_track:
                 return sample_tracks[-1].index
             else:
@@ -73,18 +70,5 @@ class SampleCategory(object):
         # we clicked on a track means : we add to the right
         if self._category.parent_track in SongFacade.selected_track().group_tracks:
             return index_from_track(SongFacade.selected_track())
-
-        # match by category
-        same_category_track = find_if(
-            lambda t: t.name.lower() == self.name.lower(), reversed(sample_tracks)
-        )
-        if same_category_track:
-            return index_from_track(same_category_track)
-
-        # match by prefix
-        for track in reversed(sample_tracks):
-            if track.name.split(" ")[0].lower() == self.suffix:
-                return index_from_track(track)
-
-        # -1 sometimes doesn't create it in the drum group
-        return sample_tracks[-2].index if len(sample_tracks) > 1 else 0
+        else:
+            return index_from_track(SongFacade.drums_track().sub_tracks[0].base_track)

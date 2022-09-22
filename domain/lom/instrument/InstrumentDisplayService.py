@@ -21,7 +21,7 @@ class InstrumentDisplayService(object):
         DomainEventBus.subscribe(SimpleTrackArmedEvent, self._on_simple_track_armed_event)
         DomainEventBus.subscribe(InstrumentSelectedEvent, self._on_instrument_selected_event)
 
-    def activate_instrument_plugin_window(self, track):
+    def show_instrument(self, track):
         # type: (AbstractTrack) -> Optional[Sequence]
         if track.instrument is None or not track.instrument.CAN_BE_SHOWN:
             return None
@@ -52,7 +52,7 @@ class InstrumentDisplayService(object):
 
     def _on_instrument_selected_event(self, _):
         # type: (InstrumentSelectedEvent) -> Optional[Sequence]
-        return self.activate_instrument_plugin_window(SongFacade.current_track())
+        return self.show_instrument(SongFacade.current_track())
 
     def activate_plugin_window(self, track, force_activate=False):
         # type: (SimpleTrack, bool) -> Optional[Sequence]

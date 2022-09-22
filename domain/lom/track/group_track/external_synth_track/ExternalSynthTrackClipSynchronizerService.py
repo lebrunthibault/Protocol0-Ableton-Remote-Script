@@ -22,7 +22,7 @@ class ExternalSynthTrackClipSynchronizerService(object):
         DomainEventBus.subscribe(ClipLoopChangedEvent, self._on_clip_loop_changed_event)
         self._midi_editing_until = None  # type: Optional[float]
 
-    @throttle(duration=200)
+    @throttle(duration=500)
     def _on_clip_loop_changed_event(self, event):
         # type: (ClipLoopChangedEvent) -> None
         """Synchronize loops"""

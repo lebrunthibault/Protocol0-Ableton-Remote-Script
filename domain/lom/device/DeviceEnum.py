@@ -58,6 +58,7 @@ class DeviceEnum(AbstractEnum):
                 {
                     DeviceEnum.API_2500: "API-2500 Stereo",
                     DeviceEnum.EQ_EIGHT: "EQ Eight",
+                    DeviceEnum.EQ_ROOM: "EQ Room",
                     DeviceEnum.EXTERNAL_AUDIO_EFFECT: "Ext. Audio Effect",
                     DeviceEnum.EXTERNAL_INSTRUMENT: "Ext. Instrument",
                     DeviceEnum.FREE_CLIP: "FreeClip",
