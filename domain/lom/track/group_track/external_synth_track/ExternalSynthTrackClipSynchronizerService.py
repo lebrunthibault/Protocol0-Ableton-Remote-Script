@@ -13,7 +13,6 @@ from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.timing import throttle
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 
 
 class ExternalSynthTrackClipSynchronizerService(object):
@@ -34,7 +33,6 @@ class ExternalSynthTrackClipSynchronizerService(object):
             return
 
         midi_clip = current_track.midi_track.clip_slots[SongFacade.selected_scene().index].clip
-        Logger.dev((self._midi_editing_until, event.live_clip.name))
         if event.live_clip != midi_clip._clip and (
             self._midi_editing_until is None or time.time() > self._midi_editing_until
         ):
@@ -44,7 +42,6 @@ class ExternalSynthTrackClipSynchronizerService(object):
             self._midi_editing_until = time.time() + 0.5
 
         audio_clip = current_track.audio_track.clip_slots[SongFacade.selected_scene().index].clip
-        Logger.dev(midi_clip.loop)
 
         Scheduler.defer(partial(audio_clip.loop.match, midi_clip.loop))
 

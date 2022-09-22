@@ -91,7 +91,6 @@ class SimpleDummyTrack(SimpleAudioTrack):
         # type: (int, Optional[int]) -> List[DeviceParameter]
         dummy_clip = self.clip_slots[scene_index].clip
         parameters = dummy_clip.automation.get_automated_parameters(self.devices.parameters)
-        parameters = [p for p in parameters if not p.is_mixer_parameter]
 
         next_parameters = []  # type: List[DeviceParameter]
         if next_scene_index is not None:
