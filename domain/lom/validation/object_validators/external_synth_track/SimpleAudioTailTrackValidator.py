@@ -44,14 +44,16 @@ class SimpleAudioTailTrackValidator(SimpleAudioTrackValidator):
 
             audio_clip = ext_track.audio_track.clip_slots[clip.index].clip
             assert audio_clip, "Got audio tail clip without audio clip"
-            validators.append(
-                CallbackValidator(
-                    track,
-                    lambda c: audio_clip.bar_length == clip.bar_length,
-                    self._fix_clip_lengths,
-                    "%s should have the same bar_length as %s" % (clip, audio_clip),
-                ),
-            )
+
+            if audio_clip.bar_length != clip.bar_length:
+                validators.append(
+                    CallbackValidator(
+                        track,
+                        lambda c: False,
+                        self._fix_clip_lengths,
+                        "%s should have the same bar_length as %s" % (clip, audio_clip),
+                    ),
+                )
 
         super(SimpleAudioTailTrackValidator, self).__init__(track, validators=validators)
 

@@ -8,11 +8,11 @@ from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTr
     ExternalSynthTrack,
 )
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
-from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.timing import throttle
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 
 
 class ExternalSynthTrackClipSynchronizerService(object):
@@ -42,7 +42,8 @@ class ExternalSynthTrackClipSynchronizerService(object):
             self._midi_editing_until is None or time.time() > self._midi_editing_until
         ):
             self._midi_editing_until = None
-            raise Protocol0Warning("Please only edit the midi clip loop")
+            Logger.warning("Please only edit the midi clip loop")
+            return
         else:
             self._midi_editing_until = time.time() + 0.5
 
