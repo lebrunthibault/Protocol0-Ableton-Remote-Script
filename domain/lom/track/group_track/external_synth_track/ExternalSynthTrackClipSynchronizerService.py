@@ -33,6 +33,11 @@ class ExternalSynthTrackClipSynchronizerService(object):
             return
 
         midi_clip = current_track.midi_track.clip_slots[SongFacade.selected_scene().index].clip
+
+        # not a manual edition ..?
+        if midi_clip is None:
+            return
+
         if event.live_clip != midi_clip._clip and (
             self._midi_editing_until is None or time.time() > self._midi_editing_until
         ):

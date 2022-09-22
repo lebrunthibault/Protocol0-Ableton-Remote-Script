@@ -141,7 +141,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
                 not SongFacade.playing_scene().playing_state.in_last_bar
                 or SongFacade.playing_scene().should_loop
             )
-            and not self._is_stopping
+            # and not self._is_stopping
         ):
             playing_clip = self.playing_audio_track.playing_clip
             clip_to_fire = self._audio_clip_to_fire(playing_clip.index)
@@ -370,7 +370,11 @@ class ExternalSynthTrack(AbstractGroupTrack):
         should_stop_audio = False
         if scene_index is not None:
             midi_clip = self.midi_track.clip_slots[scene_index].clip
-            if midi_clip is not None and midi_clip.is_playing and not midi_clip.playing_position.in_last_bar:
+            if (
+                midi_clip is not None
+                and midi_clip.is_playing
+                and not midi_clip.playing_position.in_last_bar
+            ):
                 should_stop_audio = True
 
         if not should_stop_audio:

@@ -64,3 +64,6 @@ _.scroll_scenes  # unused method (domain\lom\song\components\SceneComponent.py:2
 _.scroll_tracks  # unused method (domain\lom\song\components\TrackComponent.py:101)
 _.toggle  # unused method (domain\lom\track\abstract_track\AbstrackTrackArmState.py:31)
 _.toggle  # unused method (domain\shared\ValueToggler.py:16)
+_._is_stopping  # unused attribute (domain\lom\track\group_track\external_synth_track\ExternalSynthTrack.py:85)
+_._is_stopping  # unused attribute (domain\lom\track\group_track\external_synth_track\ExternalSynthTrack.py:354)
+_._is_stopping  # unused attribute (domain\lom\track\group_track\external_synth_track\ExternalSynthTrack.py:382)
