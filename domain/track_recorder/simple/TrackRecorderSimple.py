@@ -12,11 +12,6 @@ class TrackRecorderSimple(AbstractTrackRecorder):
         return self._track
 
     @property
-    def _main_recording_track(self):
-        # type: () -> SimpleTrack
-        return self.track
-
-    @property
     def _recording_tracks(self):
         # type: () -> List[SimpleTrack]
         return [self.track]

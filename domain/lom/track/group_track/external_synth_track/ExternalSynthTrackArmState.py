@@ -5,7 +5,6 @@ from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTr
     ExternalSynthTrackMonitoringState,
 )
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
-from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.shared.SongFacade import SongFacade
@@ -27,15 +26,13 @@ class ExternalSynthTrackArmState(AbstractTrackArmState):
         return all(
             sub_track.arm_state.is_armed
             for sub_track in self._sub_tracks
-            if not isinstance(sub_track, SimpleDummyTrack)
         )
 
     @is_armed.setter
     def is_armed(self, is_armed):
         # type: (bool) -> None
         for track in self._sub_tracks:
-            if not isinstance(track, SimpleDummyTrack):
-                track.arm_state.is_armed = is_armed
+            track.arm_state.is_armed = is_armed
 
     @property
     def is_partially_armed(self):
@@ -43,7 +40,6 @@ class ExternalSynthTrackArmState(AbstractTrackArmState):
         return any(
             sub_track.arm_state.is_armed
             for sub_track in self._sub_tracks
-            if not isinstance(sub_track, SimpleDummyTrack)
         )
 
     def unarm(self):
@@ -68,7 +64,6 @@ class ExternalSynthTrackArmState(AbstractTrackArmState):
             [
                 sub_track.arm_state.arm_track
                 for sub_track in self._sub_tracks
-                if not isinstance(sub_track, SimpleDummyTrack)
             ]
         )
         seq.add(self._monitoring_state.monitor_midi)

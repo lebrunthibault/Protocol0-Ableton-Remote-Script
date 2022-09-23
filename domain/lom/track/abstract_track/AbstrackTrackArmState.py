@@ -49,7 +49,7 @@ class AbstractTrackArmState(Observable):
 
     def arm_track(self):
         # type: () -> Optional[Sequence]
-        Logger.warning("Tried arming unarmable %s" % self)
+        Logger.warning("Tried arming un-armable %s" % self)
         return None
 
     def unarm(self):

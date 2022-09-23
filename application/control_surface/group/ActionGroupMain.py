@@ -105,14 +105,6 @@ class ActionGroupMain(ActionGroupInterface):
             on_scroll=self._container.get(DeviceService).scroll_selected_parameter,
         )
 
-        # TRacK encoder
-        # self.add_encoder(
-        #     identifier=13,
-        #     name="track",
-        #     on_scroll=self._container.get(TrackComponent).scroll_tracks,
-        #     on_press=lambda: SongFacade.current_track().arm_state.toggle,
-        # )
-
         # INSTrument encoder
         self.add_encoder(
             identifier=16,

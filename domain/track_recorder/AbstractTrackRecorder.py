@@ -133,7 +133,7 @@ class AbstractTrackRecorder(object):
         return seq.done()
 
     def _focus_main_clip(self):
-        # type: () -> Sequence
+        # type: () -> Optional[Sequence]
         seq = Sequence()
         main_clip_slot = self._main_recording_track.clip_slots[self.recording_scene_index]
         if not main_clip_slot.clip:

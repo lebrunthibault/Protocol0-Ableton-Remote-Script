@@ -1,5 +1,3 @@
-from functools import partial
-
 from typing import List
 
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -35,16 +33,8 @@ class TrackRecorderExternalSynthAudio(TrackRecorderExternalSynthMixin, AbstractT
         DomainEventBus.emit(ExternalSynthAudioRecordingStartedEvent(self.track))
 
     def _focus_main_clip(self):
-        # type: () -> Sequence
-        seq = Sequence()
-        seq.add(super(TrackRecorderExternalSynthAudio, self)._focus_main_clip)
-        midi_clip = self.track.midi_track.clip_slots[self.recording_scene_index].clip
-        automated_parameters = midi_clip.automation.get_automated_parameters(
-            self.track.midi_track.devices.parameters
-        )
-        if len(automated_parameters):
-            seq.add(partial(midi_clip.automation.show_parameter_envelope, automated_parameters[0]))
-        return seq.done()
+        # type: () -> None
+        pass
 
     def record(self, bar_length):
         # type: (float) -> Sequence
