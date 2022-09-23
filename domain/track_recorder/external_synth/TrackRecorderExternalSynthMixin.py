@@ -27,7 +27,6 @@ class TrackRecorderExternalSynthMixin(object):
     def _pre_record(self):
         # type: () -> None
         self.track.monitoring_state.monitor_midi()
-        self.track.midi_track.select()
         ApplicationViewFacade.show_device()
 
     # noinspection PyTypeHints,PyArgumentList

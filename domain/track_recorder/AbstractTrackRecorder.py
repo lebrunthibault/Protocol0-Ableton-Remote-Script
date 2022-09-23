@@ -75,7 +75,6 @@ class AbstractTrackRecorder(object):
         self._recording_component.session_automation_record = True
         seq = Sequence()
         seq.add(self._arm_track)
-        seq.add(self.track.select)
         seq.add(self._prepare_clip_slots_for_record)
         seq.add(self._pre_record)
         return seq.done()
