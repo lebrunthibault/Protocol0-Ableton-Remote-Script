@@ -114,8 +114,7 @@ class AbstractGroupTrack(AbstractTrack):
             self.dummy_group.solo()
 
             for sub_track in self.sub_tracks:
-                if sub_track.is_foldable:
-                    sub_track.solo = True
+                sub_track.solo = True
 
     def bars_left(self, scene_index):
         # type: (int) -> int
