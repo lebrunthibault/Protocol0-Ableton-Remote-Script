@@ -1,9 +1,12 @@
 from typing import Optional, Type
 
+from _Framework.SubjectSlot import subject_slot
+
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.domain.shared.utils.timing import defer
 
 
 class NormalGroupTrack(AbstractGroupTrack):
@@ -24,6 +27,15 @@ class NormalGroupTrack(AbstractGroupTrack):
         # type: () -> None
         super(NormalGroupTrack, self).on_added()
         self.name = self.computed_name
+
+    @subject_slot("solo")
+    @defer
+    def _solo_listener(self):
+        # type: () -> None
+        super(NormalGroupTrack, self)._solo_listener()
+        if self.solo:
+            for sub_track in self.sub_tracks:
+                sub_track.solo = True
 
     @property
     def computed_name(self):
