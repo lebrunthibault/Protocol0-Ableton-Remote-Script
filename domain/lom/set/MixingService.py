@@ -8,6 +8,4 @@ class MixingService(object):
         for track in SongFacade.abstract_tracks():
             if isinstance(track, NormalGroupTrack):
                 continue
-            if "kick" in track.name.lower():
-                continue
             track.scroll_volume(go_next)

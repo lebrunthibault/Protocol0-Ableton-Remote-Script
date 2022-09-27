@@ -8,6 +8,7 @@ from protocol0.domain.lom.instrument.InstrumentDisplayService import InstrumentD
 from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService import (
     InstrumentPresetScrollerService,
 )
+from protocol0.domain.lom.set.MixingService import MixingService
 from protocol0.domain.lom.song.components.TempoComponent import TempoComponent
 from protocol0.domain.lom.track.TrackAutomationService import TrackAutomationService
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
@@ -61,12 +62,11 @@ class ActionGroupMain(ActionGroupInterface):
             ),
         )
 
-        # VOLume tempo encoder
+        # VOLume encoder
         self.add_encoder(
             identifier=4,
             name="volume",
-            filter_active_tracks=True,
-            on_scroll=lambda: SongFacade.current_track().scroll_volume,
+            on_scroll=self._container.get(MixingService).scroll_all_tracks_volume,
         )
 
         # RECordAudio encoder

@@ -2,7 +2,6 @@ from functools import partial
 
 from protocol0.application.ScriptResetActivatedEvent import ScriptResetActivatedEvent
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
-from protocol0.domain.lom.set.MixingService import MixingService
 from protocol0.domain.lom.set.SessionToArrangementService import SessionToArrangementService
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.shared.SongFacade import SongFacade
@@ -13,13 +12,6 @@ class ActionGroupSet(ActionGroupInterface):
 
     def configure(self):
         # type: () -> None
-        # VOLume tempo encoder
-        self.add_encoder(
-            identifier=3,
-            name="volume",
-            on_scroll=self._container.get(MixingService).scroll_all_tracks_volume,
-        )
-
         # midi clip to MONO encoder
         self.add_encoder(
             identifier=4,
