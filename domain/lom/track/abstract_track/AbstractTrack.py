@@ -66,8 +66,13 @@ class AbstractTrack(SlotManager):
 
     def on_added(self):
         # type: () -> Optional[Sequence]
-        if self.group_track is not None and self.group_track.color != self.color:
-            self.color = self.group_track.color
+
+        if self.group_track is not None:
+            if self.group_track.color != self.color:
+                self.color = self.group_track.color
+            self.output_routing.track = (
+                self.group_track.abstract_group_track.dummy_group.input_routing_track
+            )
 
         return None
 
