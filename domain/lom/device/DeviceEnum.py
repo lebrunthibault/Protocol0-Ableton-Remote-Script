@@ -209,6 +209,7 @@ class DeviceEnum(AbstractEnum):
             [
                 cls.SATURATOR,
                 cls.SATURN_2,
+                cls.LFO_TOOL,
                 cls.AUTO_PAN,
             ],
             [cls.REV2_EDITOR],

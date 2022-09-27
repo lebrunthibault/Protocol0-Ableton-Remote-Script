@@ -42,7 +42,10 @@ class SceneComponent(object):
         # type: (NextSceneStartedEvent) -> None
         """Event is fired *before* the scene starts playing"""
         # Stop the previous scene : quantized or immediate
-        previous_selected_scene = SongFacade.scenes()[event.selected_scene_index]
+        try:
+            previous_selected_scene = SongFacade.scenes()[event.selected_scene_index]
+        except IndexError:
+            return
 
         if (
             previous_selected_scene != SongFacade.selected_scene()

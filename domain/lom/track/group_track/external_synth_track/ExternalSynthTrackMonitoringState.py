@@ -72,7 +72,9 @@ class ExternalSynthTrackMonitoringState(object):
     def monitor_audio(self):
         # type: () -> None
         # midi track
-        self._mute_track(self._midi_track)
+        self._midi_track.muted = False
+        self._midi_track.current_monitoring_state = CurrentMonitoringStateEnum.OFF
+        self._midi_track.output_routing.type = OutputRoutingTypeEnum.SENDS_ONLY
 
         # audio track
         self._un_mute_track(self._audio_track)
