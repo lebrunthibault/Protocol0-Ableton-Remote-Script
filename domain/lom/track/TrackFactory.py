@@ -13,6 +13,7 @@ from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTr
     ExternalSynthTrack,
 )
 from protocol0.domain.lom.track.simple_track.InstrumentBusTrack import InstrumentBusTrack
+from protocol0.domain.lom.track.simple_track.ReferenceTrack import ReferenceTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -45,6 +46,8 @@ class TrackFactory(object):
                 cls = UsamoTrack
             elif track.name == InstrumentBusTrack.TRACK_NAME:
                 cls = InstrumentBusTrack
+            elif track.name == ReferenceTrack.TRACK_NAME:
+                cls = ReferenceTrack
             elif track.has_midi_input:
                 cls = SimpleMidiTrack
             elif track.has_audio_input:

@@ -47,4 +47,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        Backend.client().search("dt02_kick-deep_subtickler_v1 - F")
+        SongFacade.reference_track().toggle()

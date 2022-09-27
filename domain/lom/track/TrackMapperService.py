@@ -17,6 +17,7 @@ from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTr
 )
 from protocol0.domain.lom.track.simple_track.InstrumentBusTrack import InstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.MasterTrack import MasterTrack
+from protocol0.domain.lom.track.simple_track.ReferenceTrack import ReferenceTrack
 from protocol0.domain.lom.track.simple_track.SimpleReturnTrack import SimpleReturnTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import SimpleTrackCreatedEvent
@@ -46,6 +47,7 @@ class TrackMapperService(SlotManager):
         self._instrument_bus_track = None  # type: Optional[InstrumentBusTrack]
         self._drums_track = None  # type: Optional[DrumsTrack]
         self._vocals_track = None  # type: Optional[VocalsTrack]
+        self._reference_track = None  # type: Optional[ReferenceTrack]
         self._master_track = None  # type: Optional[SimpleTrack]
 
         self.tracks_listener.subject = self._live_song
@@ -116,19 +118,22 @@ class TrackMapperService(SlotManager):
 
     def _get_special_tracks(self):
         # type: () -> None
-        self._usamo_track = find_if(lambda t: isinstance(t, UsamoTrack), SongFacade.simple_tracks())
-        self._instrument_bus_track = find_if(lambda t: isinstance(t, InstrumentBusTrack),
-                                             SongFacade.simple_tracks())
+        simple_tracks = SongFacade.simple_tracks()
+
+        self._usamo_track = find_if(lambda t: isinstance(t, UsamoTrack), simple_tracks)
+        self._instrument_bus_track = find_if(
+            lambda t: isinstance(t, InstrumentBusTrack), simple_tracks
+        )
+        self._reference_track = find_if(lambda t: isinstance(t, ReferenceTrack), simple_tracks)
+
         abgs = SongFacade.abstract_group_tracks()
+
         self._drums_track = find_if(lambda t: isinstance(t, DrumsTrack), abgs)
         self._vocals_track = find_if(lambda t: isinstance(t, VocalsTrack), abgs)
 
         if self._usamo_track is None:
             Logger.warning("Usamo track is not present")
-        if (
-                self._prev_instrument_bus_track is not None
-                and self._instrument_bus_track is None
-        ):
+        if self._prev_instrument_bus_track is not None and self._instrument_bus_track is None:
             Backend.client().show_warning("InstrumentBusTrack removed")
 
     def _on_track_added(self):
