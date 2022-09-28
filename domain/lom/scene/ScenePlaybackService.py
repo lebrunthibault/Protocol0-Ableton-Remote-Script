@@ -137,8 +137,6 @@ class ScenePlaybackService(SlotManager):
             not clip.is_playing and not clip.muted for clip in SongFacade.playing_scene().clips.all
         ) and any(clip.is_playing for clip in SongFacade.playing_scene().clips.all)
         if should_restart:
-            Logger.info("restarting %s" % self)
-            Logger.dev([clip for clip in SongFacade.playing_scene().clips.all if not clip.is_playing and not clip.muted])
             # rebuild clips that are out of sync
             SongFacade.playing_scene().clips.build()
             self.fire_scene(cast(Scene, SongFacade.playing_scene()))
