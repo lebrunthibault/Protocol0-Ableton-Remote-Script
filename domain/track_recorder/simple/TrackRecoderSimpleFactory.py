@@ -1,6 +1,7 @@
 from typing import Optional, Any, cast, Type
 
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.track_recorder.AbstractTrackRecorder import AbstractTrackRecorder
 from protocol0.domain.track_recorder.AbstractTrackRecorderFactory import (
     AbstractTrackRecorderFactory,
@@ -38,5 +39,7 @@ class TrackRecorderSimpleFactory(AbstractTrackRecorderFactory):
         # type: (RecordTypeEnum) -> int
         if record_type == RecordTypeEnum.NORMAL_UNLIMITED:
             return 0
-        else:
+        elif record_type == RecordTypeEnum.NORMAL:
             return self._recording_bar_length
+        else:
+            raise Protocol0Warning("Unhandled record type %s" % record_type)
