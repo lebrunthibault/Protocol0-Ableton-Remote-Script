@@ -34,6 +34,9 @@ class TrackRecorderSimpleFactory(AbstractTrackRecorderFactory):
 
         return None
 
-    def get_recording_bar_length(self, _):
+    def get_recording_bar_length(self, record_type):
         # type: (RecordTypeEnum) -> int
-        return self._recording_bar_length
+        if record_type == RecordTypeEnum.NORMAL_UNLIMITED:
+            return 0
+        else:
+            return self._recording_bar_length

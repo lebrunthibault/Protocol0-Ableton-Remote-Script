@@ -7,6 +7,7 @@ from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.clip.ClipColorEnum import ClipColorEnum
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.track.simple_track.InstrumentBusTrack import InstrumentBusTrack
+from protocol0.domain.lom.track.simple_track.ResamplingTrack import ResamplingTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioExtTrack import SimpleAudioExtTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyTrack import SimpleDummyTrack
@@ -75,7 +76,11 @@ class SceneClips(Observable):
             clip_slot = track.clip_slots[self.index]
             clip_slot.register_observer(self)
             clip = clip_slot.clip
-            if clip is not None and clip_slot.has_clip and not type(track) == InstrumentBusTrack:
+            if (
+                clip is not None
+                and clip_slot.has_clip
+                and type(track) not in (InstrumentBusTrack, ResamplingTrack)
+            ):
                 self._clip_tracks.append(SceneClip(track, clip))
 
         self.all = [scene_clip.clip for scene_clip in self._clip_tracks]

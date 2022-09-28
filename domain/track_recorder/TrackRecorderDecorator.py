@@ -46,7 +46,7 @@ class TrackRecorderDecorator(AbstractTrackRecorder):
 
     @property
     def _main_recording_track(self):
-        # type: () -> SimpleTrack
+        # type: () -> Optional[SimpleTrack]
         return self.recorder._main_recording_track
 
     def pre_record(self):

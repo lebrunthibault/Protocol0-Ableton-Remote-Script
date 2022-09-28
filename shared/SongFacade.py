@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Optional, List, cast
 
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.domain.shared.utils.list import find_if
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.song.components.ClipComponent import ClipComponent
@@ -24,12 +25,13 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (  # noqa
         ExternalSynthTrack,
     )
-    from protocol0.domain.lom.track.simple_track.UsamoTrack import UsamoTrack
-    from protocol0.domain.lom.track.group_track.DrumsTrack import DrumsTrack
-    from protocol0.domain.lom.track.group_track.VocalsTrack import VocalsTrack
-    from protocol0.domain.lom.track.simple_track.ReferenceTrack import ReferenceTrack
     from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+    from protocol0.domain.lom.track.group_track.DrumsTrack import DrumsTrack
     from protocol0.domain.lom.track.simple_track.MasterTrack import MasterTrack
+    from protocol0.domain.lom.track.simple_track.ReferenceTrack import ReferenceTrack
+    from protocol0.domain.lom.track.simple_track.ResamplingTrack import ResamplingTrack
+    from protocol0.domain.lom.track.simple_track.UsamoTrack import UsamoTrack
+    from protocol0.domain.lom.track.group_track.VocalsTrack import VocalsTrack
     from protocol0.domain.lom.scene.Scene import Scene
     from protocol0.domain.lom.clip.Clip import Clip
     from protocol0.domain.lom.clip.MidiClip import MidiClip  # noqa
@@ -231,6 +233,13 @@ class SongFacade(object):
             raise Protocol0Warning("Cannot find reference track")
 
         return track
+
+    @classmethod
+    def resampling_track(cls):
+        # type: () -> Optional[ResamplingTrack]
+        from protocol0.domain.lom.track.simple_track.ResamplingTrack import ResamplingTrack
+
+        return find_if(lambda t: isinstance(t, ResamplingTrack), cls.simple_tracks())
 
     @classmethod
     def master_track(cls):

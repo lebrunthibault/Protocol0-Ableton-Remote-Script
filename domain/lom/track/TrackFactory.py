@@ -14,6 +14,7 @@ from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTr
 )
 from protocol0.domain.lom.track.simple_track.InstrumentBusTrack import InstrumentBusTrack
 from protocol0.domain.lom.track.simple_track.ReferenceTrack import ReferenceTrack
+from protocol0.domain.lom.track.simple_track.ResamplingTrack import ResamplingTrack
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
@@ -41,18 +42,19 @@ class TrackFactory(object):
             existing_simple_track._index = index
             return existing_simple_track
 
+        special_tracks = (UsamoTrack, InstrumentBusTrack, ReferenceTrack, ResamplingTrack)
+
         if cls is None:
-            if track.name == UsamoTrack.TRACK_NAME:
-                cls = UsamoTrack
-            elif track.name == InstrumentBusTrack.TRACK_NAME:
-                cls = InstrumentBusTrack
-            elif track.name == ReferenceTrack.TRACK_NAME:
-                cls = ReferenceTrack
-            elif track.has_midi_input:
+            if track.has_midi_input:
                 cls = SimpleMidiTrack
             elif track.has_audio_input:
                 cls = SimpleAudioTrack
-            else:
+
+            for special_track in special_tracks:
+                if track.name == special_track.TRACK_NAME:  # type: ignore[attr-defined]
+                    cls = special_track
+
+            if cls is None:
                 raise Protocol0Error("Unknown track type")
 
         return cls(track, index)

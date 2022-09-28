@@ -47,4 +47,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        SongFacade.reference_track().toggle()
+        pass

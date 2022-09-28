@@ -42,7 +42,7 @@ from protocol0.shared.sequence.Sequence import Sequence
 
 
 class TrackRecorderService(object):
-    _DEBUG = False
+    _DEBUG = True
 
     def __init__(self, playback_component, recording_component, scene_crud_component):
         # type: (PlaybackComponent, RecordingComponent, SceneCrudComponent) -> None

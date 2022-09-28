@@ -15,11 +15,17 @@ class CountInOneBar(CountInInterface):
         track_solo = self._track.solo
         self._track.solo = True
         self._playback_component.start_playing()
+        self._schedule_stop_count_in(track_solo)
+
+        return Sequence().defer().done()
+
+    def _schedule_stop_count_in(self, track_solo):
+        # type: (bool) -> None
         seq = Sequence()
         seq.wait_for_event(LastBeatPassedEvent, continue_on_song_stop=True)
         seq.add(partial(setattr, self._track, "solo", track_solo))
         seq.add(self._stop_count_in)
-        return seq.done()
+        seq.done()
 
     def _stop_count_in(self):
         # type: () -> None

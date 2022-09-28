@@ -67,8 +67,8 @@ class AbstractTrackRecorder(object):
 
     @property
     def _main_recording_track(self):
-        # type: () -> SimpleTrack
-        raise NotImplementedError
+        # type: () -> Optional[SimpleTrack]
+        return None
 
     def pre_record(self):
         # type: () -> Sequence
@@ -133,6 +133,9 @@ class AbstractTrackRecorder(object):
 
     def _focus_main_clip(self):
         # type: () -> Optional[Sequence]
+        if self._main_recording_track is None:
+            return None
+
         seq = Sequence()
         main_clip_slot = self._main_recording_track.clip_slots[self.recording_scene_index]
         if not main_clip_slot.clip:
