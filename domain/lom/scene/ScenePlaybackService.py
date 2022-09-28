@@ -59,12 +59,13 @@ class ScenePlaybackService(SlotManager):
 
     def fire_scene(self, scene):
         # type: (Scene) -> Optional[Sequence]
+        seq = Sequence()
         # stop to start the scene right again
         # also it will stop the tails
-        self._playback_component.stop()
-        # defer so that all clips start at the same time
-        Scheduler.defer(scene.fire)
-        return None
+        seq.add(self._playback_component.stop)
+        seq.add(scene.fire)
+
+        return seq.done()
 
     def fire_scene_to_position(self, scene, bar_length=None):
         # type: (Scene, Optional[int]) -> None

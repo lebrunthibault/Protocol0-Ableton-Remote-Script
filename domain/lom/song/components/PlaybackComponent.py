@@ -11,6 +11,7 @@ from protocol0.domain.track_recorder.TrackRecordingCancelledEvent import (
 from protocol0.domain.track_recorder.TrackRecordingStartedEvent import TrackRecordingStartedEvent
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
+from protocol0.shared.sequence.Sequence import Sequence
 
 
 class PlaybackComponent(SlotManager):
@@ -79,9 +80,14 @@ class PlaybackComponent(SlotManager):
         self._live_song.is_playing = True
 
     def stop(self):
-        # type: () -> None
+        # type: () -> Sequence
         self.stop_all_clips(quantized=False)
         self.stop_playing()
+
+        seq = Sequence()
+        if SongFacade.is_playing():
+            seq.wait_for_event(SongStoppedEvent)
+        return seq.done()
 
     def stop_playing(self):
         # type: () -> None
