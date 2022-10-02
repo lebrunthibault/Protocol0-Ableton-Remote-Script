@@ -68,10 +68,9 @@ class ScenePlaybackService(SlotManager):
         return seq.done()
 
     def fire_scene_to_position(self, scene, bar_length=None):
-        # type: (Scene, Optional[int]) -> None
+        # type: (Scene, Optional[int]) -> Sequence
         bar_length = self._get_position_bar_length(scene, bar_length)
         Scene.LAST_MANUALLY_STARTED_SCENE = scene
-        self._playback_component.stop()
 
         if self._DEBUG:
             Logger.info("Firing %s to bar_length %s" % (scene, bar_length))
@@ -81,8 +80,11 @@ class ScenePlaybackService(SlotManager):
             # (created by playing shortly the scene beginning)
             SongFacade.master_track().mute_for(250)
 
-        # removes an artefact by changing too fast the playback state
-        Scheduler.wait(1, partial(scene.fire_to_position, bar_length))
+        seq = Sequence()
+        seq.add(self._playback_component.stop)
+        seq.defer()  # removes an artefact by changing too fast the playback state
+        seq.add(partial(scene.fire_to_position, bar_length))
+        return seq.done()
 
     def fire_previous_scene_to_last_bar(self):
         # type: () -> None
