@@ -19,6 +19,7 @@ class DeviceDisplayService(object):
     SHOW_HIDE_SAVABLE_PLUGIN_BUTTON_PIXEL_HEIGHT = 970
     COLLAPSED_DEVICE_PIXEL_WIDTH = 38
     COLLAPSED_RACK_DEVICE_PIXEL_WIDTH = 28
+    CHAIN_MIXER_PIXEL_WIDTH = 325
     WIDTH_PIXEL_OFFSET = 4
 
     def __init__(self, browser_service):
@@ -110,6 +111,8 @@ class DeviceDisplayService(object):
             device_position = list(rack_device.chains[0].devices).index(device) + 1
             (x_rack, _) = self._get_rack_show_macros_button_click_coordinates(track, rack_device)
             x = x_rack + device_position * self.COLLAPSED_RACK_DEVICE_PIXEL_WIDTH
+            if len(rack_device.chains) >= 0:
+                x += self.CHAIN_MIXER_PIXEL_WIDTH
 
         return (
             x - 3,
