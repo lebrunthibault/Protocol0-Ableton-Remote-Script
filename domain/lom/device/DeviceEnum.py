@@ -195,16 +195,17 @@ class DeviceEnum(AbstractEnum):
         # type: () -> List[List[DeviceEnum]]
         return [
             [
-                cls.EQ_EIGHT,
+                cls.AUTO_FILTER_HIGH_PASS,
                 cls.AUTO_FILTER_LOW_PASS,
+                cls.EQ_EIGHT,
                 cls.PRO_Q_3,
-                cls.UTILITY,
             ],
             [
                 cls.COMPRESSOR,
                 cls.SSL_COMP,
                 cls.LIMITER,
                 cls.FREE_CLIP,
+                cls.UTILITY,
             ],
             [
                 cls.SATURATOR,
