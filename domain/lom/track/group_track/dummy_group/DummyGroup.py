@@ -21,6 +21,7 @@ from protocol0.domain.shared.scheduler.Last8thPassedEvent import Last8thPassedEv
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -95,6 +96,8 @@ class DummyGroup(object):
             sub_track.instrument is not None for sub_track in sub_tracks
         ):
             return None, None
+
+        Logger.dev("checking %s" % self._track.name)
 
         if SimpleDummyTrack.is_track_valid(sub_tracks[-1]):
             if len(sub_tracks) > 1 and SimpleDummyTrack.is_track_valid(sub_tracks[-2]):

@@ -57,7 +57,7 @@ class SimpleDummyTrack(SimpleAudioTrack):
             type(track) == SimpleAudioTrack
             and not track.is_foldable
             and track.instrument is None
-            and track.input_routing.type != InputRoutingTypeEnum.NO_INPUT
+            and track.input_routing.type == InputRoutingTypeEnum.NO_INPUT
         )
 
     @property
