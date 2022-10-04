@@ -41,9 +41,9 @@ class SimpleDummyTrack(SimpleAudioTrack):
         # manually setting the has_automation attribute
         if isinstance(observable, SimpleTrackClipSlots):
             for clip in self.clips:
-                clip.has_automation = len(clip.automation.get_automated_parameters(
-                    self.devices.parameters
-                )) != 0
+                clip.has_automation = (
+                    len(clip.automation.get_automated_parameters(self.devices.parameters)) != 0
+                )
 
     @classmethod
     def is_track_valid(cls, track):
@@ -52,8 +52,12 @@ class SimpleDummyTrack(SimpleAudioTrack):
             return True
 
         # we don't accept specialized subclasses as we expect a non mapped class (e.g. no tail)
+        # if input routing is not no input, we consider a normal audio track (could be a doubling track)
         return (
-            type(track) == SimpleAudioTrack and not track.is_foldable and track.instrument is None
+            type(track) == SimpleAudioTrack
+            and not track.is_foldable
+            and track.instrument is None
+            and track.input_routing.type != InputRoutingTypeEnum.NO_INPUT
         )
 
     @property
@@ -76,8 +80,8 @@ class SimpleDummyTrack(SimpleAudioTrack):
     def prepare_automation_for_clip_start(self, dummy_clip):
         # type: (DummyClip) -> None
         """
-            This will set automation values to equal the clip start
-            It is used to prevent automation glitches when a track starts playing after silence
+        This will set automation values to equal the clip start
+        It is used to prevent automation glitches when a track starts playing after silence
         """
         clip_parameters = dummy_clip.automation.get_automated_parameters(self.devices.parameters)
 
@@ -96,19 +100,21 @@ class SimpleDummyTrack(SimpleAudioTrack):
         if next_scene_index is not None:
             next_dummy_clip = self.clip_slots[next_scene_index].clip
             if next_dummy_clip is not None:
-                next_parameters = next_dummy_clip.automation.get_automated_parameters(self.devices.parameters)
+                next_parameters = next_dummy_clip.automation.get_automated_parameters(
+                    self.devices.parameters
+                )
 
         return list(set(parameters) - set(next_parameters))
 
     def reset_automated_parameters(self, scene_index):
         # type: (int) -> None
         """
-            This executes at the start of each scene and resets automation previously defined
-            (minus the one defined in the optional playing clip)
-            Doing this is useful because automation using dummy clips is always specific to the clip
-            as opposed to doing it in arrangement (it's a whole)
-            and the parameter will stay at the same value when the clip stops which is not
-            the behavior we seek here
+        This executes at the start of each scene and resets automation previously defined
+        (minus the one defined in the optional playing clip)
+        Doing this is useful because automation using dummy clips is always specific to the clip
+        as opposed to doing it in arrangement (it's a whole)
+        and the parameter will stay at the same value when the clip stops which is not
+        the behavior we seek here
         """
         next_scene_index = None
         if SongFacade.is_playing() and self.is_playing:
@@ -122,9 +128,7 @@ class SimpleDummyTrack(SimpleAudioTrack):
         """Will reset all automated parameters in the track by checking all dummy clips"""
         parameters = {}
         for dummy_clip in self.clips:
-            parameters.update(
-                self.get_automated_parameters(dummy_clip.index)
-            )
+            parameters.update(self.get_automated_parameters(dummy_clip.index))
 
         for parameter in parameters:
             parameter.reset()

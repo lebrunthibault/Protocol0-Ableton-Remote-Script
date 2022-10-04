@@ -94,10 +94,11 @@ class LogService(object):
             Logger.info()
             Logger.info("selected_parameter: %s" % SongFacade.selected_parameter())
             Logger.info()
-            Logger.info(
-                "selected_device.parameters: %s"
-                % SongFacade.selected_track().devices.selected.parameters
-            )
+            if SongFacade.selected_track().devices.selected is not None:
+                Logger.info(
+                    "selected_device.parameters: %s"
+                    % SongFacade.selected_track().devices.selected.parameters
+                )
         Logger.info()
 
         if current_track.instrument:

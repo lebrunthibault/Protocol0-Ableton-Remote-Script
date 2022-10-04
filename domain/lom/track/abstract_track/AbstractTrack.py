@@ -70,9 +70,14 @@ class AbstractTrack(SlotManager):
         if self.group_track is not None:
             if self.group_track.color != self.color:
                 self.color = self.group_track.color
-            self.output_routing.track = (
-                self.group_track.abstract_group_track.dummy_group.input_routing_track
-            )
+            # Scheduler.defer(
+            #     partial(
+            #         setattr,
+            #         self.output_routing,
+            #         "track",
+            #         self.group_track.abstract_group_track.dummy_group.input_routing_track,
+            #     )
+            # )
 
         return None
 
