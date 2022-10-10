@@ -23,8 +23,8 @@ from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrackCreatedEvent import SimpleTrackCreatedEvent
 from protocol0.domain.lom.track.simple_track.UsamoTrack import UsamoTrack
 from protocol0.domain.shared.backend.Backend import Backend
-from protocol0.domain.shared.errors.error_handler import handle_error
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
+from protocol0.domain.shared.errors.error_handler import handle_error
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.SongFacade import SongFacade
@@ -118,14 +118,13 @@ class TrackMapperService(SlotManager):
 
     def _get_special_tracks(self):
         # type: () -> None
-        simple_tracks = SongFacade.simple_tracks()
+        simple_tracks = list(SongFacade.simple_tracks())
 
         self._usamo_track = find_if(lambda t: isinstance(t, UsamoTrack), simple_tracks)
         self._instrument_bus_track = find_if(
             lambda t: isinstance(t, InstrumentBusTrack), simple_tracks
         )
         self._reference_track = find_if(lambda t: isinstance(t, ReferenceTrack), simple_tracks)
-
         abgs = SongFacade.abstract_group_tracks()
 
         self._drums_track = find_if(lambda t: isinstance(t, DrumsTrack), abgs)
