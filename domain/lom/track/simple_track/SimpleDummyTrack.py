@@ -19,7 +19,6 @@ from protocol0.domain.lom.track.simple_track.SimpleTrackClipSlots import SimpleT
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 
 
@@ -51,8 +50,6 @@ class SimpleDummyTrack(SimpleAudioTrack):
         # type: (AbstractTrack) -> bool
         if isinstance(track, SimpleDummyTrack):
             return True
-
-        Logger.dev("input routing -> %s" % track.input_routing.type)
 
         # we don't accept specialized subclasses as we expect a non mapped class (e.g. no tail)
         # if input routing is not no input, we consider a normal audio track (could be a doubling track)

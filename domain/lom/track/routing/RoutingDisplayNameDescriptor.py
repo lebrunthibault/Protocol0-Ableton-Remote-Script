@@ -4,7 +4,6 @@ from protocol0.domain.lom.track.routing.TrackRoutingInterface import TrackRoutin
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.AbstractEnum import AbstractEnum
-from protocol0.shared.logging.Logger import Logger
 
 
 class RoutingDisplayNameDescriptor(object):
@@ -21,7 +20,6 @@ class RoutingDisplayNameDescriptor(object):
     def __get__(self, track_routing, _):
         # type: (TrackRoutingInterface, Type) -> Optional[Any]
         try:
-            Logger.info("routing display name: %s" % getattr(track_routing.live_track, self.routing_attribute_name).display_name)
             return self.routing_enum_class.from_value(
                 getattr(track_routing.live_track, self.routing_attribute_name).display_name
             )
