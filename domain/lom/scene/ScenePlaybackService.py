@@ -179,7 +179,8 @@ class ScenePlaybackService(SlotManager):
     def _stop_previous_playing_scene(self):
         # type: () -> None
         """
-        Stop previous playing scene else on play
+        Stop previous playing scene,
+        else on play
         tracks with tail from the previous scene are going to play again
         """
         if PlayingSceneFacade.get() is not None:

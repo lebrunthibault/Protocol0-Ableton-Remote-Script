@@ -184,7 +184,7 @@ class Scene(SlotManager):
         if not SongFacade.is_playing():
             self._scene.fire()
         else:
-            for track in self.abstract_tracks:
+            for track in SongFacade.abstract_tracks():
                 track.fire(self.index)
 
     def stop(self, next_scene=None, immediate=False):
@@ -192,7 +192,7 @@ class Scene(SlotManager):
         """Used to manually stopping previous scene
         because we don't display clip slot stop buttons
         """
-        for track in self.abstract_tracks:
+        for track in SongFacade.abstract_tracks():
             next_scene_index = next_scene.index if next_scene is not None else None
             track.stop(
                 scene_index=self.index, immediate=immediate, next_scene_index=next_scene_index
@@ -209,7 +209,7 @@ class Scene(SlotManager):
         seq = Sequence()
 
         if bar_length != 0:
-            for track in self.abstract_tracks:
+            for track in SongFacade.abstract_tracks():
                 if isinstance(track, ExternalSynthTrack):
                     track.prepare_for_scrub(self.index)
             seq.defer()  # for prepare_for_scrub to finish
