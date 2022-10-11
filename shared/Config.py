@@ -30,5 +30,4 @@ class Config(object):
 
     # VOLUME CONSTANTS
     ZERO_VOLUME = 0.850000023842
-    ZERO_VOLUME_DB = -pow(10, 6)
     CLIPPING_TRACK_VOLUME = 0.91

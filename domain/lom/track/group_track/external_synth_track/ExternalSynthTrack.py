@@ -388,8 +388,6 @@ class ExternalSynthTrack(AbstractGroupTrack):
             ):
                 should_let_tail_play = False
 
-        Logger.dev("should_let_tail_play: %s" % should_let_tail_play)
-
         if should_let_tail_play:
             # have the tail keep playing without launching the clip again
             self._is_stopping = True
@@ -397,7 +395,6 @@ class ExternalSynthTrack(AbstractGroupTrack):
                 1, partial(setattr, self, "_is_stopping", False), execute_on_song_stop=True
             )
         else:
-            Logger.dev("stopping tracks : %s" % immediate)
             self.audio_track.stop(immediate=immediate)
             if self.audio_tail_track:
                 self.audio_tail_track.stop(immediate=immediate)

@@ -141,6 +141,7 @@ class SessionToArrangementService(object):
         self._tempo_component.tempo = self._tempo
         self._recording_component.back_to_arranger = False
         ApplicationViewFacade.show_arrangement()
+        self._playback_component.re_enable_automation()
         self.is_bouncing = False
 
     def _validate_recording_duration(self):

@@ -1,10 +1,7 @@
-import math
 import pkgutil
 import types
 
-from typing import Any
-
-from protocol0.shared.Config import Config
+from typing import Any, List
 
 
 def clamp(val, min_v, max_v):
@@ -46,16 +43,40 @@ def get_minutes_legend(seconds):
     return "%02d:%02d" % (minutes, seconds)
 
 
-live_factor = 6 / math.log10(1.0 / Config.ZERO_VOLUME)
-
-
-def volume_to_db(volume):
+def volume_to_db(vol):
     # type: (float) -> float
-    if volume == 0:
-        return Config.ZERO_VOLUME_DB
-    return live_factor * math.log10(round(volume, 3) / round(Config.ZERO_VOLUME, 3))
+    return polynomial(
+        vol, [3593.2, -18265.9, 39231, -45962.3, 31461.7, -12322.4, 2371.63, -39.9082, -60.9928]
+    )
 
 
 def db_to_volume(db):
     # type: (float) -> float
-    return pow(10, db / live_factor) * Config.ZERO_VOLUME
+    return polynomial(
+        db,
+        [
+            -1.419398502456 * pow(10, -10),
+            -1.8321104871497 * pow(10, -8),
+            -7.93316011830 * pow(10, -7),
+            -0.0000133509,
+            -0.0000590049,
+            0.000480888,
+            0.0282999,
+            0.85,
+        ],
+    )
+
+
+def polynomial(x, coeffs):
+    # type: (float, List[float]) -> float
+    """Using polynomial interpolation"""
+    coeffs = list(reversed(coeffs))
+
+    def make_term(val, index):
+        # type: (float, int) -> float
+        term = coeffs[index]
+        if index > 0:
+            term *= pow(val, index)
+        return term
+
+    return sum([make_term(x, i) for i in range(len(coeffs))])

@@ -21,10 +21,10 @@ from protocol0.domain.lom.track.routing.TrackInputRouting import TrackInputRouti
 from protocol0.domain.lom.track.routing.TrackOutputRouting import TrackOutputRouting
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.forward_to import ForwardTo
-from protocol0.domain.shared.utils.utils import volume_to_db, db_to_volume
+from protocol0.domain.shared.utils.utils import volume_to_db
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.StatusBar import StatusBar
 from protocol0.shared.sequence.Sequence import Sequence
 
 if TYPE_CHECKING:
@@ -253,19 +253,6 @@ class AbstractTrack(SlotManager):
         volume = self._track.mixer_device.volume.value if self._track else 0
         return volume_to_db(volume)
 
-    @volume.setter
-    def volume(self, volume):
-        # type: (float) -> None
-        volume = db_to_volume(volume)
-        if self._track:
-            Scheduler.defer(
-                partial(
-                    DeviceParameter.set_live_device_parameter,
-                    self._track.mixer_device.volume,
-                    volume,
-                )
-            )
-
     @property
     def has_audio_output(self):
         # type: () -> bool
@@ -314,7 +301,21 @@ class AbstractTrack(SlotManager):
 
     def scroll_volume(self, go_next):
         # type: (bool) -> None
-        self.volume += 0.7 if go_next else -0.7
+        volume = self._track.mixer_device.volume.value
+        volume += 0.01 if go_next else -0.01
+        volume = min(volume, 1)
+
+        seq = Sequence()
+        seq.defer()
+        seq.add(
+            partial(
+                DeviceParameter.set_live_device_parameter,
+                self._track.mixer_device.volume,
+                volume,
+            )
+        )
+        seq.add(lambda: StatusBar.show_message("Track volume: %.1f dB" % self.volume))
+        seq.done()
 
     def get_all_simple_sub_tracks(self):
         # type: () -> List[SimpleTrack]
