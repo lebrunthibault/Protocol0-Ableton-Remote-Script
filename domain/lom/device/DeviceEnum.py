@@ -33,6 +33,7 @@ class DeviceEnum(AbstractEnum):
     INSTRUMENT_RACK = "INSTRUMENT_RACK"
     LFO_TOOL = "LFO_TOOL"
     LIMITER = "LIMITER"
+    MASTERING_RACK = "MASTERING_RACK"
     PITCH = "PITCH"
     PRO_Q_3 = "PRO_Q_3"
     REVERB = "REVERB"
@@ -90,6 +91,7 @@ class DeviceEnum(AbstractEnum):
     def is_rack_preset(self):
         # type: () -> bool
         return self in [
+            DeviceEnum.MASTERING_RACK,
             DeviceEnum.SAMPLE_PITCH_RACK,
             DeviceEnum.INSERT_DELAY,
             DeviceEnum.INSERT_REVERB,

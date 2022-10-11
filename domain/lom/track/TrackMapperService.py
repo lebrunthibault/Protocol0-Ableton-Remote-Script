@@ -124,10 +124,10 @@ class TrackMapperService(SlotManager):
         self._instrument_bus_track = find_if(
             lambda t: isinstance(t, InstrumentBusTrack), simple_tracks
         )
-        self._reference_track = find_if(lambda t: isinstance(t, ReferenceTrack), simple_tracks)
-        abgs = SongFacade.abstract_group_tracks()
+        abgs = list(SongFacade.abstract_group_tracks())
 
         self._drums_track = find_if(lambda t: isinstance(t, DrumsTrack), abgs)
+        self._reference_track = find_if(lambda t: isinstance(t, ReferenceTrack), abgs)
         self._vocals_track = find_if(lambda t: isinstance(t, VocalsTrack), abgs)
 
         if self._usamo_track is None:
