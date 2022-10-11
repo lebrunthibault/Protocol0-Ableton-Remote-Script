@@ -133,7 +133,11 @@ class Scene(SlotManager):
 
     def on_end(self):
         # type: () -> None
-        if SongFacade.is_track_recording() and not SongFacade.resampling_track().is_recording:
+        if (
+            SongFacade.is_track_recording()
+            and SongFacade.resampling_track() is not None
+            and not SongFacade.resampling_track().is_recording
+        ):
             return
 
         if self.playing_state.in_last_bar:
@@ -144,7 +148,12 @@ class Scene(SlotManager):
 
                 seq = Sequence()
                 seq.wait_for_event(BarChangedEvent)
-                seq.add(partial(DomainEventBus.emit, NextSceneStartedEvent(SongFacade.selected_scene().index)))
+                seq.add(
+                    partial(
+                        DomainEventBus.emit,
+                        NextSceneStartedEvent(SongFacade.selected_scene().index),
+                    )
+                )
                 seq.done()
 
     @subject_slot("is_triggered")

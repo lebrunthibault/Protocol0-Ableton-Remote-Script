@@ -4,6 +4,7 @@ from protocol0.application.control_surface.ActionGroupInterface import ActionGro
 from protocol0.domain.audit.AudioLatencyAnalyzerService import AudioLatencyAnalyzerService
 from protocol0.domain.audit.SetProfilingService import SetProfilingService
 from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.domain.shared.utils.utils import volume_to_db, db_to_volume
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 
@@ -47,4 +48,5 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        pass
+        Logger.dev(volume_to_db(0))
+        Logger.dev(db_to_volume(volume_to_db(0)))

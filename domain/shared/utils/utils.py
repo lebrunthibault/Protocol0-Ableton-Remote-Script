@@ -60,6 +60,9 @@ def db_to_volume(db):
     if db == 0:
         return Config.ZERO_VOLUME
 
+    if db < -60:
+        return 0
+
     return polynomial(
         db,
         [

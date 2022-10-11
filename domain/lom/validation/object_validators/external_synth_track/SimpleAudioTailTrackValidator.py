@@ -43,7 +43,19 @@ class SimpleAudioTailTrackValidator(SimpleAudioTrackValidator):
             validators.append(PropertyValueValidator(clip, "warp_mode", Config.DEFAULT_WARP_MODE))
 
             audio_clip = ext_track.audio_track.clip_slots[clip.index].clip
-            assert audio_clip, "Got audio tail clip without audio clip"
+
+            if audio_clip is None:
+                validators.append(
+                    CallbackValidator(
+                        track,
+                        lambda c: False,
+                        None,
+                        "Got audio tail clip without audio clip for %s at scene %s"
+                        % (ext_track, clip.index),
+                    )
+                )
+
+                continue
 
             if audio_clip.bar_length != clip.bar_length:
                 validators.append(
