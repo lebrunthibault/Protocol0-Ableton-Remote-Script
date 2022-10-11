@@ -349,11 +349,11 @@ class ExternalSynthTrack(AbstractGroupTrack):
     def fire(self, scene_index):
         # type: (int) -> None
         """Firing midi and alternating between audio and audio tail for the audio clip"""
+        super(ExternalSynthTrack, self).fire(scene_index)
+
         midi_clip = self.midi_track.clip_slots[scene_index].clip
         if midi_clip is None or midi_clip.muted:
             return
-
-        super(ExternalSynthTrack, self).fire(scene_index)
 
         self._is_stopping = False
 

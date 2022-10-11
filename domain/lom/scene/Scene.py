@@ -229,11 +229,6 @@ class Scene(SlotManager):
         next_track = ValueScroller.scroll_values(tracks, SongFacade.selected_track(), go_next)
         next_track.select()
 
-        # selects the track owning the main clip slot (midi track for ext track)
-        # next_clip_slot = next_track.selected_clip_slot
-        # if next_clip_slot.clip:
-        #     next_track.select_clip_slot(next_clip_slot._clip_slot)
-
         ApplicationViewFacade.focus_session()
 
     def unfold(self):
