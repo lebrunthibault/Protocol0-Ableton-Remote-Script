@@ -144,6 +144,20 @@ class Container(ContainerInterface):
         scene_service = SceneService(live_song, scene_crud_component)
         scene_playback_service = ScenePlaybackService(playback_component)
         PlayingSceneFacade(scene_component)
+        validator_service = ValidatorService(ValidatorFactory(browser_service))
+        set_upgrade_service = SetUpgradeService(validator_service, track_crud_component)
+        set_fixer_service = SetFixerService(
+            validator_service=validator_service,
+            set_upgrade_service=set_upgrade_service,
+        )
+        session_to_arrangement_service = SessionToArrangementService(
+            playback_component,
+            recording_component,
+            scene_component,
+            tempo_component,
+            track_component,
+            set_fixer_service
+        )
         SongFacade(
             live_song,
             clip_component,
@@ -158,13 +172,13 @@ class Container(ContainerInterface):
             scene_service,
             track_mapper_service,
             track_recorder_service,
+            session_to_arrangement_service
         )
         ExternalSynthTrackClipSynchronizerService()
 
         song_service = SongInitService(playback_component)
         instrument_preset_scroller_service = InstrumentPresetScrollerService()
         mixing_service = MixingService()
-        validator_service = ValidatorService(ValidatorFactory(browser_service))
         interface_clicks_service = InterfaceClicksService()
 
         # presets
@@ -178,22 +192,9 @@ class Container(ContainerInterface):
             track_recorder_service, interface_clicks_service, track_crud_component, tempo_component
         )
         log_service = LogService()
-        set_upgrade_service = SetUpgradeService(validator_service, track_crud_component)
-        set_fixer_service = SetFixerService(
-            validator_service=validator_service,
-            set_upgrade_service=set_upgrade_service,
-        )
+
         set_profiling_service = SetProfilingService()
         song_stats_service = SongStatsService()
-
-        session_to_arrangement_service = SessionToArrangementService(
-            playback_component,
-            recording_component,
-            scene_component,
-            tempo_component,
-            track_component,
-            set_fixer_service
-        )
 
         # registering managers in container
         self._register(midi_service)

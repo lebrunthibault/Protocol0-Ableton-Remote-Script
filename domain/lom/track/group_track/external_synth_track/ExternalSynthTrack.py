@@ -126,38 +126,46 @@ class ExternalSynthTrack(AbstractGroupTrack):
         NB : This solution is almost perfect but will not handle well short clips with
         very long tails. That doesn't really happen irl anyway
         """
-        if self.is_recording:
-            return
-
-        if not self.midi_track.is_playing or self.playing_audio_track is None:
+        if not self._should_loop_audio:
             return
 
         midi_clip = find_if(lambda cs: cs.is_playing, self.midi_track.clip_slots).clip
+        playing_clip = self.playing_audio_track.playing_clip
+        clip_to_fire = self._audio_clip_to_fire(playing_clip.index)
 
-        if (
-            midi_clip.playing_position.in_last_bar
-            and SongFacade.playing_scene() is not None
-            and (
-                not SongFacade.playing_scene().playing_state.in_last_bar
-                or SongFacade.playing_scene().should_loop
-            )
-            # and not self._is_stopping
+        # re fire dummy clips (edge case if handle also the tail)
+        self.dummy_group.loop_if_tail(playing_clip.index, midi_clip.bar_length)
+
+        if clip_to_fire is not None:
+            if clip_to_fire.index != playing_clip.index:
+                Logger.error(
+                    "Index mismatch for audio / tail clip. Got index: %s and tail "
+                    "index: %s. For %s " % (playing_clip.index, clip_to_fire.index, self),
+                    show_notification=False,
+                )
+                raise Protocol0Warning("Tail clip index mismatch for %s" % self)
+            clip_to_fire.fire()
+
+    @property
+    def _should_loop_audio(self):
+        # type: () -> bool
+        """Should loop playing audio clip"""
+        if self.is_recording:
+            return False
+
+        if not self.midi_track.is_playing or self.playing_audio_track is None:
+            return False
+
+        midi_clip = find_if(lambda cs: cs.is_playing, self.midi_track.clip_slots).clip
+
+        scene_should_loop = SongFacade.playing_scene().should_loop and not SongFacade.is_bouncing()
+        # assert we're not in the last bar of a non looping scene
+        if SongFacade.playing_scene() is None or (
+            SongFacade.playing_scene().playing_state.in_last_bar and not scene_should_loop
         ):
-            playing_clip = self.playing_audio_track.playing_clip
-            clip_to_fire = self._audio_clip_to_fire(playing_clip.index)
+            return False
 
-            # re fire dummy clips (edge case if handle also the tail)
-            self.dummy_group.loop_if_tail(playing_clip.index, midi_clip.bar_length)
-
-            if clip_to_fire is not None:
-                if clip_to_fire.index != playing_clip.index:
-                    Logger.error(
-                        "Index mismatch for audio / tail clip. Got index: %s and tail "
-                        "index: %s. For %s " % (playing_clip.index, clip_to_fire.index, self),
-                        show_notification=False,
-                    )
-                    raise Protocol0Warning("Tail clip index mismatch for %s" % self)
-                clip_to_fire.fire()
+        return midi_clip.playing_position.in_last_bar
 
     def _map_optional_audio_tail_track(self):
         # type: () -> None
@@ -367,23 +375,29 @@ class ExternalSynthTrack(AbstractGroupTrack):
         """
         super(ExternalSynthTrack, self).stop(scene_index, next_scene_index, immediate=immediate)
 
-        should_stop_audio = False
+        should_let_tail_play = True
         if scene_index is not None:
             midi_clip = self.midi_track.clip_slots[scene_index].clip
+
+            # if we stopped before the end
+            # or if there is not tail for this scene
             if (
                 midi_clip is not None
                 and midi_clip.is_playing
                 and not midi_clip.playing_position.in_last_bar
             ):
-                should_stop_audio = True
+                should_let_tail_play = False
 
-        if not should_stop_audio:
+        Logger.dev("should_let_tail_play: %s" % should_let_tail_play)
+
+        if should_let_tail_play:
             # have the tail keep playing without launching the clip again
             self._is_stopping = True
             Scheduler.wait_bars(
                 1, partial(setattr, self, "_is_stopping", False), execute_on_song_stop=True
             )
         else:
+            Logger.dev("stopping tracks : %s" % immediate)
             self.audio_track.stop(immediate=immediate)
             if self.audio_tail_track:
                 self.audio_tail_track.stop(immediate=immediate)

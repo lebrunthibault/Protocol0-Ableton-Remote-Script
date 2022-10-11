@@ -165,7 +165,7 @@ class MidiClip(Clip):
 
         current_note = notes[0]
         for next_note in notes[1:]:
-            current_note.end = min(current_note.end, next_note.start)
+            current_note.end = max(current_note.end, next_note.start)
             current_note = next_note
 
         self.set_notes(notes)

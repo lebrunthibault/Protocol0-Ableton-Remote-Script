@@ -39,7 +39,7 @@ class SessionToArrangementService(object):
         self._set_fixer_service = set_fixer_service
 
         self._tempo = self._tempo_component.tempo
-        self._is_bouncing = False
+        self.is_bouncing = False
         DomainEventBus.subscribe(SongStoppedEvent, self._song_stopped_event_listener)
 
         self._recorded_bar_length = 0
@@ -51,7 +51,7 @@ class SessionToArrangementService(object):
 
     def bounce_session_to_arrangement(self):
         # type: () -> None
-        if self._is_bouncing:
+        if self.is_bouncing:
             self._playback_component.stop_playing()
             return None
 
@@ -80,7 +80,7 @@ class SessionToArrangementService(object):
     def _setup_bounce(self):
         # type: () -> None
         self._scene_component.looping_scene_toggler.reset()
-        self._is_bouncing = True
+        self.is_bouncing = True
         self._track_component.un_focus_all_tracks(including_current=True)
         self._reset_automation()
         self._tempo = self._tempo_component.tempo
@@ -123,6 +123,7 @@ class SessionToArrangementService(object):
         seq = Sequence()
         seq.wait_for_event(SceneLastBarPassedEvent, SongFacade.last_scene()._scene)
         seq.add(SongFacade.last_scene().stop)
+        seq.log("scene stopped")
         if SongFacade.last_scene().bar_length > 1:
             seq.wait_for_event(BarChangedEvent)
         seq.add(self._validate_recording_duration)
@@ -132,7 +133,7 @@ class SessionToArrangementService(object):
 
     def _song_stopped_event_listener(self, _):
         # type: (SongStoppedEvent) -> None
-        if not self._is_bouncing:
+        if not self.is_bouncing:
             return None
 
         CommandBus.dispatch(ResetPlaybackCommand())
@@ -140,7 +141,7 @@ class SessionToArrangementService(object):
         self._tempo_component.tempo = self._tempo
         self._recording_component.back_to_arranger = False
         ApplicationViewFacade.show_arrangement()
-        self._is_bouncing = False
+        self.is_bouncing = False
 
     def _validate_recording_duration(self):
         # type: () -> None
