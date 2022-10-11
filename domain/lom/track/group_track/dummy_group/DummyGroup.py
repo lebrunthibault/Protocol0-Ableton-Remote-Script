@@ -190,18 +190,6 @@ class DummyGroup(object):
                 value = envelope.value_at_time(dummy_clip.length - 0.01)
                 parameter.touch(value)
 
-    def prepare_for_scrub(self, scene_index, clip_bar_length):
-        # type: (int, float) -> None
-        """
-        when scrubbing playback (handling FireSceneToPositionCommand)
-        the dummy clips need to be looping else it will stop on scrub_by
-        and have the good length
-        Only for dummy clips with tail (length % clip_length != 0)
-        """
-        for dummy_track, dummy_clip in self._dummy_clips(scene_index):
-            if dummy_clip.has_tail(clip_bar_length):
-                dummy_clip.set_temporary_length(clip_bar_length)
-
     @property
     def input_routing_track(self):
         # type: () -> SimpleTrack

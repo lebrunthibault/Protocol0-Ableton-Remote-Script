@@ -52,6 +52,7 @@ class TrackRecorderClipTailDecorator(TrackRecorderDecorator):
                 seq = Sequence()
                 seq.add(self.track.stop)
                 seq.wait_bars(1)
+                seq.wait_ms(50)
                 return seq.done()
             else:
                 return None

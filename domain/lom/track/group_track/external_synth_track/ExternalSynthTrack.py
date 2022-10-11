@@ -129,12 +129,8 @@ class ExternalSynthTrack(AbstractGroupTrack):
         if not self._should_loop_audio:
             return
 
-        midi_clip = find_if(lambda cs: cs.is_playing, self.midi_track.clip_slots).clip
         playing_clip = self.playing_audio_track.playing_clip
         clip_to_fire = self._audio_clip_to_fire(playing_clip.index)
-
-        # re fire dummy clips (edge case if handle also the tail)
-        self.dummy_group.loop_if_tail(playing_clip.index, midi_clip.bar_length)
 
         if clip_to_fire is not None:
             if clip_to_fire.index != playing_clip.index:
@@ -417,8 +413,6 @@ class ExternalSynthTrack(AbstractGroupTrack):
         except IndexError:
             Backend.client().show_warning("%s: invalid clip length" % self)
             return None
-
-        self.dummy_group.prepare_for_scrub(scene_index, midi_clip_bar_length)
 
     def get_automated_parameters(self, scene_index):
         # type: (int) -> Dict[DeviceParameter, SimpleTrack]

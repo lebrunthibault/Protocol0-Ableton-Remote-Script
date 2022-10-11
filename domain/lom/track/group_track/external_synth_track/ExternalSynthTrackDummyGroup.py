@@ -36,15 +36,3 @@ class ExternalSynthTrackDummyGroup(DummyGroup):
                 return dummy_track, None
 
         return None, None
-
-    def loop_if_tail(self, scene_index, clip_bar_length):
-        # type: (int, float) -> None
-        """Loop the dummy clip in the special case it contains a tail but should play it only later"""
-        for dummy_track in filter(None, (self._dummy_track, self._dummy_return_track)):
-            dummy_clip = dummy_track.clip_slots[scene_index].clip
-            if (
-                dummy_clip is not None
-                and dummy_clip.has_tail(clip_bar_length)
-                and dummy_clip.playing_position.bars_left < clip_bar_length
-            ):
-                dummy_clip.fire()

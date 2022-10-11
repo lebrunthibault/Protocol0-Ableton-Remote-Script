@@ -27,13 +27,3 @@ class DummyClip(AudioClip):
         self.muted = False
 
         return None
-
-    def has_tail(self, clip_bar_length):
-        # type: (float) -> bool
-        """
-        Indicates whether the clip contains a tail matching to a tail clip
-        Only useful for ExternalSynthTracks
-        """
-        return (
-            self.bar_length > clip_bar_length and self.bar_length % clip_bar_length != 0
-        )
