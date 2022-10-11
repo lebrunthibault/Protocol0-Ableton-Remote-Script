@@ -3,6 +3,7 @@ from typing import Any
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 
 
 class ReferenceTrack(AbstractGroupTrack):
@@ -11,12 +12,16 @@ class ReferenceTrack(AbstractGroupTrack):
     def __init__(self, *a, **k):
         # type: (Any, Any) -> None
         super(ReferenceTrack, self).__init__(*a, **k)
-        self._mastering_rack_enabled = False
+        mastering_rack = SongFacade.master_track().devices.get_one_from_enum(
+            DeviceEnum.MASTERING_RACK)
+        self._mastering_rack_enabled = mastering_rack is not None and mastering_rack.is_enabled
 
     def toggle(self):
         # type: () -> None
         mastering_rack = SongFacade.master_track().devices.get_one_from_enum(
             DeviceEnum.MASTERING_RACK)
+
+        Logger.dev(mastering_rack)
 
         if self.muted:
             self.muted = False
