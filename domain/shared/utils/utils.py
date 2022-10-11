@@ -3,6 +3,8 @@ import types
 
 from typing import Any, List
 
+from protocol0.shared.Config import Config
+
 
 def clamp(val, min_v, max_v):
     # type: (float, float, float) -> float
@@ -45,6 +47,9 @@ def get_minutes_legend(seconds):
 
 def volume_to_db(vol):
     # type: (float) -> float
+    if round(vol, 3) == round(Config.ZERO_VOLUME, 3):
+        return 0
+
     return polynomial(
         vol, [3593.2, -18265.9, 39231, -45962.3, 31461.7, -12322.4, 2371.63, -39.9082, -60.9928]
     )
@@ -52,6 +57,9 @@ def volume_to_db(vol):
 
 def db_to_volume(db):
     # type: (float) -> float
+    if db == 0:
+        return Config.ZERO_VOLUME
+
     return polynomial(
         db,
         [

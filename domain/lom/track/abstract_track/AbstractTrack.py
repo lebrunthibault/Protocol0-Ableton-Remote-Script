@@ -21,8 +21,9 @@ from protocol0.domain.lom.track.routing.TrackInputRouting import TrackInputRouti
 from protocol0.domain.lom.track.routing.TrackOutputRouting import TrackOutputRouting
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.forward_to import ForwardTo
-from protocol0.domain.shared.utils.utils import volume_to_db
+from protocol0.domain.shared.utils.utils import volume_to_db, db_to_volume
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.StatusBar import StatusBar
 from protocol0.shared.sequence.Sequence import Sequence
@@ -253,6 +254,19 @@ class AbstractTrack(SlotManager):
         volume = self._track.mixer_device.volume.value if self._track else 0
         return volume_to_db(volume)
 
+    @volume.setter
+    def volume(self, volume):
+        # type: (float) -> None
+        volume = db_to_volume(volume)
+        if self._track:
+            Scheduler.defer(
+                partial(
+                    DeviceParameter.set_live_device_parameter,
+                    self._track.mixer_device.volume,
+                    volume,
+                )
+            )
+
     @property
     def has_audio_output(self):
         # type: () -> bool
@@ -301,6 +315,7 @@ class AbstractTrack(SlotManager):
 
     def scroll_volume(self, go_next):
         # type: (bool) -> None
+        """Editing directly the mixer device volume"""
         volume = self._track.mixer_device.volume.value
         volume += 0.01 if go_next else -0.01
         volume = min(volume, 1)
