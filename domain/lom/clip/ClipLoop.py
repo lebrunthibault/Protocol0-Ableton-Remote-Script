@@ -109,18 +109,16 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
         # type: () -> float
         """
         For looped clips: loop length in beats.
-        Casting to int to have whole beats.
         not using unwarped audio clips
         """
         if not self._clip:
             return 0.0
         if self._clip.is_audio_clip and not self._clip.warping:
             return 0.0
-        elif self._clip.length == Config.CLIP_MAX_LENGTH:
+        elif self._clip.length == Config.CLIP_MAX_LENGTH:  # clip is recording
             return 0.0
         else:
             return self._clip.length
-            # return int(floor(self._clip.length))
 
     @length.setter
     def length(self, length):
