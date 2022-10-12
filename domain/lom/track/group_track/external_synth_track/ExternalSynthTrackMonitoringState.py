@@ -9,6 +9,7 @@ from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudio
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
+from protocol0.shared.logging.Logger import Logger
 
 
 class ExternalSynthTrackMonitoringState(object):
@@ -34,6 +35,7 @@ class ExternalSynthTrackMonitoringState(object):
 
     def switch(self):
         # type: () -> None
+        Logger.dev("self._monitors_midi: %s" % self._monitors_midi)
         if self._monitors_midi:
             self.monitor_audio()
         else:
@@ -45,7 +47,7 @@ class ExternalSynthTrackMonitoringState(object):
     @property
     def _monitors_midi(self):
         # type: () -> bool
-        return self._midi_track.muted is False
+        return not self._midi_track.muted
 
     def monitor_midi(self):
         # type: () -> None
@@ -72,7 +74,7 @@ class ExternalSynthTrackMonitoringState(object):
     def monitor_audio(self):
         # type: () -> None
         # midi track
-        self._midi_track.muted = False
+        self._midi_track.muted = True
         self._midi_track.current_monitoring_state = CurrentMonitoringStateEnum.OFF
         self._midi_track.output_routing.type = OutputRoutingTypeEnum.SENDS_ONLY
 
