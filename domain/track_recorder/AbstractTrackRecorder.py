@@ -128,6 +128,7 @@ class AbstractTrackRecorder(object):
             seq.wait_for_event(Last32thPassedEvent)
         else:
             seq.wait_for_event(SongStoppedEvent)
+            seq.add(lambda: SongFacade.selected_scene().scene_name.update(""))
 
         return seq.done()
 

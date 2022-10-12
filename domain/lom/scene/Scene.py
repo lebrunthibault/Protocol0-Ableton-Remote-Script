@@ -133,11 +133,7 @@ class Scene(SlotManager):
 
     def on_end(self):
         # type: () -> None
-        if (
-            SongFacade.is_track_recording()
-            and SongFacade.resampling_track() is not None
-            and not SongFacade.resampling_track().is_recording
-        ):
+        if SongFacade.is_track_recording():
             return
 
         if self.playing_state.in_last_bar:

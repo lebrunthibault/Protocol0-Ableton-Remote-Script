@@ -1,14 +1,13 @@
 from functools import partial
-from math import floor
 
 import Live
-
 from _Framework.SubjectSlot import subject_slot, SlotManager
 
 from protocol0.domain.lom.clip.ClipLoopChangedEvent import ClipLoopChangedEvent
 from protocol0.domain.lom.loop.LoopableInterface import LoopableInterface
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
+from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.observer.Observable import Observable
 
@@ -114,11 +113,14 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
         not using unwarped audio clips
         """
         if not self._clip:
-            return 0
+            return 0.0
         if self._clip.is_audio_clip and not self._clip.warping:
-            return 0
+            return 0.0
+        elif self._clip.length == Config.CLIP_MAX_LENGTH:
+            return 0.0
         else:
-            return int(floor(self._clip.length))
+            return self._clip.length
+            # return int(floor(self._clip.length))
 
     @length.setter
     def length(self, length):

@@ -16,14 +16,8 @@ from protocol0.domain.track_recorder.count_in.CountInShort import CountInShort
 from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthAudio import (
     TrackRecorderExternalSynthAudio,
 )
-from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthAudioAutomation import (
-    TrackRecorderExternalSynthAudioAutomation,
-)
 from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthAudioMulti import (
     TrackRecorderExternalSynthAudioMulti,
-)
-from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthAudioMultiAutomation import (
-    TrackRecorderExternalSynthAudioMultiAutomation,
 )
 from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthNormal import (
     TrackRecorderExternalSynthNormal,
@@ -65,12 +59,8 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
         # type: (RecordTypeEnum) -> Type[AbstractTrackRecorder]
         if record_type == RecordTypeEnum.AUDIO_ONLY:
             return TrackRecorderExternalSynthAudio
-        elif record_type == RecordTypeEnum.AUDIO_ONLY_AUTOMATION:
-            return TrackRecorderExternalSynthAudioAutomation
         elif record_type == RecordTypeEnum.AUDIO_ONLY_MULTI:
             return TrackRecorderExternalSynthAudioMulti
-        elif record_type == RecordTypeEnum.AUDIO_ONLY_MULTI_AUTOMATION:
-            return TrackRecorderExternalSynthAudioMultiAutomation
         elif record_type == RecordTypeEnum.NORMAL:
             return TrackRecorderExternalSynthNormal
         elif record_type == RecordTypeEnum.NORMAL_UNLIMITED:
@@ -102,9 +92,7 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
             return 0
         elif record_type in (
             RecordTypeEnum.AUDIO_ONLY,
-            RecordTypeEnum.AUDIO_ONLY_AUTOMATION,
             RecordTypeEnum.AUDIO_ONLY_MULTI,
-            RecordTypeEnum.AUDIO_ONLY_MULTI_AUTOMATION,
         ):
             midi_clip = self.track.midi_track.selected_clip_slot.clip
             return midi_clip.bar_length

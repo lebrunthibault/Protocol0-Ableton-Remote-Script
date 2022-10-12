@@ -28,6 +28,8 @@ class Config(object):
 
     DEFAULT_WARP_MODE = Live.Clip.WarpMode.tones
 
+    CLIP_MAX_LENGTH = 63072000
+
     # VOLUME CONSTANTS
     ZERO_VOLUME = 0.850000023842
     CLIPPING_TRACK_VOLUME = 0.91

@@ -74,8 +74,8 @@ class ActionGroupMain(ActionGroupInterface):
             identifier=5,
             name="record audio and keep automation",
             filter_active_tracks=True,
-            on_press=lambda: partial(record_track, RecordTypeEnum.AUDIO_ONLY_AUTOMATION),
-            on_long_press=lambda: partial(record_track, RecordTypeEnum.AUDIO_ONLY_MULTI_AUTOMATION),
+            on_press=lambda: partial(record_track, RecordTypeEnum.AUDIO_ONLY),
+            on_long_press=lambda: partial(record_track, RecordTypeEnum.AUDIO_ONLY_MULTI),
         )
 
         # MONitor encoder

@@ -56,8 +56,6 @@ class TrackRecorderExternalSynthAudioMulti(TrackRecorderExternalSynthAudio):
 
     def record(self, bar_length):
         # type: (float) -> Sequence
-        self._clear_automation()
-
         self.recording_scene.fire()
         for cs in self._recording_clip_slots:
             cs.fire()

@@ -59,9 +59,12 @@ class SceneName(SlotManager):
             self.disconnect()
             return
 
-        length_legend = get_length_legend(
-            self._scene_length.length, SongFacade.signature_numerator()
-        )
+        if not self._scene_length.length.is_integer() or self._scene_length.length > 1000:
+            length_legend = ""  # we are recording
+        else:
+            length_legend = get_length_legend(
+                self._scene_length.length, SongFacade.signature_numerator()
+            )
 
         if self._scene_playing_state.is_playing:
             length_legend = "%s|%s" % (self._scene_playing_state.current_bar + 1, length_legend)

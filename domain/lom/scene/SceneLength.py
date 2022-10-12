@@ -33,10 +33,18 @@ class SceneLength(object):
     @property
     def _longest_clip(self):
         # type: () -> Optional[Clip]
+        """
+            We take any clip except
+            - dummy clips (that can spawn more than one scene)
+            - recording clips that have a non integer length
+
+        We cannot exclude all recording clips in the case the midi clip is the longest
+        and we are recording audio
+        """
         clips = [
             clip
             for clip in self._clips
-            if not clip.is_recording and not isinstance(clip, DummyClip)
+            if (not clip.is_recording or clip.length.is_integer()) and not isinstance(clip, DummyClip)
         ]
         if len(clips) == 0:
             return None

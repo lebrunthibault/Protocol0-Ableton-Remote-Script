@@ -344,7 +344,9 @@ class SongFacade(object):
     @classmethod
     def is_track_recording(cls):
         # type: () -> bool
-        return cls._INSTANCE._track_recorder_service.is_recording
+        return cls._INSTANCE._track_recorder_service.is_recording and (
+            cls.resampling_track() is None or not cls.resampling_track().is_recording
+        )
 
     @classmethod
     def is_bouncing(cls):
