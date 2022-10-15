@@ -47,6 +47,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        Logger.dev(SongFacade.selected_scene()._scene_length._longest_clip)
-        Logger.dev(SongFacade.selected_scene().length)
-        Logger.dev(SongFacade.selected_scene().bar_length)
+        Logger.dev(SongFacade.selected_parameter())

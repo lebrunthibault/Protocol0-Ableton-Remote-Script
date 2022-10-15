@@ -20,7 +20,7 @@ class SceneLength(object):
     @property
     def length(self):
         # type: () -> float
-        return self._longest_clip.length if self._longest_clip else 0
+        return self._longest_clip.length if self._longest_clip else 0.0
 
     @property
     def bar_length(self):
@@ -44,7 +44,7 @@ class SceneLength(object):
         clips = [
             clip
             for clip in self._clips
-            if (not clip.is_recording or clip.length.is_integer()) and not isinstance(clip, DummyClip)
+            if (not clip.is_recording or float(clip.length).is_integer()) and not isinstance(clip, DummyClip)
         ]
         if len(clips) == 0:
             return None

@@ -118,7 +118,7 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
         elif self._clip.length == Config.CLIP_MAX_LENGTH:  # clip is recording
             return 0.0
         else:
-            return self._clip.length
+            return float(self._clip.length)
 
     @length.setter
     def length(self, length):

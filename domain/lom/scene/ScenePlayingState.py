@@ -56,7 +56,7 @@ class ScenePlayingState(object):
     @property
     def _longest_un_muted_clip(self):
         # type: () -> Optional[Clip]
-        clips = [clip for clip in self._clips if (not clip.is_recording or clip.length.is_integer()) and not clip.muted]
+        clips = [clip for clip in self._clips if (not clip.is_recording or float(clip.length).is_integer()) and not clip.muted]
         if len(clips) == 0:
             return None
         else:

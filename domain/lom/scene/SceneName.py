@@ -59,7 +59,7 @@ class SceneName(SlotManager):
             self.disconnect()
             return
 
-        if not self._scene_length.length.is_integer() or self._scene_length.length > 1000:
+        if not float(self._scene_length.length).is_integer() or self._scene_length.length > 1000:
             length_legend = ""  # we are recording
         else:
             length_legend = get_length_legend(
