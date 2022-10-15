@@ -68,3 +68,4 @@ _._is_stopping  # unused attribute (domain\lom\track\group_track\external_synth_
 _._is_stopping  # unused attribute (domain\lom\track\group_track\external_synth_track\ExternalSynthTrack.py:354)
 _._is_stopping  # unused attribute (domain\lom\track\group_track\external_synth_track\ExternalSynthTrack.py:382)
 _.reference_track  # unused method (shared\SongFacade.py:228)
+_.play_pause  # unused method (domain\lom\song\components\PlaybackComponent.py:104)

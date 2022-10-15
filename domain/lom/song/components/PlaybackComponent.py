@@ -101,6 +101,13 @@ class PlaybackComponent(SlotManager):
         # noinspection PyTypeChecker
         self._live_song.stop_all_clips(quantized)
 
+    def play_pause(self):
+        # type: () -> None
+        if self.is_playing:
+            self.stop_playing()
+        else:
+            self.start_playing()
+
     def reset(self):
         # type: () -> None
         """stopping immediately"""
