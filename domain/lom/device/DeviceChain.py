@@ -2,8 +2,10 @@ import Live
 from _Framework.SubjectSlot import subject_slot, SlotManager
 from typing import List
 
+from protocol0.shared.observer.Observable import Observable
 
-class DeviceChain(SlotManager):
+
+class DeviceChain(SlotManager, Observable):
     def __init__(self, chain, index):
         # type: (Live.Chain.Chain, int) -> None
         super(DeviceChain, self).__init__()
@@ -34,6 +36,7 @@ class DeviceChain(SlotManager):
         from protocol0.domain.lom.device.Device import Device
 
         self.devices = [Device.make(device) for device in self._chain.devices]
+        self.notify_observers()
 
     def disconnect(self):
         # type: () -> None

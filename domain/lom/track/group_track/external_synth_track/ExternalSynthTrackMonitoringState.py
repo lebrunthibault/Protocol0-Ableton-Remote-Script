@@ -9,7 +9,6 @@ from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudio
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
-from protocol0.shared.logging.Logger import Logger
 
 
 class ExternalSynthTrackMonitoringState(object):
@@ -35,7 +34,6 @@ class ExternalSynthTrackMonitoringState(object):
 
     def switch(self):
         # type: () -> None
-        Logger.dev("self._monitors_midi: %s" % self._monitors_midi)
         if self._monitors_midi:
             self.monitor_audio()
         else:

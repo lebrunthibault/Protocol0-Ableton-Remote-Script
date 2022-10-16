@@ -28,11 +28,16 @@ class SimpleTrackDevices(SlotManager, Observable):
 
     def __repr__(self):
         # type: () -> str
-        return "SimpleTrackDevices(%s, %s)" % (len(self._devices), len(self._all_devices))
+        return "SimpleTrackDevices(%s)" % self._track.name
 
     def __iter__(self):
         # type: () -> Iterator[Device]
         return iter(self._devices)
+
+    def update(self, observable):
+        # type: (Observable) -> None
+        if isinstance(observable, RackDevice):
+            self.build()
 
     def build(self):
         # type: () -> None
@@ -47,6 +52,9 @@ class SimpleTrackDevices(SlotManager, Observable):
         self._devices_mapping.build(self._track.devices)
         self._devices = cast(List[Device], self._devices_mapping.all)
         self._all_devices = self._find_all_devices(self._devices)
+        for device in self._all_devices:
+            if isinstance(device, RackDevice):
+                device.register_observer(self)
 
         self.notify_observers()
 
