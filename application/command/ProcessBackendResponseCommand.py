@@ -6,4 +6,5 @@ from protocol0.application.command.SerializableCommand import SerializableComman
 class ProcessBackendResponseCommand(SerializableCommand):
     def __init__(self, res):
         # type: (Any) -> None
+        super(ProcessBackendResponseCommand, self).__init__()
         self.res = res

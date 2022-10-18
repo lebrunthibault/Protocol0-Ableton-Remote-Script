@@ -52,7 +52,7 @@ class MidiService(object):
         message = self._sysex_to_string(sysex=event.midi_bytes)
         if self._DEBUG:
             Logger.info("message: %s" % message)
-        command = SerializableCommand.unserialize(message)
+        command = SerializableCommand.un_serialize(message)
         CommandBus.dispatch(command)
 
     def _on_preset_program_selected_event(self, event):

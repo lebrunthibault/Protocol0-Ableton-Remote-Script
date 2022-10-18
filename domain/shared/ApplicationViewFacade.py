@@ -6,9 +6,6 @@ from protocol0.domain.shared.SessionServiceInterface import SessionServiceInterf
 from protocol0.shared.SongFacade import SongFacade
 
 
-# noinspection PyArgumentList
-
-
 class ApplicationViewFacade(object):
     """Facade for accessing the application view"""
 

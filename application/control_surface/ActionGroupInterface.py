@@ -22,7 +22,7 @@ class ActionGroupInterface(object):
         self._container = container
         self._component_guard = component_guard
         self._multi_encoders = []  # type: List[MultiEncoder]
-        DomainEventBus.subscribe(ScriptDisconnectedEvent, lambda _: self.disconnect())
+        DomainEventBus.subscribe(ScriptDisconnectedEvent, lambda _: self._disconnect())
 
     def _add_multi_encoder(self, multi_encoder):
         # type: (MultiEncoder) -> MultiEncoder
@@ -69,7 +69,7 @@ class ActionGroupInterface(object):
         # type: () -> None
         raise NotImplementedError
 
-    def disconnect(self):
+    def _disconnect(self):
         # type: () -> None
         for encoder in self._multi_encoders:
             encoder.disconnect()

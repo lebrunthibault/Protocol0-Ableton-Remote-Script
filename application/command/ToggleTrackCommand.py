@@ -4,4 +4,5 @@ from protocol0.application.command.SerializableCommand import SerializableComman
 class ToggleTrackCommand(SerializableCommand):
     def __init__(self, track_name):
         # type: (str) -> None
+        super(ToggleTrackCommand, self).__init__()
         self.track_name = track_name

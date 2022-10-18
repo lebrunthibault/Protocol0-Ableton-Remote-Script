@@ -7,24 +7,37 @@ import protocol0.application.command as command_package
 import protocol0.application.command_handler as command_handler_package
 from protocol0.application.CommandBusHistory import CommandBusHistory
 from protocol0.application.ContainerInterface import ContainerInterface
+from protocol0.application.command.FireSceneToPositionCommand import FireSceneToPositionCommand
+from protocol0.application.command.FireSelectedSceneCommand import FireSelectedSceneCommand
+from protocol0.application.command.PlayPauseSongCommand import PlayPauseSongCommand
 from protocol0.application.command.SerializableCommand import SerializableCommand
+from protocol0.application.command.ToggleRoomEQCommand import ToggleRoomEQCommand
 from protocol0.application.command_handler.CommandHandlerInterface import CommandHandlerInterface
-from protocol0.domain.shared.errors.error_handler import handle_error
+from protocol0.domain.shared.SetIdService import SetIdService
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
+from protocol0.domain.shared.errors.error_handler import handle_error
 from protocol0.domain.shared.utils.utils import import_package
 from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 CommandMapping = Dict[Type[SerializableCommand], Type[CommandHandlerInterface]]
 
+broadcast_commands = [
+    FireSceneToPositionCommand,
+    FireSelectedSceneCommand,
+    PlayPauseSongCommand,
+    ToggleRoomEQCommand,
+]
+
 
 class CommandBus(object):
     _DEBUG = False
     _INSTANCE = None  # type: Optional[CommandBus]
 
-    def __init__(self, container):
-        # type: (ContainerInterface) -> None
+    def __init__(self, container, set_id_service):
+        # type: (ContainerInterface, SetIdService) -> None
         self._container = container
+        self._set_id_service = set_id_service
         self._command_mapping = self._create_command_mapping()
 
         self._history = CommandBusHistory()
@@ -66,6 +79,17 @@ class CommandBus(object):
     def _dispatch_command(self, command):
         # type: (SerializableCommand) -> Optional[Sequence]
         start_at = time.time()
+
+        if (
+            type(command) not in broadcast_commands
+            and command.set_id is not None
+            and command.set_id != self._set_id_service.get_id()
+        ):
+            Logger.info("Set is not focused, discarding command")
+            Logger.info(
+                "command id: '%s', set id: '%s'" % (command.set_id, self._set_id_service.get_id())
+            )
+            return None
 
         self._history.push(command)
 

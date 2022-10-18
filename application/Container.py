@@ -47,11 +47,13 @@ from protocol0.domain.lom.track.TrackMapperService import TrackMapperService
 from protocol0.domain.lom.track.TrackPlayerService import TrackPlayerService
 from protocol0.domain.lom.track.TrackRepository import TrackRepository
 from protocol0.domain.lom.track.TrackService import TrackService
-from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackClipSynchronizerService import \
-    ExternalSynthTrackClipSynchronizerService
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackClipSynchronizerService import (
+    ExternalSynthTrackClipSynchronizerService,
+)
 from protocol0.domain.lom.validation.ValidatorFactory import ValidatorFactory
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.domain.shared.SetIdService import SetIdService
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
@@ -80,7 +82,7 @@ class Container(ContainerInterface):
         # type: (ControlSurface) -> None
         self._registry = {}  # type: Dict[Type, Any]
 
-        DomainEventBus.subscribe(ScriptDisconnectedEvent, lambda _: self.disconnect())
+        DomainEventBus.subscribe(ScriptDisconnectedEvent, lambda _: self._disconnect())
 
         live_song = control_surface.song()  # type: Live.Song.Song
 
@@ -115,7 +117,9 @@ class Container(ContainerInterface):
         )
         song_state = SongState()
 
-        CommandBus(self)
+        set_id_service = SetIdService()
+
+        CommandBus(self, set_id_service)
 
         session_service = SessionService(
             control_surface.component_guard, control_surface.set_highlighting_session_component
@@ -156,7 +160,7 @@ class Container(ContainerInterface):
             scene_component,
             tempo_component,
             track_component,
-            set_fixer_service
+            set_fixer_service,
         )
         SongFacade(
             live_song,
@@ -172,7 +176,7 @@ class Container(ContainerInterface):
             scene_service,
             track_mapper_service,
             track_recorder_service,
-            session_to_arrangement_service
+            session_to_arrangement_service,
         )
         ExternalSynthTrackClipSynchronizerService()
 
@@ -196,7 +200,6 @@ class Container(ContainerInterface):
         set_profiling_service = SetProfilingService()
         song_stats_service = SongStatsService()
 
-        # registering managers in container
         self._register(midi_service)
         self._register(browser_service)
 
@@ -242,6 +245,8 @@ class Container(ContainerInterface):
 
         self._register(session_to_arrangement_service)
 
+        self._register(set_id_service)
+
         ActionGroupFactory.create_action_groups(self, control_surface.component_guard)
 
     def _register(self, service):
@@ -264,7 +269,7 @@ class Container(ContainerInterface):
 
         return self._registry[cls]
 
-    def disconnect(self):
+    def _disconnect(self):
         # type: () -> None
         Scheduler.reset()
         self.get(SceneService).disconnect()
