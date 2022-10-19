@@ -115,9 +115,10 @@ class Container(ContainerInterface):
             live_song.duplicate_track,
             live_song.delete_track,
         )
-        song_state = SongState()
 
         set_id_service = SetIdService()
+
+        song_state = SongState(set_id_service.get_id())
 
         CommandBus(self, set_id_service)
 

@@ -20,7 +20,6 @@ from protocol0.shared.sequence.ParallelSequence import ParallelSequence
 from protocol0.shared.sequence.SequenceState import SequenceState
 from protocol0.shared.sequence.SequenceStep import SequenceStep
 from protocol0.shared.sequence.SequenceTransition import SequenceStateEnum
-from protocol0.shared.types import Func
 
 
 class Sequence(Observable):
@@ -250,29 +249,29 @@ class Sequence(Observable):
             else:
                 self._cancel()
 
-        self._execute_backend_step(
+        self.add(
             partial(
                 Backend.client().select,
                 question,
                 options,
                 vertical=vertical,
                 color=color.value,
-            ),
-            on_response,
-        )
+            ))
+        self.wait_for_backend_response(on_response)
 
     def select(self, question, options, vertical=True, color=NotificationColorEnum.INFO):
         # type: (str, List, bool, NotificationColorEnum) -> None
         """helper method for selects"""
-        self._execute_backend_step(
+        self.add(
             partial(
                 Backend.client().select, question, options, vertical=vertical, color=color.value
             )
         )
+        self.wait_for_backend_response()
 
-    def _execute_backend_step(self, func, on_response=None):
-        # type: (Func, Optional[Func]) -> None
-        self.add(func, notify_terminated=False)
+    def wait_for_backend_response(self, on_response=None):
+        # type: (Optional[Callable]) -> None
+        self.add(nop, notify_terminated=False)
 
         def on_event(event):
             # type: (BackendResponseEvent) -> None

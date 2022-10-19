@@ -93,7 +93,12 @@ class CommandBus(object):
 
         self._history.push(command)
 
-        handler = self._command_mapping[command.__class__](self._container)
+        try:
+            handler = self._command_mapping[command.__class__](self._container)
+        except KeyError:
+            Logger.error("Cannot find command %s in command mapping" % command.__class__)
+            return None
+
         seq = Sequence()
         seq.add(partial(handler.handle, command))
 

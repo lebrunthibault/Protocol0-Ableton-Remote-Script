@@ -47,6 +47,6 @@ class SerializableCommand(object):
 
         # noinspection PyCallingNonCallable
         command = sub_class(**args)  # type: ignore[operator]
-        command.set_id = set_id
+        command.id = set_id
 
         return command

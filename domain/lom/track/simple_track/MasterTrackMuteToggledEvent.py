@@ -1,0 +1,2 @@
+class MasterTrackMuteToggledEvent(object):
+    pass

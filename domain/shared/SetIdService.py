@@ -10,8 +10,6 @@ class SetIdService(object):
         # type: () -> None
         self._id = str(uuid4())
 
-        Backend.client().register_set(self._id)
-
         DomainEventBus.subscribe(ScriptDisconnectedEvent, lambda _: self._disconnect())
 
     def get_id(self):
@@ -20,4 +18,4 @@ class SetIdService(object):
 
     def _disconnect(self):
         # type: () -> None
-        Backend.client().remove_set(self._id)
+        Backend.client().close_set(self._id)

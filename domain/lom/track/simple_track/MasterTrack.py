@@ -7,6 +7,8 @@ from protocol0.application.command.LoadDeviceCommand import LoadDeviceCommand
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
+from protocol0.domain.lom.track.simple_track.MasterTrackMuteToggledEvent import \
+    MasterTrackMuteToggledEvent
 from protocol0.domain.lom.track.simple_track.MasterTrackRoomEqToggledEvent import (
     MasterTrackRoomEqToggledEvent,
 )
@@ -53,6 +55,20 @@ class MasterTrack(SimpleAudioTrack):
             Scheduler.wait_ms(self._ROOM_EQ_WARNING_DELAY * 1000, self._warn_room_eq_enabled)
 
         return None
+
+    @property
+    def muted(self):
+        # type: () -> bool
+        return self.volume != 0
+
+    def toggle_mute(self):
+        # type: () -> None
+        if self.muted:
+            self.volume = 0
+        else:
+            self.volume = volume_to_db(0)
+
+        Scheduler.defer(partial(DomainEventBus.emit, MasterTrackMuteToggledEvent()))
 
     def _warn_room_eq_enabled(self):
         # type: () ->  Optional
