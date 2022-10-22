@@ -2,10 +2,8 @@ from functools import partial
 
 from typing import Dict, Any, Optional
 
-from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.DrumRackLoadedEvent import DrumRackLoadedEvent
 from protocol0.domain.lom.instrument.instrument.InstrumentDrumRack import InstrumentDrumRack
-from protocol0.domain.lom.sample.SampleCategoryEnum import SampleCategoryEnum
 from protocol0.domain.lom.track.SelectedTrackChangedEvent import SelectedTrackChangedEvent
 from protocol0.domain.lom.track.TracksMappedEvent import TracksMappedEvent
 from protocol0.domain.lom.track.abstract_track.AbstractTrackNameUpdatedEvent import (
@@ -59,15 +57,6 @@ class SongState(object):
             "id": self._id,
             "title": self._title,
             "muted": muted,
-            "sample_categories": {
-                category.name.lower(): category.subcategories for category in SampleCategoryEnum
-            },
-            "favorite_device_names": [
-                [device.name for device in row] for row in DeviceEnum.favorites()
-            ],
-            "insert_favorite_device_names": [
-                device.name for device in DeviceEnum.insert_favorites()
-            ],
             "drum_rack_visible": isinstance(
                 SongFacade.selected_track().instrument, InstrumentDrumRack
             ),

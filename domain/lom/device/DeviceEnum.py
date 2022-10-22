@@ -28,6 +28,7 @@ class DeviceEnum(AbstractEnum):
     FREE_CLIP = "FREE_CLIP"
     GATE = "GATE"
     GLUE_COMPRESSOR = "GLUE_COMPRESSOR"
+    KONTAKT = "KONTAKT"
     INSERT_DELAY = "INSERT_DELAY"
     INSERT_REVERB = "INSERT_REVERB"
     INSTRUMENT_RACK = "INSTRUMENT_RACK"
@@ -63,6 +64,7 @@ class DeviceEnum(AbstractEnum):
                     DeviceEnum.EXTERNAL_AUDIO_EFFECT: "Ext. Audio Effect",
                     DeviceEnum.EXTERNAL_INSTRUMENT: "Ext. Instrument",
                     DeviceEnum.FREE_CLIP: "FreeClip",
+                    DeviceEnum.KONTAKT: "Kontakt 7",
                     DeviceEnum.LFO_TOOL: "LFOTool_x64",
                     DeviceEnum.PRO_Q_3: "Pro-Q 3",
                     DeviceEnum.REV2_EDITOR: "REV2Editor",
@@ -215,7 +217,10 @@ class DeviceEnum(AbstractEnum):
                 cls.LFO_TOOL,
                 cls.AUTO_PAN,
             ],
-            [cls.REV2_EDITOR],
+            [
+                cls.REV2_EDITOR,
+                cls.KONTAKT
+            ],
         ]
 
     @classmethod

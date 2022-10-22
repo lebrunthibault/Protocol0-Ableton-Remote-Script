@@ -1,11 +1,14 @@
-from typing import List
+from typing import List, Optional
 
 from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPreset
 from protocol0.domain.lom.instrument.preset.preset_importer.DirectoryPresetImporter import (
     DirectoryPresetImporter,
 )
 from protocol0.domain.lom.sample.SampleCategoryEnum import SampleCategoryEnum
+from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
+from protocol0.domain.lom.track.group_track.VocalsTrack import VocalsTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.SongFacade import SongFacade
 
 
@@ -54,8 +57,8 @@ class SampleCategory(object):
     @property
     def create_track_index(self):
         # type: () -> int
-        assert self._category.parent_track is not None, "Sample group track doesn't exist"
-        sample_tracks = self._category.parent_track.get_all_simple_sub_tracks()
+        assert self._parent_track is not None, "Sample group track doesn't exist"
+        sample_tracks = self._parent_track.get_all_simple_sub_tracks()
 
         def index_from_track(matched_track):
             # type: (SimpleTrack) -> int
@@ -68,7 +71,21 @@ class SampleCategory(object):
                 return matched_track.index + 1
 
         # we clicked on a track means : we add to the right
-        if self._category.parent_track in SongFacade.selected_track().group_tracks:
+        if self._parent_track in SongFacade.selected_track().group_tracks:
             return index_from_track(SongFacade.selected_track())
         else:
             return index_from_track(SongFacade.drums_track().sub_tracks[0].base_track)
+
+    @property
+    def _parent_track(self):
+        # type: () -> Optional[AbstractGroupTrack]
+        if self._category == SampleCategoryEnum.VOCALS and SongFacade.vocals_track() is None:
+            Backend.client().show_warning(
+                "Couldn't find %s track. Using drums track instead" % VocalsTrack.TRACK_NAME
+            )
+            return SongFacade.drums_track()
+
+        return {
+                SampleCategoryEnum.DRUMS: SongFacade.drums_track(),
+                SampleCategoryEnum.VOCALS: SongFacade.vocals_track(),
+            }[self._category]

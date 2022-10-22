@@ -1,6 +1,7 @@
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
-from protocol0.domain.lom.device.Device import Device
+if TYPE_CHECKING:  # for python 3 import
+    from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.shared.utils.utils import compare_values
 

@@ -70,3 +70,5 @@ _._is_stopping  # unused attribute (domain\lom\track\group_track\external_synth_
 _.reference_track  # unused method (shared\SongFacade.py:228)
 _.play_pause  # unused method (domain\lom\song\components\PlaybackComponent.py:104)
 _.toggle_mute  # unused method (domain\lom\track\simple_track\MasterTrack.py:62)
+_.favorites  # unused method (domain\lom\device\DeviceEnum.py:197)
+_.insert_favorites  # unused method (domain\lom\device\DeviceEnum.py:226)

@@ -1,8 +1,13 @@
+import sys
+
 from typing import Any
 
 
 def smart_string(s):
     # type: (Any) -> str
+    if sys.version_info[0] == 3:
+        return s
+
     if not isinstance(s, basestring):
         s = str(s)
     try:
