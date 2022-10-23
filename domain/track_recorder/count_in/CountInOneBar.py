@@ -22,6 +22,7 @@ class CountInOneBar(CountInInterface):
     def _schedule_stop_count_in(self, track_solo):
         # type: (bool) -> None
         seq = Sequence()
+        seq.defer()
         seq.wait_for_event(LastBeatPassedEvent, continue_on_song_stop=True)
         seq.add(partial(setattr, self._track, "solo", track_solo))
         seq.add(self._stop_count_in)
