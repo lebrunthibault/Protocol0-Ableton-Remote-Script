@@ -40,13 +40,12 @@ class DeviceService(object):
         track.device_insert_mode = Live.Track.DeviceInsertMode.selected_right
 
         seq = Sequence()
+        seq.add(track.select)
         if device_enum.is_instrument and not isinstance(track, SimpleMidiTrack):
             seq.add(self._track_crud_component.create_midi_track)  # type: ignore[unreachable]
-        else:
-            seq.add(track.select)
-
-            if device_enum.is_instrument and track.instrument:
-                seq.add(partial(track.devices.delete, track.instrument.device))
+            seq.add(lambda: setattr(SongFacade.selected_track(), "name", device_enum.device_name))
+        if device_enum.is_instrument and track.instrument:
+            seq.add(partial(track.devices.delete, track.instrument.device))
 
         seq.add(partial(self._browser_service.load_device_from_enum, device_enum))
 
