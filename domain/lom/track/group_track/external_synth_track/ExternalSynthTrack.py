@@ -4,7 +4,7 @@ from functools import partial
 import Live
 from _Framework.CompoundElement import subject_slot_group
 from _Framework.SubjectSlot import subject_slot
-from typing import Optional, cast, List, Dict
+from typing import Optional, cast, List, Dict, Tuple
 
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
@@ -154,7 +154,11 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
         midi_clip = find_if(lambda cs: cs.is_playing, self.midi_track.clip_slots).clip
 
-        scene_should_loop = SongFacade.playing_scene().should_loop and not SongFacade.is_bouncing()
+        scene_should_loop = (
+            SongFacade.playing_scene() is not None
+            and SongFacade.playing_scene().should_loop
+            and not SongFacade.is_bouncing()
+        )
         # assert we're not in the last bar of a non looping scene
         if SongFacade.playing_scene() is None or (
             SongFacade.playing_scene().playing_state.in_last_bar and not scene_should_loop
@@ -320,8 +324,10 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
         # On long tails both clips are playing. We take the most recently launched one
         if self.audio_track.is_playing and self.audio_tail_track.is_playing:
+            tracks = cast(Tuple[SimpleAudioTrack], (self.audio_track, self.audio_tail_track))
+
             return min(
-                (self.audio_track, self.audio_tail_track),
+                tracks,
                 key=lambda track: track.playing_clip.playing_position.position,
             )
         else:

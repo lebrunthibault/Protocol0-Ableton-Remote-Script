@@ -26,10 +26,9 @@ class SceneClip(object):
             track, (SimpleAudioExtTrack, SimpleAudioTailTrack, SimpleDummyTrack)
         )
 
-    @property
-    def is_scene_track(self):
-        # type: () -> bool
-        return not self.clip.muted and not isinstance(self.track, SimpleDummyTrack)
+    def __repr__(self):
+        # type: () -> str
+        return "SceneClips(%s, %s)" % (self.track, self.clip)
 
 
 class SceneClips(Observable):
@@ -39,7 +38,6 @@ class SceneClips(Observable):
         self.index = index
         self._clip_tracks = []  # type: List[SceneClip]
         self._clips = []  # type: List[Clip]
-        self.all = []  # type: List[Clip]
 
         self.build()
 
@@ -52,14 +50,19 @@ class SceneClips(Observable):
         return iter(self._clips)
 
     @property
-    def audio_tail_clips(self):
+    def all(self):
         # type: () -> List[Clip]
+        return [scene_clip.clip for scene_clip in self._clip_tracks]
+
+    @property
+    def audio_tail_clips(self):
+        # type: () -> List[AudioTailClip]
         return cast(List[AudioTailClip], [c for c in self.all if isinstance(c, AudioTailClip)])
 
     @property
     def tracks(self):
         # type: () -> List[SimpleTrack]
-        return [scene_clip.track for scene_clip in self._clip_tracks if scene_clip.is_scene_track]
+        return [scene_clip.track for scene_clip in self._clip_tracks]
 
     @debounce(duration=50)
     def update(self, observable):
@@ -83,7 +86,6 @@ class SceneClips(Observable):
             ):
                 self._clip_tracks.append(SceneClip(track, clip))
 
-        self.all = [scene_clip.clip for scene_clip in self._clip_tracks]
         self._clips = [
             scene_clip.clip for scene_clip in self._clip_tracks if scene_clip.is_main_clip
         ]

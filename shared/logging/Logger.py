@@ -15,7 +15,7 @@ class Logger(object):
         self._logger = logger_service
 
     @classmethod
-    def dev(cls, message, debug=True):
+    def dev(cls, message="", debug=True):
         # type: (Any, bool) -> None
         cls._log(message, LogLevelEnum.DEV, debug=debug)
 
@@ -53,6 +53,9 @@ class Logger(object):
     @classmethod
     def _log(cls, message="", level=LogLevelEnum.INFO, debug=False):
         # type: (Any, LogLevelEnum, bool) -> None
+        if not message:
+            debug = False
+
         cls._INSTANCE._logger.log(
             message=message,
             debug=message is not None and debug,
