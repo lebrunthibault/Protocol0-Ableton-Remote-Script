@@ -21,7 +21,7 @@ class TrackCrudComponent(object):
         # type: (SimpleTrackDeletedEvent) -> None
         self.delete_track(event.track.index)
 
-    def create_midi_track(self, index):
+    def create_midi_track(self, index=None):
         # type: (int) -> Sequence
         seq = Sequence()
         self._create_midi_track(Index=index)

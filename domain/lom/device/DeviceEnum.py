@@ -251,6 +251,7 @@ class DeviceEnum(AbstractEnum):
                 DeviceEnum.EXTERNAL_AUDIO_EFFECT: 5,
                 DeviceEnum.EXTERNAL_INSTRUMENT: 20,
                 DeviceEnum.FREE_CLIP: 40,
+                DeviceEnum.KONTAKT: 1000,
                 DeviceEnum.GATE: 7,
                 DeviceEnum.GLUE_COMPRESSOR: 6,
                 DeviceEnum.INSTRUMENT_RACK: 10,
@@ -273,6 +274,14 @@ class DeviceEnum(AbstractEnum):
                 DeviceEnum.VALHALLA_VINTAGE_VERB: 71,
             }
         )
+
+    @property
+    def is_instrument(self):
+        # type: () -> bool
+        return self in [
+            DeviceEnum.REV2_EDITOR,
+            DeviceEnum.KONTAKT
+        ]
 
     @classmethod
     def missing_plugin_names(cls):
