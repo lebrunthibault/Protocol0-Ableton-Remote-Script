@@ -1,5 +1,6 @@
 from typing import Optional, Any, cast, Type
 
+from protocol0.domain.lom.track.simple_track.ResamplingTrack import ResamplingTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.track_recorder.AbstractTrackRecorder import AbstractTrackRecorder
@@ -41,5 +42,7 @@ class TrackRecorderSimpleFactory(AbstractTrackRecorderFactory):
             return 0
         elif record_type == RecordTypeEnum.NORMAL:
             return self._recording_bar_length
+        elif record_type == RecordTypeEnum.AUDIO_ONLY and isinstance(SongFacade.selected_track(), ResamplingTrack):
+            return SongFacade.selected_scene().bar_length
         else:
             raise Protocol0Warning("Unhandled record type %s" % record_type)
