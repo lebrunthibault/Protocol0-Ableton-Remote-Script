@@ -14,7 +14,7 @@ class SceneCropScroller(ValueScroller):
         # type: () -> List
         bar_lengths = []
         power = 0
-        while pow(2, power) <= self._scene_length.bar_length / 2:
+        while pow(2, power) < self._scene_length.bar_length:
             bar_lengths += [-pow(2, power), pow(2, power)]
             power += 1
         bar_lengths = list(dict.fromkeys(bar_lengths))

@@ -119,12 +119,3 @@ class ActionGroupMain(ActionGroupInterface):
                 SongFacade.current_track(),
             ),
         )
-
-        # SCENe encoder (not shown)
-        # self.add_encoder(
-        #     identifier=16,
-        #     name="scene",
-        #     on_press=lambda: SongFacade.selected_scene().fire,
-        #     on_long_press=self._container.get(SceneComponent).looping_scene_toggler.toggle,
-        #     on_scroll=self._container.get(SceneComponent).scroll_scenes,
-        # )
