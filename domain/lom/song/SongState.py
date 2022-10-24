@@ -22,16 +22,17 @@ from protocol0.domain.lom.track.simple_track.SimpleTrackLastClipDeletedEvent imp
 )
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.script.ScriptStateService import ScriptStateService
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
 
 class SongState(object):
-    def __init__(self, set_id):
-        # type: (str) -> None
+    def __init__(self, script_state_service):
+        # type: (ScriptStateService) -> None
         self._cache = {}  # type: Dict[str, Any]
 
-        self._id = set_id
+        self._script_state_service = script_state_service
         self._title = None  # type: Optional[str]
 
         listened_events = [
@@ -54,7 +55,8 @@ class SongState(object):
         muted = SongFacade.master_track() is not None and SongFacade.master_track().muted
 
         return {
-            "id": self._id,
+            "id": self._script_state_service.get_id(),
+            "enabled": self._script_state_service.enabled,
             "title": self._title,
             "muted": muted,
             "drum_rack_visible": isinstance(

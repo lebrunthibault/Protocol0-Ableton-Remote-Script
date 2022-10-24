@@ -10,14 +10,16 @@ from protocol0.application.control_surface.EncoderAction import EncoderAction, E
 from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.script.ScriptStateChangedEvent import ScriptStateChangedEvent
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 
 
 class MultiEncoder(SlotManager):
     LONG_PRESS_THRESHOLD = 0.25  # maximum time in seconds we consider a simple press
 
-    def __init__(self, channel, identifier, name, active, filter_active_tracks, component_guard):
-        # type: (int, int, str, bool, bool, Callable) -> None
+    def __init__(self, channel, identifier, name, filter_active_tracks, component_guard):
+        # type: (int, int, str, bool, Callable) -> None
         """
         Actions are triggered at the end of the press not the start. Allows press vs long_press (Note) vs scroll (CC)
         NB : for press actions the action is triggered on button release (allowing long_press)
@@ -26,14 +28,21 @@ class MultiEncoder(SlotManager):
         self._actions = []  # type: List[EncoderAction]
         self.identifier = identifier
         self.name = name.title()
-        self._active = active
+        self._active = True
         self._channel = channel
         self._filter_active_tracks = filter_active_tracks
+
         with component_guard():
             self._press_listener.subject = ButtonElement(True, MIDI_NOTE_TYPE, channel, identifier)
             self._scroll_listener.subject = ButtonElement(True, MIDI_CC_TYPE, channel, identifier)
         self._pressed_at = None  # type: Optional[float]
         self._has_long_press = False
+
+        DomainEventBus.subscribe(ScriptStateChangedEvent, self._on_script_state_changed_event)
+
+    def _on_script_state_changed_event(self, event):
+        # type: (ScriptStateChangedEvent) -> None
+        self._active = event.enabled
 
     def __repr__(self):
         # type: () -> str
@@ -81,7 +90,8 @@ class MultiEncoder(SlotManager):
         # noinspection PyBroadException
         try:
             if not self._active:
-                raise Protocol0Warning("The encoder '%s' is not activated" % self.name)
+                Logger.warning("The encoder '%s' is not activated" % self.name)
+                return None
 
             action = self._find_matching_action(move_type=move_type)
             # special case : fallback long_press to press

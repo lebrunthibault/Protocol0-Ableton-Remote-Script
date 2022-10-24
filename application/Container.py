@@ -22,7 +22,6 @@ from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService impo
     InstrumentPresetScrollerService,
 )
 from protocol0.domain.lom.instrument.preset.PresetService import PresetService
-from protocol0.domain.lom.sample.SampleService import SampleService
 from protocol0.domain.lom.scene.PlayingSceneFacade import PlayingSceneFacade
 from protocol0.domain.lom.scene.ScenePlaybackService import ScenePlaybackService
 from protocol0.domain.lom.scene.SceneService import SceneService
@@ -53,7 +52,7 @@ from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTr
 from protocol0.domain.lom.validation.ValidatorFactory import ValidatorFactory
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
-from protocol0.domain.shared.SetIdService import SetIdService
+from protocol0.domain.shared.script.ScriptStateService import ScriptStateService
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
@@ -116,11 +115,11 @@ class Container(ContainerInterface):
             live_song.delete_track,
         )
 
-        set_id_service = SetIdService()
+        script_state_service = ScriptStateService()
 
-        song_state = SongState(set_id_service.get_id())
+        song_state = SongState(script_state_service)
 
-        CommandBus(self, set_id_service)
+        CommandBus(self, script_state_service)
 
         session_service = SessionService(
             control_surface.component_guard, control_surface.set_highlighting_session_component
@@ -188,7 +187,6 @@ class Container(ContainerInterface):
 
         # presets
         preset_service = PresetService()
-        sample_service = SampleService(browser_service, device_component)
 
         song_data_service = SongDataService(live_song.get_data, live_song.set_data, scene_component)
 
@@ -234,7 +232,6 @@ class Container(ContainerInterface):
         self._register(track_recorder_service)
         self._register(validator_service)
         self._register(preset_service)
-        self._register(sample_service)
 
         # audit
         self._register(audio_latency_service)
@@ -246,7 +243,7 @@ class Container(ContainerInterface):
 
         self._register(session_to_arrangement_service)
 
-        self._register(set_id_service)
+        self._register(script_state_service)
 
         ActionGroupFactory.create_action_groups(self, control_surface.component_guard)
 

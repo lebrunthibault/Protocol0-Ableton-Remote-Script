@@ -22,6 +22,7 @@ class ActionGroupInterface(object):
         self._container = container
         self._component_guard = component_guard
         self._multi_encoders = []  # type: List[MultiEncoder]
+
         DomainEventBus.subscribe(ScriptDisconnectedEvent, lambda _: self._disconnect())
 
     def _add_multi_encoder(self, multi_encoder):
@@ -43,19 +44,17 @@ class ActionGroupInterface(object):
         self,
         identifier,
         name,
-        active=True,
         filter_active_tracks=False,
         on_press=None,
         on_long_press=None,
         on_scroll=None,
     ):
-        # type: (int, str, bool, bool, Optional[Callable], Optional[Callable], Optional[Callable]) -> MultiEncoder
+        # type: (int, str, bool, Optional[Callable], Optional[Callable], Optional[Callable]) -> MultiEncoder
         assert self.CHANNEL, "channel not configured for %s" % self
         encoder = MultiEncoder(
             channel=self.CHANNEL - 1,
             identifier=identifier,
             name=name,
-            active=active,
             filter_active_tracks=filter_active_tracks,
             component_guard=self._component_guard,
         )

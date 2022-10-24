@@ -13,7 +13,7 @@ from protocol0.application.command.PlayPauseSongCommand import PlayPauseSongComm
 from protocol0.application.command.SerializableCommand import SerializableCommand
 from protocol0.application.command.ToggleRoomEQCommand import ToggleRoomEQCommand
 from protocol0.application.command_handler.CommandHandlerInterface import CommandHandlerInterface
-from protocol0.domain.shared.SetIdService import SetIdService
+from protocol0.domain.shared.script.ScriptStateService import ScriptStateService
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.error_handler import handle_error
 from protocol0.domain.shared.utils.utils import import_package
@@ -34,10 +34,10 @@ class CommandBus(object):
     _DEBUG = False
     _INSTANCE = None  # type: Optional[CommandBus]
 
-    def __init__(self, container, set_id_service):
-        # type: (ContainerInterface, SetIdService) -> None
+    def __init__(self, container, script_state_service):
+        # type: (ContainerInterface, ScriptStateService) -> None
         self._container = container
-        self._set_id_service = set_id_service
+        self._script_state_service = script_state_service
         self._command_mapping = self._create_command_mapping()
 
         self._history = CommandBusHistory()
@@ -83,11 +83,11 @@ class CommandBus(object):
         if (
             type(command) not in broadcast_commands
             and command.set_id is not None
-            and command.set_id != self._set_id_service.get_id()
+            and command.set_id != self._script_state_service.get_id()
         ):
             Logger.info("Set is not focused, discarding command")
             Logger.info(
-                "command id: '%s', set id: '%s'" % (command.set_id, self._set_id_service.get_id())
+                "command id: '%s', set id: '%s'" % (command.set_id, self._script_state_service.get_id())
             )
             return None
 

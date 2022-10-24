@@ -5,10 +5,11 @@ from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 
 
-class SetIdService(object):
+class ScriptStateService(object):
     def __init__(self):
         # type: () -> None
         self._id = str(uuid4())
+        self.enabled = True
 
         DomainEventBus.subscribe(ScriptDisconnectedEvent, lambda _: self._disconnect())
 

@@ -6,7 +6,6 @@ from protocol0.domain.lom.instrument.preset.InstrumentPresetScrollerService impo
     InstrumentPresetScrollerService,
 )
 from protocol0.domain.lom.instrument.preset.PresetService import PresetService
-from protocol0.domain.lom.sample.SampleService import SampleService
 from protocol0.shared.SongFacade import SongFacade
 
 
@@ -41,14 +40,6 @@ class ActionGroupPreset(ActionGroupInterface):
             identifier=13,
             name="Clean drum rack",
             on_press=self._container.get(DrumRackService).clean_racks,
-        )
-
-        # SCAN encoder
-        self.add_encoder(
-            identifier=15,
-            active=False,
-            name="Find the pitch of a drum sample",
-            on_press=self._container.get(SampleService).find_out_sample_pitch,
         )
 
         # SCAN encoder
