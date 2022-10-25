@@ -10,7 +10,7 @@ from protocol0.application.control_surface.EncoderAction import EncoderAction, E
 from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.script.ScriptStateChangedEvent import ScriptStateChangedEvent
+from protocol0.domain.lom.set.AbletonSetChangedEvent import AbletonSetChangedEvent
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 
@@ -38,11 +38,11 @@ class MultiEncoder(SlotManager):
         self._pressed_at = None  # type: Optional[float]
         self._has_long_press = False
 
-        DomainEventBus.subscribe(ScriptStateChangedEvent, self._on_script_state_changed_event)
+        DomainEventBus.subscribe(AbletonSetChangedEvent, self._on_script_state_changed_event)
 
     def _on_script_state_changed_event(self, event):
-        # type: (ScriptStateChangedEvent) -> None
-        self._active = event.enabled
+        # type: (AbletonSetChangedEvent) -> None
+        self._active = event.set.active
 
     def __repr__(self):
         # type: () -> str

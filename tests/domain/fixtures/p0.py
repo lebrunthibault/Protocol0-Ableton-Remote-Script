@@ -6,7 +6,7 @@ from protocol0.application.Protocol0 import Protocol0
 from protocol0.application.command.ReloadScriptCommand import ReloadScriptCommand
 from protocol0.application.control_surface.ActionGroupFactory import ActionGroupFactory
 from protocol0.domain.lom.song.SongInitService import SongInitService
-from protocol0.domain.lom.song.AbletonSet import AbletonSet
+from protocol0.domain.lom.set.AbletonSet import AbletonSet
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.lom.track.routing.RoutingTrackDescriptor import RoutingTrackDescriptor
 from protocol0.domain.shared.backend.Backend import Backend

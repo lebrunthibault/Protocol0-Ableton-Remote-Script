@@ -10,7 +10,6 @@ from typing import Optional, List, Type
 from protocol0.application.CommandBus import CommandBus
 from protocol0.application.command.ReloadScriptCommand import ReloadScriptCommand
 from protocol0.application.error.SentryService import SentryService
-from protocol0.domain.lom.song.RealSetLoadedEvent import RealSetLoadedEvent
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.backend.NotificationColorEnum import NotificationColorEnum
 from protocol0.domain.shared.errors.ErrorRaisedEvent import ErrorRaisedEvent
@@ -40,15 +39,7 @@ class ErrorService(object):
 
         if self._SET_EXCEPTHOOK:
             sys.excepthook = self._handle_uncaught_exception
-        DomainEventBus.subscribe(RealSetLoadedEvent, self._on_real_set_loaded_event)
         DomainEventBus.subscribe(ErrorRaisedEvent, self._on_error_raised_event)
-
-    def _on_real_set_loaded_event(self, _):
-        # type: (RealSetLoadedEvent) -> None
-        """Activate sentry only on real sets to prevent pollution"""
-        # Sentry
-        if Config.SENTRY_DSN:
-            self._sentry_service.activate()
 
     def _on_error_raised_event(self, event):
         # type: (ErrorRaisedEvent) -> None

@@ -1,6 +1,6 @@
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.PluginDevice import PluginDevice
-from protocol0.domain.lom.song.AbletonSet import AbletonSet
+from protocol0.domain.lom.set.AbletonSet import AbletonSet
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.SongFacade import SongFacade

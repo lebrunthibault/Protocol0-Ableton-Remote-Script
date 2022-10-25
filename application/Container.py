@@ -27,8 +27,8 @@ from protocol0.domain.lom.scene.ScenePlaybackService import ScenePlaybackService
 from protocol0.domain.lom.scene.SceneService import SceneService
 from protocol0.domain.lom.set.MixingService import MixingService
 from protocol0.domain.lom.set.SessionToArrangementService import SessionToArrangementService
+from protocol0.domain.lom.set.AbletonSet import AbletonSet
 from protocol0.domain.lom.song.SongInitService import SongInitService
-from protocol0.domain.lom.song.AbletonSet import AbletonSet
 from protocol0.domain.lom.song.components.ClipComponent import ClipComponent
 from protocol0.domain.lom.song.components.DeviceComponent import DeviceComponent
 from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackComponent
@@ -52,7 +52,6 @@ from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTr
 from protocol0.domain.lom.validation.ValidatorFactory import ValidatorFactory
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
-from protocol0.domain.shared.script.ScriptStateService import ScriptStateService
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
@@ -115,11 +114,9 @@ class Container(ContainerInterface):
             live_song.delete_track,
         )
 
-        script_state_service = ScriptStateService()
+        ableton_set = AbletonSet()
 
-        ableton_set = AbletonSet(script_state_service)
-
-        CommandBus(self, script_state_service)
+        CommandBus(self, ableton_set)
 
         session_service = SessionService(
             control_surface.component_guard, control_surface.set_highlighting_session_component
@@ -242,8 +239,6 @@ class Container(ContainerInterface):
         self._register(song_stats_service)
 
         self._register(session_to_arrangement_service)
-
-        self._register(script_state_service)
 
         ActionGroupFactory.create_action_groups(self, control_surface.component_guard)
 

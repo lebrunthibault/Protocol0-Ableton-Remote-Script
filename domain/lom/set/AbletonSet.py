@@ -1,7 +1,9 @@
 from functools import partial
+from uuid import uuid4
 
 from typing import Dict, Any, Optional
 
+from protocol0.application.ScriptDisconnectedEvent import ScriptDisconnectedEvent
 from protocol0.domain.lom.device.DrumRackLoadedEvent import DrumRackLoadedEvent
 from protocol0.domain.lom.instrument.instrument.InstrumentDrumRack import InstrumentDrumRack
 from protocol0.domain.lom.track.SelectedTrackChangedEvent import SelectedTrackChangedEvent
@@ -22,18 +24,20 @@ from protocol0.domain.lom.track.simple_track.SimpleTrackLastClipDeletedEvent imp
 )
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.script.ScriptStateService import ScriptStateService
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
 
 class AbletonSet(object):
-    def __init__(self, script_state_service):
-        # type: (ScriptStateService) -> None
+    def __init__(self):
+        # type: () -> None
         self._cache = {}  # type: Dict[str, Any]
 
-        self._script_state_service = script_state_service
         self._title = None  # type: Optional[str]
+        self._id = str(uuid4())
+        self.active = True
+
+        DomainEventBus.subscribe(ScriptDisconnectedEvent, lambda _: self._disconnect())
 
         listened_events = [
             TracksMappedEvent,
@@ -49,14 +53,18 @@ class AbletonSet(object):
         for event in listened_events:
             DomainEventBus.subscribe(event, lambda _: self.notify())
 
+    def get_id(self):
+        # type: () -> str
+        return self._id
+
     def to_dict(self):
         # type: () -> Dict
         room_eq = SongFacade.master_track() and SongFacade.master_track().room_eq
         muted = SongFacade.master_track() is not None and SongFacade.master_track().muted
 
         return {
-            "id": self._script_state_service.get_id(),
-            "enabled": self._script_state_service.enabled,
+            "id": self._id,
+            "active": self.active,
             "title": self._title,
             "muted": muted,
             "drum_rack_visible": isinstance(
@@ -79,3 +87,7 @@ class AbletonSet(object):
             seq.done()
 
         self._cache = data
+
+    def _disconnect(self):
+        # type: () -> None
+        Backend.client().close_set(self._id)
