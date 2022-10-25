@@ -28,7 +28,7 @@ from protocol0.domain.lom.scene.SceneService import SceneService
 from protocol0.domain.lom.set.MixingService import MixingService
 from protocol0.domain.lom.set.SessionToArrangementService import SessionToArrangementService
 from protocol0.domain.lom.song.SongInitService import SongInitService
-from protocol0.domain.lom.song.SongState import SongState
+from protocol0.domain.lom.song.AbletonSet import AbletonSet
 from protocol0.domain.lom.song.components.ClipComponent import ClipComponent
 from protocol0.domain.lom.song.components.DeviceComponent import DeviceComponent
 from protocol0.domain.lom.song.components.PlaybackComponent import PlaybackComponent
@@ -117,7 +117,7 @@ class Container(ContainerInterface):
 
         script_state_service = ScriptStateService()
 
-        song_state = SongState(script_state_service)
+        ableton_set = AbletonSet(script_state_service)
 
         CommandBus(self, script_state_service)
 
@@ -194,7 +194,7 @@ class Container(ContainerInterface):
         audio_latency_service = AudioLatencyAnalyzerService(
             track_recorder_service, interface_clicks_service, track_crud_component, tempo_component
         )
-        log_service = LogService(song_state)
+        log_service = LogService(ableton_set)
 
         set_profiling_service = SetProfilingService()
         song_stats_service = SongStatsService()
@@ -206,7 +206,7 @@ class Container(ContainerInterface):
         self._register(playback_component)
         self._register(scene_component)
         self._register(scene_crud_component)
-        self._register(song_state)
+        self._register(ableton_set)
         self._register(track_component)
         self._register(tempo_component)
 

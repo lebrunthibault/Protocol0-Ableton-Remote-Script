@@ -9,7 +9,7 @@ from protocol0.application.CommandBusHistory import CommandBusHistory
 from protocol0.application.ContainerInterface import ContainerInterface
 from protocol0.application.command.FireSceneToPositionCommand import FireSceneToPositionCommand
 from protocol0.application.command.FireSelectedSceneCommand import FireSelectedSceneCommand
-from protocol0.application.command.GetSongStateCommand import GetSongStateCommand
+from protocol0.application.command.GetSetStateCommand import GetSetStateCommand
 from protocol0.application.command.PlayPauseSongCommand import PlayPauseSongCommand
 from protocol0.application.command.SerializableCommand import SerializableCommand
 from protocol0.application.command.ToggleRoomEQCommand import ToggleRoomEQCommand
@@ -24,7 +24,7 @@ from protocol0.shared.sequence.Sequence import Sequence
 CommandMapping = Dict[Type[SerializableCommand], Type[CommandHandlerInterface]]
 
 broadcast_commands = [
-    GetSongStateCommand,
+    GetSetStateCommand,
     FireSceneToPositionCommand,
     FireSelectedSceneCommand,
     PlayPauseSongCommand,

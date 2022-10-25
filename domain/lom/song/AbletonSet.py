@@ -27,7 +27,7 @@ from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
 
-class SongState(object):
+class AbletonSet(object):
     def __init__(self, script_state_service):
         # type: (ScriptStateService) -> None
         self._cache = {}  # type: Dict[str, Any]
@@ -70,7 +70,7 @@ class SongState(object):
         data = self.to_dict()
         if self._cache != data or force:
             seq = Sequence()
-            seq.add(partial(Backend.client().notify_song_state, data))
+            seq.add(partial(Backend.client().notify_set_state, data))
 
             if self._title is None:
                 seq.wait_for_backend_response()

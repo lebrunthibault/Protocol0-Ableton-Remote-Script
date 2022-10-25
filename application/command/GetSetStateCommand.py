@@ -1,5 +1,5 @@
 from protocol0.application.command.SerializableCommand import SerializableCommand
 
 
-class GetSongStateCommand(SerializableCommand):
+class GetSetStateCommand(SerializableCommand):
     pass
