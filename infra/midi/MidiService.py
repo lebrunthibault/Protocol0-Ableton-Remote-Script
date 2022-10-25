@@ -12,6 +12,7 @@ from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.infra.midi.MidiBytesReceivedEvent import MidiBytesReceivedEvent
+from protocol0.infra.midi.MidiBytesSentEvent import MidiBytesSentEvent
 from protocol0.shared.logging.Logger import Logger
 
 
@@ -45,7 +46,9 @@ class MidiService(object):
         if value2:
             msg.append(value2)
         Logger.info("MidiService sending : %s" % msg)
-        self._send_midi(tuple(msg))
+        midi_message = tuple(msg)
+        self._send_midi(midi_message)
+        DomainEventBus.emit(MidiBytesSentEvent(midi_message))
 
     def _on_midi_bytes_received_event(self, event):
         # type: (MidiBytesReceivedEvent) -> None

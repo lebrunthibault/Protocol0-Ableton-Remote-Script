@@ -46,6 +46,9 @@ class ExternalSynthTrackArmState(AbstractTrackArmState):
         # type: () -> None
         self.is_armed = False
         self._monitoring_state.monitor_audio()
+        if SongFacade.usamo_track():
+            SongFacade.usamo_track().input_routing.track = self._midi_track
+            SongFacade.usamo_track().inactivate()
 
     def arm_track(self):
         # type: () -> Optional[Sequence]

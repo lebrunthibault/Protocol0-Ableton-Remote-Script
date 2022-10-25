@@ -42,6 +42,13 @@ class ActionGroupPreset(ActionGroupInterface):
             on_press=self._container.get(DrumRackService).clean_racks,
         )
 
+        # INIT encoder
+        self.add_encoder(
+            identifier=14,
+            name="Init with default preset",
+            on_press=self._container.get(PresetService).set_default_preset,
+        )
+
         # SCAN encoder
         self.add_encoder(
             identifier=16,

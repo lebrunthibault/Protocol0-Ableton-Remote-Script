@@ -1,5 +1,6 @@
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.PluginDevice import PluginDevice
+from protocol0.domain.lom.song.SongState import SongState
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.SongFacade import SongFacade
@@ -7,6 +8,10 @@ from protocol0.shared.logging.Logger import Logger
 
 
 class LogService(object):
+    def __init__(self, song_state):
+        # type: (SongState) -> None
+        self._song_state = song_state
+
     def focus_window(self):
         # type: () -> None
         Backend.client().focus_window(window_name="logs terminal")
@@ -191,6 +196,12 @@ class LogService(object):
             Logger.info()
             Logger.info("song.selected_clip.loop_start: %s" % SongFacade.selected_clip().loop.start)
             Logger.info("song.selected_clip.loop_end: %s" % SongFacade.selected_clip().loop.end)
+
+        Logger.info()
+        Logger.info("********* SONG_STATE *************")
+        Logger.info(self._song_state.to_dict())
+
+        Backend.client().show_info(str(self._song_state.to_dict()))
 
     def log_missing_vsts(self):
         # type: () -> None

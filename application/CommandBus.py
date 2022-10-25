@@ -9,6 +9,7 @@ from protocol0.application.CommandBusHistory import CommandBusHistory
 from protocol0.application.ContainerInterface import ContainerInterface
 from protocol0.application.command.FireSceneToPositionCommand import FireSceneToPositionCommand
 from protocol0.application.command.FireSelectedSceneCommand import FireSelectedSceneCommand
+from protocol0.application.command.GetSongStateCommand import GetSongStateCommand
 from protocol0.application.command.PlayPauseSongCommand import PlayPauseSongCommand
 from protocol0.application.command.SerializableCommand import SerializableCommand
 from protocol0.application.command.ToggleRoomEQCommand import ToggleRoomEQCommand
@@ -23,6 +24,7 @@ from protocol0.shared.sequence.Sequence import Sequence
 CommandMapping = Dict[Type[SerializableCommand], Type[CommandHandlerInterface]]
 
 broadcast_commands = [
+    GetSongStateCommand,
     FireSceneToPositionCommand,
     FireSelectedSceneCommand,
     PlayPauseSongCommand,
@@ -85,9 +87,10 @@ class CommandBus(object):
             and command.set_id is not None
             and command.set_id != self._script_state_service.get_id()
         ):
-            Logger.info("Set is not focused, discarding command")
+            Logger.info("Set is not focused, discarding %s" % command.__class__.__name__)
             Logger.info(
-                "command id: '%s', set id: '%s'" % (command.set_id, self._script_state_service.get_id())
+                "command id: '%s', set id: '%s'"
+                % (command.set_id, self._script_state_service.get_id())
             )
             return None
 
