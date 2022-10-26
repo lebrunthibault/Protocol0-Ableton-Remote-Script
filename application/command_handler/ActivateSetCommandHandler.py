@@ -15,5 +15,3 @@ class ActivateSetCommandHandler(CommandHandlerInterface):
         DomainEventBus.emit(AbletonSetChangedEvent(ableton_set))
         if not command.active:
             self._container.get(SongInitService).init_song()
-
-        ableton_set.notify(force=True)

@@ -87,7 +87,7 @@ class CommandBus(object):
             and command.set_id is not None
             and command.set_id != self._ableton_set.get_id()
         ):
-            Logger.info("Set is not focused, discarding %s" % command.__class__.__name__)
+            Logger.info("Un matching command.set_id, discarding %s" % command.__class__.__name__)
             Logger.info(
                 "command id: '%s', set id: '%s'"
                 % (command.set_id, self._ableton_set.get_id())
