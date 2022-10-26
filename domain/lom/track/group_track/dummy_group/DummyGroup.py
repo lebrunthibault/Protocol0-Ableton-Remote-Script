@@ -89,8 +89,9 @@ class DummyGroup(object):
         # type: () -> Tuple[Optional[AbstractTrack], Optional[AbstractTrack]]
         sub_tracks = self._track.sub_tracks
 
+        has_foldable_sub_track = any(sub_track.is_foldable for sub_track in sub_tracks)
         # when finding only SimpleTracks we don't activate dummy tracks
-        if len(sub_tracks) < 2 or not any(sub_track.is_foldable for sub_track in sub_tracks):
+        if len(sub_tracks) < 2 or not has_foldable_sub_track:
             return None, None
 
         if SimpleDummyTrack.is_track_valid(sub_tracks[-1]):
