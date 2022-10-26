@@ -186,11 +186,11 @@ class LogService(object):
                 % SongFacade.selected_clip_slot()._clip_slot
             )
 
-        Logger.info()
-        Logger.info("********* SELECTED_CLIP *************")
-        Logger.info()
-        Logger.info("song.selected_clip: %s" % SongFacade.selected_clip_slot().clip)
-        if SongFacade.selected_clip_slot().clip:
+        if SongFacade.selected_clip_slot().clip is not None:
+            Logger.info()
+            Logger.info("********* SELECTED_CLIP *************")
+            Logger.info()
+            Logger.info("song.selected_clip: %s" % SongFacade.selected_clip_slot().clip)
             Logger.info()
             Logger.info("song.selected_clip.length: %s" % SongFacade.selected_clip().length)
             Logger.info()

@@ -27,6 +27,7 @@ Specifically it aims to achieve :
   most :
   Prophet Rev2, Minitaur and Serum). Mostly leveraging program change
 - A lot of little improvements in the session view including:
+- Primitives to handle multiple sets (muting / filtering actions)
 
 > - Fixed length recording
 > - Re recording audio from midi at a button's push
