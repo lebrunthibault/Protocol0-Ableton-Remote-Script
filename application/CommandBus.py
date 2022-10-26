@@ -13,6 +13,7 @@ from protocol0.application.command.GetSetStateCommand import GetSetStateCommand
 from protocol0.application.command.PlayPauseSongCommand import PlayPauseSongCommand
 from protocol0.application.command.SerializableCommand import SerializableCommand
 from protocol0.application.command.ToggleRoomEQCommand import ToggleRoomEQCommand
+from protocol0.application.command.ToggleSceneLoopCommand import ToggleSceneLoopCommand
 from protocol0.application.command_handler.CommandHandlerInterface import CommandHandlerInterface
 from protocol0.domain.lom.set.AbletonSet import AbletonSet
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
@@ -29,6 +30,7 @@ broadcast_commands = [
     FireSelectedSceneCommand,
     PlayPauseSongCommand,
     ToggleRoomEQCommand,
+    ToggleSceneLoopCommand,
 ]
 
 
