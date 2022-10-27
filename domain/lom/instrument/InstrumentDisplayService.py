@@ -11,6 +11,7 @@ from protocol0.domain.lom.track.simple_track.SimpleTrackArmedEvent import Simple
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -58,7 +59,9 @@ class InstrumentDisplayService(object):
         # type: (SimpleTrack, bool) -> Optional[Sequence]
         seq = Sequence()
         instrument = track.instrument
-        assert instrument
+        if instrument is None:
+            Logger.warning("Instrument not found")
+            return None
 
         seq.add(track.select)
         seq.add(

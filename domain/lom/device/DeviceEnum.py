@@ -170,11 +170,13 @@ class DeviceEnum(AbstractEnum):
         try:
             return self.get_value_from_mapping(
                 {
-                    DeviceEnum.UTILITY: DeviceParameterEnum.UTILITY_GAIN,
+                    DeviceEnum.AUTO_FILTER_HIGH_PASS: DeviceParameterEnum.AUTO_FILTER_HIGH_PASS_FREQUENCY,
                     DeviceEnum.AUTO_FILTER_LOW_PASS: DeviceParameterEnum.AUTO_FILTER_LOW_PASS_FREQUENCY,
-                    DeviceEnum.LIMITER: DeviceParameterEnum.LIMITER_GAIN,
-                    DeviceEnum.SATURATOR: DeviceParameterEnum.SATURATOR_DRIVE,
                     DeviceEnum.AUTO_PAN: DeviceParameterEnum.AUTO_PAN_AMOUNT,
+                    DeviceEnum.LIMITER: DeviceParameterEnum.LIMITER_GAIN,
+                    DeviceEnum.LFO_TOOL: DeviceParameterEnum.LFO_TOOL_POINT_Y0,
+                    DeviceEnum.SATURATOR: DeviceParameterEnum.SATURATOR_DRIVE,
+                    DeviceEnum.UTILITY: DeviceParameterEnum.UTILITY_GAIN,
                 }
             )
         except Protocol0Error:

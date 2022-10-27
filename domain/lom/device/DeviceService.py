@@ -5,6 +5,7 @@ from typing import Optional, cast
 
 from protocol0.domain.lom.device.DeviceEnum import DeviceEnum
 from protocol0.domain.lom.device.DeviceLoadedEvent import DeviceLoadedEvent
+from protocol0.domain.lom.device_parameter.DeviceParameterEnum import DeviceParameterEnum
 from protocol0.domain.lom.instrument.InstrumentDisplayService import InstrumentDisplayService
 from protocol0.domain.lom.song.components.DeviceComponent import DeviceComponent
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
@@ -100,3 +101,10 @@ class DeviceService(object):
             raise Protocol0Warning("There is no selected parameter")
 
         param.scroll(go_next)
+
+        # saturator make up gain
+        if param.name == DeviceParameterEnum.SATURATOR_DRIVE.parameter_name:
+            saturator_output = SongFacade.selected_device().get_parameter_by_name(
+                DeviceParameterEnum.SATURATOR_OUTPUT
+            )
+            saturator_output.value = -param.value

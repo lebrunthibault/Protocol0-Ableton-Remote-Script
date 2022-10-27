@@ -47,4 +47,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        SongFacade._live_song().force_link_beat_time()
+        SongFacade.selected_parameter().value = -10

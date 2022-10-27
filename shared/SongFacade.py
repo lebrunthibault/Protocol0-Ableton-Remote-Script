@@ -39,6 +39,7 @@ if TYPE_CHECKING:
     from protocol0.domain.lom.clip.MidiClip import MidiClip  # noqa
     from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
     from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
+    from protocol0.domain.lom.device.Device import Device
     from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
     from protocol0.domain.lom.loop.LoopableInterface import LoopableInterface
 
@@ -335,6 +336,11 @@ class SongFacade(object):
     def selected_parameter(cls):
         # type: () -> Optional[DeviceParameter]
         return cls._INSTANCE._device_component.selected_parameter
+
+    @classmethod
+    def selected_device(cls):
+        # type: () -> Optional[Device]
+        return cls.selected_track().devices.selected
 
     @classmethod
     def is_playing(cls):

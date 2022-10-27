@@ -62,7 +62,10 @@ class DeviceParameter(object):
     def value(self, value):
         # type: (float) -> None
         if self.is_enabled and self._device_parameter:
-            self._device_parameter.value = value
+            try:
+                self._device_parameter.value = value
+            except RuntimeError as e:
+                Logger.warning(e)
 
     @property
     def automation_state(self):

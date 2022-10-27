@@ -17,8 +17,10 @@ class DeviceParameterEnum(AbstractEnum):
     EQ_EIGHT_FREQUENCY_8_A = "EQ EIGHT FREQUENCY 8 A"
     EQ_EIGHT_GAIN_4_A = "EQ EIGHT GAIN 4 A"
     LFO_TOOL_LFO_DEPTH = "LFO TOOL LFO DEPTH"
+    LFO_TOOL_POINT_Y0 = "LFO TOOL POINT Y0"
     LIMITER_GAIN = "LIMITER GAIN"
     SATURATOR_DRIVE = "SATURATOR DRIVE"
+    SATURATOR_OUTPUT = "SATURATOR OUTPUT"
     UTILITY_GAIN = "UTILITY GAIN"
     UTILITY_SILENT_GAIN = "UTILITY SILENT GAIN"
     UTILITY_MID_SIDE = "UTILITY MID SIDE"
@@ -38,8 +40,10 @@ class DeviceParameterEnum(AbstractEnum):
                 DeviceParameterEnum.EQ_EIGHT_FREQUENCY_1_A: "1 Frequency A",
                 DeviceParameterEnum.EQ_EIGHT_GAIN_4_A: "4 Gain A",
                 DeviceParameterEnum.EQ_EIGHT_FREQUENCY_8_A: "8 Frequency A",
+                DeviceParameterEnum.LFO_TOOL_POINT_Y0: "Point Y0",
                 DeviceParameterEnum.LIMITER_GAIN: "Gain",
                 DeviceParameterEnum.SATURATOR_DRIVE: "Drive",
+                DeviceParameterEnum.SATURATOR_OUTPUT: "Output",
                 DeviceParameterEnum.UTILITY_GAIN: "Gain",
                 DeviceParameterEnum.UTILITY_SILENT_GAIN: "Gain",
                 DeviceParameterEnum.UTILITY_MID_SIDE: "Mid/Side Balance",
