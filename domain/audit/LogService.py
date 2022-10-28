@@ -201,8 +201,6 @@ class LogService(object):
         Logger.info("********* ABLETON_SET *************")
         Logger.info(self._ableton_set.to_dict())
 
-        Backend.client().show_info(str(self._ableton_set.to_dict()))
-
     def log_missing_vsts(self):
         # type: () -> None
         for track in SongFacade.all_simple_tracks():

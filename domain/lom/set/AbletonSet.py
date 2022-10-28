@@ -23,6 +23,7 @@ from protocol0.domain.lom.track.simple_track.SimpleTrackLastClipDeletedEvent imp
     SimpleTrackLastClipDeletedEvent,
 )
 from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
@@ -40,18 +41,22 @@ class AbletonSet(object):
         DomainEventBus.subscribe(ScriptDisconnectedEvent, lambda _: self._disconnect())
 
         listened_events = [
-            TracksMappedEvent,
             AbstractTrackNameUpdatedEvent,
-            SimpleTrackFirstClipAddedEvent,
-            SimpleTrackLastClipDeletedEvent,
-            SelectedTrackChangedEvent,
             DrumRackLoadedEvent,
             MasterTrackRoomEqToggledEvent,
-            MasterTrackMuteToggledEvent
+            MasterTrackMuteToggledEvent,
+            SimpleTrackFirstClipAddedEvent,
+            SimpleTrackLastClipDeletedEvent,
+            TracksMappedEvent,
+            SelectedTrackChangedEvent,
         ]
 
         for event in listened_events:
             DomainEventBus.subscribe(event, lambda _: self.notify())
+
+    def __repr__(self):
+        # type: () -> str
+        return "AbletonSet(%s)" % self._title
 
     def get_id(self):
         # type: () -> str
@@ -82,11 +87,17 @@ class AbletonSet(object):
 
             if self._title is None:
                 seq.wait_for_backend_response()
-                seq.add(lambda: setattr(self, "_title", seq.res["title"]))  # type: ignore[index]
+                seq.add(lambda: self._set_title(seq.res["title"]))  # type: ignore[index]
 
             seq.done()
 
         self._cache = data
+
+    def _set_title(self, title):
+        # type: (str) -> None
+        if self._title is not None:
+            raise Protocol0Error("Tried overwriting set title of %s" % self)
+        self._title = title
 
     def _disconnect(self):
         # type: () -> None

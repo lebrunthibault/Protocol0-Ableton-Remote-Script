@@ -23,4 +23,4 @@ class InstrumentMinitaur(InstrumentInterface):
 
     def set_default_preset(self):
         # type: () -> None
-        DomainEventBus.emit(PresetProgramSelectedEvent(1))
+        DomainEventBus.emit(PresetProgramSelectedEvent(2))
