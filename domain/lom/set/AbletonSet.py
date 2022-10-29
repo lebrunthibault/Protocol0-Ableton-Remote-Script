@@ -23,9 +23,9 @@ from protocol0.domain.lom.track.simple_track.SimpleTrackLastClipDeletedEvent imp
     SimpleTrackLastClipDeletedEvent,
 )
 from protocol0.domain.shared.backend.Backend import Backend
-from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -96,7 +96,7 @@ class AbletonSet(object):
     def _set_title(self, title):
         # type: (str) -> None
         if self._title is not None:
-            raise Protocol0Error("Tried overwriting set title of %s" % self)
+            Logger.warning("Tried overwriting set title of %s" % self)
         self._title = title
 
     def _disconnect(self):

@@ -16,6 +16,8 @@ from protocol0.domain.track_recorder.count_in.CountInShort import CountInShort
 from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthAudio import (
     TrackRecorderExternalSynthAudio,
 )
+from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthAudioExport import \
+    TrackRecorderExternalSynthAudioExport
 from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthAudioMulti import (
     TrackRecorderExternalSynthAudioMulti,
 )
@@ -48,10 +50,11 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
         # type: (RecordTypeEnum) -> AbstractTrackRecorder
         recorder = super(TrackRecorderExternalSynthFactory, self).create_recorder(record_type)
 
-        if self.track.audio_tail_track and record_type != RecordTypeEnum.NORMAL_UNLIMITED:
-            recorder = TrackRecorderClipTailDecorator(
-                recorder, self._playback_component, self._recording_component
-            )
+        if self.track.audio_tail_track is not None:
+            if record_type == RecordTypeEnum.NORMAL:
+                recorder = TrackRecorderClipTailDecorator(
+                    recorder, self._playback_component, self._recording_component
+                )
 
         return recorder
 
@@ -59,6 +62,8 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
         # type: (RecordTypeEnum) -> Type[AbstractTrackRecorder]
         if record_type == RecordTypeEnum.AUDIO_ONLY:
             return TrackRecorderExternalSynthAudio
+        if record_type == RecordTypeEnum.AUDIO_ONLY_EXPORT:
+            return TrackRecorderExternalSynthAudioExport
         elif record_type == RecordTypeEnum.AUDIO_ONLY_MULTI:
             return TrackRecorderExternalSynthAudioMulti
         elif record_type == RecordTypeEnum.NORMAL:
@@ -92,6 +97,7 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
             return 0
         elif record_type in (
             RecordTypeEnum.AUDIO_ONLY,
+            RecordTypeEnum.AUDIO_ONLY_EXPORT,
             RecordTypeEnum.AUDIO_ONLY_MULTI,
         ):
             midi_clip = self.track.midi_track.selected_clip_slot.clip

@@ -156,13 +156,14 @@ class AbstractTrackRecorder(object):
         pass
 
     def post_record(self, bar_length):
-        # type: (int) -> None
+        # type: (int) -> Optional[Sequence]
         self._recording_component.session_record = False
         for clip_slot in self._recording_clip_slots:
             if clip_slot.clip:
                 # deferring because the clip length is not accurate right now
                 Scheduler.wait(10, partial(clip_slot.clip.post_record, bar_length))
-        return self._post_record()
+        self._post_record()
+        return None
 
     def _post_record(self):
         # type: () -> None

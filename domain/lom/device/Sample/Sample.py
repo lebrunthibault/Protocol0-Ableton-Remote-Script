@@ -20,6 +20,11 @@ class Sample(object):
         return str(os.path.splitext(os.path.basename(smart_string(self.file_path)))[0])
 
     @property
+    def length(self):
+        # type: () -> float
+        return self._sample.length
+
+    @property
     def file_path(self):
         # type: () -> str
         if self._sample:
@@ -36,3 +41,7 @@ class Sample(object):
     def warping(self, warping):
         # type: (bool) -> None
         self._sample.warping = warping
+
+    def beat_to_sample_time(self, beat_time):
+        # type: (float) -> float
+        return self._sample.beat_to_sample_time(beat_time)
