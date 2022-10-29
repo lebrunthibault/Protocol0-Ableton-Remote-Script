@@ -4,9 +4,10 @@ from protocol0.application.control_surface.ActionGroupInterface import ActionGro
 from protocol0.domain.audit.AudioLatencyAnalyzerService import AudioLatencyAnalyzerService
 from protocol0.domain.audit.SetProfilingService import SetProfilingService
 from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.domain.shared.utils.list import find_if
+from protocol0.infra.interface.BrowserService import BrowserService
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
-from protocol0.shared.sequence.Sequence import Sequence
 
 
 class ActionGroupTest(ActionGroupInterface):
@@ -48,6 +49,18 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        seq = Sequence()
-        seq.add(lambda: setattr(SongFacade.selected_clip_slot().clip.loop, "looping", True))
-        seq.done()
+        browser = self._container.get(BrowserService)._browser
+
+        Logger.dev(list(browser.user_folders))
+
+        splurges = find_if(lambda i: i.name == "splurges", browser.user_folders)
+        Logger.dev(splurges)
+        default_set = find_if(lambda i: i.name == "Split Second", splurges.iter_children)
+        Logger.dev(default_set)
+        Logger.dev(default_set.name)
+        Logger.dev(default_set.uri)
+        Logger.dev(default_set.source)
+        Logger.dev(default_set.is_loadable)
+        Logger.dev(default_set.is_folder)
+        Logger.dev(list(default_set.children))
+        Logger.dev(list(default_set.iter_children))

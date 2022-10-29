@@ -220,7 +220,6 @@ class DeviceEnum(AbstractEnum):
                 cls.AUTO_PAN,
             ],
             [
-                cls.REV2_EDITOR,
                 cls.KONTAKT,
                 cls.DRUM_RACK
             ],
