@@ -1,8 +1,9 @@
 import Live
-
 from typing import Any
 
+from protocol0.domain.lom.clip.AudioClipCreatedEvent import AudioClipCreatedEvent
 from protocol0.domain.lom.clip.Clip import Clip
+from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.ui.ColorEnum import ColorEnum
 from protocol0.shared.logging.Logger import Logger
@@ -13,6 +14,7 @@ class AudioClip(Clip):
         # type: (Any, Any) -> None
         super(AudioClip, self).__init__(*a, **k)
         Scheduler.defer(self.appearance.refresh)
+        DomainEventBus.emit(AudioClipCreatedEvent())
 
     @property
     def warp_mode(self):

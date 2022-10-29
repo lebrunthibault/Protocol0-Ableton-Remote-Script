@@ -1,11 +1,8 @@
 from functools import partial
 
-from typing import cast
-
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 from protocol0.domain.audit.AudioLatencyAnalyzerService import AudioLatencyAnalyzerService
 from protocol0.domain.audit.SetProfilingService import SetProfilingService
-from protocol0.domain.lom.device.SimplerDevice import SimplerDevice
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
@@ -50,9 +47,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        simpler = cast(SimplerDevice, SongFacade.selected_device())
-        start = simpler.get_parameter_by_name("S Start")
-        sample = simpler.sample
-        Logger.dev(sample)
-        Logger.dev(sample)
-        start.value = 0.5
+        pass

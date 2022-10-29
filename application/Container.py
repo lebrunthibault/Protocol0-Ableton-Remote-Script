@@ -14,6 +14,7 @@ from protocol0.domain.audit.SetFixerService import SetFixerService
 from protocol0.domain.audit.SetProfilingService import SetProfilingService
 from protocol0.domain.audit.SetUpgradeService import SetUpgradeService
 from protocol0.domain.audit.SongStatsService import SongStatsService
+from protocol0.domain.lom.clip.ClipSampleService import ClipSampleService
 from protocol0.domain.lom.device.DeviceDisplayService import DeviceDisplayService
 from protocol0.domain.lom.device.DeviceService import DeviceService
 from protocol0.domain.lom.device.DrumRackService import DrumRackService
@@ -176,6 +177,7 @@ class Container(ContainerInterface):
             session_to_arrangement_service,
         )
         ExternalSynthTrackClipSynchronizerService()
+        ClipSampleService()
 
         song_service = SongInitService(playback_component)
         instrument_preset_scroller_service = InstrumentPresetScrollerService()

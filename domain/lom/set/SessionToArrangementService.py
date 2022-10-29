@@ -123,7 +123,6 @@ class SessionToArrangementService(object):
         seq = Sequence()
         seq.wait_for_event(SceneLastBarPassedEvent, SongFacade.last_scene()._scene)
         seq.add(SongFacade.last_scene().stop)
-        seq.log("scene stopped")
         if SongFacade.last_scene().bar_length > 1:
             seq.wait_for_event(BarChangedEvent)
         seq.add(self._validate_recording_duration)

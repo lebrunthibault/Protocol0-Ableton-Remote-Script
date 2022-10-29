@@ -9,7 +9,6 @@ from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.track_recorder.AbstractTrackRecorder import AbstractTrackRecorder
-from protocol0.shared.logging.Logger import Logger
 
 
 class TrackRecorderExternalSynthMixin(object):
@@ -44,7 +43,6 @@ class TrackRecorderExternalSynthMixin(object):
         midi_clip.show_loop()
         Scheduler.wait(10, partial(midi_clip.clip_name.update, ""))
         Scheduler.wait(10, partial(audio_clip.clip_name.update, ""))
-        Scheduler.wait(10, lambda: Logger.dev("rename to ''"))
 
     # noinspection PyTypeHints,PyArgumentList
     def _post_record(self):

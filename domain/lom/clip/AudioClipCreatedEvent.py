@@ -1,0 +1,2 @@
+class AudioClipCreatedEvent(object):
+    pass

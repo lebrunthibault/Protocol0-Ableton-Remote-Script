@@ -1,6 +1,5 @@
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 from protocol0.domain.audit.SetFixerService import SetFixerService
-from protocol0.domain.audit.SetUpgradeService import SetUpgradeService
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
 from protocol0.shared.SongFacade import SongFacade
 
@@ -25,13 +24,4 @@ class ActionGroupFix(ActionGroupInterface):
             on_press=lambda: self._container.get(ValidatorService).fix_object(
                 SongFacade.current_track()
             ),
-        )
-
-        # TAIL encoder
-        self.add_encoder(
-            identifier=4,
-            name="migrate tail clips",
-            on_press=self._container.get(
-                SetUpgradeService
-            ).migrate_tail_clips,
         )

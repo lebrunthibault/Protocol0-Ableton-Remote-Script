@@ -11,7 +11,6 @@ from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.lom.validation.ValidatorService import ValidatorService
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.logging.StatusBar import StatusBar
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -79,35 +78,3 @@ class SetUpgradeService(object):
                     ]
                 ):
                     yield track, device
-
-    def migrate_tail_clips(self):
-        # type: () -> Sequence
-        seq = Sequence()
-
-        ext_tracks = [
-            track
-            for track in SongFacade.external_synth_tracks()
-            if track.audio_tail_track is not None
-        ]
-        for track in ext_tracks:
-            if track.audio_tail_track is None:
-                continue
-
-            Logger.info("handling %s" % track)
-            tail_clips = [
-                cs.clip for cs in track.audio_tail_track.clip_slots if cs.clip is not None
-            ]
-
-            Logger.info("tail clips: %s" % tail_clips)
-            for tail_clip in tail_clips:
-                tail_clip.loop.looping = False
-                tail_clip.loop.start = 0
-                tail_clip.muted = False
-
-                tail_clip_slot = track.audio_tail_track.clip_slots[tail_clip.index]
-                audio_clip_slot = track.audio_track.clip_slots[tail_clip.index]
-
-                seq.add(partial(tail_clip_slot.duplicate_clip_to, audio_clip_slot))
-                seq.add(partial(setattr, tail_clip, "muted", True))
-
-        return seq.done()
