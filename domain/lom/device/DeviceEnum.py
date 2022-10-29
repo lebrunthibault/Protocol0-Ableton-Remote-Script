@@ -221,7 +221,8 @@ class DeviceEnum(AbstractEnum):
             ],
             [
                 cls.REV2_EDITOR,
-                cls.KONTAKT
+                cls.KONTAKT,
+                cls.DRUM_RACK
             ],
         ]
 
