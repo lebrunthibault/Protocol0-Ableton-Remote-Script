@@ -89,8 +89,9 @@ class CommandBus(object):
             and command.set_id is not None
             and command.set_id != self._ableton_set.get_id()
         ):
-            Logger.info("Un matching command.set_id, discarding %s" % command.__class__.__name__)
-            return None
+            pass
+            # Logger.info("Un matching command.set_id, discarding %s" % command.__class__.__name__)
+            # return None
 
         self._history.push(command)
 

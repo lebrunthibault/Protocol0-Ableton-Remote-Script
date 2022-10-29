@@ -6,6 +6,7 @@ from protocol0.domain.audit.SetProfilingService import SetProfilingService
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
+from protocol0.shared.sequence.Sequence import Sequence
 
 
 class ActionGroupTest(ActionGroupInterface):
@@ -47,4 +48,6 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        pass
+        seq = Sequence()
+        seq.add(lambda: setattr(SongFacade.selected_clip_slot().clip.loop, "looping", True))
+        seq.done()

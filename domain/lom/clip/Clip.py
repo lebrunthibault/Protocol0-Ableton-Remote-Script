@@ -54,6 +54,7 @@ class Clip(SlotManager, Observable):
     color = cast(int, ForwardTo("appearance", "color"))
     length = cast(float, ForwardTo("loop", "length"))
     bar_length = cast(float, ForwardTo("loop", "bar_length"))
+    looping = cast(bool, ForwardTo("loop", "looping"))
 
     @property
     def is_triggered(self):

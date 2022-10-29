@@ -1,17 +1,18 @@
 from functools import partial
 
-from typing import Any, Optional, cast
+from typing import Any, Optional, cast, Tuple
 
 from protocol0.domain.lom.clip.ClipSampleService import ClipToReplace
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
+from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.track_recorder.external_synth.ClipToReplaceDetectedEvent import \
     ClipToReplaceDetectedEvent
 from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthAudio import (
     TrackRecorderExternalSynthAudio,
 )
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -42,6 +43,8 @@ class TrackRecorderExternalSynthAudioExport(TrackRecorderExternalSynthAudio):
         seq.add(self.track.audio_track.stop)
         seq.add(self.track.audio_tail_track.arm_state.arm)
         seq.add(partial(super(TrackRecorderExternalSynthAudioExport, self).record, bar_length))
+        seq.add(self.track.audio_tail_track.stop)
+        seq.wait_for_event(BarChangedEvent)
 
         return seq.done()
 
@@ -69,34 +72,49 @@ class TrackRecorderExternalSynthAudioExport(TrackRecorderExternalSynthAudio):
 
     def _mark_clips(self):
         # type: () -> None
+        clips_replaced_count = 0
+        clips_count = 0
+
         for (source_track, file_path) in [
             (self.track.audio_track, self._audio_file_path),
             (self.track.audio_tail_track, self._audio_tail_file_path),
         ]:
-            self._replace_clips(cast(SimpleAudioTrack, source_track), file_path)
+            if file_path is None:
+                continue
+
+            replaced, total = self._replace_clips(cast(SimpleAudioTrack, source_track), file_path)
+            clips_replaced_count += replaced
+            clips_count += total
+
+        Backend.client().show_info("%s / %s clips replaced" % (clips_replaced_count, clips_count))
 
     def _replace_clips(self, source_track, file_path):
-        # type: (SimpleAudioTrack, Optional[str]) -> None
-        if file_path is None:
-            return
-
+        # type: (SimpleAudioTrack, str) -> Tuple[int, int]
         audio_tracks = [
             track for track in SongFacade.simple_tracks() if isinstance(track, SimpleAudioTrack)
         ]
 
         source_cs = source_track.clip_slots[self.recording_scene_index]
 
+        clips_replaced_count = 0
+        clips_count = 0
+
         for track in audio_tracks:
             for clip_slot in track.clip_slots:
-                if clip_slot.clip is not None and clip_slot.clip.file_path == file_path:
-                    automated_params = clip_slot.clip.automation.get_automated_parameters(
+                clip = clip_slot.clip
+                if clip is not None and clip.file_path == file_path:
+                    automated_params = clip.automation.get_automated_parameters(
                         track.devices.parameters
                     )
 
+                    clips_count += 1
+
                     # duplicate when no automation else manual action is needed
                     if len(automated_params) == 0:
-                        Logger.info("Replacing %s" % clip_slot.clip)
-                        source_cs.duplicate_clip_to(clip_slot)
+                        clips_replaced_count += 1
+                        clip_slot.replace_clip(source_cs)
                     else:
                         clip_to_replace = ClipToReplace(track, clip_slot, source_cs.clip.file_path)
                         DomainEventBus.emit(ClipToReplaceDetectedEvent(clip_to_replace))
+
+        return clips_replaced_count, clips_count
