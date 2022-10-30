@@ -13,6 +13,7 @@ from protocol0.domain.lom.note.Note import Note
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -69,18 +70,21 @@ class MidiClip(Clip):
 
         self._clip.view.grid_quantization = Live.Clip.GridQuantization.g_sixteenth
 
-        if not isinstance(SongFacade.selected_track().instrument, InstrumentSimpler):
-            return None
+        Logger.dev(SongFacade.selected_scene().length)
 
         seq = Sequence()
         seq.defer()
-        seq.add(self.generate_base_notes)
-        seq.wait(10)
+        seq.add(partial(setattr, self, "length", SongFacade.selected_scene().length))
+        seq.add(self.show_loop)
+
+        if isinstance(SongFacade.selected_track().instrument, InstrumentSimpler):
+            seq.add(self.generate_base_notes)
+            seq.wait(10)
+
         return seq.done()
 
     def generate_base_notes(self):
         # type: () -> Optional[Sequence]
-        self.bar_length = SongFacade.selected_scene().bar_length
         self.show_loop()
 
         pitch = self._config.default_note

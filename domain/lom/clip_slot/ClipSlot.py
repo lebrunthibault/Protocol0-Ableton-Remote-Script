@@ -12,6 +12,7 @@ from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -62,6 +63,7 @@ class ClipSlot(SlotManager, Observable):
             self.clip = self.CLIP_CLASS(self._clip_slot.clip, self.index, self._clip_config)
 
             if is_new:
+                Logger.dev(type(self.clip))
                 self.clip.on_added()
 
             self.clip.register_observer(self)
