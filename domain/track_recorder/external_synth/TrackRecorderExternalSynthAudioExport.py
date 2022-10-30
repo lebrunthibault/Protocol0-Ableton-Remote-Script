@@ -97,7 +97,11 @@ class TrackRecorderExternalSynthAudioExport(TrackRecorderExternalSynthAudio):
             clips_replaced_count += replaced
             clips_count += total
 
-        Backend.client().show_info("%s / %s clips replaced" % (clips_replaced_count, clips_count))
+        message = "%s / %s clips replaced" % (clips_replaced_count, clips_count)
+        if clips_count == clips_replaced_count:
+            Backend.client().show_success(message)
+        else:
+            Backend.client().show_info(message)
 
     def _replace_clips(self, source_track, file_path):
         # type: (SimpleAudioTrack, str) -> Tuple[int, int]

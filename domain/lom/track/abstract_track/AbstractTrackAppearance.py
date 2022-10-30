@@ -21,6 +21,7 @@ class AbstractTrackAppearance(SlotManager, Observable):
         self._default_color = default_color.color_int_value if default_color else self.color
         self._instrument = None  # type: Optional[InstrumentInterface]
         self._name_listener.subject = live_track
+        self._name_cached = self.name
 
     def set_instrument(self, instrument):
         # type: (Optional[InstrumentInterface]) -> None
@@ -30,13 +31,15 @@ class AbstractTrackAppearance(SlotManager, Observable):
     @defer
     def _name_listener(self):
         # type: () -> None
+        self._name_cached = self.name
+
         if len(self.name) > 2:
             self.name = title(self.name)
 
     @property
     def name(self):
         # type: () -> str
-        return self._live_track.name if self._live_track else ""
+        return self._live_track.name if self._live_track else self._name_cached
 
     @name.setter
     def name(self, name):

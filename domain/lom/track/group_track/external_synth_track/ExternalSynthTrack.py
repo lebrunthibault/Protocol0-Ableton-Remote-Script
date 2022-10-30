@@ -32,6 +32,7 @@ from protocol0.domain.lom.track.simple_track.SimpleMidiExtTrack import SimpleMid
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.domain.shared.LiveObject import liveobj_valid
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
@@ -97,7 +98,6 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
     def on_added(self):
         # type: () -> Sequence
-
         matching_audio_track = find_if(
             lambda t: t.name == self.name, SongFacade.simple_tracks(SimpleAudioTrack)
         )
@@ -106,7 +106,6 @@ class ExternalSynthTrack(AbstractGroupTrack):
         self.instrument.force_show = not matching_audio_track
 
         seq = Sequence()
-        seq.log("arming")
         seq.add(self.arm_state.arm)
 
         # plug the external synth recording track in its main audio track
@@ -469,3 +468,18 @@ class ExternalSynthTrack(AbstractGroupTrack):
         seq.add(partial(setattr, self, "protected_mode_active", False))
         seq.add(partial(StatusBar.show_message, "track protected mode disabled"))
         return seq.done()
+
+    def _on_disconnect_matching_track(self):
+        # type: () -> None
+        """Restore the current monitoring state of the main track"""
+        matching_audio_track = find_if(
+            lambda t: t.name == self.name, SongFacade.simple_tracks(SimpleAudioTrack)
+        )
+        if matching_audio_track is not None:
+            matching_audio_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
+
+    def disconnect(self):
+        # type: () -> None
+        super(ExternalSynthTrack, self).disconnect()
+        if not liveobj_valid(self._track):
+            Scheduler.defer(self._on_disconnect_matching_track)

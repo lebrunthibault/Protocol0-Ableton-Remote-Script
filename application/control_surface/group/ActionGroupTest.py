@@ -4,6 +4,7 @@ from protocol0.application.ScriptResetActivatedEvent import ScriptResetActivated
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 from protocol0.domain.audit.AudioLatencyAnalyzerService import AudioLatencyAnalyzerService
 from protocol0.domain.audit.SetProfilingService import SetProfilingService
+from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.shared.SongFacade import SongFacade
@@ -49,4 +50,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        DomainEventBus.emit(ScriptResetActivatedEvent())
+        SongFacade.selected_track().current_monitoring_state = CurrentMonitoringStateEnum.AUTO
