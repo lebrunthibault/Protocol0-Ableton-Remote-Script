@@ -107,24 +107,30 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
         seq = Sequence()
         seq.add(self.arm_state.arm)
-
-        # plug the external synth recording track in its main audio track
         if matching_audio_track is not None:
-            matching_audio_track.current_monitoring_state = CurrentMonitoringStateEnum.IN
-            self.output_routing.track = matching_audio_track
+            seq.add(partial(self._connect_main_track, matching_audio_track))
 
-            # select the first midi clip
-            first_cs = next((cs for cs in self.midi_track.clip_slots if cs.clip), None)
-            if first_cs is not None:
-                self.midi_track.select_clip_slot(first_cs._clip_slot)
+        return seq.done()
 
-            if self.instrument.needs_exclusive_activation:
-                seq.wait(20)  # wait for editor activation
+    def _connect_main_track(self, matching_audio_track):
+        # type: (SimpleAudioTrack) -> Sequence
+        # plug the external synth recording track in its main audio track
+        seq = Sequence()
+        matching_audio_track.current_monitoring_state = CurrentMonitoringStateEnum.IN
+        self.output_routing.track = matching_audio_track
 
-            seq.add(ApplicationViewFacade.show_clip)
-            if first_cs is not None:
-                seq.defer()
-                seq.add(first_cs.clip.show_notes)
+        # select the first midi clip
+        first_cs = next((cs for cs in self.midi_track.clip_slots if cs.clip), None)
+        if first_cs is not None:
+            self.midi_track.select_clip_slot(first_cs._clip_slot)
+
+        if self.instrument.needs_exclusive_activation:
+            seq.wait(20)  # wait for editor activation
+
+        seq.add(ApplicationViewFacade.show_clip)
+        if first_cs is not None:
+            seq.defer()
+            seq.add(first_cs.clip.show_notes)
 
         return seq.done()
 

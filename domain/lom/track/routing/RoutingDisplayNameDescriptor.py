@@ -34,7 +34,7 @@ class RoutingDisplayNameDescriptor(object):
         )
         if not routing:
             raise Protocol0Error(
-                "couldn't find %s routing matching %s for %s"
+                "couldn't find %s routing matching '%s' for '%s'"
                 % (self.routing_attribute_name, routing_enum, track_routing.live_track.name)
             )
         setattr(track_routing.live_track, self.routing_attribute_name, routing)

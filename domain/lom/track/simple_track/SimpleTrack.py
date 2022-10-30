@@ -22,6 +22,7 @@ from protocol0.domain.shared.utils.forward_to import ForwardTo
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
+from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.observer.Observable import Observable
 from protocol0.shared.sequence.Sequence import Sequence
 
@@ -126,7 +127,11 @@ class SimpleTrack(AbstractTrack):
     @current_monitoring_state.setter
     def current_monitoring_state(self, monitoring_state):
         # type: (CurrentMonitoringStateEnum) -> None
-        self._track.current_monitoring_state = monitoring_state.value  # noqa
+        Logger.dev(self._track.name)
+        try:
+            self._track.current_monitoring_state = monitoring_state.value  # noqa
+        except RuntimeError as e:
+            Logger.warning(e)
 
     @property
     def output_meter_left(self):

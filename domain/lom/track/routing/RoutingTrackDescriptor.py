@@ -46,21 +46,23 @@ class RoutingTrackDescriptor(object):
                 lambda r: r.category == Live.Track.RoutingTypeCategory.parent_group_track,
                 available_routings,
             )
+
         if routing is None:
             routing = find_if(lambda r: r.attached_object == live_track, available_routings)
 
-            # still needed ?
-            # if not routing:
-            #     routing = find_if(lambda r: r.display_name == track.name, available_routings)
+            if routing is None:
+                routings_by_name = list(filter(lambda r: r.display_name == live_track.name, available_routings))
+                if len(routings_by_name) == 1:
+                    routing = routings_by_name[0]
 
-        if not routing:
+        if routing is None:
             raise Protocol0Error(
-                "couldn't find %s routing matching %s for %s. Available routings are : %s"
+                "couldn't find %s routing matching '%s' for '%s'. Available routings are : %s"
                 % (
                     self.routing_attribute_name,
                     live_track.name,
                     track_routing.live_track.name,
-                    [(r.category, r.display_name) for r in available_routings],
+                    [(r.category, r.display_name) for r in available_routings if r.display_name == "High"],
                 )
             )
 
