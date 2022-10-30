@@ -127,7 +127,6 @@ class SimpleTrack(AbstractTrack):
     @current_monitoring_state.setter
     def current_monitoring_state(self, monitoring_state):
         # type: (CurrentMonitoringStateEnum) -> None
-        Logger.dev(self._track.name)
         try:
             self._track.current_monitoring_state = monitoring_state.value  # noqa
         except RuntimeError as e:
