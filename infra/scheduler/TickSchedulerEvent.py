@@ -3,6 +3,7 @@ from typing import Callable
 from protocol0.domain.shared.scheduler.TickSchedulerEventInterface import (
     TickSchedulerEventInterface,
 )
+from protocol0.domain.shared.utils.func import get_callable_repr
 
 
 class TickSchedulerEvent(TickSchedulerEventInterface):
@@ -11,6 +12,10 @@ class TickSchedulerEvent(TickSchedulerEventInterface):
         self.callback = callback
         self._ticks_left = tick_count
         self._cancelled = False
+
+    def __repr__(self):
+        # type: () -> str
+        return get_callable_repr(self.callback)
 
     @property
     def should_execute(self):

@@ -8,6 +8,7 @@ from protocol0.domain.lom.clip.ClipSlotSelectedEvent import ClipSlotSelectedEven
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
+from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.Config import Config
 from protocol0.shared.SongFacade import SongFacade
 
@@ -42,6 +43,14 @@ class ClipComponent(SlotManager):
         # type: (ClipSlotSelectedEvent) -> None
         # we need all tracks un folded for this
         ApplicationViewFacade.show_clip()
+
+        # workaround to refocus the selected clip slot
+        if event.live_clip_slot == self._view.highlighted_clip_slot:
+            other_track = find_if(lambda t: t != SongFacade.selected_track(), SongFacade.simple_tracks())
+            if other_track is None:
+                return
+            self._view.highlighted_clip_slot = other_track.clip_slots[0]._clip_slot
+
         self._view.highlighted_clip_slot = event.live_clip_slot
 
     # CLIPS

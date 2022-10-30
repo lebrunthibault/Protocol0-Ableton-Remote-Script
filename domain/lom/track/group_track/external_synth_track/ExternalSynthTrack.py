@@ -13,6 +13,7 @@ from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
+from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackArmState import (
@@ -96,10 +97,35 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
     def on_added(self):
         # type: () -> Sequence
-        self.instrument.force_show = True
+
+        matching_audio_track = find_if(
+            lambda t: t.name == self.name, SongFacade.simple_tracks(SimpleAudioTrack)
+        )
+
+        # keep editor on only on a new track
+        self.instrument.force_show = not matching_audio_track
 
         seq = Sequence()
+        seq.log("arming")
         seq.add(self.arm_state.arm)
+
+        # plug the external synth recording track in its main audio track
+        if matching_audio_track is not None:
+            matching_audio_track.current_monitoring_state = CurrentMonitoringStateEnum.IN
+            self.output_routing.track = matching_audio_track
+
+            # select the first midi clip
+            first_cs = next((cs for cs in self.midi_track.clip_slots if cs.clip), None)
+            if first_cs is not None:
+                self.midi_track.select_clip_slot(first_cs._clip_slot)
+
+            if self.instrument.needs_exclusive_activation:
+                seq.wait(20)  # wait for editor activation
+
+            seq.add(ApplicationViewFacade.show_clip)
+            if first_cs is not None:
+                seq.defer()
+                seq.add(first_cs.clip.show_notes)
 
         return seq.done()
 

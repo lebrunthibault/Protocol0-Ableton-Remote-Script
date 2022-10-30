@@ -13,7 +13,6 @@ from protocol0.domain.lom.note.Note import Note
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.SongFacade import SongFacade
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -69,8 +68,6 @@ class MidiClip(Clip):
             return None
 
         self._clip.view.grid_quantization = Live.Clip.GridQuantization.g_sixteenth
-
-        Logger.dev(SongFacade.selected_scene().length)
 
         seq = Sequence()
         seq.defer()

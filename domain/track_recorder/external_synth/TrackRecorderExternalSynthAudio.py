@@ -32,10 +32,6 @@ class TrackRecorderExternalSynthAudio(TrackRecorderExternalSynthMixin, AbstractT
         SongFacade.usamo_track().activate()
         DomainEventBus.emit(ExternalSynthAudioRecordingStartedEvent(self.track))
 
-    def _focus_main_clip(self):
-        # type: () -> None
-        pass
-
     def record(self, bar_length):
         # type: (float) -> Sequence
         # negative delay so that it's not late

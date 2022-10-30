@@ -31,7 +31,7 @@ class Protocol0(ControlSurface):
             DomainEventBus.emit(ErrorRaisedEvent())
             return
 
-        DomainEventBus.subscribe(ScriptResetActivatedEvent, self._initialize)
+        DomainEventBus.subscribe(ScriptResetActivatedEvent, lambda _: self._initialize(reset=True))
         CommandBus.dispatch(ReloadScriptCommand())
 
         Logger.info("Protocol0 script loaded")

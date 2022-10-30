@@ -4,7 +4,6 @@ import types
 
 from typing import Optional, Any, List, Dict
 
-from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.utils.string import smart_string
 from protocol0.shared.Config import Config
@@ -47,5 +46,5 @@ class LoggerService(LoggerServiceInterface):
                 )
         for line in message.splitlines():
             line = "P0 - %s" % line.decode("utf-8").encode("ascii", "replace")
-            # logging.info(line)
-            Backend.client().log(line)
+            logging.info(line)
+            # Backend.client().log(line)

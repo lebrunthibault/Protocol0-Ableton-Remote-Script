@@ -45,4 +45,4 @@ class TrackRecorderSimpleFactory(AbstractTrackRecorderFactory):
         elif record_type == RecordTypeEnum.AUDIO_ONLY and isinstance(SongFacade.selected_track(), ResamplingTrack):
             return SongFacade.selected_scene().bar_length
         else:
-            raise Protocol0Warning("Unhandled record type %s" % record_type)
+            raise Protocol0Warning("Invalid record type")

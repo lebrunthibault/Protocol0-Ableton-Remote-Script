@@ -6,7 +6,6 @@ from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTr
     ExternalSynthTrack,
 )
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
-from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.track_recorder.AbstractTrackRecorder import AbstractTrackRecorder
 
@@ -27,7 +26,6 @@ class TrackRecorderExternalSynthMixin(object):
     def _pre_record(self):
         # type: () -> None
         self.track.monitoring_state.monitor_midi()
-        ApplicationViewFacade.show_device()
 
     # noinspection PyTypeHints,PyArgumentList
     def _post_audio_record(self):

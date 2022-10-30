@@ -1,11 +1,12 @@
 from collections import Iterator
 
 import Live
-from typing import TYPE_CHECKING, Optional, List, cast
+from typing import TYPE_CHECKING, Optional, List, cast, Type
 
 from protocol0.domain.shared.errors.Protocol0Error import Protocol0Error
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.utils.list import find_if
+from protocol0.shared.types import T
 
 if TYPE_CHECKING:
     from protocol0.domain.lom.song.components.ClipComponent import ClipComponent
@@ -99,12 +100,10 @@ class SongFacade(object):
     @classmethod
     def live_tracks(cls):
         # type: () -> Iterator[Live.Track.Track]
-        return (
-            track
-            for track in list(cls._live_song().tracks)
-            + cls.return_tracks()
-            + [cls._live_song().master_track]
+        tracks = (
+            list(cls._live_song().tracks) + cls.return_tracks() + [cls._live_song().master_track]
         )
+        return (track for track in tracks)
 
     @classmethod
     def signature_numerator(cls):
@@ -161,9 +160,15 @@ class SongFacade(object):
             return None
 
     @classmethod
-    def simple_tracks(cls):
-        # type: () -> Iterator[SimpleTrack]
-        return (track for track in cls.all_simple_tracks() if track.IS_ACTIVE)
+    def simple_tracks(cls, track_cls=None):
+        # type: (Optional[Type[T]]) -> Iterator[T|SimpleTrack]
+        from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
+
+        track_cls = track_cls or SimpleTrack
+
+        tracks = (track for track in cls.all_simple_tracks() if track.IS_ACTIVE)
+
+        return (track for track in tracks if isinstance(track, track_cls))
 
     @classmethod
     def all_simple_tracks(cls):
