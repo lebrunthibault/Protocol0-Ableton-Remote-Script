@@ -94,6 +94,12 @@ class TrackRecorderService(object):
             recording_scene_index = len(SongFacade.scenes())
             seq.add(self._scene_crud_component.create_scene)
 
+        if (
+            record_type == RecordTypeEnum.AUDIO_ONLY_EXPORT
+            and len(SongFacade.scenes()) <= recording_scene_index + 1
+        ):
+            seq.add(self._scene_crud_component.create_scene)
+
         bar_length = recorder_factory.get_recording_bar_length(record_type)
 
         count_in = recorder_factory.create_count_in(record_type)

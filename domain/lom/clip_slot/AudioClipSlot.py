@@ -18,7 +18,7 @@ class AudioClipSlot(ClipSlot):
 
     def replace_clip(self, source_clip_slot):
         # type: (AudioClipSlot) -> Sequence
-        Logger.info("Replacing %s" % self.clip)
+        Logger.info("Replacing %s with %s" % (self.clip, source_clip_slot.clip))
 
         clip_looping = self.clip.looping
 

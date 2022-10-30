@@ -51,7 +51,7 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
         recorder = super(TrackRecorderExternalSynthFactory, self).create_recorder(record_type)
 
         if self.track.audio_tail_track is not None:
-            if record_type == RecordTypeEnum.NORMAL:
+            if record_type in (RecordTypeEnum.NORMAL, RecordTypeEnum.AUDIO_ONLY_EXPORT):
                 recorder = TrackRecorderClipTailDecorator(
                     recorder, self._playback_component, self._recording_component
                 )
