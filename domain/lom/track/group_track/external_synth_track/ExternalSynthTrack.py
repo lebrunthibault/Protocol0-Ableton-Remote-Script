@@ -98,6 +98,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
     def on_added(self):
         # type: () -> Sequence
+        Logger.dev(self)
         matching_audio_track = find_if(
             lambda t: t.name == self.name, SongFacade.simple_tracks(SimpleAudioTrack)
         )

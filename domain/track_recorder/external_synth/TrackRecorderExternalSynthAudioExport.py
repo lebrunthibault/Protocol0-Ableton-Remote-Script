@@ -66,7 +66,9 @@ class TrackRecorderExternalSynthAudioExport(TrackRecorderExternalSynthAudio):
 
         if self.track.audio_tail_track is not None:
             audio_tail_clip = self.track.audio_tail_track.clip_slots[self.recording_scene_index].clip
-            seq.add(partial(setattr, audio_tail_clip, "muted", False))
+            # in case of manual stop
+            if audio_tail_clip is not None:
+                seq.add(partial(setattr, audio_tail_clip, "muted", False))
         seq.add(self._rename_clips)
         seq.add(self._mark_clips)
         return seq.done()
@@ -98,7 +100,9 @@ class TrackRecorderExternalSynthAudioExport(TrackRecorderExternalSynthAudio):
             clips_count += total
 
         message = "%s / %s clips replaced" % (clips_replaced_count, clips_count)
-        if clips_count == clips_replaced_count:
+        if clips_count == 0:
+            Backend.client().show_warning(message)
+        elif clips_count == clips_replaced_count:
             Backend.client().show_success(message)
         else:
             Backend.client().show_info(message)

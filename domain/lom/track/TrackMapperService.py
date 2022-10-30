@@ -57,7 +57,7 @@ class TrackMapperService(SlotManager):
     @handle_error
     def tracks_listener(self):
         # type: () -> None
-        self._clean_tracks()
+        self._clean_deleted_tracks()
 
         previous_simple_track_count = len(list(SongFacade.all_simple_tracks()))
         has_added_tracks = 0 < previous_simple_track_count < len(list(SongFacade.live_tracks()))
@@ -80,12 +80,17 @@ class TrackMapperService(SlotManager):
 
         self._get_special_tracks()
 
-    def _clean_tracks(self):
+    def _clean_deleted_tracks(self):
         # type: () -> None
-        """Nb : we could filter on deleted existing track ids"""
-        # filter first abg so they can still access simple tracks in disconnect()
+        existing_track_ids = [track._live_ptr for track in list(SongFacade.live_tracks())]
+        deleted_ids = []
+
         for track_id, simple_track in self._live_track_id_to_simple_track.items():
-            simple_track.disconnect()
+            if track_id not in existing_track_ids:
+                simple_track.disconnect()
+                deleted_ids.append(track_id)
+
+        for track_id in deleted_ids:
             del self._live_track_id_to_simple_track[track_id]
 
     def _generate_simple_tracks(self):
