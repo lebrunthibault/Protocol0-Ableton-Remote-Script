@@ -4,7 +4,6 @@ from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
-from protocol0.shared.logging.Logger import Logger
 
 
 class SimpleAudioTrack(SimpleTrack):
@@ -32,5 +31,4 @@ class SimpleAudioTrack(SimpleTrack):
         # let tail play
         clip = self.clip_slots[scene_index].clip
         if clip is not None and clip.is_playing:
-            Logger.dev((self, clip.playing_position.bars_left))
             Scheduler.wait_bars(clip.playing_position.bars_left, clip.stop)
