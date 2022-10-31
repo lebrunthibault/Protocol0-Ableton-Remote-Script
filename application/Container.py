@@ -140,8 +140,9 @@ class Container(ContainerInterface):
         track_mapper_service = TrackMapperService(live_song, track_factory)
         track_service = TrackService()
         track_player_service = TrackPlayerService(playback_component, track_repository)
+        clip_sample_service = ClipSampleService()
         track_recorder_service = TrackRecorderService(
-            playback_component, recording_component, scene_crud_component
+            playback_component, recording_component, scene_crud_component, clip_sample_service
         )
         scene_service = SceneService(live_song, scene_crud_component)
         scene_playback_service = ScenePlaybackService(playback_component)
@@ -177,7 +178,6 @@ class Container(ContainerInterface):
             session_to_arrangement_service,
         )
         ExternalSynthTrackClipSynchronizerService()
-        ClipSampleService()
 
         song_service = SongInitService(playback_component)
         instrument_preset_scroller_service = InstrumentPresetScrollerService()

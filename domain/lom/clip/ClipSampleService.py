@@ -49,6 +49,10 @@ class ClipSampleService(object):
         DomainEventBus.subscribe(ClipToReplaceDetectedEvent, self._on_clip_to_replace_detected_event)
         DomainEventBus.subscribe(AudioClipCreatedEvent, self._on_audio_clip_created_event)
 
+    def reset_clips_to_replace(self):
+        # type: () -> None
+        self._clips_to_replace = []
+
     def _on_clip_to_replace_detected_event(self, event):
         # type: (ClipToReplaceDetectedEvent) -> None
         self._clips_to_replace.append(event.clip_to_replace)
