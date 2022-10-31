@@ -16,7 +16,7 @@ class SerializableCommand(object):
         if len(self.__dict__) == 0:
             return self.__class__.__name__
         else:
-            kwargs = ",".join(["%s=%s" % (k, v) for k, v in self.__dict__.items()])
+            kwargs = ",".join(["%s=%s" % (k, v) for k, v in self.__dict__.items() if k != "set_id"])
             return "%s(%s)" % (self.__class__.__name__, kwargs)
 
     def serialize(self):
