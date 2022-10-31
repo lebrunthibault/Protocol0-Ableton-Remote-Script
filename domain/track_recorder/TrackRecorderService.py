@@ -102,7 +102,7 @@ class TrackRecorderService(object):
             seq.add(self._scene_crud_component.create_scene)
 
         if (
-            record_type == RecordTypeEnum.AUDIO_ONLY_EXPORT
+            record_type.need_additional_scene
             and len(SongFacade.scenes()) <= recording_scene_index + 1
         ):
             seq.add(self._scene_crud_component.create_scene)

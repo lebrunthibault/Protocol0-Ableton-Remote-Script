@@ -8,8 +8,6 @@ from protocol0.domain.track_recorder.AbstractTrackRecorderFactory import (
     AbstractTrackRecorderFactory,
 )
 from protocol0.domain.track_recorder.RecordTypeEnum import RecordTypeEnum
-from protocol0.domain.track_recorder.count_in.CountInInterface import CountInInterface
-from protocol0.domain.track_recorder.count_in.CountInOneBar import CountInOneBar
 from protocol0.domain.track_recorder.simple.TrackRecorderSimple import TrackRecorderSimple
 from protocol0.shared.SongFacade import SongFacade
 
@@ -19,10 +17,6 @@ class TrackRecorderSimpleFactory(AbstractTrackRecorderFactory):
         # type: (Any, Any) -> None
         super(TrackRecorderSimpleFactory, self).__init__(*a, **k)
         self.track = cast(SimpleTrack, self.track)
-
-    def _get_count_in_class(self, _):
-        # type: (RecordTypeEnum) -> Type[CountInInterface]
-        return CountInOneBar
 
     def _get_recorder_class(self, _):
         # type: (RecordTypeEnum) -> Type[AbstractTrackRecorder]

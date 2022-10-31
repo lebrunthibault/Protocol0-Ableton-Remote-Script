@@ -36,11 +36,8 @@ class AbstractTrackRecorderFactory(object):
 
     def create_count_in(self, record_type):
         # type: (RecordTypeEnum) -> CountInInterface
-        return self._get_count_in_class(record_type)(self.track, self._playback_component)
-
-    def _get_count_in_class(self, record_type):
-        # type: (RecordTypeEnum) -> Type[CountInInterface]
-        raise NotImplementedError
+        count_in_class = record_type.count_in_class
+        return count_in_class(self.track, self._playback_component)
 
     def _get_recorder_class(self, record_type):
         # type: (RecordTypeEnum) -> Type[AbstractTrackRecorder]
