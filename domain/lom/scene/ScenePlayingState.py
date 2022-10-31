@@ -1,5 +1,6 @@
 from typing import Optional
 
+from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip.Clip import Clip
 from protocol0.domain.lom.scene.SceneClips import SceneClips
 from protocol0.domain.lom.scene.SceneLength import SceneLength
@@ -24,8 +25,18 @@ class ScenePlayingState(object):
     @property
     def is_playing(self):
         # type: () -> bool
+        def _is_clip_playing(clip):
+            # type: (Clip) -> bool
+            if clip is None or not clip.is_playing or clip.muted:
+                return False
+            # tail clips of audio tracks
+            if isinstance(clip, AudioClip) and clip.bar_length > self._scene_length.bar_length:
+                return False
+
+            return True
+
         return SongFacade.is_playing() and any(
-            clip and clip.is_playing and not clip.muted for clip in self._clips
+            _is_clip_playing(clip) for clip in self._clips
         )
 
     @property
