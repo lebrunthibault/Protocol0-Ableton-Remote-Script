@@ -39,6 +39,9 @@ class ClipToReplace(object):
         Backend.client().search(self._file_path)
         Logger.info("Replace clip with '%s'" % self._file_path)
         self._track.select_clip_slot(self._clip_slot._clip_slot)
+        Logger.dev(self._clip_slot.clip.loop.start)
+
+        self._clip_slot.mark_as_replaceable()
 
 
 class ClipSampleService(object):

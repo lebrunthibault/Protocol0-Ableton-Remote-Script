@@ -47,4 +47,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        SongFacade.selected_track().stop(1)
+        SongFacade.selected_clip().show_loop()
