@@ -98,26 +98,24 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
     def on_added(self):
         # type: () -> Sequence
-        matching_audio_track = find_if(
-            lambda t: t.name == self.name, SongFacade.simple_tracks(SimpleAudioTrack)
-        )
+        matching_track = self._get_matching_track()
 
         # keep editor on only on a new track
-        self.instrument.force_show = not matching_audio_track
+        self.instrument.force_show = not matching_track
 
         seq = Sequence()
         seq.add(self.arm_state.arm)
-        if matching_audio_track is not None:
-            seq.add(partial(self._connect_main_track, matching_audio_track))
+        if matching_track is not None:
+            seq.add(partial(self._connect_main_track, matching_track))
 
         return seq.done()
 
-    def _connect_main_track(self, matching_audio_track):
+    def _connect_main_track(self, matching_track):
         # type: (SimpleAudioTrack) -> Sequence
         # plug the external synth recording track in its main audio track
         seq = Sequence()
-        matching_audio_track.current_monitoring_state = CurrentMonitoringStateEnum.IN
-        self.output_routing.track = matching_audio_track
+        matching_track.current_monitoring_state = CurrentMonitoringStateEnum.IN
+        self.output_routing.track = matching_track
 
         # select the first midi clip
         first_cs = next((cs for cs in self.midi_track.clip_slots if cs.clip), None)
@@ -172,6 +170,13 @@ class ExternalSynthTrack(AbstractGroupTrack):
                 )
                 raise Protocol0Warning("Tail clip index mismatch for %s" % self)
             clip_to_fire.fire()
+
+    def _get_matching_track(self):
+        # type: () -> Optional[SimpleAudioTrack]
+        return find_if(
+            lambda t: not t.is_foldable and t.name == self.name,
+            SongFacade.simple_tracks(SimpleAudioTrack),
+        )
 
     @property
     def _should_loop_audio(self):
@@ -478,11 +483,9 @@ class ExternalSynthTrack(AbstractGroupTrack):
     def _on_disconnect_matching_track(self):
         # type: () -> None
         """Restore the current monitoring state of the main track"""
-        matching_audio_track = find_if(
-            lambda t: t.name == self.name, SongFacade.simple_tracks(SimpleAudioTrack)
-        )
-        if matching_audio_track is not None:
-            matching_audio_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
+        matching_track = self._get_matching_track()
+        if matching_track is not None:
+            matching_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
 
     def disconnect(self):
         # type: () -> None

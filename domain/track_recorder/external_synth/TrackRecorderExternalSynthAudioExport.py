@@ -70,7 +70,7 @@ class TrackRecorderExternalSynthAudioExport(TrackRecorderExternalSynthAudio):
 
     def record(self, bar_length):
         # type: (float) -> Sequence
-        if self.track.audio_tail_track is None:
+        if self.track.audio_tail_track is None or not self.track.audio_tail_track.arm_state.is_armed:
             return super(TrackRecorderExternalSynthAudioExport, self).record(bar_length)
 
         self.track.audio_tail_track.arm_state.unarm()
@@ -109,6 +109,9 @@ class TrackRecorderExternalSynthAudioExport(TrackRecorderExternalSynthAudio):
             return None
 
         self.atk_cs.clip.clip_name.update("atk")
+        if self.loop_cs.clip is None:
+            return None
+
         self.loop_cs.clip.clip_name.update("loop")
 
         seq = Sequence()

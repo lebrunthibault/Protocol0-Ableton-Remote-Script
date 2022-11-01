@@ -1,6 +1,8 @@
 from typing import Type, TYPE_CHECKING
 
 from protocol0.domain.track_recorder.count_in.CountInInterface import CountInInterface
+from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthAudioExportOnce import \
+    TrackRecorderExternalSynthAudioExportOnce
 
 if TYPE_CHECKING:
     from protocol0.domain.track_recorder.AbstractTrackRecorder import AbstractTrackRecorder
@@ -52,6 +54,7 @@ class RecordTypeEnum(AbstractEnum):
             {
                 RecordTypeEnum.AUDIO_ONLY: TrackRecorderExternalSynthAudio,
                 RecordTypeEnum.AUDIO_ONLY_EXPORT: TrackRecorderExternalSynthAudioExport,
+                RecordTypeEnum.AUDIO_ONLY_EXPORT_ONE: TrackRecorderExternalSynthAudioExportOnce,
                 RecordTypeEnum.AUDIO_ONLY_MULTI: TrackRecorderExternalSynthAudioMulti,
                 RecordTypeEnum.NORMAL: TrackRecorderExternalSynthNormal,
                 RecordTypeEnum.NORMAL_UNLIMITED: TrackRecorderExternalSynthNormalUnlimited,
@@ -75,5 +78,6 @@ class RecordTypeEnum(AbstractEnum):
         return self in (
             RecordTypeEnum.AUDIO_ONLY,
             RecordTypeEnum.AUDIO_ONLY_EXPORT,
+            RecordTypeEnum.AUDIO_ONLY_EXPORT_ONE,
             RecordTypeEnum.AUDIO_ONLY_MULTI,
         )

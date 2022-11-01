@@ -32,13 +32,12 @@ class TrackRecorderClipTailDecorator(TrackRecorderDecorator):
     def _on_last_32th_passed_event(self, _):
         # type: (Last32thPassedEvent) -> None
         if self.is_audio_silent:
-            # self.track.audio_tail_track.stop(immediate=True)
             DomainEventBus.emit(AudioClipSilentEvent())
 
     @property
     def is_audio_silent(self):
         # type: () -> bool
-        return self.track.audio_tail_track.output_meter_left < self.OUTPUT_METER_LEFT_THRESHOLD
+        return self.track.audio_track.output_meter_left < self.OUTPUT_METER_LEFT_THRESHOLD
 
     def post_audio_record(self):
         # type: () -> Optional[Sequence]
@@ -69,7 +68,9 @@ class TrackRecorderClipTailDecorator(TrackRecorderDecorator):
             return None
 
         audio_clip.loop.looping = False
-        audio_tail_clip = self.track.audio_tail_track.clip_slots[self.recording_scene_index].clip
+        audio_tail_clip = None
+        if self.track.audio_tail_track is not None:
+            audio_tail_clip = self.track.audio_tail_track.clip_slots[self.recording_scene_index].clip
 
         self.track.midi_track.stop()
         self.track.midi_track.input_routing.type = InputRoutingTypeEnum.NO_INPUT
@@ -78,7 +79,8 @@ class TrackRecorderClipTailDecorator(TrackRecorderDecorator):
         seq = Sequence()
         seq.wait_for_event(AudioClipSilentEvent, continue_on_song_stop=True)
         seq.add(partial(audio_clip.stop, immediate=True))  # don't catch end bar glitch
-        seq.add(partial(audio_tail_clip.stop, immediate=True))  # idem
+        if audio_tail_clip is not None:
+            seq.add(partial(audio_tail_clip.stop, immediate=True))  # idem
         seq.defer()
         # idem
         seq.add(partial(setattr, self.track.midi_track.input_routing, "type", input_routing_type))
