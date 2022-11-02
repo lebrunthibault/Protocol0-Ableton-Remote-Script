@@ -53,12 +53,14 @@ class DrumRackService(object):
 
         if not device.pad_names_equal(preset_names):
             seq = Sequence()
-
-            Backend.client().show_warning(
-                "'%s' is not synced : regenerating drum rack" % drum_category.drum_rack_name
-            )
             seq.add(partial(self._browser_service.load_device_from_enum, DeviceEnum.DRUM_RACK))
-            seq.add(partial(self._populate_drum_rack, drum_category))
+            seq.add(partial(Backend.client().show_sample_category, drum_category.name))
+            message = (
+                "'%s' is not synced : please save a new drum rack" % drum_category.drum_rack_name
+            )
+            seq.wait_ms(1000)  # wait for the backend to dispatch clicks
+            seq.add(partial(Backend.client().show_warning, message))
+            # seq.add(partial(self._populate_drum_rack, drum_category))
             return seq.done()
 
         return None
@@ -111,7 +113,9 @@ class DrumRackService(object):
             self._browser_service.load_sample("%s.wav" % sample_name)
         else:  # instrument is in a rack
             Backend.client().search(sample_name)
-            Backend.client().show_warning("Cannot load simpler in rack. Process manually.", centered=True)
+            Backend.client().show_warning(
+                "Cannot load simpler in rack. Process manually.", centered=True
+            )
 
     def _from_drum_rack_to_simpler_notes(self):
         # type: () -> None

@@ -26,7 +26,7 @@ class Config(object):
 
     TRACK_VOLUME_MONITORING = False
 
-    DEFAULT_WARP_MODE = Live.Clip.WarpMode.tones
+    DEFAULT_WARP_MODE = Live.Clip.WarpMode.beats
 
     CLIP_MAX_LENGTH = 63072000
 

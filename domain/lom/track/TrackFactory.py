@@ -93,6 +93,7 @@ class TrackFactory(object):
             partial(self._track_crud_component.create_midi_track, sample_category.create_track_index)
         )
         seq.add(lambda: setattr(SongFacade.selected_track(), "volume", -15))
+        seq.add(lambda: setattr(SongFacade.selected_track(), "color", SongFacade.drums_track().color))
 
         # not creating clip here
         seq.add(partial(self._drum_rack_service.load_category_drum_rack, sample_category))
