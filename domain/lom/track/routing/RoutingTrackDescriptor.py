@@ -62,7 +62,7 @@ class RoutingTrackDescriptor(object):
                     self.routing_attribute_name,
                     live_track.name,
                     track_routing.live_track.name,
-                    [(r.category, r.display_name) for r in available_routings if r.display_name == "High"],
+                    [(r.category, r.display_name) for r in available_routings],
                 )
             )
 

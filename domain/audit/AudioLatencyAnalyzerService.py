@@ -100,7 +100,7 @@ class AudioLatencyAnalyzerService(object):
         track = SongFacade.current_external_synth_track()
         seq = Sequence()
         seq.add(
-            partial(self._track_recorder_service.record_track, track, RecordTypeEnum.AUDIO_ONLY)
+            partial(self._track_recorder_service.record_track, track, RecordTypeEnum.AUDIO)
         )
         seq.add(
             lambda: track.audio_track.select_clip_slot(track.audio_track.clip_slots[0]._clip_slot)

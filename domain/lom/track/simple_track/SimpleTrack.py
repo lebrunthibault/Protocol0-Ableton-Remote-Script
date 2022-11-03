@@ -44,6 +44,9 @@ class SimpleTrack(AbstractTrack):
         # AbstractGroupTracks except with self.abstract_group_track which links both layers
         # and is handled by the abg
         self.group_track = self.group_track  # type: Optional[SimpleTrack]
+        if self.group_track is not None:
+            self.color = self.group_track.color
+
         self.sub_tracks = []  # type: List[SimpleTrack]
 
         self._instrument = None  # type: Optional[InstrumentInterface]

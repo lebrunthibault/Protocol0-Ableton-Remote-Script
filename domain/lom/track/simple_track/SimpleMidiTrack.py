@@ -66,7 +66,7 @@ class SimpleMidiTrack(SimpleTrack):
         if not isinstance(track, SimpleMidiTrack):
             return False
 
-        if len(self.clips) != len(track.clips):
+        if len(self.clips) == 0 or len(self.clips) != len(track.clips):
             return False
 
         for index, clip in enumerate(self.clips):

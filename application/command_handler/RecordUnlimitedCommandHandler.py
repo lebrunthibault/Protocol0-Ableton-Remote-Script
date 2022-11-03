@@ -11,5 +11,5 @@ class RecordUnlimitedCommandHandler(CommandHandlerInterface):
     def handle(self, command):
         # type: (RecordUnlimitedCommand) -> None
         self._container.get(TrackRecorderService).record_track(
-            SongFacade.current_track(), RecordTypeEnum.NORMAL_UNLIMITED
+            SongFacade.current_track(), RecordTypeEnum.MIDI_UNLIMITED
         )

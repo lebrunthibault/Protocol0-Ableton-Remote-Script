@@ -72,10 +72,18 @@ class ActionGroupMain(ActionGroupInterface):
         # RECordAudio encoder
         self.add_encoder(
             identifier=5,
-            name="record audio and keep automation",
+            name="record audio export",
             filter_active_tracks=True,
-            on_press=lambda: partial(record_track, RecordTypeEnum.AUDIO_ONLY_EXPORT),
-            on_long_press=lambda: partial(record_track, RecordTypeEnum.AUDIO_ONLY_EXPORT_ONE),
+            on_press=lambda: partial(record_track, RecordTypeEnum.AUDIO_EXPORT),
+            on_long_press=lambda: partial(record_track, RecordTypeEnum.AUDIO_EXPORT_ONE),
+        )
+
+        # RECordAudio 2 encoder
+        self.add_encoder(
+            identifier=6,
+            name="record audio jam",
+            filter_active_tracks=True,
+            on_press=lambda: partial(record_track, RecordTypeEnum.AUDIO),
         )
 
         # MONitor encoder
@@ -94,8 +102,8 @@ class ActionGroupMain(ActionGroupInterface):
             on_scroll=self._container.get(
                 TrackRecorderService
             ).recording_bar_length_scroller.scroll,
-            on_press=lambda: partial(record_track, RecordTypeEnum.NORMAL),
-            on_long_press=lambda: partial(record_track, RecordTypeEnum.NORMAL_UNLIMITED),
+            on_press=lambda: partial(record_track, RecordTypeEnum.MIDI),
+            on_long_press=lambda: partial(record_track, RecordTypeEnum.MIDI_UNLIMITED),
         )
 
         # SELected parameter encoder

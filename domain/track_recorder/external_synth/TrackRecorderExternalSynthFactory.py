@@ -55,9 +55,9 @@ class TrackRecorderExternalSynthFactory(AbstractTrackRecorderFactory):
 
     def get_recording_bar_length(self, record_type):
         # type: (RecordTypeEnum) -> int
-        if record_type == RecordTypeEnum.NORMAL:
+        if record_type == RecordTypeEnum.MIDI:
             return self._recording_bar_length
-        elif record_type == RecordTypeEnum.NORMAL_UNLIMITED:
+        elif record_type == RecordTypeEnum.MIDI_UNLIMITED:
             return 0
         elif record_type.use_midi_clip_length:
             midi_clip = self.track.midi_track.selected_clip_slot.clip

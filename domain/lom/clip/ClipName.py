@@ -63,7 +63,7 @@ class ClipName(SlotManager):
     def _length_legend(self):
         # type: () -> str
         if hasattr(self._live_clip, "warping") and not self._live_clip.warping:
-            return "unwarped"
+            return ""
 
         return get_length_legend(self._live_clip.length, SongFacade.signature_numerator())
 
@@ -79,7 +79,11 @@ class ClipName(SlotManager):
             self.base_name = base_name
 
         if self.base_name:
-            clip_name = "%s (%s)" % (self.base_name, self._length_legend)
+            length_legend = self._length_legend
+            if length_legend:
+                clip_name = "%s (%s)" % (self.base_name, length_legend)
+            else:
+                clip_name = self.base_name
         else:
             clip_name = self._length_legend
 

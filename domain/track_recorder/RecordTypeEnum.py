@@ -10,30 +10,31 @@ from protocol0.shared.AbstractEnum import AbstractEnum
 
 
 class RecordTypeEnum(AbstractEnum):
-    NORMAL = "NORMAL"
-    NORMAL_UNLIMITED = "NORMAL_UNLIMITED"
-    AUDIO_ONLY = "AUDIO_ONLY"
-    AUDIO_ONLY_EXPORT = "AUDIO_ONLY_EXPORT"
-    AUDIO_ONLY_EXPORT_ONE = "AUDIO_ONLY_EXPORT_ONE"
-    AUDIO_ONLY_MULTI = "AUDIO_ONLY_MULTI"
+    MIDI = "MIDI"
+    MIDI_UNLIMITED = "MIDI_UNLIMITED"
+    AUDIO_EXPORT = "AUDIO_EXPORT"
+    AUDIO_EXPORT_ONE = "AUDIO_EXPORT_ONE"
+    AUDIO = "AUDIO"
+    AUDIO_MULTI = "AUDIO_MULTI"
 
     @property
     def is_normal_recording(self):
         # type: () -> bool
-        return self in (RecordTypeEnum.NORMAL, RecordTypeEnum.NORMAL_UNLIMITED)
+        return self in (RecordTypeEnum.MIDI, RecordTypeEnum.MIDI_UNLIMITED)
 
     @property
     def need_additional_scene(self):
         # type: () -> bool
-        return self == RecordTypeEnum.AUDIO_ONLY_EXPORT
+        return self == RecordTypeEnum.AUDIO_EXPORT
 
     @property
     def record_tail(self):
         # type: () -> bool
         return self in (
-            RecordTypeEnum.AUDIO_ONLY_EXPORT,
-            RecordTypeEnum.AUDIO_ONLY_EXPORT_ONE,
-            RecordTypeEnum.NORMAL,
+            RecordTypeEnum.AUDIO,
+            RecordTypeEnum.AUDIO_EXPORT,
+            RecordTypeEnum.AUDIO_EXPORT_ONE,
+            RecordTypeEnum.MIDI,
         )
 
     @property
@@ -52,12 +53,12 @@ class RecordTypeEnum(AbstractEnum):
 
         return self.get_value_from_mapping(
             {
-                RecordTypeEnum.AUDIO_ONLY: TrackRecorderExternalSynthAudio,
-                RecordTypeEnum.AUDIO_ONLY_EXPORT: TrackRecorderExternalSynthAudioExport,
-                RecordTypeEnum.AUDIO_ONLY_EXPORT_ONE: TrackRecorderExternalSynthAudioExportOnce,
-                RecordTypeEnum.AUDIO_ONLY_MULTI: TrackRecorderExternalSynthAudioMulti,
-                RecordTypeEnum.NORMAL: TrackRecorderExternalSynthNormal,
-                RecordTypeEnum.NORMAL_UNLIMITED: TrackRecorderExternalSynthNormalUnlimited,
+                RecordTypeEnum.AUDIO: TrackRecorderExternalSynthAudio,
+                RecordTypeEnum.AUDIO_EXPORT: TrackRecorderExternalSynthAudioExport,
+                RecordTypeEnum.AUDIO_EXPORT_ONE: TrackRecorderExternalSynthAudioExportOnce,
+                RecordTypeEnum.AUDIO_MULTI: TrackRecorderExternalSynthAudioMulti,
+                RecordTypeEnum.MIDI: TrackRecorderExternalSynthNormal,
+                RecordTypeEnum.MIDI_UNLIMITED: TrackRecorderExternalSynthNormalUnlimited,
             }
         )
 
@@ -76,8 +77,8 @@ class RecordTypeEnum(AbstractEnum):
     def use_midi_clip_length(self):
         # type: () -> bool
         return self in (
-            RecordTypeEnum.AUDIO_ONLY,
-            RecordTypeEnum.AUDIO_ONLY_EXPORT,
-            RecordTypeEnum.AUDIO_ONLY_EXPORT_ONE,
-            RecordTypeEnum.AUDIO_ONLY_MULTI,
+            RecordTypeEnum.AUDIO,
+            RecordTypeEnum.AUDIO_EXPORT,
+            RecordTypeEnum.AUDIO_EXPORT_ONE,
+            RecordTypeEnum.AUDIO_MULTI,
         )

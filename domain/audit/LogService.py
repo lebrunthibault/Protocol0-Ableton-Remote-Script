@@ -87,6 +87,8 @@ class LogService(object):
         Logger.info()
         Logger.info("selected_scene.clips.all: %s" % SongFacade.selected_scene().clips.all)
         Logger.info()
+        Logger.info("selected_scene.longest_clip: %s" % SongFacade.selected_scene()._scene_length._longest_clip)
+        Logger.info()
         Logger.info("********* SELECTED_DEVICE *************")
         Logger.info()
         try:

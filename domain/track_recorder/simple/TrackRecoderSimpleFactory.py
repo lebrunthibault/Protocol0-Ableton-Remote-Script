@@ -32,11 +32,11 @@ class TrackRecorderSimpleFactory(AbstractTrackRecorderFactory):
 
     def get_recording_bar_length(self, record_type):
         # type: (RecordTypeEnum) -> int
-        if record_type == RecordTypeEnum.NORMAL_UNLIMITED:
+        if record_type == RecordTypeEnum.MIDI_UNLIMITED:
             return 0
-        elif record_type == RecordTypeEnum.NORMAL:
+        elif record_type == RecordTypeEnum.MIDI:
             return self._recording_bar_length
-        elif record_type == RecordTypeEnum.AUDIO_ONLY and isinstance(SongFacade.selected_track(), ResamplingTrack):
+        elif record_type == RecordTypeEnum.AUDIO and isinstance(SongFacade.selected_track(), ResamplingTrack):
             return SongFacade.selected_scene().bar_length
         else:
             raise Protocol0Warning("Invalid record type")
