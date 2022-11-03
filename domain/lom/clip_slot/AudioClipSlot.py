@@ -58,7 +58,6 @@ class AudioClipSlot(ClipSlot):
             When rerecording audio, mark this audio clip slot as having its clip replaced
             it will keep its loop start and end
         """
-        Logger.dev("marked %s" % self)
         if self.clip is None:
             return
 
