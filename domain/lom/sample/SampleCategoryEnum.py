@@ -17,7 +17,7 @@ class SampleCategoryEnum(AbstractEnum):
         return self.get_value_from_mapping(
             {
                 SampleCategoryEnum.DRUMS: Config.SAMPLE_DIRECTORY,
-                SampleCategoryEnum.VOCALS: "%s\\Vocal" % Config.SAMPLE_DIRECTORY,
+                SampleCategoryEnum.VOCALS: "%s\\_Vocal" % Config.SAMPLE_DIRECTORY,
             }
         )
 
@@ -36,9 +36,7 @@ class SampleCategoryEnum(AbstractEnum):
         # type: () -> List[str]
         subcategories = set()
 
-        presets = DirectoryPresetImporter(
-            self.sample_directory, ".wav"
-        ).import_presets()
+        presets = DirectoryPresetImporter(self.sample_directory).import_presets()
         for preset in presets:
             subcategories.add(preset.category)
 

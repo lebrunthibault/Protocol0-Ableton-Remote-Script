@@ -33,6 +33,11 @@ class SampleCategory(object):
         return self._name
 
     @property
+    def color(self):
+        # type: () -> int
+        return self._parent_track.color
+
+    @property
     def _sample_directory(self):
         # type: () -> str
         return "%s\\%s" % (self._category.sample_directory, self._name)
@@ -45,12 +50,12 @@ class SampleCategory(object):
     @property
     def presets(self):
         # type: () -> List[InstrumentPreset]
-        return DirectoryPresetImporter(self._sample_directory, ".wav").import_presets()
+        return DirectoryPresetImporter(self._sample_directory).import_presets()
 
     @property
     def live_presets(self):
         # type: () -> List[InstrumentPreset]
-        return DirectoryPresetImporter(self._sample_directory, ".wav").import_presets(
+        return DirectoryPresetImporter(self._sample_directory).import_presets(
             use_cache=False
         )
 
@@ -74,7 +79,7 @@ class SampleCategory(object):
         if self._parent_track in SongFacade.selected_track().group_tracks:
             return index_from_track(SongFacade.selected_track())
         else:
-            return index_from_track(SongFacade.drums_track().sub_tracks[0].base_track)
+            return index_from_track(self._parent_track.sub_tracks[0].base_track)
 
     @property
     def _parent_track(self):

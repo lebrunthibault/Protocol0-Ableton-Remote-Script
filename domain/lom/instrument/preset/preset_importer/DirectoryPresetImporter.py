@@ -1,6 +1,6 @@
 import os
 
-from typing import List
+from typing import List, Optional
 
 from protocol0.domain.lom.instrument.preset.InstrumentPreset import InstrumentPreset
 from protocol0.domain.lom.instrument.preset.preset_importer.PresetImportInterface import (
@@ -9,10 +9,13 @@ from protocol0.domain.lom.instrument.preset.preset_importer.PresetImportInterfac
 
 
 class DirectoryPresetImporter(PresetImportInterface):
-    def __init__(self, path, preset_extension):
-        # type: (str, str) -> None
+    def __init__(self, path, extension=None):
+        # type: (str, Optional[str]) -> None
         self._path = path
-        self._preset_extension = preset_extension
+        if extension is not None:
+            self._extensions = [extension]
+        else:
+            self._extensions = [".wav", ".aif"]
 
     def _import_presets(self):
         # type: () -> List[InstrumentPreset]
@@ -25,9 +28,10 @@ class DirectoryPresetImporter(PresetImportInterface):
 
             if has_categories:
                 if root == self._path:
-                    continue
+                    category = "unclassified"
+                else:
+                    category = root.replace(self._path + "\\", "").split("\\")[0]
 
-                category = root.replace(self._path + "\\", "").split("\\")[0]
                 if category.startswith("_"):
                     continue
                 for filename in [
@@ -46,4 +50,7 @@ class DirectoryPresetImporter(PresetImportInterface):
 
     def _is_preset_filename(self, filename):
         # type: (str) -> bool
-        return filename.endswith(self._preset_extension) and not filename.startswith("_")
+        if filename.startswith("_"):
+            return False
+
+        return any(filename.endswith(ext) for ext in self._extensions)

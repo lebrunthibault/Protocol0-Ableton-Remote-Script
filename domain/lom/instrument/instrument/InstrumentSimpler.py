@@ -13,7 +13,6 @@ from protocol0.shared.Config import Config
 class InstrumentSimpler(InstrumentInterface):
     NAME = "Simpler"
     TRACK_COLOR = InstrumentColorEnum.SIMPLER
-    PRESET_EXTENSION = ".wav"
     PRESETS_PATH = Config.SAMPLE_DIRECTORY
     PRESET_DISPLAY_OPTION = PresetDisplayOptionEnum.CATEGORY
     CAN_BE_SHOWN = False
