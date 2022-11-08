@@ -67,7 +67,7 @@ class MidiClip(Clip):
         if len(self.get_notes()) > 0 or self.is_recording:
             return None
 
-        self._clip.view.grid_quantization = Live.Clip.GridQuantization.g_sixteenth
+        self._clip.view.grid_quantization = Live.Clip.GridQuantization.g_eighth
 
         seq = Sequence()
         seq.defer()
@@ -95,7 +95,7 @@ class MidiClip(Clip):
             clip_end = int(self.loop.end) - (int(self.loop.end) % SongFacade.signature_numerator())
             self.loop.end = clip_end
 
-        self._clip.view.grid_quantization = Live.Clip.GridQuantization.g_sixteenth
+        self._clip.view.grid_quantization = Live.Clip.GridQuantization.g_eighth
         self.scale_velocities(go_next=False, scaling_factor=2)
         self.quantize()
 
