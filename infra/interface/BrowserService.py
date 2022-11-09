@@ -9,7 +9,6 @@ from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.BrowserServiceInterface import BrowserServiceInterface
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.infra.interface.BrowserLoaderService import BrowserLoaderService
-from protocol0.shared.logging.Logger import Logger
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -62,8 +61,7 @@ class BrowserService(BrowserServiceInterface):
     def _on_sample_selected_event(self, event):
         # type: (SampleSelectedEvent) -> None
         item = self._get_sample(sample_name=event.sample_name)
-        Logger.dev(event.sample_name)
-        Logger.dev(item)
+
         if item is not None and item.is_loadable:
             # noinspection PyArgumentList
             self._browser.load_item(item)  # or _browser.preview_item

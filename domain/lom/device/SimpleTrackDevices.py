@@ -24,7 +24,7 @@ class SimpleTrackDevices(SlotManager, Observable):
         self._all_devices = []  # type: List[Device]
         self._devices_listener.subject = live_track
         self._devices_mapping = LiveObjectMapping(Device.make)
-        self._mixer_device = MixerDevice(live_track.mixer_device)
+        self.mixer_device = MixerDevice(live_track.mixer_device)
 
     def __repr__(self):
         # type: () -> str
@@ -114,6 +114,11 @@ class SimpleTrackDevices(SlotManager, Observable):
 
         return all_devices
 
+    def copy_to(self, devices):
+        # type: (SimpleTrackDevices) -> None
+        for source_param, dest_param in zip(self.mixer_device.parameters, devices.mixer_device.parameters):
+            dest_param.value = source_param.value
+
     def delete(self, device):
         # type: (Device) -> None
         if device not in self.all:
@@ -127,7 +132,7 @@ class SimpleTrackDevices(SlotManager, Observable):
     def parameters(self):
         # type: () -> List[DeviceParameter]
         return (
-            list(chain(*[device.parameters for device in self.all])) + self._mixer_device.parameters
+            list(chain(*[device.parameters for device in self.all])) + self.mixer_device.parameters
         )
 
     def disconnect(self):

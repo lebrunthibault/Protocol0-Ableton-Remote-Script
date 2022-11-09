@@ -59,3 +59,12 @@ class ActionGroupCut(ActionGroupInterface):
             name="toggle session / arrangement",
             on_press=ApplicationViewFacade.toggle_session_arrangement,
         )
+
+        # COPY track devices encoder
+        self.add_encoder(
+            identifier=14,
+            name="copy track devices",
+            on_press=lambda: SongFacade.current_external_synth_track().copy_to_matching_track,
+        )
+
+

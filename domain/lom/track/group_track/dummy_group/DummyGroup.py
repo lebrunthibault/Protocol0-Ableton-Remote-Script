@@ -4,6 +4,7 @@ import Live
 from typing import Optional, Tuple, TYPE_CHECKING, Dict, List
 
 from protocol0.domain.lom.clip.DummyClip import DummyClip
+from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.simple_track.SimpleDummyReturnTrack import SimpleDummyReturnTrack
@@ -58,6 +59,14 @@ class DummyGroup(object):
                 clips.append((track, clip))
 
         return clips
+
+    @property
+    def devices(self):
+        # type: () -> List[Device]
+        if self._dummy_track is not None:
+            return self._dummy_track.devices
+        else:
+            return []
 
     def map_tracks(self):
         # type: () -> None

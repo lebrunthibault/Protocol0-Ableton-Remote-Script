@@ -67,7 +67,7 @@ class Device(SlotManager):
     @property
     def name(self):
         # type: () -> str
-        """Name of the device : used defined"""
+        """Name of the device : user defined"""
         return self._device.name if self._device else ""
 
     @property
@@ -126,3 +126,8 @@ class Device(SlotManager):
     def is_top(self):
         # type: () -> bool
         return isinstance(self._device.canonical_parent, Live.Track.Track)
+
+    def copy_to(self, device):
+        # type: (Device) -> None
+        for source_param, dest_param in zip(self.parameters, device.parameters):
+            dest_param.value = source_param.value

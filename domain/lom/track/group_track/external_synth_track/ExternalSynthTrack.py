@@ -480,6 +480,31 @@ class ExternalSynthTrack(AbstractGroupTrack):
         seq.add(partial(StatusBar.show_message, "track protected mode disabled"))
         return seq.done()
 
+    def copy_to_matching_track(self):
+        # type: () -> None
+        matching_track = self._get_matching_track()
+        if matching_track is None:
+            raise Protocol0Warning("No matching track found")
+
+        matching_track.volume = self.volume
+        self.base_track.devices.copy_to(matching_track.devices)
+        devices = self.base_track.devices.all + list(self.dummy_group.devices)
+        Logger.dev(devices)
+
+        if len(devices) == 0:
+            Backend.client().show_success("Track copied ! (no devices)")
+            return
+
+        self.base_track.select()
+        ApplicationViewFacade.show_device()
+        message = "Please copy %s devices" % len(devices)
+
+        scenes_with_automation = [i for i in range(len(SongFacade.scenes())) if self.dummy_group.has_automation(i)]
+        if len(scenes_with_automation):
+            message += "\nAutomation present on scenes %s" % scenes_with_automation
+
+        Backend.client().show_info(message)
+
     def _on_disconnect_matching_track(self):
         # type: () -> None
         """Restore the current monitoring state of the main track"""
