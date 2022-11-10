@@ -8,6 +8,7 @@ from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTr
 from protocol0.domain.lom.track.routing.InputRoutingTypeEnum import InputRoutingTypeEnum
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Last32thPassedEvent import Last32thPassedEvent
+from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.track_recorder.AbstractTrackRecorder import AbstractTrackRecorder
 from protocol0.domain.track_recorder.TrackRecorderDecorator import TrackRecorderDecorator
 from protocol0.domain.track_recorder.external_synth.decorator.AudioClipSilentEvent import (
@@ -42,6 +43,8 @@ class TrackRecorderClipTailDecorator(TrackRecorderDecorator):
     def post_audio_record(self):
         # type: () -> Optional[Sequence]
         super(TrackRecorderClipTailDecorator, self).post_audio_record()
+        from protocol0.shared.logging.Logger import Logger
+        Logger.dev("self.is_audio_silent: %s" % self.is_audio_silent)
         if self.is_audio_silent:
             midi_clip = self.track.midi_track.clip_slots[self.recording_scene_index].clip
             if midi_clip.starts_at_1:
@@ -64,6 +67,8 @@ class TrackRecorderClipTailDecorator(TrackRecorderDecorator):
         input_routing_type = self.track.midi_track.input_routing.type
 
         audio_clip = self.track.audio_track.clip_slots[self.recording_scene_index].clip
+        from protocol0.shared.logging.Logger import Logger
+        Logger.dev("audio_clip: %s" % audio_clip)
         if audio_clip is None:
             return None
 
@@ -73,11 +78,12 @@ class TrackRecorderClipTailDecorator(TrackRecorderDecorator):
             audio_tail_clip = self.track.audio_tail_track.clip_slots[self.recording_scene_index].clip
 
         self.track.midi_track.stop()
-        self.track.midi_track.input_routing.type = InputRoutingTypeEnum.NO_INPUT
+        self.track.midi_track.input_routing.type = InputRoutingTypeEnum.COMPUTER_KEYBOARD
 
         DomainEventBus.subscribe(Last32thPassedEvent, self._on_last_32th_passed_event)
         seq = Sequence()
         seq.wait_for_event(AudioClipSilentEvent, continue_on_song_stop=True)
+        seq.log("clip silent !")
         seq.add(partial(audio_clip.stop, immediate=True))  # don't catch end bar glitch
         if audio_tail_clip is not None:
             seq.add(partial(audio_tail_clip.stop, immediate=True))  # idem

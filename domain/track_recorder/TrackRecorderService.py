@@ -134,7 +134,6 @@ class TrackRecorderService(object):
         seq.add(partial(recorder.record, bar_length))
         seq.add(recorder.post_audio_record)
         seq.add(partial(recorder.post_record, bar_length))
-        # seq.add(recorder.recording_scene.fire)
         seq.add(partial(setattr, self, "_recorder", None))
 
         return seq.done()
