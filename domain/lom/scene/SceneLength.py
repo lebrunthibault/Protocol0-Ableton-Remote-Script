@@ -47,6 +47,7 @@ class SceneLength(object):
             We take any clip except
             - dummy clips (that can spawn more than one scene)
             - recording clips that have a non integer length
+            - muted clips
 
         We cannot exclude all recording clips in the case the midi clip is the longest
         and we are recording audio
@@ -54,8 +55,9 @@ class SceneLength(object):
         clips = [
             clip
             for clip in self._clips
-            if (not clip.is_recording or float(clip.length).is_integer()) and not isinstance(clip,
-                                                                                             DummyClip)
+            if (not clip.is_recording or float(clip.length).is_integer())
+            and not isinstance(clip, DummyClip)
+            and not clip.muted
         ]
         if len(clips) == 0:
             return None

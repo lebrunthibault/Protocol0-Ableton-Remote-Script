@@ -41,15 +41,16 @@ class ExternalSynthMatchingTrack(object):
     def _get_atk_cs(self):
         # type: () -> Optional[AudioClipSlot]
         atk_cs = find_if(
-            lambda cs: cs.clip is not None and cs.clip.clip_name.base_name == ClipNameEnum.ATK.value,
+            lambda cs: cs.clip is not None
+            and cs.clip.clip_name.base_name == ClipNameEnum.ATK.value,
             self._base_track.sub_tracks[1].clip_slots,
         )
         if atk_cs is not None:
             return cast(AudioClipSlot, atk_cs)
         else:
             return find_if(
-                lambda
-                    cs: cs.clip is not None and cs.clip.clip_name.base_name == ClipNameEnum.ONCE.value,
+                lambda cs: cs.clip is not None
+                and cs.clip.clip_name.base_name == ClipNameEnum.ONCE.value,
                 self._base_track.sub_tracks[1].clip_slots,
             )
 
@@ -69,7 +70,7 @@ class ExternalSynthMatchingTrack(object):
 
         seq = Sequence()
         self._track.current_monitoring_state = CurrentMonitoringStateEnum.IN
-        self._base_track.output_routing.track = self._base_track
+        self._base_track.output_routing.track = self._track
 
         if not show_midi_clip:
             return None
@@ -79,7 +80,8 @@ class ExternalSynthMatchingTrack(object):
         if first_cs is not None:
             self._base_midi_track.select_clip_slot(first_cs._clip_slot)
 
-        if self._base_midi_track.instrument.needs_exclusive_activation:
+        instrument = self._base_midi_track.instrument
+        if instrument is not None and instrument.needs_exclusive_activation:
             seq.wait(20)  # wait for editor activation
 
         seq.add(ApplicationViewFacade.show_clip)
@@ -104,6 +106,7 @@ class ExternalSynthMatchingTrack(object):
                 )
             )
             seq.add(lambda: setattr(SongFacade.selected_track(), "name", self._base_track.name))
+            seq.add(lambda: setattr(SongFacade.selected_track(), "color", self._base_track.color))
 
         seq.add(self._copy_params_from_base_track)
         seq.add(self._copy_clips_from_base_track)
@@ -150,7 +153,8 @@ class ExternalSynthMatchingTrack(object):
         loop_cs = None
         if len(self._base_track.sub_tracks) > 2:
             loop_cs = find_if(
-                lambda cs: cs.clip is not None and cs.clip.clip_name.base_name == ClipNameEnum.LOOP.value,
+                lambda cs: cs.clip is not None
+                and cs.clip.clip_name.base_name == ClipNameEnum.LOOP.value,
                 self._base_track.sub_tracks[2].clip_slots,
             )
 

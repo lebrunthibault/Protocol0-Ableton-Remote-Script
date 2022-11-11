@@ -35,6 +35,10 @@ class RoutingTrackDescriptor(object):
     def __set__(self, track_routing, track):
         # type: (TrackRoutingInterface, P0TrackInterface) -> None
         live_track = track._track
+
+        if live_track == track_routing.live_track:
+            return
+
         available_routings = getattr(
             track_routing.live_track, self.available_routings_attribute_name
         )
@@ -51,9 +55,22 @@ class RoutingTrackDescriptor(object):
             routing = find_if(lambda r: r.attached_object == live_track, available_routings)
 
             if routing is None:
-                routings_by_name = list(filter(lambda r: r.display_name == live_track.name, available_routings))
+                routings_by_name = list(
+                    filter(
+                        lambda r: r.display_name == live_track.name,
+                        available_routings,
+                    )
+                )
                 if len(routings_by_name) == 1:
                     routing = routings_by_name[0]
+                elif len(routings_by_name) > 1:
+                    raise Protocol0Error(
+                        "multiple routing name matching '%s' for '%s'"
+                        % (
+                            live_track.name,
+                            track_routing.live_track.name,
+                        )
+                    )
 
         if routing is None:
             raise Protocol0Error(

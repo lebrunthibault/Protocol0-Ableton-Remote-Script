@@ -49,7 +49,7 @@ class ScenePlaybackService(SlotManager):
     def _on_third_beat_passed_event(self, _):
         # type: (ThirdBeatPassedEvent) -> None
         if SongFacade.playing_scene() and SongFacade.playing_scene().playing_state.is_playing:
-            Scheduler.defer(SongFacade.playing_scene().on_end)
+            Scheduler.defer(SongFacade.playing_scene().on_bar_end)
 
     def _on_scene_position_scrolled_event(self, _):
         # type: (ScenePositionScrolledEvent) -> None
