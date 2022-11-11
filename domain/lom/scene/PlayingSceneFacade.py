@@ -3,7 +3,6 @@ from typing import Optional, List, TYPE_CHECKING
 from protocol0.domain.lom.scene.PlayingSceneChangedEvent import PlayingSceneChangedEvent
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
-from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.logging.Logger import Logger
 
@@ -50,7 +49,7 @@ class PlayingSceneFacade(object):
         DomainEventBus.emit(PlayingSceneChangedEvent())
 
         # deferring this until the previous playing scene has stopped
-        Scheduler.wait_ms(500, cls._check_for_unknown_playing_scenes)
+        # Scheduler.wait_ms(500, cls._check_for_unknown_playing_scenes)
 
     @classmethod
     def history(cls):

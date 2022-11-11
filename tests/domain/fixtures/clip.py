@@ -21,6 +21,7 @@ class AbletonClip(Subject):
         self.is_recording = False
         self.length = 4
         self.color_index = 0
+        self.looping = True
         self.loop_start = 0
         self.muted = False
         self.playing_position = 0

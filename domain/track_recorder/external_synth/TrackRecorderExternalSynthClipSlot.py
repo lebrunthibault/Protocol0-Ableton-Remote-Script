@@ -36,6 +36,7 @@ class SourceClipSlot(object):
         if clip is None:
             return
 
+        clip.looping = True
         clip.muted = False
         clip.name = self._name
 

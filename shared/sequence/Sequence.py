@@ -159,21 +159,31 @@ class Sequence(Observable):
             partial(Scheduler.wait_ms, ms, self._execute_next_step), notify_terminated=False
         )
 
-    def wait_bars(self, bars, wait_for_song_start=False):
-        # type: (float, bool) -> Sequence
+    def wait_bars(self, bars, wait_for_song_start=False, continue_on_song_stop=False):
+        # type: (float, bool, bool) -> Sequence
         if not SongFacade.is_playing() and wait_for_song_start:
             self.wait_for_event(SongStartedEvent)
 
-        return self.wait_beats(bars * SongFacade.signature_numerator())
+        return self.wait_beats(
+            bars * SongFacade.signature_numerator(), continue_on_song_stop=continue_on_song_stop
+        )
 
-    def wait_beats(self, beats):
-        # type: (float) -> Sequence
+    def wait_beats(self, beats, continue_on_song_stop=False):
+        # type: (float, bool) -> Sequence
         def execute():
             # type: () -> None
             if not SongFacade.is_playing():
-                Logger.warning("Cannot wait %s beats, song is not playing. %s" % (beats, self))
+                if continue_on_song_stop:
+                    self._execute_next_step()
+                    return
+                else:
+                    Logger.warning("Cannot wait %s beats, song is not playing. %s" % (beats, self))
             else:
                 Scheduler.wait_beats(beats, self._execute_next_step)
+
+            # make sure step is called if the song stops
+            if continue_on_song_stop:
+                DomainEventBus.subscribe(SongStoppedEvent, lambda _: self._execute_next_step())
 
         return self.add(execute, notify_terminated=False)
 
@@ -197,7 +207,10 @@ class Sequence(Observable):
             # type: () -> None
             DomainEventBus.subscribe(event_class, on_event)
             if continue_on_song_stop:
-                DomainEventBus.once(SongStoppedEvent, on_event)
+                if not SongFacade.is_playing():
+                    on_event(SongStoppedEvent())
+                else:
+                    DomainEventBus.once(SongStoppedEvent, on_event)
 
         def on_event(event):
             # type: (object) -> None
@@ -256,7 +269,8 @@ class Sequence(Observable):
                 options,
                 vertical=vertical,
                 color=color.value,
-            ))
+            )
+        )
         self.wait_for_backend_response(on_response)
 
     def select(self, question, options, vertical=True, color=NotificationColorEnum.INFO):

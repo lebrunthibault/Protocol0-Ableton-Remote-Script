@@ -72,3 +72,5 @@ _.play_pause  # unused method (domain\lom\song\components\PlaybackComponent.py:1
 _.toggle_mute  # unused method (domain\lom\track\simple_track\MasterTrack.py:62)
 _.favorites  # unused method (domain\lom\device\DeviceEnum.py:197)
 _.insert_favorites  # unused method (domain\lom\device\DeviceEnum.py:226)
+_._check_for_unknown_playing_scenes  # unused method (domain\lom\scene\PlayingSceneFacade.py:59)
+_._check_for_out_of_sync_scenes  # unused method (domain\lom\scene\ScenePlaybackService.py:116)

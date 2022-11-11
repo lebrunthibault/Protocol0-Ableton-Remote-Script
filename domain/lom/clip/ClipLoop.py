@@ -135,6 +135,19 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
         # type: (float) -> None
         self.length = bar_length * SongFacade.signature_numerator()
 
+    @property
+    def full_length(self):
+        # type: () -> float
+        if self.length == 0:
+            return 0.0
+        else:
+            return self._clip.end_marker - self._clip.start_marker
+
+    @property
+    def full_bar_length(self):
+        # type: () -> float
+        return int(self.full_length / SongFacade.signature_numerator())
+
     def match(self, loop):
         # type: (ClipLoop) -> None
         self.start = loop.start

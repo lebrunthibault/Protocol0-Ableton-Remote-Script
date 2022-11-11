@@ -233,11 +233,11 @@ class ExternalSynthTrack(AbstractGroupTrack):
         if not isinstance(base_group_track.sub_tracks[0], SimpleMidiTrack):
             return False  # type: ignore[unreachable]
         if not isinstance(base_group_track.sub_tracks[1], SimpleAudioTrack):
-            return False  # type: ignore[unreachable]
+            return False
 
         for track in base_group_track.sub_tracks[2:]:
             if not isinstance(track, SimpleAudioTrack):
-                return False  # type: ignore[unreachable]
+                return False
 
         return True
 
@@ -489,7 +489,6 @@ class ExternalSynthTrack(AbstractGroupTrack):
         matching_track.volume = self.volume
         self.base_track.devices.copy_to(matching_track.devices)
         devices = self.base_track.devices.all + list(self.dummy_group.devices)
-        Logger.dev(devices)
 
         if len(devices) == 0:
             Backend.client().show_success("Track copied ! (no devices)")

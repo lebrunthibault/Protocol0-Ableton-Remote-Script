@@ -49,7 +49,7 @@ class ScenePlaybackService(SlotManager):
     def _on_third_beat_passed_event(self, _):
         # type: (ThirdBeatPassedEvent) -> None
         if SongFacade.playing_scene() and SongFacade.playing_scene().playing_state.is_playing:
-            SongFacade.playing_scene().on_end()
+            Scheduler.defer(SongFacade.playing_scene().on_end)
 
     def _on_scene_position_scrolled_event(self, _):
         # type: (ScenePositionScrolledEvent) -> None
@@ -111,7 +111,7 @@ class ScenePlaybackService(SlotManager):
         if not ApplicationViewFacade.is_session_visible():
             return
 
-        self._check_for_out_of_sync_scenes()
+        # self._check_for_out_of_sync_scenes()
 
     def _check_for_out_of_sync_scenes(self):
         # type: () -> None
@@ -127,7 +127,7 @@ class ScenePlaybackService(SlotManager):
         we rebuild the SceneClips
         we relaunch the scene cleanly
         """
-        if not SongFacade.is_playing() or SongFacade.playing_scene() is None:
+        if not SongFacade.is_playing() or SongFacade.playing_scene() is None or SongFacade.is_track_recording():
             return
 
         # do not trigger on already handled playback
@@ -189,5 +189,6 @@ class ScenePlaybackService(SlotManager):
                     track.dummy_group.reset_automation(
                         PlayingSceneFacade.get().index, immediate=True
                     )
+
         if PlayingSceneFacade.get_previous() is not None:
             PlayingSceneFacade.get_previous().stop(immediate=True)

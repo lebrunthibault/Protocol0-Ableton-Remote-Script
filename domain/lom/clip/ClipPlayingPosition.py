@@ -40,7 +40,10 @@ class ClipPlayingPosition(object):
     def bars_left(self):
         # type: () -> int
         """Truncated number of bars left in the clip"""
-        return int(self._clip_loop.bar_length) - 1 - self.current_bar
+        if self._clip_loop.looping:
+            return int(self._clip_loop.bar_length) - 1 - self.current_bar
+        else:
+            return int(self._clip_loop.full_bar_length) - 1 - self.current_bar
 
     @property
     def in_last_bar(self):
