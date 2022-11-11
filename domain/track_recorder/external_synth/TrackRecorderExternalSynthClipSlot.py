@@ -42,6 +42,9 @@ class SourceClipSlot(object):
 
     def replace_clips(self):
         # type: () -> Tuple[int, int]
+        if self.clip_slot.clip is None:
+            return 0, 0
+
         clips_replaced_count = 0
         clips_count = 0
 
@@ -52,10 +55,6 @@ class SourceClipSlot(object):
             clip = clip_slot.clip
 
             if clip.file_path != self.file_path:
-                continue
-
-            # dissociate between loop and end on clip length
-            if self._name != "atk" and clip.length != self.clip_slot.clip.length:
                 continue
 
             automated_params = clip.automation.get_automated_parameters(

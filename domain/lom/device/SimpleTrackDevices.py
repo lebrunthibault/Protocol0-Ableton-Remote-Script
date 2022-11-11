@@ -114,11 +114,6 @@ class SimpleTrackDevices(SlotManager, Observable):
 
         return all_devices
 
-    def copy_to(self, devices):
-        # type: (SimpleTrackDevices) -> None
-        for source_param, dest_param in zip(self.mixer_device.parameters, devices.mixer_device.parameters):
-            dest_param.value = source_param.value
-
     def delete(self, device):
         # type: (Device) -> None
         if device not in self.all:

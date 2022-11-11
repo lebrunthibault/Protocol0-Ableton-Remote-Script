@@ -1,5 +1,6 @@
 from typing import List
 
+from protocol0.domain.lom.clip.ClipNameEnum import ClipNameEnum
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthAudioExport import \
     TrackRecorderExternalSynthAudioExport
@@ -27,7 +28,7 @@ class TrackRecorderExternalSynthAudioExportOnce(TrackRecorderExternalSynthAudioE
 
     def _configure_clips(self, bar_length):
         # type: (int) -> None
-        self.atk_cs.clip.name = "once"
+        self.atk_cs.clip.name = ClipNameEnum.ONCE.value
 
         length = bar_length * SongFacade.signature_numerator()
         self.atk_cs.clip.loop._clip.loop_end = length

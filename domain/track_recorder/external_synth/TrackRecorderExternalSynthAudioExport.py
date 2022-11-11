@@ -2,6 +2,7 @@ from functools import partial
 
 from typing import Any, Optional, List
 
+from protocol0.domain.lom.clip.ClipNameEnum import ClipNameEnum
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthAudio import (
@@ -38,8 +39,8 @@ class TrackRecorderExternalSynthAudioExport(TrackRecorderExternalSynthAudio):
     def pre_record(self):
         # type: () -> Sequence
         self._source_clip_slots[:] = [
-            SourceClipSlot(self.track.audio_track, self.recording_scene_index, "atk"),
-            SourceClipSlot(self.track.audio_tail_track, self.recording_scene_index, "loop"),
+            SourceClipSlot(self.track.audio_track, self.recording_scene_index, ClipNameEnum.ATK.value),
+            SourceClipSlot(self.track.audio_tail_track, self.recording_scene_index, ClipNameEnum.LOOP.value),
         ]  # type: List[SourceClipSlot]
 
         return super(TrackRecorderExternalSynthAudioExport, self).pre_record()

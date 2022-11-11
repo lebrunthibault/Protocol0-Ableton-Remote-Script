@@ -75,7 +75,7 @@ class SimpleAudioTrack(SimpleTrack):
             len(SongFacade.scenes()) > scene_index + 1
             and self.clip_slots[scene_index + 1].clip is None
         )
-        
+
         # let the tail play
         if (
             has_empty_next_cs

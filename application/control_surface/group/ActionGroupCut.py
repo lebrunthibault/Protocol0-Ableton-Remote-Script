@@ -3,6 +3,7 @@ from functools import partial
 from protocol0.application.control_surface.ActionGroupInterface import ActionGroupInterface
 from protocol0.domain.lom.loop.Looper import Looper
 from protocol0.domain.lom.song.components.SceneCrudComponent import SceneCrudComponent
+from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.shared.SongFacade import SongFacade
 
@@ -64,7 +65,8 @@ class ActionGroupCut(ActionGroupInterface):
         self.add_encoder(
             identifier=14,
             name="copy track devices",
-            on_press=lambda: SongFacade.current_external_synth_track().copy_to_matching_track,
+            on_press=lambda: partial(
+                SongFacade.current_external_synth_track().matching_track.copy_from_base_track,
+                self._container.get(TrackCrudComponent),
+            ),
         )
-
-

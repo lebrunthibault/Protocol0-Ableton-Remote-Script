@@ -13,9 +13,10 @@ from protocol0.domain.lom.device.SimpleTrackDevices import SimpleTrackDevices
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
 from protocol0.domain.lom.instrument.instrument.InstrumentMinitaur import InstrumentMinitaur
-from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.track.abstract_track.AbstractTrack import AbstractTrack
 from protocol0.domain.lom.track.group_track.AbstractGroupTrack import AbstractGroupTrack
+from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthMatchingTrack import \
+    ExternalSynthMatchingTrack
 from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrackArmState import (
     ExternalSynthTrackArmState,
 )
@@ -54,6 +55,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
     def __init__(self, base_group_track):
         # type: (SimpleTrack) -> None
         super(ExternalSynthTrack, self).__init__(base_group_track)
+        self.base_track = cast(SimpleAudioTrack, base_group_track)
         midi_track = base_group_track.sub_tracks[0]
         self.midi_track = SimpleMidiExtTrack(midi_track._track, midi_track.index)
         self.link_sub_track(self.midi_track)
@@ -64,6 +66,7 @@ class ExternalSynthTrack(AbstractGroupTrack):
 
         self.audio_tail_track = None  # type: Optional[SimpleAudioTailTrack]
         self.dummy_group = ExternalSynthTrackDummyGroup(self)  # type: ExternalSynthTrackDummyGroup
+        self.matching_track = ExternalSynthMatchingTrack(self.base_track, self.midi_track, self.dummy_group)
 
         # sub tracks are now handled by self
         for sub_track in base_group_track.sub_tracks:
@@ -97,40 +100,9 @@ class ExternalSynthTrack(AbstractGroupTrack):
     is_partially_armed = cast(bool, ForwardTo("arm_state", "is_partially_armed"))
 
     def on_added(self):
-        # type: () -> Sequence
-        matching_track = self._get_matching_track()
-
-        # keep editor on only on a new track
-        self.instrument.force_show = not matching_track
-
-        seq = Sequence()
-        seq.add(self.arm_state.arm)
-        if matching_track is not None:
-            seq.add(partial(self._connect_main_track, matching_track))
-
-        return seq.done()
-
-    def _connect_main_track(self, matching_track):
-        # type: (SimpleAudioTrack) -> Sequence
-        # plug the external synth recording track in its main audio track
-        seq = Sequence()
-        matching_track.current_monitoring_state = CurrentMonitoringStateEnum.IN
-        self.output_routing.track = matching_track
-
-        # select the first midi clip
-        first_cs = next((cs for cs in self.midi_track.clip_slots if cs.clip), None)
-        if first_cs is not None:
-            self.midi_track.select_clip_slot(first_cs._clip_slot)
-
-        if self.instrument.needs_exclusive_activation:
-            seq.wait(20)  # wait for editor activation
-
-        seq.add(ApplicationViewFacade.show_clip)
-        if first_cs is not None:
-            seq.defer()
-            seq.add(first_cs.clip.show_notes)
-
-        return seq.done()
+        # type: () -> Optional[Sequence]
+        self.matching_track.connect_main_track()
+        return self.arm_state.arm_track()
 
     def on_tracks_change(self):
         # type: () -> None
@@ -480,39 +452,8 @@ class ExternalSynthTrack(AbstractGroupTrack):
         seq.add(partial(StatusBar.show_message, "track protected mode disabled"))
         return seq.done()
 
-    def copy_to_matching_track(self):
-        # type: () -> None
-        matching_track = self._get_matching_track()
-        if matching_track is None:
-            raise Protocol0Warning("No matching track found")
-
-        matching_track.volume = self.volume
-        self.base_track.devices.copy_to(matching_track.devices)
-        devices = self.base_track.devices.all + list(self.dummy_group.devices)
-
-        if len(devices) == 0:
-            Backend.client().show_success("Track copied ! (no devices)")
-            return
-
-        self.base_track.select()
-        ApplicationViewFacade.show_device()
-        message = "Please copy %s devices" % len(devices)
-
-        scenes_with_automation = [i for i in range(len(SongFacade.scenes())) if self.dummy_group.has_automation(i)]
-        if len(scenes_with_automation):
-            message += "\nAutomation present on scenes %s" % scenes_with_automation
-
-        Backend.client().show_info(message)
-
-    def _on_disconnect_matching_track(self):
-        # type: () -> None
-        """Restore the current monitoring state of the main track"""
-        matching_track = self._get_matching_track()
-        if matching_track is not None:
-            matching_track.current_monitoring_state = CurrentMonitoringStateEnum.AUTO
-
     def disconnect(self):
         # type: () -> None
         super(ExternalSynthTrack, self).disconnect()
         if not liveobj_valid(self._track):
-            Scheduler.defer(self._on_disconnect_matching_track)
+            Scheduler.defer(self.matching_track.disconnect_base)
