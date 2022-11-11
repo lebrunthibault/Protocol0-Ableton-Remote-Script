@@ -5,12 +5,12 @@ from typing import List, cast, Optional, Any
 from protocol0.domain.lom.clip.AudioClip import AudioClip
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.domain.lom.scene.PlayingSceneFacade import PlayingSceneFacade
-from protocol0.domain.lom.song.SongStoppedEvent import SongStoppedEvent
 from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.BarChangedEvent import BarChangedEvent
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.scheduler.ThirdBeatPassedEvent import ThirdBeatPassedEvent
+from protocol0.shared.SongFacade import SongFacade
 from protocol0.shared.sequence.Sequence import Sequence
 
 
@@ -61,13 +61,28 @@ class SimpleAudioTrack(SimpleTrack):
         if clip is None:
             return
 
-        from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import \
-            ExternalSynthTrack
+        from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTrack import (
+            ExternalSynthTrack,
+        )
+
         if isinstance(self.abstract_group_track, ExternalSynthTrack):
             return
 
+        scene_index = PlayingSceneFacade.get().index
+
+        # activate tail only if the next clip slot is empty
+        has_empty_next_cs = (
+            len(SongFacade.scenes()) > scene_index + 1
+            and self.clip_slots[scene_index + 1].clip is None
+        )
+        
         # let the tail play
-        if PlayingSceneFacade.get().playing_state.in_last_bar and clip.looping and clip.has_tail:
+        if (
+            has_empty_next_cs
+            and PlayingSceneFacade.get().playing_state.in_last_bar
+            and clip.looping
+            and clip.has_tail
+        ):
             clip.looping = False
             seq = Sequence()
             seq.wait_for_event(BarChangedEvent, continue_on_song_stop=True)

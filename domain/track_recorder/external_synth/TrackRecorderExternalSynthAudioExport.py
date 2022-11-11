@@ -31,11 +31,6 @@ class TrackRecorderExternalSynthAudioExport(TrackRecorderExternalSynthAudio):
         # type: () -> Optional[AudioClipSlot]
         return self._source_clip_slots[1].clip_slot
 
-    @property
-    def end_cs(self):
-        # type: () -> Optional[AudioClipSlot]
-        return self._source_clip_slots[2].clip_slot
-
     def legend(self, bar_length):
         # type: (int) -> str
         return "audio export %s bars" % str(bar_length)
@@ -45,7 +40,6 @@ class TrackRecorderExternalSynthAudioExport(TrackRecorderExternalSynthAudio):
         self._source_clip_slots[:] = [
             SourceClipSlot(self.track.audio_track, self.recording_scene_index, "atk"),
             SourceClipSlot(self.track.audio_tail_track, self.recording_scene_index, "loop"),
-            SourceClipSlot(self.track.audio_tail_track, self.recording_scene_index + 1, "end"),
         ]  # type: List[SourceClipSlot]
 
         return super(TrackRecorderExternalSynthAudioExport, self).pre_record()
@@ -73,9 +67,6 @@ class TrackRecorderExternalSynthAudioExport(TrackRecorderExternalSynthAudio):
         seq = Sequence()
         seq.add(partial(super(TrackRecorderExternalSynthAudioExport, self).post_record, bar_length))
 
-        if self.loop_cs.clip is not None:
-            seq.add(partial(self.loop_cs.duplicate_clip_to, self.end_cs))
-
         seq.wait(11)
 
         for source_cs in self._source_clip_slots:
@@ -89,10 +80,8 @@ class TrackRecorderExternalSynthAudioExport(TrackRecorderExternalSynthAudio):
     def _configure_clips(self, bar_length):
         # type: (int) -> None
         if self.loop_cs.clip is not None:
-            self.loop_cs.clip.bar_length = bar_length
-
             length = bar_length * SongFacade.signature_numerator()
-            self.end_cs.clip.loop._clip.loop_end = length
+            self.loop_cs.clip.loop._clip.loop_end = length
 
     def _replace_clips(self):
         # type: () -> None
