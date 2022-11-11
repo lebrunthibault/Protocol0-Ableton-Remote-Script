@@ -1,8 +1,9 @@
 from functools import partial
 
-from typing import Optional
+from typing import Optional, cast
 
 from protocol0.domain.lom.clip.ClipNameEnum import ClipNameEnum
+from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.domain.lom.song.components.TrackCrudComponent import TrackCrudComponent
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
 from protocol0.domain.lom.track.group_track.dummy_group.DummyGroup import DummyGroup
@@ -12,7 +13,9 @@ from protocol0.domain.lom.track.group_track.external_synth_track.ExternalSynthTr
 from protocol0.domain.lom.track.simple_track.SimpleAudioTrack import SimpleAudioTrack
 from protocol0.domain.lom.track.simple_track.SimpleMidiTrack import SimpleMidiTrack
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
+from protocol0.domain.shared.LiveObject import liveobj_valid
 from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
 from protocol0.domain.shared.utils.list import find_if
 from protocol0.shared.SongFacade import SongFacade
@@ -34,6 +37,21 @@ class ExternalSynthMatchingTrack(object):
             lambda t: not t.is_foldable and t.name == self._base_track.name,
             SongFacade.simple_tracks(SimpleAudioTrack),
         )
+
+    def _get_atk_cs(self):
+        # type: () -> Optional[AudioClipSlot]
+        atk_cs = find_if(
+            lambda cs: cs.clip is not None and cs.clip.clip_name.base_name == ClipNameEnum.ATK.value,
+            self._base_track.sub_tracks[1].clip_slots,
+        )
+        if atk_cs is not None:
+            return cast(AudioClipSlot, atk_cs)
+        else:
+            return find_if(
+                lambda
+                    cs: cs.clip is not None and cs.clip.clip_name.base_name == ClipNameEnum.ONCE.value,
+                self._base_track.sub_tracks[1].clip_slots,
+            )
 
     def connect_main_track(self):
         # type: () -> None
@@ -73,9 +91,12 @@ class ExternalSynthMatchingTrack(object):
 
     def copy_from_base_track(self, track_crud_component):
         # type: (TrackCrudComponent) -> Sequence
+        if self._get_atk_cs() is None:
+            raise Protocol0Warning("No atk clip, please record first")
+
         seq = Sequence()
 
-        if self._track is None:
+        if self._track is None or not liveobj_valid(self._track._track):
             seq.add(
                 partial(
                     track_crud_component.create_audio_track,
@@ -121,10 +142,8 @@ class ExternalSynthMatchingTrack(object):
 
     def _copy_clips_from_base_track(self):
         # type: () -> None
-        atk_cs = find_if(
-            lambda cs: cs.clip is not None and cs.clip.clip_name.base_name == ClipNameEnum.ATK.value,
-            self._base_track.sub_tracks[1].clip_slots,
-        )
+        atk_cs = self._get_atk_cs()
+        assert atk_cs, "No atk clip"
         atk_cs.clip.muted = False
         atk_cs.clip.looping = True
 
