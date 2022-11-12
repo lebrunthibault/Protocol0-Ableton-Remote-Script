@@ -53,19 +53,18 @@ class ClipName(SlotManager):
     def _get_base_name(self):
         # type: () -> str
         clip_name = self._live_clip.name or ""
-        if re.match("^\\d+\\s(bar|beat)s?", clip_name):
+        if re.match("^\\d+\\s?(bar|beat|b)s?\\s*$", clip_name):
             return ""
         match = re.match("^(?P<base_name>[^(]*)", clip_name)
 
         return match.group("base_name").strip() if match else ""
 
-    @property
-    def _length_legend(self):
-        # type: () -> str
+    def _get_length_legend(self, short=False):
+        # type: (bool) -> str
         if hasattr(self._live_clip, "warping") and not self._live_clip.warping:
             return ""
 
-        return get_length_legend(self._live_clip.length, SongFacade.signature_numerator())
+        return get_length_legend(self._live_clip.length, SongFacade.signature_numerator(), short=short)
 
     def update(self, base_name=None):
         # type: (Optional[str]) -> None
@@ -79,12 +78,12 @@ class ClipName(SlotManager):
             self.base_name = base_name
 
         if self.base_name:
-            length_legend = self._length_legend
+            length_legend = self._get_length_legend(short=True)
             if length_legend:
                 clip_name = "%s (%s)" % (self.base_name, length_legend)
             else:
                 clip_name = self.base_name
         else:
-            clip_name = self._length_legend
+            clip_name = self._get_length_legend()
 
         self._live_clip.name = clip_name
