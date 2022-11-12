@@ -2,6 +2,7 @@ from functools import partial
 
 import Live
 from _Framework.SubjectSlot import subject_slot, SlotManager
+from typing import Optional
 
 from protocol0.domain.lom.clip.ClipLoopChangedEvent import ClipLoopChangedEvent
 from protocol0.domain.lom.loop.LoopableInterface import LoopableInterface
@@ -24,6 +25,10 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
 
         self._loop_start_listener.subject = self._clip
         self._loop_end_listener.subject = self._clip
+        self._looping_listener.subject = self._clip
+
+        # caching this for when we set looping to False (used for tails)
+        self._loop_length = None  # type: Optional[float]
 
     def __repr__(self):
         # type: () -> str
@@ -49,8 +54,16 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
         # type: () -> None
         self._loop_listener()
 
+    @subject_slot("looping")
+    def _looping_listener(self):
+        # type: () -> None
+        self._loop_listener()
+
     def _loop_listener(self):
         # type: () -> None
+        if self.looping:
+            self._loop_length = self.length
+
         self.notify_observers()
         if not self._clip.is_recording and not self._events_disabled:
             DomainEventBus.emit(ClipLoopChangedEvent(self._clip))
@@ -64,6 +77,9 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
     def looping(self, looping):
         # type: (bool) -> None
         if self._clip:
+            if not looping:
+                self._loop_length = self.length
+
             self._clip.looping = looping
 
     @property
@@ -134,6 +150,15 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
     def bar_length(self, bar_length):
         # type: (float) -> None
         self.length = bar_length * SongFacade.signature_numerator()
+
+    @property
+    def loop_length(self):
+        # type: () -> float
+        """Return the loop length even when looping is off"""
+        if self._loop_length is not None:
+            return self._loop_length
+        else:
+            return self.length
 
     @property
     def full_length(self):

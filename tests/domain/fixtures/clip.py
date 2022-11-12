@@ -8,6 +8,7 @@ class AbletonClip(Subject):
         "playing_status",
         "loop_start",
         "loop_end",
+        "looping",
         "start_marker",
         "end_marker",
         "name",

@@ -47,4 +47,4 @@ class ActionGroupTest(ActionGroupInterface):
 
     def action_test(self):
         # type: () -> None
-        SongFacade.selected_track().output_routing.track = list(SongFacade.simple_tracks())[0]
+        pass
