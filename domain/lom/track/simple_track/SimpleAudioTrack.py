@@ -68,6 +68,9 @@ class SimpleAudioTrack(SimpleTrack):
         if isinstance(self.abstract_group_track, ExternalSynthTrack):
             return
 
+        if PlayingSceneFacade.get() is None:
+            return
+        
         scene_index = PlayingSceneFacade.get().index
 
         # activate tail only if the next clip slot is empty

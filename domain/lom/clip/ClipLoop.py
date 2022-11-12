@@ -70,7 +70,10 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
     @property
     def looping(self):
         # type: () -> bool
-        return self._clip.looping
+        if self._clip:
+            return self._clip.looping
+        else:
+            return False
 
     @looping.setter
     def looping(self, looping):
