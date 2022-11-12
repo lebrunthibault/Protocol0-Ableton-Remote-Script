@@ -137,9 +137,6 @@ class Scene(SlotManager):
             return
 
         if self.playing_state.in_last_bar:
-
-            from protocol0.shared.logging.Logger import Logger
-            Logger.dev("on end: %s" % self)
             next_scene = self.next_scene
 
             if next_scene != self:
@@ -185,8 +182,6 @@ class Scene(SlotManager):
         stop_tails == True will stop the tails immediately and is used
         when the scenes are not contiguous
         """
-        from protocol0.shared.logging.Logger import Logger
-        Logger.dev("firing %s" % self)
         # stop the previous scene in advance, using clip launch quantization
         DomainEventBus.emit(SceneFiredEvent(self.index))
 
@@ -195,8 +190,6 @@ class Scene(SlotManager):
             self._scene.fire()
         else:
             for track in SongFacade.abstract_tracks():
-                from protocol0.shared.logging.Logger import Logger
-                Logger.dev("firing %s" % track)
                 track.fire(self.index)
 
     def stop(self, next_scene=None, immediate=False):
