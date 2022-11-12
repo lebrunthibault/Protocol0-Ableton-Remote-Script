@@ -15,19 +15,27 @@ class SourceClipSlot(object):
     def __init__(self, track, scene_index, name):
         # type: (Optional[SimpleAudioTrack], int, str) -> None
         self.clip_slot = None  # type: Optional[AudioClipSlot]
-        self._clip = None  # type: Optional[AudioClip]
+        self.clip = None  # type: Optional[AudioClip]
         self._name = name
 
         if track is None or len(track.clip_slots) <= scene_index:
             return
 
         self.clip_slot = track.clip_slots[scene_index]
-        self._clip = self.clip_slot.clip
+        self.clip = self.clip_slot.clip
         self.file_path = None  # type: Optional[str]
-        if self._clip is not None:
-            self.file_path = self._clip.file_path
+        if self.clip is not None:
+            self.file_path = self.clip.file_path
 
         self.clip_slot.delete_clip()
+
+    def matches_clip(self, clip_slot):
+        # type: (AudioClipSlot) -> bool
+
+        if clip_slot.clip is None or self.clip is None:
+            return False
+
+        return clip_slot.clip.file_path != self.file_path
 
     def post_record(self):
         # type: () -> None
@@ -49,15 +57,10 @@ class SourceClipSlot(object):
         clips_count = 0
 
         tracks = SongFacade.simple_tracks(SimpleAudioTrack)
-        clip_slots = [(t, cs) for t in tracks for cs in t.clip_slots if cs.clip]
+        clip_slots = [(t, cs) for t in tracks for cs in t.clip_slots if self.matches_clip(cs)]
 
         for track, clip_slot in clip_slots:
-            clip = clip_slot.clip
-
-            if clip.file_path != self.file_path:
-                continue
-
-            automated_params = clip.automation.get_automated_parameters(
+            automated_params = clip_slot.clip.automation.get_automated_parameters(
                 track.devices.parameters
             )
 

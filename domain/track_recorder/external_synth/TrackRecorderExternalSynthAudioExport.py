@@ -5,6 +5,7 @@ from typing import Any, Optional, List
 from protocol0.domain.lom.clip.ClipNameEnum import ClipNameEnum
 from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.domain.shared.backend.Backend import Backend
+from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthAudio import (
     TrackRecorderExternalSynthAudio,
 )
@@ -24,13 +25,13 @@ class TrackRecorderExternalSynthAudioExport(TrackRecorderExternalSynthAudio):
 
     @property
     def atk_cs(self):
-        # type: () -> Optional[AudioClipSlot]
-        return self._source_clip_slots[0].clip_slot
+        # type: () -> Optional[SourceClipSlot]
+        return self._source_clip_slots[0]
 
     @property
     def loop_cs(self):
-        # type: () -> Optional[AudioClipSlot]
-        return self._source_clip_slots[1].clip_slot
+        # type: () -> Optional[SourceClipSlot]
+        return self._source_clip_slots[1]
 
     def legend(self, bar_length):
         # type: (int) -> str
@@ -39,9 +40,24 @@ class TrackRecorderExternalSynthAudioExport(TrackRecorderExternalSynthAudio):
     def pre_record(self):
         # type: () -> Sequence
         self._source_clip_slots[:] = [
-            SourceClipSlot(self.track.audio_track, self.recording_scene_index, ClipNameEnum.ATK.value),
-            SourceClipSlot(self.track.audio_tail_track, self.recording_scene_index, ClipNameEnum.LOOP.value),
+            SourceClipSlot(
+                self.track.audio_track, self.recording_scene_index, ClipNameEnum.ATK.value
+            ),
+            SourceClipSlot(
+                self.track.audio_tail_track, self.recording_scene_index, ClipNameEnum.LOOP.value
+            ),
         ]  # type: List[SourceClipSlot]
+
+        has_matching_clip = any(
+            self.atk_cs.matches_clip(cs) for cs in self.track.audio_track.clip_slots
+        )
+        if self.track.audio_tail_track is not None:
+            has_matching_clip = has_matching_clip or any(
+                self.atk_cs.matches_clip(cs) for cs in self.track.audio_tail_track.clip_slots
+            )
+
+        if has_matching_clip:
+            raise Protocol0Warning("This midi clip was already recorded in this track")
 
         return super(TrackRecorderExternalSynthAudioExport, self).pre_record()
 
