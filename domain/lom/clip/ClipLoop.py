@@ -32,8 +32,7 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
 
     def __repr__(self):
         # type: () -> str
-        return "ClipLoop(name=%s, start=%s, end=%s, length=%s)" % (
-            self._clip.name,
+        return "ClipLoop(start=%s, end=%s, length=%s)" % (
             self.start,
             self.end,
             self.length,
@@ -71,7 +70,7 @@ class ClipLoop(SlotManager, Observable, LoopableInterface):
     @property
     def looping(self):
         # type: () -> bool
-        return self._clip and self._clip.looping
+        return self._clip.looping
 
     @looping.setter
     def looping(self, looping):

@@ -3,7 +3,6 @@ from functools import partial
 from typing import Any, Optional, List
 
 from protocol0.domain.lom.clip.ClipNameEnum import ClipNameEnum
-from protocol0.domain.lom.clip_slot.AudioClipSlot import AudioClipSlot
 from protocol0.domain.shared.backend.Backend import Backend
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 from protocol0.domain.track_recorder.external_synth.TrackRecorderExternalSynthAudio import (
@@ -49,11 +48,11 @@ class TrackRecorderExternalSynthAudioExport(TrackRecorderExternalSynthAudio):
         ]  # type: List[SourceClipSlot]
 
         has_matching_clip = any(
-            self.atk_cs.matches_clip(cs) for cs in self.track.audio_track.clip_slots
+            self.atk_cs.matches_cs(cs) for cs in self.track.audio_track.clip_slots
         )
         if self.track.audio_tail_track is not None:
             has_matching_clip = has_matching_clip or any(
-                self.atk_cs.matches_clip(cs) for cs in self.track.audio_tail_track.clip_slots
+                self.loop_cs.matches_cs(cs) for cs in self.track.audio_tail_track.clip_slots
             )
 
         if has_matching_clip:
@@ -98,7 +97,7 @@ class TrackRecorderExternalSynthAudioExport(TrackRecorderExternalSynthAudio):
         # type: (int) -> None
         if self.loop_cs.clip is not None:
             length = bar_length * SongFacade.signature_numerator()
-            self.loop_cs.clip.loop._clip.loop_end = length
+            self.loop_cs.clip.loop._clip.loop_end = float(length)
 
     def _replace_clips(self):
         # type: () -> None

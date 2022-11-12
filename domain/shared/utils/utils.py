@@ -37,7 +37,7 @@ def get_length_legend(beat_length, signature_numerator, short=False):
         if short:
             return str(bar_length)
         else:
-            return "%db" % bar_length
+            return "%d" % bar_length
 
 
 def get_minutes_legend(seconds):

@@ -46,9 +46,6 @@ class ClipSlot(SlotManager, Observable):
     @subject_slot("has_clip")
     def has_clip_listener(self):
         # type: () -> None
-        if self.clip:
-            self.clip.disconnect()
-
         self._map_clip(is_new=True)
 
         DomainEventBus.emit(ClipCreatedOrDeletedEvent(self._clip_slot))
@@ -66,6 +63,9 @@ class ClipSlot(SlotManager, Observable):
 
             self.clip.register_observer(self)
         else:
+            if self.clip is not None:
+                self.clip.disconnect()
+
             self.clip = None
 
     def update(self, observable):

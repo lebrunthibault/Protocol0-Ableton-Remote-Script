@@ -67,7 +67,9 @@ class SceneName(SlotManager):
             length_legend = ""  # we are recording
         else:
             length_legend = get_length_legend(
-                self._scene_length.length, SongFacade.signature_numerator(), short=True
+                self._scene_length.length,
+                SongFacade.signature_numerator(),
+                short=base_name is not None,
             )
 
         if self._scene_playing_state.is_playing:
@@ -78,9 +80,7 @@ class SceneName(SlotManager):
         if base_name:
             scene_name = "%s (%s)" % (base_name, length_legend)
         else:
-            scene_name = "%s" % get_length_legend(
-                self._scene_length.length, SongFacade.signature_numerator()
-            )
+            scene_name = "%s" % length_legend
 
         if SongFacade.looping_scene() and SongFacade.looping_scene()._scene == self._scene:
             scene_name = "*%s" % scene_name
