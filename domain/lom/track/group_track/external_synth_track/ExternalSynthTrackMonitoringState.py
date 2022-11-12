@@ -2,6 +2,7 @@ from typing import Optional
 
 from protocol0.domain.lom.device.Device import Device
 from protocol0.domain.lom.track.CurrentMonitoringStateEnum import CurrentMonitoringStateEnum
+from protocol0.domain.lom.track.MonitoringStateInterface import MonitoringStateInterface
 from protocol0.domain.lom.track.group_track.dummy_group.DummyGroup import DummyGroup
 from protocol0.domain.lom.track.routing.OutputRoutingTypeEnum import OutputRoutingTypeEnum
 from protocol0.domain.lom.track.simple_track.SimpleAudioTailTrack import SimpleAudioTailTrack
@@ -11,7 +12,7 @@ from protocol0.domain.lom.track.simple_track.SimpleTrack import SimpleTrack
 from protocol0.domain.shared.errors.Protocol0Warning import Protocol0Warning
 
 
-class ExternalSynthTrackMonitoringState(object):
+class ExternalSynthTrackMonitoringState(MonitoringStateInterface):
     def __init__(
         self,
         midi_track,  # type: SimpleMidiTrack

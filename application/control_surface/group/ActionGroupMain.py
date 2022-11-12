@@ -91,7 +91,7 @@ class ActionGroupMain(ActionGroupInterface):
             identifier=8,
             name="monitor",
             filter_active_tracks=True,
-            on_press=lambda: SongFacade.current_external_synth_track().monitoring_state.switch,
+            on_press=lambda: SongFacade.current_track().monitoring_state.switch,
         )
 
         # RECord normal encoder

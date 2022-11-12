@@ -9,6 +9,7 @@ from protocol0.domain.lom.clip.ClipSlotSelectedEvent import ClipSlotSelectedEven
 from protocol0.domain.lom.clip_slot.ClipSlot import ClipSlot
 from protocol0.domain.lom.device_parameter.DeviceParameter import DeviceParameter
 from protocol0.domain.lom.instrument.InstrumentInterface import InstrumentInterface
+from protocol0.domain.lom.track.MonitoringStateInterface import MonitoringStateInterface
 from protocol0.domain.lom.track.TrackColorEnum import TrackColorEnum
 from protocol0.domain.lom.track.abstract_track.AbstrackTrackArmState import AbstractTrackArmState
 from protocol0.domain.lom.track.abstract_track.AbstractTrackAppearance import (
@@ -19,6 +20,8 @@ from protocol0.domain.lom.track.abstract_track.AbstractTrackSelectedEvent import
 )
 from protocol0.domain.lom.track.routing.TrackInputRouting import TrackInputRouting
 from protocol0.domain.lom.track.routing.TrackOutputRouting import TrackOutputRouting
+from protocol0.domain.lom.track.simple_track.SimpleTrackMonitoringState import \
+    SimpleTrackMonitoringState
 from protocol0.domain.shared.ApplicationViewFacade import ApplicationViewFacade
 from protocol0.domain.shared.event.DomainEventBus import DomainEventBus
 from protocol0.domain.shared.scheduler.Scheduler import Scheduler
@@ -54,6 +57,7 @@ class AbstractTrack(SlotManager):
         self.appearance = AbstractTrackAppearance(self._track, self.DEFAULT_COLOR)
         self.input_routing = TrackInputRouting(self.base_track._track)
         self.output_routing = TrackOutputRouting(self.base_track._track)
+        self.monitoring_state = SimpleTrackMonitoringState(self._track)  # type: MonitoringStateInterface
 
         self.protected_mode_active = True
 
