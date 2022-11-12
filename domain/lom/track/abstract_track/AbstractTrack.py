@@ -57,7 +57,7 @@ class AbstractTrack(SlotManager):
         self.appearance = AbstractTrackAppearance(self._track, self.DEFAULT_COLOR)
         self.input_routing = TrackInputRouting(self.base_track._track)
         self.output_routing = TrackOutputRouting(self.base_track._track)
-        self.monitoring_state = SimpleTrackMonitoringState(self._track)  # type: MonitoringStateInterface
+        self.monitoring_state = SimpleTrackMonitoringState(self)  # type: MonitoringStateInterface
 
         self.protected_mode_active = True
 
